@@ -1,0 +1,40 @@
+version: "3.3"
+
+services:
+
+  db:
+    image: postgres:12.0
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+    networks:
+      - backend
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: ["/bin/bash", "/code/compose-start.sh"]
+    depends_on:
+      - db
+    env_file:
+      - .env
+    # init: true
+    networks:
+      - backend
+      - frontend
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+
+networks:
+  backend:
+  frontend:
+
+volumes:
+  postgres_data:
+  redis_data:

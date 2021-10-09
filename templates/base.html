@@ -1,0 +1,21 @@
+<!DOCTYPE html>{% load static %}
+<html>
+
+<head>
+  <title>{% block title %}{% endblock %}</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {# We like Tailwind CSS, but you're welcome to switch to something else #}
+  <link href="https://unpkg.com/tailwindcss@^1.3/dist/tailwind.min.css" rel="stylesheet">
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+  {% block content_wrapper %}
+  {% block content %}{% endblock %}
+  {% endblock %}
+  {% block footer_js %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error{% endblock %}
+
+{% block content_wrapper %}
+<div class="flex mb-4 bg-red-600 justify-center items-center">
+    <h1 class="text-white text-5xl m-10">500 - Server Error</h1>
+</div>
+<div class="container mx-auto px-4 my-8">
+    <p class="text-2xl text-center">
+        There was a problem building the page you requested.
+    </p>
+</div>
+{% endblock %}
