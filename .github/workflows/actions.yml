@@ -1,0 +1,129 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      main
+
+env:
+  DOCKER_BUILDKIT: "1"
+  DOCKER_IMAGE: "docker.pkg.github.com/revsys/alphakit"
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:11
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        # options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Git - Get Sources
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/base.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/base.txt
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Test with pytest
+        env:
+          DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
+          SECRET_KEY: 'for-testing-only'
+        run: |
+          python -m pytest
+
+      - name: Lints with Black
+        run: |
+          python -m black --check .
+
+      - name: Test our doc test coverage
+        run: |
+          interrogate -vv --fail-under 70 --whitelist-regex "test_.*" .
+
+  build:
+    needs: [test]
+    name: Build and Publish Docker image
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Git - Get Sources
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Fetch Git Tags
+        run: |
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/* || true
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install vinnie
+
+      - name: Bump and Tag our version
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          vinnie patch
+          git push --tags
+
+      - name: Docker - Login
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com \
+            --username ${{ github.actor }} --password-stdin
+
+      - name: Build Docker image
+        run: |
+          TAG=`vinnie version`
+
+          docker build --file ./docker/Dockerfile \
+            --build-arg TAG=${TAG} \
+            --cache-from=${DOCKER_IMAGE}:latest \
+            --tag ${DOCKER_IMAGE} .
+
+      - name: Docker - Tag
+        run: |
+          TAG=`vinnie version`
+
+          docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE}:latest
+          docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE}:${TAG}
+
+      - name: Docker list images
+        run: |
+          docker images
+
+      # - name: Docker - Push
+      #   run: |
+      #     docker push ${DOCKER_IMAGE}:latest
+      #     docker push ${DOCKER_IMAGE}:${TAG}

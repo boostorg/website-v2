@@ -1,0 +1,30 @@
+# http://editorconfig.org
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{py,rst,ini}]
+indent_size = 4
+indent_style = space
+
+[*.py]
+default_section=THIRDPARTY
+known_first_party=app
+line_length=120
+multi_line_output=3
+
+[*.{css,html,js,json,sass,scss,yml,yaml}]
+indent_size = 2
+indent_style = space
+
+[*.md]
+indent_size = 4
+indent_style = space
+trim_trailing_whitespace = false
+
+[{Makefile,modd.conf}]
+indent_style = tab
