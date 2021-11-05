@@ -246,3 +246,5 @@ HAYSTACK_CONNECTIONS = {
         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
     },
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
