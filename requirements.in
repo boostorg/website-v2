@@ -35,3 +35,6 @@ pytest-xdist
 
 # Packaging
 pip-tools
+
+#Forum
+django-machina
