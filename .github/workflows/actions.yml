@@ -8,7 +8,7 @@ on:
 
 env:
   DOCKER_BUILDKIT: "1"
-  DOCKER_IMAGE: "docker.pkg.github.com/revsys/alphakit"
+  DOCKER_IMAGE: "docker.pkg.github.com/revsys/boost.org"
 
 jobs:
 

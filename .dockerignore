@@ -137,7 +137,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-### AlphaKit Specific ###
+### Forum Specific ###
 .dockerignore
 .editorconfig
 .env

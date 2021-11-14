@@ -137,6 +137,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-### AlphaKit Specific ###
+### Forum Specific ###
 .env
 deployed_static
