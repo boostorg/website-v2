@@ -96,10 +96,6 @@ rebuild:
 shell:
 	docker-compose run --rm web bash
 
-.PHONY: test
-test:
-	docker-compose run --rm web pytest
-
 .PHONY: up
 up:
 	docker-compose up -d

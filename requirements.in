@@ -10,14 +10,12 @@ gevent
 gunicorn
 psycopg2-binary
 whitenoise
+django-redis
 
 # Logging
 django-tracer
 python-json-logger
 structlog
-
-# REVSYS Teams
-https://afcec3a300c9919dcefedb87c15ecfe09869a9b5@github.com/revsys/revsys-teams/archive/master.zip
 
 # Celery
 celery

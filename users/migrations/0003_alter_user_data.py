@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0002_auto_20171007_1545'),
+        ("users", "0002_auto_20171007_1545"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='data',
-            field=models.JSONField(blank=True, default=dict, help_text='Arbitrary user data'),
+            model_name="user",
+            name="data",
+            field=models.JSONField(
+                blank=True, default=dict, help_text="Arbitrary user data"
+            ),
         ),
     ]

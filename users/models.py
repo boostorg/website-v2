@@ -150,9 +150,7 @@ class LastSeen(models.Model):
     """
 
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        related_name="last_seen",
-        on_delete=models.CASCADE,
+        settings.AUTH_USER_MODEL, related_name="last_seen", on_delete=models.CASCADE,
     )
     at = models.DateTimeField(default=timezone.now)
 
