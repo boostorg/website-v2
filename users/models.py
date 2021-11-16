@@ -8,7 +8,6 @@ from django.contrib.auth.models import (
     PermissionsMixin,
     BaseUserManager,
 )
-from django.contrib.postgres.fields import JSONField
 from django.core.mail import send_mail
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
@@ -94,7 +93,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
 
-    data = JSONField(default=dict, blank=True, help_text="Arbitrary user data")
+    data = models.JSONField(default=dict, blank=True, help_text="Arbitrary user data")
 
     objects = UserManager()
 
@@ -151,9 +150,7 @@ class LastSeen(models.Model):
     """
 
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        related_name="last_seen",
-        on_delete=models.CASCADE,
+        settings.AUTH_USER_MODEL, related_name="last_seen", on_delete=models.CASCADE,
     )
     at = models.DateTimeField(default=timezone.now)
 

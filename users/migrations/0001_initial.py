@@ -113,9 +113,7 @@ class Migration(migrations.Migration):
                 "verbose_name": "user",
                 "verbose_name_plural": "users",
             },
-            managers=[
-                ("objects", users.models.UserManager()),
-            ],
+            managers=[("objects", users.models.UserManager()),],
         ),
         migrations.CreateModel(
             name="LastSeen",

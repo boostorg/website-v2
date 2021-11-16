@@ -60,3 +60,44 @@ update:  ## updates a project to run at its current version
 .PHONY: pip-compile
 pip-compile:  ## rebuilds our pip requirements
 	@docker-compose run --rm web pip-compile ./requirements.in --output-file ./requirements.txt
+
+.PHONY: build
+build:
+	docker-compose pull
+	DOCKER_BUILDKIT=1 docker-compose build
+
+.PHONY: createsuperuser
+createsuperuser:
+	docker-compose run --rm web /code/manage.py createsuperuser
+
+.PHONY: down
+down:
+	docker-compose down
+
+.PHONY: makemigrations
+makemigrations:
+	@echo "Running makemigrations..."
+	docker-compose run --rm web /code/manage.py makemigrations
+
+.PHONY: migrate
+migrate:
+	@echo "Running migrations..."
+	docker-compose run --rm web /code/manage.py migrate --noinput
+
+.PHONY: rebuild
+rebuild:
+	@echo "Rebuilding local docker images..."
+	docker-compose kill
+	docker-compose rm -f web
+	docker-compose rm -f worker
+	DOCKER_BUILDKIT=1 docker-compose build --force-rm web
+
+.PHONY: shell
+shell:
+	docker-compose run --rm web bash
+
+.PHONY: up
+up:
+	docker-compose up -d
+
+
