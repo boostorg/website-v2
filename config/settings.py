@@ -7,6 +7,8 @@ from django.core.exceptions import ImproperlyConfigured
 from pathlib import Path
 from pythonjsonlogger import jsonlogger
 
+from machina import MACHINA_MAIN_TEMPLATE_DIR, MACHINA_MAIN_STATIC_DIR
+
 
 env = environs.Env()
 
@@ -56,6 +58,22 @@ INSTALLED_APPS += [
     "health_check",
     "health_check.db",
     "health_check.contrib.celery",
+    # Machina dependencies:
+    "mptt",
+    "haystack",
+    "widget_tweaks",
+    # Machina apps:
+    "machina",
+    "machina.apps.forum",
+    "machina.apps.forum_conversation",
+    "machina.apps.forum_conversation.forum_attachments",
+    "machina.apps.forum_conversation.forum_polls",
+    "machina.apps.forum_feeds",
+    "machina.apps.forum_moderation",
+    "machina.apps.forum_search",
+    "machina.apps.forum_tracking",
+    "machina.apps.forum_member",
+    "machina.apps.forum_permission",
 ]
 
 # Our Apps
@@ -72,6 +90,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # Machina
+    "machina.apps.forum_permission.middleware.ForumPermissionMiddleware",
 ]
 
 if DEBUG:
@@ -86,7 +106,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [str(BASE_DIR.joinpath("templates"))],
+        "DIRS": [str(BASE_DIR.joinpath("templates")), MACHINA_MAIN_TEMPLATE_DIR,],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -94,7 +114,13 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-            ]
+                # Machina
+                "machina.core.context_processors.metadata",
+            ],
+            "loaders": [
+                "django.template.loaders.filesystem.Loader",
+                "django.template.loaders.app_directories.Loader",
+            ],
         },
     }
 ]
@@ -155,7 +181,10 @@ USE_TZ = True
 STATIC_URL = "/static/"
 
 # Additional directories from where we should collect static files from
-STATICFILES_DIRS = [BASE_DIR.joinpath("static")]
+STATICFILES_DIRS = [
+    BASE_DIR.joinpath("static"),
+    MACHINA_MAIN_STATIC_DIR,
+]
 
 # This is the directory where all of the collected static files are put
 # after running collectstatic
@@ -201,3 +230,20 @@ CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "UTC"
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:6379",
+    },
+    "machina_attachments": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:6379",
+    },
+}
+
+HAYSTACK_CONNECTIONS = {
+    "default": {"ENGINE": "haystack.backends.simple_backend.SimpleEngine",},
+}
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

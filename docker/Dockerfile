@@ -37,5 +37,5 @@ CMD ["gunicorn", "-c", "/code/gunicorn.conf.py", "config.wsgi"]
 
 ENV X_IMAGE_TAG v0.0.0
 
-LABEL Description="AlphaKit Image" Vendor="REVSYS"
+LABEL Description="Forum Image" Vendor="REVSYS"
 LABEL Version="${X_IMAGE_TAG}"

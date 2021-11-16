@@ -1,5 +1,5 @@
 """
-WSGI config for AlphaKit.
+WSGI config for Forum.
 """
 
 import os

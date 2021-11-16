@@ -1,4 +1,4 @@
-# AlphaKit
+# Forum
 
 ## Overview
 
@@ -50,7 +50,7 @@ $ docker-compose down
 
 ### Running with Celery and Redis
 
-AlphaKit ships with Celery and Redis support, but they are off by default. To rebuild our image with support, we need to pass the `docker-compose-with-celery.yml` config to Docker Compose via:
+Forum ships with Celery and Redis support, but they are off by default. To rebuild our image with support, we need to pass the `docker-compose-with-celery.yml` config to Docker Compose via:
 
 ```shell
 # rebuild our services
