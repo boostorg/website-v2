@@ -5,11 +5,12 @@ from django.utils import timezone
 
 from .models import User
 
+
 class VersionGroupFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = auth_models.Group
 
-    name = 'version_manager'
+    name = "version_manager"
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -24,7 +25,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
         django_get_or_create = ("email",)
-    
+
     @factory.post_generation
     def groups(self, create, extracted, **kwargs):
         if not create:
