@@ -104,6 +104,12 @@ environs[django]==9.3.2
     # via -r ./requirements.in
 execnet==1.8.0
     # via pytest-xdist
+factory-boy==3.2.1
+    # via -r ./requirements.in
+faker==9.8.2
+    # via
+    #   -r ./requirements.in
+    #   factory-boy
 fs==2.4.13
     # via django-bakery
 gevent==21.1.2
@@ -169,7 +175,9 @@ pytest==6.2.4
     #   pytest-forked
     #   pytest-xdist
 python-dateutil==2.8.1
-    # via botocore
+    # via
+    #   botocore
+    #   faker
 python-dotenv==0.17.1
     # via environs
 python-json-logger==2.0.1
@@ -200,6 +208,8 @@ structlog==21.1.0
     # via -r ./requirements.in
 tabulate==0.8.9
     # via interrogate
+text-unidecode==1.3
+    # via faker
 toml==0.10.2
     # via
     #   black

@@ -17,7 +17,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [CustomUserPermissions]
 
     def get_serializer_class(self):
-        """ Pick the right serializer based on the user """
+        """Pick the right serializer based on the user"""
         if self.request.user.is_staff or self.request.user.is_superuser:
             return FullUserSerializer
         else:

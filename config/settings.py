@@ -77,7 +77,7 @@ INSTALLED_APPS += [
 ]
 
 # Our Apps
-INSTALLED_APPS += ["ak", "users"]
+INSTALLED_APPS += ["ak", "users", "versions"]
 
 AUTH_USER_MODEL = "users.User"
 
@@ -106,8 +106,10 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [str(BASE_DIR.joinpath("templates")), MACHINA_MAIN_TEMPLATE_DIR,],
-        "APP_DIRS": True,
+        "DIRS": [
+            str(BASE_DIR.joinpath("templates")),
+            MACHINA_MAIN_TEMPLATE_DIR,
+        ],
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -243,7 +245,9 @@ CACHES = {
 }
 
 HAYSTACK_CONNECTIONS = {
-    "default": {"ENGINE": "haystack.backends.simple_backend.SimpleEngine",},
+    "default": {
+        "ENGINE": "haystack.backends.simple_backend.SimpleEngine",
+    },
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
