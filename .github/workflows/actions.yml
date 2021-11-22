@@ -61,10 +61,6 @@ jobs:
         run: |
           python -m black --check .
 
-      - name: Test our doc test coverage
-        run: |
-          interrogate -vv --fail-under 70 --whitelist-regex "test_.*" .
-
   build:
     needs: [test]
     name: Build and Publish Docker image
