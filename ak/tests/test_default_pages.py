@@ -3,7 +3,7 @@ import random
 
 
 def test_homepage(db, tp):
-    """ Ensure we can hit the homepage """
+    """Ensure we can hit the homepage"""
     # Use any page that is named 'home' otherwise use /
     url = tp.reverse("home")
     if not url:
@@ -14,21 +14,21 @@ def test_homepage(db, tp):
 
 
 def test_200_page(db, tp):
-    """ Test a 200 OK page """
+    """Test a 200 OK page"""
 
     response = tp.get("ok")
     tp.response_200(response)
 
 
 def test_403_page(db, tp):
-    """ Test a 403 error page """
+    """Test a 403 error page"""
 
     response = tp.get("forbidden")
     tp.response_403(response)
 
 
 def test_404_page(db, tp):
-    """ Test a 404 error page """
+    """Test a 404 error page"""
 
     rando = random.randint(1000, 20000)
     url = f"/this/should/not/exist/{rando}/"
@@ -40,7 +40,7 @@ def test_404_page(db, tp):
 
 
 def test_500_page(db, tp):
-    """ Test our 500 error page """
+    """Test our 500 error page"""
 
     url = tp.reverse("internal_server_error")
 
