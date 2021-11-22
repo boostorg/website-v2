@@ -9,7 +9,7 @@ from django.contrib.auth.models import (
     BaseUserManager,
 )
 from django.core.mail import send_mail
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
 
@@ -124,7 +124,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
         send_mail(subject, message, from_email, [self.email], **kwargs)
 
     def save(self, *args, **kwargs):
-        """ Ensure email is always lower case """
+        """Ensure email is always lower case"""
         self.email = self.email.lower()
 
         return super().save(*args, **kwargs)
@@ -150,7 +150,9 @@ class LastSeen(models.Model):
     """
 
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, related_name="last_seen", on_delete=models.CASCADE,
+        settings.AUTH_USER_MODEL,
+        related_name="last_seen",
+        on_delete=models.CASCADE,
     )
     at = models.DateTimeField(default=timezone.now)
 
@@ -165,7 +167,7 @@ class LastSeen(models.Model):
 
 @receiver(post_save, sender=User)
 def create_last_seen_for_user(sender, instance, created, raw, **kwargs):
-    """ Create LastSeen row when a User is created """
+    """Create LastSeen row when a User is created"""
     if raw:
         return
 

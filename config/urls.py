@@ -10,10 +10,12 @@ from ak.views import (
     NotFoundView,
     OKView,
 )
+from versions.views import *
 
 router = routers.SimpleRouter()
 
 router.register(r"users", UserViewSet, basename="users")
+router.register(r"versions", VersionViewSet, basename="versions")
 
 urlpatterns = [
     path("", HomepageView.as_view(), name="home"),

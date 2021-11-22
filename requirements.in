@@ -30,6 +30,8 @@ pytest
 pytest-cov
 pytest-django
 pytest-xdist
+Faker
+factory_boy
 
 # Packaging
 pip-tools
