@@ -1,5 +1,7 @@
 from django.db import transaction
 from django.db import IntegrityError
+from django.core.files import File as DjangoFile
+
 import tempfile
 from django.urls import reverse
 from rest_framework.test import APIClient
@@ -50,30 +52,25 @@ class VersionViewTests(TestCase):
         image.save(tmp_file)
 
         tmp_file.seek(0)
-        from django.core.files import File as DjangoFile
-
         file_obj = DjangoFile(open(tmp_file.name, mode="rb"), name="tmp_file")
-        version_file = VersionFile.objects.create(
-            file=file_obj, operating_system="Windows"
-        )
 
         payload = {"file": file_obj, "operating_system": "Windows"}
 
-        # Does API work without auth?
+        #Does API work without auth?
         response = self.client.post(
-            reverse("versions-list"), files=payload, format="multipart"
+            reverse("version-files-list"), files=payload, format="multipart"
         )
         self.response_403(response)
 
-        tmp_file.seek(0)
+        file_obj.seek(0)
         # Does API work with normal user?
         with self.login(self.user):
             response = self.client.post(
-                reverse("versions-list"), data=payload, format="multipart"
+                reverse("version-files-list"), data=payload, format="multipart"
             )
             self.response_403(response)
 
-        tmp_file.seek(0)
+        file_obj.seek(0)
         # # Does API work with super user?
         with self.login(self.super_user):
             try:
@@ -81,12 +78,11 @@ class VersionViewTests(TestCase):
                     response = self.client.post(
                         reverse("version-files-list"), data=payload, format="multipart"
                     )
-                    breakpoint()
                     self.response_201(response)
             except IntegrityError:
                 pass
 
-        tmp_file.seek(0)
+        file_obj.seek(0)
         # Does API work with version_manager user?
         with self.login(self.group_user):
             try:
@@ -95,5 +91,73 @@ class VersionViewTests(TestCase):
                         reverse("version-files-list"), data=payload, format="multipart"
                     )
                     self.response_201(response)
+            except IntegrityError:
+                pass
+    
+    def test_delete(self):
+        url = reverse("version-files-detail", kwargs={"pk": self.version_file1.pk})
+
+        # Does this API work without auth?
+        response = self.client.delete(url, format="json")
+        self.response_403(response)
+
+        # Does this API wotk with non-staff user?
+        with self.login(self.user):
+            response = self.client.delete(url, format="json")
+            self.response_403(response)
+
+        # Does this API work with super user?
+        with self.login(self.super_user):
+            response = self.client.delete(url, format="json")
+            self.assertEqual(response.status_code, 204)
+
+            # Confirm object is gone
+            response = self.get(url)
+            self.response_404(response)
+
+    def test_update(self):
+        url = reverse("version-files-detail", kwargs={"pk": self.version_file2.pk})
+
+        image = Image.new("RGB", (100, 100))
+
+        tmp_file = tempfile.NamedTemporaryFile(suffix=".jpg")
+        image.save(tmp_file)
+
+        tmp_file.seek(0)
+        file_obj = DjangoFile(open(tmp_file.name, mode='rb'), name="tmp_file")
+
+        file_obj.seek(0)
+
+        payload = {
+            "file": file_obj,
+        }
+
+        # Does API work without auth?
+        response = self.client.post(url, files=payload, format="multipart")
+        self.response_403(response)
+
+        file_obj.seek(0)
+        # Does API work with normal user?
+        with self.login(self.user):
+            response = self.client.patch(url, data=payload, format="multipart")
+            self.response_403(response)
+
+        file_obj.seek(0)
+        # Does API work with super user?
+        with self.login(self.super_user):
+            try:
+                with transaction.atomic():
+                    response = self.client.patch(url, data=payload, format="multipart")
+                    self.response_200(response)
+            except IntegrityError:
+                pass
+
+        file_obj.seek(0)
+        # Does API work with version_manager user?
+        with self.login(self.group_user):
+            try:
+                with transaction.atomic():
+                    response = self.client.patch(url, data=payload, format="multipart")
+                    self.response_200(response)
             except IntegrityError:
                 pass
