@@ -23,7 +23,9 @@ class VersionViewTests(TestCase):
         self.version_manager = UserFactory()
         self.version_file1 = VersionFileFactory()
         self.version_file2 = VersionFileFactory()
-        self.version = VersionFactory.create(files=(self.version_file1, self.version_file2))
+        self.version = VersionFactory.create(
+            files=(self.version_file1, self.version_file2)
+        )
 
     def test_list_version(self):
         """
@@ -41,7 +43,6 @@ class VersionViewTests(TestCase):
             self.assertIn("checksum", response.data[0])
             self.assertIn("operating_system", response.data[0])
 
-
     def test_create(self):
         image = Image.new("RGB", (100, 100))
 
@@ -50,13 +51,13 @@ class VersionViewTests(TestCase):
 
         tmp_file.seek(0)
         from django.core.files import File as DjangoFile
-        file_obj = DjangoFile(open(tmp_file.name, mode='rb'), name="tmp_file")
-        version_file = VersionFile.objects.create(file=file_obj, operating_system="Windows")
 
-        payload = {
-            "file": file_obj,
-            "operating_system": "Windows"
-        }
+        file_obj = DjangoFile(open(tmp_file.name, mode="rb"), name="tmp_file")
+        version_file = VersionFile.objects.create(
+            file=file_obj, operating_system="Windows"
+        )
+
+        payload = {"file": file_obj, "operating_system": "Windows"}
 
         # Does API work without auth?
         response = self.client.post(
@@ -91,7 +92,7 @@ class VersionViewTests(TestCase):
             try:
                 with transaction.atomic():
                     response = self.client.post(
-                        reverse("versions-list"), data=payload, format="multipart"
+                        reverse("version-files-list"), data=payload, format="multipart"
                     )
                     self.response_201(response)
             except IntegrityError:
