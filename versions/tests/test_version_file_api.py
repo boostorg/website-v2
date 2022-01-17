@@ -56,7 +56,7 @@ class VersionViewTests(TestCase):
 
         payload = {"file": file_obj, "operating_system": "Windows"}
 
-        #Does API work without auth?
+        # Does API work without auth?
         response = self.client.post(
             reverse("version-files-list"), files=payload, format="multipart"
         )
@@ -93,7 +93,7 @@ class VersionViewTests(TestCase):
                     self.response_201(response)
             except IntegrityError:
                 pass
-    
+
     def test_delete(self):
         url = reverse("version-files-detail", kwargs={"pk": self.version_file1.pk})
 
@@ -124,7 +124,7 @@ class VersionViewTests(TestCase):
         image.save(tmp_file)
 
         tmp_file.seek(0)
-        file_obj = DjangoFile(open(tmp_file.name, mode='rb'), name="tmp_file")
+        file_obj = DjangoFile(open(tmp_file.name, mode="rb"), name="tmp_file")
 
         file_obj.seek(0)
 

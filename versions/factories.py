@@ -10,7 +10,7 @@ class VersionFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Version
-    
+
     @factory.post_generation
     def files(self, create, extracted, **kwargs):
         if not create:
@@ -22,10 +22,12 @@ class VersionFactory(factory.django.DjangoModelFactory):
             for file in extracted:
                 self.files.add(file)
 
+
 class VersionFileFactory(factory.django.DjangoModelFactory):
     file = factory.Faker("file_name")
-    operating_system = fuzzy.FuzzyChoice(VersionFile.OPERATING_SYSTEM_CHOICES, getter=lambda c: c[0])
-
+    operating_system = fuzzy.FuzzyChoice(
+        VersionFile.OPERATING_SYSTEM_CHOICES, getter=lambda c: c[0]
+    )
 
     class Meta:
         model = VersionFile
