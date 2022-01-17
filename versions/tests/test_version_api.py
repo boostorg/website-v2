@@ -24,7 +24,9 @@ class VersionViewTests(TestCase):
         self.version_manager = UserFactory()
         self.version_file1 = VersionFileFactory()
         self.version_file2 = VersionFileFactory()
-        self.version = VersionFactory.create(files=(self.version_file1, self.version_file2))
+        self.version = VersionFactory.create(
+            files=(self.version_file1, self.version_file2)
+        )
 
     def test_list_version(self):
         """
@@ -46,7 +48,6 @@ class VersionViewTests(TestCase):
                 self.assertIn("checksum", file)
                 self.assertIn("operating_system", file)
 
-
     def test_create(self):
         image = Image.new("RGB", (100, 100))
 
@@ -54,19 +55,15 @@ class VersionViewTests(TestCase):
         image.save(tmp_file)
 
         tmp_file.seek(0)
-        file_obj = DjangoFile(open(tmp_file.name, mode='rb'), name="tmp_file")
+        file_obj = DjangoFile(open(tmp_file.name, mode="rb"), name="tmp_file")
 
         payload = {
-            "files": [{
-                "file": file_obj,
-                "operating_system": "Windows"
-                }
-            ],
+            "files": [{"file": file_obj, "operating_system": "Windows"}],
             "name": "First Version",
             "release_date": "2021-01-01",
         }
 
-        #Does API work without auth?
+        # Does API work without auth?
         response = self.client.post(
             reverse("versions-list"), files=payload, format="multipart"
         )
@@ -132,16 +129,13 @@ class VersionViewTests(TestCase):
         image = Image.new("RGB", (100, 100))
 
         tmp_file = tempfile.NamedTemporaryFile(suffix=".jpg")
-        file_obj = DjangoFile(open(tmp_file.name, mode='rb'), name="tmp_file")
+        file_obj = DjangoFile(open(tmp_file.name, mode="rb"), name="tmp_file")
 
         file_obj.seek(0)
 
         payload = {
-            "files": [{
-                "file": file_obj,
-                "operating_system": "Windows"
-                }],
-            "name": "Second Version"
+            "files": [{"file": file_obj, "operating_system": "Windows"}],
+            "name": "Second Version",
         }
 
         # Does API work without auth?

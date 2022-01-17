@@ -13,6 +13,7 @@ class VersionViewSet(viewsets.ModelViewSet):
     serializer_class = VersionSerializer
     permission_classes = [permissions.IsAuthenticated, SuperUserOrVersionManager]
 
+
 class VersionFileViewSet(viewsets.ModelViewSet):
     model = VersionFile
     queryset = VersionFile.objects.all()
