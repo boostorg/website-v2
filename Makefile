@@ -89,7 +89,6 @@ rebuild:
 	@echo "Rebuilding local docker images..."
 	docker-compose kill
 	docker-compose rm -f web
-	docker-compose rm -f worker
 	DOCKER_BUILDKIT=1 docker-compose build --force-rm web
 
 .PHONY: shell
