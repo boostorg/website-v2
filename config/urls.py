@@ -16,6 +16,8 @@ router = routers.SimpleRouter()
 
 router.register(r"users", UserViewSet, basename="users")
 router.register(r"versions", VersionViewSet, basename="versions")
+router.register(r"version-files", VersionFileViewSet, basename="version-files")
+
 
 urlpatterns = [
     path("", HomepageView.as_view(), name="home"),
