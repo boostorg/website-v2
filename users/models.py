@@ -130,8 +130,13 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
         return super().save(*args, **kwargs)
 
 
+class Badge(models.Model):
+    name = models.CharField(_("name"), max_length=100, blank=True)
+    display_name = models.CharField(_("display name"), max_length=100, blank=True)
+
 class User(BaseUser):
-    pass
+    badges = models.ManyToManyField(Badge)
+    github_username = models.CharField(_("github username"), max_length=100, blank=True)
 
 
 class LastSeen(models.Model):
