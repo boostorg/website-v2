@@ -6,26 +6,44 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0005_auto_20211121_0908'),
+        ("users", "0005_auto_20211121_0908"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Badge',
+            name="Badge",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(blank=True, max_length=100, verbose_name='name')),
-                ('display_name', models.CharField(blank=True, max_length=100, verbose_name='display name')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(blank=True, max_length=100, verbose_name="name"),
+                ),
+                (
+                    "display_name",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="display name"
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='user',
-            name='github_username',
-            field=models.CharField(blank=True, max_length=100, verbose_name='github username'),
+            model_name="user",
+            name="github_username",
+            field=models.CharField(
+                blank=True, max_length=100, verbose_name="github username"
+            ),
         ),
         migrations.AddField(
-            model_name='user',
-            name='badges',
-            field=models.ManyToManyField(to='users.Badge'),
+            model_name="user",
+            name="badges",
+            field=models.ManyToManyField(to="users.Badge"),
         ),
     ]
