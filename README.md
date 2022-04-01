@@ -13,7 +13,7 @@ Make a Python 3.8.x virtualenv.
 Copy .env-dist to .env and adjust values to match your local environment:
 
 ```shell
-$ cp .env-dist .env
+$ cp env.template .env
 ```
 
 Then run:
