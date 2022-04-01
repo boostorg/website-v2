@@ -3,7 +3,7 @@
 # FROM revolutionsystems/python:3.8.3-wee-optimized-lto as builder-py
 FROM python:3.9-slim-buster AS builder-py
 
-RUN apt-get update && apt-get install -y build-essential gcc python-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y build-essential gcc python-dev postgresql-client && rm -rf /var/lib/apt/lists/*
 
 RUN pip install -U pip
 

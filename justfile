@@ -1,3 +1,4 @@
+set dotenv-load := false
 COMPOSE_FILE := "docker-compose-with-celery.yml"
 ENV_FILE := ".env"
 
