@@ -1,6 +1,5 @@
 # syntax = docker/dockerfile:experimental
 
-# FROM revolutionsystems/python:3.8.3-wee-optimized-lto as builder-py
 FROM python:3.9-slim-buster AS builder-py
 
 RUN apt-get update && apt-get install -y build-essential gcc python-dev postgresql-client && rm -rf /var/lib/apt/lists/*
@@ -14,9 +13,8 @@ RUN python3 -m venv /venv
 RUN --mount=type=cache,target=/root/.cache \
     . /venv/bin/activate && \
     pip install -U pip && \
-    pip install -r /code/requirements.txt
+    pip install --no-compile -r /code/requirements.txt
 
-# FROM revolutionsystems/python:3.8.3-wee-optimized-lto AS release
 FROM python:3.9-slim-buster AS release
 
 ENV PATH /venv/bin:/bin:/usr/bin:/usr/local/bin
@@ -37,5 +35,5 @@ CMD ["gunicorn", "-c", "/code/gunicorn.conf.py", "config.wsgi"]
 
 ENV X_IMAGE_TAG v0.0.0
 
-LABEL Description="Forum Image" Vendor="REVSYS"
+LABEL Description="Boost.org" Vendor="REVSYS"
 LABEL Version="${X_IMAGE_TAG}"

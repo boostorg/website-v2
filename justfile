@@ -21,11 +21,18 @@ bootstrap:  ## installs/updates all dependencies
 
     # docker-compose --file $(COMPOSE_FILE) build --force-rm
 
+rebuild:
+    docker-compose rm -f celery || true
+    docker-compose rm -f celery-beat || true
+    docker-compose rm -f web
+    docker-compose build --force-rm web
+
 @cibuild:  ## invoked by continuous integration servers to run tests
     python -m pytest
     python -m black --check .
     interrogate -c pyproject.toml .
 
+alias shell := console
 @console:  ## opens a console
     docker-compose run --rm web bash
 
@@ -37,15 +44,11 @@ bootstrap:  ## installs/updates all dependencies
     docker-compose --file $(COMPOSE_FILE) build --force-rm
     docker-compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
 
-@test_interrogate:
-    -docker-compose run --rm web interrogate -vv --fail-under 100 --whitelist-regex "test_.*" .
-
 @test_pytest:
     -docker-compose run --rm web pytest -s
 
 @test:
     just test_pytest
-    just test_interrogate
     docker-compose down
 
 @update:  ## updates a project to run at its current version
