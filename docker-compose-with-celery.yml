@@ -17,7 +17,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: ["/bin/bash", "/code/compose-start.sh"]
+    command: [ "/bin/bash", "/code/compose-start.sh" ]
     depends_on:
       - db
     env_file:
@@ -30,6 +30,7 @@ services:
       - "8000:8000"
     volumes:
       - .:/code
+    stop_signal: SIGTERM
 
   redis:
     image: "redis:alpine"
@@ -42,7 +43,15 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: ["/venv/bin/celery", "-A", "config", "worker", "--concurrency=10", "--loglevel=debug"]
+    command:
+      [
+        "/venv/bin/celery",
+        "-A",
+        "config",
+        "worker",
+        "--concurrency=10",
+        "--loglevel=debug"
+      ]
     depends_on:
       - db
       - redis
@@ -53,12 +62,20 @@ services:
       - backend
     volumes:
       - .:/code
+    stop_signal: SIGTERM
 
   celery-beat:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command: ["/venv/bin/celery", "-A", "config", "beat", "--loglevel=debug"]
+    command:
+      [
+        "/venv/bin/celery",
+        "-A",
+        "config",
+        "beat",
+        "--loglevel=debug"
+      ]
     depends_on:
       - db
       - redis
@@ -69,7 +86,8 @@ services:
       - backend
     volumes:
       - .:/code
-  
+    stop_signal: SIGTERM
+
   flower:
     build: ./
     command: python -m flower -A tasks
@@ -84,6 +102,7 @@ services:
 networks:
   backend:
   frontend:
+
 
 volumes:
   postgres_data:

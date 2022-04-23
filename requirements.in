@@ -25,7 +25,6 @@ redis
 black
 django-bakery
 django-test-plus
-interrogate
 pytest
 pytest-cov
 pytest-django
