@@ -141,3 +141,4 @@ cython_debug/
 ### Forum Specific ###
 .env
 deployed_static
+python.log
