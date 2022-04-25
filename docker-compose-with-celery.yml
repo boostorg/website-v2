@@ -30,7 +30,7 @@ services:
       - "8000:8000"
     volumes:
       - .:/code
-    stop_signal: SIGTERM
+    stop_signal: SIGKILL
 
   redis:
     image: "redis:alpine"
@@ -62,7 +62,7 @@ services:
       - backend
     volumes:
       - .:/code
-    stop_signal: SIGTERM
+    stop_signal: SIGKILL
 
   celery-beat:
     build:
@@ -86,7 +86,7 @@ services:
       - backend
     volumes:
       - .:/code
-    stop_signal: SIGTERM
+    stop_signal: SIGKILL
 
   flower:
     build: ./
