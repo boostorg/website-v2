@@ -2,6 +2,9 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.urls import path
 from rest_framework import routers
+
+from machina import urls as machina_urls
+
 from users.views import UserViewSet, CurrentUserView
 from ak.views import (
     HomepageView,
@@ -29,4 +32,5 @@ urlpatterns = [
     path("404", NotFoundView.as_view(), name="not_found"),
     path("500", InternalServerErrorView.as_view(), name="internal_server_error"),
     path("health/", include("health_check.urls")),
+    path("forum/", include(machina_urls)),
 ]
