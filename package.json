@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "postcss frontend/styles.css -w -d static/css/ --verbose",
-    "build": "NODE_ENV=production postcss styles.css -d static/css/ --verbose"
+    "build": "NODE_ENV=production postcss frontend/styles.css -d static/css/ --verbose"
   },
   "dependencies": {
     "autoprefixer": "^10.4.7",
