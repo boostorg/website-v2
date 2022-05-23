@@ -17,6 +17,14 @@ Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia od
 
 Maecenas faucibus mollis interdum. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Nullam quis risus eget urna mollis ornare vel eu leo. Etiam porta sem malesuada magna mollis euismod. Cras justo odio, dapibus ac facilisis in, egestas eget quam.
 
+## Testing Shortcodes
+
+{{< youtube src="https://youtu.be/4fezP875xOQ" >}}
+
+## Testing code blocks
+
+Cras justo odio, dapibus ac facilisis in, egestas eget quam.
+
 ```python
 def hello_world():
     print("hello world")
