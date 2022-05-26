@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* custom classes */
+
+body {
+  color: white;
+}

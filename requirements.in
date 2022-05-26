@@ -3,6 +3,7 @@ bumpversion
 django-db-geventpool
 django-extensions
 django-health-check
+django-redis
 django-rest-auth
 djangorestframework
 environs[django]
@@ -10,7 +11,6 @@ gevent
 gunicorn
 psycopg2-binary
 whitenoise
-django-redis
 
 # Logging
 django-tracer
@@ -34,6 +34,10 @@ factory_boy
 
 # Packaging
 pip-tools
+
+# Markdown and Frontmatter
+mistletoe
+python-frontmatter
 
 #Forum
 django-machina
