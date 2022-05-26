@@ -29,7 +29,7 @@ services:
       - db
     env_file:
       - .env
-    # init: true
+    init: true
     networks:
       - backend
       - frontend
