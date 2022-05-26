@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: boost
+  labels:
+    app: boost
+    env: {{.Values.deploymentEnvironment}}
+spec:
+  replicas: {{.Values.replicaCount}}
+  selector:
+    matchLabels:
+      app: boost
+      env: {{.Values.deploymentEnvironment}}
+  template:
+    metadata:
+      labels:
+        app: boost
+        env: {{.Values.deploymentEnvironment}}
+        imageTag: {{.Values.ImageTag}}
+{{- include "InitAnnotation" . | indent 8 }}
+    spec:
+{{- include "InitSpec" . | indent 6 }}
+      {{ if .Values.tolerations -}}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 10 }}
+      {{- end }}
+      volumes:
+{{ toYaml .Values.Volumes | indent 8 }}
+      imagePullSecrets:
+        - name: revsys-docker-registry
+      containers:
+        -
+          name: wsgi
+          image: {{.Values.Image}}:{{.Values.ImageTag}}
+          volumeMounts:
+{{ toYaml .Values.VolumeMounts | indent 12 }}
+          env:
+{{ toYaml .Values.Env | indent 12 }}
+          ports:
+            -
+              protocol: TCP
+              containerPort: 8000
+        -
+          name: nginx
+          image: nginx:{{ .Values.nginxImageTag }}
+          volumeMounts:
+            -
+              name: ngx
+              mountPath: /etc/nginx/conf.d
+{{ toYaml .Values.NginxVolumeMounts | indent 12 }}
+          env:
+{{ toYaml .Values.Env | indent 12 }}
+          ports:
+            -
+              protocol: TCP
+              containerPort: 80
