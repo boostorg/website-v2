@@ -86,7 +86,7 @@ Env:
         name: django-secret-key
         key: key
   - name: DJANGO_DEBUG
-    value: "true"
+    value: "false"
 # Bucket is setup already, but not using storages just yet
 #  - name: AWS_ACCESS_KEY_ID
 #    valueFrom:

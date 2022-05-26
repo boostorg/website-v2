@@ -190,7 +190,7 @@ STATICFILES_DIRS = [
 
 # This is the directory where all of the collected static files are put
 # after running collectstatic
-STATIC_ROOT = str(BASE_DIR.joinpath("deployed_static"))
+STATIC_ROOT = str(BASE_DIR.joinpath("static_deploy"))
 
 # Logging setup
 # Configure struct log
