@@ -3,15 +3,13 @@ name: CI
 on:
   pull_request:
   push:
-    branches:
-      main
+    branches: main
 
 env:
   DOCKER_BUILDKIT: "1"
-  DOCKER_IMAGE: "docker.pkg.github.com/revsys/boost.org"
+  DOCKER_IMAGE: "registry.revsys.com/boost"
 
 jobs:
-
   test:
     runs-on: ubuntu-latest
 
@@ -22,7 +20,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
-        ports: ['5432:5432']
+        ports: ["5432:5432"]
         # options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
@@ -52,8 +50,8 @@ jobs:
 
       - name: Test with pytest
         env:
-          DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
-          SECRET_KEY: 'for-testing-only'
+          DATABASE_URL: "postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres"
+          SECRET_KEY: "for-testing-only"
         run: |
           python -m pytest
 
@@ -92,12 +90,15 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           vinnie patch
+          export VINNIE_VERSION=`vinnie version`
           git push --tags
 
-      - name: Docker - Login
-        run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com \
-            --username ${{ github.actor }} --password-stdin
+      - name: Login to REVSYS Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: registry.revsys.com
+          username: boost
+          password: ${{ secrets.REVSYS_DOCKER_REGISTRY_PASSWORD }}
 
       - name: Build Docker image
         run: |
@@ -108,18 +109,12 @@ jobs:
             --cache-from=${DOCKER_IMAGE}:latest \
             --tag ${DOCKER_IMAGE} .
 
-      - name: Docker - Tag
+      - name: Docker - Tag and Push
         run: |
           TAG=`vinnie version`
 
           docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE}:latest
           docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE}:${TAG}
 
-      - name: Docker list images
-        run: |
-          docker images
-
-      # - name: Docker - Push
-      #   run: |
-      #     docker push ${DOCKER_IMAGE}:latest
-      #     docker push ${DOCKER_IMAGE}:${TAG}
+          docker push ${DOCKER_IMAGE}:latest
+          docker push ${DOCKER_IMAGE}:${TAG}
