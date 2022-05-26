@@ -1,0 +1,35 @@
+# vim: ft=sls nolist
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: www-boost-{{.Values.deploymentEnvironment}}
+  namespace: {{ .Values.namespace }}
+  labels:
+    env: {{ .Values.deploymentEnvironment }}
+    app: boost
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.clientMaxBodySize|quote }}
+spec:
+  tls:
+    - hosts:
+        - www.{{.Values.publicFqdn}}
+        - {{ .Values.publicFqdn }}
+      secretName: www.{{.Values.publicFqdn}}-tls
+  rules:
+    - host: www.{{.Values.publicFqdn}}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: boost
+              servicePort: 80
+    - host: {{ .Values.publicFqdn }}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: boost
+              servicePort: 80

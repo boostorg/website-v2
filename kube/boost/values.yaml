@@ -1,0 +1,123 @@
+Image: registry.revsys.com/boost
+ImageTag: 0.0.12
+
+djangoDebug: true
+
+nginxImageTag: "1.21-alpine"
+
+deploymentEnvironment: &env dev
+clientMaxBodySize: 250m
+
+replicaCount: "2"
+
+## NOTE ##
+# set publcFqdn to the target domain. `www` will be prepended to the domain
+# where necessary
+
+initCommands:
+  - name: migrate
+    command: ./manage.py migrate --noinput
+  - name: collectstatic
+    command: ./manage.py collectstatic --noinput
+
+publicFqdn: &fqdn boost.revsys.dev
+
+Env:
+  - name: DJANGO_SETTINGS_MODULE
+    value: "config.settings"
+  - name: PGHOST
+    valueFrom:
+      secretKeyRef:
+        name: pg
+        key: dbhost
+  - name: PGPORT
+    valueFrom:
+      secretKeyRef:
+        name: pg
+        key: dbport
+  - name: PGDATABASE
+    valueFrom:
+      secretKeyRef:
+        name: pg
+        key: dbname
+  - name: PGUSER
+    valueFrom:
+      secretKeyRef:
+        name: pg
+        key: dbuser
+  - name: PGPASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: pg
+        key: dbpass
+  - name: DJANGO_FQDN
+    value: *fqdn
+  - name: ALLOWED_HOSTS
+    value: "boost.revsys.dev, www.boost.revsys.dev"
+
+  # silence django deprecation warnings
+  - name: PYTHONWARNINGS
+    value: ignore
+  - name: X_NODE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
+        apiVersion: v1
+  - name: X_POD_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.podIP
+        apiVersion: v1
+  - name: X_KUBE_NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+        apiVersion: v1
+  - name: X_DEPLOYMENT_ENV
+    value: *env
+  - name: X_POD_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.name
+        apiVersion: v1
+  - name: SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: django-secret-key
+        key: key
+  - name: DJANGO_DEBUG
+    value: "true"
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: digital-ocean-keys
+        key: do_access_key
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: digital-ocean-keys
+        key: do_secret_key
+  - name: MEDIA_BUCKET_NAME
+    value: boost-dev-media
+
+# Volumes
+Volumes:
+  - name: run
+    emptyDir: {}
+  - name: staticfiles
+    emptyDir: {}
+  - name: ngx
+    configMap:
+      name: nginx-config--boost
+
+VolumeMounts:
+  - name: staticfiles
+    mountPath: /code/static_deploy
+  - name: run
+    mountPath: /run
+
+NginxVolumeMounts:
+  - name: staticfiles
+    mountPath: /code/static_deploy
+  - name: run
+    mountPath: /run
