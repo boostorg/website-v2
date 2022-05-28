@@ -1,21 +1,19 @@
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework import permissions
-from versions.permissions import SuperUserOrVersionManager
+from django.views.generic import ListView, DetailView
 
 from versions.models import Version, VersionFile
-from versions.serializers import VersionSerializer, VersionFileSerializer
 
 
-class VersionViewSet(viewsets.ModelViewSet):
+class VersionList(ListView):
+    """Web display of list of Versions"""
+
     model = Version
-    queryset = Version.objects.all()
-    serializer_class = VersionSerializer
-    permission_classes = [permissions.IsAuthenticated, SuperUserOrVersionManager]
+    queryset = Version.objects.active()
+    template_name = "versions/list.html"
 
 
-class VersionFileViewSet(viewsets.ModelViewSet):
-    model = VersionFile
-    queryset = VersionFile.objects.all()
-    serializer_class = VersionFileSerializer
-    permission_classes = [permissions.IsAuthenticated, SuperUserOrVersionManager]
+class VersionDetail(DetailView):
+    """Web display of list of Versions"""
+
+    model = Version
+    queryset = Version.objects.active()
+    template_name = "versions/detail.html"
