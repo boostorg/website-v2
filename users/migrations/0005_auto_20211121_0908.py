@@ -4,10 +4,11 @@ from django.db import migrations
 from django.contrib.auth.models import Group, Permission
 from django.core.management import BaseCommand
 from django.contrib.contenttypes.models import ContentType
-from versions.models import Version
 
 
 def gen_version_manager_group(apps, schema_editor):
+    from versions.models import Version
+
     new_group, created = Group.objects.get_or_create(name="version_manager")
     # Code to add permission to group ???
     ct = ContentType.objects.get_for_model(Version)
