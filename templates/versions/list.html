@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 
 {% block content %}
-Version List
+<h1>Version List</h1>
+
+{% for v in version_list %}
+<div>
+    <h2><a href="{% url 'version-detail' pk=v.pk %}">{{ v.name }}</a></h2>
+    <h3>{{ v.release_date }}</h3>
+    <p>{{ v.description }}</p>
+</div>
+{% endfor %}
+
 {% endblock %}
