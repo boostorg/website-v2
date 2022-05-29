@@ -6,14 +6,14 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('versions', '0002_auto_20211216_1051'),
+        ("versions", "0002_auto_20211216_1051"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='Version',
+            name="Version",
         ),
         migrations.DeleteModel(
-            name='VersionFile',
+            name="VersionFile",
         ),
     ]
