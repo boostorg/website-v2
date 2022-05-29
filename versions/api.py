@@ -9,13 +9,41 @@ from versions.serializers import VersionSerializer, VersionFileSerializer
 
 class VersionViewSet(viewsets.ModelViewSet):
     model = Version
-    queryset = Version.objects.all()
     serializer_class = VersionSerializer
-    permission_classes = [permissions.IsAuthenticated, SuperUserOrVersionManager]
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return Version.objects.all()
+        else:
+            return Version.objects.active()
+
+    def get_permissions(self):
+        """
+        Allow anyone in the public to view the list of active Versions, but
+        only allow SueprUsers or VersionManagers to create or update data
+        """
+        if self.action == "list":
+            return [permissions.AllowAny()]
+        else:
+            return [permissions.IsAuthenticated(), SuperUserOrVersionManager()]
 
 
 class VersionFileViewSet(viewsets.ModelViewSet):
     model = VersionFile
-    queryset = VersionFile.objects.all()
     serializer_class = VersionFileSerializer
-    permission_classes = [permissions.IsAuthenticated, SuperUserOrVersionManager]
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return VersionFile.objects.all()
+        else:
+            return VersionFile.objects.active()
+
+    def get_permissions(self):
+        """
+        Allow anyone in the public to view the list of active Versions, but
+        only allow SueprUsers or VersionManagers to create or update data
+        """
+        if self.action == "list":
+            return [permissions.AllowAny()]
+        else:
+            return [permissions.IsAuthenticated(), SuperUserOrVersionManager()]
