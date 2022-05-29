@@ -1,7 +1,7 @@
 import hashlib
 from django.db import models
 
-from .managers import VersionManager
+from .managers import VersionManager, VersionFileManager
 
 
 class Version(models.Model):
@@ -36,10 +36,18 @@ class VersionFile(models.Model):
     checksum = models.CharField(max_length=64, unique=True, default=None)
     file = models.FileField(upload_to="uploads/")
 
+    objects = VersionFileManager()
+
     def save(self, *args, **kwargs):
-        if self.file is not None:
-            if self.checksum is None:
-                self.checksum = hashlib.sha256(
-                    self.file.file.encode("utf-8")
-                ).hexdigest()
-            super().save(*args, **kwargs)
+        # Calculate sha256 hash
+        if self.file is not None and self.checksum is None:
+            h = hashlib.sha256()
+            with self.file.open("rb") as f:
+                data = f.read()
+                while data:
+                    h.update(data)
+                    data = f.read()
+
+            self.checksum = h.hexdigest()
+
+        super().save(*args, **kwargs)

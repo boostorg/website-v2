@@ -26,4 +26,4 @@ class VersionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Version
-        fields = ["id", "name", "release_date", "description", "files"]
+        fields = ["id", "name", "release_date", "description", "active", "files"]
