@@ -8,4 +8,5 @@
 
 python manage.py collectstatic --noinput
 
-gunicorn -c gunicorn.conf.py --log-level INFO --reload -b 0.0.0.0:8000 config.wsgi
+# gunicorn -c gunicorn.conf.py --log-level INFO --reload -b 0.0.0.0:8000 config.wsgi
+python manage.py runserver 0.0.0.0:8000

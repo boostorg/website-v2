@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-Version Detail
+<h1>Version Detail</h1>
+<h2>{{ version.name }}</h2>
+<h3>{{ version.release_date }}</h3>
+<p>{{ version.description }}</p>
 {% endblock %}
