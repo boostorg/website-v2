@@ -13,14 +13,13 @@ from ak.views import (
     NotFoundView,
     OKView,
 )
-from versions.api import VersionViewSet, VersionFileViewSet
+from versions.api import VersionViewSet
 from versions.views import VersionList, VersionDetail
 
 router = routers.SimpleRouter()
 
 router.register(r"users", UserViewSet, basename="users")
 router.register(r"versions", VersionViewSet, basename="versions")
-router.register(r"version-files", VersionFileViewSet, basename="version-files")
 
 
 urlpatterns = [
