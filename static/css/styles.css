@@ -639,6 +639,14 @@ Ensure the default browser behavior of the `hidden` attribute.
   --tw-border-opacity: 1;
   border-color: rgb(49 74 87 / var(--tw-border-opacity));
 }
+.border-orange {
+  --tw-border-opacity: 1;
+  border-color: rgb(255 159 0 / var(--tw-border-opacity));
+}
+.border-steel {
+  --tw-border-opacity: 1;
+  border-color: rgb(181 201 211 / var(--tw-border-opacity));
+}
 .bg-black {
   --tw-bg-opacity: 1;
   background-color: rgb(5 26 38 / var(--tw-bg-opacity));
@@ -708,6 +716,9 @@ Ensure the default browser behavior of the `hidden` attribute.
 }
 .pt-2 {
   padding-top: 0.5rem;
+}
+.text-left {
+  text-align: left;
 }
 .text-center {
   text-align: center;
