@@ -549,6 +549,9 @@ Ensure the default browser behavior of the `hidden` attribute.
 .block {
   display: block;
 }
+.inline {
+  display: inline;
+}
 .flex {
   display: flex;
 }
@@ -569,6 +572,9 @@ Ensure the default browser behavior of the `hidden` attribute.
 }
 .h-6 {
   height: 1.5rem;
+}
+.h-auto {
+  height: auto;
 }
 .w-auto {
   width: auto;
@@ -622,6 +628,9 @@ Ensure the default browser behavior of the `hidden` attribute.
 .rounded-md {
   border-radius: 0.375rem;
 }
+.rounded {
+  border-radius: 0.25rem;
+}
 .border {
   border-width: 1px;
 }
@@ -658,6 +667,12 @@ Ensure the default browser behavior of the `hidden` attribute.
 .p-2 {
   padding: 0.5rem;
 }
+.p-3 {
+  padding: 0.75rem;
+}
+.p-11 {
+  padding: 2.75rem;
+}
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -689,6 +704,10 @@ Ensure the default browser behavior of the `hidden` attribute.
 .py-3 {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
+}
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
 }
 .pb-16 {
   padding-bottom: 4rem;
@@ -778,6 +797,10 @@ Ensure the default browser behavior of the `hidden` attribute.
 .text-orange {
   --tw-text-opacity: 1;
   color: rgb(255 159 0 / var(--tw-text-opacity));
+}
+.text-green {
+  --tw-text-opacity: 1;
+  color: rgb(90 213 153 / var(--tw-text-opacity));
 }
 .opacity-0 {
   opacity: 0;
