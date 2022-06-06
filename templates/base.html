@@ -1,169 +1,293 @@
 <!DOCTYPE html>{% load static %}
 <html>
 
-<head>
-  <title>{% block title %}{% endblock %}</title>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="{% static 'css/styles.css' %}" rel="stylesheet">
-  <!-- Google fonts for Cairo Medium and SemiBold -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600&display=swap" rel="stylesheet">
-  {% block extra_head %}{% endblock %}
-</head>
+  <head>
+    <title>{% block title %}{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    <!-- Google fonts for Cairo Medium and SemiBold -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600&display=swap" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+  </head>
 
-<body class="h-screen bg-black font-cairo" >
-  <div class="container mx-auto">
-    <div class="relative bg-gray-50 overflow-hidden">
-      <div class="relative pb-16 sm:pb-24">
-        <div>
-          <div class="mx-auto px-3 sm:px-6 bg-charcoal">
-            <nav class="relative flex items-center justify-between sm:h-10 pt-6 pb-6" aria-label="Global">
-              <div class="hidden md:flex md:space-x-10 pt-3 pb-3 pl-3">
-                <a href="#" class="font-medium text-gray-500 hover:text-gray-900">About</a>
+  <body class="h-screen bg-black font-cairo" >
+    <div class="container mx-auto">
+      <div class="relative bg-gray-50 overflow-hidden">
+        <div class="relative pb-16 sm:pb-24">
+          <div>
+            <div class="mx-auto px-3 sm:px-6 bg-charcoal">
+              <nav class="relative flex items-center justify-between sm:h-10 pt-6 pb-6" aria-label="Global">
+                <div class="hidden md:flex md:space-x-10 pt-3 pb-3 pl-3">
+                  <a href="#" class="font-medium text-gray-500 hover:text-gray-900">About</a>
 
-                <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Support</a>
+                  <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Support</a>
 
-                <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Resources</a>
+                  <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Resources</a>
 
-                <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Signup</a>
+                  <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Signup</a>
 
-                <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Login</a>
+                  <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Login</a>
 
-                <a href="#" class="font-medium text-gray-500 hover:text-gray-900">
-                  <img class="mt-1" src="{% static 'img/icons/search-icon.svg' %}" alt="Search" />
-                </a>
-              </div>
-              <div>
-                <span class="uppercase text-orange">1.79.0 Releases on 9-8-22 ></span>
-              </div>
-            </nav>
-          </div>
-          <div class="py-5 border-b-2 border-charcoal">
-            <!-- TODO: Fix border -->
-            <nav class="relative flex items-center justify-between sm:h-10 md:justify-center">
-              <div class="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full" aria-hidden="true">
-                <div class="relative h-full mx-auto pl-8">
-                  <img class="w-auto h-8" src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}" alt="Boost">
+                  <a href="#" class="font-medium text-gray-500 hover:text-gray-900">
+                    <img class="mt-1" src="{% static 'img/icons/icon-search.svg' %}" alt="Search" />
+                  </a>
                 </div>
-              </div>
-              <div class="hidden md:flex md:space-x-10 pt-3 pb-3 text-right">
-                <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Versions</a>
-
-                <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Libraries</a>
-
-                <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Review Process</a>
-
-                <a href="/forum/" class="font-medium text-gray-500 hover:text-gray-900">Forums</a>
-
-                <a href="#" class="font-medium text-gray-500 hover:text-gray-900">News</a>
-
-                <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Donate</a>
-              </div>
-            </nav>
-          </div>
-
-          <!--
-            Mobile menu, show/hide based on menu open state.
-
-            Entering: "duration-150 ease-out"
-              From: "opacity-0 scale-95"
-              To: "opacity-100 scale-100"
-            Leaving: "duration-100 ease-in"
-              From: "opacity-100 scale-100"
-              To: "opacity-0 scale-95"
-          -->
-          <div class="absolute z-10 top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden">
-            <div class="rounded-lg shadow-md bg-white ring-1 ring-black ring-opacity-5 overflow-hidden">
-              <div class="px-5 pt-4 flex items-center justify-between">
                 <div>
-                  <img class="h-8 w-auto" src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}" alt="">
+                  <span class="uppercase text-orange">1.79.0 Releases on 9-8-22 ></span>
                 </div>
-                <div class="-mr-2">
-                  <button type="button" class="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
-                    <span class="sr-only">Close menu</span>
-                    <!-- Heroicon name: outline/x -->
-                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+              </nav>
+            </div>
+            <div class="py-5 border-b-2 border-charcoal">
+              <!-- TODO: Fix border -->
+              <nav class="relative flex items-center justify-between sm:h-10 md:justify-center">
+                <div class="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full" aria-hidden="true">
+                  <div class="relative h-full mx-auto pl-8">
+                    <img class="w-auto h-8" src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}" alt="Boost">
+                  </div>
+                </div>
+                <div class="hidden md:flex md:space-x-10 pt-3 pb-3 text-right">
+                  <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Versions</a>
+
+                  <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Libraries</a>
+
+                  <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Review Process</a>
+
+                  <a href="/forum/" class="font-medium text-gray-500 hover:text-gray-900">Forums</a>
+
+                  <a href="#" class="font-medium text-gray-500 hover:text-gray-900">News</a>
+
+                  <a href="#" class="font-medium text-gray-500 hover:text-gray-900">Donate</a>
+                </div>
+              </nav>
+            </div>
+
+            <!--
+              Mobile menu, show/hide based on menu open state.
+
+              Entering: "duration-150 ease-out"
+                From: "opacity-0 scale-95"
+                To: "opacity-100 scale-100"
+              Leaving: "duration-100 ease-in"
+                From: "opacity-100 scale-100"
+                To: "opacity-0 scale-95"
+            -->
+            <div class="absolute z-10 top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden bg-charcoal h-screen">
+              <div class="overflow-hidden">
+                <div class="px-5 pt-4 flex items-center justify-between">
+                  <div class=" border-b-2 border-slate">
+                    <span class="text-center uppercase text-orange block">1.79.0 Releases on 9-8-22 ></span>
+                  </div>
+                  <div class="-mr-2">
+                    <button type="button" class="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                      <span class="sr-only">Close menu</span>
+                      <!-- Heroicon name: outline/x -->
+                      <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="px-2 pt-2 pb-3 text-2xl">
+                  <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Versions</a>
+
+                  <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Libraries</a>
+
+                  <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Review Process</a>
+
+                  <a href="/forum/" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Forums</a>
+
+                  <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">News</a>
+
+                  <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Donate</a>
+                </div>
+                <div class="px-2 pt-2 pb-3 absolute bottom-0 left-0 text-sm">
+                  <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">About</a>
+
+                  <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">Support</a>
+
+                  <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">Resources</a>
+
+                  <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">Signup</a>
+
+                  <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">Login </a>
                 </div>
               </div>
-              <div class="px-2 pt-2 pb-3">
-                <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">About</a>
-
-                <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Support</a>
-
-                <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Resources</a>
-
-                <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Signup</a>
-              </div>
-              <a href="#" class="block w-full px-5 py-3 text-center font-medium text-indigo-600 bg-gray-50 hover:bg-gray-100">Login </a>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Homepage Hero Section -->
-        <main class="mt-16 mx-auto max-w-7xl px-4 sm:mt-24">
-          <div class="text-center">
-            <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-              <span class="block xl:inline">Boost Provides free peer-reviewed portable C++ source libraries.</span>
+      <!-- TODO: Move this home page content into a partial when routing is setup -->
+      <!-- Homepage Hero Section -->
+      <main class="my-16 mx-auto max-w-7xl px-4 sm:mt-24">
+        <div class="flex">
+          <div class="text-left md:w-1/2">
+            <h1 class="font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+              <span class="block xl:inline">Boost provides free peer-reviewed portable C++ source libraries.</span>
             </h1>
             <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">Experience C++ libraries created by expoerts to be reliable, skillfully designed, and well-tested.</p>
-            <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
+            <div class="mt-5 max-w-md sm:flex sm:justify-center md:mt-8">
               <div class="rounded-md shadow">
-                <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10"> Download Latest </a>
+                <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-orange text-base font-medium rounded-md text-orange bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-4"><img class="mt-1 pr-2" src="{% static 'img/icons/icon-download-orng.svg' %}" alt="Downloads" /> Download Latest </a>
               </div>
               <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-                <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"> Version Details > </a>
+                <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-steel text-base font-medium rounded-md text-orange bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"> Version Details > </a>
               </div>
             </div>
           </div>
-        </main>
-        <!-- End Homepage Hero Section -->
-        {% block content_wrapper %}
-        {% block content %}{% endblock %}
-        {% endblock %}
-      </div>
-    </div>
-    <footer>
-      <div class="flex">
-        <div>
-          <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-            <span class="block xl:inline">Join the growing community</span>
-          </h1>
-          <div>
-            <div>Best collections of C++ libraries</div>
-            <div>Supports research and education for C++</div>
-            <div>Accessible with minimal restriction</div>
-            <div>Collaborative community</div>
+          <div class="md:w-1/2 text-center">ILLUSTRATION HERE</div>
+        </div>
+
+        <div class="flex my-16">
+          <div class="md:order-last md:w-1/2">
+            <h2 class="text-4xl">Boost Mission</h2>
+            The Boost mission is threefold:
+            <ul class="mb-11">
+              <li>develop high-quality, expert+reviewed, open-source C++ libraries</li>
+              <li>incubate C++ standard library enhancements</li>
+              <li>advance and disseminate C++ software development best practices</li>
+            </ul>
+            <div class="rounded-md shadow md:w-1/2">
+              <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-steel text-base font-medium rounded-md text-orange bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10"> About Us > </a>
+            </div>
           </div>
-          <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-            <div class="rounded-md shadow">
-              <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10 uppercase"> Sign up </a>
+          <div class="flex md:w-1/2">
+            <div class="w-1/2 items-center text-center">
+              <img class="mx-auto mb-2" src="{% static 'img/icons/icon-download-grn.svg' %}" alt="Downloads" />
+              <h4 class="text-5xl mb-3">10M+</h4>
+              Total Downloads
+            </div>
+            <div class="w-1/2 items-center text-center">
+              <img class="mx-auto mb-2" src="{% static 'img/icons/icon-library-grn.svg' %}" alt="Libraries" />
+              <h4 class="text-5xl mb-3">165+</h4>
+              Individual Libraries
             </div>
           </div>
         </div>
-        <div>
-          large illustration FPO here
+
+        <div class="flex my-16 space-x-4">
+          <div class="md:w-1/2 rounded bg-charcoal p-11">
+            <div class="mb-6">
+              <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">library spotlight</span>
+            </div>
+            <h3 class="text-xl">Boost.JSON</h3>
+            <p>Released 4/5/22</p>
+            <p>Boost.JSON is a portable C++ library which provides containers and algorithms that implment
+            JavaScript Object Notation, or simply "JSON", a lightweight data-interchange format.</p>
+            <div>Authors pic</div>
+            <div class="mt-5 max-w-md sm:flex sm:justify-center md:mt-8">
+              <div class="rounded-md shadow">
+                <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-orange text-base font-medium rounded-md text-orange bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10"> Download </a>
+              </div>
+              <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
+                <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-steel text-base font-medium rounded-md text-orange bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"> Version Details > </a>
+              </div>
+            </div>
+          </div>
+          <div class="md:w-1/2 rounded bg-charcoal p-11">
+            <div class="mb-6">
+              <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">featured video</span>
+            </div>
+            Video Here
+            <div>Name of Video</div>
+          </div>
         </div>
-      </div>
-      <div class="px-5 pt-4 flex items-center">
-        <div class="mr-5">
-          <img class="h-8 w-auto" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="">
+
+        <div class="my-16 rounded bg-charcoal px-11 py-5">
+          <div class="flex justify-between mb-6">
+            <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">Recent reviews</span>
+            <span class="inline uppercase text-orange w-auto px-2">See All ></span>
+          </div>
+          <div class="flex space-x-6 py-11 divide-x-2 divide-slate">
+            <div class="pl-6 pr-2">
+              <h3 class="text-2xl pb-3">Library Name Here</h3>
+              <p class="text-lg py-5">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
+              <div class="mt-3"><span class="mr-5">Authors</span> <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /></div>
+            </div>
+            <div class="pl-6 pr-2">
+              <h3 class="text-2xl pb-3">Library Name Here</h3>
+              <p class="text-lg py-5">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
+              <div class="mt-3"><span class="mr-5">Authors</span> <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /></div>
+            </div>
+            <div class="pl-6 pr-2">
+              <h3 class="text-2xl pb-3">Library Name Here</h3>
+              <p class="text-lg py-5">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
+              <div class="mt-3"><span class="mr-5">Authors</span> <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /></div>
+            </div>
+          </div>
         </div>
-        <div class="justify-between md:space-x-10 pt-3 pb-3 ">
-          <a href="">&#169; 2022 Boost.org</a>
-          <a href="">Contact</a>
-          <a href="">Privacy Policy</a>
-          <a href="">Terms of Use</a>
+
+        <!-- RECENT NEWS & JOIN CONVERSATION -->
+        <div class="flex my-16 space-x-4">
+          <div class="md:w-1/2 rounded bg-charcoal px-11 py-5">
+            <div class="flex justify-between mb-6">
+              <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">recent news</span>
+              <span class="inline uppercase text-orange w-auto">See All ></span>
+            </div>
+            <div>
+              <h3 class="text-xl">Name of Article</h3>
+              <p>Category | 4/5/22</p>
+              <p>Sed posuere consectetur est at lobortis. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum... <span>Read More</span></p>
+            </div>
+          </div>
+          <div class="md:w-1/2 rounded bg-charcoal px-11 py-5">
+            <div class="flex justify-between mb-6">
+              <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">Join the conversation</span>
+              <span class="inline uppercase text-orange w-auto">Visit Forum ></span>
+            </div>
+            <h3 class="text-xl">Topic of discussion headline from the Forum</h3>
+            <p class="mt-3"><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /> Name of Author</p>
+          </div>
         </div>
-      </div>
-    </footer>
-  </div>
-  {% block footer_js %}{% endblock %}
-</body>
+        <!-- END RECENT NEWS & JOIN CONVERSATION -->
+
+      </main>
+      <!-- End Homepage Hero Section -->
+
+      {% block content_wrapper %}
+      {% block content %}{% endblock %}
+      {% endblock %}
+
+      <footer>
+        <div class="flex">
+          <div>
+            <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+              <span class="block xl:inline">Join the growing community</span>
+            </h1>
+            <div>
+              <div>Best collections of C++ libraries</div>
+              <div>Supports research and education for C++</div>
+              <div>Accessible with minimal restriction</div>
+              <div>Collaborative community</div>
+            </div>
+            <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
+              <div class="rounded-md shadow">
+                <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10 uppercase"> Sign up </a>
+              </div>
+            </div>
+          </div>
+          <div>
+            large illustration FPO here
+          </div>
+        </div>
+        <div class="px-5 pt-4 flex items-center">
+          <div class="mr-5">
+            <img class="h-8 w-auto" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="">
+          </div>
+          <div class="justify-between md:space-x-10 pt-3 pb-3 ">
+            <a href="">&#169; 2022 Boost.org</a>
+            <a href="">Contact</a>
+            <a href="">Privacy Policy</a>
+            <a href="">Terms of Use</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+    {% block footer_js %}{% endblock %}
+  </body>
 
 </html>
