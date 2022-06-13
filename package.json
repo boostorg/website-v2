@@ -10,6 +10,7 @@
     "build": "NODE_ENV=production postcss frontend/styles.css -d static/css/ --verbose"
   },
   "dependencies": {
+    "@lottiefiles/lottie-js": "^0.4.1",
     "autoprefixer": "^10.4.7",
     "postcss": "^8.4.13",
     "postcss-cli": "^9.1.0",
