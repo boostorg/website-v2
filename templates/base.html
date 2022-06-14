@@ -12,9 +12,22 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600&display=swap" rel="stylesheet">
     {% block extra_head %}{% endblock %}
+
+    <style>
+        #lottie{
+            width:100%;
+            height:100%;
+            display:block;
+            overflow: hidden;
+            transform: translate3d(0,0,0);
+            text-align: center;
+            opacity: 1;
+        }
+
+    </style>
   </head>
 
-  <body class="h-screen bg-black font-cairo" >
+  <body class="h-screen bg-black font-cairo">
     <div class="container mx-auto">
       <div class="relative bg-gray-50 overflow-hidden">
         <div class="relative pb-16 sm:pb-24">
@@ -37,7 +50,7 @@
                   </a>
                 </div>
                 <div>
-                  <span class="uppercase text-orange">1.79.0 Releases on 9-8-22 ></span>
+                  <span class="uppercase text-orange"><div id="icon-container" class="w-6 h-6"></div> 1.79.0 Releases on 9-8-22 ></span>
                 </div>
               </nav>
             </div>
@@ -139,7 +152,9 @@
               </div>
             </div>
           </div>
-          <div class="md:w-1/2 text-center">ILLUSTRATION HERE</div>
+          <div class="md:w-1/2 text-center">
+            <div id="scene03"></div>
+          </div>
         </div>
 
         <div class="flex my-16">
@@ -296,11 +311,13 @@
 
       <footer class="my-16 mx-auto max-w-7xl px-4 sm:mt-24">
         <div class="flex">
-          <div class="text-left md:w-1/2">
-            <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-              <span class="block xl:inline">Join the growing community</span>
-            </h1>
-            <div class="my-16 flex flex-wrap space-y-8">
+          <div class="text-left md:w-1/2 content-center gap-4 grid">
+            <div>
+              <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl block xl:inline pt-6">
+                Join the growing community
+              </h1>
+            </div>
+            <div class="my-16 flex flex-wrap space-y-8 grid grid-cols-2">
               <div class="w-1/2">Best collections of C++ libraries</div>
               <div class="w-1/2">Supports research and education for C++</div>
               <div class="w-1/2">Accessible with minimal restriction</div>
@@ -313,7 +330,8 @@
             </div>
           </div>
           <div class="text-center md:w-1/2">
-            large illustration FPO here
+            <div id="hero-illustration"></div>
+            <div id="scene01"></div>
           </div>
         </div>
 
@@ -331,6 +349,43 @@
       </footer>
     </div>
     {% block footer_js %}{% endblock %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js"></script>
+
+    <script>
+      var params = {
+        // animationData: { /* ... */ },
+        container: document.getElementById('icon-container'), // required
+        path: '{% static "animations/4dots.json" %}', // required
+        renderer: 'svg', // required
+        loop: true, // optional
+        autoplay: true, // optional
+        name: "4 Dots", // optional
+      };
+
+      var scene1Params = {
+        // animationData: { /* ... */ },
+        container: document.getElementById('scene01'), // required
+        path: '{% static "animations/Scene01/data.json" %}', // required
+        renderer: 'svg', // required
+        loop: true, // optional
+        autoplay: true, // optional
+        name: "4 Dots", // optional
+      };
+
+      var scene3Params = {
+        // animationData: { /* ... */ },
+        container: document.getElementById('scene03'), // required
+        path: '{% static "animations/Scene03/data.json" %}', // required
+        renderer: 'svg', // required
+        loop: true, // optional
+        autoplay: true, // optional
+        name: "4 Dots", // optional
+      };
+
+      anim = lottie.loadAnimation(params);
+      anim2 = lottie.loadAnimation(scene1Params);
+      anim3 = lottie.loadAnimation(scene3Params);
+    </script>
   </body>
 
 </html>
