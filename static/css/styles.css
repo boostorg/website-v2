@@ -496,6 +496,9 @@ Ensure the default browser behavior of the `hidden` attribute.
 .float-right {
   float: right;
 }
+.float-left {
+  float: left;
+}
 .m-10 {
   margin: 2.5rem;
 }
@@ -516,6 +519,12 @@ Ensure the default browser behavior of the `hidden` attribute.
 }
 .mt-1 {
   margin-top: 0.25rem;
+}
+.mt-2 {
+  margin-top: 0.5rem;
+}
+.ml-2 {
+  margin-left: 0.5rem;
 }
 .-mr-2 {
   margin-right: -0.5rem;
@@ -547,14 +556,8 @@ Ensure the default browser behavior of the `hidden` attribute.
 .mt-16 {
   margin-top: 4rem;
 }
-.ml-2 {
-  margin-left: 0.5rem;
-}
-.mt-2 {
-  margin-top: 0.5rem;
-}
-.mr-4 {
-  margin-right: 1rem;
+.mr-2 {
+  margin-right: 0.5rem;
 }
 .block {
   display: block;
@@ -631,9 +634,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 }
 .content-center {
   align-content: center;
-}
-.content-end {
-  align-content: flex-end;
 }
 .items-center {
   align-items: center;
@@ -789,6 +789,9 @@ Ensure the default browser behavior of the `hidden` attribute.
 .pl-8 {
   padding-left: 2rem;
 }
+.pr-8 {
+  padding-right: 2rem;
+}
 .pt-4 {
   padding-top: 1rem;
 }
@@ -801,23 +804,11 @@ Ensure the default browser behavior of the `hidden` attribute.
 .pl-6 {
   padding-left: 1.5rem;
 }
-.pb-2 {
-  padding-bottom: 0.5rem;
-}
-.pb-4 {
-  padding-bottom: 1rem;
-}
-.pr-8 {
-  padding-right: 2rem;
-}
 .text-left {
   text-align: left;
 }
 .text-center {
   text-align: center;
-}
-.text-right {
-  text-align: right;
 }
 .font-cairo {
   font-family: 'Cairo', sans-serif;
@@ -834,6 +825,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   font-size: 0.875rem;
   line-height: 1.25rem;
 }
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
 .text-base {
   font-size: 1rem;
   line-height: 1.5rem;
@@ -841,10 +836,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 .text-4xl {
   font-size: 2.25rem;
   line-height: 2.5rem;
-}
-.text-lg {
-  font-size: 1.125rem;
-  line-height: 1.75rem;
 }
 .text-xl {
   font-size: 1.25rem;
