@@ -136,8 +136,8 @@
 
       <!-- TODO: Move this home page content into a partial when routing is setup -->
       <!-- Homepage Hero Section -->
-      <main class="my-16 mx-auto max-w-7xl px-4 sm:mt-24">
-        <div class="flex">
+      <main class="my-16 mx-auto md:max-w-7xl px-4 sm:mt-24">
+        <div class="md:flex">
           <div class="text-left md:w-1/2">
             <h1 class="font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
               <span class="block xl:inline">Boost provides free peer-reviewed portable C++ source libraries.</span>
@@ -152,12 +152,12 @@
               </div>
             </div>
           </div>
-          <div class="md:w-1/2 text-center">
+          <div class="w-full md:w-1/2 text-center">
             <div id="scene03"></div>
           </div>
         </div>
 
-        <div class="flex my-16">
+        <div class="md:flex my-4 md:my-16">
           <div class="md:order-last md:w-1/2">
             <h2 class="text-4xl mb-3">Boost Mission</h2>
             The Boost mission is threefold:
@@ -170,7 +170,7 @@
               <a href="#" class="justify-center px-8 py-3 border border-steel text-base font-medium rounded-md text-orange md:py-4 md:text-lg md:px-10"> About Us > </a>
             </div>
           </div>
-          <div class="flex md:w-1/2">
+          <div class="flex md:w-1/2 my-16">
             <div class="w-1/2 items-center text-center">
               <img class="mx-auto mb-2" src="{% static 'img/icons/icon-download-grn.svg' %}" alt="Downloads" />
               <h4 class="text-5xl mb-3">10M+</h4>
@@ -184,7 +184,7 @@
           </div>
         </div>
 
-        <div class="flex my-16 space-x-4">
+        <div class="md:flex my-4 md:my-16 md:space-x-4 space-y-4 md:space-y-0">
           <div class="md:w-1/2 rounded bg-charcoal p-11">
             <div class="mb-6">
               <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">library spotlight</span>
@@ -212,23 +212,23 @@
           </div>
         </div>
 
-        <div class="my-16 rounded bg-charcoal px-11 py-5">
+        <div class="hidden my-4 md:my-16 rounded bg-charcoal px-11 py-5">
           <div class="flex justify-between mb-6">
             <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">Recent reviews</span>
             <span class="inline uppercase text-orange w-auto px-2">See All ></span>
           </div>
-          <div class="flex space-x-6 py-11 divide-x-2 divide-slate">
-            <div class="pl-6 pr-2">
+          <div class="md:flex md:space-x-6 py-11 md:divide-x-2 divide-slate">
+            <div class="md:pl-6 pr-2">
               <h3 class="text-2xl pb-3">Library Name Here</h3>
               <p class="text-lg py-5">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
               <div class="mt-3"><span class="mr-5">Authors</span> <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /></div>
             </div>
-            <div class="pl-6 pr-2">
+            <div class="md:pl-6 pr-2">
               <h3 class="text-2xl pb-3">Library Name Here</h3>
               <p class="text-lg py-5">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
               <div class="mt-3"><span class="mr-5">Authors</span> <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /></div>
             </div>
-            <div class="pl-6 pr-2">
+            <div class="md:pl-6 pr-2">
               <h3 class="text-2xl pb-3">Library Name Here</h3>
               <p class="text-lg py-5">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
               <div class="mt-3"><span class="mr-5">Authors</span> <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /></div>
@@ -237,7 +237,7 @@
         </div>
 
         <!-- RECENT NEWS & JOIN CONVERSATION -->
-        <div class="flex my-16 space-x-4">
+        <div class="md:flex my-4 md:my-16 md:space-x-4">
           <div class="md:w-1/2 rounded bg-charcoal px-11 py-5">
             <div class="flex justify-between mb-6">
               <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">recent news</span>
@@ -261,7 +261,7 @@
               </div>
             </div>
           </div>
-          <div class="md:w-1/2 rounded bg-charcoal px-11 py-5">
+          <div class="md:w-1/2 my-4 md:my-0 rounded bg-charcoal px-11 py-5">
             <div class="flex justify-between mb-6">
               <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">Join the conversation</span>
               <span class="inline uppercase text-orange w-auto">Visit Forum ></span>
@@ -291,7 +291,7 @@
         <!-- BOOST LIBRARIES LOGOS AND TESTIMONIALS -->
         <div>
           <h2 class="text-center text-4xl">Boost Libraries Headline</h2>
-          <div class="justify-between flex my-16">
+          <div class="justify-between md:flex my-16">
             <img src="{% static 'img/fpo/airbus.svg' %}" alt="airbus" />
             <img src="{% static 'img/fpo/usairforce.svg' %}" alt="air force" />
             <img src="{% static 'img/fpo/airbus.svg' %}" alt="airbus" />
@@ -310,20 +310,20 @@
       {% endblock %}
 
       <footer class="my-16 mx-auto max-w-7xl px-4 sm:mt-24 py-16">
-        <div class="flex">
+        <div class="md:flex">
           <div class="text-left md:w-1/2 content-center gap-4 grid">
             <div>
               <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl block xl:inline pt-6">
                 Join the growing community
               </h1>
             </div>
-            <div class="my-16 grid grid-cols-2 gap-4">
+            <div class="my-16 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><img class="float-left mr-3 mt-1 h-8 w-auto" src="{% static 'img/icons/icon_Cup-C++.svg' %}" alt=""> Best collections of C++ libraries</div>
               <div><img class="float-left mr-3 mt-1 h-8 w-auto" src="{% static 'img/icons/icon_graduation-cap.svg' %}" alt=""> Supports research and education for C++</div>
               <div><img class="float-left mr-3 mt-1 h-8 w-auto" src="{% static 'img/icons/icon_down-arrow-stack.svg' %}" alt=""> Accessible with minimal restriction</div>
               <div><img class="float-left mr-3 mt-1 h-8 w-auto" src="{% static 'img/icons/icon_three-people.svg' %}" alt=""> Collaborative community</div>
             </div>
-            <div class="mt-5 max-w-md sm:flex md:mt-8">
+            <div class="hidden mt-5 max-w-md sm:flex md:mt-8">
               <div class="rounded-md shadow">
                 <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-3 md:text-lg md:px-8">Sign Up > </a>
               </div>
@@ -335,15 +335,15 @@
           </div>
         </div>
 
-        <div class="px-5 pt-4 flex items-center mt-16">
+        <div class="px-5 pt-4 md:flex items-center mt-16">
           <div class="mr-11">
             <img class="h-[53px] w-auto" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="">
           </div>
-          <div class="justify-between md:space-x-10 pt-3 pb-3 ">
-            <a href="">&#169; 2022 Boost.org</a>
-            <a href="">Contact</a>
-            <a href="">Privacy Policy</a>
-            <a href="">Terms of Use</a>
+          <div class="justify-between md:space-x-10 pt-3 pb-3">
+            <a class="my-2 block md:inline" href="">&#169; 2022 Boost.org</a>
+            <a class="my-2 block md:inline" href="">Contact</a>
+            <a class="my-2 block md:inline" href="">Privacy Policy</a>
+            <a class="my-2 block md:inline" href="">Terms of Use</a>
           </div>
         </div>
       </footer>
