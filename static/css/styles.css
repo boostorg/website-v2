@@ -493,12 +493,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 .z-10 {
   z-index: 10;
 }
-.order-first {
-  order: -9999;
-}
-.order-last {
-  order: 9999;
-}
 .float-right {
   float: right;
 }
@@ -520,6 +514,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   margin-top: 4rem;
   margin-bottom: 4rem;
 }
+.my-4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
 .my-3 {
   margin-top: 0.75rem;
   margin-bottom: 0.75rem;
@@ -527,10 +525,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 .my-5 {
   margin-top: 1.25rem;
   margin-bottom: 1.25rem;
-}
-.my-4 {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
 }
 .my-2 {
   margin-top: 0.5rem;
@@ -635,14 +629,11 @@ Ensure the default browser behavior of the `hidden` attribute.
 .w-1\/2 {
   width: 50%;
 }
-.max-w-7xl {
-  max-width: 80rem;
-}
 .max-w-md {
   max-width: 28rem;
 }
-.flex-1 {
-  flex: 1 1 0%;
+.max-w-7xl {
+  max-width: 80rem;
 }
 .origin-top-right {
   transform-origin: top right;
@@ -662,9 +653,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 }
 .list-disc {
   list-style-type: disc;
-}
-.grid-cols-2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .grid-cols-1 {
   grid-template-columns: repeat(1, minmax(0, 1fr));
@@ -689,30 +677,15 @@ Ensure the default browser behavior of the `hidden` attribute.
   margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
 }
-.space-x-4 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 0;
-  margin-right: calc(1rem * var(--tw-space-x-reverse));
-  margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
-}
-.space-x-6 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 0;
-  margin-right: calc(1.5rem * var(--tw-space-x-reverse));
-  margin-left: calc(1.5rem * calc(1 - var(--tw-space-x-reverse)));
-}
-.space-y-8 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-y-reverse: 0;
-  margin-top: calc(2rem * calc(1 - var(--tw-space-y-reverse)));
-  margin-bottom: calc(2rem * var(--tw-space-y-reverse));
-}
 .space-y-4 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;
   margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1rem * var(--tw-space-y-reverse));
 }
-.divide-x-2 > :not([hidden]) ~ :not([hidden]) {
-  --tw-divide-x-reverse: 0;
-  border-right-width: calc(2px * var(--tw-divide-x-reverse));
-  border-left-width: calc(2px * calc(1 - var(--tw-divide-x-reverse)));
+.space-y-8 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(2rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(2rem * var(--tw-space-y-reverse));
 }
 .divide-y > :not([hidden]) ~ :not([hidden]) {
   --tw-divide-y-reverse: 0;
@@ -819,10 +792,6 @@ Ensure the default browser behavior of the `hidden` attribute.
   padding-top: 4rem;
   padding-bottom: 4rem;
 }
-.py-0 {
-  padding-top: 0px;
-  padding-bottom: 0px;
-}
 .pb-16 {
   padding-bottom: 4rem;
 }
@@ -855,9 +824,6 @@ Ensure the default browser behavior of the `hidden` attribute.
 }
 .pr-2 {
   padding-right: 0.5rem;
-}
-.pl-6 {
-  padding-left: 1.5rem;
 }
 .text-left {
   text-align: left;
@@ -979,10 +945,6 @@ body {
     bottom: 0px;
   }
 
-  .sm\:order-first {
-    order: -9999;
-  }
-
   .sm\:mt-24 {
     margin-top: 6rem;
   }
@@ -1017,12 +979,6 @@ body {
 
   .sm\:justify-center {
     justify-content: center;
-  }
-
-  .sm\:space-y-4 > :not([hidden]) ~ :not([hidden]) {
-    --tw-space-y-reverse: 0;
-    margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
-    margin-bottom: calc(1rem * var(--tw-space-y-reverse));
   }
 
   .sm\:px-6 {
@@ -1089,12 +1045,12 @@ body {
     width: 50%;
   }
 
-  .md\:max-w-3xl {
-    max-width: 48rem;
-  }
-
   .md\:max-w-7xl {
     max-width: 80rem;
+  }
+
+  .md\:max-w-3xl {
+    max-width: 48rem;
   }
 
   .md\:grid-cols-2 {
@@ -1117,16 +1073,16 @@ body {
     margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
   }
 
-  .md\:space-x-6 > :not([hidden]) ~ :not([hidden]) {
-    --tw-space-x-reverse: 0;
-    margin-right: calc(1.5rem * var(--tw-space-x-reverse));
-    margin-left: calc(1.5rem * calc(1 - var(--tw-space-x-reverse)));
-  }
-
   .md\:space-y-0 > :not([hidden]) ~ :not([hidden]) {
     --tw-space-y-reverse: 0;
     margin-top: calc(0px * calc(1 - var(--tw-space-y-reverse)));
     margin-bottom: calc(0px * var(--tw-space-y-reverse));
+  }
+
+  .md\:space-x-6 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 0;
+    margin-right: calc(1.5rem * var(--tw-space-x-reverse));
+    margin-left: calc(1.5rem * calc(1 - var(--tw-space-x-reverse)));
   }
 
   .md\:divide-x-2 > :not([hidden]) ~ :not([hidden]) {
@@ -1158,16 +1114,6 @@ body {
   .md\:px-8 {
     padding-left: 2rem;
     padding-right: 2rem;
-  }
-
-  .md\:px-11 {
-    padding-left: 2.75rem;
-    padding-right: 2.75rem;
-  }
-
-  .md\:py-5 {
-    padding-top: 1.25rem;
-    padding-bottom: 1.25rem;
   }
 
   .md\:pl-6 {
