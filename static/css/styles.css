@@ -490,6 +490,9 @@ Ensure the default browser behavior of the `hidden` attribute.
 .left-0 {
   left: 0px;
 }
+.bottom-2 {
+  bottom: 0.5rem;
+}
 .z-10 {
   z-index: 10;
 }
