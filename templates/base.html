@@ -10,6 +10,7 @@
     <!-- Google fonts for Cairo Medium and SemiBold -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600&display=swap" rel="stylesheet">
     {% block extra_head %}{% endblock %}
 
@@ -29,7 +30,7 @@
 
   <body class="h-screen bg-black font-cairo">
     <div class="container mx-auto">
-      <div class="relative bg-gray-50 overflow-hidden">
+      <div class="relative bg-gray-50">
         <div class="relative pb-16 sm:pb-24">
           <div>
             <div class="mx-auto px-3 sm:px-6 bg-charcoal">
@@ -88,14 +89,14 @@
                 From: "opacity-100 scale-100"
                 To: "opacity-0 scale-95"
             -->
-            <div class="absolute z-10 top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden bg-charcoal h-screen">
-              <div class="overflow-hidden">
+            <div class="absolute z-10 top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden bg-charcoal" x-data="{ isOpen: false }">
+              <div>
                 <div class="px-5 pt-4 flex items-center justify-between">
-                  <div class=" border-b-2 border-slate">
+                  <div class="border-b-2 border-slate">
                     <span class="text-center uppercase text-orange block">1.79.0 Releases on 9-8-22 ></span>
                   </div>
                   <div class="-mr-2">
-                    <button type="button" class="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
+                    <button @click="isOpen = !isOpen" type="button" class="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset">
                       <span class="sr-only">Close menu</span>
                       <!-- Heroicon name: outline/x -->
                       <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
@@ -104,29 +105,31 @@
                     </button>
                   </div>
                 </div>
-                <div class="px-2 pt-2 pb-3 text-2xl">
-                  <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Versions</a>
+                <div x-show="isOpen" class="h-screen z-50">
+                  <div class="px-2 pt-2 pb-3 text-2xl">
+                    <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Versions</a>
 
-                  <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Libraries</a>
+                    <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Libraries</a>
 
-                  <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Review Process</a>
+                    <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Review Process</a>
 
-                  <a href="/forum/" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Forums</a>
+                    <a href="/forum/" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Forums</a>
 
-                  <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">News</a>
+                    <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">News</a>
 
-                  <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Donate</a>
-                </div>
-                <div class="px-2 pt-2 pb-3 absolute bottom-0 left-0 text-sm">
-                  <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">About</a>
+                    <a href="#" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Donate</a>
+                  </div>
+                  <div class="px-2 pt-2 pb-3 absolute bottom-0 left-0 text-sm">
+                    <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">About</a>
 
-                  <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">Support</a>
+                    <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">Support</a>
 
-                  <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">Resources</a>
+                    <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">Resources</a>
 
-                  <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">Signup</a>
+                    <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">Signup</a>
 
-                  <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">Login </a>
+                    <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900 hover:bg-gray-50">Login </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -301,7 +304,6 @@
           </div>
         </div>
         <!-- END BOOST LIBRARIES LOGOS AND TESTIMONIALS -->
-
       </main>
       <!-- End Homepage Hero Section -->
 
