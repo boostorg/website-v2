@@ -1,6 +1,6 @@
 module.exports = {
-  purge: ["templates/**/*.html"],
-  darkMode: false,
+  content: ["templates/**/*.html"],
+  darkMode: 'media',
   theme: {
     colors: {
       'charcoal': '#172A34',
