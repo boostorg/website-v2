@@ -4,7 +4,10 @@ from PIL import Image
 
 from django.core.files import File as DjangoFile
 
+# Include the various pytest fixtures from all of our Django apps tests
+# directories
 pytest_plugins = [
+    "libraries.tests.fixtures",
     "users.tests.fixtures",
     "versions.tests.fixtures",
 ]
