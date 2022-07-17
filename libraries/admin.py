@@ -11,7 +11,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Library)
 class LibraryAdmin(admin.ModelAdmin):
-    list_display = ["name", "active_development", "open_issues"]
+    list_display = ["name", "active", "open_issues"]
     search_fields = ["name", "description"]
     list_filter = ["active_development", "categories"]
 
@@ -21,6 +21,9 @@ class LibraryAdmin(admin.ModelAdmin):
         "open_issues",
         "commits_per_release",
     ]
+
+    def active(self, obj):
+        return obj.active_development
 
 
 @admin.register(Issue)
