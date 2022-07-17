@@ -1,8 +1,95 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
-<h1>Version Detail</h1>
-<h2>{{ version.name }}</h2>
-<h3>{{ version.release_date }}</h3>
-<p>{{ version.description }}</p>
+
+  <div>
+    <a class="text-orange" href="{% url "version-list" %}">Versions</a> > 1.78
+  </div>
+
+  <div class="flex mt-4">
+    <div class="md:w-1/4 hidden md:block">
+      <ul>
+        <li class="py-2"><a href="#download">Download</a></li>
+        <li class="py-2"><a href="#known-issues">Known Issues</a></li>
+        <li class="py-2"><a href="#new-libraries">New Libraries</a></li>
+        <li class="py-2"><a href="#updated-libraries">Updated Libraries</a></li>
+        <li class="py-2"><a href="#compilers">Updated Tools and Compilers Tested</a></li>
+        <li class="py-2"><a href="#acknowledgements">Acknowledgements</a></li>
+      </ul>
+    </div>
+    <div class="md:w-3/4 px-3 md:px-0 mx-3 md:mx-0">
+      <div class="mb-6">
+        <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">Current Version</span>
+      </div>
+
+      <div class="border-b border-slate py-6">
+        <h3 class="text-4xl">{{ version.name }}</h3>
+        <h4>{{ version.release_date }}</h4>
+        <p class="my-4">{{ version.description }}</p>
+      </div>
+
+      <div class="border-b border-slate py-6">
+        <h3 class="text-2xl" id="download">
+          Download
+          <span class="float-right uppercase text-base"><a href="#" class="text-orange">DOCUMENTATION</a></span>
+        </h3>
+
+        <!-- TODO: unhide this after fixing mobile layout -->
+        <table class="hidden md:block table-auto border-spacing-2 w-full my-5">
+          <thead>
+            <tr>
+              <th class="border border-slate p-3">Platform</th>
+              <th class="border border-slate p-3">File</th>
+              <th class="border border-slate p-3">SHA256 Hash</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="border border-slate p-3">Unix</td>
+              <td class="border border-slate p-3"><a href="" class="text-orange">boost_1_78_0.tar.bz2</a></td>
+              <td class="border border-slate p-3">8681f175d4bdb26c52222665793eef08490d7758529330f98d3b29dd0735bccc</td>
+            </tr>
+            <tr>
+              <td class="border border-slate p-3">Windows</td>
+              <td class="border border-slate p-3"><a href="" class="text-orange">boost_1_78_0.zip</a></td>
+              <td class="border border-slate p-3">f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="border-b border-slate py-6">
+        <h3 class="text-2xl" id="known-issues">Known Issues</h3>
+        <p>Content Here</p>
+      </div>
+
+      <div class="border-b border-slate py-6">
+        <h3 class="text-2xl" id="new-libraries">New Libraries</h3>
+        <p>Content Here</p>
+      </div>
+
+      <div class="border-b border-slate py-6">
+        <h3 class="text-2xl" id="updated-libraries">Updated Libraries</h3>
+        <p>Content Here</p>
+      </div>
+
+      <div class="border-b border-slate py-6">
+        <h3 class="text-2xl" id="updated-tools">Updated Tools</h3>
+        <p>Content Here</p>
+      </div>
+
+      <div class="border-b border-slate py-6">
+        <h3 class="text-2xl" id="compilers-tested">Compilers Tested</h3>
+        <p>Content Here</p>
+      </div>
+
+      <div class="border-b border-slate py-6">
+        <h3 class="text-2xl" id="acknowledgements">Acknowledgements</h3>
+        <p>Content Here</p>
+      </div>
+
+    </div>
+  </div>
 {% endblock %}
