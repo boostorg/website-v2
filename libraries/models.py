@@ -1,4 +1,5 @@
 from django.db import models
+from urllib.parse import urlparse
 
 
 class Category(models.Model):
@@ -10,6 +11,9 @@ class Category(models.Model):
     """
 
     name = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name_plural = "Categories"
 
     def __str__(self):
         return self.name
@@ -44,5 +48,76 @@ class Library(models.Model):
     open_issues = models.IntegerField(blank=True, null=True)
     commits_per_release = models.IntegerField(blank=True, null=True)
 
+    class Meta:
+        verbose_name_plural = "Libraries"
+
     def __str__(self):
         return self.name
+
+    def github_properties(self):
+        parts = urlparse(self.github_url)
+        path = parts.path.split("/")
+
+        owner = path[1]
+        repo = path[2]
+
+        return {
+            "owner": owner,
+            "repo": repo,
+        }
+
+    @property
+    def github_owner(self):
+        return self.github_properties()["owner"]
+
+    @property
+    def github_repo(self):
+        return self.github_properties()["repo"]
+
+
+class Issue(models.Model):
+    """
+    Model that tracks Library repository issues in Github
+    """
+
+    library = models.ForeignKey(
+        Library, related_name="issues", on_delete=models.CASCADE
+    )
+    title = models.CharField(max_length=255)
+    number = models.IntegerField()
+    github_id = models.CharField(max_length=100, db_index=True)
+    is_open = models.BooleanField(default=False, db_index=True)
+    closed = models.DateTimeField(blank=True, null=True, db_index=True)
+
+    created = models.DateTimeField(db_index=True)
+    modified = models.DateTimeField(db_index=True)
+
+    data = models.JSONField(default=dict)
+
+    def __str__(self):
+        return f"({self.number}) - {self.title}"
+
+
+class PullRequest(models.Model):
+    """
+    Model that tracks Pull Requests in Github for a Library
+    """
+
+    library = models.ForeignKey(
+        Library, related_name="pull_requests", on_delete=models.CASCADE
+    )
+
+    title = models.CharField(max_length=255)
+    number = models.IntegerField()
+    github_id = models.CharField(max_length=100, db_index=True)
+    is_open = models.BooleanField(default=False, db_index=True)
+    closed = models.DateTimeField(blank=True, null=True, db_index=True)
+    merged = models.DateTimeField(blank=True, null=True, db_index=True)
+
+    created = models.DateTimeField(db_index=True)
+    modified = models.DateTimeField(db_index=True)
+
+    data = models.JSONField(default=dict)
+
+    def __str__(self):
+        return f"({self.number}) - {self.title}"

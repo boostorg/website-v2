@@ -77,7 +77,7 @@ INSTALLED_APPS += [
 ]
 
 # Our Apps
-INSTALLED_APPS += ["ak", "users", "versions"]
+INSTALLED_APPS += ["ak", "users", "versions", "libraries"]
 
 AUTH_USER_MODEL = "users.User"
 
