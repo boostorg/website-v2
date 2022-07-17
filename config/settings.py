@@ -217,7 +217,7 @@ root = logging.getLogger()
 root.setLevel(logging.INFO)
 
 
-handler = logging.FileHandler("./python.log")
+handler = logging.StreamHandler(sys.stdout)
 handler.setFormatter(jsonlogger.JsonFormatter())
 
 root.addHandler(handler)
