@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+  <!-- Breadcrumb used on filtered views -->
+  <div class="p-3 md:p-0">
+    <a class="text-orange" href="{% url "libraries" %}">Libraries</a> > <a class="text-orange" href="{% url "libraries" %}">Specific</a> > Boost.JSON
+  </div>
+  <!-- end breadcrumb -->
+
+  <div class="flex mt-4">
+    <div class="md:w-1/4 hidden md:block">
+      <ul>
+        <li class="py-2"><a href="#overview">Overview</a></li>
+        <li class="py-2"><a href="#reviews">Reviews</a></li>
+        <li class="py-2"><a href="#discussion">Forum Discussion</a></li>
+      </ul>
+    </div>
+    <div class="md:w-3/4 px-3 md:px-0 mx-3 md:mx-0">
+      <div class="pb-6">
+        <h3 class="text-4xl">Boost.JSON</h3>
+      </div>
+      <p>Boost.JSON is a portable C++ library which provides containers and algorithms that implement JavaScript Object Notation,
+        or simply “JSON”, a lightweight data-interchange format. This format is easy for humans to read and write, and easy for
+        machines to parse and generate. It is based on a subset of the JavaScript Programming Language (Standard ECMA-262). JSON
+        is a text format that is language-independent but uses conventions that are familiar to programmers of the C-family of
+        languages, including C, C++, C#, Java, JavaScript, Perl, Python, and many others. These properties make JSON an ideal
+        data-interchange language.</p>
+
+      <div class="uppercase mt-5 max-w-md md:flex space-x-3 text-sm">
+        <a href="#" class="text-orange border border-slate rounded-md py-2 px-4">Changelog</a>
+        <a href="#" class="text-orange border border-slate rounded-md py-2 px-4">Documentation</a>
+        <a href="#" class="text-orange border border-slate rounded-md py-2 px-4">Github</a>
+      </div>
+
+      <div class="md:flex mt-11 justify-between">
+        <div>
+          <h3 class="text-2xl">Categories</h3>
+          <a href="#" class="text-orange">Containers</a>, <a href="#" class="text-orange">Data structures</a>, <a href="#" class="text-orange">Input/Output</a>
+        </div>
+
+        <div>
+          <h3 class="text-2xl">Minimum C++ Version</h3>
+          C++ 11 w/Boost C++17 without Boost
+        </div>
+
+        <div>
+          <h3 class="text-2xl">Active Development</h3>
+          <div class="text-orange">Yes</div>
+          <p>Last Update: March 2, 2021</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
