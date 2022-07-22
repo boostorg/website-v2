@@ -1,5 +1,6 @@
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.views.generic import TemplateView
 from django.urls import path
 from rest_framework import routers
 
@@ -33,6 +34,7 @@ urlpatterns = [
     path("500", InternalServerErrorView.as_view(), name="internal_server_error"),
     path("health/", include("health_check.urls")),
     path("forum/", include(machina_urls)),
+    path("libraries/", TemplateView.as_view(template_name="libraries/list.html"), name="libraries"),
     path("versions/", VersionList.as_view(), name="version-list"),
     path("version/<int:pk>/", VersionDetail.as_view(), name="version-detail"),
 ]
