@@ -12,13 +12,18 @@
   <div class="flex border-b border-slate py-6 mb-3">
     <div class="md:w-1/2">
       <h2 class="text-4xl mb-3">Libraries</h2>
-      View by: All Categorized Condensed
+      <div class="flex space-x-3">
+        <span>View by:</span>
+        <span><input type="checkbox" id="view" name="view" value="all"> All</span>
+        <span><input type="checkbox" id="view" name="view" value="categorized"> Categorized</span>
+        <span><input type="checkbox" id="view" name="view" value="condensed"> Condensed</span>
+      </div>
     </div>
     <div class="md:w-1/2 md:text-right space-y-3">
-      <div><input type="text" value="" placeholder="Search Library" /></div>
+      <div><input class="bg-charcoal text-orange px-3 py-2" type="text" value="" placeholder="Search Library" /></div>
       <div>
-        <select><option>Filter by category</option></select>
-        <select><option>Filter by date</option></select>
+        <select class="rounded bg-charcoal text-orange border border-slate px-3"><option>Filter by category</option></select>
+        <select class="rounded bg-charcoal text-orange border border-slate px-3"><option>Filter by date</option></select>
       </div>
     </div>
   </div>
