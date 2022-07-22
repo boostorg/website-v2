@@ -35,6 +35,7 @@ urlpatterns = [
     path("health/", include("health_check.urls")),
     path("forum/", include(machina_urls)),
     path("libraries/", TemplateView.as_view(template_name="libraries/list.html"), name="libraries"),
+    path("libraries/detail/", TemplateView.as_view(template_name="libraries/detail.html"), name="library-detail"),
     path("versions/", VersionList.as_view(), name="version-list"),
     path("version/<int:pk>/", VersionDetail.as_view(), name="version-detail"),
 ]
