@@ -602,6 +602,9 @@ Ensure the default browser behavior of the `hidden` attribute.
 .mt-11 {
   margin-top: 2.75rem;
 }
+.mb-16 {
+  margin-bottom: 4rem;
+}
 .block {
   display: block;
 }
@@ -803,6 +806,10 @@ Ensure the default browser behavior of the `hidden` attribute.
 .bg-green\/10 {
   background-color: rgb(90 213 153 / 0.1);
 }
+.bg-orange {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 159 0 / var(--tw-bg-opacity));
+}
 .p-11 {
   padding: 2.75rem;
 }
@@ -923,6 +930,9 @@ Ensure the default browser behavior of the `hidden` attribute.
 }
 .pb-4 {
   padding-bottom: 1rem;
+}
+.pb-11 {
+  padding-bottom: 2.75rem;
 }
 .text-left {
   text-align: left;
