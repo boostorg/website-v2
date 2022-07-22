@@ -2,6 +2,7 @@ import base64
 import os
 import itertools
 import re
+import requests
 import structlog
 
 from ghapi.all import GhApi, paged
@@ -128,7 +129,59 @@ class LibraryUpdater:
                 continue
             file_sha = item["sha"]
             f = self.api.git.get_blob(owner=self.owner, repo="boost", file_sha=file_sha)
-            return base64.b64decode(f["content"])
+            gitmodules = base64.b64decode(f["content"])
+            break
+
+        modules = parse_submodules(gitmodules)
+
+    def get_library_metadata(self, repo):
+        """Retrieve library metadata from 'meta/libraries.json'"""
+        url = f"https://raw.githubusercontent.com/{self.owner}/{repo}/develop/meta/libraries.json"
+        try:
+            r = requests.get(url)
+            return r.json()
+        except Exception as e:
+            logger.exception("get_library_metadata_failed", repo=repo, url=url)
+            return None
+
+    def update_libraries(self):
+        """Update all libraries and they metadata"""
+        libs = self.get_library_list()
+
+        logger.info("update_all_libraries_metadata", library_count=len(libs))
+
+        for lib in libs:
+            self.update_library(lib)
+
+    def update_categories(self, obj, categories):
+        """Update all of the categories for an object"""
+        obj.categories.clear()
+        for c in categories:
+            cat, created = Category.objects.get_or_create(name=c)
+            obj.categories.add(cat)
+
+    def update_library(self, lib):
+        """Update an individual library"""
+        logger = logger.bind(lib=lib)
+        try:
+            obj, created = Library.objects_get_or_create(name=lib)
+            logger = logger.bind(created=created)
+
+            meta = self.get_library_metadata(lib)
+            if meta is not None:
+                logger = logger.bind(meta=meta)
+                obj.description = meta["description"]
+
+                # Update categories
+                self.update_categories(obj, categories=meta["category"])
+
+                # Save any changes
+                obj.save()
+
+            logger.info("library_udpated")
+
+        except Exception as e:
+            logger.exception("library_update_failed")
 
 
 class GithubUpdater:
