@@ -4,12 +4,12 @@
 
 {% block content %}
   <!-- Breadcrumb used on filtered views -->
-  <div>
+  <div class="p-3 md:p-0">
     <a class="text-orange" href="{% url "libraries" %}">Libraries</a> > Categorized
   </div>
   <!-- end breadcrumb -->
 
-  <div class="flex border-b border-slate py-6 mb-3">
+  <div class="md:flex md:border-b md:border-slate py-6 mb-3 p-3 md:p-0">
     <div class="md:w-1/2">
       <h2 class="text-4xl mb-3">Libraries</h2>
       <div class="flex space-x-3">
@@ -19,11 +19,11 @@
         <span><input type="checkbox" id="view" name="view" value="condensed"> Condensed</span>
       </div>
     </div>
-    <div class="md:w-1/2 md:text-right space-y-3">
+    <div class="md:w-1/2 md:text-right space-y-3 mt-3 md:mt-0">
       <div><input class="bg-charcoal text-orange px-3 py-2" type="text" value="" placeholder="Search Library" /></div>
       <div>
-        <select class="text-sm uppercase rounded-md bg-black text-orange border border-slate px-5 py-1 mr-3"><option>Filter by category</option></select>
-        <select class="text-sm uppercase rounded-md bg-black text-orange border border-slate px-5 py-1"><option>Filter by date</option></select>
+        <select class="block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate px-5 py-1 mr-3"><option>Filter by category</option></select>
+        <select class="block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate px-5 py-1"><option>Filter by date</option></select>
       </div>
     </div>
   </div>
