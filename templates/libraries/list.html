@@ -22,7 +22,12 @@
     <div class="md:w-1/2 md:text-right space-y-3 mt-3 md:mt-0">
       <div><input class="bg-charcoal text-orange px-3 py-2" type="text" value="" placeholder="Search Library" /></div>
       <div>
-        <select class="block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate px-5 py-1 mr-3"><option>Filter by category</option></select>
+        <select class="block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate px-5 py-1 mr-3">
+          <option>Filter by category</option>
+          {% for c in categories %}
+          <option value="{{c.name}}">{{ c.name }}</option>
+          {% endfor %}
+        </select>
         <select class="block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate px-5 py-1"><option>Filter by date</option></select>
       </div>
     </div>
@@ -36,11 +41,11 @@
 
     <div class="md:flex border-b border-slate py-4">
       <div class="md:w-3/4 mb-4 space-y-2">
-        <h3 class="text-2xl mb-3">{{ library.name }}</h3>
+        <h3 class="text-2xl mb-3"><a href="{% url "library-detail" slug=library.slug %}">{{ library.name }}</a></h3>
         <p class="mb-3">{{ library.description }}</p>
         <div class="md:flex text-sm">
           <div class="md:mr-11">First Release:  X.YY.Z</div>
-          <div>Categories:  {% for c in library.categories.all %}<a href="#" class="text-orange">{{ c.name }}</a> {% endfor %}</div>
+          <div>Categories:  {% for c in library.categories.all %}<a href="{% url "libraries-by-category" category=c.slug %}" class="text-orange">{{ c.name }}</a> {% endfor %}</div>
         </div>
         <div class="text-sm">C++ Standard Minimum Level:  {{ library.cpp_standard_minimum }}</div>
       </div>
