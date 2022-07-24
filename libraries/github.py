@@ -113,6 +113,14 @@ class LibraryUpdater:
             "build",
             "quickbook",
             "litre",
+            "auto_index",
+            "boostdep",
+            "check_build",
+            "headers",
+            "boost_install",
+            "docca",
+            "cmake",
+            "more",
         ]
 
     def get_ref(self, repo, ref):
@@ -224,6 +232,7 @@ class LibraryUpdater:
             obj, created = Library.objects.get_or_create(name=lib["name"])
             obj.github_url = lib["github_url"]
             obj.description = lib["description"]
+            obj.cpp_standard_minimum = lib["cxxstd"]
 
             # Update categories
             self.update_categories(obj, categories=lib["category"])
