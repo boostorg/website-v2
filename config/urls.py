@@ -14,6 +14,12 @@ from ak.views import (
     NotFoundView,
     OKView,
 )
+from libraries.views import (
+    LibraryList,
+    LibraryByLetter,
+    LibraryByCategory,
+    LibraryDetail,
+)
 from versions.api import VersionViewSet
 from versions.views import VersionList, VersionDetail
 
@@ -34,8 +40,22 @@ urlpatterns = [
     path("500", InternalServerErrorView.as_view(), name="internal_server_error"),
     path("health/", include("health_check.urls")),
     path("forum/", include(machina_urls)),
-    path("libraries/", TemplateView.as_view(template_name="libraries/list.html"), name="libraries"),
-    path("libraries/detail/", TemplateView.as_view(template_name="libraries/detail.html"), name="library-detail"),
+    path(
+        "libraries-by-letter/<str:letter>/",
+        LibraryByLetter.as_view(),
+        name="libraries-by-letter",
+    ),
+    path(
+        "libraries-by-category/<slug:category>/",
+        LibraryByCategory.as_view(),
+        name="libraries-by-category",
+    ),
+    path("libraries/", LibraryList.as_view(), name="libraries"),
+    path(
+        "library/<slug:slug>/",
+        LibraryDetail.as_view(),
+        name="library-detail",
+    ),
     path("versions/", VersionList.as_view(), name="version-list"),
     path("version/<int:pk>/", VersionDetail.as_view(), name="version-detail"),
 ]
