@@ -23,36 +23,33 @@
       <!-- Overview -->
       <div class="border-b border-slate pb-16 mb-16">
         <div class="pb-6">
-          <h3 class="text-4xl">Boost.JSON</h3>
+          <h3 class="text-4xl">{{ object.name }}</h3>
         </div>
-        <p>Boost.JSON is a portable C++ library which provides containers and algorithms that implement JavaScript Object Notation,
-          or simply “JSON”, a lightweight data-interchange format. This format is easy for humans to read and write, and easy for
-          machines to parse and generate. It is based on a subset of the JavaScript Programming Language (Standard ECMA-262). JSON
-          is a text format that is language-independent but uses conventions that are familiar to programmers of the C-family of
-          languages, including C, C++, C#, Java, JavaScript, Perl, Python, and many others. These properties make JSON an ideal
-          data-interchange language.</p>
+        <p>{{ object.description }}</p>
 
         <div class="uppercase mt-5 max-w-md md:flex space-x-3 text-sm">
           <a href="#" class="text-orange border border-slate rounded-md py-2 px-4">Changelog</a>
           <a href="#" class="text-orange border border-slate rounded-md py-2 px-4">Documentation</a>
-          <a href="#" class="text-orange border border-slate rounded-md py-2 px-4">Github</a>
+          <a href="{{ object.github_url }}" class="text-orange border border-slate rounded-md py-2 px-4">Github</a>
         </div>
 
         <div class="md:flex mt-11 justify-between">
           <div>
             <h3 class="text-2xl">Categories</h3>
-            <a href="#" class="text-orange">Containers</a>, <a href="#" class="text-orange">Data structures</a>, <a href="#" class="text-orange">Input/Output</a>
+            {% for c in object.categories.all %}
+            <a href="{% url "libraries-by-category" category=c.slug %}" class="text-orange">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
           </div>
 
           <div>
             <h3 class="text-2xl">Minimum C++ Version</h3>
-            C++ 11 w/Boost C++17 without Boost
+            {{ object.cpp_standard_minimum }}
           </div>
 
           <div>
             <h3 class="text-2xl">Active Development</h3>
-            <div class="text-orange">Yes</div>
-            <p>Last Update: March 2, 2021</p>
+            <div class="text-orange">{% if object.active_development %}Yes{% else %}No{% endif %}</div>
+            <p>Last Update: March X, 202X</p>
           </div>
         </div>
 
@@ -65,17 +62,17 @@
         <div class="md:flex mt-11 justify-between">
           <div>
             <h3 class="text-2xl">Closed Pull Requests</h3>
-            3 per Month
+            X per Month
           </div>
 
           <div>
             <h3 class="text-2xl">Open Issues</h3>
-            12
+           Y
           </div>
 
           <div>
             <h3 class="text-2xl">Commits Per Release</h3>
-            <p>24</p>
+            <p>ZZ</p>
           </div>
         </div>
 

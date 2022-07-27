@@ -11,6 +11,7 @@ gevent
 gunicorn
 psycopg2-binary
 whitenoise
+django-click
 
 # Logging
 django-tracer
@@ -45,3 +46,4 @@ django-machina
 
 # Github
 ghapi
+requests

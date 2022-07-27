@@ -22,7 +22,12 @@
     <div class="md:w-1/2 md:text-right space-y-3 mt-3 md:mt-0">
       <div><input class="bg-charcoal text-orange px-3 py-2" type="text" value="" placeholder="Search Library" /></div>
       <div>
-        <select class="block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate px-5 py-1 mr-3"><option>Filter by category</option></select>
+        <select class="block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate px-5 py-1 mr-3">
+          <option>Filter by category</option>
+          {% for c in categories %}
+          <option value="{{c.name}}">{{ c.name }}</option>
+          {% endfor %}
+        </select>
         <select class="block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate px-5 py-1"><option>Filter by date</option></select>
       </div>
     </div>
@@ -32,20 +37,44 @@
 
   <!-- Libraries list -->
   <div class="rounded bg-charcoal p-3 md:p-11 mb-5 mx-3">
-    {% include "libraries/_library_list_item.html" %}
-    {% include "libraries/_library_list_item.html" %}
-    {% include "libraries/_library_list_item.html" %}
+    {% for library in object_list %}
+
+    <div class="md:flex border-b border-slate py-4">
+      <div class="md:w-3/4 mb-4 space-y-2">
+        <h3 class="text-2xl mb-3"><a href="{% url "library-detail" slug=library.slug %}">{{ library.name }}</a></h3>
+        <p class="mb-3">{{ library.description }}</p>
+        <div class="md:flex text-sm">
+          <div class="md:mr-11">First Release:  X.YY.Z</div>
+          <div>Categories:  {% for c in library.categories.all %}<a href="{% url "libraries-by-category" category=c.slug %}" class="text-orange">{{ c.name }}</a> {% endfor %}</div>
+        </div>
+        <div class="text-sm">C++ Standard Minimum Level:  {{ library.cpp_standard_minimum }}</div>
+      </div>
+      <div class="md:w-1/4 mb-4 text-sm">
+        <div class="my-5 md:flex">
+          <div class="mr-5">Author(s):</div>
+          <div class="space-y-3">
+            <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /> Glen Fernandes</div>
+            <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /> Glen Fernandes</div>
+            <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /> Glen Fernandes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% endfor %}
   </div>
   <!-- end libraries list -->
 
   <!-- Pagination -->
   <div class="text-center space-x-3">
-    <a href="#" class="text-orange">1</a>
-    <a href="#" class="text-orange">2</a>
-    <a href="#" class="text-orange">3</a>
-    <a href="#" class="text-orange">...</a>
-    <a href="#" class="text-orange">Next <small> > </small></a>
-    <a href="#" class="text-orange">Last <small> >> </small></a>
+    {% if page_obj.has_previous %}
+    <a href="?page=1" class="text-orange"><small> &lt;&lt; First</small></a>
+    <a href="?page={{ page_obj.previous_page_number }}" class="text-orange"><small> &lt; Previous</small> </a>
+    {% endif %}
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="text-orange"><small>Next <small> &gt; </small></a>
+    <a href="?page={{ page_obj.paginator.num_pages }}" class="text-orange">Last <small> &gt;&gt;</small></a>
+    {% endif %}
   </div>
   <!-- end pagination -->
 
