@@ -1247,6 +1247,11 @@ body {
   background-color: rgb(255 159 0 / var(--tw-bg-opacity));
 }
 
+.checked\:text-orange:checked {
+  --tw-text-opacity: 1;
+  color: rgb(255 159 0 / var(--tw-text-opacity));
+}
+
 .hover\:bg-orange:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(255 159 0 / var(--tw-bg-opacity));
@@ -1275,6 +1280,11 @@ body {
 
 .focus\:ring-inset:focus {
   --tw-ring-inset: inset;
+}
+
+.peer:checked ~ .peer-checked\:text-orange {
+  --tw-text-opacity: 1;
+  color: rgb(255 159 0 / var(--tw-text-opacity));
 }
 
 @media (min-width: 640px) {

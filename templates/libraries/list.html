@@ -14,9 +14,24 @@
       <h2 class="text-4xl my-5">Libraries</h2>
       <div class="flex space-x-6">
         <span>View by:</span>
-        <span><input type="checkbox" id="view" name="view" value="all" class="border rounded-sm bg-charcoal hover:bg-orange cursor-pointer checked:bg-orange mr-1" /> All</span>
-        <span><input type="checkbox" id="view" name="view" value="categorized" class="border rounded-sm bg-charcoal hover:bg-orange cursor-pointer checked:bg-orange mr-1" /> Categorized</span>
-        <span><input type="checkbox" id="view" name="view" value="condensed" class="border rounded-sm bg-charcoal hover:bg-orange cursor-pointer checked:bg-orange mr-1" /> Condensed</span>
+        <span>
+          <label>
+            <input type="checkbox" id="view" name="view" value="all" class="border rounded-sm bg-charcoal hover:bg-orange cursor-pointer checked:bg-orange mr-1 peer" />
+            <span class="peer-checked:text-orange">All</span>
+          </label>
+        </span>
+        <span>
+          <label>
+            <input type="checkbox" id="view" name="view" value="categorized" class="border rounded-sm bg-charcoal hover:bg-orange cursor-pointer checked:bg-orange mr-1 peer" />
+            <span class="peer-checked:text-orange">Categorized</span>
+          </label>
+        </span>
+        <span>
+          <label>
+            <input type="checkbox" id="view" name="view" value="condensed" class="border rounded-sm bg-charcoal hover:bg-orange cursor-pointer checked:bg-orange mr-1 peer" />
+            <span class="peer-checked:text-orange">Condensed</span>
+          </label>
+        </span>
       </div>
     </div>
     <div class="md:w-1/2 md:text-right space-y-3 mt-3 md:mt-0">
