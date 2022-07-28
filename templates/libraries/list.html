@@ -9,26 +9,33 @@
   </div>
   <!-- end breadcrumb -->
 
-  <div class="md:flex md:border-b md:border-slate py-6 mb-3 p-3 md:p-0">
+  <div class="md:flex md:border-b md:border-slate py-6 mb-3">
     <div class="md:w-1/2">
-      <h2 class="text-4xl mb-3">Libraries</h2>
-      <div class="flex space-x-3">
+      <h2 class="text-4xl my-5">Libraries</h2>
+      <div class="flex space-x-6">
         <span>View by:</span>
-        <span><input type="checkbox" id="view" name="view" value="all"> All</span>
-        <span><input type="checkbox" id="view" name="view" value="categorized"> Categorized</span>
-        <span><input type="checkbox" id="view" name="view" value="condensed"> Condensed</span>
+        <span><input type="checkbox" id="view" name="view" value="all" class="border rounded-sm bg-charcoal hover:bg-orange cursor-pointer checked:bg-orange mr-1" /> All</span>
+        <span><input type="checkbox" id="view" name="view" value="categorized" class="border rounded-sm bg-charcoal hover:bg-orange cursor-pointer checked:bg-orange mr-1" /> Categorized</span>
+        <span><input type="checkbox" id="view" name="view" value="condensed" class="border rounded-sm bg-charcoal hover:bg-orange cursor-pointer checked:bg-orange mr-1" /> Condensed</span>
       </div>
     </div>
     <div class="md:w-1/2 md:text-right space-y-3 mt-3 md:mt-0">
-      <div><input class="bg-charcoal text-orange px-3 py-2" type="text" value="" placeholder="Search Library" /></div>
+      <div class="relative mb-6">
+        <span class="absolute inset-y-0 right-3 flex items-center pl-2">
+          <button type="submit" class="p-1 focus:outline-none focus:shadow-outline">
+            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-4 h-4"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </button>
+        </span>
+        <input type="search" name="q" class="w-1/3 text-sm text-white bg-charcoal focus:bg-white focus:text-charcoal text-orange px-3 py-2 rounded-md" type="text" value="" placeholder="Search Library" />
+      </div>
       <div>
-        <select class="block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate px-5 py-1 mr-3">
+        <select class="cursor-pointer block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate pl-5 pr-11 py-3 mr-3">
           <option>Filter by category</option>
           {% for c in categories %}
           <option value="{{c.name}}">{{ c.name }}</option>
           {% endfor %}
         </select>
-        <select class="block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate px-5 py-1"><option>Filter by date</option></select>
+        <select class="cursor-pointer block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate pl-5 pr-11 py-3"><option>Filter by date</option></select>
       </div>
     </div>
   </div>
