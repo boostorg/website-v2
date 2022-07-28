@@ -729,6 +729,10 @@ select {
   margin-top: 2.75rem;
   margin-bottom: 2.75rem;
 }
+.my-6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
 .mb-4 {
   margin-bottom: 1rem;
 }
@@ -1198,6 +1202,9 @@ select {
 .uppercase {
   text-transform: uppercase;
 }
+.capitalize {
+  text-transform: capitalize;
+}
 .tracking-tight {
   letter-spacing: -0.025em;
 }
@@ -1244,6 +1251,10 @@ select {
 
 body {
   color: white;
+}
+
+.last\:border-0:last-child {
+  border-width: 0px;
 }
 
 .checked\:bg-orange:checked {
