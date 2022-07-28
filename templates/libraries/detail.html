@@ -27,13 +27,13 @@
         </div>
         <p>{{ object.description }}</p>
 
-        <div class="uppercase mt-11 max-w-md md:flex space-x-3 text-sm">
-          <a href="#" class="text-orange border border-slate rounded-md py-3 px-6">Changelog</a>
-          <a href="#" class="text-orange border border-slate rounded-md py-3 px-6">Documentation</a>
-          <a href="{{ object.github_url }}" class="text-orange border border-slate rounded-md py-3 px-6">Github</a>
+        <div class="uppercase mt-4 md:mt-11 max-w-md md:flex space-y-3 md:space-x-3 text-sm">
+          <a href="#" class="inline-block text-orange border border-slate rounded-md py-3 px-6">Changelog</a>
+          <a href="#" class="inline-block text-orange border border-slate rounded-md py-3 px-6">Documentation</a>
+          <a href="{{ object.github_url }}" class="inline-block text-orange border border-slate rounded-md py-3 px-6">Github</a>
         </div>
 
-        <div class="md:flex mt-11 py-6 justify-between">
+        <div class="md:flex mt-4 md:mt-11 py-6 justify-between">
           <div>
             <h3 class="text-2xl">Categories</h3>
             {% for c in object.categories.all %}
@@ -53,7 +53,7 @@
           </div>
         </div>
 
-        <div class="mt-11 py-6">
+        <div class="mt-4 md:mt-11 py-6">
           <h3 class="text-2xl mb-4">Level of Activity</h3>
           <div class="bg-charcoal rounded h-6">
             <!-- TODO: Change the width to use a percent of activity -->
@@ -61,32 +61,32 @@
           </div>
         </div>
 
-        <div class="md:flex my-11 py-11 justify-between">
-          <div>
+        <div class="md:flex my-4 md:my-11 py-6 md:justify-between">
+          <div class="py-6">
             <h3 class="text-2xl mb-1">Closed Pull Requests</h3>
             X per Month
           </div>
 
-          <div>
+          <div class="py-6">
             <h3 class="text-2xl mb-1">Open Issues</h3>
            Y
           </div>
 
-          <div>
+          <div class="py-6">
             <h3 class="text-2xl mb-1">Commits Per Release</h3>
             <p>ZZ</p>
           </div>
         </div>
 
-        <div class="md:flex py-11 space-x-11">
-          <div>
+        <div class="md:flex md:py-11 md:space-x-11">
+          <div class="py-6">
             <h3 class="text-2xl mb-4">Authors</h3>
             <div class="space-y-3">
               <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
               <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
             </div>
           </div>
-          <div>
+          <div class="py-6">
             <h3 class="text-2xl mb-4">Maintainers</h3>
             <div class="space-y-3">
               <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
@@ -110,14 +110,14 @@
             <div class="mt-11"><a href="#" class="text-orange border border-slate rounded-md py-2 px-4">Review Results</a></div>
           </div>
 
-          <div>
+          <div class="py-11 md:py-0">
             <h3 class="text-2xl mb-4">Review Manager</h3>
             <div class="space-y-3">
               <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
             </div>
           </div>
 
-          <div>
+          <div class="py-3 md:py-0">
             <h3 class="text-2xl mb-4">Reviewers</h3>
             <div class="space-y-3">
               <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
@@ -132,7 +132,7 @@
       <div class="pb-6">
         <h3 class="text-4xl mb-11" id="discussion">Discussions</h3>
 
-        <div class="my-4 md:my-0 rounded bg-charcoal px-11 py-5">
+        <div class="my-4 md:my-0 rounded bg-charcoal px-3 md:px-11 py-5">
           <div class="flex justify-between mb-6">
             <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">Forum Discussions</span>
           </div>
