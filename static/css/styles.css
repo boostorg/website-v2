@@ -1450,6 +1450,11 @@ body {
     margin-bottom: 2.75rem;
   }
 
+  .md\:my-6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
   .md\:mb-11 {
     margin-bottom: 2.75rem;
   }
