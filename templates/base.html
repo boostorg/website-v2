@@ -33,54 +33,54 @@
     <div class="container mx-auto">
       {% include "includes/_header.html" %}
 
+      <div class="md:px-11">
       {% block content_wrapper %}
         {% block content %}{% endblock %}
       {% endblock %}
+      </div>
 
       {% include "includes/_footer.html" %}
     </div>
-    {% block footer_js %}{% endblock %}
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js"></script>
+
+    {% block footer_js %}{% endblock %}
 
     <script>
       var params = {
-        // animationData: { /* ... */ },
-        container: document.getElementById('icon-container'), // required
-        path: '{% static "animations/4dots.json" %}', // required
-        renderer: 'svg', // required
-        loop: true, // optional
-        autoplay: true, // optional
-        name: "4 Dots", // optional
+        container: document.getElementById('icon-container'),
+        path: '{% static "animations/4dots.json" %}',
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        name: "4 Dots",
       };
 
       var mobileParams = {
-        // animationData: { /* ... */ },
-        container: document.getElementById('icon-container-mobile'), // required
-        path: '{% static "animations/4dots.json" %}', // required
-        renderer: 'svg', // required
-        loop: true, // optional
-        autoplay: true, // optional
-        name: "4 Dots", // optional
+        container: document.getElementById('icon-container-mobile'),
+        path: '{% static "animations/4dots.json" %}',
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        name: "4 Dots",
       };
 
       var scene1Params = {
-        // animationData: { /* ... */ },
-        container: document.getElementById('scene01'), // required
-        path: '{% static "animations/Scene01/data.json" %}', // required
-        renderer: 'svg', // required
-        loop: true, // optional
-        autoplay: true, // optional
-        name: "4 Dots", // optional
+        container: document.getElementById('scene01'),
+        path: '{% static "animations/Scene01/data.json" %}',
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        name: "4 Dots",
       };
 
       var scene3Params = {
-        // animationData: { /* ... */ },
-        container: document.getElementById('scene03'), // required
-        path: '{% static "animations/Scene03/data.json" %}', // required
-        renderer: 'svg', // required
-        loop: true, // optional
-        autoplay: true, // optional
-        name: "4 Dots", // optional
+        container: document.getElementById('scene03'),
+        path: '{% static "animations/Scene03/data.json" %}',
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        name: "4 Dots",
       };
 
       anim = lottie.loadAnimation(params);
