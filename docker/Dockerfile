@@ -2,7 +2,7 @@
 
 FROM python:3.9-slim-buster AS builder-py
 
-RUN apt-get update && apt-get install -y build-essential gcc python-dev postgresql-client && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y build-essential gcc python-dev postgresql-client && rm -rf /var/lib/apt/lists/*
 
 RUN pip install -U pip
 
@@ -16,6 +16,8 @@ RUN --mount=type=cache,target=/root/.cache \
     pip install --no-compile -r /code/requirements.txt
 
 FROM python:3.9-slim-buster AS release
+
+RUN apt update && apt install -y git && rm -rf /var/lib/apt/lists/*
 
 ENV PATH /venv/bin:/bin:/usr/bin:/usr/local/bin
 ENV PYTHONDONTWRITEBYTECODE=true
