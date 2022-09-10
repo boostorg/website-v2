@@ -14,6 +14,7 @@ from ak.views import (
     NotFoundView,
     OKView,
 )
+from core.views import MarkdownTemplateView
 from libraries.views import (
     LibraryList,
     LibraryByLetter,
@@ -59,4 +60,6 @@ urlpatterns = [
     path("review/", TemplateView.as_view(template_name="review/review_process.html"), name="review-process"),
     path("versions/", VersionList.as_view(), name="version-list"),
     path("version/<int:pk>/", VersionDetail.as_view(), name="version-detail"),
+    # TODO: determine real routes for this
+    path("content/<slug:title>/", MarkdownTemplateView.as_view(), name="markdown-page"),
 ]
