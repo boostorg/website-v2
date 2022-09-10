@@ -554,6 +554,24 @@ select {
   outline: 1px solid ButtonText;
   outline: 1px auto -webkit-focus-ring-color;
 }
+  h1 {
+  font-size: 3.75rem;
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+  h2 {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+  p {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+  pre {
+  padding: 1.5rem;
+}
 
 *, ::before, ::after {
   --tw-translate-x: 0;
@@ -669,12 +687,6 @@ select {
 .left-0 {
   left: 0px;
 }
-.right-0 {
-  right: 0px;
-}
-.right-4 {
-  right: 1rem;
-}
 .right-3 {
   right: 0.75rem;
 }
@@ -724,10 +736,6 @@ select {
 .mx-3 {
   margin-left: 0.75rem;
   margin-right: 0.75rem;
-}
-.my-11 {
-  margin-top: 2.75rem;
-  margin-bottom: 2.75rem;
 }
 .my-6 {
   margin-top: 1.5rem;
@@ -787,20 +795,17 @@ select {
 .mb-16 {
   margin-bottom: 4rem;
 }
-.mt-11 {
-  margin-top: 2.75rem;
-}
 .mb-1 {
   margin-bottom: 0.25rem;
 }
-.mb-5 {
-  margin-bottom: 1.25rem;
-}
-.mr-2 {
-  margin-right: 0.5rem;
+.mt-11 {
+  margin-top: 2.75rem;
 }
 .mr-1 {
   margin-right: 0.25rem;
+}
+.mb-5 {
+  margin-bottom: 1.25rem;
 }
 .block {
   display: block;
@@ -948,25 +953,15 @@ select {
   margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
 }
-.space-x-11 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 0;
-  margin-right: calc(2.75rem * var(--tw-space-x-reverse));
-  margin-left: calc(2.75rem * calc(1 - var(--tw-space-x-reverse)));
-}
-.space-x-6 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 0;
-  margin-right: calc(1.5rem * var(--tw-space-x-reverse));
-  margin-left: calc(1.5rem * calc(1 - var(--tw-space-x-reverse)));
+.space-y-11 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(2.75rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(2.75rem * var(--tw-space-y-reverse));
 }
 .space-y-6 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;
   margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
-}
-.space-y-11 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-y-reverse: 0;
-  margin-top: calc(2.75rem * calc(1 - var(--tw-space-y-reverse)));
-  margin-bottom: calc(2.75rem * var(--tw-space-y-reverse));
 }
 .divide-y > :not([hidden]) ~ :not([hidden]) {
   --tw-divide-y-reverse: 0;
@@ -1083,9 +1078,9 @@ select {
   padding-top: 2.75rem;
   padding-bottom: 2.75rem;
 }
-.py-16 {
-  padding-top: 4rem;
-  padding-bottom: 4rem;
+.py-0 {
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 .px-5 {
   padding-left: 1.25rem;
@@ -1111,9 +1106,9 @@ select {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
 }
-.py-0 {
-  padding-top: 0px;
-  padding-bottom: 0px;
+.py-16 {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
 }
 .pr-2 {
   padding-right: 0.5rem;
@@ -1169,17 +1164,11 @@ select {
 .pr-11 {
   padding-right: 2.75rem;
 }
-.pb-4 {
-  padding-bottom: 1rem;
-}
 .text-left {
   text-align: left;
 }
 .text-center {
   text-align: center;
-}
-.align-middle {
-  vertical-align: middle;
 }
 .font-cairo {
   font-family: 'Cairo', sans-serif;
@@ -1266,8 +1255,6 @@ select {
   transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
 }
 
-/* custom classes */
-
 body {
   color: white;
 }
@@ -1281,17 +1268,7 @@ body {
   background-color: rgb(255 159 0 / var(--tw-bg-opacity));
 }
 
-.checked\:text-orange:checked {
-  --tw-text-opacity: 1;
-  color: rgb(255 159 0 / var(--tw-text-opacity));
-}
-
 .hover\:bg-orange:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 159 0 / var(--tw-bg-opacity));
-}
-
-.focus\:bg-orange:focus {
   --tw-bg-opacity: 1;
   background-color: rgb(255 159 0 / var(--tw-bg-opacity));
 }
@@ -1372,45 +1349,9 @@ body {
     justify-content: center;
   }
 
-  .sm\:space-y-4 > :not([hidden]) ~ :not([hidden]) {
-    --tw-space-y-reverse: 0;
-    margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
-    margin-bottom: calc(1rem * var(--tw-space-y-reverse));
-  }
-
-  .sm\:space-y-3 > :not([hidden]) ~ :not([hidden]) {
-    --tw-space-y-reverse: 0;
-    margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
-    margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
-  }
-
   .sm\:px-6 {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
-  }
-
-  .sm\:py-4 {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
-
-  .sm\:py-11 {
-    padding-top: 2.75rem;
-    padding-bottom: 2.75rem;
-  }
-
-  .sm\:py-6 {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
-  }
-
-  .sm\:px-3 {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-
-  .sm\:pt-4 {
-    padding-top: 1rem;
   }
 
   .sm\:text-5xl {
@@ -1440,6 +1381,11 @@ body {
     margin-bottom: 0px;
   }
 
+  .md\:my-6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
   .md\:mx-0 {
     margin-left: 0px;
     margin-right: 0px;
@@ -1448,11 +1394,6 @@ body {
   .md\:my-11 {
     margin-top: 2.75rem;
     margin-bottom: 2.75rem;
-  }
-
-  .md\:my-6 {
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
   }
 
   .md\:mb-11 {
@@ -1467,20 +1408,20 @@ body {
     margin-top: 2rem;
   }
 
-  .md\:mr-11 {
-    margin-right: 2.75rem;
+  .md\:mb-0 {
+    margin-bottom: 0px;
   }
 
-  .md\:mt-0 {
-    margin-top: 0px;
+  .md\:mr-11 {
+    margin-right: 2.75rem;
   }
 
   .md\:mt-11 {
     margin-top: 2.75rem;
   }
 
-  .md\:mb-0 {
-    margin-bottom: 0px;
+  .md\:mt-0 {
+    margin-top: 0px;
   }
 
   .md\:mb-6 {
@@ -1519,20 +1460,12 @@ body {
     width: 25%;
   }
 
-  .md\:w-full {
-    width: 100%;
-  }
-
   .md\:w-1\/3 {
     width: 33.333333%;
   }
 
   .md\:w-auto {
     width: auto;
-  }
-
-  .md\:w-2\/3 {
-    width: 66.666667%;
   }
 
   .md\:max-w-7xl {
@@ -1650,6 +1583,16 @@ body {
     padding-right: 2.5rem;
   }
 
+  .md\:py-6 {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .md\:px-0 {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
   .md\:py-3 {
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
@@ -1660,11 +1603,6 @@ body {
     padding-right: 2rem;
   }
 
-  .md\:px-0 {
-    padding-left: 0px;
-    padding-right: 0px;
-  }
-
   .md\:py-11 {
     padding-top: 2.75rem;
     padding-bottom: 2.75rem;
@@ -1673,16 +1611,6 @@ body {
   .md\:py-0 {
     padding-top: 0px;
     padding-bottom: 0px;
-  }
-
-  .md\:py-16 {
-    padding-top: 4rem;
-    padding-bottom: 4rem;
-  }
-
-  .md\:py-6 {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
   }
 
   .md\:pl-6 {

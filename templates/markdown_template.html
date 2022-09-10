@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}{{ frontmatter.title }}{% endblock %}
+{% block description %}{{ frontmatter.description }}{% endblock %}
+{% block keywords %}{{ frontmatter.keywords }}{% endblock %}
+{% block author %}{{ frontmatter.author }}{% endblock %}
+
+{% block content %}
+  <div class="py-0 md:py-6 mb-3 px-3 md:px-0">
+
+    <div class="mb-6 md:mb-0">
+      {{ content|safe }}
+    </div>
+
+  </div>
+{% endblock %}
