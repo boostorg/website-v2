@@ -670,6 +670,10 @@ select {
 .relative {
   position: relative;
 }
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+}
 .inset-x-0 {
   left: 0px;
   right: 0px;
@@ -704,6 +708,9 @@ select {
 }
 .m-10 {
   margin: 2.5rem;
+}
+.m-0 {
+  margin: 0px;
 }
 .mx-auto {
   margin-left: auto;
@@ -740,6 +747,10 @@ select {
 .my-6 {
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
+}
+.my-1 {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
 }
 .mb-4 {
   margin-bottom: 1rem;
@@ -806,6 +817,12 @@ select {
 }
 .mb-5 {
   margin-bottom: 1.25rem;
+}
+.mr-auto {
+  margin-right: auto;
+}
+.mb-0 {
+  margin-bottom: 0px;
 }
 .block {
   display: block;
@@ -1042,6 +1059,9 @@ select {
 .p-1 {
   padding: 0.25rem;
 }
+.p-0 {
+  padding: 0px;
+}
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -1106,6 +1126,10 @@ select {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
 }
+.px-0 {
+  padding-left: 0px;
+  padding-right: 0px;
+}
 .py-16 {
   padding-top: 4rem;
   padding-bottom: 4rem;
@@ -1164,11 +1188,23 @@ select {
 .pr-11 {
   padding-right: 2.75rem;
 }
+.pl-0 {
+  padding-left: 0px;
+}
+.pr-0 {
+  padding-right: 0px;
+}
+.pr-3 {
+  padding-right: 0.75rem;
+}
 .text-left {
   text-align: left;
 }
 .text-center {
   text-align: center;
+}
+.align-top {
+  vertical-align: top;
 }
 .font-cairo {
   font-family: 'Cairo', sans-serif;
@@ -1212,6 +1248,9 @@ select {
 }
 .capitalize {
   text-transform: capitalize;
+}
+.leading-10 {
+  line-height: 2.5rem;
 }
 .tracking-tight {
   letter-spacing: -0.025em;
@@ -1347,6 +1386,12 @@ body {
 
   .sm\:justify-center {
     justify-content: center;
+  }
+
+  .sm\:space-y-11 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: calc(2.75rem * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(2.75rem * var(--tw-space-y-reverse));
   }
 
   .sm\:px-6 {
