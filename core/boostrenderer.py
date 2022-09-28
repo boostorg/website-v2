@@ -14,6 +14,7 @@ class Youtube(SpanToken):
     Expected shortcode: `[[ youtube | U4VZ9DRdXAI ]]`
     youtube is thrown out but in the shortcode for readability
     """
+
     pattern = re.compile(r"\[\[ *(.+?) *\| *(.+?) *\]\]")
 
     def __init__(self, match):
@@ -24,7 +25,7 @@ class PygmentsRenderer(HTMLRenderer):
     formatter = HtmlFormatter()
     formatter.noclasses = True
 
-    def __init__(self, *extras, style='solarized-dark'):
+    def __init__(self, *extras, style="solarized-dark"):
         super().__init__(*extras)
         self.formatter.style = get_style(style)
 
