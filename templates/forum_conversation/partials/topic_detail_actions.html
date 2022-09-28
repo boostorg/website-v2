@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n static %}
 {% load forum_permission_tags %}
 
 {% get_permission 'can_add_post' topic request.user as user_can_add_post %}
@@ -12,10 +12,10 @@
 {% get_permission 'can_update_topics_to_announces' topic.forum request.user as user_can_change_to_announces %}
 
 {% if user_can_add_post %}
-<a href="{% url 'forum_conversation:post_create' forum.slug forum.pk topic.slug topic.pk %}" class="btn btn-primary btn-sm"><i class="fa fa-comment fa-lg"></i>&nbsp;{% trans "Post reply" %}</a>
+<a href="{% url 'forum_conversation:post_create' forum.slug forum.pk topic.slug topic.pk %}" class="rounded rounded-lg border border-1 border-orange text-orange uppercase text-sm py-2 px-4 mr-4"><img class="inline-block mr-3" src="{% static 'img/icons/icon_button-talk-bubble.svg' %}" />{% trans "Post reply" %}</a>
 {% endif %}
 {% if user_can_subscribe_to_topic %}
-<a href="{% url 'forum_member:topic_subscribe' topic.pk %}" class="btn btn-info btn-sm btn-subscription"><i class="fas fa-check">&nbsp;</i>{% trans "Subscribe" %}</a>
+<a href="{% url 'forum_member:topic_subscribe' topic.pk %}" class="rounded rounded-lg border border-1 border-slate text-orange uppercase text-sm py-2 px-4"><img class="inline-block mr-3" src="{% static 'img/icons/icon_button-checkmark.svg' %}" />{% trans "Subscribe" %}</a>
 {% elif user_can_unsubscribe_from_topic %}
 <a href="{% url 'forum_member:topic_unsubscribe' topic.pk %}" class="btn btn-info btn-sm btn-subscription"><i class="fas fa-times">&nbsp;</i>{% trans "Unsubscribe" %}</a>
 {% endif %}
