@@ -2,8 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-/* custom classes */
-
 body {
   color: white;
+}
+
+@layer base {
+  h1 {
+    @apply text-6xl;
+    @apply mb-3;
+  }
+  h2 {
+    @apply text-4xl;
+    @apply my-5;
+  }
+  h3 {
+    @apply text-2xl;
+  }
+  h4 {
+    @apply text-xl;
+  }
+  p {
+    @apply py-5;
+  }
+  pre {
+    @apply p-6;
+  }
 }
