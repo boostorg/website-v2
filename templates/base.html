@@ -7,6 +7,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{% block description %}{% endblock %}">
+    <meta name="keywords" content="{% block keywords %}{% endblock %}">
+    <meta name="author" content="{% block author %}{% endblock %}">
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
     <!-- Google fonts for Cairo Medium and SemiBold -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,6 +35,9 @@
   <body class="h-screen bg-black font-cairo">
     <div class="container mx-auto">
       {% include "includes/_header.html" %}
+
+      {% comment %}body block is for use in forums{% endcomment %}
+      {% block body %}{% endblock %}
 
       <div class="md:px-11">
       {% block content_wrapper %}

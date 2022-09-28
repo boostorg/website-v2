@@ -1,0 +1,67 @@
+{% load i18n %}
+
+{% if post_form.non_field_errors %}
+{% for error in post_form.non_field_errors %}
+<div class="alert alert-danger">
+  <i class="icon-exclamation-sign"></i> {{ error }}
+</div>
+{% endfor %}
+{% endif %}
+{% include "partials/form_field.html" with field=post_form.subject %}
+{% include "partials/form_field.html" with field=post_form.content %}
+{% if post_form.username %}
+    {% include "partials/form_field.html" with field=post_form.username %}
+{% endif %}
+{% if post_form.update_reason %}
+    {% include "partials/form_field.html" with field=post_form.update_reason %}
+{% endif %}
+<!-- Sub "forms" tabs -->
+{% if attachment_formset %}
+<ul class="nav nav-tabs nav-justified">
+  <li class="nav-item"><a href="#options" class="nav-link active" data-toggle="tab">{% trans "Options" %}</a></li>
+  <li class="nav-item"><a href="#attachments" class="nav-link" data-toggle="tab">{% trans "Attachments" %}</a></li>
+</ul>
+{% endif %}
+<!-- Sub "forms" panes -->
+<div class="tab-content">
+  <div class="tab-pane active" id="options">
+    <div class="form-group">
+      <br />
+      <div class="row">
+        <div class="col-md-12">
+          {% with field=post_form.enable_signature %}
+          <div class="checkbox">
+            <label for="{{ field.auto_id }}">
+              {{ field }}
+              {{ field.label }}
+            </label>
+          </div>
+          {% endwith %}
+          {% if post_form.lock_topic %}
+          {% with field=post_form.lock_topic %}
+          <div class="checkbox">
+            <label for="{{ field.auto_id }}">
+              {{ field }}
+              {{ field.label }}
+            </label>
+          </div>
+          {% endwith %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if attachment_formset %}
+  <div class="tab-pane" id="attachments">
+    <div class="form-group">
+      <br />
+      <div class="row">
+        <div id="attachment_formset" class="col-md-12">
+           <p class="lead attachments-title">{% trans "Attachments" %}</p>
+          {% include "forum_conversation/forum_attachments/attachment_formset.html" %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>

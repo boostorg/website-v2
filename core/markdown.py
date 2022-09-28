@@ -1,14 +1,15 @@
 import frontmatter
-from mistletoe import Document, HTMLRenderer
+from core.boostrenderer import BoostRenderer
+from mistletoe import Document
 
 
-def process_md():
-    with open("content/test.md") as f:
+def process_md(filename):
+    with open(filename) as f:
         post = frontmatter.load(f)
         metadata = post.metadata
         content = post.content
 
-        with HTMLRenderer() as renderer:
+        with BoostRenderer() as renderer:
             doc = Document(content)
             rendered = renderer.render(doc)
 
