@@ -57,7 +57,11 @@ urlpatterns = [
         LibraryDetail.as_view(),
         name="library-detail",
     ),
-    path("review/", TemplateView.as_view(template_name="review/review_process.html"), name="review-process"),
+    path(
+        "review/",
+        TemplateView.as_view(template_name="review/review_process.html"),
+        name="review-process",
+    ),
     path("versions/", VersionList.as_view(), name="version-list"),
     path("version/<int:pk>/", VersionDetail.as_view(), name="version-detail"),
     # TODO: determine real routes for this
