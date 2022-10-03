@@ -30,8 +30,8 @@
     <div class="tab-pane active" id="options">
       <div class="form-group">
         <br />
-        <div class="row">
-          <div class="col-md-12">
+        <div class="w-full">
+          <div class="w-full">
             {% include "partials/form_field.html" with field=post_form.topic_type %}
             {% with field=post_form.enable_signature %}
             <div class="checkbox">
@@ -95,8 +95,8 @@
     {% endif %}
   </div>
 
-  <div class="form-actions">
-    <input type="submit" name="preview" class="btn btn-large btn-default" value="{% trans "Preview" %}" />&nbsp;
-    <input type="submit" class="btn btn-large btn-primary" value="{% trans "Submit" %}" />
+  <div class="form-actions my-5">
+    <input type="submit" name="preview" class="px-8 py-3 border border-slate text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm" value="{% trans "Preview" %}" />&nbsp;
+    <input type="submit" class="px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm" value="{% trans "Submit" %}" />
   </div>
 </form>

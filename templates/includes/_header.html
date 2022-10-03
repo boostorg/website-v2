@@ -30,7 +30,7 @@
         <nav class="relative flex items-center justify-between sm:h-10 md:justify-center">
           <div class="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full md:space-x-10" aria-hidden="true">
             <div class="relative h-full mx-auto pl-8 inline">
-              <img class="inline w-auto h-[50px]" src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}" alt="Boost">
+              <a href="{% url 'home' %}"><img class="inline w-auto h-[50px]" src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}" alt="Boost"></a>
             </div>
             <div class="inline md:space-x-10 float-right pr-8 text-lg">
               <a href="{% url "version-list" %}" class="font-medium text-gray-500 hover:text-gray-900">Versions</a>
@@ -65,7 +65,7 @@
           </div>
           <div class="border-b-2 border-slate pb-1">
             <div class="relative h-full mx-auto pl-2 inline-block pt-2">
-              <img class="inline w-auto h-[30px]" src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}" alt="Boost">
+              <a href="{% url 'home' %}"><img class="inline w-auto h-[30px]" src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}" alt="Boost"></a>
             </div>
             <button @click="isOpen = !isOpen" type="button" class="float-right bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset">
               <span class="sr-only">Close menu</span>
