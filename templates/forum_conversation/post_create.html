@@ -14,18 +14,18 @@
 {% if preview %}
   {% include "forum_conversation/post_preview.html" %}
 {% endif %}
-<div class="row">
-  <div class="col-12">
+<div>
+  <div class="w-full bg-charcoal border border-1 border-slate rounded">
     <div class="card post-edit">
-      <div class="card-header">
-        <h3 class="m-0 h5 card-title">{% trans "Post a reply" %}</h3>
+      <div class="card-header border-b border-slate px-4 py-2">
+        <h3 class="m-0 h5 card-title text-base">{% trans "Post a reply" %}</h3>
       </div>
-      <div class="card-body">
+      <div class="card-body p-4">
         <form method="post" action="." class="form" enctype="multipart/form-data" novalidate>{% csrf_token %}
           {% include "forum_conversation/partials/post_form.html" %}
-          <div class="form-actions">
-            <input type="submit" name="preview" class="btn btn-large btn-default" value="{% trans "Preview" %}" />&nbsp;
-            <input type="submit" class="btn btn-large btn-primary" value="{% trans "Submit" %}" />
+          <div class="form-actions my-5">
+            <input type="submit" name="preview" class="px-8 py-3 border border-slate text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm" value="{% trans "Preview" %}" />&nbsp;
+            <input type="submit" class="px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm" value="{% trans "Submit" %}" />
           </div>
         </form>
       </div>
