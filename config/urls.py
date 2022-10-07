@@ -58,6 +58,21 @@ urlpatterns = [
         name="library-detail",
     ),
     path(
+        "review/past/",
+        TemplateView.as_view(template_name="review/past_reviews.html"),
+        name="review-past",
+    ),
+    path(
+        "review/request/",
+        TemplateView.as_view(template_name="review/review_form.html"),
+        name="review-request",
+    ),
+    path(
+        "review/upcoming/",
+        TemplateView.as_view(template_name="review/upcoming_reviews.html"),
+        name="review-upcoming",
+    ),
+    path(
         "review/",
         TemplateView.as_view(template_name="review/review_process.html"),
         name="review-process",

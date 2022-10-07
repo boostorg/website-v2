@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block subnav %}
+  <div class="border-b border-slate px-0 md:space-x-10 py-2 text-sm uppercase">
+    <a href="{% url 'review-process' %}">Review Process</a>
+    <a href="{% url 'review-request' %}">Submit Review</a>
+    <a href="{% url 'review-upcoming' %}" class="py-1 border-b border-orange text-orange">Upcoming Reviews</a>
+    <a href="{% url 'review-past' %}">Past Reviews</a>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="py-0 md:py-6 mb-3 px-3 md:px-0">
+    <div class="md:w-full space-y-11 py-16">
+      <h1 class="text-4xl text-center">Upcoming Reviews</h1>
+      <div class="w-full rounded bg-charcoal p-6">
+        <table class="w-full">
+          <thead>
+            <tr>
+              <th class="p-3 text-left">Submission</th>
+              <th class="p-3 text-left">Submitter</th>
+              <th class="p-3 text-left">Link</th>
+              <th class="p-3 text-left">Review Manager</th>
+              <th class="p-3 text-left">Review Dates</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="p-3 text-left border border-slate">Text (mini-review)</td>
+              <td class="p-3 text-left border border-slate">Zach Laine</td>
+              <td class="p-3 text-left border border-slate"><a href="#" class="text-orange">Github Documentation</a></td>
+              <td class="p-3 text-left border border-slate"><a href="#" class="text-orange">Needed!</a></td>
+              <td class="p-3 text-left border border-slate">-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="flex space-x-11">
+      <div class="w-1/2">
+        <h3>Overview</h3>
+        <p>
+          Reviews are scheduled when the review wizards approve a review manager and agree with the manager and
+          author on dates. See <a href="#" class="text-orange">Review Process</a> for more information.
+        </p>
+        <p>
+          In addition to upcoming reviews, the schedule includes recent reviews already completed; that helps track
+          review manager assignments and libraries reviewed but not yet posted on the website. There is often a lag
+          between acceptance and site posting as authors address issues raised in the formal review.
+        </p>
+      </div>
+      <div class="w-1/2">
+        <h3>Review Managers</h3>
+        <p>
+          In order for a review to proceed, a Boost member must volunteer to manage the review. This should be someone
+          with experience with the review process and knowledge of the library's domain. Reviewers have been celebrated
+          and recognized for contributing to some of the greatest revolutionary programs. Be a leader and make an impact
+          within the Boost community! Contact Mateusz Loskot (<a href="#" class="text-orange">mateusz@loskot.net</a>) or
+          John Phillips (<a href="#" class="text-orange">johnphillipsithaca@gmail.com</a>) to become a reviewer.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+{% endblock %}

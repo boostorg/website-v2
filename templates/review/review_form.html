@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block subnav %}
+  <div class="border-b border-slate px-0 md:space-x-10 py-2 text-sm uppercase">
+    <a href="{% url 'review-process' %}">Review Process</a>
+    <a href="{% url 'review-request' %}" class="py-1 border-b border-orange text-orange">Submit Review</a>
+    <a href="{% url 'review-upcoming' %}">Upcoming Reviews</a>
+    <a href="{% url 'review-past' %}">Past Reviews</a>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="py-0 md:py-6 mb-3 px-3 md:px-0">
+    <div class="md:w-full space-y-11 py-16">
+      <h1 class="text-4xl text-center">Submit a Review</h1>
+      <p>
+        What does this form look like?  I don't see mockups or a model definition.
+      </p>
+    </div>
+  </div>
+{% endblock %}
