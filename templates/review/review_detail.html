@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block subnav %}
+  <div class="border-b border-slate px-0 md:space-x-10 py-2 text-sm uppercase">
+    <a href="{% url 'review-process' %}">Review Process</a>
+    <a href="{% url 'review-request' %}">Submit Review</a>
+    <a href="{% url 'review-upcoming' %}">Upcoming Reviews</a>
+    <a href="{% url 'review-past' %}">Past Reviews</a>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="py-0 md:py-6 mb-3 px-3 md:px-0 flex">
+    <div class="w-1/6">
+      <ul class="py-8 space-y-4">
+        <li><a href="#overview" class="text-orange">Overview</a></li>
+        <li><a href="#accepted">Accepted</a></li>
+        <li><a href="#pending">Pending</a></li>
+      </ul>
+    </div>
+    <div class="w-5/6">
+
+      <div class="md:w-full py-8" id="overview">
+        <h1 class="text-4xl">Lambda2</h1>
+        <p class="p-0 m-0">Review Dates: March 22, 2021 - March 31, 2021</p>
+      </div>
+
+      <div class="bg-charcoal flex rounded-lg py-3 px-4 text-lg">
+        <div class="w-1/3">Accepted: 4</div>
+        <div class="w-1/3">Conditional Accepted: 1</div>
+        <div class="w-1/3">Reject: 1</div>
+      </div>
+
+      <div class="my-6 border-b border-slate"></div>
+
+      <div class="space-y-11">
+        <div class="border-b border-slate py-6" id="accepted">
+          <h5 class="inline uppercase text-green bg-green/10 rounded w-auto px-3 py-1">Accepted</h5>
+          <p class="mt-6">
+            There was initially a single reject, but was later changed to Conditional Accept with the condition that:
+          </p>
+          <ul class="list-disc ml-5">
+            <li>Lambda2 provides its own placeholders instead of importing the standard ones.</li>
+          </ul>
+
+          <p>
+            The review discussion touched on these pros and cons:
+          </p>
+
+          <p>Pros:</p>
+          <ul class="list-disc ml-5">
+            <li>It's simple, clean, and elegant.</li>
+            <li>lightweight, single header dependency</li>
+            <li>Involves less typing</li>
+          </ul>
+
+          <p>Cons:</p>
+          <ul class="list-disc ml-5">
+            <li>lambda and phoenix library have much larger functionality</li>
+            <li>For complex lambda expressions, native C++ lambdas are more "future-proof"
+            than boost::lambda2 expressions because you have the full range of the language available.</li>
+            <li>Having to write using-declarations for each operator in each scope that they
+            are intended to be used defeats the purpose.</li>
+          </ul>
+
+
+          <p>In the end, the pros outweighed the cons.</p>
+
+          <p>There was also the concern that boost::lambda2 does not and cannot do short-circuiting
+            of the && and || operators. I suggest writing a rationale and make it clear in the
+            documentation. I think this is a major flaw.
+          </p>
+
+          <p>But the most glaring issue has to do with ADL: That Boost.Lambda2 defines the operators
+            that should belong to namespace std::placeholders. Hence, the condition that Lambda2
+            provides its own placeholders instead of importing the standard ones.
+          </p>
+
+          <p>
+            There were also a couple of suggested improvements. I'll leave that up to Peter to
+            decide whether to implement or not, since these suggestions are not conditions
+            for acceptance.
+          </p>
+
+          <p>
+            Again, thank you very much everyone, and thank you Peter for submitting this
+            splendid library.
+          </p>
+
+          <p>
+            Regards,<br />
+            Joel
+          </p>
+
+        </div>
+
+        <div id="pending">
+          <h5 class="inline uppercase text-green bg-green/10 rounded w-auto px-3 py-1">Pending</h5>
+          <p class="mt-6">
+            The Boost formal review of the Lambda2, authored by Peter Dimov, starts Monday, March 22, 2021 to March 31, 2021 (inclusive).
+          </p>
+
+          <p>Documentation: https://pdimov.github.io/lambda2/doc/html/lambda2.html <br/>
+              Source: https://github.com/pdimov/lambda2/
+          </p>
+
+          <p>
+            Lambda2 is a simple, but functional, C++14 lambda library. It takes advantage
+            of the fact that the standardÂ <functional>Â header already provides placeholders
+            _1,Â _2,Â _3, and so on, for use withÂ std::bind, and function objects such
+            asÂ std::plus,Â std::greater,Â std::logical_not, andÂ std::bit_xor, corresponding to
+            arithmetic, relational, logical and bitwise operators.
+          </p>
+
+          <p>
+            Please provide in your review information you think is valuable to
+            understand your choice to ACCEPT or REJECT including Lambda2 as a
+            Boost library. Please be explicit about your decision (ACCEPT or REJECT).
+          </p>
+
+          <p>
+            Some other questions you might want to consider answering:
+          </p>
+
+          <ul class="list-disc ml-5">
+            <li>What is your evaluation of the design?</li>
+            <li>What is your evaluation of the implementation?</li>
+            <li>What is your evaluation of the documentation?</li>
+            <li>What is your evaluation of the potential usefulness of the library?</li>
+            <li>Did you try to use the library? With which compiler(s)? Did you
+            have any problems?</li>
+            <li>How much effort did you put into your evaluation? A glance? A quick
+            reading? In-depth study?</li>
+            <li>Are you knowledgeable about the problem domain?</li>
+          </ul>
+
+          <p>
+            More information about the Boost Formal Review Process can be found
+            at http://www.boost.org/reviews
+          </p>
+
+          <p>
+            The review is open to anyone who is prepared to put in the work of
+            evaluating and reviewing the library. Prior experience in contributing to
+            Boost reviews is not a requirement.
+          </p>
+
+          <p>
+            Thank you for your efforts in the Boost community. They are very much
+            appreciated.
+          </p>
+
+          <p>
+            Peter is often available in the CppLang Slack #boost channel should you
+            require any clarification not covered by the documentation. I am not frequently
+            available in the Slack channel, but I'll certainly pay attention to the discussions.
+            Please don't hesitate to ping me if needed.
+          </p>
+
+          <p>
+            Cheers,<br />
+            Joel de Guzman
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+{% endblock %}

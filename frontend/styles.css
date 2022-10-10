@@ -21,6 +21,9 @@ body {
   h4 {
     @apply text-xl;
   }
+  h5 {
+    @apply text-base
+  }
   p {
     @apply py-5;
   }
