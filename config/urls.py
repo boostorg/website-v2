@@ -73,6 +73,11 @@ urlpatterns = [
         name="review-upcoming",
     ),
     path(
+        "review/detail/",
+        TemplateView.as_view(template_name="review/review_detail.html"),
+        name="review-request",
+    ),
+    path(
         "review/",
         TemplateView.as_view(template_name="review/review_process.html"),
         name="review-process",
