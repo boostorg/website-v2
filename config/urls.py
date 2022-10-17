@@ -82,6 +82,16 @@ urlpatterns = [
         TemplateView.as_view(template_name="review/review_process.html"),
         name="review-process",
     ),
+    path(
+        "news/detail/",
+        TemplateView.as_view(template_name="news/news_detail.html"),
+        name="news_detail",
+    ),
+    path(
+        "news/",
+        TemplateView.as_view(template_name="news/news_list.html"),
+        name="news",
+    ),
     path("versions/", VersionList.as_view(), name="version-list"),
     path("version/<int:pk>/", VersionDetail.as_view(), name="version-detail"),
     # TODO: determine real routes for this
