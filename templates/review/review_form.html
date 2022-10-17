@@ -3,11 +3,11 @@
 {% load static %}
 
 {% block subnav %}
-  <div class="border-b border-slate px-0 md:space-x-10 py-2 text-sm uppercase">
-    <a href="{% url 'review-process' %}">Review Process</a>
-    <a href="{% url 'review-request' %}" class="py-1 border-b border-orange text-orange">Submit Review</a>
-    <a href="{% url 'review-upcoming' %}">Upcoming Reviews</a>
-    <a href="{% url 'review-past' %}">Past Reviews</a>
+  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase">
+    <a href="{% url 'review-process' %}" class="block md:inline">Review Process</a>
+    <a href="{% url 'review-request' %}" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">Submit Review</a>
+    <a href="{% url 'review-upcoming' %}" class="block md:inline">Upcoming Reviews</a>
+    <a href="{% url 'review-past' %}" class="block md:inline">Past Reviews</a>
   </div>
 {% endblock %}
 
