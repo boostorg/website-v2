@@ -768,6 +768,10 @@ select {
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
 }
+.mx-11 {
+  margin-left: 2.75rem;
+  margin-right: 2.75rem;
+}
 .mb-4 {
   margin-bottom: 1rem;
 }
@@ -1044,6 +1048,11 @@ select {
   margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
 }
+.space-x-8 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(2rem * var(--tw-space-x-reverse));
+  margin-left: calc(2rem * calc(1 - var(--tw-space-x-reverse)));
+}
 .space-y-11 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;
   margin-top: calc(2.75rem * calc(1 - var(--tw-space-y-reverse)));
@@ -1058,11 +1067,6 @@ select {
   --tw-space-x-reverse: 0;
   margin-right: calc(2.75rem * var(--tw-space-x-reverse));
   margin-left: calc(2.75rem * calc(1 - var(--tw-space-x-reverse)));
-}
-.space-x-8 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 0;
-  margin-right: calc(2rem * var(--tw-space-x-reverse));
-  margin-left: calc(2rem * calc(1 - var(--tw-space-x-reverse)));
 }
 .divide-y > :not([hidden]) ~ :not([hidden]) {
   --tw-divide-y-reverse: 0;
@@ -1225,10 +1229,6 @@ select {
   padding-top: 1rem;
   padding-bottom: 1rem;
 }
-.px-0 {
-  padding-left: 0px;
-  padding-right: 0px;
-}
 .py-16 {
   padding-top: 4rem;
   padding-bottom: 4rem;
@@ -1306,9 +1306,6 @@ select {
 .pr-11 {
   padding-right: 2.75rem;
 }
-.pb-4 {
-  padding-bottom: 1rem;
-}
 .text-left {
   text-align: left;
 }
@@ -1361,8 +1358,8 @@ select {
 .font-bold {
   font-weight: 700;
 }
-.font-normal {
-  font-weight: 400;
+.font-light {
+  font-weight: 300;
 }
 .uppercase {
   text-transform: uppercase;
@@ -1490,10 +1487,6 @@ body {
     display: flex;
   }
 
-  .sm\:hidden {
-    display: none;
-  }
-
   .sm\:h-10 {
     height: 2.5rem;
   }
@@ -1522,15 +1515,6 @@ body {
     --tw-space-y-reverse: 0;
     margin-top: calc(2.75rem * calc(1 - var(--tw-space-y-reverse)));
     margin-bottom: calc(2.75rem * var(--tw-space-y-reverse));
-  }
-
-  .sm\:border-b {
-    border-bottom-width: 1px;
-  }
-
-  .sm\:border-slate {
-    --tw-border-opacity: 1;
-    border-color: rgb(49 74 87 / var(--tw-border-opacity));
   }
 
   .sm\:px-6 {
@@ -1578,6 +1562,11 @@ body {
   .md\:my-11 {
     margin-top: 2.75rem;
     margin-bottom: 2.75rem;
+  }
+
+  .md\:mx-auto {
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .md\:mb-11 {
@@ -1746,12 +1735,12 @@ body {
     border-left-width: calc(2px * calc(1 - var(--tw-divide-x-reverse)));
   }
 
-  .md\:border-0 {
-    border-width: 0px;
-  }
-
   .md\:border {
     border-width: 1px;
+  }
+
+  .md\:border-0 {
+    border-width: 0px;
   }
 
   .md\:border-b {
