@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block subnav %}
+  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase">
+    <a href="{% url 'boost-about' %}" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">About</a>
+    <a href="{% url 'boost-people' %}" class="block md:inline">People</a>
+    <a href="{% url 'boost-moderators' %}" class="block md:inline">Moderators</a>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="py-0 md:py-6 mb-3 px-3 md:px-0 flex">
+    <div class="w-1/6 hidden md:block">
+      <ul class="py-8 space-y-4">
+        <li><a href="#overview" class="text-orange">Overview</a></li>
+        <li><a href="#whosUsingBoost">Who's Using Boost</a></li>
+        <li><a href="#mission">Mission</a></li>
+        <li><a href="#history">History</a></li>
+        <li><a href="#board">Board of Directors</a></li>
+      </ul>
+    </div>
+
+    <div class="w-full md:w-5/6">
+
+      <div class="md:flex md:w-full py-8 md:space-x-18" id="overview">
+        <div class="md:w-1/2 align-middle md:py-11 md:pr-11 order-first md:order-last">
+          <h2>The Boost C++ Libraries are a collection of modern libraries based on the C++ standard.</h2>
+
+          <p>
+            The source code is released under the Boost Software License, which allows anyone to use, modify, and
+            distribute the libraries for free. The libraries are platform independent and support most popular compilers,
+            as well as many that are less well known.
+          </p>
+        </div>
+        <div class="md:w-1/2 text-right">
+          <img src="{% static 'img/icons/graphic_stairs.svg' %}" class="float-right" />
+        </div>
+      </div>
+
+      <div class="hidden md:block my-6 border-b border-slate"></div>
+
+      <div class="space-y-11">
+        <div class="border-b border-slate py-2 md:py-6" id="whosUsingBoost">
+          <h2>Who's Using Boost?</h2>
+
+          <p>
+            Open source isn't just for nerds and researchers. Real world programming challenges, irrespective of whether
+            they are open or closed source, can benefit enormously from the thought and experience that has gone into
+            the Boost software libraries. Put simply, for any given problem for which Boost provides a solution, Boost
+            will strive to provide the best solution possible. It's up to you to decide whether we've achieved that,
+            but as these pages will testify, many other developers have found our solutions to be the best for them.
+          </p>
+
+          <p>
+            Disclaimer: Boost's developers try to ensure that the information on these pages is correct, but from time to time
+            inadvertent mistakes are bound to occur: if you would like an entry in these pages to be removed or corrected
+            please contact the <a href="#" class="text-orange">Boost Moderators</a>.
+          </p>
+
+          <h3 class="text-orange py-5">Open Source Boost</h3>
+          <p>
+            Boost is used in a variety of Open Source Projects, both applications and libraries. Indeed many Open Source
+            libraries developed around Boost have in the past been judged of high enough quality to be absorbed into the
+            main Boost source tree, a process that will no doubt continue into the future. Others are in highly specialized
+            niche markets, ranging from probability theory to astronomy, via mass spectroscopy: whatever your field of
+            interest you'll find something of value in Boost.
+          </p>
+
+          <h3 class="text-orange py-5">In House Boost</h3>
+          <p>
+            Whether you're a government department, an internet startup, or a specialist consultancy, in-house developement
+            using the Boost Libraries can significantly shorten your development cycles.
+          </p>
+
+          <h3 class="text-orange py-5">Shrink Wrap Boost</h3>
+          <p>
+            Boost has found it's way into many products that are available "off the shelf", including consumer
+            applications from Adobe, through to business middleware from SAP.
+          </p>
+
+
+        </div>
+
+        <div class="border-b border-slate py-2 md:py-6" id="mission">
+          <h2>Mission</h2>
+          <p>
+            The Boost mission is threefold: (a) develop high-quality, expert+reviewed, open-source C++ libraries,
+            (b) incubate C++ standard library enhancements, and (c) advance and disseminate C++ software development
+            best practices. This is accomplished by facilitating C++ community engagement, providing necessary financial/legal
+            support, and breaking rare directional decision-making deadlocks while upholding our shared values of
+            engineering excellence, technocratic leadership, and a federated library authorship model.
+          </p>
+        </div>
+
+        <div class="border-b border-slate py-2 md:py-6" id="history">
+          <h2>History</h2>
+          <p>
+            Beman Dawes and Robert Klarer developed the idea for the web site during a series of corridor
+            conversations at the March, 1998, meeting of the C++ standards committee in Sophia Antipolis, France. The
+            Boost community emerged later that year, when the first version of the standard was released. It has grown
+            continuously since then and now plays a big role in the standardization of C++. Even though there is no formal
+            relationship between the Boost community and the standardization committee, some of the developers are active
+            in both groups. The current version of the C++ standard, which was approved in 2011, includes libraries that
+            have their roots in the Boost community.
+          </p>
+        </div>
+
+        <div class="border-b border-slate py-2 md:py-6" id="board">
+          <h2>Boost Foundation Board of Directors</h2>
+          <p>
+            After being a project of Software Freedom Conservancy for over a decade, Boost has spun-off into it owns
+            501(c)(3) non-profit corporation name Boost Foundation. We are forever grateful to Software Freedom
+            Conservancy for their support and guidance to achieve this milestone.
+          </p>
+
+          <p>
+            Boost Foundation Board of Directors will now assume the role that was filled by the Boost Steering Committee.
+          </p>
+
+          <div class="my-11">
+            <a href="#" class="uppercase text-orange border border-slate rounded-md py-2 px-4 text-base">Learn More</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+{% endblock %}

@@ -58,6 +58,26 @@ urlpatterns = [
         name="library-detail",
     ),
     path(
+        "about/",
+        TemplateView.as_view(template_name="boost/about.html"),
+        name="boost-about",
+    ),
+    path(
+        "people/detail/",
+        TemplateView.as_view(template_name="boost/people_detail.html"),
+        name="boost-people-detail",
+    ),
+    path(
+        "people/",
+        TemplateView.as_view(template_name="boost/people.html", extra_context={"range": range(50)}),
+        name="boost-people",
+    ),
+    path(
+        "moderators/",
+        TemplateView.as_view(template_name="boost/moderators.html", extra_context={"range": range(50)}),
+        name="boost-moderators",
+    ),
+    path(
         "review/past/",
         TemplateView.as_view(template_name="review/past_reviews.html"),
         name="review-past",
