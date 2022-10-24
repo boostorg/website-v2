@@ -69,12 +69,16 @@ urlpatterns = [
     ),
     path(
         "people/",
-        TemplateView.as_view(template_name="boost/people.html", extra_context={"range": range(50)}),
+        TemplateView.as_view(
+            template_name="boost/people.html", extra_context={"range": range(50)}
+        ),
         name="boost-people",
     ),
     path(
         "moderators/",
-        TemplateView.as_view(template_name="boost/moderators.html", extra_context={"range": range(50)}),
+        TemplateView.as_view(
+            template_name="boost/moderators.html", extra_context={"range": range(50)}
+        ),
         name="boost-moderators",
     ),
     path(
