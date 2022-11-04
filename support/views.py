@@ -19,6 +19,7 @@ class SupportView(SupportBaseView):
     View for the Support page with contact form
     TODO: Add reCaptcha
     """
+
     template_name = "support/support.html"
 
 
@@ -27,4 +28,5 @@ class ContactView(SupportBaseView):
     View for the Support page with contact form
     TODO: Add reCaptcha
     """
+
     template_name = "support/contact.html"
