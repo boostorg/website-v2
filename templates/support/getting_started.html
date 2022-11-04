@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block subnav %}
+  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase">
+    <a href="{% url 'support' %}" class="block md:inline">Support</a>
+    <a href="{% url 'getting-started' %}" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">Getting Started</a>
+    <a href="#" class="block md:inline">Join Slack</a>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="py-0 md:py-6 mb-3 px-3 md:px-0 flex">
+
+    <div class="w-1/6 hidden md:block">
+      <ul class="py-8 space-y-4">
+        <li><a href="#getting-started" class="text-orange">Getting Started</a></li>
+        <li><a href="#windows">Windows</a></li>
+        <li><a href="#unix">Unix</a></li>
+      </ul>
+    </div>
+
+    <div class="w-full md:w-5/6">
+
+      <div class="md:w-full py-8 md:space-x-18 border-b border-slate" id="getting-started">
+
+        <h2>Getting Started</h2>
+
+        <div class="w-1/2" id="supportStart"></div>
+
+        <p>
+          Welcome to the Boost libraries! By the time you've completed this tutorial, you'll be at least somewhat
+          comfortable with the contents of a Boost distribution and how to go about using it.
+        </p>
+
+        <p>
+          This document is designed to be an extremely gentle introduction, so we included a fair amount of material that may
+          already be very familiar to you. To keep things simple, we also left out some information intermediate and
+          advanced users will probably want. At the end of this document, we'll refer you on to resources that can help
+          you pursue these topics further.
+        </p>
+
+        <p>
+          We use one typographic convention that might not be immediately obvious: italic text in examples is meant as
+          a descriptive placeholder for something else, usually information that you'll provide. For example:
+        </p>
+
+        <pre class="rounded-lg bg-charcoal border border-slate p-2">
+          <code>$ echo "My name is [your name]"</code>
+        </pre>
+
+      </div>
+
+      <div class="md:w-full py-8 md:space-x-18 border-b border-slate" id="windows">
+
+        <h3>Getting Started On Microsoft Windows</h3>
+
+        <p>
+          Brief intro...Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+          labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore
+          eu fugiat nulla pariatur.
+        </p>
+
+        <div class="my-3">
+          <a href="#" class="text-orange uppercase py-2 px-4 border border-slate rounded-lg">Start Now</a>
+        </div>
+
+      </div>
+
+      <div class="md:w-full py-8 md:space-x-18" id="unix">
+
+        <h3>Getting Started On Unix Variants</h3>
+
+        <p>
+          Brief intro...Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+          labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore
+          eu fugiat nulla pariatur.
+        </p>
+
+        <div class="my-3">
+          <a href="#" class="text-orange uppercase py-2 px-4 border border-slate rounded-lg">Start Now</a>
+        </div>
+
+      </div>
+    </div>
+{% endblock %}
+
+
+{% block footer_js %}
+  <script>
+      var supportStartAnimParams = {
+        container: document.getElementById('supportStart'),
+        path: '{% static "animations/Scene05/data.json" %}',
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        name: "Press Start",
+      };
+      anim = lottie.loadAnimation(supportStartAnimParams);
+  </script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+  <div class="py-0 md:py-6 mb-3 px-3 md:px-0">
+
+    <div class="w-full py-16 border-b border-slate mb-5">
+      <h1 class="text-4xl">Contact Us</h1>
+    </div>
+
+    <div class="md:flex space-x-8 w-full">
+      <div class="md:w-1/4 pt-5">
+        <h3>Boost</h3>
+        <div class="space-x-3 pt-3 pb-3">
+          <a href=""><img class="h-[15px] w-auto inline" src="{% static 'img/icons/icon_Facebook-logo.svg' %}" alt="Facebook"></a>
+          <a href=""><img class="h-[15px] w-auto inline" src="{% static 'img/icons/icon_Twitter-logo.svg' %}" alt="Twitter"></a>
+          <a href=""><img class="h-[15px] w-auto inline" src="{% static 'img/icons/icon_Linkedin-logo.svg' %}" alt="LinkedIn"></a>
+          <a href=""><img class="h-[15px] w-auto inline" src="{% static 'img/icons/icon_YouTube-logo.svg' %}" alt="Youtube"></a>
+        </div>
+      </div>
+      <div class="md:w-3/4">
+        <p>We'd love to hear from you! Send us a quick message.</p>
+        {% include 'includes/_contact_form.html' with form=form %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
