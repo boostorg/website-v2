@@ -5,6 +5,7 @@ django-extensions
 django-health-check
 django-redis
 django-rest-auth
+django-widget-tweaks
 djangorestframework
 environs[django]
 gevent
