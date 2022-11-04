@@ -21,6 +21,7 @@ from libraries.views import (
     LibraryByCategory,
     LibraryDetail,
 )
+from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
 from versions.views import VersionList, VersionDetail
 
@@ -116,6 +117,14 @@ urlpatterns = [
         TemplateView.as_view(template_name="news/news_list.html"),
         name="news",
     ),
+    # support and contact views
+    path("support/", SupportView.as_view(), name="support"),
+    path(
+        "getting-started/",
+        TemplateView.as_view(template_name="support/getting_started.html"),
+        name="getting-started",
+    ),
+    path("contact/", ContactView.as_view(), name="contact"),
     path("versions/", VersionList.as_view(), name="version-list"),
     path("version/<int:pk>/", VersionDetail.as_view(), name="version-detail"),
     # TODO: determine real routes for this
