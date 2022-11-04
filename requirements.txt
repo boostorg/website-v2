@@ -104,7 +104,9 @@ django-test-plus==1.4.0
 django-tracer==0.9.3
     # via -r ./requirements.in
 django-widget-tweaks==1.4.9
-    # via django-machina
+    # via
+    #   -r ./requirements.in
+    #   django-machina
 djangorestframework==3.12.4
     # via
     #   -r ./requirements.in
