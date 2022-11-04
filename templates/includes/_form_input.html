@@ -1,0 +1,19 @@
+{% load static %}
+{% load widget_tweaks %}
+
+{% if form.is_bound %}
+  {% if field.errors %}
+    {% render_field field class="rounded bg-charcoal text-slate w-full" placeholder="{{ field.label }}" %}
+
+    {% for error in field.errors %}
+    <div class="bg-red text-white">
+      {{ error }}
+    </div>
+    {% endfor %}
+
+  {% else %}
+    {% render_field field class="rounded bg-charcoal text-slate w-full" placeholder="{{ field.label }}" %}
+  {% endif %}
+{% else %}
+  {% render_field field class="rounded bg-charcoal text-slate w-full" placeholder=field.label %}
+{% endif %}

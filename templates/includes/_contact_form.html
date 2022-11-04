@@ -1,0 +1,27 @@
+<form action="" method="POST">
+  <div class="space-y-5">
+    <div class="w-full flex space-x-3">
+      <div class="w-1/2">
+        {% include "includes/_form_input.html" with form=form field=form.first_name %}
+      </div>
+      <div class="w-1/2">
+        {% include "includes/_form_input.html" with form=form field=form.last_name %}
+      </div>
+    </div>
+    <div class="w-full">
+      {% include "includes/_form_input.html" with form=form field=form.email %}
+    </div>
+    <div class="w-full">
+      {% include "includes/_form_input.html" with form=form field=form.phone_number %}
+    </div>
+    <div class="w-full">
+      {% include "includes/_form_input.html" with form=form field=form.topic %}
+    </div>
+    <div class="w-full">
+      {% include "includes/_form_input.html" with form=form field=form.message %}
+    </div>
+    <div class="w-full mt-3">
+      <button type="submit" class="py-2 px-3 text-sm rounded-lg border border-orange uppercase text-orange">Submit</button>
+    </div>
+  </div>
+</form>
