@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block subnav %}
+  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase">
+    <a href="{% url 'support' %}" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">Support</a>
+    <a href="{% url 'getting-started' %}" class="block md:inline">Getting Started</a>
+    <a href="#" class="block md:inline">Join Slack</a>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="py-0 md:py-6 mb-3 px-3 md:px-0">
+
+    <div class="w-full py-16">
+      <h1 class="text-4xl text-center">Support</h1>
+      <p class="text-center mt-0">
+        We are here for you! If you need us, we are a click away!
+      </p>
+    </div>
+
+    <div class="pb-6 mb-8 border-b border-slate">
+      <div class="md:flex items-center space-x-0 md:space-x-8 my-8">
+        <div class="md:w-1/2 mb-4">
+          <div id="supportStart"></div>
+        </div>
+        <div class="md:w-1/2 mb-4">
+          <h3>Getting Started</h3>
+          <p>
+            Welcome to the Boost libraries! By the time you've completed this tutorial, you'll be at least somewhat
+            comfortable with the contents of a Boost distribution and how to go about using it.
+          </p>
+          <div class="my-3">
+            <a href="#" class="uppercase text-orange border border-slate rounded-md py-2 px-4 text-sm">Start Now</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="md:flex items-center space-x-0 md:space-x-8 my-8">
+        <div class="md:w-1/2 mb-4 order-1 md:order-2">
+          <div id="joinSlack"></div>
+        </div>
+        <div class="md:w-1/2 mb-4">
+          <h3>Join our Slack!</h3>
+          <p>
+            We have engaging conversations with our community of over 21K members! As a question, state an update, or
+            make a new friend in the community!
+          </p>
+          <div class="my-3">
+            <a href="#" class="uppercase text-orange border border-slate rounded-md py-2 px-4 text-sm">Learn More</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="md:flex space-x-8 w-full">
+      <div class="md:w-1/3">
+        <h3>Contact Us For Support</h3>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus non vestibulum velit. Aenean fringilla, arcu sit amet.
+        </p>
+      </div>
+      <div class="md:w-2/3">
+        {% include 'includes/_contact_form.html' with form=form %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block footer_js %}
+  <script>
+      var supportStartAnimParams = {
+        container: document.getElementById('supportStart'),
+        path: '{% static "animations/Scene05/data.json" %}',
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        name: "Press Start",
+      };
+      anim = lottie.loadAnimation(supportStartAnimParams);
+
+      var joinSlackAnimParams = {
+        container: document.getElementById('joinSlack'),
+        path: '{% static "animations/Scene04/data.json" %}',
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        name: "Join our Slack",
+      };
+      anim = lottie.loadAnimation(joinSlackAnimParams);
+  </script>
+{% endblock %}
