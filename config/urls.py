@@ -83,6 +83,11 @@ urlpatterns = [
         name="boost-moderators",
     ),
     path(
+        "resources/",
+        TemplateView.as_view(template_name="resources/resources.html"),
+        name="resources",
+    ),
+    path(
         "review/past/",
         TemplateView.as_view(template_name="review/past_reviews.html"),
         name="review-past",
