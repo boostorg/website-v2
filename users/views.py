@@ -46,7 +46,7 @@ class ProfileViewSet(DetailView):
     ViewSet to show statistics about a user to include
     stats, badges, forum posts, reviews, etc.
     """
+
     model = User
     queryset = User.objects.all()
     template_name = "users/profile.html"
-
