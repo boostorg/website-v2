@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block subnav %}
+  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase">
+    <a href="" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">Account</a>
+    <a href="" class="block md:inline">Settings</a>
+    <a href="#" class="block md:inline">Password</a>
+    <a href="#" class="block md:inline">Help</a>
+    <a href="#" class="block md:inline">Log Out</a>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="py-0 md:py-6 mb-3 px-3 md:px-0 md:flex">
+
+    <div class="w-full md:w-1/4 hidden md:block">
+      <ul class="py-8 space-y-4">
+        <li><a href="#stats" class="text-orange">Stats</a></li>
+        <li><a href="#badges">Badges</a></li>
+        <li><a href="#libraries-authored">Libraries Authored</a></li>
+        <li><a href="#libraries-maintained">Libraries Maintained</a></li>
+      </ul>
+    </div>
+
+    <div class="w-full md:w-3/4">
+      <div class="py-6 border-b border-slate">
+        <h3 id="stats">Stats</h3>
+
+        <div class="grid gap-8 grid-cols-1 md:grid-cols-3 my-4">
+          <div>
+            <h5>Number of Posts</h5>
+            5,043
+          </div>
+          <div>
+            <h5>Number of Replies</h5>
+            12,340
+          </div>
+          <div>
+            <h5>Number of Reviews</h5>
+            236
+          </div>
+        </div>
+      </div>
+
+      <div class="py-6 border-b border-slate">
+        <h3 id="badges">Badges</h3>
+
+        <div class="grid gap-8 grid-cols-1 md:grid-cols-3 my-4">
+          <div>
+            <h4>Author</h4>
+            <p>
+              Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
+            </p>
+            <div class="text-orange">
+              <svg class="fill-orange inline-block mr-2" width="33" height="25" viewBox="0 0 33 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.875 19.1647V22H24.75V24.75H8.25V22H15.125V19.1647C12.4667 18.8295 10.0221 17.5357 8.25 15.5262C6.47788 13.5166 5.50005 10.9293 5.5 8.25V0H27.5V8.25C27.5 10.9293 26.5221 13.5166 24.75 15.5262C22.9779 17.5357 20.5333 18.8295 17.875 19.1647Z"/>
+                <rect width="2.75" height="6.875"/>
+                <rect x="30.25" width="2.75" height="6.875"/>
+              </svg>
+              Gold
+            </div>
+          </div>
+
+          <div>
+            <h4>Author</h4>
+            <p>
+              Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
+            </p>
+            <div class="text-orange">
+              <svg class="fill-orange inline-block mr-2" width="33" height="25" viewBox="0 0 33 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.875 19.1647V22H24.75V24.75H8.25V22H15.125V19.1647C12.4667 18.8295 10.0221 17.5357 8.25 15.5262C6.47788 13.5166 5.50005 10.9293 5.5 8.25V0H27.5V8.25C27.5 10.9293 26.5221 13.5166 24.75 15.5262C22.9779 17.5357 20.5333 18.8295 17.875 19.1647Z"/>
+                <rect width="2.75" height="6.875"/>
+                <rect x="30.25" width="2.75" height="6.875"/>
+              </svg>
+              Gold
+            </div>
+          </div>
+
+          <div>
+            <h4>Author</h4>
+            <p>
+              Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
+            </p>
+            <div class="text-orange">
+              <svg class="fill-orange inline-block mr-2" width="33" height="25" viewBox="0 0 33 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.875 19.1647V22H24.75V24.75H8.25V22H15.125V19.1647C12.4667 18.8295 10.0221 17.5357 8.25 15.5262C6.47788 13.5166 5.50005 10.9293 5.5 8.25V0H27.5V8.25C27.5 10.9293 26.5221 13.5166 24.75 15.5262C22.9779 17.5357 20.5333 18.8295 17.875 19.1647Z"/>
+                <rect width="2.75" height="6.875"/>
+                <rect x="30.25" width="2.75" height="6.875"/>
+              </svg>
+              Gold
+            </div>
+          </div>
+
+          <div>
+            <h4>Author</h4>
+            <p>
+              Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
+            </p>
+            <div class="text-orange">
+              <svg class="fill-orange inline-block mr-2" width="33" height="25" viewBox="0 0 33 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.875 19.1647V22H24.75V24.75H8.25V22H15.125V19.1647C12.4667 18.8295 10.0221 17.5357 8.25 15.5262C6.47788 13.5166 5.50005 10.9293 5.5 8.25V0H27.5V8.25C27.5 10.9293 26.5221 13.5166 24.75 15.5262C22.9779 17.5357 20.5333 18.8295 17.875 19.1647Z"/>
+                <rect width="2.75" height="6.875"/>
+                <rect x="30.25" width="2.75" height="6.875"/>
+              </svg>
+              Gold
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="py-6 border-b border-slate">
+        <h3 id="libraries-authored" class="mb-3">Libraries Authored</h3>
+
+        <div class="py-3">
+          <h4 class="text-orange">STLInterfaces</h4>
+          <p class="pt-0">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur dolor quam, dignissim non mauris eget,
+            viverra varius turpis. Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
+          </p>
+        </div>
+
+        <div class="py-3">
+          <h4 class="text-orange">STLInterfaces</h4>
+          <p class="pt-0">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur dolor quam, dignissim non mauris eget,
+            viverra varius turpis. Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
+          </p>
+        </div>
+
+        <div class="py-3">
+          <h4 class="text-orange">STLInterfaces</h4>
+          <p class="pt-0">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur dolor quam, dignissim non mauris eget,
+            viverra varius turpis. Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
+          </p>
+        </div>
+      </div>
+
+      <div class="py-6 border-b border-slate">
+        <h3 id="libraries-maintained" class="mb-3">Libraries Maintained</h3>
+
+        <div class="py-3">
+          <h4 class="text-orange">STLInterfaces</h4>
+          <p class="pt-0">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur dolor quam, dignissim non mauris eget,
+            viverra varius turpis. Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
+          </p>
+        </div>
+
+        <div class="py-3">
+          <h4 class="text-orange">STLInterfaces</h4>
+          <p class="pt-0">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur dolor quam, dignissim non mauris eget,
+            viverra varius turpis. Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
+          </p>
+        </div>
+
+        <div class="py-3">
+          <h4 class="text-orange">STLInterfaces</h4>
+          <p class="pt-0">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur dolor quam, dignissim non mauris eget,
+            viverra varius turpis. Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

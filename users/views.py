@@ -1,3 +1,5 @@
+from django.views.generic import DetailView
+
 from rest_framework import viewsets
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
@@ -37,3 +39,14 @@ class CurrentUserView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class ProfileViewSet(DetailView):
+    """
+    ViewSet to show statistics about a user to include
+    stats, badges, forum posts, reviews, etc.
+    """
+    model = User
+    queryset = User.objects.all()
+    template_name = "users/profile.html"
+
