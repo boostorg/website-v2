@@ -50,3 +50,4 @@ class ProfileViewSet(DetailView):
     model = User
     queryset = User.objects.all()
     template_name = "users/profile.html"
+    context_object_name = "user"

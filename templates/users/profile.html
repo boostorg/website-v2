@@ -3,6 +3,15 @@
 {% load static %}
 
 {% block subnav %}
+  <div class="py-3 px-4 md:px-0 flex border-b border-slate md:border-0">
+    <div>
+      <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" />
+    </div>
+    <div class="text-sm ml-4">
+      <span class="block">{{ user.get_full_name }}</span>
+      <span class="text-slate text-xs">Joined {{ user.date_joined }}</span>
+    </div>
+  </div>
   <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase">
     <a href="" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">Account</a>
     <a href="" class="block md:inline">Settings</a>
