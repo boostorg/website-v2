@@ -12,12 +12,12 @@
       <span class="text-slate text-xs">Joined {{ user.date_joined }}</span>
     </div>
   </div>
-  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase">
+  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase relative">
     <a href="" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">Account</a>
     <a href="" class="block md:inline">Settings</a>
     <a href="#" class="block md:inline">Password</a>
     <a href="#" class="block md:inline">Help</a>
-    <a href="#" class="block md:inline">Log Out</a>
+    <a href="#" class="block md:inline md:absolute md:right-0 md:bottom-0 md:pb-2">Log Out</a>
   </div>
 {% endblock %}
 

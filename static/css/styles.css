@@ -903,6 +903,12 @@ select {
 .ml-4 {
   margin-left: 1rem;
 }
+.ml-auto {
+  margin-left: auto;
+}
+.-mt-3 {
+  margin-top: -0.75rem;
+}
 .block {
   display: block;
 }
@@ -1213,17 +1219,14 @@ select {
 .to-orange {
   --tw-gradient-to: #FF9F00;
 }
-.fill-orange {
-  fill: #FF9F00;
+.fill-gold {
+  fill: #F4CA1F;
 }
 .fill-bronze {
   fill: #BB8A56;
 }
 .fill-silver {
   fill: #B5C9D3;
-}
-.fill-gold {
-  fill: #F4CA1F;
 }
 .p-11 {
   padding: 2.75rem;
@@ -1479,6 +1482,10 @@ select {
   --tw-text-opacity: 1;
   color: rgb(49 74 87 / var(--tw-text-opacity));
 }
+.text-gold {
+  --tw-text-opacity: 1;
+  color: rgb(244 202 31 / var(--tw-text-opacity));
+}
 .text-bronze {
   --tw-text-opacity: 1;
   color: rgb(187 138 86 / var(--tw-text-opacity));
@@ -1486,10 +1493,6 @@ select {
 .text-silver {
   --tw-text-opacity: 1;
   color: rgb(181 201 211 / var(--tw-text-opacity));
-}
-.text-gold {
-  --tw-text-opacity: 1;
-  color: rgb(244 202 31 / var(--tw-text-opacity));
 }
 .opacity-0 {
   opacity: 0;
@@ -1647,6 +1650,22 @@ body {
 }
 
 @media (min-width: 768px) {
+
+  .md\:absolute {
+    position: absolute;
+  }
+
+  .md\:right-0 {
+    right: 0px;
+  }
+
+  .md\:top-0 {
+    top: 0px;
+  }
+
+  .md\:bottom-0 {
+    bottom: 0px;
+  }
 
   .md\:order-last {
     order: 9999;
@@ -1974,6 +1993,10 @@ body {
 
   .md\:pb-6 {
     padding-bottom: 1.5rem;
+  }
+
+  .md\:pb-2 {
+    padding-bottom: 0.5rem;
   }
 
   .md\:text-right {
