@@ -122,57 +122,21 @@
       <div class="py-6 border-b border-slate">
         <h3 id="libraries-authored" class="mb-3">Libraries Authored</h3>
 
-        <div class="py-3">
-          <h4 class="text-orange">STLInterfaces</h4>
-          <p class="pt-0">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur dolor quam, dignissim non mauris eget,
-            viverra varius turpis. Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
-          </p>
-        </div>
-
-        <div class="py-3">
-          <h4 class="text-orange">STLInterfaces</h4>
-          <p class="pt-0">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur dolor quam, dignissim non mauris eget,
-            viverra varius turpis. Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
-          </p>
-        </div>
-
-        <div class="py-3">
-          <h4 class="text-orange">STLInterfaces</h4>
-          <p class="pt-0">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur dolor quam, dignissim non mauris eget,
-            viverra varius turpis. Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
-          </p>
-        </div>
+        {% for library in authored %}
+          {% include 'users/_library.html' with library=library %}
+        {% empty %}
+          <p>No Libraries Authored</p>
+        {% endfor %}
       </div>
 
       <div class="py-6 border-b border-slate">
         <h3 id="libraries-maintained" class="mb-3">Libraries Maintained</h3>
 
-        <div class="py-3">
-          <h4 class="text-orange">STLInterfaces</h4>
-          <p class="pt-0">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur dolor quam, dignissim non mauris eget,
-            viverra varius turpis. Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
-          </p>
-        </div>
-
-        <div class="py-3">
-          <h4 class="text-orange">STLInterfaces</h4>
-          <p class="pt-0">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur dolor quam, dignissim non mauris eget,
-            viverra varius turpis. Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
-          </p>
-        </div>
-
-        <div class="py-3">
-          <h4 class="text-orange">STLInterfaces</h4>
-          <p class="pt-0">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur dolor quam, dignissim non mauris eget,
-            viverra varius turpis. Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
-          </p>
-        </div>
+        {% for library in maintained %}
+          {% include 'users/_library.html' with library=library %}
+        {% empty %}
+          <p>No Libraries Authored</p>
+        {% endfor %}
       </div>
     </div>
   </div>
