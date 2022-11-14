@@ -1216,6 +1216,15 @@ select {
 .fill-orange {
   fill: #FF9F00;
 }
+.fill-bronze {
+  fill: #BB8A56;
+}
+.fill-silver {
+  fill: #B5C9D3;
+}
+.fill-gold {
+  fill: #F4CA1F;
+}
 .p-11 {
   padding: 2.75rem;
 }
@@ -1470,6 +1479,18 @@ select {
   --tw-text-opacity: 1;
   color: rgb(49 74 87 / var(--tw-text-opacity));
 }
+.text-bronze {
+  --tw-text-opacity: 1;
+  color: rgb(187 138 86 / var(--tw-text-opacity));
+}
+.text-silver {
+  --tw-text-opacity: 1;
+  color: rgb(181 201 211 / var(--tw-text-opacity));
+}
+.text-gold {
+  --tw-text-opacity: 1;
+  color: rgb(244 202 31 / var(--tw-text-opacity));
+}
 .opacity-0 {
   opacity: 0;
 }
@@ -1607,10 +1628,6 @@ body {
     --tw-space-y-reverse: 0;
     margin-top: calc(2.75rem * calc(1 - var(--tw-space-y-reverse)));
     margin-bottom: calc(2.75rem * var(--tw-space-y-reverse));
-  }
-
-  .sm\:border-b {
-    border-bottom-width: 1px;
   }
 
   .sm\:px-6 {
