@@ -70,6 +70,26 @@ or run:
 $ just test
 ```
 
+## Yarn and Tailwind
+
+To install dependencies, execute:
+
+```shell
+$ yarn
+```
+
+For development purposes, in a secondary shell run the following yarn script configured in `package.json` which will build styles.css with the watcher.
+
+```shell
+$ yarn dev
+```
+
+For production, execute:
+
+```shell
+$ yarn build
+```
+
 ## Deploying
 
 TDB
