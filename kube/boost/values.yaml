@@ -1,5 +1,5 @@
 Image: registry.revsys.com/boost
-ImageTag: 0.0.12
+ImageTag: 0.0.51
 
 djangoDebug: true
 
