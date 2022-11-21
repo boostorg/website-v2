@@ -49,9 +49,9 @@
     </div>
 
     <div class="md:flex my-4 md:my-16 md:space-x-4 space-y-4 md:space-y-0">
-      <div class="md:w-1/2 rounded bg-charcoal p-11">
+      <div class="md:w-1/2 rounded bg-charcoal p-4 md:p-11">
         <div class="mb-6">
-          <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">library spotlight</span>
+          <span class="inline uppercase text-green bg-green/10 rounded text-sm md:text-lg w-auto px-3 py-1">library spotlight</span>
         </div>
         <h3 class="text-xl">Boost.JSON</h3>
         <p class="my-3">Released 4/5/22</p>
@@ -67,19 +67,19 @@
           </div>
         </div>
       </div>
-      <div class="md:w-1/2 rounded bg-charcoal p-11">
+      <div class="md:w-1/2 rounded bg-charcoal p-4 md:p-11">
         <div class="mb-6">
-          <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">featured video</span>
+          <span class="inline uppercase text-green bg-green/10 rounded text-sm md:text-lg w-auto px-3 py-1">featured video</span>
         </div>
         <img src="{% static 'img/fpo/video_fpo.png' %}" alt="user" class="mb-2" />
         <div class="text-lg">Name of Video</div>
       </div>
     </div>
 
-    <div class="hidden my-4 md:my-16 rounded bg-charcoal px-11 py-5">
-      <div class="flex justify-between mb-6">
-        <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">Recent reviews</span>
-        <span class="inline uppercase text-orange w-auto px-2">See All ></span>
+    <div class="hidden my-4 md:my-16 rounded bg-charcoal px-4 md:px-11 py-5">
+      <div class="flex justify-between mb-6 items-center">
+        <span class="inline uppercase text-green bg-green/10 rounded text-sm md:text-lg w-auto px-3 py-1">Recent reviews</span>
+        <span class="inline uppercase text-orange w-auto px-2 text-xs md:text-base">See All ></span>
       </div>
       <div class="md:flex md:space-x-6 py-11 md:divide-x-2 divide-slate">
         <div class="md:pl-6 pr-2">
@@ -102,10 +102,10 @@
 
     <!-- RECENT NEWS & JOIN CONVERSATION -->
     <div class="md:flex my-4 md:my-16 md:space-x-4">
-      <div class="md:w-1/2 rounded bg-charcoal px-11 py-5">
-        <div class="flex justify-between mb-6">
-          <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">recent news</span>
-          <span class="inline uppercase text-orange w-auto">See All ></span>
+      <div class="md:w-1/2 rounded bg-charcoal px-4 md:px-11 py-5">
+        <div class="flex justify-between mb-6 items-center">
+          <span class="inline uppercase text-green bg-green/10 rounded text-sm md:text-lg w-auto px-3 py-1">recent news</span>
+          <span class="inline uppercase text-orange w-auto text-xs md:text-base"><a href="{% url 'news' %}">See All ></a></span>
         </div>
         <div class="divide-y divide-slate space-y-8">
           <div class="pt-6">
@@ -125,10 +125,10 @@
           </div>
         </div>
       </div>
-      <div class="md:w-1/2 my-4 md:my-0 rounded bg-charcoal px-11 py-5">
-        <div class="flex justify-between mb-6">
-          <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">Join the conversation</span>
-          <span class="inline uppercase text-orange w-auto">Visit Forum ></span>
+      <div class="md:w-1/2 my-4 md:my-0 rounded bg-charcoal px-4 md:px-11 py-5">
+        <div class="flex justify-between mb-6 items-center">
+          <span class="inline uppercase text-green bg-green/10 rounded text-sm md:text-lg w-auto px-3 py-1">Join the conversation</span>
+          <span class="inline uppercase text-orange w-auto text-xs md:text-base"><a href="/forum/">Visit Forum ></a></span>
         </div>
         <div class="divide-y divide-slate space-y-8">
           <div class="pt-6">
