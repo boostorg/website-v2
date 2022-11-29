@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.conf.urls import include
 from django.contrib import admin
 from django.views.generic import TemplateView
 from django.urls import path
@@ -34,6 +34,7 @@ router.register(r"versions", VersionViewSet, basename="versions")
 urlpatterns = [
     path("", HomepageView.as_view(), name="home"),
     path("admin/", admin.site.urls),
+    path("accounts/", include("allauth.urls")),
     path("users/me/", CurrentUserView.as_view(), name="current-user"),
     path("users/<int:pk>/", ProfileViewSet.as_view(), name="profile-user"),
     path("api/v1/", include(router.urls)),
