@@ -10,3 +10,87 @@ def library(db):
         description="Boost.MultiArray provides a generic N-dimensional array concept definition and common implementations of that interface.",
         github_url="https://github.com/boostorg/multi_array",
     )
+
+
+@pytest.fixture(autouse=True)
+def github_api_get_ref_response(db):
+    """Returns a JSON example of GhApi().api.git.get_ref(owner=owner, repo=repo, ref=ref)"""
+    return {
+        "ref": "refs/heads/master",
+        "node_id": "sample",
+        "url": "https://api.github.com/repos/boostorg/boost/git/refs/heads/master",
+        "object": {
+            "sha": "sample_sha",
+            "type": "commit",
+            "url": "https://api.github.com",
+        },
+    }
+
+
+@pytest.fixture
+def github_api_get_tree_response(db):
+    """Returns a JSON example of GhApi().api.git.get_tree(owner=owner, repo="boost", tree_sha=tree_sha")"""
+    return {
+        "sha": "e2ae78645e6d7f6b455eea2f8c2846e67437b739",
+        "url": "https://api.github.com/repos/boostorg/boost/git/trees/e2ae78645e6d7f6b455eea2f8c2846e67437b739",
+        "tree": [
+            {
+                "path": ".circleci",
+                "mode": "040000",
+                "type": "tree",
+                "sha": "7199ba30709deb2769d5207d24015a59eec6b9a2",
+                "url": "https://api.github.com/repos/boostorg/boost/git/trees/7199ba30709deb2769d5207d24015a59eec6b9a2",
+            },
+            {
+                "path": ".gitmodules",
+                "mode": "100644",
+                "type": "blob",
+                "sha": "46977dba4255dcb4447e94ab5ae081ce67441aca",
+                "size": 18459,
+                "url": "https://api.github.com/repos/boostorg/boost/git/blobs/46977dba4255dcb4447e94ab5ae081ce67441aca",
+            },
+        ],
+        "truncated": False,
+    }
+
+
+@pytest.fixture
+def boost_module():
+    return {"module": "rational", "url": "rational"}
+
+
+@pytest.fixture
+def boost_modules(module):
+    return [module]
+
+
+@pytest.fixture
+def library_metadata():
+    """
+    Returns a JSON example of a response from
+    f"https://raw.githubusercontent.com/{self.owner}/{repo}/develop/meta/libraries.json"
+
+    Live example: https://github.com/boostorg/align/blob/5ad7df63cd792fbdb801d600b93cad1a432f0151/meta/libraries.json
+    """
+    return {
+        "key": "system",
+        "name": "System",
+        "authors": ["Tester Testerson"],
+        "maintainers": ["Tester Testerston <tester -at- example.com>"],
+        "description": "Extensible error reporting.",
+        "category": ["System", "Error-handling", "Programming"],
+        "cxxstd": "03",
+    }
+
+
+@pytest.fixture
+def github_library():
+    return {
+        "name": "system",
+        "github_url": "https://github.com/boostorg/system/",
+        "authors": ["Tester Testerson"],
+        "description": "Extensible error reporting.",
+        "category": ["sample1", "sample2"],
+        "maintainers": ["Tester Testerson <tester -at- example.com>"],
+        "cxxstd": "03",
+    }
