@@ -45,6 +45,11 @@ urlpatterns = [
     path("health/", include("health_check.urls")),
     path("forum/", include(machina_urls)),
     path(
+        "donate/",
+        TemplateView.as_view(template_name="donate/donate.html"),
+        name="donate",
+    ),
+    path(
         "libraries-by-letter/<str:letter>/",
         LibraryByLetter.as_view(),
         name="libraries-by-letter",
