@@ -148,3 +148,6 @@ python.log
 # direnv
 .envrc
 .local_env
+
+.DS_Store
+*/.DS_Store
