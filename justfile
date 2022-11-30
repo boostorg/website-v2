@@ -51,6 +51,10 @@ alias shell := console
     just test_pytest
     docker-compose down
 
+@coverage:
+    docker-compose run --rm web pytest --cov=. --cov-report=html
+    open htmlcov/index.html
+
 @update:  ## updates a project to run at its current version
     docker-compose --file $(COMPOSE_FILE) rm --force celery
     docker-compose --file $(COMPOSE_FILE) rm --force celery-beat
