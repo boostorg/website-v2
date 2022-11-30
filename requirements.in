@@ -35,6 +35,7 @@ pytest-xdist
 Faker
 model_bakery
 ipython
+responses
 
 # Packaging
 pip-tools>=6.6.2
