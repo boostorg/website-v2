@@ -1,11 +1,13 @@
 import base64
 import os
 import re
+
 import requests
 import structlog
-
+from dateutil.parser import ParserError, parse
 from ghapi.all import GhApi, paged
-from .models import Library, Category
+
+from .models import Category, Library
 
 logger = structlog.get_logger()
 
@@ -19,9 +21,17 @@ def get_api():
     return GhApi(token=token)
 
 
+def get_repo(api, owner, repo):
+    """
+    Return the response from GitHub's /repos/{owner}/{repo}
+    """
+    return api.repos.get(owner=owner, repo=repo)
+
+
 def repo_issues(owner, repo, state="all"):
-    # FIXME: Write a test
-    # Get all of our issue pages
+    """
+    Get all issues for a repo
+    """
     api = get_api()
     pages = list(
         paged(
@@ -41,8 +51,7 @@ def repo_issues(owner, repo, state="all"):
 
 
 def repo_prs(owner, repo, state="all"):
-    # FIXME: Write a test
-    # Get all of our PR pages
+    """Get all PRs for a repo"""
     api = get_api()
     pages = list(
         paged(
@@ -62,13 +71,12 @@ def repo_prs(owner, repo, state="all"):
 
 
 def update_all_repos_info():
-    # FIXME: Write a test
     """Update all of our repos information from github"""
+    # FIXME: Write this function
     logger.info("update_all_github_repos")
 
 
 def parse_submodules(content):
-    # FIXME: Write a test
     """Expects the multiline contents of https://github.com/boostorg/boost/.gitmodules to be passed in"""
     modules = []
 
@@ -131,7 +139,6 @@ class LibraryUpdater:
         return self.get_ref(repo="boost", ref="heads/master")
 
     def get_library_list(self):
-        # FIXME: Write a test
         """
         Determine our list of libraries from .gitmodules and sub-repo
         libraries.json files
@@ -171,6 +178,13 @@ class LibraryUpdater:
                 continue
 
             meta = self.get_library_metadata(repo=name)
+            github_data = self.get_library_github_data(owner=self.owner, repo=name)
+
+            try:
+                last_github_update = parse(github_data.get("updated_at"))
+            except ParserError:
+                last_github_update = None
+
             github_url = f"https://github.com/boostorg/{name}/"
             if type(meta) is list:
                 for sublibrary in meta:
@@ -184,6 +198,7 @@ class LibraryUpdater:
                             "authors": sublibrary["authors"],
                             "maintainers": sublibrary.get("maintainers", []),
                             "cxxstd": sublibrary.get("cxxstd"),
+                            "last_github_update": last_github_update,
                         }
                     )
 
@@ -198,13 +213,10 @@ class LibraryUpdater:
                         "authors": meta["authors"],
                         "maintainers": meta.get("maintainers", []),
                         "cxxstd": meta.get("cxxstd"),
+                        "last_github_update": last_github_update,
                     }
                 )
-            # FIXME: Remove
-            if len(libraries) > 20:
-                break
 
-        breakpoint()
         return libraries
 
     def get_library_metadata(self, repo):
@@ -223,6 +235,13 @@ class LibraryUpdater:
             self.logger.exception("get_library_metadata_failed", repo=repo, url=url)
             return None
 
+    def get_library_github_data(self, owner, repo):
+        """
+        Retrieve other data about the library from the GitHub API
+        """
+        response = get_repo(self.api, owner, repo)
+        return response
+
     def update_libraries(self):
         """Update all libraries with the metadata"""
         libs = self.get_library_list()
@@ -234,6 +253,7 @@ class LibraryUpdater:
 
     def update_categories(self, obj, categories):
         """Update all of the categories for an object"""
+
         obj.categories.clear()
         for cat_name in categories:
             cat, created = Category.objects.get_or_create(name=cat_name)
@@ -243,10 +263,11 @@ class LibraryUpdater:
         """Update an individual library"""
         logger = self.logger.bind(lib=lib)
         try:
-            obj, created = Library.objects.get_or_create(name=lib["name"])
+            obj, created = Library.objects.update_or_create(name=lib["name"])
             obj.github_url = lib["github_url"]
             obj.description = lib["description"]
             obj.cpp_standard_minimum = lib["cxxstd"]
+            obj.last_github_update = lib["last_github_update"]
 
             # Update categories
             self.update_categories(obj, categories=lib["category"])
@@ -288,11 +309,9 @@ class GithubUpdater:
             self.logger.exception("update_prs_error")
 
     def update_issues(self):
-        # FIXME: Write a test
         self.logger.info("updating_repo_issues")
         issues = repo_issues(self.owner, self.repo, state="all")
 
     def update_prs(self):
-        # FIXME: Write a test
         self.logger.info("updating_repo_prs")
         raise ValueError("testing!")
