@@ -261,6 +261,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 AUTHENTICATION_BACKENDS = ("allauth.account.auth_backends.AuthenticationBackend",)
 
+# GitHub settings
+
+GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
+
 # Django Allauth settings
 
 SITE_ID = 1

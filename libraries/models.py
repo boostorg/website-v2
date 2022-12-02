@@ -1,6 +1,7 @@
+from urllib.parse import urlparse
+
 from django.db import models
 from django.utils.text import slugify
-from urllib.parse import urlparse
 
 
 class Category(models.Model):

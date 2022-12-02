@@ -63,11 +63,11 @@
 
     <div class="md:flex border-b border-slate last:border-0 py-4 my-6">
       <div class="md:w-3/4 mb-4 space-y-4 md:space-y-2">
-        <h3 class="text-2xl mb-3 capitalize"><a href="{% url "library-detail" slug=library.slug %}">{{ library.name }}</a></h3>
+        <h3 class="text-2xl mb-3 capitalize"><a href="{% url 'library-detail' slug=library.slug %}">{{ library.name }}</a></h3>
         <p class="mb-3">{{ library.description }}</p>
         <div class="md:flex text-sm">
           <div class="md:mr-11">First Release:  X.YY.Z</div>
-          <div class="mt-4 md:mt-0">Categories:  {% for c in library.categories.all %}<a href="{% url "libraries-by-category" category=c.slug %}" class="text-orange">{{ c.name }}</a> {% endfor %}</div>
+          <div class="mt-4 md:mt-0">Categories:  {% for c in library.categories.all %}<a href="{% url 'libraries-by-category' category=c.slug %}" class="text-orange">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</div>
         </div>
         <div class="text-sm">C++ Standard Minimum Level:  {{ library.cpp_standard_minimum }}</div>
       </div>
