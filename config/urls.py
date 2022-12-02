@@ -139,6 +139,16 @@ urlpatterns = [
     path("contact/", ContactView.as_view(), name="contact"),
     path("versions/", VersionList.as_view(), name="version-list"),
     path("version/<int:pk>/", VersionDetail.as_view(), name="version-detail"),
-    # TODO: determine real routes for this
-    path("content/<slug:title>/", MarkdownTemplateView.as_view(), name="markdown-page"),
+    # Markdown content
+    path(
+        "page/<slug:directory1>/<slug:directory2>/<slug:title>/",
+        MarkdownTemplateView.as_view(),
+        name="markdown-page",
+    ),
+    path(
+        "page/<slug:directory1>/<slug:title>/",
+        MarkdownTemplateView.as_view(),
+        name="markdown-page",
+    ),
+    path("page/<slug:title>/", MarkdownTemplateView.as_view(), name="markdown-page"),
 ]

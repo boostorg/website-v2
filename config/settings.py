@@ -285,3 +285,6 @@ SOCIALACCOUNT_PROVIDERS = {
         },
     }
 }
+
+# Boost Content Dir
+BOOST_CONTENT_DIR = env("BOOST_CONTENT_DIR")
