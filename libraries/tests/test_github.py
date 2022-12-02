@@ -1,10 +1,9 @@
-import responses
 from unittest.mock import patch
 
+import responses
 from ghapi.all import GhApi
 
-from libraries.github import LibraryUpdater
-from libraries.github import get_api
+from libraries.github import LibraryUpdater, get_api
 from libraries.models import Library
 
 
@@ -36,14 +35,6 @@ def test_get_boost_ref(tp, github_api_get_ref_response):
         assert "boostorg" in result["url"]
 
 
-def test_get_library_list(github_api_get_ref_response):
-    """LibraryUpdater.get_library_list()"""
-    updater = LibraryUpdater()
-    result = updater.get_library_list()
-    # breakpoint()
-    pass
-
-
 @responses.activate
 def test_get_library_metadata(library_metadata):
     """LibraryUpdater.get_library_metadata()"""
@@ -57,23 +48,13 @@ def test_get_library_metadata(library_metadata):
     assert result == library_metadata
 
 
-def test_update_libraries(github_library):
-    assert Library.objects.count() == 0
-
-    with patch(
-        "libraries.github.LibraryUpdater.get_library_list"
-    ) as get_library_list_mock:
-        get_library_list_mock.return_value = [github_library]
+def test_get_library_github_data(github_api_get_repo_response):
+    """LibraryUpdater.get_library_github_data(owner=owner, repo=repo)"""
+    with patch("libraries.github.get_repo") as get_repo_mock:
+        get_repo_mock.return_value = github_api_get_repo_response
         updater = LibraryUpdater()
-        updater.update_libraries()
-
-    assert Library.objects.filter(name=github_library["name"]).exists()
-    library = Library.objects.get(name=github_library["name"])
-    assert library.github_url == github_library["github_url"]
-    assert library.description == github_library["description"]
-    assert library.cpp_standard_minimum == github_library["cxxstd"]
-    assert library.categories.filter(name="sample1").exists()
-    assert library.categories.filter(name="sample2").exists()
+        result = updater.get_library_github_data("owner", "repo")
+        assert "updated_at" in result
 
 
 def test_update_library(github_library):

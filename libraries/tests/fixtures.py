@@ -29,7 +29,7 @@ def github_api_get_ref_response(db):
 
 @pytest.fixture
 def github_api_get_tree_response(db):
-    """Returns a JSON example of GhApi().api.git.get_tree(owner=owner, repo="boost", tree_sha=tree_sha")"""
+    """Returns a JSON example of GhApi().api.git.get_tree(owner=owner, repo="boost", tree_sha=tree_sha)"""
     return {
         "sha": "e2ae78645e6d7f6b455eea2f8c2846e67437b739",
         "url": "https://api.github.com/repos/boostorg/boost/git/trees/e2ae78645e6d7f6b455eea2f8c2846e67437b739",
@@ -52,6 +52,12 @@ def github_api_get_tree_response(db):
         ],
         "truncated": False,
     }
+
+
+@pytest.fixture
+def github_api_get_repo_response(db):
+    """Returns a JSON example of GhApi().api.repos.get(owner=owner, repo=repo)"""
+    return {"updated_at": "2022-09-14T22:20:38Z"}
 
 
 @pytest.fixture
@@ -93,4 +99,5 @@ def github_library():
         "category": ["sample1", "sample2"],
         "maintainers": ["Tester Testerson <tester -at- example.com>"],
         "cxxstd": "03",
+        "last_github_update": "2022-09-14T22:20:38Z",
     }
