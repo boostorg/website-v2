@@ -141,14 +141,14 @@ urlpatterns = [
     path("version/<int:pk>/", VersionDetail.as_view(), name="version-detail"),
     # Markdown content
     path(
-        "page/<slug:directory1>/<slug:directory2>/<slug:title>/",
+        "content/<slug:directory1>/<slug:directory2>/<slug:title>/",
         MarkdownTemplateView.as_view(),
         name="markdown-page",
     ),
     path(
-        "page/<slug:directory1>/<slug:title>/",
+        "content/<slug:directory1>/<slug:title>/",
         MarkdownTemplateView.as_view(),
         name="markdown-page",
     ),
-    path("page/<slug:title>/", MarkdownTemplateView.as_view(), name="markdown-page"),
+    path("content/<slug:title>/", MarkdownTemplateView.as_view(), name="markdown-page"),
 ]
