@@ -33,8 +33,8 @@
     <div class="justify-between md:space-x-10 pt-3 pb-3 w-1/2">
       <a class="my-2 block md:inline" href="/">&#169; 2022 Boost.org</a>
       <a class="my-2 block md:inline" href="{% url 'contact' %}">Contact</a>
-      <a class="my-2 block md:inline" href="">Privacy Policy</a>
-      <a class="my-2 block md:inline" href="">Terms of Use</a>
+      <a class="my-2 block md:inline" href="{% url 'markdown-page' 'legal' 'privacy-policy' %}">Privacy Policy</a>
+      <a class="my-2 block md:inline" href="{% url 'markdown-page' 'legal' 'terms-of-use' %}">Terms of Use</a>
     </div>
     <div class="md:space-x-5 space-x-3 pt-3 pb-3 md:text-right w-1/2">
       <a href=""><img class="h-[20px] w-auto inline" src="{% static 'img/icons/icon_Facebook-logo.svg' %}" alt=""></a>
