@@ -1,6 +1,6 @@
-from django.views.generic import ListView, DetailView
+from django.views.generic import DetailView, ListView
 
-from .models import Library, Category
+from .models import Category, Library
 
 
 class CategoryMixin:
