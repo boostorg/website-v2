@@ -61,7 +61,7 @@ urlpatterns = [
     ),
     path("libraries/", LibraryList.as_view(), name="libraries"),
     path(
-        "library/<slug:slug>/",
+        "libraries/<slug:slug>/",
         LibraryDetail.as_view(),
         name="library-detail",
     ),

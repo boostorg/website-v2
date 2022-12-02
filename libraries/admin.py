@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Library, Issue, PullRequest
+from .models import Category, Issue, Library, PullRequest
 
 
 @admin.register(Category)

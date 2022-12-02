@@ -56,6 +56,12 @@ $ docker-compose -f docker-compose-with-celery.yml up
 $ docker-compose -f docker-compose-with-celery.yml down
 ```
 
+## Environment Variables 
+
+### `GITHUB_TOKEN`
+
+[Generate a new personal access token](https://github.com/settings/tokens) and replace the value for `GITHUB_TOKEN` in your `.env` file in order to connect to certain parts of the GitHub API. 
+
 ## Running the tests
 
 To run the tests, execute:
