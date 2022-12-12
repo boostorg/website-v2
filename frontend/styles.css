@@ -30,4 +30,8 @@ body {
   pre {
     @apply p-6;
   }
+  /* Forum style overrides */
+  textarea {
+    @apply w-full rounded bg-charcoal border border-slate;
+  }
 }
