@@ -1,5 +1,6 @@
 from django.views.generic import DetailView, ListView
 
+from .github import repo_issues
 from .models import Category, Library
 
 
@@ -55,3 +56,18 @@ class LibraryDetail(CategoryMixin, DetailView):
 
     model = Library
     template_name = "libraries/detail.html"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        context["open_issues_count"] = self.get_open_issues_count(self.object)
+        return self.render_to_response(context)
+
+    def get_open_issues_count(self, obj):
+        try:
+            issues = repo_issues(
+                obj.github_owner, obj.github_repo, state="open", issues_only=True
+            )
+            return len(issues)
+        except Exception:
+            return 0
