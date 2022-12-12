@@ -28,9 +28,13 @@ def get_repo(api, owner, repo):
     return api.repos.get(owner=owner, repo=repo)
 
 
-def repo_issues(owner, repo, state="all"):
+def repo_issues(owner, repo, state="all", issues_only=True):
     """
-    Get all issues for a repo
+    Get all issues for a repo.
+
+    Note: The GitHub API considers both PRs and Issues to be "Issues" and does not
+    support filtering in the request, so to exclude PRs from the list of issues, we
+    do some manual filtering of the results
     """
     api = get_api()
     pages = list(
@@ -43,9 +47,16 @@ def repo_issues(owner, repo, state="all"):
         )
     )
     # Concatenate all pages into a single list
+    all_results = []
+    for page in pages:
+        all_results.extend(page)
+
+    # Filter results
     results = []
-    for p in pages:
-        results.extend(p)
+    if issues_only:
+        results = [result for result in all_results if not result.get("pull_request")]
+    else:
+        results = all_results
 
     return results
 
