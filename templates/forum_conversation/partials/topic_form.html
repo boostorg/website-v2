@@ -1,6 +1,6 @@
 {% load i18n %}
 
-<form method="post" action="." class="form" enctype="multipart/form-data" novalidate>{% csrf_token %}
+<form method="post" action="." class="form space-y-4" enctype="multipart/form-data" novalidate>{% csrf_token %}
   {% for error in post_form.non_field_errors %}
   <div class="alert alert-danger">
     <i class="icon-exclamation-sign"></i> {{ error }}
@@ -60,8 +60,8 @@
       <div class="form-group">
         <br />
         {% if poll_options_validated and poll_option_formset.non_form_errors %}<div class="alert alert-danger">{{ poll_option_formset.non_form_errors|striptags }}</div>{% endif %}
-        <div class="row">
-          <div class="col-md-6">
+        <div class="w-full flex space-x-4">
+          <div class="w-1/2 space-y-4">
             {% include "partials/form_field.html" with field=post_form.poll_question %}
             {% include "partials/form_field.html" with field=post_form.poll_max_options %}
             {% include "partials/form_field.html" with field=post_form.poll_duration %}
@@ -74,7 +74,7 @@
               </div>
             </div>
           </div>
-          <div id="poll_formset" class="col-md-6">
+          <div id="poll_formset" class="w-1/2 space-y-4">
             {% include "forum_conversation/forum_polls/poll_option_formset.html" %}
           </div>
         </div>
