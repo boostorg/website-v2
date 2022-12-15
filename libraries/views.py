@@ -1,7 +1,6 @@
 from django.views.generic import DetailView, ListView
 
-from .github import repo_issues
-from .models import Category, Library
+from .models import Category, Issue, Library
 
 
 class CategoryMixin:
@@ -64,10 +63,4 @@ class LibraryDetail(CategoryMixin, DetailView):
         return self.render_to_response(context)
 
     def get_open_issues_count(self, obj):
-        try:
-            issues = repo_issues(
-                obj.github_owner, obj.github_repo, state="open", issues_only=True
-            )
-            return len(issues)
-        except Exception:
-            return 0
+        return Issue.objects.filter(library=obj, is_open=True).count()
