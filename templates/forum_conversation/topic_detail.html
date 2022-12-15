@@ -9,7 +9,7 @@
 {% block content %}
 <div class="w-full mb-8"><h1>{{ topic.subject }}</h1></div>
 <div class="w-full">
-  <div class="topic-actions-block">
+  <div class="items-center inline-flex space-x-3">
   {% include "forum_conversation/partials/topic_detail_actions.html" %}
   </div>
   <div class="pagination-block">
@@ -91,7 +91,7 @@
                 {% include "partials/avatar.html" with profile=post.poster.forum_profile show_placeholder=True %}
               </a>
             </div>
-            <div class="username"><a href="{% url 'forum_member:profile' post.poster_id %}"><b>{{ post.poster|forum_member_display_name }}</b></a></div>
+            <div class="username"><a class="text-orange" href="{% url 'forum_member:profile' post.poster_id %}"><b>{{ post.poster|forum_member_display_name }}</b></a></div>
             <div class="posts-count text-muted"><b>{% trans "Posts:" %}</b>&nbsp;{{ post.poster.forum_profile.posts_count }}</div>
             {% else %}
             <div class="username"><b>{{ post.username }}</b></div>
@@ -105,7 +105,7 @@
   </div>
 </div>
 <div class="w-full mt-11">
-  <div class="w-1/2 topic-actions-block">
+  <div class="w-1/2 items-center inline-flex space-x-3">
     {% include "forum_conversation/partials/topic_detail_actions.html" %}
   </div>
   <div class="w-full">
