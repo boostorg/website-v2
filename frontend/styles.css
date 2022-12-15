@@ -1,12 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-body {
-  color: white;
-}
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap");
 
 @layer base {
+  body {
+    color: white;
+    @apply font-cairo;
+  }
   h1 {
     @apply text-6xl;
     @apply mb-3;

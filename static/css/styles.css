@@ -582,6 +582,11 @@ select {
   outline: 1px auto -webkit-focus-ring-color;
 }
 
+body {
+  color: white;
+  font-family: 'Cairo', sans-serif;
+}
+
 h1 {
   font-size: 3.75rem;
   line-height: 1;
@@ -1109,6 +1114,10 @@ textarea {
   height: 1rem;
 }
 
+.h-5 {
+  height: 1.25rem;
+}
+
 .h-\[15px\] {
   height: 15px;
 }
@@ -1157,6 +1166,10 @@ textarea {
   width: 33.333333%;
 }
 
+.w-5 {
+  width: 1.25rem;
+}
+
 .w-1\/5 {
   width: 20%;
 }
@@ -1175,6 +1188,10 @@ textarea {
 
 .flex-auto {
   flex: 1 1 auto;
+}
+
+.flex-shrink-0 {
+  flex-shrink: 0;
 }
 
 .table-auto {
@@ -1313,6 +1330,12 @@ textarea {
   --tw-space-x-reverse: 0;
   margin-right: calc(2rem * var(--tw-space-x-reverse));
   margin-left: calc(2rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.space-x-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.5rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
 .space-y-6 > :not([hidden]) ~ :not([hidden]) {
@@ -1553,6 +1576,14 @@ textarea {
   padding-right: 40px;
 }
 
+.pl-11 {
+  padding-left: 2.75rem;
+}
+
+.pr-11 {
+  padding-right: 2.75rem;
+}
+
 .pr-2 {
   padding-right: 0.5rem;
 }
@@ -1639,10 +1670,6 @@ textarea {
 
 .pl-5 {
   padding-left: 1.25rem;
-}
-
-.pr-11 {
-  padding-right: 2.75rem;
 }
 
 .pt-5 {
@@ -1791,10 +1818,6 @@ textarea {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
-}
-
-body {
-  color: white;
 }
 
 .last\:border-0:last-child {
