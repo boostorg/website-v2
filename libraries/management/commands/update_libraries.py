@@ -5,5 +5,5 @@ from libraries.github import LibraryUpdater
 
 @click.command()
 def command():
-    l = LibraryUpdater()
-    l.update_libraries()
+    updater = LibraryUpdater()
+    updater.update_libraries()

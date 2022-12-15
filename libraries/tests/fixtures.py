@@ -1,4 +1,5 @@
 import pytest
+from fastcore.xtras import dict2obj
 from model_bakery import baker
 
 
@@ -58,6 +59,46 @@ def github_api_get_tree_response(db):
 def github_api_get_repo_response(db):
     """Returns a JSON example of GhApi().api.repos.get(owner=owner, repo=repo)"""
     return {"updated_at": "2022-09-14T22:20:38Z"}
+
+
+@pytest.fixture
+def github_api_repo_issues_response(db):
+    """Returns the response from GhApi().issues.list_for_repo, already paged"""
+    return [
+        dict2obj(
+            {
+                "title": "Issue Number One",
+                "number": 1,
+                "state": "closed",
+                "closed_at": "2022-04-11T12:38:24Z",
+                "created_at": "2022-04-11T11:41:02Z",
+                "updated_at": "2022-04-11T12:38:25Z",
+                "id": 5898798798,
+            }
+        ),
+        dict2obj(
+            {
+                "title": "Issue Number Two",
+                "number": 2,
+                "state": "open",
+                "closed_at": "2022-04-11T12:38:24Z",
+                "created_at": "2022-04-11T11:41:02Z",
+                "updated_at": "2022-04-11T12:38:25Z",
+                "id": 7395968281,
+            }
+        ),
+        dict2obj(
+            {
+                "title": "Issue Number Three",
+                "number": 3,
+                "state": "closed",
+                "closed_at": "2022-04-11T12:38:24Z",
+                "created_at": "2022-04-11T11:41:02Z",
+                "updated_at": "2022-04-11T12:38:25Z",
+                "id": 7492027464,
+            }
+        ),
+    ]
 
 
 @pytest.fixture
