@@ -21,7 +21,7 @@
         <h3 class="m-0 h5 card-title text-base">{% trans "Post a reply" %}</h3>
       </div>
       <div class="card-body p-4">
-        <form method="post" action="." class="form" enctype="multipart/form-data" novalidate>{% csrf_token %}
+        <form method="post" action="." class="form space-y-4" enctype="multipart/form-data" novalidate>{% csrf_token %}
           {% include "forum_conversation/partials/post_form.html" %}
           <div class="form-actions my-5">
             <input type="submit" name="preview" class="px-8 py-3 border border-slate text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm" value="{% trans "Preview" %}" />&nbsp;
