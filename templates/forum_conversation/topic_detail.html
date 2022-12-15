@@ -27,7 +27,7 @@
     <div id="{{ post.id }}" class="my-3 card post">
       <div class="card-body">
         <div class="flex space-x-4 bg-charcoal border border-1 border-slate rounded p-6">
-          <div class="w-3/4 post-content-wrapper">
+          <div class="w-5/6 post-content-wrapper">
             <div class="float-right post-controls ">
               {% get_permission 'can_edit_post' post request.user as user_can_edit_post %}
               {% if user_can_edit_post %}
@@ -84,7 +84,7 @@
               </div>
               {% endif %}
           </div>
-          <div class="w-1/4 d-none d-md-block post-sidebar">
+          <div class="w-1/6 d-none d-md-block post-sidebar text-sm">
             {% if post.poster %}
             <div class="avatar">
               <a href="{% url 'forum_member:profile' post.poster_id %}">
