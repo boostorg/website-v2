@@ -7,7 +7,7 @@ import structlog
 from fastcore.xtras import obj2dict
 from ghapi.all import GhApi, paged
 
-from .models import Category, Issue, Library
+from .models import Category, Issue, Library, PullRequest
 from .utils import parse_date
 
 logger = structlog.get_logger()
@@ -381,4 +381,53 @@ class GithubUpdater:
 
     def update_prs(self):
         self.logger.info("updating_repo_prs")
-        # raise ValueError("testing!")
+
+        prs_data = repo_prs(self.owner, self.library.name, state="all")
+
+        for pr_dict in prs_data:
+
+            # Get the date information
+            closed_at = None
+            merged_at = None
+            created_at = None
+            modified_at = None
+
+            if pr_dict.get("closed_at"):
+                closed_at = parse_date(pr_dict["closed_at"])
+
+            if pr_dict.get("merged_at"):
+                merged_at = parse_date(pr_dict["merged_at"])
+
+            if pr_dict.get("created_at"):
+                created_at = parse_date(pr_dict["created_at"])
+
+            if pr_dict.get("updated_at"):
+                modified_at = parse_date(pr_dict["updated_at"])
+
+            try:
+                pull_request, created = PullRequest.objects.update_or_create(
+                    library=self.library,
+                    github_id=pr_dict["id"],
+                    defaults={
+                        "title": pr_dict["title"][:255],
+                        "number": pr_dict["number"],
+                        "is_open": pr_dict["state"] == "open",
+                        "closed": closed_at,
+                        "merged": merged_at,
+                        "created": created_at,
+                        "modified": modified_at,
+                        "data": obj2dict(pr_dict),
+                    },
+                )
+            except Exception as e:
+                logger.exception(
+                    "update_prs_error_skipped_pr",
+                    pr_github_id=pr_dict.get("id"),
+                    exc_msg=str(e),
+                )
+            logger.info(
+                "pull_request_updated_successfully",
+                pr_id=pull_request.id,
+                created_pr=created,
+                pr_github_id=pull_request.github_id,
+            )
