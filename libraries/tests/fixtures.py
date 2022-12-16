@@ -102,6 +102,49 @@ def github_api_repo_issues_response(db):
 
 
 @pytest.fixture
+def github_api_repo_prs_response(db):
+    """Returns the response from GhApi().pulls.list, already paged"""
+    return [
+        dict2obj(
+            {
+                "title": "Improve logging",
+                "number": 1,
+                "state": "closed",
+                "closed_at": "2022-04-11T12:38:24Z",
+                "merged_at": "2022-04-11T12:38:24Z",
+                "created_at": "2022-04-11T11:41:02Z",
+                "updated_at": "2022-04-11T12:38:25Z",
+                "id": 5898798798,
+            }
+        ),
+        dict2obj(
+            {
+                "title": "Fix a test",
+                "number": 2,
+                "state": "open",
+                "closed_at": "2022-04-11T12:38:24Z",
+                "merged_at": "2022-04-11T12:38:24Z",
+                "created_at": "2022-04-11T11:41:02Z",
+                "updated_at": "2022-04-11T12:38:25Z",
+                "id": 7395968281,
+            }
+        ),
+        dict2obj(
+            {
+                "title": "Add a new feature",
+                "number": 3,
+                "state": "closed",
+                "closed_at": "2022-04-11T12:38:24Z",
+                "merged_at": "2022-04-11T12:38:24Z",
+                "created_at": "2022-04-11T11:41:02Z",
+                "updated_at": "2022-04-11T12:38:25Z",
+                "id": 7492027464,
+            }
+        ),
+    ]
+
+
+@pytest.fixture
 def boost_module():
     return {"module": "rational", "url": "rational"}
 
