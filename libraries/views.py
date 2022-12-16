@@ -1,6 +1,6 @@
 from django.views.generic import DetailView, ListView
 
-from .models import Category, Issue, Library
+from .models import Category, Issue, Library, PullRequest
 
 
 class CategoryMixin:
@@ -59,8 +59,12 @@ class LibraryDetail(CategoryMixin, DetailView):
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
+        context["closed_prs_count"] = self.get_closed_prs_count(self.object)
         context["open_issues_count"] = self.get_open_issues_count(self.object)
         return self.render_to_response(context)
+
+    def get_closed_prs_count(self, obj):
+        return PullRequest.objects.filter(library=obj, is_open=True).count()
 
     def get_open_issues_count(self, obj):
         return Issue.objects.filter(library=obj, is_open=True).count()
