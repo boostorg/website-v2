@@ -368,7 +368,7 @@ class GithubUpdater:
                 )
             except Exception as e:
                 logger.exception(
-                    "update_issues_cannot_save_issue",
+                    "update_issues_error_skipped_issue",
                     issue_github_id=issue_dict.get("id"),
                     exc_msg=str(e),
                 )
