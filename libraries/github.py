@@ -1,13 +1,14 @@
 import base64
 import os
 import re
-
 import requests
 import structlog
-from dateutil.parser import ParserError, parse
+
+from fastcore.xtras import obj2dict
 from ghapi.all import GhApi, paged
 
-from .models import Category, Library
+from .models import Category, Issue, Library
+from .utils import parse_date
 
 logger = structlog.get_logger()
 
@@ -35,6 +36,9 @@ def repo_issues(owner, repo, state="all", issues_only=True):
     Note: The GitHub API considers both PRs and Issues to be "Issues" and does not
     support filtering in the request, so to exclude PRs from the list of issues, we
     do some manual filtering of the results
+
+    Note: GhApi() returns results as AttrDict objects:
+    https://fastcore.fast.ai/basics.html#attrdict
     """
     api = get_api()
     pages = list(
@@ -62,7 +66,12 @@ def repo_issues(owner, repo, state="all", issues_only=True):
 
 
 def repo_prs(owner, repo, state="all"):
-    """Get all PRs for a repo"""
+    """
+    Get all PRs for a repo
+
+    Note: GhApi() returns results as AttrDict objects:
+    https://fastcore.fast.ai/basics.html#attrdict
+    """
     api = get_api()
     pages = list(
         paged(
@@ -190,11 +199,7 @@ class LibraryUpdater:
 
             meta = self.get_library_metadata(repo=name)
             github_data = self.get_library_github_data(owner=self.owner, repo=name)
-
-            try:
-                last_github_update = parse(github_data.get("updated_at"))
-            except ParserError:
-                last_github_update = None
+            last_github_update = parse_date(github_data.get("updated_at", ""))
 
             github_url = f"https://github.com/boostorg/{name}/"
             if type(meta) is list:
@@ -260,7 +265,9 @@ class LibraryUpdater:
         self.logger.info("update_all_libraries_metadata", library_count=len(libs))
 
         for lib in libs:
-            self.update_library(lib)
+            library = self.update_library(lib)
+            github_updater = GithubUpdater(owner=self.owner, library=library)
+            github_updater.update()
 
     def update_categories(self, obj, categories):
         """Update all of the categories for an object"""
@@ -289,6 +296,8 @@ class LibraryUpdater:
 
             logger.info("library_udpated")
 
+            return obj
+
         except Exception:
             logger.exception("library_update_failed")
 
@@ -300,13 +309,12 @@ class GithubUpdater:
     for the site
     """
 
-    def __init__(self, owner, repo):
+    def __init__(self, owner="boostorg", library=None):
         self.owner = owner
-        self.repo = repo
-        self.logger = logger.bind(owner=owner, repo=repo)
+        self.library = library
+        self.logger = logger.bind(owner=owner, library=library)
 
     def update(self):
-        # FIXME: Write a test
         self.logger.info("update_github_repo")
 
         try:
@@ -320,9 +328,57 @@ class GithubUpdater:
             self.logger.exception("update_prs_error")
 
     def update_issues(self):
+        """Update all issues for a library"""
         self.logger.info("updating_repo_issues")
-        issues = repo_issues(self.owner, self.repo, state="all")
+
+        issues_data = repo_issues(
+            self.owner, self.library.name, state="all", issues_only=True
+        )
+
+        for issue_dict in issues_data:
+
+            # Get the date information
+            closed_at = None
+            created_at = None
+            modified_at = None
+
+            if issue_dict.get("closed_at"):
+                closed_at = parse_date(issue_dict["closed_at"])
+
+            if issue_dict.get("created_at"):
+                created_at = parse_date(issue_dict["created_at"])
+
+            if issue_dict.get("updated_at"):
+                modified_at = parse_date(issue_dict["updated_at"])
+
+            # Create or update the Issue object
+            try:
+                issue, created = Issue.objects.update_or_create(
+                    library=self.library,
+                    github_id=issue_dict["id"],
+                    defaults={
+                        "title": issue_dict["title"][:255],
+                        "number": issue_dict["number"],
+                        "is_open": issue_dict["state"] == "open",
+                        "closed": closed_at,
+                        "created": created_at,
+                        "modified": modified_at,
+                        "data": obj2dict(issue_dict),
+                    },
+                )
+            except Exception as e:
+                logger.exception(
+                    "update_issues_error_skipped_issue",
+                    issue_github_id=issue_dict.get("id"),
+                    exc_msg=str(e),
+                )
+            logger.info(
+                "issue_updated_successfully",
+                issue_id=issue.id,
+                created_issue=created,
+                issue_github_id=issue.github_id,
+            )
 
     def update_prs(self):
         self.logger.info("updating_repo_prs")
-        raise ValueError("testing!")
+        # raise ValueError("testing!")
