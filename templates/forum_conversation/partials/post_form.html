@@ -15,16 +15,28 @@
 {% if post_form.update_reason %}
     {% include "partials/form_field.html" with field=post_form.update_reason %}
 {% endif %}
-<!-- Sub "forms" tabs -->
-{% if attachment_formset %}
-<ul class="nav nav-tabs nav-justified">
-  <li class="nav-item"><a href="#options" class="nav-link active" data-toggle="tab">{% trans "Options" %}</a></li>
-  <li class="nav-item"><a href="#attachments" class="nav-link" data-toggle="tab">{% trans "Attachments" %}</a></li>
-</ul>
-{% endif %}
+
 <!-- Sub "forms" panes -->
-<div class="tab-content">
-  <div class="tab-pane active" id="options">
+<div class="tab-content" x-data="{ tab: '#options' }">
+  <!-- Sub "forms" tabs -->
+  {% if attachment_formset %}
+  <ul class="w-full flex flex-row justify-between">
+    <a href="#"
+       :class="tab === '#options' ? 'border-b-4 border-orange text-orange' : 'border-b border-slate'"
+       class="px-11 w-1/2 text-center active pb-4"
+       data-toggle="tab"
+       x-on:click.prevent="tab='#options'"
+    >{% trans "Options" %}</a>
+    <a href="#"
+       :class="tab === '#attachments' ? 'border-b-4 border-orange text-orange' : 'border-b border-slate'"
+       class="px-11 w-1/2 text-center pb-4"
+       data-toggle="tab"
+       x-on:click.prevent="tab='#attachments'"
+    >{% trans "Attachments" %}</a>
+  </ul>
+  {% endif %}
+
+  <div class="tab-pane active" id="options" x-show="tab == '#options'" x-cloak>
     <div class="form-group">
       <br />
       <div class="w-full">
@@ -52,7 +64,7 @@
     </div>
   </div>
   {% if attachment_formset %}
-  <div class="tab-pane" id="attachments">
+  <div class="tab-pane" id="attachments" x-show="tab == '#attachments'" x-cloak>
     <div class="form-group">
       <br />
       <div class="row">
