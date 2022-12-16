@@ -367,7 +367,6 @@ class GithubUpdater:
                     },
                 )
             except Exception:
-                breakpoint()
                 continue
             logger.info(
                 "issue_updated_successfully",
