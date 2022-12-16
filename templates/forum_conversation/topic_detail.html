@@ -9,7 +9,7 @@
 {% block content %}
 <div class="w-full mb-8"><h1>{{ topic.subject }}</h1></div>
 <div class="w-full">
-  <div class="topic-actions-block">
+  <div class="items-center inline-flex space-x-3">
   {% include "forum_conversation/partials/topic_detail_actions.html" %}
   </div>
   <div class="pagination-block">
@@ -27,7 +27,7 @@
     <div id="{{ post.id }}" class="my-3 card post">
       <div class="card-body">
         <div class="flex space-x-4 bg-charcoal border border-1 border-slate rounded p-6">
-          <div class="w-3/4 post-content-wrapper">
+          <div class="w-5/6 post-content-wrapper">
             <div class="float-right post-controls ">
               {% get_permission 'can_edit_post' post request.user as user_can_edit_post %}
               {% if user_can_edit_post %}
@@ -84,14 +84,14 @@
               </div>
               {% endif %}
           </div>
-          <div class="w-1/4 d-none d-md-block post-sidebar">
+          <div class="w-1/6 d-none d-md-block post-sidebar text-sm">
             {% if post.poster %}
             <div class="avatar">
               <a href="{% url 'forum_member:profile' post.poster_id %}">
                 {% include "partials/avatar.html" with profile=post.poster.forum_profile show_placeholder=True %}
               </a>
             </div>
-            <div class="username"><a href="{% url 'forum_member:profile' post.poster_id %}"><b>{{ post.poster|forum_member_display_name }}</b></a></div>
+            <div class="username"><a class="text-orange" href="{% url 'forum_member:profile' post.poster_id %}"><b>{{ post.poster|forum_member_display_name }}</b></a></div>
             <div class="posts-count text-muted"><b>{% trans "Posts:" %}</b>&nbsp;{{ post.poster.forum_profile.posts_count }}</div>
             {% else %}
             <div class="username"><b>{{ post.username }}</b></div>
@@ -105,7 +105,7 @@
   </div>
 </div>
 <div class="w-full mt-11">
-  <div class="w-1/2 topic-actions-block">
+  <div class="w-1/2 items-center inline-flex space-x-3">
     {% include "forum_conversation/partials/topic_detail_actions.html" %}
   </div>
   <div class="w-full">

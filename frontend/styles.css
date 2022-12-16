@@ -1,12 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-body {
-  color: white;
-}
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap");
 
 @layer base {
+  body {
+    color: white;
+    @apply font-cairo;
+  }
   h1 {
     @apply text-6xl;
     @apply mb-3;
@@ -33,5 +34,11 @@ body {
   /* Forum style overrides */
   textarea {
     @apply w-full rounded bg-charcoal border border-slate;
+  }
+  input[type=checkbox] {
+    @apply mr-3 rounded bg-charcoal border border-slate text-orange;
+  }
+  input[type=file] {
+    @apply block w-full px-3 py-1 text-base font-normal text-orange bg-clip-padding border border-solid border-slate rounded transition ease-in-out my-2;
   }
 }
