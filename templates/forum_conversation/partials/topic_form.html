@@ -16,25 +16,44 @@
     {% include "partials/form_field.html" with field=post_form.update_reason %}
   {% endif %}
 
-  <!-- Sub "forms" tabs -->
-  {% if poll_option_formset or attachment_formset %}
-  <ul class="nav nav-tabs nav-justified">
-    <li class="nav-item"><a href="#options" class="nav-link active" data-toggle="tab">{% trans "Options" %}</a></li>
-    {% if poll_option_formset %}<li class="nav-item"><a href="#poll" class="nav-link" data-toggle="tab">{% trans "Poll" %}</a></li>{% endif %}
-    {% if attachment_formset %}<li class="nav-item"><a href="#attachments" class="nav-link" data-toggle="tab">{% trans "Attachments" %}</a></li>{% endif %}
-  </ul>
-  {% endif %}
-
   <!-- Sub "forms" panes -->
-  <div class="tab-content">
-    <div class="tab-pane active" id="options">
+  <div class="tab-content" x-data="{ tab: '#options' }">
+    <!-- Sub "forms" tabs -->
+    {% if poll_option_formset or attachment_formset %}
+    <ul class="w-full flex flex-row justify-between">
+      <a href="#options"
+         :class="tab === '#options' ? 'border-b-4 border-orange text-orange' : 'border-b border-slate'"
+         class="px-11 w-1/2 text-center active pb-4"
+         data-toggle="tab"
+         x-on:click.prevent="tab='#options'"
+      >{% trans "Options" %}</a>
+      {% if poll_option_formset %}
+        <a href="#poll"
+           :class="tab === '#poll' ? 'border-b-4 border-orange text-orange' : 'border-b border-slate'"
+           class="px-11 w-1/2 text-center active pb-4"
+           data-toggle="tab"
+           x-on:click.prevent="tab='#poll'"
+        >{% trans "Poll" %}</a>
+      {% endif %}
+      {% if attachment_formset %}
+        <a href="#attachments"
+           :class="tab === '#attachments' ? 'border-b-4 border-orange text-orange' : 'border-b border-slate'"
+           class="px-11 w-1/2 text-center active pb-4"
+           data-toggle="tab"
+           x-on:click.prevent="tab='#attachments'"
+        >{% trans "Attachments" %}</a>
+      {% endif %}
+    </ul>
+    {% endif %}
+
+    <div class="tab-pane active" id="options" x-show="tab == '#options'" x-cloak>
       <div class="form-group">
         <br />
         <div class="w-full">
           <div class="w-full">
             {% include "partials/form_field.html" with field=post_form.topic_type %}
             {% with field=post_form.enable_signature %}
-            <div class="checkbox">
+            <div class="checkbox mt-3">
               <label for="{{ field.auto_id }}">
                 {{ field }}
                 {{ field.label }}
@@ -56,7 +75,7 @@
       </div>
     </div>
     {% if poll_option_formset %}
-    <div class="tab-pane" id="poll">
+    <div class="tab-pane" id="poll" x-show="tab == '#poll'" x-cloak>
       <div class="form-group">
         <br />
         {% if poll_options_validated and poll_option_formset.non_form_errors %}<div class="alert alert-danger">{{ poll_option_formset.non_form_errors|striptags }}</div>{% endif %}
@@ -82,7 +101,7 @@
     </div>
     {% endif %}
     {% if attachment_formset %}
-    <div class="tab-pane" id="attachments">
+    <div class="tab-pane" id="attachments" x-show="tab == '#attachments'" x-cloak>
       <div class="form-group">
         <br />
         <div class="row">
@@ -95,7 +114,7 @@
     {% endif %}
   </div>
 
-  <div class="form-actions my-5">
+  <div class="form-actions pt-6">
     <input type="submit" name="preview" class="px-8 py-3 border border-slate text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm" value="{% trans "Preview" %}" />&nbsp;
     <input type="submit" class="px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm" value="{% trans "Submit" %}" />
   </div>
