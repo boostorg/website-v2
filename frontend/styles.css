@@ -35,4 +35,10 @@
   textarea {
     @apply w-full rounded bg-charcoal border border-slate;
   }
+  input[type=checkbox] {
+    @apply mr-3 rounded bg-charcoal border border-slate text-orange;
+  }
+  input[type=file] {
+    @apply block w-full px-3 py-1 text-base font-normal text-orange bg-clip-padding border border-solid border-slate rounded transition ease-in-out my-2;
+  }
 }
