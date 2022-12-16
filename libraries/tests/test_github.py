@@ -83,6 +83,29 @@ def test_update_issues_existing(tp, library, github_api_repo_issues_response):
     assert issue.title == existing_issue_data.title
 
 
+def test_update_issues_long_title(tp, library, github_api_repo_issues_response):
+    """GithubUpdater.update_issues()"""
+    new_issues_count = len(github_api_repo_issues_response)
+    expected_count = Issue.objects.count() + new_issues_count
+    title = "sample" * 100
+    assert len(title) > 255
+    expected_title = title[:255]
+    assert len(expected_title) <= 255
+
+    with patch("libraries.github.repo_issues") as repo_issues_mock:
+        updater = GithubUpdater(library=library)
+        # Make an extra-long title so we can confirm that it saves
+        github_id = github_api_repo_issues_response[0]["id"]
+        github_api_repo_issues_response[0]["title"] = "sample" * 100
+        repo_issues_mock.return_value = github_api_repo_issues_response
+        updater.update_issues()
+
+    assert Issue.objects.count() == expected_count
+    assert Issue.objects.filter(library=library, github_id=github_id).exists()
+    issue = Issue.objects.get(library=library, github_id=github_id)
+    assert issue.title == expected_title
+
+
 # LibraryUpdater tests
 
 

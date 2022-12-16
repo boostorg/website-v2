@@ -358,7 +358,7 @@ class GithubUpdater:
                     library=self.library,
                     github_id=issue_dict["id"],
                     defaults={
-                        "title": issue_dict["title"],
+                        "title": issue_dict["title"][:255],
                         "number": issue_dict["number"],
                         "is_open": issue_dict["state"] == "open",
                         "closed": closed_at,
