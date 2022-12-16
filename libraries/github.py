@@ -366,8 +366,12 @@ class GithubUpdater:
                         "data": obj2dict(issue_dict),
                     },
                 )
-            except Exception:
-                continue
+            except Exception as e:
+                logger.exception(
+                    "update_issues_cannot_save_issue",
+                    issue_github_id=issue_dict.get("id"),
+                    exc_msg=str(e),
+                )
             logger.info(
                 "issue_updated_successfully",
                 issue_id=issue.id,
