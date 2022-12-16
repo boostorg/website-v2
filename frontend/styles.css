@@ -41,7 +41,8 @@
   input[type=file] {
     @apply block w-full px-3 py-1 text-base font-normal text-orange bg-clip-padding border border-solid border-slate rounded transition ease-in-out my-2;
   }
-  #signup_form input {
+  #signup_form input[type=email],
+  #signup_form input[type=password]{
     @apply rounded bg-charcoal text-white border border-slate w-full;
   }
 }
