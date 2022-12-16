@@ -266,7 +266,6 @@ class LibraryUpdater:
 
         for lib in libs:
             library = self.update_library(lib)
-            # TODO: Test the GH Updater here
             github_updater = GithubUpdater(owner=self.owner, library=library)
             github_updater.update()
 
