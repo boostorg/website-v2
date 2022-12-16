@@ -15,15 +15,15 @@
   {% include "forum_conversation/post_preview.html" %}
 {% endif %}
 <div>
-  <div class="w-full bg-charcoal border border-1 border-slate rounded">
+  <div class="w-full bg-charcoal/60 border border-1 border-slate rounded">
     <div class="card post-edit">
       <div class="card-header border-b border-slate px-4 py-2">
         <h3 class="m-0 h5 card-title text-base">{% trans "Post a reply" %}</h3>
       </div>
       <div class="card-body p-4">
-        <form method="post" action="." class="form" enctype="multipart/form-data" novalidate>{% csrf_token %}
+        <form method="post" action="." class="form space-y-4" enctype="multipart/form-data" novalidate>{% csrf_token %}
           {% include "forum_conversation/partials/post_form.html" %}
-          <div class="form-actions my-5">
+          <div class="form-actions pt-6">
             <input type="submit" name="preview" class="px-8 py-3 border border-slate text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm" value="{% trans "Preview" %}" />&nbsp;
             <input type="submit" class="px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm" value="{% trans "Submit" %}" />
           </div>

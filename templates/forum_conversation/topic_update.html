@@ -16,13 +16,13 @@
 {% if preview %}
 {% include "forum_conversation/post_preview.html" %}
 {% endif %}
-<div class="row">
-  <div class="col-12">
+<div>
+  <div class="w-full bg-charcoal/60 border border-1 border-slate rounded">
     <div class="card post-edit">
-      <div class="card-header">
-        <h3 class="m-0 h5 card-title">{% trans "Edit post" %}</h3>
+      <div class="card-header border-b border-slate px-4 py-2">
+        <h3 class="m-0 h5 card-title text-base">{% trans "Edit post" %}</h3>
       </div>
-      <div class="card-body">
+      <div class="card-body p-4">
         {% include "forum_conversation/partials/topic_form.html" %}
       </div>
     </div>
