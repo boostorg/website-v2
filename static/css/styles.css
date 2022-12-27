@@ -945,14 +945,14 @@ input[type=file] {
   margin-bottom: 0.75rem;
 }
 
-.my-6 {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
 .my-11 {
   margin-top: 2.75rem;
   margin-bottom: 2.75rem;
+}
+
+.my-6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .my-1 {
@@ -1352,16 +1352,16 @@ input[type=file] {
   margin-bottom: calc(2rem * var(--tw-space-y-reverse));
 }
 
-.space-y-11 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-y-reverse: 0;
-  margin-top: calc(2.75rem * calc(1 - var(--tw-space-y-reverse)));
-  margin-bottom: calc(2.75rem * var(--tw-space-y-reverse));
-}
-
 .space-x-4 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 0;
   margin-right: calc(1rem * var(--tw-space-x-reverse));
   margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.space-y-11 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(2.75rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(2.75rem * var(--tw-space-y-reverse));
 }
 
 .space-x-24 > :not([hidden]) ~ :not([hidden]) {
@@ -1495,11 +1495,6 @@ input[type=file] {
 .bg-black {
   --tw-bg-opacity: 1;
   background-color: rgb(5 26 38 / var(--tw-bg-opacity));
-}
-
-.bg-white {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
 .bg-charcoal {
@@ -1879,6 +1874,10 @@ input[type=file] {
   color: rgb(90 213 153 / var(--tw-text-opacity));
 }
 
+.text-white\/50 {
+  color: rgb(255 255 255 / 0.5);
+}
+
 .text-slate {
   --tw-text-opacity: 1;
   color: rgb(49 74 87 / var(--tw-text-opacity));
@@ -1897,14 +1896,6 @@ input[type=file] {
 .text-silver {
   --tw-text-opacity: 1;
   color: rgb(181 201 211 / var(--tw-text-opacity));
-}
-
-.text-white\/80 {
-  color: rgb(255 255 255 / 0.8);
-}
-
-.text-white\/50 {
-  color: rgb(255 255 255 / 0.5);
 }
 
 .shadow {
@@ -1943,11 +1934,6 @@ input[type=file] {
 .hover\:text-white:hover {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
-.focus\:bg-white:focus {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
 .focus\:text-charcoal:focus {
