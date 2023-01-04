@@ -882,6 +882,14 @@ input[type=file] {
   right: 0.75rem;
 }
 
+.top-20 {
+  top: 5rem;
+}
+
+.top-14 {
+  top: 3.5rem;
+}
+
 .z-10 {
   z-index: 10;
 }
@@ -1224,6 +1232,10 @@ input[type=file] {
 
 .w-1\/5 {
   width: 20%;
+}
+
+.w-\[200px\] {
+  width: 200px;
 }
 
 .min-w-0 {
@@ -1825,6 +1837,11 @@ input[type=file] {
 .text-xs {
   font-size: 0.75rem;
   line-height: 1rem;
+}
+
+.text-3xl {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
 }
 
 .font-extrabold {
