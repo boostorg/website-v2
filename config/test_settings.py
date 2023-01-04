@@ -25,3 +25,5 @@ MIGRATION_MODULES = DisableMigrations()
 
 # User a faster password hasher
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+
+GITHUB_TOKEN = "changeme"
