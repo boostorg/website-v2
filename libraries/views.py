@@ -14,7 +14,9 @@ class LibraryList(CategoryMixin, ListView):
     """List all of our libraries by name"""
 
     paginate_by = 25
-    queryset = Library.objects.prefetch_related("categories").all().order_by("name")
+    queryset = (
+        Library.objects.prefetch_related("authors", "categories").all().order_by("name")
+    )
     template_name = "libraries/list.html"
 
 

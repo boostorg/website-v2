@@ -380,6 +380,7 @@ class GithubUpdater:
             )
 
     def update_prs(self):
+        """Update all PRs for a library"""
         self.logger.info("updating_repo_prs")
 
         prs_data = repo_prs(self.owner, self.library.name, state="all")
