@@ -35,6 +35,9 @@
   textarea {
     @apply w-full rounded bg-charcoal border border-slate;
   }
+  input[type=email] {
+    @apply w-full rounded bg-charcoal border border-slate mt-3;
+  }
   input[type=checkbox] {
     @apply mr-3 rounded bg-charcoal border border-slate text-orange;
   }

@@ -636,6 +636,17 @@ textarea {
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
 }
 
+input[type=email] {
+  margin-top: 0.75rem;
+  width: 100%;
+  border-radius: 0.25rem;
+  border-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(49 74 87 / var(--tw-border-opacity));
+  --tw-bg-opacity: 1;
+  background-color: rgb(23 42 52 / var(--tw-bg-opacity));
+}
+
 input[type=checkbox] {
   margin-right: 0.75rem;
   border-radius: 0.25rem;
@@ -1523,11 +1534,6 @@ input[type=file] {
   background-color: rgb(23 42 52 / 0.6);
 }
 
-.bg-orange {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 159 0 / var(--tw-bg-opacity));
-}
-
 .bg-slate {
   --tw-bg-opacity: 1;
   background-color: rgb(49 74 87 / var(--tw-bg-opacity));
@@ -1633,6 +1639,11 @@ input[type=file] {
   padding-bottom: 0px;
 }
 
+.py-6 {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
 .py-8 {
   padding-top: 2rem;
   padding-bottom: 2rem;
@@ -1656,11 +1667,6 @@ input[type=file] {
 .px-5 {
   padding-left: 1.25rem;
   padding-right: 1.25rem;
-}
-
-.py-6 {
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
 }
 
 .px-\[40px\] {
