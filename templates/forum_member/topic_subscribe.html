@@ -15,8 +15,8 @@
         <div class="mb-3 warning-message">{% trans "Would you like to subscribe to this topic?" %}</div>
         <form action="" method="post">{% csrf_token %}
           <input type="hidden" name="post" value="yes" />
-          <button role="submit" class="btn btn-warning">{% trans "Yes, I'm sure" %}</button>
-          <a href="{% url 'forum_conversation:topic' topic.forum.slug topic.forum.pk topic.slug topic.pk %}" class="btn btn-secondary">{% trans "No, take me back" %}</a>
+          <button role="submit" class="border border-orange text-orange py-2 px-3 rounded">{% trans "Yes, I'm sure" %}</button>
+          <a href="{% url 'forum_conversation:topic' topic.forum.slug topic.forum.pk topic.slug topic.pk %}" class="border border-slate text-white py-3 px-3 rounded ml-3">{% trans "No, take me back" %}</a>
         </form>
       </div>
     </div>

@@ -1,6 +1,7 @@
 {% load static %}
 
 <footer class="my-5 md:my-6 mx-auto max-w-7xl px-4 sm:mt-24 py-5 md:py-4">
+  {% if not request.user.is_authenticated %}
   <div class="md:flex">
     <div class="text-left md:w-1/2 content-center gap-4 grid">
       <div>
@@ -16,7 +17,7 @@
       </div>
       <div class="hidden mt-5 max-w-md sm:flex md:mt-8">
         <div class="rounded-md shadow">
-          <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-3 md:text-lg md:px-8">Sign Up > </a>
+          <a href="{% url 'account_signup' %}" class="w-full flex items-center justify-center px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-3 md:text-lg md:px-8">Sign Up > </a>
         </div>
       </div>
     </div>
@@ -25,6 +26,7 @@
       <div id="scene01"></div>
     </div>
   </div>
+  {% endif %}
 
   <div class="px-5 pt-4 md:flex items-center mt-16">
     <div class="mr-11">
