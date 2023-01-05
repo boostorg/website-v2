@@ -11,6 +11,16 @@
      >{{brand.name}}</a>
 {% endfor %}
 {% endif %}
-  <a title="{{provider.name}}" class="px-8 py-3 border border-steel text-base font-medium rounded-md text-orange hover:bg-gray-50 md:py-4 md:text-lg md:px-10 {{provider.id}}"
-     href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}">{{provider.name}}</a>
+    <a title="{{provider.name}}"
+       class="px-8 py-3 text-base font-medium rounded-md border border-orange text-white bg-slate md:py-4 md:text-lg md:px-10 {{provider.id}}"
+       href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"
+    >
+      {% if provider.name == "GitHub" %}
+        <i class="fab fa-github mr-3"></i>
+      {% endif %}
+      {% if provider.name == "Google" %}
+        <i class="fab fa-google mr-3"></i>
+      {% endif %}
+      Login with {{provider.name}}
+    </a>
 {% endfor %}
