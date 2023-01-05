@@ -81,15 +81,17 @@
           <div class="py-6">
             <h3 class="text-2xl mb-4">Authors</h3>
             <div class="space-y-3">
-              <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
-              <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
+              {% for author in object.authors.all %}
+                <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> {{ author.get_full_name }}</div>
+              {% endfor %}
             </div>
           </div>
           <div class="py-6">
             <h3 class="text-2xl mb-4">Maintainers</h3>
             <div class="space-y-3">
-              <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
-              <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
+              {% for maintainer in object.maintainers.all %}
+                <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> {{ maintainer.get_full_name }}</div>
+              {% endfor %}
             </div>
           </div>
         </div>
