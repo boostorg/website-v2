@@ -7,6 +7,23 @@ def test_library_list(library, tp):
     tp.response_200(res)
 
 
+def test_library_list_select_category(library, category, tp):
+    """POST /libraries/ to submit a category redirects to the libraries-by-category page"""
+    res = tp.post("libraries", data={"categories": category.pk})
+    tp.response_302(res)
+
+
+def test_libraries_by_category(tp, library, category):
+    """GET /libraries-by-category/{slug}/"""
+    baker.make("libraries.Library", name="Sample")
+    library.categories.add(category)
+    res = tp.get("libraries-by-category", category.slug)
+    tp.response_200(res)
+    assert "library_list" in res.context
+    assert len(res.context["library_list"]) == 1
+    assert library in res.context["library_list"]
+
+
 def test_library_detail(library, tp):
     """GET /libraries/{repo}/"""
     url = tp.reverse("library-detail", library.slug)

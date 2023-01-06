@@ -1,6 +1,13 @@
-from django.views.generic import DetailView, ListView
+import structlog
 
+from django.shortcuts import redirect
+from django.views.generic import DetailView, ListView
+from django.views.generic.edit import FormMixin
+
+from .forms import LibraryForm
 from .models import Category, Issue, Library, PullRequest
+
+logger = structlog.get_logger()
 
 
 class CategoryMixin:
@@ -10,14 +17,25 @@ class CategoryMixin:
         return context
 
 
-class LibraryList(CategoryMixin, ListView):
+class LibraryList(CategoryMixin, FormMixin, ListView):
     """List all of our libraries by name"""
 
+    form_class = LibraryForm
     paginate_by = 25
     queryset = (
         Library.objects.prefetch_related("authors", "categories").all().order_by("name")
     )
     template_name = "libraries/list.html"
+
+    def post(self, request):
+        """User has submitted a form and will be redirected to the right results"""
+        form = self.get_form()
+        if form.is_valid():
+            category = form.cleaned_data["categories"][0]
+            return redirect("libraries-by-category", category=category.slug)
+        else:
+            logger.info("library_list_invalid_category")
+        return super().get(request)
 
 
 class LibraryByLetter(CategoryMixin, ListView):
