@@ -5,7 +5,7 @@
 {% block content %}
   <!-- Breadcrumb used on filtered views -->
   <div class="p-3 md:p-0">
-    <a class="text-orange" href="{% url "libraries" %}">Libraries</a> > Categorized
+    <a class="text-orange" href="{% url "libraries" %}">Libraries</a> > Categorized{% if category %} > <a class="text-orange" href="{% url "libraries-by-category" category.slug %}">{{ category.name }}</a>{% endif %}
   </div>
   <!-- end breadcrumb -->
 
@@ -52,11 +52,11 @@
           <select name="categories" class="mb-3 md:mb-0 w-full md:w-auto cursor-pointer block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate pl-5 pr-11 py-3 mr-3" id="id_categories">
             <option>Filter by category</option>
             {% for c in categories %}
-              <option value="{{ c.pk }}">{{ c.name }}</option>
+              <option value="{{ c.pk }}" {% if category == c %}selected="selected"{% endif %}>{{ c.name }}</option>
             {% endfor %}
           </select>
         </div>
-        <input type="submit" value="Submit">
+        <input type="submit" value="Submit" style="color: red">
       </form>
     </div>
   </div>

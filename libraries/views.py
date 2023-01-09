@@ -60,6 +60,17 @@ class LibraryByCategory(CategoryMixin, ListView):
     paginate_by = 25
     template_name = "libraries/list.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        category_slug = self.kwargs.get("category")
+        if category_slug:
+            try:
+                category = Category.objects.get(slug=category_slug)
+                context["category"] = category
+            except Category.DoesNotExist:
+                logger.info("libraries_by_category_view_category_not_found")
+        return context
+
     def get_queryset(self):
         category = self.kwargs.get("category")
 
