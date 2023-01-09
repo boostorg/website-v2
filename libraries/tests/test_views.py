@@ -22,6 +22,8 @@ def test_libraries_by_category(tp, library, category):
     assert "library_list" in res.context
     assert len(res.context["library_list"]) == 1
     assert library in res.context["library_list"]
+    assert "category" in res.context
+    assert res.context["category"] == category
 
 
 def test_library_detail(library, tp):
