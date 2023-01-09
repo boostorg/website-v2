@@ -4,6 +4,11 @@ from model_bakery import baker
 
 
 @pytest.fixture
+def category(db):
+    return baker.make("libraries.Category", name="Math", slug="math")
+
+
+@pytest.fixture
 def library(db):
     return baker.make(
         "libraries.Library",
