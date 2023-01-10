@@ -7,9 +7,9 @@
 {% block sub_title %}{{ topic.subject }}{% endblock sub_title %}
 
 {% block content %}
-<div class="w-full mb-8"><h1>{{ topic.subject }}</h1></div>
+<div class="w-full mb-8"><h1 class="text-3xl">{{ topic.subject }}</h1></div>
 <div class="w-full">
-  <div class="items-center inline-flex space-x-3">
+  <div class="items-center inline-flex space-x-3 mb-6">
   {% include "forum_conversation/partials/topic_detail_actions.html" %}
   </div>
   <div class="pagination-block">
@@ -26,20 +26,30 @@
     {% endif %}
     <div id="{{ post.id }}" class="my-3 card post">
       <div class="card-body">
-        <div class="flex space-x-4 bg-charcoal border border-1 border-slate rounded p-6">
+        <div class="flex space-x-8 bg-charcoal border border-1 border-slate rounded p-6">
           <div class="w-5/6 post-content-wrapper">
             <div class="float-right post-controls ">
               {% get_permission 'can_edit_post' post request.user as user_can_edit_post %}
               {% if user_can_edit_post %}
-              <a href="{% if post.is_topic_head %}{% url 'forum_conversation:topic_update' forum.slug forum.pk topic.slug topic.pk %}{% else %}{% url 'forum_conversation:post_update' forum.slug forum.pk topic.slug topic.pk post.pk %}{% endif %}" class="border border-1 border-orange text-orange text-sm uppercase px-4 py-2 rounded rounded-lg" title="{% trans "Edit" %}"><img src="{% static 'img/icons/icon_button-edit.svg' %}" class="inline-block mr-4" />{% trans "Edit" %}</a>
+              <a href="{% if post.is_topic_head %}{% url 'forum_conversation:topic_update' forum.slug forum.pk topic.slug topic.pk %}{% else %}{% url 'forum_conversation:post_update' forum.slug forum.pk topic.slug topic.pk post.pk %}{% endif %}"
+                 class="border border-1 border-orange text-orange text-sm uppercase px-4 py-2 rounded rounded-lg"
+                 title="{% trans "Edit" %}"
+              >
+                <img src="{% static 'img/icons/icon_button-edit.svg' %}" class="inline-block mr-4" />
+                {% trans "Edit" %}
+              </a>
               {% endif %}
               {% get_permission 'can_delete_post' post request.user as user_can_delete_post %}
               {% if user_can_delete_post %}
-              <a href="{% url 'forum_conversation:post_delete' forum.slug forum.pk topic.slug topic.pk post.pk %}" class="btn btn-danger btn-sm" title="{% trans "Delete" %}"><i class="fas fa-times"></i></a>
+              <a href="{% url 'forum_conversation:post_delete' forum.slug forum.pk topic.slug topic.pk post.pk %}"
+                 class="border border-1 border-orange text-orange text-sm uppercase px-4 py-2 rounded rounded-lg ml-3"
+                 title="{% trans "Delete" %}">
+                <i class="fas fa-times text-orange"></i>
+              </a>
               {% endif %}
             </div>
               {% spaceless %}
-              <h4 class="text-2xl m-0 subject">
+              <h4 class="text-2xl m-0 subject mb-3">
                 {{ post.subject }}
                 &nbsp;<a href="{% url 'forum_conversation:topic' forum.slug forum.pk topic.slug topic.pk %}?post={{ post.pk }}#{{ post.pk }}">&#182;</a>
               </h4>
@@ -51,11 +61,11 @@
                 {% if post.poster %}
                 {% url 'forum_member:profile' post.poster_id as poster_url %}
                 {% blocktrans trimmed with poster_url=poster_url username=post.poster|forum_member_display_name creation_date=post.created %}
-                  <span class="text-base">By: <a href="{{ poster_url }}" class="text-orange">{{ username }}</a> on {{ creation_date }}</span>
+                  <span class="text-sm">By: <a href="{{ poster_url }}" class="text-orange">{{ username }}</a> on {{ creation_date }}</span>
                 {% endblocktrans %}
                 {% else %}
                 {% blocktrans trimmed with poster_username=post.username creation_date=post.created %}
-                  <span class="text-base">By: {{ poster_username }} on {{ creation_date }}</span>
+                  <span class="text-sm">By: {{ poster_username }} on {{ creation_date }}</span>
                 {% endblocktrans %}
                 {% endif %}
                 {% endspaceless %}
