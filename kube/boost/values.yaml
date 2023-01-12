@@ -85,7 +85,7 @@ Env:
   - name: SECURE_PROXY_SSL_HEADER_VALUE
     value: "https"
   - name: SECURE_SSL_REDIRECT
-    value: true
+    value: "true"
   - name: SECRET_KEY
     valueFrom:
       secretKeyRef:
