@@ -80,7 +80,6 @@ Env:
       fieldRef:
         fieldPath: metadata.name
         apiVersion: v1
-
   - name: SECURE_PROXY_SSL_HEADER_NAME
     value: "HTTP_X_FORWARDED_PROTO"
   - name: SECURE_PROXY_SSL_HEADER_VALUE
