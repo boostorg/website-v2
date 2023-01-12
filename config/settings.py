@@ -290,7 +290,7 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-# Allow Allauth to use HTTPS when deployed but HTTP for local dev 
+# Allow Allauth to use HTTPS when deployed but HTTP for local dev
 SECURE_PROXY_SSL_HEADER_NAME = env("SECURE_PROXY_SSL_HEADER_NAME", default=None)
 SECURE_PROXY_SSL_HEADER_VALUE = env("SECURE_PROXY_SSL_HEADER_VALUE", default=None)
 SECURE_SSL_REDIRECT = env("SECURE_SSL_REDIRECT", default=False)
