@@ -35,7 +35,8 @@ WORKDIR /code
 
 CMD ["gunicorn", "-c", "/code/gunicorn.conf.py", "config.wsgi"]
 
-ENV X_IMAGE_TAG v0.0.0
+ARG TAG
+ENV IMAGE_TAG=$TAG
 
 LABEL Description="Boost.org" Vendor="REVSYS"
-LABEL Version="${X_IMAGE_TAG}"
+LABEL Version="${IMAGE_TAG}"
