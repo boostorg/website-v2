@@ -80,19 +80,19 @@ Env:
       fieldRef:
         fieldPath: metadata.name
         apiVersion: v1
-  - name: SECURE_PROXY_SSL_HEADER_NAME
-    value: "HTTP_X_FORWARDED_PROTO"
-  - name: SECURE_PROXY_SSL_HEADER_VALUE
-    value: "https"
-  - name: SECURE_SSL_REDIRECT
-    value: "false"
-  - name: SECRET_KEY
-    valueFrom:
-      secretKeyRef:
-        name: django-secret-key
-        key: key
   - name: DJANGO_DEBUG
     value: "false"
+#  - name: SECURE_PROXY_SSL_HEADER_NAME
+#    value: "HTTP_X_FORWARDED_PROTO"
+#  - name: SECURE_PROXY_SSL_HEADER_VALUE
+#    value: "https"
+#  - name: SECURE_SSL_REDIRECT
+#    value: "false"
+#  - name: SECRET_KEY
+#    valueFrom:
+#      secretKeyRef:
+#        name: django-secret-key
+#        key: key
 # Bucket is setup already, but not using storages just yet
 #  - name: AWS_ACCESS_KEY_ID
 #    valueFrom:
