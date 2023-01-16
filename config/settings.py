@@ -20,6 +20,9 @@ if READ_DOT_ENV_FILE:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DJANGO_DEBUG", default=False)
 
+# Whether or not we're in local development mode
+LOCAL_DEVELOPMENT = env.bool("LOCAL_DEVELOPMENT", default=False)
+
 if DEBUG:
     root = logging.getLogger()
     root.setLevel(logging.INFO)
@@ -294,6 +297,9 @@ SOCIALACCOUNT_PROVIDERS = {
 SECURE_PROXY_SSL_HEADER_NAME = env("SECURE_PROXY_SSL_HEADER_NAME", default=None)
 SECURE_PROXY_SSL_HEADER_VALUE = env("SECURE_PROXY_SSL_HEADER_VALUE", default=None)
 SECURE_SSL_REDIRECT = env("SECURE_SSL_REDIRECT", default=False)
+
+if not LOCAL_DEVELOPMENT:
+    ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
 if all(
     [SECURE_PROXY_SSL_HEADER_NAME, SECURE_PROXY_SSL_HEADER_VALUE, SECURE_SSL_REDIRECT]

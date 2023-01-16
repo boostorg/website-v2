@@ -27,6 +27,8 @@ services:
     command: [ "/bin/bash", "/code/compose-start.sh" ]
     depends_on:
       - db
+    environment:
+      - "LOCAL_DEVELOPMENT=true"
     env_file:
       - .env
     init: true
