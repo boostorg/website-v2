@@ -82,6 +82,8 @@ django==3.2.2
     #   django-rest-auth
     #   djangorestframework
     #   model-bakery
+django-admin-env-notice==0.4
+    # via -r ./requirements.in
 django-allauth==0.51.0
     # via -r ./requirements.in
 django-bakery==0.12.7
