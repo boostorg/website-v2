@@ -330,7 +330,5 @@ ENVIRONMENT_COLOR = "#718096"  # Gray for unknown
 
 if ENV_NAME == "Development Environment":
     ENVIRONMENT_COLOR = "#38A169"  # Green
-elif ENV_NAME == "UAT Environment":
-    ENVIRONMENT_COLOR = "#F6E05E"  # Yellow
 elif ENV_NAME == "Production Environment":
     ENVIRONMENT_COLOR = "#E53E3E"
