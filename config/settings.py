@@ -47,7 +47,7 @@ ALLOWED_HOSTS = [el.strip() for el in host_list]
 
 
 INSTALLED_APPS = [
-    "django_admin_env_notice", # Third-party 
+    "django_admin_env_notice",  # Third-party
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
