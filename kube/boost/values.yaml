@@ -87,7 +87,7 @@ Env:
       secretKeyRef:
         name: django-secret-key
         key: key
-  - name: ENV_NAME
+  - name: ENVIRONMENT_NAME
     value: "Development Environment"
 # Bucket is setup already, but not using storages just yet
 #  - name: AWS_ACCESS_KEY_ID
