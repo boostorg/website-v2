@@ -3,6 +3,29 @@
 
 {% block title %}{{ title }} | {% trans 'boost.org admin' %}{% endblock %}
 
+{% block extrastyle %}{{ block.super }}
+{% if ENVIRONMENT_NAME and ENVIRONMENT_COLOR %}
+<!-- Environment notice -->
+<style type="text/css"{% if request.csp_nonce %} nonce="{{ request.csp_nonce }}"{% endif %}>
+    {{ ENVIRONMENT_ADMIN_SELECTOR }}:before {
+        display: block;
+        line-height: 35px;
+        text-align: center;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: {{ ENVIRONMENT_TEXT_COLOR }};
+        content: "{{ ENVIRONMENT_NAME }}";
+        background-color: {{ ENVIRONMENT_COLOR }};
+        {% if ENVIRONMENT_FLOAT %}
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        {% endif %}
+    }
+</style>
+{% endif %}
+{% endblock %}
+
 {% block branding %}
 <h1 id="site-name">{% trans 'boost.org administration' %}</h1>
 {% endblock %}
