@@ -1,6 +1,7 @@
 import environs
 import logging
 import structlog
+import subprocess
 import sys
 
 from django.core.exceptions import ImproperlyConfigured
@@ -46,6 +47,7 @@ ALLOWED_HOSTS = [el.strip() for el in host_list]
 
 
 INSTALLED_APPS = [
+    "django_admin_env_notice",  # Third-party
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -122,6 +124,9 @@ TEMPLATES = [
         ],
         "OPTIONS": {
             "context_processors": [
+                # Django Admin Env Notice
+                "django_admin_env_notice.context_processors.from_settings",
+                # Django stuff
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
@@ -308,3 +313,22 @@ if all(
         SECURE_PROXY_SSL_HEADER_NAME,
         SECURE_PROXY_SSL_HEADER_VALUE,
     )
+
+# Admin banner configuration
+ENV_NAME = env("ENVIRONMENT_NAME", default="Unknown Environment")
+IMAGE_TAG = env("IMAGE_TAG", default="Unknown Version")
+
+if LOCAL_DEVELOPMENT:
+    output = subprocess.check_output(
+        ["git", "describe", "--tags"], universal_newlines=True
+    )
+    IMAGE_TAG = str(output.strip())
+
+ENVIRONMENT_NAME = f"{ENV_NAME} - {IMAGE_TAG}"
+
+ENVIRONMENT_COLOR = "#718096"  # Gray for unknown
+
+if ENV_NAME == "Development Environment":
+    ENVIRONMENT_COLOR = "#38A169"  # Green
+elif ENV_NAME == "Production Environment":
+    ENVIRONMENT_COLOR = "#E53E3E"

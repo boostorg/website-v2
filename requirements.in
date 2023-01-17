@@ -1,5 +1,6 @@
 Django<4.0
 bumpversion
+django-admin-env-notice==0.4
 django-allauth==0.51.0
 django-db-geventpool
 django-extensions
