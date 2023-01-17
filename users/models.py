@@ -138,7 +138,6 @@ class Badge(models.Model):
 class User(BaseUser):
     badges = models.ManyToManyField(Badge)
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
-    models.ImageField(default="fpo/user.png", upload_to="profile_photos")
 
 
 class LastSeen(models.Model):
