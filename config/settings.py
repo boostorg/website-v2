@@ -332,3 +332,6 @@ if ENV_NAME == "Development Environment":
     ENVIRONMENT_COLOR = "#38A169"  # Green
 elif ENV_NAME == "Production Environment":
     ENVIRONMENT_COLOR = "#E53E3E"
+
+# Markdown content 
+BASE_CONTENT = env("BOOST_CONTENT_DIRECTORY", "/website")
