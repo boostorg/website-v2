@@ -56,25 +56,29 @@
           <div x-show="tab == '#email'" x-cloak>
             <form class="login" method="POST" action="{% url 'account_login' %}">
               <div class="w-full space-y-4" id="signup_form">
-              {% csrf_token %}
+                {% csrf_token %}
 
-              {% for field in form.visible_fields %}
-                <div>
-                  <label class="uppercase text-white/70 text-xs">{{ field.label }}</label>
-                  {{ field }}
-                  {% if field.help_text %}
-                    <small>{{ field.help_text }}</small>
-                  {% endif %}
+                {% for field in form.visible_fields %}
+                  <div>
+                    {% if field.label == "E-mail" or field.label == "Password" %}
+                      {% else %}
+                    <label class="uppercase text-white/70 text-xs">{{ field.label }}</label>
+                    {% endif %}
+                    {{ field }}
+                    {% if field.help_text %}
+                      <small>{{ field.help_text }}</small>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+
+                {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                {% endif %}
+
+                <div class="mb-4 flex justify-between">
+                  <a class="text-orange" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+                  <button type="submit" class="px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm">{% trans "Login" %}</button>
                 </div>
-              {% endfor %}
-
-              {% if redirect_field_value %}
-              <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-              {% endif %}
-              <div class="mb-4">
-                <a class="button secondaryAction" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
-              </div>
-              <button type="submit" class="px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm">{% trans "Login" %}</button>
               </div>
             </form>
           </div>
