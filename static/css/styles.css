@@ -1245,6 +1245,10 @@ input[type=file] {
   width: 200px;
 }
 
+.w-1 {
+  width: 0.25rem;
+}
+
 .min-w-0 {
   min-width: 0px;
 }
@@ -1929,6 +1933,10 @@ input[type=file] {
 .text-charcoal {
   --tw-text-opacity: 1;
   color: rgb(23 42 52 / var(--tw-text-opacity));
+}
+
+.text-white\/60 {
+  color: rgb(255 255 255 / 0.6);
 }
 
 .shadow {

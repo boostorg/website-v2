@@ -5,11 +5,9 @@
 <div class="mb-3 row">
 {% endif %}
 <div class="col-md-6">
-  <b>{{ option.text }}</b>
-  <div class="progress">
-    <div class="progress-bar" role="progressbar" aria-valuenow="{{ option.percentage|floatformat }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ option.percentage|stringformat:"f" }}%;">
-      {{ option.percentage|floatformat }}%
-    </div>
+  <b>{{ option.text }}</b> <span class="text-white/60 text-sm">({{ option.percentage|floatformat }}%)</span>
+  <div class="my-2 bg-charcoal rounded h-6" aria-valuenow="{{ option.percentage|floatformat }}" aria-valuemin="0" aria-valuemax="100">
+    <div class="{% if option.percentage > 0 %}w-[{{ option.percentage|floatformat }}%]{% else %}w-1{% endif %} bg-gradient-to-r from-green to-orange h-6 rounded"></div>
   </div>
 </div>
 {% if forloop.last or forloop.counter|divisibleby:2 %}
