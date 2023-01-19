@@ -1,4 +1,4 @@
-from django.conf.urls import include
+from django.conf.urls import include, re_path
 from django.contrib import admin
 from django.views.generic import TemplateView
 from django.urls import path
@@ -139,6 +139,10 @@ urlpatterns = [
     path("contact/", ContactView.as_view(), name="contact"),
     path("versions/", VersionList.as_view(), name="version-list"),
     path("version/<int:pk>/", VersionDetail.as_view(), name="version-detail"),
-    # TODO: determine real routes for this
-    path("content/<slug:title>/", MarkdownTemplateView.as_view(), name="markdown-page"),
+    # Markdown content
+    re_path(
+        r"^(?P<content_path>.+)/?",
+        MarkdownTemplateView.as_view(),
+        name="markdown-page",
+    ),
 ]
