@@ -1245,6 +1245,10 @@ input[type=file] {
   width: 200px;
 }
 
+.w-1 {
+  width: 0.25rem;
+}
+
 .min-w-0 {
   min-width: 0px;
 }
@@ -1325,6 +1329,10 @@ input[type=file] {
 
 .items-center {
   align-items: center;
+}
+
+.justify-end {
+  justify-content: flex-end;
 }
 
 .justify-center {
@@ -1462,6 +1470,10 @@ input[type=file] {
   border-radius: 0.125rem;
 }
 
+.rounded-full {
+  border-radius: 9999px;
+}
+
 .border {
   border-width: 1px;
 }
@@ -1527,11 +1539,6 @@ input[type=file] {
 
 .bg-charcoal\/60 {
   background-color: rgb(23 42 52 / 0.6);
-}
-
-.bg-indigo-600 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(79 70 229 / var(--tw-bg-opacity));
 }
 
 .bg-slate {
@@ -1927,6 +1934,19 @@ input[type=file] {
   color: rgb(181 201 211 / var(--tw-text-opacity));
 }
 
+.text-charcoal {
+  --tw-text-opacity: 1;
+  color: rgb(23 42 52 / var(--tw-text-opacity));
+}
+
+.text-white\/60 {
+  color: rgb(255 255 255 / 0.6);
+}
+
+.text-white\/70 {
+  color: rgb(255 255 255 / 0.7);
+}
+
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
@@ -1953,11 +1973,6 @@ input[type=file] {
 .hover\:bg-orange:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(255 159 0 / var(--tw-bg-opacity));
-}
-
-.hover\:bg-indigo-700:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(67 56 202 / var(--tw-bg-opacity));
 }
 
 .hover\:text-white:hover {

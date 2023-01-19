@@ -31,7 +31,7 @@
               clip-rule="evenodd"/>
       </svg>
       <li class="breadcrumb-item"><a
-        href="{% url 'forum_conversation:topic' forum.slug forum.id topic.slug topic.id %}">{{ topic.subject }}</a></li>
+        href="{% url 'forum_conversation:topic' forum.slug forum.id topic.slug topic.id %}">{{ topic.subject|truncatewords:4 }}</a></li>
     {% endif %}
   </ol>
 </nav>
