@@ -11,15 +11,15 @@
     <div class="well well-sm">
       {% if poll.max_options == 1 %}
       <div class="radio">
-        <label>
-          <input type="radio" name="options" value="{{ option.id }}">
+        <label class="peer-checked:text-orange">
+          <input type="radio" name="options" value="{{ option.id }}" class="border rounded-full bg-charcoal hover:bg-orange cursor-pointer checked:bg-orange mr-1 peer">
           {{ option.text }}
         </label>
       </div>
       {% else %}
       <div class="checkbox">
-        <label>
-          <input type="checkbox" name="options" value="{{ option.id }}">
+        <label class="peer-checked:text-orange">
+          <input type="checkbox" name="options" value="{{ option.id }}" class="border rounded-sm bg-charcoal hover:bg-orange cursor-pointer checked:bg-orange mr-1 peer">
           {{ option.text }}
         </label>
       </div>
@@ -31,8 +31,8 @@
   {% endif %}
   {% endfor %}
 
-  <div class="form-actions">
-    <input type="submit" class="btn btn-sm btn-info" value="{% trans "Submit" %}" />
-    <a href="{% if change_vote_action %}.{% else %}?view_results=true{% endif %}" class="btn btn-link">{% trans "View results" %}</a>
+  <div class="form-actions my-4">
+    <input type="submit" class="rounded rounded-lg border border-orange text-orange uppercase text-sm py-2 px-3" value="{% trans "Submit" %}" />
+    <a href="{% if change_vote_action %}.{% else %}?view_results=true{% endif %}" class="rounded rounded-lg border border-slate text-orange uppercase text-sm py-2 px-3">{% trans "View results" %}</a>
   </div>
 </form>

@@ -7,43 +7,54 @@
 {% block content %}
 
   <div class="py-0 md:py-6 mb-3 px-3 md:px-0">
-    <div class="md:w-full">
-      <h1 class="text-4xl text-center">{% trans "Sign Up" %}</h1>
-      <p class="text-center mt-0">
-        {% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}
-      </p>
-    </div>
+    <div class="flex items-center md:space-x-6">
+      <div class="md:w-1/2">
+        <div class="md:w-full">
+          <h1 class="text-4xl">{% trans "Sign Up" %}</h1>
+          <p class="mt-0">
+            {% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}
+          </p>
+        </div>
 
-    <form id="signup_form" method="post" action="{% url 'account_signup' %}">
-      <div class="w-full space-y-4 text-center">
-        {% csrf_token %}
+        <form id="signup_form" method="post" action="{% url 'account_signup' %}">
+          <div class="space-y-4">
+            {% csrf_token %}
 
-        {% if form.errors %}
-          {% for error in field.errors %}
-            <p class="text-orange font-bold">
-              {{ error|escape }}
-            </p>
-          {% endfor %}
-        {% endif %}
+            {% if form.errors %}
+              {% for error in field.errors %}
+                <p class="text-orange font-bold">
+                  {{ error|escape }}
+                </p>
+              {% endfor %}
+            {% endif %}
 
-        {% for field in form.visible_fields %}
-          <div class="w-1/3 mx-auto">
-            {{ field }}
-            {% if field.help_text %}
-              <small>{{ field.help_text }}</small>
+            {% for field in form.visible_fields %}
+              <div>
+                {{ field }}
+                {% if field.help_text %}
+                  <small>{{ field.help_text }}</small>
+                {% endif %}
+              </div>
+            {% endfor %}
+
+            {% if redirect_field_value %}
+              <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
             {% endif %}
           </div>
-        {% endfor %}
-
-        {% if redirect_field_value %}
-          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
-        {% endif %}
-        <button type="submit"
-                class="px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm">{% trans "Sign Up" %}
-          &raquo;
-        </button>
+          <div class="my-11">
+            <button type="submit"
+                    class="px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm"
+            >
+              {% trans "Sign Up" %}
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
+
+      <div class="text-center md:w-1/2">
+        <div id="scene01"></div>
+      </div>
+    </div>
   </div>
 
 {% endblock %}
