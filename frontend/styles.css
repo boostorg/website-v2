@@ -48,4 +48,7 @@
   #signup_form input[type=password]{
     @apply rounded bg-charcoal text-white border border-slate w-full;
   }
+  #authpages #footerSignup {
+    @apply hidden;
+  }
 }
