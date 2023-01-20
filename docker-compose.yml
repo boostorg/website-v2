@@ -39,6 +39,7 @@ services:
       - "8000:8000"
     volumes:
       - .:/code
+      - ../website2022/:/website
     stop_signal: SIGKILL
 
 networks:
