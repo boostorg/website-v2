@@ -56,11 +56,19 @@ $ docker-compose -f docker-compose-with-celery.yml up
 $ docker-compose -f docker-compose-with-celery.yml down
 ```
 
+### Markdown content handling 
+
+Clone the content repo to your local machine, at the same level as this repo: https://github.com/boostorg/website2022. Docker-compose will look for this folder and its contents on your machine, so it can copy the contents into a Docker container. 
+
 ## Environment Variables 
 
 ### `GITHUB_TOKEN`
 
 [Generate a new personal access token](https://github.com/settings/tokens) and replace the value for `GITHUB_TOKEN` in your `.env` file in order to connect to certain parts of the GitHub API. 
+
+### `ENVIRONMENT_NAME`
+
+Optional. Set a name for local development that will display in a banner in the Django Admin. 
 
 ## Running the tests
 
