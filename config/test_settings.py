@@ -27,3 +27,5 @@ MIGRATION_MODULES = DisableMigrations()
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 
 GITHUB_TOKEN = "changeme"
+
+BASE_CONTENT = "/code/core/tests/content"
