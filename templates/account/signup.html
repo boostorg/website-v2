@@ -2,6 +2,8 @@
 
 {% load i18n %}
 
+{% load account socialaccount %}
+
 {% block head_title %}{% trans "Signup" %}{% endblock %}
 
 {% block body_id %}id="authpages"{% endblock %}
@@ -52,6 +54,10 @@
           </div>
         </form>
       </div>
+
+      {% providers_media_js %}
+      {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+      {% include "socialaccount/snippets/login_extra.html" %}
 
       <div class="text-center md:w-1/2">
         <div id="scene01"></div>
