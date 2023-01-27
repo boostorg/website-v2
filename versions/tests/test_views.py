@@ -18,3 +18,11 @@ def test_version_list_context(version, old_version, inactive_version, tp):
     assert old_version in res.context["version_list"]
     assert inactive_version not in res.context["version_list"]
     assert len(res.context["version_list"]) == 1
+
+
+def test_version_detail(version, tp):
+    """
+    GET /versions/{pk}/
+    """
+    res = tp.get("version-detail", pk=version.pk)
+    tp.response_200(res)
