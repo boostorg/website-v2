@@ -43,6 +43,9 @@ class Library(models.Model):
         blank=True,
         null=True,
     )
+    versions = models.ManyToManyField(
+        "versions.Version", through="libraries.LibraryVersion", related_name="libraries"
+    )
     cpp_standard_minimum = models.CharField(max_length=50, blank=True, null=True)
 
     active_development = models.BooleanField(default=True, db_index=True)
@@ -87,6 +90,21 @@ class Library(models.Model):
     @property
     def github_repo(self):
         return self.github_properties()["repo"]
+
+
+class LibraryVersion(models.Model):
+    version = models.ForeignKey(
+        "versions.Version",
+        related_name="library_version",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+    library = models.ForeignKey(
+        "libraries.Library",
+        related_name="library_version",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
 
 
 class Issue(models.Model):
