@@ -55,6 +55,25 @@ def inactive_version(db):
     return v
 
 
+@pytest.fixture
+def old_version(db):
+    # Make version
+    last_year = datetime.date.today() - datetime.timedelta(days=365)
+    v = baker.make(
+        "versions.Version",
+        name="Version 1.79.0",
+        description="Some awesome description of the library",
+        release_date=last_year,
+    )
+
+    # Make verison file
+    c = fake_checksum()
+    f1 = ContentFile("Version 1 Fake Content")
+    vf = baker.make("versions.VersionFile", version=v, checksum=c, file=f1)
+
+    return v
+
+
 def get_version_file_path(name):
     BASE_DIR = Path(__file__).parent
     return BASE_DIR.joinpath(f"files/{name}")

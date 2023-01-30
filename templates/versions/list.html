@@ -15,17 +15,17 @@
     </div>
     <div class="md:flex">
       <div class="md:w-1/4 mb-4">
-        <h3 class="text-2xl">Version 1.78</h3>
-        <p>Released 12/8/22</p>
+        <h3 class="text-2xl">{{ current_version.name }}</h3>
+        <p>Released {{ current_version.release_date|date:"n/j/y" }}</p>
       </div>
       <div class="md:w-3/4">
-        <p>Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Sed posuere consectetur est at lobortis. Praesent commodo cursus magna, vel scelerisque nisl consectetur et.</p>
+        <p>{{ current_version.description }}</p>
         <div class="mt-5 max-w-md sm:flex md:mt-8">
           <div class="rounded-md shadow">
             <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-4 md:text-lg md:px-10"> Download </a>
           </div>
           <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-            <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-steel text-base font-medium rounded-md text-orange hover:bg-gray-50 md:py-4 md:text-lg md:px-10"> Version Details > </a>
+            <a href="{% url 'version-detail' current_version.pk %}" class="w-full flex items-center justify-center px-8 py-3 border border-steel text-base font-medium rounded-md text-orange hover:bg-gray-50 md:py-4 md:text-lg md:px-10"> Version Details > </a>
           </div>
         </div>
       </div>
@@ -39,29 +39,10 @@
       <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">Past Versions</span>
     </div>
 
-    <!-- TODO: Remove this block after confirming data integrity -->
-    <div class="md:flex border-b border-slate pb-6">
-      <div class="md:w-1/4 mb-4">
-        <h3 class="text-2xl">Version 1.77</h3>
-        <p>Released 12/8/22</p>
-      </div>
-      <div class="md:w-3/4">
-        <p>Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Sed posuere consectetur est at lobortis. Praesent commodo cursus magna, vel scelerisque nisl consectetur et.</p>
-         <div class="mt-5 max-w-md sm:flex md:mt-8">
-          <div class="rounded-md shadow">
-            <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-4 md:text-lg md:px-10"> Download </a>
-          </div>
-          <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-            <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-steel text-base font-medium rounded-md text-orange hover:bg-gray-50 md:py-4 md:text-lg md:px-10"> Version Details > </a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- end todo -->
-
     {% for v in version_list %}
       {% include "versions/_past_version_list_item.html" %}
     {% endfor %}
+    
   </div>
   <!-- End Past Versions -->
 
