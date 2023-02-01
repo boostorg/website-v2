@@ -36,6 +36,10 @@ def test_library_version_creation(library_version, library, version):
     assert library_version.version == version
 
 
+def test_library_version_str(library_version, library, version):
+    assert str(library_version) == f"{library.name} ({version.name})"
+
+
 def test_library_version_multiple_versions(library, library_version):
     assert library.versions.count() == 1
     assert library.versions.filter(

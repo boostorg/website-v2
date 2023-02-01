@@ -106,6 +106,9 @@ class LibraryVersion(models.Model):
         null=True,
     )
 
+    def __str__(self):
+        return f"{self.library.name} ({self.version.name})"
+
 
 class Issue(models.Model):
     """
