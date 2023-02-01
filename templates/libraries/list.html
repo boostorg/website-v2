@@ -28,9 +28,10 @@
         {% csrf_token %}
         <div>
           <label for="id_categories" hidden="true">Categories:</label>
-          <select  onchange="this.form.submit()" name="categories"
-                  class="mb-3 md:mb-0 w-full md:w-auto cursor-pointer block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate pl-5 pr-11 py-3 mr-3"
-                  id="id_categories"
+          <select  onchange="this.form.submit()"
+                   name="categories"
+                   class="mb-3 md:mb-0 w-full md:w-auto cursor-pointer block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate pl-5 pr-11 py-2"
+                   id="id_categories"
           >
             <option>Filter by category</option>
             {% for c in categories %}
