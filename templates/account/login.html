@@ -4,18 +4,18 @@
 {% load account socialaccount %}
 {% load static %}
 
-{% block head_title %}{% trans "Login" %}{% endblock %}
+{% block head_title %}{% trans "Log In" %}{% endblock %}
 
 {% block body_id %}id="authpages"{% endblock %}
 
 {% block content %}
 
   <div class="py-0 md:py-6 mb-3 px-3 md:px-0">
-    <div class="flex items-center md:space-x-6">
+    <div class="md:flex md:space-x-6 mt-1">
 
-      <div class="md:w-1/2" x-data="{ tab: '#social' }">
+      <div class="md:w-1/2 md:mt-11 md:pt-11" x-data="{ tab: '#social' }">
         <div class="md:w-full">
-          <h1 class="text-4xl text-center">{% trans "Login" %}</h1>
+          <h1 class="text-4xl text-center">{% trans "Log In" %}</h1>
         </div>
 
         <div class="w-full space-y-4 text-center">
@@ -29,7 +29,7 @@
                  data-toggle="tab"
                  x-on:click.prevent="tab='#social'"
               >
-                Login with one of your existing third party accounts<br />
+                Log in with one of your existing third party accounts<br />
               </a> or you can
               <a :class="tab === '#email' ? 'text-white' : 'text-orange'"
                  href="#"
@@ -57,7 +57,7 @@
 
           <div x-show="tab == '#email'" x-cloak>
             <form class="login" method="POST" action="{% url 'account_login' %}">
-              <div class="w-full space-y-4" id="signup_form">
+              <div class="w-2/3 mx-auto space-y-4" id="signup_form">
                 {% csrf_token %}
 
                 {% for field in form.visible_fields %}

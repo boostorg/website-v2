@@ -28,6 +28,9 @@
   p {
     @apply py-5;
   }
+  p a {
+    @apply text-orange;
+  }
   pre {
     @apply p-6;
   }
