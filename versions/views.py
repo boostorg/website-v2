@@ -10,6 +10,14 @@ class VersionList(ListView):
     queryset = Version.objects.active()
     template_name = "versions/list.html"
 
+    def get_context_data(self):
+        context = super().get_context_data()
+        queryset = self.get_queryset()
+        current_version = queryset.order_by("-release_date").first()
+        context["current_version"] = current_version
+        context["version_list"] = queryset.exclude(pk=current_version.pk)
+        return context
+
 
 class VersionDetail(DetailView):
     """Web display of list of Versions"""
