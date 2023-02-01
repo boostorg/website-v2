@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Issue, Library, PullRequest
+from .models import Category, Issue, Library, LibraryVersion, PullRequest
 
 
 @admin.register(Category)
@@ -24,6 +24,13 @@ class LibraryAdmin(admin.ModelAdmin):
 
     def active(self, obj):
         return obj.active_development
+
+
+@admin.register(LibraryVersion)
+class LibraryVersionAdmin(admin.ModelAdmin):
+    list_display = ["library", "version"]
+    list_filter = ["library", "version"]
+    search_fields = ["library__name", "version__name"]
 
 
 @admin.register(Issue)
