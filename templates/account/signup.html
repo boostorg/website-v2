@@ -4,60 +4,88 @@
 
 {% load account socialaccount %}
 
-{% block head_title %}{% trans "Signup" %}{% endblock %}
+{% block head_title %}{% trans "Sign Up" %}{% endblock %}
 
 {% block body_id %}id="authpages"{% endblock %}
 
 {% block content %}
 
   <div class="py-0 md:py-6 mb-3 px-3 md:px-0">
-    <div class="flex items-center md:space-x-6">
-      <div class="md:w-1/2">
+    <div class="md:flex md:space-x-6 mt-1">
+
+      <div class="md:w-1/2 md:mt-11 md:pt-11" x-data="{ tab: '#social' }">
         <div class="md:w-full">
-          <h1 class="text-4xl">{% trans "Sign Up" %}</h1>
-          <p class="mt-0">
-            {% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}
+          <h1 class="text-4xl text-center">{% trans "Sign Up" %}</h1>
+          <p class="mt-0 text-center">
+            {% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">log in</a>.{% endblocktrans %}
           </p>
         </div>
 
-        <form id="signup_form" method="post" action="{% url 'account_signup' %}">
-          <div class="space-y-4">
-            {% csrf_token %}
+        <div class="w-full space-y-4 text-center">
+          <p class="text-center mt-0">
+              <a :class="tab === '#social' ? 'text-white' : 'text-orange'"
+                 href="#"
+                 data-toggle="tab"
+                 x-on:click.prevent="tab='#social'"
+              >
+                Sign Up with one of your existing third party accounts<br />
+              </a> or you can
+              <a :class="tab === '#email' ? 'text-white' : 'text-orange'"
+                 href="#"
+                 data-toggle="tab"
+                 x-on:click.prevent="tab='#email'"
+              >
+                use your email
+              </a>
+          </p>
 
-            {% if form.errors %}
-              {% for error in field.errors %}
-                <p class="text-orange font-bold">
-                  {{ error|escape }}
-                </p>
-              {% endfor %}
-            {% endif %}
+          <div class="socialaccount_ballot" x-show="tab == '#social'" x-cloak>
 
-            {% for field in form.visible_fields %}
-              <div>
-                {{ field }}
-                {% if field.help_text %}
-                  <small>{{ field.help_text }}</small>
+            <div class="space-y-4 w-full">
+              {% providers_media_js %}
+              {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+              {% include "socialaccount/snippets/login_extra.html" %}
+            </div>
+
+          </div>
+
+          <div x-show="tab == '#email'" x-cloak>
+            <form id="signup_form" method="post" action="{% url 'account_signup' %}">
+              <div class="space-y-4 w-2/3 mx-auto">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                  {% for error in field.errors %}
+                    <p class="text-orange font-bold">
+                      {{ error|escape }}
+                    </p>
+                  {% endfor %}
+                {% endif %}
+
+                {% for field in form.visible_fields %}
+                  <div>
+                    {{ field }}
+                    {% if field.help_text %}
+                      <small>{{ field.help_text }}</small>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+
+                {% if redirect_field_value %}
+                  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
                 {% endif %}
               </div>
-            {% endfor %}
-
-            {% if redirect_field_value %}
-              <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
-            {% endif %}
+              <div class="my-11">
+                <button type="submit"
+                        class="px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm"
+                >
+                  {% trans "Sign Up" %}
+                </button>
+              </div>
+            </form>
           </div>
-          <div class="my-11">
-            <button type="submit"
-                    class="px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm"
-            >
-              {% trans "Sign Up" %}
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
-
-      {% providers_media_js %}
-      {% include "socialaccount/snippets/provider_list.html" with process="login" %}
-      {% include "socialaccount/snippets/login_extra.html" %}
 
       <div class="text-center md:w-1/2">
         <div id="scene01"></div>
