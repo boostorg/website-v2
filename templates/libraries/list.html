@@ -9,7 +9,7 @@
   </div>
   <!-- end breadcrumb -->
 
-  <div class="md:flex py-0 md:py-6 mb-3 px-3 md:px-0">
+  <div class="md:flex py-0 md:py-6 mb-3 px-3 md:px-0" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
     <div class="md:w-1/2 px-3 md:px-0">
       <h2 class="text-4xl my-5">Libraries</h2>
     </div>
@@ -20,27 +20,29 @@
             <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-4 h-4"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
           </button>
         </span>
-        <input type="search" name="q" class="w-full md:w-1/3 text-sm text-white bg-charcoal focus:text-charcoal text-orange px-3 py-2 rounded-md" type="text" value="" placeholder="Search Library" />
+        <input @click="showSearch = true; $nextTick(() => { setTimeout(() => { document.getElementById('librarySearch').focus(); }, 300);});"
+               type="search" name="q" class="w-full md:w-1/3 text-sm text-white bg-charcoal focus:text-charcoal text-orange px-3 py-2 rounded-md" type="text" value="" placeholder="Search Library" />
       </div>
 
       <!-- Form to select a category -->
-      <form action="/libraries/" method="post" x-ref="categoryform">
+      <form action="/libraries/" method="post">
         {% csrf_token %}
         <div>
           <label for="id_categories" hidden="true">Categories:</label>
-          <select x-on:input="$refs.categoryform.submit()" name="categories"
-                  class="mb-3 md:mb-0 w-full md:w-auto cursor-pointer block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate pl-5 pr-11 py-3 mr-3"
-                  id="id_categories"
+          <select  onchange="this.form.submit()"
+                   name="categories"
+                   class="mb-3 md:mb-0 w-full md:w-auto cursor-pointer block sm:inline-block text-sm uppercase rounded-md bg-black text-orange border border-slate pl-5 pr-11 py-2"
+                   id="id_categories"
           >
             <option>Filter by category</option>
             {% for c in categories %}
               <option value="{{ c.pk }}" {% if category == c %}selected="selected"{% endif %}>{{ c.name }}</option>
             {% endfor %}
           </select>
-          <button class="bg-orange rounded p-2" @click="$refs.categoryform.submit()">Go</button>
         </div>
       </form>
     </div>
+    {% include "libraries/includes/search_command_palatte.html" %}
   </div>
 
   <!-- Libraries list -->
@@ -63,5 +65,4 @@
     {% endif %}
   </div>
   <!-- end pagination -->
-
 {% endblock %}
