@@ -19,11 +19,24 @@ def test_library_list_select_category(library, category, tp):
     tp.response_302(res)
 
 
-def test_libraries_by_category(tp, library, category):
-    """GET /libraries-by-category/{slug}/"""
-    baker.make("libraries.Library", name="Sample")
+def test_library_list_by_category(library_version, category, tp):
+    """GET /libraries-by-category/{category_slug}/"""
+    library = library_version.library
+    version = library_version.version
     library.categories.add(category)
     res = tp.get("libraries-by-category", category.slug)
+    tp.response_302(res)
+    assert res.url == f"/versions/{version.pk}/libraries-by-category/{category.slug}/"
+
+
+def test_libraries_by_version_by_category(tp, library_version, category):
+    """GET /libraries-by-category/{slug}/"""
+    library = library_version.library
+    version = library_version.version
+
+    baker.make("libraries.Library", name="Sample")
+    library.categories.add(category)
+    res = tp.get("libraries-by-version-by-category", version.pk, category.slug)
     tp.response_200(res)
     assert "library_list" in res.context
     assert len(res.context["library_list"]) == 1
@@ -53,7 +66,7 @@ def test_libraries_by_version_detail_no_library_found(tp, library_version):
     tp.response_404(res)
 
 
-def test_libraries_by_version(tp, library_version):
+def test_libraries_by_version_list(tp, library_version):
     """GET /versions/{version_identifier}/libraries/"""
     # Create a new library_version
     excluded_library = baker.make("libraries.Library", name="Sample")
