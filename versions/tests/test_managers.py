@@ -12,6 +12,10 @@ def test_active_manager(version):
     assert Version.objects.active().count() == 1
 
 
+def test_most_recent_manager(version, inactive_version, old_version):
+    assert Version.objects.most_recent() == version
+
+
 def test_active_file_manager(version, inactive_version):
 
     assert Version.objects.active().count() == 1
