@@ -21,6 +21,7 @@ from libraries.views import (
     LibraryDetail,
     LibraryListByVersion,
     LibraryDetailByVersion,
+    LibraryListByVersionByCategory,
 )
 from libraries.api import LibrarySearchView
 from support.views import SupportView, ContactView
@@ -136,6 +137,10 @@ urlpatterns = [
     ),
     path("contact/", ContactView.as_view(), name="contact"),
     # Boost versions views
+    path("versions/<slug:version_slug>/libraries-by-category/<slug:category>/",
+        LibraryListByVersionByCategory.as_view(),
+        name="libraries-by-version-by-category",
+    ),
     path(
         "versions/<slug:slug>/libraries/",
         LibraryListByVersion.as_view(),
