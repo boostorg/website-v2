@@ -21,6 +21,7 @@ from libraries.views import (
     LibraryByCategory,
     LibraryDetail,
     LibraryByVersion,
+    LibraryByVersionDetail,
 )
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
@@ -43,6 +44,11 @@ urlpatterns = [
     path("403", ForbiddenView.as_view(), name="forbidden"),
     path("404", NotFoundView.as_view(), name="not_found"),
     path("500", InternalServerErrorView.as_view(), name="internal_server_error"),
+    path(
+        "about/",
+        TemplateView.as_view(template_name="boost/about.html"),
+        name="boost-about",
+    ),
     path("health/", include("health_check.urls")),
     path("forum/", include(machina_urls)),
     path(
@@ -65,11 +71,6 @@ urlpatterns = [
         "libraries/<slug:slug>/",
         LibraryDetail.as_view(),
         name="library-detail",
-    ),
-    path(
-        "about/",
-        TemplateView.as_view(template_name="boost/about.html"),
-        name="boost-about",
     ),
     path(
         "people/detail/",
@@ -139,6 +140,11 @@ urlpatterns = [
     ),
     path("contact/", ContactView.as_view(), name="contact"),
     # Boost versions views
+    path(
+        "versions/<int:version_pk>/libraries/<slug:slug>/",
+        LibraryByVersionDetail.as_view(),
+        name="libraries-by-version-detail",
+    ),
     path(
         "versions/<int:version_pk>/libraries/",
         LibraryByVersion.as_view(),
