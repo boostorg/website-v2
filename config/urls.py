@@ -20,6 +20,7 @@ from libraries.views import (
     LibraryByCategory,
     LibraryDetail,
     LibraryListByVersion,
+    LibraryDetailByVersion,
 )
 from libraries.api import LibrarySearchView
 from support.views import SupportView, ContactView
@@ -44,6 +45,11 @@ urlpatterns = [
     path("403", ForbiddenView.as_view(), name="forbidden"),
     path("404", NotFoundView.as_view(), name="not_found"),
     path("500", InternalServerErrorView.as_view(), name="internal_server_error"),
+    path(
+        "about/",
+        TemplateView.as_view(template_name="boost/about.html"),
+        name="boost-about",
+    ),
     path("health/", include("health_check.urls")),
     path("forum/", include(machina_urls)),
     path(
@@ -61,11 +67,6 @@ urlpatterns = [
         "libraries/<slug:slug>/",
         LibraryDetail.as_view(),
         name="library-detail",
-    ),
-    path(
-        "about/",
-        TemplateView.as_view(template_name="boost/about.html"),
-        name="boost-about",
     ),
     path(
         "people/detail/",
@@ -133,7 +134,13 @@ urlpatterns = [
         TemplateView.as_view(template_name="support/getting_started.html"),
         name="getting-started",
     ),
-    path("contact/", ContactView.as_view(), name="contact"),  # Boost versions views
+    path("contact/", ContactView.as_view(), name="contact"),
+    # Boost versions views
+    path(
+        "versions/<slug:version_slug>/libraries/<slug:slug>/",
+        LibraryDetailByVersion.as_view(),
+        name="libraries-by-version-detail",
+    ),
     path(
         "versions/<slug:slug>/libraries/",
         LibraryListByVersion.as_view(),
