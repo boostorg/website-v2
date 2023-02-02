@@ -19,6 +19,7 @@ from libraries.views import (
     LibraryList,
     LibraryByCategory,
     LibraryDetail,
+    LibraryListByVersion,
 )
 from libraries.api import LibrarySearchView
 from support.views import SupportView, ContactView
@@ -132,7 +133,13 @@ urlpatterns = [
         TemplateView.as_view(template_name="support/getting_started.html"),
         name="getting-started",
     ),
-    path("contact/", ContactView.as_view(), name="contact"),
+    path("contact/", ContactView.as_view(), name="contact"),\
+    # Boost versions views
+    path(
+        "versions/<slug:slug>/libraries/",
+        LibraryListByVersion.as_view(),
+        name="libraries-by-version",
+    ),
     path("versions/<slug:slug>/", VersionDetail.as_view(), name="version-detail"),
     path("versions/", VersionList.as_view(), name="version-list"),
     # Markdown content

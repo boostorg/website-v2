@@ -26,6 +26,20 @@ def test_libraries_by_category(tp, library, category):
     assert res.context["category"] == category
 
 
+def test_libraries_by_version(tp, library_version):
+    """GET /versions/{version_identifier}/libraries/"""
+    # Create a new library_version
+    excluded_library = baker.make("libraries.Library", name="Sample")
+    res = tp.get("libraries-by-version", library_version.version.slug)
+    tp.response_200(res)
+    assert "library_list" in res.context
+
+    # Confirm that correct libraries are present
+    assert len(res.context["library_list"]) == 1
+    assert library_version.library in res.context["library_list"]
+    assert excluded_library not in res.context["library_list"]
+
+
 def test_library_detail(library, tp):
     """GET /libraries/{repo}/"""
     url = tp.reverse("library-detail", library.slug)
