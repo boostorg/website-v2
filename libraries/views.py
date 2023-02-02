@@ -2,7 +2,7 @@ import structlog
 
 from django.http import Http404
 from django.shortcuts import redirect
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, RedirectView
 from django.views.generic.edit import FormMixin
 
 from versions.models import Version
@@ -156,21 +156,17 @@ class LibraryByCategory(CategoryMixin, ListView):
         )
 
 
-class LibraryDetail(CategoryMixin, DetailView):
-    """Display a single Library in insolation"""
+class LibraryDetail(RedirectView):
+    """
+    Redirect a request for a generic library to the most recent Boost version
+    of that library.
+    """
 
-    model = Library
-    template_name = "libraries/detail.html"
+    permanent = False
+    query_string = True
+    pattern_name = "libraries-by-version-detail"
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        context = self.get_context_data(object=self.object)
-        context["closed_prs_count"] = self.get_closed_prs_count(self.object)
-        context["open_issues_count"] = self.get_open_issues_count(self.object)
-        return self.render_to_response(context)
-
-    def get_closed_prs_count(self, obj):
-        return PullRequest.objects.filter(library=obj, is_open=True).count()
-
-    def get_open_issues_count(self, obj):
-        return Issue.objects.filter(library=obj, is_open=True).count()
+    def get_redirect_url(self, *args, **kwargs):
+        # library = get_object_or_404(Library, slug=kwargs['slug'])
+        version = Version.objects.most_recent()
+        return super().get_redirect_url(version_pk=version.pk, slug=kwargs["slug"])
