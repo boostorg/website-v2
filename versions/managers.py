@@ -6,6 +6,10 @@ class VersionQuerySet(models.QuerySet):
         """Return active versions"""
         return self.filter(active=True)
 
+    def most_recent(self):
+        """Return most recent active version"""
+        return self.active().order_by("-release_date").first()
+
 
 class VersionManager(models.Manager):
     def get_queryset(self):
@@ -14,6 +18,10 @@ class VersionManager(models.Manager):
     def active(self):
         """Return active versions"""
         return self.get_queryset().active()
+
+    def most_recent(self):
+        """Return most recent active version"""
+        return self.get_queryset().most_recent()
 
 
 class VersionFileQuerySet(models.QuerySet):
