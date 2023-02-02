@@ -1,11 +1,13 @@
 import structlog
 
+from django.http import Http404
 from django.shortcuts import redirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
 
+from versions.models import Version
 from .forms import LibraryForm
-from .models import Category, Issue, Library, PullRequest
+from .models import Category, Issue, Library, LibraryVersion, PullRequest
 
 logger = structlog.get_logger()
 
@@ -62,6 +64,53 @@ class LibraryByVersion(CategoryMixin, FormMixin, ListView):
         else:
             logger.info("library_list_invalid_category")
         return super().get(request)
+
+
+class LibraryByVersionDetail(CategoryMixin, DetailView):
+    """Display a single Library for a specific Boost version"""
+
+    model = Library
+    template_name = "libraries/detail.html"
+
+    def get_object(self):
+        version_pk = self.kwargs.get("version_pk")
+        slug = self.kwargs.get("slug")
+
+        if not LibraryVersion.objects.filter(
+            version__pk=version_pk, library__slug=slug
+        ).exists():
+            raise Http404("No library found matching the query")
+
+        try:
+            obj = self.get_queryset().get(slug=slug)
+        except queryset.model.DoesNotExist:
+            raise Http404("No library found matching the query")
+        return obj
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        context["closed_prs_count"] = self.get_closed_prs_count(self.object)
+        context["open_issues_count"] = self.get_open_issues_count(self.object)
+        context["version"] = self.get_version()
+        return self.render_to_response(context)
+
+    def get_closed_prs_count(self, obj):
+        return PullRequest.objects.filter(library=obj, is_open=True).count()
+
+    def get_open_issues_count(self, obj):
+        return Issue.objects.filter(library=obj, is_open=True).count()
+
+    def get_version(self):
+        version_pk = self.kwargs.get("version_pk")
+        if version_pk:
+            try:
+                return Version.objects.get(pk=version_pk)
+            except Version.DoesNotExist:
+                logger.info("libraries_by_version_detail_view_version_not_found")
+                return
+        else:
+            return Version.objects.most_recent()
 
 
 class LibraryByLetter(CategoryMixin, ListView):
