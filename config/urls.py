@@ -22,6 +22,7 @@ from libraries.views import (
     LibraryDetail,
     LibraryByVersion,
     LibraryByVersionDetail,
+    LibraryVersionByCategory,
 )
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
@@ -149,6 +150,11 @@ urlpatterns = [
         "versions/<int:version_pk>/libraries/",
         LibraryByVersion.as_view(),
         name="libraries-by-version",
+    ),
+    path(
+        "versions/<int:version_pk>/libraries-by-category/<slug:category>/",
+        LibraryVersionByCategory.as_view(),
+        name="libraries-by-version-by-category",
     ),
     path("versions/<int:pk>/", VersionDetail.as_view(), name="version-detail"),
     path("versions/", VersionList.as_view(), name="version-list"),

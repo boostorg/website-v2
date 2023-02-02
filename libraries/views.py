@@ -123,7 +123,20 @@ class LibraryByLetter(CategoryMixin, ListView):
         )
 
 
-class LibraryByCategory(CategoryMixin, ListView):
+class LibraryByCategory(RedirectView):
+    """List all of our libraries in a certain category"""
+
+    permanent = False
+    query_string = True
+    pattern_name = "libraries-by-version-by-category"
+
+    def get_redirect_url(self, *args, **kwargs):
+        category_slug = self.kwargs.get("category")
+        version = Version.objects.most_recent()
+        return super().get_redirect_url(version_pk=version.pk, category=category_slug)
+
+
+class LibraryVersionByCategory(CategoryMixin, ListView):
     """List all of our libraries in a certain category"""
 
     paginate_by = 25
@@ -132,6 +145,14 @@ class LibraryByCategory(CategoryMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         category_slug = self.kwargs.get("category")
+        version_pk = self.kwargs.get("version_pk")
+
+        try:
+            version = Version.objects.get(pk=version_pk)
+            context["version"] = version
+        except Version.DoesNotExist:
+            raise Http404("No library found matching the query")
+
         if category_slug:
             try:
                 category = Category.objects.get(slug=category_slug)
@@ -142,10 +163,14 @@ class LibraryByCategory(CategoryMixin, ListView):
 
     def get_queryset(self):
         category = self.kwargs.get("category")
+        version_pk = self.kwargs.get("version_pk")
 
         return (
             Library.objects.prefetch_related("categories")
-            .filter(categories__slug=category)
+            .filter(
+                categories__slug=category,
+                versions__library_version__version__pk=version_pk,
+            )
             .order_by("name")
         )
 
