@@ -6,7 +6,7 @@
 {% if provider.id == "openid" %}
 {% for brand in provider.get_brands %}
   <a title="{{brand.name}}"
-     class="block px-8 py-3 border border-steel text-base font-medium rounded-md text-orange hover:bg-gray-50 md:py-4 md:text-lg md:px-10 {{provider.id}} {{brand.id}}"
+     class="block px-8 py-3 border border-steel text-base font-medium rounded-md text-orange md:py-4 md:text-lg md:px-10 {{provider.id}} {{brand.id}}"
      href="{% provider_login_url provider.id openid=brand.openid_url process=process %}"
      >{{brand.name}}</a>
 {% endfor %}
