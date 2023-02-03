@@ -18,6 +18,21 @@ def library(db):
     )
 
 
+@pytest.fixture
+def library_version(library, version):
+    return baker.make("libraries.LibraryVersion", library=library, version=version)
+
+
+@pytest.fixture
+def issue(library):
+    return baker.make("libraries.Issue", library=library)
+
+
+@pytest.fixture
+def pull_request(library):
+    return baker.make("libraries.PullRequest", library=library)
+
+
 @pytest.fixture(autouse=True)
 def github_api_get_ref_response(db):
     """Returns a JSON example of GhApi().api.git.get_ref(owner=owner, repo=repo, ref=ref)"""
