@@ -582,6 +582,10 @@ select {
   outline: 1px auto -webkit-focus-ring-color;
 }
 
+[x-cloak] {
+  display: none !important;
+}
+
 body {
   color: white;
   font-family: 'Cairo', sans-serif;
@@ -1339,18 +1343,6 @@ input[type=file] {
   transform-origin: top right;
 }
 
-.scale-95 {
-  --tw-scale-x: .95;
-  --tw-scale-y: .95;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
-
-.scale-100 {
-  --tw-scale-x: 1;
-  --tw-scale-y: 1;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
-
 .transform {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
@@ -1646,17 +1638,13 @@ input[type=file] {
   background-color: rgb(23 42 52 / 0.6);
 }
 
-.bg-slate {
-  --tw-bg-opacity: 1;
-  background-color: rgb(49 74 87 / var(--tw-bg-opacity));
-}
-
 .bg-transparent {
   background-color: transparent;
 }
 
-.bg-opacity-25 {
-  --tw-bg-opacity: 0.25;
+.bg-slate {
+  --tw-bg-opacity: 1;
+  background-color: rgb(49 74 87 / var(--tw-bg-opacity));
 }
 
 .bg-opacity-50 {
@@ -2068,14 +2056,6 @@ input[type=file] {
   color: rgb(255 255 255 / 0.6);
 }
 
-.opacity-0 {
-  opacity: 0;
-}
-
-.opacity-100 {
-  opacity: 1;
-}
-
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
@@ -2106,22 +2086,6 @@ input[type=file] {
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
-}
-
-.duration-300 {
-  transition-duration: 300ms;
-}
-
-.duration-200 {
-  transition-duration: 200ms;
-}
-
-.ease-out {
-  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
-}
-
-.ease-in {
-  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
 }
 
 .last\:border-0:last-child {
