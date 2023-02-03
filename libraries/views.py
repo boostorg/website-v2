@@ -102,7 +102,7 @@ class LibraryByVersionDetail(CategoryMixin, DetailView):
                 return Version.objects.get(pk=version_pk)
             except Version.DoesNotExist:
                 logger.info("libraries_by_version_detail_view_version_not_found")
-                return
+                raise Http404("No object found matching the query")
         else:
             return Version.objects.most_recent()
 
@@ -171,7 +171,7 @@ class LibraryVersionByCategory(CategoryMixin, ListView):
                 categories__slug=category,
                 versions__library_version__version__pk=version_pk,
             )
-            .order_by("name")
+            .order_by("name").distinct()
         )
 
 
