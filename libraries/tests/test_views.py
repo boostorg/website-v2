@@ -66,6 +66,16 @@ def test_libraries_by_version_detail_no_library_found(tp, library_version):
     tp.response_404(res)
 
 
+def test_libraries_by_version_detail_no_version_found(tp, library_version):
+    """GET /versions/{version_identifier}/libraries/{slug}/"""
+    res = tp.get(
+        "libraries-by-version-detail",
+        0000,
+        library_version.library.slug,
+    )
+    tp.response_404(res)
+
+
 def test_libraries_by_version_list(tp, library_version):
     """GET /versions/{version_identifier}/libraries/"""
     # Create a new library_version
