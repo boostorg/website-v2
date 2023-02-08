@@ -6,8 +6,8 @@ from versions.models import Version, VersionFile
 
 
 def test_active_manager(version):
-    v2 = baker.make("versions.Version", active=False)
-    v3 = baker.make("versions.Version", active=False)
+    v2 = baker.make("versions.Version", name="Sample 1", active=False)
+    v3 = baker.make("versions.Version", name="Sample 2", active=False)
 
     assert Version.objects.active().count() == 1
 
