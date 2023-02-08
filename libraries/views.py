@@ -171,7 +171,8 @@ class LibraryVersionByCategory(CategoryMixin, ListView):
                 categories__slug=category,
                 versions__library_version__version__pk=version_pk,
             )
-            .order_by("name").distinct()
+            .order_by("name")
+            .distinct()
         )
 
 
