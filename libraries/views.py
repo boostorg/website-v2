@@ -19,19 +19,32 @@ class CategoryMixin:
         return context
 
 
-class LibraryList(RedirectView):
-    """
-    Redirect a request for the list of libraries to the list of libraries
-    for the most recent version of Boost
-    """
+class LibraryList(CategoryMixin, FormMixin, ListView):
+    """List all of our libraries by name"""
 
-    permanent = False
-    query_string = True
-    pattern_name = "libraries-by-version"
+    form_class = LibraryForm
+    paginate_by = 25
+    queryset = (
+        Library.objects.prefetch_related("authors", "categories").all().order_by("name")
+    )
+    template_name = "libraries/list.html"
 
-    def get_redirect_url(self, *args, **kwargs):
+    def get_queryset(self):
+        queryset = super().get_queryset()
         version = Version.objects.most_recent()
-        return super().get_redirect_url(version_slug=version.slug)
+        return (
+            super().get_queryset().filter(library_version__version=version).distinct()
+        )
+
+    def post(self, request):
+        """User has submitted a form and will be redirected to the right results"""
+        form = self.get_form()
+        if form.is_valid():
+            category = form.cleaned_data["categories"][0]
+            return redirect("libraries-by-category", category=category.slug)
+        else:
+            logger.info("library_list_invalid_category")
+        return super().get(request)
 
 
 class LibraryByVersion(CategoryMixin, FormMixin, ListView):
