@@ -45,7 +45,7 @@ def test_library_version_multiple_versions(library, library_version):
     assert library.versions.filter(
         library_version__version=library_version.version
     ).exists()
-    other_version = baker.make("versions.Version")
+    other_version = baker.make("versions.Version", name="New Version")
     new_library_version = baker.make(
         "libraries.LibraryVersion", library=library, version=other_version
     )
