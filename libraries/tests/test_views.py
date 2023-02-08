@@ -46,7 +46,7 @@ def test_libraries_by_version_by_category(tp, library_version, category):
 
 
 def test_libraries_by_version_detail(tp, library_version):
-    """GET /versions/{version_identifier}/libraries/{slug}/"""
+    """GET /versions/{version_slug}/{slug}/"""
     res = tp.get(
         "libraries-by-version-detail",
         library_version.version.pk,
@@ -57,7 +57,7 @@ def test_libraries_by_version_detail(tp, library_version):
 
 
 def test_libraries_by_version_detail_no_library_found(tp, library_version):
-    """GET /versions/{version_identifier}/libraries/{slug}/"""
+    """GET /versions/{version_slug}/{slug}/"""
     res = tp.get(
         "libraries-by-version-detail",
         library_version.version.pk,
@@ -67,7 +67,7 @@ def test_libraries_by_version_detail_no_library_found(tp, library_version):
 
 
 def test_libraries_by_version_detail_no_version_found(tp, library_version):
-    """GET /versions/{version_identifier}/libraries/{slug}/"""
+    """GET /versions/{version_slug}/{slug}/"""
     res = tp.get(
         "libraries-by-version-detail",
         0000,
@@ -77,7 +77,7 @@ def test_libraries_by_version_detail_no_version_found(tp, library_version):
 
 
 def test_libraries_by_version_list(tp, library_version):
-    """GET /versions/{version_identifier}/libraries/"""
+    """GET /versions/{version_slug}/libraries/"""
     # Create a new library_version
     excluded_library = baker.make("libraries.Library", name="Sample")
     res = tp.get("libraries-by-version", library_version.version.pk)
@@ -92,7 +92,7 @@ def test_libraries_by_version_list(tp, library_version):
 
 def test_library_detail_context_get_closed_prs_count(tp, library_version):
     """
-    GET /libraries/{repo}/
+    GET /versions/{version_slug}/{slug}/
     Test that the custom closed_prs_count var appears as expected
     """
     library = library_version.library
@@ -113,7 +113,7 @@ def test_library_detail_context_get_closed_prs_count(tp, library_version):
 
 def test_library_detail_context_get_open_issues_count(tp, library_version):
     """
-    GET /libraries/{repo}/
+    GET /versions/{version_slug}/{slug}/
     Test that the custom open_issues_count var appears as expected
     """
     library = library_version.library
@@ -133,10 +133,10 @@ def test_library_detail_context_get_open_issues_count(tp, library_version):
 
 
 def test_library_detail(library_version, tp):
-    """GET /libraries/{slug}/"""
+    """GET /versions/{version_slug}/{slug}/"""
     library = library_version.library
     version = library_version.version
     url = tp.reverse("library-detail", library.slug)
     response = tp.get(url)
     tp.response_302(response)
-    assert response.url == f"/versions/{version.pk}/libraries/{library.slug}/"
+    assert response.url == f"/versions/{version.pk}/{library.slug}/"
