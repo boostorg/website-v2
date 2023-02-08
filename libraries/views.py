@@ -31,7 +31,7 @@ class LibraryList(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         version = Version.objects.most_recent()
-        return super().get_redirect_url(version_pk=version.pk)
+        return super().get_redirect_url(version_slug=version.slug)
 
 
 class LibraryByVersion(CategoryMixin, FormMixin, ListView):
@@ -46,8 +46,10 @@ class LibraryByVersion(CategoryMixin, FormMixin, ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        version_pk = self.kwargs.get("version_pk")
-        return super().get_queryset().filter(library_version__version__pk=version_pk)
+        version_slug = self.kwargs.get("version_slug")
+        return (
+            super().get_queryset().filter(library_version__version__slug=version_slug)
+        )
 
     def post(self, request):
         """User has submitted a form and will be redirected to the right results"""
@@ -67,11 +69,11 @@ class LibraryByVersionDetail(CategoryMixin, DetailView):
     template_name = "libraries/detail.html"
 
     def get_object(self):
-        version_pk = self.kwargs.get("version_pk")
+        version_slug = self.kwargs.get("version_slug")
         slug = self.kwargs.get("slug")
 
         if not LibraryVersion.objects.filter(
-            version__pk=version_pk, library__slug=slug
+            version__slug=version_slug, library__slug=slug
         ).exists():
             raise Http404("No library found matching the query")
 
@@ -96,10 +98,10 @@ class LibraryByVersionDetail(CategoryMixin, DetailView):
         return Issue.objects.filter(library=obj, is_open=True).count()
 
     def get_version(self):
-        version_pk = self.kwargs.get("version_pk")
-        if version_pk:
+        version_slug = self.kwargs.get("version_slug")
+        if version_slug:
             try:
-                return Version.objects.get(pk=version_pk)
+                return Version.objects.get(slug=version_slug)
             except Version.DoesNotExist:
                 logger.info("libraries_by_version_detail_view_version_not_found")
                 raise Http404("No object found matching the query")
@@ -133,7 +135,9 @@ class LibraryByCategory(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         category_slug = self.kwargs.get("category")
         version = Version.objects.most_recent()
-        return super().get_redirect_url(version_pk=version.pk, category=category_slug)
+        return super().get_redirect_url(
+            version_slug=version.slug, category=category_slug
+        )
 
 
 class LibraryVersionByCategory(CategoryMixin, ListView):
@@ -145,10 +149,10 @@ class LibraryVersionByCategory(CategoryMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         category_slug = self.kwargs.get("category")
-        version_pk = self.kwargs.get("version_pk")
+        version_slug = self.kwargs.get("version_slug")
 
         try:
-            version = Version.objects.get(pk=version_pk)
+            version = Version.objects.get(slug=version_slug)
             context["version"] = version
         except Version.DoesNotExist:
             raise Http404("No library found matching the query")
@@ -163,13 +167,13 @@ class LibraryVersionByCategory(CategoryMixin, ListView):
 
     def get_queryset(self):
         category = self.kwargs.get("category")
-        version_pk = self.kwargs.get("version_pk")
+        version_slug = self.kwargs.get("version_slug")
 
         return (
             Library.objects.prefetch_related("categories")
             .filter(
                 categories__slug=category,
-                versions__library_version__version__pk=version_pk,
+                versions__library_version__version__slug=version_slug,
             )
             .order_by("name")
             .distinct()
@@ -187,6 +191,5 @@ class LibraryDetail(RedirectView):
     pattern_name = "libraries-by-version-detail"
 
     def get_redirect_url(self, *args, **kwargs):
-        # library = get_object_or_404(Library, slug=kwargs['slug'])
         version = Version.objects.most_recent()
-        return super().get_redirect_url(version_pk=version.pk, slug=kwargs["slug"])
+        return super().get_redirect_url(version_slug=version.slug, slug=kwargs["slug"])
