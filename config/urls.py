@@ -142,21 +142,21 @@ urlpatterns = [
     path("contact/", ContactView.as_view(), name="contact"),
     # Boost versions views
     path(
-        "versions/<int:version_pk>/libraries/",
+        "versions/<slug:version_slug>/libraries/",
         LibraryByVersion.as_view(),
         name="libraries-by-version",
     ),
     path(
-        "versions/<int:version_pk>/<slug:slug>/",
+        "versions/<slug:version_slug>/<slug:slug>/",
         LibraryByVersionDetail.as_view(),
         name="libraries-by-version-detail",
     ),
     path(
-        "versions/<int:version_pk>/libraries-by-category/<slug:category>/",
+        "versions/<slug:version_slug>/libraries-by-category/<slug:category>/",
         LibraryVersionByCategory.as_view(),
         name="libraries-by-version-by-category",
     ),
-    path("versions/<int:pk>/", VersionDetail.as_view(), name="version-detail"),
+    path("versions/<slug:slug>/", VersionDetail.as_view(), name="version-detail"),
     path("versions/", VersionList.as_view(), name="version-list"),
     # Markdown content
     re_path(

@@ -7,7 +7,7 @@ def test_library_list(version, tp):
     """GET /libraries/"""
     res = tp.get("libraries")
     tp.response_302(res)
-    assert res.url == f"/versions/{version.pk}/libraries/"
+    assert res.url == f"/versions/{version.slug}/libraries/"
 
 
 @pytest.mark.xfail(
@@ -26,7 +26,7 @@ def test_library_list_by_category(library_version, category, tp):
     library.categories.add(category)
     res = tp.get("libraries-by-category", category.slug)
     tp.response_302(res)
-    assert res.url == f"/versions/{version.pk}/libraries-by-category/{category.slug}/"
+    assert res.url == f"/versions/{version.slug}/libraries-by-category/{category.slug}/"
 
 
 def test_libraries_by_version_by_category(tp, library_version, category):
@@ -36,7 +36,7 @@ def test_libraries_by_version_by_category(tp, library_version, category):
 
     baker.make("libraries.Library", name="Sample")
     library.categories.add(category)
-    res = tp.get("libraries-by-version-by-category", version.pk, category.slug)
+    res = tp.get("libraries-by-version-by-category", version.slug, category.slug)
     tp.response_200(res)
     assert "library_list" in res.context
     assert len(res.context["library_list"]) == 1
@@ -49,7 +49,7 @@ def test_libraries_by_version_detail(tp, library_version):
     """GET /versions/{version_slug}/{slug}/"""
     res = tp.get(
         "libraries-by-version-detail",
-        library_version.version.pk,
+        library_version.version.slug,
         library_version.library.slug,
     )
     tp.response_200(res)
@@ -60,7 +60,7 @@ def test_libraries_by_version_detail_no_library_found(tp, library_version):
     """GET /versions/{version_slug}/{slug}/"""
     res = tp.get(
         "libraries-by-version-detail",
-        library_version.version.pk,
+        library_version.version.slug,
         "coffee",
     )
     tp.response_404(res)
@@ -80,7 +80,7 @@ def test_libraries_by_version_list(tp, library_version):
     """GET /versions/{version_slug}/libraries/"""
     # Create a new library_version
     excluded_library = baker.make("libraries.Library", name="Sample")
-    res = tp.get("libraries-by-version", library_version.version.pk)
+    res = tp.get("libraries-by-version", library_version.version.slug)
     tp.response_200(res)
     assert "library_list" in res.context
 
@@ -103,7 +103,7 @@ def test_library_detail_context_get_closed_prs_count(tp, library_version):
     baker.make("libraries.PullRequest", library=library, is_open=True)
     baker.make("libraries.PullRequest", library=library, is_open=False)
     baker.make("libraries.PullRequest", library=lib2, is_open=True)
-    url = tp.reverse("libraries-by-version-detail", version.pk, library.slug)
+    url = tp.reverse("libraries-by-version-detail", version.slug, library.slug)
     response = tp.get(url)
     tp.response_200(response)
     assert "closed_prs_count" in response.context
@@ -124,7 +124,7 @@ def test_library_detail_context_get_open_issues_count(tp, library_version):
     baker.make("libraries.Issue", library=library, is_open=True)
     baker.make("libraries.Issue", library=library, is_open=False)
     baker.make("libraries.Issue", library=lib2, is_open=True)
-    url = tp.reverse("libraries-by-version-detail", version.pk, library.slug)
+    url = tp.reverse("libraries-by-version-detail", version.slug, library.slug)
     response = tp.get(url)
     tp.response_200(response)
     assert "open_issues_count" in response.context
@@ -139,4 +139,4 @@ def test_library_detail(library_version, tp):
     url = tp.reverse("library-detail", library.slug)
     response = tp.get(url)
     tp.response_302(response)
-    assert response.url == f"/versions/{version.pk}/{library.slug}/"
+    assert response.url == f"/versions/{version.slug}/{library.slug}/"
