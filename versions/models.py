@@ -1,5 +1,6 @@
 import hashlib
 from django.db import models
+from django.utils.text import slugify
 
 from .managers import VersionManager, VersionFileManager
 
@@ -8,6 +9,7 @@ class Version(models.Model):
     name = models.CharField(
         max_length=256, null=False, blank=False, help_text="Version name"
     )
+    slug = models.SlugField(blank=True, null=True)
     release_date = models.DateField(auto_now=False, auto_now_add=False)
     description = models.TextField(blank=True)
     active = models.BooleanField(
@@ -19,6 +21,17 @@ class Version(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self.get_slug()
+        return super(Version, self).save(*args, **kwargs)
+
+    def get_slug(self):
+        if self.slug:
+            return self.slug
+        name = self.name.replace(".", " ")
+        return slugify(name)[:50]
 
 
 class VersionFile(models.Model):
