@@ -142,14 +142,14 @@ urlpatterns = [
     path("contact/", ContactView.as_view(), name="contact"),
     # Boost versions views
     path(
-        "versions/<int:version_pk>/libraries/<slug:slug>/",
-        LibraryByVersionDetail.as_view(),
-        name="libraries-by-version-detail",
-    ),
-    path(
         "versions/<int:version_pk>/libraries/",
         LibraryByVersion.as_view(),
         name="libraries-by-version",
+    ),
+    path(
+        "versions/<int:version_pk>/<slug:slug>/",
+        LibraryByVersionDetail.as_view(),
+        name="libraries-by-version-detail",
     ),
     path(
         "versions/<int:version_pk>/libraries-by-category/<slug:category>/",
