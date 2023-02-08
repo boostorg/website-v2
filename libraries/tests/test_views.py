@@ -6,8 +6,7 @@ from model_bakery import baker
 def test_library_list(version, tp):
     """GET /libraries/"""
     res = tp.get("libraries")
-    tp.response_302(res)
-    assert res.url == f"/versions/{version.slug}/libraries/"
+    tp.response_200(res)
 
 
 @pytest.mark.xfail(
