@@ -139,10 +139,9 @@ def test_library_detail_context_get_open_issues_count(tp, library_version):
 
 
 def test_library_detail(library_version, tp):
-    """GET /versions/{version_slug}/{slug}/"""
+    """GET /libraries/{slug}/"""
     library = library_version.library
     version = library_version.version
     url = tp.reverse("library-detail", library.slug)
     response = tp.get(url)
-    tp.response_302(response)
-    assert response.url == f"/versions/{version.slug}/{library.slug}/"
+    tp.response_200(response)

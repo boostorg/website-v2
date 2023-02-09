@@ -47,19 +47,43 @@ class LibraryList(CategoryMixin, FormMixin, ListView):
         return super().get(request)
 
 
-class LibraryDetail(RedirectView):
-    """
-    Redirect a request for a generic library to the most recent Boost version
-    of that library.
-    """
+class LibraryDetail(CategoryMixin, DetailView):
+    """Display a single Library for the most recent Boost version"""
 
-    permanent = False
-    query_string = True
-    pattern_name = "libraries-by-version-detail"
+    model = Library
+    template_name = "libraries/detail.html"
 
-    def get_redirect_url(self, *args, **kwargs):
+    def get_object(self):
+        slug = self.kwargs.get("slug")
         version = Version.objects.most_recent()
-        return super().get_redirect_url(version_slug=version.slug, slug=kwargs["slug"])
+
+        if not LibraryVersion.objects.filter(
+            version=version, library__slug=slug
+        ).exists():
+            raise Http404("No library found matching the query")
+
+        try:
+            obj = self.get_queryset().get(slug=slug)
+        except queryset.model.DoesNotExist:
+            raise Http404("No library found matching the query")
+        return obj
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        context["closed_prs_count"] = self.get_closed_prs_count(self.object)
+        context["open_issues_count"] = self.get_open_issues_count(self.object)
+        context["version"] = self.get_version()
+        return self.render_to_response(context)
+
+    def get_closed_prs_count(self, obj):
+        return PullRequest.objects.filter(library=obj, is_open=True).count()
+
+    def get_open_issues_count(self, obj):
+        return Issue.objects.filter(library=obj, is_open=True).count()
+
+    def get_version(self):
+        return Version.objects.most_recent()
 
 
 class LibraryByCategory(CategoryMixin, ListView):
