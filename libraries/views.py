@@ -130,12 +130,25 @@ class LibraryListByVersion(CategoryMixin, FormMixin, ListView):
     )
     template_name = "libraries/list.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["version_slug"] = self.kwargs.get("version_slug")
+        context["version_name"] = self.get_version_name(context["version_slug"])
+        return context
+
     def get_queryset(self):
         queryset = super().get_queryset()
         version_slug = self.kwargs.get("version_slug")
         return (
             super().get_queryset().filter(library_version__version__slug=version_slug)
         )
+
+    def get_version_name(self, version_slug):
+        try:
+            version = Version.objects.get(slug=version_slug)
+            return version.name
+        except Version.DoesNotExist:
+            return ""
 
     def post(self, request, *args, **kwargs):
         """User has submitted a form and will be redirected to the right results"""
