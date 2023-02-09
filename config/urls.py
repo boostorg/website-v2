@@ -20,7 +20,7 @@ from libraries.views import (
     LibraryByLetter,
     LibraryByCategory,
     LibraryDetail,
-    LibraryByVersion,
+    LibraryListByVersion,
     LibraryByVersionDetail,
     LibraryVersionByCategory,
 )
@@ -142,19 +142,19 @@ urlpatterns = [
     path("contact/", ContactView.as_view(), name="contact"),
     # Boost versions views
     path(
+        "versions/<slug:version_slug>/libraries-by-category/<slug:category>/",
+        LibraryVersionByCategory.as_view(),
+        name="libraries-by-version-by-category",
+    ),
+    path(
         "versions/<slug:version_slug>/libraries/",
-        LibraryByVersion.as_view(),
+        LibraryListByVersion.as_view(),
         name="libraries-by-version",
     ),
     path(
         "versions/<slug:version_slug>/<slug:slug>/",
         LibraryByVersionDetail.as_view(),
         name="libraries-by-version-detail",
-    ),
-    path(
-        "versions/<slug:version_slug>/libraries-by-category/<slug:category>/",
-        LibraryVersionByCategory.as_view(),
-        name="libraries-by-version-by-category",
     ),
     path("versions/<slug:slug>/", VersionDetail.as_view(), name="version-detail"),
     path("versions/", VersionList.as_view(), name="version-list"),
