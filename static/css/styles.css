@@ -1644,18 +1644,8 @@ input[type=file] {
   background-color: rgb(90 213 153 / 0.1);
 }
 
-.bg-gray-200 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(229 231 235 / var(--tw-bg-opacity));
-}
-
 .bg-charcoal\/60 {
   background-color: rgb(23 42 52 / 0.6);
-}
-
-.bg-gray-50 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(249 250 251 / var(--tw-bg-opacity));
 }
 
 .bg-transparent {
@@ -1670,18 +1660,6 @@ input[type=file] {
 .bg-slate {
   --tw-bg-opacity: 1;
   background-color: rgb(49 74 87 / var(--tw-bg-opacity));
-}
-
-.bg-opacity-50 {
-  --tw-bg-opacity: 0.5;
-}
-
-.bg-opacity-30 {
-  --tw-bg-opacity: 0.3;
-}
-
-.bg-opacity-25 {
-  --tw-bg-opacity: 0.25;
 }
 
 .bg-opacity-70 {
@@ -2179,11 +2157,6 @@ input[type=file] {
   background-color: rgb(249 250 251 / var(--tw-bg-opacity));
 }
 
-.hover\:bg-gray-700:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(55 65 81 / var(--tw-bg-opacity));
-}
-
 .hover\:bg-orange:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(255 159 0 / var(--tw-bg-opacity));
@@ -2197,6 +2170,11 @@ input[type=file] {
 .hover\:text-white:hover {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+.hover\:text-orange:hover {
+  --tw-text-opacity: 1;
+  color: rgb(255 159 0 / var(--tw-text-opacity));
 }
 
 .focus\:text-charcoal:focus {
