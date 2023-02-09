@@ -8,23 +8,23 @@
       <div class="hidden md:block mx-auto px-3 sm:px-6 bg-charcoal">
         <nav class="relative flex items-center justify-between sm:h-10 pt-6 pb-6" aria-label="Global">
           <div class="md:flex md:space-x-10 pt-3 pb-3 pl-3">
-            <a href="{% url 'boost-about' %}" class="font-medium text-gray-500 hover:text-gray-900">About</a>
+            <a href="{% url 'boost-about' %}" class="font-medium text-white hover:text-orange">About</a>
 
-            <a href="{% url 'support' %}" class="font-medium text-gray-500 hover:text-gray-900">Support</a>
+            <a href="{% url 'support' %}" class="font-medium text-white hover:text-orange">Support</a>
 
-            <a href="{% url 'resources' %}" class="font-medium text-gray-500 hover:text-gray-900">Resources</a>
+            <a href="{% url 'resources' %}" class="font-medium text-white hover:text-orange">Resources</a>
 
             {% if not user.is_authenticated %}
-              <a href="{% url 'account_signup' %}" class="font-medium text-gray-500 hover:text-gray-900">Sign Up</a>
+              <a href="{% url 'account_signup' %}" class="font-medium text-white hover:text-orange">Sign Up</a>
             {% endif %}
 
             {% if not user.is_authenticated %}
-              <a href="{% url 'account_login' %}" class="font-medium text-gray-500 hover:text-gray-900">Log In</a>
+              <a href="{% url 'account_login' %}" class="font-medium text-white hover:text-orange">Log In</a>
             {% else %}
-              <a href="{% url 'account_logout' %}" class="font-medium text-gray-500 hover:text-gray-900">Log Out</a>
+              <a href="{% url 'account_logout' %}" class="font-medium text-white hover:text-orange">Log Out</a>
             {% endif %}
 
-            <a href="#" class="font-medium text-gray-500 hover:text-gray-900">
+            <a href="#" class="font-medium text-white hover:text-orange">
               <img class="mt-1" src="{% static 'img/icons/icon-search.svg' %}" alt="Search" />
             </a>
           </div>
@@ -42,17 +42,17 @@
               <a href="{% url 'home' %}"><img class="inline w-auto h-[50px]" src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}" alt="Boost"></a>
             </div>
             <div class="inline pt-4 md:space-x-10 float-right pr-8 text-lg">
-              <a href="{% url "version-list" %}" class="font-medium text-gray-500 hover:text-gray-900">Versions</a>
+              <a href="{% url "version-list" %}" class="font-medium text-white hover:text-orange">Versions</a>
 
-              <a href="/libraries/" class="font-medium text-gray-500 hover:text-gray-900">Libraries</a>
+              <a href="/libraries/" class="font-medium text-white hover:text-orange">Libraries</a>
 
-              <a href="{% url "review-process" %}" class="font-medium text-gray-500 hover:text-gray-900">Review Process</a>
+              <a href="{% url "review-process" %}" class="font-medium text-white hover:text-orange">Review Process</a>
 
-              <a href="/forum/" class="font-medium text-gray-500 hover:text-gray-900">Forums</a>
+              <a href="/forum/" class="font-medium text-white hover:text-orange">Forums</a>
 
-              <a href="{% url 'news' %}" class="font-medium text-gray-500 hover:text-gray-900">News</a>
+              <a href="{% url 'news' %}" class="font-medium text-white hover:text-orange">News</a>
 
-              <a href="{% url 'donate' %}" class="font-medium text-gray-500 hover:text-gray-900">Donate</a>
+              <a href="{% url 'donate' %}" class="font-medium text-white hover:text-orange">Donate</a>
             </div>
           </div>
         </nav>
@@ -100,17 +100,17 @@
           </div>
           <div x-show="isOpen" class="h-screen z-50 bg-charcoal absolute top-10 inset-x-0">
             <div class="px-2 pt-2 pb-3 text-2xl">
-              <a href="/versions/" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Versions</a>
+              <a href="/versions/" class="block px-3 py-2 text-white hover:text-orange">Versions</a>
 
-              <a href="/libraries/" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Libraries</a>
+              <a href="/libraries/" class="block px-3 py-2 text-white hover:text-orange">Libraries</a>
 
-              <a href="{% url 'review-process' %}" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Review Process</a>
+              <a href="{% url 'review-process' %}" class="block px-3 py-2 text-white hover:text-orange">Review Process</a>
 
-              <a href="/forum/" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Forums</a>
+              <a href="/forum/" class="block px-3 py-2 text-white hover:text-orange">Forums</a>
 
-              <a href="{% url 'news' %}" class="block px-3 py-2 text-gray-500 hover:text-gray-900">News</a>
+              <a href="{% url 'news' %}" class="block px-3 py-2 text-white hover:text-orange">News</a>
 
-              <a href="{% url 'donate' %}" class="block px-3 py-2 text-gray-500 hover:text-gray-900">Donate</a>
+              <a href="{% url 'donate' %}" class="block px-3 py-2 text-white hover:text-orange">Donate</a>
             </div>
             <div class="px-2 pt-2 pb-3 absolute bottom-10 left-0 text-sm">
               <a href="{% url 'boost-about' %}" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900">About</a>
