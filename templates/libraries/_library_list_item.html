@@ -2,7 +2,7 @@
 
 <div class="md:flex rounded bg-charcoal p-3 md:p-5">
   <div class="md:w-3/4 mb-4 space-y-4 md:space-y-2">
-    <h3 class="text-2xl mb-3 capitalize"><a href="{% url 'library-detail' slug=library.slug %}">{{ library.name }}</a></h3>
+    <h3 class="text-2xl mb-3 capitalize"><a href="{% if version_slug %}{% url 'libraries-by-version-detail' version_slug=version_slug slug=library.slug %}{% else %}{% url 'library-detail' slug=library.slug %}{% endif %}">{{ library.name }}</a></h3>
     <p class="mb-3">{{ library.description }}</p>
     <div class="md:flex text-sm">
       <div class="md:mr-11">First Release:  X.YY.Z</div>
