@@ -20,7 +20,7 @@ class CategoryMixin:
 
 
 class LibraryList(CategoryMixin, FormMixin, ListView):
-    """List all of our libraries by name"""
+    """List all of our libraries for the current version of Boost by name"""
 
     form_class = LibraryForm
     paginate_by = 25
@@ -47,7 +47,56 @@ class LibraryList(CategoryMixin, FormMixin, ListView):
         return super().get(request)
 
 
-class LibraryByVersion(CategoryMixin, FormMixin, ListView):
+class LibraryDetail(RedirectView):
+    """
+    Redirect a request for a generic library to the most recent Boost version
+    of that library.
+    """
+
+    permanent = False
+    query_string = True
+    pattern_name = "libraries-by-version-detail"
+
+    def get_redirect_url(self, *args, **kwargs):
+        version = Version.objects.most_recent()
+        return super().get_redirect_url(version_slug=version.slug, slug=kwargs["slug"])
+
+
+class LibraryByCategory(CategoryMixin, ListView):
+    """List all of our libraries for the current version of Boost in a certain category"""
+
+    paginate_by = 25
+    template_name = "libraries/list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        category_slug = self.kwargs.get("category")
+        context["version"] = Version.objects.most_recent()
+
+        if category_slug:
+            try:
+                category = Category.objects.get(slug=category_slug)
+                context["category"] = category
+            except Category.DoesNotExist:
+                logger.info("libraries_by_category_view_category_not_found")
+        return context
+
+    def get_queryset(self):
+        category = self.kwargs.get("category")
+        version = Version.objects.most_recent()
+
+        return (
+            Library.objects.prefetch_related("categories")
+            .filter(
+                categories__slug=category,
+                versions__library_version__version=version,
+            )
+            .order_by("name")
+            .distinct()
+        )
+
+
+class LibraryListByVersion(CategoryMixin, FormMixin, ListView):
     """List all of our libraries for a specific Boost version by name"""
 
     form_class = LibraryForm
@@ -64,12 +113,16 @@ class LibraryByVersion(CategoryMixin, FormMixin, ListView):
             super().get_queryset().filter(library_version__version__slug=version_slug)
         )
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         """User has submitted a form and will be redirected to the right results"""
         form = self.get_form()
         if form.is_valid():
             category = form.cleaned_data["categories"][0]
-            return redirect("libraries-by-category", category=category.slug)
+            return redirect(
+                "libraries-by-version-by-category",
+                version_slug=self.kwargs.get("version_slug"),
+                category=category.slug,
+            )
         else:
             logger.info("library_list_invalid_category")
         return super().get(request)
@@ -122,37 +175,6 @@ class LibraryByVersionDetail(CategoryMixin, DetailView):
             return Version.objects.most_recent()
 
 
-class LibraryByLetter(CategoryMixin, ListView):
-    """List all of our libraries that begin with a certain letter"""
-
-    paginate_by = 25
-    template_name = "libraries/list.html"
-
-    def get_queryset(self):
-        letter = self.kwargs.get("letter")
-
-        return (
-            Library.objects.prefetch_related("categories")
-            .filter(name__startswith=letter.lower())
-            .order_by("name")
-        )
-
-
-class LibraryByCategory(RedirectView):
-    """List all of our libraries in a certain category"""
-
-    permanent = False
-    query_string = True
-    pattern_name = "libraries-by-version-by-category"
-
-    def get_redirect_url(self, *args, **kwargs):
-        category_slug = self.kwargs.get("category")
-        version = Version.objects.most_recent()
-        return super().get_redirect_url(
-            version_slug=version.slug, category=category_slug
-        )
-
-
 class LibraryVersionByCategory(CategoryMixin, ListView):
     """List all of our libraries in a certain category"""
 
@@ -193,16 +215,17 @@ class LibraryVersionByCategory(CategoryMixin, ListView):
         )
 
 
-class LibraryDetail(RedirectView):
-    """
-    Redirect a request for a generic library to the most recent Boost version
-    of that library.
-    """
+class LibraryByLetter(CategoryMixin, ListView):
+    """List all of our libraries that begin with a certain letter"""
 
-    permanent = False
-    query_string = True
-    pattern_name = "libraries-by-version-detail"
+    paginate_by = 25
+    template_name = "libraries/list.html"
 
-    def get_redirect_url(self, *args, **kwargs):
-        version = Version.objects.most_recent()
-        return super().get_redirect_url(version_slug=version.slug, slug=kwargs["slug"])
+    def get_queryset(self):
+        letter = self.kwargs.get("letter")
+
+        return (
+            Library.objects.prefetch_related("categories")
+            .filter(name__startswith=letter.lower())
+            .order_by("name")
+        )

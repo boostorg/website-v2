@@ -9,13 +9,11 @@ def test_library_list(version, tp):
     tp.response_200(res)
 
 
-@pytest.mark.xfail(
-    reason="Need to change how the category filtering works to accommodate versions"
-)
 def test_library_list_select_category(library, category, tp):
     """POST /libraries/ to submit a category redirects to the libraries-by-category page"""
     res = tp.post("libraries", data={"categories": category.pk})
     tp.response_302(res)
+    assert res.url == f"/libraries-by-category/{category.slug}/"
 
 
 def test_library_list_by_category(library_version, category, tp):
@@ -24,8 +22,7 @@ def test_library_list_by_category(library_version, category, tp):
     version = library_version.version
     library.categories.add(category)
     res = tp.get("libraries-by-category", category.slug)
-    tp.response_302(res)
-    assert res.url == f"/versions/{version.slug}/libraries-by-category/{category.slug}/"
+    tp.response_200(res)
 
 
 def test_libraries_by_version_by_category(tp, library_version, category):
@@ -42,6 +39,16 @@ def test_libraries_by_version_by_category(tp, library_version, category):
     assert library in res.context["library_list"]
     assert "category" in res.context
     assert res.context["category"] == category
+
+
+def test_libraries_by_version_list_select_category(library_version, category, tp):
+    """POST versions/{version_slug}/libraries/ to submit a category redirects to the libraries-by-category page"""
+    library = library_version.library
+    version = library_version.version
+    url = tp.reverse("libraries-by-version", version_slug=version.slug)
+    res = tp.post(url, data={"categories": category.pk})
+    tp.response_302(res)
+    assert res.url == f"/versions/{version.slug}/libraries-by-category/{category.slug}/"
 
 
 def test_libraries_by_version_detail(tp, library_version):
