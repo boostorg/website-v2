@@ -28,4 +28,5 @@ PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 
 GITHUB_TOKEN = "changeme"
 
-BASE_CONTENT = "/code/core/tests/content"
+# Make content relative to the project root
+BASE_CONTENT = BASE_DIR / "core/tests/content"
