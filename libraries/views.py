@@ -207,6 +207,8 @@ class LibraryByVersionDetail(CategoryMixin, DetailView):
         context["closed_prs_count"] = self.get_closed_prs_count(self.object)
         context["open_issues_count"] = self.get_open_issues_count(self.object)
         context["version"] = self.get_version()
+        context["version_name"] = context["version"].name
+        context["version_slug"] = context["version"].slug
         return self.render_to_response(context)
 
     def get_closed_prs_count(self, obj):
