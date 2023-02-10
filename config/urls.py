@@ -17,7 +17,6 @@ from ak.views import (
 from core.views import MarkdownTemplateView
 from libraries.views import (
     LibraryList,
-    LibraryByLetter,
     LibraryByCategory,
     LibraryDetail,
     LibraryListByVersion,
@@ -56,11 +55,6 @@ urlpatterns = [
         "donate/",
         TemplateView.as_view(template_name="donate/donate.html"),
         name="donate",
-    ),
-    path(
-        "libraries-by-letter/<str:letter>/",
-        LibraryByLetter.as_view(),
-        name="libraries-by-letter",
     ),
     path(
         "libraries-by-category/<slug:category>/",
