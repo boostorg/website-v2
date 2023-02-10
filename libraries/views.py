@@ -19,15 +19,31 @@ class CategoryMixin:
         return context
 
 
+class GetVersionNameMixin:
+    def get_version_name(self, version_slug):
+        try:
+            version = Version.objects.get(slug=version_slug)
+            return version.name
+        except Version.DoesNotExist:
+            return ""
+
+
 class LibraryList(CategoryMixin, FormMixin, ListView):
     """List all of our libraries for the current version of Boost by name"""
 
+    form_action = "/libraries/"
     form_class = LibraryForm
     paginate_by = 25
     queryset = (
         Library.objects.prefetch_related("authors", "categories").all().order_by("name")
     )
     template_name = "libraries/list.html"
+
+    def get_context_data(self, **kwargs):
+        """Set the form action to the main libraries page"""
+        context = super().get_context_data(**kwargs)
+        context["form_action"] = self.form_action
+        return context
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -86,9 +102,11 @@ class LibraryDetail(CategoryMixin, DetailView):
         return Version.objects.most_recent()
 
 
-class LibraryByCategory(CategoryMixin, ListView):
+class LibraryByCategory(CategoryMixin, FormMixin, ListView):
     """List all of our libraries for the current version of Boost in a certain category"""
 
+    form_action = "/libraries/"
+    form_class = LibraryForm
     paginate_by = 25
     template_name = "libraries/list.html"
 
@@ -96,6 +114,7 @@ class LibraryByCategory(CategoryMixin, ListView):
         context = super().get_context_data()
         category_slug = self.kwargs.get("category")
         context["version"] = Version.objects.most_recent()
+        context["form_action"] = self.form_action
 
         if category_slug:
             try:
@@ -120,7 +139,7 @@ class LibraryByCategory(CategoryMixin, ListView):
         )
 
 
-class LibraryListByVersion(CategoryMixin, FormMixin, ListView):
+class LibraryListByVersion(CategoryMixin, GetVersionNameMixin, FormMixin, ListView):
     """List all of our libraries for a specific Boost version by name"""
 
     form_class = LibraryForm
@@ -134,6 +153,9 @@ class LibraryListByVersion(CategoryMixin, FormMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["version_slug"] = self.kwargs.get("version_slug")
         context["version_name"] = self.get_version_name(context["version_slug"])
+        context[
+            "form_action"
+        ] = f"/versions/{self.kwargs.get('version_slug')}/libraries/"
         return context
 
     def get_queryset(self):
@@ -142,13 +164,6 @@ class LibraryListByVersion(CategoryMixin, FormMixin, ListView):
         return (
             super().get_queryset().filter(library_version__version__slug=version_slug)
         )
-
-    def get_version_name(self, version_slug):
-        try:
-            version = Version.objects.get(slug=version_slug)
-            return version.name
-        except Version.DoesNotExist:
-            return ""
 
     def post(self, request, *args, **kwargs):
         """User has submitted a form and will be redirected to the right results"""
@@ -212,9 +227,10 @@ class LibraryByVersionDetail(CategoryMixin, DetailView):
             return Version.objects.most_recent()
 
 
-class LibraryVersionByCategory(CategoryMixin, ListView):
+class LibraryVersionByCategory(CategoryMixin, GetVersionNameMixin, FormMixin, ListView):
     """List all of our libraries in a certain category"""
 
+    form_class = LibraryForm
     paginate_by = 25
     template_name = "libraries/list.html"
 
@@ -222,10 +238,14 @@ class LibraryVersionByCategory(CategoryMixin, ListView):
         context = super().get_context_data()
         category_slug = self.kwargs.get("category")
         version_slug = self.kwargs.get("version_slug")
+        context[
+            "form_action"
+        ] = f"/versions/{self.kwargs.get('version_slug')}/libraries/"
 
         try:
             version = Version.objects.get(slug=version_slug)
-            context["version"] = version
+            context["version_slug"] = version_slug
+            context["version_name"] = self.get_version_name(version_slug)
         except Version.DoesNotExist:
             raise Http404("No library found matching the query")
 
