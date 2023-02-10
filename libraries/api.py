@@ -10,12 +10,12 @@ from .models import Library
 
 
 class LibrarySearchSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Library
         fields = (
             "name",
             "description",
+            "slug",
         )
 
 
@@ -24,7 +24,7 @@ class LibrarySearchView(viewsets.ModelViewSet):
     serializer_class = LibrarySearchSerializer
     permission_classes = [permissions.AllowAny]
     queryset = Library.objects.all()
-    renderer_classes = (renderers.TemplateHTMLRenderer, )
+    renderer_classes = (renderers.TemplateHTMLRenderer,)
 
     def filter_queryset(self, queryset):
         """
@@ -46,5 +46,5 @@ class LibrarySearchView(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(
             {"libraries": serializer.data},
-            template_name="libraries/includes/search_results.html"
+            template_name="libraries/includes/search_results.html",
         )
