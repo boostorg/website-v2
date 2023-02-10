@@ -428,6 +428,11 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
+htmx@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/htmx/-/htmx-0.0.2.tgz#790b3cd816b74f9f2648326e5f4f8a9b320f9fb0"
+  integrity sha512-FfUo3ynRYr6Ra4vqmS4Nq9g47607FSmvHYCOuU8bvbW8s4kPMhAmCbMBjuW2cEZI6DauaFNZKinfgV91cc9Feg==
+
 is-binary-path@~2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/is-binary-path/-/is-binary-path-2.1.0.tgz#ea1f7f3b80f064236e83470f86c09c254fb45b09"
