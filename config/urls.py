@@ -21,6 +21,7 @@ from libraries.views import (
     LibraryByCategory,
     LibraryDetail,
 )
+from libraries.api import LibrarySearchView
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
 from versions.views import VersionList, VersionDetail
@@ -29,6 +30,7 @@ router = routers.SimpleRouter()
 
 router.register(r"users", UserViewSet, basename="users")
 router.register(r"versions", VersionViewSet, basename="versions")
+router.register(r"libraries", LibrarySearchView, basename="libraries")
 
 
 urlpatterns = [
