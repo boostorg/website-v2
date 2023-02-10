@@ -16,7 +16,7 @@ bootstrap:  ## installs/updates all dependencies
     set -euo pipefail
     if [ ! -f "{{ENV_FILE}}" ]; then
         echo "{{ENV_FILE}} created"
-        cp .env-dist {{ENV_FILE}}
+        cp env.template {{ENV_FILE}}
     fi
 
     # docker-compose --file $(COMPOSE_FILE) build --force-rm
