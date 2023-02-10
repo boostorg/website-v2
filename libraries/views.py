@@ -65,6 +65,8 @@ class LibraryList(CategoryMixin, FormMixin, ListView):
 
 class LibraryByCategory(CategoryMixin, ListView):
     """List all of our libraries in a certain category"""
+
+
 class LibraryDetail(CategoryMixin, DetailView):
     """Display a single Library for the most recent Boost version"""
 
