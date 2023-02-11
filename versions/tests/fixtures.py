@@ -61,7 +61,7 @@ def old_version(db):
     last_year = datetime.date.today() - datetime.timedelta(days=365)
     v = baker.make(
         "versions.Version",
-        name="Version 1.79.0",
+        name="Version 1.70.0",
         description="Some awesome description of the library",
         release_date=last_year,
     )
