@@ -4,6 +4,7 @@ from django.shortcuts import redirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
 
+from versions.models import Version
 from .forms import LibraryForm
 from .models import Category, Issue, Library, PullRequest
 
@@ -26,6 +27,13 @@ class LibraryList(CategoryMixin, FormMixin, ListView):
         Library.objects.prefetch_related("authors", "categories").all().order_by("name")
     )
     template_name = "libraries/list.html"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        version = Version.objects.most_recent()
+        return (
+            super().get_queryset().filter(library_version__version=version).distinct()
+        )
 
     def post(self, request):
         """User has submitted a form and will be redirected to the right results"""

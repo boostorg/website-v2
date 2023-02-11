@@ -1,10 +1,22 @@
+import datetime
+
 from model_bakery import baker
 
 
-def test_library_list(library, tp):
+def test_library_list(library_version, tp):
     """GET /libraries/"""
+    last_year = datetime.date.today() - datetime.timedelta(days=365)
+    v2 = baker.make("versions.Version", name="Version 1.78.0", release_date=last_year)
+    lib2 = baker.make(
+        "libraries.Library",
+        name="sample",
+    )
+    baker.make("libraries.LibraryVersion", library=lib2, version=v2)
     res = tp.get("libraries")
     tp.response_200(res)
+    assert "library_list" in res.context
+    assert library_version.library in res.context["library_list"]
+    assert lib2 not in res.context["library_list"]
 
 
 def test_library_list_select_category(library, category, tp):
