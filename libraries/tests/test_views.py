@@ -38,18 +38,33 @@ def test_libraries_by_category(tp, library, category):
     assert res.context["category"] == category
 
 
-def test_library_detail(library, tp):
-    """GET /libraries/{repo}/"""
+def test_library_detail(library_version, tp):
+    """GET /libraries/{slug}/"""
+    library = library_version.library
     url = tp.reverse("library-detail", library.slug)
     response = tp.get(url)
     tp.response_200(response)
 
 
-def test_library_detail_context_get_closed_prs_count(tp, library):
+def test_library_detail_404(library, tp):
+    """GET /libraries/{slug}/"""
+    # 404 due to bad slug
+    url = tp.reverse("library-detail", "bananas")
+    response = tp.get(url)
+    tp.response_404(response)
+
+    # 404 due to no existing version
+    url = tp.reverse("library-detail", library.slug)
+    response = tp.get(url)
+    tp.response_404(response)
+
+
+def test_library_detail_context_get_closed_prs_count(tp, library_version):
     """
-    GET /libraries/{repo}/
+    GET /libraries/{slug}/
     Test that the custom closed_prs_count var appears as expected
     """
+    library = library_version.library
     # Create open and closed PRs for this library, and another random PR
     lib2 = baker.make("libraries.Library", slug="sample")
     baker.make("libraries.PullRequest", library=library, is_open=True)
@@ -63,11 +78,12 @@ def test_library_detail_context_get_closed_prs_count(tp, library):
     assert response.context["closed_prs_count"] == 1
 
 
-def test_library_detail_context_get_open_issues_count(tp, library):
+def test_library_detail_context_get_open_issues_count(tp, library_version):
     """
-    GET /libraries/{repo}/
+    GET /libraries/{slug}/
     Test that the custom open_issues_count var appears as expected
     """
+    library = library_version.library
     # Create open and closed issues for this library, and another random issue
     lib2 = baker.make("libraries.Library", slug="sample")
     baker.make("libraries.Issue", library=library, is_open=True)
