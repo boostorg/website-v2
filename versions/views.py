@@ -7,7 +7,7 @@ class VersionList(ListView):
     """Web display of list of Versions"""
 
     model = Version
-    queryset = Version.objects.active().order_by("-release_date")
+    queryset = Version.objects.active()
     template_name = "versions/list.html"
 
     def get_context_data(self):
