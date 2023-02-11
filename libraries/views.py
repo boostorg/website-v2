@@ -50,6 +50,7 @@ class LibraryList(CategoryMixin, FormMixin, ListView):
 class LibraryByCategory(CategoryMixin, ListView):
     """List all of our libraries in a certain category"""
 
+    form_class = LibraryForm
     paginate_by = 25
     template_name = "libraries/list.html"
 
@@ -66,11 +67,16 @@ class LibraryByCategory(CategoryMixin, ListView):
 
     def get_queryset(self):
         category = self.kwargs.get("category")
+        version = Version.objects.most_recent()
 
         return (
             Library.objects.prefetch_related("categories")
-            .filter(categories__slug=category)
+            .filter(
+                categories__slug=category,
+                versions__library_version__version=version,
+            )
             .order_by("name")
+            .distinct()
         )
 
 

@@ -23,6 +23,46 @@ def test_library_list_select_category(library, category, tp):
     """POST /libraries/ to submit a category redirects to the libraries-by-category page"""
     res = tp.post("libraries", data={"categories": category.pk})
     tp.response_302(res)
+    assert res.url == f"/libraries-by-category/{category.slug}/"
+
+
+def test_library_list_by_category(library_version, category, tp):
+    """
+    GET /libraries-by-category/{category_slug}/
+    A category with libraries
+    """
+    library = library_version.library
+    version = library_version.version
+    library.categories.add(category)
+    res = tp.get("libraries-by-category", category.slug)
+    tp.response_200(res)
+    assert "library_list" in res.context
+    assert len(res.context["library_list"]) == 1
+    assert library in res.context["library_list"]
+
+
+def test_library_list_by_category_no_results(library_version, category, tp):
+    """
+    GET /libraries-by-category/{category_slug}/
+    A category with no libraries
+    """
+    library = library_version.library
+    version = library_version.version
+    res = tp.get("libraries-by-category", category.slug)
+    tp.response_200(res)
+    assert "library_list" in res.context
+    assert len(res.context["library_list"]) == 0
+
+
+def test_library_list_by_category_no_results_for_active_version(library, category, tp):
+    """
+    GET /libraries-by-category/{category_slug}/
+    A category with a library, but the library isn't attached to the active Boost version
+    """
+    res = tp.get("libraries-by-category", category.slug)
+    tp.response_200(res)
+    assert "library_list" in res.context
+    assert len(res.context["library_list"]) == 0
 
 
 def test_libraries_by_category(tp, library, category):
