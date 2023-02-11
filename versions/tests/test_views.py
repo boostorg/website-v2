@@ -3,7 +3,7 @@ import datetime
 from model_bakery import baker
 
 
-def test_version_list(version, old_version, tp):
+def test_version_list(version, tp):
     """
     GET /versions/
     """
