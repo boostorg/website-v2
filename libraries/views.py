@@ -1,12 +1,13 @@
 import structlog
 
+from django.http import Http404
 from django.shortcuts import redirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
 
 from versions.models import Version
 from .forms import LibraryForm
-from .models import Category, Issue, Library, PullRequest
+from .models import Category, Issue, Library, LibraryVersion, PullRequest
 
 logger = structlog.get_logger()
 
@@ -78,6 +79,21 @@ class LibraryDetail(CategoryMixin, DetailView):
 
     model = Library
     template_name = "libraries/detail.html"
+
+    def get_object(self):
+        slug = self.kwargs.get("slug")
+        version = Version.objects.most_recent()
+
+        if not LibraryVersion.objects.filter(
+            version=version, library__slug=slug
+        ).exists():
+            raise Http404("No library found matching the query")
+
+        try:
+            obj = self.get_queryset().get(slug=slug)
+        except queryset.model.DoesNotExist:
+            raise Http404("No library found matching the query")
+        return obj
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
