@@ -133,8 +133,8 @@ urlpatterns = [
         name="getting-started",
     ),
     path("contact/", ContactView.as_view(), name="contact"),
+    path("versions/<slug:slug>/", VersionDetail.as_view(), name="version-detail"),
     path("versions/", VersionList.as_view(), name="version-list"),
-    path("versions/<int:pk>/", VersionDetail.as_view(), name="version-detail"),
     # Markdown content
     re_path(
         r"^(?P<content_path>.+)/?",
