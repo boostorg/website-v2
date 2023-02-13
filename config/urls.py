@@ -139,7 +139,7 @@ urlpatterns = [
     path(
         "versions/<slug:version_slug>/libraries/<slug:slug>/",
         LibraryDetailByVersion.as_view(),
-        name="libraries-by-version-detail",
+        name="library-detail-by-version",
     ),
     path(
         "versions/<slug:slug>/libraries/",
