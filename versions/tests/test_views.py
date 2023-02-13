@@ -35,7 +35,7 @@ def test_version_list_context(version, old_version, inactive_version, tp):
 
 def test_version_detail(version, tp):
     """
-    GET /versions/{pk}/
+    GET /versions/{slug}/
     """
-    res = tp.get("version-detail", pk=version.pk)
+    res = tp.get("version-detail", slug=version.slug)
     tp.response_200(res)
