@@ -137,7 +137,8 @@ urlpatterns = [
     ),
     path("contact/", ContactView.as_view(), name="contact"),
     # Boost versions views
-    path("versions/<slug:version_slug>/libraries-by-category/<slug:category>/",
+    path(
+        "versions/<slug:version_slug>/libraries-by-category/<slug:category>/",
         LibraryListByVersionByCategory.as_view(),
         name="libraries-by-version-by-category",
     ),

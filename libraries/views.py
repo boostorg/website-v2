@@ -159,7 +159,7 @@ class LibraryDetailByVersion(CategoryMixin, DetailView):
 
 
 class LibraryListByVersionByCategory(CategoryMixin, ListView):
-    """List all of our libraries in a certain category for a certain Boost version """
+    """List all of our libraries in a certain category for a certain Boost version"""
 
     paginate_by = 25
     template_name = "libraries/list.html"
@@ -193,8 +193,6 @@ class LibraryListByVersionByCategory(CategoryMixin, ListView):
                 categories__slug=category,
                 versions__library_version__version__slug=version_slug,
             )
-            .order_by("name").distinct()
+            .order_by("name")
+            .distinct()
         )
-
-
-
