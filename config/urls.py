@@ -133,8 +133,7 @@ urlpatterns = [
         TemplateView.as_view(template_name="support/getting_started.html"),
         name="getting-started",
     ),
-    path("contact/", ContactView.as_view(), name="contact"),\
-    # Boost versions views
+    path("contact/", ContactView.as_view(), name="contact"),  # Boost versions views
     path(
         "versions/<slug:slug>/libraries/",
         LibraryListByVersion.as_view(),

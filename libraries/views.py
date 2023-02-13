@@ -50,7 +50,9 @@ class LibraryListByVersion(CategoryMixin, FormMixin, ListView):
 
     def get_queryset(self):
         version_slug = self.kwargs.get("slug")
-        return super().get_queryset().filter(library_version__version__slug=version_slug)
+        return (
+            super().get_queryset().filter(library_version__version__slug=version_slug)
+        )
 
     def post(self, request):
         """User has submitted a form and will be redirected to the right results"""
