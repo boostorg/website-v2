@@ -27,10 +27,10 @@ def test_libraries_by_category(tp, library, category):
 
 
 def test_libraries_by_version_detail(tp, library_version):
-    """GET /versions/{version_identifier}/libraries/{slug}/"""
+    """GET /versions/{version_slug}/libraries/{slug}/"""
     res = tp.get(
-        "libraries-by-version-detail",
-        library_version.version.pk,
+        "library-detail-by-version",
+        library_version.version.slug,
         library_version.library.slug,
     )
     tp.response_200(res)
@@ -40,9 +40,19 @@ def test_libraries_by_version_detail(tp, library_version):
 def test_libraries_by_version_detail_no_library_found(tp, library_version):
     """GET /versions/{version_identifier}/libraries/{slug}/"""
     res = tp.get(
-        "libraries-by-version-detail",
-        library_version.version.pk,
+        "library-detail-by-version",
+        library_version.version.slug,
         "coffee",
+    )
+    tp.response_404(res)
+
+
+def test_libraries_by_version_detail_no_version_found(tp, library_version):
+    """GET /versions/{version_identifier}/libraries/{slug}/"""
+    res = tp.get(
+        "library-detail-by-version",
+        "coffee",
+        library_version.library.slug,
     )
     tp.response_404(res)
 
