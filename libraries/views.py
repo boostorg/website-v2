@@ -29,6 +29,13 @@ class LibraryList(CategoryMixin, FormMixin, ListView):
     )
     template_name = "libraries/list.html"
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        version = Version.objects.most_recent()
+        return (
+            super().get_queryset().filter(library_version__version=version).distinct()
+        )
+
     def post(self, request):
         """User has submitted a form and will be redirected to the right results"""
         form = self.get_form()
@@ -45,6 +52,21 @@ class LibraryDetail(CategoryMixin, DetailView):
 
     model = Library
     template_name = "libraries/detail.html"
+
+    def get_object(self):
+        slug = self.kwargs.get("slug")
+        version = Version.objects.most_recent()
+
+        if not LibraryVersion.objects.filter(
+            version=version, library__slug=slug
+        ).exists():
+            raise Http404("No library found matching the query")
+
+        try:
+            obj = self.get_queryset().get(slug=slug)
+        except queryset.model.DoesNotExist:
+            raise Http404("No library found matching the query")
+        return obj
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -63,6 +85,7 @@ class LibraryDetail(CategoryMixin, DetailView):
 class LibraryByCategory(CategoryMixin, ListView):
     """List all of our libraries in a certain category"""
 
+    form_class = LibraryForm
     paginate_by = 25
     template_name = "libraries/list.html"
 
@@ -79,11 +102,16 @@ class LibraryByCategory(CategoryMixin, ListView):
 
     def get_queryset(self):
         category = self.kwargs.get("category")
+        version = Version.objects.most_recent()
 
         return (
             Library.objects.prefetch_related("categories")
-            .filter(categories__slug=category)
+            .filter(
+                categories__slug=category,
+                versions__library_version__version=version,
+            )
             .order_by("name")
+            .distinct()
         )
 
 
