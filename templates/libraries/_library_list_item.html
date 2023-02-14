@@ -5,7 +5,7 @@
     <h3 class="text-2xl mb-3 capitalize">
       <a href="
         {% if version_slug %}
-          {% url 'libraries-by-version-detail' version_slug=version_slug slug=library.slug %}
+          {% url 'library-detail-by-version' version_slug=version_slug slug=library.slug %}
         {% else %}
           {% url 'library-detail' slug=library.slug %}
         {% endif %}"

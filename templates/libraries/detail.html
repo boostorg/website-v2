@@ -5,7 +5,7 @@
 {% block content %}
   <!-- Breadcrumb used on filtered views -->
   <div class="p-3 md:p-0">
-    <a class="text-orange" href="{% if version_slug %}{% url 'libraries-by-version' version_slug=version_slug %}{% else %}{% url 'libraries' %}{% endif %}">Libraries{% if version_name %} ({{ version.name }}){% endif %}</a> > <a class="text-orange" href="{% url 'libraries' %}">Specific</a> > <span class="capitalize">{{ object.name }}</span>
+    <a class="text-orange" href="{% if version_slug %}{% url 'libraries-by-version' version_slug %}{% else %}{% url 'libraries' %}{% endif %}">Libraries{% if version_name %} ({{ version.name }}){% endif %}</a> > <a class="text-orange" href="{% url 'libraries' %}">Specific</a> > <span class="capitalize">{{ object.name }}</span>
   </div>
   <!-- end breadcrumb -->
 

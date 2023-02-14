@@ -151,11 +151,9 @@ class LibraryListByVersion(CategoryMixin, GetVersionNameMixin, FormMixin, ListVi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["version_slug"] = self.kwargs.get("version_slug")
+        context["version_slug"] = self.kwargs.get("slug")
         context["version_name"] = self.get_version_name(context["version_slug"])
-        context[
-            "form_action"
-        ] = f"/versions/{self.kwargs.get('version_slug')}/libraries/"
+        context["form_action"] = f"/versions/{self.kwargs.get('slug')}/libraries/"
         return context
 
     def get_queryset(self):
@@ -172,7 +170,7 @@ class LibraryListByVersion(CategoryMixin, GetVersionNameMixin, FormMixin, ListVi
             category = form.cleaned_data["categories"][0]
             return redirect(
                 "libraries-by-version-by-category",
-                version_slug=self.kwargs.get("version_slug"),
+                version_slug=self.kwargs.get("slug"),
                 category=category.slug,
             )
         else:
@@ -194,7 +192,6 @@ class LibraryDetailByVersion(CategoryMixin, DetailView):
             version__slug=version_slug, library__slug=slug
         ).exists():
             raise Http404("No library found matching the query")
-
         try:
             obj = self.get_queryset().get(slug=slug)
         except self.model.DoesNotExist:
@@ -206,9 +203,9 @@ class LibraryDetailByVersion(CategoryMixin, DetailView):
         context = self.get_context_data(object=self.object)
         context["closed_prs_count"] = self.get_closed_prs_count(self.object)
         context["open_issues_count"] = self.get_open_issues_count(self.object)
-        context["version"] = self.get_version()
+        context["version_slug"] = self.kwargs.get("version_slug")
+        context["version"] = self.get_version(self.kwargs.get("version_slug"))
         context["version_name"] = context["version"].name
-        context["version_slug"] = context["version"].slug
         return self.render_to_response(context)
 
     def get_closed_prs_count(self, obj):
@@ -217,8 +214,7 @@ class LibraryDetailByVersion(CategoryMixin, DetailView):
     def get_open_issues_count(self, obj):
         return Issue.objects.filter(library=obj, is_open=True).count()
 
-    def get_version(self):
-        version_slug = self.kwargs.get("version_slug")
+    def get_version(self, version_slug):
         try:
             return Version.objects.get(slug=version_slug)
         except Version.DoesNotExist:
@@ -226,23 +222,28 @@ class LibraryDetailByVersion(CategoryMixin, DetailView):
             raise Http404("No object found matching the query")
 
 
-class LibraryListByVersionByCategory(CategoryMixin, GetVersionNameMixin, FormMixin, ListView):
+class LibraryListByVersionByCategory(CategoryMixin, FormMixin, ListView):
     """List all of our libraries in a certain category for a certain Boost version"""
 
     form_class = LibraryForm
     paginate_by = 25
+    queryset = (
+        Library.objects.prefetch_related("authors", "categories").all().order_by("name")
+    )
     template_name = "libraries/list.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         category_slug = self.kwargs.get("category")
         version_slug = self.kwargs.get("version_slug")
-        context["form_action"] = f"/versions/{self.kwargs.get('version_slug')}/libraries/"
+        context[
+            "form_action"
+        ] = f"/versions/{self.kwargs.get('version_slug')}/libraries/"
 
         try:
             version = Version.objects.get(slug=version_slug)
             context["version_slug"] = version_slug
-            context["version_name"] = self.get_version_name(version_slug)
+            # context["version_name"] = self.get_version_name(version_slug)
             context["version"] = version
         except Version.DoesNotExist:
             raise Http404("No library found matching the query")
@@ -255,16 +256,31 @@ class LibraryListByVersionByCategory(CategoryMixin, GetVersionNameMixin, FormMix
                 logger.info("libraries_by_category_view_category_not_found")
         return context
 
-    def get_queryset(self):
+    def get_queryset(self, **kwargs):
         category = self.kwargs.get("category")
         version_slug = self.kwargs.get("version_slug")
-
-        return (
-            Library.objects.prefetch_related("categories")
+        qs = (
+            super()
+            .get_queryset()
             .filter(
                 categories__slug=category,
                 versions__library_version__version__slug=version_slug,
             )
-            .order_by("name")
             .distinct()
         )
+
+        return qs
+
+    def post(self, request, *args, **kwargs):
+        """User has submitted a form and will be redirected to the right results"""
+        form = self.get_form()
+        if form.is_valid():
+            category = form.cleaned_data["categories"][0]
+            return redirect(
+                "libraries-by-version-by-category",
+                version_slug=self.kwargs.get("version_slug"),
+                category=category.slug,
+            )
+        else:
+            logger.info("library_list_invalid_category")
+        return super().get(request)
