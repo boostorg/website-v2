@@ -63,12 +63,8 @@ class LibraryList(CategoryMixin, FormMixin, ListView):
         return super().get(request)
 
 
-class LibraryByCategory(CategoryMixin, ListView):
-    """List all of our libraries in a certain category"""
-
-
 class LibraryDetail(CategoryMixin, DetailView):
-    """Display a single Library for the most recent Boost version"""
+    """Display a single Library in insolation"""
 
     model = Library
     template_name = "libraries/detail.html"
@@ -164,7 +160,7 @@ class LibraryListByVersion(CategoryMixin, GetVersionNameMixin, FormMixin, ListVi
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        version_slug = self.kwargs.get("version_slug")
+        version_slug = self.kwargs.get("slug")
         return (
             super().get_queryset().filter(library_version__version__slug=version_slug)
         )
@@ -184,7 +180,7 @@ class LibraryListByVersion(CategoryMixin, GetVersionNameMixin, FormMixin, ListVi
         return super().get(request)
 
 
-class LibraryByVersionDetail(CategoryMixin, DetailView):
+class LibraryDetailByVersion(CategoryMixin, DetailView):
     """Display a single Library for a specific Boost version"""
 
     model = Library
@@ -201,7 +197,7 @@ class LibraryByVersionDetail(CategoryMixin, DetailView):
 
         try:
             obj = self.get_queryset().get(slug=slug)
-        except queryset.model.DoesNotExist:
+        except self.model.DoesNotExist:
             raise Http404("No library found matching the query")
         return obj
 
@@ -223,18 +219,15 @@ class LibraryByVersionDetail(CategoryMixin, DetailView):
 
     def get_version(self):
         version_slug = self.kwargs.get("version_slug")
-        if version_slug:
-            try:
-                return Version.objects.get(slug=version_slug)
-            except Version.DoesNotExist:
-                logger.info("libraries_by_version_detail_view_version_not_found")
-                raise Http404("No object found matching the query")
-        else:
-            return Version.objects.most_recent()
+        try:
+            return Version.objects.get(slug=version_slug)
+        except Version.DoesNotExist:
+            logger.info("libraries_by_version_detail_view_version_not_found")
+            raise Http404("No object found matching the query")
 
 
-class LibraryVersionByCategory(CategoryMixin, GetVersionNameMixin, FormMixin, ListView):
-    """List all of our libraries in a certain category"""
+class LibraryListByVersionByCategory(CategoryMixin, GetVersionNameMixin, FormMixin, ListView):
+    """List all of our libraries in a certain category for a certain Boost version"""
 
     form_class = LibraryForm
     paginate_by = 25
@@ -244,14 +237,13 @@ class LibraryVersionByCategory(CategoryMixin, GetVersionNameMixin, FormMixin, Li
         context = super().get_context_data()
         category_slug = self.kwargs.get("category")
         version_slug = self.kwargs.get("version_slug")
-        context[
-            "form_action"
-        ] = f"/versions/{self.kwargs.get('version_slug')}/libraries/"
+        context["form_action"] = f"/versions/{self.kwargs.get('version_slug')}/libraries/"
 
         try:
             version = Version.objects.get(slug=version_slug)
             context["version_slug"] = version_slug
             context["version_name"] = self.get_version_name(version_slug)
+            context["version"] = version
         except Version.DoesNotExist:
             raise Http404("No library found matching the query")
 
@@ -275,20 +267,4 @@ class LibraryVersionByCategory(CategoryMixin, GetVersionNameMixin, FormMixin, Li
             )
             .order_by("name")
             .distinct()
-        )
-
-
-class LibraryByLetter(CategoryMixin, ListView):
-    """List all of our libraries that begin with a certain letter"""
-
-    paginate_by = 25
-    template_name = "libraries/list.html"
-
-    def get_queryset(self):
-        letter = self.kwargs.get("letter")
-
-        return (
-            Library.objects.prefetch_related("categories")
-            .filter(name__startswith=letter.lower())
-            .order_by("name")
         )

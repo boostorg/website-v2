@@ -20,9 +20,10 @@ from libraries.views import (
     LibraryByCategory,
     LibraryDetail,
     LibraryListByVersion,
-    LibraryByVersionDetail,
-    LibraryVersionByCategory,
+    LibraryDetailByVersion,
+    LibraryListByVersionByCategory,
 )
+from libraries.api import LibrarySearchView
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
 from versions.views import VersionList, VersionDetail
@@ -31,6 +32,7 @@ router = routers.SimpleRouter()
 
 router.register(r"users", UserViewSet, basename="users")
 router.register(r"versions", VersionViewSet, basename="versions")
+router.register(r"libraries", LibrarySearchView, basename="libraries")
 
 
 urlpatterns = [
@@ -137,18 +139,18 @@ urlpatterns = [
     # Boost versions views
     path(
         "versions/<slug:version_slug>/libraries-by-category/<slug:category>/",
-        LibraryVersionByCategory.as_view(),
+        LibraryListByVersionByCategory.as_view(),
         name="libraries-by-version-by-category",
     ),
     path(
-        "versions/<slug:version_slug>/libraries/",
+        "versions/<slug:slug>/libraries/",
         LibraryListByVersion.as_view(),
         name="libraries-by-version",
     ),
     path(
         "versions/<slug:version_slug>/<slug:slug>/",
-        LibraryByVersionDetail.as_view(),
-        name="libraries-by-version-detail",
+        LibraryDetailByVersion.as_view(),
+        name="library-detail-by-version",
     ),
     path("versions/<slug:slug>/", VersionDetail.as_view(), name="version-detail"),
     path("versions/", VersionList.as_view(), name="version-list"),
