@@ -137,6 +137,7 @@ def test_library_detail_context_get_open_issues_count(tp, library_version):
     # Verify that the count only includes the one open issue for this library
     assert response.context["open_issues_count"] == 1
 
+
 def test_library_list_by_category(library_version, category, tp):
     """GET /libraries-by-category/{category_slug}/"""
     library = library_version.library
@@ -184,7 +185,7 @@ def test_libraries_by_version_list(tp, library_version):
 def test_libraries_by_version_detail(tp, library_version):
     """GET /versions/{version_slug}/{slug}/"""
     res = tp.get(
-        "libraries-by-version-detail",
+        "libraries-detail-by-version",
         library_version.version.slug,
         library_version.library.slug,
     )
@@ -195,7 +196,7 @@ def test_libraries_by_version_detail(tp, library_version):
 def test_libraries_by_version_detail_no_library_found(tp, library_version):
     """GET /versions/{version_slug}/{slug}/"""
     res = tp.get(
-        "libraries-by-version-detail",
+        "libraries-detail-by-version",
         library_version.version.slug,
         "coffee",
     )
@@ -205,7 +206,7 @@ def test_libraries_by_version_detail_no_library_found(tp, library_version):
 def test_libraries_by_version_detail_no_version_found(tp, library_version):
     """GET /versions/{version_slug}/{slug}/"""
     res = tp.get(
-        "libraries-by-version-detail",
+        "libraries-detail-by-version",
         0000,
         library_version.library.slug,
     )
@@ -216,34 +217,11 @@ def test_libraries_by_version_list_select_category(library_version, category, tp
     """POST versions/{version_slug}/libraries/ to submit a category redirects to the libraries-by-category page"""
     library = library_version.library
     version = library_version.version
-    url = tp.reverse("libraries-by-version", version_slug=version.slug)
+    url = tp.reverse("libraries-by-version", version.slug)
     res = tp.post(url, data={"categories": category.pk})
     tp.response_302(res)
+    # breakpoint()
     assert res.url == f"/versions/{version.slug}/libraries-by-category/{category.slug}/"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 def test_libraries_by_version_by_category(tp, library_version, category):
