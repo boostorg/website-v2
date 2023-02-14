@@ -19,6 +19,9 @@ from libraries.views import (
     LibraryList,
     LibraryByCategory,
     LibraryDetail,
+    LibraryListByVersion,
+    LibraryDetailByVersion,
+    LibraryListByVersionByCategory,
 )
 from libraries.api import LibrarySearchView
 from support.views import SupportView, ContactView
@@ -43,6 +46,11 @@ urlpatterns = [
     path("403", ForbiddenView.as_view(), name="forbidden"),
     path("404", NotFoundView.as_view(), name="not_found"),
     path("500", InternalServerErrorView.as_view(), name="internal_server_error"),
+    path(
+        "about/",
+        TemplateView.as_view(template_name="boost/about.html"),
+        name="boost-about",
+    ),
     path("health/", include("health_check.urls")),
     path("forum/", include(machina_urls)),
     path(
@@ -60,11 +68,6 @@ urlpatterns = [
         "libraries/<slug:slug>/",
         LibraryDetail.as_view(),
         name="library-detail",
-    ),
-    path(
-        "about/",
-        TemplateView.as_view(template_name="boost/about.html"),
-        name="boost-about",
     ),
     path(
         "people/detail/",
@@ -133,6 +136,22 @@ urlpatterns = [
         name="getting-started",
     ),
     path("contact/", ContactView.as_view(), name="contact"),
+    # Boost versions views
+    path(
+        "versions/<slug:version_slug>/libraries-by-category/<slug:category>/",
+        LibraryListByVersionByCategory.as_view(),
+        name="libraries-by-version-by-category",
+    ),
+    path(
+        "versions/<slug:slug>/libraries/",
+        LibraryListByVersion.as_view(),
+        name="libraries-by-version",
+    ),
+    path(
+        "versions/<slug:version_slug>/<slug:slug>/",
+        LibraryDetailByVersion.as_view(),
+        name="library-detail-by-version",
+    ),
     path("versions/<slug:slug>/", VersionDetail.as_view(), name="version-detail"),
     path("versions/", VersionList.as_view(), name="version-list"),
     # Markdown content
