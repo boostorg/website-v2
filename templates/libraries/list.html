@@ -5,10 +5,21 @@
 {% block content %}
   <!-- Breadcrumb used on filtered views -->
   <div class="p-3 md:p-0">
-    <a class="text-orange" href="{% url "libraries" %}">Libraries</a> > Categorized{% if category %} > <a class="text-orange" href="{% url "libraries-by-category" category.slug %}">{{ category.name }}</a>{% endif %}
+    {% if version_slug %}
+      <a class="text-orange" href="{% url 'libraries-by-version' version_slug %}">Libraries ({{ version_name }})</a>
+    {% else %}
+      <a class="text-orange" href="{% url 'libraries' %}">Libraries</a>
+    {% endif %} > Categorized
+      {% if category %} > 
+        <a class="text-orange" href="
+          {% if version_slug %}
+            {% url 'libraries-by-version-by-category' version_slug=version_slug category=category.slug%}
+          {% else %}
+            {% url 'libraries-by-category' category=category.slug %}
+          {% endif %}">{{ category.name }}</a>
+      {% endif %}
   </div>
   <!-- end breadcrumb -->
-
   <div class="md:flex py-0 md:py-6 mb-3 px-3 md:px-0" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
     <div class="md:w-1/2 px-3 md:px-0">
       <h2 class="text-4xl my-5">Libraries</h2>
@@ -25,7 +36,7 @@
       </div>
 
       <!-- Form to select a category -->
-      <form action="/libraries/" method="post">
+      <form action="{{ form_action }}" method="post">
         {% csrf_token %}
         <div>
           <label for="id_categories" hidden="true">Categories:</label>
