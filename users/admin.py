@@ -23,6 +23,7 @@ class EmailUserAdmin(UserAdmin):
         ),
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
         (_("Data"), {"fields": ("data",)}),
+        (_("Image"), {"fields": ("image",)}),
     )
     add_fieldsets = (
         (None, {"classes": ("wide",), "fields": ("email", "password1", "password2")}),
