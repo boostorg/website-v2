@@ -60,6 +60,14 @@ class LibraryDetail(CategoryMixin, DetailView):
     model = Library
     template_name = "libraries/detail.html"
 
+    def get_context_data(self, **kwargs):
+        """Set the form action to the main libraries page"""
+        context = super().get_context_data(**kwargs)
+        context["closed_prs_count"] = self.get_closed_prs_count(self.object)
+        context["open_issues_count"] = self.get_open_issues_count(self.object)
+        context["version"] = Version.objects.most_recent()
+        return context
+
     def get_object(self):
         slug = self.kwargs.get("slug")
         version = Version.objects.most_recent()
@@ -74,14 +82,6 @@ class LibraryDetail(CategoryMixin, DetailView):
         except queryset.model.DoesNotExist:
             raise Http404("No library found matching the query")
         return obj
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        context = self.get_context_data(object=self.object)
-        context["closed_prs_count"] = self.get_closed_prs_count(self.object)
-        context["open_issues_count"] = self.get_open_issues_count(self.object)
-        context["version"] = Version.objects.most_recent()
-        return self.render_to_response(context)
 
     def get_closed_prs_count(self, obj):
         return PullRequest.objects.filter(library=obj, is_open=True).count()
@@ -178,6 +178,16 @@ class LibraryDetailByVersion(CategoryMixin, DetailView):
     model = Library
     template_name = "libraries/detail.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        object = self.get_object()
+        context["closed_prs_count"] = self.get_closed_prs_count(object)
+        context["open_issues_count"] = self.get_open_issues_count(object)
+        context["version_slug"] = self.kwargs.get("version_slug")
+        context["version"] = self.get_version(self.kwargs.get("version_slug"))
+        context["version_name"] = context["version"].name
+        return context
+
     def get_object(self):
         version_slug = self.kwargs.get("version_slug")
         slug = self.kwargs.get("slug")
@@ -191,16 +201,6 @@ class LibraryDetailByVersion(CategoryMixin, DetailView):
         except self.model.DoesNotExist:
             raise Http404("No library found matching the query")
         return obj
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        context = self.get_context_data(object=self.object)
-        context["closed_prs_count"] = self.get_closed_prs_count(self.object)
-        context["open_issues_count"] = self.get_open_issues_count(self.object)
-        context["version_slug"] = self.kwargs.get("version_slug")
-        context["version"] = self.get_version(self.kwargs.get("version_slug"))
-        context["version_name"] = context["version"].name
-        return self.render_to_response(context)
 
     def get_closed_prs_count(self, obj):
         return PullRequest.objects.filter(library=obj, is_open=True).count()
