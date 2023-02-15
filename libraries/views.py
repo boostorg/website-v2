@@ -253,7 +253,7 @@ class LibraryListByVersionByCategory(CategoryMixin, FormMixin, ListView):
     def get_queryset(self, **kwargs):
         category = self.kwargs.get("category")
         version_slug = self.kwargs.get("version_slug")
-        qs = (
+        return (
             super()
             .get_queryset()
             .filter(
@@ -262,8 +262,6 @@ class LibraryListByVersionByCategory(CategoryMixin, FormMixin, ListView):
             )
             .distinct()
         )
-
-        return qs
 
     def post(self, request, *args, **kwargs):
         """User has submitted a form and will be redirected to the right results"""
