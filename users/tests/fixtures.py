@@ -14,7 +14,7 @@ def user(db):
         first_name="Regular",
         last_name="User",
         last_login=timezone.now(),
-        image='static/img/fpo/user.png',
+        image="static/img/fpo/user.png",
     )
     user.set_password("password")
     user.save()
@@ -32,7 +32,7 @@ def staff_user(db):
         last_name="User",
         last_login=timezone.now(),
         is_staff=True,
-        image='static/img/fpo/user.png',
+        image="static/img/fpo/user.png",
     )
     user.set_password("password")
     user.save()
@@ -51,7 +51,7 @@ def super_user(db):
         last_login=timezone.now(),
         is_staff=True,
         is_superuser=True,
-        image='static/img/fpo/user.png',
+        image="static/img/fpo/user.png",
     )
     user.set_password("password")
     user.save()
