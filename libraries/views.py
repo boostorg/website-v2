@@ -19,15 +19,6 @@ class CategoryMixin:
         return context
 
 
-class GetVersionNameMixin:
-    def get_version_name(self, version_slug):
-        try:
-            version = Version.objects.get(slug=version_slug)
-            return version.name
-        except Version.DoesNotExist:
-            return ""
-
-
 class LibraryList(CategoryMixin, FormMixin, ListView):
     """List all of our libraries for the current version of Boost by name"""
 
@@ -139,7 +130,7 @@ class LibraryByCategory(CategoryMixin, FormMixin, ListView):
         )
 
 
-class LibraryListByVersion(CategoryMixin, GetVersionNameMixin, FormMixin, ListView):
+class LibraryListByVersion(CategoryMixin, FormMixin, ListView):
     """List all of our libraries for a specific Boost version by name"""
 
     form_class = LibraryForm
@@ -151,8 +142,14 @@ class LibraryListByVersion(CategoryMixin, GetVersionNameMixin, FormMixin, ListVi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["version_slug"] = self.kwargs.get("slug")
-        context["version_name"] = self.get_version_name(context["version_slug"])
+        try:
+            version = Version.objects.get(slug=self.kwargs.get("slug"))
+            context["version_slug"] = self.kwargs.get("slug")
+            context["version_name"] = version.name
+            context["version"] = version
+        except Version.DoesNotExist:
+            raise Http404("No library found matching the query")
+
         context["form_action"] = f"/versions/{self.kwargs.get('slug')}/libraries/"
         return context
 
@@ -243,7 +240,7 @@ class LibraryListByVersionByCategory(CategoryMixin, FormMixin, ListView):
         try:
             version = Version.objects.get(slug=version_slug)
             context["version_slug"] = version_slug
-            # context["version_name"] = self.get_version_name(version_slug)
+            context["version_name"] = version.name
             context["version"] = version
         except Version.DoesNotExist:
             raise Http404("No library found matching the query")
