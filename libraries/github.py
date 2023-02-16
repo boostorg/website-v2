@@ -22,6 +22,11 @@ def get_api():
     return GhApi(token=token)
 
 
+def get_user_by_username(api, username):
+    """Return the response from GitHub's /users/{username}/"""
+    return api.users.get_by_username(username=username)
+
+
 def get_repo(api, owner, repo):
     """
     Return the response from GitHub's /repos/{owner}/{repo}

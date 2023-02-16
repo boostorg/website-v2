@@ -6,13 +6,28 @@ from dateutil.parser import parse
 from ghapi.all import GhApi
 from model_bakery import baker
 
-from libraries.github import GithubUpdater, LibraryUpdater, get_api
+from libraries.github import (
+    GithubUpdater,
+    LibraryUpdater,
+    get_api,
+    get_user_by_username,
+)
 from libraries.models import Issue, Library, PullRequest
 
 
 def test_get_api():
     result = get_api()
     assert isinstance(result, GhApi)
+
+
+@pytest.mark.skip("The mock isn't working and is hitting the live API")
+def test_get_user_by_username(github_api_get_user_by_username_response):
+    api = get_api()
+    with patch("libraries.github.get_user_by_username") as get_user_mock:
+        get_user_mock.return_value = github_api_get_user_by_username_response
+        result = get_user_by_username(api, "testerson")
+        assert result == github_api_get_user_by_username_response
+        assert "avatar_url" in result
 
 
 # GithubUpdater tests
