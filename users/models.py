@@ -148,19 +148,7 @@ class User(BaseUser):
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
     image = models.FileField(upload_to="profile-images", null=True, blank=True)
 
-    def save_image_from_github(self):
-        if not self.github_username:
-            # todo: log
-            return
-
-        api = get_github_api()
-        result = get_github_user(api, self.github_username)
-        avatar_url = result.get("avatar_url")
-
-        if not avatar_url:
-            # todo: log
-            return
-
+    def save_image_from_github(self, avatar_url):
         response = requests.get(avatar_url)
         base_filename = f"{slugify(self.get_full_name())}-profile"
         filename = f"{base_filename}.png"
