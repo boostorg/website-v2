@@ -8,7 +8,10 @@ from .models import User
 class EmailUserAdmin(UserAdmin):
     fieldsets = (
         (None, {"fields": ("email", "password")}),
-        (_("Personal info"), {"fields": ("first_name", "last_name")}),
+        (
+            _("Personal info"),
+            {"fields": ("first_name", "last_name", "github_username")},
+        ),
         (
             _("Permissions"),
             {
@@ -23,6 +26,7 @@ class EmailUserAdmin(UserAdmin):
         ),
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
         (_("Data"), {"fields": ("data",)}),
+        (_("Image"), {"fields": ("image",)}),
     )
     add_fieldsets = (
         (None, {"classes": ("wide",), "fields": ("email", "password1", "password2")}),

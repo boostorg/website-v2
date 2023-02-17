@@ -1,16 +1,24 @@
 import logging
-from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+import os
+import requests
+
 from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser,
     PermissionsMixin,
     BaseUserManager,
 )
+from django.core.files import File
 from django.core.mail import send_mail
-from django.utils.translation import gettext_lazy as _
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
+
+from libraries.github import get_api as get_github_api
+from libraries.github import get_user_by_username as get_github_user
 
 
 logger = logging.getLogger(__name__)
@@ -138,6 +146,34 @@ class Badge(models.Model):
 class User(BaseUser):
     badges = models.ManyToManyField(Badge)
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
+    image = models.FileField(upload_to="profile-images", null=True, blank=True)
+
+    def save_image_from_github(self):
+        if not self.github_username:
+            # todo: log
+            return
+
+        api = get_github_api()
+        result = get_github_user(api, self.github_username)
+        avatar_url = result.get("avatar_url")
+
+        if not avatar_url:
+            # todo: log
+            return
+
+        response = requests.get(avatar_url)
+        base_filename = f"{slugify(self.get_full_name())}-profile"
+        filename = f"{base_filename}.png"
+        img_path = os.path.join(
+            settings.MEDIA_ROOT, "media", "profile-images", filename
+        )
+
+        with open(filename, "wb") as f:
+            f.write(response.content)
+
+        reopen = open(filename, "rb")
+        django_file = File(reopen)
+        self.image.save(filename, django_file, save=True)
 
 
 class LastSeen(models.Model):
