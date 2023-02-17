@@ -1297,6 +1297,14 @@ input[type=file] {
   width: 200px;
 }
 
+.w-\[100px\] {
+  width: 100px;
+}
+
+.w-\[80px\] {
+  width: 80px;
+}
+
 .min-w-0 {
   min-width: 0px;
 }
@@ -1641,11 +1649,6 @@ input[type=file] {
 
 .bg-transparent {
   background-color: transparent;
-}
-
-.bg-gray-800 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(31 41 55 / var(--tw-bg-opacity));
 }
 
 .bg-slate {
