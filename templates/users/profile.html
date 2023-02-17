@@ -3,9 +3,9 @@
 {% load static %}
 
 {% block subnav %}
-  <div class="py-3 px-4 md:px-0 flex border-b border-slate md:border-0">
+  <div class="py-3 px-4 md:px-0 flex border-b border-slate md:border-0 items-center">
     <div>
-      <img src="{{ user.image.url }}" alt="user" class="inline" />
+      <img src="{{ user.image.url }}" alt="user" class="inline w-[80px] rounded-lg" />
     </div>
     <div class="text-sm ml-4">
       <span class="block">{{ user.get_full_name }}</span>
