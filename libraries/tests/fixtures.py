@@ -76,6 +76,22 @@ def github_api_get_tree_response(db):
 
 
 @pytest.fixture
+def github_api_get_user_by_username_response(db):
+    """Returns a JSON example of GhApi().api.users.get_by_username(username)"""
+    return {
+        "login": "testerson",
+        "id": 2286306,
+        "avatar_url": "https://avatars.githubusercontent.com/u/2286306?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/testerson",
+        "name": "Tester Testerson",
+        "email": None,
+        "created_at": "2012-09-05T17:17:25Z",
+        "updated_at": "2023-02-03T15:41:37Z",
+    }
+
+
+@pytest.fixture
 def github_api_get_repo_response(db):
     """Returns a JSON example of GhApi().api.repos.get(owner=owner, repo=repo)"""
     return {"updated_at": "2022-09-14T22:20:38Z"}

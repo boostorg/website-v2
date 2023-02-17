@@ -1,5 +1,6 @@
 import environs
 import logging
+import os
 import structlog
 import subprocess
 import sys
@@ -206,6 +207,11 @@ STATICFILES_DIRS = [
 # This is the directory where all of the collected static files are put
 # after running collectstatic
 STATIC_ROOT = str(BASE_DIR.joinpath("static_deploy"))
+
+# Directory where uploaded media is saved.
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+# Public URL at the browser
+MEDIA_URL = "/media/"
 
 # Logging setup
 # Configure struct log
