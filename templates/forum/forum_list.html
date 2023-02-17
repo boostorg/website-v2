@@ -12,10 +12,10 @@
     {% if node.level == root_level %}
     {% if node.obj.is_category %}
     <div class="mt-3 relative flex flex-col min-w-0 rounded break-words border bg-charcoal border-1 border-slate forumlist rounded">
-      <div class="p-0 py-3 px-6 mb-0 border-b-1 border-gray-300 text-gray-900">
+      <div class="p-0 py-3 px-6 mb-0 border-b-1 border-gray-300 ">
         <div class="flex m-0 px-3 py-2 border-b border-slate">
           <div class="pl-0 pr-4 pl-4 sm:w-3/4 pr-4 pl-4 w-full forum-name-col">
-            <h3 class="m-0 mb-3 h5"><a href="{% url 'forum:forum' node.obj.slug node.obj.id %}" class="text-gray-900">{{ node.obj.name }}</a></h3>
+            <h3 class="m-0 mb-3 h5"><a href="{% url 'forum:forum' node.obj.slug node.obj.id %}">{{ node.obj.name }}</a></h3>
           </div>
           <div class="pr-4 pl-4 hidden md:block text-center whitespace-no-wrap forum-count-col">{% trans "Topics" %}</div>
           <div class="pr-4 pl-4 hidden md:block text-center whitespace-no-wrap forum-count-col">{% trans "Posts" %}</div>
@@ -30,10 +30,10 @@
     {% with node.previous_sibling.obj as previous_sibling %}
     {% if previous_sibling and previous_sibling.is_category or not previous_sibling in forum_contents.visible_forums or not previous_sibling %}
     <div class="mt-3 relative flex flex-col min-w-0 rounded break-words border bg-charcoal border-1 border-slate forumlist">
-      <div class="p-0 py-3 px-6 mb-0 border-b-1 border-slate text-gray-900">
+      <div class="p-0 py-3 px-6 mb-0 border-b-1 border-slate ">
         <div class="flex m-0 px-3 py-2 border-b border-slate">
           <div class="pl-0 w-3/4 forum-name-col">
-            <h3 class="m-0 mb-3 h5 text-gray-900">{% trans "Forums" %}</h3>
+            <h3 class="m-0 mb-3 h5 ">{% trans "Forums" %}</h3>
           </div>
           <div class="pr-4 pl-4 hidden md:block text-center whitespace-no-wrap forum-count-col w-25">{% trans "Topics" %}</div>
           <div class="pr-4 pl-4 hidden md:block text-center whitespace-no-wrap forum-count-col w-25">{% trans "Posts" %}</div>
@@ -198,10 +198,10 @@
     {% endrecurseforumcontents %}
     {% else %}
     <div class="mt-3 relative flex flex-col min-w-0 rounded break-words border border-1 border-gray-300 forumlist">
-      <div class="p-0 py-3 px-6 mb-0 border-b-1 border-gray-300 text-gray-900">
+      <div class="p-0 py-3 px-6 mb-0 border-b-1 border-gray-300 ">
         <div class="flex flex-wrap  m-0 px-3 py-2">
           <div class="pl-0 md:w-2/3 pr-4 pl-4 sm:w-3/4 pr-4 pl-4 w-3/4 forum-name-col">
-            <h3 class="m-0 mb-3 h5 text-gray-900">{% trans "Forums" %}</h3>
+            <h3 class="m-0 mb-3 h5 ">{% trans "Forums" %}</h3>
           </div>
           <div class="md:w-1/6 pr-4 pl-4 hidden md:block text-center whitespace-no-wrap forum-count-col">{% trans "Topics" %}</div>
           <div class="md:w-1/6 pr-4 pl-4 hidden md:block text-center whitespace-no-wrap forum-count-col">{% trans "Posts" %}</div>

@@ -1277,6 +1277,10 @@ input[type=file] {
   width: 1.5rem;
 }
 
+.w-\[47px\] {
+  width: 47px;
+}
+
 .w-4 {
   width: 1rem;
 }
@@ -1287,6 +1291,10 @@ input[type=file] {
 
 .w-1\/5 {
   width: 20%;
+}
+
+.w-\[80px\] {
+  width: 80px;
 }
 
 .w-1 {
@@ -1641,11 +1649,6 @@ input[type=file] {
 
 .bg-transparent {
   background-color: transparent;
-}
-
-.bg-gray-800 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(31 41 55 / var(--tw-bg-opacity));
 }
 
 .bg-slate {
@@ -2016,16 +2019,6 @@ input[type=file] {
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
-.text-gray-900 {
-  --tw-text-opacity: 1;
-  color: rgb(17 24 39 / var(--tw-text-opacity));
-}
-
-.text-gray-500 {
-  --tw-text-opacity: 1;
-  color: rgb(107 114 128 / var(--tw-text-opacity));
-}
-
 .text-orange {
   --tw-text-opacity: 1;
   color: rgb(255 159 0 / var(--tw-text-opacity));
@@ -2043,11 +2036,6 @@ input[type=file] {
 .text-slate {
   --tw-text-opacity: 1;
   color: rgb(49 74 87 / var(--tw-text-opacity));
-}
-
-.text-gray-400 {
-  --tw-text-opacity: 1;
-  color: rgb(156 163 175 / var(--tw-text-opacity));
 }
 
 .text-gray-700 {
@@ -2077,6 +2065,11 @@ input[type=file] {
 
 .text-white\/60 {
   color: rgb(255 255 255 / 0.6);
+}
+
+.text-gray-500 {
+  --tw-text-opacity: 1;
+  color: rgb(107 114 128 / var(--tw-text-opacity));
 }
 
 .text-gray-200 {
@@ -2153,11 +2146,6 @@ input[type=file] {
 .hover\:text-white:hover {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
-.hover\:text-gray-900:hover {
-  --tw-text-opacity: 1;
-  color: rgb(17 24 39 / var(--tw-text-opacity));
 }
 
 .focus\:text-charcoal:focus {
