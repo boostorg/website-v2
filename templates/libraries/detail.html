@@ -82,7 +82,9 @@
             <h3 class="text-2xl mb-4">Authors</h3>
             <div class="space-y-3">
               {% for author in object.authors.all %}
-                <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> {{ author.get_full_name }}</div>
+                <div>
+                  <img src="{{ author.image.url }}" alt="user" class="inline w-[47px] rounded mr-2" /> {{ author.get_full_name }}
+                </div>
               {% endfor %}
             </div>
           </div>
@@ -90,7 +92,9 @@
             <h3 class="text-2xl mb-4">Maintainers</h3>
             <div class="space-y-3">
               {% for maintainer in object.maintainers.all %}
-                <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> {{ maintainer.get_full_name }}</div>
+                <div>
+                  <img src="{{ maintainer.image.url }}" alt="user" class="inline w-[47px] rounded mr-2" /> {{ maintainer.get_full_name }}
+                </div>
               {% endfor %}
             </div>
           </div>
