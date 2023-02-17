@@ -20,10 +20,17 @@
   </div>
   <div class="md:w-1/4 mb-4 text-sm">
     <div class="my-5 flex">
-      <div class="md:mr-5 w-1/3">Author(s):</div>
+      <div class="md:mr-5 w-1/4">Author(s):</div>
       <div class="space-y-3">
         {% for author in library.authors.all %}
-          <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /> {{ author.get_full_name }}</div>
+          <div>
+            {% if author.image.url %}
+              <img src="{{ author.image.url }}" alt="user" class="inline w-[47px] rounded mr-2" />
+            {% else %}
+              <i class="fas fa-user text-5xl mr-2 text-white/60"></i>
+            {% endif %}
+            {{ author.get_full_name }}
+          </div>
         {% endfor %}
       </div>
     </div>
