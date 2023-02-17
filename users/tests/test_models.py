@@ -1,3 +1,5 @@
+import pytest
+
 from test_plus import TestCase
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -21,3 +23,13 @@ def test_super_user(super_user):
     assert super_user.is_active == True
     assert super_user.is_staff == True
     assert super_user.is_superuser == True
+
+
+@pytest.mark.skip("Add this test when I have the patience for mocks")
+def test_user_save_image_from_github(user):
+    """
+    Test `User.save_image_from_github(avatar_url)`
+    See test_signals -- you will need to do something similar here, but
+    dealing with a File object might make it trickier.
+    """
+    pass
