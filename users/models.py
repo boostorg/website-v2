@@ -144,6 +144,11 @@ class Badge(models.Model):
 
 
 class User(BaseUser):
+    """
+    Our custom user model. 
+
+    NOTE: See ./signals.py for signals that relate to this model. 
+    """ 
     badges = models.ManyToManyField(Badge)
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
     image = models.FileField(upload_to="profile-images", null=True, blank=True)
