@@ -66,7 +66,7 @@
                 <span class="inline-block ml-2 text-sm uppercase text-orange"> 1.79.0 Releases on 9-8-22<small> > </small></span>
               </div>
               <button type="button"
-                    class="absolute top-0 right-0 inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:text-white focus:outline-none"
+                    class="absolute top-0 right-0 inline-flex items-center justify-center rounded-md p-2 hover:text-white focus:outline-none"
                     aria-controls="mobile-menu" @click="isOpen = !isOpen" aria-expanded="false"
                     x-bind:aria-expanded="open.toString()">
                 <svg x-description="Icon when menu is open." x-state:on="Menu open" x-state:off="Menu opened" class="hidden h-6 w-6"
@@ -81,7 +81,7 @@
               <a href="{% url 'home' %}"><img class="inline w-auto h-[30px]" src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}" alt="Boost"></a>
             </div>
             <button type="button"
-                    class="float-right inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:text-white focus:outline-none"
+                    class="float-right inline-flex items-center justify-center rounded-md p-2 hover:text-white focus:outline-none"
                     aria-controls="mobile-menu" @click="isOpen = !isOpen" aria-expanded="false"
                     x-bind:aria-expanded="open.toString()">
               <span class="sr-only">Open main menu</span>
@@ -113,15 +113,15 @@
               <a href="{% url 'donate' %}" class="block px-3 py-2 text-white hover:text-orange">Donate</a>
             </div>
             <div class="px-2 pt-2 pb-3 absolute bottom-10 left-0 text-sm">
-              <a href="{% url 'boost-about' %}" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900">About</a>
+              <a href="{% url 'boost-about' %}" class="block px-3 py-2 text-thin text-gray-700 ">About</a>
 
-              <a href="{% url 'support' %}" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900">Support</a>
+              <a href="{% url 'support' %}" class="block px-3 py-2 text-thin text-gray-700 ">Support</a>
 
-              <a href="{% url 'resources' %}" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900">Resources</a>
+              <a href="{% url 'resources' %}" class="block px-3 py-2 text-thin text-gray-700 ">Resources</a>
 
-              <a href="{% url 'account_signup' %}" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900">Sign Up</a>
+              <a href="{% url 'account_signup' %}" class="block px-3 py-2 text-thin text-gray-700 ">Sign Up</a>
 
-              <a href="#" class="block px-3 py-2 text-thin text-gray-700 hover:text-gray-900">Log In </a>
+              <a href="#" class="block px-3 py-2 text-thin text-gray-700 ">Log In </a>
             </div>
           </div>
       </div>
