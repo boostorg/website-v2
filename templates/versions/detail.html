@@ -5,7 +5,7 @@
 {% block content %}
 
   <div>
-    <a class="text-orange" href="{% url "version-list" %}">Versions</a> > 1.78
+    <a class="text-orange" href="{% url "version-list" %}">Versions</a> > {{ version.name }}
   </div>
 
   <div class="flex mt-4">
@@ -21,7 +21,7 @@
     </div>
     <div class="md:w-3/4 px-3 md:px-0 mx-3 md:mx-0">
       <div class="mb-6">
-        <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">Current Version</span>
+        <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">{% if current_version %}Current Version{% else %}Past Version{% endif %}</span>
       </div>
 
       <div class="border-b border-slate py-6">
