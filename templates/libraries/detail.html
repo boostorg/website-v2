@@ -83,7 +83,12 @@
             <div class="space-y-3">
               {% for author in object.authors.all %}
                 <div>
-                  <img src="{{ author.image.url }}" alt="user" class="inline w-[47px] rounded mr-2" /> {{ author.get_full_name }}
+                  {% if author.image.url %}
+                    <img src="{{ author.image.url }}" alt="user" class="inline w-[47px] rounded mr-2" />
+                  {% else %}
+                    <i class="fas fa-user text-5xl mr-2 text-white/60"></i>
+                  {% endif %}
+                  {{ author.get_full_name }}
                 </div>
               {% endfor %}
             </div>
@@ -93,7 +98,12 @@
             <div class="space-y-3">
               {% for maintainer in object.maintainers.all %}
                 <div>
-                  <img src="{{ maintainer.image.url }}" alt="user" class="inline w-[47px] rounded mr-2" /> {{ maintainer.get_full_name }}
+                  {% if maintainer.image.url %}
+                    <img src="{{ maintainer.image.url }}" alt="user" class="inline w-[47px] rounded mr-2" />
+                  {% else %}
+                    <i class="fas fa-user text-5xl mr-2 text-white/60"></i>
+                  {% endif %}
+                  {{ maintainer.get_full_name }}
                 </div>
               {% endfor %}
             </div>
