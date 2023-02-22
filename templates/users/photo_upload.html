@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block subnav %}
+  <div class="py-3 px-4 md:px-0 flex border-b border-slate md:border-0 items-center">
+    <div>
+      {% if user.image.url %}
+        <img src="{{ user.image.url }}" alt="user" class="inline w-[80px] rounded-lg" />
+      {% else %}
+        <i class="fas fa-user text-5xl mr-2 text-white/60"></i>
+      {% endif %}
+    </div>
+    <div class="text-sm ml-4">
+      <span class="block">{{ user.get_full_name }}</span>
+      <span class="text-slate text-xs">Joined {{ user.date_joined }}</span>
+    </div>
+  </div>
+  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase relative">
+    <a href="" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">Account</a>
+    <a href="" class="block md:inline">Settings</a>
+    <a href="#" class="block md:inline">Password</a>
+    <a href="#" class="block md:inline">Help</a>
+    <a href="#" class="block md:inline md:absolute md:right-0 md:bottom-0 md:pb-2">Log Out</a>
+  </div>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+<div class="content-section">
+    <div class="media">
+      <img class="w-32 h-32 md:h-auto rounded-full" src="{{ user.profile.image.url }}">
+      <div class="media-body">
+      </div>
+    </div>
+    <!-- FORM GOES HERE -->
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <fieldset class="form-group"> 
+          <legend class="border-botton ">Update Profile Photo</legend>          
+            {{ form.as_p }}
+      </fieldset>
+      <div class="form-group mb-4">
+          <button class="btn btn-outline-info" type="submit">Update</button>
+      </div>
+  </form> 
+</div> 
+</div>  
+{% endblock content %}
