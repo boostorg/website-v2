@@ -21,29 +21,26 @@
     <a href="" class="block md:inline">Settings</a>
     <a href="#" class="block md:inline">Password</a>
     <a href="#" class="block md:inline">Help</a>
-    <a href="#" class="block md:inline md:absolute md:right-0 md:bottom-0 md:pb-2">Log Out</a>
   </div>
 {% endblock %}
 
 {% block content %}
 <div class="container">
 <div class="content-section">
-    <div class="media">
+    <div class="mt-6">
       <img class="w-32 h-32 md:h-auto rounded-full" src="{{ user.profile.image.url }}">
-      <div class="media-body">
-      </div>
     </div>
-    <!-- FORM GOES HERE -->
+
+    <h3>Update Profile Photo</h3>
     <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
-      <fieldset class="form-group"> 
-          <legend class="border-botton ">Update Profile Photo</legend>          
+      <fieldset>
             {{ form.as_p }}
       </fieldset>
-      <div class="form-group mb-4">
-          <button class="btn btn-outline-info" type="submit">Update</button>
+      <div class="mb-4">
+          <button class="rounded border border-orange text-orange text-sm py-2 px-3 uppercase" type="submit">Update</button>
       </div>
-  </form> 
-</div> 
-</div>  
+  </form>
+</div>
+</div>
 {% endblock content %}
