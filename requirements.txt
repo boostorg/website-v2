@@ -185,8 +185,10 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-pillow==8.4.0
-    # via django-machina
+pillow==9.4.0
+    # via
+    #   -r ./requirements.in
+    #   django-machina
 pip-tools==6.6.2
     # via -r ./requirements.in
 pluggy==0.13.1

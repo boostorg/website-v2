@@ -8,7 +8,12 @@ from rest_framework import routers
 
 from machina import urls as machina_urls
 
-from users.views import UserViewSet, CurrentUserView, ProfileViewSet
+from users.views import (
+    UserViewSet,
+    CurrentUserView,
+    ProfileViewSet,
+    ProfilePhotoUploadView,
+)
 from ak.views import (
     HomepageView,
     ForbiddenView,
@@ -42,6 +47,7 @@ urlpatterns = (
         path("", HomepageView.as_view(), name="home"),
         path("admin/", admin.site.urls),
         path("accounts/", include("allauth.urls")),
+        path("users/me/photo/", ProfilePhotoUploadView.as_view(), name="profile-photo"),
         path("users/me/", CurrentUserView.as_view(), name="current-user"),
         path("users/<int:pk>/", ProfileViewSet.as_view(), name="profile-user"),
         path("api/v1/", include(router.urls)),
