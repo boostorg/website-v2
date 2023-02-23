@@ -25,3 +25,10 @@ class VersionDetail(DetailView):
     model = Version
     queryset = Version.objects.active()
     template_name = "versions/detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        current_version = Version.objects.most_recent()
+        obj = self.get_object()
+        context["current_version"] = bool(current_version == obj)
+        return context
