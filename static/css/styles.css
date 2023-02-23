@@ -1647,6 +1647,10 @@ input[type=file] {
   background-color: rgb(23 42 52 / 0.6);
 }
 
+.bg-green\/50 {
+  background-color: rgb(90 213 153 / 0.5);
+}
+
 .bg-transparent {
   background-color: transparent;
 }
@@ -1654,6 +1658,19 @@ input[type=file] {
 .bg-slate {
   --tw-bg-opacity: 1;
   background-color: rgb(49 74 87 / var(--tw-bg-opacity));
+}
+
+.bg-orange\/10 {
+  background-color: rgb(255 159 0 / 0.1);
+}
+
+.bg-orange\/60 {
+  background-color: rgb(255 159 0 / 0.6);
+}
+
+.bg-orange {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 159 0 / var(--tw-bg-opacity));
 }
 
 .bg-opacity-70 {
@@ -2043,6 +2060,10 @@ input[type=file] {
   color: rgb(55 65 81 / var(--tw-text-opacity));
 }
 
+.text-white\/60 {
+  color: rgb(255 255 255 / 0.6);
+}
+
 .text-gray-100 {
   --tw-text-opacity: 1;
   color: rgb(243 244 246 / var(--tw-text-opacity));
@@ -2061,10 +2082,6 @@ input[type=file] {
 .text-silver {
   --tw-text-opacity: 1;
   color: rgb(181 201 211 / var(--tw-text-opacity));
-}
-
-.text-white\/60 {
-  color: rgb(255 255 255 / 0.6);
 }
 
 .text-gray-500 {
