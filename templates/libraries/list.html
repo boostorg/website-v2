@@ -9,15 +9,15 @@
       <a class="text-orange" href="{% url 'libraries-by-version' version_slug %}">Libraries ({{ version_name }})</a>
     {% else %}
       <a class="text-orange" href="{% url 'libraries' %}">Libraries</a>
-    {% endif %} > Categorized
-      {% if category %} > 
-        <a class="text-orange" href="
-          {% if version_slug %}
-            {% url 'libraries-by-version-by-category' version_slug=version_slug category=category.slug%}
-          {% else %}
-            {% url 'libraries-by-category' category=category.slug %}
-          {% endif %}">{{ category.name }}</a>
-      {% endif %}
+    {% endif %} 
+    {% if category %} > Categorized > 
+      <a class="text-orange" href="
+        {% if version_slug %}
+          {% url 'libraries-by-version-by-category' version_slug=version_slug category=category.slug%}
+        {% else %}
+          {% url 'libraries-by-category' category=category.slug %}
+        {% endif %}">{{ category.name }}</a>
+    {% endif %}
   </div>
   <!-- end breadcrumb -->
   <div class="md:flex py-0 md:py-6 mb-3 px-3 md:px-0" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
