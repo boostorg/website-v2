@@ -1655,11 +1655,6 @@ input[type=file] {
   background-color: rgb(23 42 52 / 0.6);
 }
 
-.bg-orange {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 159 0 / var(--tw-bg-opacity));
-}
-
 .bg-transparent {
   background-color: transparent;
 }
