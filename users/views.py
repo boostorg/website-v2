@@ -1,13 +1,18 @@
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views.generic import DetailView
+from django.views.generic.edit import FormView
 
-from rest_framework import viewsets
 from rest_framework import generics
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
-
-from .permissions import CustomUserPermissions
+from .forms import UserProfilePhotoForm
 from .models import User
+from .permissions import CustomUserPermissions
+from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -58,3 +63,23 @@ class ProfileViewSet(DetailView):
         context["authored"] = user.authors.all()
         context["maintained"] = user.maintainers.all()
         return context
+
+
+@method_decorator(login_required, name="dispatch")
+class ProfilePhotoUploadView(FormView):
+    """Allows a user to change their profile photo"""
+
+    template_name = "users/photo_upload.html"
+    form_class = UserProfilePhotoForm
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("profile-user", args=[self.request.user.pk])
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES, instance=self.request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your profile photo has been updated")
+            return super().form_valid(form)
+        else:
+            return super().form_invalid()
