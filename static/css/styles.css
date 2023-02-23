@@ -1229,6 +1229,10 @@ input[type=file] {
   height: 15px;
 }
 
+.h-32 {
+  height: 8rem;
+}
+
 .h-12 {
   height: 3rem;
 }
@@ -1295,6 +1299,10 @@ input[type=file] {
 
 .w-\[80px\] {
   width: 80px;
+}
+
+.w-32 {
+  width: 8rem;
 }
 
 .w-1 {
@@ -1645,6 +1653,11 @@ input[type=file] {
 
 .bg-charcoal\/60 {
   background-color: rgb(23 42 52 / 0.6);
+}
+
+.bg-orange {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 159 0 / var(--tw-bg-opacity));
 }
 
 .bg-transparent {
@@ -2043,6 +2056,10 @@ input[type=file] {
   color: rgb(55 65 81 / var(--tw-text-opacity));
 }
 
+.text-white\/60 {
+  color: rgb(255 255 255 / 0.6);
+}
+
 .text-gray-100 {
   --tw-text-opacity: 1;
   color: rgb(243 244 246 / var(--tw-text-opacity));
@@ -2061,10 +2078,6 @@ input[type=file] {
 .text-silver {
   --tw-text-opacity: 1;
   color: rgb(181 201 211 / var(--tw-text-opacity));
-}
-
-.text-white\/60 {
-  color: rgb(255 255 255 / 0.6);
 }
 
 .text-gray-500 {
@@ -2255,18 +2268,6 @@ input[type=file] {
 }
 
 @media (min-width: 768px) {
-  .md\:absolute {
-    position: absolute;
-  }
-
-  .md\:right-0 {
-    right: 0px;
-  }
-
-  .md\:bottom-0 {
-    bottom: 0px;
-  }
-
   .md\:order-2 {
     order: 2;
   }
@@ -2363,6 +2364,10 @@ input[type=file] {
 
   .md\:hidden {
     display: none;
+  }
+
+  .md\:h-auto {
+    height: auto;
   }
 
   .md\:w-1\/2 {
@@ -2617,10 +2622,6 @@ input[type=file] {
 
   .md\:pb-6 {
     padding-bottom: 1.5rem;
-  }
-
-  .md\:pb-2 {
-    padding-bottom: 0.5rem;
   }
 
   .md\:text-right {
