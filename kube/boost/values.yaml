@@ -89,19 +89,18 @@ Env:
         key: key
   - name: ENVIRONMENT_NAME
     value: "Development Environment"
-# Bucket is setup already, but not using storages just yet
-#  - name: AWS_ACCESS_KEY_ID
-#    valueFrom:
-#      secretKeyRef:
-#        name: digital-ocean-keys
-#        key: do_access_key
-#  - name: AWS_SECRET_ACCESS_KEY
-#    valueFrom:
-#      secretKeyRef:
-#        name: digital-ocean-keys
-#        key: do_secret_key
-#  - name: MEDIA_BUCKET_NAME
-#    value: boost-dev-media
+  - name: AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: media-bucket
+        key: access_key
+  - name: AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: media-bucket
+        key: secret_key
+  - name: MEDIA_BUCKET_NAME
+    value: boost-dev-media
 
 # Volumes
 Volumes:

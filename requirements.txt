@@ -80,6 +80,7 @@ django==3.2.2
     #   django-machina
     #   django-redis
     #   django-rest-auth
+    #   django-storages
     #   djangorestframework
     #   model-bakery
 django-admin-env-notice==0.4
@@ -109,6 +110,8 @@ django-mptt==0.13.4
 django-redis==5.0.0
     # via -r ./requirements.in
 django-rest-auth==0.9.5
+    # via -r ./requirements.in
+django-storages==1.13.2
     # via -r ./requirements.in
 django-test-plus==1.4.0
     # via -r ./requirements.in
