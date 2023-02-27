@@ -339,5 +339,20 @@ if ENV_NAME == "Development Environment":
 elif ENV_NAME == "Production Environment":
     ENVIRONMENT_COLOR = "#E53E3E"
 
+# S3 Compatiable Storage Settings
+if not LOCAL_DEVELOPMENT:
+    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="changeme")
+    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="changeme")
+    MEDIA_BUCKET_NAME = env("MEDIA_BUCKET", default="changeme")
+    AWS_STORAGE_BUCKET_NAME = MEDIA_BUCKET_NAME
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+    AWS_DEFAULT_ACL = None
+    AWS_S3_ENDPOINT_URL = env(
+        "AWS_S3_ENDPOINT_URL", default="https://sfo2.digitaloceanspaces.com"
+    )
+    AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="sfo2")
+    DEFAULT_FILE_STORAGE = "core.storages.MediaStorage"
+    MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{MEDIA_BUCKET_NAME}/"
+
 # Markdown content
 BASE_CONTENT = env("BOOST_CONTENT_DIRECTORY", "/website")
