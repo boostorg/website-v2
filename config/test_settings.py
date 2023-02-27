@@ -1,5 +1,4 @@
 import logging
-
 from .settings import *  # noqa
 
 
@@ -30,3 +29,6 @@ GITHUB_TOKEN = "changeme"
 
 # Make content relative to the project root
 BASE_CONTENT = BASE_DIR / "core/tests/content"
+
+# Don't use S3 in tests
+DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
