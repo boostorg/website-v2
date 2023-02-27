@@ -347,10 +347,12 @@ if not LOCAL_DEVELOPMENT:
     AWS_STORAGE_BUCKET_NAME = MEDIA_BUCKET_NAME
     AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
     AWS_DEFAULT_ACL = None
-    AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL", default="https://sfo2.digitaloceanspaces.com")
+    AWS_S3_ENDPOINT_URL = env(
+        "AWS_S3_ENDPOINT_URL", default="https://sfo2.digitaloceanspaces.com"
+    )
     AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="sfo2")
     DEFAULT_FILE_STORAGE = "core.storages.MediaStorage"
-    MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{MEDIA_BUCKET_NAME}/""
+    MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{MEDIA_BUCKET_NAME}/"
 
 # Markdown content
 BASE_CONTENT = env("BOOST_CONTENT_DIRECTORY", "/website")
