@@ -16,6 +16,7 @@ psycopg2-binary
 whitenoise
 django-click
 Pillow==9.4.0
+django-storages
 
 # Logging
 django-tracer
