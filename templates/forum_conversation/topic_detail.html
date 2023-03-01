@@ -49,9 +49,9 @@
               {% endif %}
             </div>
               {% spaceless %}
-              <h4 class="text-2xl m-0 subject mb-3">
+              <h4 class="text-2xl m-0 subject mb-3 items-center">
                 {{ post.subject }}
-                &nbsp;<a href="{% url 'forum_conversation:topic' forum.slug forum.pk topic.slug topic.pk %}?post={{ post.pk }}#{{ post.pk }}">&#182;</a>
+                &nbsp;<a href="{% url 'forum_conversation:topic' forum.slug forum.pk topic.slug topic.pk %}?post={{ post.pk }}#{{ post.pk }}"><i class="fas fa-link text-white/60 text-sm"></i></a>
               </h4>
               {% endspaceless %}
               <p class="p-0">
