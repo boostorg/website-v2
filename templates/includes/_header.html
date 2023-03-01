@@ -7,7 +7,7 @@
     <div>
       <div class="hidden md:block mx-auto px-3 sm:px-6 bg-charcoal">
         <nav class="relative flex items-center justify-between sm:h-10 pt-6 pb-6" aria-label="Global">
-          <div class="md:flex md:space-x-10 pt-3 pb-3 pl-3">
+          <div class="md:flex md:space-x-10 pt-3 pb-3 pl-3 items-center">
             <a href="{% url 'boost-about' %}" class="font-medium text-white hover:text-orange">About</a>
 
             <a href="{% url 'support' %}" class="font-medium text-white hover:text-orange">Support</a>
@@ -26,9 +26,21 @@
               <a href="{% url 'account_logout' %}" class="font-medium text-white hover:text-orange">Log Out</a>
             {% endif %}
 
-            <a href="#" class="font-medium text-white hover:text-orange">
-              <img class="mt-1" src="{% static 'img/icons/icon-search.svg' %}" alt="Search" />
-            </a>
+            <form action="https://www.google.com/search" class="items-center relative" method="get" name="searchform" target="_blank">
+              <input name="sitesearch" type="hidden" value="boost.org">
+              <input autocomplete="on"
+                     class="rounded-lg border-slate py-2 px-3 text-xs bg-charcoal text-white"
+                     name="q"
+                     placeholder="Search Boost.org"
+                     required="required"
+                     type="text"
+              >
+              <span class="absolute inset-y-0 right-3 flex items-center pl-2">
+                <button type="submit">
+                  <img class="" src="{% static 'img/icons/icon-search.svg' %}" alt="Search" />
+                </button>
+              </span>
+            </form>
           </div>
           <div class="items-center flex">
             <span id="icon-container" class="inline-block w-6 h-6"></span>
