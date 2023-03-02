@@ -1,4 +1,4 @@
-import logging
+import structlog
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from config.celery import app
 from libraries.github import get_user_by_username
 
-logger = logging.getLogger(__name__)
+logger = structlog.getLogger(__name__)
 
 User = get_user_model()
 
