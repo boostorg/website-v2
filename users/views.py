@@ -107,5 +107,5 @@ class ProfilePhotoGitHubUpdateView(UpdateView):
 
     def post(self, request, *args, **kwargs):
         user = self.get_object()
-        tasks.update_user_github_photo(user.pk)
+        tasks.update_user_github_photo.delay(user.pk)
         return HttpResponseRedirect(self.get_success_url())
