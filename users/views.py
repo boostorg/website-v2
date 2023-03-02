@@ -1,8 +1,9 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView
+from django.views.generic import DetailView, UpdateView
 from django.views.generic.edit import FormView
 
 from rest_framework import generics
@@ -13,6 +14,7 @@ from .forms import UserProfilePhotoForm
 from .models import User
 from .permissions import CustomUserPermissions
 from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
+from . import tasks
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -72,6 +74,12 @@ class ProfilePhotoUploadView(FormView):
     template_name = "users/photo_upload.html"
     form_class = UserProfilePhotoForm
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        context["user_has_gh_username"] = bool(user.github_username)
+        return context
+
     def get_success_url(self, **kwargs):
         return reverse_lazy("profile-user", args=[self.request.user.pk])
 
@@ -83,3 +91,21 @@ class ProfilePhotoUploadView(FormView):
             return super().form_valid(form)
         else:
             return super().form_invalid()
+
+
+@method_decorator(login_required, name="dispatch")
+class ProfilePhotoGitHubUpdateView(UpdateView):
+    """Allows a user to update their profile photo to their current GitHub profile photo"""
+
+    http_method_names = ["post"]
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("profile-user", args=[self.request.user.pk])
+
+    def post(self, request, *args, **kwargs):
+        user = self.get_object()
+        tasks.update_user_github_photo(user.pk)
+        return HttpResponseRedirect(self.get_success_url())
