@@ -72,3 +72,14 @@ def test_profile_photo_update_success(tp, user, client):
     assert f"/users/{user.pk}" in res.url
     user.refresh_from_db()
     assert user.image != old_image
+
+
+def test_profile_photo_github_auth(tp, db):
+    """
+    POST /users/me/update-github-photo/
+
+    Canary test that the github photo update page is protected.
+    """
+    res = tp.post("profile-photo-github")
+    tp.response_302(res)
+    assert "/accounts/login" in res.url

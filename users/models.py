@@ -17,9 +17,6 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
-from libraries.github import get_api as get_github_api
-from libraries.github import get_user_by_username as get_github_user
-
 
 logger = logging.getLogger(__name__)
 
