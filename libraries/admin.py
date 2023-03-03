@@ -6,6 +6,7 @@ from .models import Category, Issue, Library, LibraryVersion, PullRequest
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ["name"]
+    ordering = ["name"]
     search_fields = ["name"]
 
 
@@ -14,6 +15,7 @@ class LibraryAdmin(admin.ModelAdmin):
     list_display = ["name", "active", "open_issues"]
     search_fields = ["name", "description"]
     list_filter = ["active_development", "categories"]
+    ordering = ["name"]
 
     readonly_fields = [
         "last_github_update",
@@ -30,6 +32,7 @@ class LibraryAdmin(admin.ModelAdmin):
 class LibraryVersionAdmin(admin.ModelAdmin):
     list_display = ["library", "version"]
     list_filter = ["library", "version"]
+    ordering = ["library__name", "-version__name"]
     search_fields = ["library__name", "version__name"]
 
 
