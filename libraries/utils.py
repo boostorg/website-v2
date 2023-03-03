@@ -38,6 +38,13 @@ def extract_email(val: str) -> str:
         return email
 
 
+def generate_email(val: str) -> str:
+    """ Takes a string and generates a placeholder email based on it """
+    slug = slugify(val)
+    local_email = slug.replace("-", "_")[:64]
+    return f"{local_email}@example.com"
+
+
 def parse_date(date_str):
     """Parses a date string to a datetime. Does not return an error."""
     try:
