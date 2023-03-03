@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from faker import Faker
 
+from libraries import utils
 from libraries.github import LibraryUpdater
 from libraries.models import Library, LibraryVersion
 from versions.models import Version
@@ -69,6 +70,12 @@ def command():
 
     updater = LibraryUpdater()
     result = updater.get_library_metadata(library.name)
+
+    if type(result) is list:
+        breakpoint()
+        # See line 211 in github.py
+        raise
+
     authors = result.get("authors")
     maintainers = result.get("maintainers")
 
@@ -96,7 +103,9 @@ def command():
 
     if maintainers:
         try:
-            library_version = LibraryVersion.objects.get(library=library, version=version)
+            library_version = LibraryVersion.objects.get(
+                library=library, version=version
+            )
         except LibraryVersion.DoesNotExist:
             logger.info("No library version", version=version.pk, library=library.pk)
             return
@@ -122,7 +131,8 @@ def command():
 
             library_version.maintainers.add(user)
             click.secho(
-                f"--User {user.email} added as a maintainer of {library.name}", fg="green"
+                f"--User {user.email} added as a maintainer of {library.name}",
+                fg="green",
             )
 
     click.secho("All done!", fg="green")
@@ -134,7 +144,7 @@ def get_person_data(person: str) -> dict:
     person_data["meta"] = person
     person_data["valid_email"] = False
 
-    email = get_email(person)
+    email = utils.extract_email(person)
     if email:
         person_data["email"] = email
         person_data["valid_email"] = True
@@ -148,32 +158,9 @@ def get_person_data(person: str) -> dict:
     return person_data
 
 
-def get_email(val: str) -> str:
-    """
-    Finds an email address in a string, reformats it, and returns it.
-
-    Assumes the email address is in this format:
-    <firstlast -at- domain.com>
-    """
-    result = re.search("<.+>", val)
-    if result:
-        raw_email = result.group()
-        email = (
-            raw_email.replace("-at-", "@")
-            .replace("<", "")
-            .replace(">", "")
-            .replace(" ", "")
-        )
-        try:
-            validate_email(email)
-        except ValidationError as e:
-            # TODO: Output this to a list of some sort
-            logger.info("Could not extract valid email", value=val)
-            return
-        return email
-
-
-def get_names(val: str) -> list:
+def get_names(
+    val: str,
+) -> list:
     """
     Returns a ,list of first, last names for the val argument.
 
@@ -181,7 +168,14 @@ def get_names(val: str) -> list:
     Names that don't conform neatly to "First Last" formats will need
     to be cleaned up manually.
     """
-    return val.rsplit(" ", 1)
+    # Strip the email, if present
+    email = re.search("<.+>", val)
+    if email:
+        # breakpoint()
+        val = val.replace(email.group(), "")
+
+    # breakpoint()
+    return val.strip().rsplit(" ", 1)
 
 
 def generate_email(val: str) -> str:

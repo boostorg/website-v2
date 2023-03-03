@@ -1,6 +1,18 @@
 from datetime import datetime
 
-from libraries.utils import parse_date
+from libraries.utils import extract_email, parse_date
+
+
+def test_extract_email():
+    expected = "t_testerson@example.com"
+    result = extract_email("Tester Testerston <t_testerson -at- example.com>")
+    assert expected == result
+
+
+def test_extract_email_no_email():
+    expected = None
+    result = extract_email("Tester Testeron")
+    assert expected == result
 
 
 def test_parse_date_iso():
