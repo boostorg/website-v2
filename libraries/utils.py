@@ -32,14 +32,33 @@ def extract_email(val: str) -> str:
         try:
             validate_email(email)
         except ValidationError as e:
-            # TODO: Output this to a list of some sort
             logger.info("Could not extract valid email", value=val)
             return
         return email
 
 
+def extract_names(name_str: str) -> list:
+    """
+    Returns a ,list of first, last names for the val argument.
+
+    NOTE: This is an overly simplistic solution to importing names.
+    Names that don't conform neatly to "First Last" formats will need
+    to be cleaned up manually.
+
+    Expects something similar to these formats:
+    - "Tester Testerston <t_testerson -at- domain.com>"
+    - "Tester de Testerson"
+    """
+    # Strip the email, if present
+    email = re.search("<.+>", name_str)
+    if email:
+        name_str = name_str.replace(email.group(), "")
+
+    return name_str.strip().rsplit(" ", 1)
+
+
 def generate_email(val: str) -> str:
-    """ Takes a string and generates a placeholder email based on it """
+    """Takes a string and generates a placeholder email based on it"""
     slug = slugify(val)
     local_email = slug.replace("-", "_")[:64]
     return f"{local_email}@example.com"

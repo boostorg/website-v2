@@ -21,10 +21,6 @@ logger = structlog.get_logger()
 User = get_user_model()
 
 
-EMAIL = "Tester Testerston <t_testerson -at- domain.com>"
-NAME = "Tester de Testerson"
-
-
 @click.command()
 def command():
     """
@@ -71,7 +67,7 @@ def command():
 
     if type(result) is list:
         breakpoint()
-        # See line 211 in github.py
+        # TODO: See line 211 in github.py
         raise
 
     authors = result.get("authors")
@@ -142,7 +138,7 @@ def get_person_data(person: str) -> dict:
     person_data["meta"] = person
     person_data["valid_email"] = False
 
-    names = get_names(person)
+    names = utils.get_names(person)
     person_data["first_name"] = names[0]
     person_data["last_name"] = names[1]
 
@@ -151,24 +147,8 @@ def get_person_data(person: str) -> dict:
         person_data["email"] = email
         person_data["valid_email"] = True
     else:
-        person_data["email"] = utils.generate_email(f"{person_data['first_name']} {person_data['last_name']}")
+        person_data["email"] = utils.generate_email(
+            f"{person_data['first_name']} {person_data['last_name']}"
+        )
 
     return person_data
-
-
-def get_names(
-    val: str,
-) -> list:
-    """
-    Returns a ,list of first, last names for the val argument.
-
-    NOTE: This is an overly simplistic solution to importing names.
-    Names that don't conform neatly to "First Last" formats will need
-    to be cleaned up manually.
-    """
-    # Strip the email, if present
-    email = re.search("<.+>", val)
-    if email:
-        val = val.replace(email.group(), "")
-
-    return val.strip().rsplit(" ", 1)
