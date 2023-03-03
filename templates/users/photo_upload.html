@@ -32,6 +32,14 @@
     </div>
 
     <h3>Update Profile Photo</h3>
+
+    {% if user_has_gh_username %}
+      <form method="POST" action="{% url 'profile-photo-github' %}">
+        {% csrf_token %}
+        <button class="rounded border border-orange text-orange text-sm py-2 px-3 uppercase" type="submit">Use My GitHub Photo</button>
+      </form>
+    {% endif %}
+
     <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
       <fieldset>
@@ -41,6 +49,9 @@
           <button class="rounded border border-orange text-orange text-sm py-2 px-3 uppercase" type="submit">Update</button>
       </div>
   </form>
+
+  
+
 </div>
 </div>
 {% endblock content %}
