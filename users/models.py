@@ -119,7 +119,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
         return full_name.strip()
 
     def get_short_name(self):
-        "Returns the short name for the user."
+        """Returns the short name for the user."""
         return self.first_name
 
     def email_user(self, subject, message, from_email=None, **kwargs):
@@ -150,6 +150,12 @@ class User(BaseUser):
     badges = models.ManyToManyField(Badge)
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
     image = models.FileField(upload_to="profile-images", null=True, blank=True)
+    valid_email = models.BooleanField(
+        _("whether the user's email address is valid"), default=True
+    )
+    claimed = models.BooleanField(
+        _("whether this account has been claimed"), default=True
+    )
 
     def save_image_from_github(self, avatar_url):
         response = requests.get(avatar_url)
