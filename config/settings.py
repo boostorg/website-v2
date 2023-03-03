@@ -339,5 +339,33 @@ if ENV_NAME == "Development Environment":
 elif ENV_NAME == "Production Environment":
     ENVIRONMENT_COLOR = "#E53E3E"
 
+# S3 Compatiable Storage Settings
+if not LOCAL_DEVELOPMENT:
+    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="changeme")
+    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="changeme")
+    MEDIA_BUCKET_NAME = env("MEDIA_BUCKET_NAME", default="changeme")
+    AWS_STORAGE_BUCKET_NAME = MEDIA_BUCKET_NAME
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+    AWS_DEFAULT_ACL = None
+    AWS_S3_ENDPOINT_URL = env(
+        "AWS_S3_ENDPOINT_URL", default="https://sfo2.digitaloceanspaces.com"
+    )
+    AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="sfo2")
+    DEFAULT_FILE_STORAGE = "core.storages.MediaStorage"
+    MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{MEDIA_BUCKET_NAME}/"
+
 # Markdown content
 BASE_CONTENT = env("BOOST_CONTENT_DIRECTORY", "/website")
+
+# Machina settings
+MACHINA_DEFAULT_AUTHENTICATED_USER_FORUM_PERMISSIONS = [
+    "can_see_forum",
+    "can_read_forum",
+    "can_start_new_topics",
+    "can_reply_to_topics",
+    "can_edit_own_posts",
+    "can_post_without_approval",
+    "can_create_polls",
+    "can_vote_in_polls",
+    "can_download_file",
+]

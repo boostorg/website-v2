@@ -887,14 +887,18 @@ input[type=file] {
   left: 0px;
 }
 
+.inset-y-0 {
+  top: 0px;
+  bottom: 0px;
+}
+
 .inset-x-0 {
   left: 0px;
   right: 0px;
 }
 
-.inset-y-0 {
-  top: 0px;
-  bottom: 0px;
+.right-3 {
+  right: 0.75rem;
 }
 
 .top-0 {
@@ -915,10 +919,6 @@ input[type=file] {
 
 .left-0 {
   left: 0px;
-}
-
-.right-3 {
-  right: 0.75rem;
 }
 
 .top-14 {
@@ -1149,6 +1149,10 @@ input[type=file] {
   margin-right: 0.25rem;
 }
 
+.-mt-1 {
+  margin-top: -0.25rem;
+}
+
 .block {
   display: block;
 }
@@ -1277,6 +1281,10 @@ input[type=file] {
   width: 33.333333%;
 }
 
+.w-\[100px\] {
+  width: 100px;
+}
+
 .w-6 {
   width: 1.5rem;
 }
@@ -1311,6 +1319,10 @@ input[type=file] {
 
 .w-\[200px\] {
   width: 200px;
+}
+
+.w-\[110px\] {
+  width: 110px;
 }
 
 .min-w-0 {
@@ -1664,6 +1676,15 @@ input[type=file] {
   background-color: rgb(49 74 87 / var(--tw-bg-opacity));
 }
 
+.bg-red-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(239 68 68 / var(--tw-bg-opacity));
+}
+
+.bg-green\/50 {
+  background-color: rgb(90 213 153 / 0.5);
+}
+
 .bg-opacity-70 {
   --tw-bg-opacity: 0.7;
 }
@@ -1877,6 +1898,10 @@ input[type=file] {
   padding-left: 0.75rem;
 }
 
+.pl-2 {
+  padding-left: 0.5rem;
+}
+
 .pl-8 {
   padding-left: 2rem;
 }
@@ -1895,10 +1920,6 @@ input[type=file] {
 
 .pb-1 {
   padding-bottom: 0.25rem;
-}
-
-.pl-2 {
-  padding-left: 0.5rem;
 }
 
 .pb-16 {

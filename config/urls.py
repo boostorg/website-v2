@@ -12,6 +12,7 @@ from users.views import (
     UserViewSet,
     CurrentUserView,
     ProfileViewSet,
+    ProfilePhotoGitHubUpdateView,
     ProfilePhotoUploadView,
 )
 from ak.views import (
@@ -47,6 +48,11 @@ urlpatterns = (
         path("", HomepageView.as_view(), name="home"),
         path("admin/", admin.site.urls),
         path("accounts/", include("allauth.urls")),
+        path(
+            "users/me/update-github-photo/",
+            ProfilePhotoGitHubUpdateView.as_view(),
+            name="profile-photo-github",
+        ),
         path("users/me/photo/", ProfilePhotoUploadView.as_view(), name="profile-photo"),
         path("users/me/", CurrentUserView.as_view(), name="current-user"),
         path("users/<int:pk>/", ProfileViewSet.as_view(), name="profile-user"),
