@@ -5,8 +5,6 @@ import structlog
 
 from datetime import timedelta
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
 from django.utils import timezone
 from django.utils.text import slugify
 from faker import Faker
@@ -144,16 +142,16 @@ def get_person_data(person: str) -> dict:
     person_data["meta"] = person
     person_data["valid_email"] = False
 
+    names = get_names(person)
+    person_data["first_name"] = names[0]
+    person_data["last_name"] = names[1]
+
     email = utils.extract_email(person)
     if email:
         person_data["email"] = email
         person_data["valid_email"] = True
     else:
-        person_data["email"] = generate_email(person)
-
-    names = get_names(person)
-    person_data["first_name"] = names[0]
-    person_data["last_name"] = names[1]
+        person_data["email"] = utils.generate_email(f"{person_data['first_name']} {person_data['last_name']}")
 
     return person_data
 
@@ -171,21 +169,6 @@ def get_names(
     # Strip the email, if present
     email = re.search("<.+>", val)
     if email:
-        # breakpoint()
         val = val.replace(email.group(), "")
 
-    # breakpoint()
     return val.strip().rsplit(" ", 1)
-
-
-def generate_email(val: str) -> str:
-    """Slugifies a string"""
-    slug = slugify(val)
-    local_email = slug.replace("-", "_")[:64]
-    email = f"{local_email}@example.com"
-
-    if User.objects.filter(email=email).exists():
-        # TODO: Deal with duplicates that are probably real.
-        pass
-
-    return email

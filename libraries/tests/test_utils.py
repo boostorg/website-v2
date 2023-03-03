@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from libraries.utils import extract_email, parse_date
+from libraries.utils import extract_email, generate_email, parse_date
 
 
 def test_extract_email():
@@ -12,6 +12,12 @@ def test_extract_email():
 def test_extract_email_no_email():
     expected = None
     result = extract_email("Tester Testeron")
+    assert expected == result
+
+
+def test_generate_email():
+    expected = "tester_testerson@example.com"
+    result = generate_email("Tester Testerson")
     assert expected == result
 
 
