@@ -1,33 +1,33 @@
 {% load static %}
 
-<div class="md:flex rounded bg-charcoal p-3 md:p-5">
-  <div class="md:w-3/4 mb-4 space-y-4 md:space-y-2">
-    <h3 class="text-2xl mb-3 capitalize">
+<div class="p-3 rounded md:flex md:p-5 bg-charcoal">
+  <div class="mb-4 space-y-4 md:space-y-2 md:w-3/4">
+    <h3 class="mb-3 text-2xl capitalize">
       <a href="
-        {% if version_slug %}
-          {% url 'library-detail-by-version' version_slug=version_slug slug=library.slug %}
-        {% else %}
-          {% url 'library-detail' slug=library.slug %}
-        {% endif %}"
+               {% if version_slug %}
+                 {% url 'library-detail-by-version' version_slug=version_slug slug=library.slug %}
+               {% else %}
+                 {% url 'library-detail' slug=library.slug %}
+               {% endif %}"
       >{{ library.name }}</a>
     </h3>
     <p class="mb-3">{{ library.description }}</p>
-    <div class="md:flex text-sm">
+    <div class="text-sm md:flex">
       <div class="md:mr-11">First Release:  X.YY.Z</div>
       <div class="mt-4 md:mt-0">Categories:  {% for c in library.categories.all %}<a href="{% if version_slug %}{% url 'libraries-by-version-by-category' version_slug=version_slug category=c.slug%}{% else %}{% url 'libraries-by-category' category=c.slug %}{% endif %}" class="text-orange">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</div>
     </div>
     <div class="text-sm">C++ Standard Minimum Level:  {{ library.cpp_standard_minimum }}</div>
   </div>
-  <div class="md:w-1/4 mb-4 text-sm">
-    <div class="my-5 flex">
-      <div class="md:mr-5 w-1/4">Author(s):</div>
+  <div class="mb-4 text-sm md:w-1/4">
+    <div class="flex my-5">
+      <div class="w-1/4 md:mr-5">Author(s):</div>
       <div class="space-y-3">
         {% for author in library.authors.all %}
           <div>
             {% if author.image.url %}
-              <img src="{{ author.image.url }}" alt="user" class="inline w-[47px] rounded mr-2" />
+              <img src="{{ author.image.url }}" alt="user" class="inline mr-2 rounded w-[47px]" />
             {% else %}
-              <i class="fas fa-user text-5xl mr-2 text-white/60"></i>
+              <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
             {% endif %}
             {{ author.get_full_name }}
           </div>
