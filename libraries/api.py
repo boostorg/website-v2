@@ -39,7 +39,7 @@ class LibrarySearchView(viewsets.ModelViewSet):
             | Q(authors__first_name__icontains=value)
             | Q(authors__last_name__icontains=value)
         )
-        return Library.objects.filter(f)[:5]
+        return Library.objects.filter(f).distinct()[:5]
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
