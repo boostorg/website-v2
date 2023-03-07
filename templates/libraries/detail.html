@@ -10,7 +10,7 @@
   <!-- end breadcrumb -->
 
   <div class="flex mt-4">
-    <div class="md:w-1/4 hidden md:block">
+    <div class="hidden md:block md:w-1/4">
       <ul>
         <li class="py-2"><a href="#overview">Overview</a></li>
         <li class="py-2"><a href="#reviews">Reviews</a></li>
@@ -18,25 +18,25 @@
       </ul>
     </div>
 
-    <div class="md:w-3/4 px-3 md:px-0 mx-3 md:mx-0">
+    <div class="px-3 mx-3 md:px-0 md:mx-0 md:w-3/4">
 
       <!-- Overview -->
-      <div class="border-b border-slate pb-16 mb-16">
+      <div class="pb-16 mb-16 border-b border-slate">
         <div class="pb-6">
           <h3 class="text-4xl capitalize" id="overview">{{ object.name }}</h3>
         </div>
         <p>{{ object.description }}</p>
 
-        <div class="uppercase mt-4 md:mt-11 max-w-md md:flex space-y-3 md:space-y-0 md:space-x-3 text-sm">
-          <a href="#" class="inline-block text-orange border border-slate rounded-md py-3 px-6">Documentation</a>
-          <a href="{{ object.github_url }}" class="inline-block text-orange border border-slate rounded-md py-3 px-6">Github</a>
+        <div class="mt-4 space-y-3 max-w-md text-sm uppercase md:flex md:mt-11 md:space-y-0 md:space-x-3">
+          <a href="#" class="inline-block py-3 px-6 rounded-md border text-orange border-slate">Documentation</a>
+          <a href="{{ object.github_url }}" class="inline-block py-3 px-6 rounded-md border text-orange border-slate">Github</a>
         </div>
 
-        <div class="md:flex mt-4 md:mt-11 py-6 justify-between">
+        <div class="justify-between py-6 mt-4 md:flex md:mt-11">
           <div>
             <h3 class="text-2xl">Categories</h3>
             {% for c in object.categories.all %}
-            <a href="{% url 'libraries-by-category' category=c.slug %}" class="text-orange">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}
+              <a href="{% url 'libraries-by-category' category=c.slug %}" class="text-orange">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}
             {% endfor %}
           </div>
 
@@ -52,41 +52,41 @@
           </div>
         </div>
 
-        <div class="mt-4 md:mt-11 py-6">
-          <h3 class="text-2xl mb-4">Level of Activity</h3>
-          <div class="bg-charcoal rounded h-6">
+        <div class="py-6 mt-4 md:mt-11">
+          <h3 class="mb-4 text-2xl">Level of Activity</h3>
+          <div class="h-6 rounded bg-charcoal">
             <!-- TODO: Change the width to use a percent of activity -->
-            <div class="w-3/4 bg-gradient-to-r from-green to-orange h-6 rounded"></div>
+            <div class="w-3/4 h-6 bg-gradient-to-r rounded from-green to-orange"></div>
           </div>
         </div>
 
-        <div class="md:flex my-4 md:my-11 py-6 md:justify-between">
+        <div class="py-6 my-4 md:flex md:justify-between md:my-11">
           <div class="py-6">
-            <h3 class="text-2xl mb-1">Closed Pull Requests</h3>
+            <h3 class="mb-1 text-2xl">Closed Pull Requests</h3>
             {{ closed_prs_count }}
           </div>
 
           <div class="py-6">
-            <h3 class="text-2xl mb-1">Open Issues</h3>
+            <h3 class="mb-1 text-2xl">Open Issues</h3>
             {{ open_issues_count }}
           </div>
 
           <div class="py-6">
-            <h3 class="text-2xl mb-1">Commits Per Release</h3>
+            <h3 class="mb-1 text-2xl">Commits Per Release</h3>
             <p>ZZ</p>
           </div>
         </div>
 
         <div class="md:flex md:py-11 md:space-x-11">
           <div class="py-6">
-            <h3 class="text-2xl mb-4">Authors</h3>
+            <h3 class="mb-4 text-2xl">Authors</h3>
             <div class="space-y-3">
               {% for author in object.authors.all %}
                 <div>
                   {% if author.image %}
-                    <img src="{{ author.image.url }}" alt="user" class="inline w-[47px] rounded mr-2" />
+                    <img src="{{ author.image.url }}" alt="user" class="inline mr-2 rounded w-[47px]" />
                   {% else %}
-                    <i class="fas fa-user text-5xl mr-2 text-white/60"></i>
+                    <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
                   {% endif %}
                   {{ author.get_full_name }}
                 </div>
@@ -94,14 +94,14 @@
             </div>
           </div>
           <div class="py-6">
-            <h3 class="text-2xl mb-4">Maintainers</h3>
+            <h3 class="mb-4 text-2xl">Maintainers</h3>
             <div class="space-y-3">
               {% for maintainer in maintainers.all %}
                 <div>
                   {% if maintainer.image %}
-                    <img src="{{ maintainer.image.url }}" alt="user" class="inline w-[47px] rounded mr-2" />
+                    <img src="{{ maintainer.image.url }}" alt="user" class="inline mr-2 rounded w-[47px]" />
                   {% else %}
-                    <i class="fas fa-user text-5xl mr-2 text-white/60"></i>
+                    <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
                   {% endif %}
                   {{ maintainer.get_full_name }}
                 </div>
@@ -113,27 +113,27 @@
       <!-- end overview -->
 
       <!-- Review -->
-      <div class="border-b border-slate pb-16 mb-16">
+      <div class="pb-16 mb-16 border-b border-slate">
         <h3 class="text-4xl" id="reviews">Review</h3>
         <p>Date of Review: 10/31/20</p>
-        <div class="md:flex mt-11 justify-between">
+        <div class="justify-between mt-11 md:flex">
           <div>
             <h3 class="text-2xl">ACCEPT Reviews:</h3>
             <p>15 <a href="#" class="text-orange">View List</a></p>
-            <h3 class="text-2xl mt-5">REJECT Reviews:</h3>
+            <h3 class="mt-5 text-2xl">REJECT Reviews:</h3>
             <p>3 <a href="#" class="text-orange">View List</a></p>
-            <div class="mt-11"><a href="#" class="text-orange border border-slate rounded-md py-2 px-4">Review Results</a></div>
+            <div class="mt-11"><a href="#" class="py-2 px-4 rounded-md border text-orange border-slate">Review Results</a></div>
           </div>
 
           <div class="py-11 md:py-0">
-            <h3 class="text-2xl mb-4">Review Manager</h3>
+            <h3 class="mb-4 text-2xl">Review Manager</h3>
             <div class="space-y-3">
               <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
             </div>
           </div>
 
           <div class="py-3 md:py-0">
-            <h3 class="text-2xl mb-4">Reviewers</h3>
+            <h3 class="mb-4 text-2xl">Reviewers</h3>
             <div class="space-y-3">
               <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
               <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
@@ -145,13 +145,13 @@
 
       <!-- Discussions -->
       <div class="pb-6">
-        <h3 class="text-4xl mb-11" id="discussion">Discussions</h3>
+        <h3 class="mb-11 text-4xl" id="discussion">Discussions</h3>
 
-        <div class="my-4 md:my-0 rounded bg-charcoal px-3 md:px-11 py-5">
+        <div class="py-5 px-3 my-4 rounded md:px-11 md:my-0 bg-charcoal">
           <div class="flex justify-between mb-6">
-            <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">Forum Discussions</span>
+            <span class="inline py-1 px-3 w-auto text-lg uppercase rounded text-green bg-green/10">Forum Discussions</span>
           </div>
-          <div class="divide-y divide-slate space-y-8">
+          <div class="space-y-8 divide-y divide-slate">
             <div class="pt-6">
               <h3 class="text-xl">Topic of discussion headline from the Forum</h3>
               <div class="mt-3"><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-3" /> Name of Author</div>
