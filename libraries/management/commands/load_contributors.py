@@ -15,6 +15,8 @@ def extract_email(val: str) -> str:
     Finds an email address in a string, reformats it, and returns it.
     Assumes the email address is in this format:
     <firstlast -at- domain.com>
+
+    Does not raise errors.
     """
     result = re.search("<.+>", val)
     if result:
@@ -56,3 +58,22 @@ def generate_fake_email(val: str) -> str:
     suffix = "".join(random.choice(letters) for i in range(8))
     local_email = slug.replace("-", "_")[:50]
     return f"{local_email}_{suffix}@example.com"
+
+
+def get_contributor_data(contributor: str) -> dict:
+    """Takes an author/maintainer string and returns a dict with their data"""
+    data = {}
+    data["meta"] = contributor
+    data["valid_email"] = False
+
+    email = extract_email(contributor)
+    if bool(email):
+        data["email"] = email
+        data["valid_email"] = True
+    else:
+
+        data["email"] = generate_fake_email(contributor)
+
+    data["first_name"], data["last_name"] = extract_names(contributor)
+
+    return data
