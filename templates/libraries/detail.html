@@ -83,7 +83,7 @@
             <div class="space-y-3">
               {% for author in object.authors.all %}
                 <div>
-                  {% if author.image.url %}
+                  {% if author.image %}
                     <img src="{{ author.image.url }}" alt="user" class="inline mr-2 rounded w-[47px]" />
                   {% else %}
                     <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
@@ -98,7 +98,7 @@
             <div class="space-y-3">
               {% for maintainer in object.maintainers.all %}
                 <div>
-                  {% if maintainer.image.url %}
+                  {% if maintainer.image %}
                     <img src="{{ maintainer.image.url }}" alt="user" class="inline mr-2 rounded w-[47px]" />
                   {% else %}
                     <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
