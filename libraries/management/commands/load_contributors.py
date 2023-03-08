@@ -1,4 +1,8 @@
+import random
 import re
+import string
+
+from django.utils.text import slugify
 
 
 def extract_names(val: str) -> list:
@@ -15,3 +19,13 @@ def extract_names(val: str) -> list:
         val = val.replace(email.group(), "")
 
     return val.strip().rsplit(" ", 1)
+
+
+def generate_fake_email(val: str) -> str:
+    """ Slugifies a string to make a fake email """
+    slug = slugify(val)
+    letters = string.ascii_lowercase
+    suffix = ''.join(random.choice(letters) for i in range(8))
+    local_email = slug.replace("-", "_")[:50]
+    return f"{local_email}_{suffix}@example.com"
+

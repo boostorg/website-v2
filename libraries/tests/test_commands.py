@@ -1,4 +1,4 @@
-from ..management.commands.load_contributors import extract_names
+from ..management.commands.load_contributors import extract_names, generate_fake_email
 
 
 def test_extract_names():
@@ -21,3 +21,11 @@ def test_extract_names():
     expected = ["Tester de", "Testerson"]
     result = extract_names(sample)
     assert expected == result
+
+
+def test_generate_fake_email():
+    sample = "Tester de Testerson"
+    expected = "tester_de_testerson"
+    result = generate_fake_email(sample)
+    assert expected in result
+    assert "@example.com" in result
