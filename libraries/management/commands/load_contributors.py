@@ -1,8 +1,36 @@
 import random
 import re
 import string
+import structlog
 
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.utils.text import slugify
+
+logger = structlog.get_logger()
+
+
+def extract_email(val: str) -> str:
+    """
+    Finds an email address in a string, reformats it, and returns it.
+    Assumes the email address is in this format:
+    <firstlast -at- domain.com>
+    """
+    result = re.search("<.+>", val)
+    if result:
+        raw_email = result.group()
+        email = (
+            raw_email.replace("-at-", "@")
+            .replace("<", "")
+            .replace(">", "")
+            .replace(" ", "")
+        )
+        try:
+            validate_email(email)
+        except ValidationError as e:
+            logger.info("Could not extract valid email", value=val, exc_msg=str(e))
+            return
+        return email
 
 
 def extract_names(val: str) -> list:
@@ -22,10 +50,9 @@ def extract_names(val: str) -> list:
 
 
 def generate_fake_email(val: str) -> str:
-    """ Slugifies a string to make a fake email """
+    """Slugifies a string to make a fake email"""
     slug = slugify(val)
     letters = string.ascii_lowercase
-    suffix = ''.join(random.choice(letters) for i in range(8))
+    suffix = "".join(random.choice(letters) for i in range(8))
     local_email = slug.replace("-", "_")[:50]
     return f"{local_email}_{suffix}@example.com"
-
