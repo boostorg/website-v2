@@ -58,6 +58,13 @@ class UserManager(BaseUserManager):
         logger.info("Creating superuser with email='%s'", email)
         return self._create_user(email, password, **extra_fields)
 
+    def create_stub_user(self, email, password=None, claimed=False, **extra_fields):
+        """Creates a placeholder ("stub") user."""
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        logger.info("Creating stub user with email='%s'", email)
+        return self._create_user(email, password, claimed=claimed, **extra_fields)
+
     def record_login(self, user=None, email=None):
         """
         Record a succesful login to last_login for the user by user
