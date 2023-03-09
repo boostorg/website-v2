@@ -150,6 +150,18 @@ class User(BaseUser):
     badges = models.ManyToManyField(Badge)
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
     image = models.FileField(upload_to="profile-images", null=True, blank=True)
+    claimed = models.BooleanField(
+        _("claimed"),
+        default=True,
+        help_text=_("Designates whether this user has been claimed."),
+    )
+    valid_email = models.BooleanField(
+        _("valid_email"),
+        default=True,
+        help_text=_(
+            "Designates whether this user's email address is valid, to the best of our knowledge."
+        ),
+    )
 
     def save_image_from_github(self, avatar_url):
         response = requests.get(avatar_url)
