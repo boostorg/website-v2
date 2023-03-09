@@ -21,20 +21,33 @@ def test_record_login_user(user):
 
 def test_user_creation(db):
     u = User.objects.create_user("t1@example.com", "t1pass")
-    assert u.is_active == True
-    assert u.is_staff == False
-    assert u.is_superuser == False
+    assert u.is_active is True
+    assert u.is_staff is False
+    assert u.is_superuser is False
 
 
 def test_staff_user_creation(db):
     u = User.objects.create_staffuser("t2@example.com", "t2pass")
-    assert u.is_active == True
-    assert u.is_staff == True
-    assert u.is_superuser == False
+    assert u.is_active is True
+    assert u.is_staff is True
+    assert u.is_superuser is False
 
 
 def test_super_user_creation(db):
     u = User.objects.create_superuser("t3@example.com", "t3pass")
-    assert u.is_active == True
-    assert u.is_staff == True
-    assert u.is_superuser == True
+    assert u.is_active is True
+    assert u.is_staff is True
+    assert u.is_superuser is True
+
+
+def test_create_stub_user(db):
+    u = User.objects.create_stub_user(
+        "t4@example.com", None, first_name="Tester", last_name="Testerson", valid_email=False
+    )
+    assert u.claimed is False
+    assert u.valid_email is False
+    assert u.is_active is True
+    assert u.is_staff is False
+    assert u.is_superuser is False
+    assert u.first_name == "Tester"
+    assert u.last_name == "Testerson"
