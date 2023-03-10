@@ -58,6 +58,13 @@ class UserManager(BaseUserManager):
         logger.info("Creating superuser with email='%s'", email)
         return self._create_user(email, password, **extra_fields)
 
+    def create_stub_user(self, email, password=None, claimed=False, **extra_fields):
+        """Creates a placeholder ("stub") user."""
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        logger.info("Creating stub user with email='%s'", email)
+        return self._create_user(email, password, claimed=claimed, **extra_fields)
+
     def record_login(self, user=None, email=None):
         """
         Record a succesful login to last_login for the user by user
@@ -150,8 +157,18 @@ class User(BaseUser):
     badges = models.ManyToManyField(Badge)
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
     image = models.FileField(upload_to="profile-images", null=True, blank=True)
-    valid_email = models.BooleanField(_("Valid email address"), default=True)
-    claimed = models.BooleanField(_("Account has been claimed"), default=True)
+    claimed = models.BooleanField(
+        _("claimed"),
+        default=True,
+        help_text=_("Designates whether this user has been claimed."),
+    )
+    valid_email = models.BooleanField(
+        _("valid_email"),
+        default=True,
+        help_text=_(
+            "Designates whether this user's email address is valid, to the best of our knowledge."
+        ),
+    )
 
     def save_image_from_github(self, avatar_url):
         response = requests.get(avatar_url)
