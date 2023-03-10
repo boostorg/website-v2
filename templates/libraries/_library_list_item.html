@@ -25,7 +25,7 @@
         {% for author in library.authors.all %}
           <div>
             {% if author.image %}
-              <img src="{{ author.image.url }}" alt="user" class="inline w-[47px] rounded mr-2" />
+              <img src="{{ author.image.url }}" alt="user" class="inline mr-2 rounded w-[47px]" />
             {% else %}
               <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
             {% endif %}
