@@ -135,8 +135,8 @@
       <div class="py-6 border-b border-slate">
         <h3 id="libraries-maintained" class="mb-3">Libraries Maintained</h3>
 
-        {% for library in maintained %}
-          {% include 'users/_library.html' with library=library %}
+        {% for library_version in maintained %}
+          {% include 'users/_library_version.html' with library_version=library_version %}
         {% empty %}
           <p>No Libraries Authored</p>
         {% endfor %}
