@@ -54,7 +54,7 @@ def command():
 
         if isinstance(libraries_json, list):
             # TODO: Fix this once #55 is fixed
-            return
+            continue
 
         click.secho(f"Getting authors...", fg="green")
         author_data = libraries_json.get("authors")
@@ -62,6 +62,7 @@ def command():
 
         if skip_maintainers:
             click.secho(f"... skipping maintainers", fg="red")
+            skip_maintainers = False
             continue
 
         click.secho(f"Getting maintainers...", fg="green")
@@ -78,15 +79,21 @@ def extract_email(val: str) -> str:
     <firstlast -at- domain.com>
 
     Does not raise errors.
+
+    Includes as many catches for variants in the formatting as I found in a first
+    pass.
     """
     result = re.search("<.+>", val)
     if result:
         raw_email = result.group()
         email = (
             raw_email.replace("-at-", "@")
+            .replace("- at -", "@")
+            .replace("-dot-", ".")
             .replace("<", "")
             .replace(">", "")
             .replace(" ", "")
+            .replace("-underscore-", "_")
         )
         try:
             validate_email(email)
@@ -126,7 +133,6 @@ def generate_fake_email(val: str) -> str:
 def get_contributor_data(contributor: str) -> dict:
     """Takes an author/maintainer string and returns a dict with their data"""
     data = {}
-    data["meta"] = contributor
 
     email = extract_email(contributor)
     if bool(email):
@@ -149,19 +155,17 @@ def process_author_data(data: list, obj: Library) -> Library:
     Processes that string into a User object that is added as an
     Author to the Library.
     """
-    for d in data:
-        person_data = get_contributor_data(d)
+    if not data:
+        return obj
 
-        user, created = User.objects.get_or_create(
-            email=person_data["email"],
-            defaults={
-                "first_name": person_data["first_name"][:30],
-                "last_name": person_data["last_name"][:30],
-                "valid_email": person_data["valid_email"],
-                "claimed": False,
-            },
-        )
-        if created:
+    for author in data:
+        person_data = get_contributor_data(author)
+
+        try:
+            user = User.objects.get(email=person_data["email"].lower())
+        except User.DoesNotExist:
+            email = person_data.pop("email")
+            user = User.objects.create_stub_user(email.lower(), **person_data)
             click.secho(f"---User {user.email} created.", fg="green")
 
         obj.authors.add(user)
@@ -178,19 +182,17 @@ def process_maintainer_data(data: list, obj: LibraryVersion) -> LibraryVersion:
     Processes the list of strings into User objects and adds them as Maintainers
     to the object.
     """
-    for d in data:
-        person_data = get_contributor_data(d)
+    if not data:
+        return obj
 
-        user, created = User.objects.get_or_create(
-            email=person_data["email"],
-            defaults={
-                "first_name": person_data["first_name"][:30],
-                "last_name": person_data["last_name"][:30],
-                "valid_email": person_data["valid_email"],
-                "claimed": False,
-            },
-        )
-        if created:
+    for maintainer in data:
+        person_data = get_contributor_data(maintainer)
+
+        try:
+            user = User.objects.get(email=person_data["email"].lower())
+        except User.DoesNotExist:
+            email = person_data.pop("email")
+            user = User.objects.create_stub_user(email.lower(), **person_data)
             click.secho(f"---User {user.email} created.", fg="green")
 
         obj.maintainers.add(user)
