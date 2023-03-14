@@ -55,11 +55,20 @@ def test_extract_email():
     result = extract_email("Tester Testeron")
     assert expected == result
 
+    expected = "t_tester@example.com"
+    result = extract_email(
+        "Tester Testerston <t -underscore- tester -at- example -dot- com> "
+    )
+    assert expected == result
+
+    expected = "tester@example.com"
+    result = extract_email("Tester Testerston <tester - at - example.com> ")
+    assert expected == result
+
 
 def test_get_contributor_data():
     sample = "Tester Testerson <tester -at- gmail.com>"
     expected = {
-        "meta": sample,
         "valid_email": True,
         "email": "tester@gmail.com",
         "first_name": "Tester",
@@ -70,13 +79,11 @@ def test_get_contributor_data():
 
     sample = "Tester Testerson"
     expected = {
-        "meta": sample,
         "valid_email": False,
         "first_name": "Tester",
         "last_name": "Testerson",
     }
     result = get_contributor_data(sample)
-    assert expected["meta"] == result["meta"]
     assert expected["valid_email"] is False
     assert expected["first_name"] == result["first_name"]
     assert expected["last_name"] == result["last_name"]
