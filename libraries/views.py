@@ -2,7 +2,7 @@ import structlog
 
 from django.http import Http404
 from django.shortcuts import redirect
-from django.views.generic import DetailView, ListView, RedirectView
+from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
 
 from versions.models import Version
@@ -37,7 +37,6 @@ class LibraryList(CategoryMixin, FormMixin, ListView):
         return context
 
     def get_queryset(self):
-        queryset = super().get_queryset()
         version = Version.objects.most_recent()
         return (
             super().get_queryset().filter(library_version__version=version).distinct()
@@ -66,6 +65,7 @@ class LibraryDetail(CategoryMixin, DetailView):
         context["closed_prs_count"] = self.get_closed_prs_count(self.object)
         context["open_issues_count"] = self.get_open_issues_count(self.object)
         context["version"] = Version.objects.most_recent()
+        context["maintainers"] = self.get_maintainers(context["version"])
         return context
 
     def get_object(self):
@@ -79,12 +79,17 @@ class LibraryDetail(CategoryMixin, DetailView):
 
         try:
             obj = self.get_queryset().get(slug=slug)
-        except queryset.model.DoesNotExist:
+        except self.model.DoesNotExist:
             raise Http404("No library found matching the query")
         return obj
 
     def get_closed_prs_count(self, obj):
         return PullRequest.objects.filter(library=obj, is_open=True).count()
+
+    def get_maintainers(self, version):
+        obj = self.get_object()
+        library_version = LibraryVersion.objects.get(library=obj, version=version)
+        return library_version.maintainers.all()
 
     def get_open_issues_count(self, obj):
         return Issue.objects.filter(library=obj, is_open=True).count()
@@ -151,7 +156,6 @@ class LibraryListByVersion(CategoryMixin, FormMixin, ListView):
         return context
 
     def get_queryset(self):
-        queryset = super().get_queryset()
         version_slug = self.kwargs.get("slug")
         return (
             super().get_queryset().filter(library_version__version__slug=version_slug)
@@ -186,6 +190,7 @@ class LibraryDetailByVersion(CategoryMixin, DetailView):
         context["version_slug"] = self.kwargs.get("version_slug")
         context["version"] = self.get_version(self.kwargs.get("version_slug"))
         context["version_name"] = context["version"].name
+        context["maintainers"] = self.get_maintainers(context["version"])
         return context
 
     def get_object(self):
@@ -204,6 +209,11 @@ class LibraryDetailByVersion(CategoryMixin, DetailView):
 
     def get_closed_prs_count(self, obj):
         return PullRequest.objects.filter(library=obj, is_open=True).count()
+
+    def get_maintainers(self, version):
+        obj = self.get_object()
+        library_version = LibraryVersion.objects.get(library=obj, version=version)
+        return library_version.maintainers.all()
 
     def get_open_issues_count(self, obj):
         return Issue.objects.filter(library=obj, is_open=True).count()
