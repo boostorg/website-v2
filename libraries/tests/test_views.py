@@ -131,8 +131,7 @@ def test_library_detail_context_get_maintainers(tp, user, library_version):
     response = tp.get(url)
     tp.response_200(response)
     assert "maintainers" in response.context
-    # Verify that the count only includes the one open PR for this library
-    assert response.context["maintainers"] == 1
+    assert len(response.context["maintainers"]) == 1
     assert response.context["maintainers"][0] == user
 
 
@@ -186,9 +185,9 @@ def test_libraries_by_version_list(tp, library_version):
 
 
 def test_libraries_by_version_detail(tp, library_version):
-    """GET /versions/{version_slug}/{slug}/"""
+    """GET /versions/{version_slug}/libraries/{slug}/"""
     res = tp.get(
-        "libraries-detail-by-version",
+        "library-detail-by-version",
         library_version.version.slug,
         library_version.library.slug,
     )
