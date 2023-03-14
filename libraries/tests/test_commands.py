@@ -3,6 +3,8 @@ from ..management.commands.load_contributors import (
     extract_names,
     generate_fake_email,
     get_contributor_data,
+    process_author_data,
+    process_maintainer_data,
 )
 
 
@@ -79,3 +81,38 @@ def test_get_contributor_data():
     assert expected["first_name"] == result["first_name"]
     assert expected["last_name"] == result["last_name"]
     assert "email" in result
+
+
+def test_process_author_data_(user, library_version):
+    library = library_version.library
+    assert library.authors.exists() is False
+    user.claimed = True
+    user.email = "t_testerson@example.com"
+    user.save()
+
+    process_author_data(
+        ["Tester Testerston <t_testerson -at- example.com>", "Tester2 Testerson2"],
+        library,
+    )
+    library.refresh_from_db()
+    assert library.authors.exists()
+    assert library.authors.filter(email="t_testerson@example.com").exists()
+    assert library.authors.filter(email="tester2_testerson2@example.com").exists()
+
+
+def test_process_maintainer_data_(user, library_version):
+    assert library_version.maintainers.exists() is False
+    user.claimed = True
+    user.email = "t_testerson@example.com"
+    user.save()
+
+    process_maintainer_data(
+        ["Tester Testerston <t_testerson -at- example.com>", "Tester2 Testerson2"],
+        library_version,
+    )
+    library_version.refresh_from_db()
+    assert library_version.maintainers.exists()
+    assert library_version.maintainers.filter(email="t_testerson@example.com").exists()
+    assert library_version.maintainers.filter(
+        email="tester2_testerson2@example.com"
+    ).exists()
