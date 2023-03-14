@@ -54,7 +54,6 @@ class Library(models.Model):
     categories = models.ManyToManyField(Category, related_name="libraries")
 
     authors = models.ManyToManyField("users.User", related_name="authors")
-    maintainers = models.ManyToManyField("users.User", related_name="maintainers")
 
     closed_prs_per_month = models.IntegerField(blank=True, null=True)
     open_issues = models.IntegerField(blank=True, null=True)
@@ -105,6 +104,7 @@ class LibraryVersion(models.Model):
         on_delete=models.SET_NULL,
         null=True,
     )
+    maintainers = models.ManyToManyField("users.User", related_name="maintainers")
 
     def __str__(self):
         return f"{self.library.name} ({self.version.name})"

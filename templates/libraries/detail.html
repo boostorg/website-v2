@@ -96,7 +96,7 @@
           <div class="py-6">
             <h3 class="mb-4 text-2xl">Maintainers</h3>
             <div class="space-y-3">
-              {% for maintainer in object.maintainers.all %}
+              {% for maintainer in maintainers.all %}
                 <div>
                   {% if maintainer.image %}
                     <img src="{{ maintainer.image.url }}" alt="user" class="inline mr-2 rounded w-[47px]" />

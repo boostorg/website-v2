@@ -1,0 +1,10 @@
+<div class="py-3">
+  <h4 class="text-orange capitalize">
+    <a href="{% url 'library-detail-by-version' version_slug=library_version.version.slug slug=library_version.library.slug %}">
+      {{ library_version.library.name }}
+    </a>
+  </h4>
+  <p class="pt-0">
+    {{ library_version.library.description }}
+  </p>
+</div>
