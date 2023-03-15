@@ -79,7 +79,7 @@ class LibraryDetail(CategoryMixin, DetailView):
 
         try:
             obj = self.get_queryset().get(slug=slug)
-        except queryset.model.DoesNotExist:
+        except self.model.DoesNotExist:
             raise Http404("No library found matching the query")
         return obj
 
