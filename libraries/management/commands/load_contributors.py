@@ -142,7 +142,8 @@ def get_contributor_data(contributor: str) -> dict:
         data["email"] = generate_fake_email(contributor)
         data["valid_email"] = False
 
-    data["first_name"], data["last_name"] = extract_names(contributor)
+    first_name, last_name = extract_names(contributor)
+    data["first_name"], data["last_name"] = first_name[:30], last_name[:30]
 
     return data
 
@@ -160,10 +161,13 @@ def process_author_data(data: list, obj: Library) -> Library:
 
     for author in data:
         person_data = get_contributor_data(author)
+        user = User.objects.find_user(
+            email=person_data["email"].lower(),
+            first_name=person_data["first_name"],
+            last_name=person_data["last_name"],
+        )
 
-        try:
-            user = User.objects.get(email=person_data["email"].lower())
-        except User.DoesNotExist:
+        if not user:
             email = person_data.pop("email")
             user = User.objects.create_stub_user(email.lower(), **person_data)
             click.secho(f"---User {user.email} created.", fg="green")
@@ -187,10 +191,13 @@ def process_maintainer_data(data: list, obj: LibraryVersion) -> LibraryVersion:
 
     for maintainer in data:
         person_data = get_contributor_data(maintainer)
+        user = User.objects.find_user(
+            email=person_data["email"].lower(),
+            first_name=person_data["first_name"],
+            last_name=person_data["last_name"],
+        )
 
-        try:
-            user = User.objects.get(email=person_data["email"].lower())
-        except User.DoesNotExist:
+        if not user:
             email = person_data.pop("email")
             user = User.objects.create_stub_user(email.lower(), **person_data)
             click.secho(f"---User {user.email} created.", fg="green")
