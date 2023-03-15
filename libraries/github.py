@@ -212,7 +212,7 @@ class LibraryUpdater:
                 for sublibrary in meta:
                     libraries.append(
                         {
-                            "name": name,
+                            "name": sublibrary["name"],
                             "github_url": github_url,
                             "authors": sublibrary["authors"],
                             "description": sublibrary["description"],
