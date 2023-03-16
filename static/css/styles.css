@@ -897,16 +897,16 @@ input[type=file] {
   right: 0px;
 }
 
-.right-3 {
-  right: 0.75rem;
-}
-
 .right-0 {
   right: 0px;
 }
 
 .top-0 {
   top: 0px;
+}
+
+.right-3 {
+  right: 0.75rem;
 }
 
 .top-10 {
@@ -935,6 +935,14 @@ input[type=file] {
 
 .top-3 {
   top: 0.75rem;
+}
+
+.-top-4 {
+  top: -1rem;
+}
+
+.-top-2 {
+  top: -0.5rem;
 }
 
 .z-10 {
@@ -1297,8 +1305,8 @@ input[type=file] {
   width: 30px;
 }
 
-.w-48 {
-  width: 12rem;
+.w-32 {
+  width: 8rem;
 }
 
 .w-\[47px\] {
@@ -1319,10 +1327,6 @@ input[type=file] {
 
 .w-\[80px\] {
   width: 80px;
-}
-
-.w-32 {
-  width: 8rem;
 }
 
 .w-1 {
@@ -1687,11 +1691,6 @@ input[type=file] {
 
 .bg-charcoal\/60 {
   background-color: rgb(23 42 52 / 0.6);
-}
-
-.bg-white {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
 .bg-red-500 {
@@ -2170,23 +2169,9 @@ input[type=file] {
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 
-.ring-black {
-  --tw-ring-opacity: 1;
-  --tw-ring-color: rgb(5 26 38 / var(--tw-ring-opacity));
-}
-
-.ring-orange {
-  --tw-ring-opacity: 1;
-  --tw-ring-color: rgb(255 159 0 / var(--tw-ring-opacity));
-}
-
 .ring-gray-500 {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(107 114 128 / var(--tw-ring-opacity));
-}
-
-.ring-opacity-5 {
-  --tw-ring-opacity: 0.05;
 }
 
 .transition {
