@@ -887,18 +887,14 @@ input[type=file] {
   left: 0px;
 }
 
-.inset-y-0 {
-  top: 0px;
-  bottom: 0px;
-}
-
 .inset-x-0 {
   left: 0px;
   right: 0px;
 }
 
-.right-3 {
-  right: 0.75rem;
+.inset-y-0 {
+  top: 0px;
+  bottom: 0px;
 }
 
 .top-0 {
@@ -919,6 +915,10 @@ input[type=file] {
 
 .left-0 {
   left: 0px;
+}
+
+.right-3 {
+  right: 0.75rem;
 }
 
 .top-14 {
@@ -1205,16 +1205,16 @@ input[type=file] {
   height: 20px;
 }
 
+.h-\[50px\] {
+  height: 50px;
+}
+
 .h-6 {
   height: 1.5rem;
 }
 
 .h-full {
   height: 100%;
-}
-
-.h-\[50px\] {
-  height: 50px;
 }
 
 .h-\[30px\] {
@@ -1239,6 +1239,10 @@ input[type=file] {
 
 .h-12 {
   height: 3rem;
+}
+
+.h-11 {
+  height: 2.75rem;
 }
 
 .max-h-96 {
@@ -1281,8 +1285,8 @@ input[type=file] {
   width: 33.333333%;
 }
 
-.w-\[100px\] {
-  width: 100px;
+.w-2\/6 {
+  width: 33.333333%;
 }
 
 .w-6 {
@@ -1321,8 +1325,24 @@ input[type=file] {
   width: 200px;
 }
 
-.w-\[110px\] {
-  width: 110px;
+.w-11 {
+  width: 2.75rem;
+}
+
+.w-\[30px\] {
+  width: 30px;
+}
+
+.w-4\/6 {
+  width: 66.666667%;
+}
+
+.w-40 {
+  width: 10rem;
+}
+
+.w-\[180px\] {
+  width: 180px;
 }
 
 .min-w-0 {
@@ -1505,6 +1525,12 @@ input[type=file] {
   margin-bottom: calc(1.25rem * var(--tw-space-y-reverse));
 }
 
+.space-x-10 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(2.5rem * var(--tw-space-x-reverse));
+  margin-left: calc(2.5rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
 .space-x-2 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 0;
   margin-right: calc(0.5rem * var(--tw-space-x-reverse));
@@ -1667,15 +1693,6 @@ input[type=file] {
   background-color: rgb(23 42 52 / 0.6);
 }
 
-.bg-transparent {
-  background-color: transparent;
-}
-
-.bg-slate {
-  --tw-bg-opacity: 1;
-  background-color: rgb(49 74 87 / var(--tw-bg-opacity));
-}
-
 .bg-red-500 {
   --tw-bg-opacity: 1;
   background-color: rgb(239 68 68 / var(--tw-bg-opacity));
@@ -1683,6 +1700,15 @@ input[type=file] {
 
 .bg-green\/50 {
   background-color: rgb(90 213 153 / 0.5);
+}
+
+.bg-transparent {
+  background-color: transparent;
+}
+
+.bg-slate {
+  --tw-bg-opacity: 1;
+  background-color: rgb(49 74 87 / var(--tw-bg-opacity));
 }
 
 .bg-opacity-70 {
@@ -1713,6 +1739,14 @@ input[type=file] {
 
 .fill-silver {
   fill: #B5C9D3;
+}
+
+.fill-white {
+  fill: #fff;
+}
+
+.stroke-white {
+  stroke: #fff;
 }
 
 .p-4 {
@@ -1890,22 +1924,6 @@ input[type=file] {
   padding-bottom: 2.75rem;
 }
 
-.pb-6 {
-  padding-bottom: 1.5rem;
-}
-
-.pl-3 {
-  padding-left: 0.75rem;
-}
-
-.pl-2 {
-  padding-left: 0.5rem;
-}
-
-.pl-8 {
-  padding-left: 2rem;
-}
-
 .pr-8 {
   padding-right: 2rem;
 }
@@ -1922,8 +1940,16 @@ input[type=file] {
   padding-bottom: 0.25rem;
 }
 
+.pl-2 {
+  padding-left: 0.5rem;
+}
+
 .pb-16 {
   padding-bottom: 4rem;
+}
+
+.pb-6 {
+  padding-bottom: 1.5rem;
 }
 
 .pl-5 {
@@ -1940,6 +1966,10 @@ input[type=file] {
 
 .pb-4 {
   padding-bottom: 1rem;
+}
+
+.pl-6 {
+  padding-left: 1.5rem;
 }
 
 .text-left {
@@ -2062,6 +2092,10 @@ input[type=file] {
   color: rgb(255 255 255 / 0.7);
 }
 
+.text-white\/60 {
+  color: rgb(255 255 255 / 0.6);
+}
+
 .text-slate {
   --tw-text-opacity: 1;
   color: rgb(49 74 87 / var(--tw-text-opacity));
@@ -2070,10 +2104,6 @@ input[type=file] {
 .text-gray-700 {
   --tw-text-opacity: 1;
   color: rgb(55 65 81 / var(--tw-text-opacity));
-}
-
-.text-white\/60 {
-  color: rgb(255 255 255 / 0.6);
 }
 
 .text-gray-100 {
@@ -2198,6 +2228,16 @@ input[type=file] {
   color: rgb(255 159 0 / var(--tw-text-opacity));
 }
 
+@media (prefers-color-scheme: dark) {
+  .dark\:inline {
+    display: inline;
+  }
+
+  .dark\:hidden {
+    display: none;
+  }
+}
+
 @media (min-width: 640px) {
   .sm\:absolute {
     position: absolute;
@@ -2232,10 +2272,6 @@ input[type=file] {
     display: flex;
   }
 
-  .sm\:h-10 {
-    height: 2.5rem;
-  }
-
   .sm\:h-full {
     height: 100%;
   }
@@ -2260,11 +2296,6 @@ input[type=file] {
 
   .sm\:p-6 {
     padding: 1.5rem;
-  }
-
-  .sm\:px-6 {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
   }
 
   .sm\:px-14 {
@@ -2448,10 +2479,6 @@ input[type=file] {
 
   .md\:grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .md\:justify-center {
-    justify-content: center;
   }
 
   .md\:justify-between {
