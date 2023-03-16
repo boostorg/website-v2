@@ -21,24 +21,44 @@
             <a href="/libraries/" class="font-medium text-white hover:text-orange">Libraries</a>
             <a href="#" class="font-medium text-white hover:text-orange">Releases</a>
           </nav>
-          <nav class="items-center space-x-3 w-1/4 text-right">
-            <form action="https://www.google.com/search" class="inline-flex hidden relative items-center" method="get"
-                  name="searchform" target="_blank">
-              <input name="sitesearch" type="hidden" value="boost.org">
-              <input autocomplete="on"
-                     class="py-2 px-3 text-xs text-white rounded-lg border-slate bg-charcoal"
-                     name="q"
-                     placeholder="Search Boost.org"
-                     required="required"
-                     type="text"
+          <nav class="items-center space-x-3 w-1/4 text-right" x-data="{ 'searchOpen': false }">
+            <span class="relative">
+              <img class="inline-flex -mt-1 cursor-pointer" src="{% static 'img/icons/icon-search.svg' %}" alt="Search" @click="searchOpen = !searchOpen" />
+              <div x-show="searchOpen"
+                   @click.away="searchOpen = false"
+                   x-transition:enter="transition ease-out duration-100"
+                   x-transition:enter-start="transform opacity-0 scale-95"
+                   x-transition:enter-end="transform opacity-100 scale-100"
+                   x-transition:leave="transition ease-in duration-75"
+                   x-transition:leave-start="transform opacity-100 scale-100"
+                   x-transition:leave-end="transform opacity-0 scale-95"
+                   class="absolute right-0 z-10"
+                   x-ref="search-form"
+                   x-description="Search"
+                   x-bind:aria-activedescendant="activeDescendant"
+                   role="menu"
+                   aria-orientation="vertical"
+                   aria-labelledby="search-button"
+                   tabindex="-1"
+                   style="display: none;"
               >
-              <span class="flex absolute inset-y-0 right-3 items-center pl-2">
-                <button type="submit">
-                  <img class="" src="{% static 'img/icons/icon-search.svg' %}" alt="Search"/>
-                </button>
-              </span>
-            </form>
-            <img class="inline-flex -mt-1" src="{% static 'img/icons/icon-search.svg' %}" alt="Search"/>
+                <form action="https://www.google.com/search" method="get" name="searchform" target="_blank">
+                  <input name="sitesearch" type="hidden" value="boost.org">
+                  <input autocomplete="on"
+                         class="py-2 px-3 text-xs text-white rounded-lg border-slate bg-charcoal"
+                         name="q"
+                         placeholder="Search Boost.org"
+                         required="required"
+                         type="text"
+                  >
+                  <span class="flex absolute inset-y-0 right-3 items-center pl-2">
+                    <button type="submit">
+                      <img class="" src="{% static 'img/icons/icon-search.svg' %}" alt="Search"/>
+                    </button>
+                  </span>
+                </form>
+              </div>
+            </span>
 
             <a href="{% url 'support' %}" class="inline-flex"><i class="fas fa-question-circle"></i></a>
             <svg viewBox="0 0 24 24" fill="none" class="inline-flex -mt-1 w-6 h-6">
@@ -46,15 +66,39 @@
               <path d="m17.715 15.15.95.316a1 1 0 0 0-1.445-1.185l.495.869ZM9 6.035l.846.534a1 1 0 0 0-1.14-1.49L9 6.035Zm8.221 8.246a5.47 5.47 0 0 1-2.72.718v2a7.47 7.47 0 0 0 3.71-.98l-.99-1.738Zm-2.72.718A5.5 5.5 0 0 1 9 9.5H7a7.5 7.5 0 0 0 7.5 7.5v-2ZM9 9.5c0-1.079.31-2.082.845-2.93L8.153 5.5A7.47 7.47 0 0 0 7 9.5h2Zm-4 3.368C5 10.089 6.815 7.75 9.292 6.99L8.706 5.08C5.397 6.094 3 9.201 3 12.867h2Zm6.042 6.136C7.718 19.003 5 16.268 5 12.867H3c0 4.48 3.588 8.136 8.042 8.136v-2Zm5.725-4.17c-.81 2.433-3.074 4.17-5.725 4.17v2c3.552 0 6.553-2.327 7.622-5.537l-1.897-.632Z" class="fill-white"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M17 3a1 1 0 0 1 1 1 2 2 0 0 0 2 2 1 1 0 1 1 0 2 2 2 0 0 0-2 2 1 1 0 1 1-2 0 2 2 0 0 0-2-2 1 1 0 1 1 0-2 2 2 0 0 0 2-2 1 1 0 0 1 1-1Z" class="fill-white"></path>
             </svg>
 
-            {% if not user.is_authenticated %}
-              <a href="{% url 'account_signup' %}" class="font-medium text-white hover:text-orange">Join</a>
-            {% else %}
-              {% if user.image %}
-                <img src="{{ user.image.url }}" alt="user" class="inline-flex rounded-lg w-[30px]" />
+            <span x-data="{ 'userOpen': false }" class="relative">
+              {% if not user.is_authenticated %}
+                <a href="{% url 'account_signup' %}" class="font-medium text-white hover:text-orange">Join</a>
               {% else %}
-                <i class="inline-flex mr-2 text-5xl fas fa-user text-white/60"></i>
+                {% if user.image %}
+                  <img src="{{ user.image.url }}" alt="user" class="inline-flex rounded-lg cursor-pointer w-[30px]" @click="userOpen = !userOpen" />
+                {% else %}
+                  <i class="inline-flex mr-2 text-5xl fas fa-user text-white/60"></i>
+                {% endif %}
               {% endif %}
-            {% endif %}
+
+              <div x-show="userOpen"
+                   @click.away="userOpen = false"
+                   x-transition:enter="transition ease-out duration-100"
+                   x-transition:enter-start="transform opacity-0 scale-95"
+                   x-transition:enter-end="transform opacity-100 scale-100"
+                   x-transition:leave="transition ease-in duration-75"
+                   x-transition:leave-start="transform opacity-100 scale-100"
+                   x-transition:leave-end="transform opacity-0 scale-95"
+                   class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left rounded-md divide-y divide-gray-500 ring-1 ring-gray-500 shadow-lg origin-top-right bg-charcoal"
+                   x-ref="menu-items"
+                   x-description="Profile Menu"
+                   x-bind:aria-activedescendant="activeDescendant"
+                   role="menu"
+                   aria-orientation="vertical"
+                   aria-labelledby="user-menu-button"
+                   tabindex="-1"
+                   style="display: none;"
+              >
+                <a href="{% url 'profile-user' user.id %}" class="block py-2 text-xs text-white hover:text-orange">My Profile</a>
+                <a href="{% url 'account_logout' %}" class="block py-2 text-xs text-white hover:text-orange">Log Out</a>
+              </div>
+            </span>
           </nav>
         </div>
       </div>
