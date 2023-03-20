@@ -63,7 +63,7 @@ class ProfileViewSet(DetailView):
         context = super().get_context_data(**kwargs)
         user = self.get_object()
         context["authored"] = user.authors.all()
-        context["maintained"] = user.maintainers.all()
+        context["maintained"] = user.maintainers.all().distinct()
         return context
 
 
