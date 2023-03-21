@@ -53,21 +53,32 @@ def command():
         libraries_json = updater.get_library_metadata(library.name)
 
         if isinstance(libraries_json, list):
-            # TODO: Fix this once #55 is fixed
-            continue
+            for library_json in libraries_json:
+                click.secho(f"Getting authors...", fg="green")
+                author_data = library_json.get("authors")
+                process_author_data(author_data, library)
 
-        click.secho(f"Getting authors...", fg="green")
-        author_data = libraries_json.get("authors")
-        process_author_data(author_data, library)
+                if skip_maintainers:
+                    click.secho(f"... skipping maintainers", fg="red")
+                    skip_maintainers = False
+                    continue
 
-        if skip_maintainers:
-            click.secho(f"... skipping maintainers", fg="red")
-            skip_maintainers = False
-            continue
+                click.secho(f"Getting maintainers...", fg="green")
+                maintainer_data = library_json.get("maintainers")
+                process_maintainer_data(maintainer_data, library_version)
+        else:
+            click.secho(f"Getting authors...", fg="green")
+            author_data = libraries_json.get("authors")
+            process_author_data(author_data, library)
 
-        click.secho(f"Getting maintainers...", fg="green")
-        maintainer_data = libraries_json.get("maintainers")
-        process_maintainer_data(maintainer_data, library_version)
+            if skip_maintainers:
+                click.secho(f"... skipping maintainers", fg="red")
+                skip_maintainers = False
+                continue
+
+            click.secho(f"Getting maintainers...", fg="green")
+            maintainer_data = libraries_json.get("maintainers")
+            process_maintainer_data(maintainer_data, library_version)
 
     click.secho("All Done!", fg="green")
 
@@ -116,7 +127,12 @@ def extract_names(val: str) -> list:
     if email:
         val = val.replace(email.group(), "")
 
-    return val.strip().rsplit(" ", 1)
+    names = val.strip().rsplit(" ", 1)
+
+    if len(names) == 1:
+        names.append("")
+
+    return names
 
 
 def generate_fake_email(val: str) -> str:

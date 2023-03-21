@@ -29,6 +29,11 @@ def test_extract_names():
     result = extract_names(sample)
     assert expected == result
 
+    sample = "Various"
+    expected = ["Various", ""]
+    result = extract_names(sample)
+    assert expected == result
+
 
 def test_generate_fake_email():
     sample = "Tester de Testerson"
