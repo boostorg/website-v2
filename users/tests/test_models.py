@@ -1,28 +1,28 @@
 import pytest
 
-from test_plus import TestCase
+from model_bakery import baker
+
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 
 User = get_user_model()
 
 
 def test_regular_user(user):
-    assert user.is_active == True
-    assert user.is_staff == False
-    assert user.is_superuser == False
+    assert user.is_active is True
+    assert user.is_staff is False
+    assert user.is_superuser is False
 
 
 def test_staff_user(staff_user):
-    assert staff_user.is_active == True
-    assert staff_user.is_staff == True
-    assert staff_user.is_superuser == False
+    assert staff_user.is_active is True
+    assert staff_user.is_staff is True
+    assert staff_user.is_superuser is False
 
 
 def test_super_user(super_user):
-    assert super_user.is_active == True
-    assert super_user.is_staff == True
-    assert super_user.is_superuser == True
+    assert super_user.is_active is True
+    assert super_user.is_staff is True
+    assert super_user.is_superuser is True
 
 
 @pytest.mark.skip("Add this test when I have the patience for mocks")
@@ -33,3 +33,66 @@ def test_user_save_image_from_github(user):
     dealing with a File object might make it trickier.
     """
     pass
+
+
+def test_find_contributor_by_email(user):
+    found_user = User.objects.find_contributor(email=user.email)
+    assert found_user == user
+
+
+def test_find_contributor_by_email_not_found():
+    non_existent_email = "nonexistent@email.com"
+    found_user = User.objects.find_contributor(email=non_existent_email)
+    assert found_user is None
+
+
+def test_find_contributor_not_author_or_maintainer(user: User):
+    found_user = User.objects.find_contributor(
+        first_name=user.first_name, last_name=user.last_name
+    )
+    assert found_user is None
+
+
+def test_find_contributor_by_first_and_last_name_not_found():
+    non_existent_first_name = "Nonexistent"
+    non_existent_last_name = "User"
+    found_user = User.objects.find_contributor(
+        first_name=non_existent_first_name, last_name=non_existent_last_name
+    )
+    assert found_user is None
+
+
+def test_find_contributor_by_first_and_last_name_multiple_results(user, staff_user):
+    staff_user.first_name = user.first_name
+    staff_user.last_name = user.last_name
+    staff_user.save()
+
+    found_user = User.objects.find_contributor(
+        first_name=user.first_name, last_name=user.last_name
+    )
+    assert found_user is None
+
+
+def test_find_contributor_no_args():
+    found_user = User.objects.find_contributor()
+    assert found_user is None
+
+
+def test_find_contributor_is_author(user, library):
+    library.authors.add(user)
+    library.save()
+
+    found_user = User.objects.find_contributor(
+        first_name=user.first_name, last_name=user.last_name
+    )
+    assert found_user == user
+
+
+def test_find_contributor_is_maintainer(user, library_version):
+    library_version.maintainers.add(user)
+    library_version.save()
+
+    found_user = User.objects.find_contributor(
+        first_name=user.first_name, last_name=user.last_name
+    )
+    assert found_user == user
