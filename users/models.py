@@ -65,47 +65,43 @@ class UserManager(BaseUserManager):
         logger.info("Creating stub user with email='%s'", email)
         return self._create_user(email, password, claimed=claimed, **extra_fields)
 
-    def find_user(
-        self, email: str = None, first_name: str = None, last_name: str = None
-    ):
+    def find_contributor(self, email=None, first_name=None, last_name=None):
         """
         Lazily finds a matching User record by email, or first name and last name.
 
-        This method is intended to be used when uploading library contributors in situations where we don't have the
+        This method is intended to be used when uploading library contributors in situations where we might not have
         contributor's email address. It first checks if a user with the given email exists, and if found, returns that
         user. If no user is found with the given email, it checks if a user with the given first name and last name
         exists, and returns that user if found. Otherwise, it returns None.
 
         Args:
-            email (str): The email address of the user to find.
-            first_name (str): The first name of the user to find.
-            last_name (str): The last name of the user to find.
+            email (str, optional): The email address of the user to search for.
+                Assumes the email address is legitimate, and is not one we generated as a placeholder.
+            first_name (str, optional): The first name of the user to search for.
+            last_name (str, optional): The last name of the user to search for.
 
         Returns:
-            A User object if a matching record is found, otherwise None.
+            User object or None: If a user is found based on the provided criteria, the user object is returned. Otherwise, None is returned.
         """
-        # Check if a user with the email exists
-        user = self.model.objects.filter(email=email).first()
-
-        # If a user with the email is found, return that user
-        if user:
-            return user
-
-        # If not found, check for a user with the same first and last name
-        if self.model.objects.filter(
-            first_name=first_name, last_name=last_name
-        ).exists():
+        if email:
             try:
-                return self.model.objects.get(
-                    first_name=first_name, last_name=last_name
-                )
-            except self.model.MultipleObjectsReturned:
-                logger.info(
-                    "Multiple users found with names",
-                    first_name=first_name,
-                    last_name=last_name,
-                )
-                return
+                return self.get(email=email)
+            except self.model.DoesNotExist:
+                return None
+
+        if not first_name or not last_name:
+            return None
+
+        users = self.filter(first_name=first_name, last_name=last_name)
+
+        authors_or_maintainers = users.filter(
+            models.Q(authors__isnull=False) | models.Q(maintainers__isnull=False)
+        ).distinct()
+
+        if authors_or_maintainers.count() == 1:
+            return authors_or_maintainers.first()
+        else:
+            return None
 
     def record_login(self, user=None, email=None):
         """

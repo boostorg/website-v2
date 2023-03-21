@@ -161,7 +161,7 @@ def process_author_data(data: list, obj: Library) -> Library:
 
     for author in data:
         person_data = get_contributor_data(author)
-        user = User.objects.find_user(
+        user = User.objects.find_contributor(
             email=person_data["email"].lower(),
             first_name=person_data["first_name"],
             last_name=person_data["last_name"],
@@ -191,7 +191,7 @@ def process_maintainer_data(data: list, obj: LibraryVersion) -> LibraryVersion:
 
     for maintainer in data:
         person_data = get_contributor_data(maintainer)
-        user = User.objects.find_user(
+        user = User.objects.find_contributor(
             email=person_data["email"].lower(),
             first_name=person_data["first_name"],
             last_name=person_data["last_name"],

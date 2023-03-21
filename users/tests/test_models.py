@@ -35,22 +35,64 @@ def test_user_save_image_from_github(user):
     pass
 
 
-def test_find_user(user):
-    # Test finding the user by email
-    assert User.objects.find_user(email=user.email) == user
+def test_find_contributor_by_email(user):
+    found_user = User.objects.find_contributor(email=user.email)
+    assert found_user == user
 
-    # Test finding the user by first and last name
-    assert (
-        User.objects.find_user(first_name=user.first_name, last_name=user.last_name)
-        == user
+
+def test_find_contributor_by_email_not_found():
+    non_existent_email = "nonexistent@email.com"
+    found_user = User.objects.find_contributor(email=non_existent_email)
+    assert found_user is None
+
+
+def test_find_contributor_not_author_or_maintainer(user: User):
+    found_user = User.objects.find_contributor(
+        first_name=user.first_name, last_name=user.last_name
     )
+    assert found_user is None
 
-    # Test when no user is found
-    assert User.objects.find_user(first_name="Jane", last_name="Smith") is None
 
-    # Test when multiple users are found
-    baker.make("users.User", first_name=user.first_name, last_name=user.last_name)
-    assert (
-        User.objects.find_user(first_name=user.first_name, last_name=user.last_name)
-        is None
+def test_find_contributor_by_first_and_last_name_not_found():
+    non_existent_first_name = "Nonexistent"
+    non_existent_last_name = "User"
+    found_user = User.objects.find_contributor(
+        first_name=non_existent_first_name, last_name=non_existent_last_name
     )
+    assert found_user is None
+
+
+def test_find_contributor_by_first_and_last_name_multiple_results(user, staff_user):
+    staff_user.first_name = user.first_name
+    staff_user.last_name = user.last_name
+    staff_user.save()
+
+    found_user = User.objects.find_contributor(
+        first_name=user.first_name, last_name=user.last_name
+    )
+    assert found_user is None
+
+
+def test_find_contributor_no_args():
+    found_user = User.objects.find_contributor()
+    assert found_user is None
+
+
+def test_find_contributor_is_author(user, library):
+    library.authors.add(user)
+    library.save()
+
+    found_user = User.objects.find_contributor(
+        first_name=user.first_name, last_name=user.last_name
+    )
+    assert found_user == user
+
+
+def test_find_contributor_is_maintainer(user, library_version):
+    library_version.maintainers.add(user)
+    library_version.save()
+
+    found_user = User.objects.find_contributor(
+        first_name=user.first_name, last_name=user.last_name
+    )
+    assert found_user == user
