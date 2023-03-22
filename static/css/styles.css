@@ -2242,6 +2242,10 @@ input[type=file] {
   background-color: rgb(49 74 87 / var(--tw-bg-opacity));
 }
 
+.hover\:fill-orange:hover {
+  fill: #FF9F00;
+}
+
 .hover\:text-orange:hover {
   --tw-text-opacity: 1;
   color: rgb(255 159 0 / var(--tw-text-opacity));
