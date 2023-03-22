@@ -901,12 +901,16 @@ input[type=file] {
   right: 0px;
 }
 
-.top-0 {
-  top: 0px;
+.-top-2 {
+  top: -0.5rem;
 }
 
 .right-3 {
   right: 0.75rem;
+}
+
+.top-0 {
+  top: 0px;
 }
 
 .top-10 {
@@ -935,14 +939,6 @@ input[type=file] {
 
 .top-3 {
   top: 0.75rem;
-}
-
-.-top-4 {
-  top: -1rem;
-}
-
-.-top-2 {
-  top: -0.5rem;
 }
 
 .z-10 {
@@ -1211,10 +1207,6 @@ input[type=file] {
 
 .h-\[53px\] {
   height: 53px;
-}
-
-.h-\[20px\] {
-  height: 20px;
 }
 
 .h-\[50px\] {
@@ -1605,12 +1597,12 @@ input[type=file] {
   border-radius: 0.5rem;
 }
 
-.rounded-full {
-  border-radius: 9999px;
-}
-
 .rounded-sm {
   border-radius: 0.125rem;
+}
+
+.rounded-full {
+  border-radius: 9999px;
 }
 
 .rounded-xl {
@@ -1729,6 +1721,10 @@ input[type=file] {
   --tw-gradient-to: #FF9F00;
 }
 
+.fill-sky-400\/20 {
+  fill: rgb(56 189 248 / 0.2);
+}
+
 .fill-white {
   fill: #fff;
 }
@@ -1743,6 +1739,10 @@ input[type=file] {
 
 .fill-silver {
   fill: #B5C9D3;
+}
+
+.fill-white\/40 {
+  fill: rgb(255 255 255 / 0.4);
 }
 
 .p-4 {
@@ -2097,6 +2097,10 @@ input[type=file] {
   color: rgb(49 74 87 / var(--tw-text-opacity));
 }
 
+.text-white\/50 {
+  color: rgb(255 255 255 / 0.5);
+}
+
 .text-gray-700 {
   --tw-text-opacity: 1;
   color: rgb(55 65 81 / var(--tw-text-opacity));
@@ -2125,6 +2129,10 @@ input[type=file] {
 .text-gray-200 {
   --tw-text-opacity: 1;
   color: rgb(229 231 235 / var(--tw-text-opacity));
+}
+
+.text-white\/40 {
+  color: rgb(255 255 255 / 0.4);
 }
 
 .placeholder-gray-500::-moz-placeholder {
