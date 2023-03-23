@@ -13,6 +13,130 @@ from .utils import parse_date
 logger = structlog.get_logger()
 
 
+"""REFACTORED CODE"""
+
+
+class GithubAPIClient:
+    def __init__(
+        self,
+        owner: str = "boostorg",
+        ref: str = "heads/master",
+        repo_slug: str = "boost",
+    ) -> None:
+        """
+        Initialize the GitHubAPIClient.
+
+        :param owner: str, the repository owner
+        :param ref: str, the Git reference
+        :param repo_slug: str, the repository slug
+        """
+        self.api = self.initialize_api()
+        self.owner = owner
+        self.ref = ref
+        self.repo_slug = repo_slug
+
+        # Modules we need to skip as they are not really Boost Libraries
+        self.skip_modules = [
+            "inspect",
+            "boostbook",
+            "bcp",
+            "build",
+            "quickbook",
+            "litre",
+            "auto_index",
+            "boostdep",
+            "check_build",
+            "headers",
+            "boost_install",
+            "docca",
+            "cmake",
+            "more",
+        ]
+
+    def initialize_api(self, token=None) -> GhApi:
+        """
+        Initialize the GitHub API with the token from the environment variable.
+
+        :return: GhApi, the GitHub API
+        """
+        if token is None:
+            token = os.environ.get("GITHUB_TOKEN", None)
+        if token is None:
+            raise ValueError("GITHUB_TOKEN environment variable not found.")
+        return GhApi(token=token)
+
+    def get_blob(self, repo_slug: str = None, file_sha: str = None) -> dict:
+        """
+        Get the blob from the GitHub API.
+
+        :param repo_slug: str, the repository slug
+        :param file_sha: str, the file sha
+        :return: dict, the blob
+        """
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        return self.api.git.get_blob(
+            owner=self.owner, repo=repo_slug, file_sha=file_sha
+        )
+
+    def get_libraries_json_file(self, repo_slug=None):
+        """
+        Retrieve the libraries.json file from the repository.
+
+        :param repo_slug: str, the repository slug
+        :return: str, the libraries.json content
+        """
+        url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/develop/meta/libraries.json"
+
+        try:
+            response = requests.get(url)
+            return response.json()
+        except Exception as e:
+            logger.exception(
+                "get_library_json_failed", owner=self.owner, repo=repo_slug, url=url
+            )
+            return None
+
+    def get_ref(self, repo_slug: str = None, ref: str = None) -> dict:
+        """
+        Get the ref from the GitHub API.
+
+        :param repo_slug: str, the repository slug
+        :param ref: str, the Git reference
+        :return: dict, the ref
+        """
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        if not ref:
+            ref = self.ref
+        return self.api.git.get_ref(owner=self.owner, repo=repo_slug, ref=ref)
+
+    def get_repo(self, repo_slug: str = None) -> dict:
+        """
+        Get the repository from the GitHub API.
+
+        :param repo_slug: str, the repository slug
+        :return: dict, the repository
+        """
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        return self.api.repos.get(owner=self.owner, repo=repo_slug)
+
+    def get_tree(self, repo_slug: str = None, tree_sha: str = None) -> dict:
+        """
+        Get the tree from the GitHub API.
+
+        :param repo_slug: str, the repository slug
+        :param tree_sha: str, the tree sha
+        :return: dict, the tree
+        """
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        return self.api.git.get_tree(
+            owner=self.owner, repo=repo_slug, tree_sha=tree_sha
+        )
+
+
 def get_api():
     """
     Return an GH API object, using a GITHUB_TOKEN from the environment if it exists
