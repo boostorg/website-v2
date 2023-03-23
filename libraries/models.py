@@ -31,21 +31,39 @@ class Library(models.Model):
     """
     Model to represent component Libraries of Boost
 
-    The Library model is the main model for Boost Libraries. Default values 
+    The Library model is the main model for Boost Libraries. Default values
     come from the .gitmodules file in the main Boost repo, and the libraries.json
-    file in the meta/ directory of Boost library repos.  
+    file in the meta/ directory of Boost library repos.
 
     Most libraries have a single Library object, but some libraries have multiple
-    Library objects. For example, the Boost Math library has a Library object 
+    Library objects. For example, the Boost Math library has a Library object
     for multiple sub-libraries. Each of those libraries will be its own Library
-    object, and will have the github_url to the main library repo. 
+    object, and will have the github_url to the main library repo.
     """
 
-    name = models.CharField(max_length=100, db_index=True, help_text="The name of the library as defined in libraries.json.")
-    key = models.CharField(max_length=100, blank=True, null=True, help_text="The key of the library as defined in libraries.json.")
-    slug = models.SlugField(blank=True, null=True, help_text="The slug of the library, used in the URL.")
-    description = models.TextField(blank=True, null=True, help_text="The description of the library.")
-    github_url = models.URLField(max_length=500, blank=True, null=True, help_text="The URL of the library's GitHub repository.")
+    name = models.CharField(
+        max_length=100,
+        db_index=True,
+        help_text="The name of the library as defined in libraries.json.",
+    )
+    key = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="The key of the library as defined in libraries.json.",
+    )
+    slug = models.SlugField(
+        blank=True, null=True, help_text="The slug of the library, used in the URL."
+    )
+    description = models.TextField(
+        blank=True, null=True, help_text="The description of the library."
+    )
+    github_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="The URL of the library's GitHub repository.",
+    )
     first_release = models.ForeignKey(
         "versions.Version",
         related_name="first_releases",
