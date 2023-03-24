@@ -61,8 +61,6 @@ class GithubAPIClient:
         """
         if token is None:
             token = os.environ.get("GITHUB_TOKEN", None)
-        if token is None:
-            raise ValueError("GITHUB_TOKEN environment variable not found.")
         return GhApi(token=token)
 
     def get_blob(self, repo_slug: str = None, file_sha: str = None) -> dict:
