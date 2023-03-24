@@ -14,7 +14,8 @@ logger = structlog.get_logger()
 
 
 class GithubAPIClient:
-    """ A class to interact with the GitHub API. """
+    """A class to interact with the GitHub API."""
+
     def __init__(
         self,
         owner: str = "boostorg",
@@ -32,6 +33,7 @@ class GithubAPIClient:
         self.owner = owner
         self.ref = ref
         self.repo_slug = repo_slug
+        self.logger = structlog.get_logger()
 
         # Modules we need to skip as they are not really Boost Libraries
         self.skip_modules = [
@@ -79,7 +81,7 @@ class GithubAPIClient:
 
     def get_gitmodules(self, repo_slug: str = None) -> str:
         """
-        Get the .gitmodules file from the GitHub API.
+        Get the .gitmodules file for the repo from the GitHub API.
 
         :param repo_slug: str, the repository slug
         :return: str, the .gitmodules file
@@ -110,7 +112,9 @@ class GithubAPIClient:
             response = requests.get(url)
             return response.json()
         except Exception:
-            self.logger.exception("get_library_metadata_failed", repo=repo_slug, url=url)
+            self.logger.exception(
+                "get_library_metadata_failed", repo=repo_slug, url=url
+            )
             return None
 
     def get_ref(self, repo_slug: str = None, ref: str = None) -> dict:
@@ -138,7 +142,9 @@ class GithubAPIClient:
             repo_slug = self.repo_slug
         return self.api.repos.get(owner=self.owner, repo=repo_slug)
 
-    def get_repo_issues(owner: str, repo_slug: str, state: str="all", issues_only: bool=True):
+    def get_repo_issues(
+        owner: str, repo_slug: str, state: str = "all", issues_only: bool = True
+    ):
         """
         Get all issues for a repo.
         Note: The GitHub API considers both PRs and Issues to be "Issues" and does not
@@ -165,7 +171,9 @@ class GithubAPIClient:
         # Filter results
         results = []
         if issues_only:
-            results = [result for result in all_results if not result.get("pull_request")]
+            results = [
+                result for result in all_results if not result.get("pull_request")
+            ]
         else:
             results = all_results
 
@@ -193,7 +201,6 @@ class GithubAPIClient:
 
         return results
 
-
     def get_tree(self, repo_slug: str = None, tree_sha: str = None) -> dict:
         """
         Get the tree from the GitHub API.
@@ -207,7 +214,7 @@ class GithubAPIClient:
         return self.api.git.get_tree(
             owner=self.owner, repo=repo_slug, tree_sha=tree_sha
         )
-    
+
     def get_user_by_username(self, username: str) -> dict:
         """Return the response from GitHub's /users/{username}/"""
         return self.api.users.get_by_username(username=username)
@@ -250,9 +257,9 @@ class GithubDataParser:
         return {
             "name": libraries_json["name"],
             "key": libraries_json["key"],
-            "authors": libraries_json.get("authors", ""),
+            "authors": libraries_json.get("authors", []),
             "description": libraries_json.get("description", ""),
-            "category": libraries_json.get("category", ""),
+            "category": libraries_json.get("category", []),
             "maintainers": libraries_json.get("maintainers", []),
             "cxxstd": libraries_json.get("cxxstd"),
         }
@@ -289,27 +296,31 @@ class LibraryUpdater:
             "more",
         ]
 
-    def get_library_list(self):
+    def get_library_list(self, gitmodules=None):
         """
-        Retrieve the full list of libraru data for Boost libraries from their Github repos. 
+        Retrieve the full list of library data for Boost libraries from their Github repos.
 
-        Included libraries are rrtrieved from the list of modules in .gitmodules in the main Boost 
+        Included libraries are rrtrieved from the list of modules in .gitmodules in the main Boost
         repo. The libraries.json file is retrieved from each module and parsed to get the library
         metadata. Most libraries.json files contain information about individual libraries, but a few such as "system", "functional",
-        and others contain multiple libraries.  
+        and others contain multiple libraries.
         """
-        raw_gitmodules = self.client.get_gitmodules()
-        gitmodules = self.parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
-
         libraries = []
         for gitmodule in gitmodules:
             if gitmodule["module"] in self.skip_modules:
-                self.logger.info("skipping_library", skipped_library=gitmodule["module"])
+                self.logger.info(
+                    "skipping_library", skipped_library=gitmodule["module"]
+                )
                 continue
 
-            libraries_json = self.client.get_libraries_json(repo_slug=gitmodule["module"])
+            libraries_json = self.client.get_libraries_json(
+                repo_slug=gitmodule["module"]
+            )
             github_data = self.client.get_repo(repo_slug=gitmodule["module"])
-            extra_data = {"last_github_update": parse_date(github_data.get("updated_at", "")), "github_url": github_data.get("html_url", "")}
+            extra_data = {
+                "last_github_update": parse_date(github_data.get("updated_at", "")),
+                "github_url": github_data.get("html_url", ""),
+            }
 
             if type(libraries_json) is list:
                 for library in libraries_json:
@@ -324,12 +335,17 @@ class LibraryUpdater:
 
     def update_libraries(self):
         """Update all libraries with the metadata"""
-        library_data = self.get_library_list()
+        raw_gitmodules = self.client.get_gitmodules()
+        gitmodules = self.parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
+        library_data = self.get_library_list(gitmodules=gitmodules)
 
-        self.logger.info("update_all_libraries_metadata", library_count=len(library_data))
+        self.logger.info(
+            "update_all_libraries_metadata", library_count=len(library_data)
+        )
 
         for library_data in library_data:
             library = self.update_library(library_data)
+            self.add_recent_library_version(library)
             # github_updater = GithubUpdater(owner=self.owner, library=library)
             # github_updater.update()
 
@@ -338,20 +354,21 @@ class LibraryUpdater:
         logger = self.logger.bind(library=library_data)
         try:
             obj, created = Library.objects.update_or_create(
-                key=library_data["key"], defaults={
+                key=library_data["key"],
+                defaults={
                     "name": library_data["name"],
-                    "key": library_data["key"], 
-                    "github_url": library_data["github_url"], 
+                    "key": library_data["key"],
+                    "github_url": library_data["github_url"],
                     "description": library_data["description"],
-                    "cpp_standard_minimum": library_data["cxxstd"], 
-                    "last_github_update": library_data["last_github_update"]
-            })
+                    "cpp_standard_minimum": library_data["cxxstd"],
+                    "last_github_update": library_data["last_github_update"],
+                },
+            )
 
             # Update categories
             self.update_categories(obj, categories=library_data["category"])
             self.update_authors(obj, authors=library_data["authors"])
             self.update_maintainers(obj, maintainers=library_data["maintainers"])
-            self.add_recent_library_version(obj)
 
             # Save any changes
             logger = logger.bind(obj_created=created)
@@ -388,7 +405,6 @@ class LibraryUpdater:
         issues_data = self.client.get_repo_issues(
             self.owner, obj.github_repo, state="all", issues_only=True
         )
-
         for issue_dict in issues_data:
 
             # Get the date information
@@ -408,7 +424,7 @@ class LibraryUpdater:
             # Create or update the Issue object
             try:
                 issue, created = Issue.objects.update_or_create(
-                    library=self.library,
+                    library=obj,
                     github_id=issue_dict["id"],
                     defaults={
                         "title": issue_dict["title"][:255],
@@ -420,24 +436,25 @@ class LibraryUpdater:
                         "data": obj2dict(issue_dict),
                     },
                 )
+                self.logger.info(
+                    "issue_updated_successfully",
+                    issue_id=issue.id,
+                    created_issue=created,
+                    issue_github_id=issue.github_id,
+                )
             except Exception as e:
-                logger.exception(
+                self.logger.exception(
                     "update_issues_error_skipped_issue",
                     issue_github_id=issue_dict.get("id"),
                     exc_msg=str(e),
                 )
-            logger.info(
-                "issue_updated_successfully",
-                issue_id=issue.id,
-                created_issue=created,
-                issue_github_id=issue.github_id,
-            )
+                continue
 
-    def update_prs(self):
+    def update_prs(self, obj):
         """Update all PRs for a library"""
         self.logger.info("updating_repo_prs")
 
-        prs_data = self.client.get_repo_prs(library.github_repo, state="all")
+        prs_data = self.client.get_repo_prs(obj.github_repo, state="all")
 
         for pr_dict in prs_data:
 
@@ -461,7 +478,7 @@ class LibraryUpdater:
 
             try:
                 pull_request, created = PullRequest.objects.update_or_create(
-                    library=self.library,
+                    library=obj,
                     github_id=pr_dict["id"],
                     defaults={
                         "title": pr_dict["title"][:255],
@@ -474,16 +491,15 @@ class LibraryUpdater:
                         "data": obj2dict(pr_dict),
                     },
                 )
+                self.logger.info(
+                    "pull_request_updated_successfully",
+                    pr_id=pull_request.id,
+                    created_pr=created,
+                    pr_github_id=pull_request.github_id,
+                )
             except Exception as e:
-                logger.exception(
+                self.logger.exception(
                     "update_prs_error_skipped_pr",
                     pr_github_id=pr_dict.get("id"),
                     exc_msg=str(e),
                 )
-            logger.info(
-                "pull_request_updated_successfully",
-                pr_id=pull_request.id,
-                created_pr=created,
-                pr_github_id=pull_request.github_id,
-            )
-        
