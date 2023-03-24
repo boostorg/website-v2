@@ -152,6 +152,10 @@ class GithubAPIClient:
         return self.api.git.get_tree(
             owner=self.owner, repo=repo_slug, tree_sha=tree_sha
         )
+    
+    def get_user_by_username(self, username: str) -> dict:
+        """Return the response from GitHub's /users/{username}/"""
+        return self.api.users.get_by_username(username=username)
 
 
 class GithubDataParser:
@@ -197,13 +201,6 @@ class GithubDataParser:
             "maintainers": libraries_json.get("maintainers", []),
             "cxxstd": libraries_json.get("cxxstd"),
         }
-
-
-
-def get_user_by_username(username):
-    """Return the response from GitHub's /users/{username}/"""
-    api = GithubAPIClient().initialize_api()
-    return api.users.get_by_username(username=username)
 
 
 def repo_issues(owner, repo, state="all", issues_only=True):
