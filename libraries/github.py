@@ -138,6 +138,61 @@ class GithubAPIClient:
             repo_slug = self.repo_slug
         return self.api.repos.get(owner=self.owner, repo=repo_slug)
 
+    def get_repo_issues(owner: str, repo_slug: str, state: str="all", issues_only: bool=True):
+        """
+        Get all issues for a repo.
+        Note: The GitHub API considers both PRs and Issues to be "Issues" and does not
+        support filtering in the request, so to exclude PRs from the list of issues, we
+        do some manual filtering of the results
+
+        Note: GhApi() returns results as AttrDict objects:
+        https://fastcore.fast.ai/basics.html#attrdict
+        """
+        pages = list(
+            paged(
+                self.api.issues.list_for_repo,
+                owner=self.owner,
+                repo=repo_slug,
+                state=state,
+                per_page=100,
+            )
+        )
+        # Concatenate all pages into a single list
+        all_results = []
+        for page in pages:
+            all_results.extend(page)
+
+        # Filter results
+        results = []
+        if issues_only:
+            results = [result for result in all_results if not result.get("pull_request")]
+        else:
+            results = all_results
+
+        return results
+
+    def get_repo_prs(self, repo_slug, state="all"):
+        """
+        Get all PRs for a repo
+        Note: GhApi() returns results as AttrDict objects:
+        https://fastcore.fast.ai/basics.html#attrdict
+        """
+        pages = list(
+            paged(
+                self.api.pulls.list,
+                owner=self.owner,
+                repo=repo_slug,
+                state=state,
+                per_page=100,
+            )
+        )
+        # Concatenate all pages into a single list
+        results = []
+        for p in pages:
+            results.extend(p)
+
+        return results
+
 
     def get_tree(self, repo_slug: str = None, tree_sha: str = None) -> dict:
         """
@@ -201,64 +256,6 @@ class GithubDataParser:
             "maintainers": libraries_json.get("maintainers", []),
             "cxxstd": libraries_json.get("cxxstd"),
         }
-
-
-def repo_issues(owner, repo, state="all", issues_only=True):
-    """
-    Get all issues for a repo.
-    Note: The GitHub API considers both PRs and Issues to be "Issues" and does not
-    support filtering in the request, so to exclude PRs from the list of issues, we
-    do some manual filtering of the results
-    Note: GhApi() returns results as AttrDict objects:
-    https://fastcore.fast.ai/basics.html#attrdict
-    """
-    api = GithubAPIClient().initialize_api()
-    pages = list(
-        paged(
-            api.issues.list_for_repo,
-            owner=owner,
-            repo=repo,
-            state=state,
-            per_page=100,
-        )
-    )
-    # Concatenate all pages into a single list
-    all_results = []
-    for page in pages:
-        all_results.extend(page)
-
-    # Filter results
-    results = []
-    if issues_only:
-        results = [result for result in all_results if not result.get("pull_request")]
-    else:
-        results = all_results
-
-    return results
-
-
-def repo_prs(owner, repo, state="all"):
-    """
-    Get all PRs for a repo
-    Note: GhApi() returns results as AttrDict objects:
-    https://fastcore.fast.ai/basics.html#attrdict
-    """
-    api = GithubAPIClient().initialize_api()
-    pages = list(
-        paged(
-            api.pulls.list,
-            owner=owner,
-            repo=repo,
-            state=state,
-            per_page=100,
-        )
-    )
-    # Concatenate all pages into a single list
-    results = []
-    for p in pages:
-        results.extend(p)
-
-    return results
 
 
 class LibraryUpdater:
@@ -384,38 +381,12 @@ class LibraryUpdater:
     def add_recent_library_version(self, obj):
         pass
 
-
-class GithubUpdater:
-    """
-    We will instantiate an instance of this class for each Library.  Running
-    the `update()` method will update all Github related information we need
-    for the site
-    """
-
-    def __init__(self, owner="boostorg", library=None):
-        self.owner = owner
-        self.library = library
-        self.logger = logger.bind(owner=owner, library=library)
-
-    def update(self):
-        self.logger.info("update_github_repo")
-
-        # try:
-        #     self.update_issues()
-        # except Exception:
-        #     self.logger.exception("update_issues_error")
-
-        # try:
-        #     self.update_prs()
-        # except Exception:
-        #     self.logger.exception("update_prs_error")
-
-    def update_issues(self):
-        """Update all issues for a library"""
+    def update_issues(self, obj):
+        """Import GitHub issues for the library and update the database"""
         self.logger.info("updating_repo_issues")
 
-        issues_data = repo_issues(
-            self.owner, self.library.name, state="all", issues_only=True
+        issues_data = self.client.get_repo_issues(
+            self.owner, obj.github_repo, state="all", issues_only=True
         )
 
         for issue_dict in issues_data:
@@ -466,7 +437,7 @@ class GithubUpdater:
         """Update all PRs for a library"""
         self.logger.info("updating_repo_prs")
 
-        prs_data = repo_prs(self.owner, self.library.name, state="all")
+        prs_data = self.client.get_repo_prs(library.github_repo, state="all")
 
         for pr_dict in prs_data:
 
@@ -515,3 +486,4 @@ class GithubUpdater:
                 created_pr=created,
                 pr_github_id=pull_request.github_id,
             )
+        
