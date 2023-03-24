@@ -346,8 +346,6 @@ class LibraryUpdater:
         for library_data in library_data:
             library = self.update_library(library_data)
             self.add_recent_library_version(library)
-            # github_updater = GithubUpdater(owner=self.owner, library=library)
-            # github_updater.update()
 
     def update_library(self, library_data):
         """Update an individual library"""
