@@ -13,26 +13,197 @@ from .utils import parse_date
 logger = structlog.get_logger()
 
 
-def get_api():
-    """
-    Return an GH API object, using a GITHUB_TOKEN from the environment if it exists
-    """
-    token = os.environ.get("GITHUB_TOKEN", None)
+class GithubAPIClient:
+    """ A class to interact with the GitHub API. """
+    def __init__(
+        self,
+        owner: str = "boostorg",
+        ref: str = "heads/master",
+        repo_slug: str = "boost",
+    ) -> None:
+        """
+        Initialize the GitHubAPIClient.
 
-    return GhApi(token=token)
+        :param owner: str, the repository owner
+        :param ref: str, the Git reference
+        :param repo_slug: str, the repository slug
+        """
+        self.api = self.initialize_api()
+        self.owner = owner
+        self.ref = ref
+        self.repo_slug = repo_slug
+
+        # Modules we need to skip as they are not really Boost Libraries
+        self.skip_modules = [
+            "inspect",
+            "boostbook",
+            "bcp",
+            "build",
+            "quickbook",
+            "litre",
+            "auto_index",
+            "boostdep",
+            "check_build",
+            "headers",
+            "boost_install",
+            "docca",
+            "cmake",
+            "more",
+        ]
+
+    def initialize_api(self, token=None) -> GhApi:
+        """
+        Initialize the GitHub API with the token from the environment variable.
+
+        :return: GhApi, the GitHub API
+        """
+        if token is None:
+            token = os.environ.get("GITHUB_TOKEN", None)
+        if token is None:
+            raise ValueError("GITHUB_TOKEN environment variable not found.")
+        return GhApi(token=token)
+
+    def get_blob(self, repo_slug: str = None, file_sha: str = None) -> dict:
+        """
+        Get the blob from the GitHub API.
+
+        :param repo_slug: str, the repository slug
+        :param file_sha: str, the file sha
+        :return: dict, the blob
+        """
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        return self.api.git.get_blob(
+            owner=self.owner, repo=repo_slug, file_sha=file_sha
+        )
+
+    def get_gitmodules(self, repo_slug: str = None) -> str:
+        """
+        Get the .gitmodules file from the GitHub API.
+
+        :param repo_slug: str, the repository slug
+        :return: str, the .gitmodules file
+        """
+        if not repo_slug:
+            repo_slug = self.repo_slug
+
+        ref = self.get_ref()
+        tree_sha = ref["object"]["sha"]
+        tree = self.get_tree(tree_sha=tree_sha)
+
+        gitmodules = None
+        for item in tree["tree"]:
+            if item["path"] == ".gitmodules":
+                file_sha = item["sha"]
+                blob = self.get_blob(repo_slug=repo_slug, file_sha=file_sha)
+                return base64.b64decode(blob["content"])
+
+    def get_libraries_json(self, repo_slug: str):
+        """
+        Retrieve library metadata from 'meta/libraries.json'
+        Each Boost library will have a `meta` directory with a `libraries.json` file.
+        Example: https://github.com/boostorg/align/blob/5ad7df63cd792fbdb801d600b93cad1a432f0151/meta/libraries.json
+        """
+        url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/develop/meta/libraries.json"
+
+        try:
+            response = requests.get(url)
+            return response.json()
+        except Exception:
+            self.logger.exception("get_library_metadata_failed", repo=repo_slug, url=url)
+            return None
+
+    def get_ref(self, repo_slug: str = None, ref: str = None) -> dict:
+        """
+        Get the ref from the GitHub API.
+
+        :param repo_slug: str, the repository slug
+        :param ref: str, the Git reference
+        :return: dict, the ref
+        """
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        if not ref:
+            ref = self.ref
+        return self.api.git.get_ref(owner=self.owner, repo=repo_slug, ref=ref)
+
+    def get_repo(self, repo_slug: str = None) -> dict:
+        """
+        Get the repository from the GitHub API.
+
+        :param repo_slug: str, the repository slug
+        :return: dict, the repository
+        """
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        return self.api.repos.get(owner=self.owner, repo=repo_slug)
+
+
+    def get_tree(self, repo_slug: str = None, tree_sha: str = None) -> dict:
+        """
+        Get the tree from the GitHub API.
+
+        :param repo_slug: str, the repository slug
+        :param tree_sha: str, the tree sha
+        :return: dict, the tree
+        """
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        return self.api.git.get_tree(
+            owner=self.owner, repo=repo_slug, tree_sha=tree_sha
+        )
+
+
+class GithubDataParser:
+    def parse_gitmodules(self, gitmodules: str) -> dict:
+        """
+        Parse the .gitmodules file.
+        Expects the multiline contents of https://github.com/boostorg/boost/.gitmodules to be passed in
+
+        :param gitmodules: str, the .gitmodules file
+        :return: dict, the parsed .gitmodules file
+        """
+        modules = []
+        current_submodule = None
+
+        submodule_re = re.compile(r"^\[submodule \"(.*)\"\]$")
+        url_re = re.compile(r"^\s*url\s*\=\s*\.\.\/(.*)\.git\s*$")
+
+        for line in gitmodules.split("\n"):
+            sub_m = submodule_re.match(line)
+            if sub_m:
+                current_submodule = {"module": sub_m.group(1)}
+                continue
+
+            url_m = url_re.match(line)
+            if url_m:
+                name = url_m.group(1)
+                current_submodule["url"] = name
+                modules.append(current_submodule)
+                current_submodule = None
+
+        return modules
+
+    def parse_libraries_json(self, libraries_json: dict) -> dict:
+        """
+        Parse the individual library metadata from 'meta/libraries.json'
+        """
+        return {
+            "name": libraries_json["name"],
+            "key": libraries_json["key"],
+            "authors": libraries_json.get("authors", ""),
+            "description": libraries_json.get("description", ""),
+            "category": libraries_json.get("category", ""),
+            "maintainers": libraries_json.get("maintainers", []),
+            "cxxstd": libraries_json.get("cxxstd"),
+        }
+
 
 
 def get_user_by_username(username):
     """Return the response from GitHub's /users/{username}/"""
-    api = get_api()
+    api = GithubAPIClient().initialize_api()
     return api.users.get_by_username(username=username)
-
-
-def get_repo(api, owner, repo):
-    """
-    Return the response from GitHub's /repos/{owner}/{repo}
-    """
-    return api.repos.get(owner=owner, repo=repo)
 
 
 def repo_issues(owner, repo, state="all", issues_only=True):
@@ -44,7 +215,7 @@ def repo_issues(owner, repo, state="all", issues_only=True):
     Note: GhApi() returns results as AttrDict objects:
     https://fastcore.fast.ai/basics.html#attrdict
     """
-    api = get_api()
+    api = GithubAPIClient().initialize_api()
     pages = list(
         paged(
             api.issues.list_for_repo,
@@ -75,7 +246,7 @@ def repo_prs(owner, repo, state="all"):
     Note: GhApi() returns results as AttrDict objects:
     https://fastcore.fast.ai/basics.html#attrdict
     """
-    api = get_api()
+    api = GithubAPIClient().initialize_api()
     pages = list(
         paged(
             api.pulls.list,
@@ -93,37 +264,6 @@ def repo_prs(owner, repo, state="all"):
     return results
 
 
-def update_all_repos_info():
-    """Update all of our repos information from github"""
-    # FIXME: Write this function
-    logger.info("update_all_github_repos")
-
-
-def parse_submodules(content):
-    """Expects the multiline contents of https://github.com/boostorg/boost/.gitmodules to be passed in"""
-    modules = []
-
-    current_submodule = None
-
-    submodule_re = re.compile(r"^\[submodule \"(.*)\"\]$")
-    url_re = re.compile(r"^\s*url\s*\=\s*\.\.\/(.*)\.git\s*$")
-
-    for line in content.split("\n"):
-        sub_m = submodule_re.match(line)
-        if sub_m:
-            current_submodule = {"module": sub_m.group(1)}
-            continue
-
-        url_m = url_re.match(line)
-        if url_m:
-            name = url_m.group(1)
-            current_submodule["url"] = name
-            modules.append(current_submodule)
-            current_submodule = None
-
-    return modules
-
-
 class LibraryUpdater:
     """
     This class is used to sync Libraries from the list of git submodules
@@ -131,7 +271,9 @@ class LibraryUpdater:
     """
 
     def __init__(self, owner="boostorg"):
-        self.api = get_api()
+        self.client = GithubAPIClient(owner=owner)
+        self.api = self.client.initialize_api()
+        self.parser = GithubDataParser()
         self.owner = owner
         self.logger = structlog.get_logger()
 
@@ -153,143 +295,69 @@ class LibraryUpdater:
             "more",
         ]
 
-    def get_ref(self, repo, ref):
-        """Get a particular ref of a particular repo"""
-        return self.api.git.get_ref(owner=self.owner, repo=repo, ref=ref)
-
-    def get_boost_ref(self):
-        """Retrieve the latest commit to master for boostorg/boost repo"""
-        return self.get_ref(repo="boost", ref="heads/master")
-
     def get_library_list(self):
         """
-        Determine our list of libraries from .gitmodules and sub-repo
-        libraries.json files
+        Retrieve the full list of libraru data for Boost libraries from their Github repos. 
+
+        Included libraries are rrtrieved from the list of modules in .gitmodules in the main Boost 
+        repo. The libraries.json file is retrieved from each module and parsed to get the library
+        metadata. Most libraries.json files contain information about individual libraries, but a few such as "system", "functional",
+        and others contain multiple libraries.  
         """
-        # Find our latest .gitmodules
-        ref = self.get_boost_ref()
-        tree_sha = ref["object"]["sha"]
+        raw_gitmodules = self.client.get_gitmodules()
+        gitmodules = self.parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
 
-        # Get all the top-level elements of the main Boost repo
-        top_level_files = self.api.git.get_tree(
-            owner=self.owner, repo="boost", tree_sha=tree_sha
-        )
-        gitmodules = None
-
-        # Cycle through each top-level item
-        for item in top_level_files["tree"]:
-            # We're only looking for the `.gitmodules` file, so skip everything else
-            if item["path"] != ".gitmodules":
-                continue
-            file_sha = item["sha"]
-            f = self.api.git.get_blob(owner=self.owner, repo="boost", file_sha=file_sha)
-            gitmodules = base64.b64decode(f["content"])
-            break
-
-        # Parse the content of the .gitmodules file into a list of dicts with the info we need
-        modules = parse_submodules(gitmodules.decode("utf-8"))
-
-        # Parse the module data into libraries.  Most libraries are individual
-        # repositories, but a few such as "system", "functional", and others
-        # contain multiple libraries
         libraries = []
-        for m in modules:
-            name = m["module"]
-
-            if name in self.skip_modules:
-                self.logger.info("skipping_library", skipped_library=name)
+        for gitmodule in gitmodules:
+            if gitmodule["module"] in self.skip_modules:
+                self.logger.info("skipping_library", skipped_library=gitmodule["module"])
                 continue
 
-            libraries_json = self.get_libraries_json(repo=name)
-            github_data = self.get_library_github_data(owner=self.owner, repo=name)
-            last_github_update = parse_date(github_data.get("updated_at", ""))
+            libraries_json = self.client.get_libraries_json(repo_slug=gitmodule["module"])
+            github_data = self.client.get_repo(repo_slug=gitmodule["module"])
+            extra_data = {"last_github_update": parse_date(github_data.get("updated_at", "")), "github_url": github_data.get("html_url", "")}
 
             if type(libraries_json) is list:
                 for library in libraries_json:
-                    libraries.append(
-                        {
-                            "name": library["name"],
-                            "key": library["key"],
-                            "github_url": github_data.get("html_url", ""),
-                            "authors": library.get("authors", ""),
-                            "description": library.get("description", ""),
-                            "category": library.get("category", ""),
-                            "maintainers": library.get("maintainers", []),
-                            "cxxstd": library.get("cxxstd"),
-                            "last_github_update": last_github_update,
-                        }
-                    )
+                    data = self.parser.parse_libraries_json(library)
+                    libraries.append({**data, **extra_data})
 
             elif type(libraries_json) is dict:
-                libraries.append(
-                    {
-                        "name": libraries_json["name"],
-                        "key": libraries_json["key"],
-                        "github_url": github_data.get("html_url", ""),
-                        "authors": libraries_json.get("authors", ""),
-                        "description": libraries_json.get("description", ""),
-                        "category": libraries_json.get("category", ""),
-                        "maintainers": libraries_json.get("maintainers", []),
-                        "cxxstd": libraries_json.get("cxxstd"),
-                        "last_github_update": last_github_update,
-                    }
-                )
+                data = self.parser.parse_libraries_json(libraries_json)
+                libraries.append({**data, **extra_data})
 
         return libraries
 
-    def get_libraries_json(self, repo):
-        """
-        Retrieve library metadata from 'meta/libraries.json'
-        Each Boost library will have a `meta` directory with a `libraries.json` file.
-        Example: https://github.com/boostorg/align/blob/5ad7df63cd792fbdb801d600b93cad1a432f0151/meta/libraries.json
-        """
-        url = f"https://raw.githubusercontent.com/{self.owner}/{repo}/develop/meta/libraries.json"
-
-        try:
-            response = requests.get(url)
-            return response.json()
-        except Exception:
-            self.logger.exception("get_library_metadata_failed", repo=repo, url=url)
-            return None
-
-    def get_library_github_data(self, owner, repo):
-        """
-        Retrieve other data about the library from the GitHub API
-        """
-        response = get_repo(self.api, owner, repo)
-        return response
-
     def update_libraries(self):
         """Update all libraries with the metadata"""
-        libs = self.get_library_list()
+        library_data = self.get_library_list()
 
-        self.logger.info("update_all_libraries_metadata", library_count=len(libs))
+        self.logger.info("update_all_libraries_metadata", library_count=len(library_data))
 
-        for lib in libs:
-            library = self.update_library(lib)
-            github_updater = GithubUpdater(owner=self.owner, library=library)
-            github_updater.update()
+        for library_data in library_data:
+            library = self.update_library(library_data)
+            # github_updater = GithubUpdater(owner=self.owner, library=library)
+            # github_updater.update()
 
-    def update_categories(self, obj, categories):
-        """Update all of the categories for an object"""
-
-        obj.categories.clear()
-        for cat_name in categories:
-            cat, created = Category.objects.get_or_create(name=cat_name)
-            obj.categories.add(cat)
-
-    def update_library(self, lib):
+    def update_library(self, library_data):
         """Update an individual library"""
-        logger = self.logger.bind(lib=lib)
+        logger = self.logger.bind(library=library_data)
         try:
-            obj, created = Library.objects.update_or_create(name=lib["name"])
-            obj.github_url = lib["github_url"]
-            obj.description = lib["description"]
-            obj.cpp_standard_minimum = lib["cxxstd"]
-            obj.last_github_update = lib["last_github_update"]
+            obj, created = Library.objects.update_or_create(
+                key=library_data["key"], defaults={
+                    "name": library_data["name"],
+                    "key": library_data["key"], 
+                    "github_url": library_data["github_url"], 
+                    "description": library_data["description"],
+                    "cpp_standard_minimum": library_data["cxxstd"], 
+                    "last_github_update": library_data["last_github_update"]
+            })
 
             # Update categories
-            self.update_categories(obj, categories=lib["category"])
+            self.update_categories(obj, categories=library_data["category"])
+            self.update_authors(obj, authors=library_data["authors"])
+            self.update_maintainers(obj, maintainers=library_data["maintainers"])
+            self.add_recent_library_version(obj)
 
             # Save any changes
             logger = logger.bind(obj_created=created)
@@ -301,6 +369,23 @@ class LibraryUpdater:
 
         except Exception:
             logger.exception("library_update_failed")
+
+    def update_categories(self, obj, categories):
+        """Update all of the categories for an object"""
+
+        obj.categories.clear()
+        for cat_name in categories:
+            cat, created = Category.objects.get_or_create(name=cat_name)
+            obj.categories.add(cat)
+
+    def update_authors(self, obj, authors):
+        pass
+
+    def update_maintainers(self, obj, maintainers):
+        pass
+
+    def add_recent_library_version(self, obj):
+        pass
 
 
 class GithubUpdater:
