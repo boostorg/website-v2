@@ -4,7 +4,7 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 
 from config.celery import app
-from libraries.github import get_user_by_username
+from libraries.github import GithubAPIClient
 
 logger = structlog.getLogger(__name__)
 
@@ -27,7 +27,8 @@ def update_user_github_photo(user_pk):
         logger.info("users_tasks_update_gh_photo_no_github_username", user_pk=user_pk)
         raise UserMissingGithubUsername
 
-    response = get_user_by_username(user.github_username)
+    client = GithubAPIClient()
+    response = client.get_user_by_username(user.github_username)
     avatar_url = response["avatar_url"]
     user.save_image_from_github(avatar_url)
     logger.info("users_tasks_update_gh_photo_finished", user_pk=user_pk)
