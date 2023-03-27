@@ -83,25 +83,25 @@ class UserManager(BaseUserManager):
         Returns:
             User object or None: If a user is found based on the provided criteria, the user object is returned. Otherwise, None is returned.
         """
+        user = None
+
         if email:
             try:
-                return self.get(email=email)
+                user = self.get(email=email.lower())
             except self.model.DoesNotExist:
-                return None
+                pass
 
-        if not first_name or not last_name:
-            return None
+        if not user and first_name and last_name:
+            users = self.filter(
+                first_name__iexact=first_name, last_name__iexact=last_name
+            )
+            authors_or_maintainers = users.filter(
+                models.Q(authors__isnull=False) | models.Q(maintainers__isnull=False)
+            ).distinct()
+            if authors_or_maintainers.count() == 1:
+                user = authors_or_maintainers.first()
 
-        users = self.filter(first_name=first_name, last_name=last_name)
-
-        authors_or_maintainers = users.filter(
-            models.Q(authors__isnull=False) | models.Q(maintainers__isnull=False)
-        ).distinct()
-
-        if authors_or_maintainers.count() == 1:
-            return authors_or_maintainers.first()
-        else:
-            return None
+        return user
 
     def record_login(self, user=None, email=None):
         """
