@@ -4,13 +4,19 @@ import re
 import requests
 import structlog
 
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from fastcore.xtras import obj2dict
 from ghapi.all import GhApi, paged
 
-from .models import Category, Issue, Library, PullRequest
-from .utils import parse_date
+from versions.models import Version
+from .models import Category, Issue, Library, LibraryVersion, PullRequest
+from .utils import generate_fake_email, parse_date
 
 logger = structlog.get_logger()
+
+User = get_user_model()
 
 
 class GithubAPIClient:
@@ -262,6 +268,73 @@ class GithubDataParser:
             "cxxstd": libraries_json.get("cxxstd"),
         }
 
+    def extract_contributor_data(self, contributor: str) -> dict:
+        """Takes an author/maintainer string and returns a dict with their data"""
+        data = {}
+
+        email = self.extract_email(contributor)
+        if bool(email):
+            data["email"] = email
+            data["valid_email"] = True
+        else:
+            data["email"] = None
+            data["valid_email"] = False
+
+        first_name, last_name = self.extract_names(contributor)
+        data["first_name"], data["last_name"] = first_name[:30], last_name[:30]
+
+        return data
+
+    def extract_email(self, val: str) -> str:
+        """
+        Finds an email address in a string, reformats it, and returns it.
+        Assumes the email address is in this format:
+        <firstlast -at- domain.com>
+
+        Does not raise errors.
+
+        Includes as many catches for variants in the formatting as I found in a first
+        pass.
+        """
+        result = re.search("<.+>", val)
+        if result:
+            raw_email = result.group()
+            email = (
+                raw_email.replace("-at-", "@")
+                .replace("- at -", "@")
+                .replace("-dot-", ".")
+                .replace("<", "")
+                .replace(">", "")
+                .replace(" ", "")
+                .replace("-underscore-", "_")
+            )
+            try:
+                validate_email(email)
+            except ValidationError as e:
+                logger.info("Could not extract valid email", value=val, exc_msg=str(e))
+                return
+            return email
+
+    def extract_names(self, val: str) -> list:
+        """
+        Returns a list of first, last names for the val argument.
+
+        NOTE: This is an overly simplistic solution to importing names.
+        Names that don't conform neatly to "First Last" formats will need
+        to be cleaned up manually.
+        """
+        # Strip the email, if present
+        email = re.search("<.+>", val)
+        if email:
+            val = val.replace(email.group(), "")
+
+        names = val.strip().rsplit(" ", 1)
+
+        if len(names) == 1:
+            names.append("")
+
+        return names
+
 
 class LibraryUpdater:
     """
@@ -343,9 +416,8 @@ class LibraryUpdater:
 
         for library_data in library_data:
             library = self.update_library(library_data)
-            self.add_recent_library_version(library)
 
-    def update_library(self, library_data):
+    def update_library(self, library_data: dict) -> Library:
         """Update an individual library"""
         logger = self.logger.bind(library=library_data)
         try:
@@ -361,21 +433,41 @@ class LibraryUpdater:
                 },
             )
 
-            # Update categories
-            self.update_categories(obj, categories=library_data["category"])
-            self.update_authors(obj, authors=library_data["authors"])
-            self.update_maintainers(obj, maintainers=library_data["maintainers"])
-
-            # Save any changes
             logger = logger.bind(obj_created=created)
             obj.save()
 
             logger.info("library_udpated")
 
+            library_version = self.add_most_recent_library_version(obj)
+            self.update_categories(obj, categories=library_data["category"])
+            self.update_maintainers(
+                library_version, maintainers=library_data["maintainers"]
+            )
+            # Do authors second because maintainers are more likely to have emails to match
+            self.update_authors(obj, authors=library_data["authors"])
+
             return obj
 
         except Exception:
             logger.exception("library_update_failed")
+
+    def add_most_recent_library_version(self, library: Library) -> LibraryVersion:
+        """Add the most recent version of a library to the database"""
+        most_recent_version = Version.objects.most_recent()
+
+        library_version, created = LibraryVersion.objects.get_or_create(
+            library=library, version=most_recent_version
+        )
+
+        if created:
+            self.logger.info(
+                "LibraryVersion created",
+                library_version=library_version,
+                library_name=library.name,
+                version_name=most_recent_version.name,
+            )
+
+        return library_version
 
     def update_categories(self, obj, categories):
         """Update all of the categories for an object"""
@@ -385,14 +477,68 @@ class LibraryUpdater:
             cat, created = Category.objects.get_or_create(name=cat_name)
             obj.categories.add(cat)
 
-    def update_authors(self, obj, authors):
-        pass
+    def update_authors(self, obj, authors=None):
+        """
+        Receives a list of strings from the libraries.json of a Boost library, and
+        an object with an "authors" attribute.
 
-    def update_maintainers(self, obj, maintainers):
-        pass
+        Processes that string into a User object that is added as an
+        Author to the Library.
+        """
+        if not authors:
+            return obj
 
-    def add_recent_library_version(self, obj):
-        pass
+        for author in authors:
+            person_data = self.parser.extract_contributor_data(author)
+            user = User.objects.find_contributor(
+                email=person_data["email"],
+                first_name=person_data["first_name"],
+                last_name=person_data["last_name"],
+            )
+
+            if not user:
+                email = person_data.pop("email")
+                if not email:
+                    email = generate_fake_email(
+                        f"{person_data['first_name']} {person_data['last_name']}"
+                    )
+                user = User.objects.create_stub_user(email.lower(), **person_data)
+                self.logger.info(f"User {user.email} created.")
+
+            obj.authors.add(user)
+
+        return obj
+
+    def update_maintainers(self, obj, maintainers=None):
+        """
+        Receives a list of strings from the libraries.json of a Boost library, and
+        an object with a M2M "maintainers" attribute.
+
+        Processes the list of strings into User objects and adds them as Maintainers
+        to the object.
+        """
+        if not maintainers:
+            return
+
+        for maintainer in maintainers:
+            person_data = self.parser.extract_contributor_data(maintainer)
+            user = User.objects.find_contributor(
+                email=person_data["email"],
+                first_name=person_data["first_name"],
+                last_name=person_data["last_name"],
+            )
+
+            if not user:
+                email = person_data.pop("email")
+                if not email:
+                    email = generate_fake_email(
+                        f"{person_data['first_name']} {person_data['last_name']}"
+                    )
+                user = User.objects.create_stub_user(email.lower(), **person_data)
+                self.logger.info(f"User {user.email} created.")
+
+            obj.maintainers.add(user)
+            self.logger.info(f"User {user.email} added as a maintainer of {obj}")
 
     def update_issues(self, obj):
         """Import GitHub issues for the library and update the database"""
