@@ -277,7 +277,7 @@ class GithubDataParser:
             data["email"] = email
             data["valid_email"] = True
         else:
-            data["email"] = generate_fake_email(contributor)
+            data["email"] = None
             data["valid_email"] = False
 
         first_name, last_name = self.extract_names(contributor)
@@ -440,15 +440,34 @@ class LibraryUpdater:
 
             library_version = self.add_most_recent_library_version(obj)
             self.update_categories(obj, categories=library_data["category"])
-            self.update_authors(obj, authors=library_data["authors"])
             self.update_maintainers(
                 library_version, maintainers=library_data["maintainers"]
             )
+            # Do authors second because maintainers are more likely to have emails to match
+            self.update_authors(obj, authors=library_data["authors"])
 
             return obj
 
         except Exception:
             logger.exception("library_update_failed")
+
+    def add_most_recent_library_version(self, library: Library) -> LibraryVersion:
+        """Add the most recent version of a library to the database"""
+        most_recent_version = Version.objects.most_recent()
+
+        library_version, created = LibraryVersion.objects.get_or_create(
+            library=library, version=most_recent_version
+        )
+
+        if created:
+            self.logger.info(
+                "LibraryVersion created",
+                library_version=library_version,
+                library_name=library.name,
+                version_name=most_recent_version.name,
+            )
+
+        return library_version
 
     def update_categories(self, obj, categories):
         """Update all of the categories for an object"""
@@ -472,14 +491,19 @@ class LibraryUpdater:
         for author in authors:
             person_data = self.parser.extract_contributor_data(author)
             user = User.objects.find_contributor(
-                email=person_data["email"].lower(),
+                email=person_data["email"],
                 first_name=person_data["first_name"],
                 last_name=person_data["last_name"],
             )
 
             if not user:
                 email = person_data.pop("email")
+                if not email:
+                    email = generate_fake_email(
+                        f"{person_data['first_name']} {person_data['last_name']}"
+                    )
                 user = User.objects.create_stub_user(email.lower(), **person_data)
+                self.logger.info(f"User {user.email} created.")
 
             obj.authors.add(user)
 
@@ -499,36 +523,22 @@ class LibraryUpdater:
         for maintainer in maintainers:
             person_data = self.parser.extract_contributor_data(maintainer)
             user = User.objects.find_contributor(
-                email=person_data["email"].lower(),
+                email=person_data["email"],
                 first_name=person_data["first_name"],
                 last_name=person_data["last_name"],
             )
 
             if not user:
                 email = person_data.pop("email")
+                if not email:
+                    email = generate_fake_email(
+                        f"{person_data['first_name']} {person_data['last_name']}"
+                    )
                 user = User.objects.create_stub_user(email.lower(), **person_data)
                 self.logger.info(f"User {user.email} created.")
 
             obj.maintainers.add(user)
             self.logger.info(f"User {user.email} added as a maintainer of {obj}")
-
-    def add_most_recent_library_version(self, library: Library) -> LibraryVersion:
-        """Add the most recent version of a library to the database"""
-        most_recent_version = Version.objects.most_recent()
-
-        library_version, created = LibraryVersion.objects.get_or_create(
-            library=library, version=most_recent_version
-        )
-
-        if created:
-            self.logger.info(
-                "LibraryVersion created",
-                library_version=library_version,
-                library_name=library.name,
-                version_name=most_recent_version.name,
-            )
-
-        return library_version
 
     def update_issues(self, obj):
         """Import GitHub issues for the library and update the database"""
