@@ -4,13 +4,18 @@ import re
 import requests
 import structlog
 
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from fastcore.xtras import obj2dict
 from ghapi.all import GhApi, paged
 
 from .models import Category, Issue, Library, PullRequest
-from .utils import parse_date
+from .utils import generate_fake_email, parse_date
 
 logger = structlog.get_logger()
+
+User = get_user_model()
 
 
 class GithubAPIClient:
@@ -262,6 +267,73 @@ class GithubDataParser:
             "cxxstd": libraries_json.get("cxxstd"),
         }
 
+    def extract_contributor_data(self, contributor: str) -> dict:
+        """Takes an author/maintainer string and returns a dict with their data"""
+        data = {}
+
+        email = self.extract_email(contributor)
+        if bool(email):
+            data["email"] = email
+            data["valid_email"] = True
+        else:
+            data["email"] = generate_fake_email(contributor)
+            data["valid_email"] = False
+
+        first_name, last_name = self.extract_names(contributor)
+        data["first_name"], data["last_name"] = first_name[:30], last_name[:30]
+
+        return data
+
+    def extract_email(self, val: str) -> str:
+        """
+        Finds an email address in a string, reformats it, and returns it.
+        Assumes the email address is in this format:
+        <firstlast -at- domain.com>
+
+        Does not raise errors.
+
+        Includes as many catches for variants in the formatting as I found in a first
+        pass.
+        """
+        result = re.search("<.+>", val)
+        if result:
+            raw_email = result.group()
+            email = (
+                raw_email.replace("-at-", "@")
+                .replace("- at -", "@")
+                .replace("-dot-", ".")
+                .replace("<", "")
+                .replace(">", "")
+                .replace(" ", "")
+                .replace("-underscore-", "_")
+            )
+            try:
+                validate_email(email)
+            except ValidationError as e:
+                logger.info("Could not extract valid email", value=val, exc_msg=str(e))
+                return
+            return email
+
+    def extract_names(self, val: str) -> list:
+        """
+        Returns a list of first, last names for the val argument.
+
+        NOTE: This is an overly simplistic solution to importing names.
+        Names that don't conform neatly to "First Last" formats will need
+        to be cleaned up manually.
+        """
+        # Strip the email, if present
+        email = re.search("<.+>", val)
+        if email:
+            val = val.replace(email.group(), "")
+
+        names = val.strip().rsplit(" ", 1)
+
+        if len(names) == 1:
+            names.append("")
+
+        return names
+
 
 class LibraryUpdater:
     """
@@ -386,7 +458,31 @@ class LibraryUpdater:
             obj.categories.add(cat)
 
     def update_authors(self, obj, authors):
-        pass
+        """
+        Receives a list of strings from the libraries.json of a Boost library, and
+        an object with an "authors" attribute.
+
+        Processes that string into a User object that is added as an
+        Author to the Library.
+        """
+        if not authors:
+            return obj
+
+        for author in authors:
+            person_data = self.parser.extract_contributor_data(author)
+            user = User.objects.find_contributor(
+                email=person_data["email"].lower(),
+                first_name=person_data["first_name"],
+                last_name=person_data["last_name"],
+            )
+
+            if not user:
+                email = person_data.pop("email")
+                user = User.objects.create_stub_user(email.lower(), **person_data)
+
+            obj.authors.add(user)
+
+        return obj
 
     def update_maintainers(self, obj, maintainers):
         pass
