@@ -355,7 +355,10 @@ def test_update_authors(library_updater, user, library_version):
 
     library_updater.update_authors(
         library,
-        ["Tester Testerston <t_testerson -at- example.com>", "Tester2 Testerson2"],
+        authors=[
+            "Tester Testerston <t_testerson -at- example.com>",
+            "Tester2 Testerson2",
+        ],
     )
     library.refresh_from_db()
     assert library.authors.exists()
@@ -363,7 +366,28 @@ def test_update_authors(library_updater, user, library_version):
     assert library.authors.filter(email="tester2_testerson2@example.com").exists()
 
 
-def test_update_libraries(library_updater):
+def test_update_maintainers(library_updater, user, library_version):
+    assert library_version.maintainers.exists() is False
+    user.claimed = True
+    user.email = "t_testerson@example.com"
+    user.save()
+
+    library_updater.update_maintainers(
+        library_version,
+        maintainers=[
+            "Tester Testerston <t_testerson -at- example.com>",
+            "Tester2 Testerson2",
+        ],
+    )
+    library_version.refresh_from_db()
+    assert library_version.maintainers.exists()
+    assert library_version.maintainers.filter(email="t_testerson@example.com").exists()
+    assert library_version.maintainers.filter(
+        email="tester2_testerson2@example.com"
+    ).exists()
+
+
+def test_update_libraries(library_updater, version):
     """Test the update_libraries method of LibraryUpdater."""
     assert Library.objects.filter(key="test").exists() is False
     library_updater.parser.parse_gitmodules = MagicMock(return_value=[])
@@ -386,7 +410,7 @@ def test_update_libraries(library_updater):
     assert Library.objects.filter(key="test").exists()
 
 
-def test_update_library(library_updater):
+def test_update_library(library_updater, version):
     """Test the update_library method of LibraryUpdater."""
     assert Library.objects.filter(key="test").exists() is False
     library_data = {
