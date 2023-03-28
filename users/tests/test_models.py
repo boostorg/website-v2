@@ -25,6 +25,30 @@ def test_super_user(super_user):
     assert super_user.is_superuser is True
 
 
+def test_get_display_name(user):
+    # Test case 1: Display name is set
+    user.display_name = "Display Name"
+    user.save()
+    assert user.get_display_name == "Display Name"
+
+    # Test case 2: First and last name are set, no display name
+    user.display_name = ""
+    user.save()
+    assert user.get_display_name == f"{user.first_name} {user.last_name}"
+
+    # Test case 3: Only first name is set, no display name
+    user.first_name = "First"
+    user.last_name = ""
+    user.save()
+    assert user.get_display_name == "First"
+
+    # Test case 4: Only last name is set, no display name
+    user.first_name = ""
+    user.last_name = "Last"
+    user.save()
+    assert user.get_display_name == "Last"
+
+
 @pytest.mark.skip("Add this test when I have the patience for mocks")
 def test_user_save_image_from_github(user):
     """
