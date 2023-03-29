@@ -1,4 +1,4 @@
-Django<4.0
+Django>=3.2.18, <4.0
 bumpversion
 django-admin-env-notice==0.4
 django-allauth==0.51.0
@@ -24,7 +24,7 @@ python-json-logger
 structlog
 
 # Celery
-celery
+celery==5.2
 redis
 
 # Testing
@@ -48,7 +48,7 @@ mistletoe
 python-frontmatter
 
 #Forum
-django-machina
+django-machina>=1.2
 
 # Github
 ghapi
