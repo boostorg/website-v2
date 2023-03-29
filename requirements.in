@@ -1,7 +1,7 @@
 Django>=3.2.18, <4.0
 bumpversion
 django-admin-env-notice==0.4
-django-allauth==0.51.0
+django-allauth==0.53.1
 django-db-geventpool
 django-extensions
 django-health-check
@@ -17,6 +17,7 @@ whitenoise
 django-click
 Pillow==9.4.0
 django-storages
+wheel==0.38.1
 
 # Logging
 django-tracer
@@ -24,14 +25,14 @@ python-json-logger
 structlog
 
 # Celery
-celery==5.2
-redis
+celery==5.2.2
+redis==4.5.3
 
 # Testing
 black
 django-bakery
 django-test-plus
-pytest
+pytest==7.2.2
 pytest-cov
 pytest-django
 pytest-xdist
@@ -41,7 +42,7 @@ ipython
 responses
 
 # Packaging
-pip-tools>=6.6.2
+pip-tools==6.12.3
 
 # Markdown and Frontmatter
 mistletoe
@@ -52,4 +53,4 @@ django-machina>=1.2
 
 # Github
 ghapi
-requests
+requests==2.28.2
