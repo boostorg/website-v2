@@ -18,6 +18,7 @@ django-click==2.3.0
 Pillow==9.4.0
 django-storages
 wheel==0.38.1
+cryptography==39.0.1
 
 # Logging
 django-tracer
@@ -26,7 +27,7 @@ structlog
 
 # Celery
 celery==5.2.2
-redis==4.5.3
+redis==4.5.4
 
 # Testing
 black==22.3
