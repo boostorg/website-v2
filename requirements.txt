@@ -61,8 +61,10 @@ click-repl==0.2.0
     # via celery
 coverage==5.5
     # via pytest-cov
-cryptography==38.0.4
-    # via pyjwt
+cryptography==39.0.1
+    # via
+    #   -r ./requirements.in
+    #   pyjwt
 decorator==5.1.1
     # via ipython
 defusedxml==0.7.1
