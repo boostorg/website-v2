@@ -26,7 +26,7 @@ structlog
 
 # Celery
 celery==5.2.2
-redis==4.5.3
+redis==4.5.4
 
 # Testing
 black==22.3
