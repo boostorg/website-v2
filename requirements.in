@@ -14,7 +14,7 @@ gevent
 gunicorn
 psycopg2-binary
 whitenoise
-django-click
+django-click==2.3.0
 Pillow==9.4.0
 django-storages
 wheel==0.38.1
@@ -29,7 +29,7 @@ celery==5.2.2
 redis==4.5.3
 
 # Testing
-black
+black==22.3
 django-bakery
 django-test-plus
 pytest==7.2.2
