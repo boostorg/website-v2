@@ -19,6 +19,7 @@ Pillow==9.4.0
 django-storages
 wheel==0.38.1
 cryptography==39.0.1
+boto3
 
 # Logging
 django-tracer
@@ -41,6 +42,7 @@ Faker
 model_bakery
 ipython
 responses
+minio
 
 # Packaging
 pip-tools==6.12.3
