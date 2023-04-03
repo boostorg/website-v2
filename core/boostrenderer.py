@@ -11,19 +11,32 @@ from pygments.lexers import get_lexer_by_name as get_lexer, guess_lexer
 from pygments.formatters.html import HtmlFormatter
 
 
-def get_content_from_s3():
+def get_content_from_s3(key=None, bucket_name=None):
     """Get content from S3
-    
-    Sample key: 
-    s3://stage.boost.org/archives/boost__76_0/tools/auto_index/doc/html/index/s07.html
 
-    aws s3 cp s3://stage.boost.org/archives/boost__76_0/tools/auto_index/doc/html/index/s07.html Users/lacey/BoostArchive/s07.html
+    Sample key:
+    'archives/boost_1_81_0/README.md'
+
+    Returns the decoded file contents if able
+
+    FIXME: This is a temporary solution to get the content from S3
+    and does not handle errors or anything unexpected with grace.
     """
-    s3 = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY, region_name='us-east-1')
-    bucket_name = settings.DEV_BUCKET
-    key = 'archives/boost__81_0/README.md'
-    response = s3.get_object(Bucket=bucket_name, Key=key)
-    file_content = response['Body'].read().decode('utf-8')
+
+    if not key:
+        raise
+
+    if not bucket_name:
+        bucket_name = settings.DEV_BUCKET
+
+    client = boto3.client(
+        "s3",
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name="us-east-1",
+    )
+    response = client.get_object(Bucket=bucket_name, Key=key)
+    file_content = response["Body"].read().decode("utf-8")
     return file_content
 
 
