@@ -27,7 +27,7 @@ def get_content_from_s3(key=None, bucket_name=None):
         raise
 
     if not bucket_name:
-        bucket_name = settings.DEV_BUCKET
+        bucket_name = settings.BUCKET_NAME
 
     client = boto3.client(
         "s3",
