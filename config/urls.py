@@ -22,7 +22,7 @@ from ak.views import (
     NotFoundView,
     OKView,
 )
-from core.views import MarkdownTemplateView
+from core.views import MarkdownTemplateView, StaticContentTemplateView
 from libraries.views import (
     LibraryList,
     LibraryByCategory,
@@ -175,9 +175,15 @@ urlpatterns = (
     + [
         # Markdown content
         re_path(
-            r"^(?P<content_path>.+)/?",
+            r"^markdown/(?P<content_path>.+)/?",
             MarkdownTemplateView.as_view(),
             name="markdown-page",
+        ),
+        # Static content
+        re_path(
+            r"^(?P<content_path>.+)/?",
+            StaticContentTemplateView.as_view(),
+            name="static-content-page",
         ),
     ]
 )
