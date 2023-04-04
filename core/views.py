@@ -4,6 +4,7 @@ from django.conf import settings
 from django.http import Http404
 from django.views.generic import TemplateView
 
+from .boostrenderer import get_content_from_s3
 from .markdown import process_md
 
 
@@ -53,15 +54,26 @@ class MarkdownTemplateView(TemplateView):
         """
         Verifies the file and returns the frontmatter and content
         """
-        path = self.build_path()
+        # path = self.build_path()
 
-        # Avoids a TypeError from os.path.isfile if there is no path
-        if not path:
-            raise Http404("Page not found")
+        # # Avoids a TypeError from os.path.isfile if there is no path
+        # if not path:
+        #     raise Http404("Page not found")
 
-        if not os.path.isfile(path):
-            raise Http404("Post not found")
+        # if not os.path.isfile(path):
+        #     raise Http404("Post not found")
 
         context = {}
-        context["frontmatter"], context["content"] = process_md(path)
+        context["frontmatter"] = {
+            "title": "Aenean lacinia bibendum nulla sed consectetur",
+            "keywords": "lacinia, nulla, sed",
+            "description": "Cras mattis consectetur purus sit amet fermentum.",
+            "author": "Roger Waters",
+        }
+        content = get_content_from_s3(key=kwargs.get("content_path"))
+        if not content:
+            raise Http404("Page not found")
+
+        context["content"] = get_content_from_s3(key=kwargs.get("content_path"))
+        # context["frontmatter"], context["content"] = process_md(path)
         return self.render_to_response(context)

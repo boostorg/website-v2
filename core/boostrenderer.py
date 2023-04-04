@@ -1,4 +1,5 @@
 import boto3
+from botocore.exceptions import ClientError
 import re
 
 from django.conf import settings
@@ -14,8 +15,11 @@ from pygments.formatters.html import HtmlFormatter
 def get_content_from_s3(key=None, bucket_name=None):
     """Get content from S3
 
-    Sample key:
-    'archives/boost_1_81_0/README.md'
+    Sample keys:
+    - 'site/develop/README.md': Returns normally
+    - 'site/develop/index.html': Returns normally
+    - 'site/develop/INSTALL': Returns normally
+    - 'site/develop/boost.css': Returns normally
 
     Returns the decoded file contents if able
 
@@ -35,9 +39,13 @@ def get_content_from_s3(key=None, bucket_name=None):
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
         region_name="us-east-1",
     )
-    response = client.get_object(Bucket=bucket_name, Key=key)
-    file_content = response["Body"].read().decode("utf-8")
-    return file_content
+    try:
+        response = client.get_object(Bucket=bucket_name, Key=key)
+        file_content = response["Body"].read().decode("utf-8")
+        return file_content
+    except ClientError as e:
+        # todo: log 
+        return
 
 
 class Youtube(SpanToken):
