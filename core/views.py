@@ -1,7 +1,7 @@
 import os.path
 
 from django.conf import settings
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.views.generic import TemplateView
 
 from .boostrenderer import get_content_from_s3
@@ -76,10 +76,11 @@ class StaticContentTemplateView(TemplateView):
         """
         Verifies the file and returns the frontmatter and content
         """
-        context = {}
-        content = get_content_from_s3(key=kwargs.get("content_path"))
+        content, content_type = get_content_from_s3(key=kwargs.get("content_path"))
         if not content:
             raise Http404("Page not found")
 
-        context["content"] = get_content_from_s3(key=kwargs.get("content_path"))
-        return self.render_to_response(context)
+        # Set the content type in the response
+        response = HttpResponse(content)
+        response["Content-Type"] = content_type
+        return response
