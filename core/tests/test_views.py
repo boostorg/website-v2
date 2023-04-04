@@ -43,5 +43,5 @@ def test_markdown_view_nested_should_load_an_index(tp):
 
 
 def test_markdown_view_nested_three_levels(tp):
-    res = tp.get("markdown/more_content/even_more_content/sample")
+    res = tp.get("/markdown/more_content/even_more_content/sample")
     tp.response_200(res)
