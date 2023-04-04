@@ -1,4 +1,7 @@
+import boto3
 import re
+
+from django.conf import settings
 
 from mistletoe import HTMLRenderer
 from mistletoe.span_token import SpanToken
@@ -6,6 +9,35 @@ from pygments import highlight
 from pygments.styles import get_style_by_name as get_style
 from pygments.lexers import get_lexer_by_name as get_lexer, guess_lexer
 from pygments.formatters.html import HtmlFormatter
+
+
+def get_content_from_s3(key=None, bucket_name=None):
+    """Get content from S3
+
+    Sample key:
+    'archives/boost_1_81_0/README.md'
+
+    Returns the decoded file contents if able
+
+    FIXME: This is a temporary solution to get the content from S3
+    and does not handle errors or anything unexpected with grace.
+    """
+
+    if not key:
+        raise
+
+    if not bucket_name:
+        bucket_name = settings.BUCKET_NAME
+
+    client = boto3.client(
+        "s3",
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name="us-east-1",
+    )
+    response = client.get_object(Bucket=bucket_name, Key=key)
+    file_content = response["Body"].read().decode("utf-8")
+    return file_content
 
 
 class Youtube(SpanToken):
