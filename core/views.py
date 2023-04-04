@@ -54,26 +54,32 @@ class MarkdownTemplateView(TemplateView):
         """
         Verifies the file and returns the frontmatter and content
         """
-        # path = self.build_path()
+        path = self.build_path()
 
-        # # Avoids a TypeError from os.path.isfile if there is no path
-        # if not path:
-        #     raise Http404("Page not found")
+        # Avoids a TypeError from os.path.isfile if there is no path
+        if not path:
+            raise Http404("Page not found")
 
-        # if not os.path.isfile(path):
-        #     raise Http404("Post not found")
+        if not os.path.isfile(path):
+            raise Http404("Post not found")
 
         context = {}
-        context["frontmatter"] = {
-            "title": "Aenean lacinia bibendum nulla sed consectetur",
-            "keywords": "lacinia, nulla, sed",
-            "description": "Cras mattis consectetur purus sit amet fermentum.",
-            "author": "Roger Waters",
-        }
+        context["frontmatter"], context["content"] = process_md(path)
+        return self.render_to_response(context)
+
+
+class StaticContentTemplateView(TemplateView):
+    template_name = "static_content.html"
+    content_dir = settings.BASE_CONTENT
+
+    def get(self, request, *args, **kwargs):
+        """
+        Verifies the file and returns the frontmatter and content
+        """
+        context = {}
         content = get_content_from_s3(key=kwargs.get("content_path"))
         if not content:
             raise Http404("Page not found")
 
         context["content"] = get_content_from_s3(key=kwargs.get("content_path"))
-        # context["frontmatter"], context["content"] = process_md(path)
         return self.render_to_response(context)
