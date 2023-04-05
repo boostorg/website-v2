@@ -16,6 +16,7 @@ static_content_test_cases = [
 ]
 
 
+@pytest.mark.skip(reason="Hits the live S3 API")
 @pytest.mark.django_db
 @pytest.mark.parametrize("content_path", static_content_test_cases)
 def test_static_content_template_view(content_path):
