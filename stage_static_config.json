@@ -1,7 +1,7 @@
 [
     {
         "site_path": "/marshmallow/",
-        "s3_path": "/site/develop/tools/auto_index/"
+        "s3_path": "/site/develop/tools/auto_index/doc/html/"
     },
     {
         "site_path": "/",

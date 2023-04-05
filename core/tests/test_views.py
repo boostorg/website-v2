@@ -7,10 +7,10 @@ from core.views import StaticContentTemplateView
 
 
 static_content_test_cases = [
-    # "/site/develop/rst.css",
-    # "/marshmallow/index.html",
+    "/site/develop/rst.css",
+    "/marshmallow/index.html",
     # "/marshmallow/about.html",
-    # "/rst.css",
+    "/rst.css",
     "doc/html/about.html",
     "site/develop/doc/html/about.html",
 ]
