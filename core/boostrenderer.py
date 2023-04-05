@@ -39,7 +39,7 @@ def get_content_from_s3(key=None, bucket_name=None):
 
     for s3_key in s3_keys:
         try:
-            response = client.get_object(Bucket=bucket_name, Key=s3_key)
+            response = client.get_object(Bucket=bucket_name, Key=s3_key.lstrip("/"))
             file_content = response["Body"].read().decode("utf-8")
             content_type = response["ContentType"]
             return file_content, content_type, s3_key
@@ -55,17 +55,24 @@ def get_s3_keys(content_path, config_filename="stage_static_config.json"):
     """
     Get the S3 key for a given content path
     """
-    return []
-    # project_root = settings.BASE_DIR
-    # config_file_path = os.path.join(project_root, config_filename)
+    project_root = settings.BASE_DIR
+    config_file_path = os.path.join(project_root, config_filename)
 
-    # with open(config_file_path, 'r') as f:
-    #     config_data = json.load(f)
+    if not content_path.startswith("/"):
+        content_path = f"/{content_path}"
 
-    # s3_keys = []
-    # for item in config_data:
-    #     site_path = item['site_path']
-    #     s3_path = item['s3_path']
+    with open(config_file_path, "r") as f:
+        config_data = json.load(f)
+
+    s3_keys = []
+    for item in config_data:
+        site_path = item["site_path"]
+        s3_path = item["s3_path"]
+        if site_path == "/" and content_path.startswith(site_path):
+            if s3_path in content_path:
+                s3_keys.append(content_path)
+            else:
+                s3_keys.append(os.path.join(s3_path, content_path.lstrip("/")))
 
     #     if site_path == "/" or content_path.startswith(site_path):
     #         if s3_path in content_path:
@@ -77,7 +84,8 @@ def get_s3_keys(content_path, config_filename="stage_static_config.json"):
     # if not s3_keys:
     #     fallback_s3_key = content_path.lstrip('/')
     #     s3_keys.append(fallback_s3_key)
-    # return s3_keys
+    
+    return s3_keys
 
 
 class Youtube(SpanToken):
