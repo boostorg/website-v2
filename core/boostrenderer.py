@@ -3,6 +3,7 @@ from botocore.exceptions import ClientError
 import json
 import os
 import re
+from urllib.parse import urljoin
 
 from django.conf import settings
 
@@ -15,25 +16,19 @@ from pygments.formatters.html import HtmlFormatter
 
 
 def get_content_from_s3(key=None, bucket_name=None):
-    """Get content from S3
-
-    Sample keys:
-    - 'site/develop/README.md': Returns normally
-    - 'site/develop/index.html': Returns normally
-    - 'site/develop/INSTALL': Returns normally
-    - 'site/develop/boost.css': Returns normally
-
-    Returns the decoded file contents if able
-
-    FIXME: This is a temporary solution to get the content from S3
-    and does not handle errors or anything unexpected with grace.
     """
-
+    Get content from S3. Returns the decoded file contents if able
+    """
     if not key:
         raise
 
     if not bucket_name:
         bucket_name = settings.BUCKET_NAME
+
+    s3_keys = get_s3_keys(key)
+    
+    if not s3_keys:
+        s3_keys = [key]
 
     client = boto3.client(
         "s3",
@@ -41,37 +36,49 @@ def get_content_from_s3(key=None, bucket_name=None):
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
         region_name="us-east-1",
     )
-    try:
-        response = client.get_object(Bucket=bucket_name, Key=key)
-        file_content = response["Body"].read().decode("utf-8")
-        content_type = response["ContentType"]
-        return file_content, content_type
-    except ClientError as e:
-        # todo: log
-        return
+
+    for key in s3_keys:
+        # breakpoint()
+        try:
+            response = client.get_object(Bucket=bucket_name, Key=key.lstrip("/"))
+            file_content = response["Body"].read().decode("utf-8")
+            content_type = response["ContentType"]
+            return file_content, content_type, key
+        except ClientError as e:
+            # Log the error and continue with the next key in the list
+            pass
+
+    # Return None if no valid object is found
+    return None
 
 
-# def get_s3_key(content_path, config_filename='stage_static_config.json'):
-#     # Read the config file from the project root
-#     project_root = settings.BASE_DIR
-#     config_file_path = os.path.join(project_root, config_filename)
+def get_s3_keys(content_path, config_filename='stage_static_config.json'):
+    """ 
+    Get the S3 key for a given content path
+    """
+    project_root = settings.BASE_DIR
+    config_file_path = os.path.join(project_root, config_filename)
 
-#     with open(config_file_path, 'r') as f:
-#         config_data = json.load(f)
+    with open(config_file_path, 'r') as f:
+        config_data = json.load(f)
 
-#     # Loop over the site paths in the config file
-#     for item in config_data:
-#         site_path = item['site_path']
-#         s3_path = item['s3_path']
+    s3_keys = []
+    for item in config_data:
+        site_path = item['site_path']
+        s3_path = item['s3_path']
 
-#         # Check if content_path starts with site_path
-#         if content_path.startswith(site_path):
-#             # Remove site_path from content_path and prepend s3_path
-#             s3_key = s3_path + content_path[len(site_path):]
-#             return s3_key
+        if site_path == "/" or content_path.startswith(site_path):
+            if s3_path in content_path:
+                s3_keys.append(content_path)
+            else:
+                s3_key = urljoin(s3_path, content_path.lstrip("/"))
+                s3_keys.append(s3_key)
 
-#     # Return None if no match is found
-#     return None
+    if not s3_keys:
+        fallback_s3_key = content_path.lstrip('/')
+        s3_keys.append(fallback_s3_key)
+    breakpoint()
+    return s3_keys
 
 
 class Youtube(SpanToken):

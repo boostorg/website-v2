@@ -1,5 +1,44 @@
 import pytest
 
+from django.test import RequestFactory
+from django.urls import reverse
+
+from core.views import StaticContentTemplateView
+
+
+static_content_test_cases = [
+    "/site/develop/rst.css",
+    # "/marshmallow/index.html",
+    # "/marshmallow/about.html",
+    # "/rst.css",
+    # "/doc/html/about.html",
+]
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("content_path", static_content_test_cases)
+def test_static_content_template_view(content_path):
+    """
+    NOTE: This test hits the live S3 API and was used for debugging purposes. It is not
+    intended to be run as part of the test suite.
+
+    Test cases: 
+    - Direct reference to S3 file: "/site/develop/rst.css"
+    - Reference via an alias in the config file: "/marshmallow/index.html"
+    - Reference via a second instance of the same alias in the config file, not found in the first one: "/marshmallow/about.html"
+    - Reference via the pass-through "/" alias to "/site/develop/": "/rst.css"
+    - Reference via the pass-through "/" alias to a nested file: "/doc/html/about.html"
+    """
+    factory = RequestFactory()
+    view = StaticContentTemplateView.as_view()
+    
+    request = factory.get(reverse("static-content-page", kwargs={"content_path": content_path}))
+    response = view(request, content_path=content_path)
+
+    # Check if the response has a status code of 200 (OK)
+    assert response.status_code == 200
+    # Check if the Content-Type header is present in the response
+    assert "Content-Type" in response.headers
+
 
 def test_markdown_view_top_level(tp):
     """GET /content/map"""

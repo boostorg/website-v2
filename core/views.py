@@ -1,7 +1,9 @@
 import os.path
+import re
 
 from django.conf import settings
 from django.http import Http404, HttpResponse
+from django.template.response import TemplateResponse
 from django.views.generic import TemplateView
 
 from .boostrenderer import get_content_from_s3
@@ -76,11 +78,28 @@ class StaticContentTemplateView(TemplateView):
         """
         Verifies the file and returns the frontmatter and content
         """
-        content, content_type = get_content_from_s3(key=kwargs.get("content_path"))
-        if not content:
+        result = get_content_from_s3(key=kwargs.get("content_path"))
+        
+        if not result:
             raise Http404("Page not found")
 
+        content, content_type, relative_url_path = result
+
+        # Handle URL replacement for text-based content types only
+        breakpoint()
+        if content_type.startswith('text/'):
+            base_url = relative_url_path.rstrip('/').rsplit('/', 1)[0] + '/'
+
+            def replace_url(match):
+                url = match.group(1)
+                if url.startswith('http') or url.startswith('//') or url.startswith('#'):
+                    return match.group(0)
+                else:
+                    return f'url({base_url}{url})'
+
+            content = re.sub(r'url\((.*?)\)', replace_url, content)
+
         # Set the content type in the response
-        response = HttpResponse(content)
-        response["Content-Type"] = content_type
+        response = HttpResponse(content.encode(), content_type=content_type)
+
         return response
