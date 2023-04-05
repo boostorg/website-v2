@@ -2,6 +2,7 @@ import os.path
 import re
 
 from django.conf import settings
+from django.core.cache import caches
 from django.http import Http404, HttpResponse
 from django.template.response import TemplateResponse
 from django.views.generic import TemplateView
@@ -78,11 +79,26 @@ class StaticContentTemplateView(TemplateView):
         """
         Verifies the file and returns the frontmatter and content
         """
-        result = get_content_from_s3(key=kwargs.get("content_path"))
-        if not result:
-            raise Http404("Page not found")
+        content_path = kwargs.get("content_path")
 
-        content, content_type = result
+        # Get the static content cache
+        static_content_cache = caches["static_content"]
+
+        # Check if the content is in the cache
+        cache_key = f"static_content_{content_path}"
+        cached_result = static_content_cache.get(cache_key)
+
+        if cached_result:
+            content, content_type = cached_result
+        else:
+            # Fetch content from S3 if not in cache
+            result = get_content_from_s3(key=content_path)
+            if not result:
+                raise Http404("Page not found")
+            content, content_type = result
+
+            # Store the result in cache
+            static_content_cache.set(cache_key, (content, content_type))
 
         response = HttpResponse(content, content_type=content_type)
         return response
