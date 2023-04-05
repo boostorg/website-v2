@@ -78,27 +78,11 @@ class StaticContentTemplateView(TemplateView):
         """
         Verifies the file and returns the frontmatter and content
         """
-        print("-" * 15)
-        print(kwargs.get("content_path"))
-        print("-" * 15)
         result = get_content_from_s3(key=kwargs.get("content_path"))
         if not result:
             raise Http404("Page not found")
 
-        content, content_type, s3_key = result
-
-        # # Handle URL replacement for text-based content types only
-        # if content_type.startswith('text/'):
-        #     base_url = relative_url_path.rstrip('/').rsplit('/', 1)[0] + '/'
-
-        #     def replace_url(match):
-        #         url = match.group(1)
-        #         if url.startswith('http') or url.startswith('//') or url.startswith('#'):
-        #             return match.group(0)
-        #         else:
-        #             return f'url({base_url}{url})'
-
-        #     content = re.sub(r'url\((.*?)\)', replace_url, content)
+        content, content_type = result
 
         response = HttpResponse(content, content_type=content_type)
         return response
