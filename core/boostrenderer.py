@@ -26,7 +26,7 @@ def get_content_from_s3(key=None, bucket_name=None):
         bucket_name = settings.BUCKET_NAME
 
     s3_keys = get_s3_keys(key)
-    
+
     if not s3_keys:
         s3_keys = [key]
 
@@ -37,13 +37,12 @@ def get_content_from_s3(key=None, bucket_name=None):
         region_name="us-east-1",
     )
 
-    for key in s3_keys:
-        # breakpoint()
+    for s3_key in s3_keys:
         try:
-            response = client.get_object(Bucket=bucket_name, Key=key.lstrip("/"))
+            response = client.get_object(Bucket=bucket_name, Key=s3_key)
             file_content = response["Body"].read().decode("utf-8")
             content_type = response["ContentType"]
-            return file_content, content_type, key
+            return file_content, content_type, s3_key
         except ClientError as e:
             # Log the error and continue with the next key in the list
             pass
@@ -52,33 +51,33 @@ def get_content_from_s3(key=None, bucket_name=None):
     return None
 
 
-def get_s3_keys(content_path, config_filename='stage_static_config.json'):
-    """ 
+def get_s3_keys(content_path, config_filename="stage_static_config.json"):
+    """
     Get the S3 key for a given content path
     """
-    project_root = settings.BASE_DIR
-    config_file_path = os.path.join(project_root, config_filename)
+    return []
+    # project_root = settings.BASE_DIR
+    # config_file_path = os.path.join(project_root, config_filename)
 
-    with open(config_file_path, 'r') as f:
-        config_data = json.load(f)
+    # with open(config_file_path, 'r') as f:
+    #     config_data = json.load(f)
 
-    s3_keys = []
-    for item in config_data:
-        site_path = item['site_path']
-        s3_path = item['s3_path']
+    # s3_keys = []
+    # for item in config_data:
+    #     site_path = item['site_path']
+    #     s3_path = item['s3_path']
 
-        if site_path == "/" or content_path.startswith(site_path):
-            if s3_path in content_path:
-                s3_keys.append(content_path)
-            else:
-                s3_key = urljoin(s3_path, content_path.lstrip("/"))
-                s3_keys.append(s3_key)
+    #     if site_path == "/" or content_path.startswith(site_path):
+    #         if s3_path in content_path:
+    #             s3_keys.append(content_path)
+    #         else:
+    #             s3_key = urljoin(s3_path, content_path.lstrip("/"))
+    #             s3_keys.append(s3_key)
 
-    if not s3_keys:
-        fallback_s3_key = content_path.lstrip('/')
-        s3_keys.append(fallback_s3_key)
-    breakpoint()
-    return s3_keys
+    # if not s3_keys:
+    #     fallback_s3_key = content_path.lstrip('/')
+    #     s3_keys.append(fallback_s3_key)
+    # return s3_keys
 
 
 class Youtube(SpanToken):
