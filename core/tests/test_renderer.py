@@ -22,5 +22,5 @@ def test_get_s3_keys():
     assert "/site/develop/doc/html/about.html" in get_s3_keys(
         "site/develop/doc/html/about.html"
     )
-    # assert "/site/develop/doc/html/about.html" in get_s3_keys("marshmallow/about.html")
+    assert "/site/develop/doc/html/any.html" in get_s3_keys("marshmallow/any.html")
     assert "/site/develop/rst.css" in get_s3_keys("/rst.css")
