@@ -14,6 +14,7 @@ static_content_test_cases = [
     # "/doc/html/about.html",
 ]
 
+
 @pytest.mark.django_db
 @pytest.mark.parametrize("content_path", static_content_test_cases)
 def test_static_content_template_view(content_path):
@@ -21,7 +22,7 @@ def test_static_content_template_view(content_path):
     NOTE: This test hits the live S3 API and was used for debugging purposes. It is not
     intended to be run as part of the test suite.
 
-    Test cases: 
+    Test cases:
     - Direct reference to S3 file: "/site/develop/rst.css"
     - Reference via an alias in the config file: "/marshmallow/index.html"
     - Reference via a second instance of the same alias in the config file, not found in the first one: "/marshmallow/about.html"
@@ -30,8 +31,10 @@ def test_static_content_template_view(content_path):
     """
     factory = RequestFactory()
     view = StaticContentTemplateView.as_view()
-    
-    request = factory.get(reverse("static-content-page", kwargs={"content_path": content_path}))
+
+    request = factory.get(
+        reverse("static-content-page", kwargs={"content_path": content_path})
+    )
     response = view(request, content_path=content_path)
 
     # Check if the response has a status code of 200 (OK)
