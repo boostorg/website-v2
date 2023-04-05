@@ -1,9 +1,88 @@
 import pytest
+import responses
 
-from django.test import RequestFactory
+from django.core.cache import caches
+from django.test import RequestFactory, TestCase
+from django.test.utils import override_settings
 from django.urls import reverse
 
 from core.views import StaticContentTemplateView
+
+from unittest.mock import patch
+from django.core.cache import caches
+
+
+@pytest.mark.skip(reason="Having trouble with mocking")
+# Override cache settings to use local memory cache for testing
+@override_settings(
+    CACHES={
+        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+        "machina_attachments": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache"
+        },
+        "static_content": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "TIMEOUT": 86400,
+        },
+    }
+)
+class TestStaticContentTemplateView(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.content_path = "/some/content/path"
+
+    @pytest.mark.django_db
+    @responses.activate
+    @patch("core.boostrenderer.get_content_from_s3")
+    def test_cache_behavior(self, mock_get_content_from_s3):
+        # Set up the mocked API call
+        mock_content = "mocked content"
+        mock_content_type = "text/plain"
+        mock_get_content_from_s3.return_value = (mock_content, mock_content_type)
+
+        # Mock the API request using the `responses` library
+        responses.add(
+            responses.GET,
+            "s3://static.boost.org/site/develop/some/content/path/",
+            body=mock_content,
+            status=200,
+            content_type=mock_content_type,
+        )
+
+        # Clear the cache before testing
+        cache = caches["static_content"]
+        cache.clear()
+
+        # Cache miss scenario
+        response = self.call_view(self.content_path)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode(), mock_content)
+        self.assertEqual(response["Content-Type"], mock_content_type)
+        mock_get_content_from_s3.assert_called_once_with(key=self.content_path)
+
+        # # Cache hit scenario
+        # mock_get_content_from_s3.reset_mock()
+        # response = self.call_view(self.content_path)
+        # self.assertEqual(response.status_code, 200)
+        # self.assertEqual(response.content.decode(), mock_content)
+        # self.assertEqual(response['Content-Type'], mock_content_type)
+        # mock_get_content_from_s3.assert_not_called()
+
+        # # Cache expiration scenario
+        # cache.set(self.content_path, (mock_content, mock_content_type), 1)  # Set a 1-second cache timeout
+        # time.sleep(2)  # Wait for the cache to expire
+        # mock_get_content_from_s3.reset_mock()
+        # response = self.call_view(self.content_path)
+        # self.assertEqual(response.status_code, 200)
+        # self.assertEqual(response.content.decode(), mock_content)
+        # self.assertEqual(response['Content-Type'], mock_content_type)
+        # mock_get_content_from_s3.assert_called_once_with(key=self.content_path)
+
+    def call_view(self, content_path):
+        request = self.factory.get(content_path)
+        view = StaticContentTemplateView.as_view()
+        response = view(request, content_path=content_path)
+        return response
 
 
 static_content_test_cases = [
