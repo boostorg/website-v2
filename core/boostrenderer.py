@@ -54,7 +54,7 @@ def get_s3_keys(content_path, config_filename="stage_static_config.json"):
     """
     Get the S3 key for a given content path
     """
-    # Get the config file for the static content URL settings. 
+    # Get the config file for the static content URL settings.
     project_root = settings.BASE_DIR
     config_file_path = os.path.join(project_root, config_filename)
 
