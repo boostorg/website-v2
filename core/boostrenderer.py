@@ -68,12 +68,15 @@ def get_s3_keys(content_path, config_filename="stage_static_config.json"):
     for item in config_data:
         site_path = item["site_path"]
         s3_path = item["s3_path"]
+
         if site_path == "/" and content_path.startswith(site_path):
             if s3_path in content_path:
                 s3_keys.append(content_path)
             else:
                 s3_keys.append(os.path.join(s3_path, content_path.lstrip("/")))
 
+        elif content_path.startswith(site_path):
+            s3_keys.append(content_path.replace(site_path, s3_path))
     #     if site_path == "/" or content_path.startswith(site_path):
     #         if s3_path in content_path:
     #             s3_keys.append(content_path)
@@ -84,7 +87,7 @@ def get_s3_keys(content_path, config_filename="stage_static_config.json"):
     # if not s3_keys:
     #     fallback_s3_key = content_path.lstrip('/')
     #     s3_keys.append(fallback_s3_key)
-    
+
     return s3_keys
 
 
