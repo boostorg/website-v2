@@ -78,6 +78,9 @@ class StaticContentTemplateView(TemplateView):
         """
         Verifies the file and returns the frontmatter and content
         """
+        print("-" * 15)
+        print(kwargs.get("content_path"))
+        print("-" * 15)
         result = get_content_from_s3(key=kwargs.get("content_path"))
         if not result:
             raise Http404("Page not found")
