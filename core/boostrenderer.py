@@ -39,7 +39,7 @@ def get_content_from_s3(key=None, bucket_name=None):
     for s3_key in s3_keys:
         try:
             response = client.get_object(Bucket=bucket_name, Key=s3_key.lstrip("/"))
-            file_content = response["Body"].read().decode("utf-8")
+            file_content = response["Body"].read()
             content_type = response["ContentType"]
             return file_content, content_type
         except ClientError as e:

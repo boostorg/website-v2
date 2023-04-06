@@ -358,7 +358,7 @@ AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="changeme")
 AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="changeme")
 BUCKET_NAME = env("BUCKET_NAME", default="changeme")
 AWS_S3_ENDPOINT_URL = "s3.amazonaws.com"
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+# DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 # Markdown content
 BASE_CONTENT = env("BOOST_CONTENT_DIRECTORY", "/website")
