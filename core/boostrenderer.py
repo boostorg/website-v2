@@ -22,7 +22,7 @@ def get_content_from_s3(key=None, bucket_name=None):
         raise
 
     if not bucket_name:
-        bucket_name = settings.BUCKET_NAME
+        bucket_name = settings.STATIC_CONTENT_BUCKET_NAME
 
     s3_keys = get_s3_keys(key)
 
@@ -31,8 +31,8 @@ def get_content_from_s3(key=None, bucket_name=None):
 
     client = boto3.client(
         "s3",
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        aws_access_key_id=settings.STATIC_CONTENT_AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.STATIC_CONTENT_AWS_SECRET_ACCESS_KEY,
         region_name="us-east-1",
     )
 
