@@ -4,7 +4,7 @@ import re
 from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.template.response import TemplateResponse
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 
 from .boostrenderer import get_content_from_s3
 from .markdown import process_md
@@ -70,13 +70,11 @@ class MarkdownTemplateView(TemplateView):
         return self.render_to_response(context)
 
 
-class StaticContentTemplateView(TemplateView):
-    template_name = "static_content.html"
-    content_dir = settings.BASE_CONTENT
-
+class StaticContentTemplateView(View):
     def get(self, request, *args, **kwargs):
         """
-        Verifies the file and returns the frontmatter and content
+        Verifies the file and returns the raw static content from S3
+        mangling paths using the stage_static_config.json settings
         """
         result = get_content_from_s3(key=kwargs.get("content_path"))
         if not result:
