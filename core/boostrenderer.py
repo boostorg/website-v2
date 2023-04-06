@@ -1,4 +1,7 @@
 import boto3
+from botocore.exceptions import ClientError
+import json
+import os
 import re
 
 from django.conf import settings
@@ -12,22 +15,19 @@ from pygments.formatters.html import HtmlFormatter
 
 
 def get_content_from_s3(key=None, bucket_name=None):
-    """Get content from S3
-
-    Sample key:
-    'archives/boost_1_81_0/README.md'
-
-    Returns the decoded file contents if able
-
-    FIXME: This is a temporary solution to get the content from S3
-    and does not handle errors or anything unexpected with grace.
     """
-
+    Get content from S3. Returns the decoded file contents if able
+    """
     if not key:
         raise
 
     if not bucket_name:
         bucket_name = settings.BUCKET_NAME
+
+    s3_keys = get_s3_keys(key)
+
+    if not s3_keys:
+        s3_keys = [key]
 
     client = boto3.client(
         "s3",
@@ -35,9 +35,50 @@ def get_content_from_s3(key=None, bucket_name=None):
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
         region_name="us-east-1",
     )
-    response = client.get_object(Bucket=bucket_name, Key=key)
-    file_content = response["Body"].read().decode("utf-8")
-    return file_content
+
+    for s3_key in s3_keys:
+        try:
+            response = client.get_object(Bucket=bucket_name, Key=s3_key.lstrip("/"))
+            file_content = response["Body"].read().decode("utf-8")
+            content_type = response["ContentType"]
+            return file_content, content_type
+        except ClientError as e:
+            # Log the error and continue with the next key in the list
+            pass
+
+    # Return None if no valid object is found
+    return None
+
+
+def get_s3_keys(content_path, config_filename="stage_static_config.json"):
+    """
+    Get the S3 key for a given content path
+    """
+    # Get the config file for the static content URL settings.
+    project_root = settings.BASE_DIR
+    config_file_path = os.path.join(project_root, config_filename)
+
+    if not content_path.startswith("/"):
+        content_path = f"/{content_path}"
+
+    with open(config_file_path, "r") as f:
+        config_data = json.load(f)
+
+    s3_keys = []
+    for item in config_data:
+        site_path = item["site_path"]
+        s3_path = item["s3_path"]
+
+        if site_path == "/" and content_path.startswith(site_path):
+            if s3_path in content_path:
+                s3_keys.append(content_path)
+            else:
+                s3_keys.append(os.path.join(s3_path, content_path.lstrip("/")))
+
+        elif content_path.startswith(site_path):
+            s3_keys.append(content_path.replace(site_path, s3_path))
+
+    return s3_keys
 
 
 class Youtube(SpanToken):
