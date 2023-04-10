@@ -1,6 +1,14 @@
 from datetime import datetime
 
-from libraries.utils import parse_date
+from libraries.utils import generate_fake_email, parse_date
+
+
+def test_generate_fake_email():
+    sample = "Tester de Testerson"
+    expected = "tester_de_testerson"
+    result = generate_fake_email(sample)
+    assert expected in result
+    assert "@example.com" in result
 
 
 def test_parse_date_iso():

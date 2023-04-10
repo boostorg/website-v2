@@ -65,6 +65,44 @@ class UserManager(BaseUserManager):
         logger.info("Creating stub user with email='%s'", email)
         return self._create_user(email, password, claimed=claimed, **extra_fields)
 
+    def find_contributor(self, email=None, first_name=None, last_name=None):
+        """
+        Lazily finds a matching User record by email, or first name and last name.
+
+        This method is intended to be used when uploading library contributors in situations where we might not have
+        contributor's email address. It first checks if a user with the given email exists, and if found, returns that
+        user. If no user is found with the given email, it checks if a user with the given first name and last name
+        exists, and returns that user if found. Otherwise, it returns None.
+
+        Args:
+            email (str, optional): The email address of the user to search for.
+                Assumes the email address is legitimate, and is not one we generated as a placeholder.
+            first_name (str, optional): The first name of the user to search for.
+            last_name (str, optional): The last name of the user to search for.
+
+        Returns:
+            User object or None: If a user is found based on the provided criteria, the user object is returned. Otherwise, None is returned.
+        """
+        user = None
+
+        if email:
+            try:
+                user = self.get(email=email.lower())
+            except self.model.DoesNotExist:
+                pass
+
+        if not user and first_name and last_name:
+            users = self.filter(
+                first_name__iexact=first_name, last_name__iexact=last_name
+            )
+            authors_or_maintainers = users.filter(
+                models.Q(authors__isnull=False) | models.Q(maintainers__isnull=False)
+            ).distinct()
+            if authors_or_maintainers.count() == 1:
+                user = authors_or_maintainers.first()
+
+        return user
+
     def record_login(self, user=None, email=None):
         """
         Record a succesful login to last_login for the user by user
