@@ -1,7 +1,7 @@
-Django<4.0
+Django>=3.2.18, <4.0
 bumpversion
 django-admin-env-notice==0.4
-django-allauth==0.51.0
+django-allauth==0.53.1
 django-db-geventpool
 django-extensions
 django-health-check
@@ -14,9 +14,12 @@ gevent
 gunicorn
 psycopg2-binary
 whitenoise
-django-click
+django-click==2.3.0
 Pillow==9.4.0
 django-storages
+wheel==0.38.1
+cryptography==39.0.1
+boto3
 
 # Logging
 django-tracer
@@ -24,14 +27,14 @@ python-json-logger
 structlog
 
 # Celery
-celery
-redis
+celery==5.2.2
+redis==4.5.4
 
 # Testing
-black
+black==22.3
 django-bakery
 django-test-plus
-pytest
+pytest==7.2.2
 pytest-cov
 pytest-django
 pytest-xdist
@@ -39,17 +42,18 @@ Faker
 model_bakery
 ipython
 responses
+minio
 
 # Packaging
-pip-tools>=6.6.2
+pip-tools==6.12.3
 
 # Markdown and Frontmatter
 mistletoe
 python-frontmatter
 
 #Forum
-django-machina
+django-machina>=1.2
 
 # Github
 ghapi
-requests
+requests==2.28.2

@@ -354,6 +354,16 @@ if not LOCAL_DEVELOPMENT:
     DEFAULT_FILE_STORAGE = "core.storages.MediaStorage"
     MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{MEDIA_BUCKET_NAME}/"
 
+# Staticly rendered content from S3 such as Antora docs, etc
+STATIC_CONTENT_AWS_ACCESS_KEY_ID = env(
+    "STATIC_CONTENT_AWS_ACCESS_KEY_ID", default="changeme"
+)
+STATIC_CONTENT_AWS_SECRET_ACCESS_KEY = env(
+    "STATIC_CONTENT_AWS_SECRET_ACCESS_KEY", default="changeme"
+)
+STATIC_CONTENT_BUCKET_NAME = env("STATIC_CONTENT_BUCKET_NAME", default="changeme")
+STATIC_CONTENT_AWS_S3_ENDPOINT_URL = "s3.amazonaws.com"
+
 # Markdown content
 BASE_CONTENT = env("BOOST_CONTENT_DIRECTORY", "/website")
 
