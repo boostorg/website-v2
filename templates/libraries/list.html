@@ -58,7 +58,7 @@
   </div>
 
   <!-- Libraries list -->
-  <div class="mb-5 space-y-3">
+  <div class="mb-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
     {% for library in object_list %}
       {% include "libraries/_library_list_item.html" %}
     {% endfor %}

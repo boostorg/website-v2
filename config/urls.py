@@ -46,6 +46,12 @@ router.register(r"libraries", LibrarySearchView, basename="libraries")
 urlpatterns = (
     [
         path("", HomepageView.as_view(), name="home"),
+        # scratch template for design scrums
+        path(
+            "scratch/",
+            TemplateView.as_view(template_name="scratch.html"),
+            name="scratch",
+        ),
         path("admin/", admin.site.urls),
         path("accounts/", include("allauth.urls")),
         path(
