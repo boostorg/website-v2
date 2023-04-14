@@ -1,4 +1,4 @@
-Django>=3.2.18, <4.0
+Django>=4.0, <=4.2
 bumpversion
 django-admin-env-notice==0.4
 django-allauth==0.53.1
@@ -8,7 +8,7 @@ django-health-check
 django-redis
 django-rest-auth
 django-widget-tweaks
-djangorestframework
+djangorestframework>=3.14
 environs[django]
 gevent
 gunicorn
@@ -39,7 +39,7 @@ pytest-cov
 pytest-django
 pytest-xdist
 Faker
-model_bakery
+model_bakery==1.11
 ipython
 responses
 minio
@@ -53,6 +53,7 @@ python-frontmatter
 
 #Forum
 django-machina>=1.2
+django-haystack>=3.2
 
 # Github
 ghapi
