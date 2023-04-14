@@ -39,7 +39,7 @@ pytest-cov
 pytest-django
 pytest-xdist
 Faker
-model_bakery
+model_bakery==1.11
 ipython
 responses
 minio
