@@ -349,7 +349,12 @@ if not LOCAL_DEVELOPMENT:
         "AWS_S3_ENDPOINT_URL", default="https://sfo2.digitaloceanspaces.com"
     )
     AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="sfo2")
-    DEFAULT_FILE_STORAGE = "core.storages.MediaStorage"
+    STORAGES = {
+        "default": {"BACKEND": "core.storages.MediaStorage"},
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        },
+    }
     MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{MEDIA_BUCKET_NAME}/"
 
 # Staticly rendered content from S3 such as Antora docs, etc
