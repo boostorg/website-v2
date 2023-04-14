@@ -46,6 +46,19 @@ def get_content_from_s3(key=None, bucket_name=None):
             # Log the error and continue with the next key in the list
             pass
 
+        # Handle URLs that are directories looking for `index.html` files
+        if s3_key.endswith("/"):
+            try:
+                original_key = s3_key.lstrip("/")
+                index_html_key = f"{original_key}index.html"
+                response = client.get_object(Bucket=bucket_name, Key=index_html_key)
+                file_content = response["Body"].read()
+                content_type = response["ContentType"]
+                return file_content, content_type
+            except ClientError as e:
+                # Log the error and continue with the next key in the list
+                pass
+
     # Return None if no valid object is found
     return None
 

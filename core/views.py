@@ -76,6 +76,7 @@ class StaticContentTemplateView(View):
         Verifies the file and returns the raw static content from S3
         mangling paths using the stage_static_config.json settings
         """
+        print(kwargs.get("content_path"))
         result = get_content_from_s3(key=kwargs.get("content_path"))
         if not result:
             raise Http404("Page not found")
