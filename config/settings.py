@@ -337,7 +337,7 @@ if ENV_NAME == "Development Environment":
 elif ENV_NAME == "Production Environment":
     ENVIRONMENT_COLOR = "#E53E3E"
 
-# S3 Compatiable Storage Settings
+# S3 Compatible Storage Settings
 if not LOCAL_DEVELOPMENT:
     AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="changeme")
     AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="changeme")
@@ -356,6 +356,17 @@ if not LOCAL_DEVELOPMENT:
         },
     }
     MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{MEDIA_BUCKET_NAME}/"
+
+# S3/MinIO Compatible Storage Settings for local dev 
+if LOCAL_DEVELOPMENT:
+    # MinIO settings
+    MINIO_ENDPOINT = 'localhost:9000'
+    MINIO_ACCESS_KEY = env("MINIO_ACCESS_KEY", default="minioadmin")
+    MINIO_SECRET_KEY = env("MINIO_SECRET_KEY", default="minioadmin")
+    MINIO_USE_SSL = False
+    MEDIA_BUCKET_NAME = env("MEDIA_BUCKET_NAME", default="changeme")
+    STATIC_CONTENT_BUCKET_NAME = env("STATIC_CONTENT_BUCKET_NAME", default="changeme")
+    MEDIA_URL = f"http://{MINIO_ENDPOINT}/{MEDIA_BUCKET_NAME}/"
 
 # Staticly rendered content from S3 such as Antora docs, etc
 STATIC_CONTENT_AWS_ACCESS_KEY_ID = env(

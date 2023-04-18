@@ -1,6 +1,7 @@
 import boto3
 from botocore.exceptions import ClientError
 import json
+from minio import Minio
 import os
 import re
 
@@ -16,7 +17,9 @@ from pygments.formatters.html import HtmlFormatter
 
 def get_content_from_s3(key=None, bucket_name=None):
     """
-    Get content from S3. Returns the decoded file contents if able
+    Get content from S3. Returns the decoded file contents if able. 
+
+    Includes some logic to insert Minio if running locally.
     """
     if not key:
         raise
@@ -29,16 +32,14 @@ def get_content_from_s3(key=None, bucket_name=None):
     if not s3_keys:
         s3_keys = [key]
 
-    client = boto3.client(
-        "s3",
-        aws_access_key_id=settings.STATIC_CONTENT_AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.STATIC_CONTENT_AWS_SECRET_ACCESS_KEY,
-        region_name="us-east-1",
-    )
+    client = get_s3_client()
 
     for s3_key in s3_keys:
         try:
-            response = client.get_object(Bucket=bucket_name, Key=s3_key.lstrip("/"))
+            if isinstance(client, Minio):
+                response = client.get_object(bucket_name, s3_key.lstrip("/"))
+            else:
+                response = client.get_object(Bucket=bucket_name, Key=s3_key.lstrip("/"))
             file_content = response["Body"].read()
             content_type = response["ContentType"]
             return file_content, content_type
@@ -51,7 +52,10 @@ def get_content_from_s3(key=None, bucket_name=None):
             try:
                 original_key = s3_key.lstrip("/")
                 index_html_key = f"{original_key}index.html"
-                response = client.get_object(Bucket=bucket_name, Key=index_html_key)
+                if isinstance(client, Minio):
+                    response = client.get_object(bucket_name, index_html_key)
+                else:
+                    response = client.get_object(Bucket=bucket_name, Key=index_html_key)
                 file_content = response["Body"].read()
                 content_type = response["ContentType"]
                 return file_content, content_type
@@ -61,6 +65,26 @@ def get_content_from_s3(key=None, bucket_name=None):
 
     # Return None if no valid object is found
     return None
+
+
+def get_s3_client():
+    """
+    Get the S3 client based on the environment
+    """
+    if settings.LOCAL_DEVELOPMENT:
+        return Minio(
+            settings.MINIO_ENDPOINT,
+            access_key=settings.MINIO_ACCESS_KEY,
+            secret_key=settings.MINIO_SECRET_KEY,
+            secure=settings.MINIO_USE_SSL,
+        )
+    return boto3.client(
+        "s3",
+        aws_access_key_id=settings.STATIC_CONTENT_AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.STATIC_CONTENT_AWS_SECRET_ACCESS_KEY,
+        endpoint_url="http://localhost:9000",
+        region_name="us-east-1",
+    )
 
 
 def get_s3_keys(content_path, config_filename="stage_static_config.json"):
