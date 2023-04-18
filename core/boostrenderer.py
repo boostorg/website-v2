@@ -23,9 +23,12 @@ def get_content_from_s3(key=None, bucket_name=None):
     """
     if not key:
         logger.info(
-            "get_content_from_s3_no_key_provided", key=key, bucket_name=bucket_name
+            "get_content_from_s3_no_key_provided",
+            key=key,
+            bucket_name=bucket_name,
+            function_name="get_content_from_s3",
         )
-        raise
+        raise ValueError("No key provided.")
 
     if not bucket_name:
         bucket_name = settings.STATIC_CONTENT_BUCKET_NAME
@@ -52,6 +55,7 @@ def get_content_from_s3(key=None, bucket_name=None):
                 key=key,
                 bucket_name=bucket_name,
                 s3_key=s3_key,
+                function_name="get_content_from_s3",
             )
             return file_content, content_type
         except ClientError as e:
@@ -62,6 +66,7 @@ def get_content_from_s3(key=None, bucket_name=None):
                 bucket_name=bucket_name,
                 s3_key=s3_key,
                 error=str(e),
+                function_name="get_content_from_s3",
             )
             pass
 
@@ -82,11 +87,17 @@ def get_content_from_s3(key=None, bucket_name=None):
                     bucket_name=bucket_name,
                     s3_key=s3_key,
                     error=str(e),
+                    function_name="get_content_from_s3",
                 )
                 pass
 
     # Return None if no valid object is found
-    logger.info("get_content_from_s3_no_valid_object", key=key, bucket_name=bucket_name)
+    logger.info(
+        "get_content_from_s3_no_valid_object",
+        key=key,
+        bucket_name=bucket_name,
+        function_name="get_content_from_s3",
+    )
     return None
 
 
