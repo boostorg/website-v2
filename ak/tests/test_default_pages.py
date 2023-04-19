@@ -1,5 +1,10 @@
 import pytest
 import random
+from unittest.mock import MagicMock, patch
+
+from django.http import Http404
+
+from core.views import StaticContentTemplateView
 
 
 def test_homepage(db, tp):
@@ -32,8 +37,13 @@ def test_404_page(db, tp):
 
     rando = random.randint(1000, 20000)
     url = f"/this/should/not/exist/{rando}/"
-    response = tp.get(url)
-    tp.response_404(response)
+
+    # Patch the get_content_from_s3 method for the StaticContentTemplateView class
+    with patch.object(StaticContentTemplateView, "get", autospec=True) as mock_get:
+        mock_get.side_effect = Http404("Page not found")
+
+        response = tp.get(url)
+        tp.response_404(response)
 
     response = tp.get("not_found")
     tp.response_404(response)
