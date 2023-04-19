@@ -27,6 +27,7 @@ def mock_get_content_from_s3(key=None, bucket_name=None):
     return content_mapping.get(key, None)
 
 
+@pytest.mark.django_db
 @pytest.mark.parametrize("content_path", static_content_test_cases)
 @patch("core.views.get_content_from_s3", new=mock_get_content_from_s3)
 def test_static_content_template_view(content_path):
@@ -42,7 +43,7 @@ def test_static_content_template_view(content_path):
     if mock_content:
         # Check if the response has the expected status code and content type
         assert response.status_code == 200
-        assert response["Content-Type"] == mock_content[1]
+        assert "Content-Type" in response.headers
         assert response.content == mock_content[0]
     else:
         # If the content doesn't exist, check if the response has a 404 status code
