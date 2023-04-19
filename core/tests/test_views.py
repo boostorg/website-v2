@@ -1,5 +1,8 @@
 import pytest
+from unittest.mock import MagicMock, patch
 
+from django.http import Http404
+from django.http import HttpResponseNotFound
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -7,42 +10,52 @@ from core.views import StaticContentTemplateView
 
 
 static_content_test_cases = [
-    "/site/develop/rst.css",
-    "/marshmallow/index.html",
-    "/marshmallow/any.html",
-    "/rst.css",
-    "doc/html/about.html",
-    "site/develop/doc/html/about.html",
+    ("/develop/libs/index.html", 200, "text/html"),  # Example 1
+    ("/develop/doc/index.html", 200, "text/html"),  # Example 2
+    ("/index.html", 200, "text/html"),  # Example 3
+    ("/nonexistent/index.html", 404, None),  # Non-existent content
+    ("/develop/libs/nonexistent.html", 404, None),  # Non-existent content in libs
 ]
 
 
-@pytest.mark.skip(reason="Hits the live S3 API")
-@pytest.mark.django_db
-@pytest.mark.parametrize("content_path", static_content_test_cases)
-def test_static_content_template_view(content_path):
-    """
-    NOTE: This test hits the live S3 API and was used for debugging purposes. It is not
-    intended to be run as part of the test suite.
+def mock_get_content_from_s3(key):
+    mock_content = {
+        "/site/develop/libs/index.html": ("libs content", "text/html"),
+        "/site/develop/doc/html/index.html": ("doc content", "text/html"),
+        "/site/develop/index.html": ("root content", "text/html"),
+        "/site/index.html": ("site root content", "text/html"),
+    }
+    return mock_content.get(key, None)
 
-    Test cases:
-    - Direct reference to S3 file: "/site/develop/rst.css"
-    - Reference via an alias in the config file: "/marshmallow/index.html"
-    - Reference via a second instance of the same alias in the config file, not found in the first one: "/marshmallow/about.html"
-    - Reference via the pass-through "/" alias to "/site/develop/": "/rst.css"
-    - Reference via the pass-through "/" alias to a nested file: "/doc/html/about.html"
-    """
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("content_path, expected_status, expected_content_type", static_content_test_cases)
+def test_static_content_template_view(content_path, expected_status, expected_content_type):
     factory = RequestFactory()
     view = StaticContentTemplateView.as_view()
 
-    request = factory.get(
-        reverse("static-content-page", kwargs={"content_path": content_path})
-    )
-    response = view(request, content_path=content_path)
+    with patch('core.boostrenderer.get_content_from_s3', side_effect=mock_get_content_from_s3):
+        request = factory.get(
+            reverse("static-content-page", kwargs={"content_path": content_path})
+        )
+        try:
+            response = view(request, content_path=content_path)
+        except Http404:
+            if expected_status == 404:
+                assert True
+            else:
+                assert False, "Unexpected Http404"
+        else:
+            # Check if the response has the expected status code
+            assert response.status_code == expected_status
+            if expected_status == 200:
+                # Check if the Content-Type header is present and matches the expected content type
+                assert "Content-Type" in response.headers
+                assert response.headers["Content-Type"] == expected_content_type
+            else:
+                # Check if the response is an Http404 error for non-existent content
+                assert isinstance(response, HttpResponseNotFound)
 
-    # Check if the response has a status code of 200 (OK)
-    assert response.status_code == 200
-    # Check if the Content-Type header is present in the response
-    assert "Content-Type" in response.headers
 
 
 def test_markdown_view_top_level(tp):
