@@ -17,7 +17,7 @@ from pygments.formatters.html import HtmlFormatter
 
 def get_content_from_s3(key=None, bucket_name=None):
     """
-    Get content from S3. Returns the decoded file contents if able. 
+    Get content from S3. Returns the decoded file contents if able.
 
     Includes some logic to insert Minio if running locally.
     """

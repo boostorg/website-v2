@@ -357,10 +357,10 @@ if not LOCAL_DEVELOPMENT:
     }
     MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{MEDIA_BUCKET_NAME}/"
 
-# S3/MinIO Compatible Storage Settings for local dev 
+# S3/MinIO Compatible Storage Settings for local dev
 if LOCAL_DEVELOPMENT:
     # MinIO settings
-    MINIO_ENDPOINT = 'localhost:9000'
+    MINIO_ENDPOINT = "localhost:9000"
     MINIO_ACCESS_KEY = env("MINIO_ACCESS_KEY", default="minioadmin")
     MINIO_SECRET_KEY = env("MINIO_SECRET_KEY", default="minioadmin")
     MINIO_USE_SSL = False
