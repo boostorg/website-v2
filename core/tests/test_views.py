@@ -4,7 +4,6 @@ from unittest.mock import patch
 from django.test import RequestFactory
 from django.urls import reverse
 
-from core.boostrenderer import get_content_from_s3
 from core.views import StaticContentTemplateView
 
 # Define test cases with the paths based on the provided config file
