@@ -62,13 +62,7 @@ Clone the content repo to your local machine, at the same level as this repo: ht
 
 ## Environment Variables 
 
-### `GITHUB_TOKEN`
-
-[Generate a new personal access token](https://github.com/settings/tokens) and replace the value for `GITHUB_TOKEN` in your `.env` file in order to connect to certain parts of the GitHub API. 
-
-### `ENVIRONMENT_NAME`
-
-Optional. Set a name for local development that will display in a banner in the Django Admin. 
+See [Environment Variables](docs/env_vars.md) for more information on environment variables. 
 
 ## Running the tests
 

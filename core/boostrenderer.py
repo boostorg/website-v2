@@ -3,6 +3,7 @@ from botocore.exceptions import ClientError
 import json
 import os
 import re
+import structlog
 
 from django.conf import settings
 
@@ -13,13 +14,21 @@ from pygments.styles import get_style_by_name as get_style
 from pygments.lexers import get_lexer_by_name as get_lexer, guess_lexer
 from pygments.formatters.html import HtmlFormatter
 
+logger = structlog.get_logger()
+
 
 def get_content_from_s3(key=None, bucket_name=None):
     """
     Get content from S3. Returns the decoded file contents if able
     """
     if not key:
-        raise
+        logger.info(
+            "get_content_from_s3_no_key_provided",
+            key=key,
+            bucket_name=bucket_name,
+            function_name="get_content_from_s3",
+        )
+        raise ValueError("No key provided.")
 
     if not bucket_name:
         bucket_name = settings.STATIC_CONTENT_BUCKET_NAME
@@ -41,9 +50,24 @@ def get_content_from_s3(key=None, bucket_name=None):
             response = client.get_object(Bucket=bucket_name, Key=s3_key.lstrip("/"))
             file_content = response["Body"].read()
             content_type = response["ContentType"]
+            logger.info(
+                "get_content_from_s3_success",
+                key=key,
+                bucket_name=bucket_name,
+                s3_key=s3_key,
+                function_name="get_content_from_s3",
+            )
             return file_content, content_type
         except ClientError as e:
             # Log the error and continue with the next key in the list
+            logger.exception(
+                "get_content_from_s3_error",
+                key=key,
+                bucket_name=bucket_name,
+                s3_key=s3_key,
+                error=str(e),
+                function_name="get_content_from_s3",
+            )
             pass
 
         # Handle URLs that are directories looking for `index.html` files
@@ -57,9 +81,23 @@ def get_content_from_s3(key=None, bucket_name=None):
                 return file_content, content_type
             except ClientError as e:
                 # Log the error and continue with the next key in the list
+                logger.exception(
+                    "get_content+from_s3_client_error",
+                    key=key,
+                    bucket_name=bucket_name,
+                    s3_key=s3_key,
+                    error=str(e),
+                    function_name="get_content_from_s3",
+                )
                 pass
 
     # Return None if no valid object is found
+    logger.info(
+        "get_content_from_s3_no_valid_object",
+        key=key,
+        bucket_name=bucket_name,
+        function_name="get_content_from_s3",
+    )
     return None
 
 
