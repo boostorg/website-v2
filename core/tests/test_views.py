@@ -1,16 +1,13 @@
 import pytest
-import responses
 import time
+from unittest.mock import patch
 
 from django.core.cache import caches
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
 
 from core.views import StaticContentTemplateView
-
-from unittest.mock import patch
-from django.core.cache import caches
 
 
 @pytest.fixture
