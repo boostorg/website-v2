@@ -187,8 +187,6 @@ TIME_ZONE = "UTC"
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 
@@ -359,14 +357,23 @@ if not LOCAL_DEVELOPMENT:
         "AWS_S3_ENDPOINT_URL", default="https://sfo2.digitaloceanspaces.com"
     )
     AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="sfo2")
-    DEFAULT_FILE_STORAGE = "core.storages.MediaStorage"
+    STORAGES = {
+        "default": {"BACKEND": "core.storages.MediaStorage"},
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        },
+    }
     MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{MEDIA_BUCKET_NAME}/"
 
-AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="changeme")
-AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="changeme")
-BUCKET_NAME = env("BUCKET_NAME", default="changeme")
-AWS_S3_ENDPOINT_URL = "s3.amazonaws.com"
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+# Staticly rendered content from S3 such as Antora docs, etc
+STATIC_CONTENT_AWS_ACCESS_KEY_ID = env(
+    "STATIC_CONTENT_AWS_ACCESS_KEY_ID", default="changeme"
+)
+STATIC_CONTENT_AWS_SECRET_ACCESS_KEY = env(
+    "STATIC_CONTENT_AWS_SECRET_ACCESS_KEY", default="changeme"
+)
+STATIC_CONTENT_BUCKET_NAME = env("STATIC_CONTENT_BUCKET_NAME", default="changeme")
+STATIC_CONTENT_AWS_S3_ENDPOINT_URL = "s3.amazonaws.com"
 
 # Markdown content
 BASE_CONTENT = env("BOOST_CONTENT_DIRECTORY", "/website")

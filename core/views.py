@@ -1,14 +1,17 @@
 import os.path
 import re
+import structlog
 
 from django.conf import settings
 from django.core.cache import caches
 from django.http import Http404, HttpResponse
 from django.template.response import TemplateResponse
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 
 from .boostrenderer import get_content_from_s3
 from .markdown import process_md
+
+logger = structlog.get_logger()
 
 
 class MarkdownTemplateView(TemplateView):
@@ -61,23 +64,38 @@ class MarkdownTemplateView(TemplateView):
 
         # Avoids a TypeError from os.path.isfile if there is no path
         if not path:
+            logger.info(
+                "markdown_template_view_no_valid_path",
+                content_path=kwargs.get("content_path"),
+                status_code=404,
+            )
             raise Http404("Page not found")
 
         if not os.path.isfile(path):
+            logger.info(
+                "markdown_template_view_no_valid_file",
+                content_path=kwargs.get("content_path"),
+                path=path,
+                status_code=404,
+            )
             raise Http404("Post not found")
 
         context = {}
         context["frontmatter"], context["content"] = process_md(path)
+        logger.info(
+            "markdown_template_view_success",
+            content_path=kwargs.get("content_path"),
+            path=path,
+            status_code=200,
+        )
         return self.render_to_response(context)
 
 
-class StaticContentTemplateView(TemplateView):
-    template_name = "static_content.html"
-    content_dir = settings.BASE_CONTENT
-
+class StaticContentTemplateView(View):
     def get(self, request, *args, **kwargs):
         """
-        Verifies the file and returns the frontmatter and content
+        Verifies the file and returns the raw static content from S3
+        mangling paths using the stage_static_config.json settings
         """
         content_path = kwargs.get("content_path")
 
@@ -92,13 +110,23 @@ class StaticContentTemplateView(TemplateView):
             content, content_type = cached_result
         else:
             # Fetch content from S3 if not in cache
-            result = get_content_from_s3(key=content_path)
+            result = get_content_from_s3(key=kwargs.get("content_path"))
             if not result:
+                logger.info(
+                    "get_content_from_s3_view_no_valid_object",
+                    key=kwargs.get("content_path"),
+                    status_code=404,
+                )
                 raise Http404("Page not found")
-            content, content_type = result
 
+            content, content_type = result
             # Store the result in cache
             static_content_cache.set(cache_key, (content, content_type))
 
         response = HttpResponse(content, content_type=content_type)
+        logger.info(
+            "get_content_from_s3_view_success",
+            key=kwargs.get("content_path"),
+            status_code=response.status_code,
+        )
         return response
