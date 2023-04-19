@@ -20,6 +20,17 @@ services:
     volumes:
       - redis_data:/data
 
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ROOT_USER: MINIO_ACCESS_KEY
+      MINIO_ROOT_PASSWORD: MINIO_SECRET_KEY
+    command: server /minio_data
+    volumes:
+      - minio_data:/data
+
   web:
     build:
       context: .
@@ -27,8 +38,13 @@ services:
     command: [ "/bin/bash", "/code/compose-start.sh" ]
     depends_on:
       - db
+      - minio
     environment:
       - "LOCAL_DEVELOPMENT=true"
+      - "MINIO_ENDPOINT=minio:9000"
+      - "MINIO_ACCESS_KEY=MINIO_ACCESS_KEY"
+      - "MINIO_SECRET_KEY=MINIO_SECRET_KEY"
+      - "MINIO_SECURE='False'"
     env_file:
       - .env
     init: true
@@ -50,3 +66,4 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  minio_data:
