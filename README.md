@@ -4,7 +4,9 @@
 
 A Django based website that will power https://boost.org
 
-## Local Development Setup
+## Local Development 
+
+### Setting up
 
 This project will use Python 3.9, Docker, and Docker Compose.
 
@@ -12,17 +14,20 @@ This project will use Python 3.9, Docker, and Docker Compose.
 developer utility commands, are codified in our `justfile` and can be ran with
 less typing.
 
-Copy .env-dist to .env and adjust values to match your local environment:
+1. Copy `env.template` to `.env` and adjust values to match your local environment:
 
 ```shell
 $ cp env.template .env
 ```
 
-Then run:
+2. Then run:
 
 ```shell
 # start our services (and build them if necessary)
 $ docker-compose up
+
+# start our services in detached mode
+$ docker-compose up -d
 
 # to create a superuser
 $ docker-compose run --rm web python manage.py createsuperuser
@@ -56,9 +61,27 @@ $ docker-compose -f docker-compose-with-celery.yml up
 $ docker-compose -f docker-compose-with-celery.yml down
 ```
 
-### Markdown content handling 
+### Local Dev: Serving static content from S3 
 
-Clone the content repo to your local machine, at the same level as this repo: https://github.com/boostorg/website2022. Docker-compose will look for this folder and its contents on your machine, so it can copy the contents into a Docker container. 
+The Boost website is able to serve static content from an Amazon S3 bucket. This allows users to access older or archived content without needing to convert those resources into formats that work with the new website. See `StaticContentTemplateView` for more details. 
+
+For local development, you may not want to call the Amazon S3 API live. Instead, you can use Docker Compose and MinIO to create sample data that you can use to test. 
+
+1. [Install MinIO](https://min.io/download). Download the Minio Server and the Minio Client (command line tools)
+2. 
+
+
+
+### Local Dev: Handling static markdown content 
+
+_Note: This capability still exists, but is considered deprecated in favor of static content handling._ 
+
+The Boost website is able to serve static content from an external GitHub repo. Most of the content is in Markdown, and Boost transforms it into valid HTML. See `MarkdownTemplateView` for more details. 
+
+For local development, you may not want to make this call live. Instead, you can clone the repo with the markdown content to your local machine and use Docker Compose to serve the content. 
+
+1. Clone the content repo to your local machine, at the same level as this repo: https://github.com/boostorg/website2022. Docker-compose will look for this folder and its contents on your machine, so it can copy the contents into a Docker container. 
+2. Run `docker-compose up`. The `../website2022/:/website` volume in the `web` service will take care of serving content from your local copy of the content repo. 
 
 ## Environment Variables 
 
