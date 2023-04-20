@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from django.http import Http404
 from django.http import HttpResponseNotFound
@@ -8,54 +8,47 @@ from django.urls import reverse
 
 from core.views import StaticContentTemplateView
 
-
+# Define test cases with the paths based on the provided config file
 static_content_test_cases = [
-    ("/develop/libs/index.html", 200, "text/html"),  # Example 1
-    ("/develop/doc/index.html", 200, "text/html"),  # Example 2
-    ("/index.html", 200, "text/html"),  # Example 3
-    ("/nonexistent/index.html", 404, None),  # Non-existent content
-    ("/develop/libs/nonexistent.html", 404, None),  # Non-existent content in libs
+    "/develop/libs/rst.css",  # Test a site_path from the config file
+    "/develop/doc/index.html",  # Test a site_path with a more complex substitution schema
+    "/rst.css",  # Test a the default site_path from the config file
+    "site/develop/doc/html/about.html",  # Test direct access to a file in the S3 bucket
 ]
 
 
-def mock_get_content_from_s3(key):
-    mock_content = {
-        "/site/develop/libs/index.html": ("libs content", "text/html"),
-        "/site/develop/doc/html/index.html": ("doc content", "text/html"),
-        "/site/develop/index.html": ("root content", "text/html"),
-        "/site/index.html": ("site root content", "text/html"),
+def mock_get_content_from_s3(key=None, bucket_name=None):
+    # Map the S3 paths to a sample content and content type
+    content_mapping = {
+        "/site/develop/libs/rst.css": (b"fake rst.css content", "text/css"),
+        "/site/develop/doc/html/index.html": (b"fake index.html content", "text/html"),
+        "/site/develop/rst.css": (b"fake rst.css content", "text/css"),
+        "/site/develop/doc/html/about.html": (b"fake about.html content", "text/html"),
     }
-    return mock_content.get(key, None)
+    return content_mapping.get(key, None)
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("content_path, expected_status, expected_content_type", static_content_test_cases)
-def test_static_content_template_view(content_path, expected_status, expected_content_type):
-    factory = RequestFactory()
+@pytest.mark.parametrize("content_path", static_content_test_cases)
+@patch("core.views.get_content_from_s3", new=mock_get_content_from_s3)
+def test_static_content_template_view(content_path):
+    """
+    Test the StaticContentTemplateView view"""
+    request = RequestFactory().get(content_path)
     view = StaticContentTemplateView.as_view()
+    response = view(request, content_path=content_path)
 
-    with patch('core.boostrenderer.get_content_from_s3', side_effect=mock_get_content_from_s3):
-        request = factory.get(
-            reverse("static-content-page", kwargs={"content_path": content_path})
-        )
-        try:
-            response = view(request, content_path=content_path)
-        except Http404:
-            if expected_status == 404:
-                assert True
-            else:
-                assert False, "Unexpected Http404"
-        else:
-            # Check if the response has the expected status code
-            assert response.status_code == expected_status
-            if expected_status == 200:
-                # Check if the Content-Type header is present and matches the expected content type
-                assert "Content-Type" in response.headers
-                assert response.headers["Content-Type"] == expected_content_type
-            else:
-                # Check if the response is an Http404 error for non-existent content
-                assert isinstance(response, HttpResponseNotFound)
+    # Get the mock content and content type for the content_path
+    mock_content = mock_get_content_from_s3(content_path)
 
+    if mock_content:
+        # Check if the response has the expected status code and content type
+        assert response.status_code == 200
+        assert "Content-Type" in response.headers
+        assert response.content == mock_content[0]
+    else:
+        # If the content doesn't exist, check if the response has a 404 status code
+        assert response.status_code == 404
 
 
 def test_markdown_view_top_level(tp):

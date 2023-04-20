@@ -61,6 +61,12 @@ urlpatterns = (
         path("403", ForbiddenView.as_view(), name="forbidden"),
         path("404", NotFoundView.as_view(), name="not_found"),
         path("500", InternalServerErrorView.as_view(), name="internal_server_error"),
+        # Temp docs path
+        path(
+            "docs/",
+            TemplateView.as_view(template_name="docs_temp.html"),
+            name="docs",
+        ),
         path(
             "about/",
             TemplateView.as_view(template_name="boost/about.html"),
