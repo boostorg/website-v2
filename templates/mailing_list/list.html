@@ -1,36 +1,37 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-    <h1>Mailing List Archives</h1>
-    <ul>
-    {% for message in messages %}
+  <div class="p-3 md:p-0">
+    <h1 class="my-5 text-4xl">Mailing List Archives</h1>
+  </div>
+  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+    <ul class="space-y-3">
+      {% for message in objects %}
         <li>
+          {{ message.sent_at }}: <a href="{% url 'mailing-list-detail' pk=message.pk %}" class="text-orange">
             <strong>{{ message.sender_display }}</strong>: {{ message.subject }}
-            <ul>
+          </a>
+          <ul class="pl-5 space-y-2">
             {% for reply in message.get_descendants %}
-                <li>
-                    <strong>{{ reply.sender_display }}</strong>: {{ reply.subject }}
-                </li>
+              <li>
+                <a href="{% url 'mailing-list-detail' pk=reply.pk %}" class="text-orange">
+                  <strong>{{ reply.sender_display }}</strong>: {{ reply.subject }}
+                </a>
+              </li>
             {% endfor %}
-            </ul>
+          </ul>
         </li>
-    {% endfor %}
+      {% endfor %}
     </ul>
-    <div class="pagination">
-        <span class="step-links">
-            {% if messages.has_previous %}
-                <a href="?page=1">&laquo; first</a>
-                <a href="?page={{ messages.previous_page_number }}">previous</a>
-            {% endif %}
-
-            <span class="current">
-                Page {{ messages.number }} of {{ messages.paginator.num_pages }}.
-            </span>
-
-            {% if messages.has_next %}
-                <a href="?page={{ messages.next_page_number }}">next</a>
-                <a href="?page={{ messages.paginator.num_pages }}">last &raquo;</a>
-            {% endif %}
-        </span>
+    <div class="space-x-3 text-center mt-5">
+      {% if messages.has_previous %}
+        <a href="?page=1" class="text-orange"><small> &lt;&lt; First</small></a>
+        <a href="?page={{ messages.previous_page_number }}" class="text-orange"><small> &lt; Previous</small> </a>
+      {% endif %}
+      {% if messages.has_next %}
+        <a href="?page={{ messages.next_page_number }}" class="text-orange"><small>Next <small> &gt; </small></a>
+          <a href="?page={{ messages.paginator.num_pages }}" class="text-orange">Last <small> &gt;&gt;</small></a>
+      {% endif %}
     </div>
+  </div>
 {% endblock %}
