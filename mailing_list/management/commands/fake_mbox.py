@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from django.core.management.base import BaseCommand
 import mailbox
 import random
+import uuid
 
 from faker import Faker
 
@@ -17,10 +18,7 @@ class Command(BaseCommand):
             help="Number of messages to generate",
         )
         parser.add_argument(
-            "--output",
-            type=str,
-            default="mailing_list/tests/data/test_mbox.mbox",
-            help="Output mbox file",
+            "--output", type=str, default="test_mbox.mbox", help="Output mbox file"
         )
 
     def handle(self, *args, **options):
@@ -35,7 +33,7 @@ class Command(BaseCommand):
             paragraphs = fake.paragraphs(nb=random.randint(1, 4))
             return "\n\n".join(paragraphs)
 
-        message_parents = [None] * 3
+        parent_messages = []
 
         for i in range(num_messages):
             message = mailbox.mboxMessage()
@@ -53,21 +51,21 @@ class Command(BaseCommand):
             content = generate_message_content()
             message.set_payload(content)
 
-            # Add threading
-            if i > 0:
-                thread_level = random.choices(range(3), [0.5, 0.3, 0.2])[0]
-                parent_message = message_parents[thread_level]
+            message_id = f"<{uuid.uuid4()}@example.com>"
+            message["Message-ID"] = message_id
 
-                if parent_message:
-                    parent_message_id = parent_message["Message-ID"]
-                    message["In-Reply-To"] = parent_message_id
-                    message["References"] = parent_message_id
+            # Add threading
+            if parent_messages and random.random() < 0.6:
+                max_thread_depth = 3
+                parent_message = random.choice(parent_messages)
+                parent_depth = int(parent_message.get("X-Thread-Depth", 1))
+
+                if parent_depth < max_thread_depth:
+                    message["In-Reply-To"] = parent_message["Message-ID"]
+                    message["X-Thread-Depth"] = str(parent_depth + 1)
 
             mbox.add(message)
-
-            # Update message_parents list
-            message_parents.pop(0)
-            message_parents.append(message)
+            parent_messages.append(message)
 
         mbox.flush()
         mbox.close()
