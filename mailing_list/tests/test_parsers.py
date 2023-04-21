@@ -11,3 +11,16 @@ def test_parse():
     parser = MailParser(mbox_file)
     messages = parser.parse()
     assert len(messages) == 100
+
+    # Check the keys of the first message in the list
+    expected_keys = [
+        "from",
+        "date",
+        "subject",
+        "to",
+        "message_id",
+        "in_reply_to",
+        "x_thread_depth",
+        "body",
+    ]
+    assert all(key in messages[0] for key in expected_keys)
