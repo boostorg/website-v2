@@ -32,6 +32,7 @@ from libraries.views import (
     LibraryListByVersionByCategory,
 )
 from libraries.api import LibrarySearchView
+from mailing_list.views import MailingListView
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
 from versions.views import VersionList, VersionDetail
@@ -90,6 +91,7 @@ urlpatterns = (
             LibraryDetail.as_view(),
             name="library-detail",
         ),
+        path("mailing-list/", MailingListView.as_view(), name="mailing-list"),
         path(
             "people/detail/",
             TemplateView.as_view(template_name="boost/people_detail.html"),
