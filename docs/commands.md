@@ -81,6 +81,23 @@ Output:
     ...9 issues created for algorithm
     ...10 issues created for asio
 
+## `fake_mbox` 
+
+Generates a realistic-looking mbox file with fake messages for testing purposes. It uses the Faker library to create random names, email addresses, subjects, and message contents. It includes some logic to force some threading. 
+
+**Arguments**
+
+- `--num-messages`: Optional. The number of fake messages to generate. Defaults to 100.
+- `--output`: Optional. The path to the output mbox file. Defaults to `mailing_list/tests/data/test_mbox.mbox`.
+
+### Example
+
+To generate an mbox file with 200 messages in a custom output file:
+
+```sh
+python manage.py fake_mbox --num-messages 200 --output my_custom_test_file.mbox
+```
+
 
 ## `generate_fake_versions` 
 
