@@ -7,6 +7,7 @@ User = get_user_model()
 
 
 class MailingListMessage(MPTTModel):
+    message_id = models.CharField(max_length=255, unique=True)
     sender = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -38,6 +39,7 @@ class MailingListMessage(MPTTModel):
     sent_at = models.DateTimeField(
         help_text=_("The date and time when the message was sent.")
     )
+    data = models.JSONField(default=dict, help_text=_("The raw message data."))
 
     class MPTTMeta:
         order_insertion_by = ["-sent_at"]
