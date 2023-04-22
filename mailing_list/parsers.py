@@ -13,6 +13,7 @@ class MailParser:
         self.mbox_file = mbox_file
 
     def parse(self):
+        """Parse the mbox file and return a list of message dicts"""
         mbox = mailbox.mbox(self.mbox_file)
         messages = []
         for message in mbox:
@@ -29,14 +30,21 @@ class MailParser:
             messages.append(msg_dict)
         return messages
 
-    # def save(self):
-    #     messages = self.parse()
-    #     for message in messages:
-    #         message_data = self.parse_message(message)
-    #         MailingListMessage.objects.create(**message_data)
+    def save_messages(self):
+        """Parse the mbox file and save the messages to the database"""
+        messages = self.parse()
+        for message in messages:
+            message_data = self.parse_message(message)
+
+            lookup_fields = {"message_id": message_data.pop("message_id")}
+            default_fields = message_data
+
+            MailingListMessage.objects.update_or_create(
+                defaults=default_fields, **lookup_fields
+            )
 
     def parse_message(self, message):
-        """Parse a message and return a dictionary of required fields"""
+        """Parse a message dict, handle data transformations, and return a dictionary of required fields"""
         sender_display, sender_email = self.extract_sender_parts(message["from"])
         return {
             "sender_email": sender_email,

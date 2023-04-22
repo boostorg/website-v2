@@ -1,5 +1,7 @@
+import pytz
 from datetime import datetime
 
+from mailing_list.models import MailingListMessage
 from mailing_list.parsers import MailParser
 
 
@@ -73,3 +75,20 @@ def test_parse_message():
     }
     result = mail_parser.parse_message(message)
     assert result == expected
+
+
+def test_save_messages(db):
+    """Test that the save_messages function saves messages to the database"""
+    message_id = "<a5697ca2-9ea8-4585-94e3-5a1c98cff39d@example.com>"
+    count = MailingListMessage.objects.count()
+    assert MailingListMessage.objects.filter(message_id=message_id).exists() is False
+    parser = MailParser("mailing_list/tests/data/test_single_mbox.mbox")
+    parser.save_messages()
+    assert MailingListMessage.objects.count() == count + 1
+    assert MailingListMessage.objects.filter(message_id=message_id).exists() is True
+    obj = MailingListMessage.objects.get(message_id=message_id)
+    assert obj.subject == "Reverse-engineered zero administration website discussion"
+    assert obj.body is not None
+    assert obj.sent_at == datetime(2023, 2, 3, 17, 25, 13, tzinfo=pytz.UTC)
+    assert obj.parent is None
+    assert obj.data is not None
