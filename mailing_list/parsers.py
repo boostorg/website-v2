@@ -1,4 +1,7 @@
+from datetime import datetime
 import mailbox
+
+from .models import MailingListMessage
 
 
 class MailParser:
@@ -23,3 +26,26 @@ class MailParser:
             }
             messages.append(msg_dict)
         return messages
+
+    # def save(self):
+    #     messages = self.parse()
+    #     for message in messages:
+    #         message_data = self.parse_message(message)
+    #         MailingListMessage.objects.create(**message_data)
+
+    def parse_message(self, message):
+        """Parse a message and return a dictionary of required fields"""
+        return {
+            "sender_email": message["from"],
+            "subject": message["subject"],
+            "body": message["body"],
+            "sent_at": self.convert_date(message["date"]),
+            "message_id": message["message_id"],
+            "parent": message["in_reply_to"],
+            "data": message,
+        }
+
+    def convert_date(self, date_string):
+        """Convert a date string into a datetime object"""
+        format_string = "%Y-%m-%d %H:%M:%S"
+        return datetime.strptime(date_string, format_string)
