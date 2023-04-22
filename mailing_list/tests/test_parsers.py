@@ -29,7 +29,7 @@ def test_parse():
 
 
 def test_convert_date():
-    """ Test that the convert_date function returns a datetime object"""
+    """Test that the convert_date function returns a datetime object"""
     date_string = "2023-02-03 17:25:13"
     expected = datetime(2023, 2, 3, 17, 25, 13)
     parser = MailParser("mailing_list/tests/data/test_mbox.mbox")
@@ -60,7 +60,7 @@ def test_parse_message():
         "x_thread_depth": None,
         "body": "Test message body",
     }
-    
+
     expected = {
         "sender_email": "tswift@example.com",
         "sender_display": "Taylor Swift",
@@ -73,4 +73,3 @@ def test_parse_message():
     }
     result = mail_parser.parse_message(message)
     assert result == expected
-
