@@ -1,4 +1,6 @@
 from datetime import datetime
+from email.utils import parseaddr
+
 import mailbox
 
 from .models import MailingListMessage
@@ -35,8 +37,10 @@ class MailParser:
 
     def parse_message(self, message):
         """Parse a message and return a dictionary of required fields"""
+        sender_display, sender_email = self.extract_sender_parts(message["from"])
         return {
-            "sender_email": message["from"],
+            "sender_email": sender_email,
+            "sender_display": sender_display,
             "subject": message["subject"],
             "body": message["body"],
             "sent_at": self.convert_date(message["date"]),
@@ -49,3 +53,8 @@ class MailParser:
         """Convert a date string into a datetime object"""
         format_string = "%Y-%m-%d %H:%M:%S"
         return datetime.strptime(date_string, format_string)
+
+    def extract_sender_parts(self, email_string):
+        """Extract the user display and email address from a string"""
+        display, email = parseaddr(email_string)
+        return display, email

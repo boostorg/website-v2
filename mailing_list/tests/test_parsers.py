@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from mailing_list.parsers import MailParser
 
 
@@ -36,11 +37,21 @@ def test_convert_date():
     assert result == expected
 
 
+def test_extract_sender_parts():
+    parser = MailParser("mailing_list/tests/data/test_mbox.mbox")
+    email_string = "Taylor Swift <tswift@example.com>"
+    expected_sender_display = "Taylor Swift"
+    expected_sender_email = "tswift@example.com"
+    sender_display, sender_email = parser.extract_sender_parts(email_string)
+    assert sender_display == expected_sender_display
+    assert sender_email == expected_sender_email
+
+
 def test_parse_message():
     """Test that the parse_message function returns a dictionary of required fields"""
     mail_parser = MailParser("mailing_list/tests/data/test_mbox.mbox")
     message = {
-        "from": "John Doe <johndoe@example.com>",
+        "from": "Taylor Swift <tswift@example.com>",
         "date": "2023-02-03 17:25:13",
         "subject": "Test Subject",
         "to": "Jane Smith <janesmith@example.com>",
@@ -51,7 +62,8 @@ def test_parse_message():
     }
     
     expected = {
-        "sender_email": "John Doe <johndoe@example.com>",
+        "sender_email": "tswift@example.com",
+        "sender_display": "Taylor Swift",
         "subject": "Test Subject",
         "body": "Test message body",
         "sent_at": datetime(2023, 2, 3, 17, 25, 13),
