@@ -40,19 +40,20 @@ class Command(BaseCommand):
 
             sender_name = fake.name()
             sender_email = f"{fake.user_name()}@example.com"
-            message.set_from(f"{sender_name} ({sender_email})")
-
             date = datetime.now() - timedelta(days=random.randint(0, 365))
-            message["Date"] = date.strftime("%Y-%m-%d %H:%M:%S")
+            message.set_from(
+                f"{sender_name} <{sender_email}> {date.strftime('%a %b %d %H:%M:%S %Y')}"
+            )
 
+            message["Date"] = date.strftime("%Y-%m-%d %H:%M:%S")
             message["Subject"] = f"{fake.catch_phrase()} discussion"
             message["To"] = f"{fake.name()} <{fake.user_name()}@example.com>"
+            message["From"] = f"{sender_name} <{sender_email}>"
+            message_id = f"<{uuid.uuid4()}@example.com>"
+            message["Message-ID"] = message_id
 
             content = generate_message_content()
             message.set_payload(content)
-
-            message_id = f"<{uuid.uuid4()}@example.com>"
-            message["Message-ID"] = message_id
 
             # Add threading
             if parent_messages and random.random() < 0.6:
