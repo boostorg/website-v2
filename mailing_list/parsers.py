@@ -39,6 +39,11 @@ class MailParser:
             lookup_fields = {"message_id": message_data.pop("message_id")}
             default_fields = message_data
 
+            # Set the parent message based on the "In-Reply-To" field
+            in_reply_to = message_data.get("parent")
+            parent_message = self.get_parent_message(in_reply_to)
+            default_fields["parent"] = parent_message
+
             MailingListMessage.objects.update_or_create(
                 defaults=default_fields, **lookup_fields
             )
@@ -66,3 +71,12 @@ class MailParser:
         """Extract the user display and email address from a string"""
         display, email = parseaddr(email_string)
         return display, email
+
+    def get_parent_message(self, in_reply_to):
+        """Return the parent message object, or None if not found"""
+        if not in_reply_to:
+            return None
+        try:
+            return MailingListMessage.objects.get(message_id=in_reply_to)
+        except MailingListMessage.DoesNotExist:
+            return None

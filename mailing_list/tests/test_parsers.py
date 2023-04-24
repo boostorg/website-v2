@@ -89,3 +89,23 @@ def test_save_messages(db):
     obj = MailingListMessage.objects.get(message_id=message_id)
     assert obj.subject is not None
     assert obj.body is not None
+
+
+def test_parent_child_relationships(db):
+    """Test that the parent/child relationships are saved correctly based on the mbox file."""
+    parser = MailParser("mailing_list/tests/data/test_mbox_threading.mbox")
+    parser.save_messages()
+    assert MailingListMessage.objects.count() == 4
+    from_anita = MailingListMessage.objects.get(
+        message_id="<c90a927e-1437-4803-b5c3-18c0d94651e8@example.com>"
+    )
+    from_jaime = MailingListMessage.objects.get(
+        message_id="<4f6d1440-ccc1-4d1e-adfe-b918ae94c3a7@example.com>"
+    )
+    from_alice = MailingListMessage.objects.get(
+        message_id="<1a2b3c4d-5e6f-7a8b-9c0d-1234567890ab@example.com>"
+    )
+
+    assert from_anita.parent is None
+    assert from_jaime.parent == from_anita
+    assert from_alice.parent == from_jaime
