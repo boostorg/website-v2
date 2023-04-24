@@ -105,6 +105,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # Machina
     "machina.apps.forum_permission.middleware.ForumPermissionMiddleware",
+    # Require login -- for prior to launch only
+    "core.middleware.LoginRequiredMiddleware",
 ]
 
 if DEBUG:

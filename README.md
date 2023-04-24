@@ -118,6 +118,18 @@ There is not currently a way to generate fake Libraries, Issues, or Pull Request
 
 TDB
 
+## Staging Environment Considerations 
+
+In April 2023, we made the decision to put the staging site behind a plain login. This was done to prevent the new design from being leaked to the general public before the official release. Access to the staging site is now restricted to users with valid login credentials, which are provided upon request. (This is managed in the Django Admin.)
+
+The implementation for this login requirement can be found in the `core/middleware.py` file as the `LoginRequiredMiddleware` class. To enable tests to pass with this login requirement, we have added a fixture called `logged_in_tp` in the `conftest.py` file. This fixture creates a logged-in `django-test-plus` client.
+
+To reverse these changes and make the site open to the public (except for views which are marked as login required in their respective `views.py` files), follow these steps:
+
+1. Disable the `LoginRequiredMiddleware` by removing it from the `MIDDLEWARE` list in the `settings.py` file.
+2. Remove the `logged_in_tp` fixture from the `conftest.py` file.
+3. In all tests, replace any mentions of `logged_in_tp` with the original `tp` to revert to the previous test setup.
+
 ## Production Environment Considerations
 
 TDB

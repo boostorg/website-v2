@@ -49,47 +49,47 @@ def test_static_content_template_view(content_path):
         assert response.status_code == 404
 
 
-def test_markdown_view_top_level(tp):
+def test_markdown_view_top_level(logged_in_tp):
     """GET /content/map"""
-    res = tp.get("/markdown/foo")
-    tp.response_200(res)
+    res = logged_in_tp.get("/markdown/foo")
+    logged_in_tp.response_200(res)
 
 
-def test_markdown_view_trailing_slash(tp):
-    res = tp.get("/markdown/foo/")
-    tp.response_200(res)
+def test_markdown_view_trailing_slash(logged_in_tp):
+    res = logged_in_tp.get("/markdown/foo/")
+    logged_in_tp.response_200(res)
 
 
-def test_markdown_view_top_level_includes_extension(tp):
-    res = tp.get("/markdown/foo.html")
-    tp.response_200(res)
+def test_markdown_view_top_level_includes_extension(logged_in_tp):
+    res = logged_in_tp.get("/markdown/foo.html")
+    logged_in_tp.response_200(res)
 
 
-def test_markdown_view_nested(tp):
-    res = tp.get("/markdown/more_content/bar")
-    tp.response_200(res)
+def test_markdown_view_nested(logged_in_tp):
+    res = logged_in_tp.get("/markdown/more_content/bar")
+    logged_in_tp.response_200(res)
 
 
-def test_markdown_view_nested_trailing_slash(tp):
-    res = tp.get("/markdown/more_content/bar/")
-    tp.response_200(res)
+def test_markdown_view_nested_trailing_slash(logged_in_tp):
+    res = logged_in_tp.get("/markdown/more_content/bar/")
+    logged_in_tp.response_200(res)
 
 
-def test_markdown_view_nested_includes_extenstion(tp):
-    res = tp.get("/markdown/more_content/bar.md")
-    tp.response_200(res)
+def test_markdown_view_nested_includes_extenstion(logged_in_tp):
+    res = logged_in_tp.get("/markdown/more_content/bar.md")
+    logged_in_tp.response_200(res)
 
 
-def test_markdown_view_nested_index_direct_path(tp):
-    res = tp.get("/markdown/more_content/index.html")
-    tp.response_200(res)
+def test_markdown_view_nested_index_direct_path(logged_in_tp):
+    res = logged_in_tp.get("/markdown/more_content/index.html")
+    logged_in_tp.response_200(res)
 
 
-def test_markdown_view_nested_should_load_an_index(tp):
-    res = tp.get("/markdown/more_content")
-    tp.response_200(res)
+def test_markdown_view_nested_should_load_an_index(logged_in_tp):
+    res = logged_in_tp.get("/markdown/more_content")
+    logged_in_tp.response_200(res)
 
 
-def test_markdown_view_nested_three_levels(tp):
-    res = tp.get("/markdown/more_content/even_more_content/sample")
-    tp.response_200(res)
+def test_markdown_view_nested_three_levels(logged_in_tp):
+    res = logged_in_tp.get("/markdown/more_content/even_more_content/sample")
+    logged_in_tp.response_200(res)

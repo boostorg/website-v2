@@ -1,3 +1,4 @@
+import pytest
 import tempfile
 
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -34,14 +35,14 @@ def test_logout_url(tp, db):
     tp.response_200(res)
 
 
-def test_password_reset_url(tp, db):
+def test_password_reset_url(logged_in_tp, db):
     """
     GET /accounts/password/reset/
 
     Just a canary test that the password reset screen exists.
     """
-    res = tp.get("account_reset_password")
-    tp.response_200(res)
+    res = logged_in_tp.get("account_reset_password")
+    logged_in_tp.response_200(res)
 
 
 def test_profile_photo_auth(tp, db):
@@ -56,7 +57,7 @@ def test_profile_photo_auth(tp, db):
 
 
 @override_settings(MEDIA_ROOT=tempfile.gettempdir())
-def test_profile_photo_update_success(tp, user, client):
+def test_profile_photo_update_success(logged_in_tp, user, client):
     """
     POST /users/me/photo
 
@@ -67,8 +68,8 @@ def test_profile_photo_update_success(tp, user, client):
     image = SimpleUploadedFile(
         "/image/fpo/user.png", b"file_content", content_type="image/png"
     )
-    res = tp.post("profile-photo", data={"image": image})
-    tp.response_302(res)
+    res = logged_in_tp.post("profile-photo", data={"image": image})
+    logged_in_tp.response_302(res)
     assert f"/users/{user.pk}" in res.url
     user.refresh_from_db()
     assert user.image != old_image
