@@ -115,8 +115,10 @@ django-js-asset==1.2.2
     # via django-mptt
 django-machina==1.2.0
     # via -r ./requirements.in
-django-mptt==0.13.4
-    # via django-machina
+django-mptt==0.14.0
+    # via
+    #   -r ./requirements.in
+    #   django-machina
 django-redis==5.0.0
     # via -r ./requirements.in
 django-rest-auth==0.9.5
