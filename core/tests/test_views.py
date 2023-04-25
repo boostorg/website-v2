@@ -84,43 +84,60 @@ def test_cache_behavior(request_factory, content_path):
         mock_get_content_from_s3.assert_called_once_with(key=content_path)
 
 
+# Define test cases with the paths based on the provided config file
 static_content_test_cases = [
-    "/site/develop/rst.css",
-    "/marshmallow/index.html",
-    "/marshmallow/any.html",
-    "/rst.css",
-    "doc/html/about.html",
-    "site/develop/doc/html/about.html",
+    "/develop/libs/rst.css",  # Test a site_path from the config file
+    "/develop/doc/index.html",  # Test a site_path with a more complex substitution schema
+    "/rst.css",  # Test a the default site_path from the config file
+    "site/develop/doc/html/about.html",  # Test direct access to a file in the S3 bucket
 ]
 
 
-@pytest.mark.skip(reason="Hits the live S3 API")
+def mock_get_content_from_s3(key=None, bucket_name=None):
+    # Map the S3 paths to a sample content and content type
+    content_mapping = {
+        "/site/develop/libs/rst.css": (b"fake rst.css content", "text/css"),
+        "/site/develop/doc/html/index.html": (b"fake index.html content", "text/html"),
+        "/site/develop/rst.css": (b"fake rst.css content", "text/css"),
+        "/site/develop/doc/html/about.html": (b"fake about.html content", "text/html"),
+    }
+    return content_mapping.get(key, None)
+
+
+@pytest.mark.django_db
+@override_settings(
+    CACHES={
+        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+        "machina_attachments": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache"
+        },
+        "static_content": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "TIMEOUT": 86400,
+        },
+    }
+)
 @pytest.mark.django_db
 @pytest.mark.parametrize("content_path", static_content_test_cases)
+@patch("core.views.get_content_from_s3", new=mock_get_content_from_s3)
 def test_static_content_template_view(content_path):
     """
-    NOTE: This test hits the live S3 API and was used for debugging purposes. It is not
-    intended to be run as part of the test suite.
-
-    Test cases:
-    - Direct reference to S3 file: "/site/develop/rst.css"
-    - Reference via an alias in the config file: "/marshmallow/index.html"
-    - Reference via a second instance of the same alias in the config file, not found in the first one: "/marshmallow/about.html"
-    - Reference via the pass-through "/" alias to "/site/develop/": "/rst.css"
-    - Reference via the pass-through "/" alias to a nested file: "/doc/html/about.html"
-    """
-    factory = RequestFactory()
+    Test the StaticContentTemplateView view"""
+    request = RequestFactory().get(content_path)
     view = StaticContentTemplateView.as_view()
-
-    request = factory.get(
-        reverse("static-content-page", kwargs={"content_path": content_path})
-    )
     response = view(request, content_path=content_path)
 
-    # Check if the response has a status code of 200 (OK)
-    assert response.status_code == 200
-    # Check if the Content-Type header is present in the response
-    assert "Content-Type" in response.headers
+    # Get the mock content and content type for the content_path
+    mock_content = mock_get_content_from_s3(content_path)
+
+    if mock_content:
+        # Check if the response has the expected status code and content type
+        assert response.status_code == 200
+        assert "Content-Type" in response.headers
+        assert response.content == mock_content[0]
+    else:
+        # If the content doesn't exist, check if the response has a 404 status code
+        assert response.status_code == 404
 
 
 def test_markdown_view_top_level(tp):
