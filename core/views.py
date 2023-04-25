@@ -4,7 +4,7 @@ import structlog
 
 from django.conf import settings
 from django.core.cache import caches
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.template.response import TemplateResponse
 from django.views.generic import TemplateView, View
 
@@ -117,7 +117,7 @@ class StaticContentTemplateView(View):
                     key=kwargs.get("content_path"),
                     status_code=404,
                 )
-                raise Http404("Page not found")
+                return HttpResponseNotFound("Page not found")
 
             content, content_type = result
             # Store the result in cache

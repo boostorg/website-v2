@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Mailing List Message</h1>
+    <div>
+        <h2>{{ message.subject }}</h2>
+        <p><strong>{{ message.sender_display }}</strong> - {{ message.sent_at }}</p>
+        <p>{{ message.body|linebreaks }}</p>
+    </div>
+    <h3>Replies</h3>
+    <ul>
+    {% for reply in replies %}
+        <li>
+            <a href="{% url 'mailing-list-detail' pk=reply.pk %}" class="text-orange"><strong>{{ reply.sender_display }}</strong>: {{ reply.subject }}</a>
+            <p>{{ reply.body|linebreaks }}</p>
+        </li>
+    {% empty %}
+        <li>No replies for this message.</li>
+    {% endfor %}
+    </ul>
+    <p><a href="{% url 'mailing-list' %}" class="text-orange">Back to Mailing List Archives</a></p>
+{% endblock %}
