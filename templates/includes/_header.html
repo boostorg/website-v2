@@ -25,7 +25,7 @@
             <a href="/libraries/" class="font-semibold dark:font-medium text-charcoal dark:text-white hover:text-orange dark:hover:text-orange">Libraries</a>
             <a href="#" class="font-semibold dark:font-medium text-charcoal dark:text-white hover:text-orange dark:hover:text-orange">Releases</a>
           </nav>
-          <nav class="items-center space-x-3 w-1/4 text-right" x-data="{ 'searchOpen': false }">
+          <nav class="items-center space-x-5 w-1/4 text-right" x-data="{ 'searchOpen': false }">
             <span class="relative">
               <i class="text-charcoal dark:text-white/50 hover:text-orange dark:hover:text-orange fas fa-search inline-flex -mt-1 cursor-pointer" @click="searchOpen = !searchOpen"></i>
               <div x-show="searchOpen"
@@ -48,7 +48,7 @@
                 <form action="https://www.google.com/search" method="get" name="searchform" target="_blank">
                   <input name="sitesearch" type="hidden" value="boost.org">
                   <input autocomplete="on"
-                         class="py-2 px-3 text-xs text-charcoal dark:text-white rounded-lg border-gray-300 dark:border-slate bg-white dark:charcoal"
+                         class="py-2 px-3 text-xs text-charcoal dark:text-charcoal rounded-lg border-gray-300 dark:border-slate bg-white dark:bg-charcoal"
                          name="q"
                          placeholder="Search Boost.org"
                          required="required"
@@ -67,7 +67,12 @@
 
             <!-- theme switcher -->
             <span x-data="{ 'modeOpen': false }" class="relative">
-              <i class="fas fa-sun inline-block cursor-pointer text-orange dark:text-white/50 hover:text-gold dark:hover:text-gold" @click="modeOpen = !modeOpen"></i>
+              <span class="dark:hidden">
+                <i class="fas fa-sun inline-block cursor-pointer text-sky-500 dark:text-white/50 hover:text-gold dark:hover:text-gold" @click="modeOpen = !modeOpen"></i>
+              </span>
+              <span class="hidden dark:inline">
+                <i class="fas fa-moon inline-block cursor-pointer text-orange dark:text-sky-600 hover:text-gold/60 dark:hover:text-gold/80" @click="modeOpen = !modeOpen"></i>
+              </span>
 
               <div
                 x-show="modeOpen" x-cloak
@@ -98,6 +103,7 @@
                   :class="{'font-bold': mode === 'light', 'font-thin': mode !== 'light' }"
                   class="cursor-pointer block py-2 text-xs text-charcoal dark:text-white hover:text-orange dark:hover:text-orange dark:hover:text-orange dark:hover:text-orange"
                   >
+                  <i class="fas fa-sun inline-block text-gold mr-1"></i>
                   Light Mode
                 </a>
 
@@ -106,6 +112,7 @@
                   :class="{'font-bold': mode === 'dark', 'font-thin': mode !== 'dark' }"
                   class="cursor-pointer block py-2 text-xs text-charcoal dark:text-white hover:text-orange dark:hover:text-orange dark:hover:text-orange dark:hover:text-orange"
                   >
+                  <i class="fas fa-moon inline-block text-sky-600 mr-1"></i>
                   Dark Mode
                 </a>
               </div>
