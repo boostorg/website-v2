@@ -2,25 +2,20 @@
 
 {% load static %}
 
-{% comment %}
-This is a temporary landing page for docs
-{% endcomment %}
-
 {% block content %}
   <!-- Homepage Hero Section -->
   <main class="my-4 mx-auto md:max-w-7xl px-4">
     <div class="md:flex md:space-x-4 space-y-4 md:space-y-0 mb-4">
       <div
-        class="w-full md:w-1/2 block rounded-lg bg-white dark:bg-charcoal shadow-lg dark:bg-neutral-700 relative text-white">
+        class="w-full md:w-1/2 block rounded-lg bg-charcoal shadow-lg dark:bg-neutral-700 relative text-white">
         <a href="#" class="rounded bg-orange text-white py-3 px-4 absolute top-5 right-10 shadow-md">New Here?</a>
-        {# FIXME #}
-        <a href="/doc/user-guide/">
+        <a href="#!">
           <img
             class="rounded-t-lg w-full max-h-[470px] overflow-y-hidden"
             src="{% static 'img/fpo/guide.jpg' %}"
             alt="" />
         </a>
-        <div class="px-6 py-3 text-slate dark:text-white">
+        <div class="px-6 py-3 text-white">
           <h5
             class="text-xl font-bold leading-tight text-orange">
             User Guide
@@ -44,15 +39,14 @@ This is a temporary landing page for docs
       </div>
 
       <div
-        class="w-full md:w-1/2 block rounded-lg bg-white dark:bg-charcoal shadow-lg dark:bg-neutral-700 relative">
-        {# FIXME #}
-        <a href="/doc/contributor-guide/">
+        class="w-full md:w-1/2 block rounded-lg bg-charcoal shadow-lg dark:bg-neutral-700 relative">
+        <a href="#!">
           <img
             class="rounded-t-lg w-full max-h-[470px] overflow-y-hidden"
             src="{% static 'img/fpo/man-tree.jpeg' %}"
             alt="" />
         </a>
-        <div class="px-6 py-3 text-slate dark:text-white">
+        <div class="px-6 py-3 text-white">
           <h5
             class="text-xl font-bold leading-tight text-orange">
             Contributor Guide
@@ -78,20 +72,17 @@ This is a temporary landing page for docs
 
     <div class="mb-16 space-y-4">
       <div
-        class="flex flex-col rounded-lg bg-white dark:bg-charcoal shadow-lg text-white dark:bg-neutral-700 md:flex-row">
-        {# FIXME #}
-        <a href="/doc/formal-reviews/">
-          <img
-            class="h-96 w-full rounded-t-lg object-cover md:h-auto md:w-48 md:rounded-none md:rounded-l-lg"
-            src="{% static 'img/fpo/clipboardman.jpeg' %}"
-            alt="" />
-        </a>
-        <div class="flex flex-col justify-start p-6 text-slate dark:text-white">
+        class="flex flex-col rounded-lg bg-charcoal shadow-lg text-white dark:bg-neutral-700 md:flex-row">
+        <img
+          class="h-96 w-full rounded-t-lg object-cover md:h-auto md:w-48 md:rounded-none md:rounded-l-lg"
+          src="{% static 'img/fpo/clipboardman.jpeg' %}"
+          alt="" />
+        <div class="flex flex-col justify-start p-6">
           <h5
             class="text-xl font-bold leading-tight">
             Boost Formal Reviews
           </h5>
-          <p class="mb-4 py-1 text-base">
+          <p class="mb-4 py-1 text-base text-neutral-600 dark:text-neutral-200">
             How libraries become part of the collection.
           </p>
           <ul class="flex flex-wrap">
@@ -105,8 +96,8 @@ This is a temporary landing page for docs
       </div>
 
       <div
-        class="flex flex-col rounded-lg bg-white dark:bg-charcoal shadow-lg dark:bg-neutral-700 md:flex-row">
-        <div class="flex flex-col justify-start p-6 w-full text-slate dark:text-white">
+        class="flex flex-col rounded-lg bg-charcoal shadow-lg dark:bg-neutral-700 md:flex-row">
+        <div class="flex flex-col justify-start p-6 w-full">
           <h5
             class="text-xl font-bold leading-tight">
             Release Process
@@ -123,16 +114,14 @@ This is a temporary landing page for docs
             <li class="w-1/2"><a href="#">Library Debuts</a></li>
           </ul>
         </div>
-        {# FIXME #}
-        <a href="/doc/release-process/">
         <img
           class="h-96 w-full rounded-t-lg object-cover md:h-auto md:w-48 md:rounded-none md:rounded-r-lg"
           src="{% static 'img/fpo/construction.png' %}"
           alt="" />
-        </a>
       </div>
     </div>
   </main>
   <!-- End Homepage Hero Section -->
 
 {% endblock %}
+
