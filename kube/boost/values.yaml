@@ -15,8 +15,9 @@ replicaCount: "2"
 # where necessary
 
 initCommands:
-  - name: migrate
-    command: ./manage.py migrate --noinput
+  # migrate moved to a Job
+  # - name: migrate
+  #   command: ./manage.py migrate --noinput
   - name: collectstatic
     command: ./manage.py collectstatic --noinput
 
@@ -89,6 +90,7 @@ Env:
         key: key
   - name: ENVIRONMENT_NAME
     value: "Development Environment"
+  # Uploaded Media Bucket
   - name: AWS_ACCESS_KEY_ID
     valueFrom:
       secretKeyRef:
@@ -101,6 +103,22 @@ Env:
         key: secret_key
   - name: MEDIA_BUCKET_NAME
     value: boost-dev-media
+  # Staticly generated content bucket (Antora docs, etc)
+  - name: STATIC_CONTENT_AWS_ACCESS_KEY_ID
+    valueFrom:
+      secretKeyRef:
+        name: static-content
+        key: access_key
+  - name: STATIC_CONTENT_AWS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: static-content
+        key: secret_key
+  - name: STATIC_CONTENT_BUCKET_NAME
+    valueFrom:
+      secretKeyRef:
+        name: static-content
+        key: bucket_name
 
 # Volumes
 Volumes:

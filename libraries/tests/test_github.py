@@ -1,9 +1,8 @@
-from unittest.mock import MagicMock, Mock, patch
-
 import base64
+from unittest.mock import MagicMock, patch
+
 import pytest
 import responses
-from dateutil.parser import parse
 from ghapi.all import GhApi
 from model_bakery import baker
 
@@ -13,7 +12,6 @@ from libraries.github import (
     LibraryUpdater,
 )
 from libraries.models import Category, Issue, Library, PullRequest
-
 
 """GithubAPIClient Tests"""
 
@@ -186,7 +184,7 @@ def test_parse_libraries_json():
     }
 
     parser = GithubDataParser()
-    parsed_data = parser.parse_libraries_json(sample_libraries_json)
+    parser_data = parser.parse_libraries_json(sample_libraries_json)
 
     expected_output = {
         "name": "Math",
@@ -387,6 +385,7 @@ def test_update_maintainers(library_updater, user, library_version):
     ).exists()
 
 
+@pytest.mark.skip("Add this test when we have figured out GH API mocking")
 def test_update_libraries(library_updater, version):
     """Test the update_libraries method of LibraryUpdater."""
     assert Library.objects.filter(key="test").exists() is False
