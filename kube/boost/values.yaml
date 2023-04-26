@@ -15,8 +15,9 @@ replicaCount: "2"
 # where necessary
 
 initCommands:
-  - name: migrate
-    command: ./manage.py migrate --noinput
+  # migrate moved to a Job
+  # - name: migrate
+  #   command: ./manage.py migrate --noinput
   - name: collectstatic
     command: ./manage.py collectstatic --noinput
 
