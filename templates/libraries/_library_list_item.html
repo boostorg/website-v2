@@ -1,6 +1,6 @@
 {% load static %}
 
-<div class="p-3 rounded md:p-5 bg-charcoal relative content-between">
+<div class="p-3 rounded md:p-5 bg-white dark:bg-charcoal relative content-between">
   <div class="">
     <h3 class="text-2xl capitalize border-b border-slate pb-2">
       <a class="text-orange" href="
@@ -16,11 +16,16 @@
     </h3>
   </div>
   <div class="mb-3">
-    <p class="mb-3 text-gray-300">{{ library.description }}</p>
+    <p class="mb-3 text-gray-700 dark:text-gray-300">{{ library.description }}</p>
   </div>
   <div class="text-sm flex py-3 bottom-0 absolute w-[90%]">
     <div class="w-1/6"><span class="rounded-full border border-green/40 py-1 px-2 text-gray-400 text-sm font-bold hover:bg-green/40">{{ library.cpp_standard_minimum }}</span></div>
-    <div class="w-1/6 text-white/60 tracking-wider">2yrs</div>
-    <div class="w-4/6 text-right text-gray-400">{% for c in library.categories.all %}<a href="{% if version_slug %}{% url 'libraries-by-version-by-category' version_slug=version_slug category=c.slug%}{% else %}{% url 'libraries-by-category' category=c.slug %}{% endif %}" class="text-blue-300/60">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</div>
+    <div class="w-1/6 text-charcoal dark:text-white/60 tracking-wider">2yrs</div>
+    <div class="w-4/6 text-right text-slate dark:text-gray-400">
+      {% for c in library.categories.all %}
+        <a href="{% if version_slug %}{% url 'libraries-by-version-by-category' version_slug=version_slug category=c.slug%}{% else %}{% url 'libraries-by-category' category=c.slug %}{% endif %}" class="text-sky-400 dark:text-blue-300/60">
+          {{ c.name }}
+        </a>{% if not forloop.last %}, {% endif %}{% endfor %}
+    </div>
   </div>
 </div>
