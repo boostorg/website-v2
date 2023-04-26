@@ -9,7 +9,7 @@
   }
 
   body {
-    color: white;
+    @apply text-charcoal dark:text-white;
     @apply font-cairo;
   }
   h1 {

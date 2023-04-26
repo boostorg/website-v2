@@ -15,8 +15,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" />
-    <script defer src="https://unpkg.com/alpinejs@3.10.5/dist/cdn.min.js"></script>
+    <script src="//unpkg.com/alpinejs" defer></script>
     <script src="https://unpkg.com/htmx.org@1.8.5" integrity="sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w" crossorigin="anonymous"></script>
+    <!-- detect dark or light mode -->
+    <script src="{% static 'js/DetectMode.js' %}"></script>
     {% block extra_head %}{% endblock %}
 
     <style>
@@ -33,7 +35,11 @@
     </style>
   </head>
 
-  <body class="h-screen bg-black font-cairo" {% block body_id %}{% endblock %}>
+  <body x-init="() => {const m = localStorage.getItem('colorMode');
+            if (m !== 'dark' && m !== 'light') return;
+            mode = m;
+        }"
+        class="h-screen bg-stone/60 dark:bg-black font-cairo" {% block body_id %}{% endblock %}>
     <div class="container mx-auto">
       {% include "includes/_header.html" %}
 

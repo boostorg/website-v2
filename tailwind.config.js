@@ -2,7 +2,7 @@ const colors = require('tailwindcss/colors')
 
 module.exports = {
   content: ["templates/**/*.html"],
-  darkMode: 'media',
+  darkMode: 'class',
   theme: {
     colors: {
       transparent: 'transparent',
@@ -21,6 +21,7 @@ module.exports = {
       black: '#051A26',
       slate: '#314A57',
       steel: '#B5C9D3',
+      stone: '#DDE7EC',
       'stone-white': '#DDE7EC',
       gold: '#F4CA1F',
       bronze: '#BB8A56',
