@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import include, re_path
+from django.urls import include, re_path
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import TemplateView
@@ -22,7 +22,7 @@ from ak.views import (
     NotFoundView,
     OKView,
 )
-from core.views import MarkdownTemplateView
+from core.views import MarkdownTemplateView, StaticContentTemplateView
 from libraries.views import (
     LibraryList,
     LibraryByCategory,
@@ -32,6 +32,7 @@ from libraries.views import (
     LibraryListByVersionByCategory,
 )
 from libraries.api import LibrarySearchView
+from mailing_list.views import MailingListView, MailingListDetailView
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
 from versions.views import VersionList, VersionDetail
@@ -46,6 +47,12 @@ router.register(r"libraries", LibrarySearchView, basename="libraries")
 urlpatterns = (
     [
         path("", HomepageView.as_view(), name="home"),
+        # scratch template for design scrums
+        path(
+            "scratch/",
+            TemplateView.as_view(template_name="scratch.html"),
+            name="scratch",
+        ),
         path("admin/", admin.site.urls),
         path("accounts/", include("allauth.urls")),
         path(
@@ -61,6 +68,12 @@ urlpatterns = (
         path("403", ForbiddenView.as_view(), name="forbidden"),
         path("404", NotFoundView.as_view(), name="not_found"),
         path("500", InternalServerErrorView.as_view(), name="internal_server_error"),
+        # Temp docs path
+        path(
+            "docs/",
+            TemplateView.as_view(template_name="docs_temp.html"),
+            name="docs",
+        ),
         path(
             "about/",
             TemplateView.as_view(template_name="boost/about.html"),
@@ -84,6 +97,12 @@ urlpatterns = (
             LibraryDetail.as_view(),
             name="library-detail",
         ),
+        path(
+            "mailing-list/<int:pk>/",
+            MailingListDetailView.as_view(),
+            name="mailing-list-detail",
+        ),
+        path("mailing-list/", MailingListView.as_view(), name="mailing-list"),
         path(
             "people/detail/",
             TemplateView.as_view(template_name="boost/people_detail.html"),
@@ -175,9 +194,15 @@ urlpatterns = (
     + [
         # Markdown content
         re_path(
-            r"^(?P<content_path>.+)/?",
+            r"^markdown/(?P<content_path>.+)/?",
             MarkdownTemplateView.as_view(),
             name="markdown-page",
+        ),
+        # Static content
+        re_path(
+            r"^(?P<content_path>.+)/?",
+            StaticContentTemplateView.as_view(),
+            name="static-content-page",
         ),
     ]
 )
