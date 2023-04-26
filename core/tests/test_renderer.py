@@ -11,16 +11,15 @@ def test_get_s3_keys():
     - "/site/develop/doc/html/about.html" -> "site/develop/doc/html/about.html"
     """
 
-    assert "/site/develop/tools/auto_index/doc/html/index.html" in get_s3_keys(
-        "marshmallow/index.html"
+    assert "/site-docs/develop/user-guide/index.html" in get_s3_keys(
+        "/doc/user-guide/index.html"
     )
-    assert "/site/develop/doc/html/about.html" in get_s3_keys("/doc/html/about.html")
-    assert "/site/develop/doc/html/about.html" in get_s3_keys("doc/html/about.html")
-    assert "/site/develop/doc/html/about.html" in get_s3_keys(
-        "/site/develop/doc/html/about.html"
+    assert "/site-docs/develop/contributor-guide/index.html" in get_s3_keys(
+        "/doc/contributor-guide/index.html"
     )
-    assert "/site/develop/doc/html/about.html" in get_s3_keys(
-        "site/develop/doc/html/about.html"
+    assert "/site-docs/develop/formal-reviews/index.html" in get_s3_keys(
+        "/doc/formal-reviews/index.html"
     )
-    assert "/site/develop/doc/html/any.html" in get_s3_keys("marshmallow/any.html")
-    assert "/site/develop/rst.css" in get_s3_keys("/rst.css")
+    assert "/site-docs/develop/release-process/index.html" in get_s3_keys(
+        "/doc/release-process/index.html"
+    )

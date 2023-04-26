@@ -1,15 +1,26 @@
 [
-    {
-        "site_path": "/marshmallow/",
-        "s3_path": "/site/develop/tools/auto_index/doc/html/"
-    },
-    {
-        "site_path": "/marshmallow/",
-        "s3_path": "/site/develop/doc/html/"
-    },
-    {
-        "site_path": "/",
-        "s3_path": "/site/develop/"
-    }
+  {
+    "site_path": "/doc/user-guide/",
+    "s3_path": "/site-docs/develop/user-guide/"
+  },
+  {
+    "site_path": "/doc/contributor-guide/",
+    "s3_path": "/site-docs/develop/contributor-guide/"
+  },
+  {
+    "site_path": "/doc/formal-reviews/",
+    "s3_path": "/site-docs/develop/formal-reviews/"
+  },
+  {
+    "site_path": "/doc/release-process/",
+    "s3_path": "/site-docs/develop/release-process/"
+  },
+  {
+    "site_path": "/doc/_/",
+    "s3_path": "/site-docs/develop/_/"
+  },
+  {
+    "site_path": "/",
+    "s3_path": "/site/develop/"
+  }
 ]
-  

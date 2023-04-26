@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import include, re_path
+from django.urls import include, re_path
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic import TemplateView
@@ -32,6 +32,7 @@ from libraries.views import (
     LibraryListByVersionByCategory,
 )
 from libraries.api import LibrarySearchView
+from mailing_list.views import MailingListView, MailingListDetailView
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
 from versions.views import VersionList, VersionDetail
@@ -67,6 +68,12 @@ urlpatterns = (
         path("403", ForbiddenView.as_view(), name="forbidden"),
         path("404", NotFoundView.as_view(), name="not_found"),
         path("500", InternalServerErrorView.as_view(), name="internal_server_error"),
+        # Temp docs path
+        path(
+            "docs/",
+            TemplateView.as_view(template_name="docs_temp.html"),
+            name="docs",
+        ),
         path(
             "about/",
             TemplateView.as_view(template_name="boost/about.html"),
@@ -90,6 +97,12 @@ urlpatterns = (
             LibraryDetail.as_view(),
             name="library-detail",
         ),
+        path(
+            "mailing-list/<int:pk>/",
+            MailingListDetailView.as_view(),
+            name="mailing-list-detail",
+        ),
+        path("mailing-list/", MailingListView.as_view(), name="mailing-list"),
         path(
             "people/detail/",
             TemplateView.as_view(template_name="boost/people_detail.html"),
