@@ -607,6 +607,15 @@ h1 {
 }
 
 h2 {
+  color: rgb(49 74 87 / 0.8);
+}
+
+.dark h2 {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+h2 {
   font-size: 2.25rem;
   line-height: 2.5rem;
   margin-top: 1.25rem;
@@ -1740,9 +1749,9 @@ input[type=file] {
   background-color: rgb(221 231 236 / 0.6);
 }
 
-.bg-charcoal {
+.bg-white {
   --tw-bg-opacity: 1;
-  background-color: rgb(23 42 52 / var(--tw-bg-opacity));
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
 .bg-orange {
@@ -1750,13 +1759,13 @@ input[type=file] {
   background-color: rgb(255 159 0 / var(--tw-bg-opacity));
 }
 
-.bg-white {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
 .bg-green\/10 {
   background-color: rgb(90 213 153 / 0.1);
+}
+
+.bg-charcoal {
+  --tw-bg-opacity: 1;
+  background-color: rgb(23 42 52 / var(--tw-bg-opacity));
 }
 
 .bg-charcoal\/60 {
@@ -2166,6 +2175,11 @@ input[type=file] {
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
+.text-slate {
+  --tw-text-opacity: 1;
+  color: rgb(49 74 87 / var(--tw-text-opacity));
+}
+
 .text-orange {
   --tw-text-opacity: 1;
   color: rgb(255 159 0 / var(--tw-text-opacity));
@@ -2184,9 +2198,8 @@ input[type=file] {
   color: rgb(255 255 255 / 0.7);
 }
 
-.text-slate {
-  --tw-text-opacity: 1;
-  color: rgb(49 74 87 / var(--tw-text-opacity));
+.text-slate\/80 {
+  color: rgb(49 74 87 / 0.8);
 }
 
 .text-charcoal {
