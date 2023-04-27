@@ -9,7 +9,7 @@
   }
 
   body {
-    @apply text-charcoal dark:text-white;
+    @apply text-slate/80 dark:text-white;
     @apply font-cairo;
   }
   h1 {
