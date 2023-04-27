@@ -587,8 +587,7 @@ select {
 }
 
 body {
-  --tw-text-opacity: 1;
-  color: rgb(23 42 52 / var(--tw-text-opacity));
+  color: rgb(49 74 87 / 0.8);
 }
 
 .dark body {
