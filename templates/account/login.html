@@ -10,28 +10,28 @@
 
 {% block content %}
 
-  <div class="py-0 md:py-6 mb-3 px-3 md:px-0">
-    <div class="md:flex md:space-x-6 mt-1">
+  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+    <div class="mt-1 md:flex md:space-x-6">
 
-      <div class="md:w-1/2 md:mt-11 md:pt-11" x-data="{ tab: '#social' }">
+      <div class="md:pt-11 md:mt-11 md:w-1/2" x-data="{ tab: '#social' }">
         <div class="md:w-full">
           <h1 class="text-4xl text-center">{% trans "Log In" %}</h1>
         </div>
 
-        <div class="w-full space-y-4 text-center">
+        <div class="space-y-4 w-full text-center">
           {% get_providers as socialaccount_providers %}
 
           {% if socialaccount_providers %}
-          <p class="text-center mt-0">
+          <p class="mt-0 text-center">
             {% blocktrans with site.name as site_name %}
-              <a :class="tab === '#social' ? 'text-white' : 'text-orange'"
+              <a :class="tab === '#social' ? 'text-slate dark:text-white' : 'text-orange'"
                  href="#"
                  data-toggle="tab"
                  x-on:click.prevent="tab='#social'"
               >
                 Log in with one of your existing third party accounts<br />
               </a> or you can
-              <a :class="tab === '#email' ? 'text-white' : 'text-orange'"
+              <a :class="tab === '#email' ? 'text-slate dark:text-white' : 'text-orange'"
                  href="#"
                  data-toggle="tab"
                  x-on:click.prevent="tab='#email'"
@@ -51,20 +51,20 @@
           </div>
 
           {% else %}
-            <p class="text-center mt-0">{% blocktrans %}If you have not created an account yet, then please
+            <p class="mt-0 text-center">{% blocktrans %}If you have not created an account yet, then please
             <a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
           {% endif %}
 
           <div x-show="tab == '#email'" x-cloak>
             <form class="login" method="POST" action="{% url 'account_login' %}">
-              <div class="w-2/3 mx-auto space-y-4" id="signup_form">
+              <div class="mx-auto space-y-4 w-2/3" id="signup_form">
                 {% csrf_token %}
 
                 {% for field in form.visible_fields %}
                   <div>
                     {% if field.label == "E-mail" or field.label == "Password" %}
                       {% else %}
-                    <label class="uppercase text-white/70 text-xs">{{ field.label }}</label>
+                    <label class="text-xs uppercase text-slate dark:text-white/70">{{ field.label }}</label>
                     {% endif %}
                     {{ field }}
                     {% if field.help_text %}
@@ -77,9 +77,9 @@
                 <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
                 {% endif %}
 
-                <div class="mb-4 flex justify-between">
+                <div class="flex justify-between mb-4">
                   <a class="text-orange" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
-                  <button type="submit" class="px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm">{% trans "Login" %}</button>
+                  <button type="submit" class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange border-orange dark:bg-charcoal dark:text-orange">{% trans "Login" %}</button>
                 </div>
               </div>
             </form>

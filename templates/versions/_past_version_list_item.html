@@ -1,5 +1,5 @@
-<div class="md:flex border-b border-slate pb-6">
-  <div class="md:w-1/4 mb-4">
+<div class="pb-6 border-b md:flex border-slate">
+  <div class="mb-4 md:w-1/4">
     <h3 class="text-2xl">{{ v.name }}</h3>
     <p>Released {{ v.release_date|date:"n/j/y" }}</p>
   </div>
@@ -7,10 +7,10 @@
     <p>{{ v.description }}</p>
     <div class="mt-5 max-w-md sm:flex md:mt-8">
       <div class="rounded-md shadow">
-        <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-4 md:text-lg md:px-10"> Download </a>
+        <a href="#" class="flex justify-center items-center py-3 px-8 w-full text-base font-medium rounded-md border md:py-4 md:px-10 md:text-lg border-orange text-orange"> Download </a>
       </div>
       <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-        <a href="{% url 'version-detail' v.slug %}" class="w-full flex items-center justify-center px-8 py-3 border border-steel text-base font-medium rounded-md text-orange md:py-4 md:text-lg md:px-10"> Version Details > </a>
+        <a href="{% url 'version-detail' v.slug %}" class="flex justify-center items-center py-3 px-8 w-full text-base font-medium rounded-md border md:py-4 md:px-10 md:text-lg border-steel text-orange"> Version Details > </a>
       </div>
     </div>
   </div>

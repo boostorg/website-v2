@@ -6,8 +6,8 @@
 {% block sub_title %}{% trans "Index" %}{% endblock sub_title %}
 
 {% block content %}
-<div class="mt-3 flex flex-wrap ">
-  <div class="forumlist-top-controls w-full">
+<div class="flex flex-wrap mt-3">
+  <div class="w-full forumlist-top-controls">
     {% if request.user.is_authenticated %}
     <div class="float-right">
       <a href="{% url 'forum_tracking:mark_all_forums_read' %}" class="inline-block uppercase"><i class="fas fa-check-circle">&nbsp;</i>{% trans "Mark forums read" %}</a>
@@ -17,10 +17,10 @@
   </div>
 </div>
 {% forum_list forums %}
-<div class="my-4 flex flex-wrap ">
-  <div class="forum-page-statistics w-full">
+<div class="flex flex-wrap my-4">
+  <div class="w-full forum-page-statistics">
     <h3 class="page-header">{% trans "Stats" %}</h3>
-    <div class="mt-3 flex space-x-24">
+    <div class="flex mt-3 space-x-24">
       <div>
         <h4>{% trans "Total Posts" %}</h4>
         {{ total_posts_count }}

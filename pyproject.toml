@@ -3,3 +3,5 @@ fail-under = 100
 quiet = false
 verbose = 2
 whitelist-regex = ["test_.*"]
+[tool.ruff]
+line-length = 88

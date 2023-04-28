@@ -3,18 +3,18 @@
 {% load static %}
 
 {% block content %}
-  <div class="text-center mb-11">
-    <h2 class="text-4xl mb-3">Versions</h2>
+  <div class="mb-11 text-center">
+    <h2 class="mb-3 text-4xl">Versions</h2>
     <p>Our libraries are ever evolving. Keep up without latest updates here.</p>
   </div>
 
   <!-- Current Version -->
-  <div class="rounded bg-charcoal p-3 md:p-11 mb-5 mx-3">
+  <div class="p-3 mx-3 mb-5 rounded md:p-11 bg-charcoal">
     <div class="mb-6">
-      <span class="inline uppercase text-green bg-green/10 rounded text-lg w-auto px-3 py-1">Current Version</span>
+      <span class="inline py-1 px-3 w-auto text-lg uppercase rounded text-green bg-green/10">Current Version</span>
     </div>
     <div class="md:flex">
-      <div class="md:w-1/4 mb-4">
+      <div class="mb-4 md:w-1/4">
         <h3 class="text-2xl">{{ current_version.name }}</h3>
         <p>Released {{ current_version.release_date|date:"n/j/y" }}</p>
       </div>
@@ -23,12 +23,12 @@
         <div class="mt-5 max-w-md sm:flex md:mt-8">
           <div class="rounded-md shadow">
             <a href="#"
-               class="w-full flex items-center justify-center px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-4 md:text-lg md:px-10">
+               class="flex justify-center items-center py-3 px-8 w-full text-base font-medium rounded-md border md:py-4 md:px-10 md:text-lg border-orange text-orange">
               Download </a>
           </div>
           <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
             <a href="{% url 'version-detail' current_version.slug %}"
-               class="w-full flex items-center justify-center px-8 py-3 border border-steel text-base font-medium rounded-md text-orange hover:bg-gray-50 md:py-4 md:text-lg md:px-10">
+               class="flex justify-center items-center py-3 px-8 w-full text-base font-medium rounded-md border md:py-4 md:px-10 md:text-lg hover:bg-gray-50 border-steel text-orange">
               Version Details > </a>
           </div>
         </div>
@@ -38,9 +38,9 @@
   <!-- End Current Version -->
 
   <!-- Past Versions -->
-  <div class="rounded bg-charcoal p-3 md:p-11 mx-3 space-y-8">
+  <div class="p-3 mx-3 space-y-8 rounded md:p-11 bg-charcoal">
     <div class="mb-6">
-      <span class="inline uppercase text-orange bg-black rounded text-lg w-auto px-3 py-1">Past Versions</span>
+      <span class="inline py-1 px-3 w-auto text-lg uppercase bg-black rounded text-orange">Past Versions</span>
     </div>
 
     {% for v in version_list %}
