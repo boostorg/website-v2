@@ -24,14 +24,14 @@
           {% if socialaccount_providers %}
           <p class="mt-0 text-center">
             {% blocktrans with site.name as site_name %}
-              <a :class="tab === '#social' ? 'text-white' : 'text-orange'"
+              <a :class="tab === '#social' ? 'text-slate dark:text-white' : 'text-orange'"
                  href="#"
                  data-toggle="tab"
                  x-on:click.prevent="tab='#social'"
               >
                 Log in with one of your existing third party accounts<br />
               </a> or you can
-              <a :class="tab === '#email' ? 'text-white' : 'text-orange'"
+              <a :class="tab === '#email' ? 'text-slate dark:text-white' : 'text-orange'"
                  href="#"
                  data-toggle="tab"
                  x-on:click.prevent="tab='#email'"
@@ -64,7 +64,7 @@
                   <div>
                     {% if field.label == "E-mail" or field.label == "Password" %}
                       {% else %}
-                    <label class="text-xs uppercase text-white/70">{{ field.label }}</label>
+                    <label class="text-xs uppercase text-slate dark:text-white/70">{{ field.label }}</label>
                     {% endif %}
                     {{ field }}
                     {% if field.help_text %}
@@ -79,7 +79,7 @@
 
                 <div class="flex justify-between mb-4">
                   <a class="text-orange" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
-                  <button type="submit" class="py-3 px-8 text-sm text-base font-medium uppercase rounded-md border md:py-1 md:px-4 md:text-lg border-orange text-orange">{% trans "Login" %}</button>
+                  <button type="submit" class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange border-orange dark:bg-charcoal dark:text-orange">{% trans "Login" %}</button>
                 </div>
               </div>
             </form>
