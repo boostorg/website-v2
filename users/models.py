@@ -207,6 +207,7 @@ class User(BaseUser):
             "Designates whether this user's email address is valid, to the best of our knowledge."
         ),
     )
+    display_name = models.CharField(max_length=255, blank=True, null=True)
 
     def save_image_from_github(self, avatar_url):
         response = requests.get(avatar_url)
@@ -222,6 +223,16 @@ class User(BaseUser):
         reopen = open(filename, "rb")
         django_file = File(reopen)
         self.image.save(filename, django_file, save=True)
+
+    @property
+    def get_display_name(self):
+        """Returns the display name for the user."""
+        if self.display_name:
+            return self.display_name
+        elif self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        else:
+            return self.first_name or self.last_name
 
 
 class LastSeen(models.Model):

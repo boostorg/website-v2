@@ -11,7 +11,9 @@
                {% endif %}"
       >{{ library.name }}</a>
       {% for author in library.authors.all %}
-      <img src="{{ author.image.url }}" class="inline float-right rounded w-[30px]" alt="{{ author.get_full_name }}" />
+        {% if author.image %}
+          <img src="{{ author.image.url }}" class="inline float-right rounded w-[30px]" alt="{{ author.get_display_name }}" />
+        {% endif %}
       {% endfor %}
     </h3>
   </div>
