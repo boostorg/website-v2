@@ -2,7 +2,7 @@
 
 <div class="relative content-between p-3 bg-white rounded md:p-5 dark:bg-charcoal">
   <div class="">
-    <h3 class="pb-2 text-2xl capitalize border-b border-slate">
+    <h3 class="pb-2 text-2xl capitalize border-b border-gray-300 dark:border-slate">
       <a class="text-orange" href="
                {% if version_slug %}
                  {% url 'library-detail-by-version' version_slug=version_slug slug=library.slug %}
@@ -19,7 +19,7 @@
     <p class="mb-3 text-gray-700 dark:text-gray-300">{{ library.description }}</p>
   </div>
   <div class="text-sm flex py-3 bottom-0 absolute w-[90%]">
-    <div class="w-1/6"><span class="py-1 px-2 text-sm font-bold text-gray-400 rounded-full border border-green/40 hover:bg-green/40">{{ library.cpp_standard_minimum }}</span></div>
+    <div class="w-1/6"><span class="py-1 px-2 text-sm font-bold text-gray-400 rounded-full border bg-green/20 border-green/40 dark:bg-green/10">{{ library.cpp_standard_minimum }}</span></div>
     <div class="w-1/6 tracking-wider text-charcoal dark:text-white/60">2yrs</div>
     <div class="w-4/6 text-right dark:text-gray-400 text-slate">
       {% for c in library.categories.all %}
