@@ -88,7 +88,7 @@
                   {% else %}
                     <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
                   {% endif %}
-                  {{ author.get_full_name }}
+                  {{ author.get_display_name }}
                 </div>
               {% endfor %}
             </div>
@@ -103,7 +103,7 @@
                   {% else %}
                     <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
                   {% endif %}
-                  {{ maintainer.get_full_name }}
+                  {{ maintainer.get_display_name }}
                 </div>
               {% endfor %}
             </div>
