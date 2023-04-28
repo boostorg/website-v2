@@ -3,21 +3,21 @@
 {% load static %}
 
 {% block subnav %}
-  <div class="py-3 px-4 md:px-0 flex border-b border-slate md:border-0 items-center">
+  <div class="flex items-center py-3 px-4 border-b md:px-0 md:border-0 border-slate">
     <div>
       {% if user.image.url %}
-        <img src="{{ user.image.url }}" alt="user" class="inline w-[80px] rounded-lg" />
+        <img src="{{ user.image.url }}" alt="user" class="inline rounded-lg w-[80px]" />
       {% else %}
-        <i class="fas fa-user text-5xl mr-2 text-white/60"></i>
+        <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
       {% endif %}
     </div>
-    <div class="text-sm ml-4">
-      <span class="block">{{ user.get_display_name }}</span>
-      <span class="text-slate text-xs">Joined {{ user.date_joined }}</span>
+    <div class="ml-4 text-sm">
+      <span class="block">{{ user.get_full_name }}</span>
+      <span class="text-xs text-slate">Joined {{ user.date_joined }}</span>
     </div>
   </div>
-  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase relative">
-    <a href="" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">Account</a>
+  <div class="relative py-8 px-4 space-y-4 text-sm uppercase border-b md:py-2 md:px-0 md:space-x-10 border-slate">
+    <a href="" class="block md:inline md:py-1 md:border-b text-orange md:border-orange">Account</a>
     <a href="" class="block md:inline">Settings</a>
     <a href="#" class="block md:inline">Password</a>
     <a href="#" class="block md:inline">Help</a>
@@ -28,7 +28,7 @@
 <div class="container">
 <div class="content-section">
     <div class="mt-6">
-      <img class="w-32 h-32 md:h-auto rounded-full" src="{{ user.profile.image.url }}">
+      <img class="w-32 h-32 rounded-full md:h-auto" src="{{ user.profile.image.url }}">
     </div>
 
     <h3>Update Profile Photo</h3>
@@ -36,7 +36,7 @@
     {% if user_has_gh_username %}
       <form method="POST" action="{% url 'profile-photo-github' %}">
         {% csrf_token %}
-        <button class="rounded border border-orange text-orange text-sm py-2 px-3 uppercase" type="submit">Use My GitHub Photo</button>
+        <button class="py-2 px-3 text-sm uppercase rounded border border-orange text-orange" type="submit">Use My GitHub Photo</button>
       </form>
     {% endif %}
 
@@ -46,11 +46,11 @@
             {{ form.as_p }}
       </fieldset>
       <div class="mb-4">
-          <button class="rounded border border-orange text-orange text-sm py-2 px-3 uppercase" type="submit">Update</button>
+          <button class="py-2 px-3 text-sm uppercase rounded border border-orange text-orange" type="submit">Update</button>
       </div>
   </form>
 
-  
+
 
 </div>
 </div>

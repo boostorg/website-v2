@@ -1,23 +1,23 @@
 {% load static %}
 
-<footer class="my-5 md:my-6 mx-auto max-w-7xl px-4 sm:mt-24 py-5 md:py-4">
+<footer class="py-5 px-4 my-5 mx-auto max-w-7xl sm:mt-24 md:py-4 md:my-6">
   {% if not request.user.is_authenticated %}
   <div class="md:flex" id="footerSignup">
-    <div class="text-left md:w-1/2 content-center gap-4 grid">
+    <div class="grid gap-4 content-center text-left md:w-1/2">
       <div>
-        <h1 class="text-4xl tracking-tight font-extrabold  sm:text-5xl md:text-6xl block xl:inline pt-6">
+        <h1 class="block pt-6 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl xl:inline">
           Join the growing community
         </h1>
       </div>
-      <div class="my-16 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><img class="float-left mr-3 mt-1 h-8 w-auto" src="{% static 'img/icons/icon_Cup-C++.svg' %}" alt=""> Best collections of C++ libraries</div>
-        <div><img class="float-left mr-3 mt-1 h-8 w-auto" src="{% static 'img/icons/icon_graduation-cap.svg' %}" alt=""> Supports research and education for C++</div>
-        <div><img class="float-left mr-3 mt-1 h-8 w-auto" src="{% static 'img/icons/icon_down-arrow-stack.svg' %}" alt=""> Accessible with minimal restriction</div>
-        <div><img class="float-left mr-3 mt-1 h-8 w-auto" src="{% static 'img/icons/icon_three-people.svg' %}" alt=""> Collaborative community</div>
+      <div class="grid grid-cols-1 gap-4 my-16 md:grid-cols-2">
+        <div><img class="float-left mt-1 mr-3 w-auto h-8" src="{% static 'img/icons/icon_Cup-C++.svg' %}" alt=""> Best collections of C++ libraries</div>
+        <div><img class="float-left mt-1 mr-3 w-auto h-8" src="{% static 'img/icons/icon_graduation-cap.svg' %}" alt=""> Supports research and education for C++</div>
+        <div><img class="float-left mt-1 mr-3 w-auto h-8" src="{% static 'img/icons/icon_down-arrow-stack.svg' %}" alt=""> Accessible with minimal restriction</div>
+        <div><img class="float-left mt-1 mr-3 w-auto h-8" src="{% static 'img/icons/icon_three-people.svg' %}" alt=""> Collaborative community</div>
       </div>
       <div class="hidden mt-5 max-w-md sm:flex md:mt-8">
         <div class="rounded-md shadow">
-          <a href="{% url 'account_signup' %}" class="w-full flex items-center justify-center px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-3 md:text-lg md:px-8">Sign Up > </a>
+          <a href="{% url 'account_signup' %}" class="flex justify-center items-center py-3 px-8 w-full text-base font-medium text-white rounded-md border md:py-3 md:px-8 md:text-lg border-orange bg-orange dark:text-orange dark:bg-charcoal">Sign Up <i class="pl-2 text-white fas fa-chevron-right dark:text-orange"></i> </a>
         </div>
       </div>
     </div>
@@ -27,17 +27,17 @@
   </div>
   {% endif %}
 
-  <div class="px-5 pt-4 md:flex items-center mt-16">
+  <div class="items-center px-5 pt-4 mt-16 md:flex">
     <div class="mr-11">
-      <img class="h-[53px] w-auto" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="">
+      <img class="w-auto h-[53px]" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="">
     </div>
-    <div class="justify-between md:space-x-10 pt-3 pb-3 w-1/2">
-      <a class="my-2 block md:inline" href="/">&#169; 2022 Boost.org</a>
-      <a class="my-2 block md:inline" href="{% url 'contact' %}">Contact</a>
-      <a class="my-2 block md:inline" href="">Privacy Policy</a>
-      <a class="my-2 block md:inline" href="">Terms of Use</a>
+    <div class="justify-between pt-3 pb-3 w-1/2 md:space-x-10">
+      <a class="block my-2 md:inline" href="/">&#169; 2022 Boost.org</a>
+      <a class="block my-2 md:inline" href="{% url 'contact' %}">Contact</a>
+      <a class="block my-2 md:inline" href="">Privacy Policy</a>
+      <a class="block my-2 md:inline" href="">Terms of Use</a>
     </div>
-    <div class="md:space-x-5 space-x-3 pt-3 pb-3 md:text-right w-1/2">
+    <div class="pt-3 pb-3 space-x-3 w-1/2 md:space-x-5 md:text-right">
       <a href="https://twitter.com/boost_libraries" target="_blank"><i class="fab fa-twitter text-orange hover:orange/70"></i></a>
       <a href="https://github.com/boostorg" target="_blank"><i class="fab fa-github text-orange hover:orange/70"></i></a>
     </div>

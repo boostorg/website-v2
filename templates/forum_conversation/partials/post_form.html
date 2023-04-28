@@ -20,16 +20,16 @@
 <div class="tab-content" x-data="{ tab: '#options' }">
   <!-- Sub "forms" tabs -->
   {% if attachment_formset %}
-  <ul class="w-full flex flex-row justify-between">
+  <ul class="flex flex-row justify-between w-full">
     <a href="#"
        :class="tab === '#options' ? 'border-b-4 border-orange text-orange' : 'border-b border-slate'"
-       class="px-11 w-1/2 text-center active pb-4"
+       class="px-11 pb-4 w-1/2 text-center active"
        data-toggle="tab"
        x-on:click.prevent="tab='#options'"
     >{% trans "Options" %}</a>
     <a href="#"
        :class="tab === '#attachments' ? 'border-b-4 border-orange text-orange' : 'border-b border-slate'"
-       class="px-11 w-1/2 text-center pb-4"
+       class="px-11 pb-4 w-1/2 text-center"
        data-toggle="tab"
        x-on:click.prevent="tab='#attachments'"
     >{% trans "Attachments" %}</a>
