@@ -5,29 +5,29 @@
 <div class="relative">
   <div class="relative pb-11 md:pb-6">
     <div>
-      <div class="hidden items-center py-5 border-b-2 md:flex border-gray-300 darK:border-charcoal">
+      <div class="hidden items-center py-5 border-b-2 border-gray-300 md:flex darK:border-charcoal">
         <div class="w-[200px]">
           <a href="{% url 'home' %}">
-              <img class="w-auto h-[50px] hidden dark:inline-block"
+              <img class="hidden w-auto dark:inline-block h-[50px]"
                    src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}"
                    alt="Boost">
 
-              <img class="w-auto h-[50px] inline-block dark:hidden"
+              <img class="inline-block w-auto dark:hidden h-[50px]"
                    src="{% static 'img/Boost_Brandmark_BlackBoost_Transparent.svg' %}"
                    alt="Boost">
           </a>
         </div>
         <div class="flex pt-5 w-full">
           <nav class="relative items-center pl-6 space-x-10 w-3/4 text-lg text-left">
-            <a href="{% url 'news' %}" class="font-semibold dark:font-medium text-slate/80 dark:text-white hover:text-orange dark:hover:text-orange">News</a>
-            <a href="{% url 'docs' %}" class="font-semibold dark:font-medium text-slate/80 dark:text-white hover:text-orange dark:hover:text-orange">Learn</a>
-            <a href="/forum/" class="font-semibold dark:font-medium text-slate/80 dark:text-white hover:text-orange dark:hover:text-orange">Community</a>
-            <a href="/libraries/" class="font-semibold dark:font-medium text-slate/80 dark:text-white hover:text-orange dark:hover:text-orange">Libraries</a>
-            <a href="#" class="font-semibold dark:font-medium text-slate/80 dark:text-white hover:text-orange dark:hover:text-orange">Releases</a>
+            <a href="{% url 'news' %}" class="font-semibold dark:font-medium dark:text-white text-slate/80 dark:hover:text-orange hover:text-orange">News</a>
+            <a href="{% url 'docs' %}" class="font-semibold dark:font-medium dark:text-white text-slate/80 dark:hover:text-orange hover:text-orange">Learn</a>
+            <a href="/forum/" class="font-semibold dark:font-medium dark:text-white text-slate/80 dark:hover:text-orange hover:text-orange">Community</a>
+            <a href="/libraries/" class="font-semibold dark:font-medium dark:text-white text-slate/80 dark:hover:text-orange hover:text-orange">Libraries</a>
+            <a href="#" class="font-semibold dark:font-medium dark:text-white text-slate/80 dark:hover:text-orange hover:text-orange">Releases</a>
           </nav>
           <nav class="items-center space-x-5 w-1/4 text-right" x-data="{ 'searchOpen': false }">
             <span class="relative">
-              <i class="text-slate/80 dark:text-white/50 hover:text-orange dark:hover:text-orange fas fa-search inline-flex -mt-1 cursor-pointer" @click="searchOpen = !searchOpen"></i>
+              <i class="inline-flex -mt-1 cursor-pointer text-slate/80 fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="searchOpen = !searchOpen"></i>
               <div x-show="searchOpen"
                    @click.away="searchOpen = false"
                    x-transition:enter="transition ease-out duration-100"
@@ -48,7 +48,7 @@
                 <form action="https://www.google.com/search" method="get" name="searchform" target="_blank">
                   <input name="sitesearch" type="hidden" value="boost.org">
                   <input autocomplete="on"
-                         class="py-2 px-3 text-xs text-charcoal dark:text-charcoal rounded-lg border-gray-300 dark:border-slate bg-white dark:bg-charcoal"
+                         class="py-2 px-3 text-xs bg-white rounded-lg border-gray-300 text-charcoal dark:text-charcoal dark:border-slate dark:bg-charcoal"
                          name="q"
                          placeholder="Search Boost.org"
                          required="required"
@@ -56,22 +56,22 @@
                   >
                   <span class="flex absolute inset-y-0 right-3 items-center pl-2">
                     <button type="submit">
-                      <i class="fas fa-search text-charcoal dark:text-white/40 hover:text-orange dark:hover:text-orange"></i>
+                      <i class="fas fa-search text-charcoal dark:text-white/40 dark:hover:text-orange hover:text-orange"></i>
                     </button>
                   </span>
                 </form>
               </div>
             </span>
 
-            <a href="{% url 'support' %}" class="inline-flex"><i class="text-slate/80 dark:text-white/50 hover:text-orange dark:hover:text-orange fas fa-question-circle"></i></a>
+            <a href="{% url 'support' %}" class="inline-flex"><i class="text-slate/80 fas fa-question-circle dark:text-white/50 dark:hover:text-orange hover:text-orange"></i></a>
 
             <!-- theme switcher -->
             <span x-data="{ 'modeOpen': false }" class="relative">
               <span class="dark:hidden">
-                <i class="fas fa-sun inline-block cursor-pointer text-sky-500 dark:text-white/50 hover:text-gold dark:hover:text-gold" @click="modeOpen = !modeOpen"></i>
+                <i class="inline-block cursor-pointer fas fa-sun text-sky-500 dark:text-white/50 dark:hover:text-gold hover:text-gold" @click="modeOpen = !modeOpen"></i>
               </span>
               <span class="hidden dark:inline">
-                <i class="fas fa-moon inline-block cursor-pointer text-orange dark:text-sky-600 hover:text-gold/60 dark:hover:text-gold/80" @click="modeOpen = !modeOpen"></i>
+                <i class="inline-block cursor-pointer fas fa-moon text-orange dark:text-sky-600 dark:hover:text-gold/80 hover:text-gold/60" @click="modeOpen = !modeOpen"></i>
               </span>
 
               <div
@@ -96,23 +96,23 @@
                     }
                 }"
 
-                class="bg-white dark:bg-charcoal absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left rounded-md divide-y divide-gray-300 ring-1 ring-gray-300 dark:ring-gray-500 shadow-lg origin-top-right"
+                class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 ring-1 ring-gray-300 shadow-lg origin-top-right dark:ring-gray-500 dark:bg-charcoal"
               >
                 <a
                   @click="mode='light'; setColorMode('light'); modeOpen = false;"
                   :class="{'font-bold': mode === 'light', 'font-thin': mode !== 'light' }"
-                  class="cursor-pointer block py-2 text-xs text-charcoal dark:text-white hover:text-orange dark:hover:text-orange dark:hover:text-orange dark:hover:text-orange"
+                  class="block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange"
                   >
-                  <i class="fas fa-sun inline-block text-gold mr-1"></i>
+                  <i class="inline-block mr-1 fas fa-sun text-gold"></i>
                   Light Mode
                 </a>
 
                 <a
                   @click="mode = 'dark'; setColorMode('dark'); modeOpen = false;"
                   :class="{'font-bold': mode === 'dark', 'font-thin': mode !== 'dark' }"
-                  class="cursor-pointer block py-2 text-xs text-charcoal dark:text-white hover:text-orange dark:hover:text-orange dark:hover:text-orange dark:hover:text-orange"
+                  class="block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange"
                   >
-                  <i class="fas fa-moon inline-block text-sky-600 mr-1"></i>
+                  <i class="inline-block mr-1 fas fa-moon text-sky-600"></i>
                   Dark Mode
                 </a>
               </div>
@@ -121,7 +121,7 @@
 
             <span x-data="{ 'userOpen': false }" class="relative">
               {% if not user.is_authenticated %}
-                <a href="{% url 'account_signup' %}" class="font-medium text-charcoal dark:text-white hover:text-orange dark:hover:text-orange">Join</a>
+                <a href="{% url 'account_signup' %}" class="font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">Join</a>
               {% else %}
                 {% if user.image %}
                   <img src="{{ user.image.url }}" alt="user" class="inline-flex rounded-sm cursor-pointer w-[30px]" @click="userOpen = !userOpen" />
@@ -139,7 +139,7 @@
                    x-transition:leave="transition ease-in duration-75"
                    x-transition:leave-start="transform opacity-100 scale-100"
                    x-transition:leave-end="transform opacity-0 scale-95"
-                   class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left rounded-md divide-y divide-gray-300 darK:divide-gray-500 ring-1 ring-gray-300 dark:ring-gray-500 shadow-lg origin-top-right bg-white dark:bg-charcoal"
+                   class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 ring-1 ring-gray-300 shadow-lg origin-top-right dark:ring-gray-500 darK:divide-gray-500 dark:bg-charcoal"
                    x-ref="menu-items"
                    x-description="Profile Menu"
                    role="menu"
@@ -148,8 +148,8 @@
                    tabindex="-1"
                    style="display: none;"
               >
-                <a href="#" class="block py-2 text-xs text-charcoal dark:text-white hover:text-orange dark:hover:text-orange">My Profile</a>
-                <a href="{% url 'account_logout' %}" class="block py-2 text-xs text-charcoal dark:text-white hover:text-orange dark:hover:text-orange">Log Out</a>
+                <a href="#" class="block py-2 text-xs dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">My Profile</a>
+                <a href="{% url 'account_logout' %}" class="block py-2 text-xs dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">Log Out</a>
               </div>
             {% endif %}
             </span>
@@ -205,17 +205,17 @@
         </div>
         <div x-show="isOpen" class="absolute inset-x-0 top-10 z-50 h-screen bg-charcoal">
           <div class="px-2 pt-2 pb-3 text-2xl">
-            <a href="/versions/" class="block py-2 px-3 text-white hover:text-orange dark:hover:text-orange">Versions</a>
+            <a href="/versions/" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Versions</a>
 
-            <a href="/libraries/" class="block py-2 px-3 text-white hover:text-orange dark:hover:text-orange">Libraries</a>
+            <a href="/libraries/" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Libraries</a>
 
-            <a href="{% url 'review-process' %}" class="block py-2 px-3 text-white hover:text-orange dark:hover:text-orange">Review Process</a>
+            <a href="{% url 'review-process' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Review Process</a>
 
-            <a href="/forum/" class="block py-2 px-3 text-white hover:text-orange dark:hover:text-orange">Forums</a>
+            <a href="/forum/" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Forums</a>
 
-            <a href="{% url 'news' %}" class="block py-2 px-3 text-white hover:text-orange dark:hover:text-orange">News</a>
+            <a href="{% url 'news' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">News</a>
 
-            <a href="{% url 'donate' %}" class="block py-2 px-3 text-white hover:text-orange dark:hover:text-orange">Donate</a>
+            <a href="{% url 'donate' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Donate</a>
           </div>
           <div class="absolute left-0 bottom-10 px-2 pt-2 pb-3 text-sm">
             <a href="{% url 'boost-about' %}" class="block py-2 px-3 text-gray-700 text-thin">About</a>

@@ -17,12 +17,12 @@
 {% include "forum_conversation/post_preview.html" %}
 {% endif %}
 <div class="w-full">
-  <div class="w-full bg-charcoal/60 border border-1 border-slate rounded">
+  <div class="w-full rounded border bg-charcoal/60 border-1 border-slate">
     <div class="card post-edit">
-      <div class="card-header border-b border-slate px-4 py-2">
-        <h3 class="m-0 h5 card-title text-base">{% trans "Post a new topic" %}</h3>
+      <div class="py-2 px-4 border-b card-header border-slate">
+        <h3 class="m-0 text-base h5 card-title">{% trans "Post a new topic" %}</h3>
       </div>
-      <div class="card-body p-4">
+      <div class="p-4 card-body">
         {% include "forum_conversation/partials/topic_form.html" %}
       </div>
     </div>
