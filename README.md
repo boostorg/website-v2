@@ -56,13 +56,13 @@ $ docker-compose -f docker-compose-with-celery.yml up
 $ docker-compose -f docker-compose-with-celery.yml down
 ```
 
-### Markdown content handling 
+### Markdown content handling
 
-Clone the content repo to your local machine, at the same level as this repo: https://github.com/boostorg/website2022. Docker-compose will look for this folder and its contents on your machine, so it can copy the contents into a Docker container. 
+Clone the content repo to your local machine, at the same level as this repo: https://github.com/boostorg/website2022. Docker-compose will look for this folder and its contents on your machine, so it can copy the contents into a Docker container.
 
-## Environment Variables 
+## Environment Variables
 
-See [Environment Variables](docs/env_vars.md) for more information on environment variables. 
+See [Environment Variables](docs/env_vars.md) for more information on environment variables.
 
 ## Running the tests
 
@@ -98,19 +98,19 @@ For production, execute:
 $ yarn build
 ```
 
-## Generating Fake Data 
+## Generating Fake Data
 
 ### Versions and LibraryVersions
 
-First, make sure your `GITHUB_TOKEN` is set in you `.env` file and run `./manage.py update_libraries`. This takes a long time. See below. 
+First, make sure your `GITHUB_TOKEN` is set in you `.env` file and run `./manage.py update_libraries`. This takes a long time. See below.
 
-Run `./manage.py generate_fake_versions`. This will create 50 active Versions, and associate Libraries to them. 
+Run `./manage.py generate_fake_versions`. This will create 50 active Versions, and associate Libraries to them.
 
 The data created is realistic-looking in that each Library will contain a M2M relationship to every Version newer than the oldest one it's included in. (So if a Library's earliest LibraryVersion is 1.56.0, then there will be a LibraryVersion object for that Library for each Version since 1.56.0 was released.)
 
-This does not add VersionFile objects to the Versions. 
+This does not add VersionFile objects to the Versions.
 
-### Libraries, Pull Requests, and Issues 
+### Libraries, Pull Requests, and Issues
 
 There is not currently a way to generate fake Libraries, Issues, or Pull Requests. To generate those, use your GitHub token and run `./manage.py update_libraries` locally to pull in live GitHub data. This command takes a long time to run; you might consider editing `libraries/github.py` to add counters and breaks to shorten the runtime.
 
@@ -121,3 +121,15 @@ TDB
 ## Production Environment Considerations
 
 TDB
+
+
+## Pre-commit
+
+Pre-commit is configured for the following
+
+* Black
+* Ruff
+* Djhtml for cleaning up django templates
+* Rustywind for sorting tailwind classes
+
+Add the hooks by executing `pre-commit install`
