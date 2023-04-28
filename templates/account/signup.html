@@ -23,14 +23,14 @@
 
         <div class="space-y-4 w-full text-center">
           <p class="mt-0 text-center">
-              <a :class="tab === '#social' ? 'text-white' : 'text-orange'"
+              <a :class="tab === '#social' ? 'text-slate dark:text-white' : 'text-orange'"
                  href="#"
                  data-toggle="tab"
                  x-on:click.prevent="tab='#social'"
               >
                 Sign Up with one of your existing third party accounts<br />
               </a> or you can
-              <a :class="tab === '#email' ? 'text-white' : 'text-orange'"
+              <a :class="tab === '#email' ? 'text-slate dark:text-white' : 'text-orange'"
                  href="#"
                  data-toggle="tab"
                  x-on:click.prevent="tab='#email'"
@@ -77,7 +77,7 @@
               </div>
               <div class="my-11">
                 <button type="submit"
-                        class="py-3 px-8 text-sm text-base font-medium uppercase rounded-md border md:py-1 md:px-4 md:text-lg border-orange text-orange"
+                        class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange border-orange dark:bg-charcoal dark:text-orange"
                 >
                   {% trans "Sign Up" %}
                 </button>

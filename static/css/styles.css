@@ -659,6 +659,11 @@ textarea {
   --tw-border-opacity: 1;
   border-color: rgb(49 74 87 / var(--tw-border-opacity));
   --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+.dark textarea {
+  --tw-bg-opacity: 1;
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
 }
 
@@ -670,6 +675,11 @@ input[type=email] {
   --tw-border-opacity: 1;
   border-color: rgb(49 74 87 / var(--tw-border-opacity));
   --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+.dark input[type=email] {
+  --tw-bg-opacity: 1;
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
 }
 
@@ -680,9 +690,14 @@ input[type=checkbox] {
   --tw-border-opacity: 1;
   border-color: rgb(49 74 87 / var(--tw-border-opacity));
   --tw-bg-opacity: 1;
-  background-color: rgb(23 42 52 / var(--tw-bg-opacity));
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
   --tw-text-opacity: 1;
   color: rgb(255 159 0 / var(--tw-text-opacity));
+}
+
+.dark input[type=checkbox] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(23 42 52 / var(--tw-bg-opacity));
 }
 
 input[type=file] {
@@ -703,6 +718,7 @@ input[type=file] {
   font-size: 1rem;
   line-height: 1.5rem;
   font-weight: 400;
+  color: rgb(49 74 87 / var(--tw-text-opacity));
   --tw-text-opacity: 1;
   color: rgb(255 159 0 / var(--tw-text-opacity));
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;
@@ -712,6 +728,11 @@ input[type=file] {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.dark input[type=file] {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
 #signup_form input[type=email],
   #signup_form input[type=password] {
   width: 100%;
@@ -719,6 +740,14 @@ input[type=file] {
   border-width: 1px;
   --tw-border-opacity: 1;
   border-color: rgb(49 74 87 / var(--tw-border-opacity));
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+  --tw-text-opacity: 1;
+  color: rgb(49 74 87 / var(--tw-text-opacity));
+}
+
+.dark #signup_form input[type=email],.dark
+  #signup_form input[type=password] {
   --tw-bg-opacity: 1;
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
   --tw-text-opacity: 1;
@@ -1799,11 +1828,6 @@ input[type=file] {
   background-color: transparent;
 }
 
-.bg-slate {
-  --tw-bg-opacity: 1;
-  background-color: rgb(49 74 87 / var(--tw-bg-opacity));
-}
-
 .bg-opacity-70 {
   --tw-bg-opacity: 0.7;
 }
@@ -2455,6 +2479,11 @@ input[type=file] {
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
 }
 
+.dark .dark\:bg-slate {
+  --tw-bg-opacity: 1;
+  background-color: rgb(49 74 87 / var(--tw-bg-opacity));
+}
+
 .dark .dark\:font-medium {
   font-weight: 500;
 }
@@ -2503,6 +2532,10 @@ input[type=file] {
 
 .dark .dark\:text-blue-300\/60 {
   color: rgb(147 197 253 / 0.6);
+}
+
+.dark .dark\:text-white\/70 {
+  color: rgb(255 255 255 / 0.7);
 }
 
 .dark .dark\:ring-gray-500 {
