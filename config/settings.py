@@ -93,6 +93,7 @@ INSTALLED_APPS += [
 INSTALLED_APPS += ["ak", "users", "versions", "libraries", "mailing_list"]
 
 AUTH_USER_MODEL = "users.User"
+CSRF_COOKIE_HTTPONLY = True
 
 MIDDLEWARE = [
     "tracer.middleware.RequestID",
