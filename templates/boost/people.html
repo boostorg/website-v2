@@ -3,23 +3,23 @@
 {% load static %}
 
 {% block subnav %}
-  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase">
+  <div class="py-8 px-4 space-y-4 text-sm uppercase border-b md:py-2 md:px-0 md:space-x-10 border-slate">
     <a href="{% url 'boost-about' %}" class="block md:inline">About</a>
-    <a href="{% url 'boost-people' %}" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">People</a>
+    <a href="{% url 'boost-people' %}" class="block md:inline md:py-1 md:border-b text-orange md:border-orange">People</a>
     <a href="{% url 'boost-moderators' %}" class="block md:inline">Moderators</a>
   </div>
 {% endblock %}
 
 {% block content %}
-  <div class="py-0 md:py-6 mb-3 px-3 md:px-0">
-    <div class="md:w-full py-16">
+  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+    <div class="py-16 md:w-full">
       <h1 class="text-4xl text-center">Boost People</h1>
-      <p class="text-center mt-0">
+      <p class="mt-0 text-center">
         These are some of the collaborative experts behind Boost!
       </p>
     </div>
 
-    <div class="my-6 border-t border-b border-slate py-5">
+    <div class="py-5 my-6 border-t border-b border-slate">
       <div class="grid grid-rows-5 grid-flow-col gap-4 text-sm">
         {% for i in range %}
           {% include 'boost/_person.html' %}

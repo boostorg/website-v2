@@ -8,19 +8,19 @@ This is a temporary landing page for docs
 
 {% block content %}
   <!-- Homepage Hero Section -->
-  <main class="my-4 mx-auto md:max-w-7xl px-4">
-    <div class="md:flex md:space-x-4 space-y-4 md:space-y-0 mb-4">
+  <main class="px-4 my-4 mx-auto md:max-w-7xl">
+    <div class="mb-4 space-y-4 md:flex md:space-y-0 md:space-x-4">
       <div
-        class="w-full md:w-1/2 block rounded-lg bg-white dark:bg-charcoal shadow-lg dark:bg-neutral-700 relative text-white">
-        <a href="#" class="rounded bg-orange text-white py-3 px-4 absolute top-5 right-10 shadow-md">New Here?</a>
+        class="block relative w-full text-white bg-white rounded-lg shadow-lg md:w-1/2 dark:bg-charcoal dark:bg-neutral-700">
+        <a href="#" class="absolute top-5 right-10 py-3 px-4 text-white rounded shadow-md bg-orange">New Here?</a>
         {# FIXME #}
         <a href="/doc/user-guide/">
           <img
-            class="rounded-t-lg w-full max-h-[470px] overflow-y-hidden"
+            class="overflow-y-hidden w-full rounded-t-lg max-h-[470px]"
             src="{% static 'img/fpo/guide.jpg' %}"
             alt="" />
         </a>
-        <div class="px-6 py-3 text-slate dark:text-white">
+        <div class="py-3 px-6 dark:text-white text-slate">
           <h5
             class="text-xl font-bold leading-tight text-orange">
             User Guide
@@ -44,15 +44,15 @@ This is a temporary landing page for docs
       </div>
 
       <div
-        class="w-full md:w-1/2 block rounded-lg bg-white dark:bg-charcoal shadow-lg dark:bg-neutral-700 relative">
+        class="block relative w-full bg-white rounded-lg shadow-lg md:w-1/2 dark:bg-charcoal dark:bg-neutral-700">
         {# FIXME #}
         <a href="/doc/contributor-guide/">
           <img
-            class="rounded-t-lg w-full max-h-[470px] overflow-y-hidden"
+            class="overflow-y-hidden w-full rounded-t-lg max-h-[470px]"
             src="{% static 'img/fpo/man-tree.jpeg' %}"
             alt="" />
         </a>
-        <div class="px-6 py-3 text-slate dark:text-white">
+        <div class="py-3 px-6 dark:text-white text-slate">
           <h5
             class="text-xl font-bold leading-tight text-orange">
             Contributor Guide
@@ -78,20 +78,20 @@ This is a temporary landing page for docs
 
     <div class="mb-16 space-y-4">
       <div
-        class="flex flex-col rounded-lg bg-white dark:bg-charcoal shadow-lg text-white dark:bg-neutral-700 md:flex-row">
+        class="flex flex-col text-white bg-white rounded-lg shadow-lg md:flex-row dark:bg-charcoal dark:bg-neutral-700">
         {# FIXME #}
         <a href="/doc/formal-reviews/">
           <img
-            class="h-96 w-full rounded-t-lg object-cover md:h-auto md:w-48 md:rounded-none md:rounded-l-lg"
+            class="object-cover w-full h-96 rounded-t-lg md:w-48 md:h-auto md:rounded-none md:rounded-l-lg"
             src="{% static 'img/fpo/clipboardman.jpeg' %}"
             alt="" />
         </a>
-        <div class="flex flex-col justify-start p-6 text-slate dark:text-white">
+        <div class="flex flex-col justify-start p-6 dark:text-white text-slate">
           <h5
             class="text-xl font-bold leading-tight">
             Boost Formal Reviews
           </h5>
-          <p class="mb-4 py-1 text-base">
+          <p class="py-1 mb-4 text-base">
             How libraries become part of the collection.
           </p>
           <ul class="flex flex-wrap">
@@ -105,13 +105,13 @@ This is a temporary landing page for docs
       </div>
 
       <div
-        class="flex flex-col rounded-lg bg-white dark:bg-charcoal shadow-lg dark:bg-neutral-700 md:flex-row">
-        <div class="flex flex-col justify-start p-6 w-full text-slate dark:text-white">
+        class="flex flex-col bg-white rounded-lg shadow-lg md:flex-row dark:bg-charcoal dark:bg-neutral-700">
+        <div class="flex flex-col justify-start p-6 w-full dark:text-white text-slate">
           <h5
             class="text-xl font-bold leading-tight">
             Release Process
           </h5>
-          <p class="mb-4 text-base text-neutral-600 dark:text-neutral-200 py-1">
+          <p class="py-1 mb-4 text-base text-neutral-600 dark:text-neutral-200">
             "The trains always run on time"
           </p>
           <ul class="flex flex-wrap">
@@ -126,7 +126,7 @@ This is a temporary landing page for docs
         {# FIXME #}
         <a href="/doc/release-process/">
         <img
-          class="h-96 w-full rounded-t-lg object-cover md:h-auto md:w-48 md:rounded-none md:rounded-r-lg"
+          class="object-cover w-full h-96 rounded-t-lg md:w-48 md:h-auto md:rounded-none md:rounded-r-lg"
           src="{% static 'img/fpo/construction.png' %}"
           alt="" />
         </a>

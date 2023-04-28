@@ -1,8 +1,8 @@
 {% load static %}
 
-<div class="p-3 rounded md:p-5 bg-white dark:bg-charcoal relative content-between">
+<div class="relative content-between p-3 bg-white rounded md:p-5 dark:bg-charcoal">
   <div class="">
-    <h3 class="text-2xl capitalize border-b border-slate pb-2">
+    <h3 class="pb-2 text-2xl capitalize border-b border-slate">
       <a class="text-orange" href="
                {% if version_slug %}
                  {% url 'library-detail-by-version' version_slug=version_slug slug=library.slug %}
@@ -11,7 +11,7 @@
                {% endif %}"
       >{{ library.name }}</a>
       {% for author in library.authors.all %}
-      <img src="{{ author.image.url }}" class="inline rounded w-[30px] float-right" alt="{{ author.get_full_name }}" />
+      <img src="{{ author.image.url }}" class="inline float-right rounded w-[30px]" alt="{{ author.get_full_name }}" />
       {% endfor %}
     </h3>
   </div>
@@ -19,9 +19,9 @@
     <p class="mb-3 text-gray-700 dark:text-gray-300">{{ library.description }}</p>
   </div>
   <div class="text-sm flex py-3 bottom-0 absolute w-[90%]">
-    <div class="w-1/6"><span class="rounded-full border border-green/40 py-1 px-2 text-gray-400 text-sm font-bold hover:bg-green/40">{{ library.cpp_standard_minimum }}</span></div>
-    <div class="w-1/6 text-charcoal dark:text-white/60 tracking-wider">2yrs</div>
-    <div class="w-4/6 text-right text-slate dark:text-gray-400">
+    <div class="w-1/6"><span class="py-1 px-2 text-sm font-bold text-gray-400 rounded-full border border-green/40 hover:bg-green/40">{{ library.cpp_standard_minimum }}</span></div>
+    <div class="w-1/6 tracking-wider text-charcoal dark:text-white/60">2yrs</div>
+    <div class="w-4/6 text-right dark:text-gray-400 text-slate">
       {% for c in library.categories.all %}
         <a href="{% if version_slug %}{% url 'libraries-by-version-by-category' version_slug=version_slug category=c.slug%}{% else %}{% url 'libraries-by-category' category=c.slug %}{% endif %}" class="text-sky-400 dark:text-blue-300/60">
           {{ c.name }}

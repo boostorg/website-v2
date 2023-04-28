@@ -1098,10 +1098,6 @@ input[type=file] {
   margin-top: 1.25rem;
 }
 
-.mt-1 {
-  margin-top: 0.25rem;
-}
-
 .mb-3 {
   margin-bottom: 0.75rem;
 }
@@ -1128,6 +1124,10 @@ input[type=file] {
 
 .mr-3 {
   margin-right: 0.75rem;
+}
+
+.mt-1 {
+  margin-top: 0.25rem;
 }
 
 .mt-0 {
@@ -1612,6 +1612,11 @@ input[type=file] {
   border-bottom-width: calc(1px * var(--tw-divide-y-reverse));
 }
 
+.divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-opacity: 1;
+  border-color: rgb(229 231 235 / var(--tw-divide-opacity));
+}
+
 .divide-slate > :not([hidden]) ~ :not([hidden]) {
   --tw-divide-opacity: 1;
   border-color: rgb(49 74 87 / var(--tw-divide-opacity));
@@ -1758,6 +1763,11 @@ input[type=file] {
   background-color: rgb(255 159 0 / var(--tw-bg-opacity));
 }
 
+.bg-gray-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(209 213 219 / var(--tw-bg-opacity));
+}
+
 .bg-green\/10 {
   background-color: rgb(90 213 153 / 0.1);
 }
@@ -1792,6 +1802,11 @@ input[type=file] {
 .bg-slate {
   --tw-bg-opacity: 1;
   background-color: rgb(49 74 87 / var(--tw-bg-opacity));
+}
+
+.bg-gray-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(107 114 128 / var(--tw-bg-opacity));
 }
 
 .bg-opacity-70 {
@@ -2425,6 +2440,11 @@ input[type=file] {
   display: none;
 }
 
+.dark .dark\:divide-slate > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-opacity: 1;
+  border-color: rgb(49 74 87 / var(--tw-divide-opacity));
+}
+
 .dark .dark\:border-slate {
   --tw-border-opacity: 1;
   border-color: rgb(49 74 87 / var(--tw-border-opacity));
@@ -2447,6 +2467,11 @@ input[type=file] {
 .dark .dark\:text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+.dark .dark\:text-orange {
+  --tw-text-opacity: 1;
+  color: rgb(255 159 0 / var(--tw-text-opacity));
 }
 
 .dark .dark\:text-white\/50 {
@@ -2483,11 +2508,6 @@ input[type=file] {
 
 .dark .dark\:text-blue-300\/60 {
   color: rgb(147 197 253 / 0.6);
-}
-
-.dark .dark\:text-orange {
-  --tw-text-opacity: 1;
-  color: rgb(255 159 0 / var(--tw-text-opacity));
 }
 
 .dark .dark\:ring-gray-500 {
