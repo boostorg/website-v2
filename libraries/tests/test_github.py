@@ -51,6 +51,7 @@ def test_get_blob(github_api_client):
         owner=github_api_client.owner, repo="sample_repo", file_sha="12345"
     )
 
+
 ###########################################################################
 # Something is up with this test, it causes Pytest to fail spectacularly
 # using Python 3.11.  Commenting it out for now.  - Frank
@@ -187,7 +188,6 @@ def test_parse_libraries_json():
 
     parser = GithubDataParser()
     parser.parse_libraries_json(sample_libraries_json)
-
 
 
 def test_extract_names():
