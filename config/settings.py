@@ -92,6 +92,13 @@ INSTALLED_APPS += ["ak", "users", "versions", "libraries", "mailing_list"]
 
 AUTH_USER_MODEL = "users.User"
 CSRF_COOKIE_HTTPONLY = True
+# See https://docs.djangoproject.com/en/4.2/ref/settings/#csrf-trusted-origins
+CSRF_TRUSTED_ORIGINS = [
+    "http://0.0.0.0",
+    "http://localhost",
+    "https://boost.revsys.dev",
+    "https://www.boost.revsys.dev",
+]
 
 MIDDLEWARE = [
     "tracer.middleware.RequestID",
