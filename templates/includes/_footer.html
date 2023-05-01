@@ -29,7 +29,13 @@
 
   <div class="items-center px-5 pt-4 mt-16 md:flex">
     <div class="mr-11">
-      <img class="w-auto h-[53px]" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="">
+      <img class="hidden mb-1 w-auto dark:inline-block h-[40px]"
+           src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}"
+           alt="Boost">
+
+      <img class="inline-block mb-1 w-auto dark:hidden h-[40px]"
+           src="{% static 'img/Boost_Brandmark_BlackBoost_Transparent.svg' %}"
+           alt="Boost">
     </div>
     <div class="justify-between pt-3 pb-3 w-1/2 md:space-x-10">
       <a class="block my-2 md:inline" href="/">&#169; 2022 Boost.org</a>
