@@ -45,7 +45,7 @@ responses
 minio
 
 # Packaging
-pip-tools
+pip-tools==6.13.0
 
 # Markdown and Frontmatter
 mistletoe
