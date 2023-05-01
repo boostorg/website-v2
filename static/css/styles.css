@@ -587,7 +587,8 @@ select {
 }
 
 body {
-  color: rgb(49 74 87 / 0.8);
+  --tw-text-opacity: 1;
+  color: rgb(49 74 87 / var(--tw-text-opacity));
 }
 
 .dark body {
@@ -606,7 +607,8 @@ h1 {
 }
 
 h2 {
-  color: rgb(49 74 87 / 0.8);
+  --tw-text-opacity: 1;
+  color: rgb(49 74 87 / var(--tw-text-opacity));
 }
 
 .dark h2 {
@@ -746,7 +748,7 @@ input[type=file] {
   color: rgb(49 74 87 / var(--tw-text-opacity));
 }
 
-.dark #signup_form input[type=email],.dark 
+.dark #signup_form input[type=email],.dark
   #signup_form input[type=password] {
   --tw-bg-opacity: 1;
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
@@ -951,16 +953,20 @@ input[type=file] {
   right: 2.5rem;
 }
 
-.right-0 {
-  right: 0px;
-}
-
 .-top-2 {
   top: -0.5rem;
 }
 
+.-right-2 {
+  right: -0.5rem;
+}
+
 .right-3 {
   right: 0.75rem;
+}
+
+.right-0 {
+  right: 0px;
 }
 
 .top-0 {
@@ -997,10 +1003,6 @@ input[type=file] {
 
 .top-3 {
   top: 0.75rem;
-}
-
-.-right-2 {
-  right: -0.5rem;
 }
 
 .z-10 {
@@ -1203,6 +1205,10 @@ input[type=file] {
   margin-right: 2.75rem;
 }
 
+.-mb-1 {
+  margin-bottom: -0.25rem;
+}
+
 .-mt-1 {
   margin-top: -0.25rem;
 }
@@ -1221,10 +1227,6 @@ input[type=file] {
 
 .ml-4 {
   margin-left: 1rem;
-}
-
-.-mb-1 {
-  margin-bottom: -0.25rem;
 }
 
 .block {
