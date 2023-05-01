@@ -19,15 +19,15 @@
         </div>
         <div class="flex pt-5 w-full">
           <nav class="relative items-center pl-6 space-x-10 w-3/4 text-lg text-left">
-            <a href="{% url 'news' %}" class="font-semibold dark:font-medium dark:text-white text-slate/80 dark:hover:text-orange hover:text-orange">News</a>
-            <a href="{% url 'docs' %}" class="font-semibold dark:font-medium dark:text-white text-slate/80 dark:hover:text-orange hover:text-orange">Learn</a>
-            <a href="/forum/" class="font-semibold dark:font-medium dark:text-white text-slate/80 dark:hover:text-orange hover:text-orange">Community</a>
-            <a href="/libraries/" class="font-semibold dark:font-medium dark:text-white text-slate/80 dark:hover:text-orange hover:text-orange">Libraries</a>
-            <a href="#" class="font-semibold dark:font-medium dark:text-white text-slate/80 dark:hover:text-orange hover:text-orange">Releases</a>
+            <a href="{% url 'news' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">News</a>
+            <a href="{% url 'docs' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Learn</a>
+            <a href="/forum/" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Community</a>
+            <a href="/libraries/" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Libraries</a>
+            <a href="#" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Releases</a>
           </nav>
           <nav class="items-center space-x-5 w-1/4 text-right" x-data="{ 'searchOpen': false }">
             <span class="relative">
-              <i class="inline-flex -mt-1 cursor-pointer text-slate/80 fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="searchOpen = !searchOpen"></i>
+              <i class="inline-flex -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="searchOpen = !searchOpen"></i>
               <div x-show="searchOpen"
                    @click.away="searchOpen = false"
                    x-transition:enter="transition ease-out duration-100"
@@ -63,7 +63,7 @@
               </div>
             </span>
 
-            <a href="{% url 'support' %}" class="inline-flex"><i class="text-slate/80 fas fa-question-circle dark:text-white/50 dark:hover:text-orange hover:text-orange"></i></a>
+            <a href="{% url 'support' %}" class="inline-flex"><i class="text-slate fas fa-question-circle dark:text-white/50 dark:hover:text-orange hover:text-orange"></i></a>
 
             <!-- theme switcher -->
             <span x-data="{ 'modeOpen': false }" class="relative">
