@@ -1,6 +1,6 @@
 {% load static %}
 
-<footer class="py-5 px-4 my-5 mx-auto max-w-7xl sm:mt-24 md:py-4 md:my-6">
+<footer class="py-5 px-4 my-5 mx-auto max-w-full sm:mt-24 md:py-4 md:my-6">
   {% if not request.user.is_authenticated %}
   <div class="md:flex" id="footerSignup">
     <div class="grid gap-4 content-center text-left md:w-1/2">
@@ -37,15 +37,15 @@
            src="{% static 'img/Boost_Brandmark_BlackBoost_Transparent.svg' %}"
            alt="Boost">
     </div>
-    <div class="justify-between pt-3 pb-3 w-1/2 md:space-x-10">
+    <div class="justify-between pt-3 pb-3 w-4/5 md:space-x-3 xl:space-x-10">
       <a class="block my-2 md:inline" href="/">&#169; 2022 Boost.org</a>
       <a class="block my-2 md:inline" href="{% url 'contact' %}">Contact</a>
       <a class="block my-2 md:inline" href="">Privacy Policy</a>
       <a class="block my-2 md:inline" href="">Terms of Use</a>
     </div>
-    <div class="pt-3 pb-3 space-x-3 w-1/2 md:space-x-5 md:text-right">
-      <a href="https://twitter.com/boost_libraries" target="_blank"><i class="fab fa-twitter text-orange hover:orange/70"></i></a>
-      <a href="https://github.com/boostorg" target="_blank"><i class="fab fa-github text-orange hover:orange/70"></i></a>
+    <div class="pt-3 pb-3 space-x-3 w-1/5 md:space-x-5 md:text-right">
+      <a href="https://twitter.com/boost_libraries" target="_blank"><i class="fab fa-twitter text-slate dark:text-white/50 dark:hover:text-orange hover:text-orange"></i></a>
+      <a href="https://github.com/boostorg" target="_blank"><i class="fab fa-github text-slate dark:text-white/50 dark:hover:text-orange hover:text-orange"></i></a>
     </div>
   </div>
 </footer>
