@@ -2241,10 +2241,6 @@ input[type=file] {
   color: rgb(255 255 255 / 0.6);
 }
 
-.text-slate\/80 {
-  color: rgb(49 74 87 / 0.8);
-}
-
 .text-charcoal {
   --tw-text-opacity: 1;
   color: rgb(23 42 52 / var(--tw-text-opacity));
