@@ -12,6 +12,7 @@ djangorestframework>=3.14
 environs[django]
 greenlet==2.0.1
 gevent==22.10.2
+gunicorn
 psycopg2-binary
 whitenoise
 django-click

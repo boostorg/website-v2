@@ -153,6 +153,8 @@ greenlet==2.0.1
     # via
     #   -r ./requirements.in
     #   gevent
+gunicorn==20.1.0
+    # via -r ./requirements.in
 idna==3.3
     # via requests
 iniconfig==1.1.1
