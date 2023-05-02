@@ -8,17 +8,21 @@ A Django based website that will power https://boost.org
 
 This project will use Python 3.11, Docker, and Docker Compose.
 
-**NOTE**: All of these various docker-compose commands, along with other helpful
+**NOTE**: All of these various `docker compose` commands, along with other helpful
 developer utility commands, are codified in our `justfile` and can be ran with
 less typing.
 
 You will need to install `just`, by [following the documentation](https://just.systems/man/en/)
 
-Copy env-template to .env and adjust values to match your local environment:
+Copy file `env.template` to `.env` and adjust values to match your local environment:
 
 ```shell
 $ cp env.template .env
 ```
+
+**NOTE**: Double check that the exposed port assigned to the PostgreSQL
+container does not clash with a database or other server you have running
+locally.
 
 Then run:
 
