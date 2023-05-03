@@ -4,6 +4,8 @@
 
 A Django based website that will power https://boost.org
 
+---
+
 ## Local Development Setup
 
 This project will use Python 3.11, Docker, and Docker Compose.
@@ -88,6 +90,8 @@ For production, execute:
 $ yarn build
 ```
 
+---
+
 ## Generating Fake Data
 
 ### Versions and LibraryVersions
@@ -104,22 +108,84 @@ This does not add VersionFile objects to the Versions.
 
 There is not currently a way to generate fake Libraries, Issues, or Pull Requests. To generate those, use your GitHub token and run `./manage.py update_libraries` locally to pull in live GitHub data. This command takes a long time to run; you might consider editing `libraries/github.py` to add counters and breaks to shorten the runtime.
 
+---
+
 ## Deploying
 
 TDB
+
+## Staging Environment Considerations
+
+In April 2023, we made the decision to put the staging site behind a plain login. This was done to prevent the new design from being leaked to the general public before the official release. Access to the staging site is now restricted to users with valid login credentials, which are provided upon request. (This is managed in the Django Admin.)
+
+### Effects
+
+- Entire site requires a login
+- The login page is unstyled, to hide the new design from the public
+
+The implementation for this login requirement can be found in the `core/middleware.py` file as the `LoginRequiredMiddleware` class. To enable tests to pass with this login requirement, we have added a fixture called `logged_in_tp` in the `conftest.py` file. This fixture creates a logged-in `django-test-plus` client.
+
+To reverse these changes and make the site open to the public (except for views which are marked as login required in their respective `views.py` files) **and** re-style the login page, follow these steps:
+
+1. Remove `templates/accounts/login.html` (the unstyled page) and rename `templates/accoounts/login_real.html` back to `templates/account/login.html` (the styled login page that includes the social logins)
+2. Disable the `LoginRequiredMiddleware` by removing it from the `MIDDLEWARE` list in the `settings.py` file.
+3. Remove the `logged_in_tp` fixture from the `conftest.py` file.
+4. In all tests, replace any mentions of `logged_in_tp` with the original `tp` to revert to the previous test setup.
 
 ## Production Environment Considerations
 
 TDB
 
 
-## Pre-commit
+---
 
-Pre-commit is configured for the following
+## Pre-commit Hooks
 
-* Black
-* Ruff
-* Djhtml for cleaning up django templates
-* Rustywind for sorting tailwind classes
+We use [pre-commit hooks](https://pre-commit.com/) to check code for style, syntax, and other issues. They help to maintain consistent code quality and style across the project, and prevent issues from being introduced into the codebase.
 
-Add the hooks by executing `pre-commit install`
+Pre-commit is configured for the following:
+
+* **[Black](https://github.com/psf/black)**: Formats Python code using the `black` code formatter.
+* **[Ruff](https://github.com/charliermarsh/ruff)**: Wrapper around `flake8` and `isort`, among other linters
+* **[Djhtml](https://github.com/rtts/djhtml)**:  for cleaning up django templates
+* **[Rustywind](https://github.com/avencera/rustywind)** for sorting tailwind classes
+
+Add the hooks by running: 
+
+```bash
+pre-commit install
+``` 
+
+Now, the pre-commit hooks will automatically run before each commit. If any hook fails, the commit will be aborted, and you'll need to fix the issues and try committing again.
+
+### Running pre-commit hooks locally 
+
+Ensure you have Python and `pip` installed. 
+
+**Install `pre-commit`**: run:
+
+```bash
+pip install pre-commit
+```
+
+**Install the hooks**: navigate to the root directory and run:
+
+```bash
+pre-commit install
+``` 
+
+To **preview what the pre-commit hooks would catch**, run: 
+
+```bash
+pre-commit run --all-files
+``` 
+
+To **skip running the pre-commit hooks** for some reason, run:
+
+```bash
+git commit -m "Your commit message" --no-verify
+```
+
+This will allow you to commit without running the hooks first. When you push your branch, you will still need to resolve issues that CI catches. 
+
+_Note: Added this when a couple of us installed pre-commit and got the Big Angry List, so I wanted to save is a Google._ 
