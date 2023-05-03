@@ -20,7 +20,10 @@ from versions.models import Version
 @click.option(
     "--create-recent-library-versions",
     is_flag=True,
-    help="Create library-versions for the most recent Boost version and each active Boost library",
+    help=(
+        "Create library-versions for the most recent Boost version and each active "
+        "Boost library"
+    ),
 )
 @click.option("--token", is_flag=False, help="Github API token")
 def command(
@@ -32,18 +35,25 @@ def command(
 ):
     """Imports Boost release information from Github and updates the local database.
 
-    The function retrieves Boost tags from the main Github repo, excluding beta releases and release candidates.
-    For each tag, it fetches the associated data based on whether it's a full release (data in the tag) or not (data in the commit).
+    The function retrieves Boost tags from the main Github repo, excluding beta releases
+    and release candidates. For each tag, it fetches the associated data based on
+    whether it's a full release (data in the tag) or not (data in the commit).
 
     It then creates or updates a Version instance in the local database for each tag.
-    Depending on the options provided, it can also delete existing versions and library versions, and create new library versions for the most recent Boost version.
+    Depending on the options provided, it can also delete existing versions and library
+    versions, and create new library versions for the most recent Boost version.
 
     Args:
-        delete_versions (bool): If True, deletes all existing Version instances before importing.
-        skip-existing-versions (bool): If True, skips versions that already exist in the database.
-        delete_library_versions (bool): If True, deletes all existing LibraryVersion instances before importing.
-        create_recent_library_versions (bool): If True, creates a LibraryVersion for each active Boost library and the most recent Boost version.
-        token (str): Github API token, if you need to use something other than the setting.
+        delete_versions (bool): If True, deletes all existing Version instances before
+            importing.
+        skip-existing-versions (bool): If True, skips versions that already exist in
+            the database.
+        delete_library_versions (bool): If True, deletes all existing LibraryVersion
+            instances before importing.
+        create_recent_library_versions (bool): If True, creates a LibraryVersion for
+            each active Boost library and the most recent Boost version.
+        token (str): Github API token, if you need to use something other than the
+            setting.
     """
     # Delete Versions and LibraryVersions based on options
     if delete_versions:

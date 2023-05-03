@@ -11,11 +11,11 @@ class Command(BaseCommand):
     help = "Convenience command to test saving a photo from a GH profile"
 
     def handle(self, *args, **options):
-        """
-        Having trouble getting the patch to work in the test for the underlying function.
-        This is a functional test.
-        Replace "testing" with your username and run `./manage.py photos_test`,
-        then you will see your photo in the admin for whoever your first user is.
+        """A functional test.
+
+        Having trouble getting the patch to work for the underlying function. Replace
+        "testing" with your username and run `./manage.py photos_test`, then you will
+        see your photo in the admin for whoever your first user is.
         """
         user = User.objects.first()
         user.image = None

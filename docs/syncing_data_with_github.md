@@ -2,37 +2,37 @@
 
 ## About
 
-The data in our database generally originates from somewhere in the Boost GitHub ecosystem. 
+The data in our database generally originates from somewhere in the Boost GitHub ecosystem.
 
-This page will explain to Django developers how data is synced from GitHub to our database. 
+This page will explain to Django developers how data is synced from GitHub to our database.
 
 - Most code is in `libraries/github.py` and `libraries/tasks.py`
 
-## Release data 
+## Release data
 
 - Releases are also called "Versions."
 - The model that saves Release/Version data is `versions/models.py::Version`
-- We retrieve all the non-beta and non-release-candidate tags from the main Boost repo 
+- We retrieve all the non-beta and non-release-candidate tags from the main Boost repo
 
-Boost releases some tags as formal GitHub "releases," and these show up on the **Releases** tab. 
+Boost releases some tags as formal GitHub "releases," and these show up on the **Releases** tab.
 
-Not all tags are official GitHub **Releases**, however, and this impacts where we get metadata about the tag. 
+Not all tags are official GitHub **Releases**, however, and this impacts where we get metadata about the tag.
 
-To retrieve releases and tags, run: 
+To retrieve releases and tags, run:
 
 ```bash
 ./manage.py import_releases
 ```
 
-This will: 
+This will:
 
-- Delete existing Versions and LibraryVersions 
-- Retrieve tags and releases from the Boost GitHub repo 
-- Create new Versions for each tag and release that is not a beta or rc release 
+- Delete existing Versions and LibraryVersions
+- Retrieve tags and releases from the Boost GitHub repo
+- Create new Versions for each tag and release that is not a beta or rc release
 - Create a new LibraryVersion for each Library **but not for historical versions**
 
 
-## Library data 
+## Library data
 
 - Once a month, the task `libraries/tasks/update_libraries()` runs.
 - It cycles through all Boost libraries and updates data
@@ -47,7 +47,7 @@ This will:
 
 ### Glossary
 
-To make the code more readable to the Boost team, who will ultimately maintain the project, we tried to replicate their terminology as much as possible. 
+To make the code more readable to the Boost team, who will ultimately maintain the project, we tried to replicate their terminology as much as possible.
 
 - Library: Boost “Libraries” correspond to GitHub repositories
 - `.gitmodules`: The file in the main Boost project repo that contains the information on all the repos that are considered Boost libraries
@@ -104,7 +104,7 @@ _This is not a code walkthrough, but is a general overview of the objects and da
 
 #### `.gitmodules`
 
-This is the most important file in the main Boost repository. It contains the GitHub information for all Libraries included in that tagged Boost version, and is what we use to identify which Libraries to download into our database. 
+This is the most important file in the main Boost repository. It contains the GitHub information for all Libraries included in that tagged Boost version, and is what we use to identify which Libraries to download into our database.
 
 - `submodule`: Corresponds to the `key` in `libraries.json`
 - Contains information for the top-level Library, but not other sub-libraries stored in the same repo
@@ -117,7 +117,7 @@ This is the most important file in the main Boost repository. It contains the Gi
 
 #### `libraries.json`
 
-This is the most important file in the GitHub repo for a library. It is where we retrieve all the metadata about the Library. It is the source of truth. 
+This is the most important file in the GitHub repo for a library. It is where we retrieve all the metadata about the Library. It is the source of truth.
 
 - `key`: The GitHub slug, and the slug we use for our Library object
     - When the repo hosts a single Library, the `key` corresponds to the `submodule` in the main Boost repo’s `libraries.json` file. Example: `"key": "asio"`
@@ -136,15 +136,15 @@ This is the most important file in the GitHub repo for a library. It is where we
     - We try to be smart — if the same name shows up as an author and a maintainer, we won’t create two fake records. But it’s imperfect.
 - `cxxstd`: C++ version in which this Library was added
 
-Example with a single library: 
+Example with a single library:
 
 <img width="1392" alt="Screenshot 2023-05-08 at 12 25 59 PM" src="https://user-images.githubusercontent.com/2286304/236922369-398aa9bf-060e-4e6e-9a37-20a68fb1d1d6.png">
 
-Example with multiple libraries: 
+Example with multiple libraries:
 
 <img width="1369" alt="Screenshot 2023-05-08 at 12 25 30 PM" src="https://user-images.githubusercontent.com/2286304/236922503-4e633575-9f6b-47af-b6e1-05be8be2c4e4.png">
 
---- 
+---
 
 ## General Maintenance Notes
 
@@ -155,13 +155,13 @@ Example with multiple libraries:
 
 ### How to delete Libraries
 
-- Via the Admin. The Library update process does not delete any records. 
+- Via the Admin. The Library update process does not delete any records.
 
 ### How to add new Categories
 
-- They will be **automatically added** as part of the download process as soon as they are added to a library's `libraries.json` file. 
+- They will be **automatically added** as part of the download process as soon as they are added to a library's `libraries.json` file.
 
-### How to remove authors or maintainers 
+### How to remove authors or maintainers
 
-- Via the Admin. 
-- But if they are not also removed from the `libraries.json` file for the affected library, then they will be added back the next time the job runs. 
+- Via the Admin.
+- But if they are not also removed from the `libraries.json` file for the affected library, then they will be added back the next time the job runs.

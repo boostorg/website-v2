@@ -778,7 +778,6 @@ class LibraryUpdater:
             self.client.owner, obj.github_repo, state="all", issues_only=True
         )
         for issue_dict in issues_data:
-
             # Get the date information
             closed_at = None
             created_at = None
@@ -829,7 +828,6 @@ class LibraryUpdater:
         prs_data = self.client.get_repo_prs(obj.github_repo, state="all")
 
         for pr_dict in prs_data:
-
             # Get the date information
             closed_at = None
             merged_at = None

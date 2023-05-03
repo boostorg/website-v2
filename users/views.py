@@ -95,7 +95,7 @@ class ProfilePhotoUploadView(FormView):
 
 @method_decorator(login_required, name="dispatch")
 class ProfilePhotoGitHubUpdateView(UpdateView):
-    """Allows a user to update their profile photo to their current GitHub profile photo"""
+    """Allow a user to sync their profile photo to their current GitHub photo."""
 
     http_method_names = ["post"]
 

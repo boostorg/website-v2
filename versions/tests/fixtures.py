@@ -1,4 +1,3 @@
-import os
 import datetime
 import hashlib
 import pytest
@@ -30,7 +29,7 @@ def version(db):
     # Make verison file
     c = fake_checksum()
     f1 = ContentFile("Version 1 Fake Content")
-    vf = baker.make("versions.VersionFile", version=v, checksum=c, file=f1)
+    baker.make("versions.VersionFile", version=v, checksum=c, file=f1)
 
     return v
 
@@ -50,7 +49,7 @@ def inactive_version(db):
     # Make verison file
     c = fake_checksum()
     f1 = ContentFile("Old Version Fake Content")
-    vf = baker.make("versions.VersionFile", version=v, checksum=c, file=f1)
+    baker.make("versions.VersionFile", version=v, checksum=c, file=f1)
 
     return v
 
@@ -69,7 +68,7 @@ def old_version(db):
     # Make verison file
     c = fake_checksum()
     f1 = ContentFile("Version 1 Fake Content")
-    vf = baker.make("versions.VersionFile", version=v, checksum=c, file=f1)
+    baker.make("versions.VersionFile", version=v, checksum=c, file=f1)
 
     return v
 
