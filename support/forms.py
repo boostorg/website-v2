@@ -3,7 +3,6 @@ from django.utils.translation import gettext_lazy as _
 
 
 class ContactForm(forms.Form):
-
     TOPIC_CHOICES = (
         ("Sponsorship", "sponsorship"),
         ("Security", "security"),

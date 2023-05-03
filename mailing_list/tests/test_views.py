@@ -1,5 +1,4 @@
 import pytest
-from django.urls import reverse
 from model_bakery import baker
 from ..models import MailingListMessage
 
@@ -22,4 +21,4 @@ def test_mailing_list_view(tp, mailing_list_messages):
 def test_mailing_list_detail_view(tp, mailing_list_messages):
     """Test the mailing list view."""
     url = tp.reverse("mailing-list-detail", pk=mailing_list_messages[0].pk)
-    response = tp.get_check_200(url)
+    tp.get_check_200(url)

@@ -69,19 +69,24 @@ class UserManager(BaseUserManager):
         """
         Lazily finds a matching User record by email, or first name and last name.
 
-        This method is intended to be used when uploading library contributors in situations where we might not have
-        contributor's email address. It first checks if a user with the given email exists, and if found, returns that
-        user. If no user is found with the given email, it checks if a user with the given first name and last name
-        exists, and returns that user if found. Otherwise, it returns None.
+        This method is intended to be used when uploading library contributors in
+        situations where we might not have contributor's email address. It first checks
+        if a user with the given email exists, and if found, returns that user. If no
+        user is found with the given email, it checks if a user with the given first
+        name and last name exists, and returns that user if found. Otherwise, it
+        returns None.
 
         Args:
             email (str, optional): The email address of the user to search for.
-                Assumes the email address is legitimate, and is not one we generated as a placeholder.
+                Assumes the email address is legitimate, and is not one we generated as
+                a placeholder.
             first_name (str, optional): The first name of the user to search for.
             last_name (str, optional): The last name of the user to search for.
 
         Returns:
-            User object or None: If a user is found based on the provided criteria, the user object is returned. Otherwise, None is returned.
+            User object or None: If a user is found based on the provided criteria, the
+            user object is returned. Otherwise, None is returned.
+
         """
         user = None
 
@@ -204,7 +209,8 @@ class User(BaseUser):
         _("valid_email"),
         default=True,
         help_text=_(
-            "Designates whether this user's email address is valid, to the best of our knowledge."
+            "Designates whether this user's email address is valid, to the best of our "
+            "knowledge."
         ),
     )
     display_name = models.CharField(max_length=255, blank=True, null=True)
@@ -213,9 +219,7 @@ class User(BaseUser):
         response = requests.get(avatar_url)
         base_filename = f"{slugify(self.get_full_name())}-profile"
         filename = f"{base_filename}.png"
-        img_path = os.path.join(
-            settings.MEDIA_ROOT, "media", "profile-images", filename
-        )
+        os.path.join(settings.MEDIA_ROOT, "media", "profile-images", filename)
 
         with open(filename, "wb") as f:
             f.write(response.content)

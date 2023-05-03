@@ -1,6 +1,6 @@
 from django.views.generic import ListView, DetailView
 
-from versions.models import Version, VersionFile
+from versions.models import Version
 
 
 class VersionList(ListView):

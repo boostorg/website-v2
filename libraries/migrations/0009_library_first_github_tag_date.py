@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("libraries", "0008_alter_libraryversion_library_and_more"),
     ]
@@ -15,7 +14,10 @@ class Migration(migrations.Migration):
             name="first_github_tag_date",
             field=models.DateField(
                 blank=True,
-                help_text="The date of the first release, based on the date of the commit of the first GitHub tag.",
+                help_text=(
+                    "The date of the first release, based on the date of the "
+                    "commit of the first GitHub tag."
+                ),
                 null=True,
             ),
         ),

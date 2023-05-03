@@ -26,6 +26,7 @@ def command(branch, token):
         updater.update_monthly_commit_data(library, commit_data, branch=branch)
         library.refresh_from_db()
         click.secho(
-            f"Updated {library.name} commits; {library.commit_data.count()} monthly counts added",
+            f"Updated {library.name} commits; {library.commit_data.count()} monthly "
+            f"counts added",
             fg="green",
         )

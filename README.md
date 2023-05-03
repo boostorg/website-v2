@@ -58,14 +58,6 @@ using:
 $ docker compose down
 ```
 
-<<<<<<< HEAD
-=======
-## Environment Variables
-
-See [Environment Variables](docs/env_vars.md) for more information on
-environment variables.
-
->>>>>>> Wrap README at 79 cols
 ## Running the tests
 
 To run the tests, execute:
@@ -105,7 +97,6 @@ $ yarn build
 
 ## Generating Local Data
 
-<<<<<<< HEAD
 ### Sample (Fake) Data
 
 To **remove all existing data** (except for superusers) from your local project's database (which is in its own Docker volume) and generate fresh sample data **that will not sync with GitHub**, run:
@@ -113,25 +104,11 @@ To **remove all existing data** (except for superusers) from your local project'
 ```bash
 ./manage.py create_sample_data --all
 ```
-=======
-First, make sure your `GITHUB_TOKEN` is set in you `.env` file and run
-`./manage.py update_libraries`. This takes a long time. See below.
-
-Run `./manage.py generate_fake_versions`. This will create 50 active Versions,
-and associate Libraries to them.
-
-The data created is realistic-looking in that each Library will contain a M2M
-relationship to every Version newer than the oldest one it's included in. (So
-if a Library's earliest LibraryVersion is 1.56.0, then there will be a
-LibraryVersion object for that Library for each Version since 1.56.0 was
-released.)
->>>>>>> Wrap README at 79 cols
 
 For more information on the many, many options available for this command, see `create_sample_data` in [Management Commands](docs/commands.md).
 
 ### Live GitHub Libraries
 
-<<<<<<< HEAD
 To **add real Boost libraries and sync all the data from GitHub**, run:
 
 ```bash
@@ -141,13 +118,6 @@ To **add real Boost libraries and sync all the data from GitHub**, run:
 This command can take a long time to run (about a half hour). For more information, see `update_libraries` in [Management Commands](docs/commands.md).
 
 ---
-=======
-There is not currently a way to generate fake Libraries, Issues, or Pull
-Requests. To generate those, use your GitHub token and run `./manage.py
-update_libraries` locally to pull in live GitHub data. This command takes a
-long time to run; you might consider editing `libraries/github.py` to add
-counters and breaks to shorten the runtime.
->>>>>>> Wrap README at 79 cols
 
 ## Deploying
 

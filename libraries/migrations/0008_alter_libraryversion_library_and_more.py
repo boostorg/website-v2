@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("versions", "0007_version_data_version_github_url"),
         ("libraries", "0007_auto_20230323_1912"),

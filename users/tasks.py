@@ -1,6 +1,5 @@
 import structlog
 
-from django.apps import apps
 from django.contrib.auth import get_user_model
 
 from config.celery import app

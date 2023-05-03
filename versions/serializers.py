@@ -1,4 +1,3 @@
-from django.core import files
 from rest_framework import serializers
 
 from versions.models import Version, VersionFile

@@ -8,10 +8,10 @@ logger = structlog.get_logger()
 
 
 def generate_fake_email(val: str) -> str:
-    """
-    Slugifies a string to make a fake email. Would not necessarily be unique -- this is
-    a lazy way for us to avoid creating multiple new user records for one contributor who
-    contributes to multiple libraries.
+    """Slugify a string to make a fake email.
+
+    Would not necessarily be unique -- this is a lazy way for us to avoid creating
+    multiple new user records for one contributor who contributes to multiple libraries.
     """
     slug = slugify(val)
     local_email = slug.replace("-", "_")[:50]

@@ -1,8 +1,6 @@
 import pytest
 from model_bakery import baker
 
-from mailing_list.models import MailingListMessage
-
 
 @pytest.fixture
 def mailing_list_message_factory():

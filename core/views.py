@@ -1,11 +1,9 @@
 import os.path
-import re
 import structlog
 
 from django.conf import settings
 from django.core.cache import caches
 from django.http import Http404, HttpResponse, HttpResponseNotFound
-from django.template.response import TemplateResponse
 from django.views.generic import TemplateView, View
 
 from .boostrenderer import get_content_from_s3
