@@ -24,7 +24,7 @@ def test_library_list_no_pagination(library_version, tp):
     libs = [
         baker.make(
             "libraries.LibraryVersion",
-            library=baker.make("libraries.Library", name=f'lib-{i}'),
+            library=baker.make("libraries.Library", name=f"lib-{i}"),
             version=library_version.version,
         ).library
         for i in range(30)
@@ -37,7 +37,7 @@ def test_library_list_no_pagination(library_version, tp):
     assert len(library_list) == len(libs)
     assert all(l in library_list for l in libs)
     page_obj = res.context.get("page_obj")
-    assert getattr(page_obj, 'paginator', None) is None
+    assert getattr(page_obj, "paginator", None) is None
 
 
 def test_library_list_select_category(library, category, tp):
@@ -210,7 +210,7 @@ def test_libraries_by_version_list_no_pagination(tp, library_version):
     libs = [
         baker.make(
             "libraries.LibraryVersion",
-            library=baker.make("libraries.Library", name=f'lib-{i}'),
+            library=baker.make("libraries.Library", name=f"lib-{i}"),
             version=library_version.version,
         ).library
         for i in range(30)
@@ -223,7 +223,7 @@ def test_libraries_by_version_list_no_pagination(tp, library_version):
     assert len(library_list) == len(libs)
     assert all(l in library_list for l in libs)
     page_obj = res.context.get("page_obj")
-    assert getattr(page_obj, 'paginator', None) is None
+    assert getattr(page_obj, "paginator", None) is None
 
 
 def test_libraries_by_version_detail(tp, library_version):
