@@ -1,6 +1,6 @@
 {% load i18n %}
 
-<form method="post" action="." class="form space-y-4" enctype="multipart/form-data" novalidate>{% csrf_token %}
+<form method="post" action="." class="space-y-4 form" enctype="multipart/form-data" novalidate>{% csrf_token %}
   {% for error in post_form.non_field_errors %}
   <div class="alert alert-danger">
     <i class="icon-exclamation-sign"></i> {{ error }}
@@ -20,17 +20,17 @@
   <div class="tab-content" x-data="{ tab: '#options' }">
     <!-- Sub "forms" tabs -->
     {% if poll_option_formset or attachment_formset %}
-    <ul class="w-full flex flex-row justify-between">
+    <ul class="flex flex-row justify-between w-full">
       <a href="#options"
          :class="tab === '#options' ? 'border-b-4 border-orange text-orange' : 'border-b border-slate'"
-         class="px-11 w-1/2 text-center active pb-4"
+         class="px-11 pb-4 w-1/2 text-center active"
          data-toggle="tab"
          x-on:click.prevent="tab='#options'"
       >{% trans "Options" %}</a>
       {% if poll_option_formset %}
         <a href="#poll"
            :class="tab === '#poll' ? 'border-b-4 border-orange text-orange' : 'border-b border-slate'"
-           class="px-11 w-1/2 text-center active pb-4"
+           class="px-11 pb-4 w-1/2 text-center active"
            data-toggle="tab"
            x-on:click.prevent="tab='#poll'"
         >{% trans "Poll" %}</a>
@@ -38,7 +38,7 @@
       {% if attachment_formset %}
         <a href="#attachments"
            :class="tab === '#attachments' ? 'border-b-4 border-orange text-orange' : 'border-b border-slate'"
-           class="px-11 w-1/2 text-center active pb-4"
+           class="px-11 pb-4 w-1/2 text-center active"
            data-toggle="tab"
            x-on:click.prevent="tab='#attachments'"
         >{% trans "Attachments" %}</a>
@@ -53,7 +53,7 @@
           <div class="w-full">
             {% include "partials/form_field.html" with field=post_form.topic_type %}
             {% with field=post_form.enable_signature %}
-            <div class="checkbox mt-3">
+            <div class="mt-3 checkbox">
               <label for="{{ field.auto_id }}">
                 {{ field }}
                 {{ field.label }}
@@ -79,8 +79,8 @@
       <div class="form-group">
         <br />
         {% if poll_options_validated and poll_option_formset.non_form_errors %}<div class="alert alert-danger">{{ poll_option_formset.non_form_errors|striptags }}</div>{% endif %}
-        <div class="w-full flex space-x-4">
-          <div class="w-1/2 space-y-4">
+        <div class="flex space-x-4 w-full">
+          <div class="space-y-4 w-1/2">
             {% include "partials/form_field.html" with field=post_form.poll_question %}
             {% include "partials/form_field.html" with field=post_form.poll_max_options %}
             {% include "partials/form_field.html" with field=post_form.poll_duration %}
@@ -93,7 +93,7 @@
               </div>
             </div>
           </div>
-          <div id="poll_formset" class="w-1/2 space-y-4">
+          <div id="poll_formset" class="space-y-4 w-1/2">
             {% include "forum_conversation/forum_polls/poll_option_formset.html" %}
           </div>
         </div>
@@ -114,8 +114,8 @@
     {% endif %}
   </div>
 
-  <div class="form-actions pt-6">
-    <input type="submit" name="preview" class="px-8 py-3 border border-slate text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm" value="{% trans "Preview" %}" />&nbsp;
-    <input type="submit" class="px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-1 md:text-lg md:px-4 uppercase text-sm" value="{% trans "Submit" %}" />
+  <div class="pt-6 form-actions">
+    <input type="submit" name="preview" class="py-3 px-8 text-sm text-base font-medium uppercase rounded-md border md:py-1 md:px-4 md:text-lg border-slate text-orange" value="{% trans "Preview" %}" />&nbsp;
+    <input type="submit" class="py-3 px-8 text-sm text-base font-medium uppercase rounded-md border md:py-1 md:px-4 md:text-lg border-orange text-orange" value="{% trans "Submit" %}" />
   </div>
 </form>

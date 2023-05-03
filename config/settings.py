@@ -1,16 +1,14 @@
-import environs
 import logging
 import os
-import structlog
 import subprocess
 import sys
-
-from django.core.exceptions import ImproperlyConfigured
 from pathlib import Path
+
+import environs
+import structlog
+from django.core.exceptions import ImproperlyConfigured
+from machina import MACHINA_MAIN_STATIC_DIR, MACHINA_MAIN_TEMPLATE_DIR
 from pythonjsonlogger import jsonlogger
-
-from machina import MACHINA_MAIN_TEMPLATE_DIR, MACHINA_MAIN_STATIC_DIR
-
 
 env = environs.Env()
 
@@ -93,6 +91,14 @@ INSTALLED_APPS += [
 INSTALLED_APPS += ["ak", "users", "versions", "libraries", "mailing_list"]
 
 AUTH_USER_MODEL = "users.User"
+CSRF_COOKIE_HTTPONLY = True
+# See https://docs.djangoproject.com/en/4.2/ref/settings/#csrf-trusted-origins
+CSRF_TRUSTED_ORIGINS = [
+    "http://0.0.0.0",
+    "http://localhost",
+    "https://boost.revsys.dev",
+    "https://www.boost.revsys.dev",
+]
 
 MIDDLEWARE = [
     "tracer.middleware.RequestID",
@@ -331,10 +337,14 @@ ENV_NAME = env("ENVIRONMENT_NAME", default="Unknown Environment")
 IMAGE_TAG = env("IMAGE_TAG", default="Unknown Version")
 
 if LOCAL_DEVELOPMENT:
-    output = subprocess.check_output(
-        ["git", "describe", "--tags"], universal_newlines=True
-    )
-    IMAGE_TAG = str(output.strip())
+    try:
+        output = subprocess.check_output(
+            ["git", "describe", "--tags"], universal_newlines=True
+        )
+        IMAGE_TAG = str(output.strip())
+    except Exception:
+        print("WARNING: Unable to run git, unable to determine local image tag")
+        IMAGE_TAG = "UNKNOWN-VERSION"
 
 ENVIRONMENT_NAME = f"{ENV_NAME} - {IMAGE_TAG}"
 

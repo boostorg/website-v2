@@ -1,6 +1,6 @@
-Django>=4.0, <=4.2
+Django>=4.0, <=5.0
 bumpversion
-django-admin-env-notice==0.4
+django-admin-env-notice
 django-allauth==0.53.1
 django-db-geventpool
 django-extensions
@@ -10,15 +10,16 @@ django-rest-auth
 django-widget-tweaks
 djangorestframework>=3.14
 environs[django]
-gevent
+greenlet==2.0.1
+gevent==22.10.2
 gunicorn
 psycopg2-binary
 whitenoise
-django-click==2.3.0
+django-click
 Pillow==9.4.0
 django-storages
-wheel==0.38.1
-cryptography==39.0.1
+wheel
+cryptography
 boto3
 
 # Logging
@@ -34,18 +35,17 @@ redis==4.5.4
 black==22.3
 django-bakery
 django-test-plus
-pytest==7.2.2
+pytest
 pytest-cov
 pytest-django
-pytest-xdist
 Faker
-model_bakery==1.11
+model_bakery
 ipython
 responses
 minio
 
 # Packaging
-pip-tools==6.12.3
+pip-tools==6.13.0
 
 # Markdown and Frontmatter
 mistletoe

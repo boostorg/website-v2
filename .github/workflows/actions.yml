@@ -23,16 +23,21 @@ jobs:
         ports: ["5432:5432"]
         # options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+
     steps:
       - name: Git - Get Sources
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Set up Python 3.9
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: 3.11
 
       - uses: actions/cache@v3
         with:
@@ -52,6 +57,7 @@ jobs:
         env:
           DATABASE_URL: "postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres"
           SECRET_KEY: "for-testing-only"
+          REDIS_HOST: "localhost"
         run: |
           python -m pytest
 
@@ -75,10 +81,10 @@ jobs:
         run: |
           git fetch --depth=1 origin +refs/tags/*:refs/tags/* || true
 
-      - name: Set up Python 3.9
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: 3.11
 
       - name: Install Python dependencies
         run: |
