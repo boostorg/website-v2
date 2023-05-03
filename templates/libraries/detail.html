@@ -3,177 +3,250 @@
 {% load static %}
 
 {% block content %}
-  <!-- Breadcrumb used on filtered views -->
-  <div class="p-3 md:p-0">
-    <a class="text-orange" href="{% if version_slug %}{% url 'libraries-by-version' version_slug %}{% else %}{% url 'libraries' %}{% endif %}">Libraries{% if version_name %} ({{ version.name }}){% endif %}</a> > <a class="text-orange" href="{% url 'libraries' %}">Specific</a> > <span class="capitalize">{{ object.name }}</span>
+  <!-- Breadcrumb -->
+  <div class="p-3 space-x-2 text-sm divide-x divide-gray-300 md:p-0">
+    <a class="hover:text-orange" href="/"><i class="fas fa-home"></i></a>
+    <a class="pl-2 hover:text-orange" href="{% if version_slug %}{% url 'libraries-by-version' version_slug %}{% else %}{% url 'libraries' %}{% endif %}">Libraries{% if version_name %} ({{ version.name }}){% endif %}</a>
+    <span class="pl-2 capitalize">{{ object.name }}</span>
   </div>
   <!-- end breadcrumb -->
 
   <div class="flex mt-4">
-    <div class="hidden md:block md:w-1/4">
-      <ul>
-        <li class="py-2"><a href="#overview">Overview</a></li>
-        <li class="py-2"><a href="#reviews">Reviews</a></li>
-        <li class="py-2"><a href="#discussion">Forum Discussion</a></li>
-      </ul>
-    </div>
 
-    <div class="px-3 mx-3 md:px-0 md:mx-0 md:w-3/4">
+    <div class="px-3 mx-3 w-full md:px-0 md:mx-0">
 
       <!-- Overview -->
-      <div class="pb-16 mb-16 border-b border-slate">
+      <div class="pb-16 mb-16">
         <div class="pb-6">
-          <h3 class="text-4xl capitalize" id="overview">{{ object.name }}</h3>
-        </div>
-        <p>{{ object.description }}</p>
-
-        <div class="mt-4 space-y-3 max-w-md text-sm uppercase md:flex md:mt-11 md:space-y-0 md:space-x-3">
-          <a href="#" class="inline-block py-3 px-6 rounded-md border text-orange border-slate">Documentation</a>
-          <a href="{{ object.github_url }}" class="inline-block py-3 px-6 rounded-md border text-orange border-slate">Github</a>
+          <h3 class="text-4xl capitalize text-orange" id="overview">
+            Boost.{{ object.name }}
+          </h3>
         </div>
 
-        <div class="justify-between py-6 mt-4 md:flex md:mt-11">
-          <div>
-            <h3 class="text-2xl">Categories</h3>
-            {% for c in object.categories.all %}
-              <a href="{% url 'libraries-by-category' category=c.slug %}" class="text-orange">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}
-            {% endfor %}
-          </div>
+        <div class="p-4 bg-white rounded-lg divide-x divide-gray-200 md:flex">
+          <div class="pr-3 space-y-2 w-full md:w-1/4">
+              <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100" href="https://github.com/boostorg/smart_ptr">
+                <i class="float-right mt-3 fas fa-folder"></i>
+                Documentation
+                <span class="block text-xs text-sky-600">boost.org/libs/exception</span>
+              </a>
+              <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100">Github Issues <i class="float-right fas fa-bug"></i></a>
+              <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100">Source Code <i class="float-right fab fa-github"></i></a>
+              <a class="inline-block py-1 px-2 rounded cursor-pointer hover:bg-gray-100">Since 2019</a>
+              <a class="inline-block float-right py-1 px-2 rounded cursor-pointer hover:bg-gray-100">C++11</a>
+              <span class="block py-1 px-2 rounded cursor-pointer hover:bg-gray-100">Categories: <a class="text-sky-600">Memory</a></span>
 
-          <div>
-            <h3 class="text-2xl">Minimum C++ Version</h3>
-            {{ object.cpp_standard_minimum }}
+              <p class="pt-4 pl-2 mt-4 text-sm border-t border-gray-200">{{ object.description }}</p>
+            </ul>
           </div>
+          <div class="flex space-x-6 w-full md:w-3/4">
+            <div class="w-1/2">
+              <div id="chart1"></div>
+            </div>
 
-          <div>
-            <h3 class="text-2xl">Active Development</h3>
-            <div class="text-orange">{% if object.active_development %}Yes{% else %}No{% endif %}</div>
-            <p>Last Update: {{ object.last_github_update|date:"F j, Y"}}</p>
-          </div>
-        </div>
-
-        <div class="py-6 mt-4 md:mt-11">
-          <h3 class="mb-4 text-2xl">Level of Activity</h3>
-          <div class="h-6 rounded bg-charcoal">
-            <!-- TODO: Change the width to use a percent of activity -->
-            <div class="w-3/4 h-6 bg-gradient-to-r rounded from-green to-orange"></div>
-          </div>
-        </div>
-
-        <div class="py-6 my-4 md:flex md:justify-between md:my-11">
-          <div class="py-6">
-            <h3 class="mb-1 text-2xl">Closed Pull Requests</h3>
-            {{ closed_prs_count }}
-          </div>
-
-          <div class="py-6">
-            <h3 class="mb-1 text-2xl">Open Issues</h3>
-            {{ open_issues_count }}
-          </div>
-
-          <div class="py-6">
-            <h3 class="mb-1 text-2xl">Commits Per Release</h3>
-            <p>ZZ</p>
-          </div>
-        </div>
-
-        <div class="md:flex md:py-11 md:space-x-11">
-          <div class="py-6">
-            <h3 class="mb-4 text-2xl">Authors</h3>
-            <div class="space-y-3">
-              {% for author in object.authors.all %}
-                <div>
-                  {% if author.image %}
-                    <img src="{{ author.image.url }}" alt="user" class="inline mr-2 rounded w-[47px]" />
-                  {% else %}
-                    <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
-                  {% endif %}
-                  {{ author.get_display_name }}
-                </div>
-              {% endfor %}
+            <div class="w-1/2">
+              <div id="chart2"></div>
             </div>
           </div>
-          <div class="py-6">
-            <h3 class="mb-4 text-2xl">Maintainers</h3>
-            <div class="space-y-3">
-              {% for maintainer in maintainers.all %}
-                <div>
-                  {% if maintainer.image %}
-                    <img src="{{ maintainer.image.url }}" alt="user" class="inline mr-2 rounded w-[47px]" />
-                  {% else %}
-                    <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
-                  {% endif %}
-                  {{ maintainer.get_display_name }}
-                </div>
-              {% endfor %}
-            </div>
-          </div>
+        </div>
+
+        <!-- Avatars -->
+        <div class="p-5 my-6 w-full">
+          Profile photos here
+        </div>
+
+
+        <div class="p-4 my-4 bg-white rounded-lg">
+          <h3>Introduction</h3>
+
+          <p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec id elit non mi porta gravida at eget metus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
+
+          <p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Nulla vitae elit libero, a pharetra augue. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas faucibus mollis interdum.</p>
+
+          <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Donec id elit non mi porta gravida at eget metus. Donec ullamcorper nulla non metus auctor fringilla. Maecenas faucibus mollis interdum. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.</p>
+
+          <p>Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Cras mattis consectetur purus sit amet fermentum. Donec sed odio dui.</p>
         </div>
       </div>
       <!-- end overview -->
-
-      <!-- Review -->
-      <div class="pb-16 mb-16 border-b border-slate">
-        <h3 class="text-4xl" id="reviews">Review</h3>
-        <p>Date of Review: 10/31/20</p>
-        <div class="justify-between mt-11 md:flex">
-          <div>
-            <h3 class="text-2xl">ACCEPT Reviews:</h3>
-            <p>15 <a href="#" class="text-orange">View List</a></p>
-            <h3 class="mt-5 text-2xl">REJECT Reviews:</h3>
-            <p>3 <a href="#" class="text-orange">View List</a></p>
-            <div class="mt-11"><a href="#" class="py-2 px-4 rounded-md border text-orange border-slate">Review Results</a></div>
-          </div>
-
-          <div class="py-11 md:py-0">
-            <h3 class="mb-4 text-2xl">Review Manager</h3>
-            <div class="space-y-3">
-              <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
-            </div>
-          </div>
-
-          <div class="py-3 md:py-0">
-            <h3 class="mb-4 text-2xl">Reviewers</h3>
-            <div class="space-y-3">
-              <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
-              <div><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-5" /> Glen Fernandes</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- end review -->
-
-      <!-- Discussions -->
-      <div class="pb-6">
-        <h3 class="mb-11 text-4xl" id="discussion">Discussions</h3>
-
-        <div class="py-5 px-3 my-4 rounded md:px-11 md:my-0 bg-charcoal">
-          <div class="flex justify-between mb-6">
-            <span class="inline py-1 px-3 w-auto text-lg uppercase rounded text-green bg-green/10">Forum Discussions</span>
-          </div>
-          <div class="space-y-8 divide-y divide-slate">
-            <div class="pt-6">
-              <h3 class="text-xl">Topic of discussion headline from the Forum</h3>
-              <div class="mt-3"><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-3" /> Name of Author</div>
-            </div>
-            <div class="pt-6">
-              <h3 class="text-xl">Topic of discussion headline from the Forum</h3>
-              <div class="mt-3"><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-3" /> Name of Author</div>
-            </div>
-            <div class="pt-6">
-              <h3 class="text-xl">Topic of discussion headline from the Forum</h3>
-              <div class="mt-3"><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-3" /> Name of Author</div>
-            </div>
-            <div class="pt-6">
-              <h3 class="text-xl">Topic of discussion headline from the Forum</h3>
-              <div class="mt-3"><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-3" /> Name of Author</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- end discussions -->
     </div>
 
   </div>
 
+{% endblock %}
+
+{% block footer_js %}
+<script>
+  var options = {
+      series: [{
+      name: 'Commits',
+      data: [256, 255, 251, 260, 267, 230, 254, 242, 274, 265, 243, 234]
+    }],
+      chart: {
+      height: 350,
+      type: 'bar',
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 2,
+        dataLabels: {
+          position: 'top', // top, center, bottom
+        },
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: function (val) {
+        //return val + "%";
+        return val;
+      },
+      offsetY: -20,
+      style: {
+        fontSize: '12px',
+        colors: ["#304758"]
+      }
+    },
+
+    xaxis: {
+      categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      position: 'top',
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      },
+      crosshairs: {
+        fill: {
+          type: 'gradient',
+          gradient: {
+            colorFrom: '#D8E3F0',
+            colorTo: '#BED1E6',
+            stops: [0, 100],
+            opacityFrom: 0.4,
+            opacityTo: 0.5,
+          }
+        }
+      },
+      tooltip: {
+        enabled: true,
+      }
+    },
+    yaxis: {
+      axisBorder: {
+        show: true
+      },
+      axisTicks: {
+        show: true,
+      },
+      labels: {
+        show: true,
+        formatter: function (val) {
+          //return val + "%";
+          return val;
+        }
+      }
+
+    },
+    title: {
+      text: 'Commits per Month',
+      floating: true,
+      offsetY: 330,
+      align: 'center',
+      style: {
+        color: '#444'
+      }
+    }
+  };
+
+
+
+  var options2 = {
+      series: [{
+      name: 'Commits',
+      data: [1367, 981, 400, 2235, 1888]
+    }],
+      chart: {
+      height: 350,
+      type: 'bar',
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 2,
+        dataLabels: {
+          position: 'top', // top, center, bottom
+        },
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: function (val) {
+        //return val + "%";
+        return val;
+      },
+      offsetY: -20,
+      style: {
+        fontSize: '12px',
+        colors: ["#304758"]
+      }
+    },
+
+    xaxis: {
+      categories: ["2019", "2020", "2021", "2022", "2023"],
+      position: 'top',
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      },
+      crosshairs: {
+        fill: {
+          type: 'gradient',
+          gradient: {
+            colorFrom: '#D8E3F0',
+            colorTo: '#BED1E6',
+            stops: [0, 100],
+            opacityFrom: 0.4,
+            opacityTo: 0.5,
+          }
+        }
+      },
+      tooltip: {
+        enabled: true,
+      }
+    },
+    yaxis: {
+      axisBorder: {
+        show: true
+      },
+      axisTicks: {
+        show: true,
+      },
+      labels: {
+        show: true,
+        formatter: function (val) {
+          //return val + "%";
+          return val;
+        }
+      }
+
+    },
+    title: {
+      text: 'Commits per Year',
+      floating: true,
+      offsetY: 330,
+      align: 'center',
+      style: {
+        color: '#444'
+      }
+    }
+  };
+
+  var chart = new ApexCharts(document.querySelector("#chart1"), options);
+  chart.render();
+
+  var chart2 = new ApexCharts(document.querySelector("#chart2"), options2);
+  chart2.render();
+</script>
 {% endblock %}
