@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:experimental
 
-FROM python:3.9-slim-buster AS builder-py
+FROM python:3.11-slim AS builder-py
 
-RUN apt update && apt install -y build-essential gcc python-dev postgresql-client && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y build-essential gcc python-dev libpq-dev postgresql-client && rm -rf /var/lib/apt/lists/*
 
 RUN pip install -U pip
 
@@ -15,9 +15,9 @@ RUN --mount=type=cache,target=/root/.cache \
     pip install -U pip && \
     pip install --no-compile -r /code/requirements.txt
 
-FROM python:3.9-slim-buster AS release
+FROM python:3.11-slim AS release
 
-RUN apt update && apt install -y git && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y git libpq-dev && rm -rf /var/lib/apt/lists/*
 
 ENV PATH /venv/bin:/bin:/usr/bin:/usr/local/bin
 ENV PYTHONDONTWRITEBYTECODE=true

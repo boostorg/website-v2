@@ -9,7 +9,7 @@
   }
 
   body {
-    color: white;
+    @apply text-slate dark:text-white;
     @apply font-cairo;
   }
   h1 {
@@ -17,6 +17,7 @@
     @apply mb-3;
   }
   h2 {
+    @apply text-slate dark:text-white;
     @apply text-4xl;
     @apply my-5;
   }
@@ -40,20 +41,20 @@
   }
   /* Forum style overrides */
   textarea {
-    @apply w-full rounded bg-charcoal border border-slate;
+    @apply w-full rounded bg-white dark:bg-charcoal border border-slate;
   }
   input[type=email] {
-    @apply w-full rounded bg-charcoal border border-slate mt-3;
+    @apply w-full rounded bg-white dark:bg-charcoal border border-slate mt-3;
   }
   input[type=checkbox] {
-    @apply mr-3 rounded bg-charcoal border border-slate text-orange;
+    @apply mr-3 rounded bg-white dark:bg-charcoal border border-slate text-orange;
   }
   input[type=file] {
-    @apply block w-full px-3 py-1 text-base font-normal text-orange bg-clip-padding border border-solid border-slate rounded transition ease-in-out my-2;
+    @apply block w-full px-3 py-1 text-base text-slate dark:text-white font-normal text-orange bg-clip-padding border border-solid border-slate rounded transition ease-in-out my-2;
   }
   #signup_form input[type=email],
   #signup_form input[type=password]{
-    @apply rounded bg-charcoal text-white border border-slate w-full;
+    @apply rounded bg-white dark:bg-charcoal text-slate dark:text-white border border-slate w-full;
   }
   #authpages #footerSignup {
     @apply hidden;

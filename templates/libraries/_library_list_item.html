@@ -1,38 +1,33 @@
 {% load static %}
 
-<div class="p-3 rounded md:flex md:p-5 bg-charcoal">
-  <div class="mb-4 space-y-4 md:space-y-2 md:w-3/4">
-    <h3 class="mb-3 text-2xl capitalize">
-      <a href="
+<div class="relative content-between p-3 bg-white rounded-lg shadow-lg md:p-5 dark:bg-charcoal">
+  <div class="">
+    <h3 class="pb-2 text-2xl capitalize border-b border-gray-300 dark:border-slate">
+      <a class="text-orange" href="
                {% if version_slug %}
                  {% url 'library-detail-by-version' version_slug=version_slug slug=library.slug %}
                {% else %}
                  {% url 'library-detail' slug=library.slug %}
                {% endif %}"
       >{{ library.name }}</a>
+      {% for author in library.authors.all %}
+        {% if author.image %}
+          <img src="{{ author.image.url }}" class="inline float-right rounded w-[30px]" alt="{{ author.get_display_name }}" />
+        {% endif %}
+      {% endfor %}
     </h3>
-    <p class="mb-3">{{ library.description }}</p>
-    <div class="text-sm md:flex">
-      <div class="md:mr-11">First Release:  X.YY.Z</div>
-      <div class="mt-4 md:mt-0">Categories:  {% for c in library.categories.all %}<a href="{% if version_slug %}{% url 'libraries-by-version-by-category' version_slug=version_slug category=c.slug%}{% else %}{% url 'libraries-by-category' category=c.slug %}{% endif %}" class="text-orange">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</div>
-    </div>
-    <div class="text-sm">C++ Standard Minimum Level:  {{ library.cpp_standard_minimum }}</div>
   </div>
-  <div class="mb-4 text-sm md:w-1/4">
-    <div class="flex my-5">
-      <div class="w-1/4 md:mr-5">Author(s):</div>
-      <div class="space-y-3">
-        {% for author in library.authors.all %}
-          <div>
-            {% if author.image %}
-              <img src="{{ author.image.url }}" alt="user" class="inline mr-2 rounded w-[47px]" />
-            {% else %}
-              <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
-            {% endif %}
-            {{ author.get_full_name }}
-          </div>
-        {% endfor %}
-      </div>
+  <div class="mb-3">
+    <p class="mb-3 text-gray-700 dark:text-gray-300">{{ library.description }}</p>
+  </div>
+  <div class="text-sm flex py-3 bottom-0 absolute w-[90%]">
+    <div class="w-1/6"><span class="py-1 px-2 text-sm font-bold text-gray-400 rounded-full border bg-green/20 border-green/40 dark:bg-green/10">{{ library.cpp_standard_minimum }}</span></div>
+    <div class="w-1/6 tracking-wider text-charcoal dark:text-white/60">2yrs</div>
+    <div class="w-4/6 text-right dark:text-gray-400 text-slate">
+      {% for c in library.categories.all %}
+        <a href="{% if version_slug %}{% url 'libraries-by-version-by-category' version_slug=version_slug category=c.slug%}{% else %}{% url 'libraries-by-category' category=c.slug %}{% endif %}" class="text-sky-400 dark:text-blue-300/60 dark:hover:text-orange hover:text-orange">
+          {{ c.name }}
+        </a>{% if not forloop.last %}, {% endif %}{% endfor %}
     </div>
   </div>
 </div>

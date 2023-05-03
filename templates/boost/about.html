@@ -3,16 +3,16 @@
 {% load static %}
 
 {% block subnav %}
-  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase">
-    <a href="{% url 'boost-about' %}" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">About</a>
+  <div class="py-8 px-4 space-y-4 text-sm uppercase border-b md:py-2 md:px-0 md:space-x-10 border-slate">
+    <a href="{% url 'boost-about' %}" class="block md:inline md:py-1 md:border-b text-orange md:border-orange">About</a>
     <a href="{% url 'boost-people' %}" class="block md:inline">People</a>
     <a href="{% url 'boost-moderators' %}" class="block md:inline">Moderators</a>
   </div>
 {% endblock %}
 
 {% block content %}
-  <div class="py-0 md:py-6 mb-3 px-3 md:px-0 flex">
-    <div class="w-1/6 hidden md:block">
+  <div class="flex py-0 px-3 mb-3 md:py-6 md:px-0">
+    <div class="hidden w-1/6 md:block">
       <ul class="py-8 space-y-4">
         <li><a href="#overview" class="text-orange">Overview</a></li>
         <li><a href="#whosUsingBoost">Who's Using Boost</a></li>
@@ -24,12 +24,12 @@
 
     <div class="w-full md:w-5/6">
 
-      <div class="md:flex md:w-full py-8 md:space-x-18" id="overview">
-        <div class="w-3/4 mx-auto md:w-1/2 md:text-right order-1 md:order-2 mb-6">
+      <div class="py-8 md:flex md:w-full md:space-x-18" id="overview">
+        <div class="order-1 mx-auto mb-6 w-3/4 md:order-2 md:w-1/2 md:text-right">
           <img src="{% static 'img/icons/graphic_stairs.svg' %}" class="md:float-right" />
         </div>
 
-        <div class="md:w-1/2 align-middle md:py-11 md:pr-11">
+        <div class="align-middle md:py-11 md:pr-11 md:w-1/2">
           <h2>The Boost C++ Libraries are a collection of modern libraries based on the C++ standard.</h2>
 
           <p>
@@ -40,10 +40,10 @@
         </div>
       </div>
 
-      <div class="hidden md:block my-6 border-b border-slate"></div>
+      <div class="hidden my-6 border-b md:block border-slate"></div>
 
       <div class="space-y-11">
-        <div class="border-b border-slate py-2 md:py-6" id="whosUsingBoost">
+        <div class="py-2 border-b md:py-6 border-slate" id="whosUsingBoost">
           <h2>Who's Using Boost?</h2>
 
           <p>
@@ -60,7 +60,7 @@
             please contact the <a href="{% url 'boost-moderators' %}" class="text-orange">Boost Moderators</a>.
           </p>
 
-          <h3 class="text-orange py-5">Open Source Boost</h3>
+          <h3 class="py-5 text-orange">Open Source Boost</h3>
           <p>
             Boost is used in a variety of Open Source Projects, both applications and libraries. Indeed many Open Source
             libraries developed around Boost have in the past been judged of high enough quality to be absorbed into the
@@ -69,13 +69,13 @@
             interest you'll find something of value in Boost.
           </p>
 
-          <h3 class="text-orange py-5">In House Boost</h3>
+          <h3 class="py-5 text-orange">In House Boost</h3>
           <p>
             Whether you're a government department, an internet startup, or a specialist consultancy, in-house developement
             using the Boost Libraries can significantly shorten your development cycles.
           </p>
 
-          <h3 class="text-orange py-5">Shrink Wrap Boost</h3>
+          <h3 class="py-5 text-orange">Shrink Wrap Boost</h3>
           <p>
             Boost has found it's way into many products that are available "off the shelf", including consumer
             applications from Adobe, through to business middleware from SAP.
@@ -84,10 +84,10 @@
 
         </div>
 
-        <div class="border-b border-slate py-2 md:py-6" id="mission">
+        <div class="py-2 border-b md:py-6 border-slate" id="mission">
           <h2>Mission</h2>
           <p>
-            The Boost mission is threefold: (a) develop high-quality, expert+reviewed, open-source C++ libraries,
+            The Boost mission is threefold: (a) develop high-quality, expert-reviewed, open-source C++ libraries,
             (b) incubate C++ standard library enhancements, and (c) advance and disseminate C++ software development
             best practices. This is accomplished by facilitating C++ community engagement, providing necessary financial/legal
             support, and breaking rare directional decision-making deadlocks while upholding our shared values of
@@ -95,7 +95,7 @@
           </p>
         </div>
 
-        <div class="border-b border-slate py-2 md:py-6" id="history">
+        <div class="py-2 border-b md:py-6 border-slate" id="history">
           <h2>History</h2>
           <p>
             Beman Dawes and Robert Klarer developed the idea for the web site during a series of corridor
@@ -108,7 +108,7 @@
           </p>
         </div>
 
-        <div class="border-b border-slate py-2 md:py-6" id="board">
+        <div class="py-2 border-b md:py-6 border-slate" id="board">
           <h2>Boost Foundation Board of Directors</h2>
           <p>
             After being a project of Software Freedom Conservancy for over a decade, Boost has spun-off into it owns
@@ -121,7 +121,7 @@
           </p>
 
           <div class="my-11">
-            <a href="#" class="uppercase text-orange border border-slate rounded-md py-2 px-4 text-base">Learn More</a>
+            <a href="#" class="py-2 px-4 text-base uppercase rounded-md border text-orange border-slate">Learn More</a>
           </div>
         </div>
       </div>

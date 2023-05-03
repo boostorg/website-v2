@@ -3,17 +3,17 @@
 {% load static %}
 
 {% block subnav %}
-  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase">
+  <div class="py-8 px-4 space-y-4 text-sm uppercase border-b md:py-2 md:px-0 md:space-x-10 border-slate">
     <a href="{% url 'support' %}" class="block md:inline">Support</a>
-    <a href="{% url 'getting-started' %}" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">Getting Started</a>
+    <a href="{% url 'getting-started' %}" class="block md:inline md:py-1 md:border-b text-orange md:border-orange">Getting Started</a>
     <a href="https://cppalliance.org/slack/" target="_blank" class="block md:inline">Join Slack</a>
   </div>
 {% endblock %}
 
 {% block content %}
-  <div class="py-0 md:py-6 mb-3 px-3 md:px-0 flex">
+  <div class="flex py-0 px-3 mb-3 md:py-6 md:px-0">
 
-    <div class="w-1/6 hidden md:block">
+    <div class="hidden w-1/6 md:block">
       <ul class="py-8 space-y-4">
         <li><a href="#getting-started" class="text-orange">Getting Started</a></li>
         <li><a href="#windows">Windows</a></li>
@@ -23,7 +23,7 @@
 
     <div class="w-full md:w-5/6">
 
-      <div class="md:w-full py-8 md:space-x-18 border-b border-slate" id="getting-started">
+      <div class="py-8 border-b md:w-full border-slate md:space-x-18" id="getting-started">
 
         <h2>Getting Started</h2>
 
@@ -46,13 +46,13 @@
           a descriptive placeholder for something else, usually information that you'll provide. For example:
         </p>
 
-        <pre class="rounded-lg bg-charcoal border border-slate p-2">
+        <pre class="p-2 rounded-lg border bg-charcoal border-slate">
           <code>$ echo "My name is [your name]"</code>
         </pre>
 
       </div>
 
-      <div class="md:w-full py-8 md:space-x-18 border-b border-slate" id="windows">
+      <div class="py-8 border-b md:w-full border-slate md:space-x-18" id="windows">
 
         <h3>Getting Started On Microsoft Windows</h3>
 
@@ -64,12 +64,12 @@
         </p>
 
         <div class="my-3">
-          <a href="#" class="text-orange uppercase py-2 px-4 border border-slate rounded-lg">Start Now</a>
+          <a href="#" class="py-2 px-4 uppercase rounded-lg border text-orange border-slate">Start Now</a>
         </div>
 
       </div>
 
-      <div class="md:w-full py-8 md:space-x-18" id="unix">
+      <div class="py-8 md:w-full md:space-x-18" id="unix">
 
         <h3>Getting Started On Unix Variants</h3>
 
@@ -81,7 +81,7 @@
         </p>
 
         <div class="my-3">
-          <a href="#" class="text-orange uppercase py-2 px-4 border border-slate rounded-lg">Start Now</a>
+          <a href="#" class="py-2 px-4 uppercase rounded-lg border text-orange border-slate">Start Now</a>
         </div>
 
       </div>

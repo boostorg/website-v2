@@ -4,7 +4,7 @@
 {% block head_title %}{% trans "Sign In" %}{% endblock %}
 
 {% block content %}
-<div class="text-center my-6">
+<div class="my-6 text-center">
   <div class="py-6">
     {% if process == "connect" %}
       <h1 class="text-4xl">{% blocktrans with provider.name as provider %}Connect {{ provider }}{% endblocktrans %}</h1>
@@ -17,7 +17,7 @@
 
   <form method="post">
     {% csrf_token %}
-    <button type="submit" class="border border-orange py-3 px-4 rounded text-orange uppercase">{% trans "Continue" %}</button>
+    <button type="submit" class="py-3 px-4 uppercase rounded border border-orange text-orange">{% trans "Continue" %}</button>
   </form>
 </div>
 {% endblock %}

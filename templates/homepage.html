@@ -4,54 +4,60 @@
 
 {% block content %}
   <!-- Homepage Hero Section -->
-  <main class="my-16 mx-auto md:max-w-7xl px-4 sm:mt-24">
+  <main class="px-4 my-16 mx-auto sm:mt-24 md:max-w-7xl">
     <div class="md:flex">
-      <div class="w-full md:w-1/2 text-center mt-6 md:mt-3 order-1 md:order-2">
+      <div class="order-1 mt-6 w-full text-center md:order-2 md:mt-3 md:w-1/2">
         <div id="scene03"></div>
       </div>
       <div class="text-left md:w-1/2">
-        <h1 class="font-extrabold  text-4xl md:text-6xl">
+        <h1 class="text-4xl font-extrabold md:text-6xl">
           <span class="block xl:inline">Boost provides free peer-reviewed portable C++ source libraries.</span>
         </h1>
-        <p class="mt-3 md:mb-11 max-w-md mx-auto text-base text-lg md:mt-5 md:text-xl md:max-w-3xl">Experience C++ libraries created by experts to be reliable, skillfully designed, and well-tested.</p>
-        <div class="mt-5 max-w-md md:flex justify-center md:justify-between md:mt-8 space-y-3 md:space-y-0">
-          <a href="#" class="flex items-center justify-center px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-4 md:text-lg md:px-4"><img class="mt-1 pr-2" src="{% static 'img/icons/icon-download-orng.svg' %}" alt="Downloads" /> Download Latest </a>
-          <a href="#" class="flex items-center justify-center px-8 py-3 border border-steel text-base font-medium rounded-md text-orange md:py-4 md:text-lg md:px-10"> Version Details > </a>
+        <p class="mx-auto mt-3 max-w-md text-base text-lg md:mt-5 md:mb-11 md:max-w-3xl md:text-xl">Experience C++ libraries created by experts to be reliable, skillfully designed, and well-tested.</p>
+        <div class="justify-center mt-5 space-y-3 max-w-md md:flex md:justify-between md:mt-8 md:space-y-0">
+          <a href="#" class="flex justify-center items-center py-3 px-8 text-base font-medium text-white rounded-md border md:py-4 md:px-4 md:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
+            <i class="pr-2 text-white fas fa-arrow-circle-down dark:text-orange"></i> Download Latest
+          </a>
+          <a href="#" class="flex justify-center items-center py-3 px-8 text-base font-medium bg-gray-300 rounded-md border md:py-4 md:px-10 md:text-lg border-steel text-slate dark:bg-charcoal dark:text-orange">
+            Version Details <i class="pl-2 fas fa-chevron-right text-slate dark:text-orange"></i>
+          </a>
         </div>
       </div>
     </div>
 
-    <div class="md:flex my-16 border-t border-slate md:border-t-0 py-4">
+    <div class="py-4 my-16 border-t md:flex md:border-t-0 border-slate">
       <div class="md:order-last md:w-1/2">
-        <h2 class="text-4xl mb-3">Boost Mission</h2>
+        <h2 class="mb-3 text-4xl">Boost Mission</h2>
         The Boost mission is threefold:
-        <ul class="mb-11 list-disc ml-6 space-y-2">
-          <li>develop high-quality, expert+reviewed, open-source C++ libraries</li>
+        <ul class="mb-11 ml-6 space-y-2 list-disc">
+          <li>develop high-quality, expert-reviewed, open-source C++ libraries</li>
           <li>incubate C++ standard library enhancements</li>
           <li>advance and disseminate C++ software development best practices</li>
         </ul>
         <div>
-          <a href="{% url 'boost-about' %}" class="justify-center px-8 py-3 border border-steel text-base font-medium rounded-md text-orange md:py-4 md:text-lg md:px-10"> About Us > </a>
+          <a href="{% url 'boost-about' %}" class="justify-center py-3 px-8 text-base font-medium bg-gray-300 rounded-md border md:py-4 md:px-10 md:text-lg border-steel text-slate dark:bg-charcoal dark:text-orange">
+            About Us <i class="fas fa-chevron-right text-slate dark:text-orange"></i>
+          </a>
         </div>
       </div>
-      <div class="flex md:w-1/2 my-16">
-        <div class="w-1/2 items-center text-center">
+      <div class="flex my-16 md:w-1/2">
+        <div class="items-center w-1/2 text-center">
           <img class="mx-auto mb-2" src="{% static 'img/icons/icon-download-grn.svg' %}" alt="Downloads" />
-          <h4 class="text-5xl mb-3">10M+</h4>
+          <h4 class="mb-3 text-5xl">10M+</h4>
           Total Downloads
         </div>
-        <div class="w-1/2 items-center text-center">
+        <div class="items-center w-1/2 text-center">
           <img class="mx-auto mb-2" src="{% static 'img/icons/icon-library-grn.svg' %}" alt="Libraries" />
-          <h4 class="text-5xl mb-3">165+</h4>
+          <h4 class="mb-3 text-5xl">165+</h4>
           Individual Libraries
         </div>
       </div>
     </div>
 
-    <div class="md:flex my-4 md:my-16 md:space-x-4 space-y-4 md:space-y-0">
-      <div class="md:w-1/2 rounded bg-charcoal p-4 md:p-11">
+    <div class="my-4 space-y-4 md:flex md:my-16 md:space-y-0 md:space-x-4">
+      <div class="p-4 bg-white rounded md:p-11 md:w-1/2 dark:bg-charcoal">
         <div class="mb-6">
-          <span class="inline uppercase text-green bg-green/10 rounded text-sm md:text-base w-auto px-3 py-1">library spotlight</span>
+          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">library spotlight</span>
         </div>
         <h3 class="text-xl">Boost.JSON</h3>
         <p class="my-3">Released 4/5/22</p>
@@ -60,77 +66,81 @@
         <div class="my-5"><span class="mr-5">Authors</span> <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /></div>
         <div class="mt-5 max-w-md sm:flex md:mt-8">
           <div class="rounded-md shadow">
-            <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-orange text-base font-medium rounded-md text-orange md:py-4 md:text-base md:px-10"> Download </a>
+            <a href="#" class="flex justify-center items-center py-3 px-8 w-full text-base font-medium text-white rounded-md border md:py-4 md:px-10 md:text-base border-orange bg-orange">
+              <i class="pr-2 fas fa-arrow-circle-down"></i> Download
+            </a>
           </div>
           <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-            <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-steel text-base font-medium rounded-md text-orange md:py-4 md:text-base md:px-10"> Version Details > </a>
+            <a href="#" class="flex justify-center items-center py-3 px-8 w-full text-base font-medium bg-gray-300 rounded-md border md:py-4 md:px-10 md:text-base border-steel text-slate dark:bg-charcoal dark:text-orange">
+              Version Details <i class="pl-2 fas fa-chevron-right text-slate dark:text-orange"></i>
+            </a>
           </div>
         </div>
       </div>
-      <div class="md:w-1/2 rounded bg-charcoal p-4 md:p-11">
+      <div class="p-4 bg-white rounded md:p-11 md:w-1/2 dark:bg-charcoal">
         <div class="mb-6">
-          <span class="inline uppercase text-green bg-green/10 rounded text-sm md:text-base w-auto px-3 py-1">featured video</span>
+          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">featured video</span>
         </div>
         <img src="{% static 'img/fpo/video_fpo.png' %}" alt="user" class="mb-2" />
         <div class="text-lg">Name of Video</div>
       </div>
     </div>
 
-    <div class="hidden md:block my-4 md:my-16 rounded bg-charcoal px-4 md:px-11 py-5">
-      <div class="flex justify-between mb-6 items-center">
-        <span class="inline uppercase text-green bg-green/10 rounded text-sm md:text-base w-auto px-3 py-1">Recent reviews</span>
-        <span class="inline uppercase text-orange w-auto px-2 text-xs md:text-base"><a href="{% url 'review-upcoming' %}">See All ></a></span>
+    <div class="hidden py-5 px-4 my-4 bg-white rounded md:block md:px-11 md:my-16 dark:bg-charcoal">
+      <div class="flex justify-between items-center mb-6">
+        <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">Recent reviews</span>
+        <span class="inline px-2 w-auto text-xs uppercase md:text-base text-orange"><a href="{% url 'review-upcoming' %}">See All ></a></span>
       </div>
-      <div class="md:flex md:space-x-6 py-11 md:divide-x-2 divide-slate">
-        <div class="md:pl-6 pr-2">
-          <h3 class="text-2xl pb-3">Library Name Here</h3>
-          <p class="text-lg py-5">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
+      <div class="py-11 divide-gray-200 md:flex md:space-x-6 md:divide-x-2 dark:divide-slate">
+        <div class="pr-2 md:pl-6">
+          <h3 class="pb-3 text-2xl">Library Name Here</h3>
+          <p class="py-5 text-lg">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
           <div class="mt-3"><span class="mr-5">Authors</span> <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /></div>
         </div>
-        <div class="md:pl-6 pr-2">
-          <h3 class="text-2xl pb-3">Library Name Here</h3>
-          <p class="text-lg py-5">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
+        <div class="pr-2 md:pl-6">
+          <h3 class="pb-3 text-2xl">Library Name Here</h3>
+          <p class="py-5 text-lg">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
           <div class="mt-3"><span class="mr-5">Authors</span> <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /></div>
         </div>
-        <div class="md:pl-6 pr-2">
-          <h3 class="text-2xl pb-3">Library Name Here</h3>
-          <p class="text-lg py-5">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
+        <div class="pr-2 md:pl-6">
+          <h3 class="pb-3 text-2xl">Library Name Here</h3>
+          <p class="py-5 text-lg">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
           <div class="mt-3"><span class="mr-5">Authors</span> <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /></div>
         </div>
       </div>
     </div>
 
     <!-- RECENT NEWS & JOIN CONVERSATION -->
-    <div class="md:flex my-4 md:my-16 md:space-x-4">
-      <div class="md:w-1/2 rounded bg-charcoal px-4 md:px-11 py-5">
-        <div class="flex justify-between mb-6 items-center">
-          <span class="inline uppercase text-green bg-green/10 rounded text-sm md:text-base w-auto px-3 py-1">recent news</span>
-          <span class="inline uppercase text-orange w-auto text-xs md:text-base"><a href="{% url 'news' %}">See All ></a></span>
+    <div class="my-4 md:flex md:my-16 md:space-x-4">
+      <div class="py-5 px-4 bg-white rounded md:px-11 md:w-1/2 dark:bg-charcoal">
+        <div class="flex justify-between items-center mb-6">
+          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">recent news</span>
+          <span class="inline w-auto text-xs uppercase md:text-base text-orange"><a href="{% url 'news' %}">See All ></a></span>
         </div>
-        <div class="divide-y divide-slate space-y-8">
+        <div class="space-y-8 divide-y divide-gray-200 dark:divide-slate">
           <div class="pt-6">
-            <h3 class="text-xl mb-2">Name of Article</h3>
+            <h3 class="mb-2 text-xl">Name of Article</h3>
             <p class="mb-3">Category | 4/5/22</p>
             <p class="mb-3">Sed posuere consectetur est at lobortis. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum... <a href="" class="text-orange">Read&nbsp;More</a></p>
           </div>
           <div class="pt-6">
-            <h3 class="text-xl mb-2">Name of Article</h3>
+            <h3 class="mb-2 text-xl">Name of Article</h3>
             <p class="mb-3">Category | 4/5/22</p>
             <p class="mb-3">Sed posuere consectetur est at lobortis. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum... <a href="" class="text-orange">Read&nbsp;More</a></p>
           </div>
           <div class="pt-6">
-            <h3 class="text-xl mb-2">Name of Article</h3>
+            <h3 class="mb-2 text-xl">Name of Article</h3>
             <p class="mb-3">Category | 4/5/22</p>
             <p class="mb-3">Sed posuere consectetur est at lobortis. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum... <a href="" class="text-orange">Read&nbsp;More</a></p>
           </div>
         </div>
       </div>
-      <div class="md:w-1/2 my-4 md:my-0 rounded bg-charcoal px-4 md:px-11 py-5">
-        <div class="flex justify-between mb-6 items-center">
-          <span class="inline uppercase text-green bg-green/10 rounded text-sm md:text-base w-auto px-3 py-1">Join the conversation</span>
-          <span class="inline uppercase text-orange w-auto text-xs md:text-base"><a href="/forum/">Visit&nbsp;Forum ></a></span>
+      <div class="py-5 px-4 my-4 bg-white rounded md:px-11 md:my-0 md:w-1/2 dark:bg-charcoal">
+        <div class="flex justify-between items-center mb-6">
+          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">Join the conversation</span>
+          <span class="inline w-auto text-xs uppercase md:text-base text-orange"><a href="/forum/">Visit&nbsp;Forum ></a></span>
         </div>
-        <div class="divide-y divide-slate space-y-8">
+        <div class="space-y-8 divide-y divide-gray-200 dark:divide-slate">
           <div class="pt-6">
             <h3 class="text-xl">Topic of discussion headline from the Forum</h3>
             <div class="mt-3"><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-3" /> Name of Author</div>
@@ -154,8 +164,8 @@
 
     <!-- BOOST LIBRARIES LOGOS AND TESTIMONIALS -->
 {#    <div>#}
-{#      <h2 class="text-center text-4xl">Boost Libraries Headline</h2>#}
-{#      <div class="justify-between grid grid-cols-2 md:grid-cols-6 my-16 justify-items-center items-center gap-4">#}
+{#      <h2 class="text-4xl text-center">Boost Libraries Headline</h2>#}
+{#      <div class="grid grid-cols-2 gap-4 justify-between justify-items-center items-center my-16 md:grid-cols-6">#}
 {#        <img src="{% static 'img/fpo/airbus.svg' %}" alt="airbus" />#}
 {#        <img src="{% static 'img/fpo/usairforce.svg' %}" alt="air force" />#}
 {#        <img src="{% static 'img/fpo/airbus.svg' %}" alt="airbus" />#}

@@ -3,59 +3,59 @@
 {% load static %}
 
 {% block subnav %}
-  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase">
-    <a href="{% url 'support' %}" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">Support</a>
+  <div class="py-8 px-4 space-y-4 text-sm uppercase border-b md:py-2 md:px-0 md:space-x-10 border-slate">
+    <a href="{% url 'support' %}" class="block md:inline md:py-1 md:border-b text-orange md:border-orange">Support</a>
     <a href="{% url 'getting-started' %}" class="block md:inline">Getting Started</a>
     <a href="https://cppalliance.org/slack/" target="_blank" class="block md:inline">Join Slack</a>
   </div>
 {% endblock %}
 
 {% block content %}
-  <div class="py-0 md:py-6 mb-3 px-3 md:px-0">
+  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
 
-    <div class="w-full py-16">
+    <div class="py-16 w-full">
       <h1 class="text-4xl text-center">Support</h1>
-      <p class="text-center mt-0">
+      <p class="mt-0 text-center">
         We are here for you! If you need us, we are a click away!
       </p>
     </div>
 
     <div class="pb-6 mb-8 border-b border-slate">
-      <div class="md:flex items-center space-x-0 md:space-x-8 my-8">
-        <div class="md:w-1/2 mb-4">
+      <div class="items-center my-8 space-x-0 md:flex md:space-x-8">
+        <div class="mb-4 md:w-1/2">
           <div id="supportStart"></div>
         </div>
-        <div class="md:w-1/2 mb-4">
+        <div class="mb-4 md:w-1/2">
           <h3>Getting Started</h3>
           <p>
             Welcome to the Boost libraries! By the time you've completed this tutorial, you'll be at least somewhat
             comfortable with the contents of a Boost distribution and how to go about using it.
           </p>
           <div class="my-3">
-            <a href="#" class="uppercase text-orange border border-slate rounded-md py-2 px-4 text-sm">Start Now</a>
+            <a href="#" class="py-2 px-4 text-sm uppercase rounded-md border text-orange border-slate">Start Now</a>
           </div>
         </div>
       </div>
 
-      <div class="md:flex items-center space-x-0 md:space-x-8 my-8">
-        <div class="md:w-1/2 mb-4 order-1 md:order-2">
+      <div class="items-center my-8 space-x-0 md:flex md:space-x-8">
+        <div class="order-1 mb-4 md:order-2 md:w-1/2">
           <div id="joinSlack"></div>
         </div>
-        <div class="md:w-1/2 mb-4">
+        <div class="mb-4 md:w-1/2">
           <h3>Join our Slack!</h3>
           <p>
             We have engaging conversations with our community of over 21K members! As a question, state an update, or
             make a new friend in the community!
           </p>
           <div class="my-3">
-            <a href="https://cppalliance.org/slack/" target="_blank" class="uppercase text-orange border border-slate rounded-md py-2 px-4 text-sm">Learn More</a>
+            <a href="https://cppalliance.org/slack/" target="_blank" class="py-2 px-4 text-sm uppercase rounded-md border text-orange border-slate">Learn More</a>
           </div>
         </div>
 
       </div>
     </div>
 
-    <div class="md:flex space-x-8 w-full">
+    <div class="space-x-8 w-full md:flex">
       <div class="md:w-1/3">
         <h3>Contact Us For Support</h3>
         <p>

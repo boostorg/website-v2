@@ -3,17 +3,17 @@
 {% load static %}
 
 {% block subnav %}
-  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase">
+  <div class="py-8 px-4 space-y-4 text-sm uppercase border-b md:py-2 md:px-0 md:space-x-10 border-slate">
     <a href="{% url 'review-process' %}" class="block md:inline">Review Process</a>
-    <a href="{% url 'review-request' %}" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">Submit Review</a>
+    <a href="{% url 'review-request' %}" class="block md:inline md:py-1 md:border-b text-orange md:border-orange">Submit Review</a>
     <a href="{% url 'review-upcoming' %}" class="block md:inline">Upcoming Reviews</a>
     <a href="{% url 'review-past' %}" class="block md:inline">Past Reviews</a>
   </div>
 {% endblock %}
 
 {% block content %}
-  <div class="py-0 md:py-6 mb-3 px-3 md:px-0">
-    <div class="md:w-full space-y-11 py-16">
+  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+    <div class="py-16 space-y-11 md:w-full">
       <h1 class="text-4xl text-center">Submit a Review</h1>
       <p>
         What does this form look like?  I don't see mockups or a model definition.

@@ -7,9 +7,9 @@
 {% block sub_title %}{{ topic.subject }}{% endblock sub_title %}
 
 {% block content %}
-<div class="w-full mb-8"><h1 class="text-3xl">{{ topic.subject }}</h1></div>
+<div class="mb-8 w-full"><h1 class="text-3xl">{{ topic.subject }}</h1></div>
 <div class="w-full">
-  <div class="items-center inline-flex space-x-3 mb-6">
+  <div class="inline-flex items-center mb-6 space-x-3">
   {% include "forum_conversation/partials/topic_detail_actions.html" %}
   </div>
   <div class="pagination-block">
@@ -26,13 +26,13 @@
     {% endif %}
     <div id="{{ post.id }}" class="my-3 card post">
       <div class="card-body">
-        <div class="flex space-x-8 bg-charcoal border border-1 border-slate rounded p-6">
+        <div class="flex p-6 space-x-8 rounded border bg-charcoal border-1 border-slate">
           <div class="w-5/6 post-content-wrapper">
-            <div class="float-right post-controls ">
+            <div class="float-right post-controls">
               {% get_permission 'can_edit_post' post request.user as user_can_edit_post %}
               {% if user_can_edit_post %}
               <a href="{% if post.is_topic_head %}{% url 'forum_conversation:topic_update' forum.slug forum.pk topic.slug topic.pk %}{% else %}{% url 'forum_conversation:post_update' forum.slug forum.pk topic.slug topic.pk post.pk %}{% endif %}"
-                 class="border border-1 border-orange text-orange text-sm uppercase px-4 py-2 rounded rounded-lg"
+                 class="py-2 px-4 text-sm uppercase rounded rounded-lg border border-1 border-orange text-orange"
                  title="{% trans "Edit" %}"
               >
                 <img src="{% static 'img/icons/icon_button-edit.svg' %}" class="inline-block mr-4" />
@@ -42,16 +42,16 @@
               {% get_permission 'can_delete_post' post request.user as user_can_delete_post %}
               {% if user_can_delete_post %}
               <a href="{% url 'forum_conversation:post_delete' forum.slug forum.pk topic.slug topic.pk post.pk %}"
-                 class="border border-1 border-orange text-orange text-sm uppercase px-4 py-2 rounded rounded-lg ml-3"
+                 class="py-2 px-4 ml-3 text-sm uppercase rounded rounded-lg border border-1 border-orange text-orange"
                  title="{% trans "Delete" %}">
                 <i class="fas fa-times text-orange"></i>
               </a>
               {% endif %}
             </div>
               {% spaceless %}
-              <h4 class="text-2xl m-0 subject mb-3 items-center">
+              <h4 class="items-center m-0 mb-3 text-2xl subject">
                 {{ post.subject }}
-                &nbsp;<a href="{% url 'forum_conversation:topic' forum.slug forum.pk topic.slug topic.pk %}?post={{ post.pk }}#{{ post.pk }}"><i class="fas fa-link text-white/60 text-sm"></i></a>
+                &nbsp;<a href="{% url 'forum_conversation:topic' forum.slug forum.pk topic.slug topic.pk %}?post={{ post.pk }}#{{ post.pk }}"><i class="text-sm fas fa-link text-white/60"></i></a>
               </h4>
               {% endspaceless %}
               <p class="p-0">
@@ -94,7 +94,7 @@
               </div>
               {% endif %}
           </div>
-          <div class="w-1/6 d-none d-md-block post-sidebar text-sm">
+          <div class="w-1/6 text-sm d-none d-md-block post-sidebar">
             {% if post.poster %}
             <div class="avatar">
               <a href="{% url 'forum_member:profile' post.poster_id %}">
@@ -114,8 +114,8 @@
   {% endfor %}
   </div>
 </div>
-<div class="w-full mt-11">
-  <div class="w-1/2 items-center inline-flex space-x-3">
+<div class="mt-11 w-full">
+  <div class="inline-flex items-center space-x-3 w-1/2">
     {% include "forum_conversation/partials/topic_detail_actions.html" %}
   </div>
   <div class="w-full">
