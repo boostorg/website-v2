@@ -16,7 +16,7 @@ less typing.
 
 You will need to install `just`, by [following the documentation](https://just.systems/man/en/)
 
-Copy file `env.template` to `.env` and adjust values to match your local environment:
+**Environment Variables**: Copy file `env.template` to `.env` and adjust values to match your local environment. See [Environment Variables](docs/env_vars.md) for more information.
 
 ```shell
 $ cp env.template .env
@@ -51,10 +51,6 @@ To shut down our database and any long running services, we shut everyone down u
 ```shell
 $ docker compose down
 ```
-
-## Environment Variables
-
-See [Environment Variables](docs/env_vars.md) for more information on environment variables.
 
 ## Running the tests
 
@@ -92,21 +88,27 @@ $ yarn build
 
 ---
 
-## Generating Fake Data
+## Generating Local Data
 
-### Versions and LibraryVersions
+### Sample (Fake) Data 
 
-First, make sure your `GITHUB_TOKEN` is set in you `.env` file and run `./manage.py update_libraries`. This takes a long time. See below.
+To **drop your entire local volume** (except superusers) and generate fresh sample data **that will not sync with GitHub**, run: 
 
-Run `./manage.py generate_fake_versions`. This will create 50 active Versions, and associate Libraries to them.
+```bash
+./manage.py create_sample_data --all
+```
 
-The data created is realistic-looking in that each Library will contain a M2M relationship to every Version newer than the oldest one it's included in. (So if a Library's earliest LibraryVersion is 1.56.0, then there will be a LibraryVersion object for that Library for each Version since 1.56.0 was released.)
+See `create_sample_data` in [Management Commands](docs/commands.md).
 
-This does not add VersionFile objects to the Versions.
+### Live GitHub Libraries
 
-### Libraries, Pull Requests, and Issues
+To **add real Boost libraries and sync all the data from GitHub**, run: 
 
-There is not currently a way to generate fake Libraries, Issues, or Pull Requests. To generate those, use your GitHub token and run `./manage.py update_libraries` locally to pull in live GitHub data. This command takes a long time to run; you might consider editing `libraries/github.py` to add counters and breaks to shorten the runtime.
+```bash
+./manage.py update_libraries
+```
+
+See `update_libraries` in [Management Commands](docs/commands.md).
 
 ---
 
@@ -114,28 +116,9 @@ There is not currently a way to generate fake Libraries, Issues, or Pull Request
 
 TDB
 
-## Staging Environment Considerations
-
-In April 2023, we made the decision to put the staging site behind a plain login. This was done to prevent the new design from being leaked to the general public before the official release. Access to the staging site is now restricted to users with valid login credentials, which are provided upon request. (This is managed in the Django Admin.)
-
-### Effects
-
-- Entire site requires a login
-- The login page is unstyled, to hide the new design from the public
-
-The implementation for this login requirement can be found in the `core/middleware.py` file as the `LoginRequiredMiddleware` class. To enable tests to pass with this login requirement, we have added a fixture called `logged_in_tp` in the `conftest.py` file. This fixture creates a logged-in `django-test-plus` client.
-
-To reverse these changes and make the site open to the public (except for views which are marked as login required in their respective `views.py` files) **and** re-style the login page, follow these steps:
-
-1. Remove `templates/accounts/login.html` (the unstyled page) and rename `templates/accoounts/login_real.html` back to `templates/account/login.html` (the styled login page that includes the social logins)
-2. Disable the `LoginRequiredMiddleware` by removing it from the `MIDDLEWARE` list in the `settings.py` file.
-3. Remove the `logged_in_tp` fixture from the `conftest.py` file.
-4. In all tests, replace any mentions of `logged_in_tp` with the original `tp` to revert to the previous test setup.
-
 ## Production Environment Considerations
 
 TDB
-
 
 ---
 
