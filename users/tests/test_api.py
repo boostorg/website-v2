@@ -1,8 +1,3 @@
-from django.urls import reverse
-from faker import Faker
-from rest_framework.test import APIClient
-from test_plus.test import TestCase
-
 # from ..factories import UserFactory, StaffUserFactory
 # from .. import serializers
 

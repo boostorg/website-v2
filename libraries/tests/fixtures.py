@@ -22,7 +22,10 @@ def library(db):
     return baker.make(
         "libraries.Library",
         name="multi_array",
-        description="Boost.MultiArray provides a generic N-dimensional array concept definition and common implementations of that interface.",
+        description=(
+            "Boost.MultiArray provides a generic N-dimensional array concept "
+            "definition and common implementations of that interface."
+        ),
         github_url="https://github.com/boostorg/multi_array",
     )
 
@@ -44,7 +47,7 @@ def pull_request(library):
 
 @pytest.fixture(autouse=True)
 def github_api_get_ref_response(db):
-    """Returns a JSON example of GhApi().api.git.get_ref(owner=owner, repo=repo, ref=ref)"""
+    """A JSON example of GhApi().api.git.get_ref(owner, repo, ref)."""
     return {
         "ref": "refs/heads/master",
         "node_id": "sample",
@@ -59,17 +62,17 @@ def github_api_get_ref_response(db):
 
 @pytest.fixture
 def github_api_get_tree_response(db):
-    """Returns a JSON example of GhApi().api.git.get_tree(owner=owner, repo="boost", tree_sha=tree_sha)"""
+    """A JSON example of GhApi().api.git.get_tree(owner, "boost", tree_sha)."""
     return {
         "sha": "e2ae78645e6d7f6b455eea2f8c2846e67437b739",
-        "url": "https://api.github.com/repos/boostorg/boost/git/trees/e2ae78645e6d7f6b455eea2f8c2846e67437b739",
+        "url": "https://api.github.com/repos/boostorg/boost/git/trees/e2ae78645e6d7f6b455eea2f8c2846e67437b739",  # noqa
         "tree": [
             {
                 "path": ".circleci",
                 "mode": "040000",
                 "type": "tree",
                 "sha": "7199ba30709deb2769d5207d24015a59eec6b9a2",
-                "url": "https://api.github.com/repos/boostorg/boost/git/trees/7199ba30709deb2769d5207d24015a59eec6b9a2",
+                "url": "https://api.github.com/repos/boostorg/boost/git/trees/7199ba30709deb2769d5207d24015a59eec6b9a2",  # noqa
             },
             {
                 "path": ".gitmodules",
@@ -77,7 +80,7 @@ def github_api_get_tree_response(db):
                 "type": "blob",
                 "sha": "46977dba4255dcb4447e94ab5ae081ce67441aca",
                 "size": 18459,
-                "url": "https://api.github.com/repos/boostorg/boost/git/blobs/46977dba4255dcb4447e94ab5ae081ce67441aca",
+                "url": "https://api.github.com/repos/boostorg/boost/git/blobs/46977dba4255dcb4447e94ab5ae081ce67441aca",  # noqa
             },
         ],
         "truncated": False,
@@ -201,12 +204,14 @@ def boost_modules(module):
 
 @pytest.fixture
 def library_metadata():
-    """
-    Returns a JSON example of a response from
-    f"https://raw.githubusercontent.com/{self.owner}/{repo}/develop/meta/libraries.json"
+    """Return a JSON example of a response for library metadata.
 
-    Live example: https://github.com/boostorg/align/blob/5ad7df63cd792fbdb801d600b93cad1a432f0151/meta/libraries.json
-    """
+    Example:
+    https://raw.githubusercontent.com/{self.owner}/{repo}/develop/meta/libraries.json
+
+    Live example:
+    https://github.com/boostorg/align/blob/5ad7df63cd792fbdb801d600b93cad1a432f0151/meta/libraries.json
+    """  # noqa
     return {
         "key": "system",
         "name": "System",

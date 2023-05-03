@@ -16,8 +16,9 @@ from libraries.models import Library
 )
 @click.option("--token", is_flag=False, help="Github API token")
 def command(token, library, limit):
-    """This command fetches and updates the date of the first GitHub tag for a given library, or for
-    all libraries if no library is specified.
+    """Fetch and update the date of the first GitHub tag for a given library.
+
+    If no library is specified, fetch data for all libraries.
 
     It uses the GitHub API to fetch the tag data, and you may pass your own token.
 
@@ -26,12 +27,13 @@ def command(token, library, limit):
     If no tags were found for a library, it prints a warning message.
 
     Arguments:
-    token: str, optional -- The GitHub API token for authentication. Default value is set in the
-        client class.
-    library: str, optional -- The name of the library for which to fetch the tag data. If not provided,
-        the command fetches data for all libraries. Case-insensitive.
-    limit: int, optional -- The number of libraries to update. If not provided, the command updates all
-        libraries. If this is not passed, this command can take a long time to run.
+    token: str, optional -- The GitHub API token for authentication. Default value is
+        set in the client class.
+    library: str, optional -- The name of the library for which to fetch the tag data.
+        If not provided, the command fetches data for all libraries. Case-insensitive.
+    limit: int, optional -- The number of libraries to update. If not provided, the
+        command updates all libraries. If this is not passed, this command can take a
+        long time to run.
     """
     client = GithubAPIClient(token=token)
     updater = LibraryUpdater(client=client)
@@ -50,8 +52,9 @@ def command(token, library, limit):
     for library in libraries:
         library.refresh_from_db()
         if library.first_github_tag_date:
+            first_tag = library.first_github_tag_date.strftime("%m-%Y")
             click.secho(
-                f"{library.name} - First tag: {library.first_github_tag_date.strftime('%m-%Y')}",
+                f"{library.name} - First tag: {first_tag}",
                 fg="green",
             )
         else:

@@ -100,7 +100,8 @@ def command(
     --versions: If True, create fake versions.
     --categories: If True, create fake categories.
     --libraries: If True, create fake libraries and assign them categories.
-    --library_versions: If True or if both --libraries and --versions are True, create fake library versions.
+    --library_versions: If True or if both --libraries and --versions are True, create
+      fake library versions.
     --authors: If True, add fake library authors.
     --maintainers: If True, add fake library version maintainers.
     --prs: If True, add fake library pull requests.

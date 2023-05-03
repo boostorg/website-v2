@@ -98,24 +98,24 @@ Output:
 
 ## `import_commit_counts`
 
-Imports commit counts for all libraries, broken down by month, and saves them to the database. The command uses the Github API to retrieve commit data and is intended for a one-time import.  
+Imports commit counts for all libraries, broken down by month, and saves them to the database. The command uses the Github API to retrieve commit data and is intended for a one-time import.
 
-- Saves `CommitData` objects, one per month, with a count of the number of commits made to the specified branch (or the `master` branch) of each Library object. 
-- If there is already a `CommitData` record for that library-month-branch, this command will **overwrite** the `commit_count` field, not increment it. 
-- Idempotent. 
+- Saves `CommitData` objects, one per month, with a count of the number of commits made to the specified branch (or the `master` branch) of each Library object.
+- If there is already a `CommitData` record for that library-month-branch, this command will **overwrite** the `commit_count` field, not increment it.
+- Idempotent.
 
 **Options**
 
 Here are the options you can use:
 
-- `--branch`: Specify the branch you want to count commits for. Defaults to `master`. 
+- `--branch`: Specify the branch you want to count commits for. Defaults to `master`.
 - `--token`: Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`.
 
 ### Example:
 
     ./manage.py import_commit_counts
 
-Output: 
+Output:
 
     ...
     {"message": "commit_data_updated", "commit_data_pk": 721, "obj_created": true, "library": "Math/Statistical Distributions", "branch": "master", "logger": "libraries.github", "level": "info", "timestamp": "2023-05-25T22:13:58.074730Z"}
@@ -124,23 +124,23 @@ Output:
 
 ## `import_library_versions`
 
-Connect Library objects to the Boost versions (AKA "release") that included them using information from the main Boost GitHub repo and the library repos. Functions of this command: 
+Connect Library objects to the Boost versions (AKA "release") that included them using information from the main Boost GitHub repo and the library repos. Functions of this command:
 
-- Prints out any versions or libraries that were skipped at the end. 
+- Prints out any versions or libraries that were skipped at the end.
 - Idempotent.
 
 **Options**
 
 Here are the options you can use:
 
-- `--release`: Full or partial Boost version (release) number. If `release` is passed, the command will import all libraries for the versions that contain the passed-in release number. If not passed, the command will import libraries for all active versions. 
+- `--release`: Full or partial Boost version (release) number. If `release` is passed, the command will import all libraries for the versions that contain the passed-in release number. If not passed, the command will import libraries for all active versions.
 - `--token`: Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`.
 
 ### Example:
 
     ./manage.py import_library_versions
 
-Output: 
+Output:
 
     Saved library version Log (boost-1.16.1).
     Processing version boost-0.9.27...

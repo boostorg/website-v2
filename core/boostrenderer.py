@@ -51,7 +51,7 @@ def get_content_from_s3(key=None, bucket_name=None):
             file_content = response["Body"].read()
             content_type = response["ContentType"]
 
-            # Check if the file ends with '.js', if yes then set the content_type to 'application/javascript'
+            # If the file ends with '.js', set the content_type to javascript
             if s3_key.endswith(".js"):
                 content_type = "application/javascript"
 
@@ -169,5 +169,5 @@ class BoostRenderer(PygmentsRenderer):
         super().__init__(Youtube)
 
     def render_youtube(self, token):
-        template = '<iframe width="560" height="315" src="https://www.youtube.com/embed/{target}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
+        template = '<iframe width="560" height="315" src="https://www.youtube.com/embed/{target}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'  # noqa
         return template.format(target=token.target)

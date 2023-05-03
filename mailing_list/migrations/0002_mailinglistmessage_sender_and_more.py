@@ -8,7 +8,6 @@ import mptt.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("mailing_list", "0001_initial"),

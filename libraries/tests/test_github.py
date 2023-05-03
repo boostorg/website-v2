@@ -7,7 +7,7 @@ from ghapi.all import GhApi
 from model_bakery import baker
 
 from libraries.github import GithubAPIClient, GithubDataParser, LibraryUpdater
-from libraries.models import Category, CommitData, Issue, Library, PullRequest
+from libraries.models import Category, Issue, Library, PullRequest
 
 """GithubAPIClient Tests"""
 
