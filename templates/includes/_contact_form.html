@@ -1,6 +1,6 @@
 <form action="" method="POST">
   <div class="space-y-5">
-    <div class="w-full flex space-x-3">
+    <div class="flex space-x-3 w-full">
       <div class="w-1/2">
         {% include "includes/_form_input.html" with form=form field=form.first_name %}
       </div>
@@ -20,8 +20,8 @@
     <div class="w-full">
       {% include "includes/_form_input.html" with form=form field=form.message %}
     </div>
-    <div class="w-full mt-3">
-      <button type="submit" class="py-2 px-3 text-sm rounded-lg border border-orange uppercase text-orange">Submit</button>
+    <div class="mt-3 w-full">
+      <button type="submit" class="py-2 px-3 text-sm text-white uppercase rounded-lg border bg-orange border-orange dark:bg-charcoal dark:text-orange">Submit</button>
     </div>
   </div>
 </form>

@@ -3,17 +3,17 @@
 
 {% if form.is_bound %}
   {% if field.errors %}
-    {% render_field field class="rounded bg-charcoal text-slate w-full" placeholder="{{ field.label }}" %}
+    {% render_field field class="w-full bg-white rounded border-gray-300 dark:text-white text-slate dark:border-slate dark:bg-charcoal" placeholder="{{ field.label }}" %}
 
     {% for error in field.errors %}
-    <div class="bg-red text-white">
+    <div class="text-white bg-red">
       {{ error }}
     </div>
     {% endfor %}
 
   {% else %}
-    {% render_field field class="rounded bg-charcoal text-slate w-full" placeholder="{{ field.label }}" %}
+    {% render_field field class="w-full bg-white rounded border-gray-300 dark:text-white text-slate dark:border-slate dark:bg-charcoal" placeholder="{{ field.label }}" %}
   {% endif %}
 {% else %}
-  {% render_field field class="rounded bg-charcoal text-slate w-full" placeholder=field.label %}
+  {% render_field field class="w-full bg-white rounded border-gray-300 dark:text-white text-slate dark:border-slate dark:bg-charcoal" placeholder=field.label %}
 {% endif %}

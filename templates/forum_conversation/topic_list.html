@@ -4,29 +4,29 @@
 {% load forum_tracking_tags %}
 
 {% if topics or not hide_if_empty %}
-<div class="my-9 flex">
+<div class="flex my-9">
   <div class="w-full">
-    <div class="card topiclist rounded break-words border bg-charcoal border-1 border-slate">
+    <div class="break-words rounded border card topiclist bg-charcoal border-1 border-slate">
       <div class="p-0 border-b border-slate">
-        <div class="flex m-0 px-3 py-2">
-          <div class="w-2/3 uppercase text-sm pl-0 topic-name-col">{% trans topic_list_title %}</div>
-          <div class="w-1/6 uppercase text-sm d-none d-md-block text-center text-nowrap topic-count-col">{% trans "Replies" %}</div>
-          <div class="w-1/6 uppercase text-sm d-none d-md-block text-center text-nowrap topic-count-col">{% trans "Views" %}</div>
-          <div class="w-1/6 uppercase text-sm pr-0 d-none d-sm-block text-nowrap topic-last-post-col">{% trans "Last post" %}</div>
+        <div class="flex py-2 px-3 m-0">
+          <div class="pl-0 w-2/3 text-sm uppercase topic-name-col">{% trans topic_list_title %}</div>
+          <div class="w-1/6 text-sm text-center uppercase d-none d-md-block text-nowrap topic-count-col">{% trans "Replies" %}</div>
+          <div class="w-1/6 text-sm text-center uppercase d-none d-md-block text-nowrap topic-count-col">{% trans "Views" %}</div>
+          <div class="pr-0 w-1/6 text-sm uppercase d-none d-sm-block text-nowrap topic-last-post-col">{% trans "Last post" %}</div>
         </div>
       </div>
       <div class="p-0 card-body">{% if not force_all_unread and unread_topics == None %}{% get_unread_topics topics request.user as unread_topics %}{% endif %}
       {% for topic in topics %}
-      <div class="flex m-0 px-3 py-2 border-b border-slate">
-        <div class="w-2/3 pl-0 col-md-8 col-sm-9 col-xs-11 topic-name">
-          <div class="topic-inline-pagination float-right d-none d-sm-block">{% topic_pages_inline_list topic %}</div>
+      <div class="flex py-2 px-3 m-0 border-b border-slate">
+        <div class="pl-0 w-2/3 col-md-8 col-sm-9 col-xs-11 topic-name">
+          <div class="float-right topic-inline-pagination d-none d-sm-block">{% topic_pages_inline_list topic %}</div>
           <table class="topic-data-table">
             <tr>
               <td class="pt-1 pr-3 align-top topic-icon {% if topic in unread_topics or force_all_unread %}unread{% endif %}">
                 <i class="fas {% if topic.is_sticky %}fa-lightbulb{% elif topic.is_announce %}fa-info{% else %}fa-dot-circle{% endif %} fa-2x"></i>
               </td>
               <td class="align-top topic-name">
-                <a href="{% url 'forum_conversation:topic' topic.forum.slug topic.forum.pk topic.slug topic.pk %}" class="topic-name-link text-xl">{{ topic.subject }}</a>{% if topic.is_locked %}&nbsp;<i class="fas fa-times-circle locked-indicator" title="{% trans 'This topic is locked' %}"></i>{% endif %}
+                <a href="{% url 'forum_conversation:topic' topic.forum.slug topic.forum.pk topic.slug topic.pk %}" class="text-xl topic-name-link">{{ topic.subject }}</a>{% if topic.is_locked %}&nbsp;<i class="fas fa-times-circle locked-indicator" title="{% trans 'This topic is locked' %}"></i>{% endif %}
                 <div>
                   <div class="topic-created">
                   {% if topic.poster %}
@@ -45,9 +45,9 @@
             </tr>
           </table>
         </div>
-        <div class="w-1/6 py-2 d-none d-md-block text-center topic-count">{{ topic.posts_count|add:"-1" }}</div>
-        <div class="w-1/6 py-2 col-md-1 d-none d-md-block text-center topic-count">{{ topic.views_count }}</div>
-        <div class="w-1/6 py-2 col-md-2 col-sm-3 d-none d-sm-block topic-last-post">
+        <div class="py-2 w-1/6 text-center d-none d-md-block topic-count">{{ topic.posts_count|add:"-1" }}</div>
+        <div class="py-2 w-1/6 text-center col-md-1 d-none d-md-block topic-count">{{ topic.views_count }}</div>
+        <div class="py-2 w-1/6 col-md-2 col-sm-3 d-none d-sm-block topic-last-post">
         {% with last_post=topic.last_post %}
           {% if last_post.poster %}
             {% url 'forum_member:profile' last_post.poster_id as poster_url %}
@@ -59,14 +59,14 @@
               <span class="text-sm">By: {{ poster_username }}</span>
             {% endblocktrans %}
           {% endif %}
-          &nbsp;<a href="{% url 'forum_conversation:topic' topic.forum.slug topic.forum.pk topic.slug topic.pk %}?post={{ last_post.pk }}#{{ last_post.pk }}"><i class="fas fa-arrow-circle-right "></i></a>
+          &nbsp;<a href="{% url 'forum_conversation:topic' topic.forum.slug topic.forum.pk topic.slug topic.pk %}?post={{ last_post.pk }}#{{ last_post.pk }}"><i class="fas fa-arrow-circle-right"></i></a>
           <br />
           <small>{{ last_post.created }}</small>
         {% endwith %}
         </div>
       </div>
       {% empty %}
-      <div class="row m-0 px-3 py-2">
+      <div class="py-2 px-3 m-0 row">
         <div class="p-0 col-12">
         {% if empty_message %}
           {{ empty_message }}

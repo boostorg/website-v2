@@ -3,21 +3,21 @@
 {% load static %}
 
 {% block subnav %}
-  <div class="py-3 px-4 md:px-0 flex border-b border-slate md:border-0 items-center">
+  <div class="flex items-center py-3 px-4 border-b md:px-0 md:border-0 border-slate">
     <div>
       {% if user.image %}
-        <img src="{{ user.image.url }}" alt="user" class="inline w-[80px] rounded-lg" />
+        <img src="{{ user.image.url }}" alt="user" class="inline rounded-lg w-[80px]" />
       {% else %}
-        <i class="fas fa-user text-5xl mr-2 text-white/60"></i>
+        <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
       {% endif %}
     </div>
-    <div class="text-sm ml-4">
+    <div class="ml-4 text-sm">
       <span class="block">{{ user.get_full_name }}</span>
-      <span class="text-slate text-xs">Joined {{ user.date_joined }}</span>
+      <span class="text-xs text-slate">Joined {{ user.date_joined }}</span>
     </div>
   </div>
-  <div class="space-y-4 border-b border-slate py-8 md:py-2 px-4 md:px-0 md:space-x-10 text-sm uppercase relative">
-    <a href="" class="block md:inline md:py-1 md:border-b md:border-orange text-orange">Account</a>
+  <div class="relative py-8 px-4 space-y-4 text-sm uppercase border-b md:py-2 md:px-0 md:space-x-10 border-slate">
+    <a href="" class="block md:inline md:py-1 md:border-b text-orange md:border-orange">Account</a>
     <a href="" class="block md:inline">Settings</a>
     <a href="#" class="block md:inline">Password</a>
     <a href="#" class="block md:inline">Help</a>
@@ -25,9 +25,9 @@
 {% endblock %}
 
 {% block content %}
-  <div class="py-0 md:py-6 mb-3 px-3 md:px-0 md:flex">
+  <div class="py-0 px-3 mb-3 md:flex md:py-6 md:px-0">
 
-    <div class="w-full md:w-1/4 hidden md:block">
+    <div class="hidden w-full md:block md:w-1/4">
       <ul class="py-8 space-y-4">
         <li><a href="#stats" class="text-orange">Stats</a></li>
         <li><a href="#badges">Badges</a></li>
@@ -40,7 +40,7 @@
       <div class="py-6 border-b border-slate">
         <h3 id="stats">Stats</h3>
 
-        <div class="grid gap-8 grid-cols-1 md:grid-cols-3 my-4">
+        <div class="grid grid-cols-1 gap-8 my-4 md:grid-cols-3">
           <div>
             <h5>Number of Posts</h5>
             5,043
@@ -59,14 +59,14 @@
       <div class="py-6 border-b border-slate">
         <h3 id="badges">Badges</h3>
 
-        <div class="grid gap-8 grid-cols-1 md:grid-cols-3 my-4">
+        <div class="grid grid-cols-1 gap-8 my-4 md:grid-cols-3">
           <div>
             <h4>Author</h4>
             <p>
               Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
             </p>
             <div class="text-gold">
-              <svg class="fill-gold inline-block mr-2" width="33" height="25" viewBox="0 0 33 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg class="inline-block mr-2 fill-gold" width="33" height="25" viewBox="0 0 33 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.875 19.1647V22H24.75V24.75H8.25V22H15.125V19.1647C12.4667 18.8295 10.0221 17.5357 8.25 15.5262C6.47788 13.5166 5.50005 10.9293 5.5 8.25V0H27.5V8.25C27.5 10.9293 26.5221 13.5166 24.75 15.5262C22.9779 17.5357 20.5333 18.8295 17.875 19.1647Z"/>
                 <rect width="2.75" height="6.875"/>
                 <rect x="30.25" width="2.75" height="6.875"/>
@@ -81,7 +81,7 @@
               Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
             </p>
             <div class="text-bronze">
-              <svg class="fill-bronze inline-block mr-2" width="33" height="25" viewBox="0 0 33 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg class="inline-block mr-2 fill-bronze" width="33" height="25" viewBox="0 0 33 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.875 19.1647V22H24.75V24.75H8.25V22H15.125V19.1647C12.4667 18.8295 10.0221 17.5357 8.25 15.5262C6.47788 13.5166 5.50005 10.9293 5.5 8.25V0H27.5V8.25C27.5 10.9293 26.5221 13.5166 24.75 15.5262C22.9779 17.5357 20.5333 18.8295 17.875 19.1647Z"/>
                 <rect width="2.75" height="6.875"/>
                 <rect x="30.25" width="2.75" height="6.875"/>
@@ -96,7 +96,7 @@
               Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
             </p>
             <div class="text-silver">
-              <svg class="fill-silver inline-block mr-2" width="33" height="25" viewBox="0 0 33 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg class="inline-block mr-2 fill-silver" width="33" height="25" viewBox="0 0 33 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.875 19.1647V22H24.75V24.75H8.25V22H15.125V19.1647C12.4667 18.8295 10.0221 17.5357 8.25 15.5262C6.47788 13.5166 5.50005 10.9293 5.5 8.25V0H27.5V8.25C27.5 10.9293 26.5221 13.5166 24.75 15.5262C22.9779 17.5357 20.5333 18.8295 17.875 19.1647Z"/>
                 <rect width="2.75" height="6.875"/>
                 <rect x="30.25" width="2.75" height="6.875"/>
@@ -111,7 +111,7 @@
               Ut vehicula fermentum mi, a bibendum nunc sagittis ac.
             </p>
             <div class="text-gold">
-              <svg class="fill-gold inline-block mr-2" width="33" height="25" viewBox="0 0 33 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg class="inline-block mr-2 fill-gold" width="33" height="25" viewBox="0 0 33 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.875 19.1647V22H24.75V24.75H8.25V22H15.125V19.1647C12.4667 18.8295 10.0221 17.5357 8.25 15.5262C6.47788 13.5166 5.50005 10.9293 5.5 8.25V0H27.5V8.25C27.5 10.9293 26.5221 13.5166 24.75 15.5262C22.9779 17.5357 20.5333 18.8295 17.875 19.1647Z"/>
                 <rect width="2.75" height="6.875"/>
                 <rect x="30.25" width="2.75" height="6.875"/>

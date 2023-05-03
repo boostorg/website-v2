@@ -2,7 +2,7 @@
 
 {{ attachment_formset.management_form }}
 {% for form in attachment_formset.forms %}
-<div class="attachment-form w-full space-y-3 mb-4">
+<div class="mb-4 space-y-3 w-full attachment-form">
   {% for field in form.visible_fields %}
   <div class="my-5">
     {% if forloop.first %}
@@ -16,7 +16,7 @@
     {% endfor %}
     {% endif %}
     {% if field.name == 'DELETE' %}
-    <div class="checkbox mt-3">
+    <div class="mt-3 checkbox">
       <label for="{{ field.auto_id }}">
         {{ field }}
         {{ field.label }}
@@ -38,6 +38,6 @@
     {% endfor %}
 </div>
 {% endfor %}
-<a href="#" id="add_more_attachment" class="border-slate border py-3 px-4 text-orange my-5 text-xs rounded uppercase">
+<a href="#" id="add_more_attachment" class="py-3 px-4 my-5 text-xs uppercase rounded border border-slate text-orange">
   <i class="icon-white icon-plus-sign"></i>&nbsp;{% trans "Add another file" %}
 </a>

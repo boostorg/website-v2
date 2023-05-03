@@ -1,8 +1,12 @@
 import pytest
 import tempfile
 
+from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
+
+
+User = get_user_model()
 
 
 def test_login_url(tp, db):
@@ -43,6 +47,34 @@ def test_password_reset_url(logged_in_tp, db):
     """
     res = logged_in_tp.get("account_reset_password")
     logged_in_tp.response_200(res)
+
+
+def test_signup_200(tp, db):
+    """
+    GET /accounts/signup/
+
+    Just a canary test that the signup screen exists.
+    """
+    res = tp.get("account_signup")
+    tp.response_200(res)
+
+
+def test_signup_post(tp, db):
+    """
+    POST /accounts/signup/
+
+    A user can sign up
+    """
+    res = tp.post(
+        "account_signup",
+        data={
+            "email": "testerson@example.com",
+            "password1": "passw0rd!",
+            "password2": "passw0rd!",
+        },
+    )
+    tp.response_302(res)
+    assert User.objects.filter(email="testerson@example.com").exists()
 
 
 def test_profile_photo_auth(tp, db):

@@ -19,7 +19,28 @@ def test_library_list(library_version, logged_in_tp):
     assert lib2 not in res.context["library_list"]
 
 
-def test_library_list_select_category(library, category, logged_in_tp):
+def test_library_list_no_pagination(library_version, logged_in_tp):
+    """Library list is not paginated."""
+    libs = [
+        baker.make(
+            "libraries.LibraryVersion",
+            library=baker.make("libraries.Library", name=f"lib-{i}"),
+            version=library_version.version,
+        ).library
+        for i in range(30)
+    ] + [library_version.library]
+    res = logged_in_tp.get("libraries")
+    logged_in_tp.response_200(res)
+
+    library_list = res.context.get("library_list")
+    assert library_list is not None
+    assert len(library_list) == len(libs)
+    assert all(l in library_list for l in libs)
+    page_obj = res.context.get("page_obj")
+    assert getattr(page_obj, "paginator", None) is None
+
+
+def test_library_list_select_category(library, category, tp):
     """POST /libraries/ to submit a category redirects to the libraries-by-category page"""
     res = logged_in_tp.post("libraries", data={"categories": category.pk})
     logged_in_tp.response_302(res)
@@ -188,7 +209,28 @@ def test_libraries_by_version_list(logged_in_tp, library_version):
     assert excluded_library not in res.context["library_list"]
 
 
-def test_libraries_by_version_detail(logged_in_tp, library_version):
+def test_libraries_by_version_list_no_pagination(logged_in_tp, library_version):
+    """Library list by version is not paginated."""
+    libs = [
+        baker.make(
+            "libraries.LibraryVersion",
+            library=baker.make("libraries.Library", name=f"lib-{i}"),
+            version=library_version.version,
+        ).library
+        for i in range(30)
+    ] + [library_version.library]
+    res = logged_in_tp.get("libraries-by-version", library_version.version.slug)
+    logged_in_tp.response_200(res)
+
+    library_list = res.context.get("library_list")
+    assert library_list is not None
+    assert len(library_list) == len(libs)
+    assert all(l in library_list for l in libs)
+    page_obj = res.context.get("page_obj")
+    assert getattr(page_obj, "paginator", None) is None
+
+
+def test_libraries_by_version_detail(tp, library_version):
     """GET /versions/{version_slug}/libraries/{slug}/"""
     res = logged_in_tp.get(
         "library-detail-by-version",

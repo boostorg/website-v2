@@ -1,10 +1,88 @@
 import pytest
+import time
 from unittest.mock import patch
 
+from django.core.cache import caches
 from django.test import RequestFactory
+from django.test.utils import override_settings
 from django.urls import reverse
 
 from core.views import StaticContentTemplateView
+
+
+@pytest.fixture
+def request_factory():
+    """Returns a RequestFactory instance."""
+    return RequestFactory()
+
+
+@pytest.fixture
+def content_path():
+    """Returns a sample content path."""
+    return "/some/content/path"
+
+
+def call_view(request_factory, content_path):
+    """Calls the view with the given request_factory and content path."""
+    request = request_factory.get(content_path)
+    view = StaticContentTemplateView.as_view()
+    response = view(request, content_path=content_path)
+    return response
+
+
+@pytest.mark.django_db
+@override_settings(
+    CACHES={
+        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+        "machina_attachments": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache"
+        },
+        "static_content": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "TIMEOUT": 86400,
+        },
+    }
+)
+def test_cache_behavior(request_factory, content_path):
+    """Tests the cache behavior of the StaticContentTemplateView view."""
+    # Set up the mocked API call
+    mock_content = "mocked content"
+    mock_content_type = "text/plain"
+
+    # Clear the cache before testing
+    cache = caches["static_content"]
+    cache.clear()
+
+    with patch("core.views.get_content_from_s3") as mock_get_content_from_s3:
+        mock_get_content_from_s3.return_value = (mock_content, mock_content_type)
+
+        # Cache miss scenario
+        response = call_view(request_factory, content_path)
+        assert response.status_code == 200
+        assert response.content.decode() == mock_content
+        assert response["Content-Type"] == mock_content_type
+        mock_get_content_from_s3.assert_called_once_with(key=content_path)
+
+        # Cache hit scenario
+        mock_get_content_from_s3.reset_mock()
+        response = call_view(request_factory, content_path)
+        assert response.status_code == 200
+        assert response.content.decode() == mock_content
+        assert response["Content-Type"] == mock_content_type
+        mock_get_content_from_s3.assert_not_called()
+
+        # Cache expiration scenario
+        cache.set(
+            "static_content_" + content_path, (mock_content, mock_content_type), 1
+        )  # Set a 1-second cache timeout
+        time.sleep(2)  # Wait for the cache to expire
+        mock_get_content_from_s3.reset_mock()
+        response = call_view(request_factory, content_path)
+        assert response.status_code == 200
+        assert response.content.decode() == mock_content
+        assert response["Content-Type"] == mock_content_type
+        mock_get_content_from_s3.assert_called_once_with(key=content_path)
+
 
 # Define test cases with the paths based on the provided config file
 static_content_test_cases = [
@@ -26,6 +104,19 @@ def mock_get_content_from_s3(key=None, bucket_name=None):
     return content_mapping.get(key, None)
 
 
+@pytest.mark.django_db
+@override_settings(
+    CACHES={
+        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+        "machina_attachments": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache"
+        },
+        "static_content": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "TIMEOUT": 86400,
+        },
+    }
+)
 @pytest.mark.django_db
 @pytest.mark.parametrize("content_path", static_content_test_cases)
 @patch("core.views.get_content_from_s3", new=mock_get_content_from_s3)

@@ -3,7 +3,7 @@
 
 {% get_permission 'can_download_files' post.topic.forum request.user as user_can_download_files %}
 {% if post.attachments.exists and user_can_download_files %}
-<div class="w-full attachments space-y-4">
+<div class="space-y-4 w-full attachments">
   <div class="col-md-12">
     <span class="text-muted attachments-title"><i class="fa fa-files-o"></i>&nbsp;{% trans "Attachments" %}</span>
   </div>
