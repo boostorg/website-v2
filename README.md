@@ -98,7 +98,7 @@ To **remove all existing data** (except for superusers) from your local project'
 ./manage.py create_sample_data --all
 ```
 
-See `create_sample_data` in [Management Commands](docs/commands.md).
+For more information on the many, many options available for this command, see `create_sample_data` in [Management Commands](docs/commands.md).
 
 ### Live GitHub Libraries
 
@@ -108,7 +108,7 @@ To **add real Boost libraries and sync all the data from GitHub**, run:
 ./manage.py update_libraries
 ```
 
-See `update_libraries` in [Management Commands](docs/commands.md).
+This command can take a long time to run (about a half hour). For more information, see `update_libraries` in [Management Commands](docs/commands.md).
 
 ---
 
