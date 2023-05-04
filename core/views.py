@@ -121,7 +121,11 @@ class StaticContentTemplateView(View):
 
             content, content_type = result
             # Store the result in cache
-            static_content_cache.set(cache_key, (content, content_type))
+            static_content_cache.set(
+                cache_key,
+                (content, content_type),
+                settings.CACHES["static_content"]["TIMEOUT"],
+            )
 
         response = HttpResponse(content, content_type=content_type)
         logger.info(
