@@ -157,6 +157,24 @@ pip install pre-commit
 pre-commit install
 ``` 
 
+To **run individual hooks, run: 
+
+```bash
+pre-commit run {hook}
+```
+
+Example: 
+
+```bash
+pre-commit run black
+```
+
+or 
+
+```bash
+pre-commit run djhtml
+```
+
 To **preview** what the pre-commit hooks would catch **in the changes you are about to commit**, run: 
 
 ```bash
