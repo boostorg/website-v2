@@ -126,73 +126,29 @@ TDB
 
 We use [pre-commit hooks](https://pre-commit.com/) to check code for style, syntax, and other issues. They help to maintain consistent code quality and style across the project, and prevent issues from being introduced into the codebase.
 
-Pre-commit is configured for the following:
+| Pre-commit Hook | Description | 
+| --------------- | ----------- | 
+| [Black](https://github.com/psf/black) | Formats Python code using the `black` code formatter | 
+| [Ruff](https://github.com/charliermarsh/ruff) | Wrapper around `flake8` and `isort`, among other linters | 
+| [Djhtml](https://github.com/rtts/djhtml) | Auto-formats Django templates | 
+| [Rustywind](https://github.com/avencera/rustywind) | Sorts and formats Tailwind CSS classes | 
 
-* **[Black](https://github.com/psf/black)**: Formats Python code using the `black` code formatter.
-* **[Ruff](https://github.com/charliermarsh/ruff)**: Wrapper around `flake8` and `isort`, among other linters
-* **[Djhtml](https://github.com/rtts/djhtml)**:  for cleaning up django templates
-* **[Rustywind](https://github.com/avencera/rustywind)** for sorting tailwind classes
+### Setup and Usage
 
-Add the hooks by running: 
+| Description | Command |
+| ---- | ------- |
+| 1. Install the `pre-commit` package using `pip` | `pip install pre-commit` |
+| 2. Install our list of pre-commit hooks locally | `pre-commit install` |
+| 3. Run all hooks for changed files before commit | `pre-commit run` |
+| 4. Run specific hook before commit | `pre-commit run {hook}` |
+| 5. Run hooks for all files, even unchanged ones | `pre-commit run --all-files` |
+| 6. Commit without running pre-commit hooks | `git commit -m "Your commit message" --no-verify` |
 
-```bash
-pre-commit install
-``` 
+Example commands for running specific hooks:
 
-Now, the pre-commit hooks will automatically run before each commit. If any hook fails, the commit will be aborted, and you'll need to fix the issues and try committing again.
-
-### Running pre-commit hooks locally 
-
-Ensure you have Python and `pip` installed. 
-
-**Install `pre-commit`**: run:
-
-```bash
-pip install pre-commit
-```
-
-**Install the hooks**: navigate to the root directory and run:
-
-```bash
-pre-commit install
-``` 
-
-To **run individual hooks, run: 
-
-```bash
-pre-commit run {hook}
-```
-
-Example: 
-
-```bash
-pre-commit run black
-```
-
-or 
-
-```bash
-pre-commit run djhtml
-```
-
-To **preview** what the pre-commit hooks would catch **in the changes you are about to commit**, run: 
-
-```bash
-pre-commit run
-```
-
-To **preview** what the pre-commit hooks would catch **across the whole project**, run: 
-
-```bash
-pre-commit run --all-files
-``` 
-
-To **skip running the pre-commit hooks** for some reason, run:
-
-```bash
-git commit -m "Your commit message" --no-verify
-```
-
-This will allow you to commit without running the hooks first. When you push your branch, you will still need to resolve issues that CI catches. 
-
-_Note: Added this when a couple of us installed pre-commit and got the Big Angry List, so I wanted to save is a Google._ 
+| Hook | Example |
+| --------------- | --------------- |
+| Black | `pre-commit run black` |
+| Ruff | `pre-commit run ruff` |
+| Djhtml | `pre-commit run djhtml` |
+| Rustywind | `pre-commit run rustywind` |
