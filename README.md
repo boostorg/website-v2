@@ -157,7 +157,13 @@ pip install pre-commit
 pre-commit install
 ``` 
 
-To **preview what the pre-commit hooks would catch**, run: 
+To **preview** what the pre-commit hooks would catch **in the changes you are about to commit**, run: 
+
+```bash
+pre-commit run
+```
+
+To **preview** what the pre-commit hooks would catch **across the whole project**, run: 
 
 ```bash
 pre-commit run --all-files
