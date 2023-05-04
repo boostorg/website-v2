@@ -92,7 +92,7 @@ $ yarn build
 
 ### Sample (Fake) Data 
 
-To **drop your entire local volume** (except superusers) and generate fresh sample data **that will not sync with GitHub**, run: 
+To **remove all existing data** (except for superusers) from your local project's database (which is in its own Docker volume) and generate fresh sample data **that will not sync with GitHub**, run: 
 
 ```bash
 ./manage.py create_sample_data --all
