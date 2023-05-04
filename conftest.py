@@ -30,14 +30,40 @@ def temp_image_file():
 
 
 @pytest.fixture
-def logged_in_tp(client):
+def tp(client):
     """
-    TestPlus TestCase with a logged in user
+    django-test-plus TestCase with a logged in user.
 
     Use case: While the site is in development, this is a quick way to
     test views that require a logged in user.  This is a temporary
     solution that protects the new design from being seen by the public
     until it is ready.
+
+    When you're done, remove this fixture. The tests will automatically update
+    to use the standard django-test-plus test class.
+    """
+    email = "testuser@example.com"
+    password = "testpassword"
+    User.objects.create_user(email=email, password=password)
+    client.login(email=email, password=password)
+
+    tp = TestCase()
+    tp.client = client
+
+    return tp
+
+
+@pytest.fixture
+def logged_out_tp(client):
+    """
+    django-test-plus TestCase with a logged-out user.
+
+    Use case: While the `tp` fixture is being overriden to allow tests
+    to pass while the whole site is behind login, this fixture allows
+    tests to be written for the public-facing pages.
+
+    When you're done, remove this fixture and update tests that use it to
+    use the standard django-test-plus client fixture.
     """
     email = "testuser@example.com"
     password = "testpassword"

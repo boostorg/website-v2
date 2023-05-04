@@ -3,15 +3,15 @@ import datetime
 from model_bakery import baker
 
 
-def test_version_list(version, logged_in_tp):
+def test_version_list(version, tp):
     """
     GET /versions/
     """
-    res = logged_in_tp.get("version-list")
-    logged_in_tp.response_200(res)
+    res = tp.get("version-list")
+    tp.response_200(res)
 
 
-def test_version_list_context(version, old_version, inactive_version, logged_in_tp):
+def test_version_list_context(version, old_version, inactive_version, tp):
     """
     GET /versions/
     """
@@ -21,8 +21,8 @@ def test_version_list_context(version, old_version, inactive_version, logged_in_
         description="Sample",
         release_date=datetime.date.today() - datetime.timedelta(days=700),
     )
-    res = logged_in_tp.get("version-list")
-    logged_in_tp.response_200(res)
+    res = tp.get("version-list")
+    tp.response_200(res)
     assert "current_version" in res.context
     assert "version_list" in res.context
     assert len(res.context["version_list"]) == 2
@@ -33,9 +33,9 @@ def test_version_list_context(version, old_version, inactive_version, logged_in_
     assert inactive_version not in res.context["version_list"]
 
 
-def test_version_detail(version, logged_in_tp):
+def test_version_detail(version, tp):
     """
     GET /versions/{slug}/
     """
-    res = logged_in_tp.get("version-detail", slug=version.slug)
-    logged_in_tp.response_200(res)
+    res = tp.get("version-detail", slug=version.slug)
+    tp.response_200(res)

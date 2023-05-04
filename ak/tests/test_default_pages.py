@@ -4,29 +4,29 @@ import random
 from django.test.utils import override_settings
 
 
-def test_homepage(db, tp, logged_in_tp):
+def test_homepage(db, tp):
     """Ensure we can hit the homepage"""
     # Use any page that is named 'home' otherwise use /
     url = tp.reverse("home")
     if not url:
         url = "/"
 
-    response = logged_in_tp.get(url)
-    logged_in_tp.response_200(response)
+    response = tp.get(url)
+    tp.response_200(response)
 
 
-def test_200_page(db, logged_in_tp):
+def test_200_page(db, tp):
     """Test a 200 OK page"""
 
-    response = logged_in_tp.get("ok")
-    logged_in_tp.response_200(response)
+    response = tp.get("ok")
+    tp.response_200(response)
 
 
-def test_403_page(db, logged_in_tp):
+def test_403_page(db, tp):
     """Test a 403 error page"""
 
-    response = logged_in_tp.get("forbidden")
-    logged_in_tp.response_403(response)
+    response = tp.get("forbidden")
+    tp.response_403(response)
 
 
 @override_settings(
@@ -41,7 +41,7 @@ def test_403_page(db, logged_in_tp):
         },
     }
 )
-def test_404_page(db, logged_in_tp):
+def test_404_page(db, tp):
     """
     Test a 404 error page
 
@@ -54,22 +54,22 @@ def test_404_page(db, logged_in_tp):
 
     rando = random.randint(1000, 20000)
     url = f"/this/should/not/exist/{rando}/"
-    response = logged_in_tp.get(url)
-    logged_in_tp.response_404(response)
+    response = tp.get(url)
+    tp.response_404(response)
 
-    response = logged_in_tp.get("not_found")
-    logged_in_tp.response_404(response)
+    response = tp.get("not_found")
+    tp.response_404(response)
 
 
-def test_500_page(db, logged_in_tp):
+def test_500_page(db, tp):
     """Test our 500 error page"""
 
-    url = logged_in_tp.reverse("internal_server_error")
+    url = tp.reverse("internal_server_error")
 
     # Bail out of this test if this view is not defined
     if not url:
         pytest.skip()
 
     with pytest.raises(ValueError):
-        response = logged_in_tp.get("internal_server_error")
-        logged_in_tp.response_500(response)
+        response = tp.get("internal_server_error")
+        tp.response_500(response)
