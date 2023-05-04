@@ -1,3 +1,20 @@
+{% comment %}Delete this whole <html> class when ready to open the site back up to the public.{% endcomment %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Custom Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form method="post" action="{% url 'account_login' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Log in</button>
+    </form>
+</body>
+</html>
+
+{% comment %}
 {% extends "base.html" %}
 
 {% load i18n %}
@@ -94,3 +111,4 @@
   </div>
 
 {% endblock %}
+{% endcomment %}
