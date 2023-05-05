@@ -1,26 +1,26 @@
-# Management Commands 
+# Management Commands
 
 ## `create_sample_data`
 
 Running this command will populate the database with fake data for local development.
 
-When run, it will create fake objects for these models: 
+When run, it will create fake objects for these models:
 
-- User 
+- User
 - Version
-- Category 
+- Category
 - Library
 - LibraryVersion
-- Authors for Libraries and Maintainers for LibraryVersions 
-- Issues and Pull Requests for Libraries 
+- Authors for Libraries and Maintainers for LibraryVersions
+- Issues and Pull Requests for Libraries
 
-The data generated is fake. Any links, information that looks like it comes from GitHub, email addresses, etc. is all fake. Some of it is made to look like realistic data. 
+The data generated is fake. Any links, information that looks like it comes from GitHub, email addresses, etc. is all fake. Some of it is made to look like realistic data.
 
 The following options can be used with the command:
 
 - `--all`: If True, run all methods including the drop command.
 
-If you don't want to drop all records for the above models and create a new set of fresh data, you can pass these options to clear your database or and create new records. 
+If you don't want to drop all records for the above models and create a new set of fresh data, you can pass these options to clear your database or and create new records.
 
 - `--drop`: If True, drop all records in the database.
 - `--users`: If True, create fake users.
@@ -37,7 +37,7 @@ If you don't want to drop all records for the above models and create a new set 
 
     ./manage.py create_sample_data --all
 
-Output: 
+Output:
 
     Dropping all records...
     Dropping Non-Superusers...
@@ -68,11 +68,11 @@ Output:
     ...10 issues created for algorithm
 
 
-### Example: Create new pull requests and issues for existing library objects 
+### Example: Create new pull requests and issues for existing library objects
 
-    ./manage.py create_sample_data --prs --issues 
+    ./manage.py create_sample_data --prs --issues
 
-Output: 
+Output:
 
     Adding library pull requests...
     ...9 pull requests created for algorithm
@@ -82,15 +82,15 @@ Output:
     ...10 issues created for asio
 
 
-## `generate_fake_versions` 
+## `generate_fake_versions`
 
-Creates fake Version objects **only**, then creates LibraryVersion objects for each existing Library and the new Versions. 
+Creates fake Version objects **only**, then creates LibraryVersion objects for each existing Library and the new Versions.
 
-### Example: 
+### Example:
 
     ./manage.py generate_fake_versions
 
-Output: 
+Output:
 
     Version 1.30.0 created succcessfully
     ---algorithm (1.30.0) created succcessfully
@@ -98,14 +98,14 @@ Output:
 
 ## `update_libraries`
 
-Runs the library update script, which cycles through the repos listed in the Boost library and syncs their information. 
+Runs the library update script, which cycles through the repos listed in the Boost library and syncs their information.
 
-Synced information: 
+Synced information:
 
-- Most library information comes from `meta/libraries.json` stored in each Boost library repo 
-- Library data and metadata from GitHub is saved to our database 
-- Categories are updated, if needed 
-- Library categories are updated, if need be. 
-- Issues and Pull Requests are synced 
+- Most library information comes from `meta/libraries.json` stored in each Boost library repo
+- Library data and metadata from GitHub is saved to our database
+- Categories are updated, if needed
+- Library categories are updated, if need be.
+- Issues and Pull Requests are synced
 
-**NOTE**: Can take upwards of a half hour to run. If you are trying to populate tables for local development, `create_sample_data` is a better option if the GitHub integrations aren't important. 
+**NOTE**: Can take upwards of a half hour to run. If you are trying to populate tables for local development, `create_sample_data` is a better option if the GitHub integrations aren't important.

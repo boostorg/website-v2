@@ -43,6 +43,54 @@ services:
       - ../website2022/:/website
     stop_signal: SIGKILL
 
+  celery-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command:
+      [
+        "celery",
+        "-A",
+        "config",
+        "worker",
+        "--concurrency=10",
+        "--loglevel=debug"
+      ]
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - backend
+    volumes:
+      - .:/code
+    stop_signal: SIGKILL
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command:
+      [
+        "celery",
+        "-A",
+        "config",
+        "beat",
+        "--loglevel=debug"
+      ]
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - backend
+    volumes:
+      - .:/code
+    stop_signal: SIGKILL
+
+
 networks:
   backend:
   frontend:

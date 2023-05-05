@@ -36,7 +36,7 @@ bump2version==1.0.1
     # via bumpversion
 bumpversion==0.6.0
     # via -r ./requirements.in
-celery==5.2.2
+celery==5.2.7
     # via -r ./requirements.in
 certifi==2022.6.15
     # via
@@ -250,7 +250,7 @@ python-json-logger==2.0.1
     # via -r ./requirements.in
 python3-openid==3.2.0
     # via django-allauth
-pytz==2021.1
+pytz==2023.3
     # via
     #   celery
     #   djangorestframework
