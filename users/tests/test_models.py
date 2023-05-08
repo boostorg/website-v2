@@ -1,7 +1,10 @@
 import datetime
-
 import pytest
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
+
+from users.models import InvitationToken
 
 User = get_user_model()
 
@@ -144,3 +147,14 @@ def test_invitation_token_is_expired_property(invitation_token):
     invitation_token.save()
 
     assert invitation_token.is_expired
+
+
+def test_invitation_token_save_method(user):
+    # Create a new InvitationToken instance without setting the expiration_date
+    invitation_token = InvitationToken(user=user)
+    invitation_token.save()
+
+    # Check if the expiration_date is set correctly
+    expiration_days = int(settings.INVITATION_EXPIRATION_DAYS)
+    expected_expiration_date = datetime.datetime.now() + datetime.timedelta(days=expiration_days)
+    assert invitation_token.expiration_date.date() == expected_expiration_date.date()

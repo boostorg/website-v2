@@ -276,11 +276,6 @@ def create_last_seen_for_user(sender, instance, created, raw, **kwargs):
 class InvitationToken(models.Model):
     """
     An invitation token to create a user account.
-
-    Attributes:
-        user (ForeignKey): A ForeignKey field referencing the User model.
-        token (CharField): A unique, random string that represents the claim token.
-        expiration_date (DateTimeField): A DateTime field that specifies when the token expires.
     """
 
     user = models.ForeignKey(
@@ -303,4 +298,12 @@ class InvitationToken(models.Model):
 
     @property
     def is_expired(self):
+        """Returns True if the token is expired, False otherwise."""
         return datetime.datetime.now() > self.expiration_date
+
+    def save(self, *args, **kwargs):
+        """ Set the expiration date if it's not already set."""
+        if not self.expiration_date:
+            expiration_days = int(settings.INVITATION_EXPIRATION_DAYS)
+            self.expiration_date = datetime.datetime.now() + datetime.timedelta(days=expiration_days)
+        super().save(*args, **kwargs)
