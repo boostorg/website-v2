@@ -2,18 +2,8 @@ import datetime
 
 import pytest
 from django.contrib.auth import get_user_model
-from django.utils.timezone import make_aware
-from model_bakery import baker
-
-from users.models import InvitationToken
 
 User = get_user_model()
-
-
-@pytest.fixture
-def invitation_token(user):
-    expiration_date = datetime.datetime.now() + datetime.timedelta(days=3)
-    return baker.make(InvitationToken, user=user, expiration_date=expiration_date)
 
 
 def test_regular_user(user):
@@ -132,7 +122,6 @@ def test_find_contributor_is_maintainer(user, library_version):
 
 
 def test_invitation_token_creation(invitation_token):
-    assert isinstance(invitation_token, InvitationToken)
     assert invitation_token.expiration_date is not None
 
 

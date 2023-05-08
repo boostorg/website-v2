@@ -1,8 +1,11 @@
+import datetime
 import pytest
 
 from django.utils import timezone
 
 from model_bakery import baker
+
+from users.models import InvitationToken
 
 
 @pytest.fixture
@@ -57,3 +60,9 @@ def super_user(db):
     user.save()
 
     return user
+
+
+@pytest.fixture
+def invitation_token(user):
+    expiration_date = datetime.datetime.now() + datetime.timedelta(days=3)
+    return baker.make(InvitationToken, user=user, expiration_date=expiration_date)
