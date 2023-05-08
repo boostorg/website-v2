@@ -90,9 +90,9 @@ $ yarn build
 
 ## Generating Local Data
 
-### Sample (Fake) Data 
+### Sample (Fake) Data
 
-To **remove all existing data** (except for superusers) from your local project's database (which is in its own Docker volume) and generate fresh sample data **that will not sync with GitHub**, run: 
+To **remove all existing data** (except for superusers) from your local project's database (which is in its own Docker volume) and generate fresh sample data **that will not sync with GitHub**, run:
 
 ```bash
 ./manage.py create_sample_data --all
@@ -102,7 +102,7 @@ For more information on the many, many options available for this command, see `
 
 ### Live GitHub Libraries
 
-To **add real Boost libraries and sync all the data from GitHub**, run: 
+To **add real Boost libraries and sync all the data from GitHub**, run:
 
 ```bash
 ./manage.py update_libraries
@@ -126,12 +126,12 @@ TDB
 
 We use [pre-commit hooks](https://pre-commit.com/) to check code for style, syntax, and other issues. They help to maintain consistent code quality and style across the project, and prevent issues from being introduced into the codebase.
 
-| Pre-commit Hook | Description | 
-| --------------- | ----------- | 
-| [Black](https://github.com/psf/black) | Formats Python code using the `black` code formatter | 
-| [Ruff](https://github.com/charliermarsh/ruff) | Wrapper around `flake8` and `isort`, among other linters | 
-| [Djhtml](https://github.com/rtts/djhtml) | Auto-formats Django templates | 
-| [Rustywind](https://github.com/avencera/rustywind) | Sorts and formats Tailwind CSS classes | 
+| Pre-commit Hook | Description |
+| --------------- | ----------- |
+| [Black](https://github.com/psf/black) | Formats Python code using the `black` code formatter |
+| [Ruff](https://github.com/charliermarsh/ruff) | Wrapper around `flake8` and `isort`, among other linters |
+| [Djhtml](https://github.com/rtts/djhtml) | Auto-formats Django templates |
+| [Rustywind](https://github.com/avencera/rustywind) | Sorts and formats Tailwind CSS classes |
 
 ### Setup and Usage
 
