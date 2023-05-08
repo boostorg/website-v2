@@ -1771,11 +1771,6 @@ input[type=file] {
   border-color: rgb(55 65 81 / var(--tw-border-opacity));
 }
 
-.border-gray-300 {
-  --tw-border-opacity: 1;
-  border-color: rgb(209 213 219 / var(--tw-border-opacity));
-}
-
 .border-orange {
   --tw-border-opacity: 1;
   border-color: rgb(255 159 0 / var(--tw-border-opacity));
@@ -1789,6 +1784,11 @@ input[type=file] {
 .border-slate {
   --tw-border-opacity: 1;
   border-color: rgb(49 74 87 / var(--tw-border-opacity));
+}
+
+.border-gray-300 {
+  --tw-border-opacity: 1;
+  border-color: rgb(209 213 219 / var(--tw-border-opacity));
 }
 
 .border-green\/40 {
