@@ -1,14 +1,11 @@
+import datetime
 import logging
 import os
 import uuid
-import requests
 
+import requests
 from django.conf import settings
-from django.contrib.auth.models import (
-    AbstractBaseUser,
-    PermissionsMixin,
-    BaseUserManager,
-)
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.files import File
 from django.core.mail import send_mail
 from django.db import models
@@ -17,7 +14,6 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-
 
 logger = logging.getLogger(__name__)
 
@@ -304,3 +300,7 @@ class InvitationToken(models.Model):
 
     def __str__(self):
         return f"{self.user.get_display_name}'s Invitation Token"
+
+    @property
+    def is_expired(self):
+        return datetime.datetime.now() > self.expiration_date

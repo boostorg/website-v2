@@ -1,9 +1,9 @@
 import datetime
+
 import pytest
-
-from model_bakery import baker
-
 from django.contrib.auth import get_user_model
+from django.utils.timezone import make_aware
+from model_bakery import baker
 
 from users.models import InvitationToken
 
@@ -139,3 +139,19 @@ def test_invitation_token_creation(invitation_token):
 def test_invitation_token_str_value(invitation_token):
     expected_str_value = f"{invitation_token.user.get_display_name}'s Invitation Token"
     assert str(invitation_token) == expected_str_value
+
+
+def test_invitation_token_is_expired_property(invitation_token):
+    # Test not expired case
+    not_expired_date = datetime.datetime.now() + datetime.timedelta(days=1)
+    invitation_token.expiration_date = not_expired_date
+    invitation_token.save()
+
+    assert not invitation_token.is_expired
+
+    # Test expired case
+    expired_date = datetime.datetime.now() - datetime.timedelta(days=1)
+    invitation_token.expiration_date = expired_date
+    invitation_token.save()
+
+    assert invitation_token.is_expired
