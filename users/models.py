@@ -1,5 +1,6 @@
 import logging
 import os
+import uuid
 import requests
 
 from django.conf import settings
@@ -274,3 +275,32 @@ def create_last_seen_for_user(sender, instance, created, raw, **kwargs):
 
     if created:
         LastSeen.objects.create(user=instance, at=timezone.now())
+
+
+class InvitationToken(models.Model):
+    """
+    An invitation token to create a user account.
+
+    Attributes:
+        user (ForeignKey): A ForeignKey field referencing the User model.
+        token (CharField): A unique, random string that represents the claim token.
+        expiration_date (DateTimeField): A DateTime field that specifies when the token expires.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="invitations",
+        help_text="The user who was invited to create an account.",
+    )
+    token = models.UUIDField(
+        unique=True,
+        default=uuid.uuid4,
+        help_text="A unique, random UUID that represents the invitation token."
+    )
+    expiration_date = models.DateTimeField(
+        help_text="The date and time when the token expires."
+    )
+
+    def __str__(self):
+        return f"{self.user.get_display_name}'s Invitation Token"
