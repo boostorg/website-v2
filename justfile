@@ -37,12 +37,12 @@ alias shell := console
     docker compose run --rm web bash
 
 @server:  ## starts app
-    docker compose --file docker compose.yml run --rm web python manage.py migrate --noinput
+    docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
     docker compose up
 
 @setup:  ## sets up a project to be used for the first time
     docker compose --file $(COMPOSE_FILE) build --force-rm
-    docker compose --file docker compose.yml run --rm web python manage.py migrate --noinput
+    docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
 
 @test_pytest:
     -docker compose run --rm web pytest -s
@@ -61,7 +61,7 @@ alias shell := console
     docker compose --file $(COMPOSE_FILE) rm --force web
     docker compose --file $(COMPOSE_FILE) pull
     docker compose --file $(COMPOSE_FILE) build --force-rm
-    docker compose --file docker compose.yml run --rm web python manage.py migrate --noinput
+    docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
 
 # ----
 
