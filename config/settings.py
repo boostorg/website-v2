@@ -267,7 +267,15 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": f"redis://{REDIS_HOST}:6379",
     },
+    "static_content": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:6379/2",
+        "TIMEOUT": env(
+            "STATIC_CACHE_TIMEOUT", default=86400
+        ),  # Cache timeout in seconds: 1 day
+    },
 }
+
 
 HAYSTACK_CONNECTIONS = {
     "default": {

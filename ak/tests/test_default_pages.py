@@ -1,6 +1,8 @@
 import pytest
 import random
 
+from django.test.utils import override_settings
+
 
 def test_homepage(db, tp):
     """Ensure we can hit the homepage"""
@@ -27,8 +29,28 @@ def test_403_page(db, tp):
     tp.response_403(response)
 
 
+@override_settings(
+    CACHES={
+        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+        "machina_attachments": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache"
+        },
+        "static_content": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "TIMEOUT": 86400,
+        },
+    }
+)
 def test_404_page(db, tp):
-    """Test a 404 error page"""
+    """
+    Test a 404 error page
+
+    This test is a bit more complicated than the others because the
+    this/should/not/exist URL will hit StaticContentTemplateView first
+    to see if there is static content to serve, and cache it if so. To avoid
+    errors in CI, we need to make sure that the cache is cleared before
+    running this test.
+    """
 
     rando = random.randint(1000, 20000)
     url = f"/this/should/not/exist/{rando}/"
