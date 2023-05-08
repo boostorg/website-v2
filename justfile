@@ -63,6 +63,13 @@ alias shell := console
     docker compose --file $(COMPOSE_FILE) build --force-rm
     docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
 
+
+@makemigrations: ## creates new migrations based on the changes detected in the models
+    docker compose run --rm web ./manage.py makemigrations
+
+@migrate:  ## applies migrations to the database
+    docker compose run --rm web ./manage.py migrate
+
 # ----
 
 @pip-compile:  ## rebuilds our pip requirements
