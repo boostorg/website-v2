@@ -15,6 +15,12 @@ This project uses environment variables to configure certain aspects of the appl
 - For **local development**, set this to whatever you want. 
 - In **deployed environments**, change the value by editing `kube/boost/values.yaml` (or the environment-specific yaml file). 
 
+## `INVITATION_EXPIRATION_DAYS`
+
+- Used to indicate how many days an invitation to join the site is valid for 
+- For **local development**, set this to whatever you want. The default in `env.template` is 3 days.
+- In **deployed environments**, change the value by editing `kube/boost/values.yaml` (or the environment-specific yaml file). 
+
 
 ## `STATIC_CONTENT_AWS_ACCESS_KEY_ID`
 

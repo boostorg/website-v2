@@ -119,6 +119,8 @@ Env:
       secretKeyRef:
         name: static-content
         key: bucket_name
+  - name: INVITATION_EXPIRATION_DAYS
+    value: 3
 
 # Volumes
 Volumes:
