@@ -24,7 +24,6 @@ class LibraryList(CategoryMixin, FormMixin, ListView):
 
     form_action = "/libraries/"
     form_class = LibraryForm
-    paginate_by = 25
     queryset = (
         Library.objects.prefetch_related("authors", "categories").all().order_by("name")
     )
@@ -136,7 +135,6 @@ class LibraryListByVersion(CategoryMixin, FormMixin, ListView):
     """List all of our libraries for a specific Boost version by name"""
 
     form_class = LibraryForm
-    paginate_by = 25
     queryset = (
         Library.objects.prefetch_related("authors", "categories").all().order_by("name")
     )

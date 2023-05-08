@@ -62,6 +62,7 @@
   </div>
   <!-- end libraries list -->
 
+  {% if page_obj.paginator %}
   <!-- Pagination -->
   <div class="space-x-3 text-center">
     {% if page_obj.has_previous %}
@@ -74,4 +75,6 @@
     {% endif %}
   </div>
   <!-- end pagination -->
+  {% endif %}
+
 {% endblock %}
