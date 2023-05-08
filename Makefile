@@ -1,4 +1,4 @@
-COMPOSE_FILE := docker-compose-with-celery.yml
+COMPOSE_FILE := docker-compose.yml
 
 .PHONY: help
 help:
@@ -12,7 +12,7 @@ help:
 
 .PHONY: bootstrap
 bootstrap:  ## installs/updates all dependencies
-	@docker-compose --file $(COMPOSE_FILE) build --force-rm
+	@docker compose --file $(COMPOSE_FILE) build --force-rm
 
 .PHONY: cibuild
 cibuild:  ## invoked by continuous integration servers to run tests
@@ -22,81 +22,79 @@ cibuild:  ## invoked by continuous integration servers to run tests
 
 .PHONY: console
 console:  ## opens a console
-	@docker-compose run --rm web bash
+	@docker compose run --rm web bash
 
 .PHONY: server
 server:  ## starts app
-	@docker-compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
-	@docker-compose up
+	@docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
+	@docker compose up
 
 .PHONY: setup
 setup:  ## sets up a project to be used for the first time
-	@docker-compose --file $(COMPOSE_FILE) build --force-rm
-	@docker-compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
+	@docker compose --file $(COMPOSE_FILE) build --force-rm
+	@docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
 
 .PHONY: test_interrogate
 test_interrogate:
-	@docker-compose run --rm web interrogate -vv --fail-under 100 --whitelist-regex "test_.*" .
+	@docker compose run --rm web interrogate -vv --fail-under 100 --whitelist-regex "test_.*" .
 
 .PHONY: test_pytest
 test_pytest:
-	@docker-compose run --rm web pytest -s
+	@docker compose run --rm web pytest -s
 
 .PHONY: test
 test: test_interrogate test_pytest
-	@docker-compose down
+	@docker compose down
 
 .PHONY: update
 update:  ## updates a project to run at its current version
-	@docker-compose --file $(COMPOSE_FILE) rm --force celery
-	@docker-compose --file $(COMPOSE_FILE) rm --force celery-beat
-	@docker-compose --file $(COMPOSE_FILE) rm --force web
-	@docker-compose --file $(COMPOSE_FILE) pull
-	@docker-compose --file $(COMPOSE_FILE) build --force-rm
-	@docker-compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
+	@docker compose --file $(COMPOSE_FILE) rm --force celery
+	@docker compose --file $(COMPOSE_FILE) rm --force celery-beat
+	@docker compose --file $(COMPOSE_FILE) rm --force web
+	@docker compose --file $(COMPOSE_FILE) pull
+	@docker compose --file $(COMPOSE_FILE) build --force-rm
+	@docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
 
 # ----
 
 .PHONY: pip-compile
 pip-compile:  ## rebuilds our pip requirements
-	@docker-compose run --rm web pip-compile ./requirements.in --output-file ./requirements.txt
+	@docker compose run --rm web pip-compile ./requirements.in --output-file ./requirements.txt
 
 .PHONY: build
 build:
-	docker-compose pull
-	DOCKER_BUILDKIT=1 docker-compose build
+	docker compose pull
+	DOCKER_BUILDKIT=1 docker compose build
 
 .PHONY: createsuperuser
 createsuperuser:
-	docker-compose run --rm web /code/manage.py createsuperuser
+	docker compose run --rm web /code/manage.py createsuperuser
 
 .PHONY: down
 down:
-	docker-compose down
+	docker compose down
 
 .PHONY: makemigrations
 makemigrations:
 	@echo "Running makemigrations..."
-	docker-compose run --rm web /code/manage.py makemigrations
+	docker compose run --rm web /code/manage.py makemigrations
 
 .PHONY: migrate
 migrate:
 	@echo "Running migrations..."
-	docker-compose run --rm web /code/manage.py migrate --noinput
+	docker compose run --rm web /code/manage.py migrate --noinput
 
 .PHONY: rebuild
 rebuild:
 	@echo "Rebuilding local docker images..."
-	docker-compose kill
-	docker-compose rm -f web
-	DOCKER_BUILDKIT=1 docker-compose build --force-rm web
+	docker compose kill
+	docker compose rm -f web
+	DOCKER_BUILDKIT=1 docker compose build --force-rm web
 
 .PHONY: shell
 shell:
-	docker-compose run --rm web bash
+	docker compose run --rm web bash
 
 .PHONY: up
 up:
-	docker-compose up -d
-
-
+	docker compose up -d
