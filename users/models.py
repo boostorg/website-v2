@@ -296,7 +296,7 @@ class InvitationToken(models.Model):
     token = models.UUIDField(
         unique=True,
         default=uuid.uuid4,
-        help_text="A unique, random UUID that represents the invitation token."
+        help_text="A unique, random UUID that represents the invitation token.",
     )
     expiration_date = models.DateTimeField(
         help_text="The date and time when the token expires."
