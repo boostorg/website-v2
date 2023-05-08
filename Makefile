@@ -26,13 +26,13 @@ console:  ## opens a console
 
 .PHONY: server
 server:  ## starts app
-	@docker compose --file docker compose.yml run --rm web python manage.py migrate --noinput
+	@docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
 	@docker compose up
 
 .PHONY: setup
 setup:  ## sets up a project to be used for the first time
 	@docker compose --file $(COMPOSE_FILE) build --force-rm
-	@docker compose --file docker compose.yml run --rm web python manage.py migrate --noinput
+	@docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
 
 .PHONY: test_interrogate
 test_interrogate:
@@ -53,7 +53,7 @@ update:  ## updates a project to run at its current version
 	@docker compose --file $(COMPOSE_FILE) rm --force web
 	@docker compose --file $(COMPOSE_FILE) pull
 	@docker compose --file $(COMPOSE_FILE) build --force-rm
-	@docker compose --file docker compose.yml run --rm web python manage.py migrate --noinput
+	@docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
 
 # ----
 

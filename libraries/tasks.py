@@ -11,7 +11,7 @@ logger = structlog.getLogger(__name__)
 
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    # Executes every 5th of the month at at 7:30 a.m.
+    # Executes every 5th of the month at 7:30 a.m.
     sender.add_periodic_task(
         crontab(hour=7, minute=30, day_of_month=5),
         update_libraries.s(),
