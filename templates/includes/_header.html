@@ -3,16 +3,16 @@
 
 
 <div class="relative">
-  <div class="relative pb-11 md:pb-6">
+  <div class="relative pb-11 md:pb-3">
     <div>
-      <div class="hidden items-center py-5 border-b-2 border-gray-300 md:flex darK:border-charcoal">
-        <div class="w-[200px]">
+      <div class="hidden items-center pt-2 pb-4 border-b-2 border-gray-300 md:flex darK:border-charcoal">
+        <div class="w-[130px]">
           <a href="{% url 'home' %}">
-              <img class="hidden -mb-1 w-auto dark:inline-block h-[50px]"
+              <img class="hidden -mb-3 w-auto dark:inline-block h-[32px]"
                    src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}"
                    alt="Boost">
 
-              <img class="inline-block -mb-1 w-auto dark:hidden h-[50px]"
+              <img class="inline-block -mb-3 w-auto dark:hidden h-[32px]"
                    src="{% static 'img/Boost_Brandmark_BlackBoost_Transparent.svg' %}"
                    alt="Boost">
           </a>
@@ -36,7 +36,7 @@
                    x-transition:leave="transition ease-in duration-75"
                    x-transition:leave-start="transform opacity-100 scale-100"
                    x-transition:leave-end="transform opacity-0 scale-95"
-                   class="absolute -top-2 -right-2 z-10"
+                   class="absolute -top-[2px] -right-2 z-10"
                    x-ref="search-form"
                    x-description="Search"
                    role="menu"
