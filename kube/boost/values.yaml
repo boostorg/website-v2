@@ -119,8 +119,12 @@ Env:
       secretKeyRef:
         name: static-content
         key: bucket_name
+  # Days until user invitation expires
   - name: INVITATION_EXPIRATION_DAYS
     value: 3
+  # Static content cache timeout
+  - name: STATIC_CACHE_TIMEOUT
+    value: 60
 
 # Volumes
 Volumes:
