@@ -15,6 +15,12 @@ def test_github_repo(library):
     assert library.github_repo == "multi_array"
 
 
+def test_get_issues_link(library):
+    result = library.github_issues_url
+    expected = f"https://github.com/{library.github_owner}/{library.github_repo}/issues"
+    assert expected == result
+
+
 def test_category_creation(category):
     assert category.name is not None
 
