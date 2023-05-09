@@ -1,6 +1,16 @@
 from model_bakery import baker
 
 
+def test_get_cpp_standard_minimum_display(library):
+    library.cpp_standard_minimum = "11"
+    library.save()
+    assert library.get_cpp_standard_minimum_display() == "C++11"
+
+    library.cpp_standard_minimum = "42"
+    library.save()
+    assert library.get_cpp_standard_minimum_display() == "42"
+
+
 def test_github_properties(library):
     properties = library.github_properties()
     assert properties["owner"] == "boostorg"
@@ -52,9 +62,7 @@ def test_library_version_multiple_versions(library, library_version):
         library_version__version=library_version.version
     ).exists()
     other_version = baker.make("versions.Version", name="New Version")
-    new_library_version = baker.make(
-        "libraries.LibraryVersion", library=library, version=other_version
-    )
+    baker.make("libraries.LibraryVersion", library=library, version=other_version)
     assert library.versions.count() == 2
     assert library.versions.filter(
         library_version__version=library_version.version
