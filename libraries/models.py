@@ -100,6 +100,21 @@ class Library(models.Model):
             self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
 
+    def get_cpp_standard_minimum_display(self):
+        """Returns the display name for the C++ standard, or the value if not found.
+
+        Source of values is
+        https://docs.cppalliance.org/user-guide/prev/library_metadata.html"""
+        display_names = {
+            "98": "C++98",
+            "03": "C98/C03",
+            "11": "C++11",
+            "14": "C++14",
+            "17": "C++17",
+            "20": "C++20",
+        }
+        return display_names.get(self.cpp_standard_minimum, self.cpp_standard_minimum)
+
     def github_properties(self):
         """Returns the owner and repo name for the library"""
         parts = urlparse(self.github_url)
