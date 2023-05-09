@@ -100,16 +100,16 @@
               >
                 <a
                   @click="mode='light'; setColorMode('light'); modeOpen = false;"
-                  :class="{'font-bold': mode === 'light', 'font-thin': mode !== 'light' }"
+                  :class="{'font-bold': mode === 'light', 'font-medium': mode !== 'light' }"
                   class="block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange"
                   >
-                  <i class="inline-block mr-1 fas fa-sun text-gold"></i>
+                  <i class="inline-block mr-1 fas fa-sun text-gold font-semibold"></i>
                   Light Mode
                 </a>
 
                 <a
                   @click="mode = 'dark'; setColorMode('dark'); modeOpen = false;"
-                  :class="{'font-bold': mode === 'dark', 'font-thin': mode !== 'dark' }"
+                  :class="{'font-bold': mode === 'dark', 'font-medium': mode !== 'dark' }"
                   class="block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange"
                   >
                   <i class="inline-block mr-1 fas fa-moon text-sky-600"></i>
