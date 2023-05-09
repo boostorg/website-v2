@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 
@@ -112,17 +113,17 @@ class Library(models.Model):
             "repo": repo,
         }
 
-    @property
+    @cached_property
     def github_owner(self):
         """Returns the name of the GitHub owner for the library"""
         return self.github_properties()["owner"]
 
-    @property
+    @cached_property
     def github_repo(self):
         """Returns the name of the GitHub repository for the library"""
         return self.github_properties()["repo"]
 
-    @property
+    @cached_property
     def github_issues_url(self):
         """
         Returns the URL to the GitHub issues page for the library
