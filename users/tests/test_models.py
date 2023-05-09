@@ -156,5 +156,7 @@ def test_invitation_token_save_method(user):
 
     # Check if the expiration_date is set correctly
     expiration_days = int(settings.INVITATION_EXPIRATION_DAYS)
-    expected_expiration_date = datetime.datetime.now() + datetime.timedelta(days=expiration_days)
+    expected_expiration_date = datetime.datetime.now() + datetime.timedelta(
+        days=expiration_days
+    )
     assert invitation_token.expiration_date.date() == expected_expiration_date.date()

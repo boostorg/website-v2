@@ -5,7 +5,11 @@ import uuid
 
 import requests
 from django.conf import settings
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
 from django.core.files import File
 from django.core.mail import send_mail
 from django.db import models
@@ -302,8 +306,10 @@ class InvitationToken(models.Model):
         return datetime.datetime.now() > self.expiration_date
 
     def save(self, *args, **kwargs):
-        """ Set the expiration date if it's not already set."""
+        """Set the expiration date if it's not already set."""
         if not self.expiration_date:
             expiration_days = int(settings.INVITATION_EXPIRATION_DAYS)
-            self.expiration_date = datetime.datetime.now() + datetime.timedelta(days=expiration_days)
+            self.expiration_date = datetime.datetime.now() + datetime.timedelta(
+                days=expiration_days
+            )
         super().save(*args, **kwargs)
