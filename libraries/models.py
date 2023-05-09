@@ -94,11 +94,13 @@ class Library(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        """Override the save method to confirm the slug is set (or set it)"""
         if not self.slug:
             self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
 
     def github_properties(self):
+        """Returns the owner and repo name for the library"""
         parts = urlparse(self.github_url)
         path = parts.path.split("/")
 
@@ -112,11 +114,25 @@ class Library(models.Model):
 
     @property
     def github_owner(self):
+        """Returns the name of the GitHub owner for the library"""
         return self.github_properties()["owner"]
 
     @property
     def github_repo(self):
+        """Returns the name of the GitHub repository for the library"""
         return self.github_properties()["repo"]
+
+    @property
+    def github_issues_url(self):
+        """
+        Returns the URL to the GitHub issues page for the library
+
+        Does not check if the URL is valid.
+        """
+        if not self.github_owner or not self.github_repo:
+            raise ValueError("Invalid GitHub owner or repository")
+
+        return f"https://github.com/{self.github_owner}/{self.github_repo}/issues"
 
 
 class LibraryVersion(models.Model):
