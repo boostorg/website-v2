@@ -17,20 +17,14 @@
 
       <!-- Overview -->
       <div class="pb-16 mb-16">
-        <div class="pb-6">
-          <h3 class="text-4xl capitalize text-orange" id="overview">
-            Boost.{{ object.name }}
-          </h3>
-        </div>
-
         <!-- Form to select a version of this library -->
-        <form action="{% url 'library-detail' slug=object.slug %}" method="post">
+        <form action="{% url 'library-detail' slug=object.slug %}" method="post" class="float-right">
           {% csrf_token %}
           <div>
             <label for="id_version" hidden="true">Versions:</label>
             <select onchange="this.form.submit()"
                     name="version"
-                    class="block py-2 pr-11 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
+                    class="block py-1 pr-8 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
                     id="id_version"
             >
               <option>Filter by version</option>
@@ -40,6 +34,11 @@
             </select>
           </div>
         </form>
+        <div class="pb-6">
+          <h3 class="text-4xl capitalize text-orange" id="overview">
+            Boost.{{ object.name }}
+          </h3>
+        </div>
 
         <div class="p-4 bg-white rounded-lg divide-x divide-gray-200 md:flex">
           <div class="pr-3 space-y-2 w-full md:w-1/4">
