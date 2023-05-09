@@ -28,7 +28,6 @@ from libraries.views import (
     LibraryByCategory,
     LibraryDetail,
     LibraryListByVersion,
-    LibraryDetailByVersion,
     LibraryListByVersionByCategory,
 )
 from libraries.api import LibrarySearchView
@@ -184,7 +183,7 @@ urlpatterns = (
         ),
         path(
             "versions/<slug:version_slug>/<slug:slug>/",
-            LibraryDetailByVersion.as_view(),
+            LibraryDetail.as_view(),
             name="library-detail-by-version",
         ),
         path("versions/<slug:slug>/", VersionDetail.as_view(), name="version-detail"),
