@@ -953,12 +953,12 @@ input[type=file] {
   right: 2.5rem;
 }
 
-.-top-\[2px\] {
-  top: -2px;
-}
-
 .-right-2 {
   right: -0.5rem;
+}
+
+.-top-\[2px\] {
+  top: -2px;
 }
 
 .right-3 {
@@ -1013,12 +1013,12 @@ input[type=file] {
   z-index: 50;
 }
 
-.order-1 {
-  order: 1;
-}
-
 .order-first {
   order: -9999;
+}
+
+.order-1 {
+  order: 1;
 }
 
 .float-right {
@@ -1269,6 +1269,10 @@ input[type=file] {
   height: 100vh;
 }
 
+.h-full {
+  height: 100%;
+}
+
 .h-96 {
   height: 24rem;
 }
@@ -1283,10 +1287,6 @@ input[type=file] {
 
 .h-6 {
   height: 1.5rem;
-}
-
-.h-full {
-  height: 100%;
 }
 
 .h-\[30px\] {
@@ -1799,17 +1799,13 @@ input[type=file] {
   border-color: rgb(209 213 219 / var(--tw-border-opacity));
 }
 
-.border-green\/40 {
-  border-color: rgb(90 213 153 / 0.4);
+.border-green\/60 {
+  border-color: rgb(90 213 153 / 0.6);
 }
 
 .border-gray-200 {
   --tw-border-opacity: 1;
   border-color: rgb(229 231 235 / var(--tw-border-opacity));
-}
-
-.border-green\/60 {
-  border-color: rgb(90 213 153 / 0.6);
 }
 
 .bg-red-600 {
@@ -1849,8 +1845,8 @@ input[type=file] {
   background-color: rgb(23 42 52 / 0.6);
 }
 
-.bg-green\/20 {
-  background-color: rgb(90 213 153 / 0.2);
+.bg-green\/40 {
+  background-color: rgb(90 213 153 / 0.4);
 }
 
 .bg-gray-100 {
@@ -1874,10 +1870,6 @@ input[type=file] {
 
 .bg-transparent {
   background-color: transparent;
-}
-
-.bg-green\/40 {
-  background-color: rgb(90 213 153 / 0.4);
 }
 
 .bg-opacity-70 {
@@ -1913,11 +1905,6 @@ input[type=file] {
 .object-cover {
   -o-object-fit: cover;
      object-fit: cover;
-}
-
-.object-left {
-  -o-object-position: left;
-     object-position: left;
 }
 
 .object-right {
@@ -2237,10 +2224,6 @@ input[type=file] {
   font-weight: 600;
 }
 
-.font-thin {
-  font-weight: 100;
-}
-
 .font-light {
   font-weight: 300;
 }
@@ -2318,9 +2301,9 @@ input[type=file] {
   color: rgb(55 65 81 / var(--tw-text-opacity));
 }
 
-.text-gray-400 {
+.text-gray-600 {
   --tw-text-opacity: 1;
-  color: rgb(156 163 175 / var(--tw-text-opacity));
+  color: rgb(75 85 99 / var(--tw-text-opacity));
 }
 
 .text-sky-400 {
@@ -2350,11 +2333,6 @@ input[type=file] {
 .text-gray-200 {
   --tw-text-opacity: 1;
   color: rgb(229 231 235 / var(--tw-text-opacity));
-}
-
-.text-gray-600 {
-  --tw-text-opacity: 1;
-  color: rgb(75 85 99 / var(--tw-text-opacity));
 }
 
 .placeholder-gray-500::-moz-placeholder {
@@ -2552,21 +2530,13 @@ input[type=file] {
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
 }
 
-.dark .dark\:bg-green\/10 {
-  background-color: rgb(90 213 153 / 0.1);
+.dark .dark\:bg-green\/40 {
+  background-color: rgb(90 213 153 / 0.4);
 }
 
 .dark .dark\:bg-slate {
   --tw-bg-opacity: 1;
   background-color: rgb(49 74 87 / var(--tw-bg-opacity));
-}
-
-.dark .dark\:bg-green\/30 {
-  background-color: rgb(90 213 153 / 0.3);
-}
-
-.dark .dark\:bg-green\/40 {
-  background-color: rgb(90 213 153 / 0.4);
 }
 
 .dark .dark\:font-medium {
@@ -2702,12 +2672,12 @@ input[type=file] {
 }
 
 @media (min-width: 768px) {
-  .md\:order-2 {
-    order: 2;
-  }
-
   .md\:order-last {
     order: 9999;
+  }
+
+  .md\:order-2 {
+    order: 2;
   }
 
   .md\:float-right {
@@ -2727,11 +2697,6 @@ input[type=file] {
   .md\:my-0 {
     margin-top: 0px;
     margin-bottom: 0px;
-  }
-
-  .md\:my-6 {
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
   }
 
   .md\:mx-0 {
@@ -2763,16 +2728,16 @@ input[type=file] {
     margin-top: 2.75rem;
   }
 
+  .md\:mt-6 {
+    margin-top: 1.5rem;
+  }
+
   .md\:mt-0 {
     margin-top: 0px;
   }
 
   .md\:mb-6 {
     margin-bottom: 1.5rem;
-  }
-
-  .md\:mt-6 {
-    margin-top: 1.5rem;
   }
 
   .md\:block {
@@ -2797,10 +2762,6 @@ input[type=file] {
 
   .md\:w-1\/2 {
     width: 50%;
-  }
-
-  .md\:w-auto {
-    width: auto;
   }
 
   .md\:w-48 {
@@ -2829,6 +2790,10 @@ input[type=file] {
 
   .md\:w-3\/5 {
     width: 60%;
+  }
+
+  .md\:w-auto {
+    width: auto;
   }
 
   .md\:w-1\/4 {
@@ -2917,10 +2882,6 @@ input[type=file] {
     --tw-divide-x-reverse: 0;
     border-right-width: calc(2px * var(--tw-divide-x-reverse));
     border-left-width: calc(2px * calc(1 - var(--tw-divide-x-reverse)));
-  }
-
-  .md\:overflow-x-hidden {
-    overflow-x: hidden;
   }
 
   .md\:rounded-none {
@@ -3055,20 +3016,20 @@ input[type=file] {
     padding-right: 2.75rem;
   }
 
-  .md\:pb-3 {
-    padding-bottom: 0.75rem;
-  }
-
-  .md\:pt-6 {
-    padding-top: 1.5rem;
-  }
-
   .md\:pt-4 {
     padding-top: 1rem;
   }
 
   .md\:pb-11 {
     padding-bottom: 2.75rem;
+  }
+
+  .md\:pb-3 {
+    padding-bottom: 0.75rem;
+  }
+
+  .md\:pt-6 {
+    padding-top: 1.5rem;
   }
 
   .md\:text-right {
