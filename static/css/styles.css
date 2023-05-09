@@ -2524,6 +2524,11 @@ input[type=file] {
   border-color: rgb(49 74 87 / var(--tw-border-opacity));
 }
 
+.dark .dark\:border-charcoal {
+  --tw-border-opacity: 1;
+  border-color: rgb(23 42 52 / var(--tw-border-opacity));
+}
+
 .dark .dark\:bg-black {
   --tw-bg-opacity: 1;
   background-color: rgb(5 26 38 / var(--tw-bg-opacity));
