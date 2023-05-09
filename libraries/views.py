@@ -210,56 +210,6 @@ class LibraryListByVersion(CategoryMixin, FormMixin, ListView):
         return super().get(request)
 
 
-# class LibraryDetailByVersion(CategoryMixin, DetailView):
-#     """Display a single Library for a specific Boost version"""
-
-#     model = Library
-#     template_name = "libraries/detail.html"
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         object = self.get_object()
-#         context["closed_prs_count"] = self.get_closed_prs_count(object)
-#         context["open_issues_count"] = self.get_open_issues_count(object)
-#         context["version_slug"] = self.kwargs.get("version_slug")
-#         context["version"] = self.get_version(self.kwargs.get("version_slug"))
-#         context["version_name"] = context["version"].name
-#         context["maintainers"] = self.get_maintainers(context["version"])
-#         return context
-
-#     def get_object(self):
-#         version_slug = self.kwargs.get("version_slug")
-#         slug = self.kwargs.get("slug")
-
-#         if not LibraryVersion.objects.filter(
-#             version__slug=version_slug, library__slug=slug
-#         ).exists():
-#             raise Http404("No library found matching the query")
-#         try:
-#             obj = self.get_queryset().get(slug=slug)
-#         except self.model.DoesNotExist:
-#             raise Http404("No library found matching the query")
-#         return obj
-
-#     def get_closed_prs_count(self, obj):
-#         return PullRequest.objects.filter(library=obj, is_open=True).count()
-
-#     def get_maintainers(self, version):
-#         obj = self.get_object()
-#         library_version = LibraryVersion.objects.get(library=obj, version=version)
-#         return library_version.maintainers.all()
-
-#     def get_open_issues_count(self, obj):
-#         return Issue.objects.filter(library=obj, is_open=True).count()
-
-#     def get_version(self, version_slug):
-#         try:
-#             return Version.objects.get(slug=version_slug)
-#         except Version.DoesNotExist:
-#             logger.info("libraries_by_version_detail_view_version_not_found")
-#             raise Http404("No object found matching the query")
-
-
 class LibraryListByVersionByCategory(CategoryMixin, FormMixin, ListView):
     """List all of our libraries in a certain category for a certain Boost version"""
 
