@@ -63,6 +63,9 @@ alias shell := console
     docker compose --file $(COMPOSE_FILE) build --force-rm
     docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
 
+@down:  ## stops a project
+    docker compose down
+
 # ----
 
 @pip-compile:  ## rebuilds our pip requirements
