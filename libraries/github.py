@@ -1,9 +1,9 @@
 import base64
 import os
 import re
+
 import requests
 import structlog
-
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -11,6 +11,7 @@ from fastcore.xtras import obj2dict
 from ghapi.all import GhApi, paged
 
 from versions.models import Version
+
 from .models import Category, Issue, Library, LibraryVersion, PullRequest
 from .utils import generate_fake_email, parse_date
 
@@ -217,27 +218,35 @@ class GithubAPIClient:
         """Get a tag by name from the GitHub API."""
         if not repo_slug:
             repo_slug = self.repo_slug
-        return self.api.repos.get_tag(owner=self.owner, repo=repo_slug, tag=tag_name)
-        
+        try:
+            return self.api.repos.get_release_by_tag(
+                owner=self.owner, repo=repo_slug, tag=tag_name
+            )
+        except Exception as e:
+            # logger.info("tag_not_found", tag_name=tag_name, repo_slug=repo_slug)
+            return
+
     def get_tags(self, repo_slug: str = None) -> dict:
         """Get all the tags from the GitHub API."""
         if not repo_slug:
             repo_slug = self.repo_slug
 
         per_page = 50
-        page = 1 
-        tags = []  
-        
+        page = 1
+        tags = []
+
         while True:
-            new_tags = self.api.repos.list_tags(owner=self.owner, repo=repo_slug, per_page=per_page, page=page)
+            new_tags = self.api.repos.list_tags(
+                owner=self.owner, repo=repo_slug, per_page=per_page, page=page
+            )
             tags.extend(new_tags)
-            
-            # Check if we reached the last page 
+
+            # Check if we reached the last page
             if len(new_tags) < per_page:
-                break  
-            
-            page += 1 
-        
+                break
+
+            page += 1
+
         return tags
 
     def get_tree(self, repo_slug: str = None, tree_sha: str = None) -> dict:
