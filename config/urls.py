@@ -25,10 +25,9 @@ from ak.views import (
 from core.views import MarkdownTemplateView, StaticContentTemplateView
 from libraries.views import (
     LibraryList,
-    LibraryByCategory,
+    # LibraryByCategory,
     LibraryDetail,
-    LibraryListByVersion,
-    LibraryListByVersionByCategory,
+    # LibraryListByVersionByCategory,
 )
 from libraries.api import LibrarySearchView
 from mailing_list.views import MailingListView, MailingListDetailView
@@ -97,11 +96,11 @@ urlpatterns = (
             TemplateView.as_view(template_name="donate/donate.html"),
             name="donate",
         ),
-        path(
-            "libraries-by-category/<slug:category>/",
-            LibraryByCategory.as_view(),
-            name="libraries-by-category",
-        ),
+        # path(
+        #     "libraries-by-category/<slug:category>/",
+        #     LibraryByCategory.as_view(),
+        #     name="libraries-by-category",
+        # ),
         path("libraries/", LibraryList.as_view(), name="libraries"),
         path(
             "libraries/<slug:slug>/",
@@ -179,14 +178,14 @@ urlpatterns = (
         ),
         path("contact/", ContactView.as_view(), name="contact"),
         # Boost versions views
-        path(
-            "versions/<slug:version_slug>/libraries-by-category/<slug:category>/",
-            LibraryListByVersionByCategory.as_view(),
-            name="libraries-by-version-by-category",
-        ),
+        # path(
+        #     "versions/<slug:version_slug>/libraries-by-category/<slug:category>/",
+        #     LibraryListByVersionByCategory.as_view(),
+        #     name="libraries-by-version-by-category",
+        # ),
         path(
             "versions/<slug:slug>/libraries/",
-            LibraryListByVersion.as_view(),
+            LibraryList.as_view(),
             name="libraries-by-version",
         ),
         path(

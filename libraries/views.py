@@ -20,33 +20,71 @@ class CategoryMixin:
 
 
 class LibraryList(CategoryMixin, FormMixin, ListView):
-    """List all of our libraries for the current version of Boost by name"""
+    """List all of our libraries for a specific Boost version, or default 
+    to the current version."""
 
-    form_action = "/libraries/"
     form_class = LibraryForm
     queryset = (
         Library.objects.prefetch_related("authors", "categories").all().order_by("name")
-    )
+    ).distinct()
     template_name = "libraries/list.html"
 
     def get_context_data(self, **kwargs):
-        """Set the form action to the main libraries page"""
+        """Set the form action to the right libraries list page."""
         context = super().get_context_data(**kwargs)
-        context["form_action"] = self.form_action
+
+        version_slug = self.kwargs.get("version_slug")
+        category_slug = self.request.GET.get("category_slug")
+
+        if version_slug:
+            try:
+                version = Version.objects.get(slug=version_slug)
+                context["version_slug"] = version_slug
+                context["version_name"] = version.name
+                context["version"] = version
+            except Version.DoesNotExist:
+                raise Http404("No library found matching the query")
+        else:
+            context["version"] = Version.objects.most_recent()
+
+        if category_slug:
+            try:
+                category = Category.objects.get(slug=category_slug)
+                context["category"] = category
+            except Category.DoesNotExist:
+                raise Http404("No category found matching the query")
+
         return context
 
     def get_queryset(self):
-        version = Version.objects.most_recent()
-        return (
-            super().get_queryset().filter(library_version__version=version).distinct()
-        )
+        """Filter the queryset by the version_slug if present, otherwise
+        return the libraries for the most recent version."""
+        version_slug = self.kwargs.get("version_slug")
+        category_slug = self.request.GET.get("category_slug")
+
+        queryset = super().get_queryset()
+
+        if version_slug:
+            queryset = queryset.filter(library_version__version__slug=version_slug)
+
+        if category_slug:
+            queryset = queryset.filter(categories__slug=category_slug)
+
+        return queryset.distinct()
 
     def post(self, request):
         """User has submitted a form and will be redirected to the right results"""
         form = self.get_form()
         if form.is_valid():
             category = form.cleaned_data["categories"][0]
-            return redirect("libraries-by-category", category=category.slug)
+            version_slug = self.request.GET.get("version_slug")
+            if version_slug:
+                return redirect(
+                    "libraries",
+                    **{"version_slug": version_slug, "category_slug": category.slug},
+                )
+            else:
+                return redirect("libraries", **{"category_slug": category.slug})
         else:
             logger.info("library_list_invalid_category")
         return super().get(request)
@@ -130,143 +168,100 @@ class LibraryDetail(CategoryMixin, FormMixin, DetailView):
         return super().get(request)
 
 
-class LibraryByCategory(CategoryMixin, FormMixin, ListView):
-    """List all of our libraries for the current version of Boost in a certain category"""
+# class LibraryByCategory(CategoryMixin, FormMixin, ListView):
+#     """List all of our libraries for the current version of Boost in a certain category"""
 
-    form_action = "/libraries/"
-    form_class = LibraryForm
-    paginate_by = 25
-    template_name = "libraries/list.html"
+#     form_action = "/libraries/"
+#     form_class = LibraryForm
+#     paginate_by = 25
+#     template_name = "libraries/list.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data()
-        category_slug = self.kwargs.get("category")
-        context["version"] = Version.objects.most_recent()
-        context["form_action"] = self.form_action
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data()
+#         category_slug = self.kwargs.get("category")
+#         context["version"] = Version.objects.most_recent()
+#         context["form_action"] = self.form_action
 
-        if category_slug:
-            try:
-                category = Category.objects.get(slug=category_slug)
-                context["category"] = category
-            except Category.DoesNotExist:
-                logger.info("libraries_by_category_view_category_not_found")
-        return context
+#         if category_slug:
+#             try:
+#                 category = Category.objects.get(slug=category_slug)
+#                 context["category"] = category
+#             except Category.DoesNotExist:
+#                 logger.info("libraries_by_category_view_category_not_found")
+#         return context
 
-    def get_queryset(self):
-        category = self.kwargs.get("category")
-        version = Version.objects.most_recent()
+#     def get_queryset(self):
+#         category = self.kwargs.get("category")
+#         version = Version.objects.most_recent()
 
-        return (
-            Library.objects.prefetch_related("categories")
-            .filter(
-                categories__slug=category,
-                versions__library_version__version=version,
-            )
-            .order_by("name")
-            .distinct()
-        )
-
-
-class LibraryListByVersion(CategoryMixin, FormMixin, ListView):
-    """List all of our libraries for a specific Boost version by name"""
-
-    form_class = LibraryForm
-    queryset = (
-        Library.objects.prefetch_related("authors", "categories").all().order_by("name")
-    )
-    template_name = "libraries/list.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        try:
-            version = Version.objects.get(slug=self.kwargs.get("slug"))
-            context["version_slug"] = self.kwargs.get("slug")
-            context["version_name"] = version.name
-            context["version"] = version
-        except Version.DoesNotExist:
-            raise Http404("No library found matching the query")
-
-        context["form_action"] = f"/versions/{self.kwargs.get('slug')}/libraries/"
-        return context
-
-    def get_queryset(self):
-        version_slug = self.kwargs.get("slug")
-        return (
-            super().get_queryset().filter(library_version__version__slug=version_slug)
-        )
-
-    def post(self, request, *args, **kwargs):
-        """User has submitted a form and will be redirected to the right results"""
-        form = self.get_form()
-        if form.is_valid():
-            category = form.cleaned_data["categories"][0]
-            return redirect(
-                "libraries-by-version-by-category",
-                version_slug=self.kwargs.get("slug"),
-                category=category.slug,
-            )
-        else:
-            logger.info("library_list_invalid_category")
-        return super().get(request)
+#         return (
+#             Library.objects.prefetch_related("categories")
+#             .filter(
+#                 categories__slug=category,
+#                 versions__library_version__version=version,
+#             )
+#             .order_by("name")
+#             .distinct()
+#         )
 
 
-class LibraryListByVersionByCategory(CategoryMixin, FormMixin, ListView):
-    """List all of our libraries in a certain category for a certain Boost version"""
+# class LibraryListByVersionByCategory(CategoryMixin, FormMixin, ListView):
+#     """List all of our libraries in a certain category for a certain Boost version"""
 
-    form_class = LibraryForm
-    paginate_by = 25
-    queryset = (
-        Library.objects.prefetch_related("authors", "categories").all().order_by("name")
-    )
-    template_name = "libraries/list.html"
+#     form_class = LibraryForm
+#     paginate_by = 25
+#     queryset = (
+#         Library.objects.prefetch_related("authors", "categories").all().order_by("name")
+#     )
+#     template_name = "libraries/list.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data()
-        category_slug = self.kwargs.get("category")
-        version_slug = self.kwargs.get("version_slug")
-        context[
-            "form_action"
-        ] = f"/versions/{self.kwargs.get('version_slug')}/libraries/"
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data()
+#         category_slug = self.kwargs.get("category")
+#         version_slug = self.kwargs.get("version_slug")
+#         context[
+#             "form_action"
+#         ] = f"/versions/{self.kwargs.get('version_slug')}/libraries/"
 
-        try:
-            version = Version.objects.get(slug=version_slug)
-            context["version_slug"] = version_slug
-            context["version_name"] = version.name
-            context["version"] = version
-        except Version.DoesNotExist:
-            raise Http404("No library found matching the query")
+#         try:
+#             version = Version.objects.get(slug=version_slug)
+#             context["version_slug"] = version_slug
+#             context["version_name"] = version.name
+#             context["version"] = version
+#         except Version.DoesNotExist:
+#             raise Http404("No library found matching the query")
 
-        if category_slug:
-            try:
-                category = Category.objects.get(slug=category_slug)
-                context["category"] = category
-            except Category.DoesNotExist:
-                logger.info("libraries_by_category_view_category_not_found")
-        return context
+#         if category_slug:
+#             try:
+#                 category = Category.objects.get(slug=category_slug)
+#                 context["category"] = category
+#             except Category.DoesNotExist:
+#                 logger.info("libraries_by_category_view_category_not_found")
+#         return context
 
-    def get_queryset(self, **kwargs):
-        category = self.kwargs.get("category")
-        version_slug = self.kwargs.get("version_slug")
-        return (
-            super()
-            .get_queryset()
-            .filter(
-                categories__slug=category,
-                versions__library_version__version__slug=version_slug,
-            )
-            .distinct()
-        )
+#     def get_queryset(self, **kwargs):
+#         category = self.kwargs.get("category")
+#         version_slug = self.kwargs.get("version_slug")
+#         return (
+#             super()
+#             .get_queryset()
+#             .filter(
+#                 categories__slug=category,
+#                 versions__library_version__version__slug=version_slug,
+#             )
+#             .distinct()
+#         )
 
-    def post(self, request, *args, **kwargs):
-        """User has submitted a form and will be redirected to the right results"""
-        form = self.get_form()
-        if form.is_valid():
-            category = form.cleaned_data["categories"][0]
-            return redirect(
-                "libraries-by-version-by-category",
-                version_slug=self.kwargs.get("version_slug"),
-                category=category.slug,
-            )
-        else:
-            logger.info("library_list_invalid_category")
-        return super().get(request)
+#     def post(self, request, *args, **kwargs):
+#         """User has submitted a form and will be redirected to the right results"""
+#         form = self.get_form()
+#         if form.is_valid():
+#             category = form.cleaned_data["categories"][0]
+#             return redirect(
+#                 "libraries-by-version-by-category",
+#                 version_slug=self.kwargs.get("version_slug"),
+#                 category=category.slug,
+#             )
+#         else:
+#             logger.info("library_list_invalid_category")
+#         return super().get(request)

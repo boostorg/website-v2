@@ -5,7 +5,7 @@
     <h3 class="pb-2 text-2xl capitalize border-b border-gray-300 dark:border-slate">
       <a class="text-orange" href="
                {% if version_slug %}
-                 {% url 'library-detail-by-version' version_slug=version_slug slug=library.slug %}
+                 ''
                {% else %}
                  {% url 'library-detail' slug=library.slug %}
                {% endif %}"
@@ -25,7 +25,7 @@
     <div class="w-1/6 tracking-wider text-charcoal dark:text-white/60">2yrs</div>
     <div class="w-4/6 text-right dark:text-gray-400 text-slate">
       {% for c in library.categories.all %}
-        <a href="{% if version_slug %}{% url 'libraries-by-version-by-category' version_slug=version_slug category=c.slug%}{% else %}{% url 'libraries-by-category' category=c.slug %}{% endif %}" class="text-sky-400 dark:text-blue-300/60 dark:hover:text-orange hover:text-orange">
+        <a href="}" class="text-sky-400 dark:text-blue-300/60 dark:hover:text-orange hover:text-orange">
           {{ c.name }}
         </a>{% if not forloop.last %}, {% endif %}{% endfor %}
     </div>
