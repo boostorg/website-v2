@@ -1,6 +1,7 @@
 import base64
 import os
 import re
+from datetime import datetime
 
 import requests
 import structlog
@@ -269,9 +270,18 @@ class GithubAPIClient:
 
 
 class GithubDataParser:
+    def parse_commit(self, commit_data: dict) -> dict:
+        """Parse the commit data from Github and return a dict of the data we want."""
+        published_at = commit_data["committer"]["date"]
+        description = commit_data.get("message", "")
+        release_date = datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ").date()
+        return {
+            "release_date": release_date,
+            "description": description,
+        }
+
     def parse_gitmodules(self, gitmodules: str) -> dict:
-        """
-        Parse the .gitmodules file.
+        """Parse the .gitmodules file.
         Expects the multiline contents of https://github.com/boostorg/boost/.gitmodules to be passed in
 
         :param gitmodules: str, the .gitmodules file
@@ -299,9 +309,7 @@ class GithubDataParser:
         return modules
 
     def parse_libraries_json(self, libraries_json: dict) -> dict:
-        """
-        Parse the individual library metadata from 'meta/libraries.json'
-        """
+        """Parse the individual library metadata from 'meta/libraries.json'."""
         return {
             "name": libraries_json["name"],
             "key": libraries_json["key"],
@@ -312,8 +320,18 @@ class GithubDataParser:
             "cxxstd": libraries_json.get("cxxstd"),
         }
 
+    def parse_tag(self, tag_data: dict) -> dict:
+        """Parse the tag data from Github and return a dict of the data we want."""
+        published_at = tag_data.get("published_at", "")
+        description = tag_data.get("body", "")
+        release_date = datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ").date()
+        return {
+            "release_date": release_date,
+            "description": description,
+        }
+
     def extract_contributor_data(self, contributor: str) -> dict:
-        """Takes an author/maintainer string and returns a dict with their data"""
+        """Takes an author/maintainer string and returns a dict with their data."""
         data = {}
 
         email = self.extract_email(contributor)
