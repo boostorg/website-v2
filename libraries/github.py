@@ -83,6 +83,14 @@ class GithubAPIClient:
             owner=self.owner, repo=repo_slug, file_sha=file_sha
         )
 
+    def get_commit_by_sha(self, repo_slug: str = None, commit_sha: str = None) -> dict:
+        """Get a commit by its SHA."""
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        return self.api.git.get_commit(
+            owner=self.owner, repo=repo_slug, commit_sha=commit_sha
+        )
+
     def get_gitmodules(self, repo_slug: str = None) -> str:
         """
         Get the .gitmodules file for the repo from the GitHub API.
@@ -204,6 +212,33 @@ class GithubAPIClient:
             results.extend(p)
 
         return results
+
+    def get_tag_by_name(self, tag_name: str, repo_slug: str = None) -> dict:
+        """Get a tag by name from the GitHub API."""
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        return self.api.repos.get_tag(owner=self.owner, repo=repo_slug, tag=tag_name)
+        
+    def get_tags(self, repo_slug: str = None) -> dict:
+        """Get all the tags from the GitHub API."""
+        if not repo_slug:
+            repo_slug = self.repo_slug
+
+        per_page = 50
+        page = 1 
+        tags = []  
+        
+        while True:
+            new_tags = self.api.repos.list_tags(owner=self.owner, repo=repo_slug, per_page=per_page, page=page)
+            tags.extend(new_tags)
+            
+            # Check if we reached the last page 
+            if len(new_tags) < per_page:
+                break  
+            
+            page += 1 
+        
+        return tags
 
     def get_tree(self, repo_slug: str = None, tree_sha: str = None) -> dict:
         """
