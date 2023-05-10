@@ -54,11 +54,6 @@
                          required="required"
                          type="text"
                   >
-                  <span class="flex absolute inset-y-0 right-3 items-center pl-2">
-                    <button type="submit">
-                      <i class="fas fa-search text-charcoal dark:text-white/40 dark:hover:text-orange hover:text-orange"></i>
-                    </button>
-                  </span>
                 </form>
               </div>
             </span>
@@ -125,7 +120,7 @@
                 {% if user.image %}
                   <img src="{{ user.image.url }}" alt="user" class="inline rounded-sm cursor-pointer w-[30px] -mt-1" @click="userOpen = !userOpen" />
                 {% else %}
-                  <i class="inline mr-2 text-5xl fas fa-user text-charcoal dark:text-white/60"></i>
+                  <i class="inline mr-2 fas fa-user text-charcoal dark:text-white/60 cursor-pointer" @click="userOpen = !userOpen"></i>
                 {% endif %}
               {% endif %}
 
