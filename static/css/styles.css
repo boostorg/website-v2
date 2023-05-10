@@ -1445,6 +1445,10 @@ input[type=file] {
   max-width: 42rem;
 }
 
+.max-w-7xl {
+  max-width: 80rem;
+}
+
 .flex-auto {
   flex: 1 1 auto;
 }
@@ -1890,6 +1894,16 @@ input[type=file] {
 
 .bg-green\/70 {
   background-color: rgb(90 213 153 / 0.7);
+}
+
+.bg-stone {
+  --tw-bg-opacity: 1;
+  background-color: rgb(221 231 236 / var(--tw-bg-opacity));
+}
+
+.bg-gray-200 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(229 231 235 / var(--tw-bg-opacity));
 }
 
 .bg-opacity-70 {
@@ -2692,6 +2706,22 @@ input[type=file] {
 }
 
 @media (min-width: 768px) {
+  .md\:fixed {
+    position: fixed;
+  }
+
+  .md\:top-0 {
+    top: 0px;
+  }
+
+  .md\:left-0 {
+    left: 0px;
+  }
+
+  .md\:right-0 {
+    right: 0px;
+  }
+
   .md\:order-last {
     order: 9999;
   }
@@ -2758,6 +2788,14 @@ input[type=file] {
 
   .md\:mb-6 {
     margin-bottom: 1.5rem;
+  }
+
+  .md\:mt-20 {
+    margin-top: 5rem;
+  }
+
+  .md\:mt-32 {
+    margin-top: 8rem;
   }
 
   .md\:block {
