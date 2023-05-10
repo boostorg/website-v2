@@ -10,6 +10,11 @@ from versions.models import Version
 class Command(BaseCommand):
     """Import the releases from Github as best we can.
 
+    NOT IDEMPOTENT.
+
+    This will clear existing Version and LibraryVersion objects, 
+    before retrieving fresh ones from GitHub.
+
     1. Get all the Boost tags for the main repo
     2. For each tag, get the release data:
       - If it's a full release (shows up in the "releases" tab), the data is in the tag

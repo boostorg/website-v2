@@ -1,24 +1,51 @@
-# Syncing Data about Boost Libraries with GitHub
+# Syncing Data about Boost Versions and Libraries with GitHub
 
 ## About
 
-The data in this database generally originates from somewhere in the Boost GitHub ecosystem. 
+The data in our database generally originates from somewhere in the Boost GitHub ecosystem. 
 
-This page will explain to Django developers how data about Libraries is synced from GitHub to our database. 
+This page will explain to Django developers how data is synced from GitHub to our database. 
 
 - Most code is in `libraries/github.py` and `libraries/tasks.py`
+
+## Release data 
+
+- Releases are also called "Versions."
+- The model that saves Release/Version data is `versions/models.py::Version`
+- We retrieve all the non-beta and non-release-candidate tags from the main Boost repo 
+
+Boost releases some tags as formal GitHub "releases," and these show up on the **Releases** tab. 
+
+Not all tags are official GitHub **Releases**, however, and this impacts where we get metadata about the tag. 
+
+To retrieve releases and tags, run: 
+
+```bash
+./manage.py import_releases
+```
+
+This will: 
+
+- Delete existing Versions and LibraryVersions 
+- Retrieve tags and releases from the Boost GitHub repo 
+- Create new Versions for each tag and release that is not a beta or rc release 
+- Create a new LibraryVersion for each Library **but not for historical versions**
+
+
+## Library data 
+
 - Once a month, the task `libraries/tasks/update_libraries()` runs.
 - It cycles through all Boost libraries and updates data
 - **It only handles the most recent version of Boost** and does not handle older versions yet.
-- There are methods to download issues and PRs, but **the methods to download issues and PRs are not called**.
+- There are methods to download issues and PRs, but **the methods to download issues and PRs are not currently called**.
 
-## Tasks or Questions
+### Tasks or Questions
 
 - [ ]  A new GitHub API needs to be generated through the CPPAlliance GitHub organization, and be added as a kube secret
 - [ ]  `self.skip_modules`: This exists in both `GitHubAPIClient` and `LibraryUpdater` but it should probably only exist in `LibraryUpdater`, to keep `GitHubAPIClient` less tightly coupled to specific repos
 - [ ]  If we only want aggregate data for issues and PRs, do we need to save the data from them in models, or can we just save the aggregate data somewhere?
 
-## Glossary
+### Glossary
 
 To make the code more readable to the Boost team, who will ultimately maintain the project, we tried to replicate their terminology as much as possible. 
 
@@ -28,9 +55,9 @@ To make the code more readable to the Boost team, who will ultimately maintain t
 
 ---
 
-## How it Works
+### How it Works
 
-### `LibraryUpdater`
+#### `LibraryUpdater`
 
 _This is not a code walkthrough, but is a general overview of the objects and data that this class retrieves._
 
@@ -47,13 +74,13 @@ _This is not a code walkthrough, but is a general overview of the objects and da
     - The maintainers are updated and stub Users are added for them if needed.
     - The authors are updated and stub Users are added for them if needed (updated second because maintainers are more likely to have email addresses, so matching is easier).
 
-## `GithubAPIClient`
+#### `GithubAPIClient`
 
 - This class controls the requests to and responses from the GitHub API. Mostly a wrapper around `GhApi` that allows us to set some default values to make calling the methods easier, and allows us to retrieve some data that is very specific to the Boost repos
 - Requires the environment variable `GITHUB_TOKEN` to be set
 - Contains methods to retrieve the `.gitmodules` file, retrieve the `.libraries.json` file, general repo data, repo issues, repo PRs, and the git tree.
 
-## `GithubDataParser`
+#### `GithubDataParser`
 
 - Contains methods to parse the data we retrieve from GitHub into more useful formats
 - Contains methods to parse the `.gitmodules` file and the `libraries.json` file, and to extract the author and maintainer names and email addresses, if present.
@@ -69,13 +96,13 @@ _This is not a code walkthrough, but is a general overview of the objects and da
 
 ---
 
-## GitHub Data
+### GitHub Data
 
 - Each Boost Library has a GitHub repo.
 - Most of the time, one library has one repo. Other times, one GitHub repo is shared among multiple libraries (the “Algorithm” library is an example).
 - The most important file for each Boost library is `meta/libraries.json`
 
-### `.gitmodules`
+#### `.gitmodules`
 
 This is the most important file in the main Boost repository. It contains the GitHub information for all Libraries included in that tagged Boost version, and is what we use to identify which Libraries to download into our database. 
 
@@ -88,7 +115,7 @@ This is the most important file in the main Boost repository. It contains the Gi
 
 <img width="1381" alt="Screenshot 2023-05-08 at 12 32 32 PM" src="https://user-images.githubusercontent.com/2286304/236922229-af2a62e6-d91c-496d-b785-6c05e0a6c393.png">
 
-### `libraries.json`
+#### `libraries.json`
 
 This is the most important file in the GitHub repo for a library. It is where we retrieve all the metadata about the Library. It is the source of truth. 
 
@@ -117,7 +144,9 @@ Example with multiple libraries:
 
 <img width="1369" alt="Screenshot 2023-05-08 at 12 25 30 PM" src="https://user-images.githubusercontent.com/2286304/236922503-4e633575-9f6b-47af-b6e1-05be8be2c4e4.png">
 
-## Maintenance Notes
+--- 
+
+## General Maintenance Notes
 
 ### How to change the skipped libraries
 
