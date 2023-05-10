@@ -2,9 +2,7 @@
   "name": "boost.org",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "git@github.com:revsys/boost.org.git",
-  "author": "Greg Newman <greg@gregnewman.org>",
-  "license": "MIT",
+  "repository": "git@github.com:cppalliance/boost.org.git",
   "scripts": {
     "dev": "tailwindcss -i frontend/styles.css -o static/css/styles.css --watch",
     "build": "NODE_ENV=production tailwindcss -i frontend/styles.css -o static/css/styles.css --minify"
