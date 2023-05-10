@@ -80,6 +80,18 @@ urlpatterns = (
         ),
         path("health/", include("health_check.urls")),
         path("forum/", include(machina_urls)),
+        # temp page for community until mailman is done.
+        path(
+            "community/",
+            TemplateView.as_view(template_name="community_temp.html"),
+            name="community",
+        ),
+        # temp page for releases
+        path(
+            "releases/",
+            TemplateView.as_view(template_name="releases_temp.html"),
+            name="releases",
+        ),
         path(
             "donate/",
             TemplateView.as_view(template_name="donate/donate.html"),
