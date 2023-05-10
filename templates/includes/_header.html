@@ -18,16 +18,16 @@
           </a>
         </div>
         <div class="flex pt-5 w-full">
-          <nav class="relative items-center pl-6 space-x-10 w-3/4 text-lg text-left">
+          <nav class="relative items-center pl-6 space-x-10 w-full text-lg text-left">
             <a href="{% url 'news' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">News</a>
             <a href="{% url 'docs' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Learn</a>
             <a href="/forum/" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Community</a>
             <a href="/libraries/" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Libraries</a>
             <a href="#" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Releases</a>
           </nav>
-          <nav class="items-center space-x-5 w-1/4 text-right" x-data="{ 'searchOpen': false }">
+          <nav class="items-center space-x-5 text-right float-right w-44" x-data="{ 'searchOpen': false }">
             <span class="relative">
-              <i class="inline-flex -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="searchOpen = !searchOpen"></i>
+              <i class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="searchOpen = !searchOpen"></i>
               <div x-show="searchOpen"
                    @click.away="searchOpen = false"
                    x-transition:enter="transition ease-out duration-100"
@@ -63,7 +63,7 @@
               </div>
             </span>
 
-            <a href="{% url 'support' %}" class="inline-flex"><i class="text-slate fas fa-question-circle dark:text-white/50 dark:hover:text-orange hover:text-orange"></i></a>
+            <a href="{% url 'support' %}" class="inline"><i class="text-slate fas fa-question-circle dark:text-white/50 dark:hover:text-orange hover:text-orange"></i></a>
 
             <!-- theme switcher -->
             <span x-data="{ 'modeOpen': false }" class="relative">
@@ -120,12 +120,12 @@
 
             <span x-data="{ 'userOpen': false }" class="relative">
               {% if not user.is_authenticated %}
-                <a href="{% url 'account_signup' %}" class="font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">Join</a>
+                <a href="{% url 'account_signup' %}" class="inline font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">Join</a>
               {% else %}
                 {% if user.image %}
-                  <img src="{{ user.image.url }}" alt="user" class="inline-flex rounded-sm cursor-pointer w-[30px]" @click="userOpen = !userOpen" />
+                  <img src="{{ user.image.url }}" alt="user" class="inline rounded-sm cursor-pointer w-[30px]" @click="userOpen = !userOpen" />
                 {% else %}
-                  <i class="inline-flex mr-2 text-5xl fas fa-user text-charcoal dark:text-white/60"></i>
+                  <i class="inline mr-2 text-5xl fas fa-user text-charcoal dark:text-white/60"></i>
                 {% endif %}
               {% endif %}
 
