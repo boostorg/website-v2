@@ -124,7 +124,7 @@ class StaticContentTemplateView(View):
             static_content_cache.set(
                 cache_key,
                 (content, content_type),
-                settings.CACHES["static_content"]["TIMEOUT"],
+                int(settings.CACHES["static_content"]["TIMEOUT"]),
             )
 
         response = HttpResponse(content, content_type=content_type)

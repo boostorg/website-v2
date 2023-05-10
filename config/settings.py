@@ -271,7 +271,7 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": f"redis://{REDIS_HOST}:6379/2",
         "TIMEOUT": env(
-            "STATIC_CACHE_TIMEOUT", default=60
+            "STATIC_CACHE_TIMEOUT", default="60"
         ),  # Cache timeout in seconds: 1 minute
     },
 }
