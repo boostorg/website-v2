@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 {% load static %}
 
 {% block content %}
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
-    <div class=" md:w-full">
+    <div class="md:w-full">
       <h1 class="text-4xl">Latest Stories</h1>
       <p class="mt-0 text-xl">
         Keep up with current information from Boost and our community. (Under construction)
@@ -38,7 +38,27 @@
             </div>
           </div>
         </div>
+
+      {% if news_list %}{% comment %}New functionality{% endcomment %}
+        {% for news in news_list %}
+        <div class="flex py-4">
+          <div class="py-5 w-1/6">
+            <h5>{{ news.published|date }}</h5>
+          </div>
+          <div class="w-5/6 text-xl">
+            <p><a href="{% url 'news-detail' news.slug %}">{{ news.title }}</a></p>
+            <div class="space-x-8 uppercase">
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <p>{% translate "No news yet." %}</p>
+        {% endfor %}
+      {% endif %}
       </div>
+      {% if news_list and user.is_authenticated %}
+      <a href="{% url 'news-create' %}">{% translate "Create News" %}</a>
+      {% endif %}
 
     </div>
   </div>

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<h1>{% if news.pk %}{% translate "Edit News" %}{% else %}{% translate "Create News" %}{% endif %}</h1>
+  <form method="POST" action="{% if news.pk %}{% url "news-update" news.slug %}{% else %}{% url "news-create" %}{% endif %}">
+  {% csrf_token %}
+  {{ form.as_div }}
+  <button type="submit">{% if news.pk %}{% translate "Update" %}{% else %}{% translate "Create" %}{% endif %}</button>
+</form>
+{% endblock %}

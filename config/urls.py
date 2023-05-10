@@ -32,6 +32,13 @@ from libraries.views import (
 )
 from libraries.api import LibrarySearchView
 from mailing_list.views import MailingListView, MailingListDetailView
+from news.views import (
+    NewsCreateView,
+    NewsDetailView,
+    NewsDeleteView,
+    NewsListView,
+    NewsUpdateView,
+)
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
 from versions.views import VersionList, VersionDetail
@@ -108,6 +115,11 @@ urlpatterns = (
             name="mailing-list-detail",
         ),
         path("mailing-list/", MailingListView.as_view(), name="mailing-list"),
+        path("news/", NewsListView.as_view(), name="news"),
+        path("news/add/", NewsCreateView.as_view(), name="news-create"),
+        path("news/<slug:slug>/", NewsDetailView.as_view(), name="news-detail"),
+        path("news/<slug:slug>/update/", NewsUpdateView.as_view(), name="news-update"),
+        path("news/<slug:slug>/delete/", NewsDeleteView.as_view(), name="news-delete"),
         path(
             "people/detail/",
             TemplateView.as_view(template_name="boost/people_detail.html"),
@@ -157,16 +169,6 @@ urlpatterns = (
             "review/",
             TemplateView.as_view(template_name="review/review_process.html"),
             name="review-process",
-        ),
-        path(
-            "news/detail/",
-            TemplateView.as_view(template_name="news/news_detail.html"),
-            name="news_detail",
-        ),
-        path(
-            "news/",
-            TemplateView.as_view(template_name="news/news_list.html"),
-            name="news",
         ),
         # support and contact views
         path("support/", SupportView.as_view(), name="support"),

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<h1>{{ news.title }}</h1>
+<p>{{ news.description }}</p>
+{% if news.author == user %}
+<p><a href="{% url 'news-update' news.slug %}">{% translate "Edit" %}</a></p>
+<p><a href="{% url 'news-delete' news.slug %}">{% translate "Delete" %}</a></p>
+{% endif %}
+{% endblock %}
