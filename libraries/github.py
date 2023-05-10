@@ -274,10 +274,13 @@ class GithubDataParser:
         """Parse the commit data from Github and return a dict of the data we want."""
         published_at = commit_data["committer"]["date"]
         description = commit_data.get("message", "")
+        github_url = commit_data["html_url"]
         release_date = datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ").date()
         return {
             "release_date": release_date,
             "description": description,
+            "github_url": github_url,
+            "data": obj2dict(commit_data),
         }
 
     def parse_gitmodules(self, gitmodules: str) -> dict:
@@ -324,10 +327,13 @@ class GithubDataParser:
         """Parse the tag data from Github and return a dict of the data we want."""
         published_at = tag_data.get("published_at", "")
         description = tag_data.get("body", "")
+        github_url = tag_data.get("html_url", "")
         release_date = datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ").date()
         return {
             "release_date": release_date,
             "description": description,
+            "github_url": github_url,
+            "data": obj2dict(tag_data),
         }
 
     def extract_contributor_data(self, contributor: str) -> dict:
