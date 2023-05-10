@@ -1872,6 +1872,10 @@ input[type=file] {
   background-color: transparent;
 }
 
+.bg-green\/70 {
+  background-color: rgb(90 213 153 / 0.7);
+}
+
 .bg-opacity-70 {
   --tw-bg-opacity: 0.7;
 }
