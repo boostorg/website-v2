@@ -29,7 +29,8 @@ Each will need these fields:
 
 Then video obviously needs a video URL, probably a key frame image.
 
-Polls will need a M2M on questions and who voted. Only logged in users will vote.
+Polls will need a M2M on questions and who voted. Only logged in users will
+vote.
 
 """
 
@@ -49,6 +50,7 @@ class News(models.Model):
     description = models.TextField(blank=True, default="")
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     external_url = models.URLField(blank=True, default="")
+    image = models.ImageField(upload_to='news')
     created = models.DateTimeField(default=now)
     published = models.DateTimeField(default=now)
 
@@ -67,30 +69,24 @@ class News(models.Model):
         return reverse("news-detail", args=[self.slug])
 
 
-# Notes:
-# 1. seems like an accompanying image to the News model would be a good idea
-#    across all children
-
-
 class BlogPost(News):
-    # Possible extra attributes: RSS feed? banner? keywords?
-
     body = models.TextField()
     abstract = models.CharField(max_length=256)
+    # Possible extra fields: RSS feed? banner? keywords?
 
 
 class Link(News):
-    # Possible attributes: thumbnail or some sort of image to properly render?
     pass
 
 
 class Video(News):
-    thumbnail = models.ImageField()
+    pass
+    # Possible extra fields: length? quality?
 
 
 class Poll(News):
-    # Possible attributes: thumbnail or some sort of image to properly render?
     pass
+    # Possible extra fields: voting expiration date?
 
 
 class PollChoice(models.Model):
