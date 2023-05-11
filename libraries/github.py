@@ -1,9 +1,10 @@
 import base64
 import os
 import re
+from datetime import datetime
+
 import requests
 import structlog
-
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -11,6 +12,7 @@ from fastcore.xtras import obj2dict
 from ghapi.all import GhApi, paged
 
 from versions.models import Version
+
 from .models import Category, Issue, Library, LibraryVersion, PullRequest
 from .utils import generate_fake_email, parse_date
 
@@ -81,6 +83,14 @@ class GithubAPIClient:
             repo_slug = self.repo_slug
         return self.api.git.get_blob(
             owner=self.owner, repo=repo_slug, file_sha=file_sha
+        )
+
+    def get_commit_by_sha(self, repo_slug: str = None, commit_sha: str = None) -> dict:
+        """Get a commit by its SHA."""
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        return self.api.git.get_commit(
+            owner=self.owner, repo=repo_slug, commit_sha=commit_sha
         )
 
     def get_gitmodules(self, repo_slug: str = None) -> str:
@@ -205,6 +215,41 @@ class GithubAPIClient:
 
         return results
 
+    def get_tag_by_name(self, tag_name: str, repo_slug: str = None) -> dict:
+        """Get a tag by name from the GitHub API."""
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        try:
+            return self.api.repos.get_release_by_tag(
+                owner=self.owner, repo=repo_slug, tag=tag_name
+            )
+        except Exception as e:
+            # logger.info("tag_not_found", tag_name=tag_name, repo_slug=repo_slug)
+            return
+
+    def get_tags(self, repo_slug: str = None) -> dict:
+        """Get all the tags from the GitHub API."""
+        if not repo_slug:
+            repo_slug = self.repo_slug
+
+        per_page = 50
+        page = 1
+        tags = []
+
+        while True:
+            new_tags = self.api.repos.list_tags(
+                owner=self.owner, repo=repo_slug, per_page=per_page, page=page
+            )
+            tags.extend(new_tags)
+
+            # Check if we reached the last page
+            if len(new_tags) < per_page:
+                break
+
+            page += 1
+
+        return tags
+
     def get_tree(self, repo_slug: str = None, tree_sha: str = None) -> dict:
         """
         Get the tree from the GitHub API.
@@ -225,9 +270,21 @@ class GithubAPIClient:
 
 
 class GithubDataParser:
+    def parse_commit(self, commit_data: dict) -> dict:
+        """Parse the commit data from Github and return a dict of the data we want."""
+        published_at = commit_data["committer"]["date"]
+        description = commit_data.get("message", "")
+        github_url = commit_data["html_url"]
+        release_date = datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ").date()
+        return {
+            "release_date": release_date,
+            "description": description,
+            "github_url": github_url,
+            "data": obj2dict(commit_data),
+        }
+
     def parse_gitmodules(self, gitmodules: str) -> dict:
-        """
-        Parse the .gitmodules file.
+        """Parse the .gitmodules file.
         Expects the multiline contents of https://github.com/boostorg/boost/.gitmodules to be passed in
 
         :param gitmodules: str, the .gitmodules file
@@ -255,9 +312,7 @@ class GithubDataParser:
         return modules
 
     def parse_libraries_json(self, libraries_json: dict) -> dict:
-        """
-        Parse the individual library metadata from 'meta/libraries.json'
-        """
+        """Parse the individual library metadata from 'meta/libraries.json'."""
         return {
             "name": libraries_json["name"],
             "key": libraries_json["key"],
@@ -268,8 +323,21 @@ class GithubDataParser:
             "cxxstd": libraries_json.get("cxxstd"),
         }
 
+    def parse_tag(self, tag_data: dict) -> dict:
+        """Parse the tag data from Github and return a dict of the data we want."""
+        published_at = tag_data.get("published_at", "")
+        description = tag_data.get("body", "")
+        github_url = tag_data.get("html_url", "")
+        release_date = datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ").date()
+        return {
+            "release_date": release_date,
+            "description": description,
+            "github_url": github_url,
+            "data": obj2dict(tag_data),
+        }
+
     def extract_contributor_data(self, contributor: str) -> dict:
-        """Takes an author/maintainer string and returns a dict with their data"""
+        """Takes an author/maintainer string and returns a dict with their data."""
         data = {}
 
         email = self.extract_email(contributor)
