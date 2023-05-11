@@ -47,8 +47,16 @@
                 Documentation
                 <span class="block text-xs text-sky-600">boost.org/libs/{{ object.slug }}</span>
               </a>
-              <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100" href="{{ object.github_issues_url }}">GitHub Issues <i class="float-right fas fa-bug"></i><span class="block text-xs text-sky-600">{{ object.github_issues_url|cut:"https://" }}</span></a>
-              <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100" href="{{ object.github_url }}">Source Code <i class="float-right fab fa-github"></i><span class="block text-xs text-sky-600">{{ object.github_url|cut:"https://" }}</span></a>
+              <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100" href="{{ object.github_issues_url }}">
+                <i class="float-right mt-3 fas fa-bug"></i>
+                GitHub Issues
+                <span class="block text-xs text-sky-600">{{ object.github_issues_url|cut:"https://" }}</span>
+              </a>
+              <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100" href="{{ object.github_url }}">
+                <i class="float-right mt-3 fab fa-github"></i>
+                Source Code
+                <span class="block text-xs text-sky-600">{{ object.github_url|cut:"https://" }}</span>
+              </a>
               <a class="inline-block py-1 px-2 rounded cursor-pointer hover:bg-gray-100">Since 2019</a>
               <a class="inline-block float-right py-1 px-2 rounded cursor-pointer hover:bg-gray-100">{{ object.get_cpp_standard_minimum_display }}</a>
               <span class="block py-1 px-2 rounded cursor-pointer hover:bg-gray-100">Categories:
