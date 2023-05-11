@@ -1,4 +1,4 @@
 apiVersion: v1
-description: boost.org website
+description: boost.revsys.dev website
 name: boost
 version: v1.0.3
