@@ -16,6 +16,13 @@ class Version(models.Model):
         default=True,
         help_text="Control whether or not this version is available on the website",
     )
+    github_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="The URL of the Boost version's GitHub repository.",
+    )
+    data = models.JSONField(default=dict)
 
     objects = VersionManager()
 
