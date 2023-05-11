@@ -31,6 +31,11 @@ data:
 
       proxy_redirect off;
 
+      location /lbcheck {
+          return 200 'OK';
+          add_header Content-Type text/plain;
+      }
+
       location / {
           proxy_pass http://unix:/run/gunicorn.sock;
       }

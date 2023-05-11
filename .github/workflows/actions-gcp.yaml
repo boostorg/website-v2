@@ -1,0 +1,188 @@
+name: CI-GCP
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - develop
+      - cppal-dev
+
+env:
+  DOCKER_BUILDKIT: "1"
+  DOCKER_IMAGE: "us-central1-docker.pkg.dev/boostorg-project1/website/website"
+  DOCKER_REGISTRY: "us-central1-docker.pkg.dev"
+  PROJECT_ID: boostorg-project1
+  GKE_CLUSTER: boostorg-cluster1
+  GKE_REGION: us-central1
+  GKE_ZONE: us-central1-c
+  DEPLOYMENT_NAME: boost
+  # more environment variables are set in the build step
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        # options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Git - Get Sources
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/base.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          sudo apt-get install -y ruby ruby-dev build-essential
+          sudo gem install asciidoctor
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Test with pytest
+        env:
+          DATABASE_URL: "postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres"
+          SECRET_KEY: "for-testing-only"
+          REDIS_HOST: "localhost"
+        run: |
+          python -m pytest
+
+      - name: Lints with pre-commit
+        run: |
+          pre-commit run -a
+
+  build:
+    needs: [test]
+    name: Build and Publish Docker image
+    runs-on: ubuntu-latest
+    if: ( github.repository == 'cppalliance/temp-site' && github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )) || ( github.repository == 'sdarwin/temp-site' && github.event_name == 'push' && github.ref == 'refs/heads/cppal-dev' )
+
+    steps:
+      - name: Set environment for branches
+        run: |
+          if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
+              echo "K8S_NAMESPACE=production" >> "$GITHUB_ENV"
+              echo "HELM_RELEASE_NAME=boost-production" >> "$GITHUB_ENV"
+          elif [[ $GITHUB_REF == 'refs/heads/develop' ]]; then
+              echo "K8S_NAMESPACE=stage" >> "$GITHUB_ENV"
+              echo "HELM_RELEASE_NAME=boost-stage" >> "$GITHUB_ENV"
+          elif [[ $GITHUB_REF == 'refs/heads/cppal-dev' ]]; then
+              # cppal-dev is a test branch in another fork. Doesn't need to be created in the main repo.
+              echo "K8S_NAMESPACE=cppal-dev" >> "$GITHUB_ENV"
+              echo "HELM_RELEASE_NAME=boost-cppal-dev" >> "$GITHUB_ENV"
+          fi
+
+      - name: Git - Get Sources
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Fetch Git Tags
+        run: |
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/* || true
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install vinnie
+
+      #
+      # To avoid conflicting with the develop branch version tags,
+      # use SHORT_SHA instead.
+      #
+      # - name: Bump and Tag our version
+      #   run: |
+      #     git config --local user.email "action@github.com"
+      #     git config --local user.name "GitHub Action"
+      #     vinnie patch
+      #     export VINNIE_VERSION=`vinnie version`
+      #     git push --tags
+
+      - name: Set short git commit SHA
+        run: |
+          echo "SHORT_SHA=$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_ENV
+
+      - name: Display SHORT_SHA tag
+        run: echo $SHORT_SHA
+        env:
+          SHORT_SHA: ${{ env.SHORT_SHA }}
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ secrets.GKE_DOCKER_REGISTRY_USERNAME }}
+          password: ${{ secrets.GKE_DOCKER_REGISTRY_PASSWORD }}
+
+      - name: Build Docker image
+        run: |
+          # TAG=`vinnie version`
+          TAG=${{ env.SHORT_SHA }}
+
+          docker build --file ./docker/Dockerfile \
+            --build-arg TAG=${TAG} \
+            --cache-from=${DOCKER_IMAGE}:latest \
+            --tag ${DOCKER_IMAGE} .
+
+      - name: Docker - Tag and Push
+        run: |
+          # TAG=`vinnie version`
+          TAG=${{ env.SHORT_SHA }}
+          docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE}:latest
+          docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE}:${TAG}
+
+          docker push ${DOCKER_IMAGE}:latest
+          docker push ${DOCKER_IMAGE}:${TAG}
+
+      - name: Deploy to cluster - google auth
+        id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GKE_SA_KEY }}'
+
+      - name: Deploy to cluster - get credentials
+        id: 'get-credentials'
+        uses: 'google-github-actions/get-gke-credentials@v1'
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_REGION }}
+
+      - name: Deploy to cluster - helm
+        run: |-
+          set -xe
+          TAG=${{ env.SHORT_SHA }}
+          cd kube/boost
+          helm upgrade --install --create-namespace -n ${{ env.K8S_NAMESPACE }} -f values-${{ env.K8S_NAMESPACE }}-gke.yaml --timeout=3600s --set=Image=${DOCKER_IMAGE} --set=ImageTag="${TAG}" ${{ env.HELM_RELEASE_NAME }} .
+          kubectl rollout status deployment/$DEPLOYMENT_NAME -n ${{ env.K8S_NAMESPACE }}
+          kubectl get services -o wide -n ${{ env.K8S_NAMESPACE }}

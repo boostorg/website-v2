@@ -43,6 +43,10 @@ spec:
         -
           name: nginx
           image: nginx:{{ .Values.nginxImageTag }}
+          readinessProbe:
+            httpGet:
+              path: /lbcheck
+              port: 80
           volumeMounts:
             -
               name: ngx

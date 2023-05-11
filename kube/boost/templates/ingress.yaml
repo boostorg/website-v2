@@ -1,5 +1,7 @@
 # vim: ft=sls nolist
 
+{{- if eq .Values.ingressType "nginx" }}
+
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -40,3 +42,59 @@ spec:
                 name: boost
                 port:
                   number: 80
+
+{{- else if eq .Values.ingressType "gce" }}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: www-boost-{{.Values.deploymentEnvironment}}
+  namespace: {{ .Values.namespace }}
+  labels:
+    env: {{ .Values.deploymentEnvironment }}
+    app: boost
+  annotations:
+    # cert-manager.io/cluster-issuer: letsencrypt-staging
+    kubernetes.io/ingress.class: "gce"
+    networking.gke.io/managed-certificates: {{ .Values.managedCertName }}
+    networking.gke.io/v1beta1.FrontendConfig: frontend-{{ .Values.deploymentEnvironment }}
+    nginx.ingress.kubernetes.io/proxy-body-size:
+      {{ .Values.clientMaxBodySize|quote }}
+    kubernetes.io/ingress.global-static-ip-name: {{ .Values.ingressStaticIp }}
+spec:
+  # managed cert. see above.
+  # tls:
+  #   - hosts:
+  #       - www.{{.Values.publicFqdn}}
+  #       - {{ .Values.publicFqdn }}
+  #     secretName: www.{{.Values.publicFqdn}}-tls-staging
+  rules:
+    - host: www.{{.Values.publicFqdn}}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: boost
+                port:
+                  number: 80
+    - host: {{ .Values.publicFqdn }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: boost
+                port:
+                  number: 80
+---
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: frontend-{{ .Values.deploymentEnvironment }}
+spec:
+  redirectToHttps:
+    enabled: true
+{{ end }}
