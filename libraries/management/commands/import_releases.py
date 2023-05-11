@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     NOT IDEMPOTENT.
 
-    This will clear existing Version and LibraryVersion objects, 
+    This will clear existing Version and LibraryVersion objects,
     before retrieving fresh ones from GitHub.
 
     1. Get all the Boost tags for the main repo
