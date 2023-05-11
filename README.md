@@ -2,7 +2,7 @@
 
 ## Overview
 
-A Django based website that will power https://boost.org
+A Django based website that will power a new Boost website
 
 ---
 
