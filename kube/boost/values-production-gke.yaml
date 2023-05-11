@@ -1,11 +1,11 @@
-Image: registry.revsys.com/boost
-ImageTag: 0.0.51
+Image: us-central1-docker.pkg.dev/boostorg-project1/website/website
+ImageTag: ac20d69
 
-djangoDebug: true
+djangoDebug: false
 
 nginxImageTag: "1.21-alpine"
 
-deploymentEnvironment: &env dev
+deploymentEnvironment: &env production
 clientMaxBodySize: 250m
 
 replicaCount: "2"
@@ -21,7 +21,7 @@ initCommands:
   - name: collectstatic
     command: ./manage.py collectstatic --noinput
 
-publicFqdn: &fqdn boost.revsys.dev
+publicFqdn: &fqdn boost.cpp.al
 
 Env:
   - name: DJANGO_SETTINGS_MODULE
@@ -54,9 +54,9 @@ Env:
   - name: DJANGO_FQDN
     value: *fqdn
   - name: ALLOWED_HOSTS
-    value: "boost.revsys.dev, www.boost.revsys.dev"
+    value: "boost.cpp.al, www.boost.cpp.al"
   - name: CSRF_TRUSTED_ORIGINS
-    value: "http://0.0.0.0, http://localhost, https://boost.revsys.dev, https://www.boost.revsys.dev"
+    value: "http://0.0.0.0, http://localhost, https://boost.cpp.al, https://www.boost.cpp.al"
 
   # silence django deprecation warnings
   - name: PYTHONWARNINGS
@@ -91,8 +91,7 @@ Env:
         name: django-secret-key
         key: key
   - name: ENVIRONMENT_NAME
-    value: "Development Environment"
-  # Uploaded Media Bucket
+    value: "Production Environment"
   - name: AWS_ACCESS_KEY_ID
     valueFrom:
       secretKeyRef:
@@ -104,8 +103,8 @@ Env:
         name: media-bucket
         key: secret_key
   - name: MEDIA_BUCKET_NAME
-    value: boost-dev-media
-  # Staticly generated content bucket (Antora docs, etc)
+    value: boost.org.media
+ # Staticly generated content bucket (Antora docs, etc)
   - name: STATIC_CONTENT_AWS_ACCESS_KEY_ID
     valueFrom:
       secretKeyRef:
@@ -124,6 +123,10 @@ Env:
   # Static content cache timeout
   - name: STATIC_CACHE_TIMEOUT
     value: "60"
+  - name: CELERY_BROKER
+    value: redis://redis:6379/0
+  - name: CELERY_BACKEND
+    value: redis://redis:6379/0
 
 # Volumes
 Volumes:
@@ -134,6 +137,9 @@ Volumes:
   - name: ngx
     configMap:
       name: nginx-config--boost
+  - name: htpw
+    configMap:
+      name: htpasswd
 
 VolumeMounts:
   - name: staticfiles
@@ -147,6 +153,8 @@ NginxVolumeMounts:
   - name: run
     mountPath: /run
 
-ingressType: nginx
-redisInstall: false
-celeryInstall: false
+ingressType: gce
+managedCertName: managed-cert-boost-production
+ingressStaticIp: boost-production-ingress1
+redisInstall: true
+celeryInstall: true
