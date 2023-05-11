@@ -50,6 +50,11 @@ def get_content_from_s3(key=None, bucket_name=None):
             response = client.get_object(Bucket=bucket_name, Key=s3_key.lstrip("/"))
             file_content = response["Body"].read()
             content_type = response["ContentType"]
+
+            # Check if the file ends with '.js', if yes then set the content_type to 'application/javascript'
+            if s3_key.endswith(".js"):
+                content_type = "application/javascript"
+
             logger.info(
                 "get_content_from_s3_success",
                 key=key,
