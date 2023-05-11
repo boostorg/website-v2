@@ -4,7 +4,7 @@
 
 <div class="relative md:fixed md:top-0 md:left-0 md:right-0 dark:bg-black bg-gray-200 z-50">
   <div class="relative max-w-7xl mx-auto">
-    <div>
+    <div class="container mx-auto">
       <div class="hidden items-center pt-2 pb-2 border-b-2 border-gray-300 md:flex dark:border-charcoal">
         <div class="w-[130px]">
           <a href="{% url 'home' %}">
@@ -18,14 +18,14 @@
           </a>
         </div>
         <div class="flex pt-2 w-full">
-          <nav class="relative items-center pl-6 space-x-10 w-full text-lg text-left">
+          <nav class="relative items-center pl-6 space-x-4 md:space-x-8 lg:space-x-10 w-full text-lg text-left">
             <a href="{% url 'news' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">News</a>
             <a href="{% url 'docs' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Learn</a>
             <a href="{% url 'community' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Community</a>
             <a href="/libraries/" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Libraries</a>
             <a href="{% url 'releases' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Releases</a>
           </nav>
-          <nav class="items-center space-x-5 text-right float-right w-44" x-data="{ 'searchOpen': false }">
+          <nav class="items-center space-x-3 lg:space-x-5 text-right float-right w-44" x-data="{ 'searchOpen': false }">
             <span class="relative">
               <i class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="searchOpen = !searchOpen"></i>
               <div x-show="searchOpen"
@@ -199,24 +199,18 @@
         </div>
         <div x-show="isOpen" class="absolute inset-x-0 top-10 z-50 h-screen bg-charcoal">
           <div class="px-2 pt-2 pb-3 text-2xl">
-            <a href="/versions/" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Versions</a>
+            <a href="{% url 'news' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">News</a>
+
+            <a href="{% url 'docs' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Learn</a>
+
+            <a href="{% url 'community' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Community</a>
 
             <a href="/libraries/" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Libraries</a>
 
-            <a href="{% url 'review-process' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Review Process</a>
-
-            <a href="/forum/" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Forums</a>
-
-            <a href="{% url 'news' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">News</a>
-
-            <a href="{% url 'donate' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Donate</a>
+            <a href="{% url 'releases' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Releases</a>
           </div>
           <div class="absolute left-0 bottom-10 px-2 pt-2 pb-3 text-sm">
-            <a href="{% url 'boost-about' %}" class="block py-2 px-3 text-gray-700 text-thin">About</a>
-
             <a href="{% url 'support' %}" class="block py-2 px-3 text-gray-700 text-thin">Support</a>
-
-            <a href="{% url 'resources' %}" class="block py-2 px-3 text-gray-700 text-thin">Resources</a>
 
             <a href="{% url 'account_signup' %}" class="block py-2 px-3 text-gray-700 text-thin">Sign Up</a>
 
