@@ -224,7 +224,7 @@ class GithubAPIClient:
                 owner=self.owner, repo=repo_slug, tag=tag_name
             )
         except Exception as e:
-            # logger.info("tag_not_found", tag_name=tag_name, repo_slug=repo_slug)
+            logger.info("tag_not_found", tag_name=tag_name, repo_slug=repo_slug)
             return
 
     def get_tags(self, repo_slug: str = None) -> dict:
