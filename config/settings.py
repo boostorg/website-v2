@@ -88,7 +88,14 @@ INSTALLED_APPS += [
 ]
 
 # Our Apps
-INSTALLED_APPS += ["ak", "users", "versions", "libraries", "mailing_list"]
+INSTALLED_APPS += [
+    "ak",
+    "users",
+    "versions",
+    "libraries",
+    "mailing_list",
+    "news",
+]
 
 AUTH_USER_MODEL = "users.User"
 CSRF_COOKIE_HTTPONLY = True
