@@ -17,7 +17,7 @@
           >
             <option>Newest Version (1.81.0)</option>
             {% for v in versions %}
-              <option value="{{ v.pk }}" {% if version == v %}selected="selected"{% endif %}>{{ v.name }}</option>
+              <option value="{{ v.pk }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
             {% endfor %}
           </select>
         </div>
