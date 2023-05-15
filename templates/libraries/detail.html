@@ -29,7 +29,7 @@
             >
               <option>Filter by version</option>
               {% for v in versions %}
-                <option value="{{ v.pk }}" {% if version == v %}selected="selected"{% endif %}>{{ v.name }}</option>
+                <option value="{{ v.pk }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
               {% endfor %}
             </select>
           </div>
