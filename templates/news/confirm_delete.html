@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<h1>{% translate "Please confirm your choice below" %}</h1>
+<p>{% blocktrans with entry_title=entry.title %}
+Are you sure you want to permanently delete {{ entry_title }}?
+{% endblocktrans %}</p>
+<form method="POST" action="{% url 'news-delete' entry.slug %}">
+  {% csrf_token %}
+  <button type="submit" name="delete">{% translate "Yes, delete" %}</button>
+</form>
+<p><a href="{% url 'news-detail' entry.slug %}">{% translate "No, take me back!" %}</a></p>
+{% endblock %}
