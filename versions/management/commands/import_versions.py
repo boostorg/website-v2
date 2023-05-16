@@ -8,6 +8,11 @@ from versions.models import Version
 @click.command()
 @click.option("--delete-versions", is_flag=True, help="Delete all existing versions")
 @click.option(
+    "--skip-existing-versions",
+    is_flag=True,
+    help="Skip versions that already exist in our database",
+)
+@click.option(
     "--delete-library-versions",
     is_flag=True,
     help="Delete all existing library versions",
@@ -17,7 +22,14 @@ from versions.models import Version
     is_flag=True,
     help="Create library-versions for the most recent Boost version and each active Boost library",
 )
-def command(delete_versions, delete_library_versions, create_recent_library_versions):
+@click.option("--token", is_flag=False, help="Github API token")
+def command(
+    delete_versions,
+    skip_existing_versions,
+    delete_library_versions,
+    create_recent_library_versions,
+    token,
+):
     """Imports Boost release information from Github and updates the local database.
 
     The function retrieves Boost tags from the main Github repo, excluding beta releases and release candidates.
@@ -28,8 +40,10 @@ def command(delete_versions, delete_library_versions, create_recent_library_vers
 
     Args:
         delete_versions (bool): If True, deletes all existing Version instances before importing.
+        skip-existing-versions (bool): If True, skips versions that already exist in the database.
         delete_library_versions (bool): If True, deletes all existing LibraryVersion instances before importing.
         create_recent_library_versions (bool): If True, creates a LibraryVersion for each active Boost library and the most recent Boost version.
+        token (str): Github API token, if you need to use something other than the setting.
     """
     # Delete Versions and LibraryVersions based on options
     if delete_versions:
@@ -41,10 +55,15 @@ def command(delete_versions, delete_library_versions, create_recent_library_vers
         click.echo("Deleted all existing library versions.")
 
     # Get all Boost tags from Github
-    client = GithubAPIClient()
+    client = GithubAPIClient(token=token)
     tags = client.get_tags()
     for tag in tags:
         name = tag["name"]
+
+        # If we already have this version, skip importing it
+        if skip_existing_versions and Version.objects.filter(name=name).exists():
+            click.echo(f"Skipping {name}, already exists in database")
+            continue
 
         # Skip beta releases, release candidates, etc.
         if any(["beta" in name.lower(), "-rc" in name.lower()]):
