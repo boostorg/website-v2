@@ -112,6 +112,8 @@ Here are the options you can use:
 - `--delete-versions`: Deletes all existing Version instances in the database before importing new ones.
 - `--delete-library-versions`: Deletes all existing LibraryVersion instances in the database before importing new ones.
 - `--create-recent-library-versions`: Creates a LibraryVersion for each active Boost library and the most recent Boost version.
+- `--skip-existing-versions`: If a Version exists in the database (by name), skip calling the GitHub API for more information on it.
+- `--token`: Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`.
 
 
 ### Example:
