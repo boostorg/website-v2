@@ -35,9 +35,11 @@ from mailing_list.views import MailingListView, MailingListDetailView
 from news.views import (
     EntryApproveView,
     EntryCreateView,
+    EntryDeleteView,
     EntryDetailView,
     EntryListView,
     EntryModerationListView,
+    EntryUpdateView,
 )
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
@@ -128,6 +130,8 @@ urlpatterns = (
         path(
             "news/<slug:slug>/approve/", EntryApproveView.as_view(), name="news-approve"
         ),
+        path("news/<slug:slug>/delete/", EntryDeleteView.as_view(), name="news-delete"),
+        path("news/<slug:slug>/update/", EntryUpdateView.as_view(), name="news-update"),
         path(
             "people/detail/",
             TemplateView.as_view(template_name="boost/people_detail.html"),

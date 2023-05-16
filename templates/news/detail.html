@@ -30,6 +30,12 @@
           <strong>{% translate "Pending Moderation" %}</strong>
         {% endif %}
       {% endif %}
+      {% if user_can_edit %}
+      <a href="{% url 'news-update' entry.slug %}">{% translate "Edit" %}</a>
+      {% endif %}
+      {% if user_can_delete %}
+      <a href="{% url 'news-delete' entry.slug %}">{% translate "Delete" %}</a>
+      {% endif %}
       </p>
       <!-- END ACTIONS -->
 
