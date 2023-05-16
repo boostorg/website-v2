@@ -29,6 +29,7 @@ class GithubAPIClient:
         owner: str = "boostorg",
         ref: str = "heads/master",
         repo_slug: str = "boost",
+        token: str = None,
     ) -> None:
         """
         Initialize the GitHubAPIClient.
@@ -37,7 +38,7 @@ class GithubAPIClient:
         :param ref: str, the Git reference
         :param repo_slug: str, the repository slug
         """
-        self.api = self.initialize_api()
+        self.api = self.initialize_api(token=token)
         self.owner = owner
         self.ref = ref
         self.repo_slug = repo_slug
