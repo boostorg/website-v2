@@ -1,12 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import Http404, HttpResponseRedirect
+from django.urls import reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.generic import (
     CreateView,
+    DeleteView,
     DetailView,
     ListView,
+    UpdateView,
     View,
 )
 from django.views.generic.detail import SingleObjectMixin
@@ -66,6 +69,8 @@ class EntryDetailView(DetailView):
         context["next"] = get_published_or_none(self.object.get_next_by_publish_at)
         context["prev"] = get_published_or_none(self.object.get_previous_by_publish_at)
         context["user_can_approve"] = self.object.can_approve(self.request.user)
+        context["user_can_edit"] = self.object.can_edit(self.request.user)
+        context["user_can_delete"] = self.object.can_delete(self.request.user)
         return context
 
 
@@ -104,3 +109,23 @@ class EntryApproveView(
         ):
             next_url = entry.get_absolute_url()
         return HttpResponseRedirect(next_url)
+
+
+class EntryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Entry
+    form_class = EntryForm
+    template_name = "news/form.html"
+
+    def test_func(self):
+        entry = self.get_object()
+        return entry.can_edit(self.request.user)
+
+
+class EntryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Entry
+    template_name = "news/confirm_delete.html"
+    success_url = reverse_lazy("news")
+
+    def test_func(self):
+        entry = self.get_object()
+        return entry.can_delete(self.request.user)
