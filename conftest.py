@@ -8,6 +8,7 @@ from django.core.files import File as DjangoFile
 # directories
 pytest_plugins = [
     "libraries.tests.fixtures",
+    "news.tests.fixtures",
     "users.tests.fixtures",
     "versions.tests.fixtures",
 ]
