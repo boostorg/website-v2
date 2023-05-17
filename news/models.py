@@ -32,10 +32,6 @@ class Entry(models.Model):
     class AlreadyApprovedError(Exception):
         """The entry cannot be approved again."""
 
-    APPROVED = "Approved"
-    PUBLISHED = "Published"
-    SUBMITTED = "Submitted"
-
     slug = models.SlugField()
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, default="")
@@ -58,17 +54,20 @@ class Entry(models.Model):
         return f"{self.title} by {self.author}"
 
     @property
-    def status(self):
-        result = self.SUBMITTED
-        if self.moderator is not None and self.approved_at <= now():
-            result = self.APPROVED
-            if self.publish_at <= now():
-                result = self.PUBLISHED
-        return result
+    def is_approved(self):
+        return (
+            self.moderator is not None
+            and self.approved_at is not None
+            and self.approved_at <= now()
+        )
+
+    @property
+    def is_published(self):
+        return self.is_approved and self.publish_at <= now()
 
     def approve(self, user):
         """Mark this entry as approved by the given `user`."""
-        if self.status != self.SUBMITTED:
+        if self.is_approved:
             raise self.AlreadyApprovedError()
         self.moderator = user
         self.approved_at = now()
@@ -84,13 +83,13 @@ class Entry(models.Model):
 
     def can_view(self, user):
         return (
-            self.status == self.PUBLISHED
+            self.is_published
             or user == self.author
             or (user is not None and user.has_perm("news.view_entry"))
         )
 
     def can_edit(self, user):
-        return (user == self.author and self.status == self.SUBMITTED) or (
+        return (not self.is_approved and user == self.author) or (
             user is not None and user.has_perm("news.change_entry")
         )
 
