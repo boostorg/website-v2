@@ -54,7 +54,7 @@
             mode = m;
         }"
         class="h-screen bg-gray-200 dark:bg-black font-cairo" {% block body_id %}{% endblock %}>
-    <div class="container md:mx-auto md:mt-32">
+    <div class="container md:mx-auto md:mt-14">
       {% include "includes/_header.html" %}
 
 
@@ -65,7 +65,7 @@
       {% comment %}body block is for use in forums{% endcomment %}
       {% block forum_body %}{% endblock %}
 
-      <div class="md:px-6 min-vh-110">
+      <div class="md:px-3 min-vh-110">
       {% block content_wrapper %}
         {% block subnav %}{% endblock %}
         {% block content %}{% endblock %}
