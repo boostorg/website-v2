@@ -41,7 +41,7 @@
         </div>
 
         <div class="p-4 md:flex md:space-x-3">
-          <div class="pr-3 space-y-2 w-full md:w-1/3 bg-white rounded-lg">
+          <div class="pr-3 space-y-2 w-full bg-white rounded-lg md:w-1/3">
               <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100" href="https://boost.org/libs/{{ object.slug }}">
                 <i class="float-right mt-3 fas fa-folder"></i>
                 Documentation
@@ -61,20 +61,20 @@
               <a class="inline-block float-right py-1 px-2 rounded cursor-pointer hover:bg-gray-100">{{ object.get_cpp_standard_minimum_display }}</a>
               <span class="block py-1 px-2 rounded cursor-pointer hover:bg-gray-100">Categories:
                 {% for category in object.categories.all %}
-                  <a class="text-sky-600 inline" href="{% url 'libraries-by-category' category=category.slug %}">{{ category.name }}</a>
+                  <a class="inline text-sky-600" href="{% url 'libraries-by-category' category=category.slug %}">{{ category.name }}</a>
                 {% endfor %}
               </span>
 
               <p class="pt-4 pl-2 mt-4 text-sm border-t border-gray-200">{{ object.description }}</p>
             </ul>
           </div>
-          <div class="flex space-x-3 w-full md:w-2/3 bg-gray-300 rounded-lg">
-            <div class="w-1/2 relative">
-              <div id="chart1" class="absolute bottom-10 text-center w-full">Commits per Month Graph</div>
+          <div class="flex space-x-3 w-full bg-gray-300 rounded-lg md:w-2/3">
+            <div class="relative w-1/2">
+              <div id="chart1" class="absolute bottom-10 w-full text-center">Commits per Month Graph</div>
             </div>
 
-            <div class="w-1/2 relative">
-              <div id="chart2" class="absolute bottom-10 text-center w-full">Commits per Year Graph</div>
+            <div class="relative w-1/2">
+              <div id="chart2" class="absolute bottom-10 w-full text-center">Commits per Year Graph</div>
             </div>
           </div>
         </div>
