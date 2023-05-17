@@ -25,6 +25,37 @@ def test_entry_slug_not_overwriten():
     assert entry.slug == "different"
 
 
+def test_entry_approved(make_entry):
+    entry = make_entry(moderator=baker.make("users.User"), approved_at=now())
+    assert entry.is_approved is True
+
+
+def test_entry_not_approved(make_entry):
+    entry = make_entry(moderator=None, approved_at=now())
+    assert entry.is_approved is False
+
+    entry = make_entry(moderator=baker.make("users.User"), approved_at=None)
+    assert entry.is_approved is False
+
+    future = now() + datetime.timedelta(minutes=1)
+    entry = make_entry(moderator=baker.make("users.User"), approved_at=future)
+    assert entry.is_approved is False
+
+
+def test_entry_published(make_entry):
+    entry = make_entry(approved=True, publish_at=now())
+    assert entry.is_published is True
+
+
+def test_entry_not_published(make_entry):
+    entry = make_entry(approved=False, publish_at=now())
+    assert entry.is_published is False
+
+    future = now() + datetime.timedelta(minutes=1)
+    entry = make_entry(approved=True, publish_at=future)
+    assert entry.is_published is False
+
+
 def test_entry_absolute_url():
     entry = baker.make("Entry", slug="the-slug")
     assert entry.get_absolute_url() == "/news/the-slug/"
@@ -33,7 +64,8 @@ def test_entry_absolute_url():
 def test_approve_entry(make_entry):
     future = now() + datetime.timedelta(hours=1)
     entry = make_entry(approved=False, publish_at=future)
-    assert entry.status == entry.SUBMITTED
+    assert not entry.is_approved
+    assert not entry.is_published
 
     user = baker.make("users.User")
     before = now()
@@ -46,14 +78,14 @@ def test_approve_entry(make_entry):
     # ocurred between `before` and `after`
     assert entry.approved_at <= after
     assert entry.approved_at >= before
-    assert entry.status == entry.APPROVED
+    assert entry.is_approved
+    assert not entry.is_published
 
 
 def test_approve_already_approved_entry(make_entry):
-    past = now() - datetime.timedelta(minutes=1)
     entry = make_entry(approved=True)
+    assert entry.is_approved
 
-    assert entry.status != entry.SUBMITTED
     with pytest.raises(Entry.AlreadyApprovedError):
         entry.approve(baker.make("users.User"))
 
@@ -170,9 +202,6 @@ def test_approved_entry_permissions_other_users(make_entry):
 
 
 def test_entry_manager_custom_queryset(make_entry):
-    moderator = baker.make("users.User")
-    future = now() + datetime.timedelta(hours=1)
-    past = now() - datetime.timedelta(hours=1)
     entry_published = make_entry(approved=True, published=True)
     entry_approved = make_entry(approved=True, published=False)
     entry_not_approved = make_entry(approved=False)
