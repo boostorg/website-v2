@@ -8,6 +8,18 @@ from django.utils.timezone import now
 User = get_user_model()
 
 
+class EntryManager(models.Manager):
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .annotate(
+                approved=models.Q(moderator__isnull=False, approved_at__lte=now())
+            )
+            .annotate(published=models.Q(publish_at__lte=now(), approved=True))
+        )
+
+
 class Entry(models.Model):
     """A news entry.
 
@@ -17,14 +29,27 @@ class Entry(models.Model):
 
     """
 
+    class AlreadyApprovedError(Exception):
+        """The entry cannot be approved again."""
+
+    APPROVED = "Approved"
+    PUBLISHED = "Published"
+    SUBMITTED = "Submitted"
+
     slug = models.SlugField()
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, default="")
     author = models.ForeignKey(User, on_delete=models.CASCADE)
+    moderator = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name="moderated_entries_set"
+    )
     external_url = models.URLField(blank=True, default="")
     image = models.ImageField(upload_to="news", null=True, blank=True)
     created_at = models.DateTimeField(default=now)
+    approved_at = models.DateTimeField(null=True)
     publish_at = models.DateTimeField(default=now)
+
+    objects = EntryManager()
 
     class Meta:
         verbose_name_plural = "Entries"
@@ -32,17 +57,45 @@ class Entry(models.Model):
     def __str__(self):
         return f"{self.title} by {self.author}"
 
+    @property
+    def status(self):
+        result = self.SUBMITTED
+        if self.moderator is not None and self.approved_at <= now():
+            result = self.APPROVED
+            if self.publish_at <= now():
+                result = self.PUBLISHED
+        return result
+
+    def approve(self, user):
+        """Mark this entry as approved by the given `user`."""
+        if self.status != self.SUBMITTED:
+            raise self.AlreadyApprovedError()
+        self.moderator = user
+        self.approved_at = now()
+        self.save(update_fields=["moderator", "approved_at"])
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
         return super().save(*args, **kwargs)
 
-    @property
-    def published(self):
-        return self.publish_at <= now()
-
     def get_absolute_url(self):
         return reverse("news-detail", args=[self.slug])
+
+    def can_view(self, user):
+        return (
+            self.status == self.PUBLISHED
+            or user == self.author
+            or (user is not None and user.has_perm("news.view_entry"))
+        )
+
+    def can_edit(self, user):
+        return (user == self.author and self.status == self.SUBMITTED) or (
+            user is not None and user.has_perm("news.change_entry")
+        )
+
+    def can_delete(self, user):
+        return user is not None and user.has_perm("news.delete_entry")
 
 
 class BlogPost(Entry):

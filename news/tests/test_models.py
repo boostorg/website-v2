@@ -1,5 +1,7 @@
 import datetime
 
+import pytest
+from django.contrib.auth.models import Permission
 from django.utils.timezone import now
 from model_bakery import baker
 
@@ -23,19 +25,175 @@ def test_entry_slug_not_overwriten():
     assert entry.slug == "different"
 
 
-def test_entry_published():
-    entry = baker.make("Entry", publish_at=now())
-    assert entry.published is True
-
-
-def test_entry_not_published():
-    entry = baker.make("Entry", publish_at=now() + datetime.timedelta(minutes=1))
-    assert entry.published is False
-
-
 def test_entry_absolute_url():
     entry = baker.make("Entry", slug="the-slug")
     assert entry.get_absolute_url() == "/news/the-slug/"
+
+
+def test_approve_entry(make_entry):
+    future = now() + datetime.timedelta(hours=1)
+    entry = make_entry(approved=False, publish_at=future)
+    assert entry.status == entry.SUBMITTED
+
+    user = baker.make("users.User")
+    before = now()
+    entry.approve(user)
+    after = now()
+
+    entry.refresh_from_db()
+    assert entry.moderator == user
+    # Avoid mocking `now()`, yet still ensure that the approval timestamp
+    # ocurred between `before` and `after`
+    assert entry.approved_at <= after
+    assert entry.approved_at >= before
+    assert entry.status == entry.APPROVED
+
+
+def test_approve_already_approved_entry(make_entry):
+    past = now() - datetime.timedelta(minutes=1)
+    entry = make_entry(approved=True)
+
+    assert entry.status != entry.SUBMITTED
+    with pytest.raises(Entry.AlreadyApprovedError):
+        entry.approve(baker.make("users.User"))
+
+
+def test_entry_permissions_author(make_entry):
+    entry = make_entry(approved=False)
+    author = entry.author
+    assert entry.can_view(author) is True
+    assert entry.can_edit(author) is True
+    assert entry.can_delete(author) is False
+
+    entry.approve(baker.make("users.User"))
+    assert entry.can_view(author) is True
+    assert entry.can_edit(author) is False
+    assert entry.can_delete(author) is False
+
+
+def test_not_approved_entry_permissions_other_users(make_entry):
+    entry = make_entry(approved=False)
+    assert entry.can_view(None) is False
+    assert entry.can_edit(None) is False
+    assert entry.can_delete(None) is False
+
+    regular_user = baker.make("users.User")
+    assert entry.can_view(regular_user) is False
+    assert entry.can_edit(regular_user) is False
+    assert entry.can_delete(regular_user) is False
+
+    superuser = baker.make("users.User", is_superuser=True)
+    assert entry.can_view(superuser) is True
+    assert entry.can_edit(superuser) is True
+    assert entry.can_delete(superuser) is True
+
+    user_with_add_perm = baker.make("users.User")
+    user_with_add_perm.user_permissions.add(
+        Permission.objects.get(codename="add_entry")
+    )
+    assert entry.can_view(user_with_add_perm) is False
+    assert entry.can_edit(user_with_add_perm) is False
+    assert entry.can_delete(user_with_add_perm) is False
+
+    user_with_change_perm = baker.make("users.User")
+    user_with_change_perm.user_permissions.add(
+        Permission.objects.get(codename="change_entry")
+    )
+    assert entry.can_view(user_with_change_perm) is False
+    assert entry.can_edit(user_with_change_perm) is True
+    assert entry.can_delete(user_with_change_perm) is False
+
+    user_with_delete_perm = baker.make("users.User")
+    user_with_delete_perm.user_permissions.add(
+        Permission.objects.get(codename="delete_entry")
+    )
+    assert entry.can_view(user_with_delete_perm) is False
+    assert entry.can_edit(user_with_delete_perm) is False
+    assert entry.can_delete(user_with_delete_perm) is True
+
+    user_with_view_perm = baker.make("users.User")
+    user_with_view_perm.user_permissions.add(
+        Permission.objects.get(codename="view_entry")
+    )
+    assert entry.can_view(user_with_view_perm) is True
+    assert entry.can_edit(user_with_view_perm) is False
+    assert entry.can_delete(user_with_view_perm) is False
+
+
+def test_approved_entry_permissions_other_users(make_entry):
+    entry = make_entry(approved=True)
+    assert entry.can_view(None) is True
+    assert entry.can_edit(None) is False
+    assert entry.can_delete(None) is False
+
+    regular_user = baker.make("users.User")
+    assert entry.can_view(regular_user) is True
+    assert entry.can_edit(regular_user) is False
+    assert entry.can_delete(regular_user) is False
+
+    superuser = baker.make("users.User", is_superuser=True)
+    assert entry.can_view(superuser) is True
+    assert entry.can_edit(superuser) is True
+    assert entry.can_delete(superuser) is True
+
+    user_with_add_perm = baker.make("users.User")
+    user_with_add_perm.user_permissions.add(
+        Permission.objects.get(codename="add_entry")
+    )
+    assert entry.can_view(user_with_add_perm) is True
+    assert entry.can_edit(user_with_add_perm) is False
+    assert entry.can_delete(user_with_add_perm) is False
+
+    user_with_change_perm = baker.make("users.User")
+    user_with_change_perm.user_permissions.add(
+        Permission.objects.get(codename="change_entry")
+    )
+    assert entry.can_view(user_with_change_perm) is True
+    assert entry.can_edit(user_with_change_perm) is True
+    assert entry.can_delete(user_with_change_perm) is False
+
+    user_with_delete_perm = baker.make("users.User")
+    user_with_delete_perm.user_permissions.add(
+        Permission.objects.get(codename="delete_entry")
+    )
+    assert entry.can_view(user_with_delete_perm) is True
+    assert entry.can_edit(user_with_delete_perm) is False
+    assert entry.can_delete(user_with_delete_perm) is True
+
+    user_with_view_perm = baker.make("users.User")
+    user_with_view_perm.user_permissions.add(
+        Permission.objects.get(codename="view_entry")
+    )
+    assert entry.can_view(user_with_view_perm) is True
+    assert entry.can_edit(user_with_view_perm) is False
+    assert entry.can_delete(user_with_view_perm) is False
+
+
+def test_entry_manager_custom_queryset(make_entry):
+    moderator = baker.make("users.User")
+    future = now() + datetime.timedelta(hours=1)
+    past = now() - datetime.timedelta(hours=1)
+    entry_published = make_entry(approved=True, published=True)
+    entry_approved = make_entry(approved=True, published=False)
+    entry_not_approved = make_entry(approved=False)
+    entry_not_published = make_entry(approved=False, published=False)
+
+    assert list(Entry.objects.filter(approved=True).order_by("id")) == [
+        entry_published,
+        entry_approved,
+    ]
+    assert list(Entry.objects.filter(approved=False).order_by("id")) == [
+        entry_not_approved,
+        entry_not_published,
+    ]
+    assert list(Entry.objects.filter(published=True).order_by("id")) == [
+        entry_published
+    ]
+    assert list(Entry.objects.filter(published=False).order_by("id")) == [
+        entry_approved,
+        entry_not_approved,
+        entry_not_published,
+    ]
 
 
 def test_blogpost():
