@@ -94,43 +94,51 @@ class GithubAPIClient:
             owner=self.owner, repo=repo_slug, commit_sha=commit_sha
         )
 
-    def get_gitmodules(self, repo_slug: str = None) -> str:
+    def get_gitmodules(self, repo_slug: str = None, ref: dict = None) -> str:
         """
         Get the .gitmodules file for the repo from the GitHub API.
 
         :param repo_slug: str, the repository slug
+        :param ref: dict, the Git reference
         :return: str, the .gitmodules file
         """
         if not repo_slug:
             repo_slug = self.repo_slug
 
-        ref = self.get_ref()
+        if not ref:
+            ref = self.get_ref()
         tree_sha = ref["object"]["sha"]
         tree = self.get_tree(tree_sha=tree_sha)
 
-        gitmodules = None
         for item in tree["tree"]:
             if item["path"] == ".gitmodules":
                 file_sha = item["sha"]
                 blob = self.get_blob(repo_slug=repo_slug, file_sha=file_sha)
                 return base64.b64decode(blob["content"])
 
-    def get_libraries_json(self, repo_slug: str):
+    def get_libraries_json(self, repo_slug: str, tag: str = None):
         """
         Retrieve library metadata from 'meta/libraries.json'
         Each Boost library will have a `meta` directory with a `libraries.json` file.
         Example: https://github.com/boostorg/align/blob/5ad7df63cd792fbdb801d600b93cad1a432f0151/meta/libraries.json
         """
-        url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/develop/meta/libraries.json"
+        if not tag:
+            tag = "master"
+
+        url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/{tag}/meta/libraries.json"
 
         try:
             response = requests.get(url)
-            return response.json()
-        except Exception:
+            response.raise_for_status()
+        # This usually happens because the library does not have a `meta/libraries.json` file
+        # in the requested tag. More likely to happen with older versions of libraries.
+        except requests.exceptions.HTTPError:
             self.logger.exception(
                 "get_library_metadata_failed", repo=repo_slug, url=url
             )
             return None
+        else:
+            return response.json()
 
     def get_ref(self, repo_slug: str = None, ref: str = None) -> dict:
         """
@@ -144,7 +152,7 @@ class GithubAPIClient:
             repo_slug = self.repo_slug
         if not ref:
             ref = self.ref
-        return self.api.git.get_ref(owner=self.owner, repo=repo_slug, ref=ref)
+        return self.api.git.get_ref(owner=self.owner, repo=repo_slug, ref=f"tags/{ref}")
 
     def get_repo(self, repo_slug: str = None) -> dict:
         """
@@ -411,8 +419,11 @@ class LibraryUpdater:
     and their `libraries.json` file metadata.
     """
 
-    def __init__(self, owner="boostorg"):
-        self.client = GithubAPIClient(owner=owner)
+    def __init__(self, owner="boostorg", client=None):
+        if client:
+            self.client = client
+        else:
+            self.client = GithubAPIClient(owner=owner)
         self.api = self.client.initialize_api()
         self.parser = GithubDataParser()
         self.owner = owner
@@ -483,8 +494,8 @@ class LibraryUpdater:
             "update_all_libraries_metadata", library_count=len(library_data)
         )
 
-        for library_data in library_data:
-            library = self.update_library(library_data)
+        for lib in library_data:
+            self.update_library(lib)
 
     def update_library(self, library_data: dict) -> Library:
         """Update an individual library"""

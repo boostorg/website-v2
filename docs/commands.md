@@ -95,6 +95,37 @@ Output:
     Version 1.30.0 created succcessfully
     ---algorithm (1.30.0) created succcessfully
 
+## `import_library_versions`
+
+Connect Library objects to the Boost versions (AKA "release") that included them using information from the main Boost GitHub repo and the library repos. Functions of this command: 
+
+- Prints out any versions or libraries that were skipped at the end. 
+- Idempotent.
+
+**Options**
+
+Here are the options you can use:
+
+- `--release`: Full or prtial Boost version (release) number. If `release` is passed, the command will import all libraries for the versions that contain the passed-in release number. If not passed, the command will import libraries for all active versions. 
+- `--token`: Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`.
+
+### Example:
+
+    ./manage.py import_library_versions
+
+Output: 
+
+    Saved library version Log (boost-1.16.1).
+    Processing version boost-0.9.27...
+    Processing module python...
+    Saved library version Python (boost-0.9.27). Created? False
+    User stefan@seefeld.name added as a maintainer of Python (boost-0.9.27)
+    {"message": "User username added as a maintainer of Python (boost-0.9.27)", "logger": "libraries.github", "level": "info", "timestamp": "2023-05-17T21:24:39.046029Z"}
+    Updated maintainers for Python (boost-0.9.27).
+    Saved library version Python (boost-0.9.27).
+    Skipped disjoint_sets in boost-1.57.0: Could not find library in database by gitmodule name
+    Skipped signals in boost-1.57.0: Could not find library in database by gitmodule name
+
 
 ## `import_versions`
 
