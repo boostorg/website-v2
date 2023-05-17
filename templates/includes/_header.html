@@ -27,7 +27,9 @@
           </nav>
           <nav class="float-right items-center space-x-3 w-44 text-right lg:space-x-5" x-data="{ 'searchOpen': false }">
             <span class="relative">
-              <i class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="searchOpen = !searchOpen"></i>
+              <i class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange"
+                 @click="searchOpen = true; $nextTick(() => { setTimeout(() => { document.getElementById('hq').focus(); }, 300);});"
+              ></i>
               <div x-show="searchOpen"
                    @click.away="searchOpen = false"
                    x-transition:enter="transition ease-out duration-100"
@@ -50,6 +52,7 @@
                   <input autocomplete="on"
                          class="py-2 px-3 text-xs bg-white rounded-lg border-gray-300 text-charcoal dark:text-charcoal dark:border-slate dark:bg-charcoal"
                          name="q"
+                         id="hq"
                          placeholder="Search Boost.org"
                          required="required"
                          type="text"
