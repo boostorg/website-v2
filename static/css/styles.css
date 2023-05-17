@@ -1309,6 +1309,10 @@ input[type=file] {
   height: 3rem;
 }
 
+.h-\[25px\] {
+  height: 25px;
+}
+
 .max-h-\[470px\] {
   max-height: 470px;
 }
@@ -1403,6 +1407,10 @@ input[type=file] {
 
 .w-\[200px\] {
   width: 200px;
+}
+
+.w-\[100px\] {
+  width: 100px;
 }
 
 .min-w-0 {

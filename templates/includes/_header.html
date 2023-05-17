@@ -5,19 +5,19 @@
 <div class="relative z-50 bg-gray-200 md:fixed md:top-0 md:right-0 md:left-0 dark:bg-black">
   <div class="relative mx-auto">
     <div class="container mx-auto">
-      <div class="hidden items-center py-2 px-2 border-b-2 border-gray-300 md:flex dark:border-charcoal">
-        <div class="w-[130px]">
+      <div class="hidden items-center py-1 px-2 border-b-2 border-gray-300 md:flex dark:border-charcoal">
+        <div class="w-[100px]">
           <a href="{% url 'home' %}">
-              <img class="hidden -mb-1 w-auto dark:inline-block h-[32px]"
+              <img class="hidden w-auto dark:inline-block h-[25px]"
                    src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}"
                    alt="Boost">
 
-              <img class="inline-block -mb-1 w-auto dark:hidden h-[32px]"
+              <img class="inline-block w-auto dark:hidden h-[25px]"
                    src="{% static 'img/Boost_Brandmark_BlackBoost_Transparent.svg' %}"
                    alt="Boost">
           </a>
         </div>
-        <div class="flex pt-2 w-full">
+        <div class="flex pt-1 w-full">
           <nav class="relative items-center pl-6 space-x-4 w-full text-lg text-left md:space-x-8 lg:space-x-10">
             <a href="{% url 'news' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">News</a>
             <a href="{% url 'docs' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Learn</a>
