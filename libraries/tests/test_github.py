@@ -105,7 +105,7 @@ def test_get_blob(github_api_client):
 def test_get_libraries_json(github_api_client):
     """Test the get_libraries_json method of GitHubAPIClient."""
     repo_slug = "sample_repo"
-    url = f"https://raw.githubusercontent.com/{github_api_client.owner}/{repo_slug}/develop/meta/libraries.json"
+    url = f"https://raw.githubusercontent.com/{github_api_client.owner}/{repo_slug}/master/meta/libraries.json"
     sample_json = {"key": "math", "name": "Math"}
     responses.add(
         responses.GET,
