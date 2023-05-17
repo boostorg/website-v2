@@ -21,7 +21,7 @@
     <p class="mb-3 text-gray-700 dark:text-gray-300">{{ library.description }}</p>
   </div>
   <div class="text-sm flex py-3 bottom-0 absolute w-[90%]">
-    <div class="w-1/6"><span class="py-0 px-2 text-sm font-bold text-gray-600 dark:text-gray-300 rounded-full border bg-green/40 border-green/60 dark:bg-green/40">{{ library.cpp_standard_minimum }}</span></div>
+    <div class="w-1/6"><span class="py-0 px-2 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40">{{ library.cpp_standard_minimum }}</span></div>
     <div class="w-1/6 tracking-wider text-charcoal dark:text-white/60">2yrs</div>
     <div class="w-4/6 text-right dark:text-gray-400 text-slate">
       {% for c in library.categories.all %}
