@@ -1221,6 +1221,14 @@ input[type=file] {
   margin-left: 1rem;
 }
 
+.-mt-11 {
+  margin-top: -2.75rem;
+}
+
+.-mt-4 {
+  margin-top: -1rem;
+}
+
 .block {
   display: block;
 }
@@ -2116,6 +2124,22 @@ input[type=file] {
   padding-bottom: 1rem;
 }
 
+.pt-11 {
+  padding-top: 2.75rem;
+}
+
+.pt-16 {
+  padding-top: 4rem;
+}
+
+.pt-20 {
+  padding-top: 5rem;
+}
+
+.pt-24 {
+  padding-top: 6rem;
+}
+
 .text-left {
   text-align: left;
 }
@@ -2989,6 +3013,10 @@ input[type=file] {
 
   .md\:pt-6 {
     padding-top: 1.5rem;
+  }
+
+  .md\:pt-20 {
+    padding-top: 5rem;
   }
 
   .md\:text-right {

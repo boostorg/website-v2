@@ -22,7 +22,7 @@
             <a href="{% url 'news' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">News</a>
             <a href="{% url 'docs' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Learn</a>
             <a href="{% url 'community' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Community</a>
-            <a href="/libraries/" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Libraries</a>
+            <a href="{% url 'libraries' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Libraries</a>
             <a href="{% url 'releases' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Releases</a>
           </nav>
           <nav class="float-right items-center space-x-3 w-44 text-right lg:space-x-5" x-data="{ 'searchOpen': false }">
