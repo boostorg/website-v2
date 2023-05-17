@@ -37,12 +37,17 @@ class Entry(models.Model):
     description = models.TextField(blank=True, default="")
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     moderator = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name="moderated_entries_set"
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="moderated_entries_set",
     )
     external_url = models.URLField(blank=True, default="")
     image = models.ImageField(upload_to="news", null=True, blank=True)
     created_at = models.DateTimeField(default=now)
-    approved_at = models.DateTimeField(null=True)
+    approved_at = models.DateTimeField(null=True, blank=True)
+    modified_at = models.DateTimeField(auto_now=True)
     publish_at = models.DateTimeField(default=now)
 
     objects = EntryManager()
