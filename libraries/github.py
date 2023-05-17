@@ -94,6 +94,52 @@ class GithubAPIClient:
             owner=self.owner, repo=repo_slug, commit_sha=commit_sha
         )
 
+    def get_first_tag(self, repo_slug: str = None):
+        """
+        Retrieves the earliest tag in the repo.
+
+        :param repo_slug: str, the repository slug
+        :return: GitHub tag objectsorted_tags = sorted(tags, key=lambda tag: self.get_commit_by_sha(repo_slug, tag["commit"]["sha"])["committer"]["date"])
+        """
+        if not repo_slug:
+            repo_slug = self.repo_slug
+
+        try:
+            per_page = 100
+            page = 1
+            all_tags = []
+
+            while True:
+                tags = self.api.repos.list_tags(
+                    owner=self.owner, repo=repo_slug, per_page=per_page, page=page
+                )
+                all_tags.extend(tags)
+
+                if len(tags) < per_page:  # This means we have retrieved all the tags
+                    break
+
+                page += 1  # Go to the next page
+
+            # Sort the tags by the commit date. The first tag will be the earliest.
+            # The Github API doesn't return the commit date with the tag, so we have to retrieve each
+            # one individually. This is slow, but it's the only way to get the commit date.
+            def get_tag_commit_date(tag):
+                commit_sha = tag["commit"]["sha"]
+                return self.get_commit_by_sha(repo_slug, commit_sha)["committer"][
+                    "date"
+                ]
+
+            annotated_tags = [(tag, get_tag_commit_date(tag)) for tag in tags]
+            sorted_tags = sorted(annotated_tags, key=lambda x: x[1])
+
+            # Retrieve the first tag (earliest)
+            first_tag = sorted_tags[0]
+            return first_tag
+
+        except Exception:
+            self.logger.exception("get_first_tag_and_date_failed", repo=repo_slug)
+            return None
+
     def get_gitmodules(self, repo_slug: str = None, ref: dict = None) -> str:
         """
         Get the .gitmodules file for the repo from the GitHub API.
