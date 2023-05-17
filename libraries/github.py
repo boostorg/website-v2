@@ -99,7 +99,7 @@ class GithubAPIClient:
         Retrieves the earliest tag in the repo.
 
         :param repo_slug: str, the repository slug
-        :return: GitHub tag objectsorted_tags = sorted(tags, key=lambda tag: self.get_commit_by_sha(repo_slug, tag["commit"]["sha"])["committer"]["date"])
+        :return: tuple with GitHub tag object, commit date
         """
         if not repo_slug:
             repo_slug = self.repo_slug
