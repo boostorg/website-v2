@@ -5,6 +5,7 @@ from .models import Entry
 
 class EntryAdmin(admin.ModelAdmin):
     list_display = ["title", "author", "created_at", "approved_at", "publish_at"]
+    readonly_fields = ["modified_at"]
     prepopulated_fields = {"slug": ["title"]}
 
 
