@@ -69,7 +69,7 @@ alias shell := console
 # ----
 
 # Compile new python dependencies
-@pip-compile:  ## rebuilds our pip requirements
+@pip-compile ARGS='':  ## rebuilds our pip requirements
     docker compose run --rm web pip-compile {{ ARGS }} ./requirements.in --output-file ./requirements.txt
 
 # Upgrade existing Python dependencies to their latest versions
