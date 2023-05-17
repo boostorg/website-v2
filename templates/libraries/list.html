@@ -6,23 +6,26 @@
 
 {% block content %}
   <!-- Breadcrumb used on filtered views -->
-  <div class="p-3 space-x-2 text-sm divide-x divide-gray-300 md:p-0">
+  <div class="p-3 mb-4 space-x-2 text-sm divide-x divide-gray-300 md:p-0">
+    <a class="hover:text-orange" href="/"><i class="fas fa-home"></i></a>
+    <a class="pl-2 hover:text-orange" href="{% url 'libraries' %}">Libraries</a>
     {% if version_slug %}
-      <a class="hover:text-orange" href="/"><i class="fas fa-home"></i></a>
       <a class="pl-2 hover:text-orange" href="{% url 'libraries-by-version' version_slug %}">Libraries ({{ version_name }})</a>
     {% endif %}
-    {% if category %} > Categorized >
-      <a class="pl-2 hover:text-orange" href="
+    {% if category %} <span class="inline-block pl-2">Categorized</span>
+      <a class="pl-2 hover:text-orange"
+         href="
            {% if version_slug %}
              {% url 'libraries-by-version-by-category' version_slug=version_slug category=category.slug%}
            {% else %}
              {% url 'libraries-by-category' category=category.slug %}
-           {% endif %}">{{ category.name }}</a>
+           {% endif %}
+      ">{{ category.name }}</a>
     {% endif %}
   </div>
   <!-- end breadcrumb -->
 
-  <div class="py-0 px-3 mb-3 text-right md:px-0 md:pt-6" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
+  <div class="py-0 px-3 mb-3 text-right md:px-0" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
     <form action="" method="post" class="float-right">
       {% csrf_token %}
       <div>
