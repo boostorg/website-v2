@@ -90,16 +90,18 @@ class GithubAPIClient:
         """Get a commit by its SHA."""
         if not repo_slug:
             repo_slug = self.repo_slug
-        return self.api.git.get_commit(
+        result = self.api.git.get_commit(
             owner=self.owner, repo=repo_slug, commit_sha=commit_sha
         )
+        return result
 
     def get_first_tag(self, repo_slug: str = None):
         """
         Retrieves the earliest tag in the repo.
 
         :param repo_slug: str, the repository slug
-        :return: tuple with GitHub tag object, commit date
+        :return: tuple with GitHub tag object, commit date.
+        - See https://docs.github.com/en/rest/git/tags for tag object format.
         """
         if not repo_slug:
             repo_slug = self.repo_slug
@@ -114,8 +116,7 @@ class GithubAPIClient:
                     owner=self.owner, repo=repo_slug, per_page=per_page, page=page
                 )
                 all_tags.extend(tags)
-
-                if len(tags) < per_page:  # This means we have retrieved all the tags
+                if len(tags) < per_page:  # End of results
                     break
 
                 page += 1  # Go to the next page
@@ -124,19 +125,21 @@ class GithubAPIClient:
             # The Github API doesn't return the commit date with the tag, so we have to retrieve each
             # one individually. This is slow, but it's the only way to get the commit date.
             def get_tag_commit_date(tag):
+                """Get the commit date for a tag.
+
+                For commit format, see
+                https://docs.github.com/en/rest/commits/commits."""
                 commit_sha = tag["commit"]["sha"]
-                return self.get_commit_by_sha(repo_slug, commit_sha)["committer"][
-                    "date"
-                ]
+                commit = self.get_commit_by_sha(repo_slug, commit_sha)
+                return commit["committer"]["date"]
 
             annotated_tags = [(tag, get_tag_commit_date(tag)) for tag in tags]
             sorted_tags = sorted(annotated_tags, key=lambda x: x[1])
 
-            # Retrieve the first tag (earliest)
-            first_tag = sorted_tags[0]
-            return first_tag
+            # Return the first (earliest) tag
+            return sorted_tags[0]
 
-        except Exception:
+        except Exception as e:
             self.logger.exception("get_first_tag_and_date_failed", repo=repo_slug)
             return None
 
@@ -570,6 +573,9 @@ class LibraryUpdater:
             # Do authors second because maintainers are more likely to have emails to match
             self.update_authors(obj, authors=library_data["authors"])
 
+            if created or not obj.first_release:
+                self.update_first_release(obj)
+
             return obj
 
         except Exception:
@@ -632,6 +638,21 @@ class LibraryUpdater:
             obj.authors.add(user)
 
         return obj
+
+    def update_first_github_tag_date(self, obj):
+        """
+        Update the date of the first tag for a library
+        """
+        if obj.first_github_tag_date:
+            logger.info("lib_first_release_already_set", obj_id=obj.id)
+            return
+
+        first_tag = self.client.get_first_tag(repo_slug=obj.github_repo)
+        if first_tag:
+            _, first_github_tag_date = first_tag
+            obj.first_github_tag_date = parse_date(first_github_tag_date)
+            obj.save()
+            self.logger.info("lib_first_release_updated", obj_id=obj.id)
 
     def update_maintainers(self, obj, maintainers=None):
         """
