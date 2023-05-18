@@ -99,8 +99,9 @@ class GithubAPIClient:
         Get the .gitmodules file for the repo from the GitHub API.
 
         :param repo_slug: str, the repository slug
-        :param ref: dict, the Git reference
-        :return: str, the .gitmodules file
+        :param ref: dict, the Git reference object (the commit hash). See https://docs.github.com/en/rest/git/refs
+            for expected format.
+        :return: str, the .gitmodules file from the repo
         """
         if not repo_slug:
             repo_slug = self.repo_slug

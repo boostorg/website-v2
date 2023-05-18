@@ -51,34 +51,34 @@ def command(release, token):
         gitmodules = parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
 
         for gitmodule in gitmodules:
-            click.echo(f"Processing module {gitmodule['module']}...")
-            if gitmodule["module"] in updater.skip_modules:
-                click.echo(f"Skipping module {gitmodule['module']}.")
+            library_name = gitmodule["module"]
+            click.echo(f"Processing module {library_name}...")
+            if library_name in updater.skip_modules:
+                click.echo(f"Skipping module {library_name}.")
                 continue
 
-            libraries_json = client.get_libraries_json(repo_slug=gitmodule["module"])
+            libraries_json = client.get_libraries_json(repo_slug=library_name)
 
             # If the libraries.json file exists, we can use it to get the library info
             if libraries_json:
-                libraries = []
-                if type(libraries_json) is list:
-                    for library in libraries_json:
-                        data = parser.parse_libraries_json(library)
-                        libraries.append(data)
+                if isinstance(libraries_json, list):
+                    libraries = [
+                        parser.parse_libraries_json(lib) for lib in libraries_json
+                    ]
                 else:
-                    libraries.append(parser.parse_libraries_json(libraries_json))
+                    libraries = [parser.parse_libraries_json(libraries_json)]
 
                 for lib_data in libraries:
                     try:
                         library = Library.objects.get(name=lib_data["name"])
                     except Library.DoesNotExist:
                         click.echo(
-                            f"Could not find library by gitmodule name; skipping {gitmodule['module']}"
+                            f"Could not find library by gitmodule name; skipping {library_name}"
                         )
                         skipped.append(
                             {
                                 "version": version.name,
-                                "library": gitmodule["module"],
+                                "library": library_name,
                                 "reason": "Could not find library by gitmodule name",
                             }
                         )
@@ -102,18 +102,18 @@ def command(release, token):
                 # when it isn't present, we search for the library by the module name and try to save
                 # the LibraryVersion that way.
                 click.echo(
-                    f"Could not get libraries.json for {gitmodule['module']}; will try to save by gitmodule name."
+                    f"Could not get libraries.json for {library_name}; will try to save by gitmodule name."
                 )
                 try:
-                    library = Library.objects.get(name=gitmodule["module"])
+                    library = Library.objects.get(name=library_name)
                 except Library.DoesNotExist:
                     click.echo(
-                        f"Could not find library by gitmodule name; skipping {gitmodule['module']}"
+                        f"Could not find library by gitmodule name; skipping {library_name}"
                     )
                     skipped.append(
                         {
                             "version": version.name,
-                            "library": gitmodule["module"],
+                            "library": library_name,
                             "reason": "Could not find library in database by gitmodule name",
                         }
                     )
@@ -123,15 +123,14 @@ def command(release, token):
                     )
                     click.echo(f"Saved library version {library_version}. Created? {_}")
 
-    if skipped:
-        for skipped_obj in skipped:
-            if "library" in skipped_obj:
-                click.secho(
-                    f"Skipped {skipped_obj['library']} in {skipped_obj['version']}: {skipped_obj['reason']}",
-                    fg="red",
-                )
-            else:
-                click.secho(
-                    f"Skipped {skipped_obj['version']}: {skipped_obj['reason']}",
-                    fg="red",
-                )
+    for skipped_obj in skipped or []:
+        if "library" in skipped_obj:
+            click.secho(
+                f"Skipped {skipped_obj['library']} in {skipped_obj['version']}: {skipped_obj['reason']}",
+                fg="red",
+            )
+        else:
+            click.secho(
+                f"Skipped {skipped_obj['version']}: {skipped_obj['reason']}",
+                fg="red",
+            )
