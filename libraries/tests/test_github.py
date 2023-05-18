@@ -1,5 +1,5 @@
 import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import call, MagicMock, patch
 
 import pytest
 import responses
@@ -20,7 +20,7 @@ def github_api_client():
 @pytest.fixture(scope="function")
 def mock_api() -> GhApi:
     """Fixture that mocks the GitHub API."""
-    with patch("libraries.github_new.GhApi") as mock_api_class:
+    with patch("libraries.github.GhApi") as mock_api_class:
         yield mock_api_class.return_value
 
 
@@ -100,6 +100,41 @@ def test_get_blob(github_api_client):
 #         repo_slug="sample_repo", file_sha="67890"
 #     )
 
+
+def test_get_first_tag(github_api_client):
+    """Test the get_first_tag method of GithubAPIClient."""
+
+    # Mock tags from the GitHub API
+    mock_tags = [
+        {"name": "tag2", "commit": {"sha": "2"}},
+        {"name": "tag1", "commit": {"sha": "1"}},
+    ]
+
+    # Mock the commit data from the GitHub API
+    mock_commits = [
+        {"sha": "2", "committer": {"date": "2023-05-12T00:00:00Z"}},
+        {"sha": "1", "committer": {"date": "2023-05-11T00:00:00Z"}},
+    ]
+
+    with patch("libraries.github.GhApi") as mock_api:
+        mock_api.repos.list_tags = MagicMock(return_value=mock_tags)
+        mock_api.repos.get_commit = MagicMock(side_effect=mock_commits)
+
+        github_api_client.api = mock_api
+
+        # Call the method
+        first_tag = github_api_client.get_first_tag(repo_slug="sample_repo")
+
+        # Check that the API calls were made with the right arguments
+        mock_api.repos.list_tags.assert_called_once_with(
+            owner=github_api_client.owner, repo="sample_repo", per_page=100, page=1
+        )
+        mock_api.repos.get_commit.assert_has_calls(
+            [call(sha=tag["commit"]["sha"]) for tag in mock_tags]
+        )
+
+        # Check that the method returns the correct result
+        assert first_tag == (mock_tags[1], "2023-05-11T00:00:00Z")
 
 @responses.activate
 def test_get_libraries_json(github_api_client):
