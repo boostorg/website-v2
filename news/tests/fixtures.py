@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+from django.contrib.auth.models import Permission
 from django.utils.timezone import now
 from model_bakery import baker
 
@@ -23,6 +24,32 @@ def make_entry(db):
         kwargs.setdefault("approved_at", approved_at)
         kwargs.setdefault("moderator", moderator)
         kwargs.setdefault("publish_at", publish_at)
-        return baker.make("Entry", **kwargs)
+        entry = baker.make("Entry", **kwargs)
+        entry.author.set_password("password")
+        entry.author.save()
+        return entry
 
     return _make_it
+
+
+@pytest.fixture
+def moderator_user(db):
+    # we could use `tp.make_user` but we need this fix to be released
+    # https://github.com/revsys/django-test-plus/issues/199
+    user = baker.make("users.User")
+    user.user_permissions.add(
+        *Permission.objects.filter(
+            content_type__app_label="news", content_type__model="entry"
+        )
+    )
+    user.set_password("password")
+    user.save()
+    return user
+
+
+@pytest.fixture
+def regular_user(db):
+    user = baker.make("users.User")
+    user.set_password("password")
+    user.save()
+    return user
