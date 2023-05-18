@@ -28,7 +28,7 @@
 
     </div>
 
-    <div class="p-4 divide-x divide-gray-200 md:flex text-white bg-white rounded-lg shadow-lg dark:bg-charcoal dark:bg-neutral-700 p-6 dark:text-white text-slate">
+    <div class="p-4 p-6 text-white bg-white rounded-lg divide-x divide-gray-200 shadow-lg md:flex dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
       <div class="pr-3 space-y-2 w-full md:w-1/4">
         <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100"
            href="https://github.com/boostorg/smart_ptr">
@@ -47,17 +47,17 @@
         <a
           class="inline-block float-right py-1 px-2 rounded cursor-pointer hover:bg-gray-100">{{ object.get_cpp_standard_minimum_display }}</a>
       </div>
-      <div class="space-x-6 w-full md:w-3/4 px-4">
+      <div class="px-4 space-x-6 w-full md:w-3/4">
         <div class="flex space-x-3">
-          <table class="table m-0 p-0 w-2/3 text-left border-collapse text-sm dark:text-white text-slate">
+          <table class="table p-0 m-0 w-2/3 text-sm text-left border-collapse dark:text-white text-slate">
             <tbody>
-            <tr class="bg-gray-200 dark:bg-charcoal border border-gray-200">
+            <tr class="bg-gray-200 border border-gray-200 dark:bg-charcoal">
               <th scope="col" class="px-2">Platform</th>
               <th scope="col" class="px-2">File</th>
               <th scope="col" class="px-2">SHA256 Hash</th>
             </tr>
             <tr class="border border-gray-200">
-              <th scope="row" rowspan="2" class="border border-gray-200 px-2 bg-gray-100 dark:bg-charcoal">unix</th>
+              <th scope="row" rowspan="2" class="px-2 bg-gray-100 border border-gray-200 dark:bg-charcoal">unix</th>
               <td class="px-2 border border-gray-200"><a href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.bz2" class="text-sky-600 hover:text-orange">boost_1_81_0.tar.bz2</a>
               </td>
               <td class="px-2">71feeed900fbccca04a3b4f2f84a7c217186f28a940ed8b7ed4725986baf99fa</td>
@@ -68,7 +68,7 @@
               <td class="px-2">205666dea9f6a7cfed87c7a6dfbeb52a2c1b9de55712c9c1a87735d7181452b6</td>
             </tr>
             <tr class="border border-gray-200">
-              <th scope="row" rowspan="2" class="border border-gray-200 px-2 bg-gray-100 dark:bg-charcoal">windows</th>
+              <th scope="row" rowspan="2" class="px-2 bg-gray-100 border border-gray-200 dark:bg-charcoal">windows</th>
               <td class="px-2 border border-gray-200"><a
                 href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.7z" class="text-sky-600 hover:text-orange">boost_1_81_0.7z</a>
               </td>
@@ -83,21 +83,21 @@
             </tbody>
           </table>
           <div class="w-1/3">
-            <img src="{% static 'img/fpo/boost-release-package.png' %}" class="h-[100px] w-auto"/>
+            <img src="{% static 'img/fpo/boost-release-package.png' %}" class="w-auto h-[100px]"/>
           </div>
         </div>
       </div>
     </div>
 
 
-    <div class="p-4 my-4 text-white bg-white rounded-lg shadow-lg dark:bg-charcoal dark:bg-neutral-700 p-6 dark:text-white text-slate">
-      <h3 class="border-b border-gray-200 mb-2">New Libraries</h3>
+    <div class="p-4 p-6 my-4 text-white bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+      <h3 class="mb-2 border-b border-gray-200">New Libraries</h3>
       URL:
       <p>A library for parsing, modifying, and printing URLs using only C++11, from Vinnie Falco and Alan de Freitas.
         Features include fast compilation, strong invariants, and strict compliance using a memory-friendly
         approach.</p>
 
-      <h3 class="border-b border-gray-200 mb-2">Updated Libraries</h3>
+      <h3 class="mb-2 border-b border-gray-200">Updated Libraries</h3>
 
       <ul>
         <li>
