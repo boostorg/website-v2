@@ -96,11 +96,13 @@ def test_entry_permissions_author(make_entry):
     assert entry.can_view(author) is True
     assert entry.can_edit(author) is True
     assert entry.can_delete(author) is False
+    assert entry.can_approve(author) is False
 
     entry.approve(baker.make("users.User"))
     assert entry.can_view(author) is True
     assert entry.can_edit(author) is False
     assert entry.can_delete(author) is False
+    assert entry.can_approve(author) is False
 
 
 def test_not_approved_entry_permissions_other_users(make_entry):
@@ -108,16 +110,19 @@ def test_not_approved_entry_permissions_other_users(make_entry):
     assert entry.can_view(None) is False
     assert entry.can_edit(None) is False
     assert entry.can_delete(None) is False
+    assert entry.can_approve(None) is False
 
     regular_user = baker.make("users.User")
     assert entry.can_view(regular_user) is False
     assert entry.can_edit(regular_user) is False
     assert entry.can_delete(regular_user) is False
+    assert entry.can_approve(regular_user) is False
 
     superuser = baker.make("users.User", is_superuser=True)
     assert entry.can_view(superuser) is True
     assert entry.can_edit(superuser) is True
     assert entry.can_delete(superuser) is True
+    assert entry.can_approve(superuser) is True
 
     user_with_add_perm = baker.make("users.User")
     user_with_add_perm.user_permissions.add(
@@ -126,6 +131,7 @@ def test_not_approved_entry_permissions_other_users(make_entry):
     assert entry.can_view(user_with_add_perm) is False
     assert entry.can_edit(user_with_add_perm) is False
     assert entry.can_delete(user_with_add_perm) is False
+    assert entry.can_approve(user_with_add_perm) is False
 
     user_with_change_perm = baker.make("users.User")
     user_with_change_perm.user_permissions.add(
@@ -134,6 +140,7 @@ def test_not_approved_entry_permissions_other_users(make_entry):
     assert entry.can_view(user_with_change_perm) is False
     assert entry.can_edit(user_with_change_perm) is True
     assert entry.can_delete(user_with_change_perm) is False
+    assert entry.can_approve(user_with_change_perm) is True
 
     user_with_delete_perm = baker.make("users.User")
     user_with_delete_perm.user_permissions.add(
@@ -142,6 +149,7 @@ def test_not_approved_entry_permissions_other_users(make_entry):
     assert entry.can_view(user_with_delete_perm) is False
     assert entry.can_edit(user_with_delete_perm) is False
     assert entry.can_delete(user_with_delete_perm) is True
+    assert entry.can_approve(user_with_delete_perm) is False
 
     user_with_view_perm = baker.make("users.User")
     user_with_view_perm.user_permissions.add(
@@ -150,6 +158,7 @@ def test_not_approved_entry_permissions_other_users(make_entry):
     assert entry.can_view(user_with_view_perm) is True
     assert entry.can_edit(user_with_view_perm) is False
     assert entry.can_delete(user_with_view_perm) is False
+    assert entry.can_approve(user_with_view_perm) is False
 
 
 def test_approved_entry_permissions_other_users(make_entry):
@@ -157,16 +166,19 @@ def test_approved_entry_permissions_other_users(make_entry):
     assert entry.can_view(None) is True
     assert entry.can_edit(None) is False
     assert entry.can_delete(None) is False
+    assert entry.can_approve(None) is False
 
     regular_user = baker.make("users.User")
     assert entry.can_view(regular_user) is True
     assert entry.can_edit(regular_user) is False
     assert entry.can_delete(regular_user) is False
+    assert entry.can_approve(regular_user) is False
 
     superuser = baker.make("users.User", is_superuser=True)
     assert entry.can_view(superuser) is True
     assert entry.can_edit(superuser) is True
     assert entry.can_delete(superuser) is True
+    assert entry.can_approve(superuser) is True
 
     user_with_add_perm = baker.make("users.User")
     user_with_add_perm.user_permissions.add(
@@ -175,6 +187,7 @@ def test_approved_entry_permissions_other_users(make_entry):
     assert entry.can_view(user_with_add_perm) is True
     assert entry.can_edit(user_with_add_perm) is False
     assert entry.can_delete(user_with_add_perm) is False
+    assert entry.can_approve(user_with_add_perm) is False
 
     user_with_change_perm = baker.make("users.User")
     user_with_change_perm.user_permissions.add(
@@ -183,6 +196,7 @@ def test_approved_entry_permissions_other_users(make_entry):
     assert entry.can_view(user_with_change_perm) is True
     assert entry.can_edit(user_with_change_perm) is True
     assert entry.can_delete(user_with_change_perm) is False
+    assert entry.can_approve(user_with_change_perm) is True
 
     user_with_delete_perm = baker.make("users.User")
     user_with_delete_perm.user_permissions.add(
@@ -191,6 +205,7 @@ def test_approved_entry_permissions_other_users(make_entry):
     assert entry.can_view(user_with_delete_perm) is True
     assert entry.can_edit(user_with_delete_perm) is False
     assert entry.can_delete(user_with_delete_perm) is True
+    assert entry.can_approve(user_with_delete_perm) is False
 
     user_with_view_perm = baker.make("users.User")
     user_with_view_perm.user_permissions.add(
@@ -199,6 +214,7 @@ def test_approved_entry_permissions_other_users(make_entry):
     assert entry.can_view(user_with_view_perm) is True
     assert entry.can_edit(user_with_view_perm) is False
     assert entry.can_delete(user_with_view_perm) is False
+    assert entry.can_approve(user_with_view_perm) is False
 
 
 def test_entry_manager_custom_queryset(make_entry):
