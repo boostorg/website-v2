@@ -106,7 +106,7 @@ Connect Library objects to the Boost versions (AKA "release") that included them
 
 Here are the options you can use:
 
-- `--release`: Full or prtial Boost version (release) number. If `release` is passed, the command will import all libraries for the versions that contain the passed-in release number. If not passed, the command will import libraries for all active versions. 
+- `--release`: Full or partial Boost version (release) number. If `release` is passed, the command will import all libraries for the versions that contain the passed-in release number. If not passed, the command will import libraries for all active versions. 
 - `--token`: Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`.
 
 ### Example:
