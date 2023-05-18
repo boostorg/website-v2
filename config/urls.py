@@ -32,7 +32,12 @@ from libraries.views import (
 )
 from libraries.api import LibrarySearchView
 from mailing_list.views import MailingListView, MailingListDetailView
-from news.views import EntryDetailView, EntryListView
+from news.views import (
+    EntryApproveView,
+    EntryCreateView,
+    EntryDetailView,
+    EntryListView,
+)
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
 from versions.views import VersionList, VersionDetail
@@ -110,7 +115,11 @@ urlpatterns = (
         ),
         path("mailing-list/", MailingListView.as_view(), name="mailing-list"),
         path("news/", EntryListView.as_view(), name="news"),
+        path("news/add/", EntryCreateView.as_view(), name="news-create"),
         path("news/<slug:slug>/", EntryDetailView.as_view(), name="news-detail"),
+        path(
+            "news/<slug:slug>/approve/", EntryApproveView.as_view(), name="news-approve"
+        ),
         path(
             "people/detail/",
             TemplateView.as_view(template_name="boost/people_detail.html"),

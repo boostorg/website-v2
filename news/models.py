@@ -76,7 +76,7 @@ class Entry(models.Model):
             raise self.AlreadyApprovedError()
         self.moderator = user
         self.approved_at = now()
-        self.save(update_fields=["moderator", "approved_at"])
+        self.save(update_fields=["moderator", "approved_at", "modified_at"])
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -92,6 +92,9 @@ class Entry(models.Model):
             or user == self.author
             or (user is not None and user.has_perm("news.view_entry"))
         )
+
+    def can_approve(self, user):
+        return user is not None and user.has_perm("news.change_entry")
 
     def can_edit(self, user):
         return (not self.is_approved and user == self.author) or (
