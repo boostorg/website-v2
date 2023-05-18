@@ -117,15 +117,12 @@ class GithubAPIClient:
                 blob = self.get_blob(repo_slug=repo_slug, file_sha=file_sha)
                 return base64.b64decode(blob["content"])
 
-    def get_libraries_json(self, repo_slug: str, tag: str = None):
+    def get_libraries_json(self, repo_slug: str, tag: str = "master"):
         """
         Retrieve library metadata from 'meta/libraries.json'
         Each Boost library will have a `meta` directory with a `libraries.json` file.
         Example: https://github.com/boostorg/align/blob/5ad7df63cd792fbdb801d600b93cad1a432f0151/meta/libraries.json
         """
-        if not tag:
-            tag = "master"
-
         url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/{tag}/meta/libraries.json"
 
         try:
