@@ -1,5 +1,6 @@
 import djclick as click
 
+from fastcore.net import HTTP422UnprocessableEntityError
 from libraries.github import GithubAPIClient, GithubDataParser, LibraryUpdater
 from libraries.models import Library, LibraryVersion
 from versions.models import Version
@@ -28,24 +29,22 @@ def command(release, token):
 
     skipped = []
 
-    if release is not None:
-        versions = Version.objects.filter(name__icontains=release)
-    else:
+    if release is None:
         versions = Version.objects.active()
+    else:
+        versions = Version.objects.filter(name__icontains=release)
 
     for version in versions:
         click.echo(f"Processing version {version.name}...")
 
-        # Get the .gitmodules for the version using the version name, which is also the git tag
+        # Get the .gitmodules for this version using the version name, which is also the git tag
         ref = client.get_ref(ref=version.name)
         try:
             raw_gitmodules = client.get_gitmodules(ref=ref)
-        except Exception:
+        except HTTP422UnprocessableEntityError as e:
             # Only happens for one version; uncertain why.
             click.secho(f"Could not get gitmodules for {version.name}.", fg="red")
-            skipped.append(
-                {"version": version.name, "reason": "Could not get gitmodules"}
-            )
+            skipped.append({"version": version.name, "reason": str(e)})
             continue
 
         gitmodules = parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
@@ -53,6 +52,7 @@ def command(release, token):
         for gitmodule in gitmodules:
             library_name = gitmodule["module"]
             click.echo(f"Processing module {library_name}...")
+
             if library_name in updater.skip_modules:
                 click.echo(f"Skipping module {library_name}.")
                 continue
@@ -61,42 +61,30 @@ def command(release, token):
 
             # If the libraries.json file exists, we can use it to get the library info
             if libraries_json:
-                if isinstance(libraries_json, list):
-                    libraries = [
-                        parser.parse_libraries_json(lib) for lib in libraries_json
-                    ]
-                else:
-                    libraries = [parser.parse_libraries_json(libraries_json)]
-
-                for lib_data in libraries:
-                    try:
-                        library = Library.objects.get(name=lib_data["name"])
-                    except Library.DoesNotExist:
-                        click.echo(
-                            f"Could not find library by gitmodule name; skipping {library_name}"
+                libraries = (
+                    libraries_json
+                    if isinstance(libraries_json, list)
+                    else [libraries_json]
+                )
+                parsed_libraries = [
+                    parser.parse_libraries_json(lib) for lib in libraries
+                ]
+                for lib_data in parsed_libraries:
+                    library_version = handle_library_version(
+                        version, lib_data["name"], lib_data["maintainers"], updater
+                    )
+                    if not library_version:
+                        click.secho(
+                            f"Could not save library version {lib_data['name']}.",
+                            fg="red",
                         )
                         skipped.append(
                             {
                                 "version": version.name,
-                                "library": library_name,
-                                "reason": "Could not find library by gitmodule name",
+                                "library": lib_data["name"],
+                                "reason": "Could not save library version",
                             }
                         )
-                    else:
-                        library_version, _ = LibraryVersion.objects.get_or_create(
-                            version=version, library=library
-                        )
-                        click.echo(
-                            f"Saved library version {library_version}. Created? {_}"
-                        )
-                        updater.update_maintainers(
-                            library_version, maintainers=lib_data["maintainers"]
-                        )
-                        click.secho(
-                            f"Updated maintainers for {library_version}.", fg="green"
-                        )
-
-                    click.echo(f"Saved library version {library_version}.")
             else:
                 # This can happen with older tags; the libraries.json file didn't always exist, so
                 # when it isn't present, we search for the library by the module name and try to save
@@ -104,33 +92,52 @@ def command(release, token):
                 click.echo(
                     f"Could not get libraries.json for {library_name}; will try to save by gitmodule name."
                 )
-                try:
-                    library = Library.objects.get(name=library_name)
-                except Library.DoesNotExist:
-                    click.echo(
-                        f"Could not find library by gitmodule name; skipping {library_name}"
+                library_version = handle_library_version(
+                    version, library_name, [], updater
+                )
+                if not library_version:
+                    click.secho(
+                        f"Could not save library version {lib_data['name']}.", fg="red"
                     )
                     skipped.append(
                         {
                             "version": version.name,
-                            "library": library_name,
-                            "reason": "Could not find library in database by gitmodule name",
+                            "library": lib_data["name"],
+                            "reason": "Could not save library version",
                         }
                     )
-                else:
-                    library_version, _ = LibraryVersion.objects.get_or_create(
-                        version=version, library=library
-                    )
-                    click.echo(f"Saved library version {library_version}. Created? {_}")
 
-    for skipped_obj in skipped or []:
-        if "library" in skipped_obj:
-            click.secho(
-                f"Skipped {skipped_obj['library']} in {skipped_obj['version']}: {skipped_obj['reason']}",
-                fg="red",
-            )
-        else:
-            click.secho(
-                f"Skipped {skipped_obj['version']}: {skipped_obj['reason']}",
-                fg="red",
-            )
+    skipped_messages = [
+        f"Skipped {skipped_obj['library']} in {skipped_obj['version']}: {skipped_obj['reason']}"
+        if "library" in skipped_obj
+        else f"Skipped {skipped_obj['version']}: {skipped_obj['reason']}"
+        for skipped_obj in skipped
+    ]
+
+    for message in skipped_messages:
+        click.secho(message, fg="red")
+
+
+def handle_library_version(version, library_name, maintainers, updater):
+    """Handles the creation and updating of a LibraryVersion instance."""
+    try:
+        library = Library.objects.get(name=library_name)
+    except Library.DoesNotExist:
+        click.secho(
+            f"Could not find library by gitmodule name; skipping {library_name}",
+            fg="red",
+        )
+        return
+
+    library_version, created = LibraryVersion.objects.get_or_create(
+        version=version, library=library
+    )
+    click.secho(
+        f"Saved library version {library_version}. Created? {created}", fg="green"
+    )
+
+    if created:
+        updater.update_maintainers(library_version, maintainers=maintainers)
+        click.secho(f"Updated maintainers for {library_version}.", fg="green")
+
+    return library_version
