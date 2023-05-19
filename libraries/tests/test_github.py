@@ -219,15 +219,13 @@ def test_parse_libraries_json():
 
 def test_parse_commit():
     commit_data = {
-        "commit": {
-            "author": {"date": "2023-05-10T00:00:00Z"},
-            "message": "This is a sample description for a commit",
-        },
+        "committer": {"date": "2023-05-10T00:00:00Z"},
+        "message": "This is a sample description for a commit",
         "html_url": "http://example.com/commit/12345",
     }
     expected = {
         "release_date": datetime.date(2023, 5, 10),
-        "description": "This is a sample description for a commit",
+        "description": commit_data["message"],
         "github_url": "http://example.com/commit/12345",
         "data": commit_data,
     }
