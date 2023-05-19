@@ -572,8 +572,8 @@ class LibraryUpdater:
             # Do authors second because maintainers are more likely to have emails to match
             self.update_authors(obj, authors=library_data["authors"])
 
-            if created or not obj.first_release:
-                self.update_first_release(obj)
+            if created or not obj.first_github_tag_date:
+                self.update_first_github_tag_date(obj)
 
             return obj
 
@@ -642,10 +642,6 @@ class LibraryUpdater:
         """
         Update the date of the first tag for a library
         """
-        if obj.first_github_tag_date:
-            logger.info("lib_first_release_already_set", obj_id=obj.id)
-            return
-
         first_tag = self.client.get_first_tag(repo_slug=obj.github_repo)
         if first_tag:
             _, first_github_tag_date = first_tag
