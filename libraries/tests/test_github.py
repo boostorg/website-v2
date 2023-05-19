@@ -1,5 +1,5 @@
 import datetime
-from unittest.mock import call, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 import responses
@@ -217,7 +217,7 @@ def test_parse_libraries_json():
     parser.parse_libraries_json(sample_libraries_json)
 
 
-def test_parse_tag():
+def test_parse_commit():
     commit_data = {
         "commit": {
             "author": {"date": "2023-05-10T00:00:00Z"},

@@ -90,10 +90,9 @@ class GithubAPIClient:
         """Get a commit by its SHA."""
         if not repo_slug:
             repo_slug = self.repo_slug
-        result = self.api.git.get_commit(
+        return self.api.git.get_commit(
             owner=self.owner, repo=repo_slug, commit_sha=commit_sha
         )
-        return result
 
     def get_first_tag(self, repo_slug: str = None):
         """
@@ -213,7 +212,7 @@ class GithubAPIClient:
         return self.api.repos.get(owner=self.owner, repo=repo_slug)
 
     def get_repo_issues(
-        owner: str, repo_slug: str, state: str = "all", issues_only: bool = True
+        self, owner: str, repo_slug: str, state: str = "all", issues_only: bool = True
     ):
         """
         Get all issues for a repo.
