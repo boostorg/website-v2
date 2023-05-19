@@ -132,7 +132,7 @@ class GithubAPIClient:
                 commit = self.get_commit_by_sha(repo_slug, commit_sha)
                 return commit["committer"]["date"]
 
-            annotated_tags = [(tag, get_tag_commit_date(tag)) for tag in tags]
+            annotated_tags = [(tag, get_tag_commit_date(tag)) for tag in all_tags]
             sorted_tags = sorted(annotated_tags, key=lambda x: x[1])
 
             # Return the first (earliest) tag
@@ -465,14 +465,13 @@ class LibraryUpdater:
     and their `libraries.json` file metadata.
     """
 
-    def __init__(self, owner="boostorg", client=None):
+    def __init__(self, client=None):
         if client:
             self.client = client
         else:
-            self.client = GithubAPIClient(owner=owner)
+            self.client = GithubAPIClient()
         self.api = self.client.initialize_api()
         self.parser = GithubDataParser()
-        self.owner = owner
         self.logger = structlog.get_logger()
 
         # Modules we need to skip as they are not really Boost Libraries
@@ -685,7 +684,7 @@ class LibraryUpdater:
         self.logger.info("updating_repo_issues")
 
         issues_data = self.client.get_repo_issues(
-            self.owner, obj.github_repo, state="all", issues_only=True
+            self.client.owner, obj.github_repo, state="all", issues_only=True
         )
         for issue_dict in issues_data:
 
