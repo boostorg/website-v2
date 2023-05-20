@@ -60,29 +60,12 @@ services:
       - .env
     depends_on:
       - db
-      
-  celery-worker:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command:
-      [
-        "celery",
-        "-A",
-        "config",
-        "worker",
-        "--concurrency=10",
-        "--loglevel=debug"
-      ]
-    env_file:
-      - .env
-    depends_on:
-      - db
-      - redis
 
   mailman-web:
     image: maxking/mailman-web
     entrypoint: /opt/mailman-docker/compose-start.sh
+    env_file:
+      - .env
     environment:
       - "DOCKER_DIR=/opt/mailman-docker"
       - "PYTHON=python3"
@@ -103,7 +86,28 @@ services:
       - ./docker:/opt/mailman-docker
     networks:
       - backend
-      
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command:
+      [
+        "celery",
+        "-A",
+        "config",
+        "worker",
+        "--concurrency=10",
+        "--loglevel=debug"
+      ]
+    networks:
+      - backend
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+
   celery-beat:
     build:
       context: .
