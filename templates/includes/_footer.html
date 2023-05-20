@@ -1,51 +1,15 @@
 {% load static %}
 
-<footer class="py-5 px-4 my-5 mx-auto max-w-full sm:mt-24 md:py-4 md:my-6">
-  {% if not request.user.is_authenticated %}
-  <div class="md:flex" id="footerSignup">
-    <div class="grid gap-4 content-center text-left md:w-1/2">
-      <div>
-        <h1 class="block pt-6 text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl xl:inline">
-          Join the growing community
-        </h1>
-      </div>
-      <div class="grid grid-cols-1 gap-4 my-16 md:grid-cols-2">
-        <div><img class="float-left mt-1 mr-3 w-auto h-8" src="{% static 'img/icons/icon_Cup-C++.svg' %}" alt=""> Best collections of C++ libraries</div>
-        <div><img class="float-left mt-1 mr-3 w-auto h-8" src="{% static 'img/icons/icon_graduation-cap.svg' %}" alt=""> Supports research and education for C++</div>
-        <div><img class="float-left mt-1 mr-3 w-auto h-8" src="{% static 'img/icons/icon_down-arrow-stack.svg' %}" alt=""> Accessible with minimal restriction</div>
-        <div><img class="float-left mt-1 mr-3 w-auto h-8" src="{% static 'img/icons/icon_three-people.svg' %}" alt=""> Collaborative community</div>
-      </div>
-      <div class="hidden mt-5 max-w-md sm:flex md:mt-8">
-        <div class="rounded-md shadow">
-          <a href="{% url 'account_signup' %}" class="flex justify-center items-center py-3 px-8 w-full text-base font-medium text-white rounded-md border md:py-3 md:px-8 md:text-lg border-orange bg-orange dark:text-orange dark:bg-charcoal">Sign Up <i class="pl-2 text-white fas fa-chevron-right dark:text-orange"></i> </a>
-        </div>
-      </div>
-    </div>
-    <div class="text-center md:w-1/2">
-      <div id="scene01"></div>
-    </div>
-  </div>
-  {% endif %}
+<footer class="py-5 px-4 my-5 mx-auto max-w-full sm:mt-24 md:pt-4 md:pb-11 md:mt-6 md:mb-11">
 
-  <div class="items-center px-5 pt-4 mt-16 md:flex">
-    <div class="mr-11">
-      <img class="hidden mb-1 w-auto dark:inline-block h-[40px]"
-           src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}"
-           alt="Boost">
-
-      <img class="inline-block mb-1 w-auto dark:hidden h-[40px]"
-           src="{% static 'img/Boost_Brandmark_BlackBoost_Transparent.svg' %}"
-           alt="Boost">
-    </div>
-    <div class="justify-between pt-3 pb-3 w-4/5 md:space-x-3 xl:space-x-10">
-      <a class="block my-2 md:inline" href="/">&#169; 2022 Boost.org</a>
-      <a class="block my-2 md:inline" href="{% url 'contact' %}">Contact</a>
-      <a class="block my-2 md:inline" href="">Privacy Policy</a>
-      <a class="block my-2 md:inline" href="">Terms of Use</a>
-    </div>
-    <div class="pt-3 pb-3 space-x-3 w-1/5 md:space-x-5 md:text-right">
-      <a href="https://twitter.com/boost_libraries" target="_blank"><i class="fab fa-twitter text-slate dark:text-white/50 dark:hover:text-orange hover:text-orange"></i></a>
-      <a href="https://github.com/boostorg" target="_blank"><i class="fab fa-github text-slate dark:text-white/50 dark:hover:text-orange hover:text-orange"></i></a>
+  <div class="items-center px-5 pt-4 mt-16 text-center">
+    <div class="justify-between pt-3 pb-3 md:space-x-3 xl:space-x-6">
+      <span>&#169; The C Plus Plus Alliance, Inc.</span>
+      <a class="block my-2 md:inline hover:text-orange" href="{% url 'contact' %}">Contact</a>
+      <a class="block my-2 md:inline hover:text-orange" href="">Privacy Policy</a>
+      <a class="block my-2 md:inline hover:text-orange" href="">Terms of Use</a>
+      <a href="https://twitter.com/boost_libraries" target="_blank" class="hover:text-orange">Twitter</a>
+      <a href="https://github.com/boostorg" target="_blank" class="hover:text-orange">GitHub</a>
     </div>
   </div>
 </footer>

@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 
@@ -77,6 +78,11 @@ class Library(models.Model):
     cpp_standard_minimum = models.CharField(max_length=50, blank=True, null=True)
 
     active_development = models.BooleanField(default=True, db_index=True)
+    first_github_tag_date = models.DateField(
+        blank=True,
+        null=True,
+        help_text="The date of the first release, based on the date of the commit of the first GitHub tag.",
+    )
     last_github_update = models.DateTimeField(blank=True, null=True, db_index=True)
 
     categories = models.ManyToManyField(Category, related_name="libraries")
@@ -94,11 +100,28 @@ class Library(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        """Override the save method to confirm the slug is set (or set it)"""
         if not self.slug:
             self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
 
+    def get_cpp_standard_minimum_display(self):
+        """Returns the display name for the C++ standard, or the value if not found.
+
+        Source of values is
+        https://docs.cppalliance.org/user-guide/prev/library_metadata.html"""
+        display_names = {
+            "98": "C++98",
+            "03": "C++03",
+            "11": "C++11",
+            "14": "C++14",
+            "17": "C++17",
+            "20": "C++20",
+        }
+        return display_names.get(self.cpp_standard_minimum, self.cpp_standard_minimum)
+
     def github_properties(self):
+        """Returns the owner and repo name for the library"""
         parts = urlparse(self.github_url)
         path = parts.path.split("/")
 
@@ -110,26 +133,40 @@ class Library(models.Model):
             "repo": repo,
         }
 
-    @property
+    @cached_property
     def github_owner(self):
+        """Returns the name of the GitHub owner for the library"""
         return self.github_properties()["owner"]
 
-    @property
+    @cached_property
     def github_repo(self):
+        """Returns the name of the GitHub repository for the library"""
         return self.github_properties()["repo"]
+
+    @cached_property
+    def github_issues_url(self):
+        """
+        Returns the URL to the GitHub issues page for the library
+
+        Does not check if the URL is valid.
+        """
+        if not self.github_owner or not self.github_repo:
+            raise ValueError("Invalid GitHub owner or repository")
+
+        return f"https://github.com/{self.github_owner}/{self.github_repo}/issues"
 
 
 class LibraryVersion(models.Model):
     version = models.ForeignKey(
         "versions.Version",
         related_name="library_version",
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
     )
     library = models.ForeignKey(
         "libraries.Library",
         related_name="library_version",
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
     )
     maintainers = models.ManyToManyField("users.User", related_name="maintainers")

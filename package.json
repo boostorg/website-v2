@@ -1,8 +1,8 @@
 {
-  "name": "boost.org",
+  "name": "boost.revsys.dev",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "git@github.com:revsys/boost.org.git",
+  "repository": "git@github.com:cppalliance/temp-site.git",
   "author": "Greg Newman <greg@gregnewman.org>",
   "license": "MIT",
   "scripts": {

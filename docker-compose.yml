@@ -48,11 +48,7 @@ services:
 
   mailman-core:
     image: maxking/mailman-core
-    stop_grace_period: 30s
-    env_file:
-      - .env
-    depends_on:
-      - db
+    stop_grace_period: 5s
     ports:
       - "8001:8001" # API
       - "8024:8024" # LMTP - incoming emails
@@ -60,6 +56,29 @@ services:
       - ./mailman/core:/opt/mailman/
     networks:
       - backend
+    env_file:
+      - .env
+    depends_on:
+      - db
+      
+  celery-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command:
+      [
+        "celery",
+        "-A",
+        "config",
+        "worker",
+        "--concurrency=10",
+        "--loglevel=debug"
+      ]
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
 
   mailman-web:
     image: maxking/mailman-web
@@ -68,10 +87,14 @@ services:
       - "DOCKER_DIR=/opt/mailman-docker"
       - "PYTHON=python3"
       - "WEB_PORT=8008"
-    env_file:
-      - .env
     depends_on:
+      - redis
       - db
+    networks:
+      - backend
+    volumes:
+      - .:/code
+    stop_signal: SIGKILL
     ports:
       - "8008:8008" # HTTP
       - "8080:8080" # uwsgi
@@ -80,6 +103,29 @@ services:
       - ./docker:/opt/mailman-docker
     networks:
       - backend
+      
+  celery-beat:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command:
+      [
+        "celery",
+        "-A",
+        "config",
+        "beat",
+        "--loglevel=debug"
+      ]
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - backend
+    volumes:
+      - .:/code
+    stop_signal: SIGKILL
 
 
 networks:

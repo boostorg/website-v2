@@ -3,13 +3,25 @@
 <html>
 
   <head>
-    <title>{% block title %}{% endblock %}</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1N51ZC252K"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-1N51ZC252K');
+    </script>
+
+    <title>{% block title %}Boost{% endblock %}</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="{% block description %}{% endblock %}">
     <meta name="keywords" content="{% block keywords %}{% endblock %}">
     <meta name="author" content="{% block author %}{% endblock %}">
+    <link rel="shortcut icon" href="{% static 'img/Boost_Symbol_Transparent.svg' %}" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
     <!-- Google fonts for Cairo Medium and SemiBold -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,6 +29,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css" />
     <script src="//unpkg.com/alpinejs" defer></script>
     <script src="https://unpkg.com/htmx.org@1.8.5" integrity="sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w" crossorigin="anonymous"></script>
+    <!-- TODO bring this local if we like it -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <!-- detect dark or light mode -->
     <script src="{% static 'js/DetectMode.js' %}"></script>
     {% block extra_head %}{% endblock %}
@@ -39,8 +53,8 @@
             if (m !== 'dark' && m !== 'light') return;
             mode = m;
         }"
-        class="h-screen dark:bg-black bg-stone/60 font-cairo" {% block body_id %}{% endblock %}>
-    <div class="md:mx-auto lg:container">
+        class="h-screen bg-gray-200 dark:bg-black font-cairo" {% block body_id %}{% endblock %}>
+    <div class="container md:mx-auto md:mt-32">
       {% include "includes/_header.html" %}
 
 
@@ -51,7 +65,7 @@
       {% comment %}body block is for use in forums{% endcomment %}
       {% block forum_body %}{% endblock %}
 
-      <div class="md:px-11">
+      <div class="md:px-6 min-vh-110">
       {% block content_wrapper %}
         {% block subnav %}{% endblock %}
         {% block content %}{% endblock %}

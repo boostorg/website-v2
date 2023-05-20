@@ -1,3 +1,4 @@
+import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -5,11 +6,7 @@ import responses
 from ghapi.all import GhApi
 from model_bakery import baker
 
-from libraries.github import (
-    GithubAPIClient,
-    GithubDataParser,
-    LibraryUpdater,
-)
+from libraries.github import GithubAPIClient, GithubDataParser, LibraryUpdater
 from libraries.models import Category, Issue, Library, PullRequest
 
 """GithubAPIClient Tests"""
@@ -23,7 +20,7 @@ def github_api_client():
 @pytest.fixture(scope="function")
 def mock_api() -> GhApi:
     """Fixture that mocks the GitHub API."""
-    with patch("libraries.github_new.GhApi") as mock_api_class:
+    with patch("libraries.github.GhApi") as mock_api_class:
         yield mock_api_class.return_value
 
 
@@ -104,11 +101,41 @@ def test_get_blob(github_api_client):
 #     )
 
 
+@pytest.mark.skip(reason="Mocking the API is not working")
+def test_get_first_tag(github_api_client, mock_api):
+    """Test the get_first_tag method of GithubAPIClient."""
+
+    # Mock tags from the GitHub API
+    mock_tags = [
+        {"name": "tag2", "commit": {"sha": "2"}},
+        {"name": "tag1", "commit": {"sha": "1"}},
+    ]
+
+    # Mock the commit data from the GitHub API
+    mock_commits = [
+        {"sha": "2", "committer": {"date": "2023-05-12T00:00:00Z"}},
+        {"sha": "1", "committer": {"date": "2023-05-11T00:00:00Z"}},
+    ]
+
+    # Setup the mock API to return the mock tags and commits
+    github_api_client.api.repos.list_tags.side_effect = MagicMock(
+        return_value=mock_tags
+    )
+    github_api_client.api.git.get_commit.side_effect = MagicMock(
+        return_value=mock_commits
+    )
+    repo_slug = "sample_repo"
+    tag = github_api_client.get_first_tag(repo_slug=repo_slug)
+
+    # Assert that the earliest tag was returned
+    assert tag == (mock_tags[1], "2000-01-01T00:00:00Z")
+
+
 @responses.activate
 def test_get_libraries_json(github_api_client):
     """Test the get_libraries_json method of GitHubAPIClient."""
     repo_slug = "sample_repo"
-    url = f"https://raw.githubusercontent.com/{github_api_client.owner}/{repo_slug}/develop/meta/libraries.json"
+    url = f"https://raw.githubusercontent.com/{github_api_client.owner}/{repo_slug}/master/meta/libraries.json"
     sample_json = {"key": "math", "name": "Math"}
     responses.add(
         responses.GET,
@@ -188,6 +215,38 @@ def test_parse_libraries_json():
 
     parser = GithubDataParser()
     parser.parse_libraries_json(sample_libraries_json)
+
+
+def test_parse_commit():
+    commit_data = {
+        "committer": {"date": "2023-05-10T00:00:00Z"},
+        "message": "This is a sample description for a commit",
+        "html_url": "http://example.com/commit/12345",
+    }
+    expected = {
+        "release_date": datetime.date(2023, 5, 10),
+        "description": commit_data["message"],
+        "github_url": "http://example.com/commit/12345",
+        "data": commit_data,
+    }
+    result = GithubDataParser().parse_commit(commit_data)
+    assert result == expected
+
+
+def test_parse_tag():
+    tag_data = {
+        "published_at": "2023-05-10T00:00:00Z",
+        "body": "This is a sample description for a tag",
+        "html_url": "http://example.com/commit/12345",
+    }
+    expected = {
+        "release_date": datetime.date(2023, 5, 10),
+        "description": "This is a sample description for a tag",
+        "github_url": "http://example.com/commit/12345",
+        "data": tag_data,
+    }
+    result = GithubDataParser().parse_tag(tag_data)
+    assert result == expected
 
 
 def test_extract_names():
