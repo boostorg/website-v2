@@ -1,5 +1,6 @@
 import hashlib
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 from .managers import VersionManager, VersionFileManager
@@ -16,6 +17,13 @@ class Version(models.Model):
         default=True,
         help_text="Control whether or not this version is available on the website",
     )
+    github_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="The URL of the Boost version's GitHub repository.",
+    )
+    data = models.JSONField(default=dict)
 
     objects = VersionManager()
 
@@ -32,6 +40,10 @@ class Version(models.Model):
             return self.slug
         name = self.name.replace(".", " ")
         return slugify(name)[:50]
+
+    @cached_property
+    def display_name(self):
+        return self.name.replace("boost-", "")
 
 
 class VersionFile(models.Model):

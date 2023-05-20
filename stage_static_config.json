@@ -1,5 +1,9 @@
 [
   {
+    "site_path": "/doc/",
+    "s3_path": "/site-docs/develop/"
+  },
+  {
     "site_path": "/doc/user-guide/",
     "s3_path": "/site-docs/develop/user-guide/"
   },

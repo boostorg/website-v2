@@ -119,6 +119,9 @@ Env:
       secretKeyRef:
         name: static-content
         key: bucket_name
+  # Static content cache timeout
+  - name: STATIC_CACHE_TIMEOUT
+    value: "60"
 
 # Volumes
 Volumes:

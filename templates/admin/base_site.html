@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 {% load i18n %}
 
-{% block title %}{{ title }} | {% trans 'boost.org admin' %}{% endblock %}
+{% block title %}{{ title }} | {% trans 'boost.revsys.dev admin' %}{% endblock %}
 
 {% block extrastyle %}{{ block.super }}
 {% if ENVIRONMENT_NAME and ENVIRONMENT_COLOR %}
@@ -27,7 +27,7 @@
 {% endblock %}
 
 {% block branding %}
-<h1 id="site-name">{% trans 'boost.org administration' %}</h1>
+<h1 id="site-name">{% trans 'boost.revsys.dev administration' %}</h1>
 {% endblock %}
 
 {% block nav-global %}{% endblock %}

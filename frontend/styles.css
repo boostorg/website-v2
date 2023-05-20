@@ -1,7 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap");
 
 @layer base {
   [x-cloak] {
@@ -58,5 +57,25 @@
   }
   #authpages #footerSignup {
     @apply hidden;
+  }
+  /* Dark mode scrollbar */
+  .dark ::-webkit-scrollbar {
+    @apply bg-gray-600;
+  }
+  .dark ::-webkit-scrollbar-track {
+    @apply bg-gray-700;
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    @apply bg-gray-600 w-5 h-5;
+  }
+  .dark ::-webkit-scrollbar-button:start:decrement {
+    @apply bg-gray-700;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23808080" stroke="%23808080" stroke-width="2" d="M6 15l6-6 6 6"/></svg>');
+    @apply object-center;
+  }
+  .dark ::-webkit-scrollbar-button:end:increment {
+    @apply bg-gray-700;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23808080" stroke="%23808080" stroke-width="2" d="M7 9l5.25 5.25L18.5 9"/></svg>');
+    @apply object-center
   }
 }

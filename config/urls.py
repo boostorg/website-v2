@@ -28,11 +28,16 @@ from libraries.views import (
     LibraryByCategory,
     LibraryDetail,
     LibraryListByVersion,
-    LibraryDetailByVersion,
     LibraryListByVersionByCategory,
 )
 from libraries.api import LibrarySearchView
 from mailing_list.views import MailingListView, MailingListDetailView
+from news.views import (
+    EntryApproveView,
+    EntryCreateView,
+    EntryDetailView,
+    EntryListView,
+)
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
 from versions.views import VersionList, VersionDetail
@@ -47,12 +52,6 @@ router.register(r"libraries", LibrarySearchView, basename="libraries")
 urlpatterns = (
     [
         path("", HomepageView.as_view(), name="home"),
-        # scratch template for design scrums
-        path(
-            "scratch/",
-            TemplateView.as_view(template_name="scratch.html"),
-            name="scratch",
-        ),
         path("admin/", admin.site.urls),
         path("accounts/", include("allauth.urls")),
         path(
@@ -81,6 +80,18 @@ urlpatterns = (
         ),
         path("health/", include("health_check.urls")),
         path("forum/", include(machina_urls)),
+        # temp page for community until mailman is done.
+        path(
+            "community/",
+            TemplateView.as_view(template_name="community_temp.html"),
+            name="community",
+        ),
+        # temp page for releases
+        path(
+            "releases/",
+            TemplateView.as_view(template_name="releases_temp.html"),
+            name="releases",
+        ),
         path(
             "donate/",
             TemplateView.as_view(template_name="donate/donate.html"),
@@ -103,6 +114,12 @@ urlpatterns = (
             name="mailing-list-detail",
         ),
         path("mailing-list/", MailingListView.as_view(), name="mailing-list"),
+        path("news/", EntryListView.as_view(), name="news"),
+        path("news/add/", EntryCreateView.as_view(), name="news-create"),
+        path("news/<slug:slug>/", EntryDetailView.as_view(), name="news-detail"),
+        path(
+            "news/<slug:slug>/approve/", EntryApproveView.as_view(), name="news-approve"
+        ),
         path(
             "people/detail/",
             TemplateView.as_view(template_name="boost/people_detail.html"),
@@ -153,16 +170,6 @@ urlpatterns = (
             TemplateView.as_view(template_name="review/review_process.html"),
             name="review-process",
         ),
-        path(
-            "news/detail/",
-            TemplateView.as_view(template_name="news/news_detail.html"),
-            name="news_detail",
-        ),
-        path(
-            "news/",
-            TemplateView.as_view(template_name="news/news_list.html"),
-            name="news",
-        ),
         # support and contact views
         path("support/", SupportView.as_view(), name="support"),
         path(
@@ -184,7 +191,7 @@ urlpatterns = (
         ),
         path(
             "versions/<slug:version_slug>/<slug:slug>/",
-            LibraryDetailByVersion.as_view(),
+            LibraryDetail.as_view(),
             name="library-detail-by-version",
         ),
         path("versions/<slug:slug>/", VersionDetail.as_view(), name="version-detail"),
