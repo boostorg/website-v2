@@ -88,7 +88,14 @@ INSTALLED_APPS += [
 ]
 
 # Our Apps
-INSTALLED_APPS += ["ak", "users", "versions", "libraries", "mailing_list"]
+INSTALLED_APPS += [
+    "ak",
+    "users",
+    "versions",
+    "libraries",
+    "mailing_list",
+    "news",
+]
 
 AUTH_USER_MODEL = "users.User"
 CSRF_COOKIE_HTTPONLY = True
@@ -271,7 +278,7 @@ CACHES = {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": f"redis://{REDIS_HOST}:6379/2",
         "TIMEOUT": env(
-            "STATIC_CACHE_TIMEOUT", default=60
+            "STATIC_CACHE_TIMEOUT", default="60"
         ),  # Cache timeout in seconds: 1 minute
     },
 }

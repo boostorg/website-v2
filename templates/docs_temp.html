@@ -1,6 +1,8 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 {% load static %}
+
+{% block title %}{% trans "Learn" %}{% endblock %}
 
 {% comment %}
 This is a temporary landing page for docs
@@ -26,18 +28,11 @@ This is a temporary landing page for docs
           </h5>
           <p class="py-1 border-b border-gray-700 text-green">How to use Boost in your programs</p>
           <ul class="flex flex-wrap mt-2 text-sm">
-            <li class="w-1/2"><a href="#">Get the Release</a></li>
-            <li class="w-1/2"><a href="#">Including Headers</a></li>
-            <li class="w-1/2"><a href="#">Using Bjam</a></li>
-            <li class="w-1/2"><a href="#">Running Tests</a></li>
-            <li class="w-1/2"><a href="#">Reporting Issues</a></li>
-            <li class="w-1/2"><a href="#">Library Documentation</a></li>
-            <li class="w-1/2"><a href="#">Build the Libraries</a></li>
-            <li class="w-1/2"><a href="#">Linking Your Program</a></li>
-            <li class="w-1/2"><a href="#">Using CMake</a></li>
-            <li class="w-1/2"><a href="#">Using Bjam</a></li>
-            <li class="w-1/2"><a href="#">Requesting Features</a></li>
-            <li class="w-1/2"><a href="#">Toolsets</a></li>
+            <li class="w-1/2"><a href="/doc/user-guide/intro.html">Introduction to Boost</a></li>
+            <li class="w-1/2"><a href="/doc/user-guide/getting-started.html">Getting Started</a></li>
+            <li class="w-1/2"><a href="/doc/user-guide/boost-history.html">History of Boost</a></li>
+            <li class="w-1/2"><a href="/doc/user-guide/library-naming.html">Library Organization</a></li>
+            <li class="w-1/2"><a href="/doc/user-guide/header-organization-compilation.html">Header Organization</a></li>
           </ul>
         </div>
       </div>
@@ -58,18 +53,12 @@ This is a temporary landing page for docs
           </h5>
           <p class="py-1 border-b border-gray-700 text-green">This is how you can help</p>
           <ul class="flex flex-wrap mt-2 text-sm">
-            <li class="w-1/2"><a href="#">Get the Release</a></li>
-            <li class="w-1/2"><a href="#">Including Headers</a></li>
-            <li class="w-1/2"><a href="#">Using Bjam</a></li>
-            <li class="w-1/2"><a href="#">Running Tests</a></li>
-            <li class="w-1/2"><a href="#">Reporting Issues</a></li>
-            <li class="w-1/2"><a href="#">Library Documentation</a></li>
-            <li class="w-1/2"><a href="#">Build the Libraries</a></li>
-            <li class="w-1/2"><a href="#">Linking Your Program</a></li>
-            <li class="w-1/2"><a href="#">Using CMake</a></li>
-            <li class="w-1/2"><a href="#">Using Bjam</a></li>
-            <li class="w-1/2"><a href="#">Requesting Features</a></li>
-            <li class="w-1/2"><a href="#">Toolsets</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/intro.html">Becoming a Contributor</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/license-requirements.html">License Requirements</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/portability-requirements.html">Portability Requirements</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/organization-requirements.html">Organization Requirements</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/library-design-guidelines.html">Library Design Guidelines</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/antora.html">Antora Guide</a></li>
           </ul>
         </div>
       </div>
@@ -79,13 +68,13 @@ This is a temporary landing page for docs
       <div
         class="flex flex-col text-white bg-white rounded-lg shadow-lg md:flex-row dark:bg-charcoal dark:bg-neutral-700">
         {# FIXME #}
-        <a href="/doc/formal-reviews/" class="md:w-1/2 block">
+        <a href="/doc/formal-reviews/" class="block md:w-1/2">
           <img
-            class="object-cover rounded-t-lg md:rounded-none md:rounded-l-lg h-full w-auto overflow-x-hidden"
+            class="object-cover overflow-x-hidden w-auto h-full rounded-t-lg md:rounded-none md:rounded-l-lg"
             src="{% static 'img/fpo/formal_reviews.png' %}"
             alt="" />
         </a>
-        <div class="flex flex-col md:w-1/2 justify-start p-6 dark:text-white text-slate">
+        <div class="flex flex-col justify-start p-6 md:w-1/2 dark:text-white text-slate">
           <h5
             class="text-xl font-bold leading-tight">
             Boost Formal Reviews
@@ -94,11 +83,7 @@ This is a temporary landing page for docs
             How libraries become part of the collection.
           </p>
           <ul class="flex flex-wrap">
-            <li class="w-1/2"><a href="#">Proposing</a></li>
-            <li class="w-1/2"><a href="#">Scheduling</a></li>
-            <li class="w-1/2"><a href="#">The Manager</a></li>
-            <li class="w-1/2"><a href="#">The Review Process</a></li>
-            <li class="w-1/2"><a href="#">Submitting a Review</a></li>
+            <li class="w-1/2"><a href="/doc/formal-reviews/index.html">Introduction</a></li>
           </ul>
         </div>
       </div>
@@ -114,18 +99,13 @@ This is a temporary landing page for docs
             "The trains always run on time"
           </p>
           <ul class="flex flex-wrap">
-            <li class="w-1/2"><a href="#">Release Calendar</a></li>
-            <li class="w-1/2"><a href="#">Process Steps</a></li>
-            <li class="w-1/2"><a href="#">Betas and RCs</a></li>
-            <li class="w-1/2"><a href="#">Testing the release</a></li>
-            <li class="w-1/2"><a href="#">What's in the Archive</a></li>
-            <li class="w-1/2"><a href="#">Library Debuts</a></li>
+            <li class="w-1/2"><a href="/doc/release-process/index.html">Introduction</a></li>
           </ul>
         </div>
         {# FIXME #}
-        <a href="/doc/release-process/" class="md:w-1/2 block order-first md:order-last">
+        <a href="/doc/release-process/" class="block order-first md:order-last md:w-1/2">
         <img
-          class="object-cover rounded-t-lg md:rounded-none md:rounded-r-lg h-full w-auto overflow-x-hidden object-right"
+          class="object-cover object-right overflow-x-hidden w-auto h-full rounded-t-lg md:rounded-none md:rounded-r-lg"
           src="{% static 'img/fpo/release_process.png' %}"
           alt="" />
         </a>

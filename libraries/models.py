@@ -78,6 +78,11 @@ class Library(models.Model):
     cpp_standard_minimum = models.CharField(max_length=50, blank=True, null=True)
 
     active_development = models.BooleanField(default=True, db_index=True)
+    first_github_tag_date = models.DateField(
+        blank=True,
+        null=True,
+        help_text="The date of the first release, based on the date of the commit of the first GitHub tag.",
+    )
     last_github_update = models.DateTimeField(blank=True, null=True, db_index=True)
 
     categories = models.ManyToManyField(Category, related_name="libraries")
@@ -107,7 +112,7 @@ class Library(models.Model):
         https://docs.cppalliance.org/user-guide/prev/library_metadata.html"""
         display_names = {
             "98": "C++98",
-            "03": "C98/C03",
+            "03": "C++03",
             "11": "C++11",
             "14": "C++14",
             "17": "C++17",
@@ -155,13 +160,13 @@ class LibraryVersion(models.Model):
     version = models.ForeignKey(
         "versions.Version",
         related_name="library_version",
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
     )
     library = models.ForeignKey(
         "libraries.Library",
         related_name="library_version",
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True,
     )
     maintainers = models.ManyToManyField("users.User", related_name="maintainers")
