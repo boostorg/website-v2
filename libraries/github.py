@@ -94,43 +94,97 @@ class GithubAPIClient:
             owner=self.owner, repo=repo_slug, commit_sha=commit_sha
         )
 
-    def get_gitmodules(self, repo_slug: str = None) -> str:
+    def get_first_tag(self, repo_slug: str = None):
         """
-        Get the .gitmodules file for the repo from the GitHub API.
+        Retrieves the earliest tag in the repo.
 
         :param repo_slug: str, the repository slug
-        :return: str, the .gitmodules file
+        :return: tuple with GitHub tag object, commit date.
+        - See https://docs.github.com/en/rest/git/tags for tag object format.
         """
         if not repo_slug:
             repo_slug = self.repo_slug
 
-        ref = self.get_ref()
+        try:
+            per_page = 100
+            page = 1
+            all_tags = []
+
+            while True:
+                tags = self.api.repos.list_tags(
+                    owner=self.owner, repo=repo_slug, per_page=per_page, page=page
+                )
+                all_tags.extend(tags)
+                if len(tags) < per_page:  # End of results
+                    break
+
+                page += 1  # Go to the next page
+
+            # Sort the tags by the commit date. The first tag will be the earliest.
+            # The Github API doesn't return the commit date with the tag, so we have to retrieve each
+            # one individually. This is slow, but it's the only way to get the commit date.
+            def get_tag_commit_date(tag):
+                """Get the commit date for a tag.
+
+                For commit format, see
+                https://docs.github.com/en/rest/commits/commits."""
+                commit_sha = tag["commit"]["sha"]
+                commit = self.get_commit_by_sha(repo_slug, commit_sha)
+                return commit["committer"]["date"]
+
+            annotated_tags = [(tag, get_tag_commit_date(tag)) for tag in all_tags]
+            sorted_tags = sorted(annotated_tags, key=lambda x: x[1])
+
+            # Return the first (earliest) tag
+            return sorted_tags[0]
+
+        except Exception as e:
+            self.logger.exception("get_first_tag_and_date_failed", repo=repo_slug)
+            return None
+
+    def get_gitmodules(self, repo_slug: str = None, ref: dict = None) -> str:
+        """
+        Get the .gitmodules file for the repo from the GitHub API.
+
+        :param repo_slug: str, the repository slug
+        :param ref: dict, the Git reference object (the commit hash). See https://docs.github.com/en/rest/git/refs
+            for expected format.
+        :return: str, the .gitmodules file from the repo
+        """
+        if not repo_slug:
+            repo_slug = self.repo_slug
+
+        if not ref:
+            ref = self.get_ref()
         tree_sha = ref["object"]["sha"]
         tree = self.get_tree(tree_sha=tree_sha)
 
-        gitmodules = None
         for item in tree["tree"]:
             if item["path"] == ".gitmodules":
                 file_sha = item["sha"]
                 blob = self.get_blob(repo_slug=repo_slug, file_sha=file_sha)
                 return base64.b64decode(blob["content"])
 
-    def get_libraries_json(self, repo_slug: str):
+    def get_libraries_json(self, repo_slug: str, tag: str = "master"):
         """
         Retrieve library metadata from 'meta/libraries.json'
         Each Boost library will have a `meta` directory with a `libraries.json` file.
         Example: https://github.com/boostorg/align/blob/5ad7df63cd792fbdb801d600b93cad1a432f0151/meta/libraries.json
         """
-        url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/develop/meta/libraries.json"
+        url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/{tag}/meta/libraries.json"
 
         try:
             response = requests.get(url)
-            return response.json()
-        except Exception:
+            response.raise_for_status()
+        # This usually happens because the library does not have a `meta/libraries.json` file
+        # in the requested tag. More likely to happen with older versions of libraries.
+        except requests.exceptions.HTTPError:
             self.logger.exception(
                 "get_library_metadata_failed", repo=repo_slug, url=url
             )
             return None
+        else:
+            return response.json()
 
     def get_ref(self, repo_slug: str = None, ref: str = None) -> dict:
         """
@@ -144,7 +198,7 @@ class GithubAPIClient:
             repo_slug = self.repo_slug
         if not ref:
             ref = self.ref
-        return self.api.git.get_ref(owner=self.owner, repo=repo_slug, ref=ref)
+        return self.api.git.get_ref(owner=self.owner, repo=repo_slug, ref=f"tags/{ref}")
 
     def get_repo(self, repo_slug: str = None) -> dict:
         """
@@ -158,7 +212,7 @@ class GithubAPIClient:
         return self.api.repos.get(owner=self.owner, repo=repo_slug)
 
     def get_repo_issues(
-        owner: str, repo_slug: str, state: str = "all", issues_only: bool = True
+        self, owner: str, repo_slug: str, state: str = "all", issues_only: bool = True
     ):
         """
         Get all issues for a repo.
@@ -411,11 +465,13 @@ class LibraryUpdater:
     and their `libraries.json` file metadata.
     """
 
-    def __init__(self, owner="boostorg"):
-        self.client = GithubAPIClient(owner=owner)
+    def __init__(self, client=None):
+        if client:
+            self.client = client
+        else:
+            self.client = GithubAPIClient()
         self.api = self.client.initialize_api()
         self.parser = GithubDataParser()
-        self.owner = owner
         self.logger = structlog.get_logger()
 
         # Modules we need to skip as they are not really Boost Libraries
@@ -483,8 +539,8 @@ class LibraryUpdater:
             "update_all_libraries_metadata", library_count=len(library_data)
         )
 
-        for library_data in library_data:
-            library = self.update_library(library_data)
+        for lib in library_data:
+            self.update_library(lib)
 
     def update_library(self, library_data: dict) -> Library:
         """Update an individual library"""
@@ -514,6 +570,9 @@ class LibraryUpdater:
             )
             # Do authors second because maintainers are more likely to have emails to match
             self.update_authors(obj, authors=library_data["authors"])
+
+            if created or not obj.first_github_tag_date:
+                self.update_first_github_tag_date(obj)
 
             return obj
 
@@ -578,6 +637,17 @@ class LibraryUpdater:
 
         return obj
 
+    def update_first_github_tag_date(self, obj):
+        """
+        Update the date of the first tag for a library
+        """
+        first_tag = self.client.get_first_tag(repo_slug=obj.github_repo)
+        if first_tag:
+            _, first_github_tag_date = first_tag
+            obj.first_github_tag_date = parse_date(first_github_tag_date)
+            obj.save()
+            self.logger.info("lib_first_release_updated", obj_id=obj.id)
+
     def update_maintainers(self, obj, maintainers=None):
         """
         Receives a list of strings from the libraries.json of a Boost library, and
@@ -614,7 +684,7 @@ class LibraryUpdater:
         self.logger.info("updating_repo_issues")
 
         issues_data = self.client.get_repo_issues(
-            self.owner, obj.github_repo, state="all", issues_only=True
+            self.client.owner, obj.github_repo, state="all", issues_only=True
         )
         for issue_dict in issues_data:
 

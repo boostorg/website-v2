@@ -15,6 +15,21 @@
     <div class="py-16 md:mx-auto md:w-3/4">
       <h1 class="text-4xl">{{ entry.title }}</h1>
 
+      <!-- ACTIONS -->
+      <p>
+      {% if not entry.is_approved %}
+        {% if user_can_approve %}
+          <form method="POST" action="{% url 'news-approve' entry.slug %}">
+            {% csrf_token %}
+            <button type="submit" name="approve">{% translate "Approve" %}</button>
+          </form>
+        {% else %}
+          <strong>{% translate "Pending Moderation" %}</strong>
+        {% endif %}
+      {% endif %}
+      </p>
+      <!-- END ACTIONS -->
+
       <p class="mt-0 text-sm font-light">{{ entry.publish_at|date:"M jS, Y" }}</p>
 
       <p>{{ entry.description|linebreaks }}</p>
