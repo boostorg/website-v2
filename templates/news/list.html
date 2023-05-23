@@ -60,6 +60,9 @@
 
       {% endif %}
       </div>
+      {% if entry_list and user.is_authenticated %}
+      <a href="{% url 'news-create' %}">{% translate "Create News" %}</a>
+      {% endif %}
 
     </div>
   </div>
