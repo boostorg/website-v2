@@ -59,6 +59,12 @@ class LibraryList(CategoryMixin, ListView):
         return context
 
 
+class LibraryListMini(LibraryList):
+    """Flat list version of LibraryList"""
+
+    template_name = "libraries/list.html"
+
+
 class LibraryListByCategory(LibraryList):
     """List all Boost libraries sorted by Category."""
 
@@ -81,6 +87,12 @@ class LibraryListByCategory(LibraryList):
                 }
             )
         return results_by_category
+
+
+class LibraryListByCategoryMini(LibraryListByCategory):
+    """Flat list version of LibraryListByCategory"""
+
+    template_name = "libraries/list.html"
 
 
 class LibraryDetail(CategoryMixin, FormMixin, DetailView):

@@ -3,7 +3,7 @@ import datetime
 from model_bakery import baker
 
 
-def test_library_list(library_version, tp):
+def test_library_list(library_version, tp, url_name="libraries"):
     """GET /libraries/"""
     last_year = datetime.date.today() - datetime.timedelta(days=365)
     v2 = baker.make("versions.Version", name="Version 1.78.0", release_date=last_year)
@@ -12,11 +12,16 @@ def test_library_list(library_version, tp):
         name="sample",
     )
     baker.make("libraries.LibraryVersion", library=lib2, version=v2)
-    res = tp.get("libraries")
+    res = tp.get(url_name)
     tp.response_200(res)
     assert "library_list" in res.context
     assert library_version.library in res.context["library_list"]
     assert lib2 not in res.context["library_list"]
+
+
+def test_library_list_mini(library_version, tp):
+    """GET /libraries/mini/"""
+    test_library_list(library_version, tp, url_name="libraries-mini")
 
 
 def test_library_list_no_pagination(library_version, tp):
@@ -64,14 +69,23 @@ def test_library_list_select_version(library_version, tp):
     assert new_lib_version.library not in res.context["library_list"]
 
 
-def test_library_list_by_category(library_version, category, tp):
+def test_library_list_by_category(
+    library_version, category, tp, url="libraries-by-category"
+):
     """GET /libraries/by-category/"""
     library_version.library.categories.add(category)
-    res = tp.get("libraries-by-category")
+    res = tp.get(url)
     tp.response_200(res)
     assert "library_list" in res.context
     assert "category" in res.context["library_list"][0]
     assert "libraries" in res.context["library_list"][0]
+
+
+def test_library_list_by_category_mini(library_version, category, tp):
+    """GET /libraries/by-category/mini/"""
+    test_library_list_by_category(
+        library_version, category, tp, url="libraries-by-category-mini"
+    )
 
 
 def test_library_detail(library_version, tp):
