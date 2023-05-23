@@ -25,9 +25,7 @@ from ak.views import (
 from core.views import MarkdownTemplateView, StaticContentTemplateView
 from libraries.views import (
     LibraryList,
-    # LibraryByCategory,
     LibraryDetail,
-    # LibraryListByVersionByCategory,
 )
 from libraries.api import LibrarySearchView
 from mailing_list.views import MailingListView, MailingListDetailView
