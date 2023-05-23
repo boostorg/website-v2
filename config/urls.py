@@ -139,6 +139,11 @@ urlpatterns = (
             name="boost-people",
         ),
         path(
+            "privacy/",
+            TemplateView.as_view(template_name="privacy_temp.html"),
+            name="privacy",
+        ),
+        path(
             "moderators/",
             TemplateView.as_view(
                 template_name="boost/moderators.html",

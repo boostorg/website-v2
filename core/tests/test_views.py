@@ -5,7 +5,6 @@ from unittest.mock import patch
 from django.core.cache import caches
 from django.test import RequestFactory
 from django.test.utils import override_settings
-from django.urls import reverse
 
 from core.views import StaticContentTemplateView
 
@@ -87,7 +86,7 @@ def test_cache_behavior(request_factory, content_path):
 # Define test cases with the paths based on the provided config file
 static_content_test_cases = [
     "/develop/libs/rst.css",  # Test a site_path from the config file
-    "/develop/doc/index.html",  # Test a site_path with a more complex substitution schema
+    "/develop/doc/index.html",  # Test site_path with more complex substitution schema
     "/rst.css",  # Test a the default site_path from the config file
     "site/develop/doc/html/about.html",  # Test direct access to a file in the S3 bucket
 ]
@@ -184,3 +183,9 @@ def test_markdown_view_nested_should_load_an_index(tp):
 def test_markdown_view_nested_three_levels(tp):
     res = tp.get("/markdown/more_content/even_more_content/sample")
     tp.response_200(res)
+
+
+def test_privacy_policy(db, tp):
+    """Test the privacy policy view"""
+    response = tp.get("privacy")
+    tp.response_200(response)
