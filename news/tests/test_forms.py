@@ -35,6 +35,7 @@ def test_form_model_creates_entry(make_entry):
     assert result.description == description
     assert result.author == user
     assert result.moderator is None
+    assert result.author_needs_moderation() is True
     assert Entry.objects.get(pk=result.pk) == result
 
 
@@ -58,3 +59,58 @@ def test_form_model_modifies_entry(make_entry):
     assert result.description == news.description
     assert result.author == news.author
     assert result.moderator == news.moderator
+    assert result.author_needs_moderation() is True
+
+
+def test_form_save_unapproved_news_author_needs_moderation(make_entry):
+    entry = make_entry(approved=False)
+    assert entry.author_needs_moderation() is True
+
+    form = EntryForm(instance=entry)
+    result = form.save()
+
+    result.refresh_from_db()
+    assert not entry.is_approved  # No automatic news approval.
+    assert entry.author_needs_moderation() is True
+
+
+def test_form_save_unapproved_news_author_does_not_need_moderation(
+    make_entry, settings
+):
+    user = baker.make("users.User")
+    settings.NEWS_MODERATION_ALLOWLIST = [user.email]
+    entry = make_entry(approved=False, author=user)
+    assert entry.author_needs_moderation() is False
+
+    before = now()
+    form = EntryForm(instance=entry)
+    result = form.save()
+    after = now()
+
+    result.refresh_from_db()
+    assert entry.is_approved  # Automatic news approval!
+    assert entry.author_needs_moderation() is False
+    assert before <= result.modified_at <= after
+    assert before <= result.approved_at <= after
+    assert result.moderator == result.author
+    assert Entry.objects.get(pk=result.pk) == result
+
+
+def test_form_save_approved_news(make_entry, settings):
+    entry = make_entry(approved=True)
+    assert entry.author_needs_moderation() is True
+
+    form = EntryForm(instance=entry)
+    result = form.save()
+
+    result.refresh_from_db()
+    assert entry.is_approved  # No entry status change.
+    assert entry.author_needs_moderation() is True
+
+    # when author can post without moderation, no double approve happens
+    settings.NEWS_MODERATION_ALLOWLIST = [entry.author.email]
+    assert entry.author_needs_moderation() is False
+
+    result = form.save()
+    result.refresh_from_db()
+    assert entry.is_approved  # No entry status change and no exception.
