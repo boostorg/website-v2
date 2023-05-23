@@ -754,7 +754,7 @@ input[type=file] {
   color: rgb(49 74 87 / var(--tw-text-opacity));
 }
 
-:is(.dark #signup_form input[type=email]),:is(.dark 
+:is(.dark #signup_form input[type=email]),:is(.dark
   #signup_form input[type=password]) {
   --tw-bg-opacity: 1;
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
