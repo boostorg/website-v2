@@ -85,6 +85,8 @@ INSTALLED_APPS += [
     "machina.apps.forum_tracking",
     "machina.apps.forum_member",
     "machina.apps.forum_permission",
+    # Filtering:
+    "django_filters",
 ]
 
 # Our Apps
