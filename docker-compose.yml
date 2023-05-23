@@ -73,15 +73,12 @@ services:
     depends_on:
       - redis
       - db
-    networks:
-      - backend
-    volumes:
-      - .:/code
     stop_signal: SIGKILL
     ports:
       - "8008:8008" # HTTP
       - "8080:8080" # uwsgi
     volumes:
+      - .:/code
       - ./mailman/web:/opt/mailman-web-data
       - ./docker:/opt/mailman-docker
     networks:
