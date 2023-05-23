@@ -4,8 +4,10 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
+from django_filters.views import FilterView
 
 from versions.models import Version
+from .filters import LibraryFilter
 from .forms import LibraryForm, VersionSelectionForm
 from .models import Category, Issue, Library, LibraryVersion, PullRequest
 
@@ -19,11 +21,11 @@ class CategoryMixin:
         return context
 
 
-class LibraryList(CategoryMixin, FormMixin, ListView):
-    """List all of our libraries for a specific Boost version, or default 
+class LibraryList(CategoryMixin, FilterView):
+    """List all of our libraries for a specific Boost version, or default
     to the current version."""
 
-    form_class = LibraryForm
+    filterset_class = LibraryFilter
     queryset = (
         Library.objects.prefetch_related("authors", "categories").all().order_by("name")
     ).distinct()
@@ -32,62 +34,18 @@ class LibraryList(CategoryMixin, FormMixin, ListView):
     def get_context_data(self, **kwargs):
         """Set the form action to the right libraries list page."""
         context = super().get_context_data(**kwargs)
-
-        version_slug = self.kwargs.get("version_slug")
-        category_slug = self.request.GET.get("category_slug")
-
-        if version_slug:
-            try:
-                version = Version.objects.get(slug=version_slug)
-                context["version_slug"] = version_slug
-                context["version_name"] = version.name
-                context["version"] = version
-            except Version.DoesNotExist:
-                raise Http404("No library found matching the query")
-        else:
-            context["version"] = Version.objects.most_recent()
-
-        if category_slug:
-            try:
-                category = Category.objects.get(slug=category_slug)
-                context["category"] = category
-            except Category.DoesNotExist:
-                raise Http404("No category found matching the query")
-
+        filterset = self.filterset_class(
+            self.request.GET, queryset=super().get_queryset()
+        )
+        context["form"] = filterset
+        context["object_list"] = filterset.qs
+        print("count", context["object_list"].count())
+        context["versions"] = Version.objects.active().order_by("-release_date")
+        if "version" in self.request.GET:
+            context["version"] = Version.objects.get(slug=self.request.GET["version"])
+        if "category" in self.request.GET:
+            context["category"] = Category.objects.get(slug=self.request.GET["category"])
         return context
-
-    def get_queryset(self):
-        """Filter the queryset by the version_slug if present, otherwise
-        return the libraries for the most recent version."""
-        version_slug = self.kwargs.get("version_slug")
-        category_slug = self.request.GET.get("category_slug")
-
-        queryset = super().get_queryset()
-
-        if version_slug:
-            queryset = queryset.filter(library_version__version__slug=version_slug)
-
-        if category_slug:
-            queryset = queryset.filter(categories__slug=category_slug)
-
-        return queryset.distinct()
-
-    def post(self, request):
-        """User has submitted a form and will be redirected to the right results"""
-        form = self.get_form()
-        if form.is_valid():
-            category = form.cleaned_data["categories"][0]
-            version_slug = self.request.GET.get("version_slug")
-            if version_slug:
-                return redirect(
-                    "libraries",
-                    **{"version_slug": version_slug, "category_slug": category.slug},
-                )
-            else:
-                return redirect("libraries", **{"category_slug": category.slug})
-        else:
-            logger.info("library_list_invalid_category")
-        return super().get(request)
 
 
 class LibraryDetail(CategoryMixin, FormMixin, DetailView):
