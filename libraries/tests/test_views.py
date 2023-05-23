@@ -1,5 +1,4 @@
 import datetime
-import pytest
 
 from model_bakery import baker
 
@@ -36,13 +35,13 @@ def test_library_list_no_pagination(library_version, tp):
     library_list = res.context.get("library_list")
     assert library_list is not None
     assert len(library_list) == len(libs)
-    assert all(l in library_list for l in libs)
+    assert all(library in library_list for library in libs)
     page_obj = res.context.get("page_obj")
     assert getattr(page_obj, "paginator", None) is None
 
 
 def test_library_list_select_category(library_version, category, tp):
-    """GET /libraries/?category={{ slug }} to submit a category loads the filtered results"""
+    """GET /libraries/?category={{ slug }} loads filtered results"""
     library_version.library.categories.add(category)
     # Create a new library version that is not in the selected category
     new_lib_version = baker.make(
@@ -55,7 +54,7 @@ def test_library_list_select_category(library_version, category, tp):
 
 
 def test_library_list_select_version(library_version, tp):
-    """GET /libraries/?version={{ slug }} to submit a version loads the filtered results"""
+    """GET /libraries/?version={{ slug }} loads filtered results"""
     new_version = baker.make("versions.Version")
     # Create a new library version that is not in the selected version
     new_lib_version = baker.make("libraries.LibraryVersion", version=new_version)
@@ -63,6 +62,16 @@ def test_library_list_select_version(library_version, tp):
     tp.response_200(res)
     assert library_version.library in res.context["library_list"]
     assert new_lib_version.library not in res.context["library_list"]
+
+
+def test_library_list_by_category(library_version, category, tp):
+    """GET /libraries/by-category/"""
+    library_version.library.categories.add(category)
+    res = tp.get("libraries-by-category")
+    tp.response_200(res)
+    assert "library_list" in res.context
+    assert "category" in res.context["library_list"][0]
+    assert "libraries" in res.context["library_list"][0]
 
 
 def test_library_detail(library_version, tp):

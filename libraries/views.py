@@ -59,6 +59,30 @@ class LibraryList(CategoryMixin, ListView):
         return context
 
 
+class LibraryListByCategory(LibraryList):
+    """List all Boost libraries sorted by Category."""
+
+    template_name = "libraries/list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["by_category"] = True
+        context["library_list"] = self.get_results_by_category()
+        return context
+
+    def get_results_by_category(self):
+        queryset = super().get_queryset()
+        results_by_category = []
+        for category in Category.objects.all().order_by("name"):
+            results_by_category.append(
+                {
+                    "category": category,
+                    "libraries": queryset.filter(categories=category).order_by("name"),
+                }
+            )
+        return results_by_category
+
+
 class LibraryDetail(CategoryMixin, FormMixin, DetailView):
     """Display a single Library in insolation"""
 

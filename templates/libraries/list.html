@@ -72,9 +72,18 @@
 
   <!-- Libraries list -->
   <div class="grid grid-cols-1 gap-4 mb-5 md:grid-cols-2 xl:grid-cols-3">
-    {% for library in library_list %}
-      {% include "libraries/_library_list_item.html" %}
-    {% endfor %}
+    {% if by_category %}
+      {% for result in library_list %}
+        <h2>{{ result.category }}</h2>
+        {% for library in result.libraries %}
+          {% include "libraries/_library_list_item.html" %}
+        {% endfor %}
+      {% endfor %}
+    {% else %}
+      {% for library in library_list %}
+        {% include "libraries/_library_list_item.html" %}
+      {% endfor %}
+    {% endif %}
   </div>
   <!-- end libraries list -->
 
