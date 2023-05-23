@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import Http404, HttpResponseRedirect
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.generic import (
     CreateView,
@@ -27,10 +28,23 @@ class EntryListView(ListView):
     model = Entry
     template_name = "news/list.html"
     ordering = ["-publish_at"]
-    paginate_by = 10
+    paginate_by = 10  #  XXX: use pagination in the template! Issue #377
 
     def get_queryset(self):
         return super().get_queryset().filter(published=True)
+
+
+class EntryModerationListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Entry
+    template_name = "news/moderation.html"
+    ordering = ["-publish_at"]
+    paginate_by = None
+
+    def get_queryset(self):
+        return super().get_queryset().select_related("author").filter(approved=False)
+
+    def test_func(self):
+        return Entry.can_approve(self.request.user)
 
 
 class EntryDetailView(DetailView):
@@ -46,6 +60,9 @@ class EntryDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        next_url = self.request.GET.get("next")
+        if url_has_allowed_host_and_scheme(next_url, allowed_hosts=None):
+            context["next_url"] = next_url
         context["next"] = get_published_or_none(self.object.get_next_by_publish_at)
         context["prev"] = get_published_or_none(self.object.get_previous_by_publish_at)
         context["user_can_approve"] = self.object.can_approve(self.request.user)
@@ -80,4 +97,10 @@ class EntryApproveView(
             messages.error(request, _("The entry was already approved."))
         else:
             messages.success(request, _("The entry was successfully approved."))
-        return HttpResponseRedirect(entry.get_absolute_url())
+
+        next_url = request.POST.get("next")
+        if next_url is None or not url_has_allowed_host_and_scheme(
+            next_url, allowed_hosts=None
+        ):
+            next_url = entry.get_absolute_url()
+        return HttpResponseRedirect(next_url)
