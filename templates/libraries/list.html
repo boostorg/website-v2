@@ -18,33 +18,38 @@
   <!-- end breadcrumb -->
 
   <div class="py-0 px-3 mb-3 text-right md:px-0 md:pt-6" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
-    <div class="mt-3 space-x-3 md:flex md:mt-0">
-      <div class="relative md:mb-6">
-        <span class="flex absolute inset-y-0 right-3 items-center pl-2">
-          <button type="submit" class="p-1 focus:outline-none focus:shadow-outline">
-            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-4 h-4"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-          </button>
-        </span>
-        <input @click="showSearch = true; $nextTick(() => { setTimeout(() => { document.getElementById('q').focus(); }, 300);});"
-               type="search" name="q" class="py-2 px-3 w-full text-sm bg-white rounded-md border-gray-300 md:w-1/3 min-w-[300px] text-sky-600 dark:text-orange dark:border-slate dark:bg-charcoal focus:text-charcoal" type="text" value="" placeholder="Search" />
-      </div>
-    </div>
 
-    <form action="/libraries/" method="get" class="float-right">
-      <div>
-        <label for="id_version" hidden="true">Versions:</label>
-        <select onchange="this.form.submit()"
-                name="version"
-                class="block py-1 pr-8 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
-                id="id_version"
-        >
-          <option>Filter by version</option>
-          {% for v in versions %}
-            <option value="{{ v.slug }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
-          {% endfor %}
-        </select>
+    <form action="/libraries/" method="get">
+      <!-- Select a version -->
+      <div class="float-right">
+        <div>
+          <label for="id_version" hidden="true">Versions:</label>
+          <select onchange="this.form.submit()"
+                  name="version"
+                  class="block py-1 pr-8 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
+                  id="id_version"
+          >
+            <option value="">Filter by version</option>
+            {% for v in versions %}
+              <option value="{{ v.slug }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
       </div>
-      <!-- Form to select a category -->
+
+      <!-- Search -->
+      <div class="mt-3 space-x-3 md:flex md:mt-0">
+        <div class="relative md:mb-6">
+          <span class="flex absolute inset-y-0 right-3 items-center pl-2">
+            <button type="submit" class="p-1 focus:outline-none focus:shadow-outline">
+              <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-4 h-4"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </button>
+          </span>
+          <input @click="showSearch = true; $nextTick(() => { setTimeout(() => { document.getElementById('q').focus(); }, 300);});"
+                type="search" name="q" class="py-2 px-3 w-full text-sm bg-white rounded-md border-gray-300 md:w-1/3 min-w-[300px] text-sky-600 dark:text-orange dark:border-slate dark:bg-charcoal focus:text-charcoal" type="text" value="" placeholder="Search" />
+        </div>
+
+      <!-- Select a category -->
         <div>
           <label for="id_category" hidden="true">Categories:</label>
           <select onchange="this.form.submit()"
@@ -52,7 +57,7 @@
                   class="block py-2 pr-11 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
                   id="id_category"
           >
-            <option>Filter by category</option>
+            <option value="">Filter by category</option>
             {% for c in categories %}
               <option value="{{ c.slug }}" {% if category == c %}selected="selected"{% endif %}>{{ c.name }}</option>
             {% endfor %}
@@ -60,14 +65,14 @@
         </div>
       </form>
     </div>
-</div>
+    
     <!-- command palatte for search -->
     {% include "libraries/includes/search_command_palatte.html" %}
   </div>
 
   <!-- Libraries list -->
   <div class="grid grid-cols-1 gap-4 mb-5 md:grid-cols-2 xl:grid-cols-3">
-    {% for library in object_list %}
+    {% for library in library_list %}
       {% include "libraries/_library_list_item.html" %}
     {% endfor %}
   </div>
