@@ -4,11 +4,9 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
-from django_filters.views import FilterView
 
 from versions.models import Version
-from .filters import LibraryFilter
-from .forms import LibraryForm, VersionSelectionForm
+from .forms import VersionSelectionForm
 from .models import Category, Issue, Library, LibraryVersion, PullRequest
 
 logger = structlog.get_logger()
@@ -21,11 +19,10 @@ class CategoryMixin:
         return context
 
 
-class LibraryList(CategoryMixin, FilterView):
+class LibraryList(CategoryMixin, ListView):
     """List all of our libraries for a specific Boost version, or default
     to the current version."""
 
-    filterset_class = LibraryFilter
     queryset = (
         Library.objects.prefetch_related("authors", "categories").all().order_by("name")
     ).distinct()
@@ -34,11 +31,14 @@ class LibraryList(CategoryMixin, FilterView):
     def get_queryset(self):
         queryset = super().get_queryset()
         params = self.request.GET.copy()
+
+        # default to the most recent version
         if "version" not in params:
             params["version"] = Version.objects.most_recent().slug
 
         queryset = queryset.filter(library_version__version__slug=params["version"])
 
+        # avoid attempting to look up libraries with blank categories
         if "category" in params and params["category"] != "":
             queryset = queryset.filter(categories__slug=params["category"])
 
@@ -46,20 +46,16 @@ class LibraryList(CategoryMixin, FilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["versions"] = Version.objects.active().order_by("-release_date")
         if "category" in self.request.GET and self.request.GET["category"] != "":
             context["category"] = Category.objects.get(
                 slug=self.request.GET["category"]
             )
-
-        context["form"] = self.filterset
-        context["library_list"] = self.get_queryset()
-
         if "version" in self.request.GET:
             context["version"] = Version.objects.get(slug=self.request.GET["version"])
         else:
             context["version"] = Version.objects.most_recent()
-
+        context["versions"] = Version.objects.active().order_by("-release_date")
+        context["library_list"] = self.get_queryset()
         return context
 
 
@@ -126,7 +122,7 @@ class LibraryDetail(CategoryMixin, FormMixin, DetailView):
             return Version.objects.most_recent()
 
     def post(self, request, *args, **kwargs):
-        """User has submitted a form and will be redirected to the right LibraryVersion."""
+        """User has submitted a form and will be redirected to the right record."""
         self.object = self.get_object()
         form = self.get_form()
         if form.is_valid():
