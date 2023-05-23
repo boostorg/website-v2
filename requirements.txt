@@ -80,6 +80,7 @@ django==4.2.1
     #   django-allauth
     #   django-db-geventpool
     #   django-extensions
+    #   django-filter
     #   django-haystack
     #   django-health-check
     #   django-js-asset
@@ -102,6 +103,8 @@ django-click==2.3.0
 django-db-geventpool==4.0.1
     # via -r ./requirements.in
 django-extensions==3.2.1
+    # via -r ./requirements.in
+django-filter==23.2
     # via -r ./requirements.in
 django-haystack==3.2.1
     # via
