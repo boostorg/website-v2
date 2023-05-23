@@ -93,7 +93,8 @@ class Entry(models.Model):
             or (user is not None and user.has_perm("news.view_entry"))
         )
 
-    def can_approve(self, user):
+    @classmethod
+    def can_approve(cls, user):
         return user is not None and user.has_perm("news.change_entry")
 
     def can_edit(self, user):
