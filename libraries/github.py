@@ -1,8 +1,8 @@
 import base64
 import os
 import re
+from collections import defaultdict
 from datetime import datetime
-
 import requests
 import structlog
 from django.contrib.auth import get_user_model
@@ -86,6 +86,42 @@ class GithubAPIClient:
             owner=self.owner, repo=repo_slug, file_sha=file_sha
         )
 
+    def get_all_commits(self, repo_slug: str = None, branch: str = "master"):
+        """Get all commits to the specified branch of a repo.
+
+        :param repo_slug: str, the repository slug. If not provided, the class
+            instance's repo_slug will be used.
+        :param branch: str, the branch name. Defaults to 'master'.
+        :return: List[Commit], list of all commits in the branch.
+        """
+        repo_slug = repo_slug or self.repo_slug
+
+        # Get the commits
+        try:
+            per_page = 100
+            page = 1
+            all_commits = []
+
+            while True:
+                commits = self.api.repos.list_commits(
+                    owner=self.owner,
+                    repo=repo_slug,
+                    sha=branch,
+                    per_page=per_page,
+                    page=page,
+                )
+                all_commits.extend(commits)
+                if len(commits) < per_page:  # End of results
+                    break
+
+                page += 1  # Go to the next page
+
+        except Exception as e:
+            self.logger.exception("get_all_commits_failed", repo=repo_slug, msg=str(e))
+            return []
+
+        return all_commits
+
     def get_commit_by_sha(self, repo_slug: str = None, commit_sha: str = None) -> dict:
         """Get a commit by its SHA."""
         if not repo_slug:
@@ -121,8 +157,9 @@ class GithubAPIClient:
                 page += 1  # Go to the next page
 
             # Sort the tags by the commit date. The first tag will be the earliest.
-            # The Github API doesn't return the commit date with the tag, so we have to retrieve each
-            # one individually. This is slow, but it's the only way to get the commit date.
+            # The Github API doesn't return the commit date with the tag, so we have to
+            # retrieve each one individually. This is slow, but it's the only way to get
+            # the commit date.
             def get_tag_commit_date(tag):
                 """Get the commit date for a tag.
 
@@ -138,7 +175,7 @@ class GithubAPIClient:
             # Return the first (earliest) tag
             return sorted_tags[0]
 
-        except Exception as e:
+        except Exception:
             self.logger.exception("get_first_tag_and_date_failed", repo=repo_slug)
             return None
 
@@ -147,8 +184,8 @@ class GithubAPIClient:
         Get the .gitmodules file for the repo from the GitHub API.
 
         :param repo_slug: str, the repository slug
-        :param ref: dict, the Git reference object (the commit hash). See https://docs.github.com/en/rest/git/refs
-            for expected format.
+        :param ref: dict, the Git reference object (the commit hash).
+            See https://docs.github.com/en/rest/git/refs for expected format.
         :return: str, the .gitmodules file from the repo
         """
         if not repo_slug:
@@ -169,14 +206,15 @@ class GithubAPIClient:
         """
         Retrieve library metadata from 'meta/libraries.json'
         Each Boost library will have a `meta` directory with a `libraries.json` file.
-        Example: https://github.com/boostorg/align/blob/5ad7df63cd792fbdb801d600b93cad1a432f0151/meta/libraries.json
+        Example:
+        https://github.com/boostorg/align/blob/5ad7df63cd792fbdb801d600b93cad1a432f0151/meta/libraries.json
         """
-        url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/{tag}/meta/libraries.json"
+        url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/{tag}/meta/libraries.json"  # noqa
 
         try:
             response = requests.get(url)
             response.raise_for_status()
-        # This usually happens because the library does not have a `meta/libraries.json` file
+        # This usually happens because the library does not have a `meta/libraries.json`
         # in the requested tag. More likely to happen with older versions of libraries.
         except requests.exceptions.HTTPError:
             self.logger.exception(
@@ -278,7 +316,7 @@ class GithubAPIClient:
             return self.api.repos.get_release_by_tag(
                 owner=self.owner, repo=repo_slug, tag=tag_name
             )
-        except Exception as e:
+        except Exception:
             logger.info("tag_not_found", tag_name=tag_name, repo_slug=repo_slug)
             return
 
@@ -325,6 +363,29 @@ class GithubAPIClient:
 
 
 class GithubDataParser:
+    def get_commits_per_month(self, commits: list[dict]):
+        """Get the number of commits per month from a list of commits.
+
+        :param commits: List[Commit], list of commits.
+        :return: Dict[str, int], dictionary mapping month-year strings to commit counts.
+        """
+        commit_counts = defaultdict(int)
+        for commit in commits:
+            date = commit.commit.author.date
+            month_year = f"{date.year}-{date.month:02d}"
+            commit_counts[month_year] += 1
+
+        return dict(commit_counts)
+
+    def get_first_commit_date(self, commits: list[dict]):
+        """Get the date of the first commit from a list of commits.
+
+        :param commits: List[Commit], list of commits for that repo
+        :return: datetime, date of the first commit.
+        """
+        first_commit = min(commits, key=lambda c: c.commit.author.date)
+        return first_commit.commit.author.date
+
     def parse_commit(self, commit_data: dict) -> dict:
         """Parse the commit data from Github and return a dict of the data we want."""
         published_at = commit_data["committer"]["date"]
@@ -340,7 +401,8 @@ class GithubDataParser:
 
     def parse_gitmodules(self, gitmodules: str) -> dict:
         """Parse the .gitmodules file.
-        Expects the multiline contents of https://github.com/boostorg/boost/.gitmodules to be passed in
+        Expects the multiline contents of https://github.com/boostorg/boost/.gitmodules
+        to be passed in
 
         :param gitmodules: str, the .gitmodules file
         :return: dict, the parsed .gitmodules file
@@ -494,12 +556,14 @@ class LibraryUpdater:
 
     def get_library_list(self, gitmodules=None):
         """
-        Retrieve the full list of library data for Boost libraries from their Github repos.
+        Retrieve the full list of library data for Boost libraries from their Github
+        repos.
 
-        Included libraries are rrtrieved from the list of modules in .gitmodules in the main Boost
-        repo. The libraries.json file is retrieved from each module and parsed to get the library
-        metadata. Most libraries.json files contain information about individual libraries, but a few such as "system", "functional",
-        and others contain multiple libraries.
+        Included libraries are rrtrieved from the list of modules in .gitmodules in the
+        main Boost repo. The libraries.json file is retrieved from each module and
+        parsed to get the library metadata. Most libraries.json files contain info
+        about individual libraries, but a few such as "system", "functional", etc.
+        contain multiple libraries.
         """
         libraries = []
         for gitmodule in gitmodules:
@@ -568,7 +632,7 @@ class LibraryUpdater:
             self.update_maintainers(
                 library_version, maintainers=library_data["maintainers"]
             )
-            # Do authors second because maintainers are more likely to have emails to match
+            # Do authors second; maintainers are more likely to have emails to match
             self.update_authors(obj, authors=library_data["authors"])
 
             if created or not obj.first_github_tag_date:

@@ -17,6 +17,7 @@ psycopg2-binary
 whitenoise
 django-click
 Pillow==9.4.0
+python-dateutil
 django-storages
 wheel
 cryptography
