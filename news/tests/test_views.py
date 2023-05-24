@@ -1,23 +1,46 @@
 import datetime
 
 import pytest
+from django.utils.text import slugify
 from django.utils.timezone import now
 from model_bakery import baker
 
-from ..forms import EntryForm
-from ..models import Entry
+
+from ..forms import BlogPostForm, EntryForm, LinkForm, PollForm, VideoForm
+from ..models import BlogPost, Entry, Link, Poll, Video
 
 
-def test_entry_list(tp, make_entry, regular_user, authenticated=False):
+NEWS_MODELS = [Entry, BlogPost, Link, Poll, Video]
+
+
+@pytest.mark.parametrize(
+    "url_name, model_class",
+    [
+        ("news", Entry),
+        ("news-blogpost-list", BlogPost),
+        ("news-link-list", Link),
+        ("news-poll-list", Poll),
+        ("news-video-list", Video),
+    ],
+)
+def test_entry_list(
+    tp, make_entry, regular_user, url_name, model_class, authenticated=False
+):
     """List published news for non authenticated users."""
-    not_approved_news = make_entry(approved=False, title="needs moderation")
+    not_approved_news = make_entry(
+        model_class, approved=False, title="needs moderation"
+    )
     yesterday_news = make_entry(
-        approved=True, title="old news", publish_at=now() - datetime.timedelta(days=1)
+        model_class,
+        approved=True,
+        title="old news",
+        publish_at=now() - datetime.timedelta(days=1),
     )
     today_news = make_entry(
-        approved=True, title="current news", publish_at=now().today()
+        model_class, approved=True, title="current news", publish_at=now().today()
     )
     tomorrow_news = make_entry(
+        model_class,
         approved=True,
         title="future news",
         publish_at=now() + datetime.timedelta(days=1),
@@ -26,9 +49,9 @@ def test_entry_list(tp, make_entry, regular_user, authenticated=False):
     if authenticated:
         tp.login(regular_user)
 
-    response = tp.get("news")
+    # 6 queries if authenticated, 4 otherwise
+    response = tp.assertGoodView(tp.reverse(url_name), test_query_count=7, verbose=True)
 
-    tp.response_200(response)
     expected = [today_news, yesterday_news]
     assert list(response.context.get("entry_list", [])) == expected
 
@@ -36,6 +59,7 @@ def test_entry_list(tp, make_entry, regular_user, authenticated=False):
     for n in expected:
         assert n.get_absolute_url() in content
         assert n.title in content
+        assert model_class.__name__.lower() in content  # this is the tag
 
     assert not_approved_news.get_absolute_url() not in content
     assert not_approved_news.title not in content
@@ -44,16 +68,33 @@ def test_entry_list(tp, make_entry, regular_user, authenticated=False):
 
     # If user is not authenticated, the Create News link should not be shown
     assert (tp.reverse("news-create") in content) == authenticated
+    assert (tp.reverse("news-blogpost-create") in content) == authenticated
+    assert (tp.reverse("news-link-create") in content) == authenticated
+    assert (tp.reverse("news-poll-create") in content) == authenticated
+    assert (tp.reverse("news-video-create") in content) == authenticated
 
 
-def test_entry_list_authenticated(tp, make_entry, regular_user):
-    test_entry_list(tp, make_entry, regular_user, authenticated=True)
+@pytest.mark.parametrize(
+    "url_name, model_class",
+    [
+        ("news", Entry),
+        ("news-blogpost-list", BlogPost),
+        ("news-link-list", Link),
+        ("news-poll-list", Poll),
+        ("news-video-list", Video),
+    ],
+)
+def test_entry_list_authenticated(tp, make_entry, url_name, model_class, regular_user):
+    test_entry_list(
+        tp, make_entry, regular_user, url_name, model_class, authenticated=True
+    )
 
 
-def test_news_detail(tp, make_entry):
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_news_detail(tp, make_entry, model_class):
     """Browse details for a given news entry."""
     a_past_date = now() - datetime.timedelta(hours=10)
-    news = make_entry(approved=True, publish_at=a_past_date)
+    news = make_entry(model_class, approved=True, publish_at=a_past_date)
     url = tp.reverse("news-detail", news.slug)
 
     response = tp.get(url)
@@ -61,7 +102,7 @@ def test_news_detail(tp, make_entry):
 
     content = str(response.content)
     assert news.title in content
-    assert news.description in content
+    assert news.content in content
     assert tp.reverse("news-approve", news.slug) not in content
     assert tp.reverse("news-delete", news.slug) not in content
     assert tp.reverse("news-update", news.slug) not in content
@@ -70,7 +111,7 @@ def test_news_detail(tp, make_entry):
     assert "newer entries" not in content.lower()
     assert "older entries" not in content.lower()
 
-    # create an older news
+    # create an older news, likely different type
     older_date = a_past_date - datetime.timedelta(hours=1)
     older = make_entry(approved=True, publish_at=older_date)
 
@@ -103,9 +144,10 @@ def test_news_detail_404(tp):
     tp.response_404(response)
 
 
-def test_news_detail_404_if_not_published(tp, make_entry, regular_user):
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_news_detail_404_if_not_published(tp, make_entry, regular_user, model_class):
     """Details for a news entry are available if published or authored."""
-    news = make_entry(published=False)
+    news = make_entry(model_class, published=False)
     response = tp.get(news.get_absolute_url())
     tp.response_404(response)
 
@@ -120,9 +162,10 @@ def test_news_detail_404_if_not_published(tp, make_entry, regular_user):
     tp.response_200(response)
 
 
-def test_news_detail_actions_author(tp, make_entry):
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_news_detail_actions_author(tp, make_entry, model_class):
     """News entry is updatable by authors (if not approved)."""
-    news = make_entry(approved=False)  # not approved entry
+    news = make_entry(model_class, approved=False)  # not approved entry
     with tp.login(news.author):
         response = tp.get(news.get_absolute_url())
     tp.response_200(response)
@@ -143,9 +186,10 @@ def test_news_detail_actions_author(tp, make_entry):
     assert tp.reverse("news-update", news.slug) not in content
 
 
-def test_news_detail_actions_moderator(tp, make_entry, moderator_user):
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_news_detail_actions_moderator(tp, make_entry, moderator_user, model_class):
     """Moderators can update, delete and approve a news entry."""
-    news = make_entry(approved=False)  # not approved entry
+    news = make_entry(model_class, approved=False)  # not approved entry
     with tp.login(moderator_user):
         response = tp.get(news.get_absolute_url())
     tp.response_200(response)
@@ -166,8 +210,9 @@ def test_news_detail_actions_moderator(tp, make_entry, moderator_user):
     assert tp.reverse("news-update", news.slug) in content
 
 
-def test_news_detail_next_url(tp, make_entry, moderator_user):
-    news = make_entry(approved=False)
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_news_detail_next_url(tp, make_entry, moderator_user, model_class):
+    news = make_entry(model_class, approved=False)
     with tp.login(moderator_user):
         response = tp.get(news.get_absolute_url() + "?next=/foo")
     tp.response_200(response)
@@ -186,8 +231,17 @@ def test_news_detail_next_url(tp, make_entry, moderator_user):
     )
 
 
-def test_news_create_get(tp, regular_user):
-    url_name = "news-create"
+@pytest.mark.parametrize(
+    "url_name, form_class",
+    [
+        ("news-create", EntryForm),
+        ("news-blogpost-create", BlogPostForm),
+        ("news-link-create", LinkForm),
+        ("news-poll-create", PollForm),
+        ("news-video-create", VideoForm),
+    ],
+)
+def test_news_create_get(tp, regular_user, url_name, form_class):
     # assertLoginRequired expects a non resolved URL, that is an URL name
     # see https://github.com/revsys/django-test-plus/issues/202
     tp.assertLoginRequired(url_name)
@@ -199,27 +253,39 @@ def test_news_create_get(tp, regular_user):
         response = tp.assertGoodView(url, test_query_count=3, verbose=True)
 
     form = tp.get_context("form")
-    assert isinstance(form, EntryForm)
+    assert isinstance(form, form_class)
     for field in form:
         tp.assertResponseContains(str(field), response)
 
 
-def test_news_create_post(tp, regular_user):
-    url = tp.reverse("news-create")
+@pytest.mark.parametrize(
+    "url_name, model_class, data_fields",
+    [
+        ("news-create", Entry, EntryForm.Meta.fields),
+        ("news-blogpost-create", BlogPost, BlogPostForm.Meta.fields),
+        ("news-link-create", Link, LinkForm.Meta.fields),
+        ("news-poll-create", Poll, PollForm.Meta.fields),
+        ("news-video-create", Video, VideoForm.Meta.fields),
+    ],
+)
+def test_news_create_post(tp, regular_user, url_name, model_class, data_fields):
+    url = tp.reverse(url_name)
+
     data = {
-        "title": "Lorem Ipsum",
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing.",
+        k: f"random-value-{k}" if "url" not in k else "http://example.com"
+        for k in data_fields
     }
     before = now()
     with tp.login(regular_user):
         response = tp.post(url, data=data, follow=True)
     after = now()
 
-    entries = Entry.objects.filter(title=data["title"])
+    entries = model_class.objects.filter(title=data["title"])
     assert len(entries) == 1
     entry = entries.get()
-    assert entry.slug == "lorem-ipsum"
-    assert entry.description == data["description"]
+    assert entry.slug == slugify(data["title"])
+    for field, value in data.items():
+        assert getattr(entry, field) == value
     assert entry.author == regular_user
     assert not entry.is_approved
     assert not entry.is_published
@@ -231,10 +297,11 @@ def test_news_create_post(tp, regular_user):
     tp.assertRedirects(response, entry.get_absolute_url())
 
 
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
 def test_news_approve_get_method_not_allowed(
-    tp, make_entry, regular_user, moderator_user
+    tp, make_entry, regular_user, moderator_user, model_class
 ):
-    entry = make_entry(approved=False)
+    entry = make_entry(model_class, approved=False)
 
     # login is required
     url_params = ("news-approve", entry.slug)
@@ -251,8 +318,9 @@ def test_news_approve_get_method_not_allowed(
     tp.response_405(response)
 
 
-def test_news_approve_post(tp, make_entry, regular_user, moderator_user):
-    entry = make_entry(approved=False)
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_news_approve_post(tp, make_entry, regular_user, moderator_user, model_class):
+    entry = make_entry(model_class, approved=False)
     url_params = ("news-approve", entry.slug)
 
     # regular users would still get a 403 on POST
@@ -275,10 +343,11 @@ def test_news_approve_post(tp, make_entry, regular_user, moderator_user):
     assert before <= entry.modified_at <= after
 
 
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
 def test_news_approve_post_redirects_to_next_if_available(
-    tp, make_entry, moderator_user
+    tp, make_entry, moderator_user, model_class
 ):
-    entry = make_entry(approved=False)
+    entry = make_entry(model_class, approved=False)
     url_params = ("news-approve", entry.slug)
     next_url = "/foo"
 
@@ -317,15 +386,27 @@ def test_news_moderation_list(tp, regular_user, moderator_user):
 
 def test_news_moderation_filter_unapproved_news(tp, make_entry, moderator_user):
     unapproved_published = [
-        make_entry(approved=False, published=True) for _ in range(3)
+        make_entry(model_class, approved=False, published=True)
+        for _ in range(3)
+        for model_class in NEWS_MODELS
     ]
     # approved and published
-    ignore = [make_entry(approved=True, published=True) for _ in range(3)]
+    ignore = [
+        make_entry(model_class, approved=True, published=True)
+        for _ in range(3)
+        for model_class in NEWS_MODELS
+    ]
     unapproved_unpublished = [
-        make_entry(approved=False, published=False) for _ in range(3)
+        make_entry(model_class, approved=False, published=False)
+        for _ in range(3)
+        for model_class in NEWS_MODELS
     ]
     # approved and unpublished
-    ignore.extend(make_entry(approved=True, published=False) for _ in range(3))
+    ignore.extend(
+        make_entry(model_class, approved=True, published=False)
+        for _ in range(3)
+        for model_class in NEWS_MODELS
+    )
 
     url = tp.reverse("news-moderate")
     with tp.login(moderator_user):
@@ -349,8 +430,11 @@ def test_news_moderation_filter_unapproved_news(tp, make_entry, moderator_user):
 
 
 @pytest.mark.parametrize("method", ["GET", "POST"])
-def test_news_update_acl(tp, make_entry, regular_user, moderator_user, method):
-    entry = make_entry(approved=False)
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_news_update_acl(
+    tp, make_entry, regular_user, moderator_user, method, model_class
+):
+    entry = make_entry(model_class, approved=False)
     url_params = ("news-update", entry.slug)
 
     # regular users would get a 404 for a news they don't own
@@ -379,10 +463,9 @@ def test_news_update_acl(tp, make_entry, regular_user, moderator_user, method):
     tp.response_200(response)
 
 
-def test_news_update(tp, make_entry):
-    entry = make_entry(
-        approved=False, title="A news title", description="Some news description"
-    )
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_news_update(tp, make_entry, model_class):
+    entry = make_entry(model_class, approved=False, title="A news title")
     url_params = ("news-update", entry.slug)
 
     with tp.login(entry.author):
@@ -391,11 +474,10 @@ def test_news_update(tp, make_entry):
 
     content = str(response.content)
     assert entry.title in content
-    assert entry.description in content
+    assert entry.content in content
 
     new_title = "This is a different title"
-    new_description = "A different entry description"
-    data = {"title": new_title, "description": new_description}
+    data = {"title": new_title}
     with tp.login(entry.author):
         response = tp.post(*url_params, data=data, follow=True)
     tp.response_200(response)
@@ -403,18 +485,18 @@ def test_news_update(tp, make_entry):
     tp.assertRedirects(response, entry.get_absolute_url())
     content = str(response.content)
     assert new_title in content
-    assert new_description in content
     assert "A news title" not in content
-    assert "Some news description" not in content
 
     entry.refresh_from_db()
     assert entry.title == new_title
-    assert entry.description == new_description
 
 
 @pytest.mark.parametrize("method", ["GET", "POST"])
-def test_news_delete_acl(tp, make_entry, regular_user, moderator_user, method):
-    entry = make_entry(approved=False)
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_news_delete_acl(
+    tp, make_entry, regular_user, moderator_user, method, model_class
+):
+    entry = make_entry(model_class, approved=False)
     url_params = ("news-delete", entry.slug)
 
     # regular users would get a 404 for a news they don't own
@@ -432,7 +514,7 @@ def test_news_delete_acl(tp, make_entry, regular_user, moderator_user, method):
     tp.response_200(response)
 
     # but if the entry is approved, only moderator can access the delete form
-    entry = make_entry(approved=True)
+    entry = make_entry(model_class, approved=True)
     url_params = ("news-delete", entry.slug)
 
     with tp.login(entry.author):
@@ -444,8 +526,9 @@ def test_news_delete_acl(tp, make_entry, regular_user, moderator_user, method):
     tp.response_200(response)
 
 
-def test_news_delete(tp, make_entry, moderator_user):
-    entry = make_entry(approved=False)
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_news_delete(tp, make_entry, moderator_user, model_class):
+    entry = make_entry(model_class, approved=False)
     url_params = ("news-delete", entry.slug)
 
     with tp.login(moderator_user):
