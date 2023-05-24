@@ -17,7 +17,7 @@
           </div>
           <div class="w-5/6 text-xl">
             <p>
-              <a href="{{ entry.get_absolute_url }}?next={{ request.path|urlencode }}"">{{ entry.title }}</a>
+              <a href="{{ entry.get_absolute_url }}?next={{ request.path|urlencode }}">{{ entry.title }}</a>
               {% blocktrans with author_email=entry.author.email %}
               by {{ author_email }}
               {% endblocktrans %}

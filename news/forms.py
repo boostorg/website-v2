@@ -1,11 +1,11 @@
 from django import forms
-from .models import Entry
+from .models import BlogPost, Entry, Link, Poll, Video
 
 
 class EntryForm(forms.ModelForm):
     class Meta:
         model = Entry
-        fields = ["title", "description"]
+        fields = ["title", "content"]
 
     def save(self, *args, commit=True, **kwargs):
         instance = super().save(*args, commit=False, **kwargs)
@@ -15,3 +15,27 @@ class EntryForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+class BlogPostForm(EntryForm):
+    class Meta:
+        model = BlogPost
+        fields = ["title", "content"]
+
+
+class LinkForm(EntryForm):
+    class Meta:
+        model = Link
+        fields = ["title", "external_url"]
+
+
+class PollForm(EntryForm):
+    class Meta:
+        model = Poll
+        fields = ["title", "content"]  # XXX: add choices
+
+
+class VideoForm(EntryForm):
+    class Meta:
+        model = Video
+        fields = ["title", "external_url"]

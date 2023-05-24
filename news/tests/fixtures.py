@@ -8,7 +8,7 @@ from model_bakery import baker
 
 @pytest.fixture
 def make_entry(db):
-    def _make_it(approved=True, published=True, **kwargs):
+    def _make_it(model_class="Entry", approved=True, published=True, **kwargs):
         past = now() - datetime.timedelta(hours=1)
         future = now() + datetime.timedelta(days=1)
         if approved:
@@ -24,7 +24,7 @@ def make_entry(db):
         kwargs.setdefault("approved_at", approved_at)
         kwargs.setdefault("moderator", moderator)
         kwargs.setdefault("publish_at", publish_at)
-        entry = baker.make("Entry", **kwargs)
+        entry = baker.make(model_class, **kwargs)
         entry.author.set_password("password")
         entry.author.save()
         return entry

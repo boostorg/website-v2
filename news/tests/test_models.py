@@ -10,7 +10,7 @@ from ..models import Entry, Poll
 
 def test_entry_str():
     entry = baker.make("Entry")
-    assert str(entry) == f"{entry.title} by {entry.author}"
+    assert str(entry) == entry.title
 
 
 def test_entry_generate_slug():
@@ -56,9 +56,9 @@ def test_entry_not_published(make_entry):
     assert entry.is_published is False
 
 
-def test_entry_absolute_url():
+def test_entry_absolute_url(tp):
     entry = baker.make("Entry", slug="the-slug")
-    assert entry.get_absolute_url() == "/news/the-slug/"
+    assert entry.get_absolute_url() == tp.reverse("news-detail", "the-slug")
 
 
 def test_approve_entry(make_entry):

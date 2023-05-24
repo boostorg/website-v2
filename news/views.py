@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Case, Value, When
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -14,8 +15,8 @@ from django.views.generic import (
 )
 from django.views.generic.detail import SingleObjectMixin
 
-from .models import Entry
-from .forms import EntryForm
+from .models import BlogPost, Entry, Link, Poll, Video
+from .forms import BlogPostForm, EntryForm, LinkForm, PollForm, VideoForm
 
 
 def get_published_or_none(sibling_getter):
@@ -32,9 +33,40 @@ class EntryListView(ListView):
     template_name = "news/list.html"
     ordering = ["-publish_at"]
     paginate_by = 10  #  XXX: use pagination in the template! Issue #377
+    context_object_name = "entry_list"  # Ensure children use the same name
 
     def get_queryset(self):
-        return super().get_queryset().filter(published=True)
+        result = super().get_queryset().filter(published=True)
+        if self.model == Entry:
+            result = result.select_related("blogpost", "link", "poll", "video")
+            result = result.annotate(
+                tag=Case(
+                    When(blogpost__entry_ptr__isnull=False, then=Value("blogpost")),
+                    When(link__entry_ptr__isnull=False, then=Value("link")),
+                    When(poll__entry_ptr__isnull=False, then=Value("poll")),
+                    When(video__entry_ptr__isnull=False, then=Value("video")),
+                    default=Value(""),
+                )
+            )
+        else:
+            result = result  # .select_related("entry_ptr")
+        return result
+
+
+class BlogPostListView(EntryListView):
+    model = BlogPost
+
+
+class LinkListView(EntryListView):
+    model = Link
+
+
+class PollListView(EntryListView):
+    model = Poll
+
+
+class VideoListView(EntryListView):
+    model = Video
 
 
 class EntryModerationListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -78,10 +110,46 @@ class EntryCreateView(LoginRequiredMixin, CreateView):
     model = Entry
     form_class = EntryForm
     template_name = "news/form.html"
+    add_label = _("Create News")
+    add_url_name = "news-create"
 
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["add_label"] = self.add_label
+        context["add_url_name"] = self.add_url_name
+        return context
+
+
+class BlogPostCreateView(EntryCreateView):
+    model = BlogPost
+    form_class = BlogPostForm
+    add_label = _("Create a BlogPost")
+    add_url_name = "news-blogpost-create"
+
+
+class LinkCreateView(EntryCreateView):
+    model = Link
+    form_class = LinkForm
+    add_label = _("Create a Link")
+    add_url_name = "news-link-create"
+
+
+class PollCreateView(EntryCreateView):
+    model = Poll
+    form_class = PollForm
+    add_label = _("Create a Poll")
+    add_url_name = "news-poll-create"
+
+
+class VideoCreateView(EntryCreateView):
+    model = Video
+    form_class = VideoForm
+    add_label = _("Upload a Video")
+    add_url_name = "news-video-create"
 
 
 class EntryApproveView(
@@ -113,12 +181,24 @@ class EntryApproveView(
 
 class EntryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Entry
-    form_class = EntryForm
     template_name = "news/form.html"
 
     def test_func(self):
         entry = self.get_object()
         return entry.can_edit(self.request.user)
+
+    def get_form_class(self):
+        if self.object.is_blogpost:
+            result = BlogPostForm
+        elif self.object.is_link:
+            result = LinkForm
+        elif self.object.is_poll:
+            result = PollForm
+        elif self.object.is_video:
+            result = VideoForm
+        else:
+            result = EntryForm
+        return result
 
 
 class EntryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
