@@ -1,5 +1,5 @@
 import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 import responses
@@ -169,6 +169,51 @@ def test_get_repo(github_api_client):
 
 
 """Parser Tests"""
+
+
+def create_mock_commit(date):
+    """Create a mock commit with the given date."""
+    commit = Mock()
+    commit.commit.author.date = date
+    return commit
+
+
+def test_get_commits_per_month():
+    # Construct the mock commits.
+    commits = [
+        create_mock_commit(datetime.datetime(2023, 1, 15)),
+        create_mock_commit(datetime.datetime(2022, 1, 10)),
+        create_mock_commit(datetime.datetime(2022, 2, 1)),
+        create_mock_commit(datetime.datetime(2023, 1, 16)),
+    ]
+
+    # Construct the object and call the method.
+    parser = GithubDataParser()
+    results = parser.get_commits_per_month(commits)
+
+    # Check the result.
+    expected = {
+        "2022-01": 1,
+        "2022-02": 1,
+        "2023-01": 2,
+    }
+    assert expected == results
+
+
+def test_get_first_commit_date():
+    # Construct the mock commits.
+    expected = datetime.datetime(2022, 1, 10)
+    commits = [
+        create_mock_commit(expected),
+        create_mock_commit(expected + datetime.timedelta(days=31)),
+        create_mock_commit(expected + datetime.timedelta(days=91)),
+        create_mock_commit(expected + datetime.timedelta(days=121)),
+    ]
+
+    # Construct the object and call the method.
+    parser = GithubDataParser()
+    result = parser.get_first_commit_date(commits)
+    assert expected == result
 
 
 def test_parse_gitmodules():
@@ -390,7 +435,7 @@ def test_get_library_list(library_updater):
 
 
 def test_get_library_list_skip(library_updater):
-    """Test that the get_library_list method of LibraryUpdater skips the right modules"""
+    """Test that get_library_list method of LibraryUpdater skips the right modules"""
     gitmodules = [{"module": "litre"}]
     result = library_updater.get_library_list(gitmodules=gitmodules)
     assert result == []
