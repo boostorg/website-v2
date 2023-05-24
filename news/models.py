@@ -2,8 +2,10 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.timezone import now
+from django.utils.translation import gettext_lazy as _
 
 
 User = get_user_model()
@@ -35,7 +37,7 @@ class Entry(models.Model):
 
     slug = models.SlugField()
     title = models.CharField(max_length=255)
-    description = models.TextField(blank=True, default="")
+    content = models.TextField(blank=True, default="")
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     moderator = models.ForeignKey(
         User,
@@ -44,7 +46,7 @@ class Entry(models.Model):
         blank=True,
         related_name="moderated_entries_set",
     )
-    external_url = models.URLField(blank=True, default="")
+    external_url = models.URLField(_("URL"), blank=True, default="")
     image = models.ImageField(upload_to="news", null=True, blank=True)
     created_at = models.DateTimeField(default=now)
     approved_at = models.DateTimeField(null=True, blank=True)
@@ -57,8 +59,10 @@ class Entry(models.Model):
         verbose_name_plural = "Entries"
 
     def __str__(self):
-        return f"{self.title} by {self.author}"
+        # avoid printing author information that cause extra queries
+        return f"{self.title}"
 
+    # do not cache since it compares against now()
     @property
     def is_approved(self):
         return (
@@ -67,9 +71,42 @@ class Entry(models.Model):
             and self.approved_at <= now()
         )
 
+    # do not cache since it compares against now()
     @property
     def is_published(self):
         return self.is_approved and self.publish_at <= now()
+
+    @cached_property
+    def is_blogpost(self):
+        try:
+            result = self.blogpost is not None
+        except BlogPost.DoesNotExist:
+            result = False
+        return result
+
+    @cached_property
+    def is_link(self):
+        try:
+            result = self.link is not None
+        except Link.DoesNotExist:
+            result = False
+        return result
+
+    @cached_property
+    def is_poll(self):
+        try:
+            result = self.poll is not None
+        except Poll.DoesNotExist:
+            result = False
+        return result
+
+    @cached_property
+    def is_video(self):
+        try:
+            result = self.video is not None
+        except Video.DoesNotExist:
+            result = False
+        return result
 
     def approve(self, user, commit=True):
         """Mark this entry as approved by the given `user`."""
@@ -120,9 +157,8 @@ class Entry(models.Model):
 
 
 class BlogPost(Entry):
-    body = models.TextField()
     abstract = models.CharField(max_length=256)
-    # Possible extra fields: RSS feed? banner? keywords?
+    # Possible extra fields: RSS feed? banner? keywords? tags?
 
 
 class Link(Entry):

@@ -3,23 +3,23 @@ import datetime
 from django.utils.timezone import now
 from model_bakery import baker
 
-from ..forms import EntryForm
+from ..forms import BlogPostForm, EntryForm, LinkForm, PollForm, VideoForm
 from ..models import Entry
 
 
 def test_form_fields():
     form = EntryForm()
-    assert sorted(form.fields.keys()) == ["description", "title"]
+    assert sorted(form.fields.keys()) == ["content", "title"]
 
 
 def test_form_model_creates_entry(make_entry):
     title = "The Title"
-    description = "Some description"
+    content = "Some content"
     user = baker.make("users.User")
     assert Entry.objects.filter(title=title).count() == 0
 
     before = now()
-    form = EntryForm(instance=None, data={"title": title, "description": description})
+    form = EntryForm(instance=None, data={"title": title, "content": content})
     assert form.is_valid()
     form.instance.author = user
     result = form.save()
@@ -32,7 +32,7 @@ def test_form_model_creates_entry(make_entry):
     assert before <= result.publish_at <= after
     assert result.approved_at is None
     assert result.title == title
-    assert result.description == description
+    assert result.content == content
     assert result.author == user
     assert result.moderator is None
     assert result.author_needs_moderation() is True
@@ -56,7 +56,7 @@ def test_form_model_modifies_entry(make_entry):
     assert result.created_at == news.created_at
     assert result.approved_at == news.approved_at
     assert result.publish_at == news.publish_at
-    assert result.description == news.description
+    assert result.content == news.content
     assert result.author == news.author
     assert result.moderator == news.moderator
     assert result.author_needs_moderation() is True
@@ -114,3 +114,27 @@ def test_form_save_approved_news(make_entry, settings):
     result = form.save()
     result.refresh_from_db()
     assert entry.is_approved  # No entry status change and no exception.
+
+
+def test_blogpost_form():
+    form = BlogPostForm()
+    assert isinstance(form, EntryForm)
+    assert sorted(form.fields.keys()) == ["content", "title"]
+
+
+def test_link_form():
+    form = LinkForm()
+    assert isinstance(form, EntryForm)
+    assert sorted(form.fields.keys()) == ["external_url", "title"]
+
+
+def test_poll_form():
+    form = PollForm()
+    assert isinstance(form, EntryForm)
+    assert sorted(form.fields.keys()) == ["content", "title"]
+
+
+def test_video_form():
+    form = VideoForm()
+    assert isinstance(form, EntryForm)
+    assert sorted(form.fields.keys()) == ["external_url", "title"]

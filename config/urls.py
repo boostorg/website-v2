@@ -33,6 +33,8 @@ from libraries.views import (
 from libraries.api import LibrarySearchView
 from mailing_list.views import MailingListView, MailingListDetailView
 from news.views import (
+    BlogPostCreateView,
+    BlogPostListView,
     EntryApproveView,
     EntryCreateView,
     EntryDeleteView,
@@ -40,6 +42,12 @@ from news.views import (
     EntryListView,
     EntryModerationListView,
     EntryUpdateView,
+    LinkCreateView,
+    LinkListView,
+    PollCreateView,
+    PollListView,
+    VideoCreateView,
+    VideoListView,
 )
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
@@ -129,14 +137,36 @@ urlpatterns = (
         ),
         path("mailing-list/", MailingListView.as_view(), name="mailing-list"),
         path("news/", EntryListView.as_view(), name="news"),
+        path("news/blogpost/", BlogPostListView.as_view(), name="news-blogpost-list"),
+        path("news/link/", LinkListView.as_view(), name="news-link-list"),
+        path("news/poll/", PollListView.as_view(), name="news-poll-list"),
+        path("news/video/", VideoListView.as_view(), name="news-video-list"),
         path("news/add/", EntryCreateView.as_view(), name="news-create"),
-        path("news/moderate/", EntryModerationListView.as_view(), name="news-moderate"),
-        path("news/<slug:slug>/", EntryDetailView.as_view(), name="news-detail"),
         path(
-            "news/<slug:slug>/approve/", EntryApproveView.as_view(), name="news-approve"
+            "news/add/blogpost/",
+            BlogPostCreateView.as_view(),
+            name="news-blogpost-create",
         ),
-        path("news/<slug:slug>/delete/", EntryDeleteView.as_view(), name="news-delete"),
-        path("news/<slug:slug>/update/", EntryUpdateView.as_view(), name="news-update"),
+        path("news/add/link/", LinkCreateView.as_view(), name="news-link-create"),
+        path("news/add/poll/", PollCreateView.as_view(), name="news-poll-create"),
+        path("news/add/video/", VideoCreateView.as_view(), name="news-video-create"),
+        path("news/moderate/", EntryModerationListView.as_view(), name="news-moderate"),
+        path("news/entry/<slug:slug>/", EntryDetailView.as_view(), name="news-detail"),
+        path(
+            "news/entry/<slug:slug>/approve/",
+            EntryApproveView.as_view(),
+            name="news-approve",
+        ),
+        path(
+            "news/entry/<slug:slug>/delete/",
+            EntryDeleteView.as_view(),
+            name="news-delete",
+        ),
+        path(
+            "news/entry/<slug:slug>/update/",
+            EntryUpdateView.as_view(),
+            name="news-update",
+        ),
         path(
             "people/detail/",
             TemplateView.as_view(template_name="boost/people_detail.html"),
