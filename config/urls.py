@@ -113,6 +113,11 @@ urlpatterns = (
         path("libraries/mini/", LibraryListMini.as_view(), name="libraries-mini"),
         path("libraries/", LibraryList.as_view(), name="libraries"),
         path(
+            "libraries/<slug:slug>/<slug:version_slug>/",
+            LibraryDetail.as_view(),
+            name="library-detail-by-version",
+        ),
+        path(
             "libraries/<slug:slug>/",
             LibraryDetail.as_view(),
             name="library-detail",
