@@ -9,6 +9,15 @@ def category(db):
 
 
 @pytest.fixture
+def commit_data(library):
+    return baker.make(
+        "libraries.CommitData",
+        library=library,
+        commit_count=1,
+    )
+
+
+@pytest.fixture
 def library(db):
     return baker.make(
         "libraries.Library",
