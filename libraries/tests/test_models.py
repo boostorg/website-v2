@@ -35,6 +35,10 @@ def test_category_creation(category):
     assert category.name is not None
 
 
+def test_commit_data_creation(commit_data):
+    assert commit_data.commit_count > 0
+
+
 def test_library_creation(library):
     assert library.versions.count() == 0
 

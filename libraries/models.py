@@ -28,6 +28,31 @@ class Category(models.Model):
         return super(Category, self).save(*args, **kwargs)
 
 
+class CommitData(models.Model):
+    library = models.ForeignKey(
+        "libraries.Library",
+        on_delete=models.CASCADE,
+        help_text="The Library to which these commits belong.",
+    )
+    commit_count = models.IntegerField(
+        default=0, help_text="The number of commits made during the month."
+    )
+    month_year = models.DateField(
+        help_text="The month and year when the commits were made. Day is always set to the first of the month."
+    )
+    branch = models.CharField(
+        max_length=256,
+        default="master",
+        help_text="The GitHub branch to which these commits were made.",
+    )
+
+    class Meta:
+        unique_together = ("library", "month_year", "branch")
+
+    def __str__(self):
+        return f"{self.library.name} commits for {self.month_year:%B %Y} on {self.branch} branch"
+
+
 class Library(models.Model):
     """
     Model to represent component Libraries of Boost
