@@ -744,6 +744,35 @@ class LibraryUpdater:
             obj.maintainers.add(user)
             self.logger.info(f"User {user.email} added as a maintainer of {obj}")
 
+    def update_monthly_commit_data(
+        self, obj: Library, commit_data: dict, branch: str = "master"
+    ):
+        """Update the monthly commit data for a library.
+
+        :param obj: Library object
+        :param commit_data: Dictionary of commit data, as output by the parser's
+            get_commits_per_month method.
+        :param branch: Branch to update commit data for. Defaults to "master".
+
+        Note: Overrides CommitData objects for the library; does not increment
+        the count.
+        """
+        self.logger.info("updating_monthly_commit_data")
+
+        for month_year, commit_count in commit_data.items():
+            data_obj, created = obj.commit_data.update_or_create(
+                month_year=month_year,
+                branch=branch,
+                defaults={"commit_count": commit_count},
+            )
+            self.logger.info(
+                "commit_data_updated",
+                commit_data_pk=data_obj.pk,
+                created=created,
+                library=obj.name,
+                branch=branch,
+            )
+
     def update_issues(self, obj):
         """Import GitHub issues for the library and update the database"""
         self.logger.info("updating_repo_issues")
