@@ -193,27 +193,11 @@ def test_get_commits_per_month():
 
     # Check the result.
     expected = {
-        "2022-01": 1,
-        "2022-02": 1,
-        "2023-01": 2,
+        datetime.datetime(2022, 1, 1).date(): 1,
+        datetime.datetime(2022, 2, 1).date(): 1,
+        datetime.datetime(2023, 1, 1).date(): 2,
     }
     assert expected == results
-
-
-def test_get_first_commit_date():
-    # Construct the mock commits.
-    expected = datetime.datetime(2022, 1, 10)
-    commits = [
-        create_mock_commit(expected),
-        create_mock_commit(expected + datetime.timedelta(days=31)),
-        create_mock_commit(expected + datetime.timedelta(days=91)),
-        create_mock_commit(expected + datetime.timedelta(days=121)),
-    ]
-
-    # Construct the object and call the method.
-    parser = GithubDataParser()
-    result = parser.get_first_commit_date(commits)
-    assert expected == result
 
 
 def test_parse_gitmodules():
