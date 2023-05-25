@@ -33,6 +33,7 @@ class CommitData(models.Model):
         "libraries.Library",
         on_delete=models.CASCADE,
         help_text="The Library to which these commits belong.",
+        related_name="commit_data",
     )
     commit_count = models.IntegerField(
         default=0, help_text="The number of commits made during the month."
