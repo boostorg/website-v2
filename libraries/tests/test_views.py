@@ -165,3 +165,34 @@ def test_library_detail_context_get_open_issues_count(tp, library_version):
     assert "open_issues_count" in response.context
     # Verify that the count only includes the one open issue for this library
     assert response.context["open_issues_count"] == 1
+
+
+def test_libraries_by_version_detail(tp, library_version):
+    """GET /libraries/{slug}/{version_slug}/"""
+    res = tp.get(
+        "library-detail-by-version",
+        library_version.library.slug,
+        library_version.version.slug,
+    )
+    tp.response_200(res)
+    assert "version" in res.context
+
+
+def test_libraries_by_version_detail_no_library_found(tp, library_version):
+    """GET /libraries/{slug}/{version_slug}/"""
+    res = tp.get(
+        "library-detail-by-version",
+        "coffee",
+        library_version.version.slug,
+    )
+    tp.response_404(res)
+
+
+def test_libraries_by_version_detail_no_version_found(tp, library_version):
+    """GET /libraries/{slug}/{version_slug}/"""
+    res = tp.get(
+        "library-detail-by-version",
+        library_version.library.slug,
+        000000,
+    )
+    tp.response_404(res)
