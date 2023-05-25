@@ -13,7 +13,7 @@ from ghapi.all import GhApi, paged
 
 from versions.models import Version
 
-from .models import Category, Issue, Library, LibraryVersion, PullRequest
+from .models import Category, CommitData, Issue, Library, LibraryVersion, PullRequest
 from .utils import generate_fake_email, parse_date
 
 logger = structlog.get_logger()
@@ -86,12 +86,28 @@ class GithubAPIClient:
             owner=self.owner, repo=repo_slug, file_sha=file_sha
         )
 
-    def get_all_commits(self, repo_slug: str = None, branch: str = "master"):
+    def get_commit_by_sha(self, repo_slug: str = None, commit_sha: str = None) -> dict:
+        """Get a commit by its SHA."""
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        return self.api.git.get_commit(
+            owner=self.owner, repo=repo_slug, commit_sha=commit_sha
+        )
+
+    def get_commits(
+        self,
+        repo_slug: str = None,
+        branch: str = "master",
+        since: datetime = None,
+        until: datetime = None,
+    ) -> list:
         """Get all commits to the specified branch of a repo.
 
         :param repo_slug: str, the repository slug. If not provided, the class
             instance's repo_slug will be used.
         :param branch: str, the branch name. Defaults to 'master'.
+        :param since: datetime, only return commits after this date.
+        :param until: datetime, only return commits before this date.
         :return: List[Commit], list of all commits in the branch.
         """
         repo_slug = repo_slug or self.repo_slug
@@ -107,6 +123,8 @@ class GithubAPIClient:
                     owner=self.owner,
                     repo=repo_slug,
                     sha=branch,
+                    since=since,
+                    until=until,
                     per_page=per_page,
                     page=page,
                 )
@@ -121,14 +139,6 @@ class GithubAPIClient:
             return []
 
         return all_commits
-
-    def get_commit_by_sha(self, repo_slug: str = None, commit_sha: str = None) -> dict:
-        """Get a commit by its SHA."""
-        if not repo_slug:
-            repo_slug = self.repo_slug
-        return self.api.git.get_commit(
-            owner=self.owner, repo=repo_slug, commit_sha=commit_sha
-        )
 
     def get_first_tag(self, repo_slug: str = None):
         """
@@ -367,24 +377,15 @@ class GithubDataParser:
         """Get the number of commits per month from a list of commits.
 
         :param commits: List[Commit], list of commits.
-        :return: Dict[str, int], dictionary mapping month-year strings to commit counts.
+        :return: Dict[str, datetime], dictionary mapping month-year dates to commit counts.
         """
         commit_counts = defaultdict(int)
         for commit in commits:
             date = commit.commit.author.date
-            month_year = f"{date.year}-{date.month:02d}"
+            month_year = datetime(date.year, date.month, 1).date()
             commit_counts[month_year] += 1
 
         return dict(commit_counts)
-
-    def get_first_commit_date(self, commits: list[dict]):
-        """Get the date of the first commit from a list of commits.
-
-        :param commits: List[Commit], list of commits for that repo
-        :return: datetime, date of the first commit.
-        """
-        first_commit = min(commits, key=lambda c: c.commit.author.date)
-        return first_commit.commit.author.date
 
     def parse_commit(self, commit_data: dict) -> dict:
         """Parse the commit data from Github and return a dict of the data we want."""
