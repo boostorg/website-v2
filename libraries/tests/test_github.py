@@ -181,10 +181,10 @@ def create_mock_commit(date):
 def test_get_commits_per_month():
     # Construct the mock commits.
     commits = [
-        create_mock_commit(datetime.datetime(2023, 1, 15)),
-        create_mock_commit(datetime.datetime(2022, 1, 10)),
-        create_mock_commit(datetime.datetime(2022, 2, 1)),
-        create_mock_commit(datetime.datetime(2023, 1, 16)),
+        create_mock_commit(datetime.datetime(2023, 1, 15).isoformat()),
+        create_mock_commit(datetime.datetime(2022, 1, 10).isoformat()),
+        create_mock_commit(datetime.datetime(2022, 2, 1).isoformat()),
+        create_mock_commit(datetime.datetime(2023, 1, 16).isoformat()),
     ]
 
     # Construct the object and call the method.
