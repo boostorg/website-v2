@@ -95,6 +95,33 @@ Output:
     Version 1.30.0 created succcessfully
     ---algorithm (1.30.0) created succcessfully
 
+
+## `import_commit_counts`
+
+Imports commit counts for all libraries, broken down by month, and saves them to the database. The command uses the Github API to retrieve commit data and is intended for a one-time import.  
+
+- Saves `CommitData` objects, one per month, with a count of the number of commits made to the specified branch (or the `master` branch) of each Library object. 
+- If there is already a `CommitData` record for that library-month-branch, this command will **overwrite** the `commit_count` field, not increment it. 
+- Idempotent. 
+
+**Options**
+
+Here are the options you can use:
+
+- `--branch`: Specify the branch you want to count commits for. Defaults to `master`. 
+- `--token`: Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`.
+
+### Example:
+
+    ./manage.py import_commit_counts
+
+Output: 
+
+    ...
+    {"message": "commit_data_updated", "commit_data_pk": 721, "obj_created": true, "library": "Math/Statistical Distributions", "branch": "master", "logger": "libraries.github", "level": "info", "timestamp": "2023-05-25T22:13:58.074730Z"}
+    Updated Math/Statistical Distributions commits; 247 monthly counts added
+
+
 ## `import_library_versions`
 
 Connect Library objects to the Boost versions (AKA "release") that included them using information from the main Boost GitHub repo and the library repos. Functions of this command: 
