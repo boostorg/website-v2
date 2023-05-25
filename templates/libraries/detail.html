@@ -6,7 +6,7 @@
   <!-- Breadcrumb -->
   <div class="p-3 space-x-2 text-sm divide-x divide-gray-300 md:p-0">
     <a class="hover:text-orange" href="/"><i class="fas fa-home"></i></a>
-    <a class="pl-2 hover:text-orange" href="{% if version_slug %}{% url 'libraries-by-version' version_slug %}{% else %}{% url 'libraries' %}{% endif %}">Libraries{% if version_name %} ({{ version.name }}){% endif %}</a>
+    <a class="pl-2 hover:text-orange" href="{% if version_slug %}{% url 'libraries' %}?version={{ version_slug }}{% else %}{% url 'libraries' %}{% endif %}">Libraries{% if version_name %} ({{ version.name }}){% endif %}</a>
     <span class="pl-2 capitalize">{{ object.name }}</span>
   </div>
   <!-- end breadcrumb -->
@@ -61,7 +61,7 @@
               <a class="inline-block float-right py-1 px-2 rounded cursor-pointer hover:bg-gray-100">{{ object.get_cpp_standard_minimum_display }}</a>
               <span class="block py-1 px-2 rounded cursor-pointer hover:bg-gray-100">Categories:
                 {% for category in object.categories.all %}
-                  <a class="inline text-sky-600" href="{% url 'libraries-by-category' category=category.slug %}">{{ category.name }}</a>
+                  <a class="inline text-sky-600" href="{% url 'libraries' %}?category={{ category.slug }}">{{ category.name }}</a>
                 {% endfor %}
               </span>
 
