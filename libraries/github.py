@@ -3,6 +3,7 @@ import os
 import re
 from collections import defaultdict
 from datetime import datetime
+from dateutil.parser import parse
 import requests
 import structlog
 from django.contrib.auth import get_user_model
@@ -381,7 +382,7 @@ class GithubDataParser:
         """
         commit_counts = defaultdict(int)
         for commit in commits:
-            date = commit.commit.author.date
+            date = parse(commit.commit.author.date)
             month_year = datetime(date.year, date.month, 1).date()
             commit_counts[month_year] += 1
 
@@ -768,7 +769,7 @@ class LibraryUpdater:
             self.logger.info(
                 "commit_data_updated",
                 commit_data_pk=data_obj.pk,
-                created=created,
+                obj_created=created,
                 library=obj.name,
                 branch=branch,
             )
