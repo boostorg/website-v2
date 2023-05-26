@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+  <!-- Homepage Hero Section -->
+<main>
+  <div style="padding: 30px 0px 0px 0px">
+    <div class="section-one-left">
+      <h1 class="top-heading">Boost your C++</h1>
+      <p class="top-sub-heading">Home to 165+ free, peer-reviewed, portable libraries to increase your productivity across all industry domains.</p>
+      <select class="top-select">
+        <option value="option1">Option 1</option>
+        <option value="option2">Option 2</option>
+        <option value="option3">Option 3</option>
+      </select>
+      <br>
+      <a class="download-button">
+        <i class="fas fa-arrow-circle-down"></i> Download
+      </a>
+      <a class="link-text">Release notes</a>
+      <br>
+      <a class="bsl-button"> BSL Logo </a>
+      <a class="link-text">License</a>
+    </div>
+    <div class="section-one-right">
+      <div id="scene03"></div>
+    </div>
+  </div>
+
+  <!---------- SECTION - 02 ------------>
+
+  <hr class="line-breaker">
+  <div>
+    <div>
+      <div class="section-two-left">
+      <select class="inline-select">
+        <option value="option1">Option 1</option>
+        <option value="option2">Option 2</option>
+        <option value="option3">Option 3</option>
+      </select>
+      <select class="inline-select">
+        <option value="option1">Option 1</option>
+        <option value="option2">Option 2</option>
+        <option value="option3">Option 3</option>
+      </select>
+      <h2 style="margin: 30px 0px">Accumulators</h2>
+      <p class="sub-heading">Framework for incremental calculation, and collection of statistical accumulators</p>
+    <div>
+      <p id="myText" class="copy-text"> install boost accumulators </p>
+      <i onclick="copyToClipboard()" class="fas fa-light fa-copy copy-icon"></i>
+      <br>
+      <p id="" class="copy-text"> install boost accumulators </p>
+      <i onclick="copyToClipboard()" class="fas fa-light fa-copy copy-icon"></i>
+      <br>
+      <p id="" class="copy-text"> install boost accumulators </p>
+      <i onclick="copyToClipboard()" class="fas fa-light fa-copy copy-icon"></i>
+      <br>
+    <div class="circle">
+        <span class="circle-text">C++</span>
+    </div>
+    </div>
+      </div>
+      <div class="section-two-right">
+        <fieldset><legend>Compiler Explorer</legend>
+          <form method="post" action="{% url 'home-beta' %}">
+            {% csrf_token %}
+            <div class="compiler-block">
+              <label for="code">Code:</label>
+              <br>
+              <textarea name="code" id="" class="compiler-text-area">{{ request.POST.code }}</textarea>
+              <br>
+              <button type="submit" class="run-btn">Run</button>
+            </div>
+            <div class="compiler-output">
+              {% if output %}
+                <div class="output">{{ output }}</div>
+              {% endif %}
+              {% if error %}
+                <div class="error">error</div>
+              {% endif %}
+            </div>
+          </form>
+        </fieldset>
+      </div>
+
+    </div>
+  </div>
+    <!---------- SECTION - 03 ------------>
+    <!---------- SECTION - 04 ------------>
+
+  <hr class="line-breaker">
+  <h2 style="margin: 20px 0px">News from Boost and C++</h2>
+  <div class="section-04">
+    <div class="news-container">
+      <p class="news-text">Boost.MySQL is an Asio-based network client which lets you access MySQL and MariaDB databases using your own data types New in Boost 1.82.0,
+        check it out here https://https://boost.org/libs/mysql
+        Get Boost:
+        https://boost.org/users/history/version_1_82_0.html
+        #boost #cpp #cplusplus #mysql #mariadb #database</p>
+      <img src="{% static 'img/fpo/news-1.png' %}" class="news-image"/>
+    </div>
+    <div class="news-container">
+      <p class="news-text">Boost 1.82.0 is released for the Spring season!
+        Release Notes: https://boost.org/users/history/version_1_82_0.html
+        Downloads: http://boost.org/users/news/version_1.82.0
+        Direct Download:
+        https://boostorg.jfrog.io/artifactory/main/release/1.82.0
+        #boost #cpp #cplusplus</p>
+      <img src="{% static 'img/fpo/news-2.png' %}" class="news-image"/>
+    </div>
+  </div>
+
+      <!---------- SECTION - 05 ------------>
+
+  <hr class="line-breaker">
+  <h2 style="margin: 20px 0px">Activity Apr21,2023 - May20,2023</h2>
+  <div class="section-05">
+    <div class="activity-containers">
+      <fieldset style="margin: 0px 3px"><legend>Code</legend>
+        <select class="activity-select">
+          <option value="option1">Option 1</option>
+          <option value="option2">Option 2</option>
+          <option value="option3">Option 3</option>
+        </select>
+      </fieldset>
+    </div>
+    <div class="activity-containers">
+      <fieldset style="margin: 0px 3px"><legend>Downloads</legend></fieldset>
+    </div>
+    <div class="activity-containers">
+      <fieldset style="margin: 0px 3px"><legend>Community</legend></fieldset>
+    </div>
+  </div>
+</main>
+
+
+
+
+<!--  <main class="px-4 my-16 mx-auto sm:mt-24">
+  <div class="grid gap-6 mt-12 sm:grid-cols-1 md:grid-cols-1 md:mt-16 lg:grid-cols-0">
+  <div class="border_red">
+  <div class="md:flex md:h-full">
+    <div class="order-1 mt-6 w-full text-center md:order-2 md:mt-3 md:w-1/2 md:h-full">
+      &lt;!&ndash;<div id="scene03"></div>&ndash;&gt;
+    </div>
+    <div class="text-left md:w-1/2 md:h-full">
+      <div class="h-full md:flex md:flex-col md:justify-between">
+        <div>
+          <h1 class="text-4xl font-extrabold md:text-6xl">
+            <span class="block xl:inline">Boost your C++ </span>
+          </h1>
+          <p class="mx-auto mt-3 max-w-md text-base text-lg md:mt-5 md:mb-11 md:max-w-3xl md:text-xl">Home to 165+ free, peer-reviewed, portable libraries to increase your productivity across all industry domains.</p>
+          <div class="mt-5">
+            <select onchange="this.form.submit()"
+                    name="version"
+                    class="block py-1 pr-8 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
+                    id="id_version"
+            >
+              {% for v in versions %}
+                <option value="{{ v.slug }}" {% if version == v %}selected="selected"{% endif %}>Boost {{ v.display_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="md:mb-8">
+          <div class="justify-center space-y-3 md:flex md:justify-between md:space-y-0">
+            <a href="{% url 'releases' %}" class="flex justify-center items-center py-3 px-8 text-base font-medium text-white rounded-md border md:py-4 md:px-4 md:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
+              <i class="pr-2 text-white fas fa-arrow-circle-down dark:text-orange"></i> Download
+            </a>
+            <a href="{% url 'releases' %}" class="flex justify-center items-center">Release notes</a>
+          </div>
+          <div class="justify-center mt-5 space-y-3 md:flex md:justify-between md:space-y-0">
+            <a href="{% url 'releases' %}" class="flex justify-center items-center py-3 px-8 text-base font-medium text-white rounded-md border md:py-4 md:px-4 md:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
+              BSL Logo
+            </a>
+            <a href="{% url 'releases' %}" class="flex justify-center items-center">License</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+    &lt;!&ndash; Select a library &ndash;&gt;
+  <div class="portion">
+    <div class="rounded-md md:flex">
+      <div class="text-left md:w-1/2">
+        <form action="/homepage-beta/" method="get">
+          <div>
+            <label for="id_library" hidden="true">Libraries</label>
+            <select onchange="this.form.submit()"
+                    name="library"
+                    class="block py-2 pr-11 pl-5 mb-2 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
+                    id="id_library"
+            >
+              <option value="" {% if library is None %}selected="selected"{% endif %}>Select a library</option>
+              {% for l in libraries %}
+                <option value="{{ l.slug }}" {% if library == l %}selected="selected"{% endif %}>{{ l.name }}</option>
+              {% endfor %}
+            </select>
+            <label for="id_category" hidden="true">Categories:</label>
+            <select onchange="this.form.submit()"
+                    name="category"
+                    class="block py-2 pr-11 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
+                    id="id_category"
+            >
+              <option value="">Filter by category</option>
+              {% for c in categories %}
+                <option value="{{ c.slug }}" {% if category == c %}selected="selected"{% endif %}>{{ c.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </form>
+      </div>
+    <div>
+      <div class="rounded-md md:flex">
+      <div class="text-left md:w-1/2">
+
+        <form method="post" action="{% url 'home-beta' %}">
+          {% csrf_token %}
+          <label for="code">Code:</label>
+          <textarea name="code" id="" rows="10" cols="50">{{ request.POST.code }}</textarea>
+          <button type="submit">Run</button>
+        </form>
+      </div>
+    </div>
+
+    {% if output %}
+      <div class="output">{{ output }}</div>
+    {% endif %}
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+    </div>
+    </div>
+  </div>
+
+    &lt;!&ndash; Seven equal div portions &ndash;&gt;
+{#    <div class="grid gap-6 mt-12 sm:grid-cols-1 md:grid-cols-1 md:mt-16 lg:grid-cols-0">#}
+      &lt;!&ndash; Simple fixed-size portion &ndash;&gt;
+      <div class="portion">
+        <h2 class="text-xl font-semibold">Simple Fixed Size</h2>
+        <p class="mt-4">This portion has a fixed size and can be used to display important information or a call-to-action.</p>
+      </div>
+
+      &lt;!&ndash; Description, Copy Commands, Code Explore &ndash;&gt;
+      <div class="portion">
+        <h2 class="text-xl font-semibold">Description, Copy Commands, Code Explore</h2>
+        <p class="mt-4">Here, you can provide a brief description of a library, along with some copy commands for installation or usage. You can also embed an interactive code explorer to showcase the library's features and demonstrate how it can be used.</p>
+        <div class="mt-6">
+          &lt;!&ndash; Code explorer embed code here &ndash;&gt;
+        </div>
+      </div>
+
+      &lt;!&ndash; One-row Calendar &ndash;&gt;
+      <div class="portion">
+        <h2 class="text-xl font-semibold">One-row Calendar</h2>
+        <div class="mt-4">
+          &lt;!&ndash; One-row calendar implementation here &ndash;&gt;
+        </div>
+      </div>
+
+      &lt;!&ndash; Two News Portions &ndash;&gt;
+      <div class="portion">
+        <h2 class="text-xl font-semibold">News Portion 1</h2>
+        <p class="mt-4">Stay updated with the latest news, updates, and announcements related to the Boost library.</p>
+      </div>
+      <div class="portion">
+        <h2 class="text-xl font-semibold">News Portion 2</h2>
+        <p class="mt-4">More news and updates to keep you informed about the Boost library community and its developments.</p>
+      </div>
+
+      &lt;!&ndash; Code, Download, Community &ndash;&gt;
+      <div class="portion">
+        <h2 class="text-xl font-semibold">Code</h2>
+        <p class="mt-4">View the code repository of the Boost library on GitHub and explore the source code, contribute to its development, and download the latest versions.</p>
+      </div>
+      <div class="portion">
+        <div class="py-3 px-6 dark:text-white text-slate">
+          <h5
+            class="text-xl font-bold leading-tight text-orange">
+            New to Boost?
+          </h5>
+          <p class="py-1 text-white border-b border-gray-700">This is how you can help</p>
+          <ul class="flex flex-wrap mt-2 text-sm">
+            <li class="w-1/2"><a href="/doc/contributor-guide/intro.html">Becoming a Contributor</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/license-requirements.html">License Requirements</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/portability-requirements.html">Portability Requirements</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/organization-requirements.html">Organization Requirements</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/library-design-guidelines.html">Library Design Guidelines</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/antora.html">Antora Guide</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="portion">
+          <div class="py-3 px-6 dark:text-white text-slate">
+          <h5
+            class="text-xl font-bold leading-tight text-orange">
+            Contributor Guide
+          </h5>
+          <p class="py-1 text-white border-b border-gray-700">This is how you can help</p>
+          <ul class="flex flex-wrap mt-2 text-sm">
+            <li class="w-1/2"><a href="/doc/contributor-guide/intro.html">Becoming a Contributor</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/license-requirements.html">License Requirements</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/portability-requirements.html">Portability Requirements</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/organization-requirements.html">Organization Requirements</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/library-design-guidelines.html">Library Design Guidelines</a></li>
+            <li class="w-1/2"><a href="/doc/contributor-guide/antora.html">Antora Guide</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    </div>
+  </main>-->
+  <!-- End Homepage Hero Section -->
+
+{% endblock %}
+
+{% block footer_js %}
+
+{% endblock %}
