@@ -35,11 +35,12 @@ class CommitData(models.Model):
         help_text="The Library to which these commits belong.",
         related_name="commit_data",
     )
-    commit_count = models.IntegerField(
+    commit_count = models.PositiveIntegerField(
         default=0, help_text="The number of commits made during the month."
     )
     month_year = models.DateField(
-        help_text="The month and year when the commits were made. Day is always set to the first of the month."
+        help_text="The month and year when the commits were made. Day is always set to "
+        "the first of the month."
     )
     branch = models.CharField(
         max_length=256,
@@ -51,7 +52,10 @@ class CommitData(models.Model):
         unique_together = ("library", "month_year", "branch")
 
     def __str__(self):
-        return f"{self.library.name} commits for {self.month_year:%B %Y} on {self.branch} branch"
+        return (
+            f"{self.library.name} commits for "
+            f"{self.month_year:%B %Y} to {self.branch} branch: {self.commit_count}"
+        )
 
 
 class Library(models.Model):
@@ -107,7 +111,8 @@ class Library(models.Model):
     first_github_tag_date = models.DateField(
         blank=True,
         null=True,
-        help_text="The date of the first release, based on the date of the commit of the first GitHub tag.",
+        help_text="The date of the first release, based on the date of the commit of "
+        "the first GitHub tag.",
     )
     last_github_update = models.DateTimeField(blank=True, null=True, db_index=True)
 
