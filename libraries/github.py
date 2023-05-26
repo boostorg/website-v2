@@ -14,7 +14,7 @@ from ghapi.all import GhApi, paged
 
 from versions.models import Version
 
-from .models import Category, CommitData, Issue, Library, LibraryVersion, PullRequest
+from .models import Category, Issue, Library, LibraryVersion, PullRequest
 from .utils import generate_fake_email, parse_date
 
 logger = structlog.get_logger()
@@ -115,25 +115,20 @@ class GithubAPIClient:
 
         # Get the commits
         try:
-            per_page = 100
-            page = 1
-            all_commits = []
-
-            while True:
-                commits = self.api.repos.list_commits(
+            pages = list(
+                paged(
+                    self.api.repos.list_commits,
                     owner=self.owner,
                     repo=repo_slug,
                     sha=branch,
                     since=since,
                     until=until,
-                    per_page=per_page,
-                    page=page,
+                    per_page=100,
                 )
-                all_commits.extend(commits)
-                if len(commits) < per_page:  # End of results
-                    break
-
-                page += 1  # Go to the next page
+            )
+            all_commits = []
+            for page in pages:
+                all_commits.extend(page)
 
         except Exception as e:
             self.logger.exception("get_all_commits_failed", repo=repo_slug, msg=str(e))
@@ -378,7 +373,8 @@ class GithubDataParser:
         """Get the number of commits per month from a list of commits.
 
         :param commits: List[Commit], list of commits.
-        :return: Dict[str, datetime], dictionary mapping month-year dates to commit counts.
+        :return: Dict[str, datetime], dictionary mapping month-year dates to commit
+        counts.
         """
         commit_counts = defaultdict(int)
         for commit in commits:
