@@ -298,6 +298,8 @@ AUTHENTICATION_BACKENDS = ("allauth.account.auth_backends.AuthenticationBackend"
 # GitHub settings
 
 GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
+JDOODLE_API_CLIENT_ID = env("JDOODLE_API_CLIENT_ID", "")
+JDOODLE_API_CLIENT_SECRET = env("JDOODLE_API_CLIENT_SECRET", "")
 
 # Django Allauth settings
 
