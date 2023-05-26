@@ -21,6 +21,7 @@ from ak.views import (
     InternalServerErrorView,
     NotFoundView,
     OKView,
+    HomepageBetaView,
 )
 from core.views import MarkdownTemplateView, StaticContentTemplateView
 from libraries.views import (
@@ -63,6 +64,7 @@ router.register(r"libraries", LibrarySearchView, basename="libraries")
 urlpatterns = (
     [
         path("", HomepageView.as_view(), name="home"),
+        path("homepage-beta/", HomepageBetaView.as_view(), name="home-beta"),
         path("admin/", admin.site.urls),
         path("accounts/", include("allauth.urls")),
         path(

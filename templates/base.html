@@ -1,4 +1,4 @@
-{% load static %}
+ {% load static %}
 <!DOCTYPE html>
 <html>
 
@@ -45,7 +45,251 @@
             text-align: center;
             opacity: 1;
         }
+        .portion {
+          height: 50vh; /* Set the height to 50% of the viewport height */
+          width: 100%; /* Set the width to 100% of the parent container */
+          border: groove;
+          overflow: auto;
+          padding: 10px;
+        }
+        .section-one-right{
+          display: inline-block;
+          width: 49%;
+        }
+        .section-one-left{
+          padding: 20px 100px 0px 20px;
+          display: inline-block;
+          width: 49%;
+          vertical-align: top;
+        }
+        .top-heading{
+          font-weight: 900;
+        }
+        .top-sub-heading{
+          font-size: 20px;
+          line-height: 28px;
+          margin: 0px 0px 20px 0px;
+        }
+        .top-select {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid orange;
+            border-radius: 4px;
+            width: 200px;
+            background-color: #172A34;
+        }
+        option {
+            background-color: #172A34;
+            color: orange;
+        }
+        option:hover {
+            background-color: orange !important;
+            color: #fff;
+        }
+        .download-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 200px;
+            padding: 10px 0px;
+            background-color: #172A34;
+            color: orange !important;
+            border: 1px solid orange;
+            border-radius: 6px;
+            margin: 10px 0px 10px 0px;
+            font-size: 16px;
+        }
+        .download-button i {
+            margin-right: 12px;
+        }
+        .bsl-button{
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 200px;
+            padding: 10px 0px;
+            background-color: #172A34;
+            color: orange !important;
+            border: 1px solid orange;
+            border-radius: 6px;
+            margin: 0px 0px;
+            font-size: 16px;
+        }
+        .link-text{
+          margin: 0px 0px 0px 20px;
+          text-decoration: underline;
+          font-size: 18px;
+        }
+        .inline-select{
+            padding: 5px 15px;
+            font-size: 16px;
+            border: 1px solid orange;
+            border-radius: 4px;
+            width: 180px;
+            background-color: #172A34;
+            display: inline-block;
+            margin: 0px;
+        }
+        .sub-heading{
+          font-size: 20px;
+          line-height: 28px;
+          padding: 0px 80px 20px 0px;
+        }
+        .line-breaker{
+          width: 10%;
+          text-align: center;
+          border-color: orange;
+          margin: 50px auto;
+        }
+        .copy-icon{
+          border-radius: 4px;
+          border: 1px solid orange;
+          padding: 10px;
+          display: inline-block;
+          background-color:  #172A34;
+          color: orange;
+        }
+        .copy-text{
+          display: inline-block;
+          border: 1px solid orange;
+          padding: 7px 30px;
+          border-radius: 4px;
+          margin: 5px 2px;
+        }
+        .circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #172A34;
+            border: 1px solid orange;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 5px;
+        }
+        .circle-text {
+            font-size: 18px;
+            color: orange
+        }
+        .section-two-left{
+          width: 48%;
+          display: inline-block;
+          vertical-align: top;
+          padding: 30px 0px 0px 0px;
+        }
+        .section-two-right{
+          width: 51%;
+          display: inline-block;
+          height: 63vh;
+        }
+        fieldset{
+          border: 1px solid orange;
+          border-top-color: orange;
+          padding: 10px 20px 10px 20px;
+          height: 100%;
+        }
+        legend{
+          padding: 0px 8px;
+          font-size: 18px;
+          color: orange;
+          border: none;
+        }
+        .compiler-block{
+          height: 100%;
+          margin: 0px !important;
+          width: 59%;
+          display: inline-block;
+        }
+        .compiler-output{
+          height: 43vh;
+          border: 1px solid #2D5266;
+          border-radius: 4px;
+          background-color: #172A34;
+          margin: 24px 0px 0px 0px;
+          width: 40%;
+          display: inline-block;
+          vertical-align: top;
+        }
+        .compiler-text-area{
+          height: 43vh;
+          width: 100% !important;
+          margin: 0px;
+        }
+        .run-btn{
+          padding: 5px 20px;
+          background-color: #172A34;
+          color: orange;
+          border: 1px solid orange;
+          border-radius: 6px;
+          margin: 5px 0px 10px 0px;
+        }
+        .no-scrollbar-scroll, .compiler-output, .compiler-text-area {
+          overflow-y: scroll;
+        }
+        .no-scrollbar-scroll::-webkit-scrollbar,
+        .compiler-output::-webkit-scrollbar,
+        .compiler-text-area::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar-scroll, .compiler-output, .compiler-text-area{
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+        }
 
+        .section-04{
+          height: 55vh;
+          overflow-y: scroll;
+          padding: 20px;
+          border: 1px solid lightgray;
+          border-radius: 8px;
+        }
+        .news-container{
+          border: 1px solid lightgray;
+          border-radius: 8px;
+          margin: 0px 0px 10px 0px;
+          padding: 20px 10px 10px 10px;
+          height: 100%;
+          width: 49.5% !important;
+          display: inline-block;
+          vertical-align: top;
+        }
+        .news-text{
+          overflow-wrap: break-word;
+          padding: 5px 20px 5px 10px;
+          font-size: 14px;
+          display: inline-block;
+          width: 49.5%;
+          vertical-align: middle;
+        }
+        .news-image{
+          display: inline-block;
+          width: 49.5%;
+          vertical-align: top;
+          width:  270px;
+          height: 265px;
+          object-fit: cover;
+        }
+        .section-05{
+          min-height: 55vh;
+          padding: 20px;
+          border: 1px solid lightgray;
+          border-radius: 8px;
+        }
+        .activity-containers{
+          width: 32.8%;
+          display: inline-block;
+          height: 50vh;
+          vertical-align: top;
+        }
+        .activity-select{
+          padding: 5px 10px;
+          font-size: 16px;
+          border: 1px solid orange;
+          border-radius: 4px;
+          width: 90%;
+          margin: 0px;
+          background-color: #172A34;
+        }
     </style>
   </head>
 
@@ -121,6 +365,27 @@
       mobileAnim = lottie.loadAnimation(mobileParams);
       anim2 = lottie.loadAnimation(scene1Params);
       anim3 = lottie.loadAnimation(scene3Params);
+    </script>
+
+
+    <script>
+        function copyToClipboard() {
+            var text = document.getElementById("myText").innerText;
+
+            // Create a temporary textarea element
+            var tempTextArea = document.createElement("textarea");
+            tempTextArea.value = text;
+            document.body.appendChild(tempTextArea);
+
+            // Select and copy the text
+            tempTextArea.select();
+            document.execCommand("copy");
+
+            // Remove the temporary textarea
+            document.body.removeChild(tempTextArea);
+
+            alert("Text copied to clipboard");
+        }
     </script>
   </body>
 
