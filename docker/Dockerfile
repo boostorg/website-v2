@@ -25,6 +25,9 @@ RUN apt update && apt install -y git libpq-dev ruby ruby-dev && rm -rf /var/lib/
 # Install Asciidoctor
 RUN gem install asciidoctor
 
+# Copy Asciidoctor binary from builder stage
+COPY --from=builder-py /usr/local/bin/asciidoctor /usr/local/bin/
+
 ENV PATH /venv/bin:/bin:/usr/bin:/usr/local/bin
 ENV PYTHONDONTWRITEBYTECODE=true
 ENV PYTHONPATH /code
