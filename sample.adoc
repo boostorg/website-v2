@@ -1,0 +1,28 @@
+= Boost Style Guide
+
+This document outlines the style guidelines for the site-docs. Adhering to these
+guidelines will help ensure consistency and cohesion across all pages of the website.
+
+
+== UI Controls
+
+[disc]
+* Boost Mustard
+
+** only use for one or two key top level headings.
+** never on inactive UI controls
+** OK to use for hover state
+** never use large areas of this color in illustrations
+** never used as an endpoint of a color blend
+
+* The word "Boost" should occur no more than one time on the page
+
+** Not counting the logo in the top nav
+** And never twice on the same line
+** User-generated content is excepted of course
+
+* The word "C++" should occur no more than once on a page
+Except user-generated content
+* Per-library links (e.g. GitHub or docs) show a schemeless URL:
+
+image::url-style-guide-image.png[]
