@@ -28,6 +28,36 @@ class Category(models.Model):
         return super(Category, self).save(*args, **kwargs)
 
 
+class CommitData(models.Model):
+    library = models.ForeignKey(
+        "libraries.Library",
+        on_delete=models.CASCADE,
+        help_text="The Library to which these commits belong.",
+        related_name="commit_data",
+    )
+    commit_count = models.PositiveIntegerField(
+        default=0, help_text="The number of commits made during the month."
+    )
+    month_year = models.DateField(
+        help_text="The month and year when the commits were made. Day is always set to "
+        "the first of the month."
+    )
+    branch = models.CharField(
+        max_length=256,
+        default="master",
+        help_text="The GitHub branch to which these commits were made.",
+    )
+
+    class Meta:
+        unique_together = ("library", "month_year", "branch")
+
+    def __str__(self):
+        return (
+            f"{self.library.name} commits for "
+            f"{self.month_year:%B %Y} to {self.branch} branch: {self.commit_count}"
+        )
+
+
 class Library(models.Model):
     """
     Model to represent component Libraries of Boost
@@ -81,7 +111,8 @@ class Library(models.Model):
     first_github_tag_date = models.DateField(
         blank=True,
         null=True,
-        help_text="The date of the first release, based on the date of the commit of the first GitHub tag.",
+        help_text="The date of the first release, based on the date of the commit of "
+        "the first GitHub tag.",
     )
     last_github_update = models.DateTimeField(blank=True, null=True, db_index=True)
 

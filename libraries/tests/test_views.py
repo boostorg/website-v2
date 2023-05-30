@@ -3,7 +3,7 @@ import datetime
 from model_bakery import baker
 
 
-def test_library_list(library_version, tp):
+def test_library_list(library_version, tp, url_name="libraries"):
     """GET /libraries/"""
     last_year = datetime.date.today() - datetime.timedelta(days=365)
     v2 = baker.make("versions.Version", name="Version 1.78.0", release_date=last_year)
@@ -12,11 +12,16 @@ def test_library_list(library_version, tp):
         name="sample",
     )
     baker.make("libraries.LibraryVersion", library=lib2, version=v2)
-    res = tp.get("libraries")
+    res = tp.get(url_name)
     tp.response_200(res)
     assert "library_list" in res.context
     assert library_version.library in res.context["library_list"]
     assert lib2 not in res.context["library_list"]
+
+
+def test_library_list_mini(library_version, tp):
+    """GET /libraries/mini/"""
+    test_library_list(library_version, tp, url_name="libraries-mini")
 
 
 def test_library_list_no_pagination(library_version, tp):
@@ -35,65 +40,52 @@ def test_library_list_no_pagination(library_version, tp):
     library_list = res.context.get("library_list")
     assert library_list is not None
     assert len(library_list) == len(libs)
-    assert all(l in library_list for l in libs)
+    assert all(library in library_list for library in libs)
     page_obj = res.context.get("page_obj")
     assert getattr(page_obj, "paginator", None) is None
 
 
-def test_library_list_select_category(library, category, tp):
-    """POST /libraries/ to submit a category redirects to the libraries-by-category page"""
-    res = tp.post("libraries", data={"categories": category.pk})
-    tp.response_302(res)
-    assert res.url == f"/libraries-by-category/{category.slug}/"
+def test_library_list_select_category(library_version, category, tp):
+    """GET /libraries/?category={{ slug }} loads filtered results"""
+    library_version.library.categories.add(category)
+    # Create a new library version that is not in the selected category
+    new_lib_version = baker.make(
+        "libraries.LibraryVersion", version=library_version.version
+    )
+    res = tp.get(f"/libraries/?category={category.slug}")
+    tp.response_200(res)
+    assert library_version.library in res.context["library_list"]
+    assert new_lib_version.library not in res.context["library_list"]
 
 
-def test_library_list_by_category(library_version, category, tp):
-    """GET /libraries-by-category/{category_slug}/"""
-    library = library_version.library
-    baker.make("libraries.Library", name="Sample")
-    library.categories.add(category)
-    res = tp.get("libraries-by-category", category.slug)
+def test_library_list_select_version(library_version, tp):
+    """GET /libraries/?version={{ slug }} loads filtered results"""
+    new_version = baker.make("versions.Version")
+    # Create a new library version that is not in the selected version
+    new_lib_version = baker.make("libraries.LibraryVersion", version=new_version)
+    res = tp.get(f"/libraries/?version={library_version.version.slug}")
+    tp.response_200(res)
+    assert library_version.library in res.context["library_list"]
+    assert new_lib_version.library not in res.context["library_list"]
+
+
+def test_library_list_by_category(
+    library_version, category, tp, url="libraries-by-category"
+):
+    """GET /libraries/by-category/"""
+    library_version.library.categories.add(category)
+    res = tp.get(url)
     tp.response_200(res)
     assert "library_list" in res.context
-    assert len(res.context["library_list"]) == 1
-    assert library in res.context["library_list"]
-    assert "category" in res.context
-    assert res.context["category"] == category
+    assert "category" in res.context["library_list"][0]
+    assert "libraries" in res.context["library_list"][0]
 
 
-def test_library_list_by_category_no_results(library_version, category, tp):
-    """
-    GET /libraries-by-category/{category_slug}/
-    A category with no libraries
-    """
-    res = tp.get("libraries-by-category", category.slug)
-    tp.response_200(res)
-    assert "library_list" in res.context
-    assert len(res.context["library_list"]) == 0
-
-
-def test_library_list_by_category_no_results_for_active_version(library, category, tp):
-    """
-    GET /libraries-by-category/{category_slug}/
-    A category with a library, but the library isn't attached to the active Boost version
-    """
-    res = tp.get("libraries-by-category", category.slug)
-    tp.response_200(res)
-    assert "library_list" in res.context
-    assert len(res.context["library_list"]) == 0
-
-
-def test_libraries_by_category(tp, library, category):
-    """GET /libraries-by-category/{slug}/"""
-    baker.make("libraries.Library", name="Sample")
-    library.categories.add(category)
-    res = tp.get("libraries-by-category", category.slug)
-    tp.response_200(res)
-    assert "library_list" in res.context
-    assert len(res.context["library_list"]) == 1
-    assert library in res.context["library_list"]
-    assert "category" in res.context
-    assert res.context["category"] == category
+def test_library_list_by_category_mini(library_version, category, tp):
+    """GET /libraries/by-category/mini/"""
+    test_library_list_by_category(
+        library_version, category, tp, url="libraries-by-category-mini"
+    )
 
 
 def test_library_detail(library_version, tp):
@@ -175,92 +167,32 @@ def test_library_detail_context_get_open_issues_count(tp, library_version):
     assert response.context["open_issues_count"] == 1
 
 
-def test_libraries_by_version_by_category(tp, library_version, category):
-    """GET /libraries-by-category/{slug}/"""
-    library = library_version.library
-    version = library_version.version
-
-    baker.make("libraries.Library", name="Sample")
-    library.categories.add(category)
-    res = tp.get("libraries-by-version-by-category", version.slug, category.slug)
-    tp.response_200(res)
-    assert "library_list" in res.context
-    assert len(res.context["library_list"]) == 1
-    assert library in res.context["library_list"]
-    assert "category" in res.context
-    assert res.context["category"] == category
-
-
-def test_libraries_by_version_list(tp, library_version):
-    """GET /versions/{version_slug}/libraries/"""
-    # Create a new library_version
-    excluded_library = baker.make("libraries.Library", name="Sample")
-    res = tp.get("libraries-by-version", library_version.version.slug)
-    tp.response_200(res)
-    assert "library_list" in res.context
-
-    # Confirm that correct libraries are present
-    assert len(res.context["library_list"]) == 1
-    assert library_version.library in res.context["library_list"]
-    assert excluded_library not in res.context["library_list"]
-
-
-def test_libraries_by_version_list_no_pagination(tp, library_version):
-    """Library list by version is not paginated."""
-    libs = [
-        baker.make(
-            "libraries.LibraryVersion",
-            library=baker.make("libraries.Library", name=f"lib-{i}"),
-            version=library_version.version,
-        ).library
-        for i in range(30)
-    ] + [library_version.library]
-    res = tp.get("libraries-by-version", library_version.version.slug)
-    tp.response_200(res)
-
-    library_list = res.context.get("library_list")
-    assert library_list is not None
-    assert len(library_list) == len(libs)
-    assert all(l in library_list for l in libs)
-    page_obj = res.context.get("page_obj")
-    assert getattr(page_obj, "paginator", None) is None
-
-
 def test_libraries_by_version_detail(tp, library_version):
-    """GET /versions/{version_slug}/libraries/{slug}/"""
+    """GET /libraries/{slug}/{version_slug}/"""
     res = tp.get(
         "library-detail-by-version",
-        library_version.version.slug,
         library_version.library.slug,
+        library_version.version.slug,
     )
     tp.response_200(res)
     assert "version" in res.context
 
 
 def test_libraries_by_version_detail_no_library_found(tp, library_version):
-    """GET /versions/{version_slug}/{slug}/"""
+    """GET /libraries/{slug}/{version_slug}/"""
     res = tp.get(
-        "libraries-detail-by-version",
-        library_version.version.slug,
+        "library-detail-by-version",
         "coffee",
+        library_version.version.slug,
     )
     tp.response_404(res)
 
 
 def test_libraries_by_version_detail_no_version_found(tp, library_version):
-    """GET /versions/{version_slug}/{slug}/"""
+    """GET /libraries/{slug}/{version_slug}/"""
     res = tp.get(
-        "libraries-detail-by-version",
-        0000,
+        "library-detail-by-version",
         library_version.library.slug,
+        000000,
     )
     tp.response_404(res)
-
-
-def test_libraries_by_version_list_select_category(library_version, category, tp):
-    """POST versions/{version_slug}/libraries/ to submit a category redirects to the libraries-by-category page"""
-    version = library_version.version
-    url = tp.reverse("libraries-by-version", version.slug)
-    res = tp.post(url, data={"categories": category.pk})
-    tp.response_302(res)
-    assert res.url == f"/versions/{version.slug}/libraries-by-category/{category.slug}/"

@@ -1,5 +1,6 @@
 import datetime
 
+import pytest
 from django.utils.timezone import now
 from model_bakery import baker
 
@@ -62,6 +63,8 @@ def test_news_detail(tp, make_entry):
     assert news.title in content
     assert news.description in content
     assert tp.reverse("news-approve", news.slug) not in content
+    assert tp.reverse("news-delete", news.slug) not in content
+    assert tp.reverse("news-update", news.slug) not in content
 
     # no next nor prev links
     assert "newer entries" not in content.lower()
@@ -126,6 +129,8 @@ def test_news_detail_actions_author(tp, make_entry):
 
     content = str(response.content)
     assert tp.reverse("news-approve", news.slug) not in content
+    assert tp.reverse("news-delete", news.slug) not in content
+    assert tp.reverse("news-update", news.slug) in content
 
     news.approve(baker.make("users.User"))
     with tp.login(news.author):
@@ -134,17 +139,21 @@ def test_news_detail_actions_author(tp, make_entry):
 
     content = str(response.content)
     assert tp.reverse("news-approve", news.slug) not in content
+    assert tp.reverse("news-delete", news.slug) not in content
+    assert tp.reverse("news-update", news.slug) not in content
 
 
 def test_news_detail_actions_moderator(tp, make_entry, moderator_user):
     """Moderators can update, delete and approve a news entry."""
-    news = make_entry(approved=False)  # approved entry
+    news = make_entry(approved=False)  # not approved entry
     with tp.login(moderator_user):
         response = tp.get(news.get_absolute_url())
     tp.response_200(response)
 
     content = str(response.content)
     assert tp.reverse("news-approve", news.slug) in content
+    assert tp.reverse("news-delete", news.slug) in content
+    assert tp.reverse("news-update", news.slug) in content
 
     news.approve(baker.make("users.User"))
     with tp.login(moderator_user):
@@ -153,6 +162,28 @@ def test_news_detail_actions_moderator(tp, make_entry, moderator_user):
 
     content = str(response.content)
     assert tp.reverse("news-approve", news.slug) not in content
+    assert tp.reverse("news-delete", news.slug) in content
+    assert tp.reverse("news-update", news.slug) in content
+
+
+def test_news_detail_next_url(tp, make_entry, moderator_user):
+    news = make_entry(approved=False)
+    with tp.login(moderator_user):
+        response = tp.get(news.get_absolute_url() + "?next=/foo")
+    tp.response_200(response)
+    tp.assertContext("next_url", "/foo")
+    tp.assertResponseContains(
+        '<input type="hidden" name="next" value="/foo" />', response
+    )
+
+    # unsafe URLs are not put in the context for future redirection
+    with tp.login(moderator_user):
+        response = tp.get(news.get_absolute_url() + "?next=http://example.com")
+    tp.response_200(response)
+    tp.assertNotIn("next_url", response.context)
+    tp.assertResponseNotContains(
+        '<input type="hidden" name="next" value="http://example.com" />', response
+    )
 
 
 def test_news_create_get(tp, regular_user):
@@ -242,3 +273,196 @@ def test_news_approve_post(tp, make_entry, regular_user, moderator_user):
     assert entry.moderator == moderator_user
     assert before <= entry.approved_at <= after
     assert before <= entry.modified_at <= after
+
+
+def test_news_approve_post_redirects_to_next_if_available(
+    tp, make_entry, moderator_user
+):
+    entry = make_entry(approved=False)
+    url_params = ("news-approve", entry.slug)
+    next_url = "/foo"
+
+    with tp.login(moderator_user):
+        response = tp.post(*url_params, data={"next": next_url}, follow=False)
+
+    tp.assertRedirects(response, next_url, fetch_redirect_response=False)
+
+    # a non relative/non safe next URL is not used for redirection
+    with tp.login(moderator_user):
+        response = tp.post(
+            *url_params, data={"next": "http://google.com"}, follow=False
+        )
+
+    tp.assertRedirects(
+        response, entry.get_absolute_url(), fetch_redirect_response=False
+    )
+
+
+def test_news_moderation_list(tp, regular_user, moderator_user):
+    url_name = "news-moderate"
+
+    # login required
+    tp.assertLoginRequired(url_name)
+
+    # regular users would get a 403 for news moderation list
+    with tp.login(regular_user):
+        response = tp.get(url_name)
+    tp.response_403(response)
+
+    # moderators users would get a 200
+    with tp.login(moderator_user):
+        response = tp.get(url_name)
+    tp.response_200(response)
+
+
+def test_news_moderation_filter_unapproved_news(tp, make_entry, moderator_user):
+    unapproved_published = [
+        make_entry(approved=False, published=True) for _ in range(3)
+    ]
+    # approved and published
+    ignore = [make_entry(approved=True, published=True) for _ in range(3)]
+    unapproved_unpublished = [
+        make_entry(approved=False, published=False) for _ in range(3)
+    ]
+    # approved and unpublished
+    ignore.extend(make_entry(approved=True, published=False) for _ in range(3))
+
+    url = tp.reverse("news-moderate")
+    with tp.login(moderator_user):
+        # 5 queries
+        # SELECT "django_session"...
+        # SELECT "users_user"...
+        # SELECT "django_content_type"... (perms)
+        # SELECT "django_content_type"... (perms and groups, may need debugging)
+        # SELECT "news_entry"...
+        response = tp.assertGoodView(url, test_query_count=6, verbose=True)
+
+    content = str(response.content)
+    for e in unapproved_published + unapproved_unpublished:
+        assert e.title in content
+        assert e.author.email in content
+        assert (e.get_absolute_url() + f"?next={url}") in content
+    for e in ignore:
+        assert e.title not in content
+        assert e.author.email not in content
+        assert e.get_absolute_url() not in content
+
+
+@pytest.mark.parametrize("method", ["GET", "POST"])
+def test_news_update_acl(tp, make_entry, regular_user, moderator_user, method):
+    entry = make_entry(approved=False)
+    url_params = ("news-update", entry.slug)
+
+    # regular users would get a 404 for a news they don't own
+    with tp.login(regular_user):
+        response = tp.request(method.lower(), *url_params)
+    tp.response_403(response)
+
+    # owner would get a 200 response, and so will moderators
+    with tp.login(entry.author):
+        response = tp.request(method.lower(), *url_params)
+    tp.response_200(response)
+
+    with tp.login(moderator_user):
+        response = tp.request(method.lower(), *url_params)
+    tp.response_200(response)
+
+    # but if the entry is approved, only moderator can access the update form
+    entry.approve(baker.make("users.User"))
+
+    with tp.login(entry.author):
+        response = tp.request(method.lower(), *url_params)
+    tp.response_403(response)
+
+    with tp.login(moderator_user):
+        response = tp.request(method.lower(), *url_params)
+    tp.response_200(response)
+
+
+def test_news_update(tp, make_entry):
+    entry = make_entry(
+        approved=False, title="A news title", description="Some news description"
+    )
+    url_params = ("news-update", entry.slug)
+
+    with tp.login(entry.author):
+        response = tp.get(*url_params)
+    tp.response_200(response)
+
+    content = str(response.content)
+    assert entry.title in content
+    assert entry.description in content
+
+    new_title = "This is a different title"
+    new_description = "A different entry description"
+    data = {"title": new_title, "description": new_description}
+    with tp.login(entry.author):
+        response = tp.post(*url_params, data=data, follow=True)
+    tp.response_200(response)
+
+    tp.assertRedirects(response, entry.get_absolute_url())
+    content = str(response.content)
+    assert new_title in content
+    assert new_description in content
+    assert "A news title" not in content
+    assert "Some news description" not in content
+
+    entry.refresh_from_db()
+    assert entry.title == new_title
+    assert entry.description == new_description
+
+
+@pytest.mark.parametrize("method", ["GET", "POST"])
+def test_news_delete_acl(tp, make_entry, regular_user, moderator_user, method):
+    entry = make_entry(approved=False)
+    url_params = ("news-delete", entry.slug)
+
+    # regular users would get a 404 for a news they don't own
+    with tp.login(regular_user):
+        response = tp.request(method.lower(), *url_params)
+    tp.response_403(response)
+
+    # owner would get a 200 response, and so will moderators
+    with tp.login(entry.author):
+        response = tp.request(method.lower(), *url_params)
+    tp.response_403(response)
+
+    with tp.login(moderator_user):
+        response = tp.request(method.lower(), *url_params, follow=True)
+    tp.response_200(response)
+
+    # but if the entry is approved, only moderator can access the delete form
+    entry = make_entry(approved=True)
+    url_params = ("news-delete", entry.slug)
+
+    with tp.login(entry.author):
+        response = tp.request(method.lower(), *url_params)
+    tp.response_403(response)
+
+    with tp.login(moderator_user):
+        response = tp.request(method.lower(), *url_params, follow=True)
+    tp.response_200(response)
+
+
+def test_news_delete(tp, make_entry, moderator_user):
+    entry = make_entry(approved=False)
+    url_params = ("news-delete", entry.slug)
+
+    with tp.login(moderator_user):
+        response = tp.get(*url_params)
+    tp.response_200(response)
+
+    content = str(response.content)
+    assert "Please confirm your choice" in content
+    assert entry.title in content
+    tp.assertResponseContains(
+        '<button type="submit" name="delete">Yes, delete</button>', response
+    )
+    # No entry removed just yet!
+    assert Entry.objects.filter(pk=entry.pk).count() == 1
+
+    with tp.login(moderator_user):
+        response = tp.post(*url_params, follow=True)
+    tp.response_200(response)
+    tp.assertRedirects(response, tp.reverse("news"))
+    assert Entry.objects.filter(pk=entry.pk).count() == 0

@@ -407,3 +407,10 @@ MACHINA_DEFAULT_AUTHENTICATED_USER_FORUM_PERMISSIONS = [
     "can_vote_in_polls",
     "can_download_file",
 ]
+
+# News: list of users who are allowed to post without requiring moderation.
+# This complements the 'moderator' Group that also have posting privileges.
+NEWS_MODERATION_ALLOWLIST = [
+    # Add either a user's email address or a User instance PK. Mixing emails
+    # with PKs is safe since users.User's PKs are integers.
+]

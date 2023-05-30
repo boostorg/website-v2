@@ -25,18 +25,21 @@ from ak.views import (
 from core.views import MarkdownTemplateView, StaticContentTemplateView
 from libraries.views import (
     LibraryList,
-    LibraryByCategory,
+    LibraryListMini,
+    LibraryListByCategory,
+    LibraryListByCategoryMini,
     LibraryDetail,
-    LibraryListByVersion,
-    LibraryListByVersionByCategory,
 )
 from libraries.api import LibrarySearchView
 from mailing_list.views import MailingListView, MailingListDetailView
 from news.views import (
     EntryApproveView,
     EntryCreateView,
+    EntryDeleteView,
     EntryDetailView,
     EntryListView,
+    EntryModerationListView,
+    EntryUpdateView,
 )
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
@@ -98,11 +101,22 @@ urlpatterns = (
             name="donate",
         ),
         path(
-            "libraries-by-category/<slug:category>/",
-            LibraryByCategory.as_view(),
+            "libraries/by-category/mini/",
+            LibraryListByCategoryMini.as_view(),
+            name="libraries-by-category-mini",
+        ),
+        path(
+            "libraries/by-category/",
+            LibraryListByCategory.as_view(),
             name="libraries-by-category",
         ),
+        path("libraries/mini/", LibraryListMini.as_view(), name="libraries-mini"),
         path("libraries/", LibraryList.as_view(), name="libraries"),
+        path(
+            "libraries/<slug:slug>/<slug:version_slug>/",
+            LibraryDetail.as_view(),
+            name="library-detail-by-version",
+        ),
         path(
             "libraries/<slug:slug>/",
             LibraryDetail.as_view(),
@@ -116,10 +130,13 @@ urlpatterns = (
         path("mailing-list/", MailingListView.as_view(), name="mailing-list"),
         path("news/", EntryListView.as_view(), name="news"),
         path("news/add/", EntryCreateView.as_view(), name="news-create"),
+        path("news/moderate/", EntryModerationListView.as_view(), name="news-moderate"),
         path("news/<slug:slug>/", EntryDetailView.as_view(), name="news-detail"),
         path(
             "news/<slug:slug>/approve/", EntryApproveView.as_view(), name="news-approve"
         ),
+        path("news/<slug:slug>/delete/", EntryDeleteView.as_view(), name="news-delete"),
+        path("news/<slug:slug>/update/", EntryUpdateView.as_view(), name="news-update"),
         path(
             "people/detail/",
             TemplateView.as_view(template_name="boost/people_detail.html"),
@@ -131,6 +148,11 @@ urlpatterns = (
                 template_name="boost/people.html", extra_context={"range": range(50)}
             ),
             name="boost-people",
+        ),
+        path(
+            "privacy/",
+            TemplateView.as_view(template_name="privacy_temp.html"),
+            name="privacy",
         ),
         path(
             "moderators/",
@@ -179,21 +201,6 @@ urlpatterns = (
         ),
         path("contact/", ContactView.as_view(), name="contact"),
         # Boost versions views
-        path(
-            "versions/<slug:version_slug>/libraries-by-category/<slug:category>/",
-            LibraryListByVersionByCategory.as_view(),
-            name="libraries-by-version-by-category",
-        ),
-        path(
-            "versions/<slug:slug>/libraries/",
-            LibraryListByVersion.as_view(),
-            name="libraries-by-version",
-        ),
-        path(
-            "versions/<slug:version_slug>/<slug:slug>/",
-            LibraryDetail.as_view(),
-            name="library-detail-by-version",
-        ),
         path("versions/<slug:slug>/", VersionDetail.as_view(), name="version-detail"),
         path("versions/", VersionList.as_view(), name="version-list"),
     ]

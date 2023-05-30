@@ -1,8 +1,9 @@
 import base64
 import os
 import re
+from collections import defaultdict
 from datetime import datetime
-
+from dateutil.parser import parse
 import requests
 import structlog
 from django.contrib.auth import get_user_model
@@ -94,6 +95,47 @@ class GithubAPIClient:
             owner=self.owner, repo=repo_slug, commit_sha=commit_sha
         )
 
+    def get_commits(
+        self,
+        repo_slug: str = None,
+        branch: str = "master",
+        since: datetime = None,
+        until: datetime = None,
+    ) -> list:
+        """Get all commits to the specified branch of a repo.
+
+        :param repo_slug: str, the repository slug. If not provided, the class
+            instance's repo_slug will be used.
+        :param branch: str, the branch name. Defaults to 'master'.
+        :param since: datetime, only return commits after this date.
+        :param until: datetime, only return commits before this date.
+        :return: List[Commit], list of all commits in the branch.
+        """
+        repo_slug = repo_slug or self.repo_slug
+
+        # Get the commits
+        try:
+            pages = list(
+                paged(
+                    self.api.repos.list_commits,
+                    owner=self.owner,
+                    repo=repo_slug,
+                    sha=branch,
+                    since=since,
+                    until=until,
+                    per_page=100,
+                )
+            )
+            all_commits = []
+            for page in pages:
+                all_commits.extend(page)
+
+        except Exception as e:
+            self.logger.exception("get_all_commits_failed", repo=repo_slug, msg=str(e))
+            return []
+
+        return all_commits
+
     def get_first_tag(self, repo_slug: str = None):
         """
         Retrieves the earliest tag in the repo.
@@ -121,8 +163,9 @@ class GithubAPIClient:
                 page += 1  # Go to the next page
 
             # Sort the tags by the commit date. The first tag will be the earliest.
-            # The Github API doesn't return the commit date with the tag, so we have to retrieve each
-            # one individually. This is slow, but it's the only way to get the commit date.
+            # The Github API doesn't return the commit date with the tag, so we have to
+            # retrieve each one individually. This is slow, but it's the only way to get
+            # the commit date.
             def get_tag_commit_date(tag):
                 """Get the commit date for a tag.
 
@@ -138,7 +181,7 @@ class GithubAPIClient:
             # Return the first (earliest) tag
             return sorted_tags[0]
 
-        except Exception as e:
+        except Exception:
             self.logger.exception("get_first_tag_and_date_failed", repo=repo_slug)
             return None
 
@@ -147,8 +190,8 @@ class GithubAPIClient:
         Get the .gitmodules file for the repo from the GitHub API.
 
         :param repo_slug: str, the repository slug
-        :param ref: dict, the Git reference object (the commit hash). See https://docs.github.com/en/rest/git/refs
-            for expected format.
+        :param ref: dict, the Git reference object (the commit hash).
+            See https://docs.github.com/en/rest/git/refs for expected format.
         :return: str, the .gitmodules file from the repo
         """
         if not repo_slug:
@@ -169,14 +212,15 @@ class GithubAPIClient:
         """
         Retrieve library metadata from 'meta/libraries.json'
         Each Boost library will have a `meta` directory with a `libraries.json` file.
-        Example: https://github.com/boostorg/align/blob/5ad7df63cd792fbdb801d600b93cad1a432f0151/meta/libraries.json
+        Example:
+        https://github.com/boostorg/align/blob/5ad7df63cd792fbdb801d600b93cad1a432f0151/meta/libraries.json
         """
-        url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/{tag}/meta/libraries.json"
+        url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/{tag}/meta/libraries.json"  # noqa
 
         try:
             response = requests.get(url)
             response.raise_for_status()
-        # This usually happens because the library does not have a `meta/libraries.json` file
+        # This usually happens because the library does not have a `meta/libraries.json`
         # in the requested tag. More likely to happen with older versions of libraries.
         except requests.exceptions.HTTPError:
             self.logger.exception(
@@ -278,7 +322,7 @@ class GithubAPIClient:
             return self.api.repos.get_release_by_tag(
                 owner=self.owner, repo=repo_slug, tag=tag_name
             )
-        except Exception as e:
+        except Exception:
             logger.info("tag_not_found", tag_name=tag_name, repo_slug=repo_slug)
             return
 
@@ -325,6 +369,21 @@ class GithubAPIClient:
 
 
 class GithubDataParser:
+    def get_commits_per_month(self, commits: list[dict]):
+        """Get the number of commits per month from a list of commits.
+
+        :param commits: List[Commit], list of commits.
+        :return: Dict[str, datetime], dictionary mapping month-year dates to commit
+        counts.
+        """
+        commit_counts = defaultdict(int)
+        for commit in commits:
+            date = parse(commit.commit.author.date)
+            month_year = datetime(date.year, date.month, 1).date()
+            commit_counts[month_year] += 1
+
+        return dict(commit_counts)
+
     def parse_commit(self, commit_data: dict) -> dict:
         """Parse the commit data from Github and return a dict of the data we want."""
         published_at = commit_data["committer"]["date"]
@@ -340,7 +399,8 @@ class GithubDataParser:
 
     def parse_gitmodules(self, gitmodules: str) -> dict:
         """Parse the .gitmodules file.
-        Expects the multiline contents of https://github.com/boostorg/boost/.gitmodules to be passed in
+        Expects the multiline contents of https://github.com/boostorg/boost/.gitmodules
+        to be passed in
 
         :param gitmodules: str, the .gitmodules file
         :return: dict, the parsed .gitmodules file
@@ -494,12 +554,14 @@ class LibraryUpdater:
 
     def get_library_list(self, gitmodules=None):
         """
-        Retrieve the full list of library data for Boost libraries from their Github repos.
+        Retrieve the full list of library data for Boost libraries from their Github
+        repos.
 
-        Included libraries are rrtrieved from the list of modules in .gitmodules in the main Boost
-        repo. The libraries.json file is retrieved from each module and parsed to get the library
-        metadata. Most libraries.json files contain information about individual libraries, but a few such as "system", "functional",
-        and others contain multiple libraries.
+        Included libraries are rrtrieved from the list of modules in .gitmodules in the
+        main Boost repo. The libraries.json file is retrieved from each module and
+        parsed to get the library metadata. Most libraries.json files contain info
+        about individual libraries, but a few such as "system", "functional", etc.
+        contain multiple libraries.
         """
         libraries = []
         for gitmodule in gitmodules:
@@ -568,7 +630,7 @@ class LibraryUpdater:
             self.update_maintainers(
                 library_version, maintainers=library_data["maintainers"]
             )
-            # Do authors second because maintainers are more likely to have emails to match
+            # Do authors second; maintainers are more likely to have emails to match
             self.update_authors(obj, authors=library_data["authors"])
 
             if created or not obj.first_github_tag_date:
@@ -678,6 +740,35 @@ class LibraryUpdater:
 
             obj.maintainers.add(user)
             self.logger.info(f"User {user.email} added as a maintainer of {obj}")
+
+    def update_monthly_commit_data(
+        self, obj: Library, commit_data: dict, branch: str = "master"
+    ):
+        """Update the monthly commit data for a library.
+
+        :param obj: Library object
+        :param commit_data: Dictionary of commit data, as output by the parser's
+            get_commits_per_month method.
+        :param branch: Branch to update commit data for. Defaults to "master".
+
+        Note: Overrides CommitData objects for the library; does not increment
+        the count.
+        """
+        self.logger.info("updating_monthly_commit_data")
+
+        for month_year, commit_count in commit_data.items():
+            data_obj, created = obj.commit_data.update_or_create(
+                month_year=month_year,
+                branch=branch,
+                defaults={"commit_count": commit_count},
+            )
+            self.logger.info(
+                "commit_data_updated",
+                commit_data_pk=data_obj.pk,
+                obj_created=created,
+                library=obj.name,
+                branch=branch,
+            )
 
     def update_issues(self, obj):
         """Import GitHub issues for the library and update the database"""
