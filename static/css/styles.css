@@ -748,7 +748,7 @@ input[type=file] {
   color: rgb(49 74 87 / var(--tw-text-opacity));
 }
 
-.dark #signup_form input[type=email],.dark 
+.dark #signup_form input[type=email],.dark
   #signup_form input[type=password] {
   --tw-bg-opacity: 1;
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
@@ -973,11 +973,6 @@ input[type=file] {
   right: 0px;
 }
 
-.inset-y-0 {
-  top: 0px;
-  bottom: 0px;
-}
-
 .-right-2 {
   right: -0.5rem;
 }
@@ -1010,6 +1005,10 @@ input[type=file] {
   bottom: 0px;
 }
 
+.top-2 {
+  top: 0.5rem;
+}
+
 .right-3 {
   right: 0.75rem;
 }
@@ -1030,10 +1029,6 @@ input[type=file] {
   top: 0.75rem;
 }
 
-.top-2 {
-  top: 0.5rem;
-}
-
 .z-50 {
   z-index: 50;
 }
@@ -1048,10 +1043,6 @@ input[type=file] {
 
 .float-right {
   float: right;
-}
-
-.\!float-right {
-  float: right !important;
 }
 
 .float-left {
@@ -1432,10 +1423,6 @@ input[type=file] {
 
 .min-w-0 {
   min-width: 0px;
-}
-
-.min-w-\[300px\] {
-  min-width: 300px;
 }
 
 .max-w-md {
@@ -2741,10 +2728,6 @@ input[type=file] {
 
   .md\:mt-6 {
     margin-top: 1.5rem;
-  }
-
-  .md\:mt-0 {
-    margin-top: 0px;
   }
 
   .md\:mb-6 {
