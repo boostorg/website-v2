@@ -8,9 +8,9 @@ A Django based website that will power a new Boost website
 
 ## Local Development Setup
 
-This project will use Python 3.11, Docker, and Docker Compose.  
+This project will use Python 3.11, Docker, and Docker Compose.
 
-Instructions to install those packages are included in [development_setup_notes.md](docs/development_setup_notes.md).  
+Instructions to install those packages are included in [development_setup_notes.md](docs/development_setup_notes.md).
 
 **NOTE**: All of these various `docker compose` commands, along with other helpful
 developer utility commands, are codified in our `justfile` and can be ran with
@@ -46,7 +46,7 @@ $ docker compose run --rm web python manage.py migrate
 
 This will create the Docker image, install dependencies, start the services defined in `docker-compose.yml`, and start the webserver.
 
-Access the site at http://localhost:8000  
+Access the site at http://localhost:8000.
 
 ### Cleaning up
 
