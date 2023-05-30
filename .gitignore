@@ -152,3 +152,4 @@ python.log
 
 .DS_Store
 */.DS_Store
+/mailman/web/static
