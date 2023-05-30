@@ -33,21 +33,7 @@
 
 
     <form action="/libraries/" method="get">
-      <div class="space-x-3 md:flex md:mt-0">
-        <!-- Select a version -->
-        <div class="float-right">
-          <label for="id_version" hidden="true">Versions:</label>
-          <select onchange="this.form.submit()"
-                  name="version"
-                  class="block py-2 pr-8 pl-5 mb-3 text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
-                  id="id_version"
-          >
-            {% for v in versions %}
-              <option value="{{ v.slug }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-
+      <div class="flex space-x-3">
         <!-- Search -->
         <div class="relative">
           <span class="flex absolute top-2 right-3 items-center pl-2">
@@ -80,6 +66,19 @@
           <i class="bg-white rounded border border-gray-300 cursor-pointer fas fa-cat text-slate p-[10px] hover:bg-orange"></i>
         </div>
 
+        <!-- Select a version -->
+        <div class="float-right">
+          <label for="id_version" hidden="true">Versions:</label>
+          <select onchange="this.form.submit()"
+                  name="version"
+                  class="block py-2 pr-8 pl-5 mb-3 text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
+                  id="id_version"
+          >
+            {% for v in versions %}
+              <option value="{{ v.slug }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
       </div>
     </form>
   </div>
