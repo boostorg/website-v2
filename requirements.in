@@ -17,6 +17,7 @@ psycopg2-binary
 whitenoise
 django-click
 Pillow==9.4.0
+python-dateutil
 django-storages
 wheel
 cryptography
@@ -58,4 +59,4 @@ django-mptt==0.14
 
 # Github
 ghapi
-requests==2.28.2
+requests

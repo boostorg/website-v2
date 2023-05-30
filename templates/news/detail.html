@@ -22,10 +22,19 @@
           <form method="POST" action="{% url 'news-approve' entry.slug %}">
             {% csrf_token %}
             <button type="submit" name="approve">{% translate "Approve" %}</button>
+            {% if next_url %}
+            <input type="hidden" name="next" value="{{ next_url }}" />
+            {% endif %}
           </form>
         {% else %}
           <strong>{% translate "Pending Moderation" %}</strong>
         {% endif %}
+      {% endif %}
+      {% if user_can_edit %}
+      <a href="{% url 'news-update' entry.slug %}">{% translate "Edit" %}</a>
+      {% endif %}
+      {% if user_can_delete %}
+      <a href="{% url 'news-delete' entry.slug %}">{% translate "Delete" %}</a>
       {% endif %}
       </p>
       <!-- END ACTIONS -->

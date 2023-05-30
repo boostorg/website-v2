@@ -1,5 +1,5 @@
 import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 import responses
@@ -7,7 +7,7 @@ from ghapi.all import GhApi
 from model_bakery import baker
 
 from libraries.github import GithubAPIClient, GithubDataParser, LibraryUpdater
-from libraries.models import Category, Issue, Library, PullRequest
+from libraries.models import Category, CommitData, Issue, Library, PullRequest
 
 """GithubAPIClient Tests"""
 
@@ -169,6 +169,35 @@ def test_get_repo(github_api_client):
 
 
 """Parser Tests"""
+
+
+def create_mock_commit(date):
+    """Create a mock commit with the given date."""
+    commit = Mock()
+    commit.commit.author.date = date
+    return commit
+
+
+def test_get_commits_per_month():
+    # Construct the mock commits.
+    commits = [
+        create_mock_commit(datetime.datetime(2023, 1, 15).isoformat()),
+        create_mock_commit(datetime.datetime(2022, 1, 10).isoformat()),
+        create_mock_commit(datetime.datetime(2022, 2, 1).isoformat()),
+        create_mock_commit(datetime.datetime(2023, 1, 16).isoformat()),
+    ]
+
+    # Construct the object and call the method.
+    parser = GithubDataParser()
+    results = parser.get_commits_per_month(commits)
+
+    # Check the result.
+    expected = {
+        datetime.datetime(2022, 1, 1).date(): 1,
+        datetime.datetime(2022, 2, 1).date(): 1,
+        datetime.datetime(2023, 1, 1).date(): 2,
+    }
+    assert expected == results
 
 
 def test_parse_gitmodules():
@@ -390,7 +419,7 @@ def test_get_library_list(library_updater):
 
 
 def test_get_library_list_skip(library_updater):
-    """Test that the get_library_list method of LibraryUpdater skips the right modules"""
+    """Test that get_library_list method of LibraryUpdater skips the right modules"""
     gitmodules = [{"module": "litre"}]
     result = library_updater.get_library_list(gitmodules=gitmodules)
     assert result == []
@@ -434,6 +463,31 @@ def test_update_maintainers(library_updater, user, library_version):
     assert library_version.maintainers.filter(email="t_testerson@example.com").exists()
     assert library_version.maintainers.filter(
         email="tester2_testerson2@example.com"
+    ).exists()
+
+
+def test_update_monthly_commit_data(library_version, library_updater):
+    # Assert no current data
+    assert library_version.library.commit_data.exists() is False
+
+    commit_data = {
+        datetime.date(2023, 1, 1): 2,
+        datetime.date(2023, 2, 1): 3,
+        datetime.date(2023, 3, 1): 1,
+    }
+    library_updater.update_monthly_commit_data(
+        library_version.library, commit_data, branch="main"
+    )
+    assert library_version.library.commit_data.exists() is True
+    assert library_version.library.commit_data.count() == 3
+    assert library_version.library.commit_data.filter(
+        month_year=datetime.date(2023, 1, 1), commit_count=2
+    ).exists()
+    assert library_version.library.commit_data.filter(
+        month_year=datetime.date(2023, 2, 1), commit_count=3
+    ).exists()
+    assert library_version.library.commit_data.filter(
+        month_year=datetime.date(2023, 3, 1), commit_count=1
     ).exists()
 
 

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
@@ -70,13 +71,14 @@ class Entry(models.Model):
     def is_published(self):
         return self.is_approved and self.publish_at <= now()
 
-    def approve(self, user):
+    def approve(self, user, commit=True):
         """Mark this entry as approved by the given `user`."""
         if self.is_approved:
             raise self.AlreadyApprovedError()
         self.moderator = user
         self.approved_at = now()
-        self.save(update_fields=["moderator", "approved_at", "modified_at"])
+        if commit:
+            self.save(update_fields=["moderator", "approved_at", "modified_at"])
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -86,6 +88,8 @@ class Entry(models.Model):
     def get_absolute_url(self):
         return reverse("news-detail", args=[self.slug])
 
+    # XXX: These may need moving to an ACL-dedicated module? (nessita)
+
     def can_view(self, user):
         return (
             self.is_published
@@ -93,7 +97,8 @@ class Entry(models.Model):
             or (user is not None and user.has_perm("news.view_entry"))
         )
 
-    def can_approve(self, user):
+    @classmethod
+    def can_approve(cls, user):
         return user is not None and user.has_perm("news.change_entry")
 
     def can_edit(self, user):
@@ -103,6 +108,15 @@ class Entry(models.Model):
 
     def can_delete(self, user):
         return user is not None and user.has_perm("news.delete_entry")
+
+    def author_needs_moderation(self):
+        # Every author's news should be moderated except for moderators or
+        # explicitely allowlisted users.
+        return not (
+            self.can_approve(self.author)
+            or self.author.email in settings.NEWS_MODERATION_ALLOWLIST
+            or self.author.pk in settings.NEWS_MODERATION_ALLOWLIST
+        )
 
 
 class BlogPost(Entry):

@@ -217,6 +217,34 @@ def test_approved_entry_permissions_other_users(make_entry):
     assert entry.can_approve(user_with_view_perm) is False
 
 
+def test_entry_author_needs_moderation_basic(make_entry):
+    entry = make_entry()
+    assert entry.author_needs_moderation() is True
+
+
+def test_entry_author_needs_moderation_can_approve(make_entry):
+    user_with_change_perm = baker.make("users.User")
+    user_with_change_perm.user_permissions.add(
+        Permission.objects.get(codename="change_entry")
+    )
+    entry = make_entry(author=user_with_change_perm)
+    assert entry.author_needs_moderation() is False
+
+
+def test_entry_author_needs_moderation_allowlist(make_entry, settings):
+    user = baker.make("users.User")
+    entry = make_entry(author=user)
+
+    settings.NEWS_MODERATION_ALLOWLIST = []
+    assert entry.author_needs_moderation() is True
+
+    settings.NEWS_MODERATION_ALLOWLIST = [user.email]
+    assert entry.author_needs_moderation() is False
+
+    settings.NEWS_MODERATION_ALLOWLIST = [user.pk]
+    assert entry.author_needs_moderation() is False
+
+
 def test_entry_manager_custom_queryset(make_entry):
     entry_published = make_entry(approved=True, published=True)
     entry_approved = make_entry(approved=True, published=False)
