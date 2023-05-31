@@ -32,7 +32,7 @@ class EntryListView(ListView):
     model = Entry
     template_name = "news/list.html"
     ordering = ["-publish_at"]
-    paginate_by = 10  #  XXX: use pagination in the template! Issue #377
+    paginate_by = 100  #  XXX: use pagination in the template! Issue #377
     context_object_name = "entry_list"  # Ensure children use the same name
 
     def get_queryset(self):

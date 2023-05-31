@@ -1,4 +1,7 @@
 import datetime
+import os
+import uuid
+from io import BytesIO
 
 import pytest
 from django.utils.text import slugify
@@ -91,10 +94,17 @@ def test_entry_list_authenticated(tp, make_entry, url_name, model_class, regular
 
 
 @pytest.mark.parametrize("model_class", NEWS_MODELS)
-def test_news_detail(tp, make_entry, model_class):
+@pytest.mark.parametrize("with_image", [False, True])
+def test_news_detail(tp, make_entry, model_class, with_image):
     """Browse details for a given news entry."""
     a_past_date = now() - datetime.timedelta(hours=10)
-    news = make_entry(model_class, approved=True, publish_at=a_past_date)
+    news = make_entry(
+        model_class,
+        approved=True,
+        publish_at=a_past_date,
+        _fill_optional=True,
+        _create_files=with_image,
+    )
     url = tp.reverse("news-detail", news.slug)
 
     response = tp.get(url)
@@ -103,6 +113,12 @@ def test_news_detail(tp, make_entry, model_class):
     content = str(response.content)
     assert news.title in content
     assert news.content in content
+    if with_image:
+        assert news.image
+        assert f'<img src="{news.image.url}"' in content
+    else:
+        assert not news.image
+        assert '<img src="' not in content
     assert tp.reverse("news-approve", news.slug) not in content
     assert tp.reverse("news-delete", news.slug) not in content
     assert tp.reverse("news-update", news.slug) not in content
@@ -268,13 +284,27 @@ def test_news_create_get(tp, regular_user, url_name, form_class):
         ("news-video-create", Video, VideoForm.Meta.fields),
     ],
 )
-def test_news_create_post(tp, regular_user, url_name, model_class, data_fields):
+@pytest.mark.parametrize("with_image", [False, True])
+def test_news_create_post(
+    tp, regular_user, url_name, model_class, data_fields, with_image, settings
+):
     url = tp.reverse(url_name)
 
     data = {
         k: f"random-value-{k}" if "url" not in k else "http://example.com"
         for k in data_fields
+        if k != "image"
     }
+
+    img = None
+    if with_image:
+        img = BytesIO(
+            b"GIF89a\x01\x00\x01\x00\x00\x00\x00!\xf9\x04\x01\x00\x00\x00"
+            b"\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x01\x00\x00"
+        )
+        img.name = f"random-value-{uuid.uuid4()}.gif"
+        data["image"] = img
+
     before = now()
     with tp.login(regular_user):
         response = tp.post(url, data=data, follow=True)
@@ -285,7 +315,18 @@ def test_news_create_post(tp, regular_user, url_name, model_class, data_fields):
     entry = entries.get()
     assert entry.slug == slugify(data["title"])
     for field, value in data.items():
-        assert getattr(entry, field) == value
+        if field != "image":
+            assert getattr(entry, field) == value
+        elif with_image:
+            assert entry.image
+            expected = os.path.join(
+                settings.MEDIA_ROOT,
+                datetime.date.today().strftime(Entry.image.field.upload_to),
+                img.name,
+            )
+            assert entry.image.path == expected
+        else:
+            assert not entry.image
     assert entry.author == regular_user
     assert not entry.is_approved
     assert not entry.is_published
