@@ -1,5 +1,18 @@
+# from django.db import transaction
+# from django.db import IntegrityError
+# from django.core.files import File as DjangoFile
+
+# import tempfile
+# from django.urls import reverse
+# from rest_framework.test import APIClient
+# from test_plus.test import TestCase
+
 # from users.factories import UserFactory, SuperUserFactory, VersionGroupFactory
 # from versions.factories import VersionFactory, VersionFileFactory
+
+# from PIL import Image
+
+# from versions.models import VersionFile
 
 
 # class VersionViewTests(TestCase):
