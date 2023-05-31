@@ -2,6 +2,7 @@
 
 from django.db import migrations
 from django.contrib.auth.models import Group, Permission
+from django.core.management import BaseCommand
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -20,6 +21,7 @@ def gen_version_manager_group(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+
     dependencies = [
         ("users", "0004_auto_20211105_0915"),
     ]

@@ -17,6 +17,7 @@ def gen_default_forum(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+
     dependencies = [
         ("users", "0003_alter_user_data"),
     ]

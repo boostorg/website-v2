@@ -1,7 +1,7 @@
 default_language_version:
   python: python3.11
 
-exclude: .*migrations\/.*
+exclude: .*migrations\/.*|static\/img\/.*|static\/animations\/.*
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
