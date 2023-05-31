@@ -748,7 +748,7 @@ input[type=file] {
   color: rgb(49 74 87 / var(--tw-text-opacity));
 }
 
-.dark #signup_form input[type=email],.dark
+.dark #signup_form input[type=email],.dark 
   #signup_form input[type=password] {
   --tw-bg-opacity: 1;
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
@@ -1225,6 +1225,10 @@ input[type=file] {
   margin-top: 4rem;
 }
 
+.-mb-\[1px\] {
+  margin-bottom: -1px;
+}
+
 .-mt-1 {
   margin-top: -0.25rem;
 }
@@ -1243,6 +1247,10 @@ input[type=file] {
 
 .ml-4 {
   margin-left: 1rem;
+}
+
+.-mb-\[2px\] {
+  margin-bottom: -2px;
 }
 
 .block {
@@ -1946,6 +1954,11 @@ input[type=file] {
   padding-right: 1rem;
 }
 
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
 .py-0 {
   padding-top: 0px;
   padding-bottom: 0px;
@@ -1959,11 +1972,6 @@ input[type=file] {
 .py-3 {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-}
-
-.px-6 {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
 }
 
 .py-1 {
@@ -2678,11 +2686,6 @@ input[type=file] {
     float: right;
   }
 
-  .md\:mx-auto {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
   .md\:my-16 {
     margin-top: 4rem;
     margin-bottom: 4rem;
@@ -2696,6 +2699,11 @@ input[type=file] {
   .md\:mx-0 {
     margin-left: 0px;
     margin-right: 0px;
+  }
+
+  .md\:mx-auto {
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .md\:mt-14 {
