@@ -20,10 +20,10 @@ RUN --mount=type=cache,target=/root/.cache \
 
 FROM python:3.11-slim AS release
 
-RUN apt update && apt install -y git libpq-dev && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y git libpq-dev ruby ruby-dev && rm -rf /var/lib/apt/lists/*
 
-# Copy Asciidoctor binary from builder stage
-COPY --from=builder-py /usr/local/bin/asciidoctor /usr/local/bin/
+# Install Asciidoctor
+RUN gem install asciidoctor
 
 ENV PATH /venv/bin:/bin:/usr/bin:/usr/local/bin
 ENV PYTHONDONTWRITEBYTECODE=true
