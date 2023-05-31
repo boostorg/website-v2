@@ -748,7 +748,7 @@ input[type=file] {
   color: rgb(49 74 87 / var(--tw-text-opacity));
 }
 
-.dark #signup_form input[type=email],.dark
+.dark #signup_form input[type=email],.dark 
   #signup_form input[type=password] {
   --tw-bg-opacity: 1;
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
@@ -1045,6 +1045,10 @@ input[type=file] {
   float: right;
 }
 
+.\!float-right {
+  float: right !important;
+}
+
 .float-left {
   float: left;
 }
@@ -1247,10 +1251,6 @@ input[type=file] {
 
 .ml-4 {
   margin-left: 1rem;
-}
-
-.-mb-\[2px\] {
-  margin-bottom: -2px;
 }
 
 .block {
