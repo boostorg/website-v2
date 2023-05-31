@@ -58,7 +58,9 @@
       {% if entry.external_url %}
       <p>{{ entry.external_url|escape }}</p>
       {% endif %}
-      <p>{{ entry.content|linebreaks }}</p>
+      <p>{% if entry.image %}<img src="{{ entry.image.url }}" class="float-left p-5" width="200">{% endif %}
+        {{ entry.content|linebreaks }}
+      </p>
 
     </div>
 
