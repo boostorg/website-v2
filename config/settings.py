@@ -95,6 +95,7 @@ INSTALLED_APPS += [
     "libraries",
     "mailing_list",
     "news",
+    "core",
 ]
 
 AUTH_USER_MODEL = "users.User"
