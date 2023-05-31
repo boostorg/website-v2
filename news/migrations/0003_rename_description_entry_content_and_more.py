@@ -4,6 +4,7 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
+
     dependencies = [
         ("news", "0002_entry_approved_at_entry_moderator_entry_modified_at"),
     ]
