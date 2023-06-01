@@ -1045,10 +1045,6 @@ input[type=file] {
   float: right;
 }
 
-.\!float-right {
-  float: right !important;
-}
-
 .float-left {
   float: left;
 }
@@ -1431,6 +1427,10 @@ input[type=file] {
 
 .min-w-0 {
   min-width: 0px;
+}
+
+.min-w-\[100px\] {
+  min-width: 100px;
 }
 
 .max-w-md {
@@ -2806,8 +2806,8 @@ input[type=file] {
     width: 33.333333%;
   }
 
-  .md\:min-w-\[300px\] {
-    min-width: 300px;
+  .md\:min-w-\[150px\] {
+    min-width: 150px;
   }
 
   .md\:max-w-7xl {
@@ -3040,6 +3040,10 @@ input[type=file] {
 }
 
 @media (min-width: 1024px) {
+  .lg\:min-w-\[300px\] {
+    min-width: 300px;
+  }
+
   .lg\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
