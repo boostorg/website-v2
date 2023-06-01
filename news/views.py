@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Case, Value, When
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -18,6 +19,7 @@ from django.views.generic.detail import SingleObjectMixin
 from .acl import can_approve
 from .forms import BlogPostForm, EntryForm, LinkForm, PollForm, VideoForm
 from .models import BlogPost, Entry, Link, Poll, Video
+from .notifications import send_email_after_approval, send_email_news_needs_moderation
 
 
 def get_published_or_none(sibling_getter):
@@ -107,16 +109,20 @@ class EntryDetailView(DetailView):
         return context
 
 
-class EntryCreateView(LoginRequiredMixin, CreateView):
+class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Entry
     form_class = EntryForm
     template_name = "news/form.html"
     add_label = _("Create News")
     add_url_name = "news-create"
+    success_message = _("The news entry was successfully created.")
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        return super().form_valid(form)
+        result = super().form_valid(form)
+        if not form.instance.is_approved:
+            send_email_news_needs_moderation(request=self.request, entry=form.instance)
+        return result
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -171,6 +177,7 @@ class EntryApproveView(
             messages.error(request, _("The entry was already approved."))
         else:
             messages.success(request, _("The entry was successfully approved."))
+            send_email_after_approval(request=request, entry=entry)
 
         next_url = request.POST.get("next")
         if next_url is None or not url_has_allowed_host_and_scheme(
