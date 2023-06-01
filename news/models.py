@@ -47,7 +47,7 @@ class Entry(models.Model):
         related_name="moderated_entries_set",
     )
     external_url = models.URLField(_("URL"), blank=True, default="")
-    image = models.ImageField(upload_to="news", null=True, blank=True)
+    image = models.ImageField(upload_to="news/%Y/%m/", null=True, blank=True)
     created_at = models.DateTimeField(default=now)
     approved_at = models.DateTimeField(null=True, blank=True)
     modified_at = models.DateTimeField(auto_now=True)

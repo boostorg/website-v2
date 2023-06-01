@@ -1045,6 +1045,10 @@ input[type=file] {
   float: right;
 }
 
+.\!float-right {
+  float: right !important;
+}
+
 .float-left {
   float: left;
 }
