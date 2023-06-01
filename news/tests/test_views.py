@@ -4,6 +4,7 @@ import uuid
 from io import BytesIO
 
 import pytest
+from django.core import mail
 from django.utils.text import slugify
 from django.utils.timezone import now
 from model_bakery import baker
@@ -11,6 +12,7 @@ from model_bakery import baker
 
 from ..forms import BlogPostForm, EntryForm, LinkForm, PollForm, VideoForm
 from ..models import BlogPost, Entry, Link, Poll, Video
+from ..notifications import send_email_after_approval, send_email_news_needs_moderation
 
 
 NEWS_MODELS = [Entry, BlogPost, Link, Poll, Video]
@@ -286,10 +288,15 @@ def test_news_create_get(tp, regular_user, url_name, form_class):
 )
 @pytest.mark.parametrize("with_image", [False, True])
 def test_news_create_post(
-    tp, regular_user, url_name, model_class, data_fields, with_image, settings
+    tp,
+    url_name,
+    model_class,
+    data_fields,
+    with_image,
+    regular_user,
+    moderator_user,
+    settings,
 ):
-    url = tp.reverse(url_name)
-
     data = {
         k: f"random-value-{k}" if "url" not in k else "http://example.com"
         for k in data_fields
@@ -309,7 +316,7 @@ def test_news_create_post(
 
     before = now()
     with tp.login(regular_user):
-        response = tp.post(url, data=data, follow=True)
+        response = tp.post(url_name, data=data, follow=True)
     after = now()
 
     entries = model_class.objects.filter(title=data["title"])
@@ -337,6 +344,20 @@ def test_news_create_post(
     assert before <= entry.created_at <= after
     assert before <= entry.modified_at <= after
     assert entry.publish_at == right_now
+    # email to moderators was sent
+    assert len(mail.outbox) == 1
+    actual = mail.outbox[0]
+    # render the same email using the notifications' method to assert equality
+    assert send_email_news_needs_moderation(response.wsgi_request, entry) == 1
+    expected = mail.outbox[1]
+    assert actual.subject == expected.subject
+    assert actual.body == expected.body
+    assert actual.from_email == expected.from_email
+    assert actual.recipients() == expected.recipients()
+    assert actual.recipients() == [moderator_user.email]
+    # success message is shown
+    messages = [(m.level_tag, m.message) for m in tp.get_context("messages")]
+    assert messages == [("success", "The news entry was successfully created.")]
 
     tp.assertRedirects(response, entry.get_absolute_url())
 
@@ -375,7 +396,7 @@ def test_news_approve_post(tp, make_entry, regular_user, moderator_user, model_c
     # moderators users can POST to the view to approve an entry
     with tp.login(moderator_user):
         before = now()
-        response = tp.post(*url_params)
+        response = tp.post(*url_params, follow=True)
         after = now()
 
     tp.assertRedirects(response, entry.get_absolute_url())
@@ -385,6 +406,44 @@ def test_news_approve_post(tp, make_entry, regular_user, moderator_user, model_c
     assert entry.moderator == moderator_user
     assert before <= entry.approved_at <= after
     assert before <= entry.modified_at <= after
+    # email was sent
+    assert len(mail.outbox) == 1
+    actual = mail.outbox[0]
+    # render the same email using the notifications' method to assert equality
+    assert send_email_after_approval(response.wsgi_request, entry) == 1
+    expected = mail.outbox[1]
+    assert actual.subject == expected.subject
+    assert actual.body == expected.body
+    assert actual.from_email == expected.from_email
+    assert actual.recipients() == expected.recipients()
+    # success message is shown
+    messages = [(m.level_tag, m.message) for m in tp.get_context("messages")]
+    assert messages == [("success", "The entry was successfully approved.")]
+
+
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_news_approve_already_approved(tp, make_entry, moderator_user, model_class):
+    entry = make_entry(model_class, approved=True)
+    url_params = ("news-approve", entry.slug)
+
+    with tp.login(moderator_user):
+        before = now()
+        response = tp.post(*url_params, follow=True)
+        now()
+
+    tp.assertRedirects(response, entry.get_absolute_url())
+
+    entry.refresh_from_db()
+    # approval information was not changed
+    assert entry.is_approved is True
+    assert entry.moderator is not moderator_user
+    assert entry.approved_at <= before
+    assert entry.modified_at <= before
+    # email was not sent
+    assert mail.outbox == []
+    # error message is shown
+    messages = [(m.level_tag, m.message) for m in tp.get_context("messages")]
+    assert messages == [("error", "The entry was already approved.")]
 
 
 @pytest.mark.parametrize("model_class", NEWS_MODELS)

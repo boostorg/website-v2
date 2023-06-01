@@ -2,6 +2,7 @@ Django>=4.0, <=5.0
 bumpversion
 django-admin-env-notice
 django-allauth==0.53.1
+django-anymail[mailgun]
 django-db-geventpool
 django-extensions
 django-health-check
