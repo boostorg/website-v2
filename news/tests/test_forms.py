@@ -9,7 +9,7 @@ from ..models import Entry
 
 def test_form_fields():
     form = EntryForm()
-    assert sorted(form.fields.keys()) == ["content", "title"]
+    assert sorted(form.fields.keys()) == ["content", "image", "title"]
 
 
 def test_form_model_creates_entry(make_entry):
@@ -119,22 +119,22 @@ def test_form_save_approved_news(make_entry, settings):
 def test_blogpost_form():
     form = BlogPostForm()
     assert isinstance(form, EntryForm)
-    assert sorted(form.fields.keys()) == ["content", "title"]
+    assert sorted(form.fields.keys()) == ["content", "image", "title"]
 
 
 def test_link_form():
     form = LinkForm()
     assert isinstance(form, EntryForm)
-    assert sorted(form.fields.keys()) == ["external_url", "title"]
+    assert sorted(form.fields.keys()) == ["external_url", "image", "title"]
 
 
 def test_poll_form():
     form = PollForm()
     assert isinstance(form, EntryForm)
-    assert sorted(form.fields.keys()) == ["content", "title"]
+    assert sorted(form.fields.keys()) == ["content", "image", "title"]
 
 
 def test_video_form():
     form = VideoForm()
     assert isinstance(form, EntryForm)
-    assert sorted(form.fields.keys()) == ["external_url", "title"]
+    assert sorted(form.fields.keys()) == ["external_url", "image", "title"]
