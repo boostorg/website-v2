@@ -62,13 +62,13 @@ class LibraryList(CategoryMixin, ListView):
 class LibraryListMini(LibraryList):
     """Flat list version of LibraryList"""
 
-    template_name = "libraries/list.html"
+    template_name = "libraries/flat_list.html"
 
 
 class LibraryListByCategory(LibraryList):
     """List all Boost libraries sorted by Category."""
 
-    template_name = "libraries/list.html"
+    template_name = "libraries/category_list.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

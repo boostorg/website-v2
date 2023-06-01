@@ -60,8 +60,8 @@
         </div>
 
         <!-- Display options -->
-        <div><a href="{% url 'libraries-mini' %}"><i class="bg-white rounded border border-gray-300 cursor-pointer dark:text-white fas fa-list text-slate p-[10px] dark:bg-slate hover:bg-orange"></i></a></div>
-        <div><a href="{% url 'libraries' %}"><i class="text-white bg-gray-600 rounded border border-gray-300 cursor-pointer fas fa-th-large p-[10px] dark:bg-charcoal hover:bg-orange"></i></a></div>
+        <div><a href="{% url 'libraries-mini' %}"><i class="text-white bg-gray-600 rounded border border-gray-300 cursor-pointer fas fa-list p-[10px] dark:bg-charcoal hover:bg-orange"></i></a></div>
+        <div><a href="{% url 'libraries' %}"><i class="bg-white rounded border border-gray-300 cursor-pointer dark:text-white fas fa-th-large p-[10px] dark:bg-slate hover:bg-orange"></i></a></div>
         <div><a href="{% url 'libraries-by-category' %}"><i class="bg-white rounded border border-gray-300 cursor-pointer dark:text-white fas fa-cat text-slate p-[10px] dark:bg-slate hover:bg-orange"></i></a></div>
 
         <!-- Select a version -->
@@ -78,17 +78,17 @@
   </div>
 
   <!-- Libraries list -->
-  <div class="grid grid-cols-1 gap-4 mb-5 md:grid-cols-2 xl:grid-cols-3">
+  <div class="relative content-between p-3 w-full bg-white rounded-lg shadow-lg md:p-5 dark:bg-charcoal">
     {% if by_category %}
       {% for result in library_list %}
         <h2>{{ result.category }}</h2>
         {% for library in result.libraries %}
-          {% include "libraries/_library_list_item.html" %}
+          {% include "libraries/_library_flat_list_item.html" %}
         {% endfor %}
       {% endfor %}
     {% else %}
       {% for library in library_list %}
-        {% include "libraries/_library_list_item.html" %}
+        {% include "libraries/_library_flat_list_item.html" %}
       {% endfor %}
     {% endif %}
   </div>
