@@ -1,0 +1,8 @@
+{% load static %}
+
+<div>
+  <p class="py-0 my-1 text-gray-700 dark:text-gray-300">
+    <a class="mr-1 font-bold capitalize text-orange" href="{% url 'library-detail' slug=library.slug %}">{{ library.name }}</a>
+    {{ library.description }}
+  </p>
+</div>

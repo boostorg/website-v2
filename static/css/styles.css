@@ -748,7 +748,7 @@ input[type=file] {
   color: rgb(49 74 87 / var(--tw-text-opacity));
 }
 
-.dark #signup_form input[type=email],.dark 
+.dark #signup_form input[type=email],.dark
   #signup_form input[type=password] {
   --tw-bg-opacity: 1;
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
@@ -1937,16 +1937,16 @@ input[type=file] {
   padding: 0.5rem;
 }
 
-.p-5 {
-  padding: 1.25rem;
-}
-
 .p-1 {
   padding: 0.25rem;
 }
 
 .p-\[10px\] {
   padding: 10px;
+}
+
+.p-5 {
+  padding: 1.25rem;
 }
 
 .px-4 {
