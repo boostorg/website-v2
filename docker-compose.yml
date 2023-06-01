@@ -90,6 +90,9 @@ services:
       dockerfile: docker/Dockerfile
     command:
       [
+        "/bin/bash",
+        "-c",
+        "./wait-for-it.sh &&",
         "celery",
         "-A",
         "config",
@@ -104,6 +107,9 @@ services:
     depends_on:
       - db
       - redis
+    volumes:
+      - .:/code
+      - ./wait-for-it.sh:/wait-for-it.sh
 
   celery-beat:
     build:
