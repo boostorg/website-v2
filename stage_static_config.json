@@ -24,6 +24,10 @@
     "s3_path": "/site-docs/develop/_/"
   },
   {
+    "site_path": "/help/",
+    "s3_path": "/site-pages/develop/help.adoc"
+  },
+  {
     "site_path": "/",
     "s3_path": "/site/develop/"
   }
