@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.7"
 
 services:
 
@@ -126,6 +126,15 @@ services:
       - .:/code
     stop_signal: SIGKILL
 
+  maildev:
+    image: maildev/maildev
+    init: true
+    ports:
+      - "1025:1025"
+      - "1080:1080"
+    networks:
+      - backend
+    stop_signal: SIGKILL
 
 networks:
   backend:

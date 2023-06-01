@@ -58,6 +58,7 @@ INSTALLED_APPS = [
 
 # Third-party apps
 INSTALLED_APPS += [
+    "anymail",
     "rest_framework",
     "django_extensions",
     "health_check",
@@ -417,3 +418,9 @@ NEWS_MODERATION_ALLOWLIST = [
     # Add either a user's email address or a User instance PK. Mixing emails
     # with PKs is safe since users.User's PKs are integers.
 ]
+
+# EMAIL SETTINGS -- THESE NEED ADJUSTMENT WHEN DECIDED WHICH ESP WILL BE USED
+EMAIL_HOST = "maildev"
+EMAIL_PORT = 1025
+DEFAULT_FROM_EMAIL = "news@boost.org"
+SERVER_EMAIL = "errors@boost.org"
