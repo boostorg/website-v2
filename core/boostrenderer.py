@@ -49,11 +49,7 @@ def get_content_from_s3(key=None, bucket_name=None):
         try:
             response = client.get_object(Bucket=bucket_name, Key=s3_key.lstrip("/"))
             file_content = response["Body"].read()
-            content_type = response["ContentType"]
-
-            # If the file ends with '.js', set the content_type to javascript
-            if s3_key.endswith(".js"):
-                content_type = "application/javascript"
+            content_type = get_content_type(s3_key, response["ContentType"])
 
             logger.info(
                 "get_content_from_s3_success",
@@ -87,7 +83,7 @@ def get_content_from_s3(key=None, bucket_name=None):
             except ClientError as e:
                 # Log the error and continue with the next key in the list
                 logger.exception(
-                    "get_content+from_s3_client_error",
+                    "get_content_from_s3_client_error",
                     key=key,
                     bucket_name=bucket_name,
                     s3_key=s3_key,
@@ -104,6 +100,22 @@ def get_content_from_s3(key=None, bucket_name=None):
         function_name="get_content_from_s3",
     )
     return None
+
+
+def get_content_type(s3_key, content_type):
+    """In some cases, manually set the content-type for a given S3 key based on the
+    file extension. This is useful for files types that are not reognized by S3, or for
+    cases where we want to override the default content-type.
+
+    :param s3_key: The S3 key for the file
+    :param content_type: The content-type returned by S3
+    :return: The content-type for the file
+    """
+    if s3_key.endswith(".js"):
+        content_type = "application/javascript"
+    elif s3_key.endswith(".adoc"):
+        content_type = "text/asciidoc"
+    return content_type
 
 
 def get_s3_keys(content_path, config_filename="stage_static_config.json"):
