@@ -1,5 +1,6 @@
 import pytest
 import tempfile
+from unittest.mock import patch
 
 from django.core.cache import caches
 from django.test import override_settings
@@ -40,14 +41,17 @@ def test_adoc_to_html():
     cache_key = "sample_key"
 
     # Execute the task
-    adoc_to_html(temp_file_path, cache_key)
+    with patch("core.tasks.subprocess.run") as mock_run:
+        mock_run.return_value.stdout = "html_content".encode()
+        adoc_to_html(temp_file_path, cache_key, "text/asciidoc")
+
 
     # Verify that the content has been stored in the cache
     cached_result = static_content_cache.get(cache_key)
 
     assert cached_result is not None
-    assert cached_result[0] == "html_content"
-    assert cached_result[1] == "text/html"
+    assert cached_result[0] == b"html_content"
+    assert cached_result[1] == "text/asciidoc"
 
     # Verify that the temporary file has been deleted
     with pytest.raises(FileNotFoundError):
