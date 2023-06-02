@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "help" %}{% endblock %}
+
+{% block content %}
+    {{ content | safe }}
+{% endblock %}

@@ -45,7 +45,6 @@ def test_adoc_to_html():
         mock_run.return_value.stdout = "html_content".encode()
         adoc_to_html(temp_file_path, cache_key, "text/asciidoc")
 
-
     # Verify that the content has been stored in the cache
     cached_result = static_content_cache.get(cache_key)
 
