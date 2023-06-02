@@ -1,4 +1,13 @@
-from ..boostrenderer import get_s3_keys
+from ..boostrenderer import get_content_type, get_s3_keys
+
+
+def test_get_content_type():
+    assert get_content_type("/marshmallow/index.html", "text/html"), "text/html"
+    assert get_content_type("/rst.css", "text/css"), "text/css"
+    assert get_content_type("/site/develop/help.adoc", "text/html"), "text/asciidoc"
+    assert get_content_type(
+        "/site/develop/doc/html/scripts.js", "text/html"
+    ), "application/javascript"
 
 
 def test_get_s3_keys():
