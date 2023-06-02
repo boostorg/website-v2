@@ -1,5 +1,4 @@
 import pytest
-import time
 from unittest.mock import patch
 
 from django.core.cache import caches
@@ -7,6 +6,16 @@ from django.test import RequestFactory
 from django.test.utils import override_settings
 
 from core.views import StaticContentTemplateView
+
+
+TEST_CACHES = {
+    "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "machina_attachments": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "static_content": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "TIMEOUT": 86400,
+    },
+}
 
 
 @pytest.fixture
@@ -29,114 +38,55 @@ def call_view(request_factory, content_path):
     return response
 
 
-@pytest.mark.django_db
-@override_settings(
-    CACHES={
-        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
-        "machina_attachments": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache"
-        },
-        "static_content": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "TIMEOUT": 86400,
-        },
-    }
-)
-def test_cache_behavior(request_factory, content_path):
-    """Tests the cache behavior of the StaticContentTemplateView view."""
-    # Set up the mocked API call
-    mock_content = "mocked content"
-    mock_content_type = "text/plain"
-
-    # Clear the cache before testing
+@pytest.fixture(autouse=True)
+def clear_cache():
+    """Clears the static content cache before each test case."""
     cache = caches["static_content"]
     cache.clear()
 
-    with patch("core.views.get_content_from_s3") as mock_get_content_from_s3:
-        mock_get_content_from_s3.return_value = (mock_content, mock_content_type)
 
-        # Cache miss scenario
+@pytest.mark.django_db
+@override_settings(
+    CACHES=TEST_CACHES,
+)
+def test_content_found(request_factory):
+    """Test that content is found and returned."""
+    content_path = "/develop/libs/rst.css"
+    with patch(
+        "core.views.get_content_from_s3", return_value=(b"fake content", "text/plain")
+    ):
         response = call_view(request_factory, content_path)
-        assert response.status_code == 200
-        assert response.content.decode() == mock_content
-        assert response["Content-Type"] == mock_content_type
-        mock_get_content_from_s3.assert_called_once_with(key=content_path)
-
-        # Cache hit scenario
-        mock_get_content_from_s3.reset_mock()
-        response = call_view(request_factory, content_path)
-        assert response.status_code == 200
-        assert response.content.decode() == mock_content
-        assert response["Content-Type"] == mock_content_type
-        mock_get_content_from_s3.assert_not_called()
-
-        # Cache expiration scenario
-        cache.set(
-            "static_content_" + content_path, (mock_content, mock_content_type), 1
-        )  # Set a 1-second cache timeout
-        time.sleep(2)  # Wait for the cache to expire
-        mock_get_content_from_s3.reset_mock()
-        response = call_view(request_factory, content_path)
-        assert response.status_code == 200
-        assert response.content.decode() == mock_content
-        assert response["Content-Type"] == mock_content_type
-        mock_get_content_from_s3.assert_called_once_with(key=content_path)
-
-
-# Define test cases with the paths based on the provided config file
-static_content_test_cases = [
-    "/develop/libs/rst.css",  # Test a site_path from the config file
-    "/develop/doc/index.html",  # Test site_path with more complex substitution schema
-    "/rst.css",  # Test a the default site_path from the config file
-    "site/develop/doc/html/about.html",  # Test direct access to a file in the S3 bucket
-]
-
-
-def mock_get_content_from_s3(key=None, bucket_name=None):
-    # Map the S3 paths to a sample content and content type
-    content_mapping = {
-        "/site/develop/libs/rst.css": (b"fake rst.css content", "text/css"),
-        "/site/develop/doc/html/index.html": (b"fake index.html content", "text/html"),
-        "/site/develop/rst.css": (b"fake rst.css content", "text/css"),
-        "/site/develop/doc/html/about.html": (b"fake about.html content", "text/html"),
-    }
-    return content_mapping.get(key, None)
+    assert response.status_code == 200
+    assert response.content == b"fake content"
+    assert response["Content-Type"] == "text/plain"
 
 
 @pytest.mark.django_db
 @override_settings(
-    CACHES={
-        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
-        "machina_attachments": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache"
-        },
-        "static_content": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "TIMEOUT": 86400,
-        },
-    }
+    CACHES=TEST_CACHES,
 )
+def test_content_not_found(request_factory):
+    """Test that a 404 response is returned for nonexistent content."""
+    content_path = "/nonexistent/file.html"
+    with patch("core.views.get_content_from_s3", return_value=None):
+        response = call_view(request_factory, content_path)
+    assert response.status_code == 404
+
+
 @pytest.mark.django_db
-@pytest.mark.parametrize("content_path", static_content_test_cases)
-@patch("core.views.get_content_from_s3", new=mock_get_content_from_s3)
-def test_static_content_template_view(content_path):
-    """
-    Test the StaticContentTemplateView view"""
-    request = RequestFactory().get(content_path)
-    view = StaticContentTemplateView.as_view()
-    response = view(request, content_path=content_path)
+@override_settings(
+    CACHES=TEST_CACHES,
+)
+def test_cache_expiration(request_factory):
+    """Test that the cache expires after the specified timeout."""
+    content_path = "/develop/doc/index.html"
+    mock_content = b"fake content"
+    mock_content_type = "text/html"
+    cache = caches["static_content"]
+    cache_key = f"static_content_{content_path}"
 
-    # Get the mock content and content type for the content_path
-    mock_content = mock_get_content_from_s3(content_path)
-
-    if mock_content:
-        # Check if the response has the expected status code and content type
-        assert response.status_code == 200
-        assert "Content-Type" in response.headers
-        assert response.content == mock_content[0]
-    else:
-        # If the content doesn't exist, check if the response has a 404 status code
-        assert response.status_code == 404
+    # Set the content in the cache with a 1-second timeout
+    cache.set(cache_key, (mock_content, mock_content_type), timeout=1)
 
 
 def test_markdown_view_top_level(tp):

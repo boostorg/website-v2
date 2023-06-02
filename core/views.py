@@ -1,13 +1,16 @@
 import os.path
 import structlog
+import tempfile
 
 from django.conf import settings
 from django.core.cache import caches
 from django.http import Http404, HttpResponse, HttpResponseNotFound
+from django.shortcuts import render
 from django.views.generic import TemplateView, View
 
 from .boostrenderer import get_content_from_s3
 from .markdown import process_md
+from .tasks import adoc_to_html
 
 logger = structlog.get_logger()
 
@@ -91,44 +94,64 @@ class MarkdownTemplateView(TemplateView):
 
 class StaticContentTemplateView(View):
     def get(self, request, *args, **kwargs):
-        """
-        Verifies the file and returns the raw static content from S3
-        mangling paths using the stage_static_config.json settings
-        """
         content_path = kwargs.get("content_path")
 
-        # Get the static content cache
-        static_content_cache = caches["static_content"]
+        # Try to get content from cache, if it's not there then fetch from S3
+        content, content_type = self.get_content(content_path)
 
-        # Check if the content is in the cache
+        if content is None:
+            return HttpResponseNotFound("Page not found")  # Return a 404 response
+
+        if content_type == "text/asciidoc":
+            response = self.handle_adoc_content(request, content, content_type)
+        else:
+            response = HttpResponse(content, content_type=content_type)
+
+        logger.info(
+            "get_content_from_s3_view_success",
+            key=kwargs.get("content_path"),
+            status_code=response.status_code,
+        )
+
+        return response
+
+    def get_content(self, content_path):
+        static_content_cache = caches["static_content"]
         cache_key = f"static_content_{content_path}"
         cached_result = static_content_cache.get(cache_key)
 
         if cached_result:
             content, content_type = cached_result
         else:
-            # Fetch content from S3 if not in cache
-            result = get_content_from_s3(key=kwargs.get("content_path"))
+            result = get_content_from_s3(key=content_path)
             if not result:
                 logger.info(
                     "get_content_from_s3_view_no_valid_object",
-                    key=kwargs.get("content_path"),
+                    key=content_path,
                     status_code=404,
                 )
-                return HttpResponseNotFound("Page not found")
+                return None, None  # Return None values when content is not found
 
             content, content_type = result
-            # Store the result in cache
+
+            # Always store the original content and content_type in cache
             static_content_cache.set(
                 cache_key,
                 (content, content_type),
                 int(settings.CACHES["static_content"]["TIMEOUT"]),
             )
 
-        response = HttpResponse(content, content_type=content_type)
-        logger.info(
-            "get_content_from_s3_view_success",
-            key=kwargs.get("content_path"),
-            status_code=response.status_code,
-        )
-        return response
+        return content, content_type
+
+    def handle_adoc_content(self, request, content, content_path):
+        # Write the content to a temporary file
+        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+            temp_file.write(content)
+
+        # Convert the AsciiDoc to HTML
+        # TODO: Put this back on a delay and return a response indicating that
+        # the content is being prepared
+        html_content = adoc_to_html(temp_file.name, content_path, "text/asciidoc")
+        context = {"content": html_content, "content_type": "text/html"}
+
+        return render(request, "adoc_content.html", context)
