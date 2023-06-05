@@ -8,7 +8,7 @@ def test_get_content_type():
     # CSS file content type is text/css
     assert get_content_type("/rst.css", "text/css"), "text/css"
 
-    # Asciidoc content, which comes from S3 with an .adoc extension but not a useful 
+    # Asciidoc content, which comes from S3 with an .adoc extension but not a useful
     # content type, should be changed to text/asciidoc
     assert get_content_type("/site/develop/help.adoc", "text/html"), "text/asciidoc"
 
