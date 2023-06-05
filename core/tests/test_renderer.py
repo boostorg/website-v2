@@ -2,9 +2,17 @@ from ..boostrenderer import get_content_type, get_s3_keys
 
 
 def test_get_content_type():
+    # HTML file content type is text/html
     assert get_content_type("/marshmallow/index.html", "text/html"), "text/html"
+
+    # CSS file content type is text/css
     assert get_content_type("/rst.css", "text/css"), "text/css"
+
+    # Asciidoc content, which comes from S3 with an .adoc extension but not a useful 
+    # content type, should be changed to text/asciidoc
     assert get_content_type("/site/develop/help.adoc", "text/html"), "text/asciidoc"
+
+    # JS file content type is always set to application/javascript
     assert get_content_type(
         "/site/develop/doc/html/scripts.js", "text/html"
     ), "application/javascript"

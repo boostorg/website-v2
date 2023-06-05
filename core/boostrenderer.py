@@ -104,7 +104,7 @@ def get_content_from_s3(key=None, bucket_name=None):
 
 def get_content_type(s3_key, content_type):
     """In some cases, manually set the content-type for a given S3 key based on the
-    file extension. This is useful for files types that are not reognized by S3, or for
+    file extension. This is useful for files types that are not recognized by S3, or for
     cases where we want to override the default content-type.
 
     :param s3_key: The S3 key for the file
@@ -113,6 +113,9 @@ def get_content_type(s3_key, content_type):
     """
     if s3_key.endswith(".js"):
         content_type = "application/javascript"
+    # adoc files come back from S3 with a generic content type, so we manually set
+    # the content type to the (proposed) asciidoc content type:
+    # https://docs.asciidoctor.org/asciidoc/latest/faq/
     elif s3_key.endswith(".adoc"):
         content_type = "text/asciidoc"
     return content_type
