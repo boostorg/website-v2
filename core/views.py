@@ -94,6 +94,9 @@ class MarkdownTemplateView(TemplateView):
 
 class StaticContentTemplateView(View):
     def get(self, request, *args, **kwargs):
+        """Verifies the file and returns the raw static content from S3
+        mangling paths using the stage_static_config.json settings
+        """
         content_path = kwargs.get("content_path")
 
         # Try to get content from cache, if it's not there then fetch from S3
@@ -116,6 +119,7 @@ class StaticContentTemplateView(View):
         return response
 
     def get_content(self, content_path):
+        """Get content from cache or S3."""
         static_content_cache = caches["static_content"]
         cache_key = f"static_content_{content_path}"
         cached_result = static_content_cache.get(cache_key)
@@ -144,6 +148,7 @@ class StaticContentTemplateView(View):
         return content, content_type
 
     def handle_adoc_content(self, request, content, content_path):
+        """Convert AsciiDoc content to HTML and return the HTML response."""
         # Write the content to a temporary file
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             temp_file.write(content)
