@@ -89,9 +89,10 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command:
-    - /bin/bash
-    - -c
-    - ./wait-for-it.sh && celery -A config worker --concurrency=10 --loglevel=debug
+      - /bin/bash
+      - -c
+      - |
+        /code/docker/wait-for-it.sh -h web -p 8000 -t 20 -- celery -A config worker --concurrency=10 --loglevel=debug
     networks:
       - backend
     env_file:
