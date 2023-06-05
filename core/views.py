@@ -151,7 +151,13 @@ class StaticContentTemplateView(View):
         # Convert the AsciiDoc to HTML
         # TODO: Put this back on a delay and return a response indicating that
         # the content is being prepared
-        html_content = adoc_to_html(temp_file.name, content_path, "text/asciidoc")
+        html_content = adoc_to_html(
+            temp_file.name, content_path, "text/asciidoc", delete_file=True
+        )
+        if isinstance(html_content, bytes):
+            # Content is a byte string, decode it using UTF-8 encoding
+            html_content = html_content.decode("utf-8")
+
         context = {"content": html_content, "content_type": "text/html"}
 
         return render(request, "adoc_content.html", context)
