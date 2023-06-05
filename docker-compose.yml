@@ -102,7 +102,6 @@ services:
       - redis
     volumes:
       - .:/code
-      - ./wait-for-it.sh:/wait-for-it.sh
 
   celery-beat:
     build:
