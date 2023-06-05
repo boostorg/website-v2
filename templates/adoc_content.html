@@ -8,14 +8,4 @@
     <div id="ascii-doc-content">{{ content|safe }}</div>
 {% endblock %}
 
-{% block styles %}
-    <style>
-
-    <!-- This -->
-    @layer base {
-        div#ascii-doc-content h1 {
-          @apply text-2xl font-bold text-green capitalize;
-        }
-    }
-    </style>
-{% endblock %}
+{% block styles %}{% endblock %}
