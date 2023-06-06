@@ -1,4 +1,12 @@
-from ..boostrenderer import get_content_type, get_s3_keys
+from ..boostrenderer import get_body_from_html, get_content_type, get_s3_keys
+
+
+def test_get_body_from_html():
+    html_string = (
+        "<html><head><title>Test</title></head><body><h1>Test</h1></body></html>"
+    )
+    body_content = get_body_from_html(html_string)
+    assert body_content == "<h1>Test</h1>"
 
 
 def test_get_content_type():
