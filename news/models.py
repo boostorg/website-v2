@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
@@ -7,6 +6,7 @@ from django.utils.text import slugify
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
+from . import acl
 
 User = get_user_model()
 
@@ -125,35 +125,21 @@ class Entry(models.Model):
     def get_absolute_url(self):
         return reverse("news-detail", args=[self.slug])
 
-    # XXX: These may need moving to an ACL-dedicated module? (nessita)
-
     def can_view(self, user):
-        return (
-            self.is_published
-            or user == self.author
-            or (user is not None and user.has_perm("news.view_entry"))
-        )
+        return acl.can_view(user, self)
 
     @classmethod
     def can_approve(cls, user):
-        return user is not None and user.has_perm("news.change_entry")
+        return acl.can_approve(user)
 
     def can_edit(self, user):
-        return (not self.is_approved and user == self.author) or (
-            user is not None and user.has_perm("news.change_entry")
-        )
+        return acl.can_edit(user, self)
 
     def can_delete(self, user):
-        return user is not None and user.has_perm("news.delete_entry")
+        return acl.can_delete(user, self)
 
     def author_needs_moderation(self):
-        # Every author's news should be moderated except for moderators or
-        # explicitely allowlisted users.
-        return not (
-            self.can_approve(self.author)
-            or self.author.email in settings.NEWS_MODERATION_ALLOWLIST
-            or self.author.pk in settings.NEWS_MODERATION_ALLOWLIST
-        )
+        return acl.author_needs_moderation(self)
 
 
 class BlogPost(Entry):

@@ -15,8 +15,9 @@ from django.views.generic import (
 )
 from django.views.generic.detail import SingleObjectMixin
 
-from .models import BlogPost, Entry, Link, Poll, Video
+from .acl import can_approve
 from .forms import BlogPostForm, EntryForm, LinkForm, PollForm, VideoForm
+from .models import BlogPost, Entry, Link, Poll, Video
 
 
 def get_published_or_none(sibling_getter):
@@ -79,7 +80,7 @@ class EntryModerationListView(LoginRequiredMixin, UserPassesTestMixin, ListView)
         return super().get_queryset().select_related("author").filter(approved=False)
 
     def test_func(self):
-        return Entry.can_approve(self.request.user)
+        return can_approve(self.request.user)
 
 
 class EntryDetailView(DetailView):
