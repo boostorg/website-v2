@@ -28,6 +28,7 @@ services:
     command: [ "/bin/bash", "/code/docker/compose-start.sh" ]
     depends_on:
       - db
+      - redis
     environment:
       - "LOCAL_DEVELOPMENT=true"
       - "DOCKER_DIR=/code/docker"
