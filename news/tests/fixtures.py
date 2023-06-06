@@ -1,7 +1,8 @@
 import datetime
 
 import pytest
-from django.contrib.auth.models import Permission
+from django.db.models import Q
+from django.contrib.auth.models import Group, Permission
 from django.utils.timezone import now
 from model_bakery import baker
 
@@ -33,23 +34,70 @@ def make_entry(db):
 
 
 @pytest.fixture
-def moderator_user(db):
-    # we could use `tp.make_user` but we need this fix to be released
-    # https://github.com/revsys/django-test-plus/issues/199
-    user = baker.make("users.User")
-    user.user_permissions.add(
-        *Permission.objects.filter(
-            content_type__app_label="news", content_type__model="entry"
-        )
-    )
-    user.set_password("password")
-    user.save()
-    return user
+def make_user(db):
+    def _filter_perms(perms):
+        result = []
+
+        perms_filter = Q(codename="false")
+        for perm in perms:
+            if isinstance(perm, Permission):
+                result.append(perm)
+                continue
+
+            if "." not in perm:
+                raise ValueError(
+                    "The perms argument should be a list of app_label.codename or "
+                    "app_label.* (e.g. accounts.change_user or accounts.*)"
+                )
+            app_label, codename = perm.split(".")
+            if codename == "*":
+                perms_filter |= Q(content_type__app_label=app_label)
+            else:
+                perms_filter |= Q(content_type__app_label=app_label, codename=codename)
+
+        result.extend(Permission.objects.filter(perms_filter))
+        assert len(result) >= len(perms)
+        return result
+
+    def _make_it(perms=None, groups=None, password="password", **kwargs):
+        user = baker.make("users.User", **kwargs)
+        user.set_password(password)
+        user.save()
+
+        if perms:
+            user.user_permissions.add(*list(_filter_perms(perms)))
+
+        if groups:
+            group_instances = []
+            for name, perms in groups.items():
+                group = Group.objects.create(name=name)
+                group.permissions.set(_filter_perms(perms))
+                group_instances.append(group)
+            user.groups.add(*group_instances)
+
+        return user
+
+    return _make_it
 
 
 @pytest.fixture
-def regular_user(db):
-    user = baker.make("users.User")
-    user.set_password("password")
-    user.save()
-    return user
+def moderator_user(db, make_user):
+    # we could use `tp.make_user` but we need this fix to be released
+    # https://github.com/revsys/django-test-plus/issues/199
+    return make_user(email="moderator@example.com", perms=["news.*"])
+
+
+@pytest.fixture
+def regular_user(db, make_user):
+    return make_user(email="regular@example.com")
+
+
+@pytest.fixture
+def superuser(db, make_user):
+    return make_user(
+        email="superuser@example.com",
+        is_superuser=True,
+        password="admin",
+        groups={},
+        perms=[],
+    )
