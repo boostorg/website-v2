@@ -49,9 +49,10 @@ minio
 # Packaging
 pip-tools==6.13.0
 
-# Markdown and Frontmatter
+# Parsing content from external sources (like S3) 
 mistletoe
 python-frontmatter
+beautifulsoup4
 
 #Forum
 django-machina>=1.2

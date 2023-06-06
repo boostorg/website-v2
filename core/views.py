@@ -8,7 +8,7 @@ from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import render
 from django.views.generic import TemplateView, View
 
-from .boostrenderer import get_content_from_s3
+from .boostrenderer import get_body_from_html, get_content_from_s3
 from .markdown import process_md
 from .tasks import adoc_to_html
 
@@ -163,6 +163,7 @@ class StaticContentTemplateView(View):
             # Content is a byte string, decode it using UTF-8 encoding
             html_content = html_content.decode("utf-8")
 
-        context = {"content": html_content, "content_type": "text/html"}
-
+        # Extract only the contents of the body tag from the HTML
+        content = get_body_from_html(html_content)
+        context = {"content": content, "content_type": "text/html"}
         return render(request, "adoc_content.html", context)

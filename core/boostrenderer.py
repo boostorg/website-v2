@@ -1,5 +1,6 @@
 import boto3
 from botocore.exceptions import ClientError
+from bs4 import BeautifulSoup
 import json
 import os
 import re
@@ -15,6 +16,27 @@ from pygments.lexers import get_lexer_by_name as get_lexer, guess_lexer
 from pygments.formatters.html import HtmlFormatter
 
 logger = structlog.get_logger()
+
+
+def get_body_from_html(html_string: str) -> str:
+    """Use BeautifulSoup to get the body content from an HTML document, without
+    the <body> tag.
+
+    We strip out the <body> tag because we want to use our main Boost template,
+    which includes its own <body> tag.
+
+    Args:
+        html_string (str): The HTML document as a string
+
+    Returns:
+        str: The body content as a string
+    """
+    soup = BeautifulSoup(html_string, "html.parser")
+    body = soup.find("body")
+    body_content = ""
+    if body:
+        body_content = "".join(str(tag) for tag in body.contents)
+    return body_content
 
 
 def get_content_from_s3(key=None, bucket_name=None):
