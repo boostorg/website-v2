@@ -1,6 +1,6 @@
 import boto3
 from botocore.exceptions import ClientError
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 import json
 import os
 import re
@@ -23,7 +23,7 @@ def get_body_from_html(html_string: str) -> str:
     the <body> tag.
 
     We strip out the <body> tag because we want to use our main Boost template,
-    which includes its own <body> tag.
+    which includes its own <body> tag. Skip any tag with an id containing 'footer'.
 
     Args:
         html_string (str): The HTML document as a string
@@ -35,7 +35,12 @@ def get_body_from_html(html_string: str) -> str:
     body = soup.find("body")
     body_content = ""
     if body:
-        body_content = "".join(str(tag) for tag in body.contents)
+        body_content = "".join(
+            str(tag)
+            for tag in body.contents
+            if isinstance(tag, Tag)
+            and not (tag.get("id") and "footer" in tag.get("id"))
+        )
     return body_content
 
 
