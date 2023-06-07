@@ -1,4 +1,39 @@
-from ..boostrenderer import get_body_from_html, get_content_type, get_s3_keys
+from unittest.mock import Mock, patch
+import datetime
+from io import BytesIO
+import pytest
+
+from ..boostrenderer import (
+    extract_file_data,
+    get_body_from_html,
+    get_content_type,
+    get_file_data,
+    get_s3_keys,
+)
+
+
+@pytest.fixture
+def mock_s3_client():
+    return "mock_s3_client"
+
+
+def test_extract_file_data():
+    response = {
+        "Body": BytesIO(b"file content"),
+        "ContentType": "text/plain",
+        "LastModified": datetime.datetime(2023, 6, 8, 12, 0, 0),
+    }
+    s3_key = "example_key.txt"
+
+    expected_result = {
+        "content": b"file content",
+        "content_type": "text/plain",
+        "last_modified": datetime.datetime(2023, 6, 8, 12, 0, 0),
+    }
+
+    result = extract_file_data(response, s3_key)
+
+    assert result == expected_result
 
 
 def test_get_body_from_html():
@@ -39,6 +74,36 @@ def test_get_content_type():
     assert get_content_type(
         "/site/develop/doc/html/scripts.js", "text/html"
     ), "application/javascript"
+
+
+def test_get_file_data():
+    # Mock the S3 client
+    mock_client = Mock()
+    mock_response = Mock()
+    mock_extract_file_data = Mock(return_value="mock_file_data")
+
+    # Patch the necessary functions and objects
+    with patch("core.boostrenderer.extract_file_data", mock_extract_file_data), patch(
+        "core.boostrenderer.logger"
+    ) as mock_logger:
+        # Set up the mock response
+        mock_client.get_object.return_value = mock_response
+
+        bucket_name = "my-bucket"
+        s3_key = "/path/to/file.txt"
+
+        expected_result = "mock_file_data"
+
+        # Call the function being tested
+        result = get_file_data(mock_client, bucket_name, s3_key)
+
+        # Assert the expected behavior and result
+        assert result == expected_result
+        mock_client.get_object.assert_called_once_with(
+            Bucket=bucket_name, Key=s3_key.lstrip("/")
+        )
+        mock_extract_file_data.assert_called_once_with(mock_response, s3_key)
+        assert not mock_logger.exception.called
 
 
 def test_get_s3_keys():

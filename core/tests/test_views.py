@@ -53,7 +53,8 @@ def test_content_found(request_factory):
     """Test that content is found and returned."""
     content_path = "/develop/libs/rst.css"
     with patch(
-        "core.views.get_content_from_s3", return_value=(b"fake content", "text/plain")
+        "core.views.get_content_from_s3",
+        return_value={"content": b"fake content", "content_type": "text/plain"},
     ):
         response = call_view(request_factory, content_path)
     assert response.status_code == 200
@@ -86,7 +87,11 @@ def test_cache_expiration(request_factory):
     cache_key = f"static_content_{content_path}"
 
     # Set the content in the cache with a 1-second timeout
-    cache.set(cache_key, (mock_content, mock_content_type), timeout=1)
+    cache.set(
+        cache_key,
+        {"content": mock_content, "content_type": mock_content_type},
+        timeout=1,
+    )
 
 
 def test_markdown_view_top_level(tp):
