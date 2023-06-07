@@ -293,7 +293,7 @@ def test_news_create_post(
     data = {
         k: f"random-value-{k}" if "url" not in k else "http://example.com"
         for k in data_fields
-        if k != "image"
+        if k not in ("image", "publish_at")
     }
 
     img = None
@@ -304,6 +304,8 @@ def test_news_create_post(
         )
         img.name = f"random-value-{uuid.uuid4()}.gif"
         data["image"] = img
+
+    data["publish_at"] = right_now = now()
 
     before = now()
     with tp.login(regular_user):
@@ -334,6 +336,7 @@ def test_news_create_post(
     # between `before` and `after`
     assert before <= entry.created_at <= after
     assert before <= entry.modified_at <= after
+    assert entry.publish_at == right_now
 
     tp.assertRedirects(response, entry.get_absolute_url())
 
@@ -518,7 +521,7 @@ def test_news_update(tp, make_entry, model_class):
     assert entry.content in content
 
     new_title = "This is a different title"
-    data = {"title": new_title}
+    data = {"title": new_title, "publish_at": entry.publish_at}
     with tp.login(entry.author):
         response = tp.post(*url_params, data=data, follow=True)
     tp.response_200(response)
