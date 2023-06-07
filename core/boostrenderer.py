@@ -18,6 +18,19 @@ from pygments.formatters.html import HtmlFormatter
 logger = structlog.get_logger()
 
 
+def extract_file_data(response, s3_key):
+    """Extracts the file content, content type, and last modified date from an S3
+    response object."""
+    file_content = response["Body"].read()
+    content_type = get_content_type(s3_key, response["ContentType"])
+    last_modified = response["LastModified"]
+    return {
+        "content": file_content,
+        "content_type": content_type,
+        "last_modified": last_modified,
+    }
+
+
 def get_body_from_html(html_string: str) -> str:
     """Use BeautifulSoup to get the body content from an HTML document, without
     the <body> tag.
@@ -49,84 +62,32 @@ def get_content_from_s3(key=None, bucket_name=None):
     Get content from S3. Returns the decoded file contents if able
     """
     if not key:
-        logger.info(
-            "get_content_from_s3_no_key_provided",
-            key=key,
-            bucket_name=bucket_name,
-            function_name="get_content_from_s3",
-        )
         raise ValueError("No key provided.")
 
-    if not bucket_name:
-        bucket_name = settings.STATIC_CONTENT_BUCKET_NAME
-
-    s3_keys = get_s3_keys(key)
-
-    if not s3_keys:
-        s3_keys = [key]
-
-    client = boto3.client(
-        "s3",
-        aws_access_key_id=settings.STATIC_CONTENT_AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.STATIC_CONTENT_AWS_SECRET_ACCESS_KEY,
-        region_name="us-east-1",
-    )
+    bucket_name = bucket_name or settings.STATIC_CONTENT_BUCKET_NAME
+    s3_keys = get_s3_keys(key) or [key]
+    client = get_s3_client()
 
     for s3_key in s3_keys:
-        try:
-            response = client.get_object(Bucket=bucket_name, Key=s3_key.lstrip("/"))
-            file_content = response["Body"].read()
-            content_type = get_content_type(s3_key, response["ContentType"])
-
-            logger.info(
-                "get_content_from_s3_success",
-                key=key,
-                bucket_name=bucket_name,
-                s3_key=s3_key,
-                function_name="get_content_from_s3",
-            )
-            return file_content, content_type
-        except ClientError as e:
-            # Log the error and continue with the next key in the list
-            logger.exception(
-                "get_content_from_s3_error",
-                key=key,
-                bucket_name=bucket_name,
-                s3_key=s3_key,
-                error=str(e),
-                function_name="get_content_from_s3",
-            )
-            pass
+        file_data = get_file_data(client, bucket_name, s3_key)
+        if file_data:
+            return file_data
 
         # Handle URLs that are directories looking for `index.html` files
         if s3_key.endswith("/"):
-            try:
-                original_key = s3_key.lstrip("/")
-                index_html_key = f"{original_key}index.html"
-                response = client.get_object(Bucket=bucket_name, Key=index_html_key)
-                file_content = response["Body"].read()
-                content_type = response["ContentType"]
-                return file_content, content_type
-            except ClientError as e:
-                # Log the error and continue with the next key in the list
-                logger.exception(
-                    "get_content_from_s3_client_error",
-                    key=key,
-                    bucket_name=bucket_name,
-                    s3_key=s3_key,
-                    error=str(e),
-                    function_name="get_content_from_s3",
-                )
-                pass
+            original_key = s3_key.lstrip("/")
+            index_html_key = f"{original_key}index.html"
+            file_data = get_file_data(client, bucket_name, index_html_key)
+            if file_data:
+                return file_data
 
-    # Return None if no valid object is found
     logger.info(
         "get_content_from_s3_no_valid_object",
         key=key,
         bucket_name=bucket_name,
         function_name="get_content_from_s3",
     )
-    return None
+    return {}
 
 
 def get_content_type(s3_key, content_type):
@@ -146,6 +107,32 @@ def get_content_type(s3_key, content_type):
     elif s3_key.endswith(".adoc"):
         content_type = "text/asciidoc"
     return content_type
+
+
+def get_file_data(client, bucket_name, s3_key):
+    """Get the file data from S3. Returns the decoded file contents if able."""
+    try:
+        response = client.get_object(Bucket=bucket_name, Key=s3_key.lstrip("/"))
+        return extract_file_data(response, s3_key)
+    except ClientError as e:
+        # Log the exception but ignore it otherwise, since it's not necessaruly an error
+        logger.exception(
+            "get_content_from_s3_error",
+            s3_key=s3_key,
+            error=str(e),
+            function_name="get_content_from_s3",
+        )
+    return
+
+
+def get_s3_client():
+    """Get an S3 client."""
+    return boto3.client(
+        "s3",
+        aws_access_key_id=settings.STATIC_CONTENT_AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.STATIC_CONTENT_AWS_SECRET_ACCESS_KEY,
+        region_name="us-east-1",
+    )
 
 
 def get_s3_keys(content_path, config_filename="stage_static_config.json"):
