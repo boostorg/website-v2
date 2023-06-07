@@ -9,6 +9,21 @@ def test_get_body_from_html():
     assert body_content == "<h1>Test</h1>"
 
 
+def test_get_body_from_html_strip_footer():
+    html_string = """
+    <html>
+        <head><title>Test</title></head>
+        <body>
+            <h1>Test</h1>
+            <div id='footer'>Some content</div>
+            <span id='contains-footer'>More content</span>
+        </body>
+    </html>
+    """
+    body_content = get_body_from_html(html_string)
+    assert body_content == "<h1>Test</h1>"
+
+
 def test_get_content_type():
     # HTML file content type is text/html
     assert get_content_type("/marshmallow/index.html", "text/html"), "text/html"
