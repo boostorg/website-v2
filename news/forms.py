@@ -5,7 +5,7 @@ from .models import BlogPost, Entry, Link, Poll, Video
 class EntryForm(forms.ModelForm):
     class Meta:
         model = Entry
-        fields = ["title", "content", "image"]
+        fields = ["title", "publish_at", "content", "image"]
 
     def save(self, *args, commit=True, **kwargs):
         instance = super().save(*args, commit=False, **kwargs)
@@ -20,22 +20,22 @@ class EntryForm(forms.ModelForm):
 class BlogPostForm(EntryForm):
     class Meta:
         model = BlogPost
-        fields = ["title", "content", "image"]
+        fields = ["title", "publish_at", "content", "image"]
 
 
 class LinkForm(EntryForm):
     class Meta:
         model = Link
-        fields = ["title", "external_url", "image"]
+        fields = ["title", "publish_at", "external_url", "image"]
 
 
 class PollForm(EntryForm):
     class Meta:
         model = Poll
-        fields = ["title", "content", "image"]  # XXX: add choices
+        fields = ["title", "publish_at", "content", "image"]  # XXX: add choices
 
 
 class VideoForm(EntryForm):
     class Meta:
         model = Video
-        fields = ["title", "external_url", "image"]
+        fields = ["title", "publish_at", "external_url", "image"]

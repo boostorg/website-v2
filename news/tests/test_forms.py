@@ -9,7 +9,7 @@ from ..models import Entry
 
 def test_form_fields():
     form = EntryForm()
-    assert sorted(form.fields.keys()) == ["content", "image", "title"]
+    assert sorted(form.fields.keys()) == ["content", "image", "publish_at", "title"]
 
 
 def test_form_model_creates_entry(make_entry):
@@ -19,8 +19,10 @@ def test_form_model_creates_entry(make_entry):
     assert Entry.objects.filter(title=title).count() == 0
 
     before = now()
-    form = EntryForm(instance=None, data={"title": title, "content": content})
-    assert form.is_valid()
+    form = EntryForm(
+        instance=None, data={"title": title, "content": content, "publish_at": before}
+    )
+    assert form.is_valid(), form.errors
     form.instance.author = user
     result = form.save()
     after = now()
@@ -29,7 +31,7 @@ def test_form_model_creates_entry(make_entry):
     assert result.pk is not None
     assert before <= result.created_at <= after
     assert before <= result.modified_at <= after
-    assert before <= result.publish_at <= after
+    assert result.publish_at == before
     assert result.approved_at is None
     assert result.title == title
     assert result.content == content
@@ -41,10 +43,13 @@ def test_form_model_creates_entry(make_entry):
 
 def test_form_model_modifies_entry(make_entry):
     # Guard against runs that are too fast and this modified_at would not change
-    past = now() - datetime.timedelta(minutes=1)
+    right_now = now()
+    past = right_now - datetime.timedelta(minutes=1)
     news = make_entry(title="Old title", modified_at=past)
-    form = EntryForm(instance=news, data={"title": "New title"})
-    assert form.is_valid()
+    form = EntryForm(
+        instance=news, data={"title": "New title", "publish_at": right_now}
+    )
+    assert form.is_valid(), form.errors
 
     result = form.save()
 
@@ -55,7 +60,7 @@ def test_form_model_modifies_entry(make_entry):
     assert result.pk == news.pk
     assert result.created_at == news.created_at
     assert result.approved_at == news.approved_at
-    assert result.publish_at == news.publish_at
+    assert result.publish_at == right_now
     assert result.content == news.content
     assert result.author == news.author
     assert result.moderator == news.moderator
@@ -119,22 +124,32 @@ def test_form_save_approved_news(make_entry, settings):
 def test_blogpost_form():
     form = BlogPostForm()
     assert isinstance(form, EntryForm)
-    assert sorted(form.fields.keys()) == ["content", "image", "title"]
+    assert sorted(form.fields.keys()) == ["content", "image", "publish_at", "title"]
 
 
 def test_link_form():
     form = LinkForm()
     assert isinstance(form, EntryForm)
-    assert sorted(form.fields.keys()) == ["external_url", "image", "title"]
+    assert sorted(form.fields.keys()) == [
+        "external_url",
+        "image",
+        "publish_at",
+        "title",
+    ]
 
 
 def test_poll_form():
     form = PollForm()
     assert isinstance(form, EntryForm)
-    assert sorted(form.fields.keys()) == ["content", "image", "title"]
+    assert sorted(form.fields.keys()) == ["content", "image", "publish_at", "title"]
 
 
 def test_video_form():
     form = VideoForm()
     assert isinstance(form, EntryForm)
-    assert sorted(form.fields.keys()) == ["external_url", "image", "title"]
+    assert sorted(form.fields.keys()) == [
+        "external_url",
+        "image",
+        "publish_at",
+        "title",
+    ]
