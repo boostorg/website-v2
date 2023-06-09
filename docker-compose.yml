@@ -47,43 +47,43 @@ services:
       - ../website2022/:/website
     stop_signal: SIGKILL
 
-  mailman-core:
-    image: maxking/mailman-core
-    stop_grace_period: 5s
-    ports:
-      - "8001:8001" # API
-      - "8024:8024" # LMTP - incoming emails
-    volumes:
-      - ./mailman/core:/opt/mailman/
-    networks:
-      - backend
-    env_file:
-      - .env
-    depends_on:
-      - db
+  # mailman-core:
+  #   image: maxking/mailman-core
+  #   stop_grace_period: 5s
+  #   ports:
+  #     - "8001:8001" # API
+  #     - "8024:8024" # LMTP - incoming emails
+  #   volumes:
+  #     - ./mailman/core:/opt/mailman/
+  #   networks:
+  #     - backend
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - db
 
-  mailman-web:
-    image: maxking/mailman-web
-    entrypoint: /opt/mailman-docker/compose-start.sh
-    env_file:
-      - .env
-    environment:
-      - "DOCKER_DIR=/opt/mailman-docker"
-      - "PYTHON=python3"
-      - "WEB_PORT=8008"
-    depends_on:
-      - redis
-      - db
-    stop_signal: SIGKILL
-    ports:
-      - "8008:8008" # HTTP
-      - "8080:8080" # uwsgi
-    volumes:
-      - .:/code
-      - ./mailman/web:/opt/mailman-web-data
-      - ./docker:/opt/mailman-docker
-    networks:
-      - backend
+  # mailman-web:
+  #   image: maxking/mailman-web
+  #   entrypoint: /opt/mailman-docker/compose-start.sh
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - "DOCKER_DIR=/opt/mailman-docker"
+  #     - "PYTHON=python3"
+  #     - "WEB_PORT=8008"
+  #   depends_on:
+  #     - redis
+  #     - db
+  #   stop_signal: SIGKILL
+  #   ports:
+  #     - "8008:8008" # HTTP
+  #     - "8080:8080" # uwsgi
+  #   volumes:
+  #     - .:/code
+  #     - ./mailman/web:/opt/mailman-web-data
+  #     - ./docker:/opt/mailman-docker
+  #   networks:
+  #     - backend
 
   celery-worker:
     build:
@@ -108,14 +108,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    command:
-      [
-        "celery",
-        "-A",
-        "config",
-        "beat",
-        "--loglevel=debug"
-      ]
+    command: [ "celery", "-A", "config", "beat", "--loglevel=debug" ]
     env_file:
       - .env
     depends_on:
