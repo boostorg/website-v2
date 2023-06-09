@@ -1,123 +1,320 @@
-{% extends "base.html" %}
-
-{% load static %}
-
-{% block content %}
-  <!-- Homepage Hero Section -->
+{% extends "base.html" %} {% load static %} {% block content %}
+<!-- Homepage Hero Section -->
 <main>
-  <div style="padding: 30px 0px 0px 0px">
-    <div class="section-one-left">
-      <h1 class="top-heading">Boost your C++</h1>
-      <p class="top-sub-heading">Home to 165+ free, peer-reviewed, portable libraries to increase your productivity across all industry domains.</p>
-      <select class="top-select">
-        <option value="option1">Option 1</option>
-        <option value="option2">Option 2</option>
-        <option value="option3">Option 3</option>
-      </select>
-      <br>
-      <a class="download-button">
-        <i class="fas fa-arrow-circle-down"></i> Download
-      </a>
-      <a class="link-text">Release notes</a>
-      <br>
-      <a class="bsl-button"> BSL Logo </a>
-      <a class="link-text">License</a>
-    </div>
-    <div class="section-one-right">
-      <div id="scene03"></div>
+  {% comment %}<div class="text-right mx-10">
+	<button class="rounded-full py-2 text-xs cursor-pointer" @click="darkMode = !darkMode"><i class="inline-block mr-1 font-semibold fas fa-sun text-white"></i><i class="inline-block mr-1 font-semibold fas fa-moon text-black"></i></button>
+  </div>{% endcomment %}
+
+  {% comment %} Section 1 {% endcomment %}
+  <div class="px-4 my-0 md:my-4 mx-auto">
+
+    <div
+      class="page-container grid grid-rows-1 auto-rows-fr md:grid-cols-2 md:gap-x-10 md:mb-10"
+    >
+      <div class="h-full order-last md:order-first">
+        <h1 class="text-4xl font-extrabold md:text-6xl">Boost your C++</h1>
+        <p
+          class="mx-auto mt-3 max-w-md text-base md:text-lg md:mt-5 md:max-w-3xl md:text-xl"
+        >
+          Home to 165+ free, peer-reviewed, portable libraries to increase your
+          productivity across all industry domains.
+        </p>
+
+		<select id="version" name="version" class="w-48 block py-1 pr-8 pl-5 mb-3 text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-black dark:text-white dark:border-slate">
+			<option>Boost 1.82.0 - Apr/23</option>
+			{% for v in versions %}
+			<option value="{{ v.pk }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
+			{% endfor %}
+		</select>
+
+		<div class="justify-center mt-5 space-y-3 max-w-md lg:flex lg:justify-between lg:mt-8 lg:space-y-0">
+			<a href="{% url 'releases' %}" class="flex justify-center items-center py-3 px-8 text-sm font-medium text-white rounded-md border md:py-4 md:px-4 md:text-base lg:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
+			  <i class="pr-2 text-white fas fa-arrow-circle-down dark:text-orange"></i> Download Latest
+			</a>
+			<a href="{% url 'releases' %}" class="flex justify-center items-center py-3 px-8 text-sm font-medium bg-gray-300 rounded-md border md:py-4 md:px-10 md:text-base lg:text-lg border-steel text-slate dark:bg-charcoal dark:text-orange">
+			  Version Details <i class="pl-2 fas fa-chevron-right text-slate dark:text-orange"></i>
+			</a>		
+
+		</div>
+        
+      </div>
+
+      <div class="h-full order-first md:order-last">
+        <div id="scene03"></div>
+      </div>
     </div>
   </div>
 
+  {% comment %} Section 2 {% endcomment %}
+  <div class="px-4 my-0 md:my-4 mx-auto">
+
+    <div
+      class="page-container grid grid-rows-2 grid-cols-1 lg:grid-rows-1 lg:grid-cols-5 gap-y-10 lg:gap-y-0 lg:gap-x-10 lg:mb-10"
+    >
+      <div class="h-full col-span-1 md:mb-10 lg:col-span-2 p-5 bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md drop-shadow-md hover:drop-shadow-[0_15px_15px_rgba(0,100,100,0.05)]">
+		
+		<div class="float-right relative -top-2">
+			<select onchange="this.form.submit()"
+					name="category"
+					class="block pr-11 pl-5 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
+					id="id_category"
+			>
+			  <option value="">Filter by category</option>
+			  {% for c in categories %}
+				<option value="{{ c.slug }}" {% if category == c %}selected="selected"{% endif %}>{{ c.name }}</option>
+			  {% endfor %}
+			</select>
+		</div>
+
+		<h3 class="pb-2 text-2xl capitalize border-b border-gray-300 dark:border-slate">
+			<a class="text-orange keychainify-checked" href="/libraries/accumulators/">Accumulators</a>
+		</h3>
+        <p
+          class="mx-auto max-w-md text-sm md:max-w-3xl"
+        >
+		Framework for incremental calculation, and collection of statistical accumulators.
+        </p>
+
+		<div class="px-2 pt-2 space-y-2 w-full bg-white rounded-lg dark:bg-charcoal">
+			<a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 keychainify-checked" href="https://boost.org/libs/accumulators">
+			  <i class="float-right mt-3 fas fa-folder"></i>
+			  Documentation
+			  <span class="block text-xs text-sky-600">boost.org/libs/accumulators</span>
+			</a>
+			<a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 keychainify-checked" href="https://github.com/boostorg/accumulators/issues">
+			  <i class="float-right mt-3 fas fa-bug"></i>
+			  GitHub Issues
+			  <span class="block text-xs text-sky-600">github.com/boostorg/accumulators/issues</span>
+			</a>
+			<a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 keychainify-checked" href="https://github.com/boostorg/accumulators">
+			  <i class="float-right mt-3 fab fa-github"></i>
+			  Source Code
+			  <span class="block text-xs text-sky-600">github.com/boostorg/accumulators</span>
+			</a>
+
+			<div class="inline-block py-1 px-2 w-full rounded cursor-pointer hover:bg-gray-100">
+			  <a class="inline-block py-1 px-2 rounded cursor-pointer hover:bg-gray-100">Since 2008</a>
+			  <span class="float-right"><a class="inline-block float-right py-1 px-2 rounded cursor-pointer hover:bg-gray-100">C++03</a></span>
+			</div>
+
+			<span class="block py-1 px-2 rounded cursor-pointer hover:bg-gray-100">Categories:
+			  
+				<a class="inline text-sky-600 keychainify-checked" href="/libraries/?category=math">Math</a>
+			  
+			</span>
+
+			<p class="pt-4 pl-2 mt-4 text-sm border-t border-gray-200">Framework for incremental calculation, and collection of statistical accumulators.</p>
+		  
+		</div>
+        
+      </div>
+
+      <div class="h-full col-span-1 lg:col-span-3 p-5 bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md drop-shadow-md hover:drop-shadow-[0_15px_15px_rgba(0,100,100,0.05)]">
+
+		<h3 class="mb-4 pb-2 text-2xl capitalize border-b border-gray-300 dark:border-slate text-orange">
+			Compiler Explorer
+		</h3>
+
+		<form method="post" action="{% url 'home-beta' %}">
+            {% csrf_token %}
+
+			<div class="compiler-block">
+              
+              <textarea name="code" id="" class="compiler-text-area">
+// Compile with -O3 -march=native to see autovectorization
+// assumes input is aligned on 64-byte boundary and that
+// length is a multiple of 64.
+int testFunction(int* input, int length) {
+// Alignment hints supported on GCC 4.7+ and any compiler
+// supporting the appropriate builtin (clang 3.6+).
+#ifndef __has_builtin
+#define __has_builtin(x) 0
+#endif
+#if __GNUC__ > 4 \
+	|| (__GNUC__ == 4 && __GNUC_MINOR__ >= 7) \
+	|| __has_builtin(__builtin_assume_aligned)
+input = static_cast<int*>(__builtin_assume_aligned(input, 64));
+#endif
+#if _MSC_VER
+__assume((length & 63) == 0);
+#else
+if (length & 63) __builtin_unreachable();
+#endif
+int sum = 0;
+for (int i = 0; i < length; ++i) {
+	sum += input[i];
+}
+return sum;
+}
+				
+				{{ request.POST.code }}
+			  </textarea>
+
+			  <div class="pt-4">
+			  <button type="submit" class="flex justify-center items-center py-3 px-8 text-sm font-medium bg-gray-300 rounded-md border md:py-4 md:px-10 md:text-base lg:text-lg border-steel text-slate dark:bg-charcoal dark:text-orange">
+				Run <i class="pl-2 fas fa-chevron-right text-slate dark:text-orange"></i>
+			  </button>	
+			</div>
+
+            </div>
+
+			<div class="px-6 compiler-output whitespace-pre">
+testFunction(int*, int):
+		push    rbp
+		mov     rbp, rsp
+		mov     QWORD PTR [rbp-24], rdi
+		mov     DWORD PTR [rbp-28], esi
+		mov     eax, DWORD PTR [rbp-28]
+		and     eax, 63
+		test    eax, eax
+		mov     DWORD PTR [rbp-4], 0
+		mov     DWORD PTR [rbp-8], 0
+		jmp     .L3
+.L4:
+		mov     eax, DWORD PTR [rbp-8]
+		cdqe
+		lea     rdx, [0+rax*4]
+		mov     rax, QWORD PTR [rbp-24]
+		add     rax, rdx
+		mov     eax, DWORD PTR [rax]
+		add     DWORD PTR [rbp-4], eax
+		add     DWORD PTR [rbp-8], 1
+.L3:
+		mov     eax, DWORD PTR [rbp-8]
+		cmp     eax, DWORD PTR [rbp-28]
+		jl      .L4
+		mov     eax, DWORD PTR [rbp-4]
+		pop     rbp
+		ret
+              {% if output %}
+              <div class="output">{{ output }}</div>
+              {% endif %} {% if error %}
+              <div class="error">error</div>
+              {% endif %}
+            </div>
+          </form>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+	<div class="flex justify-center">
+		<div class="cursor-pointer rounded-lg border border-black dark:border-orange py-3 mt-6 px-3 mx-auto mb-4 text-xl text-center bg-orange dark:bg-charcoal dark:text-orange hover:bg-orange hover:bg-opacity-60 hover:text-white hover:border-transparent hover:dark:bg-purple hover:dark:text-white transition ease-in duration-200 transform hover:-translate-y-1 active:translate-y-0">
+			Test Button
+		</div>
+	</div>
+
   <!---------- SECTION - 02 ------------>
 
-  <hr class="line-breaker">
+  <hr class="line-breaker" />
   <div>
     <div>
       <div class="section-two-left">
-      <select class="inline-select">
-        <option value="option1">Option 1</option>
-        <option value="option2">Option 2</option>
-        <option value="option3">Option 3</option>
-      </select>
-      <select class="inline-select">
-        <option value="option1">Option 1</option>
-        <option value="option2">Option 2</option>
-        <option value="option3">Option 3</option>
-      </select>
-      <h2 style="margin: 30px 0px">Accumulators</h2>
-      <p class="sub-heading">Framework for incremental calculation, and collection of statistical accumulators</p>
-    <div>
-      <p id="myText" class="copy-text"> install boost accumulators </p>
-      <i onclick="copyToClipboard()" class="fas fa-light fa-copy copy-icon"></i>
-      <br>
-      <p id="" class="copy-text"> install boost accumulators </p>
-      <i onclick="copyToClipboard()" class="fas fa-light fa-copy copy-icon"></i>
-      <br>
-      <p id="" class="copy-text"> install boost accumulators </p>
-      <i onclick="copyToClipboard()" class="fas fa-light fa-copy copy-icon"></i>
-      <br>
-    <div class="circle">
-        <span class="circle-text">C++</span>
-    </div>
-    </div>
+        <select class="inline-select">
+          <option value="option1">Option 1</option>
+          <option value="option2">Option 2</option>
+          <option value="option3">Option 3</option>
+        </select>
+        <select class="inline-select">
+          <option value="option1">Option 1</option>
+          <option value="option2">Option 2</option>
+          <option value="option3">Option 3</option>
+        </select>
+
+        <h2 class="pt-10">Accumulators</h2>
+        <p class="sub-heading">
+          Framework for incremental calculation, and collection of statistical
+          accumulators
+        </p>
+        <div>
+          <p id="myText" class="copy-text">install boost accumulators</p>
+          <i
+            onclick="copyToClipboard()"
+            class="fas fa-light fa-copy copy-icon"
+          ></i>
+          <br />
+          <p id="" class="copy-text">install boost accumulators</p>
+          <i
+            onclick="copyToClipboard()"
+            class="fas fa-light fa-copy copy-icon"
+          ></i>
+          <br />
+          <p id="" class="copy-text">install boost accumulators</p>
+          <i
+            onclick="copyToClipboard()"
+            class="fas fa-light fa-copy copy-icon"
+          ></i>
+          <br />
+          <div class="circle">
+            <span class="circle-text">C++</span>
+          </div>
+        </div>
       </div>
       <div class="section-two-right">
-        <fieldset><legend>Compiler Explorer</legend>
+        <fieldset>
+          <legend>Compiler Explorer</legend>
           <form method="post" action="{% url 'home-beta' %}">
             {% csrf_token %}
             <div class="compiler-block">
               <label for="code">Code:</label>
-              <br>
-              <textarea name="code" id="" class="compiler-text-area">{{ request.POST.code }}</textarea>
-              <br>
+              <br />
+              <textarea name="code" id="" class="compiler-text-area">
+{{ request.POST.code }}</textarea
+              >
+              <br />
               <button type="submit" class="run-btn">Run</button>
             </div>
             <div class="compiler-output">
               {% if output %}
-                <div class="output">{{ output }}</div>
-              {% endif %}
-              {% if error %}
-                <div class="error">error</div>
+              <div class="output">{{ output }}</div>
+              {% endif %} {% if error %}
+              <div class="error">error</div>
               {% endif %}
             </div>
           </form>
         </fieldset>
       </div>
-
     </div>
   </div>
-    <!---------- SECTION - 03 ------------>
-    <!---------- SECTION - 04 ------------>
+  <!---------- SECTION - 03 ------------>
+  <!---------- SECTION - 04 ------------>
 
-  <hr class="line-breaker">
+  <hr class="line-breaker" />
   <h2 style="margin: 20px 0px">News from Boost and C++</h2>
   <div class="section-04">
     <div class="news-container">
-      <p class="news-text">Boost.MySQL is an Asio-based network client which lets you access MySQL and MariaDB databases using your own data types New in Boost 1.82.0,
-        check it out here https://https://boost.org/libs/mysql
-        Get Boost:
-        https://boost.org/users/history/version_1_82_0.html
-        #boost #cpp #cplusplus #mysql #mariadb #database</p>
-      <img src="{% static 'img/fpo/news-1.png' %}" class="news-image"/>
+      <p class="news-text">
+        Boost.MySQL is an Asio-based network client which lets you access MySQL
+        and MariaDB databases using your own data types New in Boost 1.82.0,
+        check it out here https://https://boost.org/libs/mysql Get Boost:
+        https://boost.org/users/history/version_1_82_0.html #boost #cpp
+        #cplusplus #mysql #mariadb #database
+      </p>
+      <img src="{% static 'img/fpo/news-1.png' %}" class="news-image" />
     </div>
     <div class="news-container">
-      <p class="news-text">Boost 1.82.0 is released for the Spring season!
-        Release Notes: https://boost.org/users/history/version_1_82_0.html
-        Downloads: http://boost.org/users/news/version_1.82.0
-        Direct Download:
-        https://boostorg.jfrog.io/artifactory/main/release/1.82.0
-        #boost #cpp #cplusplus</p>
-      <img src="{% static 'img/fpo/news-2.png' %}" class="news-image"/>
+      <p class="news-text">
+        Boost 1.82.0 is released for the Spring season! Release Notes:
+        https://boost.org/users/history/version_1_82_0.html Downloads:
+        http://boost.org/users/news/version_1.82.0 Direct Download:
+        https://boostorg.jfrog.io/artifactory/main/release/1.82.0 #boost #cpp
+        #cplusplus
+      </p>
+      <img src="{% static 'img/fpo/news-2.png' %}" class="news-image" />
     </div>
   </div>
 
-      <!---------- SECTION - 05 ------------>
+  <!---------- SECTION - 05 ------------>
 
-  <hr class="line-breaker">
+  <hr class="line-breaker" />
   <h2 style="margin: 20px 0px">Activity Apr21,2023 - May20,2023</h2>
   <div class="section-05">
     <div class="activity-containers">
-      <fieldset style="margin: 0px 3px"><legend>Code</legend>
+      <fieldset style="margin: 0px 3px">
+        <legend>Code</legend>
         <select class="activity-select">
           <option value="option1">Option 1</option>
           <option value="option2">Option 2</option>
@@ -133,9 +330,6 @@
     </div>
   </div>
 </main>
-
-
-
 
 <!--  <main class="px-4 my-16 mx-auto sm:mt-24">
   <div class="grid gap-6 mt-12 sm:grid-cols-1 md:grid-cols-1 md:mt-16 lg:grid-cols-0">
@@ -314,10 +508,6 @@
     </div>
     </div>
   </main>-->
-  <!-- End Homepage Hero Section -->
+<!-- End Homepage Hero Section -->
 
-{% endblock %}
-
-{% block footer_js %}
-
-{% endblock %}
+{% endblock %} {% block footer_js %} {% endblock %}
