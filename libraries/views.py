@@ -7,6 +7,7 @@ from django.views.generic.edit import FormMixin
 
 from versions.models import Version
 from .forms import VersionSelectionForm
+from .github import GithubAPIClient
 from .models import Category, Issue, Library, LibraryVersion, PullRequest
 
 logger = structlog.get_logger()
@@ -114,6 +115,10 @@ class LibraryDetail(CategoryMixin, FormMixin, DetailView):
             .filter(library_version__library=self.object)
             .distinct()
             .order_by("-release_date")
+        )
+        client = GithubAPIClient(repo_slug=self.object.github_repo)
+        context["description"] = self.object.get_description(
+            client, tag=context["version"].name
         )
         return context
 
