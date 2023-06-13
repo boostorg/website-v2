@@ -230,6 +230,32 @@ class GithubAPIClient:
         else:
             return response.json()
 
+    def get_file_content(
+        self,
+        repo_slug: str = None,
+        tag: str = "master",
+        file_path: str = "library-detail.adoc",
+    ) -> str:
+        """
+        Get the specified file for the repo from the GitHub API, if it exists.
+
+        :param repo_slug: str, the repository slug
+        :param tag: str, the Git tag
+        :param file_name: str, the name of the file to fetch. Should be "library-detail.adoc" or "README.md".
+        :return: str, the specified file content from the repo
+        """
+        url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/{tag}/{file_path}"  # noqa
+
+        response = requests.get(url)
+
+        if not response.status_code == 200:
+            logger.exception(
+                "get_file_content_failed", repo=repo_slug, url=url, file=file_path
+            )
+            return None
+
+        return response.content
+
     def get_ref(self, repo_slug: str = None, ref: str = None) -> dict:
         """
         Get the ref from the GitHub API.
