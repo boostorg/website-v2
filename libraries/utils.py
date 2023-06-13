@@ -1,10 +1,18 @@
 import structlog
+import tempfile
 
 from dateutil.parser import ParserError, parse
 from django.utils.text import slugify
 
 
 logger = structlog.get_logger()
+
+
+def decode_content(content):
+    """Decode bytes to string."""
+    if isinstance(content, bytes):
+        return content.decode("utf-8")
+    return content
 
 
 def generate_fake_email(val: str) -> str:
@@ -25,3 +33,14 @@ def parse_date(date_str):
     except ParserError:
         logger.info("parse_date_invalid_date", date_str=date_str)
         return None
+
+
+def write_content_to_tempfile(content):
+    """Accepts string or bytes content, writes it to a temporary file, and returns the
+    file object."""
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        if isinstance(content, bytes):
+            temp_file = open(temp_file.name, "wb")
+        temp_file.write(content)
+        temp_file.close()
+    return temp_file

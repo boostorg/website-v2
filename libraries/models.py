@@ -1,8 +1,16 @@
 from urllib.parse import urlparse
 
+from django.core.cache import caches
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.text import slugify
+
+from core.boostrenderer import get_body_from_html
+from core.markdown import process_md
+from core.models import RenderedContent
+from core.tasks import adoc_to_html
+
+from .utils import write_content_to_tempfile
 
 
 class Category(models.Model):
@@ -135,6 +143,56 @@ class Library(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
+
+    def get_description(self, client, tag="develop"):
+        """Get description from the appropriate file on GitHub.
+
+        For more recent versions, that will be `/doc/library-details.adoc`.
+        For older versions, or libraries that have not adopted the adoc file,
+        that will be `/README.md`.
+        """
+        content = None
+        # File paths/names where description data might be stored.
+        files = ["doc/library-detail.adoc", "README.md"]
+
+        # Try to get the content from the cache first
+        static_content_cache = caches["static_content"]
+        cache_key = f"static_content_{self.github_repo}_{tag}"
+        cached_result = static_content_cache.get(cache_key)
+        if cached_result:
+            return cached_result
+
+        # Now try to get the content from the database
+        try:
+            content_obj = RenderedContent.objects.get(cache_key=cache_key)
+            # TODO: if master or develop, fire a task to update the content
+            return content_obj.content_html
+        except RenderedContent.DoesNotExist:
+            pass
+
+        # It's not in a cache -- now try to get the content of each file in turn
+        for file_path in files:
+            content = client.get_file_content(
+                repo_slug=self.github_repo, tag=tag, file_path=file_path
+            )
+            if content:
+                # There is content, so process it
+                temp_file = write_content_to_tempfile(content)
+                if file_path.endswith(".adoc"):
+                    html_content = adoc_to_html(temp_file.name, delete_file=True)
+                    body_content = get_body_from_html(html_content)
+                else:
+                    _, body_content = process_md(temp_file.name)
+                static_content_cache.set(cache_key, body_content)
+                RenderedContent.objects.update_or_create(
+                    cache_key=cache_key,
+                    content_html=body_content,
+                    content_type="text/html",
+                )
+                return body_content
+
+        # If no content was found for any of the files
+        return None
 
     def get_cpp_standard_minimum_display(self):
         """Returns the display name for the C++ standard, or the value if not found.
