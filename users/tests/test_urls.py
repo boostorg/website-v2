@@ -101,7 +101,7 @@ def test_profile_photo_update_success(tp, user, client):
     )
     res = tp.post("profile-photo", data={"image": image})
     tp.response_302(res)
-    assert f"/users/{user.pk}" in res.url
+    assert "/users/me/" in res.url
     user.refresh_from_db()
     assert user.image != old_image
 

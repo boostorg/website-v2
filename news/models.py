@@ -24,12 +24,15 @@ class EntryManager(models.Manager):
         )
         if self.model == Entry:
             result = result.annotate(
-                tag=Case(
-                    When(blogpost__entry_ptr__isnull=False, then=Value("blogpost")),
-                    When(link__entry_ptr__isnull=False, then=Value("link")),
-                    When(news__entry_ptr__isnull=False, then=Value("news")),
-                    When(poll__entry_ptr__isnull=False, then=Value("poll")),
-                    When(video__entry_ptr__isnull=False, then=Value("video")),
+                _tag=Case(
+                    When(
+                        blogpost__entry_ptr__isnull=False,
+                        then=Value(BlogPost.news_type),
+                    ),
+                    When(link__entry_ptr__isnull=False, then=Value(Link.news_type)),
+                    When(news__entry_ptr__isnull=False, then=Value(News.news_type)),
+                    When(poll__entry_ptr__isnull=False, then=Value(Poll.news_type)),
+                    When(video__entry_ptr__isnull=False, then=Value(Video.news_type)),
                     default=Value(""),
                 )
             )
@@ -48,7 +51,7 @@ class Entry(models.Model):
     class AlreadyApprovedError(Exception):
         """The entry cannot be approved again."""
 
-    _news_type = ""
+    news_type = ""
     slug = models.SlugField()
     title = models.CharField(max_length=255)
     content = models.TextField(blank=True, default="")
@@ -91,8 +94,8 @@ class Entry(models.Model):
         return self.is_approved and self.publish_at <= now()
 
     @cached_property
-    def news_type(self):
-        return getattr(self, "tag", self._news_type)
+    def tag(self):
+        return getattr(self, "_tag", self.news_type)
 
     @cached_property
     def is_blogpost(self):
@@ -169,7 +172,7 @@ class Entry(models.Model):
 
 
 class News(Entry):
-    _news_type = "news"
+    news_type = "news"
 
     class Meta:
         verbose_name = "News"
@@ -177,22 +180,22 @@ class News(Entry):
 
 
 class BlogPost(Entry):
-    _news_type = "blogpost"
+    news_type = "blogpost"
     abstract = models.CharField(max_length=256)
     # Possible extra fields: RSS feed? banner? keywords? tags?
 
 
 class Link(Entry):
-    _news_type = "link"
+    news_type = "link"
 
 
 class Video(Entry):
-    _news_type = "video"
+    news_type = "video"
     # Possible extra fields: length? quality?
 
 
 class Poll(Entry):
-    _news_type = "poll"
+    news_type = "poll"
     # Possible extra fields: voting expiration date?
 
 

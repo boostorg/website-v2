@@ -10,10 +10,12 @@ from machina import urls as machina_urls
 
 from users.views import (
     UserViewSet,
-    CurrentUserView,
-    ProfileViewSet,
+    CurrentUserAPIView,
+    CurrentUserProfileView,
+    ProfileView,
     ProfilePhotoGitHubUpdateView,
     ProfilePhotoUploadView,
+    ProfilePreferencesView,
 )
 from ak.views import (
     HomepageView,
@@ -74,8 +76,14 @@ urlpatterns = (
             name="profile-photo-github",
         ),
         path("users/me/photo/", ProfilePhotoUploadView.as_view(), name="profile-photo"),
-        path("users/me/", CurrentUserView.as_view(), name="current-user"),
-        path("users/<int:pk>/", ProfileViewSet.as_view(), name="profile-user"),
+        path(
+            "users/me/preferences/",
+            ProfilePreferencesView.as_view(),
+            name="profile-preferences",
+        ),
+        path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
+        path("users/<int:pk>/", ProfileView.as_view(), name="profile-user"),
+        path("api/v1/users/me/", CurrentUserAPIView.as_view(), name="current-user"),
         path("api/v1/", include(router.urls)),
         path("200", OKView.as_view(), name="ok"),
         path("403", ForbiddenView.as_view(), name="forbidden"),

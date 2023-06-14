@@ -9,10 +9,7 @@ User = get_user_model()
 
 
 def send_email_after_approval(request, entry):
-    if (
-        entry.news_type
-        not in entry.author.preferences.allow_notification_own_news_approved
-    ):
+    if entry.tag not in entry.author.preferences.allow_notification_own_news_approved:
         return False
 
     template = Template(
@@ -42,8 +39,7 @@ def send_email_news_needs_moderation(request, entry):
     recipient_list = sorted(
         u.email
         for u in moderators().select_related("preferences").only("email")
-        if entry.news_type
-        in u.preferences.allow_notification_others_news_needs_moderation
+        if entry.tag in u.preferences.allow_notification_others_news_needs_moderation
     )
     if not recipient_list:
         return False
