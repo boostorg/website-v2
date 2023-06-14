@@ -1,4 +1,5 @@
 import datetime
+import pytest
 
 from model_bakery import baker
 
@@ -17,12 +18,25 @@ def test_version_slug(version):
     assert version.slug == "new-name"
 
 
+@pytest.mark.parametrize(
+    "slug, expected_slug",
+    [
+        ("boost-1.71.0", "1_71_0"),
+        ("boost-1-71-0", "1_71_0"),
+        ("develop", "develop"),
+    ],
+)
+def test_boost_url_slug(slug, expected_slug):
+    version = baker.make("versions.Version", name=slug)
+    assert version.boost_url_slug == expected_slug
+
+
 def test_version_get_slug(db):
     version = baker.prepare("versions.Version", name="Sample Library")
     assert version.get_slug() == "sample-library"
 
 
-def test_version_display_bname(version):
+def test_version_display_name(version):
     version.name = "boost-1.81.0"
     version.save()
     assert version.display_name == "1.81.0"
