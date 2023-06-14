@@ -35,12 +35,14 @@ class CurrentUserSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "last_name",
+            "image",
             "date_joined",
             "data",
         )
         read_only_fields = (
             "id",
             "email",  # Users shouldn't change their email this way
+            "image",
             "date_joined",
         )
 

@@ -61,6 +61,7 @@ INSTALLED_APPS = [
 INSTALLED_APPS += [
     "anymail",
     "rest_framework",
+    "corsheaders",
     "django_extensions",
     "health_check",
     "health_check.db",
@@ -109,6 +110,7 @@ csrf_trusted_origins = env.list(
 CSRF_TRUSTED_ORIGINS = [el.strip() for el in csrf_trusted_origins]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "tracer.middleware.RequestID",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -435,3 +437,27 @@ else:
             "MAILGUN_SENDER_DOMAIN", default="boost.revsys.dev"
         ),
     }
+
+CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOWED_ORIGINS = [
+#     "https://localhost:5252",
+#     "http://192.168.1.81:5252",
+#     "http://localhost:8080",
+# ]
+# CORS_ALLOW_METHODS = (
+#     "DELETE",
+#     "GET",
+#     "OPTIONS",
+#     "PATCH",
+#     "POST",
+#     "PUT",
+# )
+from corsheaders.defaults import default_headers
+
+CORS_ALLOW_HEADERS = (
+    *default_headers,
+    "hx-request",
+    "hx-target",
+    "hx-current-url",
+    "credentials",
+)
