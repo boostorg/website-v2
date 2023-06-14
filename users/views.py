@@ -7,8 +7,10 @@ from django.views.generic import DetailView, UpdateView
 from django.views.generic.edit import FormView
 
 from rest_framework import generics
+from rest_framework import renderers
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from .forms import PreferencesForm, UserProfilePhotoForm
 from .models import User
@@ -46,6 +48,22 @@ class CurrentUserAPIView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class CurrentUserFragmentView(viewsets.ViewSet):
+
+    serializer_class = CurrentUserSerializer
+    # permission_classes = [IsAuthenticated]
+    template_name = "users/includes/user_join.html"
+    renderer_classes = (renderers.TemplateHTMLRenderer,)
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return Response(
+                {"user": self.serializer_class.data},
+                template_name="users/includes/user_profile_image.html",
+            )
+        return Response({}, template_name="users/includes/user_join.html")
 
 
 class ProfileView(DetailView):
