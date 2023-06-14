@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Case, Value, When
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
@@ -13,7 +14,7 @@ User = get_user_model()
 
 class EntryManager(models.Manager):
     def get_queryset(self):
-        return (
+        result = (
             super()
             .get_queryset()
             .annotate(
@@ -21,6 +22,18 @@ class EntryManager(models.Manager):
             )
             .annotate(published=models.Q(publish_at__lte=now(), approved=True))
         )
+        if self.model == Entry:
+            result = result.annotate(
+                tag=Case(
+                    When(blogpost__entry_ptr__isnull=False, then=Value("blogpost")),
+                    When(link__entry_ptr__isnull=False, then=Value("link")),
+                    When(news__entry_ptr__isnull=False, then=Value("news")),
+                    When(poll__entry_ptr__isnull=False, then=Value("poll")),
+                    When(video__entry_ptr__isnull=False, then=Value("video")),
+                    default=Value(""),
+                )
+            )
+        return result
 
 
 class Entry(models.Model):
@@ -35,7 +48,7 @@ class Entry(models.Model):
     class AlreadyApprovedError(Exception):
         """The entry cannot be approved again."""
 
-    news_type = None
+    _news_type = ""
     slug = models.SlugField()
     title = models.CharField(max_length=255)
     content = models.TextField(blank=True, default="")
@@ -57,7 +70,8 @@ class Entry(models.Model):
     objects = EntryManager()
 
     class Meta:
-        verbose_name_plural = "Entries"
+        verbose_name = "News"
+        verbose_name_plural = "News"
 
     def __str__(self):
         # avoid printing author information that cause extra queries
@@ -76,6 +90,10 @@ class Entry(models.Model):
     @property
     def is_published(self):
         return self.is_approved and self.publish_at <= now()
+
+    @cached_property
+    def news_type(self):
+        return getattr(self, "tag", self._news_type)
 
     @cached_property
     def is_blogpost(self):
@@ -152,7 +170,7 @@ class Entry(models.Model):
 
 
 class News(Entry):
-    news_type = "news"
+    _news_type = "news"
 
     class Meta:
         verbose_name = "News"
@@ -160,22 +178,22 @@ class News(Entry):
 
 
 class BlogPost(Entry):
-    news_type = "blogpost"
+    _news_type = "blogpost"
     abstract = models.CharField(max_length=256)
     # Possible extra fields: RSS feed? banner? keywords? tags?
 
 
 class Link(Entry):
-    news_type = "link"
+    _news_type = "link"
 
 
 class Video(Entry):
-    news_type = "video"
+    _news_type = "video"
     # Possible extra fields: length? quality?
 
 
 class Poll(Entry):
-    news_type = "poll"
+    _news_type = "poll"
     # Possible extra fields: voting expiration date?
 
 
@@ -186,4 +204,4 @@ class PollChoice(models.Model):
     votes = models.ManyToManyField(User)
 
 
-NEWS_MODELS = [Entry, BlogPost, Link, News, Poll, Video]
+NEWS_MODELS = [BlogPost, Link, News, Poll, Video]
