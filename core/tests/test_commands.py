@@ -8,8 +8,9 @@ import os
 def cleanup_test_asciidoc():
     # This function will be executed after the test function completes
     def remove_files():
-        expected_output_file = "core/tests/sample.html"
-        os.remove(os.path.join(settings.BASE_DIR, expected_output_file))
+        for extension in ("adoc", "html"):
+            expected_output_file = f"core/tests/sample.{extension}"
+            os.remove(os.path.join(settings.BASE_DIR, expected_output_file))
 
     # Yield control back to the test function
     yield

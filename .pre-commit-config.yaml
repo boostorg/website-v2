@@ -1,11 +1,11 @@
 default_language_version:
   python: python3.11
 
-exclude: .*migrations\/.*|static\/img\/.*|static\/animations\/.*
+exclude: .*migrations\/.*|static\/img\/.*|static\/animations\/.*|kube\/boost\/templates\/.*\.yaml
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
       - id: check-case-conflict
       - id: check-merge-conflict
@@ -17,12 +17,12 @@ repos:
     hooks:
       - id: black
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: 'v0.0.263'
+    rev: v0.0.272
     hooks:
       - id: ruff
         args: [--fix]
   - repo: https://github.com/rtts/djhtml
-    rev: 'v2.0.0'
+    rev: 3.0.6
     hooks:
       - id: djhtml
         entry: djhtml --tabwidth 2
