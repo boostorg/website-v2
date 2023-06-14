@@ -63,9 +63,9 @@ jobs:
         run: |
           python -m pytest
 
-      - name: Lints with Black
+      - name: Lints with pre-commit
         run: |
-          python -m black --check .
+          pre-commit run -a
 
   build:
     needs: [test]
