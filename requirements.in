@@ -49,7 +49,7 @@ minio
 # Packaging
 pip-tools==6.13.0
 
-# Parsing content from external sources (like S3) 
+# Parsing content from external sources (like S3)
 mistletoe
 python-frontmatter
 beautifulsoup4
