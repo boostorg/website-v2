@@ -10,3 +10,9 @@ target-version = "py311"
 
 [tool.black]
 line-length = 88
+exclude = '''
+/(
+    \.git
+  | migrations
+)/
+'''

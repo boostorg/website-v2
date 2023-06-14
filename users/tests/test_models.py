@@ -1,7 +1,8 @@
 import pytest
 
-
 from django.contrib.auth import get_user_model
+
+from ..models import Preferences
 
 User = get_user_model()
 
@@ -119,3 +120,45 @@ def test_find_contributor_is_maintainer(user, library_version):
         first_name=user.first_name, last_name=user.last_name
     )
     assert found_user == user
+
+
+def test_preferences(user):
+    assert Preferences.objects.get(user=user) == user.preferences
+    assert user.preferences.notifications == {
+        "own-news-approved": ["all"],
+        "others-news-posted": [],
+        "others-news-needs-moderation": ["all"],
+    }
+
+
+@pytest.mark.parametrize(
+    "notification_type, default",
+    [
+        ("own-news-approved", ["all"]),
+        ("others-news-posted", []),
+        ("others-news-needs-moderation", ["all"]),
+    ],
+)
+def test_preferences_set_value(user, notification_type, default):
+    attr_name = f"allow_notification_{notification_type.replace('-', '_')}"
+
+    # default value
+    assert user.preferences.notifications[notification_type] == default
+    assert getattr(user.preferences, attr_name) == (
+        Preferences.ALL_NEWS_TYPES if "all" in default else default
+    )
+
+    # set empty list
+    setattr(user.preferences, attr_name, [])
+    assert getattr(user.preferences, attr_name) == []
+    assert user.preferences.notifications[notification_type] == []
+
+    # set a few values
+    setattr(user.preferences, attr_name, ["link", "blogpost"])
+    assert getattr(user.preferences, attr_name) == ["blogpost", "link"]
+    assert user.preferences.notifications[notification_type] == ["blogpost", "link"]
+
+    # set all values
+    setattr(user.preferences, attr_name, list(reversed(Preferences.ALL_NEWS_TYPES)))
+    assert getattr(user.preferences, attr_name) == Preferences.ALL_NEWS_TYPES
+    assert user.preferences.notifications[notification_type] == ["all"]

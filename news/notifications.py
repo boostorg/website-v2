@@ -9,6 +9,12 @@ User = get_user_model()
 
 
 def send_email_after_approval(request, entry):
+    if (
+        entry.news_type
+        not in entry.author.preferences.allow_notification_own_news_approved
+    ):
+        return False
+
     template = Template(
         'Congratulations! The news entry "{{ entry.title }}" that you submitted on '
         '{{ entry.created_at|date:"M jS, Y" }} was approved.\n'
@@ -33,6 +39,15 @@ def send_email_after_approval(request, entry):
 
 
 def send_email_news_needs_moderation(request, entry):
+    recipient_list = sorted(
+        u.email
+        for u in moderators().select_related("preferences").only("email")
+        if entry.news_type
+        in u.preferences.allow_notification_others_news_needs_moderation
+    )
+    if not recipient_list:
+        return False
+
     template = Template(
         "Hello! You are receiving this email because you are a Boost news moderator.\n"
         "The user {{ user.get_display_name|default:user.email }} has submitted a "
@@ -54,7 +69,6 @@ def send_email_news_needs_moderation(request, entry):
         )
     )
     subject = "Boost.org: News entry needs moderation"
-    recipient_list = sorted(u.email for u in moderators().only("email"))
     return send_mail(
         subject=subject,
         message=body,
