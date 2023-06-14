@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block subnav %}
+  <div class="flex items-center py-3 px-4 border-b md:px-0 md:border-0 border-slate">
+    <div>
+      {% if user.image %}
+        <img src="{{ user.image.url }}" alt="user" class="inline rounded-lg w-[80px]" />
+      {% else %}
+        <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
+      {% endif %}
+    </div>
+    <div class="ml-4 text-sm">
+      <span class="block">{{ user.get_full_name }}</span>
+      <span class="text-xs text-slate">Joined {{ user.date_joined }}</span>
+    </div>
+  </div>
+  <div class="relative py-8 px-4 space-y-4 text-sm uppercase border-b md:py-2 md:px-0 md:space-x-10 border-slate">
+    {% url 'profile-account' as account_url %}
+    <a href="{{ account_url }}" class="block md:inline {% if request.path == account_url %} md:py-1 md:border-b text-orange md:border-orange{% endif %}">
+      Account
+    </a>
+    {% url 'profile-photo' as photo_url %}
+    <a href="{{ photo_url }}" class="block md:inline {% if request.path == photo_url %} md:py-1 md:border-b text-orange md:border-orange{% endif %}">
+      Photo
+    </a>
+    {% url 'profile-preferences' as preferences_url %}
+    <a href="{{ preferences_url }}" class="block md:inline {% if request.path == preferences_url %} md:py-1 md:border-b text-orange md:border-orange{% endif %}">
+      Preferences
+    </a>
+    <a href="#" class="block md:inline">Password</a>
+    <a href="#" class="block md:inline">Help</a>
+  </div>
+{% endblock %}

@@ -61,8 +61,8 @@ def test_entry_list(
     for n in expected:
         assert n.get_absolute_url() in content
         assert n.title in content
-        if n.news_type:
-            assert n.news_type in content  # this is the tag
+        if n.tag:
+            assert n.tag in content  # this is the tag
 
     assert not_approved_news.get_absolute_url() not in content
     assert not_approved_news.title not in content
@@ -93,16 +93,16 @@ def test_entry_list_queries(tp, make_entry):
     for n in expected:
         assert n.get_absolute_url() in content
         assert n.title in content
-        news_type_tag = (
-            f'<a data-test="news-tag" href="/news/{n.news_type}/" '
+        news_tag = (
+            f'<a data-test="news-tag" href="/news/{n.tag}/" '
             f'class="px-3 text-sm rounded-md border-orange bg-orange">'
-            f"<strong>{n.news_type}</strong>"
+            f"<strong>{n.tag}</strong>"
             f"</a>"
         )
-        if not n.news_type:
-            tp.assertResponseNotContains(news_type_tag, response)
+        if not n.tag:
+            tp.assertResponseNotContains(news_tag, response)
         else:
-            tp.assertResponseContains(news_type_tag, response)  # this is the tag
+            tp.assertResponseContains(news_tag, response)  # this is the tag
 
 
 @pytest.mark.parametrize(
