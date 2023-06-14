@@ -3,6 +3,7 @@ bumpversion
 django-admin-env-notice
 django-allauth==0.53.1
 django-anymail[mailgun]
+django-cors-headers
 django-db-geventpool
 django-extensions
 django-health-check

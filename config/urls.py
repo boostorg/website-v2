@@ -16,6 +16,7 @@ from users.views import (
     ProfilePhotoGitHubUpdateView,
     ProfilePhotoUploadView,
     ProfilePreferencesView,
+    CurrentUserFragmentView,
 )
 from ak.views import (
     HomepageView,

@@ -85,7 +85,11 @@ django==4.2.2
     #   -r ./requirements.in
     #   dj-database-url
     #   django-allauth
+<<<<<<< HEAD
     #   django-anymail
+=======
+    #   django-cors-headers
+>>>>>>> e47c65f (:tractor: feed header components to antora)
     #   django-db-geventpool
     #   django-extensions
     #   django-haystack
@@ -108,6 +112,8 @@ django-bakery==0.13.2
 django-cache-url==3.4.4
     # via environs
 django-click==2.3.0
+    # via -r ./requirements.in
+django-cors-headers==4.0.0
     # via -r ./requirements.in
 django-db-geventpool==4.0.1
     # via -r ./requirements.in

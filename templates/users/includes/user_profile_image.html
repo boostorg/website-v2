@@ -1,0 +1,26 @@
+{% if user.image %}
+  <img src="{{ user.image.url }}" alt="user" class="inline -mt-1 rounded-sm cursor-pointer w-[30px]" @click="userOpen = !userOpen" />
+{% else %}
+  <i class="inline mr-2 cursor-pointer fas fa-user text-charcoal dark:text-white/60" @click="userOpen = !userOpen"></i>
+{% endif %}
+
+<div x-show="userOpen"
+     @click.away="userOpen = false"
+     x-transition:enter="transition ease-out duration-100"
+     x-transition:enter-start="transform opacity-0 scale-95"
+     x-transition:enter-end="transform opacity-100 scale-100"
+     x-transition:leave="transition ease-in duration-75"
+     x-transition:leave-start="transform opacity-100 scale-100"
+     x-transition:leave-end="transform opacity-0 scale-95"
+     class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 ring-1 ring-gray-300 shadow-lg origin-top-right dark:ring-gray-500 darK:divide-gray-500 dark:bg-charcoal"
+     x-ref="menu-items"
+     x-description="Profile Menu"
+     role="menu"
+     aria-orientation="vertical"
+     aria-labelledby="user-menu-button"
+     tabindex="-1"
+     style="display: none;"
+>
+  <a href="#" class="block py-2 text-xs font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">My Profile</a>
+  <a href="/accounts/logout/" class="block py-2 text-xs font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">Log Out</a>
+</div>
