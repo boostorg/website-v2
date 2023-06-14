@@ -45,6 +45,25 @@ class Version(models.Model):
     def display_name(self):
         return self.name.replace("boost-", "")
 
+    @cached_property
+    def boost_url_slug(self):
+        """Return the slug for the version that is used in the Boost URL to get to
+        the existing Boost docs. The GitHub slug and the Boost slug don't match, so
+        this method converts the GitHub slug to the Boost slug.
+
+        Example:
+        - "boost-1.75.0" --> "1_75_0"
+        - "develop" --> "develop"
+        """
+        # A Boost release, formmatted as "boost-N.NN.N"
+        if "-" in self.slug:
+            slug_parts = self.slug.split("-")[1:]
+            formatted_slug = "_".join(slug_parts)
+        # A specific tag, like "develop"
+        else:
+            formatted_slug = self.slug
+        return formatted_slug
+
 
 class VersionFile(models.Model):
     Unix = "Unix"
