@@ -65,7 +65,7 @@ jobs:
 
       - name: Lints with pre-commit
         run: |
-          pre-commit run -a
+          pre-commit run
 
   build:
     needs: [test]
