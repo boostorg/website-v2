@@ -57,3 +57,14 @@ def super_user(db):
     user.save()
 
     return user
+
+
+@pytest.fixture
+def assert_messages():
+    def _assert_and_fetch(response, expected):
+        messages = [
+            (m.level_tag, m.message) for m in response.context.get("messages", [])
+        ]
+        assert messages == expected
+
+    return _assert_and_fetch

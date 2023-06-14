@@ -1,0 +1,24 @@
+{% extends "users/profile_base.html" %}
+
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <div class="content-section">
+
+    <h3>Update Preferences</h3>
+
+    <form method="POST" action=".">
+      {% csrf_token %}
+      <p>Notify me via email when:</p>
+      {{ form.errors }}
+      <fieldset>
+        {{ form.as_div }}
+      </fieldset>
+      <div class="mb-4">
+          <button class="py-2 px-3 text-sm uppercase rounded border border-orange text-orange" type="submit">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

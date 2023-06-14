@@ -270,14 +270,14 @@ def test_entry_manager_custom_queryset(make_entry, model_class):
         entry_not_published,
     ]
     # Intentionally query via Entry since children do not have the annotation
-    assert {e.tag for e in Entry.objects.all()} == {model_class._news_type}
+    assert {e.tag for e in Entry.objects.all()} == {model_class.news_type}
 
 
 def test_entry_manager_custom_queryset_tags_mixed(make_entry):
     for model_class in [Entry] + NEWS_MODELS:
         make_entry(model_class)
 
-    entries = Entry.objects.all().order_by("tag")
+    entries = Entry.objects.all().order_by("id")
     assert [e.tag for e in entries] == ["", "blogpost", "link", "news", "poll", "video"]
 
 
@@ -285,35 +285,45 @@ def test_blogpost():
     blogpost = baker.make("BlogPost")
     assert isinstance(blogpost, Entry)
     assert blogpost.news_type == "blogpost"
-    assert Entry.objects.get(id=blogpost.id).blogpost == blogpost
+    entry = Entry.objects.get(id=blogpost.id)
+    assert entry.blogpost == blogpost
+    assert entry.tag == "blogpost"
 
 
 def test_link():
     link = baker.make("Link")
     assert isinstance(link, Entry)
     assert link.news_type == "link"
-    assert Entry.objects.get(id=link.id).link == link
+    entry = Entry.objects.get(id=link.id)
+    assert entry.link == link
+    assert entry.tag == "link"
 
 
 def test_news():
     news = baker.make("News")
     assert isinstance(news, Entry)
     assert news.news_type == "news"
-    assert Entry.objects.get(id=news.id).news == news
+    entry = Entry.objects.get(id=news.id)
+    assert entry.news == news
+    assert entry.tag == "news"
 
 
 def test_video():
     video = baker.make("Video")
     assert isinstance(video, Entry)
     assert video.news_type == "video"
-    assert Entry.objects.get(id=video.id).video == video
+    entry = Entry.objects.get(id=video.id)
+    assert entry.video == video
+    assert entry.tag == "video"
 
 
 def test_poll():
     poll = baker.make("Poll")
     assert isinstance(poll, Entry)
     assert poll.news_type == "poll"
-    assert Entry.objects.get(id=poll.id).poll == poll
+    entry = Entry.objects.get(id=poll.id)
+    assert entry.poll == poll
+    assert entry.tag == "poll"
 
 
 def test_poll_choice():

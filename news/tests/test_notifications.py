@@ -12,9 +12,7 @@ from users.models import Preferences
 @pytest.mark.parametrize("model_class", NEWS_MODELS)
 def test_send_email_after_approval(rf, tp, make_entry, model_class):
     entry = make_entry(model_class, approved=True, created_at=date(2023, 5, 31))
-    assert (
-        entry.news_type in entry.author.preferences.allow_notification_own_news_approved
-    )
+    assert entry.tag in entry.author.preferences.allow_notification_own_news_approved
 
     request = rf.get("")
 
@@ -37,8 +35,7 @@ def test_send_email_after_approval_author_email_preferences_do_not_notify_all_ty
     entry = make_entry(model_class, approved=True)
     entry.author.preferences.notifications[Preferences.OWNS_NEWS_APPROVED] = []
     assert (
-        entry.news_type
-        not in entry.author.preferences.allow_notification_own_news_approved
+        entry.tag not in entry.author.preferences.allow_notification_own_news_approved
     )
     request = rf.get("")
 
@@ -52,11 +49,10 @@ def test_send_email_after_approval_author_email_preferences_do_not_notify_other_
 ):
     entry = make_entry(model_class=NEWS_MODELS[0], approved=True)
     entry.author.preferences.notifications[Preferences.OWNS_NEWS_APPROVED] = [
-        NEWS_MODELS[1]._news_type
+        NEWS_MODELS[1].news_type
     ]
     assert (
-        entry.news_type
-        not in entry.author.preferences.allow_notification_own_news_approved
+        entry.tag not in entry.author.preferences.allow_notification_own_news_approved
     )
     request = rf.get("")
 
@@ -83,10 +79,10 @@ def test_send_email_news_needs_moderation(
     third = make_user(groups={"editors": ["news.*"]}, email="thrid@x.com")
     third.preferences.notifications[Preferences.OTHERS_NEWS_NEEDS_MODERATION] = []
     third.preferences.save()
-    # Forth moderator that do allow email notifications for this news_type
+    # Forth moderator that do allow email notifications for this news type
     forth = make_user(perms=["news.*"], email="forth@example.com")
     forth.preferences.notifications[Preferences.OTHERS_NEWS_NEEDS_MODERATION] = [
-        entry.news_type
+        entry.tag
     ]
     forth.preferences.save()
 
