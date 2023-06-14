@@ -1,26 +1,26 @@
 {% extends "base.html" %} {% load static %} {% block content %}
 <!-- Homepage Hero Section -->
 <main>
-  {% comment %}<div class="text-right mx-10">
-	<button class="rounded-full py-2 text-xs cursor-pointer" @click="darkMode = !darkMode"><i class="inline-block mr-1 font-semibold fas fa-sun text-white"></i><i class="inline-block mr-1 font-semibold fas fa-moon text-black"></i></button>
+  {% comment %}<div class="mx-10 text-right">
+	<button class="py-2 text-xs rounded-full cursor-pointer" @click="darkMode = !darkMode"><i class="inline-block mr-1 font-semibold text-white fas fa-sun"></i><i class="inline-block mr-1 font-semibold text-black fas fa-moon"></i></button>
   </div>{% endcomment %}
 
   {% comment %} Section 1 {% endcomment %}
-  <div class="px-4 my-0 md:my-4 mx-auto">
+  <div class="px-4 my-0 mx-auto md:my-4">
 
     <div
-      class="page-container grid grid-rows-1 auto-rows-fr md:grid-cols-2 md:gap-x-10 md:mb-10"
+      class="grid grid-rows-1 auto-rows-fr md:grid-cols-2 md:gap-x-10 md:mb-10 page-container"
     >
-      <div class="h-full order-last md:order-first">
+      <div class="order-last h-full md:order-first">
         <h1 class="text-4xl font-extrabold md:text-6xl">Boost your C++</h1>
         <p
-          class="mx-auto mt-3 max-w-md text-base md:text-lg md:mt-5 md:max-w-3xl md:text-xl"
+          class="mx-auto mt-3 max-w-md text-base md:mt-5 md:max-w-3xl md:text-lg md:text-xl"
         >
           Home to 165+ free, peer-reviewed, portable libraries to increase your
           productivity across all industry domains.
         </p>
 
-		<select id="version" name="version" class="w-48 block py-1 pr-8 pl-5 mb-3 text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-black dark:text-white dark:border-slate">
+		<select id="version" name="version" class="block py-1 pr-8 pl-5 mb-3 w-48 text-sm text-black bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:text-white dark:bg-black dark:border-slate">
 			<option>Boost 1.82.0 - Apr/23</option>
 			{% for v in versions %}
 			<option value="{{ v.pk }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
@@ -33,30 +33,42 @@
 			</a>
 			<a href="{% url 'releases' %}" class="flex justify-center items-center py-3 px-8 text-sm font-medium bg-gray-300 rounded-md border md:py-4 md:px-10 md:text-base lg:text-lg border-steel text-slate dark:bg-charcoal dark:text-orange">
 			  Version Details <i class="pl-2 fas fa-chevron-right text-slate dark:text-orange"></i>
-			</a>		
+			</a>
 
 		</div>
-        
+
       </div>
 
-      <div class="h-full order-first md:order-last">
+      <div class="order-first h-full md:order-last">
         <div id="scene03"></div>
       </div>
     </div>
   </div>
 
   {% comment %} Section 2 {% endcomment %}
-  <div class="px-4 my-0 md:my-4 mx-auto">
+  <div class="px-4 my-0 mx-auto md:my-4">
 
     <div
-      class="page-container grid grid-rows-2 grid-cols-1 lg:grid-rows-1 lg:grid-cols-5 gap-y-10 lg:gap-y-0 lg:gap-x-10 lg:mb-10"
+      class="grid grid-cols-1 grid-rows-2 gap-y-10 lg:grid-cols-5 lg:grid-rows-1 lg:gap-y-0 lg:gap-x-10 lg:mb-10 page-container bg-gray-400 dark:bg-gray-900  bg-opacity-10 rounded-md drop-shadow-md hover:drop-shadow-[0_15px_15px_rgba(0,100,100,0.05)]"
     >
-      <div class="h-full col-span-1 md:mb-10 lg:col-span-2 p-5 bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md drop-shadow-md hover:drop-shadow-[0_15px_15px_rgba(0,100,100,0.05)]">
-		
-		<div class="float-right relative -top-2">
+      <div class="h-full col-span-1 flex flex-col lg:col-span-2 p-5">
+
+		<h3 class="pb-2 mb-2 text-2xl text-orange capitalize border-b border-gray-300 dark:border-slate">
+			Libraries
+		</h3>
+
+		<div>
+			<select onchange="this.form.submit()"
+					name="library"
+					class="block pr-11 pl-5 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:border-slate"
+					id="id_library"
+			>
+			  <option value="">Accumulators</option>
+			  
+			</select>
 			<select onchange="this.form.submit()"
 					name="category"
-					class="block pr-11 pl-5 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
+					class="block pr-11 pl-5 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:border-slate"
 					id="id_category"
 			>
 			  <option value="">Filter by category</option>
@@ -66,11 +78,8 @@
 			</select>
 		</div>
 
-		<h3 class="pb-2 text-2xl capitalize border-b border-gray-300 dark:border-slate">
-			<a class="text-orange keychainify-checked" href="/libraries/accumulators/">Accumulators</a>
-		</h3>
-        <p
-          class="mx-auto max-w-md text-sm md:max-w-3xl"
+		<p
+          class="mx-auto w-full text-sm align-left"
         >
 		Framework for incremental calculation, and collection of statistical accumulators.
         </p>
@@ -98,188 +107,80 @@
 			</div>
 
 			<span class="block py-1 px-2 rounded cursor-pointer hover:bg-gray-100">Categories:
-			  
+
 				<a class="inline text-sky-600 keychainify-checked" href="/libraries/?category=math">Math</a>
-			  
+
 			</span>
 
-			<p class="pt-4 pl-2 mt-4 text-sm border-t border-gray-200">Framework for incremental calculation, and collection of statistical accumulators.</p>
-		  
 		</div>
-        
+
       </div>
 
-      <div class="h-full col-span-1 lg:col-span-3 p-5 bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md drop-shadow-md hover:drop-shadow-[0_15px_15px_rgba(0,100,100,0.05)]">
+	  <div class="h-full col-span-1 flex flex-col md:mb-10 lg:col-span-3 p-5">
 
-		<h3 class="mb-4 pb-2 text-2xl capitalize border-b border-gray-300 dark:border-slate text-orange">
+		<h3 class="pb-2 mb-4 text-2xl capitalize border-b border-gray-300 text-orange dark:border-slate">
 			Compiler Explorer
 		</h3>
 
-		<form method="post" action="{% url 'home-beta' %}">
-            {% csrf_token %}
+		<iframe width="100%" height="100%" src="https://godbolt.org/e#g:!((g:!((g:!((h:codeEditor,i:(filename:'1',fontScale:14,fontUsePx:'0',j:1,lang:c%2B%2B,selection:(endColumn:1,endLineNumber:26,positionColumn:1,positionLineNumber:26,selectionStartColumn:1,selectionStartLineNumber:26,startColumn:1,startLineNumber:26),source:'//+Compile+with+-O3+-march%3Dnative+to+see+autovectorization%0A//+assumes+input+is+aligned+on+64-byte+boundary+and+that%0A//+length+is+a+multiple+of+64.%0Aint+testFunction(int*+input,+int+length)+%7B%0A++//+Alignment+hints+supported+on+GCC+4.7%2B+and+any+compiler%0A++//+supporting+the+appropriate+builtin+(clang+3.6%2B).%0A%23ifndef+__has_builtin%0A%23define+__has_builtin(x)+0%0A%23endif%0A%23if+__GNUC__+%3E+4+%5C%0A++++%7C%7C+(__GNUC__+%3D%3D+4+%26%26+__GNUC_MINOR__+%3E%3D+7)+%5C%0A++++%7C%7C+__has_builtin(__builtin_assume_aligned)%0A++input+%3D+static_cast%3Cint*%3E(__builtin_assume_aligned(input,+64))%3B%0A%23endif%0A%23if+_MSC_VER%0A++__assume((length+%26+63)+%3D%3D+0)%3B%0A%23else%0A++if+(length+%26+63)+__builtin_unreachable()%3B%0A%23endif%0A++int+sum+%3D+0%3B%0A++for+(int+i+%3D+0%3B+i+%3C+length%3B+%2B%2Bi)+%7B%0A++++sum+%2B%3D+input%5Bi%5D%3B%0A++%7D%0A++return+sum%3B%0A%7D%0A'),l:'5',n:'0',o:'C%2B%2B+source+%231',t:'0')),k:50,l:'4',n:'0',o:'',s:0,t:'0'),(g:!((h:compiler,i:(compiler:arm1020,deviceViewOpen:'1',filters:(b:'0',binary:'1',binaryObject:'1',commentOnly:'0',debugCalls:'1',demangle:'0',directives:'0',execute:'1',intel:'0',libraryCode:'0',trim:'1'),flagsViewOpen:'1',fontScale:14,fontUsePx:'0',j:1,lang:c%2B%2B,libs:!(),options:'',overrides:!(),selection:(endColumn:1,endLineNumber:1,positionColumn:1,positionLineNumber:1,selectionStartColumn:1,selectionStartLineNumber:1,startColumn:1,startLineNumber:1),source:1),l:'5',n:'0',o:'+ARM+gcc+10.2+(linux)+(Editor+%231)',t:'0')),k:50,l:'4',n:'0',o:'',s:0,t:'0')),l:'2',n:'0',o:'',t:'0')),version:4"></iframe>
 
-			<div class="compiler-block">
-              
-              <textarea name="code" id="" class="compiler-text-area">
-// Compile with -O3 -march=native to see autovectorization
-// assumes input is aligned on 64-byte boundary and that
-// length is a multiple of 64.
-int testFunction(int* input, int length) {
-// Alignment hints supported on GCC 4.7+ and any compiler
-// supporting the appropriate builtin (clang 3.6+).
-#ifndef __has_builtin
-#define __has_builtin(x) 0
-#endif
-#if __GNUC__ > 4 \
-	|| (__GNUC__ == 4 && __GNUC_MINOR__ >= 7) \
-	|| __has_builtin(__builtin_assume_aligned)
-input = static_cast<int*>(__builtin_assume_aligned(input, 64));
-#endif
-#if _MSC_VER
-__assume((length & 63) == 0);
-#else
-if (length & 63) __builtin_unreachable();
-#endif
-int sum = 0;
-for (int i = 0; i < length; ++i) {
-	sum += input[i];
-}
-return sum;
-}
-				
-				{{ request.POST.code }}
-			  </textarea>
-
-			  <div class="pt-4">
-			  <button type="submit" class="flex justify-center items-center py-3 px-8 text-sm font-medium bg-gray-300 rounded-md border md:py-4 md:px-10 md:text-base lg:text-lg border-steel text-slate dark:bg-charcoal dark:text-orange">
-				Run <i class="pl-2 fas fa-chevron-right text-slate dark:text-orange"></i>
-			  </button>	
-			</div>
-
-            </div>
-
-			<div class="px-6 compiler-output whitespace-pre">
-testFunction(int*, int):
-		push    rbp
-		mov     rbp, rsp
-		mov     QWORD PTR [rbp-24], rdi
-		mov     DWORD PTR [rbp-28], esi
-		mov     eax, DWORD PTR [rbp-28]
-		and     eax, 63
-		test    eax, eax
-		mov     DWORD PTR [rbp-4], 0
-		mov     DWORD PTR [rbp-8], 0
-		jmp     .L3
-.L4:
-		mov     eax, DWORD PTR [rbp-8]
-		cdqe
-		lea     rdx, [0+rax*4]
-		mov     rax, QWORD PTR [rbp-24]
-		add     rax, rdx
-		mov     eax, DWORD PTR [rax]
-		add     DWORD PTR [rbp-4], eax
-		add     DWORD PTR [rbp-8], 1
-.L3:
-		mov     eax, DWORD PTR [rbp-8]
-		cmp     eax, DWORD PTR [rbp-28]
-		jl      .L4
-		mov     eax, DWORD PTR [rbp-4]
-		pop     rbp
-		ret
-              {% if output %}
-              <div class="output">{{ output }}</div>
-              {% endif %} {% if error %}
-              <div class="error">error</div>
-              {% endif %}
-            </div>
-          </form>
       </div>
+
     </div>
+
   </div>
 
 
+  {% comment %} Section 3 - News {% endcomment %}
+  <div class="px-4 my-0 mx-auto md:my-4">
 
+    <div
+      class="grid grid-cols-1 grid-rows-2 gap-y-10 md:grid-cols-2 md:grid-rows-3 lg:gap-y-0 md:gap-x-10 md:mb-10 page-container bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md drop-shadow-md hover:drop-shadow-[0_15px_15px_rgba(0,100,100,0.05)]"
+    >
+
+		<div class="h-full col-span-1 flex flex-col md:mb-10 md:col-span-2 p-5">
+			<h3 class="pb-2 mb-2 text-2xl text-orange capitalize border-b border-gray-300 dark:border-slate">
+				News from Boost and C++
+			</h3>
+		</div>
+		
+      <div class="h-full col-span-1 flex flex-col md:mb-10 p-5 ">
+
+		<div class="pt-6">
+            <h3 class="mb-2 text-xl">Name of Article</h3>
+            <p class="mb-3">Category | 4/5/22</p>
+            <p class="mb-3">Sed posuere consectetur est at lobortis. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum... <a href="" class="text-orange">Read&nbsp;More</a></p>
+          </div>
+
+
+		
+
+		
+
+      </div>
+
+	  <div class="h-full col-span-1 flex flex-col md:mb-10 p-5">
+
+		<div class="pt-6">
+            <h3 class="mb-2 text-xl">Name of Article</h3>
+            <p class="mb-3">Category | 4/5/22</p>
+            <p class="mb-3">Sed posuere consectetur est at lobortis. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum... <a href="" class="text-orange">Read&nbsp;More</a></p>
+          </div>
+		
+      </div>
+
+    </div>
+
+  </div>
 
 
 	<div class="flex justify-center">
-		<div class="cursor-pointer rounded-lg border border-black dark:border-orange py-3 mt-6 px-3 mx-auto mb-4 text-xl text-center bg-orange dark:bg-charcoal dark:text-orange hover:bg-orange hover:bg-opacity-60 hover:text-white hover:border-transparent hover:dark:bg-purple hover:dark:text-white transition ease-in duration-200 transform hover:-translate-y-1 active:translate-y-0">
+		<div class="py-3 px-3 mx-auto mt-6 mb-4 text-xl text-center rounded-lg border border-black transition duration-200 ease-in transform cursor-pointer hover:text-white hover:bg-opacity-60 hover:border-transparent hover:-translate-y-1 active:translate-y-0 bg-orange dark:border-orange dark:bg-charcoal dark:text-orange hover:bg-orange hover:dark:bg-purple hover:dark:text-white">
 			Test Button
 		</div>
 	</div>
 
-  <!---------- SECTION - 02 ------------>
-
-  <hr class="line-breaker" />
-  <div>
-    <div>
-      <div class="section-two-left">
-        <select class="inline-select">
-          <option value="option1">Option 1</option>
-          <option value="option2">Option 2</option>
-          <option value="option3">Option 3</option>
-        </select>
-        <select class="inline-select">
-          <option value="option1">Option 1</option>
-          <option value="option2">Option 2</option>
-          <option value="option3">Option 3</option>
-        </select>
-
-        <h2 class="pt-10">Accumulators</h2>
-        <p class="sub-heading">
-          Framework for incremental calculation, and collection of statistical
-          accumulators
-        </p>
-        <div>
-          <p id="myText" class="copy-text">install boost accumulators</p>
-          <i
-            onclick="copyToClipboard()"
-            class="fas fa-light fa-copy copy-icon"
-          ></i>
-          <br />
-          <p id="" class="copy-text">install boost accumulators</p>
-          <i
-            onclick="copyToClipboard()"
-            class="fas fa-light fa-copy copy-icon"
-          ></i>
-          <br />
-          <p id="" class="copy-text">install boost accumulators</p>
-          <i
-            onclick="copyToClipboard()"
-            class="fas fa-light fa-copy copy-icon"
-          ></i>
-          <br />
-          <div class="circle">
-            <span class="circle-text">C++</span>
-          </div>
-        </div>
-      </div>
-      <div class="section-two-right">
-        <fieldset>
-          <legend>Compiler Explorer</legend>
-          <form method="post" action="{% url 'home-beta' %}">
-            {% csrf_token %}
-            <div class="compiler-block">
-              <label for="code">Code:</label>
-              <br />
-              <textarea name="code" id="" class="compiler-text-area">
-{{ request.POST.code }}</textarea
-              >
-              <br />
-              <button type="submit" class="run-btn">Run</button>
-            </div>
-            <div class="compiler-output">
-              {% if output %}
-              <div class="output">{{ output }}</div>
-              {% endif %} {% if error %}
-              <div class="error">error</div>
-              {% endif %}
-            </div>
-          </form>
-        </fieldset>
-      </div>
-    </div>
-  </div>
-  <!---------- SECTION - 03 ------------>
+ 
   <!---------- SECTION - 04 ------------>
 
   <hr class="line-breaker" />
