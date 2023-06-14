@@ -5,13 +5,13 @@ from django.contrib.auth.models import Permission
 from django.utils.timezone import now
 from model_bakery import baker
 
-from ..models import Entry, Poll
+from ..models import NEWS_MODELS, Entry, Poll
 
 
 def test_entry_basic():
     entry = baker.make("Entry")
     assert str(entry) == entry.title
-    assert entry.news_type is None
+    assert entry.news_type == ""
 
 
 def test_entry_generate_slug():
@@ -246,28 +246,39 @@ def test_entry_author_needs_moderation_allowlist(make_entry, settings):
     assert entry.author_needs_moderation() is False
 
 
-def test_entry_manager_custom_queryset(make_entry):
-    entry_published = make_entry(approved=True, published=True)
-    entry_approved = make_entry(approved=True, published=False)
-    entry_not_approved = make_entry(approved=False)
-    entry_not_published = make_entry(approved=False, published=False)
+@pytest.mark.parametrize("model_class", [Entry] + NEWS_MODELS)
+def test_entry_manager_custom_queryset(make_entry, model_class):
+    entry_published = make_entry(model_class, approved=True, published=True)
+    entry_approved = make_entry(model_class, approved=True, published=False)
+    entry_not_approved = make_entry(model_class, approved=False)
+    entry_not_published = make_entry(model_class, approved=False, published=False)
 
-    assert list(Entry.objects.filter(approved=True).order_by("id")) == [
+    assert list(model_class.objects.filter(approved=True).order_by("id")) == [
         entry_published,
         entry_approved,
     ]
-    assert list(Entry.objects.filter(approved=False).order_by("id")) == [
+    assert list(model_class.objects.filter(approved=False).order_by("id")) == [
         entry_not_approved,
         entry_not_published,
     ]
-    assert list(Entry.objects.filter(published=True).order_by("id")) == [
+    assert list(model_class.objects.filter(published=True).order_by("id")) == [
         entry_published
     ]
-    assert list(Entry.objects.filter(published=False).order_by("id")) == [
+    assert list(model_class.objects.filter(published=False).order_by("id")) == [
         entry_approved,
         entry_not_approved,
         entry_not_published,
     ]
+    # Intentionally query via Entry since children do not have the annotation
+    assert {e.tag for e in Entry.objects.all()} == {model_class._news_type}
+
+
+def test_entry_manager_custom_queryset_tags_mixed(make_entry):
+    for model_class in [Entry] + NEWS_MODELS:
+        make_entry(model_class)
+
+    entries = Entry.objects.all().order_by("tag")
+    assert [e.tag for e in entries] == ["", "blogpost", "link", "news", "poll", "video"]
 
 
 def test_blogpost():

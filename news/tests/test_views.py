@@ -99,7 +99,7 @@ def test_entry_list_queries(tp, make_entry):
             f"<strong>{n.news_type}</strong>"
             f"</a>"
         )
-        if n.news_type is None:
+        if not n.news_type:
             tp.assertResponseNotContains(news_type_tag, response)
         else:
             tp.assertResponseContains(news_type_tag, response)  # this is the tag

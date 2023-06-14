@@ -270,6 +270,68 @@ class LastSeen(models.Model):
             self.save()
 
 
+def get_empty_notifications():
+    return {
+        Preferences.OWNS_NEWS_APPROVED: [Preferences.NEWS_TYPES_WILDCARD],
+        Preferences.OTHERS_NEWS_POSTED: [],
+        Preferences.OTHERS_NEWS_NEEDS_MODERATION: [Preferences.NEWS_TYPES_WILDCARD],
+    }
+
+
+class Preferences(models.Model):
+    ALL_NEWS_TYPES = sorted({"blogpost", "link", "news", "poll", "video"})
+    NEWS_TYPES_WILDCARD = "all"
+    OWNS_NEWS_APPROVED = "own-news-approved"
+    OTHERS_NEWS_POSTED = "others-news-posted"
+    OTHERS_NEWS_NEEDS_MODERATION = "others-news-needs-moderation"
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        related_name="preferences",
+        on_delete=models.CASCADE,
+    )
+    notifications = models.JSONField(default=get_empty_notifications)
+
+    def __str__(self):
+        return f"Preferences for user {self.user_id}: {self.notifications}"
+
+    def notification_allowed(self, preference):
+        result = self.notifications[preference]
+        if self.NEWS_TYPES_WILDCARD in result:
+            result = self.ALL_NEWS_TYPES
+        return result
+
+    def change_notification_allowed(self, preference, value):
+        value = sorted(value)
+        if value == self.ALL_NEWS_TYPES:
+            value = [self.NEWS_TYPES_WILDCARD]
+        self.notifications[preference] = value
+
+    @property
+    def allow_notification_own_news_approved(self):
+        return self.notification_allowed(self.OWNS_NEWS_APPROVED)
+
+    @allow_notification_own_news_approved.setter
+    def allow_notification_own_news_approved(self, value):
+        self.change_notification_allowed(self.OWNS_NEWS_APPROVED, value)
+
+    @property
+    def allow_notification_others_news_posted(self):
+        return self.notification_allowed(self.OTHERS_NEWS_POSTED)
+
+    @allow_notification_others_news_posted.setter
+    def allow_notification_others_news_posted(self, value):
+        self.change_notification_allowed(self.OTHERS_NEWS_POSTED, value)
+
+    @property
+    def allow_notification_others_news_needs_moderation(self):
+        return self.notification_allowed(self.OTHERS_NEWS_NEEDS_MODERATION)
+
+    @allow_notification_others_news_needs_moderation.setter
+    def allow_notification_others_news_needs_moderation(self, value):
+        self.change_notification_allowed(self.OTHERS_NEWS_NEEDS_MODERATION, value)
+
+
 @receiver(post_save, sender=User)
 def create_last_seen_for_user(sender, instance, created, raw, **kwargs):
     """Create LastSeen row when a User is created"""
@@ -278,3 +340,4 @@ def create_last_seen_for_user(sender, instance, created, raw, **kwargs):
 
     if created:
         LastSeen.objects.create(user=instance, at=timezone.now())
+        Preferences.objects.create(user=instance)

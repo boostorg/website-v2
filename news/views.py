@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Case, Value, When
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -39,19 +38,7 @@ class EntryListView(ListView):
     context_object_name = "entry_list"  # Ensure children use the same name
 
     def get_queryset(self):
-        result = super().get_queryset().filter(published=True)
-        if self.model == Entry:
-            result = result.annotate(
-                tag=Case(
-                    When(blogpost__entry_ptr__isnull=False, then=Value("blogpost")),
-                    When(link__entry_ptr__isnull=False, then=Value("link")),
-                    When(news__entry_ptr__isnull=False, then=Value("news")),
-                    When(poll__entry_ptr__isnull=False, then=Value("poll")),
-                    When(video__entry_ptr__isnull=False, then=Value("video")),
-                    default=Value(""),
-                )
-            )
-        return result
+        return super().get_queryset().filter(published=True)
 
 
 class BlogPostListView(EntryListView):
