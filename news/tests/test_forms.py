@@ -3,7 +3,7 @@ import datetime
 from django.utils.timezone import now
 from model_bakery import baker
 
-from ..forms import BlogPostForm, EntryForm, LinkForm, PollForm, VideoForm
+from ..forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
 from ..models import Entry
 
 
@@ -132,6 +132,17 @@ def test_link_form():
     assert isinstance(form, EntryForm)
     assert sorted(form.fields.keys()) == [
         "external_url",
+        "image",
+        "publish_at",
+        "title",
+    ]
+
+
+def test_news_form():
+    form = NewsForm()
+    assert isinstance(form, EntryForm)
+    assert sorted(form.fields.keys()) == [
+        "content",
         "image",
         "publish_at",
         "title",

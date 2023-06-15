@@ -1,5 +1,5 @@
 from django import forms
-from .models import BlogPost, Entry, Link, Poll, Video
+from .models import BlogPost, Entry, Link, News, Poll, Video
 
 
 class EntryForm(forms.ModelForm):
@@ -27,6 +27,12 @@ class LinkForm(EntryForm):
     class Meta:
         model = Link
         fields = ["title", "publish_at", "external_url", "image"]
+
+
+class NewsForm(EntryForm):
+    class Meta:
+        model = News
+        fields = ["title", "publish_at", "content", "image"]
 
 
 class PollForm(EntryForm):

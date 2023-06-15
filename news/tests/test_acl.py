@@ -9,10 +9,7 @@ from ..acl import (
     can_view,
     moderators,
 )
-from ..models import BlogPost, Entry, Link, Poll, Video
-
-
-NEWS_MODELS = [Entry, BlogPost, Link, Poll, Video]
+from ..models import NEWS_MODELS
 
 
 def test_moderators_empty():
