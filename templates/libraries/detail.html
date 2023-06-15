@@ -42,10 +42,10 @@
 
         <div class="p-4 md:flex md:space-x-3">
           <div class="px-2 pt-2 space-y-2 w-full bg-white rounded-lg md:w-1/3 dark:bg-charcoal">
-              <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100" href="https://boost.org/libs/{{ object.slug }}">
+              <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100" href="{{ documentation_url }}">
                 <i class="float-right mt-3 fas fa-folder"></i>
                 Documentation
-                <span class="block text-xs text-sky-600">boost.org/libs/{{ object.slug }}</span>
+                <span class="block text-xs text-sky-600">boost.org/libs/{{ object.key }}</span>
               </a>
               <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100" href="{{ object.github_issues_url }}">
                 <i class="float-right mt-3 fas fa-bug"></i>

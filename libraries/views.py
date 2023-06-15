@@ -106,6 +106,7 @@ class LibraryDetail(CategoryMixin, FormMixin, DetailView):
     def get_context_data(self, **kwargs):
         """Set the form action to the main libraries page"""
         context = super().get_context_data(**kwargs)
+        context["documentation_url"] = self.get_documentation_url()
         context["version"] = self.get_version()
         context["maintainers"] = self.get_maintainers(context["version"])
         context["versions"] = (
@@ -138,6 +139,21 @@ class LibraryDetail(CategoryMixin, FormMixin, DetailView):
         except self.model.DoesNotExist:
             raise Http404("No library found matching the query")
         return obj
+
+    def get_documentation_url(self):
+        """Return the URL for the link to the external Boost documentation."""
+        obj = self.get_object()
+        version = self.get_version()
+        try:
+            library_version = LibraryVersion.objects.get(library=obj, version=version)
+            return library_version.documentation_url
+        except LibraryVersion.DoesNotExist:
+            logger.exception(
+                "library_detail_view_library_version_does_not_exist",
+                library_slug=obj.slug,
+                version_slug=version.slug,
+            )
+            return None
 
     def get_github_url(self, version):
         """Get the GitHub URL for the current library."""
