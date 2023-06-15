@@ -2,7 +2,7 @@
 
 FROM python:3.11-slim AS builder-py
 
-RUN apt update && apt install -y build-essential gcc python-dev libpq-dev postgresql-client ruby ruby-dev && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y build-essential gcc python-dev-is-python3 libpq-dev postgresql-client ruby ruby-dev && rm -rf /var/lib/apt/lists/*
 
 # Install Asciidoctor
 RUN gem install asciidoctor
