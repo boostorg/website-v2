@@ -17,8 +17,8 @@ from django.views.generic import (
 from django.views.generic.detail import SingleObjectMixin
 
 from .acl import can_approve
-from .forms import BlogPostForm, EntryForm, LinkForm, PollForm, VideoForm
-from .models import BlogPost, Entry, Link, Poll, Video
+from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
+from .models import BlogPost, Entry, Link, News, Poll, Video
 from .notifications import send_email_after_approval, send_email_news_needs_moderation
 
 
@@ -35,24 +35,22 @@ class EntryListView(ListView):
     model = Entry
     template_name = "news/list.html"
     ordering = ["-publish_at"]
-    paginate_by = 100  #  XXX: use pagination in the template! Issue #377
+    paginate_by = None  #  XXX: use pagination in the template! Issue #377
     context_object_name = "entry_list"  # Ensure children use the same name
 
     def get_queryset(self):
         result = super().get_queryset().filter(published=True)
         if self.model == Entry:
-            result = result.select_related("blogpost", "link", "poll", "video")
             result = result.annotate(
                 tag=Case(
                     When(blogpost__entry_ptr__isnull=False, then=Value("blogpost")),
                     When(link__entry_ptr__isnull=False, then=Value("link")),
+                    When(news__entry_ptr__isnull=False, then=Value("news")),
                     When(poll__entry_ptr__isnull=False, then=Value("poll")),
                     When(video__entry_ptr__isnull=False, then=Value("video")),
                     default=Value(""),
                 )
             )
-        else:
-            result = result  # .select_related("entry_ptr")
         return result
 
 
@@ -62,6 +60,10 @@ class BlogPostListView(EntryListView):
 
 class LinkListView(EntryListView):
     model = Link
+
+
+class NewsListView(EntryListView):
+    model = News
 
 
 class PollListView(EntryListView):
@@ -110,11 +112,11 @@ class EntryDetailView(DetailView):
 
 
 class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
-    model = Entry
-    form_class = EntryForm
+    model = None
+    form_class = None
     template_name = "news/form.html"
-    add_label = _("Create News")
-    add_url_name = "news-create"
+    add_label = None
+    add_url_name = None
     success_message = _("The news entry was successfully created.")
 
     def form_valid(self, form):
@@ -143,6 +145,13 @@ class LinkCreateView(EntryCreateView):
     form_class = LinkForm
     add_label = _("Create a Link")
     add_url_name = "news-link-create"
+
+
+class NewsCreateView(EntryCreateView):
+    model = News
+    form_class = NewsForm
+    add_label = _("Create News")
+    add_url_name = "news-create"
 
 
 class PollCreateView(EntryCreateView):
@@ -200,6 +209,8 @@ class EntryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             result = BlogPostForm
         elif self.object.is_link:
             result = LinkForm
+        elif self.object.is_news:
+            result = NewsForm
         elif self.object.is_poll:
             result = PollForm
         elif self.object.is_video:
