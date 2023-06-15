@@ -264,6 +264,17 @@ class LibraryVersion(models.Model):
         return f"{self.library.name} ({self.version.name})"
 
     @cached_property
+    def documentation_url(self):
+        """
+        format: https://www.boost.org/doc/libs/1_82_0/libs/bimap/
+
+        Use the `key` field and NOT the `slug` field due to special cases --
+        submodules like Functional/Factory
+        """
+        url = f"https://www.boost.org/doc/libs/{self.version.boost_url_slug}/libs/{self.library.key}/"
+        return url
+
+    @cached_property
     def library_repo_url_for_version(self):
         """Returns the URL to the GitHub repository for the library at this specicfic
         version.
