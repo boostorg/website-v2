@@ -8,7 +8,7 @@ from django.views.generic.edit import FormMixin
 from versions.models import Version
 from .forms import VersionSelectionForm
 from .github import GithubAPIClient
-from .models import Category, Issue, Library, LibraryVersion, PullRequest
+from .models import Category, Library, LibraryVersion
 
 logger = structlog.get_logger()
 
@@ -106,8 +106,6 @@ class LibraryDetail(CategoryMixin, FormMixin, DetailView):
     def get_context_data(self, **kwargs):
         """Set the form action to the main libraries page"""
         context = super().get_context_data(**kwargs)
-        context["closed_prs_count"] = self.get_closed_prs_count(self.object)
-        context["open_issues_count"] = self.get_open_issues_count(self.object)
         context["version"] = self.get_version()
         context["maintainers"] = self.get_maintainers(context["version"])
         context["versions"] = (
@@ -140,19 +138,11 @@ class LibraryDetail(CategoryMixin, FormMixin, DetailView):
             raise Http404("No library found matching the query")
         return obj
 
-    def get_closed_prs_count(self, obj):
-        """Get the number of closed pull requests for the current library."""
-        return PullRequest.objects.filter(library=obj, is_open=True).count()
-
     def get_maintainers(self, version):
         """Get the maintainers for the current LibraryVersion."""
         obj = self.get_object()
         library_version = LibraryVersion.objects.get(library=obj, version=version)
         return library_version.maintainers.all()
-
-    def get_open_issues_count(self, obj):
-        """Get the number of open issues for the current library."""
-        return Issue.objects.filter(library=obj, is_open=True).count()
 
     def get_version(self):
         """Get the version of Boost for the library we're currently looking at."""
