@@ -9,13 +9,9 @@ from django.utils.text import slugify
 from django.utils.timezone import now
 from model_bakery import baker
 
-
-from ..forms import BlogPostForm, EntryForm, LinkForm, PollForm, VideoForm
-from ..models import BlogPost, Entry, Link, Poll, Video
+from ..forms import BlogPostForm, LinkForm, NewsForm, PollForm, VideoForm
+from ..models import NEWS_MODELS, BlogPost, Entry, Link, News, Poll, Video
 from ..notifications import send_email_after_approval, send_email_news_needs_moderation
-
-
-NEWS_MODELS = [Entry, BlogPost, Link, Poll, Video]
 
 
 @pytest.mark.parametrize(
@@ -24,6 +20,7 @@ NEWS_MODELS = [Entry, BlogPost, Link, Poll, Video]
         ("news", Entry),
         ("news-blogpost-list", BlogPost),
         ("news-link-list", Link),
+        ("news-news-list", News),
         ("news-poll-list", Poll),
         ("news-video-list", Video),
     ],
@@ -64,7 +61,8 @@ def test_entry_list(
     for n in expected:
         assert n.get_absolute_url() in content
         assert n.title in content
-        assert model_class.__name__.lower() in content  # this is the tag
+        if n.news_type:
+            assert n.news_type in content  # this is the tag
 
     assert not_approved_news.get_absolute_url() not in content
     assert not_approved_news.title not in content
@@ -79,12 +77,41 @@ def test_entry_list(
     assert (tp.reverse("news-video-create") in content) == authenticated
 
 
+def test_entry_list_queries(tp, make_entry):
+    expected = [
+        make_entry(model_class)
+        for model_class in NEWS_MODELS
+        for i in range(len(model_class.__name__))
+    ]
+
+    # 4 queries
+    response = tp.assertGoodView(tp.reverse("news"), test_query_count=6, verbose=True)
+
+    # assert set(response.context.get("entry_list", [])) == set(expected)
+
+    content = str(response.content)
+    for n in expected:
+        assert n.get_absolute_url() in content
+        assert n.title in content
+        news_type_tag = (
+            f'<a data-test="news-tag" href="/news/{n.news_type}/" '
+            f'class="px-3 text-sm rounded-md border-orange bg-orange">'
+            f"<strong>{n.news_type}</strong>"
+            f"</a>"
+        )
+        if n.news_type is None:
+            tp.assertResponseNotContains(news_type_tag, response)
+        else:
+            tp.assertResponseContains(news_type_tag, response)  # this is the tag
+
+
 @pytest.mark.parametrize(
     "url_name, model_class",
     [
         ("news", Entry),
         ("news-blogpost-list", BlogPost),
         ("news-link-list", Link),
+        ("news-news-list", News),
         ("news-poll-list", Poll),
         ("news-video-list", Video),
     ],
@@ -252,7 +279,7 @@ def test_news_detail_next_url(tp, make_entry, moderator_user, model_class):
 @pytest.mark.parametrize(
     "url_name, form_class",
     [
-        ("news-create", EntryForm),
+        ("news-create", NewsForm),
         ("news-blogpost-create", BlogPostForm),
         ("news-link-create", LinkForm),
         ("news-poll-create", PollForm),
@@ -279,7 +306,7 @@ def test_news_create_get(tp, regular_user, url_name, form_class):
 @pytest.mark.parametrize(
     "url_name, model_class, data_fields",
     [
-        ("news-create", Entry, EntryForm.Meta.fields),
+        ("news-create", News, NewsForm.Meta.fields),
         ("news-blogpost-create", BlogPost, BlogPostForm.Meta.fields),
         ("news-link-create", Link, LinkForm.Meta.fields),
         ("news-poll-create", Poll, PollForm.Meta.fields),

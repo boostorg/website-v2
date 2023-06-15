@@ -58,7 +58,7 @@
           <div class="py-5 w-1/6">
             {% url 'news' as target_url %}
             <a href="{{ target_url }}" class="py-4 px-6 rounded-md border-orange {% if request.path == target_url %}bg-gray-300{% else %}bg-orange{% endif %}">
-              {% translate "News" %}
+              {% translate "All News" %}
             </a>
           </div>
           <div class="py-5 w-1/6">
@@ -71,6 +71,12 @@
             {% url 'news-link-list' as target_url %}
             <a href="{{ target_url }}" class="py-4 px-6 rounded-md border-orange {% if request.path == target_url %}bg-gray-300{% else %}bg-orange{% endif %}">
               {% translate "Links" %}
+            </a>
+          </div>
+          <div class="py-5 w-1/6">
+            {% url 'news-news-list' as target_url %}
+            <a href="{{ target_url }}" class="py-4 px-6 rounded-md border-orange {% if request.path == target_url %}bg-gray-300{% else %}bg-orange{% endif %}">
+              {% translate "News" %}
             </a>
           </div>
           <div class="py-5 w-1/6">
@@ -99,7 +105,7 @@
               <p><a href="{{ entry.get_absolute_url }}">{{ entry.title }}</a></p>
               {% if entry.tag %}
               {% with url_name="news-"|add:entry.tag|add:"-list" %}
-              <a href="{% url url_name %}" class="px-3 text-sm rounded-md border-orange bg-orange">
+              <a data-test="news-tag" href="{% url url_name %}" class="px-3 text-sm rounded-md border-orange bg-orange">
               <strong>{{ entry.tag }}</strong>
               </a>
               {% endwith %}

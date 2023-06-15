@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Entry
+from .models import NEWS_MODELS
 
 
 class EntryAdmin(admin.ModelAdmin):
@@ -9,4 +9,5 @@ class EntryAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ["title"]}
 
 
-admin.site.register(Entry, EntryAdmin)
+for news_model in NEWS_MODELS:
+    admin.site.register(news_model, EntryAdmin)

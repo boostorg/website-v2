@@ -8,9 +8,10 @@ from model_bakery import baker
 from ..models import Entry, Poll
 
 
-def test_entry_str():
+def test_entry_basic():
     entry = baker.make("Entry")
     assert str(entry) == entry.title
+    assert entry.news_type is None
 
 
 def test_entry_generate_slug():
@@ -272,24 +273,35 @@ def test_entry_manager_custom_queryset(make_entry):
 def test_blogpost():
     blogpost = baker.make("BlogPost")
     assert isinstance(blogpost, Entry)
+    assert blogpost.news_type == "blogpost"
     assert Entry.objects.get(id=blogpost.id).blogpost == blogpost
 
 
 def test_link():
     link = baker.make("Link")
     assert isinstance(link, Entry)
+    assert link.news_type == "link"
     assert Entry.objects.get(id=link.id).link == link
+
+
+def test_news():
+    news = baker.make("News")
+    assert isinstance(news, Entry)
+    assert news.news_type == "news"
+    assert Entry.objects.get(id=news.id).news == news
 
 
 def test_video():
     video = baker.make("Video")
     assert isinstance(video, Entry)
+    assert video.news_type == "video"
     assert Entry.objects.get(id=video.id).video == video
 
 
 def test_poll():
     poll = baker.make("Poll")
     assert isinstance(poll, Entry)
+    assert poll.news_type == "poll"
     assert Entry.objects.get(id=poll.id).poll == poll
 
 
