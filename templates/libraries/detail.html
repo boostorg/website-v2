@@ -65,7 +65,7 @@
 
               <span class="block py-1 px-2 rounded cursor-pointer hover:bg-gray-100">Categories:
                 {% for category in object.categories.all %}
-                  <a class="inline text-sky-600" href="{% url 'libraries' %}?category={{ category.slug }}">{{ category.name }}</a>
+                  <a class="inline text-sky-600" href="{% url 'libraries' %}?category={{ category.slug }}{% if version %}&version={{ version.slug }}{% endif %}">{{ category.name }}</a>
                 {% endfor %}
               </span>
 
