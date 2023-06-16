@@ -21,7 +21,7 @@ Pillow==9.4.0
 python-dateutil
 django-storages
 wheel
-cryptography>=41.0.0
+cryptography
 boto3
 
 # Logging
