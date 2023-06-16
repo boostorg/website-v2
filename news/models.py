@@ -70,8 +70,7 @@ class Entry(models.Model):
     objects = EntryManager()
 
     class Meta:
-        verbose_name = "News"
-        verbose_name_plural = "News"
+        verbose_name_plural = "Entries"
 
     def __str__(self):
         # avoid printing author information that cause extra queries
