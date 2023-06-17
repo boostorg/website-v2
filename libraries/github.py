@@ -241,7 +241,8 @@ class GithubAPIClient:
 
         :param repo_slug: str, the repository slug
         :param tag: str, the Git tag
-        :param file_name: str, the name of the file to fetch. Should be "library-detail.adoc" or "README.md".
+        :param file_name: str, the name of the file to fetch. Should be
+                          "library-detail.adoc" or "README.md".
         :return: str, the specified file content from the repo
         """
         url = f"https://raw.githubusercontent.com/{self.owner}/{repo_slug}/{tag}/{file_path}"  # noqa
