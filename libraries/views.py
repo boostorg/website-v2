@@ -118,6 +118,7 @@ class LibraryDetail(CategoryMixin, FormMixin, DetailView):
         context["description"] = self.object.get_description(
             client, tag=context["version"].name
         )
+        context["github_url"] = self.get_github_url(context["version"])
         return context
 
     def get_object(self):
@@ -137,6 +138,17 @@ class LibraryDetail(CategoryMixin, FormMixin, DetailView):
         except self.model.DoesNotExist:
             raise Http404("No library found matching the query")
         return obj
+
+    def get_github_url(self, version):
+        """Get the GitHub URL for the current library."""
+        try:
+            library_version = LibraryVersion.objects.get(
+                library=self.object, version=version
+            )
+            return library_version.library_repo_url_for_version
+        except LibraryVersion.DoesNotExist:
+            # This should never happen because it should be caught in get_object
+            return self.object.github_url
 
     def get_maintainers(self, version):
         """Get the maintainers for the current LibraryVersion."""
