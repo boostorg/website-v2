@@ -1,3 +1,4 @@
+import pytest
 from model_bakery import baker
 
 
@@ -72,3 +73,36 @@ def test_library_version_multiple_versions(library, library_version):
         library_version__version=library_version.version
     ).exists()
     assert library.versions.filter(library_version__version=other_version).exists()
+
+
+def test_library_repo_url_for_version(library_version):
+    result = library_version.library_repo_url_for_version
+    expected_url = (
+        f"{library_version.library.github_url}/tree/{library_version.version.name}"
+    )
+    assert result == expected_url
+
+
+def test_library_repo_url_for_version_invalid_data(library_version):
+    version = library_version.version
+    library = library_version.library
+
+    library_version.version = None
+    library_version.save()
+
+    with pytest.raises(ValueError):
+        library_version.library_repo_url_for_version
+
+    library_version.version = version
+    library_version.library = None
+    library_version.save()
+
+    with pytest.raises(ValueError):
+        library_version.library_repo_url_for_version
+
+    library_version.library = library
+    library_version.library.github_url = None
+    library_version.library.save()
+
+    with pytest.raises(ValueError):
+        library_version.library_repo_url_for_version
