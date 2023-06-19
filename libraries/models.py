@@ -263,6 +263,16 @@ class LibraryVersion(models.Model):
     def __str__(self):
         return f"{self.library.name} ({self.version.name})"
 
+    @cached_property
+    def library_repo_url_for_version(self):
+        """Returns the URL to the GitHub repository for the library at this specicfic
+        version.
+        """
+        if not self.library or not self.version or not self.library.github_url:
+            raise ValueError("Invalid data for library version")
+
+        return f"{self.library.github_url}/tree/{self.version.name}"
+
 
 class Issue(models.Model):
     """
