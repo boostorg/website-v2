@@ -1,5 +1,8 @@
 import datetime
 
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
+
 from model_bakery import baker
 
 
@@ -109,8 +112,6 @@ def test_library_detail_404(library, tp):
     tp.response_404(response)
 
 
-<<<<<<< HEAD
-=======
 def test_library_detail_context_get_commit_data_annual(tp, library_version):
     """
     GET /libraries/{slug}/
@@ -154,7 +155,7 @@ def test_library_detail_context_get_commit_data_annual(tp, library_version):
     # Verify that the data is only for last 12 months for this library
     assert len(commit_data_annual) == 10
     for i, data in enumerate(reversed(commit_data_annual)):
-        assert data["year"] == current_year - i
+        assert data["date"] == datetime.date(current_year - i, 1, 1)
         assert data["commit_count"] == i + 1
 
 
@@ -167,6 +168,7 @@ def test_library_detail_context_get_commit_data_last_12_months(tp, library_versi
 
     # Create CommitData for the library and another random library
     random_library = baker.make("libraries.Library", slug="random")
+
     current_month = timezone.now().date().replace(day=1)
     for i in range(12):
         date = current_month - relativedelta(months=i)
@@ -187,11 +189,10 @@ def test_library_detail_context_get_commit_data_last_12_months(tp, library_versi
     # Verify that the data is only for last 12 months for this library
     assert len(commit_data_last_12_months) == 12
     for i, data in enumerate(reversed(commit_data_last_12_months)):
-        assert data["month_year"] == current_month - relativedelta(months=i)
+        assert data["date"] == current_month - relativedelta(months=i)
         assert data["commit_count"] == i + 1
 
 
->>>>>>> a7a5d70 (Add retrieval of annual commit data)
 def test_library_detail_context_get_maintainers(tp, user, library_version):
     """
     GET /libraries/{slug}/
