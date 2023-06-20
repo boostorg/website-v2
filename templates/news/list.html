@@ -8,101 +8,147 @@
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
     <div class="md:w-full">
       <h1 class="text-4xl">Latest Stories</h1>
-      <p class="mt-0 text-xl">
+      <p class="mt-0">
         Keep up with current information from Boost and our community. (Under construction)
       </p>
 
       <!-- Authenticated user actions, should be a single button with a dropdown? -->
-      {% if user.is_authenticated %}
-      <div class="divide-y divide-gray-300">
-        <div class="flex py-5">
-          <div class="py-5 w-1/6">
-          {% translate "Create entry:" %}
-          </div>
-          <div class="py-5 w-1/6">
-            <a href="{% url 'news-create' %}">
-              {% translate "News" %}
-            </a>
-          </div>
-          <div class="py-5 w-1/6">
-            <a href="{% url 'news-blogpost-create' %}">
-              {% translate "BlogPost" %}
-            </a>
-          </div>
-          <div class="py-5 w-1/6">
-            <a href="{% url 'news-link-create' %}">
-              {% translate "Link" %}
-            </a>
-          </div>
-          <!-- Creating polls is disabled until we extend the PollForm -->
-          <!--div class="py-5 w-1/6">
-            <a href="{% url 'news-poll-create' %}">
-              {% translate "Poll" %}
-            </a>
-          </div-->
-          <div class="py-5 w-1/6">
-            <a href="{% url 'news-video-create' %}">
-              {% translate "Video" %}
-            </a>
-          </div>
-        </div>
-      </div>
-      {% endif %}
+{#      {% if user.is_authenticated %}#}
+{#      <div class="text-right w-[90%] mx-auto text-sm">#}
+{#        <div class="space-x-2">#}
+{#          #}
+{#          <div class="inline-block font-bold">#}
+{#          {% translate "Submit:" %}#}
+{#          </div>#}
+{#          <div class="inline-block">#}
+{#            <a href="{% url 'news-create' %}">#}
+{#              {% translate "News" %}#}
+{#            </a>#}
+{#          </div>#}
+{#          <div class="inline-block">#}
+{#            <a href="{% url 'news-blogpost-create' %}">#}
+{#              {% translate "BlogPost" %}#}
+{#            </a>#}
+{#          </div>#}
+{#          <div class="inline-block">#}
+{#            <a href="{% url 'news-link-create' %}">#}
+{#              {% translate "Link" %}#}
+{#            </a>#}
+{#          </div>#}
+{#          <!-- Creating polls is disabled until we extend the PollForm -->#}
+{#          <div class="inline-block">#}
+{#            <a href="{% url 'news-poll-create' %}">#}
+{#              {% translate "Poll" %}#}
+{#            </a>#}
+{#          </div>#}
+{#          <div class="inline-block">#}
+{#            <a href="{% url 'news-video-create' %}">#}
+{#              {% translate "Video" %}#}
+{#            </a>#}
+{#          </div>#}
+{#        </div>#}
+{#      </div>#}
+{#      {% endif %}#}
 
       <!-- General filters, by news type -->
-      <div class="divide-y divide-gray-300">
-        <div class="flex py-5">
-          <div class="py-5 w-1/6">
-          {% translate "Filter entries by type:" %}
-          </div>
-          <div class="py-5 w-1/6">
+      <div>
+        <div class="py-5 text-right w-[90%] mx-auto space-x-2">
+          <div class="inline-block py-5">
             {% url 'news' as target_url %}
-            <a href="{{ target_url }}" class="py-4 px-6 rounded-md border-orange {% if request.path == target_url %}bg-gray-300{% else %}bg-orange{% endif %}">
-              {% translate "All News" %}
+            <a href="{{ target_url }}" title="All News">
+              <i class="py-1 px-2 bg-white rounded border border-gray-300 fas fa-rocket hover:bg-orange"></i>
             </a>
           </div>
-          <div class="py-5 w-1/6">
-            {% url 'news-blogpost-list' as target_url %}
-            <a href="{{ target_url }}" class="py-4 px-6 rounded-md border-orange {% if request.path == target_url %}bg-gray-300{% else %}bg-orange{% endif %}">
-              {% translate "BlogPosts" %}
-            </a>
-          </div>
-          <div class="py-5 w-1/6">
-            {% url 'news-link-list' as target_url %}
-            <a href="{{ target_url }}" class="py-4 px-6 rounded-md border-orange {% if request.path == target_url %}bg-gray-300{% else %}bg-orange{% endif %}">
-              {% translate "Links" %}
-            </a>
-          </div>
-          <div class="py-5 w-1/6">
+          <div class="inline-block py-5">
             {% url 'news-news-list' as target_url %}
-            <a href="{{ target_url }}" class="py-4 px-6 rounded-md border-orange {% if request.path == target_url %}bg-gray-300{% else %}bg-orange{% endif %}">
-              {% translate "News" %}
+            <a href="{{ target_url }}" title="News">
+              <i class="py-1 px-2 bg-white rounded border border-gray-300 fas fa-bullhorn hover:bg-orange"></i>
             </a>
           </div>
-          <div class="py-5 w-1/6">
+          <div class="inline-block py-5">
+            {% url 'news-blogpost-list' as target_url %}
+            <a href="{{ target_url }}" title="Blog Post">
+              <i class="py-1 px-2 bg-white rounded border border-gray-300 fas fa-newspaper hover:bg-orange"></i>
+            </a>
+          </div>
+          <div class="inline-block py-5">
+            {% url 'news-link-list' as target_url %}
+            <a href="{{ target_url }}" title="Link">
+              <i class="py-1 px-2 bg-white rounded border border-gray-300 fas fa-link hover:bg-orange"></i>
+            </a>
+          </div>
+          <div class="inline-block py-5">
             {% url 'news-poll-list' as target_url %}
-            <a href="{{ target_url }}" class="py-4 px-6 rounded-md border-orange {% if request.path == target_url %}bg-gray-300{% else %}bg-orange{% endif %}">
-              {% translate "Polls" %}
+            <a href="{{ target_url }}" title="Poll">
+              <i class="py-1 px-2 bg-white rounded border border-gray-300 fas fa-poll hover:bg-orange"></i>
             </a>
           </div>
-          <div class="py-5 w-1/6">
+          <div class="inline-block py-5">
             {% url 'news-video-list' as target_url %}
-            <a href="{{ target_url }}" class="py-4 px-6 rounded-md border-orange {% if request.path == target_url %}bg-gray-300{% else %}bg-orange{% endif %}">
-              {% translate "Videos" %}
+            <a href="{{ target_url }}" title="Video">
+              <i class="py-1 px-2 bg-white rounded border border-gray-300 fas fa-video hover:bg-orange"></i>
             </a>
+          </div>
+          <div class="inline-block py-5 text-sm">
+            <button class="py-1 px-3 rounded border border-gray-300 hover:bg-orange">Submit News</button>
           </div>
         </div>
       </div>
 
       <!-- News content per se -->
-      <div class="divide-y divide-gray-300">
+{#      <div class="space-y-4 divide-y divide-gray-300">#}
+{#        {% for entry in entry_list %}#}
+{#          <div>#}
+{#            <div class="flex p-3 py-4 w-full bg-white rounded-lg shadow-lg">#}
+{#              <div class="text-xl">#}
+{#                  <p><a href="{{ entry.get_absolute_url }}">{{ entry.title }}</a></p>#}
+{#                  {% if entry.tag %}#}
+{#                  {% with url_name="news-"|add:entry.tag|add:"-list" %}#}
+{#                  <a href="{% url url_name %}" class="px-3 text-sm rounded-md border-orange bg-orange">#}
+{#                  <strong>{{ entry.tag }}</strong>#}
+{#                  </a>#}
+{#                  {% endwith %}#}
+{#                  {% endif %}#}
+{#                <div class="space-x-8 uppercase">#}
+{#                </div>#}
+{#              </div>#}
+{#            </div>#}
+{#            <span class="text-sm">{{ entry.publish_at|date:"M jS, Y" }}</span>#}
+{#          </div>#}
+{#        {% empty %}#}
+{#        <div class="flex py-4">#}
+{#          <div class="w-5/6 text-xl">#}
+{#            <p>#}
+{#              {% translate "No entries available." %}#}
+{#            </p>#}
+{#            <div class="space-x-8 uppercase">#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{#        {% endfor %}#}
+{#      </div>#}
+
+    </div>
+
+    <div class="mt-5">
+      <ol class="border-l-2 border-white space-y-3 w-[90%] mx-auto ml-[200px]">
         {% for entry in entry_list %}
-        <div class="flex py-4">
-          <div class="py-5 w-1/6">
-            <h5>{{ entry.publish_at|date:"M jS, Y" }}</h5>
-          </div>
-          <div class="w-5/6 text-xl">
-              <p><a href="{{ entry.get_absolute_url }}">{{ entry.title }}</a></p>
+        <li>
+          <div class="md:flex flex-start">
+            <div class="mt-6 text-xs text-center w-[200px] -ml-[213px]">
+              <a href="{{ entry.get_absolute_url }}">{{ entry.publish_at|date:"M jS, Y" }}</a>
+            </div>
+            <div class="flex justify-center items-center p-2 mt-5 bg-white rounded-full h-[25px] w-[25px]">
+              <i class="text-gray-400 fas fa-calendar-alt"></i>
+            </div>
+            {% if user.image %}
+            <div class="mt-4 text-xs text-center w-[150px]">
+                <img src="{{ user.image.url }}" alt="user" class="inline rounded-sm cursor-pointer w-[30px]" />
+            </div>
+            {% endif %}
+            <div class="block p-6 mb-10 ml-6 w-3/4 bg-white rounded-lg">
+              <div class="flex justify-between">
+                <a class="text-lg font-semibold transition duration-150 ease-in-out hover:text-info-600 focus:text-info-600 active:text-info-700" href="{{ entry.get_absolute_url }}">{{ entry.title }}</a>
               {% if entry.tag %}
               {% with url_name="news-"|add:entry.tag|add:"-list" %}
               <a data-test="news-tag" href="{% url url_name %}" class="px-3 text-sm rounded-md border-orange bg-orange">
@@ -110,23 +156,13 @@
               </a>
               {% endwith %}
               {% endif %}
-            <div class="space-x-8 uppercase">
+              </div>
+              <p class="text-gray-500">{{ entry.content|truncatechars:300 }}</p>
             </div>
           </div>
-        </div>
-        {% empty %}
-        <div class="flex py-4">
-          <div class="w-5/6 text-xl">
-            <p>
-              {% translate "No entries available." %}
-            </p>
-            <div class="space-x-8 uppercase">
-            </div>
-          </div>
-        </div>
+        </li>
         {% endfor %}
-      </div>
-
+      </ol>
     </div>
   </div>
 {% endblock %}
