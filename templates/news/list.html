@@ -14,7 +14,7 @@
 
       <!-- General filters, by news type -->
       <div>
-        <div class="py-5 text-right w-[90%] mx-auto space-x-2">
+        <div class="py-5 text-center w-[90%] mx-auto space-x-2">
           <div class="inline-block py-5">
             {% url 'news' as target_url %}
             <a href="{{ target_url }}" title="All News">
@@ -115,7 +115,13 @@
               {% endif %}
             </div>
             <div class="mt-4 text-xs text-center w-[150px]">
-              <img src="{{ entry.author.image.url }}" alt="user" class="inline rounded-sm cursor-pointer w-[30px]" />
+              {% if entry.author.image.url %}
+                <img src="{{ entry.author.image.url }}" alt="user" class="inline rounded-sm w-[30px]" />
+              {% else %}
+                <span class="inline px-2 pt-3 pb-1 bg-white rounded-sm">
+                  <i class="text-2xl fas fa-user"></i>
+                </span>
+              {% endif %}
             </div>
             {% if user.image %}
             <div class="mt-4 text-xs text-center w-[150px]">
