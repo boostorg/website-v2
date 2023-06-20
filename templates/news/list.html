@@ -12,6 +12,45 @@
         Keep up with current information from Boost and our community. (Under construction)
       </p>
 
+      {% comment %}
+      <!-- Authenticated user actions, should be a single button with a dropdown? -->
+      {% if user.is_authenticated %}
+      <div class="divide-y divide-gray-300">
+        <div class="flex py-5">
+          <div class="py-5 w-1/6">
+          {% translate "Create entry:" %}
+          </div>
+          <div class="py-5 w-1/6">
+            <a href="{% url 'news-create' %}">
+              {% translate "News" %}
+            </a>
+          </div>
+          <div class="py-5 w-1/6">
+            <a href="{% url 'news-blogpost-create' %}">
+              {% translate "BlogPost" %}
+            </a>
+          </div>
+          <div class="py-5 w-1/6">
+            <a href="{% url 'news-link-create' %}">
+              {% translate "Link" %}
+            </a>
+          </div>
+          <!-- Creating polls is disabled until we extend the PollForm -->
+          <!--div class="py-5 w-1/6">
+            <a href="{% url 'news-poll-create' %}">
+              {% translate "Poll" %}
+            </a>
+          </div-->
+          <div class="py-5 w-1/6">
+            <a href="{% url 'news-video-create' %}">
+              {% translate "Video" %}
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% endcomment %}
+
       <!-- General filters, by news type -->
       <div>
         <div class="py-5 text-center w-[90%] mx-auto space-x-2">
@@ -51,12 +90,15 @@
               <i class="py-1 px-2 rounded border border-gray-300 fas fa-video hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white{% endif %}"></i>
             </a>
           </div>
+          {% if user.is_authenticated %}
           <div class="inline-block py-5 text-sm">
-            <button class="py-1 px-3 rounded border border-gray-300 hover:bg-orange">Submit News</button>
+            <a href="{% url 'news-create' %}" class="py-1 px-3 rounded border border-gray-300 hover:bg-orange">Submit News</a>
           </div>
+          {% endif %}
         </div>
       </div>
 
+      <!-- News content per se -->
 {#      <div class="divide-y divide-gray-300">#}
 {#        {% for entry in entry_list %}#}
 {#        <div class="flex py-4">#}
@@ -89,8 +131,6 @@
 {#        {% endfor %}#}
 {#      </div>#}
 
-    </div>
-
     <div class="mt-5">
       <ol class="border-l-2 border-white space-y-3 w-[90%] mx-auto ml-[200px]">
         {% for entry in entry_list %}
@@ -100,15 +140,15 @@
               <a href="{{ entry.get_absolute_url }}">{{ entry.publish_at|date:"M jS, Y" }}</a>
             </div>
             <div class="flex justify-center items-center p-2 mt-5 bg-white rounded-full h-[25px] w-[25px]">
-              {% if entry.is_link %}
+              {% if entry.tag == "link" %}
                 <i class="text-gray-400 fas fa-link"></i>
-              {% elif entry.is_news %}
+              {% elif entry.tag == "news" %}
                 <i class="text-gray-400 fas fa-bullhorn"></i>
-              {% elif entry.is_blogpost %}
+              {% elif entry.tag == "blogpost" %}
                 <i class="text-gray-400 fas fa-newspaper"></i>
-              {% elif entry.is_poll %}
+              {% elif entry.tag == "poll" %}
                 <i class="text-gray-400 fas fa-poll"></i>
-              {% elif entry.is_video %}
+              {% elif entry.tag == "video" %}
                 <i class="text-gray-400 fas fa-video"></i>
               {% else %}
                 <i class="text-gray-400 fas fa-calendar-alt"></i>
@@ -130,14 +170,7 @@
             {% endif %}
             <div class="block p-6 mb-10 ml-6 w-3/4 bg-white rounded-lg">
               <div class="flex justify-between">
-              {% if entry.tag %}
-              {% with url_name="news-"|add:entry.tag|add:"-list" %}
-              <a data-test="news-tag" href="{% url url_name %}" class="px-3 text-sm rounded-md border-orange bg-orange">
-              <strong>{{ entry.tag }}</strong>
-              </a>
-              {% endwith %}
-              {% endif %}
-                <a class="text-lg font-semibold transition duration-150 ease-in-out hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.is_link %}target="_blank"{% endif %} href="{% if entry.is_link %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+                <a class="text-lg font-semibold transition duration-150 ease-in-out hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
                   {{ entry.title }}
                 </a>
               </div>

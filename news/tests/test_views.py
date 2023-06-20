@@ -51,7 +51,7 @@ def test_entry_list(
     if authenticated:
         tp.login(regular_user)
 
-    # 6 queries if authenticated, 4 otherwise
+    # 6 queries if authenticated, less otherwise
     response = tp.assertGoodView(tp.reverse(url_name), test_query_count=7, verbose=True)
 
     expected = [today_news, yesterday_news]
@@ -71,10 +71,6 @@ def test_entry_list(
 
     # If user is not authenticated, the Create News link should not be shown
     assert (tp.reverse("news-create") in content) == authenticated
-    assert (tp.reverse("news-blogpost-create") in content) == authenticated
-    assert (tp.reverse("news-link-create") in content) == authenticated
-    assert (tp.reverse("news-poll-create") in content) == authenticated
-    assert (tp.reverse("news-video-create") in content) == authenticated
 
 
 def test_entry_list_queries(tp, make_entry):
@@ -87,22 +83,15 @@ def test_entry_list_queries(tp, make_entry):
     # 4 queries
     response = tp.assertGoodView(tp.reverse("news"), test_query_count=6, verbose=True)
 
-    # assert set(response.context.get("entry_list", [])) == set(expected)
+    entry_list = response.context.get("entry_list", [])
+    assert set(e.id for e in entry_list) == set(e.id for e in expected)
 
     content = str(response.content)
     for n in expected:
         assert n.get_absolute_url() in content
         assert n.title in content
-        news_tag = (
-            f'<a data-test="news-tag" href="/news/{n.tag}/" '
-            f'class="px-3 text-sm rounded-md border-orange bg-orange">'
-            f"<strong>{n.tag}</strong>"
-            f"</a>"
-        )
-        if not n.tag:
-            tp.assertResponseNotContains(news_tag, response)
-        else:
-            tp.assertResponseContains(news_tag, response)  # this is the tag
+        news_link = f'href="/news/{n.tag}/"' if n.tag else 'href="/news/"'
+        assert news_link in content
 
 
 @pytest.mark.parametrize(
