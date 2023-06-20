@@ -1,11 +1,8 @@
+import datetime
 import structlog
 
+from dateutil.relativedelta import relativedelta
 from django.http import Http404
-<<<<<<< HEAD
-=======
-from django.db.models import Sum
-from django.db.models.functions import ExtractYear
->>>>>>> a7a5d70 (Add retrieval of annual commit data)
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
@@ -13,7 +10,7 @@ from django.views.generic.edit import FormMixin
 from versions.models import Version
 from .forms import VersionSelectionForm
 from .github import GithubAPIClient
-from .models import Category, Library, LibraryVersion
+from .models import Category, CommitData, Library, LibraryVersion
 
 logger = structlog.get_logger()
 
@@ -125,6 +122,8 @@ class LibraryDetail(CategoryMixin, FormMixin, DetailView):
             client, tag=context["version"].name
         )
         context["github_url"] = self.get_github_url(context["version"])
+        context["commit_data_annual"] = self.get_commit_data_annual()
+        context["commit_data_last_12_months"] = self.get_commit_data_last_12_months()
         return context
 
     def get_object(self):
@@ -145,58 +144,73 @@ class LibraryDetail(CategoryMixin, FormMixin, DetailView):
             raise Http404("No library found matching the query")
         return obj
 
+    def _prepare_commit_data(self, commit_data, data_type):
+        commit_data_list = []
+        for data in commit_data:
+            if data_type == "annual":
+                year = data["date"]
+                date = datetime.date(year, 1, 1)
+            else:  # Assuming monthly data
+                date = data["date"]
+
+            commit_count = data["commit_count"]
+            commit_data_list.append({"date": date, "commit_count": commit_count})
+
+        return commit_data_list
+
     def get_commit_data_annual(self):
         """Retrieve number of commits to the library per year."""
-        commit_data = (
-            CommitData.objects.filter(library=self.object, branch="master")
-            .annotate(year=ExtractYear("month_year"))
-            .values("year")
-            .annotate(commit_count=Sum("commit_count"))
-            .order_by("year")
-        )
+        if not self.object.commit_data.exists():
+            return []
 
-        commit_data_dict = {data["year"]: data["commit_count"] for data in commit_data}
-
-        earliest_year = (
-            commit_data.first()["year"] if commit_data else datetime.date.today().year
-        )
+        # Get the first and last commit dates to determine the range of years
+        first_commit = self.object.commit_data.earliest("month_year")
+        first_year = first_commit.month_year.year
         current_year = datetime.date.today().year
+        years = list(range(first_year, current_year + 1))
 
-        commit_data_annual = []
-        for year in range(earliest_year, current_year + 1):
-            commit_count = commit_data_dict.get(year, 0)
-            commit_data_annual.append({"year": year, "commit_count": commit_count})
-
-        return commit_data_annual
+        # For years there were no commits, return the year and the 0 count
+        commit_data_annual = {year: 0 for year in years}
+        actual_data = dict(
+            CommitData.objects.get_annual_commit_data_for_library(
+                self.object
+            ).values_list("year", "commit_count")
+        )
+        commit_data_annual.update(actual_data)
+        prepared_commit_data = [
+            {"date": year, "commit_count": count}
+            for year, count in commit_data_annual.items()
+        ]
+        # Sort the data by date
+        prepared_commit_data.sort(key=lambda x: x["date"])
+        return self._prepare_commit_data(prepared_commit_data, "annual")
 
     def get_commit_data_last_12_months(self):
         """Retrieve the number of commits per month for the last year."""
-        first_day_of_month = datetime.date.today().replace(day=1)
-        last_12_months = [
-            first_day_of_month - relativedelta(months=i) for i in range(12)
+        if not self.object.commit_data.exists():
+            return []
+
+        # Generate default dict of last 12 months with 0 commits so we still see
+        # months with no commits
+        today = datetime.date.today()
+        months = [(today - relativedelta(months=i)).replace(day=1) for i in range(12)]
+        commit_data_monthly = {month: 0 for month in months}
+
+        # Update dict with real data from the database.
+        actual_data = dict(
+            CommitData.objects.get_commit_data_for_last_12_months_for_library(
+                self.object
+            ).values_list("month_year", "commit_count")
+        )
+        commit_data_monthly.update(actual_data)
+        prepared_commit_data = [
+            {"date": month, "commit_count": count}
+            for month, count in commit_data_monthly.items()
         ]
-
-        commit_data_dict = {
-            data["month_year"]: data["commit_count"]
-            for data in CommitData.objects.filter(
-                library=self.object, month_year__in=last_12_months, branch="master"
-            )
-            .values("month_year")
-            .annotate(commit_count=Sum("commit_count"))
-        }
-
-        commit_data_last_12_months = []
-        for month in reversed(
-            last_12_months
-        ):  # Reverse the list to start from 12 months ago.
-            commit_count = commit_data_dict.get(
-                month, 0
-            )  # Use 0 if no data for the month.
-            commit_data_last_12_months.append(
-                {"month_year": month, "commit_count": commit_count}
-            )
-
-        return commit_data_last_12_months
+        # Sort the data by date
+        prepared_commit_data.sort(key=lambda x: x["date"])
+        result = self._prepare_commit_data(prepared_commit_data, "monthly")
+        return result
 
     def get_documentation_url(self):
         """Return the URL for the link to the external Boost documentation."""
