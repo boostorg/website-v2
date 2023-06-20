@@ -89,18 +89,3 @@
       </div>
     </div>
 {% endblock %}
-
-
-{% block footer_js %}
-  <script>
-      var supportStartAnimParams = {
-        container: document.getElementById('supportStart'),
-        path: '{% static "animations/Scene05/data.json" %}',
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        name: "Press Start",
-      };
-      anim = lottie.loadAnimation(supportStartAnimParams);
-  </script>
-{% endblock %}

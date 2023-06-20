@@ -70,28 +70,3 @@
     </div>
   </div>
 {% endblock %}
-
-
-{% block footer_js %}
-  <script>
-      var supportStartAnimParams = {
-        container: document.getElementById('supportStart'),
-        path: '{% static "animations/Scene05/data.json" %}',
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        name: "Press Start",
-      };
-      anim = lottie.loadAnimation(supportStartAnimParams);
-
-      var joinSlackAnimParams = {
-        container: document.getElementById('joinSlack'),
-        path: '{% static "animations/Scene04/data.json" %}',
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        name: "Join our Slack",
-      };
-      anim = lottie.loadAnimation(joinSlackAnimParams);
-  </script>
-{% endblock %}
