@@ -38,7 +38,7 @@ class EntryListView(ListView):
     context_object_name = "entry_list"  # Ensure children use the same name
 
     def get_queryset(self):
-        return super().get_queryset().filter(published=True)
+        return super().get_queryset().select_related("author").filter(published=True)
 
 
 class BlogPostListView(EntryListView):
