@@ -10,6 +10,7 @@ from core.markdown import process_md
 from core.models import RenderedContent
 from core.tasks import adoc_to_html
 
+from .managers import CommitDataManager
 from .utils import write_content_to_tempfile
 
 
@@ -55,6 +56,8 @@ class CommitData(models.Model):
         default="master",
         help_text="The GitHub branch to which these commits were made.",
     )
+
+    objects = CommitDataManager()
 
     class Meta:
         unique_together = ("library", "month_year", "branch")
