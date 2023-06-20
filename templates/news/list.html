@@ -101,7 +101,7 @@
             </div>
             <div class="flex justify-center items-center p-2 mt-5 bg-white rounded-full h-[25px] w-[25px]">
               {% if entry.is_link %}
-                <i class="text-gray-400 fas fa-poll"></i>
+                <i class="text-gray-400 fas fa-link"></i>
               {% elif entry.is_news %}
                 <i class="text-gray-400 fas fa-bullhorn"></i>
               {% elif entry.is_blogpost %}
@@ -115,7 +115,7 @@
               {% endif %}
             </div>
             <div class="mt-4 text-xs text-center w-[150px]">
-              {% if entry.author.image.url %}
+              {% if entry.author.image %}
                 <img src="{{ entry.author.image.url }}" alt="user" class="inline rounded-sm w-[30px]" />
               {% else %}
                 <span class="inline px-2 pt-3 pb-1 bg-white rounded-sm">
@@ -130,7 +130,6 @@
             {% endif %}
             <div class="block p-6 mb-10 ml-6 w-3/4 bg-white rounded-lg">
               <div class="flex justify-between">
-                <a class="text-lg font-semibold transition duration-150 ease-in-out hover:text-info-600 focus:text-info-600 active:text-info-700" href="{{ entry.get_absolute_url }}">{{ entry.title }}</a>
               {% if entry.tag %}
               {% with url_name="news-"|add:entry.tag|add:"-list" %}
               <a data-test="news-tag" href="{% url url_name %}" class="px-3 text-sm rounded-md border-orange bg-orange">
@@ -138,6 +137,9 @@
               </a>
               {% endwith %}
               {% endif %}
+                <a class="text-lg font-semibold transition duration-150 ease-in-out hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.is_link %}target="_blank"{% endif %} href="{% if entry.is_link %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+                  {{ entry.title }}
+                </a>
               </div>
               <p class="text-gray-500">{{ entry.content|truncatechars:300 }}</p>
             </div>
