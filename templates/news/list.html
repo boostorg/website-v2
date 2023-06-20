@@ -140,15 +140,15 @@
               <a href="{{ entry.get_absolute_url }}">{{ entry.publish_at|date:"M jS, Y" }}</a>
             </div>
             <div class="flex justify-center items-center p-2 mt-5 bg-white rounded-full h-[25px] w-[25px]">
-              {% if entry.tag == "link" %}
+              {% if entry.is_link %}
                 <i class="text-gray-400 fas fa-link"></i>
-              {% elif entry.tag == "news" %}
+              {% elif entry.is_news %}
                 <i class="text-gray-400 fas fa-bullhorn"></i>
-              {% elif entry.tag == "blogpost" %}
+              {% elif entry.is_blogpost %}
                 <i class="text-gray-400 fas fa-newspaper"></i>
-              {% elif entry.tag == "poll" %}
+              {% elif entry.is_poll %}
                 <i class="text-gray-400 fas fa-poll"></i>
-              {% elif entry.tag == "video" %}
+              {% elif entry.is_video %}
                 <i class="text-gray-400 fas fa-video"></i>
               {% else %}
                 <i class="text-gray-400 fas fa-calendar-alt"></i>
@@ -163,11 +163,6 @@
                 </span>
               {% endif %}
             </div>
-            {% if user.image %}
-            <div class="mt-4 text-xs text-center w-[150px]">
-                <img src="{{ user.image.url }}" alt="user" class="inline rounded-sm cursor-pointer w-[30px]" />
-            </div>
-            {% endif %}
             <div class="block p-6 mb-10 ml-6 w-3/4 bg-white rounded-lg">
               <div class="flex justify-between">
                 <a class="text-lg font-semibold transition duration-150 ease-in-out hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
