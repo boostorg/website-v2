@@ -128,17 +128,3 @@
 
   </div>
 {% endblock %}
-
-{% block footer_js %}
-  <script>
-      var reviewProcessAnimParams = {
-        container: document.getElementById('reviewProcessAnim'),
-        path: '{% static "animations/Scene02/data.json" %}',
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        name: "Review Process",
-      };
-      anim = lottie.loadAnimation(reviewProcessAnimParams);
-  </script>
-{% endblock %}
