@@ -748,7 +748,7 @@ input[type=file] {
   color: rgb(49 74 87 / var(--tw-text-opacity));
 }
 
-.dark #signup_form input[type=email],.dark
+.dark #signup_form input[type=email],.dark 
   #signup_form input[type=password] {
   --tw-bg-opacity: 1;
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
@@ -1191,7 +1191,7 @@ input[type=file] {
   margin-left: 1.5rem;
 }
 
-.mb-2 {
+2.mb-2 {
   margin-bottom: 0.5rem;
 }
 
@@ -1205,10 +1205,6 @@ input[type=file] {
 
 .mr-3 {
   margin-right: 0.75rem;
-}
-
-.mr-1 {
-  margin-right: 0.25rem;
 }
 
 .mt-12 {
@@ -1265,6 +1261,18 @@ input[type=file] {
 
 .ml-2 {
   margin-left: 0.5rem;
+}
+
+.ml-\[200px\] {
+  margin-left: 200px;
+}
+
+.-ml-\[213px\] {
+  margin-left: -213px;
+}
+
+.mb-10 {
+  margin-bottom: 2.5rem;
 }
 
 .ml-5 {
@@ -1435,6 +1443,18 @@ input[type=file] {
   width: 1rem;
 }
 
+.w-\[200px\] {
+  width: 200px;
+}
+
+.w-\[25px\] {
+  width: 25px;
+}
+
+.w-\[150px\] {
+  width: 150px;
+}
+
 .w-5 {
   width: 1.25rem;
 }
@@ -1449,10 +1469,6 @@ input[type=file] {
 
 .w-1 {
   width: 0.25rem;
-}
-
-.w-\[200px\] {
-  width: 200px;
 }
 
 .min-w-0 {
@@ -1820,6 +1836,10 @@ input[type=file] {
   border-bottom-width: 2px;
 }
 
+.border-l-2 {
+  border-left-width: 2px;
+}
+
 .border-b-4 {
   border-bottom-width: 4px;
 }
@@ -1861,6 +1881,11 @@ input[type=file] {
 
 .border-green\/60 {
   border-color: rgb(90 213 153 / 0.6);
+}
+
+.border-white {
+  --tw-border-opacity: 1;
+  border-color: rgb(255 255 255 / var(--tw-border-opacity));
 }
 
 .bg-red-600 {
@@ -2377,6 +2402,16 @@ input[type=file] {
   color: rgb(56 189 248 / var(--tw-text-opacity));
 }
 
+.text-gray-400 {
+  --tw-text-opacity: 1;
+  color: rgb(156 163 175 / var(--tw-text-opacity));
+}
+
+.text-gray-500 {
+  --tw-text-opacity: 1;
+  color: rgb(107 114 128 / var(--tw-text-opacity));
+}
+
 .text-gray-100 {
   --tw-text-opacity: 1;
   color: rgb(243 244 246 / var(--tw-text-opacity));
@@ -2489,12 +2524,20 @@ input[type=file] {
   transition-duration: 75ms;
 }
 
-.ease-in {
-  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+.duration-150 {
+  transition-duration: 150ms;
 }
 
 .ease-out {
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+.ease-in {
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.ease-in-out {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .last\:border-0:last-child {
@@ -2859,16 +2902,12 @@ input[type=file] {
     margin-top: 2rem;
   }
 
-  .md\:mb-10 {
-    margin-bottom: 2.5rem;
+  .md\:mt-16 {
+    margin-top: 4rem;
   }
 
   .md\:mb-0 {
     margin-bottom: 0px;
-  }
-
-  .md\:mt-16 {
-    margin-top: 4rem;
   }
 
   .md\:mb-8 {
