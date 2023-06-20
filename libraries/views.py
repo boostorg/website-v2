@@ -1,6 +1,11 @@
 import structlog
 
 from django.http import Http404
+<<<<<<< HEAD
+=======
+from django.db.models import Sum
+from django.db.models.functions import ExtractYear
+>>>>>>> a7a5d70 (Add retrieval of annual commit data)
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
@@ -139,6 +144,59 @@ class LibraryDetail(CategoryMixin, FormMixin, DetailView):
         except self.model.DoesNotExist:
             raise Http404("No library found matching the query")
         return obj
+
+    def get_commit_data_annual(self):
+        """Retrieve number of commits to the library per year."""
+        commit_data = (
+            CommitData.objects.filter(library=self.object, branch="master")
+            .annotate(year=ExtractYear("month_year"))
+            .values("year")
+            .annotate(commit_count=Sum("commit_count"))
+            .order_by("year")
+        )
+
+        commit_data_dict = {data["year"]: data["commit_count"] for data in commit_data}
+
+        earliest_year = (
+            commit_data.first()["year"] if commit_data else datetime.date.today().year
+        )
+        current_year = datetime.date.today().year
+
+        commit_data_annual = []
+        for year in range(earliest_year, current_year + 1):
+            commit_count = commit_data_dict.get(year, 0)
+            commit_data_annual.append({"year": year, "commit_count": commit_count})
+
+        return commit_data_annual
+
+    def get_commit_data_last_12_months(self):
+        """Retrieve the number of commits per month for the last year."""
+        first_day_of_month = datetime.date.today().replace(day=1)
+        last_12_months = [
+            first_day_of_month - relativedelta(months=i) for i in range(12)
+        ]
+
+        commit_data_dict = {
+            data["month_year"]: data["commit_count"]
+            for data in CommitData.objects.filter(
+                library=self.object, month_year__in=last_12_months, branch="master"
+            )
+            .values("month_year")
+            .annotate(commit_count=Sum("commit_count"))
+        }
+
+        commit_data_last_12_months = []
+        for month in reversed(
+            last_12_months
+        ):  # Reverse the list to start from 12 months ago.
+            commit_count = commit_data_dict.get(
+                month, 0
+            )  # Use 0 if no data for the month.
+            commit_data_last_12_months.append(
+                {"month_year": month, "commit_count": commit_count}
+            )
+
+        return commit_data_last_12_months
 
     def get_documentation_url(self):
         """Return the URL for the link to the external Boost documentation."""
