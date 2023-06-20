@@ -109,6 +109,89 @@ def test_library_detail_404(library, tp):
     tp.response_404(response)
 
 
+<<<<<<< HEAD
+=======
+def test_library_detail_context_get_commit_data_annual(tp, library_version):
+    """
+    GET /libraries/{slug}/
+    Test that the method correctly retrieves the commit data
+    """
+    library = library_version.library
+    random_library = baker.make("libraries.Library", slug="random")
+    current_year = timezone.now().year
+    for i in range(10):
+        year = current_year - i
+        date = datetime.date(year, 1, 1)
+        # Valid data
+        baker.make(
+            "libraries.CommitData",
+            library=library,
+            month_year=date,
+            commit_count=i + 1,
+            branch="master",
+        )
+        # Wrong library
+        baker.make(
+            "libraries.CommitData",
+            library=random_library,
+            month_year=date,
+            commit_count=i + 1,
+            branch="master",
+        )
+        # Wrong branch
+        baker.make(
+            "libraries.CommitData",
+            library=library,
+            month_year=date,
+            commit_count=i + 1,
+            branch="wrong-branch",
+        )
+
+    url = tp.reverse("library-detail", library.slug)
+    response = tp.get_check_200(url)
+    assert "commit_data_annual" in response.context
+    commit_data_annual = response.context["commit_data_annual"]
+    # Verify that the data is only for last 12 months for this library
+    assert len(commit_data_annual) == 10
+    for i, data in enumerate(reversed(commit_data_annual)):
+        assert data["year"] == current_year - i
+        assert data["commit_count"] == i + 1
+
+
+def test_library_detail_context_get_commit_data_last_12_months(tp, library_version):
+    """
+    GET /libraries/{slug}/
+    Test that the commit_data_last_12_months var appears as expected
+    """
+    library = library_version.library
+
+    # Create CommitData for the library and another random library
+    random_library = baker.make("libraries.Library", slug="random")
+    current_month = timezone.now().date().replace(day=1)
+    for i in range(12):
+        date = current_month - relativedelta(months=i)
+        baker.make(
+            "libraries.CommitData", library=library, month_year=date, commit_count=i + 1
+        )
+        baker.make(
+            "libraries.CommitData",
+            library=random_library,
+            month_year=date,
+            commit_count=i + 1,
+        )
+
+    url = tp.reverse("library-detail", library.slug)
+    response = tp.get_check_200(url)
+    assert "commit_data_last_12_months" in response.context
+    commit_data_last_12_months = response.context["commit_data_last_12_months"]
+    # Verify that the data is only for last 12 months for this library
+    assert len(commit_data_last_12_months) == 12
+    for i, data in enumerate(reversed(commit_data_last_12_months)):
+        assert data["month_year"] == current_month - relativedelta(months=i)
+        assert data["commit_count"] == i + 1
+
+
+>>>>>>> a7a5d70 (Add retrieval of annual commit data)
 def test_library_detail_context_get_maintainers(tp, user, library_version):
     """
     GET /libraries/{slug}/
