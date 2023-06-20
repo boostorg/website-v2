@@ -1283,6 +1283,22 @@ input[type=file] {
   margin-left: 1rem;
 }
 
+.-mt-2 {
+  margin-top: -0.5rem;
+}
+
+.-mt-4 {
+  margin-top: -1rem;
+}
+
+.-mb-2 {
+  margin-bottom: -0.5rem;
+}
+
+.-mb-4 {
+  margin-bottom: -1rem;
+}
+
 .block {
   display: block;
 }
@@ -1824,6 +1840,14 @@ input[type=file] {
   border-width: 0px;
 }
 
+.border-2 {
+  border-width: 2px;
+}
+
+.border-4 {
+  border-width: 4px;
+}
+
 .border-b {
   border-bottom-width: 1px;
 }
@@ -2127,6 +2151,11 @@ input[type=file] {
 .py-14 {
   padding-top: 3.5rem;
   padding-bottom: 3.5rem;
+}
+
+.px-1 {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
 }
 
 .pl-11 {
