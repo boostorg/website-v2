@@ -140,15 +140,15 @@
               <a href="{{ entry.get_absolute_url }}">{{ entry.publish_at|date:"M jS, Y" }}</a>
             </div>
             <div class="flex justify-center items-center p-2 mt-5 bg-white rounded-full h-[25px] w-[25px]">
-              {% if entry.is_link %}
+              {% if entry.tag == "link" %}
                 <i class="text-gray-400 fas fa-link"></i>
-              {% elif entry.is_news %}
+              {% elif entry.tag == "news" %}
                 <i class="text-gray-400 fas fa-bullhorn"></i>
-              {% elif entry.is_blogpost %}
+              {% elif entry.tag == "blogpost" %}
                 <i class="text-gray-400 fas fa-newspaper"></i>
-              {% elif entry.is_poll %}
+              {% elif entry.tag == "poll" %}
                 <i class="text-gray-400 fas fa-poll"></i>
-              {% elif entry.is_video %}
+              {% elif entry.tag == "video" %}
                 <i class="text-gray-400 fas fa-video"></i>
               {% else %}
                 <i class="text-gray-400 fas fa-calendar-alt"></i>
