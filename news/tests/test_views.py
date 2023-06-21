@@ -286,6 +286,7 @@ def test_news_create_multiplexer(tp, user_type, request):
         model_class = form_class.Meta.model
         assert item["add_url_name"] == f"news-{model_class.news_type}-create"
         assert model_class.__name__ in item["add_label"]
+        assert model_class.__name__ == item["model_name"]
 
 
 @pytest.mark.parametrize(
