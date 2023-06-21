@@ -265,10 +265,44 @@ def test_news_detail_next_url(tp, make_entry, moderator_user, model_class):
     )
 
 
+@pytest.mark.parametrize("user_type", ["user", "moderator_user"])
+def test_news_create_multiplexer(tp, user_type, request):
+    url_name = "news-create"
+    url = tp.reverse(url_name)
+    tp.assertLoginRequired(url_name)
+
+    user = request.getfixturevalue(user_type)
+    with tp.login(user):
+        tp.assertGoodView(url, test_query_count=4, verbose=True)
+
+    expected = [BlogPostForm, LinkForm, NewsForm, VideoForm]
+    if "moderator" in user_type:
+        expected.append(PollForm)
+    items = tp.get_context("items")
+    assert len(items) == len(expected)
+
+    for item, form_class in zip(items, expected):
+        assert isinstance(item["form"], form_class)
+        model_class = form_class.Meta.model
+        assert item["add_url_name"] == f"news-{model_class.news_type}-create"
+        assert model_class.__name__ in item["add_label"]
+
+
+@pytest.mark.parametrize(
+    "method", ["DELETE", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+)
+def test_news_create_multiplexer_method_not_allowed(tp, user, method):
+    # Any HTTP method other than GET is a 405
+    with tp.login(user):
+        response = tp.request(method_name=method.lower(), url_name="news-create")
+
+    tp.response_405(response)
+
+
 @pytest.mark.parametrize(
     "url_name, form_class",
     [
-        ("news-create", NewsForm),
+        ("news-news-create", NewsForm),
         ("news-blogpost-create", BlogPostForm),
         ("news-link-create", LinkForm),
         ("news-poll-create", PollForm),
@@ -295,7 +329,7 @@ def test_news_create_get(tp, regular_user, url_name, form_class):
 @pytest.mark.parametrize(
     "url_name, model_class, data_fields",
     [
-        ("news-create", News, NewsForm.Meta.fields),
+        ("news-news-create", News, NewsForm.Meta.fields),
         ("news-blogpost-create", BlogPost, BlogPostForm.Meta.fields),
         ("news-link-create", Link, LinkForm.Meta.fields),
         ("news-poll-create", Poll, PollForm.Meta.fields),

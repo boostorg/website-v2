@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create News" %}{% endblock %}
+
+{% block content %}
+
+  {% if user.is_authenticated %}
+  <div class="divide-y divide-gray-300">
+    <div class="flex py-5">
+      <div class="py-5 w-1/6">
+      {% translate "Direct links:" %}
+      </div>
+      {% for item in items %}
+      <div class="py-5 w-1/6">
+        <a href="{% url item.add_url_name %}">{{ item.add_label }}</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!- This is an example of how to iterate all forms for all news types -->
+  {% for item in items %}
+  <div class="float-left px-4 my-4 md:w-1/4">
+    <h2>{{ item.add_label }}</h2>
+   {% include "news/_entry_form.html" with form=item.form add_url_name=item.add_url_name add_label=item.add_label %}
+  </div>
+  {% endfor %}
+
+{% endblock %}
