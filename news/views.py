@@ -164,6 +164,7 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
     def item_params(view):
         return {
             "form": view.form_class(),
+            "model_name": view.model.__name__,
             "add_label": view.add_label,
             "add_url_name": view.add_url_name,
         }
