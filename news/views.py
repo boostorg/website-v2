@@ -10,6 +10,7 @@ from django.views.generic import (
     DeleteView,
     DetailView,
     ListView,
+    TemplateView,
     UpdateView,
     View,
 )
@@ -138,7 +139,7 @@ class NewsCreateView(EntryCreateView):
     model = News
     form_class = NewsForm
     add_label = _("Create News")
-    add_url_name = "news-create"
+    add_url_name = "news-news-create"
 
 
 class PollCreateView(EntryCreateView):
@@ -153,6 +154,33 @@ class VideoCreateView(EntryCreateView):
     form_class = VideoForm
     add_label = _("Upload a Video")
     add_url_name = "news-video-create"
+
+
+class AllTypesCreateView(LoginRequiredMixin, TemplateView):
+    template_name = "news/create.html"
+    http_method_names = ["get"]  # This is a "create news" multiplexer (by news type)
+
+    @staticmethod
+    def item_params(view):
+        return {
+            "form": view.form_class(),
+            "add_label": view.add_label,
+            "add_url_name": view.add_url_name,
+        }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        items = [
+            self.item_params(BlogPostCreateView),
+            self.item_params(LinkCreateView),
+            self.item_params(NewsCreateView),
+            self.item_params(VideoCreateView),
+        ]
+        # Only superusers and moderators can create Polls
+        if can_approve(self.request.user):
+            items.append(self.item_params(PollCreateView))
+        context["items"] = items
+        return context
 
 
 class EntryApproveView(

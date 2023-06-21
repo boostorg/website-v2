@@ -36,6 +36,7 @@ from libraries.views import (
 from libraries.api import LibrarySearchView
 from mailing_list.views import MailingListView, MailingListDetailView
 from news.views import (
+    AllTypesCreateView,
     BlogPostCreateView,
     BlogPostListView,
     EntryApproveView,
@@ -153,7 +154,8 @@ urlpatterns = (
         path("news/news/", NewsListView.as_view(), name="news-news-list"),
         path("news/poll/", PollListView.as_view(), name="news-poll-list"),
         path("news/video/", VideoListView.as_view(), name="news-video-list"),
-        path("news/add/", NewsCreateView.as_view(), name="news-create"),
+        path("news/add/", AllTypesCreateView.as_view(), name="news-create"),
+        path("news/add/news/", NewsCreateView.as_view(), name="news-news-create"),
         path(
             "news/add/blogpost/",
             BlogPostCreateView.as_view(),
