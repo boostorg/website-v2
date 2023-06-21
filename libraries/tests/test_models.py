@@ -106,7 +106,8 @@ def test_library_repo_url_for_version_invalid_data(library_version):
 
     with pytest.raises(ValueError):
         library_version.library_repo_url_for_version
-        
+
+
 def test_library_version_documentation_url(library_version):
     library_version.version.slug = "boost-1.82.0"
     library_version.version.save()

@@ -12,45 +12,6 @@
         Keep up with current information from Boost and our community. (Under construction)
       </p>
 
-      {% comment %}
-      <!-- Authenticated user actions, should be a single button with a dropdown? -->
-      {% if user.is_authenticated %}
-      <div class="divide-y divide-gray-300">
-        <div class="flex py-5">
-          <div class="py-5 w-1/6">
-          {% translate "Create entry:" %}
-          </div>
-          <div class="py-5 w-1/6">
-            <a href="{% url 'news-create' %}">
-              {% translate "News" %}
-            </a>
-          </div>
-          <div class="py-5 w-1/6">
-            <a href="{% url 'news-blogpost-create' %}">
-              {% translate "BlogPost" %}
-            </a>
-          </div>
-          <div class="py-5 w-1/6">
-            <a href="{% url 'news-link-create' %}">
-              {% translate "Link" %}
-            </a>
-          </div>
-          <!-- Creating polls is disabled until we extend the PollForm -->
-          <!--div class="py-5 w-1/6">
-            <a href="{% url 'news-poll-create' %}">
-              {% translate "Poll" %}
-            </a>
-          </div-->
-          <div class="py-5 w-1/6">
-            <a href="{% url 'news-video-create' %}">
-              {% translate "Video" %}
-            </a>
-          </div>
-        </div>
-      </div>
-      {% endif %}
-      {% endcomment %}
-
       <!-- General filters, by news type -->
       <div>
         <div class="py-5 text-center w-[90%] mx-auto space-x-2">
