@@ -12,6 +12,8 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      CI: true
 
     services:
       postgres:

@@ -38,3 +38,4 @@ repos:
         entry: rustywind
         args: [ --write, templates ]
         types_or: [ html ]
+        skip: ${CI}
