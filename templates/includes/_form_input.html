@@ -1,19 +1,17 @@
 {% load static %}
 {% load widget_tweaks %}
 
-{% if form.is_bound %}
-  {% if field.errors %}
-    {% render_field field class="w-full bg-white rounded border-gray-300 dark:text-white text-slate dark:border-slate dark:bg-charcoal" placeholder="{{ field.label }}" %}
 
-    {% for error in field.errors %}
-    <div class="text-white bg-red">
-      {{ error }}
-    </div>
-    {% endfor %}
+{% if field.errors %}
+  {% for error in field.errors %}
+  <div class="py-1 px-3 text-white bg-red-600">
+    {{ error }}
+  </div>
+  {% endfor %}
+{% endif %}
 
-  {% else %}
-    {% render_field field class="w-full bg-white rounded border-gray-300 dark:text-white text-slate dark:border-slate dark:bg-charcoal" placeholder="{{ field.label }}" %}
-  {% endif %}
+{% if field.field.widget.input_type == "file" %}
+  {% render_field field class="text-sm text-grey-500 !border-0 file:mr-5 file:py-2 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white file:text-slate hover:file:cursor-pointer hover:file:bg-orange hover:file:text-white" placeholder=field.label %}
 {% else %}
   {% render_field field class="w-full bg-white rounded border-gray-300 dark:text-white text-slate dark:border-slate dark:bg-charcoal" placeholder=field.label %}
 {% endif %}
