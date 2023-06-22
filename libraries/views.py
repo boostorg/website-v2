@@ -10,19 +10,13 @@ from django.views.generic.edit import FormMixin
 from versions.models import Version
 from .forms import VersionSelectionForm
 from .github import GithubAPIClient
+from .mixins import CategoryMixin, VersionAlertMixin
 from .models import Category, CommitData, Library, LibraryVersion
 
 logger = structlog.get_logger()
 
 
-class CategoryMixin:
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["categories"] = Category.objects.all().order_by("name")
-        return context
-
-
-class LibraryList(CategoryMixin, ListView):
+class LibraryList(CategoryMixin, VersionAlertMixin, ListView):
     """List all of our libraries for a specific Boost version, or default
     to the current version."""
 
