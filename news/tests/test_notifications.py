@@ -5,18 +5,22 @@ from django.core import mail
 from django.urls import reverse
 
 from ..models import NEWS_MODELS
-from ..notifications import send_email_after_approval, send_email_news_needs_moderation
+from ..notifications import (
+    send_email_news_approved,
+    send_email_news_needs_moderation,
+    send_email_news_posted,
+)
 from users.models import Preferences
 
 
 @pytest.mark.parametrize("model_class", NEWS_MODELS)
-def test_send_email_after_approval(rf, tp, make_entry, model_class):
+def test_send_email_news_approved(rf, tp, make_entry, model_class):
     entry = make_entry(model_class, approved=True, created_at=date(2023, 5, 31))
     assert entry.tag in entry.author.preferences.allow_notification_own_news_approved
 
     request = rf.get("")
 
-    result = send_email_after_approval(request, entry)
+    result = send_email_news_approved(request, entry)
 
     assert result == 1
     assert len(mail.outbox) == 1
@@ -29,7 +33,7 @@ def test_send_email_after_approval(rf, tp, make_entry, model_class):
 
 
 @pytest.mark.parametrize("model_class", NEWS_MODELS)
-def test_send_email_after_approval_author_email_preferences_do_not_notify_all_types(
+def test_send_email_news_approved_author_email_preferences_do_not_notify_all_types(
     rf, tp, make_entry, model_class, make_user
 ):
     entry = make_entry(model_class, approved=True)
@@ -39,12 +43,12 @@ def test_send_email_after_approval_author_email_preferences_do_not_notify_all_ty
     )
     request = rf.get("")
 
-    result = send_email_after_approval(request, entry)
+    result = send_email_news_approved(request, entry)
 
     assert result is False
 
 
-def test_send_email_after_approval_author_email_preferences_do_not_notify_other_type(
+def test_send_email_news_approved_author_email_preferences_do_not_notify_other_type(
     rf, tp, make_entry, make_user
 ):
     entry = make_entry(model_class=NEWS_MODELS[0], approved=True)
@@ -56,7 +60,7 @@ def test_send_email_after_approval_author_email_preferences_do_not_notify_other_
     )
     request = rf.get("")
 
-    result = send_email_after_approval(request, entry)
+    result = send_email_news_approved(request, entry)
 
     assert result is False
 
@@ -120,3 +124,68 @@ def test_send_email_news_needs_moderation_no_moderator_match(
         result = send_email_news_needs_moderation(request, entry)
 
     assert result is False
+
+
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_send_email_news_posted_no_other_user(rf, make_entry, model_class):
+    entry = make_entry(model_class, approved=False)
+    request = rf.get("")
+
+    result = send_email_news_posted(request, entry)
+
+    assert result is False
+
+
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_send_email_news_posted_no_other_user_allows(
+    rf, make_entry, make_user, model_class
+):
+    entry = make_entry(model_class, approved=False)
+    request = rf.get("")
+
+    for i in range(3):
+        u = make_user()
+        u.preferences.allow_notification_others_news_posted = []
+        u.preferences.save()
+
+    result = send_email_news_posted(request, entry)
+
+    assert result is False
+
+
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_send_email_news_posted_many_users(rf, tp, make_entry, make_user, model_class):
+    entry = make_entry(model_class, approved=False)
+    request = rf.get("")
+
+    # user does not allow notifications
+    make_user(email="u1@example.com", allow_notification_others_news_posted=[])
+    # allows nofitications for all news type
+    make_user(
+        email="u2@example.com",
+        allow_notification_others_news_posted=[m.news_type for m in NEWS_MODELS],
+    )
+    # allows only for the same type as entry
+    make_user(email="u3@example.com", allow_notification_others_news_posted=[entry.tag])
+    # allows for any other type except entry's
+    make_user(
+        email="u4@example.com",
+        allow_notification_others_news_posted=[
+            m.news_type for m in NEWS_MODELS if m.news_type != entry.tag
+        ],
+    )
+
+    with tp.assertNumQueriesLessThan(2, verbose=True):
+        result = send_email_news_posted(request, entry)
+
+    assert result == 1
+    assert len(mail.outbox) == 1
+    msg = mail.outbox[0]
+    assert "news entry posted" in msg.subject.lower()
+    assert entry.title in msg.body
+    assert entry.author.email not in msg.body  # never disclose author email!
+    assert request.build_absolute_uri(entry.get_absolute_url()) in msg.body
+    assert request.build_absolute_uri(tp.reverse("profile-preferences")) in msg.body
+    assert msg.to == []  # do not share all emails among all recipients
+    assert msg.bcc == ["u2@example.com", "u3@example.com"]
+    assert msg.recipients() == ["u2@example.com", "u3@example.com"]

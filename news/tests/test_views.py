@@ -11,7 +11,11 @@ from model_bakery import baker
 
 from ..forms import BlogPostForm, LinkForm, NewsForm, PollForm, VideoForm
 from ..models import NEWS_MODELS, BlogPost, Entry, Link, News, Poll, Video
-from ..notifications import send_email_after_approval, send_email_news_needs_moderation
+from ..notifications import (
+    send_email_news_approved,
+    send_email_news_needs_moderation,
+    send_email_news_posted,
+)
 
 
 @pytest.mark.parametrize(
@@ -435,9 +439,28 @@ def test_news_approve_get_method_not_allowed(
 
 
 @pytest.mark.parametrize("model_class", NEWS_MODELS)
-def test_news_approve_post(tp, make_entry, regular_user, moderator_user, model_class):
+def test_news_approve_post(
+    tp, make_entry, regular_user, moderator_user, make_user, model_class
+):
     entry = make_entry(model_class, approved=False)
     url_params = ("news-approve", entry.slug)
+
+    # user does not allow notifications
+    make_user(email="u1@example.com", allow_notification_others_news_posted=[])
+    # allows nofitications for all news type
+    make_user(
+        email="u2@example.com",
+        allow_notification_others_news_posted=[m.news_type for m in NEWS_MODELS],
+    )
+    # allows only for the same type as entry
+    make_user(email="u3@example.com", allow_notification_others_news_posted=[entry.tag])
+    # allows for any other type except entry's
+    make_user(
+        email="u4@example.com",
+        allow_notification_others_news_posted=[
+            m.news_type for m in NEWS_MODELS if m.news_type != entry.tag
+        ],
+    )
 
     # regular users would still get a 403 on POST
     with tp.login(regular_user):
@@ -457,12 +480,22 @@ def test_news_approve_post(tp, make_entry, regular_user, moderator_user, model_c
     assert entry.moderator == moderator_user
     assert before <= entry.approved_at <= after
     assert before <= entry.modified_at <= after
-    # email was sent
-    assert len(mail.outbox) == 1
+    # email was sent, one to author, one to other users
+    assert len(mail.outbox) == 2
+    # approval email to author
     actual = mail.outbox[0]
     # render the same email using the notifications' method to assert equality
-    assert send_email_after_approval(response.wsgi_request, entry) == 1
-    expected = mail.outbox[1]
+    assert send_email_news_approved(response.wsgi_request, entry) == 1
+    expected = mail.outbox[2]
+    assert actual.subject == expected.subject
+    assert actual.body == expected.body
+    assert actual.from_email == expected.from_email
+    assert actual.recipients() == expected.recipients()
+    # news posted email to other users
+    actual = mail.outbox[1]
+    # render the same email using the notifications' method to assert equality
+    assert send_email_news_posted(response.wsgi_request, entry) == 1
+    expected = mail.outbox[3]
     assert actual.subject == expected.subject
     assert actual.body == expected.body
     assert actual.from_email == expected.from_email

@@ -124,6 +124,12 @@ class UserManager(BaseUserManager):
         this_user.last_login = timezone.now()
         this_user.save()
 
+    def allow_notification_others_news_posted(self, news_type):
+        lookup = f"preferences__notifications__{Preferences.OTHERS_NEWS_POSTED}"
+        allows_all_types = models.Q(**{lookup: ["all"]})
+        allows_news_type = models.Q(**{f"{lookup}__contains": news_type})
+        return self.filter(allows_all_types | allows_news_type)
+
 
 class BaseUser(AbstractBaseUser, PermissionsMixin):
     """

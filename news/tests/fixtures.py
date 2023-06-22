@@ -59,10 +59,22 @@ def make_user(db):
         assert len(result) >= len(perms)
         return result
 
-    def _make_it(perms=None, groups=None, password="password", **kwargs):
+    def _make_it(
+        perms=None,
+        groups=None,
+        password="password",
+        allow_notification_others_news_posted=None,
+        **kwargs
+    ):
         user = baker.make("users.User", **kwargs)
         user.set_password(password)
         user.save()
+
+        if allow_notification_others_news_posted is not None:
+            user.preferences.allow_notification_others_news_posted = (
+                allow_notification_others_news_posted
+            )
+            user.preferences.save()
 
         if perms:
             user.user_permissions.add(*list(_filter_perms(perms)))

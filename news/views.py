@@ -19,7 +19,11 @@ from django.views.generic.detail import SingleObjectMixin
 from .acl import can_approve
 from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
 from .models import BlogPost, Entry, Link, News, Poll, Video
-from .notifications import send_email_after_approval, send_email_news_needs_moderation
+from .notifications import (
+    send_email_news_approved,
+    send_email_news_needs_moderation,
+    send_email_news_posted,
+)
 
 
 def get_published_or_none(sibling_getter):
@@ -112,6 +116,8 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         result = super().form_valid(form)
         if not form.instance.is_approved:
             send_email_news_needs_moderation(request=self.request, entry=form.instance)
+        else:
+            send_email_news_posted(request=self.request, entry=form.instance)
         return result
 
     def get_context_data(self, **kwargs):
@@ -202,7 +208,8 @@ class EntryApproveView(
             messages.error(request, _("The entry was already approved."))
         else:
             messages.success(request, _("The entry was successfully approved."))
-            send_email_after_approval(request=request, entry=entry)
+            send_email_news_approved(request=request, entry=entry)
+            send_email_news_posted(request=request, entry=entry)
 
         next_url = request.POST.get("next")
         if next_url is None or not url_has_allowed_host_and_scheme(
