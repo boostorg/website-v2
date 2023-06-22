@@ -7,9 +7,9 @@
 {% block content %}
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
     <div class="md:w-full">
-      <h1 class="text-4xl">Latest Stories</h1>
-      <p class="mt-0">
-        Keep up with current information from Boost and our community. (Under construction)
+      <h1 class="text-4xl text-center">Latest Stories</h1>
+      <p class="mt-0 text-center">
+        Keep up with current information from Boost and our community.
       </p>
 
       <!-- General filters, by news type -->
@@ -53,44 +53,11 @@
           </div>
           {% if user.is_authenticated %}
           <div class="inline-block py-5 text-sm">
-            <a href="{% url 'news-create' %}" class="py-1 px-3 rounded border border-gray-300 hover:bg-orange">Submit News</a>
+            <a href="{% url 'news-create' %}" class="py-0 px-2 font-semibold bg-gray-300 rounded border border-slate hover:bg-orange">Submit News</a>
           </div>
           {% endif %}
         </div>
       </div>
-
-      <!-- News content per se -->
-{#      <div class="divide-y divide-gray-300">#}
-{#        {% for entry in entry_list %}#}
-{#        <div class="flex py-4">#}
-{#          <div class="py-5 w-1/6">#}
-{#            <h5>{{ entry.publish_at|date:"M jS, Y" }}</h5>#}
-{#          </div>#}
-{#          <div class="w-5/6 text-xl">#}
-{#              <p><a href="{{ entry.get_absolute_url }}">{{ entry.title }}</a></p>#}
-{#              {% if entry.tag %}#}
-{#              {% with url_name="news-"|add:entry.tag|add:"-list" %}#}
-{#              <a data-test="news-tag" href="{% url url_name %}" class="px-3 text-sm rounded-md border-orange bg-orange">#}
-{#              <strong>{{ entry.tag }}</strong>#}
-{#              </a>#}
-{#              {% endwith %}#}
-{#              {% endif %}#}
-{#            <div class="space-x-8 uppercase">#}
-{#            </div>#}
-{#          </div>#}
-{#        </div>#}
-{#        {% empty %}#}
-{#        <div class="flex py-4">#}
-{#          <div class="w-5/6 text-xl">#}
-{#            <p>#}
-{#              {% translate "No entries available." %}#}
-{#            </p>#}
-{#            <div class="space-x-8 uppercase">#}
-{#            </div>#}
-{#          </div>#}
-{#        </div>#}
-{#        {% endfor %}#}
-{#      </div>#}
 
     <div class="mt-5">
       <ol class="border-l-2 border-white dark:border-slate space-y-3 w-[90%] mx-auto ml-[200px]">
@@ -102,15 +69,30 @@
             </div>
             <div class="flex justify-center items-center p-2 mt-5 bg-white rounded-full h-[25px] w-[25px] dark:bg-slate">
               {% if entry.tag == "link" %}
-                <i class="text-gray-400 fas fa-link dark:text-white/60"></i>
+                {% url 'news-link-list' as target_url %}
+                <a href="{{ target_url }}" title="Link">
+                  <i class="text-gray-400 fas fa-link dark:text-white/60"></i>
+                </a>
               {% elif entry.tag == "news" %}
-                <i class="text-gray-400 fas fa-bullhorn dark:text-white/60"></i>
+                {% url 'news-news-list' as target_url %}
+                <a href="{{ target_url }}" title="News">
+                  <i class="text-gray-400 fas fa-bullhorn dark:text-white/60"></i>
+                </a>
               {% elif entry.tag == "blogpost" %}
-                <i class="text-gray-400 fas fa-newspaper dark:text-white/60"></i>
+                {% url 'news-blogpost-list' as target_url %}
+                <a href="{{ target_url }}" title="Blog Post">
+                  <i class="text-gray-400 fas fa-newspaper dark:text-white/60"></i>
+                </a>
               {% elif entry.tag == "poll" %}
-                <i class="text-gray-400 fas fa-poll dark:text-white/60"></i>
+                {% url 'news-poll-list' as target_url %}
+                <a href="{{ target_url }}" title="Poll">
+                  <i class="text-gray-400 fas fa-poll dark:text-white/60"></i>
+                </a>
               {% elif entry.tag == "video" %}
-                <i class="text-gray-400 fas fa-video dark:text-white/60"></i>
+                {% url 'news-video-list' as target_url %}
+                <a href="{{ target_url }}" title="Video">
+                  <i class="text-gray-400 fas fa-video dark:text-white/60"></i>
+                </a>
               {% else %}
                 <i class="text-gray-400 fas fa-calendar-alt dark:text-white/60"></i>
               {% endif %}
