@@ -1,6 +1,7 @@
 import pytest
 
 from django.contrib.auth import get_user_model
+from pytest_django.asserts import assertQuerySetEqual
 
 from ..models import Preferences
 
@@ -125,18 +126,18 @@ def test_find_contributor_is_maintainer(user, library_version):
 def test_preferences(user):
     assert Preferences.objects.get(user=user) == user.preferences
     assert user.preferences.notifications == {
-        "own-news-approved": ["all"],
+        "own-news-approved": [Preferences.NEWS_TYPES_WILDCARD],
         "others-news-posted": [],
-        "others-news-needs-moderation": ["all"],
+        "others-news-needs-moderation": [Preferences.NEWS_TYPES_WILDCARD],
     }
 
 
 @pytest.mark.parametrize(
     "notification_type, default",
     [
-        ("own-news-approved", ["all"]),
+        ("own-news-approved", [Preferences.NEWS_TYPES_WILDCARD]),
         ("others-news-posted", []),
-        ("others-news-needs-moderation", ["all"]),
+        ("others-news-needs-moderation", [Preferences.NEWS_TYPES_WILDCARD]),
     ],
 )
 def test_preferences_set_value(user, notification_type, default):
@@ -145,7 +146,9 @@ def test_preferences_set_value(user, notification_type, default):
     # default value
     assert user.preferences.notifications[notification_type] == default
     assert getattr(user.preferences, attr_name) == (
-        Preferences.ALL_NEWS_TYPES if "all" in default else default
+        Preferences.ALL_NEWS_TYPES
+        if Preferences.NEWS_TYPES_WILDCARD in default
+        else default
     )
 
     # set empty list
@@ -161,4 +164,33 @@ def test_preferences_set_value(user, notification_type, default):
     # set all values
     setattr(user.preferences, attr_name, list(reversed(Preferences.ALL_NEWS_TYPES)))
     assert getattr(user.preferences, attr_name) == Preferences.ALL_NEWS_TYPES
-    assert user.preferences.notifications[notification_type] == ["all"]
+    assert user.preferences.notifications[notification_type] == [
+        Preferences.NEWS_TYPES_WILDCARD
+    ]
+
+
+@pytest.mark.parametrize("news_type", Preferences.ALL_NEWS_TYPES)
+def test_manager_preferences_shortcuts(tp, make_user, news_type):
+    # user does not allow notifications
+    make_user(email="u1@example.com", allow_notification_others_news_posted=[])
+    # allows nofitications for all news type
+    u2 = make_user(
+        email="u2@example.com",
+        allow_notification_others_news_posted=[Preferences.NEWS_TYPES_WILDCARD],
+    )
+    # allows only for the same type as entry
+    u3 = make_user(
+        email="u3@example.com", allow_notification_others_news_posted=[news_type]
+    )
+    # allows for any other type except entry's
+    make_user(
+        email="u4@example.com",
+        allow_notification_others_news_posted=[
+            t for t in Preferences.ALL_NEWS_TYPES if t != news_type
+        ],
+    )
+
+    with tp.assertNumQueriesLessThan(2, verbose=True):
+        result = User.objects.allow_notification_others_news_posted(news_type)
+
+    assertQuerySetEqual(result, [u2, u3], ordered=False)

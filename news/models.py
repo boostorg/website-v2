@@ -52,7 +52,7 @@ class Entry(models.Model):
         """The entry cannot be approved again."""
 
     news_type = ""
-    slug = models.SlugField()
+    slug = models.SlugField(unique=True)
     title = models.CharField(max_length=255)
     content = models.TextField(blank=True, default="")
     author = models.ForeignKey(User, on_delete=models.CASCADE)
