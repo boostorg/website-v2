@@ -77,6 +77,9 @@
     </form>
   </div>
 
+  <!-- alert for non-current Boost versions -->
+  {% include "libraries/includes/version_alert.html" %}
+
   <!-- Libraries list -->
   <div class="grid grid-cols-1 gap-4 mb-5 md:grid-cols-2 xl:grid-cols-3">
     {% if by_category %}
