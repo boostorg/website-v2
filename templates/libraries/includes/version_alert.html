@@ -1,5 +1,13 @@
 {% if version_alert %}
     <div role="alert">
-        <p>This is an older version and was released in {{ version.release_date|date:"Y"}}. The current version is <a href="{% url 'version-detail' latest_version.slug %}">{{ latest_version.display_name }}</a>.</p>
+        <p>This is an older version and was released in {{ version.release_date|date:"Y"}}.
+           The current version is
+            {% if latest_library_version %}
+                <a href="{% url 'library-detail' slug=latest_library_version.library.slug %}">
+            {% else %}
+                <a href="{% url 'version-detail' latest_version.slug %}">
+            {% endif %}
+            {{ latest_version.display_name }}</a>.
+        </p>
     </div>
 {% endif %}
