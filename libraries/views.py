@@ -102,22 +102,42 @@ class LibraryDetail(CategoryMixin, FormMixin, DetailView):
     def get_context_data(self, **kwargs):
         """Set the form action to the main libraries page"""
         context = super().get_context_data(**kwargs)
-        context["documentation_url"] = self.get_documentation_url()
+
+        # Get fields related to Boost versions
         context["version"] = self.get_version()
-        context["maintainers"] = self.get_maintainers(context["version"])
+        latest_version = Version.objects.most_recent()
+        context["latest_version"] = latest_version
         context["versions"] = (
             Version.objects.active()
             .filter(library_version__library=self.object)
             .distinct()
             .order_by("-release_date")
         )
+
+        # Show an alert if the user is on an older version
+        if context["version"] != latest_version:
+            context["version_alert"] = True
+            context["latest_library_version"] = self.get_current_library_version(
+                context["version"]
+            )
+        else:
+            context["version_alert"] = False
+
+        # Get general data and version-sensitive data
+        context["documentation_url"] = self.get_documentation_url()
+        context["github_url"] = self.get_github_url(context["version"])
+        context["maintainers"] = self.get_maintainers(context["version"])
+
+        # Populate the commit graphs
+        context["commit_data_annual"] = self.get_commit_data_annual()
+        context["commit_data_last_12_months"] = self.get_commit_data_last_12_months()
+
+        # Populate the library description
         client = GithubAPIClient(repo_slug=self.object.github_repo)
         context["description"] = self.object.get_description(
             client, tag=context["version"].name
         )
-        context["github_url"] = self.get_github_url(context["version"])
-        context["commit_data_annual"] = self.get_commit_data_annual()
-        context["commit_data_last_12_months"] = self.get_commit_data_last_12_months()
+
         return context
 
     def get_object(self):
@@ -205,6 +225,13 @@ class LibraryDetail(CategoryMixin, FormMixin, DetailView):
         prepared_commit_data.sort(key=lambda x: x["date"])
         result = self._prepare_commit_data(prepared_commit_data, "monthly")
         return result
+
+    def get_current_library_version(self, version):
+        """Return the library-version for the latest version of Boost"""
+        # Avoid raising an error if the library has been removed from the latest version
+        return LibraryVersion.objects.filter(
+            library=self.object, version=version
+        ).first()
 
     def get_documentation_url(self):
         """Return the URL for the link to the external Boost documentation."""
