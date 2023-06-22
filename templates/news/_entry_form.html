@@ -2,8 +2,16 @@
 
 <form enctype="multipart/form-data" method="POST" action="{% if entry.pk %}{% url "news-update" entry.slug %}{% else %}{% url add_url_name %}{% endif %}">
   {% csrf_token %}
-  {{ form.as_div }}
-  <button class="py-3 px-5 rounded-md border-orange bg-orange" type="submit" name="update">
-    {% if entry.pk %}{% translate "Update" %}{% else %}{{ add_label }}{% endif %}
-  </button>
+
+  <div class="space-y-3">
+  {% for field in form.visible_fields %}
+    {% include "includes/_form_input.html" with form=form field=field %}
+  {% endfor %}
+  </div>
+
+  <div class="mt-4 text-right">
+    <button class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit" name="update">
+      {% if entry.pk %}{% translate "Update" %}{% else %}{% translate "Submit" %}{% endif %}
+    </button>
+  </div>
 </form>

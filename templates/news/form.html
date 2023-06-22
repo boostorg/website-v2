@@ -2,6 +2,10 @@
 {% load i18n %}
 
 {% block content %}
-<h1>{% if entry.pk %}{% translate "Update Entry" %}{% else %}{{ add_label }}{% endif %}</h1>
-{% include "news/_entry_form.html" %}
+  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+    <div class="md:w-[70%] mx-auto">
+      <h1 class="mb-11 text-4xl text-center capitalize">{% if entry.pk %}{% translate "Update Entry" %}{% else %}{{ add_label }}{% endif %}</h1>
+      {% include "news/_entry_form.html" %}
+    </div>
+  </div>
 {% endblock %}
