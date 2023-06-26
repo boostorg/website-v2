@@ -1,9 +1,14 @@
+from datetime import timedelta
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.humanize.templatetags import humanize
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponseRedirect
+from django.template.defaultfilters import date as datefilter
 from django.urls import reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.views.generic import (
     CreateView,
@@ -35,6 +40,33 @@ def get_published_or_none(sibling_getter):
     return result
 
 
+def display_publish_at(publish_at, since=None):
+    """Show "Time since".
+
+    An hour ago (up to 24 hours)
+    3 days ago (up to 7 days)
+    June 13th, 2023 (after 7 days)
+
+    """
+    if since is None:
+        since = now()
+
+    if publish_at > since:
+        publish_at = since
+
+    diff = since - publish_at
+    if diff.days >= 7:
+        return datefilter(publish_at, "M jS, Y")
+
+    if diff.days > 0:
+        truncated = since - timedelta(days=diff.days)
+    else:
+        hours = round(diff.seconds / 3600)
+        truncated = since - timedelta(hours=hours)
+
+    return humanize.naturaltime(truncated).replace("\xa0", " ")
+
+
 class EntryListView(ListView):
     model = Entry
     template_name = "news/list.html"
@@ -43,7 +75,11 @@ class EntryListView(ListView):
     context_object_name = "entry_list"  # Ensure children use the same name
 
     def get_queryset(self):
-        return super().get_queryset().select_related("author").filter(published=True)
+        result = super().get_queryset().select_related("author").filter(published=True)
+        right_now = now()
+        for entry in result:
+            entry.display_publish_at = display_publish_at(entry.publish_at, right_now)
+        return result
 
 
 class BlogPostListView(EntryListView):
