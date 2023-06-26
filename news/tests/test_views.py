@@ -1,6 +1,6 @@
-import datetime
 import os
 import uuid
+from datetime import date, timedelta
 from io import BytesIO
 
 import pytest
@@ -16,6 +16,57 @@ from ..notifications import (
     send_email_news_needs_moderation,
     send_email_news_posted,
 )
+from ..views import datefilter, display_publish_at
+
+
+def test_display_publish_at_now():
+    since = now()
+    # Now or future
+    assert display_publish_at(since, since) == "now"
+    assert display_publish_at(since + timedelta(seconds=1), since) == "now"
+    assert display_publish_at(since - timedelta(seconds=1), since) == "now"
+    assert display_publish_at(since - timedelta(minutes=30), since) == "now"
+
+
+@pytest.mark.parametrize(
+    "publish_at, expected",
+    [
+        # An hour ago (up to 24 hours)
+        (timedelta(minutes=31), "an hour ago"),
+        (timedelta(minutes=59), "an hour ago"),
+        (timedelta(hours=1), "an hour ago"),
+        (timedelta(hours=1, seconds=1), "an hour ago"),
+        (timedelta(hours=1, minutes=31), "2 hours ago"),
+        (timedelta(hours=1, minutes=59), "2 hours ago"),
+        (timedelta(hours=1, minutes=60), "2 hours ago"),
+        (timedelta(hours=23, minutes=29), "23 hours ago"),
+        # 3 days ago (up to 7 days)
+        (timedelta(hours=23, minutes=31), "1 day ago"),
+        (timedelta(hours=24, minutes=00), "1 day ago"),
+        (timedelta(days=1), "1 day ago"),
+        (timedelta(days=1, hours=24), "2 days ago"),
+        (timedelta(days=6, hours=23, minutes=29), "6 days ago"),
+    ],
+)
+def test_display_publish_at_days_ago(publish_at, expected):
+    since = now()
+    assert display_publish_at(since - publish_at, since) == expected
+
+
+@pytest.mark.parametrize(
+    "publish_at",
+    [
+        timedelta(days=6, hours=24),
+        timedelta(days=7),
+        timedelta(days=7, seconds=1),
+        timedelta(days=20),
+    ],
+)
+def test_display_publish_at_datefilter(publish_at):
+    since = now()
+    # June 13th, 2023 (after 7 days)
+    target = since - publish_at
+    assert display_publish_at(target, since) == datefilter(target, "M jS, Y")
 
 
 @pytest.mark.parametrize(
@@ -40,16 +91,16 @@ def test_entry_list(
         model_class,
         approved=True,
         title="old news",
-        publish_at=now() - datetime.timedelta(days=1),
+        publish_at=now() - timedelta(days=1),
     )
     today_news = make_entry(
-        model_class, approved=True, title="current news", publish_at=now().today()
+        model_class, approved=True, title="current news", publish_at=now()
     )
     tomorrow_news = make_entry(
         model_class,
         approved=True,
         title="future news",
-        publish_at=now() + datetime.timedelta(days=1),
+        publish_at=now() + timedelta(days=1),
     )
 
     if authenticated:
@@ -62,11 +113,14 @@ def test_entry_list(
     assert list(response.context.get("entry_list", [])) == expected
 
     content = str(response.content)
-    for n in expected:
-        assert n.get_absolute_url() in content
-        assert n.title in content
-        if n.tag:
-            assert n.tag in content  # this is the tag
+    for entry in expected:
+        assert entry.title in content
+        formatted_date = str(display_publish_at(entry.publish_at))
+        assert formatted_date in content
+        link_with_date = f'<a href="{entry.get_absolute_url()}">{formatted_date}</a>'
+        tp.assertResponseContains(link_with_date, response)
+        if entry.tag:
+            assert entry.tag in content  # this is the tag
 
     assert not_approved_news.get_absolute_url() not in content
     assert not_approved_news.title not in content
@@ -91,10 +145,10 @@ def test_entry_list_queries(tp, make_entry):
     assert set(e.id for e in entry_list) == set(e.id for e in expected)
 
     content = str(response.content)
-    for n in expected:
-        assert n.get_absolute_url() in content
-        assert n.title in content
-        news_link = f'href="/news/{n.tag}/"' if n.tag else 'href="/news/"'
+    for entry in expected:
+        assert entry.get_absolute_url() in content
+        assert entry.title in content
+        news_link = f'href="/news/{entry.tag}/"' if entry.tag else 'href="/news/"'
         assert news_link in content
 
 
@@ -119,7 +173,7 @@ def test_entry_list_authenticated(tp, make_entry, url_name, model_class, regular
 @pytest.mark.parametrize("with_image", [False, True])
 def test_news_detail(tp, make_entry, model_class, with_image):
     """Browse details for a given news entry."""
-    a_past_date = now() - datetime.timedelta(hours=10)
+    a_past_date = now() - timedelta(hours=10)
     news = make_entry(
         model_class,
         approved=True,
@@ -150,7 +204,7 @@ def test_news_detail(tp, make_entry, model_class, with_image):
     assert "older entries" not in content.lower()
 
     # create an older news, likely different type
-    older_date = a_past_date - datetime.timedelta(hours=1)
+    older_date = a_past_date - timedelta(hours=1)
     older = make_entry(approved=True, publish_at=older_date)
 
     response = tp.get(url)
@@ -162,7 +216,7 @@ def test_news_detail(tp, make_entry, model_class, with_image):
     assert older.get_absolute_url() in content
 
     # create a newer news, but still older than now so it's shown
-    newer_date = a_past_date + datetime.timedelta(hours=1)
+    newer_date = a_past_date + timedelta(hours=1)
     assert newer_date < now()
     newer = make_entry(approved=True, publish_at=newer_date)
 
@@ -385,7 +439,7 @@ def test_news_create_post(
             assert entry.image
             expected = os.path.join(
                 settings.MEDIA_ROOT,
-                datetime.date.today().strftime(Entry.image.field.upload_to),
+                date.today().strftime(Entry.image.field.upload_to),
                 img.name,
             )
             assert entry.image.path == expected
