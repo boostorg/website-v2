@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from .managers import RenderedContentManager
+
 
 class RenderedContent(models.Model):
     """Stores a copy of rendered content. Generally, this content is retrieved
@@ -33,6 +35,8 @@ class RenderedContent(models.Model):
         null=True,
         blank=True,
     )
+
+    objects = RenderedContentManager()
 
     class Meta:
         verbose_name = _("rendered content")
