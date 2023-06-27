@@ -4,6 +4,9 @@ import subprocess
 
 from celery import shared_task
 
+from .asciidoc import adoc_to_html
+from .boostrenderer import get_body_from_html, get_content_from_s3
+
 from django.core.cache import caches
 
 from .models import RenderedContent
@@ -11,27 +14,23 @@ from .models import RenderedContent
 
 @shared_task
 def adoc_to_html(file_path, delete_file=True):
-    """
-    Converts an AsciiDoc file to HTML.
-    If delete_file is True, the temporary file will be deleted after the
-    conversion is complete.
+    return adoc_to_html(file_path, delete_file=delete_file)
 
-    Note: This returns the full <html> document, including the <head> and
-    <body> tags.
 
-    The asciidoctor package is a Ruby gem, which is why we're using subprocess
-    to run the command.
-    https://docs.asciidoctor.org/asciidoctor/latest/
+@shared_task
+def refresh_rendered_content_from_s3(content_path, cache_key):
+    """ Take a cache """
+    result = get_content_from_s3(key=content_path)
+    if result and result.get("content"):
+        content = result.get("content")
+        content_type = result.get("content_type")
+        last_updated_at_raw = result.get("last_updated_at")
 
-    :param file_path: The path to the AsciiDoc file
-    :param delete_file: Whether or not to delete the temporary file after the
-        conversion is complete
-    """
-    result = subprocess.run(
-        ["asciidoctor", "-o", "-", file_path],
-        check=True,
-        capture_output=True,
-    )
+        if content_type == "text/asciidoc":
+            content = self.convert_adoc_to_html(content, cache_key)
+            last_updated_at = (
+                parse(last_updated_at_raw) if last_updated_at_raw else None
+            )
 
     # Get the output from the command
     converted_html = result.stdout
@@ -41,20 +40,3 @@ def adoc_to_html(file_path, delete_file=True):
         os.remove(file_path)
 
     return converted_html
-
-
-@shared_task
-def clear_rendered_content_cache_by_cache_key(cache_key):
-    """Deletes a RenderedContent object by its cache key from redis and
-    database."""
-    cache = caches["static_content"]
-    cache.delete(cache_key)
-    RenderedContent.objects.delete_by_cache_key(cache_key)
-
-
-@shared_task
-def clear_rendered_content_cache_by_content_type(content_type):
-    """Deletes all RenderedContent objects for a given content type from redis
-    and database."""
-    RenderedContent.objects.clear_cache_by_content_type(content_type)
-    RenderedContent.objects.delete_by_content_type(content_type)
