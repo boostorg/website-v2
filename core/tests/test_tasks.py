@@ -5,7 +5,8 @@ from unittest.mock import patch
 from django.core.cache import caches
 from django.test import override_settings
 
-from core.tasks import adoc_to_html
+from core.models import RenderedContent
+from core.tasks import adoc_to_html, clear_rendered_content_by_content_type
 
 
 @override_settings(
@@ -46,3 +47,13 @@ def test_adoc_to_html():
     with pytest.raises(FileNotFoundError):
         with open(temp_file_path, "r"):
             pass
+
+
+def test_clear_rendered_content_by_content_type(rendered_content):
+    assert RenderedContent.objects.filter(
+        content_type=rendered_content.content_type
+    ).exists()
+    clear_rendered_content_by_content_type(rendered_content.content_type)
+    assert not RenderedContent.objects.filter(
+        content_type=rendered_content.content_type
+    ).exists()
