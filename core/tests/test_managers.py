@@ -44,3 +44,16 @@ def test_rendered_content_manager_clear_cache_by_content_type():
 
     assert cache.get("keep") == "keep"
     assert cache.get("clear") is None
+
+
+def test_delete_by_cache_key():
+    baker.make("core.RenderedContent", cache_key="keep")
+    baker.make("core.RenderedContent", cache_key="clear")
+
+    assert RenderedContent.objects.filter(cache_key="keep").exists()
+    assert RenderedContent.objects.filter(cache_key="clear").exists()
+
+    RenderedContent.objects.delete_by_cache_key("clear")
+
+    assert RenderedContent.objects.filter(cache_key="keep").exists()
+    assert not RenderedContent.objects.filter(cache_key="clear").exists()
