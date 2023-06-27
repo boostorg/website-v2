@@ -4,16 +4,42 @@ import tempfile
 from dateutil.parser import parse
 
 from django.conf import settings
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
 from django.http import Http404, HttpResponse, HttpResponseNotFound
+from django.views import View
 from django.views.generic import TemplateView
 
 from .boostrenderer import get_body_from_html, get_content_from_s3
 from .markdown import process_md
 from .models import RenderedContent
-from .tasks import adoc_to_html
+from .tasks import adoc_to_html, clear_rendered_content_cache_by_content_type
 
 logger = structlog.get_logger()
+
+
+class ClearCacheView(UserPassesTestMixin, View):
+    http_method_names = ["get"]
+    login_url = "/login/"
+
+    def get(self, request, *args, **kwargs):
+        """Clears the cache for a given content type."""
+        content_type = self.request.GET.get("content_type")
+        if not content_type:
+            return HttpResponseNotFound()
+
+        clear_rendered_content_cache_by_content_type(content_type)
+        return HttpResponse("Cache cleared")
+
+    def handle_no_permission(self):
+        """Handle a user without permission to access this page."""
+        return HttpResponse(
+            "You do not have permission to access this page.", status=403
+        )
+
+    def test_func(self):
+        """Check if the user is a staff member"""
+        return self.request.user.is_staff
 
 
 class MarkdownTemplateView(TemplateView):
@@ -167,6 +193,8 @@ class StaticContentTemplateView(TemplateView):
 
         if result is None:
             result = self.get_from_s3(content_path, cache_key)
+            # Cache the result
+            self.cache_result(static_content_cache, cache_key, result)
 
         if result is None:
             logger.info(
@@ -177,6 +205,9 @@ class StaticContentTemplateView(TemplateView):
             raise ContentNotFoundException("Content not found")
 
         return result
+
+    def cache_result(self, static_content_cache, cache_key, result):
+        static_content_cache.set(cache_key, result)
 
     def get_from_cache(self, static_content_cache, cache_key):
         cached_result = static_content_cache.get(cache_key)
@@ -195,8 +226,7 @@ class StaticContentTemplateView(TemplateView):
     def get_from_s3(self, content_path, cache_key):
         result = get_content_from_s3(key=content_path)
         if result and result.get("content"):
-            self.update_or_create_content(result, cache_key)
-            return result
+            return self.update_or_create_content(result, cache_key)
         return
 
     def update_or_create_content(self, result, cache_key):
@@ -225,9 +255,9 @@ class StaticContentTemplateView(TemplateView):
                 created=created,
             )
             result["content"] = content
-            result["content_type"] = content_type
+        return result
 
-    def convert_adoc_to_html(self, content, cache_key):
+    def convert_adoc_to_html(self, content):
         """Renders asciidoc content to HTML."""
         # Write the content to a temporary file
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
