@@ -44,7 +44,17 @@ def adoc_to_html(file_path, delete_file=True):
 
 
 @shared_task
+def clear_rendered_content_cache_by_cache_key(cache_key):
+    """Deletes a RenderedContent object by its cache key from redis and
+    database."""
+    cache = caches["static_content"]
+    cache.delete(cache_key)
+    RenderedContent.objects.delete_by_cache_key(cache_key)
+
+
+@shared_task
 def clear_rendered_content_cache_by_content_type(content_type):
-    """Deletes all RenderedContent objects for a given content type"""
+    """Deletes all RenderedContent objects for a given content type from redis
+    and database."""
     RenderedContent.objects.clear_cache_by_content_type(content_type)
     RenderedContent.objects.delete_by_content_type(content_type)
