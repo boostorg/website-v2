@@ -13,7 +13,11 @@ from django.views.generic import TemplateView
 from .boostrenderer import get_body_from_html, get_content_from_s3
 from .markdown import process_md
 from .models import RenderedContent
-from .tasks import adoc_to_html, clear_rendered_content_cache_by_content_type
+from .tasks import (
+    adoc_to_html,
+    clear_rendered_content_cache_by_cache_key,
+    clear_rendered_content_cache_by_content_type,
+)
 
 logger = structlog.get_logger()
 
@@ -23,12 +27,23 @@ class ClearCacheView(UserPassesTestMixin, View):
     login_url = "/login/"
 
     def get(self, request, *args, **kwargs):
-        """Clears the cache for a given content type."""
+        """Clears the redis and database cache for given parameters.
+
+        Params (must pass one):
+            content_type: The content type to clear. Example: "text/asciidoc"
+            cache_key: The cache key to clear.
+        """
         content_type = self.request.GET.get("content_type")
-        if not content_type:
+        cache_key = self.request.GET.get("cache_key")
+        if not content_type and not cache_key:
             return HttpResponseNotFound()
 
-        clear_rendered_content_cache_by_content_type(content_type)
+        if content_type:
+            clear_rendered_content_cache_by_content_type.delay(content_type)
+
+        if cache_key:
+            clear_rendered_content_cache_by_cache_key.delay(cache_key)
+
         return HttpResponse("Cache cleared")
 
     def handle_no_permission(self):
