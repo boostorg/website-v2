@@ -122,6 +122,21 @@ def test_clear_cache_staff_user(tp, staff_user, cache_url):
     tp.response_200(res)
 
 
+def test_clear_cache_missing_params(tp, staff_user):
+    url = tp.reverse("clear-cache")
+    tp.login(staff_user)
+    res = tp.get(url)
+    tp.response_404(res)
+
+
+def test_clear_cache_by_cache_key(tp, staff_user):
+    url = tp.reverse("clear-cache")
+    url = f"{url}?cache_key=foo"
+    tp.login(staff_user)
+    res = tp.get(url)
+    tp.response_200(res)
+
+
 def test_markdown_view_top_level(tp):
     """GET /content/map"""
     res = tp.get("/markdown/foo")
