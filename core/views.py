@@ -10,6 +10,7 @@ from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.views import View
 from django.views.generic import TemplateView
 
+from .asciidoc import process_adoc_to_html_content
 from .boostrenderer import get_body_from_html, get_content_from_s3
 from .markdown import process_md
 from .models import RenderedContent
@@ -231,9 +232,11 @@ class StaticContentTemplateView(TemplateView):
     def get_from_database(self, cache_key):
         try:
             content_obj = RenderedContent.objects.get(cache_key=cache_key)
+            # todo: fire refresh task here
             return {
                 "content": content_obj.content_html,
                 "content_type": content_obj.content_type,
+                "last_updated_at": content_obj.last_updated_at,
             }
         except RenderedContent.DoesNotExist:
             return None
@@ -250,7 +253,7 @@ class StaticContentTemplateView(TemplateView):
         last_updated_at_raw = result.get("last_updated_at")
 
         if content_type == "text/asciidoc":
-            content = self.convert_adoc_to_html(content, cache_key)
+            content = self.convert_adoc_to_html(content)
             last_updated_at = (
                 parse(last_updated_at_raw) if last_updated_at_raw else None
             )
@@ -274,15 +277,4 @@ class StaticContentTemplateView(TemplateView):
 
     def convert_adoc_to_html(self, content):
         """Renders asciidoc content to HTML."""
-        # Write the content to a temporary file
-        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-            if isinstance(content, str):
-                content = content.encode()
-            temp_file.write(content)
-
-        html_content = adoc_to_html(temp_file.name, delete_file=True)
-        if isinstance(html_content, bytes):
-            html_content = html_content.decode("utf-8")
-
-        # Extract only the contents of the body tag that we want from the HTML
-        return get_body_from_html(html_content)
+        return process_adoc_to_html_content(content)
