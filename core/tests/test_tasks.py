@@ -10,6 +10,7 @@ from django.test import override_settings
 from core.models import RenderedContent
 from core.tasks import (
     adoc_to_html,
+    clear_rendered_content_cache_by_cache_key,
     clear_rendered_content_cache_by_content_type,
 )
 
@@ -66,3 +67,16 @@ def test_clear_rendered_content_by_content_type():
 
     assert RenderedContent.objects.filter(content_type="keep").exists()
     assert not RenderedContent.objects.filter(content_type="clear").exists()
+
+
+@override_settings(CACHES=TEST_CACHES)
+def test_clear_rendered_content_by_cache_key():
+    obj = baker.make("core.RenderedContent", cache_key="clear")
+    cache_key = obj.cache_key
+    cache = caches["static_content"]
+    cache.set(cache_key, "sample content")
+    assert cache.get(cache_key) == "sample content"
+
+    clear_rendered_content_cache_by_cache_key(cache_key)
+    assert not cache.get(cache_key)
+    assert not RenderedContent.objects.filter(cache_key=cache_key).exists()
