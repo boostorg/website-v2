@@ -19,6 +19,13 @@ TEST_CACHES = {
 
 
 @pytest.fixture
+def cache_url(tp):
+    """Returns a sample cache url."""
+    url = tp.reverse("clear-cache")
+    return f"{url}?content_type=foo"
+
+
+@pytest.fixture
 def request_factory():
     """Returns a RequestFactory instance."""
     return RequestFactory()
@@ -92,6 +99,27 @@ def test_cache_expiration(request_factory):
         {"content": mock_content, "content_type": mock_content_type},
         timeout=1,
     )
+
+
+def test_clear_cache_view_anonymous_user(tp, cache_url):
+    """Test that only staff users can access the clear cache view."""
+    # Anonymous users should be redirected to the login page
+    res = tp.get(cache_url)
+    tp.response_403(res)
+
+
+def test_clear_cache_regular_user(tp, user, cache_url):
+    """Test that only staff users can access the clear cache view."""
+    tp.login(user)
+    res = tp.get(cache_url)
+    tp.response_403(res)
+
+
+def test_clear_cache_staff_user(tp, staff_user, cache_url):
+    # Staff users should be able to access the view
+    tp.login(staff_user)
+    res = tp.get(cache_url)
+    tp.response_200(res)
 
 
 def test_markdown_view_top_level(tp):

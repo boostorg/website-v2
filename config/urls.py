@@ -25,7 +25,7 @@ from ak.views import (
     OKView,
     HomepageBetaView,
 )
-from core.views import MarkdownTemplateView, StaticContentTemplateView
+from core.views import ClearCacheView, MarkdownTemplateView, StaticContentTemplateView
 from libraries.views import (
     LibraryList,
     LibraryListMini,
@@ -247,6 +247,8 @@ urlpatterns = (
         # Boost versions views
         path("versions/<slug:slug>/", VersionDetail.as_view(), name="version-detail"),
         path("versions/", VersionList.as_view(), name="version-list"),
+        # Internal functions
+        path("internal/clear-cache/", ClearCacheView.as_view(), name="clear-cache"),
     ]
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     + [
