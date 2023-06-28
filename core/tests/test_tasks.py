@@ -38,7 +38,7 @@ def test_adoc_to_html():
         temp_file_path = temp_file.name
 
     # Execute the task
-    with patch("core.tasks.subprocess.run") as mock_run:
+    with patch("core.asciidoc.subprocess.run") as mock_run:
         mock_run.return_value.stdout = "html_content".encode()
         adoc_to_html(temp_file_path, delete_file=True)
 

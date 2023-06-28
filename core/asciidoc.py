@@ -5,7 +5,7 @@ import tempfile
 from .boostrenderer import get_body_from_html
 
 
-def convert_adoc_to_html(file_path, delete_file= True):
+def convert_adoc_to_html(file_path, delete_file=True):
     """
     Converts an AsciiDoc file to HTML.
     If delete_file is True, the temporary file will be deleted after the
