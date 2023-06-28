@@ -1,6 +1,5 @@
 import os.path
 import structlog
-import tempfile
 from dateutil.parser import parse
 
 from django.conf import settings
@@ -11,13 +10,14 @@ from django.views import View
 from django.views.generic import TemplateView
 
 from .asciidoc import process_adoc_to_html_content
-from .boostrenderer import get_body_from_html, get_content_from_s3
+from .boostrenderer import get_content_from_s3
 from .markdown import process_md
 from .models import RenderedContent
 from .tasks import (
-    adoc_to_html,
     clear_rendered_content_cache_by_cache_key,
     clear_rendered_content_cache_by_content_type,
+    refresh_content_from_s3,
+    save_rendered_content,
 )
 
 logger = structlog.get_logger()
@@ -164,12 +164,38 @@ class StaticContentTemplateView(TemplateView):
             return HttpResponseNotFound("Page not found")
         return super().get(request, *args, **kwargs)
 
-    def get_template_names(self):
-        """Returns the template name."""
-        content_type = self.content_dict.get("content_type")
-        if content_type == "text/asciidoc":
-            return [self.template_name]
-        return []
+    def cache_result(self, static_content_cache, cache_key, result):
+        static_content_cache.set(cache_key, result)
+
+    def get_content(self, content_path):
+        """Returns content from cache, database, or S3"""
+        static_content_cache = caches["static_content"]
+        cache_key = f"static_content_{content_path}"
+        result = self.get_from_cache(static_content_cache, cache_key)
+
+        if result is None:
+            result = self.get_from_database(cache_key)
+            if result:
+                # When we get a result from the database, we refresh its content
+                refresh_content_from_s3.delay(content_path, cache_key)
+
+        if result is None:
+            result = self.get_from_s3(content_path)
+            if result:
+                # Save to database
+                self.save_to_database(cache_key, result)
+                # Cache the result
+                self.cache_result(static_content_cache, cache_key, result)
+
+        if result is None:
+            logger.info(
+                "get_content_from_s3_view_no_valid_object",
+                key=content_path,
+                status_code=404,
+            )
+            raise ContentNotFoundException("Content not found")
+
+        return result
 
     def get_context_data(self, **kwargs):
         """Returns the content and content type for the template. In some cases,
@@ -189,6 +215,36 @@ class StaticContentTemplateView(TemplateView):
 
         return context
 
+    def get_from_cache(self, static_content_cache, cache_key):
+        cached_result = static_content_cache.get(cache_key)
+        return cached_result if cached_result else None
+
+    def get_from_database(self, cache_key):
+        try:
+            content_obj = RenderedContent.objects.get(cache_key=cache_key)
+            return {
+                "content": content_obj.content_html,
+                "content_type": content_obj.content_type,
+            }
+        except RenderedContent.DoesNotExist:
+            return None
+
+    def get_from_s3(self, content_path):
+        result = get_content_from_s3(key=content_path)
+        if result and result.get("content"):
+            content = result.get("content")
+            content_type = result.get("content_type")
+            if content_type == "text/asciidoc":
+                result["content"] = self.convert_adoc_to_html(content)
+            return result
+
+    def get_template_names(self):
+        """Returns the template name."""
+        content_type = self.content_dict.get("content_type")
+        if content_type == "text/asciidoc":
+            return [self.template_name]
+        return []
+
     def render_to_response(self, context, **response_kwargs):
         """Return the HTML response with a template, or just the content directly."""
         if self.get_template_names():
@@ -198,82 +254,22 @@ class StaticContentTemplateView(TemplateView):
                 context["content"], content_type=context["content_type"]
             )
 
-    def get_content(self, content_path):
-        """Returns content from cache, database, or S3"""
-        static_content_cache = caches["static_content"]
-        cache_key = f"static_content_{content_path}"
-        result = self.get_from_cache(static_content_cache, cache_key)
-
-        if result is None:
-            result = self.get_from_database(cache_key)
-
-        if result is None:
-            result = self.get_from_s3(content_path, cache_key)
-            # Cache the result
-            self.cache_result(static_content_cache, cache_key, result)
-
-        if result is None:
-            logger.info(
-                "get_content_from_s3_view_no_valid_object",
-                key=content_path,
-                status_code=404,
-            )
-            raise ContentNotFoundException("Content not found")
-
-        return result
-
-    def cache_result(self, static_content_cache, cache_key, result):
-        static_content_cache.set(cache_key, result)
-
-    def get_from_cache(self, static_content_cache, cache_key):
-        cached_result = static_content_cache.get(cache_key)
-        return cached_result if cached_result else None
-
-    def get_from_database(self, cache_key):
-        try:
-            content_obj = RenderedContent.objects.get(cache_key=cache_key)
-            # todo: fire refresh task here
-            return {
-                "content": content_obj.content_html,
-                "content_type": content_obj.content_type,
-                "last_updated_at": content_obj.last_updated_at,
-            }
-        except RenderedContent.DoesNotExist:
-            return None
-
-    def get_from_s3(self, content_path, cache_key):
-        result = get_content_from_s3(key=content_path)
-        if result and result.get("content"):
-            return self.update_or_create_content(result, cache_key)
-        return
-
-    def update_or_create_content(self, result, cache_key):
-        content = result.get("content")
+    def save_to_database(self, cache_key, result):
+        """Saves the rendered asciidoc content to the database via celery."""
         content_type = result.get("content_type")
         last_updated_at_raw = result.get("last_updated_at")
 
         if content_type == "text/asciidoc":
-            content = self.convert_adoc_to_html(content)
+            last_updated_at_raw = result.get("last_updated_at")
             last_updated_at = (
                 parse(last_updated_at_raw) if last_updated_at_raw else None
             )
-
-            defaults = {"content_html": content, "content_type": content_type}
-            if last_updated_at:
-                defaults["last_updated_at"] = last_updated_at
-            content_obj, created = RenderedContent.objects.update_or_create(
-                cache_key=cache_key, defaults=defaults
+            save_rendered_content.delay(
+                cache_key,
+                content_type,
+                result["content"],
+                last_updated_at=last_updated_at,
             )
-            logger.info(
-                "get_content_from_s3_view_saved_to_db",
-                cache_key=cache_key,
-                content_type=content_type,
-                status_code=200,
-                obj_id=content_obj.id,
-                created=created,
-            )
-            result["content"] = content
-        return result
 
     def convert_adoc_to_html(self, content):
         """Renders asciidoc content to HTML."""
