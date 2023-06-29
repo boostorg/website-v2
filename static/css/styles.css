@@ -1287,6 +1287,22 @@ input[type=file] {
   margin-left: 1rem;
 }
 
+.-mt-16 {
+  margin-top: -4rem;
+}
+
+.-mt-8 {
+  margin-top: -2rem;
+}
+
+.-mt-3 {
+  margin-top: -0.75rem;
+}
+
+.-mb-3 {
+  margin-bottom: -0.75rem;
+}
+
 .block {
   display: block;
 }
@@ -1453,10 +1469,6 @@ input[type=file] {
 
 .w-\[200px\] {
   width: 200px;
-}
-
-.w-\[25px\] {
-  width: 25px;
 }
 
 .w-\[150px\] {
@@ -1848,10 +1860,6 @@ input[type=file] {
   border-bottom-width: 2px;
 }
 
-.border-l-2 {
-  border-left-width: 2px;
-}
-
 .border-b-4 {
   border-bottom-width: 4px;
 }
@@ -1895,18 +1903,14 @@ input[type=file] {
   border-color: rgb(90 213 153 / 0.6);
 }
 
-.border-white {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 255 255 / var(--tw-border-opacity));
-}
-
-.border-slate\/50 {
-  border-color: rgb(49 74 87 / 0.5);
-}
-
 .border-gray-400 {
   --tw-border-opacity: 1;
   border-color: rgb(156 163 175 / var(--tw-border-opacity));
+}
+
+.border-white {
+  --tw-border-opacity: 1;
+  border-color: rgb(255 255 255 / var(--tw-border-opacity));
 }
 
 .bg-red-600 {
@@ -2248,14 +2252,6 @@ input[type=file] {
 
 .pb-4 {
   padding-bottom: 1rem;
-}
-
-.pr-5 {
-  padding-right: 1.25rem;
-}
-
-.pb-5 {
-  padding-bottom: 1.25rem;
 }
 
 .text-left {
@@ -3010,6 +3006,18 @@ input[type=file] {
     margin-bottom: 1.5rem;
   }
 
+  .md\:-ml-\[213px\] {
+    margin-left: -213px;
+  }
+
+  .md\:ml-6 {
+    margin-left: 1.5rem;
+  }
+
+  .md\:ml-\[200px\] {
+    margin-left: 200px;
+  }
+
   .md\:block {
     display: block;
   }
@@ -3082,8 +3090,29 @@ input[type=file] {
     width: 70%;
   }
 
+  .md\:w-\[90\%\] {
+    width: 90%;
+  }
+
+  .md\:w-\[200px\] {
+    width: 200px;
+  }
+
+  .md\:w-\[150px\] {
+    width: 150px;
+  }
+
   .md\:min-w-\[150px\] {
     min-width: 150px;
+  }
+
+  .md\:min-w-fit {
+    min-width: -moz-fit-content;
+    min-width: fit-content;
+  }
+
+  .md\:min-w-full {
+    min-width: 100%;
   }
 
   .md\:max-w-7xl {
@@ -3198,6 +3227,10 @@ input[type=file] {
     border-bottom-width: 1px;
   }
 
+  .md\:border-l-2 {
+    border-left-width: 2px;
+  }
+
   .md\:border-b-0 {
     border-bottom-width: 0px;
   }
@@ -3305,6 +3338,10 @@ input[type=file] {
 
   .md\:pl-11 {
     padding-left: 2.75rem;
+  }
+
+  .md\:text-center {
+    text-align: center;
   }
 
   .md\:text-right {
