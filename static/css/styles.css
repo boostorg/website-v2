@@ -748,7 +748,7 @@ input[type=file] {
   color: rgb(49 74 87 / var(--tw-text-opacity));
 }
 
-.dark #signup_form input[type=email],.dark 
+.dark #signup_form input[type=email],.dark
   #signup_form input[type=password] {
   --tw-bg-opacity: 1;
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
@@ -1900,6 +1900,15 @@ input[type=file] {
   border-color: rgb(255 255 255 / var(--tw-border-opacity));
 }
 
+.border-slate\/50 {
+  border-color: rgb(49 74 87 / 0.5);
+}
+
+.border-gray-400 {
+  --tw-border-opacity: 1;
+  border-color: rgb(156 163 175 / var(--tw-border-opacity));
+}
+
 .bg-red-600 {
   --tw-bg-opacity: 1;
   background-color: rgb(220 38 38 / var(--tw-bg-opacity));
@@ -1955,11 +1964,6 @@ input[type=file] {
 .bg-gray-600 {
   --tw-bg-opacity: 1;
   background-color: rgb(75 85 99 / var(--tw-bg-opacity));
-}
-
-.bg-slate {
-  --tw-bg-opacity: 1;
-  background-color: rgb(49 74 87 / var(--tw-bg-opacity));
 }
 
 .bg-red-500 {
@@ -2244,6 +2248,14 @@ input[type=file] {
 
 .pb-4 {
   padding-bottom: 1rem;
+}
+
+.pr-5 {
+  padding-right: 1.25rem;
+}
+
+.pb-5 {
+  padding-bottom: 1.25rem;
 }
 
 .text-left {

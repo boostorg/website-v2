@@ -53,7 +53,7 @@
           </div>
           {% if user.is_authenticated %}
           <div class="inline-block py-5 text-sm">
-            <a href="{% url 'news-create' %}" class="py-0 px-2 font-semibold bg-gray-300 rounded border border-slate hover:bg-orange">Submit News</a>
+            <a href="{% url 'news-create' %}" class="py-0 px-2 font-semibold bg-gray-300 rounded border dark:text-white border-slate dark:bg-slate hover:bg-orange">Submit News</a>
           </div>
           {% endif %}
         </div>
@@ -64,10 +64,10 @@
         {% for entry in entry_list %}
         <li>
           <div class="md:flex flex-start">
-            <div class="mt-6 text-xs text-center w-[200px] -ml-[213px]">
+            <div class="mt-6 text-sm text-center uppercase w-[200px] -ml-[213px]">
               <a href="{{ entry.get_absolute_url }}">{{ entry.display_publish_at }}</a>
             </div>
-            <div class="flex justify-center items-center p-2 mt-5 bg-white rounded-full h-[25px] w-[25px] dark:bg-slate">
+            <div class="flex justify-center items-center p-2 mt-5 bg-white rounded-full h-[30px] w-[30px] dark:bg-slate">
               {% if entry.tag == "link" %}
                 {% url 'news-link-list' as target_url %}
                 <a href="{{ target_url }}" title="Link">
@@ -101,7 +101,7 @@
               {% if entry.author.image %}
                 <img src="{{ entry.author.image.url }}" alt="user" class="inline rounded-sm w-[30px]" />
               {% else %}
-                <span class="inline px-2 pt-3 pb-1 bg-white rounded-sm">
+                <span class="inline px-2 pt-3 pb-1 bg-white rounded-sm dark:text-white dark:bg-slate">
                   <i class="text-2xl fas fa-user"></i>
                 </span>
               {% endif %}

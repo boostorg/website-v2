@@ -14,57 +14,52 @@
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
     <div class="py-16 md:mx-auto md:w-3/4">
       <h1 class="text-4xl">{{ entry.title }}</h1>
+      <p class="mt-0 text-sm font-light">{{ entry.publish_at|date:"M jS, Y" }}</p>
 
       <!-- Author or Moderator Actions -->
-      <div class="divide-y divide-gray-300">
-        <div class="flex py-2 md:mx-auto md:w-1/2">
-          {% if not entry.is_approved %}
-          <div class="py-2 md:mx-auto md:w-1/9">
-            {% if user_can_approve %}
-            <form method="POST" action="{% url 'news-approve' entry.slug %}">
-              {% csrf_token %}
-              <button type="submit" name="approve" class="flex justify-center items-center py-2 px-8 text-base font-medium text-white rounded-md border md:py-4 md:px-4 md:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
-                {% translate "Approve" %}
-              </button>
-              {% if next_url %}
-              <input type="hidden" name="next" value="{{ next_url }}" />
-              {% endif %}
-            </form>
-            {% else %}
-            <strong>{% translate "Pending Moderation" %}</strong>
+      <div class="space-x-3 text-right">
+        {% if not entry.is_approved %}
+        <div class="py-2">
+          {% if user_can_approve %}
+          <form method="POST" action="{% url 'news-approve' entry.slug %}">
+            {% csrf_token %}
+            <button type="submit" name="approve" class="flex justify-center items-center py-2 px-8 text-base font-medium text-white rounded-md border md:py-4 md:px-4 md:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
+              {% translate "Approve" %}
+            </button>
+            {% if next_url %}
+            <input type="hidden" name="next" value="{{ next_url }}" />
             {% endif %}
-          </div>
-          {% endif %}
-          {% if user_can_edit %}
-          <div class="py-2 md:mx-auto md:w-1/9">
-            <a href="{% url 'news-update' entry.slug %}" class="flex justify-center items-center py-2 px-8 text-base font-medium text-white rounded-md border md:py-4 md:px-4 md:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
-              {% translate "Edit" %}
-            </a>
-          </div>
-          {% endif %}
-          {% if user_can_delete %}
-          <div class="py-2 md:mx-auto md:w-1/9">
-            <a href="{% url 'news-delete' entry.slug %}" class="flex justify-center items-center py-2 px-8 text-base font-medium bg-gray-300 rounded-md border md:py-4 md:px-10 md:text-lg border-steel text-slate dark:bg-charcoal dark:text-orange">
-              {% translate "Delete" %}
-            </a>
-          </div>
+          </form>
+          {% else %}
+          <strong>{% translate "Pending Moderation" %}</strong>
           {% endif %}
         </div>
+        {% endif %}
+        {% if user_can_edit %}
+          <a href="{% url 'news-update' entry.slug %}" class="inline-block items-center dark:text-white">
+            <i class="fas fa-edit"></i>
+          </a>
+        {% endif %}
+        {% if user_can_delete %}
+          <a href="{% url 'news-delete' entry.slug %}" class="inline-block items-center dark:text-white">
+            <i class="fas fa-trash-alt"></i>
+          </a>
+        {% endif %}
       </div>
       <!-- End Actions -->
-
-      <p class="mt-0 text-sm font-light">{{ entry.publish_at|date:"M jS, Y" }}</p>
 
       {% if entry.external_url %}
       <p>{{ entry.external_url|escape }}</p>
       {% endif %}
-      <p>{% if entry.image %}<img src="{{ entry.image.url }}" class="float-left p-5" width="200">{% endif %}
-        {{ entry.content|linebreaks }}
-      </p>
+
+      {% if entry.image %}
+      <img src="{{ entry.image.url }}" class="float-left mr-5 mb-5" width="200">
+      {% endif %}
+      {{ entry.content|linebreaks }}
 
     </div>
 
-    <div class="flex py-8 my-5 space-x-4 border-t border-b md:mx-auto md:w-3/4 border-slate">
+    <div class="flex py-3 my-3 space-x-4 border-t border-b border-gray-400 md:mx-auto md:w-3/4">
       <span class="inline-block">Share:</span>
       <img class="inline-block" src="{% static 'img/icons/icon_Facebook-logo.svg' %}" alt="Facebook" />
       <img class="inline-block" src="{% static 'img/icons/icon_Twitter-logo.svg' %}" alt="Twitter" />
@@ -73,15 +68,15 @@
     </div>
 
     {% if next or prev %}
-    <div class="block flex my-16 md:mx-auto md:w-3/4">
+    <div class="flex my-16 md:mx-auto md:w-3/4">
       {% if next %}
       <div class="w-1/2 text-left">
-        <a href="{{ next.get_absolute_url }}" class="py-2 px-4 text-sm font-medium uppercase rounded-md border border-slate text-orange">< Newer Entries</a>
+        <a href="{{ next.get_absolute_url }}" class="py-2 px-3 text-sm font-medium uppercase bg-gray-300 rounded-md border border-slate">Newer Entries</a>
       </div>
       {% endif  %}
       {% if prev %}
       <div class="w-1/2 text-right">
-        <a href="{{ prev.get_absolute_url }}" class="py-2 px-4 text-sm font-medium uppercase rounded-md border border-slate text-orange">Older Entries ></a>
+        <a href="{{ prev.get_absolute_url }}" class="py-2 px-3 text-sm font-medium uppercase bg-gray-300 rounded-md border border-slate">Older Entries</a>
       </div>
       {% endif %}
     </div>
