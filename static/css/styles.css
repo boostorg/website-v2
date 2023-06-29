@@ -1964,15 +1964,6 @@ input[type=file] {
   background-color: transparent;
 }
 
-.bg-yellow-200 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(254 240 138 / var(--tw-bg-opacity));
-}
-
-.bg-yellow-200\/50 {
-  background-color: rgb(254 240 138 / 0.5);
-}
-
 .bg-yellow-200\/70 {
   background-color: rgb(254 240 138 / 0.7);
 }
