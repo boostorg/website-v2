@@ -60,14 +60,14 @@
       </div>
 
     <div class="mt-5">
-      <ol class="border-l-2 border-white dark:border-slate space-y-3 w-[90%] mx-auto ml-[200px]">
+      <ol class="md:border-l-2 border-white dark:border-slate space-y-3 md:w-[90%] mx-auto md:ml-[200px]">
         {% for entry in entry_list %}
         <li>
           <div class="md:flex flex-start">
-            <div class="mt-6 text-sm text-center uppercase w-[200px] -ml-[213px]">
+            <div class="mt-6 text-sm text-right uppercase md:text-center md:w-[200px] md:-ml-[213px]">
               <a href="{{ entry.get_absolute_url }}">{{ entry.display_publish_at }}</a>
             </div>
-            <div class="flex justify-center items-center p-2 mt-5 bg-white rounded-full h-[30px] w-[30px] dark:bg-slate">
+            <div class="flex justify-center items-center p-2 mb-3 -mt-8 bg-white rounded-full md:mt-5 md:mb-0 h-[30px] w-[30px] dark:bg-slate">
               {% if entry.tag == "link" %}
                 {% url 'news-link-list' as target_url %}
                 <a href="{{ target_url }}" title="Link">
@@ -97,7 +97,7 @@
                 <i class="text-gray-400 fas fa-calendar-alt dark:text-white/60"></i>
               {% endif %}
             </div>
-            <div class="mt-4 text-xs text-center w-[150px]">
+            <div class="hidden pt-2 mt-4 text-xs text-center md:block md:w-[150px]">
               {% if entry.author.image %}
                 <img src="{{ entry.author.image.url }}" alt="user" class="inline rounded-sm w-[30px]" />
               {% else %}
@@ -106,7 +106,7 @@
                 </span>
               {% endif %}
             </div>
-            <div class="block p-6 mb-10 ml-6 w-3/4 bg-white rounded-lg dark:bg-charcoal">
+            <div class="block p-6 mb-10 w-full bg-white rounded-lg md:ml-6 md:w-3/4 dark:bg-charcoal">
               <div class="flex justify-between">
                 <a class="text-lg font-semibold transition duration-150 ease-in-out hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
                   {{ entry.title }}
