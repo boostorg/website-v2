@@ -7,7 +7,7 @@
             {% if latest_library_version %}
                 <a href="{% url 'library-detail' slug=latest_library_version.library.slug %}" class="py-1 px-2 text-white rounded bg-slate">
             {% else %}
-                <a href="{% url 'version-detail' latest_version.slug %}" class="font-semibold underline text-charcoal">
+                <a href="{% url 'version-detail' latest_version.slug %}" class="font-semibold underline dark:text-white text-charcoal">
             {% endif %}
             {{ latest_version.display_name }}</a>
         </p>
