@@ -66,34 +66,34 @@
           <div class="mt-6 text-sm text-left w-[160px]">
             <a href="{{ entry.get_absolute_url }}">{{ entry.display_publish_at }}</a>
           </div>
-          <div class="pt-6 border-l-2 border-white w-[50px]">
+          <div class="pt-6 border-l-2 border-white w-[50px] dark:border-slate">
             {% if entry.tag == "link" %}
               {% url 'news-link-list' as target_url %}
-              <a href="{{ target_url }}" title="Link" class="px-2 -ml-4 bg-white rounded-full w-[30px] h-[30px]">
+              <a href="{{ target_url }}" title="Link" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
                 <i class="text-gray-400 fas fa-link dark:text-white/60"></i>
               </a>
             {% elif entry.tag == "news" %}
               {% url 'news-news-list' as target_url %}
-              <a href="{{ target_url }}" title="News" class="px-2 -ml-4 bg-white rounded-full w-[30px] h-[30px]">
+              <a href="{{ target_url }}" title="News" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
                 <i class="text-gray-400 fas fa-bullhorn dark:text-white/60"></i>
               </a>
             {% elif entry.tag == "blogpost" %}
               {% url 'news-blogpost-list' as target_url %}
-              <a href="{{ target_url }}" title="Blog Post" class="px-2 -ml-4 bg-white rounded-full w-[30px] h-[30px]">
+              <a href="{{ target_url }}" title="Blog Post" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 py-[1px] w-[30px] h-[30px] dark:bg-slate">
                 <i class="text-gray-400 fas fa-newspaper dark:text-white/60"></i>
               </a>
             {% elif entry.tag == "poll" %}
               {% url 'news-poll-list' as target_url %}
-              <a href="{{ target_url }}" title="Poll" class="px-2 -ml-4 bg-white rounded-full w-[30px] h-[30px]">
+              <a href="{{ target_url }}" title="Poll" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
                 <i class="text-gray-400 fas fa-poll dark:text-white/60"></i>
               </a>
             {% elif entry.tag == "video" %}
               {% url 'news-video-list' as target_url %}
-              <a href="{{ target_url }}" title="Video" class="px-2 -ml-4 bg-white rounded-full w-[30px] h-[30px]">
+              <a href="{{ target_url }}" title="Video" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
                 <i class="text-gray-400 fas fa-video dark:text-white/60"></i>
               </a>
             {% else %}
-              <i class="text-gray-400 fas fa-calendar-alt dark:text-white/60" class="px-2 -ml-4 bg-white rounded-full w-[30px] h-[30px]"></i>
+              <i class="text-gray-400 fas fa-calendar-alt dark:text-white/60" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate"></i>
             {% endif %}
           </div>
           <div class="pt-2 mt-4 text-xs text-left w-[70px]">
@@ -107,11 +107,11 @@
           </div>
           <div class="block p-6 mb-10 w-full bg-white rounded-lg md:ml-6 dark:bg-charcoal">
             <div class="flex justify-between">
-              <a class="text-lg font-semibold transition duration-150 ease-in-out hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+              <a class="text-xl font-semibold transition duration-150 ease-in-out text-orange hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
                 {{ entry.title }}
               </a>
             </div>
-            <p class="text-gray-500 dark:text-white/70">{{ entry.content|truncatechars:300 }}</p>
+            <p class="text-base text-gray-500 dark:text-white/70">{{ entry.content|truncatechars:300 }}</p>
           </div>
         </div>
         {% endfor %}
