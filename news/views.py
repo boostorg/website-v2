@@ -166,14 +166,14 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 class BlogPostCreateView(EntryCreateView):
     model = BlogPost
     form_class = BlogPostForm
-    add_label = _("Create a BlogPost")
+    add_label = _("Create Blog Post")
     add_url_name = "news-blogpost-create"
 
 
 class LinkCreateView(EntryCreateView):
     model = Link
     form_class = LinkForm
-    add_label = _("Create a Link")
+    add_label = _("Create Link")
     add_url_name = "news-link-create"
 
 
