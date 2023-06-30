@@ -18,47 +18,107 @@
           <div class="inline-block py-5">
             {% url 'news' as target_url %}
             <a href="{{ target_url }}" title="All News">
-              <i class="py-1 px-2 bg-white rounded border border-gray-300 fas fa-rocket dark:bg-slate hover:bg-orange"></i>
+              <i class="py-1 px-2 bg-white rounded border border-gray-300 fas fa-rocket dark:bg-slate dark:hover:bg-orange hover:bg-orange"></i>
             </a>
           </div>
           <div class="inline-block py-5">
             {% url 'news-news-list' as target_url %}
             <a href="{{ target_url }}" title="News">
-              <i class="py-1 px-2 rounded border border-gray-300 fas fa-bullhorn hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
+              <i class="py-1 px-2 rounded border border-gray-300 fas fa-bullhorn hover:bg-orange dark:hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
             </a>
           </div>
           <div class="inline-block py-5">
             {% url 'news-blogpost-list' as target_url %}
             <a href="{{ target_url }}" title="Blog Post">
-              <i class="py-1 px-2 rounded border border-gray-300 fas fa-newspaper hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
+              <i class="py-1 px-2 rounded border border-gray-300 fas fa-newspaper hover:bg-orange dark:hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
             </a>
           </div>
           <div class="inline-block py-5">
             {% url 'news-link-list' as target_url %}
             <a href="{{ target_url }}" title="Link">
-              <i class="py-1 px-2 rounded border border-gray-300 fas fa-link hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
+              <i class="py-1 px-2 rounded border border-gray-300 fas fa-link hover:bg-orange dark:hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
             </a>
           </div>
           <div class="inline-block py-5">
             {% url 'news-poll-list' as target_url %}
             <a href="{{ target_url }}" title="Poll">
-              <i class="py-1 px-2 rounded border border-gray-300 fas fa-poll hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
+              <i class="py-1 px-2 rounded border border-gray-300 fas fa-poll hover:bg-orange dark:hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
             </a>
           </div>
           <div class="inline-block py-5">
             {% url 'news-video-list' as target_url %}
             <a href="{{ target_url }}" title="Video">
-              <i class="py-1 px-2 rounded border border-gray-300 fas fa-video hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
+              <i class="py-1 px-2 rounded border border-gray-300 fas fa-video hover:bg-orange dark:hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
             </a>
           </div>
           {% if user.is_authenticated %}
           <div class="inline-block py-5 text-sm">
-            <a href="{% url 'news-create' %}" class="py-0 px-2 font-semibold bg-gray-300 rounded border dark:text-white border-slate dark:bg-slate hover:bg-orange">Submit News</a>
+            <a href="{% url 'news-create' %}" class="py-0 px-2 font-semibold bg-white rounded border border-gray-300 dark:text-white dark:bg-slate dark:hover:bg-orange hover:bg-orange">Submit News</a>
           </div>
           {% endif %}
         </div>
       </div>
 
+    <div class="my-5">
+      <div class="mx-auto w-full">
+        {% for entry in entry_list %}
+        <div class="flex space-x-3">
+          <div class="mt-6 text-sm text-left w-[160px]">
+            <a href="{{ entry.get_absolute_url }}">{{ entry.display_publish_at }}</a>
+          </div>
+          <div class="pt-6 border-l-2 border-white w-[50px]">
+            {% if entry.tag == "link" %}
+              {% url 'news-link-list' as target_url %}
+              <a href="{{ target_url }}" title="Link" class="px-2 -ml-4 bg-white rounded-full w-[30px] h-[30px]">
+                <i class="text-gray-400 fas fa-link dark:text-white/60"></i>
+              </a>
+            {% elif entry.tag == "news" %}
+              {% url 'news-news-list' as target_url %}
+              <a href="{{ target_url }}" title="News" class="px-2 -ml-4 bg-white rounded-full w-[30px] h-[30px]">
+                <i class="text-gray-400 fas fa-bullhorn dark:text-white/60"></i>
+              </a>
+            {% elif entry.tag == "blogpost" %}
+              {% url 'news-blogpost-list' as target_url %}
+              <a href="{{ target_url }}" title="Blog Post" class="px-2 -ml-4 bg-white rounded-full w-[30px] h-[30px]">
+                <i class="text-gray-400 fas fa-newspaper dark:text-white/60"></i>
+              </a>
+            {% elif entry.tag == "poll" %}
+              {% url 'news-poll-list' as target_url %}
+              <a href="{{ target_url }}" title="Poll" class="px-2 -ml-4 bg-white rounded-full w-[30px] h-[30px]">
+                <i class="text-gray-400 fas fa-poll dark:text-white/60"></i>
+              </a>
+            {% elif entry.tag == "video" %}
+              {% url 'news-video-list' as target_url %}
+              <a href="{{ target_url }}" title="Video" class="px-2 -ml-4 bg-white rounded-full w-[30px] h-[30px]">
+                <i class="text-gray-400 fas fa-video dark:text-white/60"></i>
+              </a>
+            {% else %}
+              <i class="text-gray-400 fas fa-calendar-alt dark:text-white/60" class="px-2 -ml-4 bg-white rounded-full w-[30px] h-[30px]"></i>
+            {% endif %}
+          </div>
+          <div class="pt-2 mt-4 text-xs text-left w-[70px]">
+            {% if entry.author.image %}
+              <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="inline rounded-sm w-[30px]" />
+            {% else %}
+              <span class="inline px-2 pt-3 pb-1 bg-white rounded-sm dark:text-white dark:bg-slate">
+                <i class="text-2xl fas fa-user" title="{{ entry.author.get_full_name }}"></i>
+              </span>
+            {% endif %}
+          </div>
+          <div class="block p-6 mb-10 w-full bg-white rounded-lg md:ml-6 dark:bg-charcoal">
+            <div class="flex justify-between">
+              <a class="text-lg font-semibold transition duration-150 ease-in-out hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+                {{ entry.title }}
+              </a>
+            </div>
+            <p class="text-gray-500 dark:text-white/70">{{ entry.content|truncatechars:300 }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% comment %}
     <div class="mt-5">
       {% if entry_list %}
       <ol class="md:border-l-2 border-white dark:border-slate space-y-3 md:w-[90%] mx-auto md:ml-[200px]">
@@ -100,10 +160,10 @@
             </div>
             <div class="hidden pt-2 mt-4 text-xs text-center md:block md:w-[150px]">
               {% if entry.author.image %}
-                <img src="{{ entry.author.image.url }}" alt="user" class="inline rounded-sm w-[30px]" />
+                <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="inline rounded-sm w-[30px]" />
               {% else %}
                 <span class="inline px-2 pt-3 pb-1 bg-white rounded-sm dark:text-white dark:bg-slate">
-                  <i class="text-2xl fas fa-user"></i>
+                  <i class="text-2xl fas fa-user" title="{{ entry.author.get_full_name }}"></i>
                 </span>
               {% endif %}
             </div>
@@ -123,5 +183,6 @@
       <h4 class="text-center">No news items were found.</h4>
       {% endif %}
     </div>
+    {% endcomment %}
   </div>
 {% endblock %}
