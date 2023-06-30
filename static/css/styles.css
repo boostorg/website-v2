@@ -2757,6 +2757,28 @@ input[type=file] {
   background-color: rgb(49 74 87 / var(--tw-bg-opacity));
 }
 
+.dark .dark\:bg-yellow-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(253 224 71 / var(--tw-bg-opacity));
+}
+
+.dark .dark\:bg-yellow-300\/70 {
+  background-color: rgb(253 224 71 / 0.7);
+}
+
+.dark .dark\:bg-yellow-300\/50 {
+  background-color: rgb(253 224 71 / 0.5);
+}
+
+.dark .dark\:bg-yellow-200 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 240 138 / var(--tw-bg-opacity));
+}
+
+.dark .dark\:bg-yellow-200\/80 {
+  background-color: rgb(254 240 138 / 0.8);
+}
+
 .dark .dark\:font-medium {
   font-weight: 500;
 }
