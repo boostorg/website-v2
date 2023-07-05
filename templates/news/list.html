@@ -24,7 +24,7 @@
           <div class="inline-block py-5">
             {% url 'news-news-list' as target_url %}
             <a href="{{ target_url }}" title="News">
-              <i class="py-1 px-2 rounded border border-gray-300 fas fa-bullhorn hover:bg-orange dark:hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
+              <i class="py-1 px-2 rounded border border-gray-300 fas fa-bell hover:bg-orange dark:hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
             </a>
           </div>
           <div class="inline-block py-5">
@@ -62,11 +62,11 @@
     <div class="my-5">
       <div class="mx-auto w-full">
         {% for entry in entry_list %}
-        <div class="flex space-x-3">
-          <div class="mt-6 text-sm text-left w-[160px]">
+        <div class="md:flex md:space-x-3">
+          <div class="hidden mt-6 text-sm text-left capitalize md:block w-[160px]">
             <a href="{{ entry.get_absolute_url }}">{{ entry.display_publish_at }}</a>
           </div>
-          <div class="pt-6 border-l-2 border-white w-[50px] dark:border-slate">
+          <div class="hidden pt-6 border-l-2 border-white md:block w-[50px] dark:border-slate">
             {% if entry.tag == "link" %}
               {% url 'news-link-list' as target_url %}
               <a href="{{ target_url }}" title="Link" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
@@ -75,7 +75,7 @@
             {% elif entry.tag == "news" %}
               {% url 'news-news-list' as target_url %}
               <a href="{{ target_url }}" title="News" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
-                <i class="text-gray-400 fas fa-bullhorn dark:text-white/60"></i>
+                <i class="text-gray-400 fas fa-bell dark:text-white/60"></i>
               </a>
             {% elif entry.tag == "blogpost" %}
               {% url 'news-blogpost-list' as target_url %}
@@ -96,7 +96,7 @@
               <i class="text-gray-400 fas fa-calendar-alt dark:text-white/60" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate"></i>
             {% endif %}
           </div>
-          <div class="pt-2 mt-4 text-xs text-left w-[70px]">
+          <div class="hidden pt-2 mt-4 text-xs text-left md:block w-[70px]">
             {% if entry.author.image %}
               <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="inline rounded-sm w-[30px]" />
             {% else %}
@@ -106,14 +106,62 @@
             {% endif %}
           </div>
           <div class="block p-6 mb-10 w-full bg-white rounded-lg md:ml-6 dark:bg-charcoal">
-            <div class="flex justify-between">
-              <a class="text-xl font-semibold transition duration-150 ease-in-out text-orange hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
-                {{ entry.title }}
-              </a>
-            </div>
+            <h2 class="text-xl font-semibold"><a class="text-orange hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+              {{ entry.title }}
+            </a></h2>
+            {% if entry.image %}
+            <img src="{{ entry.image.url }}" class="mb-5 ml-5 w-full h-auto md:float-right md:w-1/6">
+            {% endif %}
             {% if entry.content %}
             <p class="text-base text-gray-500 dark:text-white/70">{{ entry.content|truncatechars:300 }}</p>
             {% endif %}
+
+            <!-- footer of cards only for mobile devices -->
+            <div class="flex border-t border-gray-300 md:hidden">
+              <div class="mt-6 w-1/3 text-sm text-left capitalize">
+                <a href="{{ entry.get_absolute_url }}">{{ entry.display_publish_at }}</a>
+              </div>
+              <div class="pt-6 w-1/3 text-center border-l-2 border-white dark:border-slate">
+                {% if entry.tag == "link" %}
+                  {% url 'news-link-list' as target_url %}
+                  <a href="{{ target_url }}" title="Link" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
+                    <i class="text-gray-400 fas fa-link dark:text-white/60"></i>
+                  </a>
+                {% elif entry.tag == "news" %}
+                  {% url 'news-news-list' as target_url %}
+                  <a href="{{ target_url }}" title="News" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
+                    <i class="text-gray-400 fas fa-bell dark:text-white/60"></i>
+                  </a>
+                {% elif entry.tag == "blogpost" %}
+                  {% url 'news-blogpost-list' as target_url %}
+                  <a href="{{ target_url }}" title="Blog Post" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 py-[1px] w-[30px] h-[30px] dark:bg-slate">
+                    <i class="text-gray-400 fas fa-newspaper dark:text-white/60"></i>
+                  </a>
+                {% elif entry.tag == "poll" %}
+                  {% url 'news-poll-list' as target_url %}
+                  <a href="{{ target_url }}" title="Poll" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
+                    <i class="text-gray-400 fas fa-poll dark:text-white/60"></i>
+                  </a>
+                {% elif entry.tag == "video" %}
+                  {% url 'news-video-list' as target_url %}
+                  <a href="{{ target_url }}" title="Video" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
+                    <i class="text-gray-400 fas fa-video dark:text-white/60"></i>
+                  </a>
+                {% else %}
+                  <i class="text-gray-400 fas fa-calendar-alt dark:text-white/60" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate"></i>
+                {% endif %}
+              </div>
+              <div class="pt-2 mt-4 w-1/3 text-xs text-right">
+                {% if entry.author.image %}
+                  <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="inline rounded-sm w-[30px]" />
+                {% else %}
+                  <span class="inline px-2 pt-3 pb-1 bg-white rounded-sm dark:text-white dark:bg-slate">
+                    <i class="text-2xl fas fa-user" title="{{ entry.author.get_full_name }}"></i>
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+            <!-- end footer -->
           </div>
         </div>
         {% empty %}
