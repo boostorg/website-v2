@@ -531,8 +531,7 @@ def test_update_library(library_updater, version):
     }
     library_updater.update_library(library_data)
     assert Library.objects.filter(key="test").exists()
-    library = Library.objects.get(key="test")
-    assert library.categories.filter(name="Test").exists()
+    Library.objects.get(key="test")
 
 
 def test_update_categories(library, library_updater):

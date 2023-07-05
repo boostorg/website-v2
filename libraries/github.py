@@ -12,9 +12,8 @@ from django.core.validators import validate_email
 from fastcore.xtras import obj2dict
 from ghapi.all import GhApi, paged
 
-from versions.models import Version
 
-from .models import Category, Issue, Library, LibraryVersion, PullRequest
+from .models import Category, Issue, Library, PullRequest
 from .utils import generate_fake_email, parse_date
 
 logger = structlog.get_logger()
@@ -185,7 +184,7 @@ class GithubAPIClient:
             self.logger.exception("get_first_tag_and_date_failed", repo=repo_slug)
             return None
 
-    def get_gitmodules(self, repo_slug: str = None, ref: dict = None) -> str:
+    def get_gitmodules(self, repo_slug: str = None, ref: str = None) -> str:
         """
         Get the .gitmodules file for the repo from the GitHub API.
 
@@ -269,7 +268,9 @@ class GithubAPIClient:
             repo_slug = self.repo_slug
         if not ref:
             ref = self.ref
-        return self.api.git.get_ref(owner=self.owner, repo=repo_slug, ref=f"tags/{ref}")
+        return self.api.git.get_ref(
+            owner=self.owner, repo=repo_slug, ref=f"heads/{ref}"
+        )
 
     def get_repo(self, repo_slug: str = None) -> dict:
         """
@@ -620,6 +621,7 @@ class LibraryUpdater:
 
     def update_libraries(self):
         """Update all libraries with the metadata"""
+        # TODO: Edit this to work with a specific tag
         raw_gitmodules = self.client.get_gitmodules()
         gitmodules = self.parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
         library_data = self.get_library_list(gitmodules=gitmodules)
@@ -629,7 +631,17 @@ class LibraryUpdater:
         )
 
         for lib in library_data:
-            self.update_library(lib)
+            obj = self.update_library(lib)
+            if not obj:
+                continue
+            self.update_categories(obj, categories=library_data["category"])
+            self.update_authors(obj, authors=library_data["authors"])
+            self.update_monthly_commit_data(obj)
+            self.update_issues(obj)
+            self.update_prs(obj)
+
+            if not obj.first_github_tag_date:
+                self.update_first_github_tag_date(obj)
 
     def update_library(self, library_data: dict) -> Library:
         """Update an individual library"""
@@ -639,7 +651,6 @@ class LibraryUpdater:
                 key=library_data["key"],
                 defaults={
                     "name": library_data["name"],
-                    "key": library_data["key"],
                     "github_url": library_data["github_url"],
                     "description": library_data["description"],
                     "cpp_standard_minimum": library_data["cxxstd"],
@@ -649,49 +660,18 @@ class LibraryUpdater:
 
             logger = logger.bind(obj_created=created)
             obj.save()
-
             logger.info("library_udpated")
-
-            library_version = self.add_most_recent_library_version(obj)
-            self.update_categories(obj, categories=library_data["category"])
-            self.update_maintainers(
-                library_version, maintainers=library_data["maintainers"]
-            )
-            # Do authors second; maintainers are more likely to have emails to match
-            self.update_authors(obj, authors=library_data["authors"])
-
-            if created or not obj.first_github_tag_date:
-                self.update_first_github_tag_date(obj)
-
             return obj
 
         except Exception:
             logger.exception("library_update_failed")
-
-    def add_most_recent_library_version(self, library: Library) -> LibraryVersion:
-        """Add the most recent version of a library to the database"""
-        most_recent_version = Version.objects.most_recent()
-
-        library_version, created = LibraryVersion.objects.get_or_create(
-            library=library, version=most_recent_version
-        )
-
-        if created:
-            self.logger.info(
-                "LibraryVersion created",
-                library_version=library_version,
-                library_name=library.name,
-                version_name=most_recent_version.name,
-            )
-
-        return library_version
 
     def update_categories(self, obj, categories):
         """Update all of the categories for an object"""
 
         obj.categories.clear()
         for cat_name in categories:
-            cat, created = Category.objects.get_or_create(name=cat_name)
+            cat, _ = Category.objects.get_or_create(name=cat_name)
             obj.categories.add(cat)
 
     def update_authors(self, obj, authors=None):
@@ -781,6 +761,7 @@ class LibraryUpdater:
         Note: Overrides CommitData objects for the library; does not increment
         the count.
         """
+        # TODO: Update this so it's smarter and can just be called like the others
         self.logger.info("updating_monthly_commit_data")
 
         for month_year, commit_count in commit_data.items():
