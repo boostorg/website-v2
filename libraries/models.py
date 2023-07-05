@@ -253,13 +253,11 @@ class LibraryVersion(models.Model):
         "versions.Version",
         related_name="library_version",
         on_delete=models.CASCADE,
-        null=True,
     )
     library = models.ForeignKey(
         "libraries.Library",
         related_name="library_version",
         on_delete=models.CASCADE,
-        null=True,
     )
     maintainers = models.ManyToManyField("users.User", related_name="maintainers")
 
