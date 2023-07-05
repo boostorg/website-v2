@@ -52,8 +52,9 @@ def test_library_list_select_category(library_version, category, tp):
     """GET /libraries/?category={{ slug }} loads filtered results"""
     library_version.library.categories.add(category)
     # Create a new library version that is not in the selected category
+    new_lib = baker.make("libraries.Library", name="New")
     new_lib_version = baker.make(
-        "libraries.LibraryVersion", version=library_version.version
+        "libraries.LibraryVersion", version=library_version.version, library=new_lib
     )
     res = tp.get(f"/libraries/?category={category.slug}")
     tp.response_200(res)
@@ -63,9 +64,12 @@ def test_library_list_select_category(library_version, category, tp):
 
 def test_library_list_select_version(library_version, tp):
     """GET /libraries/?version={{ slug }} loads filtered results"""
-    new_version = baker.make("versions.Version")
+    new_version = baker.make("versions.Version", name="New")
+    new_lib = baker.make("libraries.Library", name="New")
     # Create a new library version that is not in the selected version
-    new_lib_version = baker.make("libraries.LibraryVersion", version=new_version)
+    new_lib_version = baker.make(
+        "libraries.LibraryVersion", version=new_version, library=new_lib
+    )
     res = tp.get(f"/libraries/?version={library_version.version.slug}")
     tp.response_200(res)
     assert library_version.library in res.context["library_list"]
