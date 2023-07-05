@@ -5,7 +5,9 @@
 
   <div class="space-y-3">
   {% for field in form.visible_fields %}
+    <div>
     {% include "includes/_form_input.html" with form=form field=field %}
+    </div>
   {% endfor %}
   </div>
 
