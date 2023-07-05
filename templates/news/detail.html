@@ -53,7 +53,7 @@
       {% endif %}
 
       {% if entry.image %}
-      <img src="{{ entry.image.url }}" class="float-left mr-5 mb-5" width="200">
+      <img src="{{ entry.image.url }}" class="mb-5 w-full h-auto md:float-left md:mr-5 md:w-1/6 md:min-w-[200px]">
       {% endif %}
       {{ entry.content|linebreaks }}
 

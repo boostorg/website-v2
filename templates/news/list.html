@@ -110,7 +110,7 @@
               {{ entry.title }}
             </a></h2>
             {% if entry.image %}
-            <img src="{{ entry.image.url }}" class="mb-5 ml-5 w-full h-auto md:float-right md:w-1/6">
+            <img src="{{ entry.image.url }}" class="mb-5 w-full h-auto md:float-right md:ml-5 md:w-1/6 md:min-w-[200px]">
             {% endif %}
             {% if entry.content %}
             <p class="text-base text-gray-500 dark:text-white/70">{{ entry.content|truncatechars:300 }}</p>
