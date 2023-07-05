@@ -38,7 +38,7 @@ def command(release, token):
 
     for version in versions:
         click.echo(f"Processing version {version.name}...")
-        ref = client.get_ref(ref=version.name)
+        ref = client.get_ref(ref=f"tags/{version.name}")
         try:
             raw_gitmodules = client.get_gitmodules(ref=ref)
         except HTTP422UnprocessableEntityError as e:

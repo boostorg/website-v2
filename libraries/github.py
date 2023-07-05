@@ -268,9 +268,7 @@ class GithubAPIClient:
             repo_slug = self.repo_slug
         if not ref:
             ref = self.ref
-        return self.api.git.get_ref(
-            owner=self.owner, repo=repo_slug, ref=f"heads/{ref}"
-        )
+        return self.api.git.get_ref(owner=self.owner, repo=repo_slug, ref=ref)
 
     def get_repo(self, repo_slug: str = None) -> dict:
         """
