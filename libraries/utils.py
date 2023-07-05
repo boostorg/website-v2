@@ -1,3 +1,5 @@
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import structlog
 import tempfile
 
@@ -24,6 +26,14 @@ def generate_fake_email(val: str) -> str:
     slug = slugify(val)
     local_email = slug.replace("-", "_")[:50]
     return f"{local_email}@example.com"
+
+
+def get_first_last_day_last_month():
+    now = datetime.now()
+    first_day_this_month = now.replace(day=1)
+    last_day_last_month = first_day_this_month - relativedelta(days=1)
+    first_day_last_month = last_day_last_month.replace(day=1)
+    return first_day_last_month, last_day_last_month
 
 
 def parse_date(date_str):
