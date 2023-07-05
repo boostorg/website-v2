@@ -1,9 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 import os
 
 from libraries.utils import (
     decode_content,
     generate_fake_email,
+    get_first_last_day_last_month,
     parse_date,
     write_content_to_tempfile,
 )
@@ -24,6 +26,28 @@ def test_generate_fake_email():
     result = generate_fake_email(sample)
     assert expected in result
     assert "@example.com" in result
+
+
+def test_get_first_last_day_last_month():
+    first_day, last_day = get_first_last_day_last_month()
+
+    # Assert that the first day is indeed the first day of the month
+    assert first_day.day == 1
+
+    # Assert that the last day is the last day of the month
+    assert (last_day + relativedelta(days=1)).day == 1
+
+    # Assert that the difference between first day and last day is within one month
+    assert (last_day - first_day) < timedelta(days=31)
+    assert (last_day - first_day) >= timedelta(days=28)
+
+    # Assert that both dates are less than today's date
+    assert first_day < datetime.now()
+    assert last_day < datetime.now()
+
+    # Assert that both dates belong to the same month and year
+    assert first_day.month == last_day.month
+    assert first_day.year == last_day.year
 
 
 def test_parse_date_iso():
