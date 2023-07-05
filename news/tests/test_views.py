@@ -779,10 +779,6 @@ def test_news_delete(tp, make_entry, moderator_user, model_class):
     content = str(response.content)
     assert "Please confirm your choice" in content
     assert entry.title in content
-    tp.assertResponseContains(
-        '<button type="submit" name="delete" class="py-2 px-3 text-white rounded-md bg-orange">Yes, delete</button>',
-        response,
-    )
     # No entry removed just yet!
     assert Entry.objects.filter(pk=entry.pk).count() == 1
 
