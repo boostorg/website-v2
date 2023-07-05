@@ -75,8 +75,10 @@ def command(
             click.echo(f"Skipping {name}, already exists in database")
             continue
 
-        # Skip beta releases, release candidates, etc.
-        if any(["beta" in name.lower(), "-rc" in name.lower()]):
+        # Skip beta releases, release candidates, and pre-1.0 versions
+        if any(
+            ["beta" in name.lower(), "-rc" in name.lower(), "boost-0" in name.lower()]
+        ):
             click.echo(f"Skipping {name}, not a full release")
             continue
 
