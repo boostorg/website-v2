@@ -4,6 +4,7 @@ from celery.schedules import crontab
 
 from config.celery import app
 from libraries.github import LibraryUpdater
+from libraries.utils import get_first_last_day_last_month
 
 
 logger = structlog.getLogger(__name__)
@@ -28,7 +29,8 @@ def update_libraries():
     from GitHub.
 
     """
+    since, until = get_first_last_day_last_month()
     updater = LibraryUpdater()
-    updater.update_libraries()
+    updater.update_libraries(since=since, until=until)
 
     logger.info("libraries_tasks_update_libraries_finished")
