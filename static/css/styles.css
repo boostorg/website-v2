@@ -1275,10 +1275,6 @@ input[type=file] {
   margin-bottom: 2.5rem;
 }
 
-.-mt-8 {
-  margin-top: -2rem;
-}
-
 .ml-5 {
   margin-left: 1.25rem;
 }
@@ -1365,6 +1361,10 @@ input[type=file] {
 
 .h-12 {
   height: 3rem;
+}
+
+.h-auto {
+  height: auto;
 }
 
 .max-h-\[470px\] {
@@ -2952,6 +2952,10 @@ input[type=file] {
     float: right;
   }
 
+  .md\:float-left {
+    float: left;
+  }
+
   .md\:my-16 {
     margin-top: 4rem;
     margin-bottom: 4rem;
@@ -3029,14 +3033,6 @@ input[type=file] {
     margin-left: 1.5rem;
   }
 
-  .md\:ml-\[200px\] {
-    margin-left: 200px;
-  }
-
-  .md\:-ml-\[213px\] {
-    margin-left: -213px;
-  }
-
   .md\:block {
     display: block;
   }
@@ -3107,18 +3103,6 @@ input[type=file] {
 
   .md\:w-\[70\%\] {
     width: 70%;
-  }
-
-  .md\:w-\[90\%\] {
-    width: 90%;
-  }
-
-  .md\:w-\[200px\] {
-    width: 200px;
-  }
-
-  .md\:w-\[150px\] {
-    width: 150px;
   }
 
   .md\:min-w-\[150px\] {
@@ -3237,10 +3221,6 @@ input[type=file] {
     border-bottom-width: 1px;
   }
 
-  .md\:border-l-2 {
-    border-left-width: 2px;
-  }
-
   .md\:border-b-0 {
     border-bottom-width: 0px;
   }
@@ -3348,10 +3328,6 @@ input[type=file] {
 
   .md\:pl-11 {
     padding-left: 2.75rem;
-  }
-
-  .md\:text-center {
-    text-align: center;
   }
 
   .md\:text-right {
