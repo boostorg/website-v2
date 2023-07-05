@@ -123,7 +123,7 @@
                 <a href="{% url 'account_signup' %}" class="inline font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">Join</a>
               {% else %}
                 {% if user.image %}
-                  <img src="{{ user.image.url }}" alt="user" class="inline -mt-1 rounded-sm cursor-pointer w-[30px]" @click="userOpen = !userOpen" />
+                  <img src="{{ user.image.url }}" alt="user" class="inline -mt-1 rounded cursor-pointer w-[30px]" @click="userOpen = !userOpen" />
                 {% else %}
                   <i class="inline mr-2 cursor-pointer fas fa-user text-charcoal dark:text-white/60" @click="userOpen = !userOpen"></i>
                 {% endif %}

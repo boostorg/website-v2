@@ -98,9 +98,9 @@
           </div>
           <div class="hidden pt-2 mt-4 text-xs text-left md:block w-[70px]">
             {% if entry.author.image %}
-              <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="inline rounded-sm w-[30px]" />
+              <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="inline rounded w-[30px]" />
             {% else %}
-              <span class="inline px-2 pt-3 pb-1 bg-white rounded-sm dark:text-white dark:bg-slate">
+              <span class="inline px-2 pt-3 pb-1 bg-white rounded dark:text-white dark:bg-slate">
                 <i class="text-2xl fas fa-user" title="{{ entry.author.get_full_name }}"></i>
               </span>
             {% endif %}
