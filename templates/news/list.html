@@ -106,7 +106,7 @@
             {% endif %}
           </div>
           <div class="block p-6 mb-10 w-full bg-white rounded-lg md:ml-6 dark:bg-charcoal">
-            <h2 class="text-xl font-semibold"><a class="text-orange hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+            <h2 class="py-0 my-0 text-xl font-semibold"><a class="text-orange hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
               {{ entry.title }}
             </a></h2>
             {% if entry.image %}
