@@ -684,6 +684,7 @@ class LibraryUpdater:
 
         for author in authors:
             person_data = self.parser.extract_contributor_data(author)
+            email = person_data["email"]
             user = User.objects.find_contributor(
                 email=person_data["email"],
                 first_name=person_data["first_name"],
@@ -696,6 +697,11 @@ class LibraryUpdater:
                     email = generate_fake_email(
                         f"{person_data['first_name']} {person_data['last_name']}"
                     )
+                    # With a new email, we may have a user record
+                    user = User.objects.find_contributor(email=email)
+
+            # If still no user, generate a fake one
+            if not user:
                 user = User.objects.create_stub_user(email.lower(), **person_data)
                 self.logger.info(f"User {user.email} created.")
 
