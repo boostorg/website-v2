@@ -619,7 +619,6 @@ class LibraryUpdater:
 
     def update_libraries(self):
         """Update all libraries with the metadata"""
-        # TODO: Edit this to work with a specific tag
         raw_gitmodules = self.client.get_gitmodules()
         gitmodules = self.parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
         library_data = self.get_library_list(gitmodules=gitmodules)
@@ -632,9 +631,9 @@ class LibraryUpdater:
             obj = self.update_library(lib)
             if not obj:
                 continue
-            self.update_categories(obj, categories=library_data["category"])
-            self.update_authors(obj, authors=library_data["authors"])
-            self.update_monthly_commit_data(obj)
+            self.update_categories(obj, categories=lib["category"])
+            self.update_authors(obj, authors=lib["authors"])
+            self.update_monthly_commit_counts(obj)
             self.update_issues(obj)
             self.update_prs(obj)
 
@@ -746,8 +745,8 @@ class LibraryUpdater:
             obj.maintainers.add(user)
             self.logger.info(f"User {user.email} added as a maintainer of {obj}")
 
-    def update_monthly_commit_data(
-        self, obj: Library, commit_data: dict, branch: str = "master"
+    def update_monthly_commit_counts(
+        self, obj: Library, branch: str = "master", since=None, until=None
     ):
         """Update the monthly commit data for a library.
 
@@ -759,8 +758,11 @@ class LibraryUpdater:
         Note: Overrides CommitData objects for the library; does not increment
         the count.
         """
-        # TODO: Update this so it's smarter and can just be called like the others
         self.logger.info("updating_monthly_commit_data")
+        commits = self.client.get_commits(
+            repo_slug=obj.github_repo, branch=branch, since=since, until=until
+        )
+        commit_data = self.parser.get_commits_per_month(commits)
 
         for month_year, commit_count in commit_data.items():
             data_obj, created = obj.commit_data.update_or_create(

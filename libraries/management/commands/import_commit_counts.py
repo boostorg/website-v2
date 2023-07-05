@@ -19,11 +19,7 @@ def command(branch, token):
     updater = LibraryUpdater(client=GithubAPIClient(token=token))
 
     for library in Library.objects.all():
-        commits = updater.client.get_commits(
-            repo_slug=library.github_repo, branch=branch
-        )
-        commit_data = updater.parser.get_commits_per_month(commits)
-        updater.update_monthly_commit_data(library, commit_data, branch=branch)
+        updater.update_monthly_commit_counts(library, branch=branch)
         library.refresh_from_db()
         click.secho(
             f"Updated {library.name} commits; {library.commit_data.count()} monthly "
