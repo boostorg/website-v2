@@ -3,6 +3,7 @@ import djclick as click
 from fastcore.net import HTTP422UnprocessableEntityError
 from libraries.github import GithubAPIClient, GithubDataParser, LibraryUpdater
 from libraries.models import Library, LibraryVersion
+from libraries.utils import parse_date
 from versions.models import Version
 
 
@@ -37,9 +38,6 @@ def command(release, token):
 
     for version in versions:
         click.echo(f"Processing version {version.name}...")
-
-        # Get the .gitmodules for this version using the version name, which is also the
-        # git tag
         ref = client.get_ref(ref=version.name)
         try:
             raw_gitmodules = client.get_gitmodules(ref=ref)
@@ -60,6 +58,11 @@ def command(release, token):
                 continue
 
             libraries_json = client.get_libraries_json(repo_slug=library_name)
+            github_data = client.get_repo(repo_slug=library_name)
+            extra_data = {
+                "last_github_update": parse_date(github_data.get("updated_at", "")),
+                "github_url": github_data.get("html_url", ""),
+            }
 
             # If the libraries.json file exists, we can use it to get the library info
             if libraries_json:
@@ -72,8 +75,10 @@ def command(release, token):
                     parser.parse_libraries_json(lib) for lib in libraries
                 ]
                 for lib_data in parsed_libraries:
+                    lib_data.update(extra_data)
+                    library = updater.update_library(lib_data)
                     library_version = handle_library_version(
-                        version, lib_data["name"], lib_data["maintainers"], updater
+                        version, library, lib_data["maintainers"], updater
                     )
                     if not library_version:
                         click.secho(
@@ -92,13 +97,15 @@ def command(release, token):
                 # exist, so when it isn't present, we search for the library by the
                 # module name and try to save the LibraryVersion that way.
                 click.echo(
-                    f"Could not get libraries.json for {library_name}; will try to "
+                    f"Could not get libraries.json for {lib_data['name']}; will try to "
                     f"save by gitmodule name."
                 )
-                library_version = handle_library_version(
-                    version, library_name, [], updater
-                )
-                if not library_version:
+                try:
+                    library = Library.objects.get(name=lib_data["name"])
+                    library_version = handle_library_version(
+                        version, library, [], updater
+                    )
+                except Library.DoesNotExist:
                     click.secho(
                         f"Could not save library version {lib_data['name']}.", fg="red"
                     )
@@ -109,6 +116,7 @@ def command(release, token):
                             "reason": "Could not save library version",
                         }
                     )
+                    continue
 
     skipped_messages = [
         f"Skipped {obj['library']} in {obj['version']}: {obj['reason']}"
@@ -121,17 +129,8 @@ def command(release, token):
         click.secho(message, fg="red")
 
 
-def handle_library_version(version, library_name, maintainers, updater):
+def handle_library_version(version, library, maintainers, updater):
     """Handles the creation and updating of a LibraryVersion instance."""
-    try:
-        library = Library.objects.get(name=library_name)
-    except Library.DoesNotExist:
-        click.secho(
-            f"Could not find library by gitmodule name; skipping {library_name}",
-            fg="red",
-        )
-        return
-
     library_version, created = LibraryVersion.objects.get_or_create(
         version=version, library=library
     )
