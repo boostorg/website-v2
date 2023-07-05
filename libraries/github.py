@@ -130,7 +130,9 @@ class GithubAPIClient:
                 all_commits.extend(page)
 
         except Exception as e:
-            self.logger.exception("get_all_commits_failed", repo=repo_slug, msg=str(e))
+            self.logger.exception(
+                "get_all_commits_failed", repo=repo_slug, exc_msg=str(e)
+            )
             return []
 
         return all_commits
@@ -617,7 +619,7 @@ class LibraryUpdater:
 
         return libraries
 
-    def update_libraries(self):
+    def update_libraries(self, since: datetime = None, until: datetime = None):
         """Update all libraries with the metadata"""
         raw_gitmodules = self.client.get_gitmodules()
         gitmodules = self.parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
@@ -633,10 +635,7 @@ class LibraryUpdater:
                 continue
             self.update_categories(obj, categories=lib["category"])
             self.update_authors(obj, authors=lib["authors"])
-            self.update_monthly_commit_counts(obj)
-            self.update_issues(obj)
-            self.update_prs(obj)
-
+            self.update_monthly_commit_counts(obj, since=since, until=until)
             if not obj.first_github_tag_date:
                 self.update_first_github_tag_date(obj)
 

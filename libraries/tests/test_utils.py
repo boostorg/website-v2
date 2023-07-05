@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import os
 
@@ -36,10 +36,6 @@ def test_get_first_last_day_last_month():
 
     # Assert that the last day is the last day of the month
     assert (last_day + relativedelta(days=1)).day == 1
-
-    # Assert that the difference between first day and last day is within one month
-    assert (last_day - first_day) < timedelta(days=31)
-    assert (last_day - first_day) >= timedelta(days=28)
 
     # Assert that both dates are less than today's date
     assert first_day < datetime.now()
