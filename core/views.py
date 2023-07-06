@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
 from django.http import Http404, HttpResponse, HttpResponseNotFound
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView
 
@@ -148,13 +148,20 @@ class StaticContentTemplateView(TemplateView):
         """Returns static content that originates in S3, but is cached in a couple of
         different places.
 
-        Any valid S3 key to the S3 bucket apecified in settings can be returned by
+        Any valid S3 key to the S3 bucket specified in settings can be returned by
         this view. Pages like the Help page are stored in S3 and rendered via
         this view, for example.
 
         See the *_static_config.json files for URL mappings to specific S3 keys.
         """
         content_path = self.kwargs.get("content_path")
+
+        # For some reason, if a user cancels a social signup (cancelling a GitHub
+        # signup, for example), the redirect URL comes through this view, so we
+        # must manually redirect it.
+        if "accounts/github/login/callback" in content_path:
+            return redirect(content_path)
+
         try:
             self.content_dict = self.get_content(content_path)
         except ContentNotFoundException:
