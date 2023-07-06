@@ -10,13 +10,13 @@ from django.views.generic.edit import FormMixin
 from versions.models import Version
 from .forms import VersionSelectionForm
 from .github import GithubAPIClient
-from .mixins import CategoryMixin, VersionAlertMixin
+from .mixins import VersionAlertMixin
 from .models import Category, CommitData, Library, LibraryVersion
 
 logger = structlog.get_logger()
 
 
-class LibraryList(CategoryMixin, VersionAlertMixin, ListView):
+class LibraryList(VersionAlertMixin, ListView):
     """List all of our libraries for a specific Boost version, or default
     to the current version."""
 
@@ -51,9 +51,17 @@ class LibraryList(CategoryMixin, VersionAlertMixin, ListView):
             context["version"] = Version.objects.get(slug=self.request.GET["version"])
         else:
             context["version"] = Version.objects.most_recent()
+        context["categories"] = self.get_categories(context["version"])
         context["versions"] = Version.objects.active().order_by("-release_date")
         context["library_list"] = self.get_queryset()
         return context
+
+    def get_categories(self, version=None):
+        return (
+            Category.objects.filter(libraries__versions=version)
+            .distinct()
+            .order_by("name")
+        )
 
 
 class LibraryListMini(LibraryList):
@@ -92,7 +100,7 @@ class LibraryListByCategoryMini(LibraryListByCategory):
     template_name = "libraries/list.html"
 
 
-class LibraryDetail(CategoryMixin, FormMixin, DetailView):
+class LibraryDetail(FormMixin, DetailView):
     """Display a single Library in insolation"""
 
     form_class = VersionSelectionForm
