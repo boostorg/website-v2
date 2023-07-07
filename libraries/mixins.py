@@ -1,17 +1,9 @@
 import structlog
 
 from versions.models import Version
-from .models import Category
 
 
 logger = structlog.get_logger()
-
-
-class CategoryMixin:
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["categories"] = Category.objects.all().order_by("name")
-        return context
 
 
 class VersionAlertMixin:

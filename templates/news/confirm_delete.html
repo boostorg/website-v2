@@ -2,13 +2,18 @@
 {% load i18n %}
 
 {% block content %}
-<h1>{% translate "Please confirm your choice below" %}</h1>
-<p>{% blocktrans with entry_title=entry.title %}
-Are you sure you want to permanently delete {{ entry_title }}?
-{% endblocktrans %}</p>
-<form method="POST" action="{% url 'news-delete' entry.slug %}">
-  {% csrf_token %}
-  <button type="submit" name="delete">{% translate "Yes, delete" %}</button>
-</form>
-<p><a href="{% url 'news-detail' entry.slug %}">{% translate "No, take me back!" %}</a></p>
+<div class="py-0 px-3 mb-3 text-center md:py-6 md:px-0">
+  <h1 class="text-4xl">{% translate "Please confirm your choice below" %}</h1>
+  <p>
+  {% blocktrans with entry_title=entry.title %}
+  Are you sure you want to permanently delete <strong>{{ entry_title }}</strong>?
+  {% endblocktrans %}
+  </p>
+
+  <form method="POST" action="{% url 'news-delete' entry.slug %}">
+    {% csrf_token %}
+    <button type="submit" name="delete" class="py-2 px-3 text-white rounded-md bg-orange">{% translate "Yes, Delete" %}</button>
+  </form>
+  <p><a href="{% url 'news-detail' entry.slug %}">{% translate "No, take me back!" %}</a></p>
+</div>
 {% endblock %}
