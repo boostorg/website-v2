@@ -439,19 +439,20 @@ else:
     }
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 # CORS_ALLOWED_ORIGINS = [
 #     "https://localhost:5252",
 #     "http://192.168.1.81:5252",
 #     "http://localhost:8080",
 # ]
-# CORS_ALLOW_METHODS = (
-#     "DELETE",
-#     "GET",
-#     "OPTIONS",
-#     "PATCH",
-#     "POST",
-#     "PUT",
-# )
+CORS_ALLOW_METHODS = (
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+)
 from corsheaders.defaults import default_headers
 
 CORS_ALLOW_HEADERS = (

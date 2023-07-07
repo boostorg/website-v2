@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
 from django.http import Http404, HttpResponse, HttpResponseNotFound
+from django.shortcuts import render
 from django.views import View
 from django.views.generic import TemplateView
 
@@ -274,3 +275,15 @@ class StaticContentTemplateView(TemplateView):
     def convert_adoc_to_html(self, content):
         """Renders asciidoc content to HTML."""
         return process_adoc_to_html_content(content)
+
+
+def antora_header_view(request):
+    print(request.user)
+    print(request.headers)
+    return render(request, "includes/_header.html")
+
+
+def antora_footer_view(request):
+    print(request.user)
+    print(request.headers)
+    return render(request, "includes/_footer.html")

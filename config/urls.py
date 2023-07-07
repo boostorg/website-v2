@@ -16,7 +16,6 @@ from users.views import (
     ProfilePhotoGitHubUpdateView,
     ProfilePhotoUploadView,
     ProfilePreferencesView,
-    CurrentUserFragmentView,
 )
 from ak.views import (
     HomepageView,
@@ -26,7 +25,13 @@ from ak.views import (
     OKView,
     HomepageBetaView,
 )
-from core.views import ClearCacheView, MarkdownTemplateView, StaticContentTemplateView
+from core.views import (
+    ClearCacheView,
+    MarkdownTemplateView,
+    StaticContentTemplateView,
+    antora_header_view,
+    antora_footer_view,
+)
 from libraries.views import (
     LibraryList,
     LibraryListMini,
@@ -84,6 +89,9 @@ urlpatterns = (
             name="profile-preferences",
         ),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
+        # Temp route to prove antora header
+        path("testheader/", antora_header_view, name="antora-header"),
+        path("testfooter/", antora_footer_view, name="antora-footer"),
         path("users/<int:pk>/", ProfileView.as_view(), name="profile-user"),
         path("api/v1/users/me/", CurrentUserAPIView.as_view(), name="current-user"),
         path("api/v1/", include(router.urls)),
