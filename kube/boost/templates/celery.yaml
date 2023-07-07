@@ -1,0 +1,82 @@
+{{- if .Values.celeryInstall }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-worker
+  labels:
+    app: celery-worker
+    env: {{.Values.deploymentEnvironment}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: celery-worker
+      env: {{.Values.deploymentEnvironment}}
+  template:
+    metadata:
+      labels:
+        app: celery-worker
+        env: {{.Values.deploymentEnvironment}}
+        imageTag: {{.Values.ImageTag}}
+    spec:
+      imagePullSecrets:
+        - name: revsys-docker-registry
+      containers:
+        -
+          name: celery-worker
+          image: {{.Values.Image}}:{{.Values.ImageTag}}
+          command: ["celery", "-A", "config", "worker", "--concurrency=5", "--loglevel=debug"]
+          resources:
+            limits:
+              cpu: 250m
+              ephemeral-storage: 1Gi
+              memory: 1Gi
+            requests:
+              cpu: 250m
+              ephemeral-storage: 1Gi
+              memory: 1Gi
+          env:
+{{ toYaml .Values.Env | indent 12 }}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-beat
+  labels:
+    app: celery-beat
+    env: {{.Values.deploymentEnvironment}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: celery-beat
+      env: {{.Values.deploymentEnvironment}}
+  template:
+    metadata:
+      labels:
+        app: celery-beat
+        env: {{.Values.deploymentEnvironment}}
+        imageTag: {{.Values.ImageTag}}
+    spec:
+      imagePullSecrets:
+        - name: revsys-docker-registry
+      containers:
+        -
+          name: celery-beat
+          image: {{.Values.Image}}:{{.Values.ImageTag}}
+          command: ["celery", "-A", "config", "beat", "--loglevel=debug"]
+          resources:
+            limits:
+              cpu: 250m
+              ephemeral-storage: 1Gi
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              ephemeral-storage: 1Gi
+              memory: 512Mi
+          env:
+{{ toYaml .Values.Env | indent 12 }}
+{{ end }}
