@@ -4,7 +4,7 @@
 {% block content %}
   <main>
     {% comment %} Homepage Hero {% endcomment %}
-    <div class="px-6 md:px-4 my-4 mx-auto">
+    <div class="px-6 my-4 mx-auto md:px-4">
       <div class="grid grid-rows-1 auto-rows-fr md:grid-cols-2 md:gap-x-10 md:mb-10">
         <div class="h-full">
           <h1 class="text-4xl font-extrabold md:text-6xl">Boost your C++</h1>
@@ -14,7 +14,7 @@
           </p>
           <select id="version"
                   name="version"
-                  class="block py-1 pr-8 pl-5 mb-3 w-48 text-sm text-black bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block  dark:text-white dark:bg-black dark:border-slate">
+                  class="block py-1 pr-8 pl-5 mb-3 w-48 text-sm text-black bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block dark:text-white dark:bg-black dark:border-slate">
             <option>Boost 1.82.0 - Apr/23</option>
             {% for v in versions122 %}
               <option value="{{ v.pk }}"
@@ -22,11 +22,11 @@
             {% endfor %}
           </select>
           <a href="{% url 'releases' %}"
-             class="block whitespace-nowrap w-min py-3 mb-3 px-8 text-sm font-medium text-white rounded-md border  md:text-base lg:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
+             class="block py-3 px-8 mb-3 w-min text-sm font-medium text-white whitespace-nowrap rounded-md border md:text-base lg:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
             <i class="pr-2 text-white fas fa-arrow-circle-down dark:text-orange"></i> Download Latest
           </a>
           <a href="{% url 'releases' %}"
-             class="text-xs  text-slate dark:text-sky-600">
+             class="text-xs text-slate dark:text-sky-600">
             Version Details <i class="pl-1 fas fa-chevron-right text-slate dark:text-sky-600"></i>
           </a>
         </div>
@@ -35,9 +35,9 @@
     {% comment %} Section 2 {% endcomment %}
     <div class="px-4 my-4 mx-auto">
       <div class="grid grid-cols-1 grid-rows-2 gap-y-10 lg:grid-cols-5 lg:grid-rows-1 lg:gap-y-0 lg:gap-x-2 lg:mb-10 bg-gray-400 dark:bg-gray-900  bg-opacity-10 rounded-md drop-shadow-md transition-all ease-in-out duration-500 transform hover:shadow-[0_0_5px_5px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_5px_5px_rgba(0,100,100,0.05)]">
-        <div class="flex flex-col col-span-1 p-5 h-full lg:col-span-2 relative">
+        <div class="flex relative flex-col col-span-1 p-5 h-full lg:col-span-2">
           <div class="mb-6">
-            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-emerald-700 bg-emerald-200 dark:bg-opacity-10">library spotlight</span>
+            <span class="inline py-1 px-3 w-auto text-sm text-emerald-700 uppercase bg-emerald-200 rounded md:text-base dark:bg-opacity-10">library spotlight</span>
           </div>
           <div class="absolute top-0 right-0 p-2 group">
             <a href="{% url 'libraries' %}"
@@ -46,16 +46,16 @@
             </a>
           </div>
           <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">Accumulators</h3>
-          <span class="mx-auto w-full text-sm align-left pb-1">
+          <span class="pb-1 mx-auto w-full text-sm align-left">
             Framework for incremental calculation, and collection of statistical accumulators.
           </span>
-          <div class="px-4 py-4 space-y-2 w-full bg-white rounded-lg dark:bg-charcoal">
-            <div class="flex items-center relative">
+          <div class="py-4 px-4 space-y-2 w-full bg-white rounded-lg dark:bg-charcoal">
+            <div class="flex relative items-center">
               <input type="text"
-                     class="flex flex-grow bg-sky-200 dark:bg-white text-gray-600 text-xs pr-20  h-7 border-transparent focus:border-transparent focus:ring-0"
+                     class="flex flex-grow pr-20 h-7 text-xs text-gray-600 border-transparent dark:bg-white focus:border-transparent focus:ring-0 bg-sky-200"
                      value="vcpkg install boost-accumulators"
                      readOnly="readOnly" />
-              <button class="flex items-center justify-center absolute right-0 top-0 h-full w-8 shadow bg-silver font-semibold">
+              <button class="flex absolute top-0 right-0 justify-center items-center w-8 h-full font-semibold shadow bg-silver">
                 <svg fill="#000000"
                      viewBox="-8 -5 50 50"
                      version="1.1"
@@ -72,12 +72,12 @@
                 </svg>
               </button>
             </div>
-            <div class="flex items-center relative">
+            <div class="flex relative items-center">
               <input type="text"
-                     class="flex flex-grow bg-sky-200 dark:bg-white text-gray-600 text-xs pr-20  h-7 border-transparent focus:border-transparent focus:ring-0"
+                     class="flex flex-grow pr-20 h-7 text-xs text-gray-600 border-transparent dark:bg-white focus:border-transparent focus:ring-0 bg-sky-200"
                      value="conan install boost-accumulators"
                      readOnly="readOnly" />
-              <button class="flex items-center justify-center absolute right-0 top-0 h-full w-8 shadow bg-silver font-semibold">
+              <button class="flex absolute top-0 right-0 justify-center items-center w-8 h-full font-semibold shadow bg-silver">
                 <svg fill="#000000"
                      viewBox="-8 -5 50 50"
                      version="1.1"
@@ -94,12 +94,12 @@
                 </svg>
               </button>
             </div>
-            <div class="flex items-center relative">
+            <div class="flex relative items-center">
               <input type="text"
-                     class="flex flex-grow bg-sky-200 dark:bg-white text-gray-600 text-xs pr-20  h-7 border-transparent focus:border-transparent focus:ring-0"
+                     class="flex flex-grow pr-20 h-7 text-xs text-gray-600 border-transparent dark:bg-white focus:border-transparent focus:ring-0 bg-sky-200"
                      value="apt-get boost-accumulators"
                      readOnly="readOnly" />
-              <button class="flex items-center justify-center absolute right-0 top-0 h-full w-8 shadow bg-silver font-semibold">
+              <button class="flex absolute top-0 right-0 justify-center items-center w-8 h-full font-semibold shadow bg-silver">
                 <svg fill="#000000"
                      viewBox="-8 -5 50 50"
                      version="1.1"
@@ -130,51 +130,51 @@
       <div class="bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md drop-shadow-md  transition-all ease-in-out duration-500 transform hover:shadow-[0_0_5px_5px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_0_5px_5px_rgba(0,100,100,0.05)]">
         <div class="p-5 w-full">
           <div class="mb-6">
-            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-emerald-700 bg-emerald-200 dark:bg-opacity-10">schedule of events</span>
+            <span class="inline py-1 px-3 w-auto text-sm text-emerald-700 uppercase bg-emerald-200 rounded md:text-base dark:bg-opacity-10">schedule of events</span>
           </div>
         </div>
-        <div class="h-full flex flex-col justify-center items-center pb-4">
-          <div class="w-4/5 mx-auto relative"
+        <div class="flex flex-col justify-center items-center pb-4 h-full">
+          <div class="relative mx-auto w-4/5"
                x-data="{ activeSlide: 1, slides: [1, 2, 3] }">
             <!-- Slides -->
             <div x-show="activeSlide === 1"
-                 class="py-0 px-12 font-bold text-5xl h-full flex items-center text-white rounded-lg">
+                 class="flex items-center py-0 px-12 h-full text-5xl font-bold text-white rounded-lg">
               <div class="w-full">
                 <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">May 2023</h3>
-                <span class="mx-auto w-full text-sm align-left pb-1">
+                <span class="pb-1 mx-auto w-full text-sm align-left">
                   29th: SAM review
                   <br />
                 </span>
               </div>
             </div>
             <div x-show="activeSlide === 2"
-                 class="py-0 px-12 font-bold text-5xl h-full flex items-center text-white rounded-lg">
+                 class="flex items-center py-0 px-12 h-full text-5xl font-bold text-white rounded-lg">
               <div class="w-full">
                 <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">June 2023</h3>
-                <span class="mx-auto w-full text-sm align-left pb-1">
+                <span class="pb-1 mx-auto w-full text-sm align-left">
                   29th: SAM review
                   <br />
                 </span>
               </div>
             </div>
             <div x-show="activeSlide === 3"
-                 class="py-0 px-12 font-bold text-5xl h-full flex items-center text-white rounded-lg">
+                 class="flex items-center py-0 px-12 h-full text-5xl font-bold text-white rounded-lg">
               <div class="w-full">
                 <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">July 2023</h3>
-                <span class="mx-auto w-full text-sm align-left pb-1">
+                <span class="pb-1 mx-auto w-full text-sm align-left">
                   29th: SAM review
                   <br />
                 </span>
               </div>
             </div>
             <!-- Prev/Next Arrows -->
-            <div class="absolute inset-0 flex">
-              <div class="flex items-center justify-start w-1/2">
-                <button class="bg-gray-400 text-white font-bold  rounded-full w-12 h-12 -ml-6"
+            <div class="flex absolute inset-0">
+              <div class="flex justify-start items-center w-1/2">
+                <button class="-ml-6 w-12 h-12 font-bold text-white bg-gray-400 rounded-full"
                         x-on:click="activeSlide = activeSlide === 1 ? slides.length : activeSlide - 1">&#8592;</button>
               </div>
-              <div class="flex items-center justify-end w-1/2">
-                <button class="bg-gray-400 text-white font-bold  rounded-full w-12 h-12 -mr-6"
+              <div class="flex justify-end items-center w-1/2">
+                <button class="-mr-6 w-12 h-12 font-bold text-white bg-gray-400 rounded-full"
                         x-on:click="activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1">&#8594;</button>
               </div>
             </div>
@@ -187,7 +187,7 @@
       <div class="bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md drop-shadow-md hover:drop-shadow-[0_15px_15px_rgba(0,100,100,0.05)] md:mb-10">
         <div class="p-5 w-full">
           <div class="mb-6">
-            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-emerald-700 bg-emerald-200 dark:bg-opacity-10">news from boost and c++</span>
+            <span class="inline py-1 px-3 w-auto text-sm text-emerald-700 uppercase bg-emerald-200 rounded md:text-base dark:bg-opacity-10">news from boost and c++</span>
           </div>
         </div>
         <div class="grid grid-cols-1 grid-rows-2 gap-y-10 md:grid-cols-2 md:grid-rows-1 md:gap-x-10 lg:gap-y-0">
@@ -195,7 +195,7 @@
             <div class="">
               <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">Article Name</h3>
               <p class="mb-3">Category | 4/5/22</p>
-              <p class="mb-3 overflow-x-auto">
+              <p class="overflow-x-auto mb-3">
                 Boost.MySQL is an Asio-based network client which lets you access MySQL
                 and MariaDB databases using your own data types New in Boost 1.82.0,
                 check it out here https://https://boost.org/libs/mysql Get Boost:
@@ -209,7 +209,7 @@
             <div class="">
               <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">Article Name</h3>
               <p class="mb-3">Category | 4/5/22</p>
-              <p class="mb-3 overflow-x-auto">
+              <p class="overflow-x-auto mb-3">
                 Boost 1.82.0 is released for the Spring season! Release Notes:
                 https://boost.org/users/history/version_1_82_0.html Downloads:
                 http://boost.org/users/news/version_1.82.0 Direct Download:
@@ -227,15 +227,15 @@
       <div class="bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md drop-shadow-md hover:drop-shadow-[0_15px_15px_rgba(0,100,100,0.05)] md:mb-10">
         <div class="p-5 w-full">
           <div class="mb-6">
-            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-emerald-700 bg-emerald-200 dark:bg-opacity-10">activity April 21, 2023 - May 20, 2023</span>
+            <span class="inline py-1 px-3 w-auto text-sm text-emerald-700 uppercase bg-emerald-200 rounded md:text-base dark:bg-opacity-10">activity April 21, 2023 - May 20, 2023</span>
           </div>
         </div>
-        
-          <div class="grid grid-cols-1 md:grid-cols-3 group justify-around">
-            <div class="p-10 flex flex-col items-center text-center group">
-              <span class="p-5 rounded-full bg-red-500 text-white">
+
+          <div class="grid grid-cols-1 justify-around md:grid-cols-3 group">
+            <div class="flex flex-col items-center p-10 text-center group">
+              <span class="p-5 text-white bg-red-500 rounded-full">
                 <svg xmlns="http://www.w3.org/2000/svg"
-                     class="h-10 w-10"
+                     class="w-10 h-10"
                      fill="none"
                      viewBox="0 0 24 24"
                      stroke="currentColor"
@@ -244,7 +244,7 @@
                 </svg>
               </span>
               <div class="mx-auto mt-2">
-                <div class="grid grid-cols-2 row-gap-8 gap-x-3">
+                <div class="grid grid-cols-2 gap-x-3 row-gap-8">
                   <div class="text-center">
                     <h6 class="text-base font-bold">6,801</h6>
                     <p class="pt-0 text-xs font-medium tracking-widest text-gray-400 uppercase">Commits</p>
@@ -286,10 +286,10 @@
                 </div>
               </div>
             </div>
-            <div class="p-10 flex flex-col items-center text-center group">
-              <span class="p-5 rounded-full bg-red-500 text-white">
+            <div class="flex flex-col items-center p-10 text-center group">
+              <span class="p-5 text-white bg-red-500 rounded-full">
                 <svg
-                        xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
@@ -311,10 +311,10 @@
                 </div>
               </div>
             </div>
-            <div class="p-10 flex flex-col items-center text-center group">
-              <span class="p-5 rounded-full bg-red-500 text-white">
+            <div class="flex flex-col items-center p-10 text-center group">
+              <span class="p-5 text-white bg-red-500 rounded-full">
                 <svg
-                        xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="1.5">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
@@ -337,16 +337,16 @@
           </div>
         </div>
       </div>
-    
+
     {% comment %} Section 6 - New to Boost {% endcomment %}
     <div class="px-4 my-4 mx-auto">
       <div class="bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md drop-shadow-md hover:drop-shadow-[0_15px_15px_rgba(0,100,100,0.05)] md:mb-10">
         <div class="p-5 w-full">
           <div class="mb-6">
-            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-emerald-700 bg-emerald-200 dark:bg-opacity-10">new to boost?</span>
+            <span class="inline py-1 px-3 w-auto text-sm text-emerald-700 uppercase bg-emerald-200 rounded md:text-base dark:bg-opacity-10">new to boost?</span>
           </div>
         </div>
-        <div class="h-full flex flex-col justify-center items-center pb-4"></div>
+        <div class="flex flex-col justify-center items-center pb-4 h-full"></div>
       </div>
     </div>
     {% comment %} Section 7 - Contribute {% endcomment %}
@@ -354,10 +354,10 @@
       <div class="bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md drop-shadow-md hover:drop-shadow-[0_15px_15px_rgba(0,100,100,0.05)] md:mb-10">
         <div class="p-5 w-full">
           <div class="mb-6">
-            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-emerald-700 bg-emerald-200 dark:bg-opacity-10">contribute</span>
+            <span class="inline py-1 px-3 w-auto text-sm text-emerald-700 uppercase bg-emerald-200 rounded md:text-base dark:bg-opacity-10">contribute</span>
           </div>
         </div>
-        <div class="h-full flex flex-col justify-center items-center pb-4"></div>
+        <div class="flex flex-col justify-center items-center pb-4 h-full"></div>
       </div>
     </div>
   </main>
