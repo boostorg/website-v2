@@ -2774,6 +2774,16 @@ input[type=file] {
   background-color: rgb(49 74 87 / var(--tw-bg-opacity));
 }
 
+.dark .dark\:bg-gray-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(156 163 175 / var(--tw-bg-opacity));
+}
+
+.dark .dark\:bg-green {
+  --tw-bg-opacity: 1;
+  background-color: rgb(90 213 153 / var(--tw-bg-opacity));
+}
+
 .dark .dark\:font-medium {
   font-weight: 500;
 }
