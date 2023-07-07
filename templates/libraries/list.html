@@ -9,21 +9,6 @@
 
   <div class="p-0 mb-4 space-x-2 text-sm divide-x divide-gray-300 md:p-0">
     <img src="{% static 'img/fpo/BreadCrumbs.png' %}" class="h-6" />
-{#    <a class="hover:text-orange" href="/"><i class="fas fa-home"></i></a>#}
-{#    <a class="pl-2 hover:text-orange" href="{% url 'libraries' %}">Libraries</a>#}
-{#    {% if version_slug %}#}
-{#      <a class="pl-2 hover:text-orange" href="{% url 'libraries-by-version' version_slug %}">Libraries ({{ version_name }})</a>#}
-{#    {% endif %}#}
-{#    {% if category %} <span class="inline-block pl-2">Categorized</span>#}
-{#      <a class="pl-2 hover:text-orange"#}
-{#         href="#}
-{#           {% if version_slug %}#}
-{#             {% url 'libraries-by-version-by-category' version_slug=version_slug category=category.slug%}#}
-{#           {% else %}#}
-{#             {% url 'libraries-by-category' category=category.slug %}#}
-{#           {% endif %}#}
-{#      ">{{ category.name }}</a>#}
-{#    {% endif %}#}
   </div>
   <!-- end breadcrumb -->
 
@@ -48,9 +33,9 @@
         <!-- Select a category -->
         <div>
           <select onchange="this.form.submit()"
-                  name="category"
-                  class="block py-2 pr-11 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
-                  id="id_category"
+            name="category"
+            class="block py-2 pr-11 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
+            id="id_category"
           >
             <option value="">Filter by category</option>
             {% for c in categories %}
@@ -60,9 +45,9 @@
         </div>
 
         <!-- Display options -->
-        <div><a href="{% url 'libraries-mini' %}"><i class="bg-white rounded border border-gray-300 cursor-pointer dark:text-white fas fa-list text-slate p-[10px] dark:bg-slate hover:bg-orange"></i></a></div>
-        <div><a href="{% url 'libraries' %}"><i class="text-white bg-gray-600 rounded border border-gray-300 cursor-pointer fas fa-th-large p-[10px] dark:bg-charcoal hover:bg-orange"></i></a></div>
-        <div><a href="{% url 'libraries-by-category' %}"><i class="bg-white rounded border border-gray-300 cursor-pointer dark:text-white fas fa-cat text-slate p-[10px] dark:bg-slate hover:bg-orange"></i></a></div>
+        <div><a href="{% url 'libraries-mini' %}"><i class="bg-white rounded border border-gray-300 cursor-pointer dark:text-white fas fa-list text-slate p-[10px] dark:bg-charcoal hover:bg-orange"></i></a></div>
+        <div><a href="{% url 'libraries' %}"><i class="text-white bg-gray-600 rounded border border-gray-300 cursor-pointer fas fa-th-large p-[10px] dark:bg-green dark:text-charcoal hover:bg-orange"></i></a></div>
+        <div><a href="{% url 'libraries-by-category' %}"><i class="bg-white rounded border border-gray-300 cursor-pointer dark:text-white fas fa-cat text-slate p-[10px] dark:bg-charcoal hover:bg-orange"></i></a></div>
 
         <!-- Select a version -->
         <select onchange="this.form.submit()"
