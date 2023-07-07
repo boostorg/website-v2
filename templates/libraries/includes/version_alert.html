@@ -1,13 +1,15 @@
 {% if version_alert %}
-    <div role="alert">
-        <p>This is an older version and was released in {{ version.release_date|date:"Y"}}.
+    <div role="alert" class="py-2 px-3 mb-3 text-center rounded-sm bg-yellow-200/70">
+        <p class="p-0 m-0">
+            <i class="fas fa-exclamation-circle"></i>
+            This is an older version and was released in {{ version.release_date|date:"Y"}}.
            The current version is
             {% if latest_library_version %}
-                <a href="{% url 'library-detail' slug=latest_library_version.library.slug %}">
+                <a href="{% url 'library-detail' slug=latest_library_version.library.slug %}" class="py-1 px-2 text-white rounded bg-slate">
             {% else %}
-                <a href="{% url 'version-detail' latest_version.slug %}">
+                <a href="{% url 'version-detail' latest_version.slug %}" class="font-semibold underline dark:text-white text-charcoal">
             {% endif %}
-            {{ latest_version.display_name }}</a>.
+            {{ latest_version.display_name }}</a>
         </p>
     </div>
 {% endif %}

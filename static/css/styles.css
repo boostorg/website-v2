@@ -1257,12 +1257,8 @@ input[type=file] {
   margin-left: 0.5rem;
 }
 
-.ml-\[200px\] {
-  margin-left: 200px;
-}
-
-.-ml-\[213px\] {
-  margin-left: -213px;
+.-ml-4 {
+  margin-left: -1rem;
 }
 
 .mb-10 {
@@ -1351,6 +1347,10 @@ input[type=file] {
 
 .h-4 {
   height: 1rem;
+}
+
+.h-auto {
+  height: auto;
 }
 
 .h-5 {
@@ -1466,16 +1466,20 @@ input[type=file] {
   width: 1rem;
 }
 
-.w-\[200px\] {
-  width: 200px;
+.w-\[70\%\] {
+  width: 70%;
 }
 
-.w-\[25px\] {
-  width: 25px;
+.w-\[160px\] {
+  width: 160px;
 }
 
-.w-\[150px\] {
-  width: 150px;
+.w-\[50px\] {
+  width: 50px;
+}
+
+.w-\[70px\] {
+  width: 70px;
 }
 
 .w-5 {
@@ -1492,6 +1496,10 @@ input[type=file] {
 
 .w-1 {
   width: 0.25rem;
+}
+
+.w-\[200px\] {
+  width: 200px;
 }
 
 .min-w-0 {
@@ -1876,6 +1884,10 @@ input[type=file] {
   border-width: 1px;
 }
 
+.\!border-0 {
+  border-width: 0px !important;
+}
+
 .border-0 {
   border-width: 0px;
 }
@@ -1941,6 +1953,11 @@ input[type=file] {
 
 .border-green\/60 {
   border-color: rgb(90 213 153 / 0.6);
+}
+
+.border-gray-400 {
+  --tw-border-opacity: 1;
+  border-color: rgb(156 163 175 / var(--tw-border-opacity));
 }
 
 .border-white {
@@ -2036,6 +2053,15 @@ input[type=file] {
 
 .bg-transparent {
   background-color: transparent;
+}
+
+.bg-yellow-200\/70 {
+  background-color: rgb(254 240 138 / 0.7);
+}
+
+.bg-slate {
+  --tw-bg-opacity: 1;
+  background-color: rgb(49 74 87 / var(--tw-bg-opacity));
 }
 
 .bg-opacity-10 {
@@ -2201,6 +2227,11 @@ input[type=file] {
 .px-\[40px\] {
   padding-left: 40px;
   padding-right: 40px;
+}
+
+.py-\[1px\] {
+  padding-top: 1px;
+  padding-bottom: 1px;
 }
 
 .px-11 {
@@ -2537,6 +2568,10 @@ input[type=file] {
   color: rgb(229 231 235 / var(--tw-text-opacity));
 }
 
+.underline {
+  text-decoration-line: underline;
+}
+
 .placeholder-gray-500::-moz-placeholder {
   --tw-placeholder-opacity: 1;
   color: rgb(107 114 128 / var(--tw-placeholder-opacity));
@@ -2637,6 +2672,47 @@ input[type=file] {
   transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
 }
 
+.file\:mr-5::file-selector-button {
+  margin-right: 1.25rem;
+}
+
+.file\:rounded-lg::file-selector-button {
+  border-radius: 0.5rem;
+}
+
+.file\:border-0::file-selector-button {
+  border-width: 0px;
+}
+
+.file\:bg-white::file-selector-button {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+.file\:py-2::file-selector-button {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.file\:px-6::file-selector-button {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.file\:text-sm::file-selector-button {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.file\:font-medium::file-selector-button {
+  font-weight: 500;
+}
+
+.file\:text-slate::file-selector-button {
+  --tw-text-opacity: 1;
+  color: rgb(49 74 87 / var(--tw-text-opacity));
+}
+
 .last\:border-0:last-child {
   border-width: 0px;
 }
@@ -2654,6 +2730,10 @@ input[type=file] {
 .hover\:bg-orange:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(255 159 0 / var(--tw-bg-opacity));
+}
+
+.hover\:bg-white\/60:hover {
+  background-color: rgb(255 255 255 / 0.6);
 }
 
 .hover\:bg-gray-50:hover {
@@ -2698,6 +2778,19 @@ input[type=file] {
 
 .focus\:border-transparent:focus {
   border-color: transparent;
+}
+.hover\:file\:cursor-pointer::file-selector-button:hover {
+  cursor: pointer;
+}
+
+.hover\:file\:bg-orange::file-selector-button:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 159 0 / var(--tw-bg-opacity));
+}
+
+.hover\:file\:text-white::file-selector-button:hover {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
 .focus\:text-charcoal:focus {
@@ -2776,6 +2869,11 @@ input[type=file] {
   background-color: rgb(90 213 153 / 0.4);
 }
 
+.dark .dark\:bg-green {
+  --tw-bg-opacity: 1;
+  background-color: rgb(90 213 153 / var(--tw-bg-opacity));
+}
+
 .dark .dark\:bg-slate {
   --tw-bg-opacity: 1;
   background-color: rgb(49 74 87 / var(--tw-bg-opacity));
@@ -2838,6 +2936,16 @@ input[type=file] {
 .dark .dark\:ring-gray-500 {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(107 114 128 / var(--tw-ring-opacity));
+}
+
+.dark .dark\:hover\:bg-orange:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 159 0 / var(--tw-bg-opacity));
+}
+
+.dark .hover\:dark\:text-white:hover {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
 .dark .dark\:hover\:text-orange:hover {
@@ -2951,6 +3059,10 @@ input[type=file] {
     float: right;
   }
 
+  .md\:float-left {
+    float: left;
+  }
+
   .md\:my-16 {
     margin-top: 4rem;
     margin-bottom: 4rem;
@@ -3014,6 +3126,18 @@ input[type=file] {
 
   .md\:mb-6 {
     margin-bottom: 1.5rem;
+  }
+
+  .md\:mr-5 {
+    margin-right: 1.25rem;
+  }
+
+  .md\:ml-6 {
+    margin-left: 1.5rem;
+  }
+
+  .md\:ml-5 {
+    margin-left: 1.25rem;
   }
 
   .md\:block {
@@ -3080,8 +3204,16 @@ input[type=file] {
     width: 33.333333%;
   }
 
+  .md\:w-\[70\%\] {
+    width: 70%;
+  }
+
   .md\:min-w-\[150px\] {
     min-width: 150px;
+  }
+
+  .md\:min-w-\[200px\] {
+    min-width: 200px;
   }
 
   .md\:max-w-7xl {
