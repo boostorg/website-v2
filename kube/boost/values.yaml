@@ -121,6 +121,11 @@ Env:
       secretKeyRef:
         name: static-content
         key: bucket_name
+  - name: MAILGUN_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: mailgun
+        key: key
   # Static content cache timeout
   - name: STATIC_CACHE_TIMEOUT
     value: "60"
