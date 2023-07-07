@@ -423,3 +423,13 @@ EMAIL_HOST = "maildev"
 EMAIL_PORT = 1025
 DEFAULT_FROM_EMAIL = "news@boost.org"
 SERVER_EMAIL = "errors@boost.org"
+
+# Deployed email configuration
+if not LOCAL_DEVELOPMENT:
+    EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+    ANYMAIL = {
+        "MAILGUN_API_KEY": env("MAILGUN_API_KEY", default="changeme"),
+        "MAILGUN_SENDER_DOMAIN": env(
+            "MAILGUN_SENDER_DOMAIN", default="boost.revsys.dev"
+        ),
+    }
