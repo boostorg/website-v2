@@ -62,7 +62,7 @@ from news.views import (
 )
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
-from versions.views import VersionDetail
+from versions.views import VersionDetail, VersionCurrentReleaseDetail
 
 router = routers.SimpleRouter()
 
@@ -121,8 +121,8 @@ urlpatterns = (
         # temp page for releases
         path(
             "releases/",
-            TemplateView.as_view(template_name="releases_temp.html"),
-            name="releases",
+            VersionCurrentReleaseDetail.as_view(),
+            name="releases-most-recent",
         ),
         path(
             "donate/",
