@@ -13,6 +13,7 @@ class VersionCurrentReleaseDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context["versions"] = Version.objects.active()
+        context["current_release"] = True
         return context
 
     def get_object(self):
@@ -30,5 +31,5 @@ class VersionDetail(DetailView):
         context = super().get_context_data()
         current_version = Version.objects.most_recent()
         obj = self.get_object()
-        context["current_version"] = bool(current_version == obj)
+        context["current_release"] = bool(current_version == obj)
         return context
