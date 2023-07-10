@@ -62,7 +62,7 @@ from news.views import (
 )
 from support.views import SupportView, ContactView
 from versions.api import VersionViewSet
-from versions.views import VersionList, VersionDetail
+from versions.views import VersionDetail
 
 router = routers.SimpleRouter()
 
@@ -255,7 +255,6 @@ urlpatterns = (
         path("contact/", ContactView.as_view(), name="contact"),
         # Boost versions views
         path("versions/<slug:slug>/", VersionDetail.as_view(), name="version-detail"),
-        path("versions/", VersionList.as_view(), name="version-list"),
         # Internal functions
         path("internal/clear-cache/", ClearCacheView.as_view(), name="clear-cache"),
     ]
