@@ -118,7 +118,8 @@ urlpatterns = (
             TemplateView.as_view(template_name="community_temp.html"),
             name="community",
         ),
-        # temp page for releases
+        # Boost versions views
+        path("releases/<slug:slug>/", VersionDetail.as_view(), name="version-detail"),
         path(
             "releases/",
             VersionCurrentReleaseDetail.as_view(),
@@ -253,8 +254,6 @@ urlpatterns = (
             name="getting-started",
         ),
         path("contact/", ContactView.as_view(), name="contact"),
-        # Boost versions views
-        path("versions/<slug:slug>/", VersionDetail.as_view(), name="version-detail"),
         # Internal functions
         path("internal/clear-cache/", ClearCacheView.as_view(), name="clear-cache"),
     ]
