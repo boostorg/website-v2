@@ -25,7 +25,7 @@
             <a href="{% url 'docs' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Learn</a>
             <a href="{% url 'community' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Community</a>
             <a href="{% url 'libraries' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Libraries</a>
-            <a href="{% url 'releases' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Releases</a>
+            <a href="{% url 'releases-most-recent' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Releases</a>
           </nav>
           <nav class="float-right items-center space-x-3 w-44 text-right lg:space-x-5" x-data="{ 'searchOpen': false }">
             <span class="relative">
@@ -212,7 +212,7 @@
 
             <a href="/libraries/" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Libraries</a>
 
-            <a href="{% url 'releases' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Releases</a>
+            <a href="{% url 'releases-most-recent' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Releases</a>
           </div>
           <div class="absolute left-0 bottom-10 px-2 pt-2 pb-3 text-sm">
             <a href="{% url 'support' %}" class="block py-2 px-3 text-gray-700 text-thin">Support</a>
