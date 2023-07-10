@@ -425,7 +425,9 @@ DEFAULT_FROM_EMAIL = "news@boost.org"
 SERVER_EMAIL = "errors@boost.org"
 
 # Deployed email configuration
-if not LOCAL_DEVELOPMENT:
+if LOCAL_DEVELOPMENT:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
     EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
     ANYMAIL = {
         "MAILGUN_API_KEY": env("MAILGUN_API_KEY", default="changeme"),
