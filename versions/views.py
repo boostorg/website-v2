@@ -8,7 +8,7 @@ class VersionCurrentReleaseDetail(DetailView):
 
     model = Version
     queryset = Version.objects.active()
-    template_name = "releases_temp.html"
+    template_name = "versions/detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
