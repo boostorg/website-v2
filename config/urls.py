@@ -110,7 +110,7 @@ urlpatterns = (
             name="community",
         ),
         # Boost versions views
-        path("releases/<slug:slug>/", VersionDetail.as_view(), name="version-detail"),
+        path("releases/<slug:slug>/", VersionDetail.as_view(), name="release-detail"),
         path(
             "releases/",
             VersionCurrentReleaseDetail.as_view(),
