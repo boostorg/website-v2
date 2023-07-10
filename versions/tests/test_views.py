@@ -1,4 +1,3 @@
-import pytest
 from datetime import timedelta
 from django.utils import timezone
 from model_bakery import baker
@@ -17,7 +16,6 @@ def test_version_most_recent_detail(version, tp):
     assert res.context["version"] == version
 
 
-@pytest.mark.skip("TODO: Fix")
 def test_version_detail(version, tp):
     """
     GET /versions/{slug}/
