@@ -5,7 +5,7 @@ from model_bakery import baker
 
 def test_version_most_recent_detail(version, tp):
     """
-    GET /versions/{slug}/
+    GET /releases/
     """
     now = timezone.now()
 
@@ -18,7 +18,15 @@ def test_version_most_recent_detail(version, tp):
 
 def test_version_detail(version, tp):
     """
-    GET /versions/{slug}/
+    GET /releases/{slug}/
     """
     res = tp.get("release-detail", slug=version.slug)
+    tp.response_200(res)
+
+
+def test_version_detail_post(version, tp):
+    """
+    POST /releases/{slug}/
+    """
+    res = tp.post("releases-most-recent", data={"version": version.slug})
     tp.response_200(res)
