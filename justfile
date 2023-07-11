@@ -22,10 +22,12 @@ bootstrap:  ## installs/updates all dependencies
     # docker compose --file $(COMPOSE_FILE) build --force-rm
 
 rebuild:
-    docker compose rm -f celery || true
+    docker compose rm -f celery-worker || true
     docker compose rm -f celery-beat || true
     docker compose rm -f web
     docker compose build --force-rm web
+    docker compose build --force-rm celery-worker
+    docker compose build --force-rm celery-beat
 
 @cibuild:  ## invoked by continuous integration servers to run tests
     python -m pytest
