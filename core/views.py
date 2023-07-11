@@ -3,6 +3,7 @@ import structlog
 from dateutil.parser import parse
 
 from django.conf import settings
+
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
 from django.http import Http404, HttpResponse, HttpResponseNotFound
@@ -278,12 +279,8 @@ class StaticContentTemplateView(TemplateView):
 
 
 def antora_header_view(request):
-    print(request.user)
-    print(request.headers)
     return render(request, "includes/_header.html")
 
 
 def antora_footer_view(request):
-    print(request.user)
-    print(request.headers)
     return render(request, "includes/_footer.html")
