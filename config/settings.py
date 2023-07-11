@@ -7,6 +7,7 @@ from pathlib import Path
 import environs
 import structlog
 from django.core.exceptions import ImproperlyConfigured
+from corsheaders.defaults import default_headers
 from machina import MACHINA_MAIN_STATIC_DIR, MACHINA_MAIN_TEMPLATE_DIR
 from pythonjsonlogger import jsonlogger
 
@@ -450,7 +451,6 @@ CORS_ALLOW_METHODS = (
     "POST",
     "PUT",
 )
-from corsheaders.defaults import default_headers
 
 CORS_ALLOW_HEADERS = (
     *default_headers,
