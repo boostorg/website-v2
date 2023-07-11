@@ -440,11 +440,8 @@ else:
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-# CORS_ALLOWED_ORIGINS = [
-#     "https://localhost:5252",
-#     "http://192.168.1.81:5252",
-#     "http://localhost:8080",
-# ]
+SESSION_COOKIE_HTTPONLY = False
+
 CORS_ALLOW_METHODS = (
     "DELETE",
     "GET",
