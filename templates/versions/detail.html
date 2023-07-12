@@ -5,16 +5,20 @@
 {% block title %}{% trans "Releases" %}{% endblock %}
 
 {% block content %}
-  <div class="py-0 px-3 mb-3 md:py-0 md:px-0">
+  <div class="px-3 pt-3 mb-3 md:py-0 md:px-0">
 
-    <div class="py-0 md:px-0" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
-      <form action="." method="post" class="float-right">
+    <div class="flex flex-row flex-nowrap items-center py-0 md:px-0" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
+      <div class="flex-auto mb-2 w-full">
+        <span class="text-xl md:text-3xl lg:text-4xl">{% if current_release %}Newest Release </span><span class="text-lg whitespace-nowrap md:text-xl lg:text-3xl pr-[1vw]">({{ version.display_name }}){% else %}{{ version.display_name }}{% endif %} <img src="{% static 'img/fpo/boost-release-package.png' %}" class="inline w-8 h-auto"/></span></span>
+        </div>
+        <div class="flex-shrink">
+      <form action="." method="post">
         {% csrf_token %}
         <div>
           <label for="id_version" hidden="true">Versions:</label>
           <select onchange="this.form.submit()"
                   name="version"
-                  class="block py-1 pr-8 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
+                  class="py-1 mb-3 text-sm bg-white rounded-md border border-gray-300 cursor-pointer dark:bg-black pr-[1vw] pl-[2vw] w-[20vw] text-sky-600 dark:text-orange dark:border-slate"
                   id="id_version"
           >
             <option>Newest Version ({{ version.display_name }})</option>
@@ -24,73 +28,72 @@
           </select>
         </div>
       </form>
-      <h2>{% if current_release %}Newest Release ({{ version.display_name }}){% else %}{{ version.display_name }}{% endif %}</h2>
+    </div>
 
     </div>
 
-    <div class="p-4 p-6 text-white bg-white rounded-lg divide-x divide-gray-200 shadow-lg md:flex dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-      <div class="pr-3 space-y-2 w-full md:w-1/4">
-        <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100"
+    <div class="p-6 text-white bg-white rounded-lg divide-x-0 divide-transparent shadow-lg md:flex md:divide-x md:divide-gray-200 dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+      <div class="pb-2 w-full md:pb-0 md:w-1/4 truncate">
+
+        <span class="block px-2 pb-1 font-bold">{{ version.release_date|date:"F j, Y" }}</span>
+
+        <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
            href="https://github.com/boostorg/smart_ptr">
-          <i class="float-right mt-3 fas fa-folder"></i>
-          Documentation
-          <span class="block text-xs text-sky-600">boost.revsys.dev/doc/libs/1_81_0/</span>
+
+          <span class="dark:text-white text-slate">Documentation</span>
+          <span class="block text-xs">boost.revsys.dev/doc/libs/1_81_0/</span>
         </a>
 
-        <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100"
+        <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
            href="{{ version.github_url }}">
-          <i class="float-right fab fa-github"></i>
-          Source Code
-          <span class="block text-xs text-sky-600">{{ version.github_url|cut:"https://" }}</span>
+          <i class="float-right mt-1 fab fa-github"></i>
+          <span class="dark:text-white text-slate">Source Code</span>
+          <span class="block text-xs">{{ version.github_url|cut:"https://" }}</span>
         </a>
-        <a class="inline-block py-1 px-2 rounded cursor-pointer hover:bg-gray-100">{{ version.release_date|date:"F j, Y" }}</a>
-        <a
-          class="inline-block float-right py-1 px-2 rounded cursor-pointer hover:bg-gray-100">{{ version.get_cpp_standard_minimum_display }}</a>
+
       </div>
-      <div class="px-4 space-x-6 w-full md:w-3/4">
-        <div class="flex space-x-3">
-          <table class="table p-0 m-0 w-2/3 text-sm text-left border-collapse dark:text-white text-slate">
+      <div class="pt-2 pb-2 pl-0 ml-0 space-x-6 w-full md:pb-0 md:pl-6 md:ml-6">
+        <div class="flex overflow-y-hidden space-x-3">
+          <table class="table p-0 m-0 w-full text-sm text-left border-0 border-separate dark:text-white border-spacing-0 text-slate">
             <tbody>
             <tr class="bg-gray-200 border border-gray-200 dark:bg-charcoal">
-              <th scope="col" class="px-2">Platform</th>
-              <th scope="col" class="px-2">File</th>
-              <th scope="col" class="px-2">SHA256 Hash</th>
+              <th scope="col" width="100" class="px-2 bg-gray-100 rounded-tl-lg border border-gray-200 md:rounded-tl-none dark:bg-charcoal">Platform</th>
+              <th scope="col" width="100" class="px-2 bg-gray-100 border border-gray-200 dark:bg-charcoal">File</th>
+              <th scope="col" class="px-2 bg-gray-100 rounded-tr-lg border border-gray-200 dark:bg-charcoal">SHA256 Hash</th>
             </tr>
             <tr class="border border-gray-200">
-              <th scope="row" rowspan="2" class="px-2 bg-gray-100 border border-gray-200 dark:bg-charcoal">unix</th>
-              <td class="px-2 border border-gray-200"><a href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.bz2" class="text-sky-600 hover:text-orange">boost_1_81_0.tar.bz2</a>
+              <th scope="row" rowspan="2" class="px-2 bg-gray-100 border border-gray-200 dark:bg-charcoal"><i class="fab fa-linux"></i> Linux</th>
+              <td class="px-2 border border-gray-200"><a href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.bz2">boost_1_81_0.tar.bz2</a>
               </td>
-              <td class="px-2">71feeed900fbccca04a3b4f2f84a7c217186f28a940ed8b7ed4725986baf99fa</td>
+              <td class="px-2 bg-gray-100 border border-gray-200 dark:bg-charcoal" title="71feeed900fbccca04a3b4f2f84a7c217186f28a940ed8b7ed4725986baf99fa">71feeed9…</td>
             </tr>
             <tr class="border border-gray-200">
-              <td class="px-2 border border-gray-200"><a href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.gz" class="text-sky-600 hover:text-orange">boost_1_81_0.tar.gz</a>
+              <td class="px-2 border border-gray-200"><a href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.gz">boost_1_81_0.tar.gz</a>
               </td>
-              <td class="px-2">205666dea9f6a7cfed87c7a6dfbeb52a2c1b9de55712c9c1a87735d7181452b6</td>
+              <td class="px-2 bg-gray-100 border border-gray-200 dark:bg-charcoal" title="205666dea9f6a7cfed87c7a6dfbeb52a2c1b9de55712c9c1a87735d7181452b6">205666dea…</td>
             </tr>
             <tr class="border border-gray-200">
-              <th scope="row" rowspan="2" class="px-2 bg-gray-100 border border-gray-200 dark:bg-charcoal">windows</th>
+              <th scope="row" rowspan="2" class="px-2 bg-gray-100 rounded-bl-lg border border-gray-200 md:rounded-bl-none dark:bg-charcoal"><i class="fab fa-windows"></i> Windows</th>
               <td class="px-2 border border-gray-200"><a
-                href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.7z" class="text-sky-600 hover:text-orange">boost_1_81_0.7z</a>
+                href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.7z">boost_1_81_0.7z</a>
               </td>
-              <td class="px-2">d7bc4e2a2aee374a8c24832cacfed1265680c1e824d09fab3e00f87508155353</td>
+              <td class="px-2 bg-gray-100 border border-gray-200 dark:bg-charcoal" title="d7bc4e2a2aee374a8c24832cacfed1265680c1e824d09fab3e00f87508155353">d7bc4e2a2a…</td>
             </tr>
             <tr class="border border-gray-200">
               <td class="px-2 border border-gray-200"><a
-                href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.zip" class="text-sky-600 hover:text-orange">boost_1_81_0.zip</a>
+                href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.zip">boost_1_81_0.zip</a>
               </td>
-              <td class="px-2">6e689b266b27d4db57f648b1e5c905c8acd6716b46716a12f6fc73fc80af842e</td>
+              <td class="px-2 bg-gray-100 rounded-br-lg border border-gray-200 dark:bg-charcoal" title="6e689b266b27d4db57f648b1e5c905c8acd6716b46716a12f6fc73fc80af842e">6e689b266b…</td>
             </tr>
             </tbody>
           </table>
-          <div class="w-1/3">
-            <img src="{% static 'img/fpo/boost-release-package.png' %}" class="w-auto h-[100px]"/>
-          </div>
+
         </div>
       </div>
     </div>
 
 
-    <div class="p-4 p-6 my-4 text-white bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+    <div class="p-6 my-4 text-white bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
       <h3 class="mb-2 border-b border-gray-200">New Libraries</h3>
       URL:
       <p>A library for parsing, modifying, and printing URLs using only C++11, from Vinnie Falco and Alan de Freitas.
