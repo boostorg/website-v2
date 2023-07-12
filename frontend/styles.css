@@ -83,7 +83,7 @@
     @apply text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange;
     @apply group-hover:text-orange dark:group-hover:text-orange;
   }
-  i.fa, i.fab, i.fa-brands {
+  i.fa, i.fab, i.fa-brands, i.fas {
     @apply text-slate dark:text-white;
   }
 }
