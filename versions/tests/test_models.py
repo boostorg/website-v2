@@ -47,5 +47,11 @@ def test_version_display_name(version):
     assert version.display_name == "1.79.0"
 
 
+def test_version_documentation_url(version):
+    version.slug = "boost-1.81.0"
+    version.save()
+    assert version.documentation_url == "/doc/libs/boost_1_81_0/index.html"
+
+
 def test_version_file_creation(full_version_one):
     assert full_version_one.files.count() == 3

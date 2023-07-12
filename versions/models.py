@@ -64,6 +64,16 @@ class Version(models.Model):
             formatted_slug = self.slug
         return formatted_slug
 
+    @cached_property
+    def documentation_url(self):
+        """Return the URL path to documentation for this version of Boost.
+        This maps to the appropriate directory in the S3 bucket. See the
+        static content config file for the mapping from the site_path to the
+        S3 path."""
+        site_path = "/doc/libs/"
+        slug = self.slug.replace("-", "_").replace(".", "_")
+        return f"{site_path}{slug}/index.html"
+
 
 class VersionFile(models.Model):
     Unix = "Unix"
