@@ -825,12 +825,12 @@ a:hover {
   color: rgb(255 159 0 / var(--tw-text-opacity));
 }
 
-i.fa, i.fab, i.fa-brands {
+i.fa, i.fab, i.fa-brands, i.fas {
   --tw-text-opacity: 1;
   color: rgb(49 74 87 / var(--tw-text-opacity));
 }
 
-.dark i.fa,.dark  i.fab,.dark  i.fa-brands {
+.dark i.fa,.dark  i.fab,.dark  i.fa-brands,.dark  i.fas {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
@@ -1312,10 +1312,6 @@ i.fa, i.fab, i.fa-brands {
   margin-right: 0.25rem;
 }
 
-.ml-2 {
-  margin-left: 0.5rem;
-}
-
 .-ml-4 {
   margin-left: -1rem;
 }
@@ -1396,12 +1392,12 @@ i.fa, i.fab, i.fa-brands {
   height: 25px;
 }
 
-.h-6 {
-  height: 1.5rem;
-}
-
 .h-\[30px\] {
   height: 30px;
+}
+
+.h-6 {
+  height: 1.5rem;
 }
 
 .h-4 {
@@ -1527,6 +1523,10 @@ i.fa, i.fab, i.fa-brands {
 
 .w-\[70\%\] {
   width: 70%;
+}
+
+.w-20 {
+  width: 5rem;
 }
 
 .w-\[160px\] {
@@ -1705,6 +1705,10 @@ i.fa, i.fab, i.fa-brands {
   flex-wrap: nowrap;
 }
 
+.place-items-center {
+  place-items: center;
+}
+
 .content-between {
   align-content: space-between;
 }
@@ -1822,6 +1826,18 @@ i.fa, i.fab, i.fa-brands {
   --tw-space-x-reverse: 0;
   margin-right: calc(0.5rem * var(--tw-space-x-reverse));
   margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.space-y-1 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.25rem * var(--tw-space-y-reverse));
+}
+
+.space-x-1 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.25rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.25rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
 .space-y-6 > :not([hidden]) ~ :not([hidden]) {
@@ -2464,6 +2480,10 @@ i.fa, i.fab, i.fa-brands {
   text-align: right;
 }
 
+.text-justify {
+  text-align: justify;
+}
+
 .align-top {
   vertical-align: top;
 }
@@ -3094,6 +3114,25 @@ i.fa, i.fab, i.fa-brands {
 
   .sm\:w-1\/4 {
     width: 25%;
+  }
+
+  .sm\:w-\[550px\] {
+    width: 550px;
+  }
+
+  .sm\:w-fit {
+    width: -moz-fit-content;
+    width: fit-content;
+  }
+
+  .sm\:grid-cols-6 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .sm\:space-y-0 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: calc(0px * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(0px * var(--tw-space-y-reverse));
   }
 
   .sm\:space-y-11 > :not([hidden]) ~ :not([hidden]) {

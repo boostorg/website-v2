@@ -8,55 +8,64 @@
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
     <div class="md:w-full">
       <h1 class="text-4xl text-center">Latest Stories</h1>
-      <p class="mt-0 text-center">
-        Keep up with current information from Boost and our community.
+
+      <div class="mx-auto w-auto sm:w-[550px]">
+      <p class="mt-0 text-justify">
+        Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, polls, and user-created content.
+        {% if user.is_authenticated %}
+        Or, <a href="{% url 'news-create' %}" class="whitespace-nowrap">Create a Post</a> to include in the feed (posts are reviewed before publication).
+        {% else %}
+        Signed-in users may submit items to include in the feed (posts are reviewed before publication).
+        {% endif %}
       </p>
+    </div>
+
+
+
+
 
       <!-- General filters, by news type -->
-      <div>
-        <div class="py-5 text-center w-[90%] mx-auto space-x-2">
-          <div class="inline-block py-5">
-            {% url 'news' as target_url %}
-            <a href="{{ target_url }}" title="All News">
-              <i class="py-1 px-2 bg-white rounded border border-gray-300 fas fa-rocket dark:bg-slate dark:hover:bg-orange hover:bg-orange"></i>
-            </a>
-          </div>
-          <div class="inline-block py-5">
-            {% url 'news-news-list' as target_url %}
-            <a href="{{ target_url }}" title="News">
-              <i class="py-1 px-2 rounded border border-gray-300 fas fa-bell hover:bg-orange dark:hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
-            </a>
-          </div>
-          <div class="inline-block py-5">
-            {% url 'news-blogpost-list' as target_url %}
-            <a href="{{ target_url }}" title="Blog Post">
-              <i class="py-1 px-2 rounded border border-gray-300 fas fa-newspaper hover:bg-orange dark:hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
-            </a>
-          </div>
-          <div class="inline-block py-5">
-            {% url 'news-link-list' as target_url %}
-            <a href="{{ target_url }}" title="Link">
-              <i class="py-1 px-2 rounded border border-gray-300 fas fa-link hover:bg-orange dark:hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
-            </a>
-          </div>
-          <div class="inline-block py-5">
-            {% url 'news-poll-list' as target_url %}
-            <a href="{{ target_url }}" title="Poll">
-              <i class="py-1 px-2 rounded border border-gray-300 fas fa-poll hover:bg-orange dark:hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
-            </a>
-          </div>
-          <div class="inline-block py-5">
-            {% url 'news-video-list' as target_url %}
-            <a href="{{ target_url }}" title="Video">
-              <i class="py-1 px-2 rounded border border-gray-300 fas fa-video hover:bg-orange dark:hover:bg-orange {% if request.path == target_url %}bg-gray-600 text-white{% else %}bg-white dark:bg-slate{% endif %}"></i>
-            </a>
-          </div>
-          {% if user.is_authenticated %}
-          <div class="inline-block py-5 text-sm">
-            <a href="{% url 'news-create' %}" class="py-0 px-2 font-semibold bg-white rounded border border-gray-300 dark:text-white dark:bg-slate dark:hover:bg-orange hover:bg-orange">Submit News</a>
-          </div>
-          {% endif %}
+      <div class="mx-auto w-full sm:w-fit">
+        <div class="grid grid-cols-3 justify-center place-items-center space-y-1 space-x-1 sm:grid-cols-6 sm:space-y-0">
+
+          {% url 'news' as target_url %}
+          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+            <h6 class="pb-1 text-base">All</h6>
+            <i class="fa fa-globe"></i>
+          </a>
+
+          {% url 'news-news-list' as target_url %}
+          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+            <h6 class="pb-1 text-base">News</h6>
+            <i class="fa fa-newspaper"></i>
+          </a>
+
+          {% url 'news-blogpost-list' as target_url %}
+          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+            <h6 class="pb-1 text-base">Blogs</h6>
+            <i class="fa fa-comment"></i>
+          </a>
+
+          {% url 'news-link-list' as target_url %}
+          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+            <h6 class="pb-1 text-base">Links</h6>
+            <i class="fas fa-link"></i>
+          </a>
+
+          {% url 'news-poll-list' as target_url %}
+          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+            <h6 class="pb-1 text-base">Polls</h6>
+            <i class="fa fa-poll"></i>
+          </a>
+
+          {% url 'news-video-list' as target_url %}
+          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+            <h6 class="pb-1 text-base">Videos</h6>
+            <i class="fa fa-video"></i>
+          </a>
+
         </div>
+
       </div>
 
     <div class="my-5">
@@ -165,7 +174,7 @@
           </div>
         </div>
         {% empty %}
-        <h4 class="text-center">No News matches were found.</h4>
+        <p class="text-center">No news yet; consider submitting something!</p>
         {% endfor %}
       </div>
     </div>
