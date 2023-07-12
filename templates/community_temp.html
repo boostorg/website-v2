@@ -7,39 +7,82 @@
 {% block content %}
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+
       <div class="p-6 text-white bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-        <h5 class="text-2xl font-bold leading-tight text-orange"><a href="https://lists.boost.org/mailman/listinfo.cgi/boost">Mailing List</a></h5>
-        <ul class="pt-4">
-          <li>Users</li>
-          <li>Developers</li>
-          <li>Announcements</li>
-        </ul>
+        <h5 class="text-2xl font-bold leading-tight text-orange">Mailing Lists</h5>
+        <p>Better your understanding of Boost and C++: join or explore the archives of our mailing list, a humble space where enthusiasts share insights and engage in meaningful dialogue.</p>
+        <div class="grid grid-cols-2 lg:grid-cols-3">
+
+          <a href="https://lists.boost.org/mailman/listinfo.cgi/boost" class="p-3 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate">
+            <h6 class="pb-1 text-base">Developers</h6>
+            <i class="fa fa-helmet-safety"></i>
+          </a>
+
+          <a href="https://lists.boost.org/mailman/listinfo.cgi/boost-users" class="order-3 col-span-2 p-3 text-center rounded-lg cursor-pointer lg:order-2 lg:col-span-1 hover:bg-gray-100 group dark:hover:bg-slate">
+            <h6 class="pb-1 text-base">Users</h6>
+            <i class="fa fa-user fa-lg"></i>
+          </a>
+
+          <a href="https://lists.boost.org/mailman/listinfo.cgi/boost-announce" class="order-2 justify-self-center p-3 text-center rounded-lg cursor-pointer lg:order-3 hover:bg-gray-100 group dark:hover:bg-slate">
+            <h6 class="pb-1 text-base">Announcements</h6>
+            <i class="fa fa-bullhorn"></i>
+          </a>
+
+        </div>
+
       </div>
 
       <div class="p-6 text-white bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-        <h5 class="text-2xl font-bold leading-tight text-orange"><a href="https://lists.boost.org/Archives/boost/">Discussion Forums</a></h5>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </p>
+        <h5 class="text-2xl font-bold leading-tight text-orange">Discussion Forums</h5>
+
+        <div class="w-full text-center">
+        <h2>Coming Soon!</h2>
+        </div>
+
+        <div>In the meantime, please enjoy our <a href="https://lists.boost.org/Archives/boost/" class="whitespace-nowrap">Mailing List Archives</a></div>
+
+
       </div>
 
       <div class="p-6 text-white bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-        <h5 class="text-2xl font-bold leading-tight text-orange"><a href="https://cppalliance.org/slack/">C++ Slack Workspace</a></h5>
-        <p>This is a multi-channel Slack workspace environment which gathers users of C++ from around the world into the same place so we can all learn from each other. It is like IRC but with modern clients that support multimedia, notifications, and smart devices.</p>
+        <h5 class="text-2xl font-bold leading-tight text-orange">Official C++ Language Slack Workspace</h5>
+
+        <p>Join our Slack Workspace to experience live C++ discussions with engineers, users, and committee members from all time zones. As our plan is fully paid by our sponsor, we offer full history, free video conferencing, graphical collaborative tools, and more! Explore collective learning in this social media haven today.</p>
+
+        <div class="flex flex-col">
+          <a href="https://cppalliance.org/slack/" class="flex p-3 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate">Join C++ Slack</a>
+          <a href="https://cpplang.slack.com/" class="flex p-3 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate">Visit the Workspace</a>
+          </div>
+
       </div>
 
       <div class="p-6 text-white bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
         <h5 class="text-2xl font-bold leading-tight text-orange">Users</h5>
-        <p>See everyone involved with Boost. (Under construction)</p>
+        <p>See everyone involved with Boost.</p>
+        <div class="w-full text-center">
+          <h2>Coming Soon!</h2>
+          </div>
+          <div>In the meantime, check out these <a href="https://www.boost.org/users/people.html">amazing photos</a> of long-time contributors</div>
       </div>
 
       <div class="p-6 text-white bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-        <h5 class="text-2xl font-bold leading-tight text-orange"><a href="https://twitter.com/boost_libraries">Twitter</a></h5>
+        <h5 class="text-2xl font-bold leading-tight text-orange">Twitter</h5>
+
+
         <p>Follow us, like, and retweet announcements and informative updates about Boost and C++.</p>
+
+        <a href="https://twitter.com/boost_libraries" class="block p-3 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate">Official Boost Twitter<br /><i class="fa-brands fa-twitter fa-3x"></i></a>
       </div>
 
       <div class="p-6 text-white bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-        <h5 class="text-2xl font-bold leading-tight text-orange"><a href="https://isocpp.org/">ISO C++</a></h5>
+        <h5 class="text-2xl font-bold leading-tight text-orange">ISO C++</h5>
+
         <p>News, Status & Discussion about Standard C++</p>
+        <p>The Standard C++ Foundation (Standard CPP Foundation in some databases that don’t support + in names) is a Washington 501(c)(6) not-for-profit organization whose purpose is to support the C++ software developer community and promote the understanding and use of modern Standard C++ on all compilers and platforms.</p>
+
+
+          <a href="https://isocpp.org/" class="flex p-3 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate">Visit the ISO C++ Site</a>
+
       </div>
     </div>
   </div>
