@@ -5,12 +5,6 @@
 {% block title %}{% trans "Libraries" %}{% endblock %}
 
 {% block content %}
-  <!-- Breadcrumb used on filtered views -->
-
-  <div class="p-0 mb-4 space-x-2 text-sm divide-x divide-gray-300 md:p-0">
-    <img src="{% static 'img/fpo/BreadCrumbs.png' %}" class="h-6" />
-  </div>
-  <!-- end breadcrumb -->
 
   <div class="px-3 pt-3 text-right md:px-0 md:mb-6" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
     <!-- command palatte for search -->
