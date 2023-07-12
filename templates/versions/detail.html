@@ -38,10 +38,10 @@
         <span class="block px-2 pb-1 font-bold">{{ version.release_date|date:"F j, Y" }}</span>
 
         <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
-           href="https://github.com/boostorg/smart_ptr">
+           href="{{ version.documentation_url }}">
 
           <span class="dark:text-white text-slate">Documentation</span>
-          <span class="block text-xs">boost.revsys.dev/doc/libs/1_81_0/</span>
+          <span class="block text-xs">{{ request.scheme }}://{{ request.get_host }}{{ version.documentation_url|cut:"https://"|cut:"index.html" }}</span>
         </a>
 
         <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
