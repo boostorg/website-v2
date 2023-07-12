@@ -3,13 +3,6 @@
 {% load static %}
 
 {% block content %}
-  <!-- Breadcrumb -->
-  <div class="p-3 space-x-2 text-sm divide-x divide-gray-300 md:p-0">
-    <a class="hover:text-orange" href="/"><i class="fas fa-home"></i></a>
-    <a class="pl-2 hover:text-orange" href="{% if version_slug %}{% url 'libraries' %}?version={{ version_slug }}{% else %}{% url 'libraries' %}{% endif %}">Libraries{% if version_name %} ({{ version.name }}){% endif %}</a>
-    <span class="pl-2 capitalize">{{ object.name }}</span>
-  </div>
-  <!-- end breadcrumb -->
 
   <div class="flex mt-4">
 

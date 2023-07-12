@@ -1870,12 +1870,6 @@ i.fa, i.fab, i.fa-brands, i.fas {
   border-bottom-width: calc(1px * var(--tw-divide-y-reverse));
 }
 
-.divide-x > :not([hidden]) ~ :not([hidden]) {
-  --tw-divide-x-reverse: 0;
-  border-right-width: calc(1px * var(--tw-divide-x-reverse));
-  border-left-width: calc(1px * calc(1 - var(--tw-divide-x-reverse)));
-}
-
 .divide-x-0 > :not([hidden]) ~ :not([hidden]) {
   --tw-divide-x-reverse: 0;
   border-right-width: calc(0px * var(--tw-divide-x-reverse));
@@ -3483,12 +3477,12 @@ i.fa, i.fab, i.fa-brands, i.fas {
     padding: 2.75rem;
   }
 
-  .md\:p-0 {
-    padding: 0px;
-  }
-
   .md\:p-5 {
     padding: 1.25rem;
+  }
+
+  .md\:p-0 {
+    padding: 0px;
   }
 
   .md\:p-20 {
