@@ -21,11 +21,11 @@
                       {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
             {% endfor %}
           </select>
-          <a href="{% url 'releases' %}"
+          <a href=""
              class="block py-3 px-8 mb-3 w-min text-sm font-medium text-white whitespace-nowrap rounded-md border md:text-base lg:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
             <i class="pr-2 text-white fas fa-arrow-circle-down dark:text-orange"></i> Download Latest
           </a>
-          <a href="{% url 'releases' %}"
+          <a href=""
              class="text-xs text-slate dark:text-sky-600">
             Version Details <i class="pl-1 fas fa-chevron-right text-slate dark:text-sky-600"></i>
           </a>

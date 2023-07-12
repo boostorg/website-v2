@@ -78,4 +78,12 @@
     background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23808080" stroke="%23808080" stroke-width="2" d="M7 9l5.25 5.25L18.5 9"/></svg>');
     @apply object-center
   }
+  /* Generic link style */
+  a {
+    @apply text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange;
+    @apply group-hover:text-orange dark:group-hover:text-orange;
+  }
+  i.fa, i.fab, i.fa-brands {
+    @apply text-slate dark:text-white;
+  }
 }
