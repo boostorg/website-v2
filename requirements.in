@@ -56,8 +56,6 @@ mistletoe
 python-frontmatter
 beautifulsoup4
 
-#Forum
-django-machina>=1.2
 django-haystack>=3.2
 django-mptt==0.14
 

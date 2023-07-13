@@ -6,9 +6,8 @@ from pathlib import Path
 
 import environs
 import structlog
-from django.core.exceptions import ImproperlyConfigured
 from corsheaders.defaults import default_headers
-from machina import MACHINA_MAIN_STATIC_DIR, MACHINA_MAIN_TEMPLATE_DIR
+from django.core.exceptions import ImproperlyConfigured
 from pythonjsonlogger import jsonlogger
 
 env = environs.Env()
@@ -73,22 +72,9 @@ INSTALLED_APPS += [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.github",
     "allauth.socialaccount.providers.google",
-    # Machina dependencies:
     "mptt",
     "haystack",
     "widget_tweaks",
-    # Machina apps:
-    "machina",
-    "machina.apps.forum",
-    "machina.apps.forum_conversation",
-    "machina.apps.forum_conversation.forum_attachments",
-    "machina.apps.forum_conversation.forum_polls",
-    "machina.apps.forum_feeds",
-    "machina.apps.forum_moderation",
-    "machina.apps.forum_search",
-    "machina.apps.forum_tracking",
-    "machina.apps.forum_member",
-    "machina.apps.forum_permission",
 ]
 
 # Our Apps
@@ -120,8 +106,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # Machina
-    "machina.apps.forum_permission.middleware.ForumPermissionMiddleware",
 ]
 
 if DEBUG:
@@ -138,7 +122,6 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
             str(BASE_DIR.joinpath("templates")),
-            MACHINA_MAIN_TEMPLATE_DIR,
         ],
         "OPTIONS": {
             "context_processors": [
@@ -149,8 +132,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                # Machina
-                "machina.core.context_processors.metadata",
             ],
             "loaders": [
                 "django.template.loaders.filesystem.Loader",
@@ -216,7 +197,6 @@ STATIC_URL = "/static/"
 # Additional directories from where we should collect static files from
 STATICFILES_DIRS = [
     BASE_DIR.joinpath("static"),
-    MACHINA_MAIN_STATIC_DIR,
 ]
 
 # This is the directory where all of the collected static files are put
@@ -271,10 +251,6 @@ CELERY_TIMEZONE = "UTC"
 
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{REDIS_HOST}:6379",
-    },
-    "machina_attachments": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": f"redis://{REDIS_HOST}:6379",
     },
@@ -400,19 +376,6 @@ STATIC_CONTENT_AWS_S3_ENDPOINT_URL = "s3.amazonaws.com"
 
 # Markdown content
 BASE_CONTENT = env("BOOST_CONTENT_DIRECTORY", "/website")
-
-# Machina settings
-MACHINA_DEFAULT_AUTHENTICATED_USER_FORUM_PERMISSIONS = [
-    "can_see_forum",
-    "can_read_forum",
-    "can_start_new_topics",
-    "can_reply_to_topics",
-    "can_edit_own_posts",
-    "can_post_without_approval",
-    "can_create_polls",
-    "can_vote_in_polls",
-    "can_download_file",
-]
 
 # News: list of users who are allowed to post without requiring moderation.
 # This complements the 'moderator' Group that also have posting privileges.

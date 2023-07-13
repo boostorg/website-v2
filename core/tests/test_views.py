@@ -1,16 +1,14 @@
-import pytest
 from unittest.mock import patch
 
+import pytest
 from django.core.cache import caches
 from django.test import RequestFactory
 from django.test.utils import override_settings
 
 from core.views import StaticContentTemplateView
 
-
 TEST_CACHES = {
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
-    "machina_attachments": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
     "static_content": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "TIMEOUT": 86400,
