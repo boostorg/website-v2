@@ -3,6 +3,15 @@
 <html>
 
   <head>
+    <!-- Google fonts for Cairo -->
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+    <script>
+      WebFont.load({
+        google: {
+          families: ['Cairo:200:latin', 'Cairo:300:latin', 'Cairo:400:latin', 'Cairo:500:latin', 'Cairo:600:latin', 'Cairo:700:latin', 'Cairo:800:latin']
+        }
+      });
+    </script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1N51ZC252K"></script>
     <script>
@@ -21,11 +30,8 @@
     <meta name="keywords" content="{% block keywords %}{% endblock %}">
     <meta name="author" content="{% block author %}{% endblock %}">
     <link rel="shortcut icon" href="{% static 'img/Boost_Symbol_Transparent.svg' %}" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
-    <!-- Google fonts for Cairo Medium and SemiBold -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.css" />
     <script src="//unpkg.com/alpinejs" defer></script>
     <script src="https://unpkg.com/htmx.org@1.8.5" integrity="sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w" crossorigin="anonymous"></script>

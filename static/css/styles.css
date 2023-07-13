@@ -1822,12 +1822,6 @@ i.fa, i.fab, i.fa-brands, i.fas {
   margin-bottom: calc(1.25rem * var(--tw-space-y-reverse));
 }
 
-.space-x-2 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-x-reverse: 0;
-  margin-right: calc(0.5rem * var(--tw-space-x-reverse));
-  margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
-}
-
 .space-y-1 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;
   margin-top: calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));
@@ -1838,6 +1832,12 @@ i.fa, i.fab, i.fa-brands, i.fas {
   --tw-space-x-reverse: 0;
   margin-right: calc(0.25rem * var(--tw-space-x-reverse));
   margin-left: calc(0.25rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.space-x-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0.5rem * var(--tw-space-x-reverse));
+  margin-left: calc(0.5rem * calc(1 - var(--tw-space-x-reverse)));
 }
 
 .space-y-6 > :not([hidden]) ~ :not([hidden]) {
@@ -3042,11 +3042,6 @@ i.fa, i.fab, i.fa-brands, i.fas {
 .dark .dark\:hover\:bg-slate:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(49 74 87 / var(--tw-bg-opacity));
-}
-
-.dark .dark\:hover\:bg-orange:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 159 0 / var(--tw-bg-opacity));
 }
 
 .dark .dark\:hover\:text-orange:hover {
