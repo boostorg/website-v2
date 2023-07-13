@@ -1,6 +1,6 @@
-import pytest
 import random
 
+import pytest
 from django.test.utils import override_settings
 
 
@@ -32,9 +32,6 @@ def test_403_page(db, tp):
 @override_settings(
     CACHES={
         "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
-        "machina_attachments": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache"
-        },
         "static_content": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
             "TIMEOUT": 86400,
