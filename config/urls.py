@@ -1,46 +1,35 @@
 from django.conf import settings
-from django.urls import include, re_path
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.urls import include, path, re_path
 from django.views.generic import TemplateView
-from django.urls import path
+from machina import urls as machina_urls
 from rest_framework import routers
 
-from machina import urls as machina_urls
-
-from users.views import (
-    UserViewSet,
-    CurrentUserAPIView,
-    CurrentUserProfileView,
-    ProfileView,
-    ProfilePhotoGitHubUpdateView,
-    ProfilePhotoUploadView,
-    ProfilePreferencesView,
-)
 from ak.views import (
-    HomepageView,
     ForbiddenView,
+    HomepageBetaView,
+    HomepageView,
     InternalServerErrorView,
     NotFoundView,
     OKView,
-    HomepageBetaView,
 )
 from core.views import (
     ClearCacheView,
     MarkdownTemplateView,
     StaticContentTemplateView,
-    antora_header_view,
     antora_footer_view,
-)
-from libraries.views import (
-    LibraryList,
-    LibraryListMini,
-    LibraryListByCategory,
-    LibraryListByCategoryMini,
-    LibraryDetail,
+    antora_header_view,
 )
 from libraries.api import LibrarySearchView
-from mailing_list.views import MailingListView, MailingListDetailView
+from libraries.views import (
+    LibraryDetail,
+    LibraryList,
+    LibraryListByCategory,
+    LibraryListByCategoryMini,
+    LibraryListMini,
+)
+from mailing_list.views import MailingListDetailView, MailingListView
 from news.views import (
     AllTypesCreateView,
     BlogPostCreateView,
@@ -60,9 +49,18 @@ from news.views import (
     VideoCreateView,
     VideoListView,
 )
-from support.views import SupportView, ContactView
+from support.views import ContactView, SupportView
+from users.views import (
+    CurrentUserAPIView,
+    CurrentUserProfileView,
+    ProfilePhotoGitHubUpdateView,
+    ProfilePhotoUploadView,
+    ProfilePreferencesView,
+    ProfileView,
+    UserViewSet,
+)
 from versions.api import VersionViewSet
-from versions.views import VersionDetail, VersionCurrentReleaseDetail
+from versions.views import VersionCurrentReleaseDetail, VersionDetail
 
 router = routers.SimpleRouter()
 
@@ -104,11 +102,6 @@ urlpatterns = (
             "docs/",
             TemplateView.as_view(template_name="docs_temp.html"),
             name="docs",
-        ),
-        path(
-            "about/",
-            TemplateView.as_view(template_name="boost/about.html"),
-            name="boost-about",
         ),
         path("health/", include("health_check.urls")),
         path("forum/", include(machina_urls)),
