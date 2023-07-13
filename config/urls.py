@@ -3,7 +3,6 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.generic import TemplateView
-from machina import urls as machina_urls
 from rest_framework import routers
 
 from ak.views import (
@@ -104,7 +103,6 @@ urlpatterns = (
             name="docs",
         ),
         path("health/", include("health_check.urls")),
-        path("forum/", include(machina_urls)),
         # temp page for community until mailman is done.
         path(
             "community/",
