@@ -126,6 +126,11 @@ Env:
       secretKeyRef:
         name: mailgun
         key: key
+  - name: GITHUB_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: githubtoken
+        key: key
   # Static content cache timeout
   - name: STATIC_CACHE_TIMEOUT
     value: "60"
