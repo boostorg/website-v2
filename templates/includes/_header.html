@@ -29,7 +29,7 @@
           </nav>
           <nav class="float-right items-center space-x-3 w-44 text-right lg:space-x-5" x-data="{ 'searchOpen': false }">
             <span class="relative">
-              <i class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange"
+              <i class="inline -mt-1 cursor-pointer text-slate fas fa-search link"
                  @click="searchOpen = true; $nextTick(() => { setTimeout(() => { document.getElementById('hq').focus(); }, 300);});"
               ></i>
               <div x-show="searchOpen"
@@ -63,15 +63,15 @@
               </div>
             </span>
 
-            <a href="{% url 'support' %}" class="inline"><i class="text-slate fas fa-question-circle dark:text-white/50 dark:hover:text-orange hover:text-orange"></i></a>
+            <a href="{% url 'support' %}" class="inline"><i class="text-slate fas fa-question-circle link"></i></a>
 
             <!-- theme switcher -->
             <span x-data="{ 'modeOpen': false }" class="relative">
               <span class="dark:hidden">
-                <i class="inline-block cursor-pointer fas fa-sun text-sky-500 dark:text-white/50 dark:hover:text-gold hover:text-gold" @click="modeOpen = !modeOpen"></i>
+                <i class="inline-block cursor-pointer fas fa-sun link" @click="modeOpen = !modeOpen"></i>
               </span>
               <span class="hidden dark:inline">
-                <i class="inline-block cursor-pointer fas fa-moon text-orange dark:text-sky-600 dark:hover:text-gold/80 hover:text-gold/60" @click="modeOpen = !modeOpen"></i>
+                <i class="inline-block cursor-pointer fas fa-moon link" @click="modeOpen = !modeOpen"></i>
               </span>
 
               <div
@@ -93,6 +93,9 @@
                             document.documentElement.classList.remove('dark')
                             localStorage.setItem('colorMode', 'light')
                         }
+                        document.head.querySelectorAll('.meta-theme').forEach((el) => {
+                          el.setAttribute('content', el.getAttribute('data-' + m));
+                        });
                     }
                 }"
 

@@ -32,7 +32,11 @@
     <link rel="shortcut icon" href="{% static 'img/Boost_Symbol_Transparent.svg' %}" type="image/x-icon">
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
 
+    <meta class="meta-theme" name="theme-color" content="#FAFAFA" data-dark="#18181B" data-light="#FAFAFA" />
+    <meta class="meta-theme" name="color-scheme" content="light" data-dark="dark" data-light="light" />
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@ryangjchandler/alpine-clipboard@2.x.x/dist/alpine-clipboard.js" defer></script>
     <script src="//unpkg.com/alpinejs" defer></script>
     <script src="https://unpkg.com/htmx.org@1.8.5" integrity="sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w" crossorigin="anonymous"></script>
     <!-- TODO bring this local if we like it -->
@@ -45,6 +49,9 @@
   <body x-init="() => {const m = localStorage.getItem('colorMode');
             if (m !== 'dark' && m !== 'light') return;
             mode = m;
+            document.head.querySelectorAll('.meta-theme').forEach((el) => {
+              el.setAttribute('content', el.getAttribute('data-' + m));
+            });
         }"
         class="h-screen bg-gray-200 dark:bg-black font-cairo" {% block body_id %}{% endblock %}>
 
@@ -72,26 +79,6 @@
 
     {% block footer_js %}{% endblock %}
 
-
-    <script>
-        function copyToClipboard() {
-            var text = document.getElementById("myText").innerText;
-
-            // Create a temporary textarea element
-            var tempTextArea = document.createElement("textarea");
-            tempTextArea.value = text;
-            document.body.appendChild(tempTextArea);
-
-            // Select and copy the text
-            tempTextArea.select();
-            document.execCommand("copy");
-
-            // Remove the temporary textarea
-            document.body.removeChild(tempTextArea);
-
-            alert("Text copied to clipboard");
-        }
-    </script>
   </body>
 
 </html>
