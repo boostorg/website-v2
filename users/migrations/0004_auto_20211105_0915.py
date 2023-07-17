@@ -2,18 +2,18 @@
 
 from django.db import migrations
 
-
-def gen_default_forum(apps, schema_editor):
-    forum = apps.get_model("forum", "Forum")
-    forum.objects.create(
-        name="Intial Forum",
-        type=0,
-        slug="initial-forum",
-        lft=1,
-        rght=2,
-        tree_id=1,
-        level=0,
-    )
+# 2023 removing forums
+# def gen_default_forum(apps, schema_editor):
+#     forum = apps.get_model("forum", "Forum")
+#     forum.objects.create(
+#         name="Intial Forum",
+#         type=0,
+#         slug="initial-forum",
+#         lft=1,
+#         rght=2,
+#         tree_id=1,
+#         level=0,
+#     )
 
 
 class Migration(migrations.Migration):
@@ -23,6 +23,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # omit reverse_code=... if you don't want the migration to be reversible.
-        migrations.RunPython(gen_default_forum, reverse_code=migrations.RunPython.noop),
+        # # omit reverse_code=... if you don't want the migration to be reversible.
+        # migrations.RunPython(gen_default_forum, reverse_code=migrations.RunPython.noop),
     ]
