@@ -9,9 +9,14 @@
 
     <div class="flex flex-row flex-nowrap items-center py-0 md:px-0" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
       <div class="flex-auto mb-2 w-full">
-        <span class="text-xl md:text-3xl lg:text-4xl">{% if current_release %}Newest Release </span><span class="text-lg whitespace-nowrap md:text-xl lg:text-3xl pr-[1vw]">({{ version.display_name }}){% else %}{{ version.display_name }}{% endif %} <img src="{% static 'img/fpo/boost-release-package.png' %}" class="inline w-8 h-auto"/></span></span>
+        <div>
+
+            <span class="text-xl md:text-3xl lg:text-4xl">{% if current_release %}Newest {% else %}Prior {% endif %}Release </span>
+            <span class="text-lg whitespace-nowrap md:text-xl lg:text-3xl pr-[1vw]">({{ version.display_name }})</span>
+          <img src="{% static 'img/fpo/boost-release-package.png' %}" class="inline w-8 h-auto" alt="Boost Release Package"/>
         </div>
-        <div class="flex-shrink">
+      </div>
+      <div class="flex-shrink">
       <form action="." method="post">
         {% csrf_token %}
         <div>
@@ -32,58 +37,96 @@
 
     </div>
 
-    <div class="p-6 text-white bg-white rounded-lg divide-x-0 divide-transparent shadow-lg md:flex md:divide-x md:divide-gray-200 dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-      <div class="pb-2 w-full md:pb-0 md:w-1/4 truncate">
+    <div class="p-6 w-full bg-white rounded-lg divide-x-0 divide-transparent shadow-lg md:flex md:divide-x md:divide-gray-200 dark:text-white truncate text-slate dark:bg-charcoal dark:bg-neutral-700">
+      <div class="pb-2 w-full h-36 md:pb-0 md:w-auto">
 
-        <span class="block px-2 pb-1 font-bold">{{ version.release_date|date:"F j, Y" }}</span>
+        <div class="flex flex-col">
 
-        <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
-           href="{{ version.documentation_url }}">
+          <div class="h-8">
+            <span class="block pb-1 font-bold">{{ version.release_date|date:"F j, Y" }}</span>
+          </div>
 
-          <span class="dark:text-white text-slate">Documentation</span>
-          <span class="block text-xs">{{ request.scheme }}://{{ request.get_host }}{{ version.documentation_url|cut:"https://"|cut:"index.html" }}</span>
-        </a>
+          <div class="-ml-2 h-14">
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
+              href="{{ version.documentation_url }}">
 
-        <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
-           href="{{ version.github_url }}">
-          <i class="float-right mt-1 fab fa-github"></i>
-          <span class="dark:text-white text-slate">Source Code</span>
-          <span class="block text-xs">{{ version.github_url|cut:"https://" }}</span>
-        </a>
+              <span class="dark:text-white text-slate">Documentation</span>
+              <span class="block text-xs">{{ request.scheme }}://{{ request.get_host }}{{ version.documentation_url|cut:"https://"|cut:"index.html" }}</span>
+            </a>
+          </div>
+
+          <div class="-ml-2 h-14">
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
+              href="{{ version.github_url }}">
+              <i class="float-right mt-1 fab fa-github"></i>
+              <span class="dark:text-white text-slate">Source Code</span>
+              <span class="block text-xs">{{ version.github_url|cut:"https://" }}</span>
+            </a>
+          </div>
+
+        </div>
 
       </div>
-      <div class="pt-2 pb-2 pl-0 ml-0 space-x-6 w-full md:pb-0 md:pl-6 md:ml-6">
-        <div class="flex overflow-y-hidden space-x-3">
-          <table class="table p-0 m-0 w-full text-sm text-left border-0 border-separate dark:text-white border-spacing-0 text-slate">
+      <div class="overflow-x-hidden pb-2 pl-0 ml-0 space-x-6 w-full h-auto md:pb-0 md:pl-6 md:ml-6">
+        <div class="flex space-x-3" x-data="truncator">
+          <table @load.window="adjust" @resize.window.throttle="adjust" class="p-0 m-0 w-full text-sm text-left border-0 border-separate table-auto dark:text-white border-spacing-0 text-slate">
             <tbody>
-            <tr class="bg-gray-200 border border-gray-200 dark:bg-charcoal">
-              <th scope="col" width="100" class="px-2 bg-gray-100 rounded-tl-lg border border-gray-200 md:rounded-tl-none dark:bg-charcoal">Platform</th>
-              <th scope="col" width="100" class="px-2 bg-gray-100 border border-gray-200 dark:bg-charcoal">File</th>
-              <th scope="col" class="px-2 bg-gray-100 rounded-tr-lg border border-gray-200 dark:bg-charcoal">SHA256 Hash</th>
+            <tr>
+              <th scope="col" width="150" class="px-2 h-8 text-base bg-gray-100 rounded-tl-lg border border-r-0 border-b-0 border-gray-200 md:rounded-tl-none dark:bg-charcoal">Platform</th>
+              <th scope="col" width="200" class="px-2 text-base bg-gray-100 border border-r-0 border-b-0 border-gray-200 dark:bg-charcoal">File</th>
+              <th scope="col" colspan="2" class="px-2 text-base bg-gray-100 rounded-tr-lg border border-b-0 border-gray-200 dark:bg-charcoal">SHA256 Hash</th>
             </tr>
-            <tr class="border border-gray-200">
-              <th scope="row" rowspan="2" class="px-2 bg-gray-100 border border-gray-200 dark:bg-charcoal"><i class="fab fa-linux"></i> Linux</th>
-              <td class="px-2 border border-gray-200"><a href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.bz2">boost_1_81_0.tar.bz2</a>
+            <tr>
+              <th scope="row" rowspan="2" class="px-2 h-14 whitespace-nowrap bg-gray-100 border border-r-0 border-b-0 border-gray-200 dark:bg-charcoal"><i class="fab fa-linux"></i> Linux</th>
+              <td class="px-2 border border-r-0 border-b-0 border-gray-200"><a href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.bz2">boost_1_81_0.tar.bz2</a>
               </td>
-              <td class="px-2 bg-gray-100 border border-gray-200 dark:bg-charcoal" title="71feeed900fbccca04a3b4f2f84a7c217186f28a940ed8b7ed4725986baf99fa">71feeed9…</td>
-            </tr>
-            <tr class="border border-gray-200">
-              <td class="px-2 border border-gray-200"><a href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.gz">boost_1_81_0.tar.gz</a>
+              <td width="30" class="px-1 mx-1 text-center align-bottom whitespace-nowrap border border-r-0 border-b-0 border-gray-200">
+                <button class="justify-center items-center w-4 h-full font-semibold shadow" @click="$clipboard($el.parentElement.nextSibling.nextSibling.title)">
+                  <svg class="link" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="m6 19v2c0 .621.52 1 1 1h2v-1.5h-1.5v-1.5zm7.5 3h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm4-3h-1.5v1.5h-1.5v1.5h2c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm0-4.363v-3.637h1.5v3.637zm-13-3.637v3.637h-1.5v-3.637zm11.5-4v1.5h1.5v1.5h1.5v-2c0-.478-.379-1-1-1zm-10 0h-2c-.62 0-1 .519-1 1v2h1.5v-1.5h1.5zm4.5 1.5h-3.5v-1.5h3.5zm3-1.5v-2.5h-13v13h2.5v-1.863h1.5v3.363h-4.5c-.48 0-1-.379-1-1v-14c0-.481.38-1 1-1h14c.621 0 1 .522 1 1v4.5h-3.5v-1.5z"/>
+                  </svg>
+                </button>
               </td>
-              <td class="px-2 bg-gray-100 border border-gray-200 dark:bg-charcoal" title="205666dea9f6a7cfed87c7a6dfbeb52a2c1b9de55712c9c1a87735d7181452b6">205666dea…</td>
+              <td class="bg-gray-100 border border-b-0 border-l-0 border-gray-200 truncCell dark:bg-charcoal" title="71feeed900fbccca04a3b4f2f84a7c217186f28a940ed8b7ed4725986baf99fa">71feeed900fbccca04a3b4f2f84a7c217186f28a940ed8b7ed4725986baf99fa</td>
+            </tr>
+            <tr >
+              <td class="px-2 border border-r-0 border-b-0 border-gray-200"><a href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.gz">boost_1_81_0.tar.gz</a>
+              </td>
+              <td width="30" class="px-1 mx-1 text-center align-bottom whitespace-nowrap border border-r-0 border-b-0 border-gray-200">
+                <button class="justify-center items-center w-4 h-full font-semibold shadow" @click="$clipboard($el.parentElement.nextSibling.nextSibling.title)">
+                  <svg class="link" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="m6 19v2c0 .621.52 1 1 1h2v-1.5h-1.5v-1.5zm7.5 3h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm4-3h-1.5v1.5h-1.5v1.5h2c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm0-4.363v-3.637h1.5v3.637zm-13-3.637v3.637h-1.5v-3.637zm11.5-4v1.5h1.5v1.5h1.5v-2c0-.478-.379-1-1-1zm-10 0h-2c-.62 0-1 .519-1 1v2h1.5v-1.5h1.5zm4.5 1.5h-3.5v-1.5h3.5zm3-1.5v-2.5h-13v13h2.5v-1.863h1.5v3.363h-4.5c-.48 0-1-.379-1-1v-14c0-.481.38-1 1-1h14c.621 0 1 .522 1 1v4.5h-3.5v-1.5z"/>
+                  </svg>
+                </button>
+              </td>
+              <td class="bg-gray-100 border border-b-0 border-l-0 border-gray-200 truncCell dark:bg-charcoal" title="205666dea9f6a7cfed87c7a6dfbeb52a2c1b9de55712c9c1a87735d7181452b6">205666dea9f6a7cfed87c7a6dfbeb52a2c1b9de55712c9c1a87735d7181452b6</td>
             </tr>
             <tr class="border border-gray-200">
-              <th scope="row" rowspan="2" class="px-2 bg-gray-100 rounded-bl-lg border border-gray-200 md:rounded-bl-none dark:bg-charcoal"><i class="fab fa-windows"></i> Windows</th>
-              <td class="px-2 border border-gray-200"><a
+              <th scope="row" rowspan="2" class="px-2 h-14 whitespace-nowrap bg-gray-100 rounded-bl-lg border border-r-0 border-gray-200 md:rounded-bl-none dark:bg-charcoal"><i class="fab fa-windows"></i> Windows</th>
+              <td class="px-2 border border-r-0 border-b-0 border-gray-200"><a
                 href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.7z">boost_1_81_0.7z</a>
               </td>
-              <td class="px-2 bg-gray-100 border border-gray-200 dark:bg-charcoal" title="d7bc4e2a2aee374a8c24832cacfed1265680c1e824d09fab3e00f87508155353">d7bc4e2a2a…</td>
+              <td width="30" class="px-1 mx-1 text-center align-bottom whitespace-nowrap border border-r-0 border-b-0 border-gray-200">
+                <button class="justify-center items-center w-4 h-full font-semibold shadow" @click="$clipboard($el.parentElement.nextSibling.nextSibling.title)">
+                  <svg class="link" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="m6 19v2c0 .621.52 1 1 1h2v-1.5h-1.5v-1.5zm7.5 3h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm4-3h-1.5v1.5h-1.5v1.5h2c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm0-4.363v-3.637h1.5v3.637zm-13-3.637v3.637h-1.5v-3.637zm11.5-4v1.5h1.5v1.5h1.5v-2c0-.478-.379-1-1-1zm-10 0h-2c-.62 0-1 .519-1 1v2h1.5v-1.5h1.5zm4.5 1.5h-3.5v-1.5h3.5zm3-1.5v-2.5h-13v13h2.5v-1.863h1.5v3.363h-4.5c-.48 0-1-.379-1-1v-14c0-.481.38-1 1-1h14c.621 0 1 .522 1 1v4.5h-3.5v-1.5z"/>
+                  </svg>
+                </button>
+              </td>
+              <td class="bg-gray-100 border border-b-0 border-l-0 border-gray-200 truncCell dark:bg-charcoal" title="d7bc4e2a2aee374a8c24832cacfed1265680c1e824d09fab3e00f87508155353">d7bc4e2a2aee374a8c24832cacfed1265680c1e824d09fab3e00f87508155353</td>
             </tr>
             <tr class="border border-gray-200">
-              <td class="px-2 border border-gray-200"><a
+              <td class="px-2 border border-r-0 border-gray-200"><a
                 href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.zip">boost_1_81_0.zip</a>
               </td>
-              <td class="px-2 bg-gray-100 rounded-br-lg border border-gray-200 dark:bg-charcoal" title="6e689b266b27d4db57f648b1e5c905c8acd6716b46716a12f6fc73fc80af842e">6e689b266b…</td>
+              <td width="30" class="px-1 mx-1 text-center align-bottom whitespace-nowrap border border-r-0 border-gray-200">
+                <button class="justify-center items-center w-4 h-full font-semibold shadow" @click="$clipboard($el.parentElement.nextSibling.nextSibling.title)">
+                  <svg class="link" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="m6 19v2c0 .621.52 1 1 1h2v-1.5h-1.5v-1.5zm7.5 3h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm4-3h-1.5v1.5h-1.5v1.5h2c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm0-4.363v-3.637h1.5v3.637zm-13-3.637v3.637h-1.5v-3.637zm11.5-4v1.5h1.5v1.5h1.5v-2c0-.478-.379-1-1-1zm-10 0h-2c-.62 0-1 .519-1 1v2h1.5v-1.5h1.5zm4.5 1.5h-3.5v-1.5h3.5zm3-1.5v-2.5h-13v13h2.5v-1.863h1.5v3.363h-4.5c-.48 0-1-.379-1-1v-14c0-.481.38-1 1-1h14c.621 0 1 .522 1 1v4.5h-3.5v-1.5z"/>
+                  </svg>
+                </button>
+              </td>
+              <td class="bg-gray-100 rounded-br-lg border border-l-0 border-gray-200 truncCell dark:bg-charcoal" title="6e689b266b27d4db57f648b1e5c905c8acd6716b46716a12f6fc73fc80af842e">6e689b266b27d4db57f648b1e5c905c8acd6716b46716a12f6fc73fc80af842e</td>
             </tr>
             </tbody>
           </table>
@@ -93,7 +136,7 @@
     </div>
 
 
-    <div class="p-6 my-4 text-white bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+    <div class="p-6 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
       <h3 class="mb-2 border-b border-gray-200">New Libraries</h3>
       URL:
       <p>A library for parsing, modifying, and printing URLs using only C++11, from Vinnie Falco and Alan de Freitas.
@@ -1345,4 +1388,30 @@
     </div>
 
   </div>
+{% endblock %}
+
+{% block footer_js %}
+<script>
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('truncator', () => ({
+      truncation: 0,
+      adjust() {
+        if (this.$root.clientWidth >= this.$root.scrollWidth && this.$root.parentElement.clientWidth >= this.$root.querySelectorAll('table')[0].clientWidth) {
+          this.truncation = 0;
+          this.$el.querySelectorAll(`.truncCell`).forEach((el) => {
+            el.innerHTML = el.title;
+          });
+        }
+        else {
+          while (this.$root.clientWidth < this.$root.scrollWidth || this.$root.parentElement.clientWidth < this.$root.querySelectorAll('table')[0].clientWidth) {
+            this.truncation++;
+            this.$el.querySelectorAll(`.truncCell`).forEach((el) => {
+              el.innerHTML = el.title.substr(0, (el.title.length / 2) - this.truncation) + '&hellip;' + el.title.substr((el.title.length / 2) + this.truncation, el.title.length);
+            });
+          }
+        }
+      },
+    }));
+  });
+</script>
 {% endblock %}
