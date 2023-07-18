@@ -1,5 +1,5 @@
 """
-WSGI config for Forum.
+WSGI config for temp-site.
 """
 
 import os
