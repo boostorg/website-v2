@@ -51,7 +51,7 @@ class CurrentUserAPIView(generics.RetrieveUpdateAPIView):
 class ProfileView(DetailView):
     """
     ViewSet to show statistics about a user to include
-    stats, badges, forum posts, reviews, etc.
+    stats, badges, reviews, etc.
     """
 
     model = User
