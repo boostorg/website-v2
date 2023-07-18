@@ -12,7 +12,7 @@ from versions.models import Version
 
 class HomepageView(TemplateView):
     """
-    Our default homepage for Forum.  We expect you to not use this view
+    Our default homepage for temp-site.  We expect you to not use this view
     after you start working on your project.
     """
 
