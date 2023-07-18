@@ -138,7 +138,6 @@ We use [pre-commit hooks](https://pre-commit.com/) to check code for style, synt
 | [Black](https://github.com/psf/black) | Formats Python code using the `black` code formatter |
 | [Ruff](https://github.com/charliermarsh/ruff) | Wrapper around `flake8` and `isort`, among other linters |
 | [Djhtml](https://github.com/rtts/djhtml) | Auto-formats Django templates |
-| [Rustywind](https://github.com/avencera/rustywind) | Sorts and formats Tailwind CSS classes |
 
 ### Setup and Usage
 
@@ -158,4 +157,3 @@ Example commands for running specific hooks:
 | Black | `pre-commit run black` |
 | Ruff | `pre-commit run ruff` |
 | Djhtml | `pre-commit run djhtml` |
-| Rustywind | `pre-commit run rustywind` |
