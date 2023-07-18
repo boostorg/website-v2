@@ -32,9 +32,6 @@
   p {
     @apply py-5;
   }
-  p a {
-    @apply text-orange;
-  }
   pre {
     @apply p-6;
   }
@@ -64,8 +61,10 @@
     @apply group-hover:text-orange dark:group-hover:text-orange;
     @apply fill-current;
   }
-  /* note that if applying the .link class to an icon, the non-hover color will be controlled by the following style */
-  i.fa, i.fab, i.fa-brands, i.fas {
-    @apply text-slate dark:text-white;
+  /* use both .link and .link-force on an icon in order to bypass the following style and use all styles from .link */
+  i:not(.link-force) {
+    i.fa, i.fab, i.fa-brands, i.fas {
+      @apply text-slate dark:text-white;
+    }
   }
 }
