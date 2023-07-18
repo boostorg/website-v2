@@ -28,7 +28,7 @@
         <div>
           <select onchange="this.form.submit()"
                   name="category"
-                  class="block py-2 pr-11 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
+                  class="block py-2 pr-11 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black  dark:border-slate"
                   id="id_category"
           >
             <option value="">Filter by category</option>
@@ -46,7 +46,7 @@
         <!-- Select a version -->
         <select onchange="this.form.submit()"
                 name="version"
-                class="absolute right-0 py-2 pr-8 pl-5 mb-3 text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
+                class="absolute right-0 py-2 pr-8 pl-5 mb-3 text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black dark:border-slate"
                 id="id_version">
           {% for v in versions %}
           <option value="{{ v.slug }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
@@ -54,6 +54,12 @@
         </select>
       </div>
     </form>
+  </div>
+
+  <div class="flex-auto mb-2 w-full text-left">
+    <div class="w-full">
+        <span class="text-xl md:text-3xl lg:text-4xl">Libraries by Category</span>
+    </div>
   </div>
 
   <!-- alert for non-current Boost versions -->
