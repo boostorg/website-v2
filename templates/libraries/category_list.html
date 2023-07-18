@@ -39,9 +39,9 @@
         </div>
 
         <!-- Display options -->
-        <div><a href="{% url 'libraries-mini' %}"><i class="bg-white rounded border border-gray-300 cursor-pointer dark:text-white fas fa-list p-[10px] dark:bg-charcoal hover:bg-orange"></i></a></div>
-        <div><a href="{% url 'libraries' %}"><i class="bg-white rounded border border-gray-300 cursor-pointer dark:text-white fas fa-th-large p-[10px] dark:bg-charcoal hover:bg-orange"></i></a></div>
-        <div><a href="{% url 'libraries-by-category' %}"><i class="text-white bg-gray-600 rounded border border-gray-300 cursor-pointer fas fa-cat p-[10px] dark:bg-green/40 hover:bg-orange"></i></a></div>
+        <div><a title="Name View" href="{% url 'libraries-mini' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-list p-[10px] hover:bg-gray-100 dark:hover:bg-slate"></i></a></div>
+        <div><a title="Grid View" href="{% url 'libraries' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-th-large p-[10px] hover:bg-gray-100 dark:hover:bg-slate"></i></a></div>
+        <div><a title="Category View" href="{% url 'libraries-by-category' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-cat p-[10px] bg-gray-100 dark:bg-slate"></i></a></div>
 
         <!-- Select a version -->
         <select onchange="this.form.submit()"
@@ -64,9 +64,11 @@
     {% if by_category %}
       {% for result in library_list %}
       <div class="relative content-between p-3 w-full bg-white rounded-lg shadow-lg md:p-5 dark:bg-charcoal">
-        <h2 class="mt-1 text-2xl font-bold myb-2">{{ result.category }}</h2>
+        <h5 class="pb-2 text-2xl font-bold leading-tight text-orange border-b border-gray-300 dark:border-slate">{{ result.category }}</h5>
         {% for library in result.libraries %}
           {% include "libraries/_library_category_list_item.html" %}
+        {% empty %}
+          <p class="text-gray-600 dark:text-gray-400">No libraries in this category yet.</p>
         {% endfor %}
       </div>
       {% endfor %}

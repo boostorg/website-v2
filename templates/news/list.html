@@ -79,27 +79,27 @@
             {% if entry.tag == "link" %}
               {% url 'news-link-list' as target_url %}
               <a href="{{ target_url }}" title="Link" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
-                <i class="text-gray-400 fas fa-link dark:text-white/60"></i>
+                <i class="fas fa-link"></i>
               </a>
             {% elif entry.tag == "news" %}
               {% url 'news-news-list' as target_url %}
               <a href="{{ target_url }}" title="News" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
-                <i class="text-gray-400 fas fa-bell dark:text-white/60"></i>
+                <i class="fa fa-newspaper"></i>
               </a>
             {% elif entry.tag == "blogpost" %}
               {% url 'news-blogpost-list' as target_url %}
               <a href="{{ target_url }}" title="Blog Post" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 py-[1px] w-[30px] h-[30px] dark:bg-slate">
-                <i class="text-gray-400 fas fa-newspaper dark:text-white/60"></i>
+                <i class="fa fa-comment"></i>
               </a>
             {% elif entry.tag == "poll" %}
               {% url 'news-poll-list' as target_url %}
               <a href="{{ target_url }}" title="Poll" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
-                <i class="text-gray-400 fas fa-poll dark:text-white/60"></i>
+                <i class="fa fa-poll"></i>
               </a>
             {% elif entry.tag == "video" %}
               {% url 'news-video-list' as target_url %}
               <a href="{{ target_url }}" title="Video" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
-                <i class="text-gray-400 fas fa-video dark:text-white/60"></i>
+                <i class="fa fa-video"></i>
               </a>
             {% else %}
               <i class="text-gray-400 fas fa-calendar-alt dark:text-white/60" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate"></i>
@@ -134,27 +134,27 @@
                 {% if entry.tag == "link" %}
                   {% url 'news-link-list' as target_url %}
                   <a href="{{ target_url }}" title="Link" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
-                    <i class="text-gray-400 fas fa-link dark:text-white/60"></i>
+                    <i class="fas fa-link"></i>
                   </a>
                 {% elif entry.tag == "news" %}
                   {% url 'news-news-list' as target_url %}
                   <a href="{{ target_url }}" title="News" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
-                    <i class="text-gray-400 fas fa-bell dark:text-white/60"></i>
+                    <i class="fa fa-newspaper"></i>
                   </a>
                 {% elif entry.tag == "blogpost" %}
                   {% url 'news-blogpost-list' as target_url %}
                   <a href="{{ target_url }}" title="Blog Post" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 py-[1px] w-[30px] h-[30px] dark:bg-slate">
-                    <i class="text-gray-400 fas fa-newspaper dark:text-white/60"></i>
+                    <i class="fa fa-comment"></i>
                   </a>
                 {% elif entry.tag == "poll" %}
                   {% url 'news-poll-list' as target_url %}
                   <a href="{{ target_url }}" title="Poll" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
-                    <i class="text-gray-400 fas fa-poll dark:text-white/60"></i>
+                    <i class="fa fa-poll"></i>
                   </a>
                 {% elif entry.tag == "video" %}
                   {% url 'news-video-list' as target_url %}
                   <a href="{{ target_url }}" title="Video" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
-                    <i class="text-gray-400 fas fa-video dark:text-white/60"></i>
+                    <i class="fa fa-video"></i>
                   </a>
                 {% else %}
                   <i class="text-gray-400 fas fa-calendar-alt dark:text-white/60" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate"></i>
