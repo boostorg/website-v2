@@ -28,13 +28,3 @@ repos:
         entry: djhtml --tabwidth 2
         files: .*/templates/.*\.html$
         alias: autoformat
-  - repo: local
-    hooks:
-      - id: rustywind
-        name: rustywind Tailwind CSS class linter
-        language: node
-        additional_dependencies:
-          - rustywind@0.16.0
-        entry: rustywind
-        args: [ --write, templates ]
-        types_or: [ html ]
