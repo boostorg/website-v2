@@ -21,7 +21,7 @@ initCommands:
   - name: collectstatic
     command: ./manage.py collectstatic --noinput
 
-publicFqdn: &fqdn stage.boost.cpp.al
+publicFqdn: &fqdn stage.boost.cppalliance.org
 
 Env:
   - name: DJANGO_SETTINGS_MODULE
@@ -54,9 +54,9 @@ Env:
   - name: DJANGO_FQDN
     value: *fqdn
   - name: ALLOWED_HOSTS
-    value: "stage.boost.cpp.al, www.stage.boost.cpp.al"
+    value: "stage.boost.cppalliance.org, www.stage.boost.cppalliance.org"
   - name: CSRF_TRUSTED_ORIGINS
-    value: "http://0.0.0.0, http://localhost, https://stage.boost.cpp.al, https://www.stage.boost.cpp.al"
+    value: "http://0.0.0.0, http://localhost, https://stage.boost.cppalliance.org, https://www.stage.boost.cppalliance.org"
 
   # silence django deprecation warnings
   - name: PYTHONWARNINGS
