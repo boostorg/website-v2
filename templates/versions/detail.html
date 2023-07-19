@@ -11,7 +11,7 @@
       <div class="flex-auto mb-2 w-full">
         <div>
 
-            <span class="text-xl md:text-3xl lg:text-4xl">{% if current_release %}Newest {% else %}Prior {% endif %}Release </span>
+            <span class="text-xl md:text-3xl lg:text-4xl">{% if is_current_release %}Newest {% else %}Prior {% endif %}Release </span>
             <span class="text-lg whitespace-nowrap md:text-xl lg:text-3xl pr-[1vw]">({{ version.display_name }})</span>
           <img src="{% static 'img/fpo/boost-release-package.png' %}" class="inline w-8 h-auto" alt="Boost Release Package"/>
         </div>
@@ -26,9 +26,8 @@
                   class="py-1 mb-3 text-sm bg-white rounded-md border border-gray-300 cursor-pointer dark:bg-black pr-[1vw] pl-[2vw] w-[20vw] text-sky-600 dark:text-orange dark:border-slate"
                   id="id_version"
           >
-            <option>Newest Version ({{ version.display_name }})</option>
             {% for v in versions %}
-              <option value="{{ v.pk }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
+              <option value="{{ v.pk }}" {% if version == v %}selected="selected"{% endif %}>{% if v == current_release %}Newest Release ({{ v.display_name }}) {% else %}{{ v.display_name }}{% endif %}</option>
             {% endfor %}
           </select>
         </div>

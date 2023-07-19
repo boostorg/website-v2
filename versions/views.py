@@ -21,9 +21,10 @@ class VersionDetail(FormMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context["versions"] = Version.objects.active().order_by("-release_date")
-        current_version = Version.objects.most_recent()
+        current_release = Version.objects.most_recent()
+        context["current_release"] = current_release
         obj = self.get_object()
-        context["current_release"] = bool(current_version == obj)
+        context["is_current_release"] = bool(current_release == obj)
 
         return context
 
@@ -46,7 +47,7 @@ class VersionCurrentReleaseDetail(VersionDetail):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
-        context["current_release"] = True
+        context["is_current_release"] = True
         return context
 
     def get_object(self):
