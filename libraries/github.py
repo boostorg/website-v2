@@ -342,7 +342,7 @@ class GithubAPIClient:
 
         return results
 
-    def get_tag_by_name(self, tag_name: str, repo_slug: str = None) -> dict:
+    def get_release_by_tag(self, tag_name: str, repo_slug: str = None) -> dict:
         """Get a tag by name from the GitHub API."""
         if not repo_slug:
             repo_slug = self.repo_slug
@@ -351,7 +351,10 @@ class GithubAPIClient:
                 owner=self.owner, repo=repo_slug, tag=tag_name
             )
         except Exception:
-            logger.info("tag_not_found", tag_name=tag_name, repo_slug=repo_slug)
+            # Not necessarily an error, so log it but don't raise.
+            logger.info(
+                "release_by_tag_not_found", tag_name=tag_name, repo_slug=repo_slug
+            )
             return
 
     def get_tags(self, repo_slug: str = None) -> dict:

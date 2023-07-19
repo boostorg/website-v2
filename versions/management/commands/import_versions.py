@@ -82,12 +82,16 @@ def command(
             click.echo(f"Skipping {name}, not a full release")
             continue
 
-        tag_data = client.get_tag_by_name(name)
+        # Get the metadata about the release from Github
 
         version_data = None
         parser = GithubDataParser()
+
+        # Try to get the metadata about the release from the tag
+        tag_data = client.get_release_by_tag(name)
         if tag_data:
-            # This is a tag and a release, so the metadata is in the tag itself
+            # This is a tag and a release, so the metadata is in the tag itself and
+            # we can parse the data we already have
             version_data = parser.parse_tag(tag_data)
         else:
             # This is a tag, but not a release, so the metadata is in the commit

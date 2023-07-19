@@ -184,14 +184,20 @@ Output:
     Skipping boost-1.82.0.beta1, not a full release
     Saved version boost-1.81.0. Created: True
     Skipping boost-1.81.0.beta1, not a full release
-    tag_not_found
-    {"message": "tag_not_found", "tag_name": "boost-1.80.0", "repo_slug": "boost", "logger": "libraries.github", "level": "info", "timestamp": "2023-05-12T22:14:08.721270Z"}
+    release_by_tag_not_found
+    {"message": "release_by_tag_not_found", "tag_name": "boost-1.80.0", "repo_slug": "boost", "logger": "libraries.github", "level": "info", "timestamp": "2023-05-12T22:14:08.721270Z"}
     ...
     Saved library version Math (boost-1.82.0). Created: True
     Saved library version Xpressive (boost-1.82.0). Created: True
     Saved library version Dynamic Bitset (boost-1.82.0). Created: True
     Saved library version Multi-Index (boost-1.82.0). Created: True
     ...
+
+**What does the `release_by_tag_not_found` error mean?**
+
+When importing the Boost releases, we first get a list of all the tags for the Boost repo. Then, we call the GitHub API's `get_release_by_tag` API to get metadata about the release. But not all Boost tags are also full releases. In this case, we call the `get_commit` endpoint with the commit SHA of the tag to get this information. We could call `get_commit` in every case, but the data in `get_release_by_tag` is more accurate, particularly for the release date.
+
+When we don't find the release in `get_release_by_tag`, we log the error (which is what you may see in the output), but we follow up by getting the data from the commit endpoint.
 
 
 ## `update_libraries`
