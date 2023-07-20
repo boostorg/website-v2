@@ -54,4 +54,4 @@ def test_version_documentation_url(version):
 
 
 def test_version_file_creation(full_version_one):
-    assert full_version_one.files.count() == 3
+    assert full_version_one.downloads.count() == 3

@@ -3,10 +3,7 @@ import hashlib
 import pytest
 import random
 
-from pathlib import Path
 from model_bakery import baker
-from django.core.files import File
-from django.core.files.base import ContentFile
 
 from versions.models import VersionFile
 
@@ -26,10 +23,14 @@ def version(db):
         release_date=yesterday,
     )
 
-    # Make verison file
+    # Make version download file
     c = fake_checksum()
-    f1 = ContentFile("Version 1 Fake Content")
-    baker.make("versions.VersionFile", version=v, checksum=c, file=f1)
+    baker.make(
+        "versions.VersionFile",
+        version=v,
+        checksum=c,
+        url="https://example.com/version_1.tar.gz",
+    )
 
     return v
 
@@ -46,10 +47,14 @@ def inactive_version(db):
         active=False,
     )
 
-    # Make verison file
+    # Make version download file
     c = fake_checksum()
-    f1 = ContentFile("Old Version Fake Content")
-    baker.make("versions.VersionFile", version=v, checksum=c, file=f1)
+    baker.make(
+        "versions.VersionFile",
+        version=v,
+        checksum=c,
+        url="https://example.com/old_version.tar.gz",
+    )
 
     return v
 
@@ -65,23 +70,23 @@ def old_version(db):
         release_date=last_year,
     )
 
-    # Make verison file
+    # Make version download file
     c = fake_checksum()
-    f1 = ContentFile("Version 1 Fake Content")
-    baker.make("versions.VersionFile", version=v, checksum=c, file=f1)
-
+    baker.make(
+        "versions.VersionFile",
+        version=v,
+        checksum=c,
+        url="https://example.com/version_1_fake.tar.gz",
+    )
     return v
-
-
-def get_version_file_path(name):
-    BASE_DIR = Path(__file__).parent
-    return BASE_DIR.joinpath(f"files/{name}")
 
 
 @pytest.fixture
 def full_version_one(db):
     """Build a full version with 3 attached files"""
     yesterday = datetime.date.today() - datetime.timedelta(days=1)
+    base_url = "https://example.com/"
+    base_url_suffix = ".tar.gz"
     v = baker.make(
         "versions.Version",
         name="1.79.0",
@@ -90,28 +95,34 @@ def full_version_one(db):
         active=False,
     )
 
-    vf1 = baker.prepare(
-        "versions.VersionFile", version=v, operating_system=VersionFile.Unix
+    f1_url = f"{base_url}version1{base_url_suffix}"
+    c1 = fake_checksum()
+    baker.make(
+        "versions.VersionFile",
+        version=v,
+        operating_system=VersionFile.Unix,
+        url=f1_url,
+        checksum=c1,
     )
-    f1_path = get_version_file_path("version1.tar.gz")
-    with open(f1_path, "rb") as f:
-        vf1.file.save(f1_path.name, File(f), save=True)
-        vf1.save()
 
-    vf2 = baker.prepare(
-        "versions.VersionFile", version=v, operating_system=VersionFile.Unix
+    f2_url = f"{base_url}version1_2{base_url_suffix}"
+    c2 = fake_checksum()
+    baker.make(
+        "versions.VersionFile",
+        version=v,
+        operating_system=VersionFile.Unix,
+        url=f2_url,
+        checksum=c2,
     )
-    f2_path = get_version_file_path("version1.tar.bz2")
-    with open(f2_path, "rb") as f:
-        vf2.file.save(f2_path.name, File(f), save=True)
-        vf2.save()
 
-    vf3 = baker.prepare(
-        "versions.VersionFile", version=v, operating_system=VersionFile.Windows
+    f3_url = f"{base_url}version1_3{base_url_suffix}"
+    c3 = fake_checksum()
+    baker.make(
+        "versions.VersionFile",
+        version=v,
+        operating_system=VersionFile.Windows,
+        url=f3_url,
+        checksum=c3,
     )
-    f3_path = get_version_file_path("version1.zip")
-    with open(f3_path, "rb") as f:
-        vf3.file.save(f3_path.name, File(f), save=True)
-        vf3.save()
 
     return v
