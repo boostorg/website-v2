@@ -58,11 +58,30 @@ def command(release, token):
                 continue
 
             libraries_json = client.get_libraries_json(repo_slug=library_name)
+
+            # Some specific library-versions (Hana v1.65.0, for example) require
+            # the "url" field from the .gitmodules file to be used instead of the
+            # module name, so we try the module name first, and if that doesn't
+            # work, we try the url.
             github_data = client.get_repo(repo_slug=library_name)
-            extra_data = {
-                "last_github_update": parse_date(github_data.get("updated_at", "")),
-                "github_url": github_data.get("html_url", ""),
-            }
+
+            if not github_data:
+                github_data = client.get_repo(repo_slug=gitmodule["url"])
+
+            if github_data:
+                extra_data = {
+                    "last_github_update": parse_date(github_data.get("updated_at", "")),
+                    "github_url": github_data.get("html_url", ""),
+                }
+            else:
+                skipped.append(
+                    {
+                        "version": version.name,
+                        "library": library_name,
+                        "reason": "Not skipped, but data is incomplete",
+                    }
+                )
+                extra_data = {}
 
             # If the libraries.json file exists, we can use it to get the library info
             if libraries_json:
