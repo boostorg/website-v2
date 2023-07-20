@@ -1,6 +1,5 @@
 import djclick as click
 
-from fastcore.net import HTTP422UnprocessableEntityError
 from libraries.github import GithubAPIClient, GithubDataParser, LibraryUpdater
 from libraries.models import Library, LibraryVersion
 from libraries.utils import parse_date
@@ -39,18 +38,19 @@ def command(release, token):
     for version in versions:
         click.echo(f"Processing version {version.name}...")
         ref = client.get_ref(ref=f"tags/{version.name}")
-        try:
-            raw_gitmodules = client.get_gitmodules(ref=ref)
-        except HTTP422UnprocessableEntityError as e:
-            # Only happens for one version; uncertain why.
+        raw_gitmodules = client.get_gitmodules(ref=ref)
+        if not raw_gitmodules:
             click.secho(f"Could not get gitmodules for {version.name}.", fg="red")
-            skipped.append({"version": version.name, "reason": str(e)})
+            skipped.append(
+                {"version": version.name, "reason": "Invalid gitmodules file"}
+            )
             continue
 
         gitmodules = parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
 
         for gitmodule in gitmodules:
             library_name = gitmodule["module"]
+
             click.echo(f"Processing module {library_name}...")
 
             if library_name in updater.skip_modules:

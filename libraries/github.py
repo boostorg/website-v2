@@ -9,6 +9,7 @@ import structlog
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from fastcore.net import HTTP422UnprocessableEntityError
 from fastcore.xtras import obj2dict
 from ghapi.all import GhApi, paged
 
@@ -201,7 +202,15 @@ class GithubAPIClient:
         if not ref:
             ref = self.get_ref()
         tree_sha = ref["object"]["sha"]
-        tree = self.get_tree(tree_sha=tree_sha)
+
+        try:
+            tree = self.get_tree(tree_sha=tree_sha)
+        except HTTP422UnprocessableEntityError as e:
+            # Only happens for version 1.61.0; uncertain why.
+            self.logger.exception(
+                "get_gitmodules_failed", repo=repo_slug, exc_msg=str(e)
+            )
+            return None
 
         for item in tree["tree"]:
             if item["path"] == ".gitmodules":
