@@ -27,6 +27,7 @@ def test_extract_file_data():
 
     expected_result = {
         "content": b"file content",
+        "content_key": s3_key,
         "content_type": "text/plain",
         "last_modified": datetime.datetime(2023, 6, 8, 12, 0, 0),
     }
