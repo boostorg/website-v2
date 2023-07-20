@@ -75,58 +75,25 @@
               <th scope="col" width="200" class="px-2 text-base bg-gray-100 border border-r-0 border-b-0 border-gray-200 dark:bg-charcoal">File</th>
               <th scope="col" colspan="2" class="px-2 text-base bg-gray-100 rounded-tr-lg border border-b-0 border-gray-200 dark:bg-charcoal">SHA256 Hash</th>
             </tr>
-            <tr>
-              <th scope="row" rowspan="2" class="px-2 h-14 whitespace-nowrap bg-gray-100 border border-r-0 border-b-0 border-gray-200 dark:bg-charcoal"><i class="fab fa-linux"></i> Linux</th>
-              <td class="px-2 border border-r-0 border-b-0 border-gray-200"><a href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.bz2">boost_1_81_0.tar.bz2</a>
-              </td>
-              <td width="30" class="px-1 mx-1 text-center align-bottom whitespace-nowrap border border-r-0 border-b-0 border-gray-200">
-                <button class="justify-center items-center w-4 h-full font-semibold shadow" @click="$clipboard($el.parentElement.nextSibling.nextSibling.title)">
-                  <svg class="link" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="m6 19v2c0 .621.52 1 1 1h2v-1.5h-1.5v-1.5zm7.5 3h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm4-3h-1.5v1.5h-1.5v1.5h2c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm0-4.363v-3.637h1.5v3.637zm-13-3.637v3.637h-1.5v-3.637zm11.5-4v1.5h1.5v1.5h1.5v-2c0-.478-.379-1-1-1zm-10 0h-2c-.62 0-1 .519-1 1v2h1.5v-1.5h1.5zm4.5 1.5h-3.5v-1.5h3.5zm3-1.5v-2.5h-13v13h2.5v-1.863h1.5v3.363h-4.5c-.48 0-1-.379-1-1v-14c0-.481.38-1 1-1h14c.621 0 1 .522 1 1v4.5h-3.5v-1.5z"/>
-                  </svg>
-                </button>
-              </td>
-              <td class="bg-gray-100 border border-b-0 border-l-0 border-gray-200 truncCell dark:bg-charcoal" title="71feeed900fbccca04a3b4f2f84a7c217186f28a940ed8b7ed4725986baf99fa">71feeed900fbccca04a3b4f2f84a7c217186f28a940ed8b7ed4725986baf99fa</td>
-            </tr>
-            <tr >
-              <td class="px-2 border border-r-0 border-b-0 border-gray-200"><a href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.gz">boost_1_81_0.tar.gz</a>
-              </td>
-              <td width="30" class="px-1 mx-1 text-center align-bottom whitespace-nowrap border border-r-0 border-b-0 border-gray-200">
-                <button class="justify-center items-center w-4 h-full font-semibold shadow" @click="$clipboard($el.parentElement.nextSibling.nextSibling.title)">
-                  <svg class="link" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="m6 19v2c0 .621.52 1 1 1h2v-1.5h-1.5v-1.5zm7.5 3h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm4-3h-1.5v1.5h-1.5v1.5h2c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm0-4.363v-3.637h1.5v3.637zm-13-3.637v3.637h-1.5v-3.637zm11.5-4v1.5h1.5v1.5h1.5v-2c0-.478-.379-1-1-1zm-10 0h-2c-.62 0-1 .519-1 1v2h1.5v-1.5h1.5zm4.5 1.5h-3.5v-1.5h3.5zm3-1.5v-2.5h-13v13h2.5v-1.863h1.5v3.363h-4.5c-.48 0-1-.379-1-1v-14c0-.481.38-1 1-1h14c.621 0 1 .522 1 1v4.5h-3.5v-1.5z"/>
-                  </svg>
-                </button>
-              </td>
-              <td class="bg-gray-100 border border-b-0 border-l-0 border-gray-200 truncCell dark:bg-charcoal" title="205666dea9f6a7cfed87c7a6dfbeb52a2c1b9de55712c9c1a87735d7181452b6">205666dea9f6a7cfed87c7a6dfbeb52a2c1b9de55712c9c1a87735d7181452b6</td>
-            </tr>
-            <tr class="border border-gray-200">
-              <th scope="row" rowspan="2" class="px-2 h-14 whitespace-nowrap bg-gray-100 rounded-bl-lg border border-r-0 border-gray-200 md:rounded-bl-none dark:bg-charcoal"><i class="fab fa-windows"></i> Windows</th>
-              <td class="px-2 border border-r-0 border-b-0 border-gray-200"><a
-                href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.7z">boost_1_81_0.7z</a>
-              </td>
-              <td width="30" class="px-1 mx-1 text-center align-bottom whitespace-nowrap border border-r-0 border-b-0 border-gray-200">
-                <button class="justify-center items-center w-4 h-full font-semibold shadow" @click="$clipboard($el.parentElement.nextSibling.nextSibling.title)">
-                  <svg class="link" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="m6 19v2c0 .621.52 1 1 1h2v-1.5h-1.5v-1.5zm7.5 3h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm4-3h-1.5v1.5h-1.5v1.5h2c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm0-4.363v-3.637h1.5v3.637zm-13-3.637v3.637h-1.5v-3.637zm11.5-4v1.5h1.5v1.5h1.5v-2c0-.478-.379-1-1-1zm-10 0h-2c-.62 0-1 .519-1 1v2h1.5v-1.5h1.5zm4.5 1.5h-3.5v-1.5h3.5zm3-1.5v-2.5h-13v13h2.5v-1.863h1.5v3.363h-4.5c-.48 0-1-.379-1-1v-14c0-.481.38-1 1-1h14c.621 0 1 .522 1 1v4.5h-3.5v-1.5z"/>
-                  </svg>
-                </button>
-              </td>
-              <td class="bg-gray-100 border border-b-0 border-l-0 border-gray-200 truncCell dark:bg-charcoal" title="d7bc4e2a2aee374a8c24832cacfed1265680c1e824d09fab3e00f87508155353">d7bc4e2a2aee374a8c24832cacfed1265680c1e824d09fab3e00f87508155353</td>
-            </tr>
-            <tr class="border border-gray-200">
-              <td class="px-2 border border-r-0 border-gray-200"><a
-                href="https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.zip">boost_1_81_0.zip</a>
-              </td>
-              <td width="30" class="px-1 mx-1 text-center align-bottom whitespace-nowrap border border-r-0 border-gray-200">
-                <button class="justify-center items-center w-4 h-full font-semibold shadow" @click="$clipboard($el.parentElement.nextSibling.nextSibling.title)">
-                  <svg class="link" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="m6 19v2c0 .621.52 1 1 1h2v-1.5h-1.5v-1.5zm7.5 3h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm4-3h-1.5v1.5h-1.5v1.5h2c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm0-4.363v-3.637h1.5v3.637zm-13-3.637v3.637h-1.5v-3.637zm11.5-4v1.5h1.5v1.5h1.5v-2c0-.478-.379-1-1-1zm-10 0h-2c-.62 0-1 .519-1 1v2h1.5v-1.5h1.5zm4.5 1.5h-3.5v-1.5h3.5zm3-1.5v-2.5h-13v13h2.5v-1.863h1.5v3.363h-4.5c-.48 0-1-.379-1-1v-14c0-.481.38-1 1-1h14c.621 0 1 .522 1 1v4.5h-3.5v-1.5z"/>
-                  </svg>
-                </button>
-              </td>
-              <td class="bg-gray-100 rounded-br-lg border border-l-0 border-gray-200 truncCell dark:bg-charcoal" title="6e689b266b27d4db57f648b1e5c905c8acd6716b46716a12f6fc73fc80af842e">6e689b266b27d4db57f648b1e5c905c8acd6716b46716a12f6fc73fc80af842e</td>
-            </tr>
+            {% if downloads %}
+              {% for os, download_files in downloads.items %}
+                {% for download in download_files %}
+                  <tr>
+                    {% if forloop.first %}<th scope="row" rowspan="{{ download_files|length }}" class="px-2 h-14 whitespace-nowrap bg-gray-100 border border-r-0 border-b-0 border-gray-200 dark:bg-charcoal"><i class="fab fa-{% if os == 'Unix' %}linux{% else %}windows{% endif %}"></i> {{ os }}</th>{% endif %}
+                    <td class="px-2 border border-r-0 border-b-0 border-gray-200"><a href="{{ download.url }}">{{ download.display_name }}</a>
+                    </td>
+                    <td width="30" class="px-1 mx-1 text-center align-bottom whitespace-nowrap border border-r-0 border-b-0 border-gray-200">
+                      <button class="justify-center items-center w-4 h-full font-semibold shadow" @click="$clipboard($el.parentElement.nextSibling.nextSibling.title)">
+                        <svg class="link" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path d="m6 19v2c0 .621.52 1 1 1h2v-1.5h-1.5v-1.5zm7.5 3h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm4-3h-1.5v1.5h-1.5v1.5h2c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm0-4.363v-3.637h1.5v3.637zm-13-3.637v3.637h-1.5v-3.637zm11.5-4v1.5h1.5v1.5h1.5v-2c0-.478-.379-1-1-1zm-10 0h-2c-.62 0-1 .519-1 1v2h1.5v-1.5h1.5zm4.5 1.5h-3.5v-1.5h3.5zm3-1.5v-2.5h-13v13h2.5v-1.863h1.5v3.363h-4.5c-.48 0-1-.379-1-1v-14c0-.481.38-1 1-1h14c.621 0 1 .522 1 1v4.5h-3.5v-1.5z"/>
+                        </svg>
+                      </button>
+                    </td>
+                    <td class="bg-gray-100 border border-b-0 border-l-0 border-gray-200 truncCell dark:bg-charcoal" title="{{ download.checksum }}">{{ download.checksum }}</td>
+                  </tr>
+                {% endfor %}
+              {% endfor %}
+            {% endif %}
             </tbody>
           </table>
 

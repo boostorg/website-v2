@@ -1,4 +1,3 @@
-import hashlib
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.text import slugify
@@ -83,25 +82,14 @@ class VersionFile(models.Model):
         (Windows, "Windows"),
     )
 
-    version = models.ForeignKey(Version, related_name="files", on_delete=models.CASCADE)
+    version = models.ForeignKey(
+        Version, related_name="downloads", on_delete=models.CASCADE
+    )
     operating_system = models.CharField(
         choices=OPERATING_SYSTEM_CHOICES, max_length=15, default=Unix
     )
     checksum = models.CharField(max_length=64, unique=True, default=None)
-    file = models.FileField(upload_to="uploads/")
+    url = models.URLField()
+    display_name = models.CharField(max_length=256, blank=True, null=True)
 
     objects = VersionFileManager()
-
-    def save(self, *args, **kwargs):
-        # Calculate sha256 hash
-        if self.file is not None and self.checksum is None:
-            h = hashlib.sha256()
-            with self.file.open("rb") as f:
-                data = f.read()
-                while data:
-                    h.update(data)
-                    data = f.read()
-
-            self.checksum = h.hexdigest()
-
-        super().save(*args, **kwargs)

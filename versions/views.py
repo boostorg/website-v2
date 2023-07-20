@@ -3,6 +3,8 @@ import structlog
 from django.views.generic import DetailView
 from django.views.generic.edit import FormMixin
 from django.shortcuts import redirect
+from itertools import groupby
+from operator import attrgetter
 
 from libraries.forms import VersionSelectionForm
 from versions.models import Version
@@ -20,7 +22,13 @@ class VersionDetail(FormMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
+        obj = self.get_object()
         context["versions"] = Version.objects.active().order_by("-release_date")
+        downloads = obj.downloads.all().order_by("operating_system")
+        context["downloads"] = {
+            k: list(v)
+            for k, v in groupby(downloads, key=attrgetter("operating_system"))
+        }
         current_release = Version.objects.most_recent()
         context["current_release"] = current_release
         obj = self.get_object()
