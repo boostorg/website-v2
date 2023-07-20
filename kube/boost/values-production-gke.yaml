@@ -104,6 +104,10 @@ Env:
         key: secret_key
   - name: MEDIA_BUCKET_NAME
     value: boost.org.media
+  - name: AWS_S3_ENDPOINT_URL
+    value: https://s3.us-east-2.amazonaws.com
+  - name: AWS_S3_REGION_NAME
+    value: us-east-2
  # Staticly generated content bucket (Antora docs, etc)
   - name: STATIC_CONTENT_AWS_ACCESS_KEY_ID
     valueFrom:
