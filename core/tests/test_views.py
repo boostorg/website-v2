@@ -191,3 +191,58 @@ def test_terms_of_use(db, tp):
     """Test the terms of use view"""
     response = tp.get("terms-of-use")
     tp.response_200(response)
+
+
+def test_docs_libs_gateway_404(tp, mock_get_file_data):
+    mock_get_file_data("<html></html>", "a-url")
+
+    response = tp.get("docs-libs-page", content_path="other-url")
+
+    tp.response_404(response)
+
+
+def test_docs_libs_gateway_200_non_html(tp, mock_get_file_data):
+    s3_content = b"Content does not matter"
+    mock_get_file_data(s3_content, "foo", content_type="test/html")
+
+    response = tp.get("docs-libs-page", content_path="foo")
+
+    tp.response_200(response)
+    assert response.content == s3_content
+
+
+def test_docs_libs_gateway_200_lib_number(tp, mock_get_file_data):
+    s3_content = b"Content does not matter"
+    mock_get_file_data(s3_content, "boost_1_50_0/algorithm")
+
+    response = tp.get("docs-libs-page", content_path="1_50_0/algorithm")
+
+    tp.response_200(response)
+    assert response.content == s3_content
+
+
+def test_docs_libs_gateway_200_html_transformed(rf, tp, mock_get_file_data):
+    s3_content = b"""
+    <html>
+    <head><title>My Page</title></head>
+    <body><p>Something interesting.</p></body>
+    </html>
+    """
+    mock_get_file_data(s3_content, "foo")
+
+    response = tp.get("docs-libs-page", content_path="foo")
+
+    tp.response_200(response)
+    tp.assertResponseContains("<title>My Page</title>", response)
+    legacy_body = """
+    <div id="boost-legacy-body">
+      <p>Something interesting.</p>
+    </div>
+    """
+    tp.assertResponseContains(legacy_body, response)
+    legacy_url = """
+     <a id="boost-legacy-url" href="/archives/foo">
+       <small>Legacy page</small>
+     </a>
+     """
+    tp.assertResponseContains(legacy_url, response)

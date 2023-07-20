@@ -1,4 +1,5 @@
-import os.path
+import os
+import re
 import structlog
 from dateutil.parser import parse
 
@@ -8,11 +9,13 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
 from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
 from django.views import View
 from django.views.generic import TemplateView
 
 from .asciidoc import process_adoc_to_html_content
 from .boostrenderer import get_content_from_s3
+from .htmlhelper import modernize_legacy_page
 from .markdown import process_md
 from .models import RenderedContent
 from .tasks import (
@@ -145,8 +148,10 @@ class StaticContentTemplateView(TemplateView):
     template_name = "adoc_content.html"
 
     def get(self, request, *args, **kwargs):
-        """Returns static content that originates in S3, but is cached in a couple of
-        different places.
+        """Return static content that originates in S3.
+
+        The result is cached in a couple of different places to avoid multiple
+        roundtrips to S3.
 
         Any valid S3 key to the S3 bucket specified in settings can be returned by
         this view. Pages like the Help page are stored in S3 and rendered via
@@ -177,7 +182,7 @@ class StaticContentTemplateView(TemplateView):
         static_content_cache.set(cache_key, result)
 
     def get_content(self, content_path):
-        """Returns content from cache, database, or S3"""
+        """Return content from cache, database, or S3."""
         static_content_cache = caches["static_content"]
         cache_key = f"static_content_{content_path}"
         result = self.get_from_cache(static_content_cache, cache_key)
@@ -207,8 +212,11 @@ class StaticContentTemplateView(TemplateView):
         return result
 
     def get_context_data(self, **kwargs):
-        """Returns the content and content type for the template. In some cases,
-        changes the content type."""
+        """Return the content and content type for the template.
+
+        In some cases, the content type is changed depending on the context.
+
+        """
         context = super().get_context_data(**kwargs)
         content_type = self.content_dict.get("content_type")
         content = self.content_dict.get("content")
@@ -248,7 +256,7 @@ class StaticContentTemplateView(TemplateView):
             return result
 
     def get_template_names(self):
-        """Returns the template name."""
+        """Return the template name."""
         content_type = self.content_dict.get("content_type")
         if content_type == "text/asciidoc":
             return [self.template_name]
@@ -258,10 +266,8 @@ class StaticContentTemplateView(TemplateView):
         """Return the HTML response with a template, or just the content directly."""
         if self.get_template_names():
             return super().render_to_response(context, **response_kwargs)
-        else:
-            return HttpResponse(
-                context["content"], content_type=context["content_type"]
-            )
+        content = self.process_content(context["content"])
+        return HttpResponse(content, content_type=context["content_type"])
 
     def save_to_database(self, cache_key, result):
         """Saves the rendered asciidoc content to the database via celery."""
@@ -283,6 +289,41 @@ class StaticContentTemplateView(TemplateView):
     def convert_adoc_to_html(self, content):
         """Renders asciidoc content to HTML."""
         return process_adoc_to_html_content(content)
+
+    def process_content(self, content):
+        """No op, override in children if required."""
+        return content
+
+
+class DocLibsTemplateView(StaticContentTemplateView):
+    # possible library versions are: boost_1_53_0_beta1, 1_82_0, 1_55_0b1
+    boost_lib_path_re = re.compile(r"^(boost_){0,1}([0-9_]*[0-9]+[^/]*)/(.*)")
+
+    def get_from_s3(self, content_path):
+        # perform URL matching/mapping, perhaps extract the version from content_path
+        matches = self.boost_lib_path_re.match(content_path)
+        if matches:
+            groups = matches.groups()
+            if groups and not groups[0]:
+                content_path = f"boost_{content_path}"
+
+        legacy_url = f"/archives/{content_path}"
+        return super().get_from_s3(legacy_url)
+
+    def process_content(self, content):
+        """Replace page header with the local one."""
+        content_type = self.content_dict.get("content_type")
+        if content_type != "text/html":
+            # eventually check for more things, for example ensure this HTML
+            # was not generate from Antora builders.
+            return content
+
+        context = {"legacy_url": self.content_dict.get("content_key")}
+        base_html = render_to_string(
+            "docs_libs_placeholder.html", context, request=self.request
+        )
+        # potentially pass version if needed for HTML modification
+        return modernize_legacy_page(content, base_html)
 
 
 def antora_header_view(request):
