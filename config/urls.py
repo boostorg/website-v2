@@ -15,6 +15,7 @@ from ak.views import (
 )
 from core.views import (
     ClearCacheView,
+    DocLibsTemplateView,
     MarkdownTemplateView,
     StaticContentTemplateView,
     antora_footer_view,
@@ -261,6 +262,12 @@ urlpatterns = (
     ]
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     + [
+        # Libraries docs, some HTML parts are re-written
+        re_path(
+            r"^docs/libs/(?P<content_path>.+)/?",
+            DocLibsTemplateView.as_view(),
+            name="docs-libs-page",
+        ),
         # Markdown content
         re_path(
             r"^markdown/(?P<content_path>.+)/?",
