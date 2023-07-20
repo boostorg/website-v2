@@ -26,6 +26,7 @@ def extract_file_data(response, s3_key):
     last_modified = response["LastModified"]
     return {
         "content": file_content,
+        "content_key": s3_key,
         "content_type": content_type,
         "last_modified": last_modified,
     }
@@ -75,8 +76,7 @@ def get_content_from_s3(key=None, bucket_name=None):
 
         # Handle URLs that are directories looking for `index.html` files
         if s3_key.endswith("/"):
-            original_key = s3_key.lstrip("/")
-            index_html_key = f"{original_key}index.html"
+            index_html_key = f"{s3_key}index.html"
             file_data = get_file_data(client, bucket_name, index_html_key)
             if file_data:
                 return file_data

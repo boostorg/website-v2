@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+  {% comment %}
+   These style tweaks ensure that legacy doc pages are rendered decently.
+   Specifically, the <img> tag is heavily used in nav bar for tutorial navigation.
+  {% endcomment %}
+  <style>
+    img {
+      display: inline-block;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+    <div id="boost-legacy-body">
+    </div>
+    {% if legacy_url %}
+    <a id="boost-legacy-url" href="{{ legacy_url }}">
+      <small>Legacy page</small>
+    </a>
+    {% endif %}
+{% endblock %}
