@@ -9,7 +9,7 @@ import structlog
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from fastcore.net import HTTP422UnprocessableEntityError
+from fastcore.net import HTTP404NotFoundError, HTTP422UnprocessableEntityError
 from fastcore.xtras import obj2dict
 from ghapi.all import GhApi, paged
 
@@ -290,7 +290,12 @@ class GithubAPIClient:
         """
         if not repo_slug:
             repo_slug = self.repo_slug
-        return self.api.repos.get(owner=self.owner, repo=repo_slug)
+
+        try:
+            return self.api.repos.get(owner=self.owner, repo=repo_slug)
+        except HTTP404NotFoundError as e:
+            logger.info("repo_not_found", repo_slug=repo_slug, exc_msg=str(e))
+            return
 
     def get_repo_issues(
         self, owner: str, repo_slug: str, state: str = "all", issues_only: bool = True
