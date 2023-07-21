@@ -422,3 +422,8 @@ CORS_ALLOW_HEADERS = (
     "hx-current-url",
     "credentials",
 )
+
+# Artifactory settings
+ARTIFACTORY_URL = env(
+    "ARTIFACTORY_URL", default="https://boostorg.jfrog.io/artifactory/api/storage/main/"
+)
