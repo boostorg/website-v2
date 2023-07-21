@@ -636,8 +636,16 @@ class LibraryUpdater:
 
         return libraries
 
-    def update_libraries(self, since: datetime = None, until: datetime = None):
-        """Update all libraries with the metadata"""
+    def update_libraries(
+        self,
+        since: datetime = None,
+        until: datetime = None,
+        update_monthly_commit_counts: bool = True,
+        update_first_tag_date: bool = True,
+    ):
+        """
+        Update all libraries with the metadata from their libraries.json file.
+        """
         raw_gitmodules = self.client.get_gitmodules()
         gitmodules = self.parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
         library_data = self.get_library_list(gitmodules=gitmodules)
@@ -650,10 +658,13 @@ class LibraryUpdater:
             obj = self.update_library(lib)
             if not obj:
                 continue
+
             self.update_categories(obj, categories=lib["category"])
             self.update_authors(obj, authors=lib["authors"])
-            self.update_monthly_commit_counts(obj, since=since, until=until)
-            if not obj.first_github_tag_date:
+
+            if update_monthly_commit_counts:
+                self.update_monthly_commit_counts(obj, since=since, until=until)
+            if update_first_tag_date and not obj.first_github_tag_date:
                 self.update_first_github_tag_date(obj)
 
     def update_library(self, library_data: dict) -> Library:
