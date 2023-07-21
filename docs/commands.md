@@ -212,4 +212,6 @@ Synced information:
 - Library categories are updated, if need be.
 - Issues and Pull Requests are synced
 
-**NOTE**: Can take upwards of a half hour to run. If you are trying to populate tables for local development, `create_sample_data` is a better option if the GitHub integrations aren't important.
+**For local development**: Run with the `--local` flag. This skips pulling Issues and Pull Requests data, Commit history, and other data that takes a long time to run.
+
+**NOTE**: Can take upwards of a half hour to run if the `--local` flag is not passed.
