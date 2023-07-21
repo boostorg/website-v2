@@ -1,5 +1,7 @@
 import djclick as click
 
+from django.core.management import call_command
+
 from libraries.github import GithubAPIClient, GithubDataParser
 from libraries.models import Library, LibraryVersion
 from versions.models import Version
@@ -105,6 +107,8 @@ def command(
         version, _ = Version.objects.update_or_create(name=name, defaults=version_data)
         click.echo(f"Saved version {version.name}. Created: {_}")
 
+        add_release_downloads(version)
+
     if create_recent_library_versions:
         # Associate existing Libraries with the most recent LibraryVersion
         version = Version.objects.most_recent()
@@ -113,3 +117,14 @@ def command(
                 library=library, version=version
             )
             click.echo(f"Saved library version {library_version}. Created: {_}")
+
+
+def add_release_downloads(version):
+    version_num = version.name.replace("boost-", "")
+    if version_num < "1.63.0":
+        print(
+            "Cannot get release downloads from Artifactory for versions before 1.63.0"
+        )
+        return
+
+    call_command("import_artifactory_release_data", release=version_num)
