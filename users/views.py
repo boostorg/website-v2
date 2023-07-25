@@ -5,6 +5,9 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, UpdateView
 from django.views.generic.edit import FormView
+from django.views.generic.base import TemplateView
+
+from allauth.account.forms import ChangePasswordForm
 
 from rest_framework import generics
 from rest_framework import viewsets
@@ -123,3 +126,79 @@ class ProfilePreferencesView(LoginRequiredMixin, SuccessMessageMixin, UpdateView
 
     def get_object(self):
         return self.request.user.preferences
+
+
+class NewCurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateView):
+    template_name = "users/profile_new.html"
+    success_message = "Your profile was successfully updated."
+    success_url = reverse_lazy("profile-account-new")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["change_password_form"] = ChangePasswordForm(user=self.request.user)
+        context["profile_photo_form"] = UserProfilePhotoForm(instance=self.request.user)
+        context["profile_preferences_form"] = PreferencesForm(
+            instance=self.request.user.preferences
+        )
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """
+        Process each form submission individually if present
+        """
+        if "change_password" in request.POST:
+            change_password_form = ChangePasswordForm(
+                data=request.POST, user=self.request.user
+            )
+            self.change_password(change_password_form, request)
+
+        if "update_photo" in request.POST:
+            profile_photo_form = UserProfilePhotoForm(
+                self.request.POST, self.request.FILES, instance=self.request.user
+            )
+            self.update_photo(profile_photo_form, request)
+
+        if "update_github_photo" in request.POST:
+            self.update_github_photo(request)
+
+        if "update_preferences" in request.POST:
+            profile_preferences_form = PreferencesForm(
+                self.request.POST, instance=request.user.preferences
+            )
+            self.update_preferences(profile_preferences_form, request)
+
+        return HttpResponseRedirect(self.success_url)
+
+    def change_password(self, form, request):
+        """Change the password of the user."""
+        if form.is_valid():
+            self.object = request.user
+            self.object.set_password(form.cleaned_data["password1"])
+            self.object.save()
+            messages.success(request, "Your password was successfully updated.")
+        else:
+            for error in form.errors.values():
+                messages.error(request, f"{error}")
+
+    def update_photo(self, form, request):
+        """Update the profile photo of the user."""
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your profile photo was successfully updated.")
+        else:
+            for error in form.errors.values():
+                messages.error(request, f"{error}")
+
+    def update_github_photo(self, request):
+        """Update the GitHub photo of the user."""
+        tasks.update_user_github_photo(str(request.user.pk))
+        messages.success(request, "Your GitHub photo has been retrieved.")
+
+    def update_preferences(self, form, request):
+        """Update the preferences of the user."""
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your preferences were successfully updated.")
+        else:
+            for error in form.errors.values():
+                messages.error(request, f"{error}")
