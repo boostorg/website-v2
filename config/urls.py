@@ -52,6 +52,7 @@ from support.views import ContactView, SupportView
 from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
+    NewCurrentUserProfileView,
     ProfilePhotoGitHubUpdateView,
     ProfilePhotoUploadView,
     ProfilePreferencesView,
@@ -84,6 +85,11 @@ urlpatterns = (
             "users/me/preferences/",
             ProfilePreferencesView.as_view(),
             name="profile-preferences",
+        ),
+        path(
+            "users/me/new/",
+            NewCurrentUserProfileView.as_view(),
+            name="profile-account-new",
         ),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
         # Temp route to prove antora header
