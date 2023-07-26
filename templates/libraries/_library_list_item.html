@@ -3,7 +3,7 @@
 <div class="relative content-between p-3 bg-white rounded-lg shadow-lg md:p-5 dark:bg-charcoal">
   <div class="">
     <h3 class="pb-2 text-2xl capitalize border-b border-gray-300 dark:border-slate">
-      <a href="{% url 'library-detail' slug=library.slug %}"
+      <a class="link-header" href="{% url 'library-detail' slug=library.slug %}"
       >{{ library.name }}</a>
       {% for author in library.authors.all %}
         {% if author.image %}

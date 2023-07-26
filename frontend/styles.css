@@ -56,11 +56,16 @@
     @apply hidden;
   }
   /* Generic link style */
-  a, select, .link {
+  a:not(.link-header), select, .link {
     @apply text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange;
     @apply group-hover:text-orange dark:group-hover:text-orange;
     @apply fill-current;
   }
+
+  .link-header {
+    @apply text-orange dark:text-orange hover:text-sky-600 dark:hover:text-sky-300;
+  }
+
   /* use both .link and .link-force on an icon in order to bypass the following style and use all styles from .link */
   i:not(.link-force) {
     i.fa, i.fab, i.fa-brands, i.fas {
