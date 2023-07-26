@@ -6,6 +6,12 @@
 
 {% block content %}
 
+  <div class="mb-2 w-full">
+    <div>
+        <span class="text-xl md:text-3xl lg:text-4xl">Libraries by Category</span>
+    </div>
+  </div>
+
   <div class="px-3 pt-3 text-right md:px-0 md:mb-6" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
     <!-- command palatte for search -->
     {% include "libraries/includes/search_command_palatte.html" %}
@@ -54,12 +60,6 @@
         </select>
       </div>
     </form>
-  </div>
-
-  <div class="flex-auto mb-2 w-full text-left">
-    <div class="w-full">
-        <span class="text-xl md:text-3xl lg:text-4xl">Libraries by Category</span>
-    </div>
   </div>
 
   <!-- alert for non-current Boost versions -->
