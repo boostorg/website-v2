@@ -21,8 +21,8 @@ def test_version_slug(version):
 @pytest.mark.parametrize(
     "slug, expected_slug",
     [
-        ("boost-1.71.0", "1_71_0"),
-        ("boost-1-71-0", "1_71_0"),
+        ("boost-1.71.0", "boost_1_71_0"),
+        ("boost-1-71-0", "boost_1_71_0"),
         ("develop", "develop"),
     ],
 )

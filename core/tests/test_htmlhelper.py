@@ -6,6 +6,7 @@ from core.htmlhelper import (
     REMOVE_CSS_CLASSESS,
     REMOVE_TAGS,
     modernize_legacy_page,
+    get_library_documentation_urls,
 )
 
 
@@ -298,3 +299,61 @@ def test_modernize_legacy_page_remove_only_css_class(tag_name, tag_attrs):
     </html>
     """
     assertHTMLEqual(result, expected)
+
+
+def test_get_library_documentation_urls():
+    # HTML string for testing
+    test_content = """
+        <h2><a name="Alphabetically"></a></h2>
+        <ul>
+            <li><a href="/docs/path1">Library1</a></li>
+            <li><a href="/docs/path2">Library2</a></li>
+        </ul>
+    """
+    expected_output = [("Library1", "/docs/path1"), ("Library2", "/docs/path2")]
+    result = get_library_documentation_urls(test_content)
+    assert result == expected_output
+
+
+def test_get_library_documentation_urls_no_library_section():
+    # HTML string with no library section
+    test_content = """
+        <h2><a name="NotTheRightSection"></a></h2>
+        <ul>
+            <li><a href="/docs/path1">Library1</a></li>
+            <li><a href="/docs/path2">Library2</a></li>
+        </ul>
+    """
+    result = get_library_documentation_urls(test_content)
+    assert result == []
+
+
+def test_get_library_documentation_urls_no_libraries():
+    # HTML string with a library section but no libraries
+    test_content = """
+        <h2><a name="Alphabetically"></a></h2>
+        <ul>
+            <!-- No libraries -->
+        </ul>
+    """
+    result = get_library_documentation_urls(test_content)
+    assert result == []
+
+
+def test_get_library_documentation_urls_with_name_and_parent():
+    # HTML string for testing
+    test_content = """
+        <div><a name="CustomSection"></a></div>
+        <ul>
+            <li><a href="/docs/path1">CustomLibrary1</a></li>
+            <li><a href="/docs/path2">CustomLibrary2</a></li>
+        </ul>
+    """
+    expected_output = [
+        ("CustomLibrary1", "/docs/path1"),
+        ("CustomLibrary2", "/docs/path2"),
+    ]
+    result = get_library_documentation_urls(
+        test_content, name="CustomSection", parent="div"
+    )
+    assert result == expected_output
