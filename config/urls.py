@@ -200,6 +200,11 @@ urlpatterns = (
             name="privacy",
         ),
         path(
+            "terms-of-use/",
+            TemplateView.as_view(template_name="terms_of_use.html"),
+            name="terms-of-use",
+        ),
+        path(
             "moderators/",
             TemplateView.as_view(
                 template_name="boost/moderators.html",
