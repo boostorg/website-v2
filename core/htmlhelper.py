@@ -138,3 +138,49 @@ def modernize_legacy_page(content, base_html):
     content = content.replace("https://www.boost.org/doc/libs/", "/docs/libs/")
 
     return content
+
+
+def get_library_documentation_urls(content, name="Alphabetically", parent="h2"):
+    """
+    Takes HTML content and returns a list of tuples containing library
+    names and the paths to those libraries' docs. This is used to
+    update the documentation_url field on LibraryVersion objects.
+
+    Args:
+        content (str): HTML content from the libraries.htm file. For example, the
+        HTML content from `/docs/libs/1_82_0/libs/libraries.htm`.
+        name (str): The name of the section to search for. Defaults to "Alphabetically".
+        parent (str): The parent tag of the section to search for. Defaults to "h2".
+            Together, parent and string define what HTML tag to search for. For example,
+            if parent="h2" and name="Alphabetically", this function will search for
+            <h2 name="Alphabetically">.
+
+    Returns:
+        list: A list of tuples containing library names and the paths to those
+        libraries' docs. For example, `[(library_name, path), ...]`.
+    """
+    soup = BeautifulSoup(content, "html.parser")
+
+    # Find the tag that contains the list of libraries
+    tag = soup.find("a", attrs={"name": name})
+
+    if not tag:
+        return []
+
+    # Get the next <ul> tag, which contains the list of libraries
+    library_list_tag = tag.find_parent(parent).find_next_sibling("ul")
+
+    # Now get all the items in the list
+    library_tags = library_list_tag.find_all("li")
+    if not library_tags:
+        return []
+
+    results = []
+    for library_tag in library_tags:
+        # Get the url path for the documentation
+        url_path = library_tag.find("a")["href"]
+        # Get the library name
+        library_name = library_tag.find("a").get_text()
+        results.append((library_name, url_path))
+
+    return results

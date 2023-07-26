@@ -260,20 +260,15 @@ class LibraryVersion(models.Model):
         on_delete=models.CASCADE,
     )
     maintainers = models.ManyToManyField("users.User", related_name="maintainers")
+    documentation_url = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="The path to the docs for this library version.",
+    )
 
     def __str__(self):
         return f"{self.library.name} ({self.version.name})"
-
-    @cached_property
-    def documentation_url(self):
-        """
-        format: https://www.boost.org/doc/libs/1_82_0/libs/bimap/
-
-        Use the `key` field and NOT the `slug` field due to special cases --
-        submodules like Functional/Factory
-        """
-        url = f"https://www.boost.org/doc/libs/{self.version.boost_url_slug}/libs/{self.library.key}/"
-        return url
 
     @cached_property
     def library_repo_url_for_version(self):

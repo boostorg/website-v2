@@ -217,6 +217,25 @@ def test_library_detail_context_get_maintainers(tp, user, library_version):
     assert response.context["maintainers"][0] == user
 
 
+def test_library_detail_context_get_documentation_url(tp, user, library_version):
+    """
+    GET /libraries/{slug}/
+    Test that the maintainers var appears as expected
+    """
+    library_version.documentation_url = None
+    library_version.save()
+
+    library = library_version.library
+    url = tp.reverse("library-detail", library.slug)
+    response = tp.get(url)
+    tp.response_200(response)
+    assert "documentation_url" in response.context
+    assert (
+        response.context["documentation_url"]
+        == library_version.version.documentation_url
+    )
+
+
 def test_libraries_by_version_detail(tp, library_version):
     """GET /libraries/{slug}/{version_slug}/"""
     res = tp.get(

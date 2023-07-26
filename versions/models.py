@@ -51,17 +51,10 @@ class Version(models.Model):
         this method converts the GitHub slug to the Boost slug.
 
         Example:
-        - "boost-1.75.0" --> "1_75_0"
+        - "boost-1.75.0" --> "boost_1_75_0"
         - "develop" --> "develop"
         """
-        # A Boost release, formmatted as "boost-N.NN.N"
-        if "-" in self.slug:
-            slug_parts = self.slug.split("-")[1:]
-            formatted_slug = "_".join(slug_parts)
-        # A specific tag, like "develop"
-        else:
-            formatted_slug = self.slug
-        return formatted_slug
+        return self.slug.replace("-", "_").replace(".", "_")
 
     @cached_property
     def documentation_url(self):

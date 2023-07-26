@@ -80,14 +80,3 @@ def test_library_repo_url_for_version(library_version):
         f"{library_version.library.github_url}/tree/{library_version.version.name}"
     )
     assert result == expected_url
-
-
-def test_library_version_documentation_url(library_version):
-    library_version.version.slug = "boost-1.82.0"
-    library_version.version.save()
-    version = library_version.version
-    library = library_version.library
-    version_slug = version.boost_url_slug
-    lib_slug = library.key
-    expected = f"https://www.boost.org/doc/libs/{version_slug}/libs/{lib_slug}/"
-    assert library_version.documentation_url == expected
