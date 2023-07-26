@@ -54,11 +54,11 @@
           </div>
 
           <div class="-ml-2 h-14">
-            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
+            {% if documentation_url %}<a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
                href="{{ documentation_url }}">
               <span class="dark:text-white text-slate">Documentation</span>
-              <span class="block text-xs">boost.org/libs/{{ object.key }}</span>
-            </a>
+              <span class="block text-xs">{{ request.get_host }}{{ documentation_url|cut:"https://" }}</span>
+            </a>{% endif %}
           </div>
           <div class="-ml-2 h-14">
             <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"

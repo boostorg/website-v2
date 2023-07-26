@@ -132,7 +132,7 @@ class LibraryDetail(FormMixin, DetailView):
             context["version_alert"] = False
 
         # Get general data and version-sensitive data
-        context["documentation_url"] = self.get_documentation_url()
+        context["documentation_url"] = self.get_documentation_url(context["version"])
         context["github_url"] = self.get_github_url(context["version"])
         context["maintainers"] = self.get_maintainers(context["version"])
 
@@ -241,20 +241,13 @@ class LibraryDetail(FormMixin, DetailView):
             library=self.object, version=version
         ).first()
 
-    def get_documentation_url(self):
-        """Return the URL for the link to the external Boost documentation."""
+    def get_documentation_url(self, version):
+        """Get the documentation URL for the current library."""
         obj = self.get_object()
-        version = self.get_version()
-        try:
-            library_version = LibraryVersion.objects.get(library=obj, version=version)
+        library_version = LibraryVersion.objects.get(library=obj, version=version)
+        if library_version.documentation_url:
             return library_version.documentation_url
-        except LibraryVersion.DoesNotExist:
-            logger.exception(
-                "library_detail_view_library_version_does_not_exist",
-                library_slug=obj.slug,
-                version_slug=version.slug,
-            )
-            return None
+        return version.documentation_url
 
     def get_github_url(self, version):
         """Get the GitHub URL for the current library."""

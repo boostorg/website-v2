@@ -2,6 +2,7 @@ import djclick as click
 
 from libraries.github import GithubAPIClient, GithubDataParser, LibraryUpdater
 from libraries.models import Library, LibraryVersion
+from libraries.tasks import get_and_store_library_version_documentation_urls_for_version
 from libraries.utils import parse_date
 from versions.models import Version
 
@@ -9,7 +10,13 @@ from versions.models import Version
 @click.command()
 @click.option("--token", is_flag=False, help="Github API token")
 @click.option("--release", is_flag=False, help="Boost version number (example: 1.81.0)")
-def command(release, token):
+@click.option(
+    "--min-release",
+    type=str,
+    default="1.81.0",
+    help="Minimum Boost version to process (default: 1.30.0)",
+)
+def command(min_release, release, token):
     """Cycles through all Versions in the database, and for each version gets the
     corresponding tag's .gitmodules.
 
@@ -30,13 +37,18 @@ def command(release, token):
 
     skipped = []
 
+    min_release = f"boost-{min_release}"
     if release is None:
-        versions = Version.objects.active()
+        versions = Version.objects.active().filter(name__gte=min_release)
     else:
-        versions = Version.objects.filter(name__icontains=release)
+        versions = Version.objects.filter(
+            name__icontains=release, name__gte=min_release
+        )
 
-    for version in versions:
+    for version in versions.order_by("-name"):
         click.echo(f"Processing version {version.name}...")
+
+        click.secho(f"Saving library versions for {version.name}...", fg="yellow")
         ref = client.get_ref(ref=f"tags/{version.name}")
         raw_gitmodules = client.get_gitmodules(ref=ref)
         if not raw_gitmodules:
@@ -136,6 +148,9 @@ def command(release, token):
                         }
                     )
                     continue
+
+        # Retrieve and store the docs url for each library-version in this release
+        get_and_store_library_version_documentation_urls_for_version.delay(version.pk)
 
     skipped_messages = [
         f"Skipped {obj['library']} in {obj['version']}: {obj['reason']}"
