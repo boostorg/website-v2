@@ -20,6 +20,16 @@
             </div>
         </form>
 
+        <h3>{% trans "Update Profile" %}</h3>
+
+        <form method="POST" action="." class="password_set">
+            {% csrf_token %}
+            <fieldset>{{ profile_form.as_p }}</fieldset>
+            <div class="mb-4">
+                <button name="update_profile" class="py-2 px-3 text-sm uppercase rounded border border-orange text-orange" type="submit">Update Profile</button>
+            </div>
+        </form>
+
         <h3>{% trans "Update Profile Photo" %}</h3>
 
         {% if user.github_username %}

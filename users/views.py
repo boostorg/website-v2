@@ -13,7 +13,7 @@ from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from .forms import PreferencesForm, UserProfilePhotoForm
+from .forms import PreferencesForm, UserProfileForm, UserProfilePhotoForm
 from .models import User
 from .permissions import CustomUserPermissions
 from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
@@ -136,6 +136,7 @@ class NewCurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, Templat
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["change_password_form"] = ChangePasswordForm(user=self.request.user)
+        context["profile_form"] = UserProfileForm(instance=self.request.user)
         context["profile_photo_form"] = UserProfilePhotoForm(instance=self.request.user)
         context["profile_preferences_form"] = PreferencesForm(
             instance=self.request.user.preferences
@@ -151,6 +152,12 @@ class NewCurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, Templat
                 data=request.POST, user=self.request.user
             )
             self.change_password(change_password_form, request)
+
+        if "update_profile" in request.POST:
+            profile_form = UserProfileForm(
+                self.request.POST, instance=self.request.user
+            )
+            self.update_profile(profile_form, request)
 
         if "update_photo" in request.POST:
             profile_photo_form = UserProfilePhotoForm(
@@ -199,6 +206,15 @@ class NewCurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, Templat
         if form.is_valid():
             form.save()
             messages.success(request, "Your preferences were successfully updated.")
+        else:
+            for error in form.errors.values():
+                messages.error(request, f"{error}")
+
+    def update_profile(self, form, request):
+        """Update the profile of the user."""
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your profile was successfully updated.")
         else:
             for error in form.errors.values():
                 messages.error(request, f"{error}")
