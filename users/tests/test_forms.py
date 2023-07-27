@@ -1,6 +1,6 @@
 import pytest
 
-from ..forms import PreferencesForm
+from ..forms import PreferencesForm, UserProfileForm
 from ..models import Preferences
 from news.models import NEWS_MODELS
 
@@ -106,3 +106,22 @@ def test_preferences_form_model_modifies_instance_empty_list_user_moderator(
     assert getattr(result, form_field) == expected
     moderator_user.refresh_from_db()
     assert getattr(moderator_user.preferences, form_field) == expected
+
+
+def test_user_profile_form(user):
+    form = UserProfileForm(instance=user)
+    assert set(form.fields.keys()) == {
+        "first_name",
+        "last_name",
+        "email",
+    }
+    assert form.initial == {
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+    }
+    form = UserProfileForm(instance=user, data={"email": "test@example.com"})
+    assert form.is_valid()
+    form.save()
+    user.refresh_from_db()
+    assert user.email == "test@example.com"
