@@ -4,25 +4,26 @@
 
 {% block content %}
 <div class="container">
-  <div class="mt-6">
-    <img class="w-32 h-32 rounded-full md:h-auto" src="{{ user.profile.image.url }}">
-  </div>
+  <div class="md:flex md:space-x-6 mt-6">
+    <div class="md:w-1/2">
+      <h3>{% trans "Update Preferences" %}</h3>
 
-        <h3>{% trans "Set Password" %}</h3>
+      <form method="POST" action=".">
+        {% csrf_token %}
+        <h5 class="font-bold mt-4">Notify me via email when:</h5>
+        {{ profile_preferences_form.errors }}
+        {% for field in profile_preferences_form.visible_fields %}
+        <div>
+          {% include "includes/_form_input.html" with form=profile_preferences_form field=field %}
+        </div>
+        {% endfor %}
+        <div class="mt-4">
+          <button name="update_preferences" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Update Preferences</button>
+        </div>
+      </form>
+    </div>
 
-        <form method="POST" action="." class="password_set">
-          {% csrf_token %}
-          {% for field in change_password_form.visible_fields %}
-          <div>
-            {% include "includes/_form_input.html" with form=change_password_form field=field %}
-          </div>
-          {% endfor %}
-            <!-- <fieldset>{{ change_password_form.as_p }}</fieldset> -->
-          <div class="mt-4">
-            <button name="change_password" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Set Password</button>
-          </div>
-        </form>
-
+    <div class="md:w-1/2">
         <h3>{% trans "Update Profile Photo" %}</h3>
 
         {% if user.github_username %}
@@ -39,34 +40,27 @@
             {% include "includes/_form_input.html" with form=profile_photo_form field=field %}
           </div>
           {% endfor %}
-          <!-- <fieldset> -->
-          <!--       {{ profile_photo_form.as_p }} -->
-          <!-- </fieldset> -->
           <div class="mt-4">
               <button name="update_photo" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Upload Profile Photo</button>
           </div>
-      </form>
+        </form>
 
-      <hr />
-      <h3>{% trans "Update Preferences" %}</h3>
+        <div class="mt-24">
+          <h3>{% trans "Set Password" %}</h3>
 
-      <form method="POST" action=".">
-        {% csrf_token %}
-        <p>Notify me via email when:</p>
-        {{ profile_preferences_form.errors }}
-        {% for field in profile_preferences_form.visible_fields %}
-        <div>
-          {% include "includes/_form_input.html" with form=profile_preferences_form field=field %}
+          <form method="POST" action="." class="password_set">
+            {% csrf_token %}
+            {% for field in change_password_form.visible_fields %}
+            <div>
+              {% include "includes/_form_input.html" with form=change_password_form field=field %}
+            </div>
+            {% endfor %}
+            <div class="mt-4">
+              <button name="change_password" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Set Password</button>
+            </div>
+          </form>
         </div>
-        {% endfor %}
-        <!-- <fieldset> -->
-        <!--   {{ profile_preferences_form.as_div }} -->
-        <!-- </fieldset> -->
-        <div class="mt-4">
-            <button name="update_preferences" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Update Preferences</button>
-        </div>
-      </form>
     </div>
-
-    </div>
+  </div>
+</div>
 {% endblock %}
