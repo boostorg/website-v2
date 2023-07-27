@@ -3,21 +3,24 @@
 {% load static i18n %}
 
 {% block content %}
-  <div class="py-0 px-3 mb-3 md:flex md:py-6 md:px-0">
-
-    <div class="content-section">
-        <div class="mt-6">
-          <img class="w-32 h-32 rounded-full md:h-auto" src="{{ user.profile.image.url }}">
-        </div>
+<div class="container">
+  <div class="mt-6">
+    <img class="w-32 h-32 rounded-full md:h-auto" src="{{ user.profile.image.url }}">
+  </div>
 
         <h3>{% trans "Set Password" %}</h3>
 
         <form method="POST" action="." class="password_set">
-            {% csrf_token %}
-            <fieldset>{{ change_password_form.as_p }}</fieldset>
-            <div class="mb-4">
-                <button name="change_password" class="py-2 px-3 text-sm uppercase rounded border border-orange text-orange" type="submit">Set Password</button>
-            </div>
+          {% csrf_token %}
+          {% for field in change_password_form.visible_fields %}
+          <div>
+            {% include "includes/_form_input.html" with form=change_password_form field=field %}
+          </div>
+          {% endfor %}
+            <!-- <fieldset>{{ change_password_form.as_p }}</fieldset> -->
+          <div class="mt-4">
+            <button name="change_password" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Set Password</button>
+          </div>
         </form>
 
         <h3>{% trans "Update Profile Photo" %}</h3>
@@ -25,17 +28,22 @@
         {% if user.github_username %}
           <form method="POST" action=".">
             {% csrf_token %}
-            <button name="update_github_photo" class="py-2 px-3 text-sm uppercase rounded border border-orange text-orange" type="submit">Use My GitHub Photo</button>
+            <button name="update_github_photo" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Use My GitHub Photo</button>
           </form>
         {% endif %}
 
         <form method="POST" enctype="multipart/form-data" action=".">
           {% csrf_token %}
-          <fieldset>
-                {{ profile_photo_form.as_p }}
-          </fieldset>
-          <div class="mb-4">
-              <button name="update_photo" class="py-2 px-3 text-sm uppercase rounded border border-orange text-orange" type="submit">Upload Profile Photo</button>
+          {% for field in profile_photo_form.visible_fields %}
+          <div>
+            {% include "includes/_form_input.html" with form=profile_photo_form field=field %}
+          </div>
+          {% endfor %}
+          <!-- <fieldset> -->
+          <!--       {{ profile_photo_form.as_p }} -->
+          <!-- </fieldset> -->
+          <div class="mt-4">
+              <button name="update_photo" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Upload Profile Photo</button>
           </div>
       </form>
 
@@ -46,16 +54,19 @@
         {% csrf_token %}
         <p>Notify me via email when:</p>
         {{ profile_preferences_form.errors }}
-        <fieldset>
-          {{ profile_preferences_form.as_div }}
-        </fieldset>
-        <div class="mb-4">
-            <button name="update_preferences" class="py-2 px-3 text-sm uppercase rounded border border-orange text-orange" type="submit">Update Preeferences</button>
+        {% for field in profile_preferences_form.visible_fields %}
+        <div>
+          {% include "includes/_form_input.html" with form=profile_preferences_form field=field %}
+        </div>
+        {% endfor %}
+        <!-- <fieldset> -->
+        <!--   {{ profile_preferences_form.as_div }} -->
+        <!-- </fieldset> -->
+        <div class="mt-4">
+            <button name="update_preferences" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Update Preferences</button>
         </div>
       </form>
     </div>
 
     </div>
-
-  </div>
 {% endblock %}

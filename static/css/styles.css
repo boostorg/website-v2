@@ -1229,10 +1229,6 @@ i:not(.link-force) {
   margin-right: -1.5rem;
 }
 
-.ml-8 {
-  margin-left: 2rem;
-}
-
 .mt-1 {
   margin-top: 0.25rem;
 }
@@ -1245,6 +1241,10 @@ i:not(.link-force) {
   margin-top: 4rem;
 }
 
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
 .-mb-\[1px\] {
   margin-bottom: -1px;
 }
@@ -1255,10 +1255,6 @@ i:not(.link-force) {
 
 .mr-1 {
   margin-right: 0.25rem;
-}
-
-.mr-2 {
-  margin-right: 0.5rem;
 }
 
 .mt-4 {
@@ -1616,10 +1612,6 @@ i:not(.link-force) {
 
 .resize {
   resize: both;
-}
-
-.list-inside {
-  list-style-position: inside;
 }
 
 .list-disc {
@@ -2480,18 +2472,6 @@ i:not(.link-force) {
   line-height: 1.25;
 }
 
-.leading-relaxed {
-  line-height: 1.625;
-}
-
-.leading-6 {
-  line-height: 1.5rem;
-}
-
-.leading-7 {
-  line-height: 1.75rem;
-}
-
 .tracking-widest {
   letter-spacing: 0.1em;
 }
@@ -2545,26 +2525,6 @@ i:not(.link-force) {
   color: rgb(156 163 175 / var(--tw-text-opacity));
 }
 
-.text-gray-500 {
-  --tw-text-opacity: 1;
-  color: rgb(107 114 128 / var(--tw-text-opacity));
-}
-
-.text-blue-600 {
-  --tw-text-opacity: 1;
-  color: rgb(37 99 235 / var(--tw-text-opacity));
-}
-
-.text-gray-700 {
-  --tw-text-opacity: 1;
-  color: rgb(55 65 81 / var(--tw-text-opacity));
-}
-
-.text-blue-500 {
-  --tw-text-opacity: 1;
-  color: rgb(59 130 246 / var(--tw-text-opacity));
-}
-
 .text-charcoal {
   --tw-text-opacity: 1;
   color: rgb(23 42 52 / var(--tw-text-opacity));
@@ -2573,6 +2533,16 @@ i:not(.link-force) {
 .text-gold {
   --tw-text-opacity: 1;
   color: rgb(244 202 31 / var(--tw-text-opacity));
+}
+
+.text-gray-700 {
+  --tw-text-opacity: 1;
+  color: rgb(55 65 81 / var(--tw-text-opacity));
+}
+
+.text-gray-500 {
+  --tw-text-opacity: 1;
+  color: rgb(107 114 128 / var(--tw-text-opacity));
 }
 
 .text-gray-100 {
@@ -2770,10 +2740,6 @@ i:not(.link-force) {
 .hover\:text-white:hover {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
-.hover\:underline:hover {
-  text-decoration-line: underline;
 }
 
 .hover\:shadow-\[0_0_5px_5px_rgba\(0\2c 0\2c 0\2c 0\.05\)\]:hover {
