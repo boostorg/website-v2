@@ -11,9 +11,9 @@
         <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
       {% endif %}
     </div>
-    <div class="ml-4 text-sm">
+    <div class="ml-4 text-base">
       <span class="block">{{ user.get_full_name }}</span>
-      <span class="text-xs text-slate">Joined {{ user.date_joined }}</span>
+      <span class="text-xs text-slate dark:text-white/60  ">Joined {{ user.date_joined }}</span>
     </div>
   </div>
 {% endblock %}
