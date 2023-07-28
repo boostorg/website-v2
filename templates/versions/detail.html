@@ -90,7 +90,11 @@
                         </svg>
                       </button>
                     </td>
-                    <td class="bg-gray-100 border border-b-0 border-l-0 border-gray-200 truncCell dark:bg-charcoal" title="{{ download.checksum }}">{{ download.checksum|truncate_middle:30 }}</td>
+                    <td class="bg-gray-100 border border-b-0 border-l-0 border-gray-200 truncCell dark:bg-charcoal" title="{{ download.checksum }}">
+                      <span class="hidden xl:block">{{ download.checksum }}</span>
+                      <span class="hidden md:block xl:hidden">{{ download.checksum|truncate_middle:20 }}</span>
+                      <span class="md:hidden">{{ download.checksum|truncate_middle:10 }}</span>
+                    </td>
                   </tr>
                 {% endfor %}
               {% endfor %}
