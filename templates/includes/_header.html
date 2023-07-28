@@ -21,15 +21,15 @@
 
         <div class="flex pt-1 w-full">
           <nav class="relative items-center pl-6 space-x-4 w-full text-lg text-left md:space-x-6 lg:space-x-10">
-            <a href="{% url 'news' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">News</a>
-            <a href="{% url 'docs' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Learn</a>
-            <a href="{% url 'community' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Community</a>
-            <a href="{% url 'libraries' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Libraries</a>
-            <a href="{% url 'releases-most-recent' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Releases</a>
+            <a href="{% url 'news' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange link-none">News</a>
+            <a href="{% url 'docs' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orang link-none">Learn</a>
+            <a href="{% url 'community' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange link-none">Community</a>
+            <a href="{% url 'libraries' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange link-none">Libraries</a>
+            <a href="{% url 'releases-most-recent' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange link-none">Releases</a>
           </nav>
           <nav class="float-right items-center space-x-3 w-[200px] text-right lg:space-x-5" x-data="{ 'searchOpen': false }">
             <span class="relative">
-              <i class="inline -mt-1 cursor-pointer text-slate fas fa-search link"
+              <i class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange"
                  @click="searchOpen = true; $nextTick(() => { setTimeout(() => { document.getElementById('hq').focus(); }, 300);});"
               ></i>
               <div x-show="searchOpen"
@@ -63,15 +63,15 @@
               </div>
             </span>
 
-            <a href="/doc/user-guide/intro.html" class="inline"><i class="text-slate fas fa-question-circle link"></i></a>
+            <a href="/doc/user-guide/intro.html" class="inline link-none"><i class="text-slate fas fa-question-circle dark:text-white/50 dark:hover:text-orange hover:text-orange"></i></a>
 
             <!-- theme switcher -->
             <span x-data="{ 'modeOpen': false }" class="relative">
               <span class="dark:hidden">
-                <i class="inline-block cursor-pointer fas fa-sun link" @click="modeOpen = !modeOpen"></i>
+                <i class="inline-block cursor-pointer text-slate fas fa-sun dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="modeOpen = !modeOpen"></i>
               </span>
               <span class="hidden dark:inline">
-                <i class="inline-block cursor-pointer fas fa-moon link" @click="modeOpen = !modeOpen"></i>
+                <i class="inline-block cursor-pointer text-slate fas fa-moon dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="modeOpen = !modeOpen"></i>
               </span>
 
               <div
