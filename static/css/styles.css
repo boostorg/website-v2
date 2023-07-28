@@ -1241,10 +1241,6 @@ i:not(.link-force) {
   margin-top: 4rem;
 }
 
-.mr-2 {
-  margin-right: 0.5rem;
-}
-
 .-mb-\[1px\] {
   margin-bottom: -1px;
 }
@@ -1255,6 +1251,10 @@ i:not(.link-force) {
 
 .mr-1 {
   margin-right: 0.25rem;
+}
+
+.mr-2 {
+  margin-right: 0.5rem;
 }
 
 .mt-4 {
@@ -1287,10 +1287,6 @@ i:not(.link-force) {
 
 .ml-4 {
   margin-left: 1rem;
-}
-
-.mt-24 {
-  margin-top: 6rem;
 }
 
 .-ml-2 {
@@ -1458,8 +1454,8 @@ i:not(.link-force) {
   width: 100px;
 }
 
-.w-44 {
-  width: 11rem;
+.w-\[200px\] {
+  width: 200px;
 }
 
 .w-32 {
