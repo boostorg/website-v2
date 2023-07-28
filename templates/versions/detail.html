@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% load text_helpers %}
 
 {% block title %}{% trans "Releases" %}{% endblock %}
 
@@ -89,7 +90,7 @@
                         </svg>
                       </button>
                     </td>
-                    <td class="bg-gray-100 border border-b-0 border-l-0 border-gray-200 truncCell dark:bg-charcoal" title="{{ download.checksum }}">{{ download.checksum }}</td>
+                    <td class="bg-gray-100 border border-b-0 border-l-0 border-gray-200 truncCell dark:bg-charcoal" title="{{ download.checksum }}">{{ download.checksum|truncate_middle:30 }}</td>
                   </tr>
                 {% endfor %}
               {% endfor %}
@@ -1357,27 +1358,27 @@
 {% endblock %}
 
 {% block footer_js %}
-<script>
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('truncator', () => ({
-      truncation: 0,
-      adjust() {
-        if (this.$root.clientWidth >= this.$root.scrollWidth && this.$root.parentElement.clientWidth >= this.$root.querySelectorAll('table')[0].clientWidth) {
-          this.truncation = 0;
-          this.$el.querySelectorAll(`.truncCell`).forEach((el) => {
-            el.innerHTML = el.title;
-          });
-        }
-        else {
-          while (this.$root.clientWidth < this.$root.scrollWidth || this.$root.parentElement.clientWidth < this.$root.querySelectorAll('table')[0].clientWidth) {
-            this.truncation++;
-            this.$el.querySelectorAll(`.truncCell`).forEach((el) => {
-              el.innerHTML = el.title.substr(0, (el.title.length / 2) - this.truncation) + '&hellip;' + el.title.substr((el.title.length / 2) + this.truncation, el.title.length);
-            });
-          }
-        }
-      },
-    }));
-  });
-</script>
+{#<script>#}
+{#  document.addEventListener('alpine:init', () => {#}
+{#    Alpine.data('truncator', () => ({#}
+{#      truncation: 0,#}
+{#      adjust() {#}
+{#        if (this.$root.clientWidth >= this.$root.scrollWidth && this.$root.parentElement.clientWidth >= this.$root.querySelectorAll('table')[0].clientWidth) {#}
+{#          this.truncation = 0;#}
+{#          this.$el.querySelectorAll(`.truncCell`).forEach((el) => {#}
+{#            el.innerHTML = el.title;#}
+{#          });#}
+{#        }#}
+{#        else {#}
+{#          while (this.$root.clientWidth < this.$root.scrollWidth || this.$root.parentElement.clientWidth < this.$root.querySelectorAll('table')[0].clientWidth) {#}
+{#            this.truncation++;#}
+{#            this.$el.querySelectorAll(`.truncCell`).forEach((el) => {#}
+{#              el.innerHTML = el.title.substr(0, (el.title.length / 2) - this.truncation) + '&hellip;' + el.title.substr((el.title.length / 2) + this.truncation, el.title.length);#}
+{#            });#}
+{#          }#}
+{#        }#}
+{#      },#}
+{#    }));#}
+{#  });#}
+{#</script>#}
 {% endblock %}
