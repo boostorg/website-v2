@@ -1229,10 +1229,6 @@ i:not(.link-force) {
   margin-right: -1.5rem;
 }
 
-.mt-1 {
-  margin-top: 0.25rem;
-}
-
 .mt-0 {
   margin-top: 0px;
 }
@@ -1291,6 +1287,10 @@ i:not(.link-force) {
 
 .-ml-2 {
   margin-left: -0.5rem;
+}
+
+.mt-1 {
+  margin-top: 0.25rem;
 }
 
 .ml-0 {
@@ -3439,6 +3439,14 @@ i:not(.link-force) {
     margin-bottom: 2.5rem;
   }
 
+  .lg\:block {
+    display: block;
+  }
+
+  .lg\:hidden {
+    display: none;
+  }
+
   .lg\:min-w-\[300px\] {
     min-width: 300px;
   }
@@ -3502,8 +3510,16 @@ i:not(.link-force) {
 }
 
 @media (min-width: 1280px) {
+  .xl\:block {
+    display: block;
+  }
+
   .xl\:inline {
     display: inline;
+  }
+
+  .xl\:hidden {
+    display: none;
   }
 
   .xl\:grid-cols-3 {
