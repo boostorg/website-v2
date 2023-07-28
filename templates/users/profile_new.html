@@ -26,7 +26,6 @@
 
         <div class="rounded bg-white dark:bg-charcoal p-4">
           <h3>{% trans "Update Preferences" %}</h3>
-
           <form method="POST" action="." class="space-y-3">
             {% csrf_token %}
             <h5 class="font-bold mt-4">Notify me via email when:</h5>
@@ -49,7 +48,6 @@
 
         <div class="rounded bg-white dark:bg-charcoal p-4">
           <h3>{% trans "Update Profile Photo" %}</h3>
-
           {% if user.github_username %}
             <form method="POST" action="." class="space-y-3">
               {% csrf_token %}
@@ -76,7 +74,6 @@
 
         <div class="rounded bg-white dark:bg-charcoal p-4">
           <h3>{% trans "Set Password" %}</h3>
-
           <form method="POST" action="." class="password_set space-y-3">
             {% csrf_token %}
             {% for field in change_password_form.visible_fields %}
@@ -95,4 +92,3 @@
     </div>
   </div>
 {% endblock %}
-
