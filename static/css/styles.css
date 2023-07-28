@@ -757,37 +757,37 @@ input[type=file] {
 
 /* Generic link style */
 
-a:not(.link-header), select, .link {
+a:not(.link-header):not(.link-none), .link {
   --tw-text-opacity: 1;
   color: rgb(2 132 199 / var(--tw-text-opacity));
 }
 
-a:not(.link-header):hover, select:hover, .link:hover {
+a:not(.link-header):not(.link-none):hover, .link:hover {
   --tw-text-opacity: 1;
   color: rgb(255 159 0 / var(--tw-text-opacity));
 }
 
-.dark a:not(.link-header),.dark  select,.dark  .link {
+.dark a:not(.link-header):not(.link-none),.dark  .link {
   --tw-text-opacity: 1;
   color: rgb(125 211 252 / var(--tw-text-opacity));
 }
 
-.dark a:not(.link-header):hover,.dark  select:hover,.dark  .link:hover {
+.dark a:not(.link-header):not(.link-none):hover,.dark  .link:hover {
   --tw-text-opacity: 1;
   color: rgb(255 159 0 / var(--tw-text-opacity));
 }
 
-.group:hover a:not(.link-header),.group:hover  select,.group:hover  .link {
+.group:hover a:not(.link-header):not(.link-none),.group:hover  .link {
   --tw-text-opacity: 1;
   color: rgb(255 159 0 / var(--tw-text-opacity));
 }
 
-.dark .group:hover a:not(.link-header),.dark .group:hover  select,.dark .group:hover  .link {
+.dark .group:hover a:not(.link-header):not(.link-none),.dark .group:hover  .link {
   --tw-text-opacity: 1;
   color: rgb(255 159 0 / var(--tw-text-opacity));
 }
 
-a:not(.link-header), select, .link {
+a:not(.link-header):not(.link-none), .link {
   fill: currentColor;
 }
 
@@ -2872,6 +2872,10 @@ i:not(.link-force) {
 
 .dark .dark\:text-white\/70 {
   color: rgb(255 255 255 / 0.7);
+}
+
+.dark .dark\:text-white\/50 {
+  color: rgb(255 255 255 / 0.5);
 }
 
 .dark .dark\:text-charcoal {
