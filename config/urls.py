@@ -49,7 +49,7 @@ from news.views import (
     VideoCreateView,
     VideoListView,
 )
-from support.views import ContactView, SupportView
+from support.views import SupportView
 from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
@@ -249,14 +249,13 @@ urlpatterns = (
             TemplateView.as_view(template_name="review/review_process.html"),
             name="review-process",
         ),
-        # support and contact views
+        # support views
         path("support/", SupportView.as_view(), name="support"),
         path(
             "getting-started/",
             TemplateView.as_view(template_name="support/getting_started.html"),
             name="getting-started",
         ),
-        path("contact/", ContactView.as_view(), name="contact"),
         # Internal functions
         path("internal/clear-cache/", ClearCacheView.as_view(), name="clear-cache"),
     ]
