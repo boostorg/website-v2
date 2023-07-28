@@ -20,14 +20,14 @@
         </div>
 
         <div class="flex pt-1 w-full">
-          <nav class="relative items-center pl-6 space-x-4 w-full text-lg text-left md:space-x-8 lg:space-x-10">
+          <nav class="relative items-center pl-6 space-x-4 w-full text-lg text-left md:space-x-6 lg:space-x-10">
             <a href="{% url 'news' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">News</a>
             <a href="{% url 'docs' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Learn</a>
             <a href="{% url 'community' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Community</a>
             <a href="{% url 'libraries' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Libraries</a>
             <a href="{% url 'releases-most-recent' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange">Releases</a>
           </nav>
-          <nav class="float-right items-center space-x-3 w-44 text-right lg:space-x-5" x-data="{ 'searchOpen': false }">
+          <nav class="float-right items-center space-x-3 w-[200px] text-right lg:space-x-5" x-data="{ 'searchOpen': false }">
             <span class="relative">
               <i class="inline -mt-1 cursor-pointer text-slate fas fa-search link"
                  @click="searchOpen = true; $nextTick(() => { setTimeout(() => { document.getElementById('hq').focus(); }, 300);});"
