@@ -1,274 +1,284 @@
 {% extends "base.html" %}
-
 {% load static %}
-
 {% block content %}
-
-  <div class="flex mt-4">
-
-    <div class="px-3 mx-3 w-full md:px-0 md:mx-0">
-
-      <!-- Overview -->
-      <div class="pb-16 mb-16">
-        <!-- Form to select a version of this library -->
-        <form action="{% url 'library-detail' slug=object.slug %}" method="post" class="float-right">
+  <div class="px-3 pt-3 mb-3 md:py-0 md:px-0">
+    <div class="flex flex-row flex-nowrap items-center py-0 md:px-0 pb-1">
+      <div class="flex-auto mb-2 w-full">
+        <div id="overview">
+          <span class="text-xl md:text-3xl lg:text-4xl text-orange">Boost.{{ object.name }}</span>
+        </div>
+      </div>
+      <div class="flex-shrink">
+        <form action="{% url 'library-detail' slug=object.slug %}"
+              method="post"
+              class="float-right">
           {% csrf_token %}
           <div>
             <label for="id_version" hidden="true">Versions:</label>
             <select onchange="this.form.submit()"
                     name="version"
                     class="block py-1 pr-8 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black text-sky-600 dark:text-orange dark:border-slate"
-                    id="id_version"
-            >
+                    id="id_version">
               <option>Filter by version</option>
               {% for v in versions %}
-                <option value="{{ v.pk }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
+                <option value="{{ v.pk }}"
+                        {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
               {% endfor %}
             </select>
           </div>
         </form>
-        <div class="pb-6">
-          <h3 class="text-4xl capitalize text-orange" id="overview">
-            Boost.{{ object.name }}
-          </h3>
-        </div>
-
-        <!-- alert for non-current Boost versions -->
-        {% include "libraries/includes/version_alert.html" %}
-
-        <div class="p-4 md:flex md:space-x-3">
-          <div class="px-2 pt-2 space-y-2 w-full bg-white rounded-lg md:w-1/3 dark:bg-charcoal">
-              <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100" href="{{ documentation_url }}">
-                <i class="float-right mt-3 fas fa-folder"></i>
-                Documentation
-                <span class="block text-xs text-sky-600">boost.org/libs/{{ object.key }}</span>
-              </a>
-              <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100" href="{{ object.github_issues_url }}">
-                <i class="float-right mt-3 fas fa-bug"></i>
-                GitHub Issues
-                <span class="block text-xs text-sky-600">{{ object.github_issues_url|cut:"https://" }}</span>
-              </a>
-              <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100" href="{{ github_url }}">
-                <i class="float-right mt-3 fab fa-github"></i>
-                Source Code
-                <span class="block text-xs text-sky-600">{{ github_url|cut:"https://" }}</span>
-              </a>
-
-              <div class="inline-block py-1 px-2 w-full rounded cursor-pointer hover:bg-gray-100">
-                <a class="inline-block py-1 px-2 rounded cursor-pointer hover:bg-gray-100">{% if object.first_github_tag_date%}Since {{ object.first_github_tag_date|date:"Y" }}{% endif %}</a>
-                <span class="float-right"><a class="inline-block float-right py-1 px-2 rounded cursor-pointer hover:bg-gray-100">{{ object.get_cpp_standard_minimum_display }}</a></span>
-              </div>
-
-              <span class="block py-1 px-2 rounded cursor-pointer hover:bg-gray-100">Categories:
-                {% for category in object.categories.all %}
-                  <a class="inline text-sky-600" href="{% url 'libraries' %}?category={{ category.slug }}{% if version %}&version={{ version.slug }}{% endif %}">{{ category.name }}</a>
-                {% endfor %}
-              </span>
-
-              <p class="pt-4 pl-2 mt-4 text-sm border-t border-gray-200">{{ object.description }}</p>
-            </ul>
-          </div>
-
-          <div class="flex space-x-3 w-full bg-gray-300 rounded-lg md:w-2/3 dark:bg-charcoal">
-            <div class="relative w-1/2">
-              <div id="chart1" class="absolute bottom-10 w-full text-center">Commits per Month Graph</div>
-            </div>
-
-            <div class="relative w-1/2">
-              <div id="chart2" class="absolute bottom-10 w-full text-center">Commits per Year Graph</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Avatars -->
-        <div class="p-5 my-6 w-full">
-          Profile photos here
-        </div>
-
-
-        {% if description %}<div class="p-4 my-4 bg-white rounded-lg dark:bg-charcoal">
-          {{ description|safe }}
-        </div>{% endif %}
       </div>
-      <!-- end overview -->
     </div>
 
+    <!-- alert for non-current Boost versions -->
+    {% include "libraries/includes/version_alert.html" %}
+
+    <div class="p-6 w-full bg-white rounded-lg divide-x-0 divide-transparent shadow-lg md:flex md:divide-x md:divide-gray-200 dark:text-white truncate text-slate dark:bg-charcoal dark:bg-neutral-700">
+      <div class="pb-2 w-full md:pb-0 md:w-1/3">
+        <div class="flex flex-col">
+
+          <div class="inline-block py-1 px-2 w-full rounded">
+            {% if object.first_github_tag_date %}Since {{ object.first_github_tag_date|date:"Y" }}{% endif %}
+            <span class="float-right">{{ object.get_cpp_standard_minimum_display }}</span>
+          </div>
+
+          <div>
+            <span class="block py-1 px-2 rounded">Categories:
+              {% for category in object.categories.all %}
+                <a class="inline text-sky-600"
+                  href="{% url 'libraries' %}?category={{ category.slug }}{% if version %}&version={{ version.slug }}{% endif %}">{{ category.name }}</a>
+              {% endfor %}
+            </span>
+
+           <p class="pt-4 pl-2 mt-4 text-sm border-t border-gray-200">{{ object.description }}</p>
+          </div>
+
+          <div class="-ml-2 h-14">
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
+               href="{{ documentation_url }}">
+              <span class="dark:text-white text-slate">Documentation</span>
+              <span class="block text-xs">boost.org/libs/{{ object.key }}</span>
+            </a>
+          </div>
+          <div class="-ml-2 h-14">
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
+               href="{{ object.github_issues_url }}">
+              <i class="float-right mt-1 fas fa-bug"></i>
+              <span class="dark:text-white text-slate">GitHub Issues</span>
+              <span class="block text-xs">{{ object.github_issues_url|cut:"https://" }}</span>
+            </a>
+          </div>
+          <div class="-ml-2 h-14">
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
+               href="{{ github_url }}">
+              <i class="float-right mt-1 fab fa-github"></i>
+              <span class="dark:text-white text-slate">Source Code</span>
+              <span class="block text-xs">{{ github_url|cut:"https://" }}</span>
+            </a>
+          </div>
+
+
+        </div>
+      </div>
+      <div class="pb-2 pl-0 ml-0 w-full h-auto md:w-2/3 md:pb-0 md:pl-6 md:ml-6">
+        <div class="flex space-x-3">
+          <div class="flex space-x-3 w-full bg-gray-300 rounded-lg dark:bg-charcoal">
+            <div class="w-1/2">
+              <div id="chart1" class="w-full text-center">Commits per Month</div>
+            </div>
+            <div class="w-1/2">
+              <div id="chart2" class="w-full text-center">Commits per Year</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="p-6 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+      <!-- Avatars -->
+      Profile photos here
+    </div>
+    {% if description %}
+      <div class="p-6 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+        {{ description|safe }}
+      </div>
+    {% endif %}
   </div>
-
+  <!-- end overview -->
+</div>
+</div>
 {% endblock %}
-
 {% block footer_js %}
-{#<script>#}
-{#  var options = {#}
-{#      series: [{#}
-{#      name: 'Commits',#}
-{#      data: [256, 255, 251, 260, 267, 230, 254, 242, 274, 265, 243, 234]#}
-{#    }],#}
-{#      chart: {#}
-{#      height: 350,#}
-{#      type: 'bar',#}
-{#    },#}
-{#    plotOptions: {#}
-{#      bar: {#}
-{#        borderRadius: 2,#}
-{#        dataLabels: {#}
-{#          position: 'top', // top, center, bottom#}
-{#        },#}
-{#      }#}
-{#    },#}
-{#    dataLabels: {#}
-{#      enabled: true,#}
-{#      formatter: function (val) {#}
-{#        //return val + "%";#}
-{#        return val;#}
-{#      },#}
-{#      offsetY: -20,#}
-{#      style: {#}
-{#        fontSize: '12px',#}
-{#        colors: ["#304758"]#}
-{#      }#}
-{#    },#}
-{##}
-{#    xaxis: {#}
-{#      categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],#}
-{#      position: 'top',#}
-{#      axisBorder: {#}
-{#        show: false#}
-{#      },#}
-{#      axisTicks: {#}
-{#        show: false#}
-{#      },#}
-{#      crosshairs: {#}
-{#        fill: {#}
-{#          type: 'gradient',#}
-{#          gradient: {#}
-{#            colorFrom: '#D8E3F0',#}
-{#            colorTo: '#BED1E6',#}
-{#            stops: [0, 100],#}
-{#            opacityFrom: 0.4,#}
-{#            opacityTo: 0.5,#}
-{#          }#}
-{#        }#}
-{#      },#}
-{#      tooltip: {#}
-{#        enabled: true,#}
-{#      }#}
-{#    },#}
-{#    yaxis: {#}
-{#      axisBorder: {#}
-{#        show: true#}
-{#      },#}
-{#      axisTicks: {#}
-{#        show: true,#}
-{#      },#}
-{#      labels: {#}
-{#        show: true,#}
-{#        formatter: function (val) {#}
-{#          //return val + "%";#}
-{#          return val;#}
-{#        }#}
-{#      }#}
-{##}
-{#    },#}
-{#    title: {#}
-{#      text: 'Commits per Month',#}
-{#      floating: true,#}
-{#      offsetY: 330,#}
-{#      align: 'center',#}
-{#      style: {#}
-{#        color: '#444'#}
-{#      }#}
-{#    }#}
-{#  };#}
-{##}
-{##}
-{##}
-{#  var options2 = {#}
-{#      series: [{#}
-{#      name: 'Commits',#}
-{#      data: [1367, 981, 400, 2235, 1888]#}
-{#    }],#}
-{#      chart: {#}
-{#      height: 350,#}
-{#      type: 'bar',#}
-{#    },#}
-{#    plotOptions: {#}
-{#      bar: {#}
-{#        borderRadius: 2,#}
-{#        dataLabels: {#}
-{#          position: 'top', // top, center, bottom#}
-{#        },#}
-{#      }#}
-{#    },#}
-{#    dataLabels: {#}
-{#      enabled: true,#}
-{#      formatter: function (val) {#}
-{#        //return val + "%";#}
-{#        return val;#}
-{#      },#}
-{#      offsetY: -20,#}
-{#      style: {#}
-{#        fontSize: '12px',#}
-{#        colors: ["#304758"]#}
-{#      }#}
-{#    },#}
-{##}
-{#    xaxis: {#}
-{#      categories: ["2019", "2020", "2021", "2022", "2023"],#}
-{#      position: 'top',#}
-{#      axisBorder: {#}
-{#        show: false#}
-{#      },#}
-{#      axisTicks: {#}
-{#        show: false#}
-{#      },#}
-{#      crosshairs: {#}
-{#        fill: {#}
-{#          type: 'gradient',#}
-{#          gradient: {#}
-{#            colorFrom: '#D8E3F0',#}
-{#            colorTo: '#BED1E6',#}
-{#            stops: [0, 100],#}
-{#            opacityFrom: 0.4,#}
-{#            opacityTo: 0.5,#}
-{#          }#}
-{#        }#}
-{#      },#}
-{#      tooltip: {#}
-{#        enabled: true,#}
-{#      }#}
-{#    },#}
-{#    yaxis: {#}
-{#      axisBorder: {#}
-{#        show: true#}
-{#      },#}
-{#      axisTicks: {#}
-{#        show: true,#}
-{#      },#}
-{#      labels: {#}
-{#        show: true,#}
-{#        formatter: function (val) {#}
-{#          //return val + "%";#}
-{#          return val;#}
-{#        }#}
-{#      }#}
-{##}
-{#    },#}
-{#    title: {#}
-{#      text: 'Commits per Year',#}
-{#      floating: true,#}
-{#      offsetY: 330,#}
-{#      align: 'center',#}
-{#      style: {#}
-{#        color: '#444'#}
-{#      }#}
-{#    }#}
-{#  };#}
-{##}
-{#  var chart = new ApexCharts(document.querySelector("#chart1"), options);#}
-{#  chart.render();#}
-{##}
-{#  var chart2 = new ApexCharts(document.querySelector("#chart2"), options2);#}
-{#  chart2.render();#}
-{#</script>#}
+  <script>
+    var options = {
+        series: [{
+        name: 'Commits',
+        data: [256, 255, 251, 260, 267, 230, 254, 242, 274, 265, 243, 234]
+      }],
+        chart: {
+        height: 350,
+        type: 'bar',
+      },
+      plotOptions: {
+        bar: {
+          borderRadius: 2,
+          dataLabels: {
+            position: 'top', // top, center, bottom
+          },
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: function (val) {
+          //return val + "%";
+          return val;
+        },
+        offsetY: -20,
+        style: {
+          fontSize: '12px',
+          colors: ["#304758"]
+        }
+      },
+
+      xaxis: {
+        categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        position: 'top',
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        },
+        crosshairs: {
+          fill: {
+            type: 'gradient',
+            gradient: {
+              colorFrom: '#D8E3F0',
+              colorTo: '#BED1E6',
+              stops: [0, 100],
+              opacityFrom: 0.4,
+              opacityTo: 0.5,
+            }
+          }
+        },
+        tooltip: {
+          enabled: true,
+        }
+      },
+      yaxis: {
+        axisBorder: {
+          show: true
+        },
+        axisTicks: {
+          show: true,
+        },
+        labels: {
+          show: true,
+          formatter: function (val) {
+            //return val + "%";
+            return val;
+          }
+        }
+
+      },
+      title: {
+        text: 'Commits per Month',
+        floating: true,
+        offsetY: 330,
+        align: 'center',
+        style: {
+          color: '#444'
+        }
+      }
+    };
+
+
+
+    var options2 = {
+        series: [{
+        name: 'Commits',
+        data: [1367, 981, 400, 2235, 1888]
+      }],
+        chart: {
+        height: 350,
+        type: 'bar',
+      },
+      plotOptions: {
+        bar: {
+          borderRadius: 2,
+          dataLabels: {
+            position: 'top', // top, center, bottom
+          },
+        }
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: function (val) {
+          //return val + "%";
+          return val;
+        },
+        offsetY: -20,
+        style: {
+          fontSize: '12px',
+          colors: ["#304758"]
+        }
+      },
+
+      xaxis: {
+        categories: ["2019", "2020", "2021", "2022", "2023"],
+        position: 'top',
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        },
+        crosshairs: {
+          fill: {
+            type: 'gradient',
+            gradient: {
+              colorFrom: '#D8E3F0',
+              colorTo: '#BED1E6',
+              stops: [0, 100],
+              opacityFrom: 0.4,
+              opacityTo: 0.5,
+            }
+          }
+        },
+        tooltip: {
+          enabled: true,
+        }
+      },
+      yaxis: {
+        axisBorder: {
+          show: true
+        },
+        axisTicks: {
+          show: true,
+        },
+        labels: {
+          show: true,
+          formatter: function (val) {
+            //return val + "%";
+            return val;
+          }
+        }
+
+      },
+      title: {
+        text: 'Commits per Year',
+        floating: true,
+        offsetY: 330,
+        align: 'center',
+        style: {
+          color: '#444'
+        }
+      }
+    };
+
+    var chart = new ApexCharts(document.querySelector("#chart1"), options);
+    chart.render();
+
+    var chart2 = new ApexCharts(document.querySelector("#chart2"), options2);
+    chart2.render();
+  </script>
 {% endblock %}
