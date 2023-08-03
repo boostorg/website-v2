@@ -97,25 +97,14 @@ $ yarn build
 
 ## Generating Local Data
 
-### Sample (Fake) Data
-
-To **remove all existing data** (except for superusers) from your local project's database (which is in its own Docker volume) and generate fresh sample data **that will not sync with GitHub**, run:
-
-```bash
-./manage.py create_sample_data --all
-```
-
-For more information on the many, many options available for this command, see `create_sample_data` in [Management Commands](docs/commands.md).
-
-### Live GitHub Libraries
 
 To **add real Boost libraries and sync all the data from GitHub**, run:
 
 ```bash
-./manage.py update_libraries
+./manage.py update_libraries --local
 ```
 
-This command can take a long time to run (about a half hour). For more information, see `update_libraries` in [Management Commands](docs/commands.md).
+The `--local` flag speeds up the command a lot by excluding the retrieval of data you generally don't need. For more information, see `update_libraries` in [Management Commands](docs/commands.md).
 
 ---
 
