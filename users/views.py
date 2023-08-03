@@ -8,6 +8,7 @@ from django.views.generic.edit import FormView
 from django.views.generic.base import TemplateView
 
 from allauth.account.forms import ChangePasswordForm
+from allauth.socialaccount.models import SocialAccount
 
 from rest_framework import generics
 from rest_framework import viewsets
@@ -141,7 +142,21 @@ class NewCurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, Templat
         context["profile_preferences_form"] = PreferencesForm(
             instance=self.request.user.preferences
         )
+        context["social_accounts"] = self.get_social_accounts()
         return context
+
+    def get_social_accounts(self):
+        account_data = []
+        for account in SocialAccount.objects.filter(user=self.request.user):
+            provider_account = account.get_provider_account()
+            account_data.append(
+                {
+                    "id": account.pk,
+                    "provider": account.provider,
+                    "name": provider_account.to_str(),
+                }
+            )
+        return account_data
 
     def post(self, request, *args, **kwargs):
         """
