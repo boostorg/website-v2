@@ -53,7 +53,6 @@ from support.views import SupportView
 from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
-    ProfilePreferencesView,
     ProfileView,
     UserViewSet,
 )
@@ -73,11 +72,6 @@ urlpatterns = (
         path("homepage-beta/", HomepageBetaView.as_view(), name="home-beta"),
         path("admin/", admin.site.urls),
         path("accounts/", include("allauth.urls")),
-        path(
-            "users/me/preferences/",
-            ProfilePreferencesView.as_view(),
-            name="profile-preferences",
-        ),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
         # Temp route to prove antora header
         path("testheader/", antora_header_view, name="antora-header"),

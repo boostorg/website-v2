@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.views.generic import DetailView, UpdateView
+from django.views.generic import DetailView
 from django.views.generic.base import TemplateView
 
 from allauth.account.forms import ChangePasswordForm
@@ -68,16 +68,6 @@ class ProfileView(DetailView):
         context["authored"] = user.authors.all()
         context["maintained"] = user.maintainers.all().distinct()
         return context
-
-
-class ProfilePreferencesView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
-    form_class = PreferencesForm
-    template_name = "users/profile_preferences.html"
-    success_url = reverse_lazy("profile-preferences")
-    success_message = "Your preferences were successfully updated."
-
-    def get_object(self):
-        return self.request.user.preferences
 
 
 class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateView):
