@@ -58,8 +58,9 @@
         class="h-screen bg-gray-200 dark:bg-black font-cairo" {% block body_id %}{% endblock %}>
 
     <div class="max-w-7xl px-6 mx-auto md:mt-14">
-      {% include "includes/_header.html" %}
-
+      {% block content_header %}
+        {% include "includes/_header.html" %}
+      {% endblock %}
 
       <div class="w-full">
         {% block messages %}{% include "partials/messages.html" %}{% endblock messages %}
