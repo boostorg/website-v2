@@ -4,7 +4,6 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, UpdateView
-from django.views.generic.edit import FormView
 from django.views.generic.base import TemplateView
 
 from allauth.account.forms import ChangePasswordForm
@@ -71,54 +70,6 @@ class ProfileView(DetailView):
         return context
 
 
-class CurrentUserProfileView(LoginRequiredMixin, ProfileView):
-    def get_object(self):
-        return self.request.user
-
-
-class ProfilePhotoUploadView(LoginRequiredMixin, FormView):
-    """Allows a user to change their profile photo"""
-
-    template_name = "users/photo_upload.html"
-    form_class = UserProfilePhotoForm
-    success_url = reverse_lazy("profile-account")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = self.request.user
-        context["user_has_gh_username"] = bool(user.github_username)
-        return context
-
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("profile-account")
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST, request.FILES, instance=self.request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Your profile photo has been updated")
-            return super().form_valid(form)
-        else:
-            return super().form_invalid()
-
-
-class ProfilePhotoGitHubUpdateView(LoginRequiredMixin, UpdateView):
-    """Allow a user to sync their profile photo to their current GitHub photo."""
-
-    http_method_names = ["post"]
-
-    def get_object(self, queryset=None):
-        return self.request.user
-
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("profile-user", args=[self.request.user.pk])
-
-    def post(self, request, *args, **kwargs):
-        user = self.get_object()
-        tasks.update_user_github_photo.delay(user.pk)
-        return HttpResponseRedirect(self.get_success_url())
-
-
 class ProfilePreferencesView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     form_class = PreferencesForm
     template_name = "users/profile_preferences.html"
@@ -129,10 +80,10 @@ class ProfilePreferencesView(LoginRequiredMixin, SuccessMessageMixin, UpdateView
         return self.request.user.preferences
 
 
-class NewCurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateView):
+class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateView):
     template_name = "users/profile_new.html"
     success_message = "Your profile was successfully updated."
-    success_url = reverse_lazy("profile-account-new")
+    success_url = reverse_lazy("profile-account")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
