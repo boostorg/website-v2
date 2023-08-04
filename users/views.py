@@ -71,7 +71,7 @@ class ProfileView(DetailView):
 
 
 class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateView):
-    template_name = "users/profile_new.html"
+    template_name = "users/profile.html"
     success_message = "Your profile was successfully updated."
     success_url = reverse_lazy("profile-account")
 
