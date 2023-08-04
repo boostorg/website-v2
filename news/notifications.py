@@ -99,7 +99,7 @@ def send_email_news_posted(request, entry):
                 "entry": entry,
                 "detail_url": request.build_absolute_uri(entry.get_absolute_url()),
                 "preferences_url": request.build_absolute_uri(
-                    reverse("profile-preferences")
+                    reverse("profile-account")
                 ),
             }
         )
