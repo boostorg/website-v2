@@ -53,9 +53,6 @@ from support.views import SupportView
 from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
-    NewCurrentUserProfileView,
-    ProfilePhotoGitHubUpdateView,
-    ProfilePhotoUploadView,
     ProfilePreferencesView,
     ProfileView,
     UserViewSet,
@@ -77,20 +74,9 @@ urlpatterns = (
         path("admin/", admin.site.urls),
         path("accounts/", include("allauth.urls")),
         path(
-            "users/me/update-github-photo/",
-            ProfilePhotoGitHubUpdateView.as_view(),
-            name="profile-photo-github",
-        ),
-        path("users/me/photo/", ProfilePhotoUploadView.as_view(), name="profile-photo"),
-        path(
             "users/me/preferences/",
             ProfilePreferencesView.as_view(),
             name="profile-preferences",
-        ),
-        path(
-            "users/me/new/",
-            NewCurrentUserProfileView.as_view(),
-            name="profile-account-new",
         ),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
         # Temp route to prove antora header
