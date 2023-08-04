@@ -185,7 +185,7 @@ def test_send_email_news_posted_many_users(rf, tp, make_entry, make_user, model_
     assert entry.title in msg.body
     assert entry.author.email not in msg.body  # never disclose author email!
     assert request.build_absolute_uri(entry.get_absolute_url()) in msg.body
-    assert request.build_absolute_uri(tp.reverse("profile-preferences")) in msg.body
+    assert request.build_absolute_uri(tp.reverse("profile-account")) in msg.body
     assert msg.to == []  # do not share all emails among all recipients
     assert msg.bcc == ["u2@example.com", "u3@example.com"]
     assert msg.recipients() == ["u2@example.com", "u3@example.com"]
