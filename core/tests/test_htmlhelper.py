@@ -24,6 +24,7 @@ BASE_HEAD = """
 """
 BASE_TOKEN = "<!-- Add your content here -->"
 BASE_BODY = f"""
+    <div id="boost-modern-header">The Header, Log In/Log Out, Menu</div>
     <h1>A very important heading</h1>
     <p>My first paragraph.</p>
     <div id="other-block-content-id">

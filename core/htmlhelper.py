@@ -76,7 +76,37 @@ REMOVE_CSS_CLASSESS = [
 ]
 
 
-def modernize_legacy_page(content, base_html):
+def _insert_head(result, base_head):
+    to_add = [
+        BeautifulSoup("<!-- BEGIN Manually appending head -->"),
+        base_head,
+        BeautifulSoup("<!-- END Manually appending head -->"),
+    ]
+    if result.head is None:
+        for i in reversed(to_add):
+            result.html.insert(0, i)
+    else:
+        for i in to_add:
+            result.head.append(i)
+    if result.head.head is not None:
+        result.head.head.unwrap()
+
+
+def _replace_body(result, original_body, base_body):
+    base_body_content = base_body.find("div", {"id": "boost-legacy-body"})
+    to_add = [
+        BeautifulSoup("<!-- BEGIN Manually appending body -->"),
+        original_body,
+        BeautifulSoup("<!-- END Manually appending body -->"),
+    ]
+    if base_body_content is not None:
+        result.body.replace_with(base_body)
+        for i in to_add:
+            base_body_content.append(i)
+        result.body.body.unwrap()
+
+
+def modernize_legacy_page(content, base_html, insert_body=True, insert_head=True):
     result = BeautifulSoup(content, "html.parser")
     if result.html is None:
         # Not an HTML file we care about
@@ -101,36 +131,22 @@ def modernize_legacy_page(content, base_html):
     # Use the base HTML to later extract the <head> and (part of) the <body>
     placeholder = BeautifulSoup(base_html, "html.parser")
 
-    # Append the <head> taken from the base HTML to the existing (legacy) head
-    if placeholder.head is not None:
-        to_add = [
-            BeautifulSoup("<!-- BEGIN Manually appending head -->"),
-            placeholder.head,
-            BeautifulSoup("<!-- END Manually appending head -->"),
-        ]
-        if result.head is None:
-            for i in reversed(to_add):
-                result.html.insert(0, i)
-        else:
-            for i in to_add:
-                result.head.append(i)
-            result.head.head.unwrap()
+    if placeholder.head is not None and (insert_body or insert_head):
+        # Append the <head> taken from the base HTML to the existing (legacy) head
+        _insert_head(result, base_head=placeholder.head)
 
-    # Beautify the legacy body with structure and classes from the new one, and
-    # embed the original body into an "<div id="boost-legacy-body"> element
     original_body = result.body
-    if original_body is not None and placeholder.body is not None:
-        base_body_content = placeholder.body.find("div", {"id": "boost-legacy-body"})
-        to_add = [
-            BeautifulSoup("<!-- BEGIN Manually appending body -->"),
-            original_body,
-            BeautifulSoup("<!-- END Manually appending body -->"),
-        ]
-        if base_body_content is not None:
-            result.body.replace_with(placeholder.body)
-            for i in to_add:
-                base_body_content.append(i)
-            result.body.body.unwrap()
+    if original_body is None:
+        pass
+    elif placeholder.body is not None:
+        if insert_body:
+            # Beautify the legacy body with structure and classes from the new one,
+            # and embed the original body into an "<div id="boost-legacy-body"> block
+            _replace_body(result, original_body, base_body=placeholder.body)
+        else:
+            result.body.insert(
+                0, placeholder.body.find("div", {"id": "boost-modern-header"})
+            )
 
     content = result.prettify()
 

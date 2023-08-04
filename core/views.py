@@ -318,12 +318,17 @@ class DocLibsTemplateView(StaticContentTemplateView):
             # was not generate from Antora builders.
             return content
 
-        context = {"legacy_url": self.content_dict.get("content_key")}
+        context = {
+            "legacy_url": self.content_dict.get("content_key"),
+            "disable_theme_switcher": True,
+        }
         base_html = render_to_string(
             "docs_libs_placeholder.html", context, request=self.request
         )
         # potentially pass version if needed for HTML modification
-        return modernize_legacy_page(content, base_html)
+        return modernize_legacy_page(
+            content, base_html, insert_body=False, insert_head=True
+        )
 
 
 def antora_header_view(request):

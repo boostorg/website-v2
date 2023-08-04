@@ -234,12 +234,19 @@ def test_docs_libs_gateway_200_html_transformed(rf, tp, mock_get_file_data):
 
     tp.response_200(response)
     tp.assertResponseContains("<title>My Page</title>", response)
+
+    # The modern head is inserted in the legacy page
+    tp.assertResponseNotContains('<div id="boost-modern-head">', response)
+
+    # XXX: The modern body is not being inserted in the legacy pages
     legacy_body = """
     <div id="boost-legacy-body">
       <p>Something interesting.</p>
     </div>
     """
-    tp.assertResponseContains(legacy_body, response)
+    tp.assertResponseNotContains(legacy_body, response)
+
+    # A small link to legacy URL is included
     legacy_url = """
      <a id="boost-legacy-url" href="/archives/foo">
        <small>Legacy page</small>
