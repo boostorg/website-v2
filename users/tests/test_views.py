@@ -67,23 +67,23 @@ def test_preferences_post_clears_options(
 
 @pytest.mark.django_db
 def test_new_current_user_profile_not_authenticated(tp, user):
-    tp.assertLoginRequired("profile-account-new")
+    tp.assertLoginRequired("profile-account")
 
 
 @pytest.mark.django_db
-def test_new_current_user_profile_view_get(user, tp):
+def test_current_user_profile_view_get(user, tp):
     with tp.login(user):
-        response = tp.assertGoodView(tp.reverse("profile-account-new"), verbose=True)
+        response = tp.assertGoodView(tp.reverse("profile-account"), verbose=True)
         assert isinstance(response.context["change_password_form"], ChangePasswordForm)
         assert isinstance(response.context["profile_photo_form"], UserProfilePhotoForm)
         assert isinstance(response.context["profile_preferences_form"], PreferencesForm)
 
 
 @pytest.mark.django_db
-def test_new_current_user_profile_view_post_valid_password(user, tp):
+def test_current_user_profile_view_post_valid_password(user, tp):
     with tp.login(user):
         response = tp.post(
-            tp.reverse("profile-account-new"),
+            tp.reverse("profile-account"),
             data={
                 "email": user.email,
                 "oldpassword": "password",
@@ -98,11 +98,11 @@ def test_new_current_user_profile_view_post_valid_password(user, tp):
 
 
 @pytest.mark.django_db
-def test_new_current_user_profile_view_post_invalid_password(user, tp):
+def test_current_user_profile_view_post_invalid_password(user, tp):
     old_password = "password"
     with tp.login(user):
         response = tp.post(
-            tp.reverse("profile-account-new"),
+            tp.reverse("profile-account"),
             data={
                 "email": user.email,
                 "oldpassword": "not the right password",
@@ -117,13 +117,13 @@ def test_new_current_user_profile_view_post_invalid_password(user, tp):
 
 
 @pytest.mark.django_db
-def test_new_current_user_profile_view_update_name(user, tp):
+def test_current_user_profile_view_update_name(user, tp):
     new_first_name = "Tester"
     new_last_name = "Testerson"
 
     with tp.login(user):
         response = tp.post(
-            tp.reverse("profile-account-new"),
+            tp.reverse("profile-account"),
             data={
                 "email": user.email,
                 "first_name": new_first_name,
@@ -139,7 +139,7 @@ def test_new_current_user_profile_view_update_name(user, tp):
 
 
 @pytest.mark.django_db
-def test_new_current_user_profile_view_post_valid_photo(user, tp):
+def test_current_user_profile_view_post_valid_photo(user, tp):
     """Test that a user can upload a new profile picture."""
     # Create a temporary image file for testing
     with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_image:
@@ -154,7 +154,7 @@ def test_new_current_user_profile_view_post_valid_photo(user, tp):
 
     with tp.login(user):
         response = tp.post(
-            tp.reverse("profile-account-new"),
+            tp.reverse("profile-account"),
             data={
                 "image": uploaded_file,
             },
@@ -170,7 +170,7 @@ def test_new_current_user_profile_view_post_valid_photo(user, tp):
 @pytest.mark.django_db
 @pytest.mark.parametrize("user_type", ["user", "moderator_user"])
 @pytest.mark.parametrize("form_field", PreferencesForm.Meta.fields)
-def test_new_current_user_profile_view_post_valid_preferences(
+def test_current_user_profile_view_post_valid_preferences(
     user_type, form_field, tp, request, assert_messages
 ):
     user = request.getfixturevalue(user_type)
@@ -183,7 +183,7 @@ def test_new_current_user_profile_view_post_valid_preferences(
 
     with tp.login(user):
         response = tp.post(
-            tp.reverse("profile-account-new"),
+            tp.reverse("profile-account"),
             data={**new_preferences, "update_preferences": "Update Preeferences"},
             follow=True,
         )
