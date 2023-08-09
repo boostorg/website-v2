@@ -2,10 +2,10 @@
 {% load account socialaccount %}
 
 
-<div class="relative z-50 bg-gray-200 md:fixed md:top-0 md:right-0 md:left-0 dark:bg-black">
+<div class="relative z-50 bg-gray-200 md:fixed md:top-0 right-0 left-0 dark:bg-black">
 
   <div class="relative mx-auto">
-    <div class="max-w-7xl px-6 mx-auto">
+    <div class="max-w-7xl px-1 md:px-6 mx-auto">
       <div class="hidden items-center py-1 px-2 border-b-2 border-gray-300 md:flex dark:border-charcoal">
         <div class="w-[100px]">
           <a href="{% url 'home' %}">
@@ -162,12 +162,13 @@
       <!-- Mobile menu, show/hide based on menu open state. -->
       <div class="relative z-10 transition transform origin-top-right md:hidden" x-data="{ isOpen: false }">
 
-        <div class="pb-1 border-b border-slate">
+        <div class="pb-1 border-b-2 border-gray-300 dark:border-charcoal">
           <div class="inline-block relative pt-2 pl-2 mx-auto h-full">
             <a href="{% url 'home' %}"><img class="inline w-auto h-[30px]"
                                             src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}"
                                             alt="Boost"></a>
           </div>
+
           <button type="button"
                   class="inline-flex float-right justify-center items-center p-2 rounded-md hover:text-white focus:outline-none"
                   aria-controls="mobile-menu" @click="isOpen = !isOpen" aria-expanded="false"
@@ -187,6 +188,62 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </button>
+
+          <!-- theme switcher -->
+          <span x-data="{ 'modeOpen': false }" class="px-6 mt-2 float-right relative">
+            <span class="dark:hidden">
+              <i class="inline-block cursor-pointer text-slate fas fa-sun dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="modeOpen = !modeOpen"></i>
+            </span>
+            <span class="hidden dark:inline">
+              <i class="inline-block cursor-pointer text-slate fas fa-moon dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="modeOpen = !modeOpen"></i>
+            </span>
+
+            <div
+              x-show="modeOpen" x-cloak
+              @click.away="modeOpen = false"
+              x-transition:enter="transition ease-out duration-100"
+              x-transition:enter-start="transform opacity-0 scale-95"
+              x-transition:enter-end="transform opacity-100 scale-100"
+              x-transition:leave="transition ease-in duration-75"
+              x-transition:leave-start="transform opacity-100 scale-100"
+              x-transition:leave-end="transform opacity-0 scale-95"
+              x-data="{
+                  mode: '',
+                  setColorMode: m => {
+                      if (m === 'dark') {
+                          document.documentElement.classList.add('dark')
+                          localStorage.setItem('colorMode', 'dark')
+                      } else {
+                          document.documentElement.classList.remove('dark')
+                          localStorage.setItem('colorMode', 'light')
+                      }
+                      document.head.querySelectorAll('.meta-theme').forEach((el) => {
+                        el.setAttribute('content', el.getAttribute('data-' + m));
+                      });
+                  }
+              }"
+
+              class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 ring-1 ring-gray-300 shadow-lg origin-top-right dark:ring-gray-500 dark:bg-charcoal"
+            >
+              <a
+                @click="mode='light'; setColorMode('light'); modeOpen = false;"
+                :class="{'font-bold': mode === 'light', 'font-medium': mode !== 'light' }"
+                class="block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange"
+                >
+                <i class="inline-block mr-1 font-semibold fas fa-sun text-gold"></i>
+                Light Mode
+              </a>
+
+              <a
+                @click="mode = 'dark'; setColorMode('dark'); modeOpen = false;"
+                :class="{'font-bold': mode === 'dark', 'font-medium': mode !== 'dark' }"
+                class="block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange"
+                >
+                <i class="inline-block mr-1 fas fa-moon text-sky-600"></i>
+                Dark Mode
+              </a>
+            </div>
+          </span>
         </div>
         <div x-show="isOpen" class="absolute inset-x-0 top-10 z-50 h-screen bg-charcoal">
           <div class="px-2 pt-2 pb-3 text-2xl">

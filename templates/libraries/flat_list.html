@@ -2,24 +2,40 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{% trans "Libraries" %}{% endblock %}
+{% block title %}{% trans "Libraries by Name" %}{% endblock %}
 
 {% block content %}
-
-  <div class="mb-2 w-full">
-    <div>
-        <span class="text-xl md:text-3xl lg:text-4xl">Libraries by Name</span>
+<main class="content">
+  <header class="py-0 px-0 mt-0 mb-0 w-full md:mb-2 flex flex-row flex-nowrap items-center md:block">
+    <div class="flex-auto mb-2 w-full md:block md:w-auto md:mb-0">
+      <div>
+          <span class="text-xl md:text-3xl lg:text-4xl">Libraries by Name</span>
+      </div>
     </div>
-  </div>
+    <div class="flex-shrink md:hidden">
+      <form action="." method="get">
+        <div>
+          <select onchange="this.form.submit()"
+              name="version"
+              class="dropdown"
+              id="id_version">
+            {% for v in versions %}
+            <option value="{{ v.slug }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </form>
+    </div>
+  </header>
 
-  <div class="px-3 pt-3 text-right md:px-0 md:mb-6" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
-    <!-- command palatte for search -->
+  <header class="pt-2 px-0 mb-2 text-right md:mb-6" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
+
+    {# command palatte for search #}
     {% include "libraries/includes/search_command_palatte.html" %}
 
-
     <form action="." method="get">
-      <div class="flex relative space-x-3">
-        <!-- Search -->
+      <div class="flex relative space-x-3 justify-between md:justify-start">
+        {# Search #}
         <div class="relative">
           <span class="flex absolute top-2 right-3 items-center pl-2">
             <button type="submit" class="p-1 focus:outline-none focus:shadow-outline">
@@ -30,12 +46,13 @@
                 type="search" name="q" class="py-2 px-3 text-sm bg-white rounded-md border-gray-300 min-w-[100px] text-sky-600 md:min-w-[150px] lg:min-w-[300px] dark:text-orange dark:border-slate dark:bg-charcoal focus:text-charcoal" type="text" value="" placeholder="Search" />
         </div>
 
-        <!-- Select a category -->
+        {# Select a category #}
         <div>
+          {# todo: if someone selects a category and hits back, it retains their choice here. #}
           <select onchange="this.form.submit()"
-                  name="category"
-                  class="block py-2 pr-11 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black  dark:border-slate"
-                  id="id_category"
+            name="category"
+            class="block py-2 pr-11 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black dark:border-slate"
+            id="id_category"
           >
             <option value="">Filter by category</option>
             {% for c in categories %}
@@ -44,15 +61,18 @@
           </select>
         </div>
 
-        <!-- Display options -->
-        <div><a title="Name View" href="{% url 'libraries-mini' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-list p-[10px] bg-gray-100 dark:bg-slate"></i></a></div>
-        <div><a title="Grid View" href="{% url 'libraries' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-th-large p-[10px] hover:bg-gray-100 dark:hover:bg-slate"></i></a></div>
-        <div><a title="Category View" href="{% url 'libraries-by-category' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-cat p-[10px] hover:bg-gray-100 dark:hover:bg-slate"></i></a></div>
+        {# Display options #}
+        <div class="flex space-x-3">
+          <div><a title="Name View" href="{% url 'libraries-mini' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-list p-[10px] hover:bg-gray-100 dark:hover:bg-slate"></i></a></div>
+          <div><a title="Grid View" href="{% url 'libraries' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-th-large p-[10px] bg-gray-100 dark:bg-slate"></i></a></div>
+          <div><a title="Category View" href="{% url 'libraries-by-category' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-cat p-[10px] hover:bg-gray-100 dark:hover:bg-slate"></i></a></div>
+        </div>
 
-        <!-- Select a version -->
+
+        {# Select a version #}
         <select onchange="this.form.submit()"
                 name="version"
-                class="absolute right-0 py-2 pr-8 pl-5 mb-3 text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black  dark:border-slate"
+                class="dropdown absolute right-0 hidden md:inline"
                 id="id_version">
           {% for v in versions %}
           <option value="{{ v.slug }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
@@ -60,14 +80,14 @@
         </select>
       </div>
     </form>
-  </div>
+  </header>
 
-  <!-- alert for non-current Boost versions -->
+  {# alert for non-current Boost versions #}
   {% include "libraries/includes/version_alert.html" %}
 
-  <!-- Libraries list -->
+  {# Libraries list #}
   <div class="relative content-between p-3 w-full bg-white rounded-lg shadow-lg md:p-5 dark:bg-charcoal">
-    {% comment %}spencer: not sure how by_category is ever true here?{% endcomment %}
+    {# todo/?: is by_category still possible here? #}
     {% if by_category %}
       {% for result in library_list %}
         <h2>{{ result.category }}</h2>
@@ -84,10 +104,10 @@
       {% endfor %}
     {% endif %}
   </div>
-  <!-- end libraries list -->
+  {# end libraries list #}
 
   {% if page_obj.paginator %}
-  <!-- Pagination -->
+  {# Pagination #}
   <div class="space-x-3 text-center">
     {% if page_obj.has_previous %}
       <a href="?page=1" class="text-orange"><small> &lt;&lt; First</small></a>
@@ -98,7 +118,8 @@
         <a href="?page={{ page_obj.paginator.num_pages }}" class="text-orange">Last <small> &gt;&gt;</small></a>
     {% endif %}
   </div>
-  <!-- end pagination -->
+  {# end pagination #}
   {% endif %}
 
+</main>
 {% endblock %}
