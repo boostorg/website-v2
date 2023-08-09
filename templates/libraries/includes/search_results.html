@@ -1,23 +1,13 @@
 {% for library in libraries %}
-  <li class="flex items-center py-2 px-3 rounded-md cursor-default select-none group hover:bg-slate">
-    <!-- Heroicon name: outline/folder -->
-    <svg class="flex-none w-6 h-6 text-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
-    </svg>
-    <span class="flex-auto ml-3 truncate">
-      <a href="{% url 'library-detail' slug=library.slug %}">
-        <span class="font-bold text-orange">{{ library.name|capfirst }}</span> <span class="font-light text-white/70">{{ library.description }}</span>
-      </a>
-    </span>
-    <!-- Not Active: "hidden" -->
-    <span class="hidden flex-none ml-3">Jump to...</span>
-  </li>
+  <div class="bg-white flex py-1 px-3 cursor-default select-none group">
+    <a href="{% url 'library-detail' slug=library.slug %}">
+      <span class="">
+        {{ library.name|capfirst }}
+      </span>
+    </a>
+  </div>
 {% empty %}
   <div class="py-14 px-6 text-center sm:px-14">
-    <!-- Heroicon name: outline/folder -->
-    <svg class="mx-auto w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
-    </svg>
     <p class="mt-4 text-sm text-gray-200">We couldn't find any libraries with that search term. Please try again.</p>
   </div>
 {% endfor %}
