@@ -22,6 +22,7 @@ initCommands:
     command: ./manage.py collectstatic --noinput
 
 publicFqdn: &fqdn boost.cppalliance.org
+publicFqdn2: &fqdn2 boost.org
 
 Env:
   - name: DJANGO_SETTINGS_MODULE
@@ -54,9 +55,9 @@ Env:
   - name: DJANGO_FQDN
     value: *fqdn
   - name: ALLOWED_HOSTS
-    value: "boost.cppalliance.org, www.boost.cppalliance.org"
+    value: "boost.cppalliance.org, www.boost.cppalliance.org, boost.org, www.boost.org"
   - name: CSRF_TRUSTED_ORIGINS
-    value: "http://0.0.0.0, http://localhost, https://boost.cppalliance.org, https://www.boost.cppalliance.org"
+    value: "http://0.0.0.0, http://localhost, https://boost.cppalliance.org, https://www.boost.cppalliance.org, https://boost.org, https://www.boost.org"
 
   # silence django deprecation warnings
   - name: PYTHONWARNINGS
@@ -169,6 +170,7 @@ NginxVolumeMounts:
 
 ingressType: gce
 managedCertName: managed-cert-boost-production
+secretCertName: boostorgcert
 ingressStaticIp: boost-production-ingress1
 redisInstall: true
 celeryInstall: true
