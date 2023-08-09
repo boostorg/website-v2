@@ -42,6 +42,26 @@ spec:
                 name: boost
                 port:
                   number: 80
+    - host: www.{{.Values.publicFqdn2 }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: boost
+                port:
+                  number: 80
+    - host: {{ .Values.publicFqdn2 }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: boost
+                port:
+                  number: 80
 
 {{- else if eq .Values.ingressType "gce" }}
 
@@ -62,12 +82,9 @@ metadata:
       {{ .Values.clientMaxBodySize|quote }}
     kubernetes.io/ingress.global-static-ip-name: {{ .Values.ingressStaticIp }}
 spec:
-  # managed cert. see above.
-  # tls:
-  #   - hosts:
-  #       - www.{{.Values.publicFqdn}}
-  #       - {{ .Values.publicFqdn }}
-  #     secretName: www.{{.Values.publicFqdn}}-tls-staging
+  # also managed cert. see above.
+  tls:
+    - secretName: {{ .Values.secretCertName }}
   rules:
     - host: www.{{.Values.publicFqdn}}
       http:
@@ -80,6 +97,26 @@ spec:
                 port:
                   number: 80
     - host: {{ .Values.publicFqdn }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: boost
+                port:
+                  number: 80
+    - host: www.{{.Values.publicFqdn2 }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: boost
+                port:
+                  number: 80
+    - host: {{ .Values.publicFqdn2 }}
       http:
         paths:
           - path: /
