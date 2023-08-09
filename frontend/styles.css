@@ -72,4 +72,18 @@
       @apply text-slate dark:text-white;
     }
   }
+
+  /* just using .content as a class for these for now, but we can change later */
+  main.content {
+    @apply px-3 pt-3 mb-3 md:py-0 md:px-0;
+  }
+
+  section.content {
+    @apply p-6 mb-4 w-full bg-white rounded-lg shadow-lg md:flex  dark:text-white truncate text-slate dark:bg-charcoal;
+  }
+
+  select.dropdown {
+    @apply py-1 mb-3 text-sm bg-white rounded-md border border-gray-300 cursor-pointer dark:bg-black text-sky-600 dark:text-orange dark:border-slate;
+  }
+
 }

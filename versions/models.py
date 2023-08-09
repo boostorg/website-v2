@@ -57,6 +57,13 @@ class Version(models.Model):
         return self.slug.replace("-", "_").replace(".", "_")
 
     @cached_property
+    def boost_release_notes_url(self):
+        """Return the URL path to the release notes for this version of Boost on
+        the existing Boost.org website.
+        """
+        return f"https://www.boost.org/users/history/version_{self.boost_url_slug}.html"
+
+    @cached_property
     def documentation_url(self):
         """Return the URL path to documentation for this version of Boost.
         This maps to the appropriate directory in the S3 bucket. See the
