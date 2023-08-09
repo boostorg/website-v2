@@ -30,9 +30,6 @@
 
   <header class="pt-2 px-0 mb-2 text-right md:mb-6" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
 
-    {# command palatte for search #}
-    {% include "libraries/includes/search_command_palatte.html" %}
-
     <form action="." method="get">
       <div class="flex relative space-x-3 justify-between md:justify-start">
         {# Search #}
@@ -42,8 +39,23 @@
               <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-4 h-4"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </button>
           </span>
-          <input @click="showSearch = true; $nextTick(() => { setTimeout(() => { document.getElementById('q').focus(); }, 300);});"
-                type="search" name="q" class="py-2 px-3 text-sm bg-white rounded-md border-gray-300 min-w-[100px] text-sky-600 md:min-w-[150px] lg:min-w-[300px] dark:text-orange dark:border-slate dark:bg-charcoal focus:text-charcoal" type="text" value="" placeholder="Search" />
+          <input @click="showSearch = true;"
+                 name="q"
+                 id="q"
+                 class="py-2 px-3 text-sm bg-white rounded-md border-gray-300 min-w-[100px] text-sky-600 md:min-w-[150px] lg:min-w-[300px] dark:text-orange dark:border-slate dark:bg-charcoal focus:text-charcoal"
+                 type="text"
+                 value=""
+                 placeholder="Search"
+                 hx-get="/api/v1/libraries/"
+                 hx-trigger="keyup changed delay:500ms, search"
+                 hx-target="#search_results"
+                 hx-indicator=".htmx-indicator"
+                 x-on:click.away="showSearch = false"
+          />
+          <div x-show="showSearch"
+               x-on:click.away="showSearch = false"
+               class="absolute z-50 top-10 rounded-md drop-shadow-md overflow-y-auto max-h-96 text-sm w-[300px] divide-y divide-gray-200"
+               id="search_results"></div>
         </div>
 
         {# Select a category #}
