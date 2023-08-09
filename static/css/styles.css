@@ -2837,6 +2837,11 @@ select.dropdown {
   border-color: rgb(49 74 87 / var(--tw-divide-opacity));
 }
 
+.dark .dark\:divide-black > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-opacity: 1;
+  border-color: rgb(5 26 38 / var(--tw-divide-opacity));
+}
+
 .dark .dark\:border-slate {
   --tw-border-opacity: 1;
   border-color: rgb(49 74 87 / var(--tw-border-opacity));
