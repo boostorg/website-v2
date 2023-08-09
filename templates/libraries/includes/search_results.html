@@ -1,5 +1,5 @@
 {% for library in libraries %}
-  <div class="bg-white flex py-1 px-3 cursor-default select-none group">
+  <div class="bg-white dark:bg-charcoal flex py-1 px-3 cursor-default select-none group">
     <a href="{% url 'library-detail' slug=library.slug %}">
       <span class="">
         {{ library.name|capfirst }}
