@@ -3,6 +3,7 @@ import structlog
 
 from dateutil.relativedelta import relativedelta
 from django.http import Http404
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
@@ -52,7 +53,7 @@ class LibraryList(VersionAlertMixin, ListView):
         else:
             context["version"] = Version.objects.most_recent()
         context["categories"] = self.get_categories(context["version"])
-        context["versions"] = Version.objects.active().order_by("-release_date")
+        context["versions"] = self.get_versions()
         context["library_list"] = self.get_queryset()
         return context
 
@@ -62,6 +63,28 @@ class LibraryList(VersionAlertMixin, ListView):
             .distinct()
             .order_by("name")
         )
+
+    def get_versions(self):
+        """
+        Return a queryset of all versions to display in the version dropdown.
+        """
+        versions = Version.objects.active().order_by("-release_date")
+
+        # Annotate each version with the number of libraries it has
+        versions = versions.annotate(
+            library_count=Count("library_version", distinct=True)
+        ).order_by("-release_date")
+
+        # Filter out versions with no libraries
+        versions = versions.filter(library_count__gt=0)
+
+        most_recent_version = Version.objects.most_recent()
+
+        # Confirm the most recent v is in the queryset, even if it has no libraries
+        if most_recent_version not in versions:
+            versions = versions | Version.objects.filter(pk=most_recent_version.pk)
+
+        return versions
 
 
 class LibraryListMini(LibraryList):
