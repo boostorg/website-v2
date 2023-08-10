@@ -58,6 +58,15 @@
             <div class="mx-auto space-y-4 w-2/3" id="signup_form">
               {% csrf_token %}
 
+              <!-- Display non-field errors -->
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                  {% for error in form.non_field_errors %}
+                     {{ error }}
+                  {% endfor %}
+                </div>
+              {% endif %}
+
               {% for field in form.visible_fields %}
                 <div>
                   {% if field.label == "E-mail" or field.label == "Password" %}
