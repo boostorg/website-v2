@@ -7,6 +7,8 @@ from django.views.generic import DetailView
 from django.views.generic.base import TemplateView
 
 from allauth.account.forms import ChangePasswordForm
+from allauth.account.views import LoginView
+from allauth.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.models import SocialAccount
 
 from rest_framework import generics
@@ -174,3 +176,22 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
         else:
             for error in form.errors.values():
                 messages.error(request, f"{error}")
+
+
+### Custom Allauth Views ###
+
+
+class CustomLoginView(LoginView):
+    def form_valid(self, form):
+        """Set a cookie with the last used login method."""
+        success_url = self.get_success_url()
+        try:
+            response = form.login(
+                self.request, redirect_url=success_url
+            )  # Assuming this returns HttpResponse or HttpResponseRedirect
+        except ImmediateHttpResponse as e:
+            response = e.response
+
+        login_method = "chocolate chip"
+        response.set_cookie("last_used_login_method", login_method)
+        return response

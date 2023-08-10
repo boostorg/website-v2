@@ -148,3 +148,12 @@ def test_current_user_profile_view_post_valid_preferences(
     assert_messages(
         response, [("success", "Your preferences were successfully updated.")]
     )
+
+
+@pytest.mark.django_db
+def test_custom_login_set_cookie(user, tp):
+    response = tp.post(
+        tp.reverse("account_login"), data={"login": user.email, "password": "password"}
+    )
+    assert "last_used_login_method" in response.cookies.keys()
+    assert response.cookies["last_used_login_method"].value == "chocolate chip"

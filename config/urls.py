@@ -55,6 +55,7 @@ from users.views import (
     CurrentUserProfileView,
     ProfileView,
     UserViewSet,
+    CustomLoginView,
 )
 from versions.api import VersionViewSet
 from versions.views import VersionCurrentReleaseDetail, VersionDetail
@@ -71,6 +72,7 @@ urlpatterns = (
         path("", HomepageView.as_view(), name="home"),
         path("homepage-beta/", HomepageBetaView.as_view(), name="home-beta"),
         path("admin/", admin.site.urls),
+        path("accounts/login/", CustomLoginView.as_view(), name="account_login"),
         path("accounts/", include("allauth.urls")),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
         # Temp route to prove antora header
