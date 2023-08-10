@@ -9,6 +9,7 @@ from django.views.generic.base import TemplateView
 
 from allauth.account.forms import ChangePasswordForm
 from allauth.account.views import LoginView
+from allauth.exceptions import ImmediateHttpResponse
 from allauth.socialaccount.models import SocialAccount
 
 from rest_framework import generics
@@ -182,9 +183,26 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
 
 
 class CustomLoginView(LoginView):
-    def dispatch(self, request, *args, **kwargs):
-        response = super(CustomLoginView, self).dispatch(request, *args, **kwargs)
-        # Set a cookie to remember the last login method used
+    def form_invalid(self, form):
+        """Set a cookie with the last used login method even if the form is invalid."""
+        response = super(CustomLoginView, self).form_invalid(form)
+
+        response.set_cookie(
+            "last_used_login_method",
+            "email",
+            max_age=settings.ACCOUNT_SESSION_COOKIE_AGE,
+            secure=settings.ACCOUNT_SESSION_COOKIE_SECURE,
+        )
+        return response
+
+    def form_valid(self, form):
+        """Set a cookie with the last used login method."""
+        success_url = self.get_success_url()
+        try:
+            response = form.login(self.request, redirect_url=success_url)
+        except ImmediateHttpResponse as e:
+            response = e.response
+
         response.set_cookie(
             "last_used_login_method",
             "email",

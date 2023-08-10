@@ -156,4 +156,4 @@ def test_custom_login_set_cookie(user, tp):
         tp.reverse("account_login"), data={"login": user.email, "password": "password"}
     )
     assert "last_used_login_method" in response.cookies.keys()
-    assert response.cookies["last_used_login_method"].value == "#email"
+    assert response.cookies["last_used_login_method"].value == "email"
