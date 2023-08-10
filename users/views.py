@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -185,7 +186,11 @@ class CustomLoginView(LoginView):
     def dispatch(self, request, *args, **kwargs):
         response = super(CustomLoginView, self).dispatch(request, *args, **kwargs)
         if not response.cookies.get("last_used_login_method"):
-            response.set_cookie("last_used_login_method", "social")
+            response.set_cookie(
+                "last_used_login_method",
+                "social",
+                max_age=settings.ACCOUNT_SESSION_COOKIE_AGE,
+            )
         return response
 
     def form_valid(self, form):
@@ -196,5 +201,9 @@ class CustomLoginView(LoginView):
         except ImmediateHttpResponse as e:
             response = e.response
 
-        response.set_cookie("last_used_login_method", "email")
+        response.set_cookie(
+            "last_used_login_method",
+            "email",
+            max_age=settings.ACCOUNT_SESSION_COOKIE_AGE,
+        )
         return response
