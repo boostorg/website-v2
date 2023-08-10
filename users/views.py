@@ -191,7 +191,6 @@ class CustomLoginView(LoginView):
             )  # Assuming this returns HttpResponse or HttpResponseRedirect
         except ImmediateHttpResponse as e:
             response = e.response
-
-        login_method = "chocolate chip"
+        login_method = "email"
         response.set_cookie("last_used_login_method", login_method)
         return response
