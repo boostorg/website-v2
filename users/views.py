@@ -182,15 +182,19 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
 
 
 class CustomLoginView(LoginView):
+    def dispatch(self, request, *args, **kwargs):
+        response = super(CustomLoginView, self).dispatch(request, *args, **kwargs)
+        if not response.cookies.get("last_used_login_method"):
+            response.set_cookie("last_used_login_method", "social")
+        return response
+
     def form_valid(self, form):
         """Set a cookie with the last used login method."""
         success_url = self.get_success_url()
         try:
-            response = form.login(
-                self.request, redirect_url=success_url
-            )  # Assuming this returns HttpResponse or HttpResponseRedirect
+            response = form.login(self.request, redirect_url=success_url)
         except ImmediateHttpResponse as e:
             response = e.response
-        login_method = "email"
-        response.set_cookie("last_used_login_method", login_method)
+
+        response.set_cookie("last_used_login_method", "email")
         return response
