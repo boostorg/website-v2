@@ -19,7 +19,7 @@
           {% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">log in</a>.{% endblocktrans %}
         </p>
       </div>
-
+    
       <div class="w-full">
 
         <div class="w-full md:flex md:divide-x divide-gray-200 space-y-11 md:space-y-0">
@@ -67,6 +67,7 @@
                   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
                 {% endif %}
               </div>
+
               <div class="my-3 text-center">
                 <button type="submit"
                         class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md"
