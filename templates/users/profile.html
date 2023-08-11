@@ -91,7 +91,9 @@
 
         <div class="rounded bg-white dark:bg-charcoal p-4">
           <h3>{% trans "Account Connections" %}</h3>
-          <a href="{% url 'socialaccount_connections' %}"><button class="py-3 px-4 text-white uppercase rounded border border-orange bg-orange md:py-1 md:px-4 md:text-lg bg-orange border-orange dark:bg-charcoal dark:text-orange">{% trans 'Manage Account Connections' %}</button></a>
+          <div class="mt-4">
+            <a href="{% url 'socialaccount_connections' %}"><button class="py-2 px-3 text-sm text-white rounded bg-orange">{% trans 'Manage Account Connections' %}</button></a>
+          </div>
         </div>
       </div>
     </div>

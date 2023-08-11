@@ -5,56 +5,53 @@
 {% block head_title %}{% trans "Account Connections" %}{% endblock %}
 
 {% block content %}
-<div class="py-0 px-3 mb-3 md:py-6 md:px-0">
-    <div class="md:pt-11 md:mt-11 w-full md:w-1/2 mx-auto" x-data="{ tab: '#social' }">
-      <div class="md:w-full">
-        <h1 class="text-4xl text-center">{% trans "Account Connections" %}</h1>
+<div class="my-6 text-center">
+  <div class="py-6 w-full md:w-1/2 mx-auto">
+    <h1 class="text-4xl">{% trans "Account Connections" %}</h1>
 
-        {% if form.accounts %}
-            <p class="mt-0 text-center">{% blocktrans %}You can sign in to your account using any of the following third party accounts:{% endblocktrans %}</p>
-    </div>
-  </div>
-</div>
+    {% if form.accounts %}
+        <p>{% blocktrans %}You can sign in to your account using any of the following third party accounts:{% endblocktrans %}</p>
 
     <form method="post" action="{% url 'socialaccount_connections' %}">
-        <div class="mx-auto space-y-4 w-2/3">
-    {% csrf_token %}
+      <div class="mx-auto space-y-4 w-2/3">
+        {% csrf_token %}
 
-    <fieldset>
-        {% if form.non_field_errors %}
-            <div id="errorMsg">{{ form.non_field_errors }}</div>
-        {% endif %}
+        <fieldset>
+          {% if form.non_field_errors %}
+              <div id="errorMsg">{{ form.non_field_errors }}</div>
+          {% endif %}
 
-        {% for base_account in form.accounts %}
-            {% with base_account.get_provider_account as account %}
-                <div>
-                    <label for="id_account_{{ base_account.id }}" class="text-xs uppercase text-slate dark:text-white/70">
-                        <input id="id_account_{{ base_account.id }}" type="radio" name="account" value="{{ base_account.id }}"/>
-                        <span class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{account.get_brand.name}}</span>
-                        {{ account }}
-                    </label>
-                </div>
-            {% endwith %}
-        {% endfor %}
+          {% for base_account in form.accounts %}
+              {% with base_account.get_provider_account as account %}
+                  <div>
+                      <label for="id_account_{{ base_account.id }}" class="text-slate dark:text-white/70">
+                          <input id="id_account_{{ base_account.id }}" type="radio" name="account" value="{{ base_account.id }}"/>
+                          <span class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{account.get_brand.name}}</span>
+                          {{ account }}
+                      </label>
+                  </div>
+              {% endwith %}
+          {% endfor %}
 
-        <div class="flex justify-between mb-4">
-            <button type="submit" class="py-3 px-4 text-white uppercase rounded border border-orange bg-orange md:py-1 md:px-4 md:text-lg bg-orange border-orange dark:bg-charcoal dark:text-orange">{% trans 'Remove' %}</button>
-        </div>
-
-    </fieldset>
-    </div>
+          <div class="my-4">
+              <button type="submit" class="py-1 px-2 text-sm text-white rounded border border-orange bg-orange">{% trans 'Remove Connection' %}</button>
+          </div>
+        </fieldset>
+      </div>
     </form>
 
-{% else %}
-    <p class="mt-0 text-center">{% trans 'You currently have no social network accounts connected to this account.' %}</p>
-{% endif %}
+    {% else %}
+        <p class="mt-0 text-center">{% trans 'You currently have no social network accounts connected to this account.' %}</p>
+    {% endif %}
 
-<h2 class="text-4xl text-center">{% trans 'Add a 3rd Party Account' %}</h2>
+    <h2 class="text-2xl text-center">{% trans 'Add a Third Party Account' %}</h2>
 
-<ul class="space-y-4 w-full">
-    {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
-</ul>
+    <ul class="space-y-4 w-full">
+        {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
+    </ul>
 
-{% include "socialaccount/snippets/login_extra.html" %}
+    {% include "socialaccount/snippets/login_extra.html" %}
+  </div>
+</div>
 
 {% endblock %}
