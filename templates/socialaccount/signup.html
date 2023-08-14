@@ -15,7 +15,41 @@
 
   <form id="signup_form" method="post" action="{% url 'socialaccount_signup' %}" class="w-full md:w-1/2 mx-auto">
     {% csrf_token %}
-    {{ form.as_p }}
+
+    {% if form.errors %}
+      {% for error in field.errors %}
+        <p class="font-bold text-orange">
+          {{ error|escape }}
+        </p>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Display non-field errors -->
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">
+        {% for error in form.non_field_errors %}
+          {{ error }}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% for field in form.visible_fields %}
+      {% if field.errors %}
+        {% for error in field.errors %}
+          <div class="error-message">{{ error }}</div>
+          {% if field.name == "email" and "account already exists with this e-mail" in error %}
+            <p><button><a href="{% url 'account_login' %}" class="py-3 px-4 text-white uppercase rounded border border-orange bg-orange">{% trans "Log in" %}</a></button></p>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+      <div>
+        {{ field }}
+        {% if field.help_text %}
+          <small>{{ field.help_text }}</small>
+        {% endif %}
+      </div>
+    {% endfor %}
+
     {% if redirect_field_value %}
     <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
     {% endif %}
