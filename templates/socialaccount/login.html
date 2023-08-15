@@ -4,6 +4,9 @@
 {% block head_title %}{% trans "Sign In" %}{% endblock %}
 
 {% block content %}
+
+<p id="lastProviderMessage"></p>
+
 <div class="my-6 text-center">
   <div class="py-6">
     {% if process == "connect" %}
@@ -20,4 +23,23 @@
     <button type="submit" class="py-3 px-4 text-white uppercase rounded border border-orange bg-orange">{% trans "Continue" %}</button>
   </form>
 </div>
+
 {% endblock %}
+<script>
+  document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var providerName = "{{ provider.name }}";
+    alert('Provider name before setting: ' + providerName); // Debug alert
+    localStorage.setItem('lastProvider', providerName);
+    alert('Stored in local storage: ' + localStorage.getItem('lastProvider')); // Debug alert
+    this.submit(); // Manually submit the form
+  });
+
+  window.addEventListener('load', function() {
+    var lastProvider = localStorage.getItem('lastProvider');
+    if (lastProvider) {
+      document.getElementById('lastProviderMessage').innerText = "You last signed in with " + lastProvider;
+    }
+    alert('Last provider on page load: ' + lastProvider); // Debug alert
+  });
+</script>
