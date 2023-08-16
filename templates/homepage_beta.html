@@ -191,34 +191,20 @@
           </div>
         </div>
         <div class="grid grid-cols-1 grid-rows-2 gap-y-10 md:grid-cols-2 md:grid-rows-1 md:gap-x-10 lg:gap-y-0">
-          <div class="flex flex-col col-span-1 p-5 pt-0 h-full border-gray-200 md:mb-10 dark:border-slate">
-            <div class="">
-              <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">Article Name</h3>
-              <p class="mb-3">Category | 4/5/22</p>
-              <p class="overflow-x-auto mb-3">
-                Boost.MySQL is an Asio-based network client which lets you access MySQL
-                and MariaDB databases using your own data types New in Boost 1.82.0,
-                check it out here https://https://boost.org/libs/mysql Get Boost:
-                https://boost.org/users/history/version_1_82_0.html #boost #cpp
-                #cplusplus #mysql #mariadb #database... <a href="" class="text-sky-600">Read&nbsp;More</a>
-              </p>
-              <img src="{% static 'img/fpo/news-1.png' %}" class="news-image" />
-            </div>
-          </div>
-          <div class="flex flex-col col-span-1 p-5 pt-0 h-full md:mb-10">
-            <div class="">
-              <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">Article Name</h3>
-              <p class="mb-3">Category | 4/5/22</p>
-              <p class="overflow-x-auto mb-3">
-                Boost 1.82.0 is released for the Spring season! Release Notes:
-                https://boost.org/users/history/version_1_82_0.html Downloads:
-                http://boost.org/users/news/version_1.82.0 Direct Download:
-                https://boostorg.jfrog.io/artifactory/main/release/1.82.0 #boost #cpp
-                #cplusplus <a href="" class="text-sky-600">Read&nbsp;More</a>
-              </p>
-              <img src="{% static 'img/fpo/news-2.png' %}" class="news-image" />
-            </div>
-          </div>
+          {% if entries %}
+            {% for entry in entries %}
+              <div class="flex flex-col col-span-1 p-5 pt-0 h-full border-gray-200 md:mb-10 dark:border-slate">
+                <div class="">
+                  <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">{{ entry.title }}</h3>
+                  <p class="mb-3">{{ entry.publish_at|date:"m/d/Y" }}</p>
+                  <p class="overflow-x-auto mb-3">
+                    {{ entry.content|truncatewords:20 }}... <a href="{% url 'news-detail' slug=entry.slug %}" class="text-sky-600">Read&nbsp;More</a>
+                  </p>
+                  <img src="{{ entry.image.url }}" class="news-image" />
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
         </div>
       </div>
     </div>
