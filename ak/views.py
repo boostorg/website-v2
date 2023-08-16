@@ -7,6 +7,7 @@ from django.views.generic import TemplateView
 
 from config.settings import JDOODLE_API_CLIENT_ID, JDOODLE_API_CLIENT_SECRET
 from libraries.models import Category, Library
+from news.models import Entry
 from versions.models import Version
 
 
@@ -17,6 +18,11 @@ class HomepageView(TemplateView):
     """
 
     template_name = "homepage.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["entries"] = Entry.objects.published().order_by("-publish_at")[:3]
+        return context
 
 
 class HomepageBetaView(TemplateView):
@@ -68,9 +74,12 @@ class HomepageBetaView(TemplateView):
                 context["category"] = categories.filter(
                     slug=self.request.GET["category"]
                 ).first()
+
         context["versions"] = Version.objects.active().order_by("-release_date")
         context["libraries"] = libraries
         context["categories"] = categories
+
+        context["entries"] = Entry.objects.published().order_by("-publish_at")[:2]
         return context
 
     def post(self, request, *args, **kwargs):
