@@ -281,6 +281,17 @@ def test_entry_manager_custom_queryset_tags_mixed(make_entry):
     assert [e.tag for e in entries] == ["", "blogpost", "link", "news", "poll", "video"]
 
 
+def test_entry_manager_published(make_entry):
+    entry_published = make_entry(Entry, approved=True, published=True)
+    # Check that unpublished, approved entries are not returned
+    make_entry(Entry, approved=True, published=False)
+    # Check that unapproved entries are not returned
+    make_entry(Entry, approved=False)
+    # Check that unpublished entries are not returned
+    make_entry(Entry, approved=False, published=False)
+    assert list(Entry.objects.published()) == [entry_published]
+
+
 def test_blogpost():
     blogpost = baker.make("BlogPost")
     assert isinstance(blogpost, Entry)

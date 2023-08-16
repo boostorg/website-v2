@@ -38,6 +38,9 @@ class EntryManager(models.Manager):
             )
         return result
 
+    def published(self):
+        return self.get_queryset().filter(published=True)
+
 
 class Entry(models.Model):
     """A news entry.
