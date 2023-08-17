@@ -134,6 +134,11 @@ class Library(models.Model):
     closed_prs_per_month = models.IntegerField(blank=True, null=True)
     open_issues = models.IntegerField(blank=True, null=True)
     commits_per_release = models.IntegerField(blank=True, null=True)
+    featured = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text="Should this library be featured on the home page?",
+    )
 
     class Meta:
         verbose_name_plural = "Libraries"

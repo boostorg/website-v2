@@ -22,8 +22,23 @@ class HomepageView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["entries"] = Entry.objects.published().order_by("-publish_at")[:3]
-        context["latest_version"] = Version.objects.most_recent()
+        latest_version = Version.objects.most_recent()
+        context["latest_version"] = latest_version
+        context["featured_library"] = self.get_featured_library(latest_version)
         return context
+
+    def get_featured_library(self, latest_version):
+        library = Library.objects.filter(featured=True).first()
+
+        # If we don't have a featured library, return a random library
+        if not library:
+            library = (
+                Library.objects.filter(library_version__version=latest_version)
+                .order_by("?")
+                .first()
+            )
+
+        return library
 
 
 class HomepageBetaView(TemplateView):
