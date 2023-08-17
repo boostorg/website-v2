@@ -53,26 +53,37 @@
 
     <div class="my-4 space-y-4 md:flex md:my-16 md:space-y-0 md:space-x-4">
       <div class="p-4 bg-white rounded md:p-11 md:w-1/2 dark:bg-charcoal">
-        <div class="mb-6">
-          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">library spotlight</span>
-        </div>
-        <h3 class="text-xl">Boost.JSON</h3>
-        <p class="my-3">Released 4/5/22</p>
-        <p>Boost.JSON is a portable C++ library which provides containers and algorithms that implment
-        JavaScript Object Notation, or simply "JSON", a lightweight data-interchange format.</p>
-        <div class="my-5"><span class="mr-5">Authors</span> <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /></div>
-        <div class="mt-5 max-w-md sm:flex md:mt-8">
-          <div class="rounded-md shadow">
-            <a href="#" class="flex justify-center items-center py-3 px-8 w-full text-base font-medium text-white rounded-md border md:py-4 md:px-10 md:text-base border-orange bg-orange">
-              <i class="pr-2 fas fa-arrow-circle-down"></i> Download
-            </a>
+        {% if featured_library %}
+          <div class="mb-6">
+            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">library spotlight</span>
           </div>
-          <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-            <a href="#" class="flex justify-center items-center py-3 px-8 w-full text-base font-medium bg-gray-300 rounded-md border md:py-4 md:px-10 md:text-base border-steel text-slate dark:bg-charcoal dark:text-orange">
-              Version Details <i class="pl-2 fas fa-chevron-right text-slate dark:text-orange"></i>
-            </a>
+          <h3 class="text-xl"><a href="{% url 'library-detail' slug=featured_library.slug %}">{{ featured_library.name }}</a></h3>
+          <p class="my-3">{% if featured_library.first_github_tag_date %}Released {{ featured_library.first_github_tag_date|date:"m/d/y"}}{% endif %}</p>
+          <p>{{ featured_library.description }}</p>
+          <div class="my-5">
+            {% if featured_library.authors %}
+              <span class="mr-5">Authors</span>
+              {% for author in featured_library.authors.all %}
+                {% if author.image %}
+                  <img src="{{ author.image.url }}" alt="Photo of {{ author.get_full_name }}" title="{{ author.get_full_name }}" class="inline" />
+                {% else %}
+                  <i class="mr-2 text-5xl fas fa-user" title="{{ author.get_full_name }}"></i>
+                {% endif %}
+              {% endfor %}
+            {% endif %}</div>
+          <div class="mt-5 max-w-md sm:flex md:mt-8">
+            <div class="rounded-md shadow">
+              <a href="{% url 'releases-most-recent' %}" class="flex justify-center items-center py-3 px-8 w-full text-base font-medium text-white rounded-md border md:py-4 md:px-10 md:text-base border-orange bg-orange">
+                <i class="pr-2 fas fa-arrow-circle-down"></i> Download
+              </a>
+            </div>
+            <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
+              <a href="{% url 'library-detail' slug=featured_library.slug %}" class="flex justify-center items-center py-3 px-8 w-full text-base font-medium bg-gray-300 rounded-md border md:py-4 md:px-10 md:text-base border-steel text-slate dark:bg-charcoal dark:text-orange">
+                Library Details <i class="pl-2 fas fa-chevron-right text-slate dark:text-orange"></i>
+              </a>
+            </div>
           </div>
-        </div>
+        {% endif %}
       </div>
       <div class="p-4 bg-white rounded md:p-11 md:w-1/2 dark:bg-charcoal">
         <div class="mb-6">

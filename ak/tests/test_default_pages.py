@@ -4,7 +4,7 @@ import pytest
 from django.test.utils import override_settings
 
 
-def test_homepage(version, tp):
+def test_homepage(library, version, tp):
     """Ensure we can hit the homepage"""
     # Use any page that is named 'home' otherwise use /
     url = tp.reverse("home")
@@ -15,12 +15,12 @@ def test_homepage(version, tp):
     assert "entries" in response.context
     assert "latest_version" in response.context
     assert response.context["latest_version"] == version
+    assert "featured_library" in response.context
 
 
 def test_homepage_beta(db, tp):
     """Ensure we can hit the beta homepage"""
     url = tp.reverse("home-beta")
-
     tp.get_check_200(url)
 
 
