@@ -313,21 +313,25 @@ class DocLibsTemplateView(StaticContentTemplateView):
     def process_content(self, content):
         """Replace page header with the local one."""
         content_type = self.content_dict.get("content_type")
-        if content_type != "text/html":
+        modernize = self.request.GET.get("modernize", "med").lower()
+        if content_type != "text/html" or modernize not in ("max", "med", "min"):
             # eventually check for more things, for example ensure this HTML
             # was not generate from Antora builders.
             return content
 
-        context = {
-            "legacy_url": self.content_dict.get("content_key"),
-            "disable_theme_switcher": True,
-        }
+        context = {"disable_theme_switcher": True}
         base_html = render_to_string(
             "docs_libs_placeholder.html", context, request=self.request
         )
+        insert_body = modernize == "max"
+        head_selector = (
+            "head"
+            if modernize in ("max", "med")
+            else {"data-modernizer": "boost-legacy-docs-extra-head"}
+        )
         # potentially pass version if needed for HTML modification
         return modernize_legacy_page(
-            content, base_html, insert_body=False, insert_head=True
+            content, base_html, insert_body=insert_body, head_selector=head_selector
         )
 
 
