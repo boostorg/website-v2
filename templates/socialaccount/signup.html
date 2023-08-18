@@ -5,56 +5,52 @@
 {% block head_title %}{% trans "Signup" %}{% endblock %}
 
 {% block content %}
-<div class="my-6 text-center">
-  <div class="py-6">
-    <h1 class="text-4xl">{% trans "Sign Up" %}</h1>
+<div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+  <div class="md:pt-11 md:mt-11 w-full bg-white dark:bg-charcoal mx-auto rounded py-6 px-3">
+    <div class="md:w-full text-center">
+      <h1 class="text-4xl">{% trans "Sign Up" %}</h1>
 
-    <p>{% blocktrans with provider_name=account.get_provider.name site_name=site.name %}You are about to use your {{provider_name}} account to login to
+      <p>{% blocktrans with provider_name=account.get_provider.name site_name=site.name %}You are about to use your {{provider_name}} account to login to
 {{site_name}}. As a final step, please complete the following form:{% endblocktrans %}</p>
-  </div>
 
-  <form id="signup_form" method="post" action="{% url 'socialaccount_signup' %}" class="w-full md:w-1/2 mx-auto">
-    {% csrf_token %}
+      <form id="signup_form" method="post" action="{% url 'socialaccount_signup' %}" class="w-full md:w-1/2 mx-auto">
+        {% csrf_token %}
 
-    {% if form.errors %}
-      {% for error in field.errors %}
-        <p class="font-bold text-orange">
-          {{ error|escape }}
-        </p>
-      {% endfor %}
-    {% endif %}
-
-    <!-- Display non-field errors -->
-    {% if form.non_field_errors %}
-      <div class="alert alert-danger">
-        {% for error in form.non_field_errors %}
-          {{ error }}
-        {% endfor %}
-      </div>
-    {% endif %}
-
-    {% for field in form.visible_fields %}
-      {% if field.errors %}
-        {% for error in field.errors %}
-          <div class="error-message">{{ error }}</div>
-          {% if field.name == "email" and "account already exists with this e-mail" in error %}
-            <p><button><a href="{% url 'account_login' %}" class="py-3 px-4 text-white uppercase rounded border border-orange bg-orange">{% trans "Log in" %}</a></button></p>
-          {% endif %}
-        {% endfor %}
-      {% endif %}
-      <div>
-        {{ field }}
-        {% if field.help_text %}
-          <small>{{ field.help_text }}</small>
+        <!-- Display non-field errors -->
+        {% if form.non_field_errors %}
+          {% for error in form.non_field_errors %}
+            <div class="py-1 px-3 text-white bg-red-600">
+             {{ error }}
+            </div>
+          {% endfor %}
         {% endif %}
-      </div>
-    {% endfor %}
 
-    {% if redirect_field_value %}
-    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-    {% endif %}
-    <button type="submit" class="py-3 px-4 text-white uppercase rounded border border-orange bg-orange">{% trans "Sign Up" %}</button>
-  </form>
+        {% for field in form.visible_fields %}
+          {% if field.errors %}
+            {% for error in field.errors %}
+              <div class="text-red-600">{{ error }}</div>
+            {% endfor %}
+          {% endif %}
+
+          <div class="text-left">
+            <label class="text-xs uppercase text-slate dark:text-white/70">{{ field.label }}
+              {{ field }}
+            </label>
+            {% if field.help_text %}
+              <small>{{ field.help_text }}</small>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+        {% endif %}
+        <div class="my-3 text-center">
+          <button type="submit" class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">{% trans "Sign Up" %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 {# keep this here for postcss <span class="errorlist"></span> #}

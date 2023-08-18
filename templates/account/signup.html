@@ -20,12 +20,12 @@
         </p>
       </div>
 
-      <div class="w-full text-center">
+      <div class="w-full">
 
         <div class="w-full md:flex md:divide-x divide-gray-200 space-y-11 md:space-y-0">
           <div class="socialaccount_ballot w-full md:w-1/2">
-            <h2 class="text-xl">Sign Up with an existing third party account</h2>
-            <div class="space-y-4 w-full">
+            <h2 class="text-xl text-center mb-11">Sign Up with an existing third party account</h2>
+            <div class="space-y-6 w-full text-center">
               {% providers_media_js %}
               {% include "socialaccount/snippets/provider_list.html" with process="login" %}
               {% include "socialaccount/snippets/login_extra.html" %}
@@ -33,22 +33,30 @@
           </div>
 
           <div class="w-full md:w-1/2">
-            <h2 class="text-xl">Sign Up with Email</h2>
+            <h2 class="text-xl text-center">Or Sign Up with Email</h2>
             <form id="signup_form" method="post" action="{% url 'account_signup' %}">
               <div class="mx-auto space-y-4 w-2/3">
                 {% csrf_token %}
 
-                {% if form.errors %}
-                  {% for error in field.errors %}
-                    <p class="font-bold text-orange">
-                      {{ error|escape }}
-                    </p>
+                <!-- Display non-field errors -->
+                {% if form.non_field_errors %}
+                  {% for error in form.non_field_errors %}
+                    <div class="py-1 px-3 text-white bg-red-600">
+                     {{ error }}
+                    </div>
                   {% endfor %}
                 {% endif %}
 
                 {% for field in form.visible_fields %}
+                  {% if field.errors %}
+                    {% for error in field.errors %}
+                      <div class="text-red-600">{{ error }}</div>
+                    {% endfor %}
+                  {% endif %}
                   <div>
-                    {{ field }}
+                    <label class="text-xs uppercase text-slate dark:text-white/70">{{ field.label }}
+                      {{ field }}
+                    </label>
                     {% if field.help_text %}
                       <small>{{ field.help_text }}</small>
                     {% endif %}
@@ -59,9 +67,9 @@
                   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
                 {% endif %}
               </div>
-              <div class="my-3">
+              <div class="my-3 text-center">
                 <button type="submit"
-                        class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange border-orange dark:bg-charcoal dark:text-orange"
+                        class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md"
                 >
                   {% trans "Sign Up" %}
                 </button>

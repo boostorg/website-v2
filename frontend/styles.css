@@ -40,7 +40,7 @@
     @apply w-full rounded bg-white dark:bg-charcoal border border-slate;
   }
   input[type=email] {
-    @apply w-full rounded bg-white dark:bg-charcoal border border-slate mt-3;
+    @apply w-full rounded bg-white dark:bg-charcoal border border-slate;
   }
   input[type=checkbox] {
     @apply mr-3 rounded bg-white dark:bg-charcoal border border-slate text-orange;
