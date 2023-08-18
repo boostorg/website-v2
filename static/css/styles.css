@@ -665,7 +665,6 @@ textarea {
 }
 
 input[type=email] {
-  margin-top: 0.75rem;
   width: 100%;
   border-radius: 0.25rem;
   border-width: 1px;
@@ -1784,6 +1783,12 @@ select.dropdown {
   margin-bottom: calc(2rem * var(--tw-space-y-reverse));
 }
 
+.space-y-11 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(2.75rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(2.75rem * var(--tw-space-y-reverse));
+}
+
 .space-x-4 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 0;
   margin-right: calc(1rem * var(--tw-space-x-reverse));
@@ -1812,12 +1817,6 @@ select.dropdown {
   --tw-space-x-reverse: 0;
   margin-right: calc(2rem * var(--tw-space-x-reverse));
   margin-left: calc(2rem * calc(1 - var(--tw-space-x-reverse)));
-}
-
-.space-y-11 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-y-reverse: 0;
-  margin-top: calc(2.75rem * calc(1 - var(--tw-space-y-reverse)));
-  margin-bottom: calc(2.75rem * var(--tw-space-y-reverse));
 }
 
 .space-y-6 > :not([hidden]) ~ :not([hidden]) {
@@ -2530,6 +2529,16 @@ select.dropdown {
   color: rgb(229 231 235 / var(--tw-text-opacity));
 }
 
+.\!text-white {
+  --tw-text-opacity: 1 !important;
+  color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
+}
+
+.text-red-600 {
+  --tw-text-opacity: 1;
+  color: rgb(220 38 38 / var(--tw-text-opacity));
+}
+
 .underline {
   text-decoration-line: underline;
 }
@@ -2662,6 +2671,27 @@ select.dropdown {
   background-color: rgb(255 255 255 / 0.6);
 }
 
+.hover\:bg-orange\/90:hover {
+  background-color: rgb(255 159 0 / 0.9);
+}
+
+.hover\:bg-orange\/60:hover {
+  background-color: rgb(255 159 0 / 0.6);
+}
+
+.hover\:bg-orange\/70:hover {
+  background-color: rgb(255 159 0 / 0.7);
+}
+
+.hover\:bg-charcoal:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(23 42 52 / var(--tw-bg-opacity));
+}
+
+.hover\:bg-orange\/80:hover {
+  background-color: rgb(255 159 0 / 0.8);
+}
+
 .hover\:text-orange:hover {
   --tw-text-opacity: 1;
   color: rgb(255 159 0 / var(--tw-text-opacity));
@@ -2672,6 +2702,11 @@ select.dropdown {
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
+.hover\:\!text-white:hover {
+  --tw-text-opacity: 1 !important;
+  color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
+}
+
 .hover\:shadow-\[0_0_5px_5px_rgba\(0\2c 0\2c 0\2c 0\.05\)\]:hover {
   --tw-shadow: 0 0 5px 5px rgba(0,0,0,0.05);
   --tw-shadow-colored: 0 0 5px 5px var(--tw-shadow-color);
@@ -2680,6 +2715,11 @@ select.dropdown {
 
 .hover\:drop-shadow-\[0_15px_15px_rgba\(0\2c 100\2c 100\2c 0\.05\)\]:hover {
   --tw-drop-shadow: drop-shadow(0 15px 15px rgba(0,100,100,0.05));
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.hover\:drop-shadow-md:hover {
+  --tw-drop-shadow: drop-shadow(0 4px 3px rgb(0 0 0 / 0.07)) drop-shadow(0 2px 2px rgb(0 0 0 / 0.06));
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 
@@ -2840,6 +2880,11 @@ select.dropdown {
 .dark .dark\:hover\:bg-slate:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(49 74 87 / var(--tw-bg-opacity));
+}
+
+.dark .dark\:hover\:bg-charcoal:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(23 42 52 / var(--tw-bg-opacity));
 }
 
 .dark .dark\:hover\:text-orange:hover {

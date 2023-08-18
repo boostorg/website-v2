@@ -1,23 +1,25 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block head_title %}{% trans "Sign In" %}{% endblock %}
+{% block head_title %}{% trans "Log In" %}{% endblock %}
 
 {% block content %}
-<div class="my-6 text-center">
-  <div class="py-6">
-    {% if process == "connect" %}
-      <h1 class="text-4xl">{% blocktrans with provider.name as provider %}Connect {{ provider }}{% endblocktrans %}</h1>
-      <p>{% blocktrans with provider.name as provider %}You are about to connect a new third party account from {{ provider }}.{% endblocktrans %}</p>
-    {% else %}
-      <h1 class="text-4xl">{% blocktrans with provider.name as provider %}Sign In Via {{ provider }}{% endblocktrans %}</h1>
-      <p>{% blocktrans with provider.name as provider %}You are about to sign in using a third party account from {{ provider }}.{% endblocktrans %}</p>
-    {% endif %}
-  </div>
+<div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+    <div class="md:pt-11 md:mt-11 w-full bg-white dark:bg-charcoal mx-auto rounded py-6 px-3">
+      <div class="md:w-full text-center">
+        {% if process == "connect" %}
+          <h1 class="text-4xl">{% blocktrans with provider.name as provider %}Connect {{ provider }}{% endblocktrans %}</h1>
+          <p>{% blocktrans with provider.name as provider %}You are about to connect a new third party account from {{ provider }}.{% endblocktrans %}</p>
+        {% else %}
+          <h1 class="text-4xl">{% blocktrans with provider.name as provider %}Log In with {{ provider }}{% endblocktrans %}</h1>
+          <p>{% blocktrans with provider.name as provider %}You are about to log in using a third party account from {{ provider }}.{% endblocktrans %}</p>
+        {% endif %}
 
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit" class="py-3 px-4 text-white uppercase rounded border border-orange bg-orange">{% trans "Continue" %}</button>
-  </form>
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">{% trans "Continue" %}</button>
+        </form>
+      </div>
+    </div>
 </div>
 {% endblock %}
