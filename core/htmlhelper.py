@@ -76,37 +76,36 @@ REMOVE_CSS_CLASSESS = [
 ]
 
 
-def _insert_head(result, base_head):
+def _insert_in_doc(target, elements, append=True):
     to_add = [
-        BeautifulSoup("<!-- BEGIN Manually appending head -->"),
-        base_head,
-        BeautifulSoup("<!-- END Manually appending head -->"),
+        BeautifulSoup("<!-- BEGIN Manually appending items -->"),
+        *elements,
+        BeautifulSoup("<!-- END Manually appending items -->"),
     ]
-    if result.head is None:
-        for i in reversed(to_add):
-            result.html.insert(0, i)
+    if append:
+        target.extend(to_add)
     else:
-        for i in to_add:
-            result.head.append(i)
+        for i in reversed(to_add):
+            target.insert(0, i)
+
+
+def _insert_head(result, head_adding):
+    if result.head is None:
+        result.html.insert(0, result.new_tag("head"))
+    _insert_in_doc(result.head, head_adding)
     if result.head.head is not None:
         result.head.head.unwrap()
 
 
 def _replace_body(result, original_body, base_body):
-    base_body_content = base_body.find("div", {"id": "boost-legacy-body"})
-    to_add = [
-        BeautifulSoup("<!-- BEGIN Manually appending body -->"),
-        original_body,
-        BeautifulSoup("<!-- END Manually appending body -->"),
-    ]
+    base_body_content = base_body.find("div", {"id": "boost-legacy-docs-body"})
     if base_body_content is not None:
         result.body.replace_with(base_body)
-        for i in to_add:
-            base_body_content.append(i)
+        _insert_in_doc(base_body_content, [original_body])
         result.body.body.unwrap()
 
 
-def modernize_legacy_page(content, base_html, insert_body=True, insert_head=True):
+def modernize_legacy_page(content, base_html, head_selector="head", insert_body=True):
     result = BeautifulSoup(content, "html.parser")
     if result.html is None:
         # Not an HTML file we care about
@@ -130,22 +129,31 @@ def modernize_legacy_page(content, base_html, insert_body=True, insert_head=True
 
     # Use the base HTML to later extract the <head> and (part of) the <body>
     placeholder = BeautifulSoup(base_html, "html.parser")
+    if isinstance(head_selector, str):
+        target_head = placeholder.find_all(head_selector)
+    elif isinstance(head_selector, dict):
+        target_head = placeholder.find_all(**head_selector)
+    else:
+        target_head = None
 
-    if placeholder.head is not None and (insert_body or insert_head):
+    if target_head:
         # Append the <head> taken from the base HTML to the existing (legacy) head
-        _insert_head(result, base_head=placeholder.head)
+        _insert_head(result, target_head)
 
     original_body = result.body
     if original_body is None:
         pass
     elif placeholder.body is not None:
         if insert_body:
-            # Beautify the legacy body with structure and classes from the new one,
-            # and embed the original body into an "<div id="boost-legacy-body"> block
+            # Beautify the legacy body with structure and classes from the
+            # modern one, and embed the original body into a:
+            # <div id="boost-legacy-docs-body"></div> block
             _replace_body(result, original_body, base_body=placeholder.body)
         else:
-            result.body.insert(
-                0, placeholder.body.find("div", {"id": "boost-modern-header"})
+            _insert_in_doc(
+                result.body,
+                placeholder.find("div", {"id": "boost-legacy-docs-header"}),
+                append=False,
             )
 
     content = result.prettify()

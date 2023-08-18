@@ -2,12 +2,12 @@
 {% load static %}
 
 {% block extra_head %}
-  <link href="{% static 'css/docsstyles.css' %}" rel="stylesheet" />
+  <link data-modernizer="boost-legacy-docs-extra-head" href="{% static 'css/docsstyles.css' %}" rel="stylesheet" />
   {% comment %}
    These style tweaks ensure that legacy doc pages are rendered decently.
    Specifically, the <img> tag is heavily used in nav bar for tutorial navigation.
   {% endcomment %}
-  <style>
+  <style data-modernizer="boost-legacy-docs-extra-head">
     img {
       display: inline-block;
     }
@@ -15,19 +15,12 @@
 {% endblock %}
 
 {% block content_header %}
-  <div id="boost-modern-header">
+  <div id="boost-legacy-docs-header">
     {{ block.super }}
-    {% if legacy_url %}
-    <div style="margin-top: 50px">
-      <a id="boost-legacy-url" href="{{ legacy_url }}">
-        <small>Legacy page</small>
-      </a>
-    </div>
-    {% endif %}
   </div>
 {% endblock %}
 
 {% block content %}
-  <div id="boost-legacy-body">
+  <div id="boost-legacy-docs-body">
   </div>
 {% endblock %}

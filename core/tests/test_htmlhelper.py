@@ -24,13 +24,13 @@ BASE_HEAD = """
 """
 BASE_TOKEN = "<!-- Add your content here -->"
 BASE_BODY = f"""
-    <div id="boost-modern-header">The Header, Log In/Log Out, Menu</div>
+    <div id="boost-legacy-docs-header">The Header, Log In/Log Out, Menu</div>
     <h1>A very important heading</h1>
     <p>My first paragraph.</p>
     <div id="other-block-content-id">
       <p>My second paragraph.</p>
     </div>
-    <div id="boost-legacy-body">
+    <div id="boost-legacy-docs-body">
       {BASE_TOKEN}
     </div>
 """
@@ -127,9 +127,9 @@ def test_modernize_legacy_page_adds_head_if_missing():
     expected = f"""<!DOCTYPE html>
     <html>
     <head>
-      <!-- BEGIN Manually appending head -->
+      <!-- BEGIN Manually appending items -->
       {BASE_HEAD}
-      <!-- END Manually appending head -->
+      <!-- END Manually appending items -->
     </head>
     </html>
     """
@@ -151,9 +151,9 @@ def test_modernize_legacy_page_appends_head_if_existing():
     <html>
     <head>
       {LEGACY_HEAD}
-      <!-- BEGIN Manually appending head -->
+      <!-- BEGIN Manually appending items -->
       {BASE_HEAD}
-      <!-- END Manually appending head -->
+      <!-- END Manually appending items -->
     </head>
     </html>
     """
@@ -174,9 +174,9 @@ def test_modernize_legacy_page_mangles_body():
     expected = f"""<!DOCTYPE html>
     <html>
     <head>
-      <!-- BEGIN Manually appending head -->
+      <!-- BEGIN Manually appending items -->
       {BASE_HEAD}
-      <!-- END Manually appending head -->
+      <!-- END Manually appending items -->
     </head>
     <body>
       {_build_expected_body(LEGACY_BODY)}
@@ -207,9 +207,9 @@ def test_modernize_legacy_page_remove_first_tag_found(tag_name, tag_attrs):
     expected = f"""<!DOCTYPE html>
     <html>
     <head>
-      <!-- BEGIN Manually appending head -->
+      <!-- BEGIN Manually appending items -->
       {BASE_HEAD}
-      <!-- END Manually appending head -->
+      <!-- END Manually appending items -->
     </head>
     <body>
       {body}
@@ -240,9 +240,9 @@ def test_modernize_legacy_page_remove_all_tags_found(tag_name, tag_attrs):
     expected = f"""<!DOCTYPE html>
     <html>
     <head>
-      <!-- BEGIN Manually appending head -->
+      <!-- BEGIN Manually appending items -->
       {BASE_HEAD}
-      <!-- END Manually appending head -->
+      <!-- END Manually appending items -->
     </head>
     <body>
       {_build_expected_body(LEGACY_BODY)}
@@ -290,9 +290,9 @@ def test_modernize_legacy_page_remove_only_css_class(tag_name, tag_attrs):
     expected = f"""<!DOCTYPE html>
     <html>
     <head>
-      <!-- BEGIN Manually appending head -->
+      <!-- BEGIN Manually appending items -->
       {BASE_HEAD}
-      <!-- END Manually appending head -->
+      <!-- END Manually appending items -->
     </head>
     <body>
       {body}
