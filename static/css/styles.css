@@ -756,39 +756,15 @@ input[type=file] {
 
 /* Generic link style */
 
-a:not(.link-header):not(.link-none), .link {
-  --tw-text-opacity: 1;
-  color: rgb(2 132 199 / var(--tw-text-opacity));
-}
+/*a:not(.link-header):not(.link-none), .link {*/
 
-a:not(.link-header):not(.link-none):hover, .link:hover {
-  --tw-text-opacity: 1;
-  color: rgb(255 159 0 / var(--tw-text-opacity));
-}
+/*  @apply text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange;*/
 
-.dark a:not(.link-header):not(.link-none),.dark  .link {
-  --tw-text-opacity: 1;
-  color: rgb(125 211 252 / var(--tw-text-opacity));
-}
+/*  @apply group-hover:text-orange dark:group-hover:text-orange;*/
 
-.dark a:not(.link-header):not(.link-none):hover,.dark  .link:hover {
-  --tw-text-opacity: 1;
-  color: rgb(255 159 0 / var(--tw-text-opacity));
-}
+/*  @apply fill-current;*/
 
-.group:hover a:not(.link-header):not(.link-none),.group:hover  .link {
-  --tw-text-opacity: 1;
-  color: rgb(255 159 0 / var(--tw-text-opacity));
-}
-
-.dark .group:hover a:not(.link-header):not(.link-none),.dark .group:hover  .link {
-  --tw-text-opacity: 1;
-  color: rgb(255 159 0 / var(--tw-text-opacity));
-}
-
-a:not(.link-header):not(.link-none), .link {
-  fill: currentColor;
-}
+/*}*/
 
 .link-header {
   --tw-text-opacity: 1;
@@ -1789,6 +1765,12 @@ select.dropdown {
   margin-bottom: calc(2.75rem * var(--tw-space-y-reverse));
 }
 
+.space-y-6 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
+}
+
 .space-x-4 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 0;
   margin-right: calc(1rem * var(--tw-space-x-reverse));
@@ -1817,12 +1799,6 @@ select.dropdown {
   --tw-space-x-reverse: 0;
   margin-right: calc(2rem * var(--tw-space-x-reverse));
   margin-left: calc(2rem * calc(1 - var(--tw-space-x-reverse)));
-}
-
-.space-y-6 > :not([hidden]) ~ :not([hidden]) {
-  --tw-space-y-reverse: 0;
-  margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
-  margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
 }
 
 .space-x-11 > :not([hidden]) ~ :not([hidden]) {
@@ -2495,6 +2471,11 @@ select.dropdown {
   color: rgb(156 163 175 / var(--tw-text-opacity));
 }
 
+.text-red-600 {
+  --tw-text-opacity: 1;
+  color: rgb(220 38 38 / var(--tw-text-opacity));
+}
+
 .text-charcoal {
   --tw-text-opacity: 1;
   color: rgb(23 42 52 / var(--tw-text-opacity));
@@ -2532,11 +2513,6 @@ select.dropdown {
 .\!text-white {
   --tw-text-opacity: 1 !important;
   color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
-}
-
-.text-red-600 {
-  --tw-text-opacity: 1;
-  color: rgb(220 38 38 / var(--tw-text-opacity));
 }
 
 .underline {
@@ -2662,34 +2638,21 @@ select.dropdown {
   border-width: 0px;
 }
 
+.visited\:text-slate:visited {
+  color: rgb(49 74 87 );
+}
+
 .hover\:bg-gray-100:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(243 244 246 / var(--tw-bg-opacity));
 }
 
-.hover\:bg-white\/60:hover {
-  background-color: rgb(255 255 255 / 0.6);
-}
-
-.hover\:bg-orange\/90:hover {
-  background-color: rgb(255 159 0 / 0.9);
-}
-
-.hover\:bg-orange\/60:hover {
-  background-color: rgb(255 159 0 / 0.6);
-}
-
-.hover\:bg-orange\/70:hover {
-  background-color: rgb(255 159 0 / 0.7);
-}
-
-.hover\:bg-charcoal:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(23 42 52 / var(--tw-bg-opacity));
-}
-
 .hover\:bg-orange\/80:hover {
   background-color: rgb(255 159 0 / 0.8);
+}
+
+.hover\:bg-white\/60:hover {
+  background-color: rgb(255 255 255 / 0.6);
 }
 
 .hover\:text-orange:hover {
@@ -2705,6 +2668,10 @@ select.dropdown {
 .hover\:\!text-white:hover {
   --tw-text-opacity: 1 !important;
   color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
+}
+
+.hover\:no-underline:hover {
+  text-decoration-line: none;
 }
 
 .hover\:shadow-\[0_0_5px_5px_rgba\(0\2c 0\2c 0\2c 0\.05\)\]:hover {
@@ -2813,13 +2780,13 @@ select.dropdown {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
-.dark .dark\:bg-green\/40 {
-  background-color: rgb(90 213 153 / 0.4);
-}
-
 .dark .dark\:bg-slate {
   --tw-bg-opacity: 1;
   background-color: rgb(49 74 87 / var(--tw-bg-opacity));
+}
+
+.dark .dark\:bg-green\/40 {
+  background-color: rgb(90 213 153 / 0.4);
 }
 
 .dark .dark\:bg-opacity-10 {
@@ -2875,6 +2842,10 @@ select.dropdown {
 .dark .dark\:ring-gray-500 {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(107 114 128 / var(--tw-ring-opacity));
+}
+
+.dark .dark\:visited\:text-white:visited {
+  color: rgb(255 255 255 );
 }
 
 .dark .dark\:hover\:bg-slate:hover {
