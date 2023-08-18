@@ -22,6 +22,7 @@ class HomepageView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["entries"] = Entry.objects.published().order_by("-publish_at")[:3]
+        context["latest_version"] = Version.objects.most_recent()
         return context
 
 
