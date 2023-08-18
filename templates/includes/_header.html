@@ -21,11 +21,11 @@
 
         <div class="flex pt-1 w-full">
           <nav class="relative items-center pl-6 space-x-4 w-full text-lg text-left md:space-x-6 lg:space-x-10">
-            <a href="{% url 'news' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange link-none">News</a>
-            <a href="{% url 'docs' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange link-none">Learn</a>
-            <a href="{% url 'community' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange link-none">Community</a>
-            <a href="{% url 'libraries' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange link-none">Libraries</a>
-            <a href="{% url 'releases-most-recent' %}" class="font-semibold dark:font-medium dark:text-white text-slate dark:hover:text-orange hover:text-orange link-none">Releases</a>
+            <a href="{% url 'news' %}" class="hover:no-underline font-semibold dark:font-medium dark:text-white dark:visited:text-white text-slate visited:text-slate dark:hover:text-orange hover:text-orange link-none">News</a>
+            <a href="{% url 'docs' %}" class="hover:no-underline font-semibold dark:font-medium dark:text-white dark:visited:text-white text-slate visited:text-slate dark:hover:text-orange hover:text-orange link-none">Learn</a>
+            <a href="{% url 'community' %}" class="hover:no-underline font-semibold dark:font-medium dark:text-white dark:visited:text-white text-slate visited:text-slate dark:hover:text-orange hover:text-orange link-none">Community</a>
+            <a href="{% url 'libraries' %}" class="hover:no-underline font-semibold dark:font-medium dark:text-white dark:visited:text-white text-slate visited:text-slate dark:hover:text-orange hover:text-orange link-none">Libraries</a>
+            <a href="{% url 'releases-most-recent' %}" class="hover:no-underline font-semibold dark:font-medium dark:text-white dark:visited:text-white visited:text-slate text-slate dark:hover:text-orange hover:text-orange link-none">Releases</a>
           </nav>
           <nav class="float-right items-center space-x-3 w-[200px] text-right lg:space-x-5" x-data="{ 'searchOpen': false }">
             <span class="relative">
@@ -125,7 +125,7 @@
 
             <span x-data="{ 'userOpen': false }" class="relative">
               {% if not user.is_authenticated %}
-                <a href="{% url 'account_signup' %}" class="inline font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">Join</a>
+                <a href="{% url 'account_signup' %}" class="hover:no-underline inline font-medium dark:text-white dark:visited:text-white text-slate visited:text-slate dark:hover:text-orange hover:text-orange">Join</a>
               {% else %}
                 {% if user.image %}
                   <img src="{{ user.image.url }}" alt="user" class="inline -mt-1 rounded cursor-pointer w-[30px]" @click="userOpen = !userOpen" />

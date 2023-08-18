@@ -56,11 +56,11 @@
     @apply hidden;
   }
   /* Generic link style */
-  a:not(.link-header):not(.link-none), .link {
-    @apply text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange;
-    @apply group-hover:text-orange dark:group-hover:text-orange;
-    @apply fill-current;
-  }
+  /*a:not(.link-header):not(.link-none), .link {*/
+  /*  @apply text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange;*/
+  /*  @apply group-hover:text-orange dark:group-hover:text-orange;*/
+  /*  @apply fill-current;*/
+  /*}*/
 
   .link-header {
     @apply text-orange dark:text-orange hover:text-sky-600 dark:hover:text-sky-300;
