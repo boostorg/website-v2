@@ -128,6 +128,36 @@ Env:
       secretKeyRef:
         name: mailgun
         key: key
+  - name: MAILMAN_REST_API_URL
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: api_url
+  - name: MAILMAN_REST_API_USER
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: api_user
+  - name: MAILMAN_REST_API_PASS
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: api_pass
+  - name: MAILMAN_ARCHIVER_KEY
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: archiver_key
+  - name: MAILMAN_ELASTIC_INDEX
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: elastic_index
+  - name: MAILMAN_HAYSTACK_URL
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: haystack_url
   - name: GITHUB_TOKEN
     valueFrom:
       secretKeyRef:

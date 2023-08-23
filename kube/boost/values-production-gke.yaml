@@ -133,6 +133,36 @@ Env:
         key: key
   - name: MAILGUN_SENDER_DOMAIN
     value: boost.cppalliance.org
+  - name: MAILMAN_REST_API_URL
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: api_url
+  - name: MAILMAN_REST_API_USER
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: api_user
+  - name: MAILMAN_REST_API_PASS
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: api_pass
+  - name: MAILMAN_ARCHIVER_KEY
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: archiver_key
+  - name: MAILMAN_ELASTIC_INDEX
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: elastic_index
+  - name: MAILMAN_HAYSTACK_URL
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: haystack_url
   - name: GITHUB_TOKEN
     valueFrom:
       secretKeyRef:
@@ -175,6 +205,15 @@ hostAliases:
   - ip: "10.67.224.20"
     hostnames:
       - "redis"
+  - ip: "10.128.0.15"
+    hostnames:
+      - "mailman.boost.cppalliance.org"
+  - ip: "10.128.15.240"
+    hostnames:
+      - "mailman-stage.boost.cppalliance.org"
+  - ip: "10.128.0.16"
+    hostnames:
+      - "mailman-cppal-dev.boost.cppalliance.org"
 
 ingressType: gce
 managedCertName: managed-cert-boost-production,managed-cert-boost-production2
