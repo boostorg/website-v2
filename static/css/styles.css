@@ -2079,6 +2079,11 @@ select.dropdown {
   background-color: rgb(254 240 138 / 0.7);
 }
 
+.bg-slate {
+  --tw-bg-opacity: 1;
+  background-color: rgb(49 74 87 / var(--tw-bg-opacity));
+}
+
 .bg-opacity-10 {
   --tw-bg-opacity: 0.1;
 }
@@ -2517,6 +2522,10 @@ select.dropdown {
 .\!text-white {
   --tw-text-opacity: 1 !important;
   color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
+}
+
+.text-slate\/60 {
+  color: rgb(49 74 87 / 0.6);
 }
 
 .underline {
@@ -3254,6 +3263,10 @@ select.dropdown {
 
   .md\:p-0 {
     padding: 0px;
+  }
+
+  .md\:p-2 {
+    padding: 0.5rem;
   }
 
   .md\:px-3 {

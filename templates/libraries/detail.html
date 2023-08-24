@@ -108,16 +108,20 @@
       <h2 class="text-2xl">Maintainers</h2>
       <div class="flex flex-wrap">
       {% for user in maintainers %}
-        <div class="p-2">
         {% if user.image %}
+          <div class="p-1 md:p-2">
           <img src="{{ user.image.url }}"
                title="{{ user.get_full_name }}"
                alt="{{ user.get_full_name }}"
                class="rounded w-[80px]" />
+          </div>
         {% else %}
-          <i class="mr-2 text-5xl fas fa-user text-white/60" title="{{ user.get_full_name }}"></i>
+          <div class="p-1 md:p-2">
+            <div class="bg-slate rounded w-[80px]">
+              <i class="py-4 px-5 text-5xl fas fa-user text-white/60" title="{{ user.get_full_name }}"></i>
+            </div>
+          </div>
         {% endif %}
-        </div>
       {% endfor %}
       </div>
     </section>
