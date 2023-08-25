@@ -9,96 +9,118 @@ This is a temporary landing page for docs
 {% endcomment %}
 
 {% block content %}
-  <!-- Homepage Hero Section -->
-  <main class="px-4 my-4 mx-auto md:max-w-7xl">
-    <div class="mb-4 space-y-4 md:flex md:space-y-0 md:space-x-4">
-      <div
-        class="block relative w-full text-white bg-white rounded-lg shadow-lg md:w-1/2 dark:bg-charcoal dark:bg-neutral-700">
-        {# FIXME #}
+  <main class="content">
+    <div class="py-0 px-0 mb-0 w-full md:mb-2 flex flex-row flex-nowrap items-center">
+      <div class="flex-auto mb-2 w-full">
+        <div>
+          <span class="text-xl md:text-3xl lg:text-4xl">
+            Learn Boost</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-0 md:gap-y-5 grid-flow-row auto-rows-min">
+
+      <div class="order-2 md:order-1 p-4 dark:text-white text-slate bg-white md:rounded-tl-lg shadow-lg dark:bg-charcoal dark:bg-neutral-700">
+        <h5
+            class="text-3xl font-bold leading-tight text-orange mb-2">
+            <a href="/doc/user-guide/index.html" class="link-header">User Guide</a>
+          </h5>
+          <p class="text-xl py-1 border-b border-gray-700">Learn how to use Boost in your programs</p>
+          <div class="grid grid-cols-2 gap-2 mt-6 text-xl">
+
+            <div class="w-full"><a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/user-guide/intro.html"><i class="mt-1 mr-2 fas fa-book inline-block w-6 text-center"></i>Introduction to Boost</a></div>
+            <div class="w-full"><a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/user-guide/getting-started.html"><i class="mt-1 mr-2 fas fa-school inline-block w-6 text-center"></i>Getting Started</a></div>
+            <div class="w-full"><a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/user-guide/explore-the-content.html"><i class="mt-1 mr-2 fas fa-globe inline-block w-6 text-center"></i>Explore the Content</a></div>
+            <div class="w-full"><a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/user-guide/faq.html"><i class="mt-1 mr-2 fas fa-clipboard-question inline-block w-6 text-center"></i>FAQ</a></div>
+            <div class="col-span-2 w-full h-3"></div>
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-base text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/user-guide/common-introduction.html">Introduction to Common Scenarios</a></div>
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-base text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/user-guide/advanced-introduction.html">Introduction to Advanced Scenarios</a></div>
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-base text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/user-guide/resources.html">Additional Resources</a></div>
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-base text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/user-guide/library-naming.html">Library Names and Organization</a></div>
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-base text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/user-guide/header-organization-compilation.html">Header Organization and Compiled Binaries</a></div>
+          </div>
+      </div>
+      <div class="order-1 md:order-2 p-4 dark:text-white text-slate bg-white md:rounded-tr-lg shadow-lg dark:bg-charcoal dark:bg-neutral-700">
         <a href="/doc/user-guide/">
           <img
-            class="overflow-y-hidden w-full rounded-t-lg max-h-[470px]"
-            src="{% static 'img/fpo/user_guide.png' %}"
-            alt="" />
+            class="md:rounded-tr-lg object-cover h-full"
+            width="572"
+            height="470"
+            src="{% static 'img/fpo/learn_userguide.png' %}"
+            alt="User Guide" />
         </a>
-        <div class="py-3 px-6 dark:text-white text-slate">
-          <h5
-            class="text-xl font-bold leading-tight text-orange">
-            User Guide
-          </h5>
-          <p class="py-1 border-b border-gray-700">How to use Boost in your programs</p>
-          <ul class="flex flex-wrap mt-2 text-sm">
-            <li class="w-1/2"><a href="/doc/user-guide/intro.html">Introduction to Boost</a></li>
-            <li class="w-1/2"><a href="/doc/user-guide/getting-started.html">Getting Started</a></li>
-            <li class="w-1/2"><a href="/doc/user-guide/boost-history.html">History of Boost</a></li>
-            <li class="w-1/2"><a href="/doc/user-guide/library-naming.html">Library Organization</a></li>
-            <li class="w-1/2"><a href="/doc/user-guide/header-organization-compilation.html">Header Organization</a></li>
-          </ul>
+      </div>
+
+      <div class="order-3 my-5 md:my-0 w-auto col-span-1 md:col-span-2  dark:text-white text-slate bg-transparent">
+        <div class="w-4/6 p-4 mx-auto text-center bg-green/40 rounded-lg shadow-lg text-lg">
+          <i class="fab fa-xl fa-slack"></i> You can also find help by <a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="https://cppalliance.org/slack/">joining the C++ Slack</a> and then <a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="https://cpplang.slack.com/">visiting the workspace</a>.
         </div>
       </div>
 
-      <div
-        class="block relative w-full bg-white rounded-lg shadow-lg md:w-1/2 dark:bg-charcoal dark:bg-neutral-700">
-        {# FIXME #}
+      <div class="order-4 p-4 dark:text-white text-slate bg-white md:rounded-tl-lg md:rounded-bl-lg shadow-lg dark:bg-charcoal dark:bg-neutral-700">
         <a href="/doc/contributor-guide/">
           <img
-            class="overflow-y-hidden w-full rounded-t-lg max-h-[470px]"
-            src="{% static 'img/fpo/contributor_guide.png' %}"
-            alt="" />
+            class="md:rounded-tr-lg object-cover h-full"
+            width="572"
+            height="470"
+            src="{% static 'img/fpo/learn_beaverdam.png' %}"
+            alt="Contributor Guide" />
         </a>
-        <div class="py-3 px-6 dark:text-white text-slate">
-          <h5
-            class="text-xl font-bold leading-tight">
+      </div>
+      <div class="order-5 p-4 pl-8 dark:text-white text-slate bg-white md:rounded-tr-lg md:rounded-br-lg shadow-lg dark:bg-charcoal dark:bg-neutral-700">
+        <h5
+        class="text-3xl font-bold leading-tight text-orange mb-2">
             <a href="/doc/contributor-guide/index.html" class="link-header">Contributor Guide</a>
           </h5>
-          <p class="py-1 border-b border-gray-700">This is how you can help</p>
-          <ul class="flex flex-wrap mt-2 text-sm">
-            <li class="w-1/2"><a href="/doc/contributor-guide/getting-involved.html">Getting Involved</a></li>
-            <li class="w-1/2"><a href="/doc/contributor-guide/requirements/library-requirements.html">Library Requirements</a></li>
-            <li class="w-1/2"><a href="/doc/contributor-guide/requirements/license-requirements.html">License Requirements</a></li>
-            <li class="w-1/2"><a href="/doc/contributor-guide/requirements/portability-requirements.html">Portability Requirements</a></li>
-            <li class="w-1/2"><a href="/doc/contributor-guide/requirements/organization-requirements.html">Organization Requirements</a></li>
-            <li class="w-1/2"><a href="/doc/contributor-guide/design-guide/design-guide.html">Design Guide</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
+          <p class="text-xl py-1 border-b border-gray-700">Learn how you can help Boost continue improving</p>
+          <div class="grid grid-cols-2 gap-2 mt-6 text-xl">
 
-    <div class="mb-16 space-y-4">
-      <div
-        class="flex flex-col text-white bg-white rounded-lg shadow-lg md:flex-row dark:bg-charcoal dark:bg-neutral-700">
-        {# FIXME #}
-        <a href="/doc/formal-reviews/" class="block md:w-1/2">
-          <img
-            class="object-cover overflow-x-hidden w-auto h-full rounded-t-lg md:rounded-none md:rounded-l-lg"
-            src="{% static 'img/fpo/formal_reviews.png' %}"
-            alt="" />
-        </a>
-        <div class="flex flex-col justify-start p-6 md:w-1/2 dark:text-white text-slate">
-          <h5
-            class="text-xl font-bold leading-tight text-orange">
-            Boost Formal Reviews
+            <div class="w-full"><a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/contributor-guide/getting-involved.html"><i class="mt-1 mr-2 far fa-handshake inline-block w-6 text-center"></i>Getting Involved</a></div>
+            <div class="w-full"><a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/contributor-guide/design-guide/design-guide.html"><i class="mt-1 mr-2 fas fa-diagram-project inline-block w-6 text-center"></i>Design Guide</a></div>
+            <div class="w-full"><a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/contributor-guide/version-control.html"><i class="mt-1 mr-2 fab fa-github inline-block w-6 text-center"></i>Version Control</a></div>
+            <div class="w-full"><a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/contributor-guide/testing/intro.html"><i class="mt-1 mr-2 fas fa-microscope inline-block w-6 text-center"></i>Testing</a></div>
+            <div class="col-span-2 w-full h-3"></div>
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-base text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/contributor-guide/requirements/library-requirements.html">Library Requirements</a></div>
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-base text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/contributor-guide/requirements/license-requirements.html">License Requirements</a></div>
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-base text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/contributor-guide/requirements/portability-requirements.html">Portability Requirements</a></div>
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-base text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/contributor-guide/requirements/organization-requirements.html">Organization Requirements</a></div>
+
+          </div>
+
+      </div>
+
+      <div class="order-7 md:order-6 p-4 dark:text-white text-slate bg-white md:rounded-bl-lg shadow-lg dark:bg-charcoal dark:bg-neutral-700">
+        <h5
+        class="text-3xl font-bold leading-tight text-orange mb-2">
+            <a href="/doc/formal-reviews/index.html" class="link-header">Boost Formal Reviews</a>
           </h5>
-          <p class="py-1 border-b border-gray-700">
-            How libraries become part of the collection.
+          <p class="text-xl py-1 border-b border-gray-700">
+            Learn how libraries become part of Boost
           </p>
-          <ul class="flex flex-wrap">
-            <ul class="flex flex-wrap mt-2 text-sm">
-              <li class="w-1/2"><a href="/doc/formal-reviews/index.html">Introduction</a></li>
-              <li class="w-1/2"><a href="/doc/formal-reviews/submissions.html">Submit a Library</a></li>
-              <li class="w-1/2"><a href="/doc/formal-reviews/writing-reviews.html">Write a Review</a></li>
-              <li class="w-1/2"><a href="/doc/formal-reviews/managing-reviews.html">Manage a Review</a></li>
-            </ul>
+          <div class="grid grid-cols-1 gap-4 mt-6 text-xl pl-4">
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/formal-reviews/index.html">Introduction to Formal Reviews</a></div>
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/formal-reviews/submissions.html">Library Submission Process</a></div>
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/formal-reviews/writing-reviews.html">How to Write a Review</a></div>
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/formal-reviews/managing-reviews.html">How to Manage a Review</a></div>
+          </div>
 
-
-
-
-
-
-          </ul>
-        </div>
       </div>
+      <div class="order-6 md:order-7 p-4 dark:text-white text-slate bg-white md:rounded-br-lg shadow-lg dark:bg-charcoal dark:bg-neutral-700">
+        <a href="/doc/formal-reviews/">
+          <img
+            class="md:rounded-tr-lg object-cover h-full"
+            width="572"
+            height="470"
+            src="{% static 'img/fpo/learn_courtroom.png' %}"
+            alt="Formal Reviews" />
+        </a>
+      </div>
+
     </div>
+
+
+
   </main>
   <!-- End Homepage Hero Section -->
 
