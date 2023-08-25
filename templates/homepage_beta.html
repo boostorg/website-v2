@@ -200,7 +200,9 @@
                   <p class="overflow-x-auto mb-3">
                     {{ entry.content|truncatewords:20 }}... <a href="{% url 'news-detail' slug=entry.slug %}" class="text-sky-600">Read&nbsp;More</a>
                   </p>
+                  {% if entry.image %}
                   <img src="{{ entry.image.url }}" class="news-image" />
+                  {% endif %}
                 </div>
               </div>
             {% endfor %}
