@@ -16,7 +16,7 @@
        class="relative w-2/3 mx-auto block px-8 py-3 text-base font-medium rounded-md border border-orange !text-white hover:!text-white bg-orange hover:bg-orange/80 dark:bg-slate dark:hover:bg-charcoal hover:drop-shadow-md md:py-4 md:text-lg md:px-10 {{provider.id}}"
        href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"
     >
-        <span x-cloak class="absolute right-1 top-1 text-xs bg-white text-orange rounded p-1" x-show='loginMethod === "\"GitHub\""'>Last Login</span>
+        <span x-cloak class="absolute right-1 top-1 text-xs bg-white text-orange rounded p-1" x-show='loginMethod === "\"GitHub\""'>Last Log in</span>
         <i class="fab fa-github"></i>
     Use {{provider.name}}
     </a>
@@ -26,7 +26,7 @@
        class="relative w-2/3 mx-auto block px-8 py-3 text-base font-medium rounded-md border border-orange !text-white hover:!text-white bg-orange hover:bg-orange/80 dark:bg-slate dark:hover:bg-charcoal hover:drop-shadow-md md:py-4 md:text-lg md:px-10 {{provider.id}}"
        href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"
     >
-        <span x-cloak class="absolute right-1 top-1 text-xs bg-white text-orange rounded p-1" x-show='loginMethod === "\"Google\""'>Last Login</span>
+        <span x-cloak class="absolute right-1 top-1 text-xs bg-white text-orange rounded p-1" x-show='loginMethod === "\"Google\""'>Last Log in</span>
         <i class="fab fa-google"></i>
       Use {{provider.name}}
     </a>
