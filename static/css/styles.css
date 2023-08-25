@@ -1097,6 +1097,14 @@ select.dropdown {
   right: 0.75rem;
 }
 
+.top-1 {
+  top: 0.25rem;
+}
+
+.right-1 {
+  right: 0.25rem;
+}
+
 .isolate {
   isolation: isolate;
 }
@@ -1335,6 +1343,26 @@ select.dropdown {
 
 .ml-4 {
   margin-left: 1rem;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+.-mt-2 {
+  margin-top: -0.5rem;
+}
+
+.-mt-3 {
+  margin-top: -0.75rem;
+}
+
+.-mt-6 {
+  margin-top: -1.5rem;
+}
+
+.-mb-6 {
+  margin-bottom: -1.5rem;
 }
 
 .block {
@@ -1726,10 +1754,6 @@ select.dropdown {
   gap: 1rem;
 }
 
-.gap-3 {
-  gap: 0.75rem;
-}
-
 .gap-y-10 {
   row-gap: 2.5rem;
 }
@@ -2079,9 +2103,49 @@ select.dropdown {
   background-color: rgb(254 240 138 / 0.7);
 }
 
-.bg-slate {
+.bg-green {
   --tw-bg-opacity: 1;
-  background-color: rgb(49 74 87 / var(--tw-bg-opacity));
+  background-color: rgb(90 213 153 / var(--tw-bg-opacity));
+}
+
+.bg-emerald-800 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(6 95 70 / var(--tw-bg-opacity));
+}
+
+.bg-emerald-600 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(5 150 105 / var(--tw-bg-opacity));
+}
+
+.bg-emerald-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(52 211 153 / var(--tw-bg-opacity));
+}
+
+.bg-emerald-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(16 185 129 / var(--tw-bg-opacity));
+}
+
+.bg-blue-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(59 130 246 / var(--tw-bg-opacity));
+}
+
+.bg-blue-600 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(37 99 235 / var(--tw-bg-opacity));
+}
+
+.bg-blue-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(96 165 250 / var(--tw-bg-opacity));
+}
+
+.bg-blue-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(147 197 253 / var(--tw-bg-opacity));
 }
 
 .bg-opacity-10 {
@@ -2500,10 +2564,6 @@ select.dropdown {
   color: rgb(55 65 81 / var(--tw-text-opacity));
 }
 
-.text-white\/60 {
-  color: rgb(255 255 255 / 0.6);
-}
-
 .text-gray-500 {
   --tw-text-opacity: 1;
   color: rgb(107 114 128 / var(--tw-text-opacity));
@@ -2514,6 +2574,10 @@ select.dropdown {
   color: rgb(243 244 246 / var(--tw-text-opacity));
 }
 
+.text-white\/60 {
+  color: rgb(255 255 255 / 0.6);
+}
+
 .text-gray-200 {
   --tw-text-opacity: 1;
   color: rgb(229 231 235 / var(--tw-text-opacity));
@@ -2522,10 +2586,6 @@ select.dropdown {
 .\!text-white {
   --tw-text-opacity: 1 !important;
   color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
-}
-
-.text-slate\/60 {
-  color: rgb(49 74 87 / 0.6);
 }
 
 .underline {
@@ -3261,12 +3321,12 @@ select.dropdown {
     padding: 1.25rem;
   }
 
-  .md\:p-0 {
-    padding: 0px;
-  }
-
   .md\:p-2 {
     padding: 0.5rem;
+  }
+
+  .md\:p-0 {
+    padding: 0px;
   }
 
   .md\:px-3 {
