@@ -15,9 +15,11 @@
           <p>{% blocktrans with provider.name as provider %}You are about to log in using a third party account from {{ provider }}.{% endblocktrans %}</p>
         {% endif %}
 
-        <form method="post">
+        <form method="post" x-data="{ boostlogin: $persist('{{ provider.name }}') }">
           {% csrf_token %}
-          <button type="submit" class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">{% trans "Continue" %}</button>
+          <button type="submit"
+                  x-on:click="boostlogin = '{{ provider.name }}'"
+                  class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">{% trans "Continue" %}</button>
         </form>
       </div>
     </div>

@@ -10,7 +10,9 @@
 
 {% block content %}
 
-  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+  <div class="py-0 px-3 mb-3 md:py-6 md:px-0"
+       x-data="{ loginMethod: localStorage.getItem('_x_boostlogin') }"
+  >
 
     <div class="md:pt-11 md:mt-11 w-full bg-white dark:bg-charcoal mx-auto rounded py-6 px-3">
       <div class="md:w-full">
@@ -44,8 +46,14 @@
           </div>
 
           <div class="w-full md:w-1/2">
-            <h2 class="text-xl text-center">Or Log In with Email</h2>
-            <form class="login" method="POST" action="{% url 'account_login' %}">
+            <h2 class="text-xl text-center items-center">
+              Or Log In with Email <span x-cloak class="text-xs bg-emerald-400 text-white rounded px-1 ml-2" x-show='loginMethod === "\"email\""'>Last Used</span>
+            </h2>
+            <form class="login"
+                  method="POST"
+                  action="{% url 'account_login' %}"
+                   x-data="{ boostlogin: $persist('email') }"
+            >
               <div class="mx-auto space-y-4 w-2/3" id="signup_form">
                 {% csrf_token %}
 
@@ -76,6 +84,7 @@
                 <div class="flex justify-between mb-4">
                   <a class="text-orange" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
                   <button type="submit"
+                          x-on:click="boostlogin = 'email'"
                           class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">{% trans "Login" %}</button>
                 </div>
               </div>
