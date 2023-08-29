@@ -172,7 +172,8 @@ def handle_library_version(version, library, maintainers, updater):
         f"Saved library version {library_version}. Created? {created}", fg="green"
     )
 
-    if created:
+    # If the library version has no maintainers, we need to update the maintainers
+    if library_version.maintainers.count() == 0:
         updater.update_maintainers(library_version, maintainers=maintainers)
         click.secho(f"Updated maintainers for {library_version}.", fg="green")
 
