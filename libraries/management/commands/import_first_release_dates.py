@@ -1,6 +1,7 @@
 import djclick as click
 
-from libraries.github import GithubAPIClient, LibraryUpdater
+from libraries.github import LibraryUpdater
+from core.githubhelper import GithubAPIClient
 from libraries.models import Library
 
 

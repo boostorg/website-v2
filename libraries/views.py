@@ -10,7 +10,8 @@ from django.views.generic.edit import FormMixin
 
 from versions.models import Version
 from .forms import VersionSelectionForm
-from .github import GithubAPIClient
+
+from core.githubhelper import GithubAPIClient
 from .mixins import VersionAlertMixin
 from .models import Category, CommitData, Library, LibraryVersion
 
