@@ -1,6 +1,7 @@
 import djclick as click
 
-from libraries.github import GithubAPIClient, GithubDataParser, LibraryUpdater
+from libraries.github import LibraryUpdater
+from core.githubhelper import GithubAPIClient, GithubDataParser
 from libraries.models import Library, LibraryVersion
 from libraries.tasks import get_and_store_library_version_documentation_urls_for_version
 from libraries.utils import parse_date

@@ -95,7 +95,7 @@ Import Boost version (AKA "release") information from the Boost GitHub repo. Fun
 
 - **Retrieves Boost tags**: It collects all the Boost tags from the main Github repo, excluding beta releases and release candidates. For each tag, it gathers the associated data. If it's a full release, the data is in the tag; otherwise, the data is in the commit.
 - **Updates local database**: For each tag, it creates or updates a Version instance in the local database.
-- **Options for managing versions and library versions**: The command provides options to delete existing versions and library versions, and to create new library versions for the most recent Boost version.
+- Adds the download links from Artifactory for the release downloads
 - Idempotent.
 
 **Options**
@@ -103,10 +103,8 @@ Import Boost version (AKA "release") information from the Boost GitHub repo. Fun
 Here are the options you can use:
 
 - `--delete-versions`: Deletes all existing Version instances in the database before importing new ones.
-- `--delete-library-versions`: Deletes all existing LibraryVersion instances in the database before importing new ones.
-- `--create-recent-library-versions`: Creates a LibraryVersion for each active Boost library and the most recent Boost version.
-- `--skip-existing-versions`: If a Version exists in the database (by name), skip calling the GitHub API for more information on it.
 - `--token`: Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`.
+- `--verbose`: Print output information
 
 
 ### Example:
@@ -119,20 +117,7 @@ Output:
     Skipping boost-1.82.0.beta1, not a full release
     Saved version boost-1.81.0. Created: True
     Skipping boost-1.81.0.beta1, not a full release
-    release_by_tag_not_found
-    {"message": "release_by_tag_not_found", "tag_name": "boost-1.80.0", "repo_slug": "boost", "logger": "libraries.github", "level": "info", "timestamp": "2023-05-12T22:14:08.721270Z"}
     ...
-    Saved library version Math (boost-1.82.0). Created: True
-    Saved library version Xpressive (boost-1.82.0). Created: True
-    Saved library version Dynamic Bitset (boost-1.82.0). Created: True
-    Saved library version Multi-Index (boost-1.82.0). Created: True
-    ...
-
-**What does the `release_by_tag_not_found` error mean?**
-
-When importing the Boost releases, we first get a list of all the tags for the Boost repo. Then, we call the GitHub API's `get_release_by_tag` API to get metadata about the release. But not all Boost tags are also full releases. In this case, we call the `get_commit` endpoint with the commit SHA of the tag to get this information. We could call `get_commit` in every case, but the data in `get_release_by_tag` is more accurate, particularly for the release date.
-
-When we don't find the release in `get_release_by_tag`, we log the error (which is what you may see in the output), but we follow up by getting the data from the commit endpoint.
 
 
 ## `update_libraries`

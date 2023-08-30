@@ -10,7 +10,7 @@ class Version(models.Model):
         max_length=256, null=False, blank=False, help_text="Version name"
     )
     slug = models.SlugField(blank=True, null=True)
-    release_date = models.DateField(auto_now=False, auto_now_add=False)
+    release_date = models.DateField(auto_now=False, auto_now_add=False, null=True)
     description = models.TextField(blank=True)
     active = models.BooleanField(
         default=True,
