@@ -3,7 +3,7 @@ import structlog
 from django.contrib.auth import get_user_model
 
 from config.celery import app
-from libraries.github import GithubAPIClient
+from core.githubhelper import GithubAPIClient
 
 logger = structlog.getLogger(__name__)
 
