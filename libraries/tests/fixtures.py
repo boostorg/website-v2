@@ -233,5 +233,4 @@ def github_library():
         "category": ["sample1", "sample2"],
         "maintainers": ["Tester Testerson <tester -at- example.com>"],
         "cxxstd": "03",
-        "last_github_update": "2022-09-14T22:20:38Z",
     }

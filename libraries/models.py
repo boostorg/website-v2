@@ -106,18 +106,10 @@ class Library(models.Model):
         null=True,
         help_text="The URL of the library's GitHub repository.",
     )
-    first_release = models.ForeignKey(
-        "versions.Version",
-        related_name="first_releases",
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-    )
     versions = models.ManyToManyField(
         "versions.Version", through="libraries.LibraryVersion", related_name="libraries"
     )
     cpp_standard_minimum = models.CharField(max_length=50, blank=True, null=True)
-
     active_development = models.BooleanField(default=True, db_index=True)
     first_github_tag_date = models.DateField(
         blank=True,
@@ -125,15 +117,9 @@ class Library(models.Model):
         help_text="The date of the first release, based on the date of the commit of "
         "the first GitHub tag.",
     )
-    last_github_update = models.DateTimeField(blank=True, null=True, db_index=True)
-
     categories = models.ManyToManyField(Category, related_name="libraries")
 
     authors = models.ManyToManyField("users.User", related_name="authors")
-
-    closed_prs_per_month = models.IntegerField(blank=True, null=True)
-    open_issues = models.IntegerField(blank=True, null=True)
-    commits_per_release = models.IntegerField(blank=True, null=True)
     featured = models.BooleanField(
         default=False,
         db_index=True,
