@@ -71,7 +71,6 @@ class LibraryUpdater:
             )
             github_data = self.client.get_repo(repo_slug=gitmodule["module"])
             extra_data = {
-                "last_github_update": parse_date(github_data.get("updated_at", "")),
                 "github_url": github_data.get("html_url", ""),
             }
 
@@ -128,7 +127,6 @@ class LibraryUpdater:
                     "github_url": library_data["github_url"],
                     "description": library_data["description"],
                     "cpp_standard_minimum": library_data["cxxstd"],
-                    "last_github_update": library_data["last_github_update"],
                 },
             )
 
@@ -195,7 +193,7 @@ class LibraryUpdater:
             _, first_github_tag_date = first_tag
             obj.first_github_tag_date = parse_date(first_github_tag_date)
             obj.save()
-            self.logger.info("lib_first_release_updated", obj_id=obj.id)
+            self.logger.info("lib_first_github_tag_date_updated", obj_id=obj.id)
 
     def update_maintainers(self, obj, maintainers=None):
         """
