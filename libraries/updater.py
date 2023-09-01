@@ -19,11 +19,12 @@ class LibraryUpdater:
     and their `libraries.json` file metadata.
     """
 
-    def __init__(self, client=None):
+    def __init__(self, client=None, token=None):
+        self.token = token
         if client:
             self.client = client
         else:
-            self.client = GithubAPIClient()
+            self.client = GithubAPIClient(token=self.token)
         self.api = self.client.initialize_api()
         self.parser = GithubDataParser()
         self.logger = structlog.get_logger()
