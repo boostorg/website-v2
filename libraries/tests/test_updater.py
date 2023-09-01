@@ -5,7 +5,7 @@ import pytest
 from ghapi.all import GhApi
 from model_bakery import baker
 
-from libraries.github import LibraryUpdater
+from libraries.updater import LibraryUpdater
 from core.githubhelper import GithubAPIClient
 from libraries.models import Category, Issue, Library, PullRequest
 

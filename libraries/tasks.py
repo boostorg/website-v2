@@ -4,7 +4,7 @@ from celery.schedules import crontab
 from config.celery import app
 from core.boostrenderer import get_content_from_s3
 from core.htmlhelper import get_library_documentation_urls
-from libraries.github import LibraryUpdater
+from libraries.updater import LibraryUpdater
 from libraries.models import LibraryVersion
 from libraries.utils import get_first_last_day_last_month
 from versions.models import Version
