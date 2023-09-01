@@ -1,4 +1,3 @@
-from datetime import datetime
 import structlog
 from django.contrib.auth import get_user_model
 from fastcore.xtras import obj2dict
@@ -47,74 +46,45 @@ class LibraryUpdater:
             "more",
         ]
 
-    def get_library_list(self, gitmodules=None):
-        """
-        Retrieve the full list of library data for Boost libraries from their Github
-        repos.
-
-        Included libraries are rrtrieved from the list of modules in .gitmodules in the
-        main Boost repo. The libraries.json file is retrieved from each module and
-        parsed to get the library metadata. Most libraries.json files contain info
-        about individual libraries, but a few such as "system", "functional", etc.
-        contain multiple libraries.
-        """
-        libraries = []
-        for gitmodule in gitmodules:
-            if gitmodule["module"] in self.skip_modules:
-                self.logger.info(
-                    "skipping_library", skipped_library=gitmodule["module"]
-                )
-                continue
-
-            libraries_json = self.client.get_libraries_json(
-                repo_slug=gitmodule["module"]
-            )
-            github_data = self.client.get_repo(repo_slug=gitmodule["module"])
-            extra_data = {
-                "github_url": github_data.get("html_url", ""),
-            }
-
-            if type(libraries_json) is list:
-                for library in libraries_json:
-                    data = self.parser.parse_libraries_json(library)
-                    libraries.append({**data, **extra_data})
-
-            elif type(libraries_json) is dict:
-                data = self.parser.parse_libraries_json(libraries_json)
-                libraries.append({**data, **extra_data})
-
-        return libraries
-
-    def update_libraries(
-        self,
-        since: datetime = None,
-        until: datetime = None,
-        update_monthly_commit_counts: bool = True,
-        update_first_tag_date: bool = True,
-    ):
+    def update_libraries(self):
         """
         Update all libraries with the metadata from their libraries.json file.
         """
         raw_gitmodules = self.client.get_gitmodules()
         gitmodules = self.parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
-        library_data = self.get_library_list(gitmodules=gitmodules)
 
-        self.logger.info(
-            "update_all_libraries_metadata", library_count=len(library_data)
-        )
-
-        for lib in library_data:
-            obj = self.update_library(lib)
-            if not obj:
+        for library_data in gitmodules:
+            if library_data["module"] in self.skip_modules:
                 continue
 
-            self.update_categories(obj, categories=lib["category"])
-            self.update_authors(obj, authors=lib["authors"])
+            # Prep the extra data for this library
+            repo_data = self.client.get_repo(repo_slug=library_data["module"])
+            github_url = repo_data.get("html_url", "")
+            extra_data = {
+                "github_url": github_url,
+            }
 
-            if update_monthly_commit_counts:
-                self.update_monthly_commit_counts(obj, since=since, until=until)
-            if update_first_tag_date and not obj.first_github_tag_date:
-                self.update_first_github_tag_date(obj)
+            # Get the meta/libraries.json file for this library
+            libraries_json = self.client.get_libraries_json(
+                repo_slug=library_data["module"]
+            )
+
+            # Some libraries have sub-libraries (like Functional), so the libraries.json
+            # content may be a list or a dict.
+            if type(libraries_json) is list:
+                for library in libraries_json:
+                    data = self.parser.parse_libraries_json(library)
+                    library = self.update_library({**data, **extra_data})
+                    if not library:
+                        continue
+                    self.update_categories(library, categories=data["category"])
+
+            elif type(libraries_json) is dict:
+                data = self.parser.parse_libraries_json(libraries_json)
+                library = self.update_library({**data, **extra_data})
+                if not library:
+                    continue
+                self.update_categories(library, categories=data["category"])
 
     def update_library(self, library_data: dict) -> Library:
         """Update an individual library"""
