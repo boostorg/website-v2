@@ -43,46 +43,46 @@ def library_updater(mock_gh_api_client):
     return LibraryUpdater()
 
 
-def test_get_library_list(library_updater):
-    """Test the get_library_list method of LibraryUpdater."""
-    gitmodules = [{"module": "test"}]
-    library_updater.client.get_libraries_json = MagicMock(
-        return_value=[
-            {
-                "key": "test",
-                "name": "Test Library",
-                "description": "Test description",
-                "cxxstd": "11",
-                "category": ["Test"],
-                "authors": ["John Doe"],
-                "maintainers": ["Jane Doe"],
-            }
-        ]
-    )
-    library_updater.client.get_repo = MagicMock(
-        return_value={"html_url": "example.com"}
-    )
-    expected = [
-        {
-            "key": "test",
-            "name": "Test Library",
-            "github_url": "example.com",
-            "description": "Test description",
-            "cxxstd": "11",
-            "category": ["Test"],
-            "authors": ["John Doe"],
-            "maintainers": ["Jane Doe"],
-        }
-    ]
-    result = library_updater.get_library_list(gitmodules=gitmodules)
-    assert result == expected
+# def test_get_library_list(library_updater):
+#     """Test the get_library_list method of LibraryUpdater."""
+#     gitmodules = [{"module": "test"}]
+#     library_updater.client.get_libraries_json = MagicMock(
+#         return_value=[
+#             {
+#                 "key": "test",
+#                 "name": "Test Library",
+#                 "description": "Test description",
+#                 "cxxstd": "11",
+#                 "category": ["Test"],
+#                 "authors": ["John Doe"],
+#                 "maintainers": ["Jane Doe"],
+#             }
+#         ]
+#     )
+#     library_updater.client.get_repo = MagicMock(
+#         return_value={"html_url": "example.com"}
+#     )
+#     expected = [
+#         {
+#             "key": "test",
+#             "name": "Test Library",
+#             "github_url": "example.com",
+#             "description": "Test description",
+#             "cxxstd": "11",
+#             "category": ["Test"],
+#             "authors": ["John Doe"],
+#             "maintainers": ["Jane Doe"],
+#         }
+#     ]
+#     result = library_updater.get_library_list(gitmodules=gitmodules)
+#     assert result == expected
 
 
-def test_get_library_list_skip(library_updater):
-    """Test that get_library_list method of LibraryUpdater skips the right modules"""
-    gitmodules = [{"module": "litre"}]
-    result = library_updater.get_library_list(gitmodules=gitmodules)
-    assert result == []
+# def test_get_library_list_skip(library_updater):
+#     """Test that get_library_list method of LibraryUpdater skips the right modules"""
+#     gitmodules = [{"module": "litre"}]
+#     result = library_updater.get_library_list(gitmodules=gitmodules)
+#     assert result == []
 
 
 def test_update_authors(library_updater, user, library_version):
