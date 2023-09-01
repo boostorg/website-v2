@@ -1,6 +1,6 @@
 import djclick as click
 
-from libraries.github import LibraryUpdater
+from libraries.updater import LibraryUpdater
 
 
 @click.command()
