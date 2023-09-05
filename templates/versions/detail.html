@@ -57,14 +57,14 @@
             <span class="block pb-1 font-bold">{{ version.release_date|date:"F j, Y" }}</span>
           </div>
           <div class="-ml-2 h-14">
-            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
                href="{{ version.documentation_url }}">
               <span class="dark:text-white text-slate">Documentation</span>
               <span class="block text-xs">{{ request.scheme }}://{{ request.get_host }}{{ version.documentation_url|cut:"https://"|cut:"index.html" }}</span>
             </a>
           </div>
           <div class="-ml-2 h-14">
-            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
                href="{{ version.github_url }}">
               <i class="float-right mt-1 fab fa-github"></i>
               <span class="dark:text-white text-slate">Source Code</span>
@@ -72,7 +72,7 @@
             </a>
           </div>
           <div class="-ml-2 h-14">
-            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
                href="{{ version.boost_release_notes_url }}">
               <i class="float-right mt-1 fas fa-arrow-up-right-from-square"></i>
               <span class="dark:text-white text-slate">Release Notes</span>
@@ -109,7 +109,7 @@
                       {% if forloop.first %}
                         <th scope="row"
                             rowspan="{{ download_files|length }}"
-                            class="p-2 h-14 whitespace-nowrap bg-gray-100 border border-r-0 {% if not forloop.parentloop.last %}border-b-0 {% endif %}border-gray-200 dark:bg-charcoal">
+                            class="p-2 h-14 whitespace-nowrap border border-r-0 {% if not forloop.parentloop.last %}border-b-0 {% endif %}border-gray-200 dark:bg-charcoal">
                           <i class="fab fa-{% if os == 'Unix' %}linux{% else %}windows{% endif %}"></i> {{ os }}
                         </th>
                       {% endif %}
@@ -120,12 +120,12 @@
                           class="p-2 mx-1 text-center align-bottom whitespace-nowrap border border-r-0 {% if not forloop.last or not forloop.parentloop.last %}border-b-0 {% endif %}border-gray-200">
                         <button class="justify-center items-center w-4 h-full font-semibold shadow"
                                 @click="$clipboard($el.parentElement.nextSibling.nextSibling.title)">
-                          <svg class="link" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <svg class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path d="m6 19v2c0 .621.52 1 1 1h2v-1.5h-1.5v-1.5zm7.5 3h-3.5v-1.5h3.5zm4.5 0h-3.5v-1.5h3.5zm4-3h-1.5v1.5h-1.5v1.5h2c.478 0 1-.379 1-1zm-1.5-1v-3.363h1.5v3.363zm0-4.363v-3.637h1.5v3.637zm-13-3.637v3.637h-1.5v-3.637zm11.5-4v1.5h1.5v1.5h1.5v-2c0-.478-.379-1-1-1zm-10 0h-2c-.62 0-1 .519-1 1v2h1.5v-1.5h1.5zm4.5 1.5h-3.5v-1.5h3.5zm3-1.5v-2.5h-13v13h2.5v-1.863h1.5v3.363h-4.5c-.48 0-1-.379-1-1v-14c0-.481.38-1 1-1h14c.621 0 1 .522 1 1v4.5h-3.5v-1.5z" />
                           </svg>
                         </button>
                       </td>
-                      <td class="bg-gray-100 border pr-2 {% if not forloop.last or not forloop.parentloop.last %}border-b-0 {% endif %}border-l-0 border-gray-200 truncCell dark:bg-charcoal"
+                      <td class="border pr-2 {% if not forloop.last or not forloop.parentloop.last %}border-b-0 {% endif %}border-l-0 border-gray-200 truncCell dark:bg-charcoal"
                           title="{{ download.checksum }}">
                         <span class="hidden xl:block">{{ download.checksum }}</span>
                         <span class="hidden md:block xl:hidden">{{ download.checksum|truncate_middle:20 }}</span>
