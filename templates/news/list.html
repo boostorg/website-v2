@@ -13,7 +13,7 @@
       <p class="mt-0 text-justify">
         Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, polls, and user-created content.
         {% if user.is_authenticated %}
-        Or, <a href="{% url 'news-create' %}" class="whitespace-nowrap">Create a Post</a> to include in the feed (posts are reviewed before publication).
+        Or, <a href="{% url 'news-create' %}" class="whitespace-nowrap text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Create a Post</a> to include in the feed (posts are reviewed before publication).
         {% else %}
         Signed-in users may submit items to include in the feed (posts are reviewed before publication).
         {% endif %}
@@ -29,37 +29,37 @@
         <div class="grid grid-cols-3 justify-center place-items-center space-y-1 space-x-1 sm:grid-cols-6 sm:space-y-0">
 
           {% url 'news' as target_url %}
-          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
             <h6 class="pb-1 text-base">All</h6>
             <i class="fa fa-globe"></i>
           </a>
 
           {% url 'news-news-list' as target_url %}
-          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
             <h6 class="pb-1 text-base">News</h6>
             <i class="fa fa-newspaper"></i>
           </a>
 
           {% url 'news-blogpost-list' as target_url %}
-          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
             <h6 class="pb-1 text-base">Blogs</h6>
             <i class="fa fa-comment"></i>
           </a>
 
           {% url 'news-link-list' as target_url %}
-          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
             <h6 class="pb-1 text-base">Links</h6>
             <i class="fas fa-link"></i>
           </a>
 
           {% url 'news-poll-list' as target_url %}
-          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
             <h6 class="pb-1 text-base">Polls</h6>
             <i class="fa fa-poll"></i>
           </a>
 
           {% url 'news-video-list' as target_url %}
-          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
             <h6 class="pb-1 text-base">Videos</h6>
             <i class="fa fa-video"></i>
           </a>
