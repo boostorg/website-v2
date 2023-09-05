@@ -55,7 +55,7 @@
             <div class="pt-1 text-sm">
               <span class="font-bold">Categories:</span>
               {% for category in object.categories.all %}
-                <a class="inline text-sky-600"
+                <a class="inline text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
                   href="{% url 'libraries' %}?category={{ category.slug }}{% if version %}&version={{ version.slug }}{% endif %}">{{ category.name }}</a>{% if not forloop.last %}, {% endif %}
               {% endfor %}
             </div>
@@ -64,14 +64,14 @@
           </div>
 
           <div class="-ml-2 h-14">
-            {% if documentation_url %}<a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
+            {% if documentation_url %}<a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
                href="{{ documentation_url }}">
               <span class="dark:text-white text-slate">Documentation</span>
               <span class="block text-xs">{{ request.get_host }}{{ documentation_url|cut:"https://" }}</span>
             </a>{% endif %}
           </div>
           <div class="-ml-2 h-14">
-            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
                href="{{ object.github_issues_url }}">
               <i class="float-right mt-1 fas fa-bug"></i>
               <span class="dark:text-white text-slate">GitHub Issues</span>
@@ -79,7 +79,7 @@
             </a>
           </div>
           <div class="-ml-2 h-14">
-            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate"
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
                href="{{ github_url }}">
               <i class="float-right mt-1 fab fa-github"></i>
               <span class="dark:text-white text-slate">Source Code</span>

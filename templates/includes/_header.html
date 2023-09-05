@@ -21,11 +21,11 @@
 
         <div class="flex pt-1 w-full">
           <nav class="relative items-center pl-6 space-x-4 w-full text-lg text-left md:space-x-6 lg:space-x-10">
-            <a href="{% url 'news' %}" class="hover:no-underline font-semibold dark:font-medium dark:text-white dark:visited:text-white text-slate visited:text-slate dark:hover:text-orange hover:text-orange link-none">News</a>
-            <a href="{% url 'docs' %}" class="hover:no-underline font-semibold dark:font-medium dark:text-white dark:visited:text-white text-slate visited:text-slate dark:hover:text-orange hover:text-orange link-none">Learn</a>
-            <a href="{% url 'community' %}" class="hover:no-underline font-semibold dark:font-medium dark:text-white dark:visited:text-white text-slate visited:text-slate dark:hover:text-orange hover:text-orange link-none">Community</a>
-            <a href="{% url 'libraries' %}" class="hover:no-underline font-semibold dark:font-medium dark:text-white dark:visited:text-white text-slate visited:text-slate dark:hover:text-orange hover:text-orange link-none">Libraries</a>
-            <a href="{% url 'releases-most-recent' %}" class="hover:no-underline font-semibold dark:font-medium dark:text-white dark:visited:text-white visited:text-slate text-slate dark:hover:text-orange hover:text-orange link-none">Releases</a>
+            <a href="{% url 'news' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:6" == '/news/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none">News</a>
+            <a href="{% url 'docs' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:6" == '/docs/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none">Learn</a>
+            <a href="{% url 'community' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:11" == '/community/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none">Community</a>
+            <a href="{% url 'libraries' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:11" == '/libraries/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none">Libraries</a>
+            <a href="{% url 'releases-most-recent' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:10" == '/releases/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none">Releases</a>
           </nav>
           <nav class="float-right items-center space-x-3 w-[200px] text-right lg:space-x-5" x-data="{ 'searchOpen': false }">
             <span class="relative">
@@ -166,9 +166,15 @@
 
         <div class="pb-1 border-b-2 border-gray-300 dark:border-charcoal">
           <div class="inline-block relative pt-2 pl-2 mx-auto h-full">
-            <a href="{% url 'home' %}"><img class="inline w-auto h-[30px]"
-                                            src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}"
-                                            alt="Boost"></a>
+            <a href="{% url 'home' %}">
+                <img class="hidden w-auto dark:inline h-[30px]"
+                    src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}"
+                    alt="Boost">
+
+                <img class="inline w-auto dark:hidden h-[30px]"
+                    src="{% static 'img/Boost_Brandmark_BlackBoost_Transparent.svg' %}"
+                    alt="Boost">
+              </a>
           </div>
 
           <button type="button"
