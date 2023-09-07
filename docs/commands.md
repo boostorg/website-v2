@@ -132,6 +132,6 @@ Synced information:
 - Library categories are updated, if need be.
 - Issues and Pull Requests are synced
 
-**For local development**: Run with the `--local` flag. This skips pulling Issues and Pull Requests data, Commit history, and other data that takes a long time to run.
+**For local development**: Run with the `--local` flag.
 
 **NOTE**: Can take upwards of a half hour to run if the `--local` flag is not passed.
