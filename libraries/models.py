@@ -125,6 +125,7 @@ class Library(models.Model):
         db_index=True,
         help_text="Should this library be featured on the home page?",
     )
+    data = models.JSONField(default=dict)
 
     class Meta:
         verbose_name_plural = "Libraries"
