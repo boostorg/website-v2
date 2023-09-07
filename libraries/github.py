@@ -127,6 +127,7 @@ class LibraryUpdater:
                     "github_url": library_data["github_url"],
                     "description": library_data["description"],
                     "cpp_standard_minimum": library_data["cxxstd"],
+                    "data": library_data,
                 },
             )
 
