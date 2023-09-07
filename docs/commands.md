@@ -1,5 +1,21 @@
 # Management Commands
 
+## `devdata`
+
+Runs the appropriate commands to set up enough data for your development environment to be fully functional. This includes a combination of live data from the GitHub API, the Boost repo and Boost library repos on GitHub, and other sources, and fake data.
+
+For any fake data generated, you always have the option of running the appropriate commands to overwrite the fake data with live data.
+
+Data imported with devdata:
+
+- Boost versions
+
+
+**Options**
+
+- `--max-version-count`: Pass the number of Boost versions to import. Defaults to 100, which will import all Boost versions back to whatever it is `settings.MINIMUM_BOOST_VERSION`. Passing a lower number can speed up the import process.
+- `--token`: Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`.
+
 ## `import_commit_counts`
 
 Imports commit counts for all libraries, broken down by month, and saves them to the database. The command uses the Github API to retrieve commit data and is intended for a one-time import.
