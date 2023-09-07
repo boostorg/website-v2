@@ -1,4 +1,3 @@
-from datetime import datetime
 import structlog
 from django.contrib.auth import get_user_model
 from fastcore.xtras import obj2dict
@@ -20,12 +19,12 @@ class LibraryUpdater:
     and their `libraries.json` file metadata.
     """
 
-    def __init__(self, client=None):
+    def __init__(self, client=None, token=None):
         if client:
             self.client = client
         else:
             self.client = GithubAPIClient()
-        self.api = self.client.initialize_api()
+        self.api = self.client.initialize_api(token=token)
         self.parser = GithubDataParser()
         self.logger = structlog.get_logger()
 
@@ -61,9 +60,6 @@ class LibraryUpdater:
         libraries = []
         for gitmodule in gitmodules:
             if gitmodule["module"] in self.skip_modules:
-                self.logger.info(
-                    "skipping_library", skipped_library=gitmodule["module"]
-                )
                 continue
 
             libraries_json = self.client.get_libraries_json(
@@ -87,10 +83,6 @@ class LibraryUpdater:
 
     def update_libraries(
         self,
-        since: datetime = None,
-        until: datetime = None,
-        update_monthly_commit_counts: bool = True,
-        update_first_tag_date: bool = True,
     ):
         """
         Update all libraries with the metadata from their libraries.json file.
@@ -109,12 +101,7 @@ class LibraryUpdater:
                 continue
 
             self.update_categories(obj, categories=lib["category"])
-            self.update_authors(obj, authors=lib["authors"])
-
-            if update_monthly_commit_counts:
-                self.update_monthly_commit_counts(obj, since=since, until=until)
-            if update_first_tag_date and not obj.first_github_tag_date:
-                self.update_first_github_tag_date(obj)
+            # self.update_authors(obj, authors=lib["authors"])
 
     def update_library(self, library_data: dict) -> Library:
         """Update an individual library"""
