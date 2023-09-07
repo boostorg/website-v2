@@ -92,7 +92,7 @@ def skip_tag(name):
 
     # If this version is too old, skip it
     version_num = name.replace("boost-", "")
-    if version_num < settings.MIN_BOOST_VERSION:
+    if version_num < settings.MINIMUM_BOOST_VERSION:
         return True
 
     return False

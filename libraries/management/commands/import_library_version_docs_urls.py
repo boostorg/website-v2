@@ -19,7 +19,7 @@ from versions.models import Version
 @click.option(
     "--min-version",
     type=str,
-    default=settings.MIN_BOOST_VERSION,
+    default=settings.MINIMUM_BOOST_VERSION,
     help="Minimum Boost version to process (default: 1.30.0)",
 )
 def command(version, min_version):
