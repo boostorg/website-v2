@@ -1,5 +1,7 @@
 import djclick as click
 
+from django.conf import settings
+
 from libraries.github import LibraryUpdater
 from core.githubhelper import GithubAPIClient, GithubDataParser
 from libraries.models import Library, LibraryVersion
@@ -14,7 +16,7 @@ from versions.models import Version
 @click.option(
     "--min-release",
     type=str,
-    default="1.30.0",
+    default=settings.MIN_BOOST_VERSION,
     help="Minimum Boost version to process (default: 1.30.0)",
 )
 def command(min_release, release, token):

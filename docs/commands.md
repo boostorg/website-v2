@@ -39,7 +39,7 @@ This command retrieves and stores the documentation URLs for specific or all lib
 Here are the options you can use:
 
 - `--version`: Specify the version for which you want to retrieve documentation URLs. You can provide a specific version number (example: '1.81.0') or a partial version number to process all versions that contain the partial version number (example: '--version=1.7' would process 1.70.0, 1.71.0, 1.72.0, etc.). If no version is specified, all active versions will be processed.
-- `--min-version`: Specify the minimum version for which you want to retrieve documentation URLs. The default is "1.30.0".
+- `--min-version`: Specify the minimum version for which you want to retrieve documentation URLs. The default is defined in the settings file.
 
 ### Example:
 
@@ -68,7 +68,7 @@ Connect Library objects to the Boost versions (AKA "release") that included them
 Here are the options you can use:
 
 - `--release`: Full or partial Boost version (release) number. If `release` is passed, the command will import all libraries for the versions that contain the passed-in release number. If not passed, the command will import libraries for all active versions newer than the min-release.
-- `--min-release`: Specify the minimum version for which you want to retrieve documentation URLs. The default is "1.30.0".
+- `--min-release`: Specify the minimum version for which you want to retrieve documentation URLs. The default is defined in the settings file.
 - `--token`: Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`.
 
 ### Example:

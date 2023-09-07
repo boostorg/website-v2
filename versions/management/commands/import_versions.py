@@ -1,5 +1,6 @@
 import djclick as click
 
+from django.conf import settings
 from django.core.management import call_command
 from fastcore.xtras import obj2dict
 
@@ -7,8 +8,6 @@ from core.githubhelper import GithubAPIClient
 from versions.models import Version
 from versions.tasks import get_release_date_for_version
 
-# Minimum Boost version to import
-MIN_BOOST_VERSION = "1.10.3"
 
 # Skip beta releases, release candidates, and pre-1.0 versions
 EXCLUSIONS = ["beta", "-rc"]
@@ -93,7 +92,7 @@ def skip_tag(name):
 
     # If this version is too old, skip it
     version_num = name.replace("boost-", "")
-    if version_num < MIN_BOOST_VERSION:
+    if version_num < settings.MIN_BOOST_VERSION:
         return True
 
     return False
