@@ -1,5 +1,7 @@
 import djclick as click
 
+from django.conf import settings
+
 from libraries.models import LibraryVersion
 from libraries.tasks import get_and_store_library_version_documentation_urls_for_version
 from versions.models import Version
@@ -17,7 +19,7 @@ from versions.models import Version
 @click.option(
     "--min-version",
     type=str,
-    default="1.30.0",
+    default=settings.MIN_BOOST_VERSION,
     help="Minimum Boost version to process (default: 1.30.0)",
 )
 def command(version, min_version):
