@@ -212,6 +212,17 @@ class Library(models.Model):
         }
 
     @cached_property
+    def first_boost_version(self):
+        """Returns the first Boost version that included this library"""
+        if not self.library_version.exists():
+            return
+        return (
+            self.library_version.order_by("version__release_date", "version__name")
+            .first()
+            .version
+        )
+
+    @cached_property
     def github_owner(self):
         """Returns the name of the GitHub owner for the library"""
         return self.github_properties()["owner"]
