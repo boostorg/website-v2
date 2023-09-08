@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
 from django.http import Http404, HttpResponse, HttpResponseNotFound
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.views import View
 from django.views.generic import TemplateView
@@ -335,9 +335,31 @@ class DocLibsTemplateView(StaticContentTemplateView):
         )
 
 
-def antora_header_view(request):
-    return render(request, "includes/_header.html")
+class UserGuideTemplateView(StaticContentTemplateView):
+    def get_from_s3(self, content_path):
+        legacy_url = f"/doc/{content_path}"
+        return super().get_from_s3(legacy_url)
 
+    def process_content(self, content):
+        """Replace page header with the local one."""
+        content_type = self.content_dict.get("content_type")
+        modernize = self.request.GET.get("modernize", "med").lower()
+        if content_type != "text/html" or modernize not in ("max", "med", "min"):
+            # eventually check for more things, for example ensure this HTML
+            # was not generate from Antora builders.
+            return content
 
-def antora_footer_view(request):
-    return render(request, "includes/_footer.html")
+        context = {"disable_theme_switcher": True}
+        base_html = render_to_string(
+            "docs_libs_placeholder.html", context, request=self.request
+        )
+        insert_body = modernize == "max"
+        head_selector = (
+            "head"
+            if modernize in ("max", "med")
+            else {"data-modernizer": "boost-legacy-docs-extra-head"}
+        )
+        # potentially pass version if needed for HTML modification
+        return modernize_legacy_page(
+            content, base_html, insert_body=insert_body, head_selector=head_selector
+        )
