@@ -90,7 +90,7 @@
       </div>
       <div class="pb-2 px-0 ml-0 w-full h-auto md:w-2/3 md:pb-0 md:pl-6 md:mx-6">
         <div class="flex">
-          <div class="flex w-full bg-gray-300 dark:bg-charcoal">
+          <div class="flex w-full bg-white dark:bg-charcoal">
             {# todo: add a toggle between the two types #}
             <div class="w-full">
               <div id="chart1" class="w-full text-center">{# Commits per Month #}</div>
@@ -142,11 +142,14 @@
     var options = {
         series: [{
         name: 'Commits',
-        data: [256, 255, 251, 260, 267, 230, 254, 242, 274, 265, 243, 234]
+        data: [{% for commit_data in commit_data_last_12_months %}{{ commit_data.commit_count }}, {% endfor %}]
       }],
-        chart: {
+      chart: {
         height: 350,
         type: 'bar',
+      },
+      theme: {
+        mode: localStorage.getItem('colorMode') == 'dark' || localStorage.getItem('colorMode') == 'light' ? localStorage.getItem('colorMode') : 'light',
       },
       plotOptions: {
         bar: {
@@ -165,12 +168,12 @@
         offsetY: -20,
         style: {
           fontSize: '12px',
-          colors: ["#304758"]
+
         }
       },
 
       xaxis: {
-        categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        categories: [{% for commit_data in commit_data_last_12_months %}"{{ commit_data.date|date:'M' }}",{% endfor %}],
         position: 'top',
         axisBorder: {
           show: false
@@ -221,92 +224,8 @@
       }
     };
 
-    var options2 = {
-        series: [{
-        name: 'Commits',
-        data: [1367, 981, 400, 2235, 1888]
-      }],
-        chart: {
-        height: 350,
-        type: 'bar',
-      },
-      plotOptions: {
-        bar: {
-          borderRadius: 2,
-          dataLabels: {
-            position: 'top', // top, center, bottom
-          },
-        }
-      },
-      dataLabels: {
-        enabled: true,
-        formatter: function (val) {
-          //return val + "%";
-          return val;
-        },
-        offsetY: -20,
-        style: {
-          fontSize: '12px',
-          colors: ["#304758"]
-        }
-      },
-
-      xaxis: {
-        categories: ["2019", "2020", "2021", "2022", "2023"],
-        position: 'top',
-        axisBorder: {
-          show: false
-        },
-        axisTicks: {
-          show: false
-        },
-        crosshairs: {
-          fill: {
-            type: 'gradient',
-            gradient: {
-              colorFrom: '#D8E3F0',
-              colorTo: '#BED1E6',
-              stops: [0, 100],
-              opacityFrom: 0.4,
-              opacityTo: 0.5,
-            }
-          }
-        },
-        tooltip: {
-          enabled: true,
-        }
-      },
-      yaxis: {
-        axisBorder: {
-          show: true
-        },
-        axisTicks: {
-          show: true,
-        },
-        labels: {
-          show: true,
-          formatter: function (val) {
-            //return val + "%";
-            return val;
-          }
-        }
-
-      },
-      title: {
-        text: 'Commits per Year',
-        floating: true,
-        offsetY: 330,
-        align: 'center',
-        style: {
-          color: '#444'
-        }
-      }
-    };
-
-    var chart = new ApexCharts(document.querySelector("#chart1"), options);
-    chart.render();
-
-    var chart2 = new ApexCharts(document.querySelector("#chart2"), options2);
-    chart2.render();
+    // SS: putting this in the window object, a bit hacky, to be able to access it in the light/dark switcher - probably a better way
+    window.chart = new ApexCharts(document.querySelector("#chart1"), options);
+    window.chart.render();
   </script>
 {% endblock %}

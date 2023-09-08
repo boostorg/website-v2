@@ -1321,16 +1321,24 @@ select.dropdown {
   margin-right: 0.25rem;
 }
 
+.ml-0\.5 {
+  margin-left: 0.125rem;
+}
+
+.ml-0 {
+  margin-left: 0px;
+}
+
+.ml-1 {
+  margin-left: 0.25rem;
+}
+
 .mt-4 {
   margin-top: 1rem;
 }
 
 .-ml-2 {
   margin-left: -0.5rem;
-}
-
-.ml-0 {
-  margin-left: 0px;
 }
 
 .mb-5 {
@@ -1359,14 +1367,6 @@ select.dropdown {
 
 .ml-4 {
   margin-left: 1rem;
-}
-
-.ml-1 {
-  margin-left: 0.25rem;
-}
-
-.ml-0\.5 {
-  margin-left: 0.125rem;
 }
 
 .block {
@@ -1574,10 +1574,6 @@ select.dropdown {
   width: 20%;
 }
 
-.w-\[20vw\] {
-  width: 20vw;
-}
-
 .w-4 {
   width: 1rem;
 }
@@ -1680,6 +1676,10 @@ select.dropdown {
 
 .auto-rows-fr {
   grid-auto-rows: minmax(0, 1fr);
+}
+
+.auto-rows-auto {
+  grid-auto-rows: auto;
 }
 
 .grid-cols-1 {
@@ -1916,6 +1916,10 @@ select.dropdown {
 
 .overflow-x-hidden {
   overflow-x: hidden;
+}
+
+.overflow-y-hidden {
+  overflow-y: hidden;
 }
 
 .whitespace-normal {
@@ -2377,10 +2381,6 @@ select.dropdown {
 
 .pr-\[1vw\] {
   padding-right: 1vw;
-}
-
-.pl-\[2vw\] {
-  padding-left: 2vw;
 }
 
 .pl-0 {
@@ -3037,6 +3037,10 @@ select.dropdown {
 
   .md\:order-last {
     order: 9999;
+  }
+
+  .md\:col-span-1 {
+    grid-column: span 1 / span 1;
   }
 
   .md\:float-right {
