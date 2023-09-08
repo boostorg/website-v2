@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from ..templatetags import years_since
+from ..templatetags.date_filters import years_since
 
 
 def test_years_since():
