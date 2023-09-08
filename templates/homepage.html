@@ -58,7 +58,7 @@
             <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">library spotlight</span>
           </div>
           <h3 class="text-xl"><a href="{% url 'library-detail' slug=featured_library.slug %}">{{ featured_library.name }}</a></h3>
-          <p class="my-3">{% if featured_library.first_github_tag_date %}Released {{ featured_library.first_github_tag_date|date:"m/d/y"}}{% endif %}</p>
+          <p class="my-3">{% if featured_library.first_boost_version %}Added in {{ featured_library.first_boost_version.display_name }}{% endif %}</p>
           <p>{{ featured_library.description }}</p>
           <div class="my-5">
             {% if featured_library.authors %}
