@@ -17,7 +17,7 @@ class VersionDetail(FormMixin, DetailView):
 
     form_class = VersionSelectionForm
     model = Version
-    queryset = Version.objects.active()
+    queryset = Version.objects.active().defer("data")
     template_name = "versions/detail.html"
 
     def get_context_data(self, **kwargs):

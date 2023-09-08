@@ -1,4 +1,5 @@
 import djclick as click
+import requests
 
 from django.conf import settings
 
@@ -6,7 +7,6 @@ from libraries.github import LibraryUpdater
 from core.githubhelper import GithubAPIClient, GithubDataParser
 from libraries.models import Library, LibraryVersion
 from libraries.tasks import get_and_store_library_version_documentation_urls_for_version
-from libraries.utils import parse_date
 from versions.models import Version
 
 
@@ -17,7 +17,7 @@ from versions.models import Version
     "--min-release",
     type=str,
     default=settings.MINIMUM_BOOST_VERSION,
-    help="Minimum Boost version to process (default: 1.30.0)",
+    help="Minimum Boost version to process (default: 1.31.0)",
 )
 def command(min_release, release, token):
     """Cycles through all Versions in the database, and for each version gets the
@@ -27,6 +27,8 @@ def command(min_release, release, token):
     .gitmodules file and uses the information to create LibraryVersion instances, and
     add maintainers to LibraryVersions.
 
+    Note: This command takes 30-60 minutes when the database is empty.
+
     Args:
         token (str): Github API token, if a value other than the setting is needed.
         release (str): Boost version number (example: 1.81.0). If a partial version
@@ -34,6 +36,7 @@ def command(min_release, release, token):
             partial version number (example: "--version="1.7" would process 1.7.0,
             1.7.1, 1.7.2, etc.)
     """
+    click.secho("Saving library-version relationships...", fg="green")
     client = GithubAPIClient(token=token)
     parser = GithubDataParser()
     updater = LibraryUpdater(client=client)
@@ -49,13 +52,9 @@ def command(min_release, release, token):
         )
 
     for version in versions.order_by("-name"):
-        click.echo(f"Processing version {version.name}...")
-
-        click.secho(f"Saving library versions for {version.name}...", fg="yellow")
         ref = client.get_ref(ref=f"tags/{version.name}")
         raw_gitmodules = client.get_gitmodules(ref=ref)
         if not raw_gitmodules:
-            click.secho(f"Could not get gitmodules for {version.name}.", fg="red")
             skipped.append(
                 {"version": version.name, "reason": "Invalid gitmodules file"}
             )
@@ -64,93 +63,72 @@ def command(min_release, release, token):
         gitmodules = parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
 
         for gitmodule in gitmodules:
+            reason = ""
             library_name = gitmodule["module"]
 
             click.echo(f"Processing module {library_name}...")
 
             if library_name in updater.skip_modules:
-                click.echo(f"Skipping module {library_name}.")
                 continue
 
-            libraries_json = client.get_libraries_json(repo_slug=library_name)
-
-            # Some specific library-versions (Hana v1.65.0, for example) require
-            # the "url" field from the .gitmodules file to be used instead of the
-            # module name, so we try the module name first, and if that doesn't
-            # work, we try the url.
-            github_data = client.get_repo(repo_slug=library_name)
-
-            if not github_data:
-                github_data = client.get_repo(repo_slug=gitmodule["url"])
-
-            if github_data:
-                extra_data = {
-                    "last_github_update": parse_date(github_data.get("updated_at", "")),
-                    "github_url": github_data.get("html_url", ""),
-                }
-            else:
-                skipped.append(
-                    {
-                        "version": version.name,
-                        "library": library_name,
-                        "reason": "Not skipped, but data is incomplete",
-                    }
+            try:
+                libraries_json = client.get_libraries_json(
+                    repo_slug=library_name, tag=version.name
                 )
-                extra_data = {}
+            except requests.exceptions.JSONDecodeError:
+                reason = "libraries.json file was invalid"
+            except requests.exceptions.HTTPError:
+                reason = "libraries.json file not found"
+            except Exception as e:
+                reason = str(e)
 
-            # If the libraries.json file exists, we can use it to get the library info
-            if libraries_json:
-                libraries = (
-                    libraries_json
-                    if isinstance(libraries_json, list)
-                    else [libraries_json]
+            if not libraries_json:
+                # Can happen with older releases
+                library_version = save_library_version_by_library_key(
+                    library_name, version, gitmodule
                 )
-                parsed_libraries = [
-                    parser.parse_libraries_json(lib) for lib in libraries
-                ]
-                for lib_data in parsed_libraries:
-                    lib_data.update(extra_data)
-                    library = updater.update_library(lib_data)
-                    library_version = handle_library_version(
-                        version, library, lib_data["maintainers"], updater
-                    )
-                    if not library_version:
-                        click.secho(
-                            f"Could not save library version {lib_data['name']}.",
-                            fg="red",
-                        )
-                        skipped.append(
-                            {
-                                "version": version.name,
-                                "library": lib_data["name"],
-                                "reason": "Could not save library version",
-                            }
-                        )
-            else:
-                # This can happen with older tags; the libraries.json file didn't always
-                # exist, so when it isn't present, we search for the library by the
-                # module name and try to save the LibraryVersion that way.
-                click.echo(
-                    f"Could not get libraries.json for {lib_data['name']}; will try to "
-                    f"save by gitmodule name."
-                )
-                try:
-                    library = Library.objects.get(name=lib_data["name"])
-                    library_version = handle_library_version(
-                        version, library, [], updater
-                    )
-                except Library.DoesNotExist:
-                    click.secho(
-                        f"Could not save library version {lib_data['name']}.", fg="red"
-                    )
+                if library_version:
+                    if not reason:
+                        reason = "failure with libraries.json file"
+                    click.secho(f"{library_name} ({version.name} saved.", fg="green")
+                    continue
+                else:
+                    if not reason:
+                        reason = """
+                            Could not find libraries.json file, and could not find
+                            library by gitmodule name
+                        """
                     skipped.append(
                         {
                             "version": version.name,
-                            "library": lib_data["name"],
-                            "reason": "Could not save library version",
+                            "library": library_name,
+                            "reason": reason,
                         }
                     )
                     continue
+
+            libraries = (
+                libraries_json if isinstance(libraries_json, list) else [libraries_json]
+            )
+            parsed_libraries = [parser.parse_libraries_json(lib) for lib in libraries]
+            for lib_data in parsed_libraries:
+                library, created = Library.objects.get_or_create(
+                    key=lib_data["key"],
+                    defaults={
+                        "name": lib_data.get("name"),
+                        "description": lib_data.get("description"),
+                        "cpp_standard_minimum": lib_data.get("cxxstd"),
+                        "data": lib_data,
+                    },
+                )
+                library_version, _ = LibraryVersion.objects.update_or_create(
+                    version=version, library=library, defaults={"data": lib_data}
+                )
+                click.secho(f"{library.name} ({version.name} saved)", fg="green")
+                # if created and not library.github_url:
+                if not library.github_url:
+                    pass
+                #     # todo: handle this. Need a github_url for these.
 
         # Retrieve and store the docs url for each library-version in this release
         get_and_store_library_version_documentation_urls_for_version.delay(version.pk)
@@ -165,19 +143,16 @@ def command(min_release, release, token):
     for message in skipped_messages:
         click.secho(message, fg="red")
 
+    click.secho("Finished saving library-version relationships.", fg="green")
 
-def handle_library_version(version, library, maintainers, updater):
-    """Handles the creation and updating of a LibraryVersion instance."""
-    library_version, created = LibraryVersion.objects.get_or_create(
-        version=version, library=library
-    )
-    click.secho(
-        f"Saved library version {library_version}. Created? {created}", fg="green"
-    )
 
-    # If the library version has no maintainers, we need to update the maintainers
-    if library_version.maintainers.count() == 0:
-        updater.update_maintainers(library_version, maintainers=maintainers)
-        click.secho(f"Updated maintainers for {library_version}.", fg="green")
-
-    return library_version
+def save_library_version_by_library_key(library_key, version, gitmodule={}):
+    """Saves a LibraryVersion instance by library key and version."""
+    try:
+        library = Library.objects.get(key=library_key)
+        library_version, _ = LibraryVersion.objects.update_or_create(
+            version=version, library=library, defaults={"data": gitmodule}
+        )
+        return library_version
+    except Library.DoesNotExist:
+        return
