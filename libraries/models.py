@@ -111,12 +111,6 @@ class Library(models.Model):
     )
     cpp_standard_minimum = models.CharField(max_length=50, blank=True, null=True)
     active_development = models.BooleanField(default=True, db_index=True)
-    first_github_tag_date = models.DateField(
-        blank=True,
-        null=True,
-        help_text="The date of the first release, based on the date of the commit of "
-        "the first GitHub tag.",
-    )
     categories = models.ManyToManyField(Category, related_name="libraries")
 
     authors = models.ManyToManyField("users.User", related_name="authors")
