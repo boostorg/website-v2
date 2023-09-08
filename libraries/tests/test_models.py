@@ -1,3 +1,4 @@
+import datetime
 from model_bakery import baker
 
 
@@ -80,3 +81,47 @@ def test_library_repo_url_for_version(library_version):
         f"{library_version.library.github_url}/tree/{library_version.version.name}"
     )
     assert result == expected_url
+
+
+def test_library_version_first_boost_version_property(library):
+    # Test for a library with no library versions
+    assert library.first_boost_version is None
+
+    # Test for a library with multiple versions, each with a different release_date
+    version_1 = baker.make(
+        "versions.Version", name="1.0", release_date=datetime.date(2023, 1, 1)
+    )
+    version_2 = baker.make(
+        "versions.Version", name="1.1", release_date=datetime.date(2023, 1, 2)
+    )
+    version_3 = baker.make(
+        "versions.Version", name="1.2", release_date=datetime.date(2023, 1, 3)
+    )
+
+    baker.make("libraries.LibraryVersion", library=library, version=version_1)
+    baker.make("libraries.LibraryVersion", library=library, version=version_2)
+    baker.make("libraries.LibraryVersion", library=library, version=version_3)
+    del library.first_boost_version
+    assert library.first_boost_version == version_1
+
+    # Test for a library with multiple versions, released on the same date, but
+    # with version names that increment appropriately
+    version_1.release_date = datetime.date(2023, 1, 1)
+    version_1.save()
+    version_2.release_date = datetime.date(2023, 1, 1)
+    version_2.save()
+    version_3.release_date = datetime.date(2023, 1, 1)
+    version_3.save()
+    del library.first_boost_version
+    assert library.first_boost_version == version_1
+
+    # Test for a library with multiple versions, released on different date, but
+    # with version names that increment oddly
+    version_1.release_date = datetime.date(2023, 2, 1)
+    version_1.save()
+    version_2.release_date = datetime.date(2023, 4, 1)
+    version_2.save()
+    version_3.release_date = datetime.date(2023, 1, 1)
+    version_3.save()
+    del library.first_boost_version
+    assert library.first_boost_version == version_3
