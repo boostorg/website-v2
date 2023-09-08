@@ -172,17 +172,6 @@ class LibraryUpdater:
 
         return obj
 
-    def update_first_github_tag_date(self, obj):
-        """
-        Update the date of the first tag for a library
-        """
-        first_tag = self.client.get_first_tag(repo_slug=obj.github_repo)
-        if first_tag:
-            _, first_github_tag_date = first_tag
-            obj.first_github_tag_date = parse_date(first_github_tag_date)
-            obj.save()
-            self.logger.info("lib_first_github_tag_date_updated", obj_id=obj.id)
-
     def update_maintainers(self, obj, maintainers=None):
         """
         Receives a list of strings from the libraries.json of a Boost library, and
