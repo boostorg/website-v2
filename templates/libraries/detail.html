@@ -48,7 +48,7 @@
               No Minimum CPP Required
             {% endif %}
             </span>
-            <span class="float-right">{% if object.first_github_tag_date %}Since {{ object.first_github_tag_date|date:"Y" }}{% endif %}</span>
+            <span class="float-right">{% if object.first_boost_version %}Added in Boost {{ object.first_boost_version.display_name }}{% endif %}</span>
           </div>
 
           <div>
