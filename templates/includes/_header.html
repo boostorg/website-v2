@@ -97,6 +97,19 @@
                         document.head.querySelectorAll('.meta-theme').forEach((el) => {
                           el.setAttribute('content', el.getAttribute('data-' + m));
                         });
+                        if (window.chart && window.chart.updateOptions) {
+                          window.chart.updateOptions({
+                            theme: {
+                              mode: m
+                            },
+                            chart: {
+                              foreColor: m === 'dark' ? '#f6f7f8': '#373d3f'
+                            },
+                            tooltip: {
+                              theme: m
+                            }
+                          });
+                        }
                     }
                 }"
 
