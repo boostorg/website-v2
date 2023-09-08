@@ -39,6 +39,7 @@ def command(version, min_version):
             only versions that are greater than or equal to this version will be
             processed.
     """
+    click.secho("Saving links to version-specific library docs...", fg="green")
     min_version = f"boost-{min_version}"
     if version is None:
         versions = Version.objects.active().filter(name__gte=min_version)
@@ -67,3 +68,5 @@ def command(version, min_version):
                     fg="red",
                 )
                 continue
+
+    click.secho("Finished saving links to version-specific library docs.", fg="green")

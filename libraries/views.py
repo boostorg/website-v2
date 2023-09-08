@@ -23,8 +23,14 @@ class LibraryList(VersionAlertMixin, ListView):
     to the current version."""
 
     queryset = (
-        Library.objects.prefetch_related("authors", "categories").all().order_by("name")
-    ).distinct()
+        (
+            Library.objects.prefetch_related("authors", "categories")
+            .all()
+            .order_by("name")
+        )
+        .defer("data")
+        .distinct()
+    )
     template_name = "libraries/list.html"
 
     def get_queryset(self):

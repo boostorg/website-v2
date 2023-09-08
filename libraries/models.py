@@ -119,7 +119,9 @@ class Library(models.Model):
         db_index=True,
         help_text="Should this library be featured on the home page?",
     )
-    data = models.JSONField(default=dict)
+    data = models.JSONField(
+        default=dict, help_text="Contains the libraries.json for this library"
+    )
 
     class Meta:
         verbose_name_plural = "Libraries"
@@ -200,6 +202,9 @@ class Library(models.Model):
 
     def github_properties(self):
         """Returns the owner and repo name for the library"""
+        if not self.github_url:
+            return {}
+
         parts = urlparse(self.github_url)
         path = parts.path.split("/")
 
@@ -225,12 +230,12 @@ class Library(models.Model):
     @cached_property
     def github_owner(self):
         """Returns the name of the GitHub owner for the library"""
-        return self.github_properties()["owner"]
+        return self.github_properties().get("owner")
 
     @cached_property
     def github_repo(self):
         """Returns the name of the GitHub repository for the library"""
-        return self.github_properties()["repo"]
+        return self.github_properties().get("repo")
 
     @cached_property
     def github_issues_url(self):
@@ -262,6 +267,9 @@ class LibraryVersion(models.Model):
         blank=True,
         null=True,
         help_text="The path to the docs for this library version.",
+    )
+    data = models.JSONField(
+        default=dict, help_text="Contains the libraries.json for this library-version"
     )
 
     def __str__(self):
