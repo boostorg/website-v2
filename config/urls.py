@@ -18,8 +18,7 @@ from core.views import (
     DocLibsTemplateView,
     MarkdownTemplateView,
     StaticContentTemplateView,
-    antora_footer_view,
-    antora_header_view,
+    UserGuideTemplateView,
 )
 from libraries.api import LibrarySearchView
 from libraries.views import (
@@ -73,9 +72,6 @@ urlpatterns = (
         path("admin/", admin.site.urls),
         path("accounts/", include("allauth.urls")),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
-        # Temp route to prove antora header
-        path("testheader/", antora_header_view, name="antora-header"),
-        path("testfooter/", antora_footer_view, name="antora-footer"),
         path("users/<int:pk>/", ProfileView.as_view(), name="profile-user"),
         path("api/v1/users/me/", CurrentUserAPIView.as_view(), name="current-user"),
         path("api/v1/", include(router.urls)),
@@ -246,6 +242,11 @@ urlpatterns = (
             r"^docs/libs/(?P<content_path>.+)/?",
             DocLibsTemplateView.as_view(),
             name="docs-libs-page",
+        ),
+        re_path(
+            r"^doc/(?P<content_path>.+)/?",
+            UserGuideTemplateView.as_view(),
+            name="docs-user-guide",
         ),
         # Markdown content
         re_path(
