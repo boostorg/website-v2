@@ -12,5 +12,10 @@ def command(local, token):
     from the Boost repo and updates the models in our database with the latest
     information on that library (repo) from GitHub.
     """
+    click.secho(
+        "Updating libraries -- expect to wait 1-2 minutes before seeing output",
+        fg="green",
+    )
     updater = LibraryUpdater(token=token)
     updater.update_libraries()
+    click.secho("Finished importing libraries.", fg="green")

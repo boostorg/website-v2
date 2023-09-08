@@ -12,7 +12,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Library)
 class LibraryAdmin(admin.ModelAdmin):
-    list_display = ["name"]
+    list_display = ["name", "key", "github_url"]
     search_fields = ["name", "description"]
     list_filter = ["categories"]
     ordering = ["name"]

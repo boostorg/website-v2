@@ -39,6 +39,7 @@ def command(
         token (str): Github API token, if you need to use something other than the
             setting.
     """
+    click.secho("Importing versions...", fg="green")
     if delete_versions:
         Version.objects.all().delete()
         click.echo("Deleted all existing versions.")
@@ -74,6 +75,8 @@ def command(
         add_release_downloads(version)
 
         click.secho(f"Saved version {version.name}. Created: {_}", fg="green")
+
+    click.secho("Finished importing versions.", fg="green")
 
 
 def add_release_downloads(version):

@@ -216,6 +216,10 @@ class LibraryUpdater:
         Note: Overrides CommitData objects for the library; does not increment
         the count.
         """
+        if not obj.github_repo:
+            self.logger.info("updating_monthly_commit_data_skipped_no_repo")
+            return
+
         self.logger.info("updating_monthly_commit_data")
         commits = self.client.get_commits(
             repo_slug=obj.github_repo, branch=branch, since=since, until=until
