@@ -90,7 +90,7 @@
       </div>
       <div class="pb-2 px-0 ml-0 w-full h-auto md:w-2/3 md:pb-0 md:pl-6 md:mx-6">
         <div class="flex">
-          <div class="flex w-full bg-white dark:bg-charcoal">
+          <div class="flex w-full">
             {# todo: add a toggle between the two types #}
             <div class="w-full">
               <div id="chart1" class="w-full text-center">{# Commits per Month #}</div>
@@ -147,9 +147,14 @@
       chart: {
         height: 350,
         type: 'bar',
+        foreColor: localStorage.getItem('colorMode') === 'dark' ? '#f6f7f8': '#373d3f',
+        background: localStorage.getItem('colorMode') === 'dark' ? '#172A34': '#ffffff',
       },
       theme: {
-        mode: localStorage.getItem('colorMode') == 'dark' || localStorage.getItem('colorMode') == 'light' ? localStorage.getItem('colorMode') : 'light',
+        mode: localStorage.getItem('colorMode') === 'dark' ? 'dark' : 'light',
+      },
+      tooltip: {
+        theme: localStorage.getItem('colorMode') === 'dark' ? 'dark' : 'light',
       },
       plotOptions: {
         bar: {
@@ -181,18 +186,7 @@
         axisTicks: {
           show: false
         },
-        crosshairs: {
-          fill: {
-            type: 'gradient',
-            gradient: {
-              colorFrom: '#D8E3F0',
-              colorTo: '#BED1E6',
-              stops: [0, 100],
-              opacityFrom: 0.4,
-              opacityTo: 0.5,
-            }
-          }
-        },
+
         tooltip: {
           enabled: true,
         }
@@ -218,9 +212,7 @@
         floating: true,
         offsetY: 330,
         align: 'center',
-        style: {
-          color: '#444'
-        }
+
       }
     };
 
