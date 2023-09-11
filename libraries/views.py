@@ -159,6 +159,7 @@ class LibraryDetail(FormMixin, DetailView):
         context["documentation_url"] = self.get_documentation_url(context["version"])
         context["github_url"] = self.get_github_url(context["version"])
         context["maintainers"] = self.get_maintainers(context["version"])
+        context["author_tag"] = self.get_author_tag()
 
         # Populate the commit graphs
         context["commit_data_annual"] = self.get_commit_data_annual()
@@ -189,6 +190,17 @@ class LibraryDetail(FormMixin, DetailView):
         except self.model.DoesNotExist:
             raise Http404("No library found matching the query")
         return obj
+
+    def get_author_tag(self):
+        """Format the authors for the author meta tag in the template."""
+        authors = self.object.authors.all()
+        author_names = [author.get_full_name() for author in authors]
+        if len(author_names) > 1:
+            final_output = ", ".join(author_names[:-1]) + " and " + author_names[-1]
+        else:
+            final_output = author_names[0] if author_names else ""
+
+        return final_output
 
     def _prepare_commit_data(self, commit_data, data_type):
         commit_data_list = []
