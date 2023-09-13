@@ -1,8 +1,18 @@
-{% load static %}
-
-<div>
-  <p class="py-0 my-1 text-gray-700 dark:text-gray-300">
-    <a class="mr-1 font-bold capitalize link-header" href="{% url 'library-detail' slug=library.slug %}">{{ library.name }}</a>
-    {{ library.description }}
-  </p>
-</div>
+<tr>
+  <td class="py-1 align-top">
+    <a class="mr-1 font-bold capitalize link-header"
+       href="{% url 'library-detail' slug=library.slug %}">{{ library.name }}</a>
+  </td>
+  <td class="py-1 align-top">
+    {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}
+    <span class="py-0 px-2 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40"
+          title="{% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}CPP Version {{ library.cpp_standard_minimum }} or Later{% else %}No Minimum CPP Required{% endif %}">
+      {{ library.cpp_standard_minimum }}+
+    </span>
+    {% endif %}
+  </td>
+  <td class="hidden md:block pl-3">{{ library.description }}</td>
+</tr>
+<tr class="block md:hidden">
+  <td>{{ library.description }}</td>
+</tr>

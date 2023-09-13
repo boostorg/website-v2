@@ -82,17 +82,25 @@
       {% for result in library_list %}
       <div class="relative content-between p-3 w-full bg-white rounded-lg shadow-lg md:p-5 dark:bg-charcoal">
         <h5 class="pb-2 text-2xl font-bold leading-tight text-orange border-b border-gray-300 dark:border-slate">{{ result.category }}</h5>
-        {% for library in result.libraries %}
-          {% include "libraries/_library_category_list_item.html" %}
-        {% empty %}
-          <p class="text-gray-600 dark:text-gray-400">No libraries in this category yet.</p>
-        {% endfor %}
+        <table class="table-auto">
+          <tbody>
+          {% for library in result.libraries %}
+            {% include "libraries/_library_category_list_item.html" %}
+          {% empty %}
+            <p class="text-gray-600 dark:text-gray-400">No libraries in this category yet.</p>
+          {% endfor %}
+          </tbody>
+        </table>
       </div>
       {% endfor %}
     {% else %}
-      {% for library in library_list %}
-        {% include "libraries/_library_category_list_item.html" %}
-      {% endfor %}
+      <table class="table-auto">
+        <tbody>
+        {% for library in library_list %}
+          {% include "libraries/_library_category_list_item.html" %}
+        {% endfor %}
+        </tbody>
+      </table>
     {% endif %}
   </div>
   {# end libraries list #}

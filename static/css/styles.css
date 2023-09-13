@@ -1369,6 +1369,10 @@ select.dropdown {
   margin-left: 1rem;
 }
 
+.-mt-2 {
+  margin-top: -0.5rem;
+}
+
 .block {
   display: block;
 }
@@ -1614,6 +1618,10 @@ select.dropdown {
   table-layout: auto;
 }
 
+.table-fixed {
+  table-layout: fixed;
+}
+
 .border-separate {
   border-collapse: separate;
 }
@@ -1728,6 +1736,10 @@ select.dropdown {
 
 .content-between {
   align-content: space-between;
+}
+
+.items-start {
+  align-items: flex-start;
 }
 
 .items-center {
@@ -2383,6 +2395,10 @@ select.dropdown {
   padding-left: 0px;
 }
 
+.pl-3 {
+  padding-left: 0.75rem;
+}
+
 .text-left {
   text-align: left;
 }
@@ -2397,6 +2413,10 @@ select.dropdown {
 
 .text-justify {
   text-align: justify;
+}
+
+.align-top {
+  vertical-align: top;
 }
 
 .align-bottom {

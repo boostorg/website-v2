@@ -23,8 +23,8 @@
   </div>
   <div class="text-sm flex py-3 bottom-3 absolute w-[90%]">
     <div class="w-1/6"><span class="py-0 px-2 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40" title="{% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}CPP Version {{ library.cpp_standard_minimum }} or Later{% else %}No Minimum CPP Required{% endif %}">{{ library.cpp_standard_minimum }}</span></div>
-    <div class="w-1/6 tracking-wider text-charcoal dark:text-white/60">{% if library.first_boost_version %}{{ library.first_boost_version.release_date|years_since }} yrs{% endif %}</div>
-    <div class="w-4/6 text-right dark:text-gray-400 text-slate">
+{#    <div class="w-1/6 tracking-wider text-charcoal dark:text-white/60">{% if library.first_boost_version %}{{ library.first_boost_version.release_date|years_since }} yrs{% endif %}</div>#}
+    <div class="w-5/6 text-right dark:text-gray-400 text-slate">
       {% for c in library.categories.all %}
         <a href="{% url 'libraries' %}?category={{ c.slug }}{% if version %}&version={{ version.slug }}{% endif %}">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
     </div>
