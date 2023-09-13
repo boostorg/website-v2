@@ -78,21 +78,28 @@
 
   {# Libraries list #}
   <div class="relative content-between p-3 w-full bg-white rounded-lg shadow-lg md:p-5 dark:bg-charcoal">
-    {# todo/?: is by_category still possible here? #}
     {% if by_category %}
       {% for result in library_list %}
         <h2>{{ result.category }}</h2>
-        {% for library in result.libraries %}
-          {% include "libraries/_library_flat_list_item.html" %}
-        {% endfor %}
+        <table class="table-auto">
+          <tbody>
+          {% for library in result.libraries %}
+            {% include "libraries/_library_flat_list_item.html" %}
+          {% endfor %}
+          </tbody>
+        </table>
       {% endfor %}
     {% else %}
       {% if category %}
         <h5 class="pb-2 text-2xl font-bold leading-tight text-orange border-b border-gray-300 dark:border-slate">{{ category }}</h5>
       {% endif %}
-      {% for library in library_list %}
-        {% include "libraries/_library_flat_list_item.html" %}
-      {% endfor %}
+      <table class="table-auto">
+        <tbody>
+        {% for library in library_list %}
+          {% include "libraries/_library_flat_list_item.html" %}
+        {% endfor %}
+        </tbody>
+      </table>
     {% endif %}
   </div>
   {# end libraries list #}
