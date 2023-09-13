@@ -81,7 +81,7 @@
     {% if by_category %}
       {% for result in library_list %}
         <h2>{{ result.category }}</h2>
-        <table class="table-auto">
+        <table class="table-auto w-full">
           <tbody>
           {% for library in result.libraries %}
             {% include "libraries/_library_flat_list_item.html" %}
@@ -93,7 +93,7 @@
       {% if category %}
         <h5 class="pb-2 text-2xl font-bold leading-tight text-orange border-b border-gray-300 dark:border-slate">{{ category }}</h5>
       {% endif %}
-      <table class="table-auto">
+      <table class="table-auto w-full">
         <tbody>
         {% for library in library_list %}
           {% include "libraries/_library_flat_list_item.html" %}
