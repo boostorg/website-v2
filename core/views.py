@@ -349,7 +349,7 @@ class UserGuideTemplateView(StaticContentTemplateView):
             # was not generate from Antora builders.
             return content
 
-        context = {"disable_theme_switcher": True}
+        context = {"disable_theme_switcher": False}
         base_html = render_to_string(
             "docs_libs_placeholder.html", context, request=self.request
         )

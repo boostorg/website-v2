@@ -49,6 +49,7 @@ REMOVE_TAGS = [
 # List HTML elements (with relevant attributes) to remove ALL occurrences
 REMOVE_ALL = [
     # the legacy logo referenced from multiple pages at different depths
+    ("header", {"class": "header"}),
     ("img", {"src": "../../../../boost.png"}),
     ("img", {"src": "../../../boost.png"}),
     ("img", {"src": "../../boost.png"}),
