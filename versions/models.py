@@ -61,7 +61,8 @@ class Version(models.Model):
         """Return the URL path to the release notes for this version of Boost on
         the existing Boost.org website.
         """
-        return f"https://www.boost.org/users/history/version_{self.boost_url_slug}.html"
+        slug = self.boost_url_slug.replace("boost", "version")
+        return f"https://www.boost.org/users/history/{slug}.html"
 
     @cached_property
     def documentation_url(self):
