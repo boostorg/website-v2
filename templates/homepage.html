@@ -5,7 +5,7 @@
 {% block content %}
   <!-- Homepage Hero Section -->
   <main class="px-4 my-16 mx-auto sm:mt-24">
-    <div class="md:flex">
+    <div class="md:flex mb-16">
       <div class="order-1 mt-6 w-full text-center md:order-2 md:mt-3 md:w-1/2">
         <div id="scene03"></div>
       </div>
@@ -18,49 +18,64 @@
           <a href="{% url 'releases-most-recent' %}" class="flex justify-center items-center py-3 px-8 text-base font-medium text-white rounded-md border md:py-4 md:px-4 md:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
             <i class="pr-2 text-white fas fa-arrow-circle-down dark:text-orange"></i> Download Latest
           </a>
-          <a href="{% url 'releases-most-recent' %}" class="flex justify-center items-center py-3 px-8 text-base font-medium bg-gray-300 rounded-md border md:py-4 md:px-10 md:text-lg border-steel text-slate dark:bg-charcoal dark:text-orange">
-            Version Details <i class="pl-2 fas fa-chevron-right text-slate dark:text-orange"></i>
-          </a>
+
         </div>
       </div>
     </div>
 
-    <div class="py-4 my-16 border-t md:flex md:border-t-0 border-slate">
-      <div class="md:order-last md:w-1/2">
-        <h2 class="mb-3 text-4xl">Boost Mission</h2>
-        The Boost mission is threefold:
-        <ul class="mb-11 ml-6 space-y-2 list-disc">
-          <li>develop high-quality, expert-reviewed, open-source C++ libraries</li>
-          <li>incubate C++ standard library enhancements</li>
-          <li>advance and disseminate C++ software development best practices</li>
-        </ul>
-        <div>
+    <div class="px-2 dark:text-white text-slate bg-white rounded-lg dark:bg-charcoal dark:bg-neutral-700">
+      <div class="py-4 px-2 y-16 lg:flex">
+        <div class="lg:order-last lg:w-1/2">
+          <h5
+          class="text-3xl font-bold leading-tight text-orange mb-2">Boost Mission</h5>
+          <ul class="mb-0 pl-2 ml-6 space-y-2 list-disc">
+          <li>development of high quality, expert reviewed, legally unencumbered, open-source libraries,</li>
+          <li>inspiring standard enhancements, and</li>
+          <li>advancing and disseminating software development best practices.</li>
+          </ul>
+          <p class="pb-0">It does this by fostering community engagement, nurturing leaders, providing necessary financial/legal support, and making directional decisions in the event of Boost community deadlock.</p>
+          <p class="pb-0">Equally important to our mission is the guidance provided by our shared values. These are transparency, inclusivity, consensus-building, federated authorship, and community-driven leadership.</p>
+          <div>
+          </div>
         </div>
-      </div>
-      <div class="flex my-16 md:w-1/2">
-        <div class="items-center w-1/2 text-center">
-          <img class="mx-auto mb-2" src="{% static 'img/icons/icon-download-grn.svg' %}" alt="Downloads" />
-          <h4 class="mb-3 text-5xl">10M+</h4>
-          Total Downloads
-        </div>
-        <div class="items-center w-1/2 text-center">
-          <img class="mx-auto mb-2" src="{% static 'img/icons/icon-library-grn.svg' %}" alt="Libraries" />
-          <h4 class="mb-3 text-5xl">165+</h4>
-          Individual Libraries
+        <div class="flex mr-16 my-auto pt-8 lg:w-1/2 justify-center">
+          <div class="grid grid-cols-2 w-full justify-items-center">
+            <div class="items-center text-center px-4">
+              <img class="mx-auto mb-2" src="{% static 'img/icons/icon-download-grn.svg' %}" alt="Downloads" />
+              <h4 class="mb-3 text-5xl">10M+</h4>
+              Total Downloads
+            </div>
+            <div class="items-center text-center px-4">
+              <img class="mx-auto mb-2" src="{% static 'img/icons/icon-library-grn.svg' %}" alt="Libraries" />
+              <h4 class="mb-3 text-5xl">165+</h4>
+              Individual Libraries
+            </div>
+            <div class="col-span-2 items-center w-full text-left pl-4">
+              <p><span class="text-xl font-bold">Why Use Boost?</span>&nbsp;&nbsp; In a word, <i>Productivity</i>. Use of high-quality libraries like Boost speeds initial development, results in fewer bugs, reduces reinvention-of-the-wheel, and cuts long-term maintenance costs. And since Boost libraries tend to become de facto or de jure standards, many programmers are already familiar with them.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="my-4 space-y-4 md:flex md:my-16 md:space-y-0 md:space-x-4">
-      <div class="p-4 bg-white rounded md:p-11 md:w-1/2 dark:bg-charcoal">
+    <div class="my-4 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
+      <div class="p-4 relative bg-white rounded lg:p-11 lg:w-1/2 dark:bg-charcoal min-h-[500px]">
         {% if featured_library %}
           <div class="mb-6">
             <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">library spotlight</span>
           </div>
-          <h3 class="text-xl"><a href="{% url 'library-detail' slug=featured_library.slug %}">{{ featured_library.name }}</a></h3>
-          <p class="my-3">{% if featured_library.first_boost_version %}Added in {{ featured_library.first_boost_version.display_name }}{% endif %}</p>
-          <p>{{ featured_library.description }}</p>
-          <div class="my-5">
+          <div class="absolute top-1 right-8 p-2 group">
+            <a href="{% url 'libraries' %}"
+               class="text-sm font-medium md:text-base lg:text-base text-slate dark:text-sky-600">
+              All Libraries&nbsp;<i class="fas fa-chevron-right text-slate dark:text-sky-600"></i>
+            </a>
+          </div>
+          <h3 class="pb-2 mb-4 text-3xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'library-detail' slug=featured_library.slug %}">{{ featured_library.name }}</a></h3>
+          <span class="pb-1 mx-auto w-full text-lg align-left">
+            {{ featured_library.description }}
+          </span>
+          <p class="pb-1 mx-auto w-full text-sm align-left">{% if featured_library.first_boost_version %}Added in {{ featured_library.first_boost_version.display_name }}{% endif %}</p>
+          <div class="absolute bottom-4 pb-4">
             {% if featured_library.authors %}
               <span class="mr-5">Authors</span>
               {% for author in featured_library.authors.all %}
@@ -71,7 +86,8 @@
                 {% endif %}
               {% endfor %}
             {% endif %}</div>
-          <div class="mt-5 max-w-md sm:flex md:mt-8">
+          {% comment %}
+            <div class="mt-5 max-w-md sm:flex md:mt-8">
             <div class="rounded-md shadow">
               <a href="{% url 'releases-most-recent' %}" class="flex justify-center items-center py-3 px-8 w-full text-base font-medium text-white rounded-md border md:py-4 md:px-10 md:text-base border-orange bg-orange">
                 <i class="pr-2 fas fa-arrow-circle-down"></i> Download
@@ -83,42 +99,29 @@
               </a>
             </div>
           </div>
+          {% endcomment %}
         {% endif %}
       </div>
-      <div class="p-4 bg-white rounded md:p-11 md:w-1/2 dark:bg-charcoal">
+      <div class="p-4 bg-white rounded lg:p-11 lg:w-1/2 dark:bg-charcoal">
         <div class="mb-6">
           <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">featured video</span>
         </div>
-        <img src="{% static 'img/fpo/video_fpo.png' %}" alt="user" class="mb-2" />
+        <div
+        class="relative h-0 overflow-hidden max-w-full w-full"
+      style="padding-bottom: 56.25%"
+     >
+      <iframe
+             src="https://www.youtube.com/embed/CP_U4sb75cM"
+              frameborder="0"
+              allowfullscreen
+              class="absolute top-0 left-0 w-full h-full"
+          ></iframe>
+    </div>
         <div class="text-lg">Name of Video</div>
       </div>
     </div>
 
-    <div class="hidden py-5 px-4 my-4 bg-white rounded md:block md:px-11 md:my-16 dark:bg-charcoal">
-      <div class="flex justify-between items-center mb-6">
-        <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">Recent reviews</span>
-        <span class="inline px-2 w-auto text-xs uppercase md:text-base text-orange"><a href="{% url 'review-upcoming' %}">See All ></a></span>
-      </div>
-      <div class="py-11 divide-gray-200 md:flex md:space-x-6 md:divide-x-2 dark:divide-slate">
-        <div class="pr-2 md:pl-6">
-          <h3 class="pb-3 text-2xl">Library Name Here</h3>
-          <p class="py-5 text-lg">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
-          <div class="mt-3"><span class="mr-5">Authors</span> <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /></div>
-        </div>
-        <div class="pr-2 md:pl-6">
-          <h3 class="pb-3 text-2xl">Library Name Here</h3>
-          <p class="py-5 text-lg">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
-          <div class="mt-3"><span class="mr-5">Authors</span> <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /></div>
-        </div>
-        <div class="pr-2 md:pl-6">
-          <h3 class="pb-3 text-2xl">Library Name Here</h3>
-          <p class="py-5 text-lg">About the library.. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Donec id elit non mi porta gravida at eget metus. Donec id elit non mi porta gravida at eget metus. Sed posuere consectetur est at lobortis.</p>
-          <div class="mt-3"><span class="mr-5">Authors</span> <img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline" /></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RECENT NEWS & JOIN CONVERSATION -->
+     <!-- RECENT NEWS & JOIN CONVERSATION -->
     {% if entries %}
       <div class="my-4 md:flex md:my-16 md:space-x-4">
         <div class="py-5 px-4 bg-white rounded md:px-11 md:w-1/2 dark:bg-charcoal">
