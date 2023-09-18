@@ -1606,10 +1606,6 @@ select.dropdown {
   width: 300px;
 }
 
-.w-16 {
-  width: 4rem;
-}
-
 .min-w-\[100px\] {
   min-width: 100px;
 }
@@ -1640,10 +1636,6 @@ select.dropdown {
 
 .table-auto {
   table-layout: auto;
-}
-
-.table-fixed {
-  table-layout: fixed;
 }
 
 .border-separate {
@@ -2014,24 +2006,20 @@ select.dropdown {
   border-bottom-width: 2px;
 }
 
-.border-t-0 {
-  border-top-width: 0px;
+.border-l-2 {
+  border-left-width: 2px;
 }
 
 .border-r-0 {
   border-right-width: 0px;
 }
 
-.border-l-0 {
-  border-left-width: 0px;
-}
-
-.border-l-2 {
-  border-left-width: 2px;
-}
-
 .border-b-0 {
   border-bottom-width: 0px;
+}
+
+.border-l-0 {
+  border-left-width: 0px;
 }
 
 .border-dotted {
@@ -3358,10 +3346,6 @@ select.dropdown {
     border-bottom-width: 1px;
   }
 
-  .md\:border-b-0 {
-    border-bottom-width: 0px;
-  }
-
   .md\:border-t-0 {
     border-top-width: 0px;
   }
@@ -3372,6 +3356,10 @@ select.dropdown {
 
   .md\:border-l-0 {
     border-left-width: 0px;
+  }
+
+  .md\:border-b-0 {
+    border-bottom-width: 0px;
   }
 
   .md\:border-orange {
