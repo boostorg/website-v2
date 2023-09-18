@@ -1,17 +1,15 @@
-<tr>
-  <td class="py-1 align-top">
-    <a class="mr-1 font-bold capitalize link-header"
+<tr class="border-0 md:border border-gray-200/10 border-dotted md:border-t-0 md:border-r-0 md:border-l-0 md:border-b-1">
+  <td class="py-2 align-top md:w-1/5">
+    <a class="mr-1 font-bold capitalize text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
        href="{% url 'library-detail' slug=library.slug %}">{{ library.name }}</a>
   </td>
-  <td class="py-1 align-top">
-    {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}
+  <td class="py-2 align-top w-12">
     <span class="py-0 px-2 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40"
-          title="{% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}CPP Version {{ library.cpp_standard_minimum }} or Later{% else %}No Minimum CPP Required{% endif %}">
-      {{ library.cpp_standard_minimum }}+
+          title="{% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}CPP Version {{ library.cpp_standard_minimum }} or Later{% else %}CPP Version 03 or Later{% endif %}">
+          {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}{{ library.cpp_standard_minimum }}{% else %}03{% endif %}+
     </span>
-    {% endif %}
   </td>
-  <td class="hidden md:block pl-3">{{ library.description }}</td>
+  <td class="hidden md:block py-2 pl-3 align-top">{{ library.description }}</td>
 </tr>
 <tr class="block md:hidden">
   <td>{{ library.description }}</td>
