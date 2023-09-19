@@ -107,7 +107,6 @@ class LibraryListByCategory(LibraryList):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["by_category"] = True
         context["library_list"] = self.get_results_by_category()
         return context
 
@@ -122,12 +121,6 @@ class LibraryListByCategory(LibraryList):
                 }
             )
         return results_by_category
-
-
-class LibraryListByCategoryMini(LibraryListByCategory):
-    """Flat list version of LibraryListByCategory"""
-
-    template_name = "libraries/list.html"
 
 
 class LibraryDetail(FormMixin, DetailView):

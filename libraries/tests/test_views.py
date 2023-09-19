@@ -101,13 +101,6 @@ def test_library_list_by_category(
     assert "libraries" in res.context["library_list"][0]
 
 
-def test_library_list_by_category_mini(library_version, category, tp):
-    """GET /libraries/by-category/mini/"""
-    test_library_list_by_category(
-        library_version, category, tp, url="libraries-by-category-mini"
-    )
-
-
 def test_library_detail(library_version, tp):
     """GET /libraries/{slug}/"""
     library = library_version.library
