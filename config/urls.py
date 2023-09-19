@@ -25,7 +25,6 @@ from libraries.views import (
     LibraryDetail,
     LibraryList,
     LibraryListByCategory,
-    LibraryListByCategoryMini,
     LibraryListMini,
 )
 from mailing_list.views import MailingListDetailView, MailingListView
@@ -103,11 +102,6 @@ urlpatterns = (
             "donate/",
             TemplateView.as_view(template_name="donate/donate.html"),
             name="donate",
-        ),
-        path(
-            "libraries/by-category/mini/",
-            LibraryListByCategoryMini.as_view(),
-            name="libraries-by-category-mini",
         ),
         path(
             "libraries/by-category/",
