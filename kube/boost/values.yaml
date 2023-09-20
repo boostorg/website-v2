@@ -158,6 +158,8 @@ NginxVolumeMounts:
   - name: run
     mountPath: /run
 
+hostAliases: {}
+
 ingressType: nginx
 redisInstall: false
 celeryInstall: false
