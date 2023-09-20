@@ -20,6 +20,10 @@ spec:
         env: {{.Values.deploymentEnvironment}}
         imageTag: {{.Values.ImageTag}}
     spec:
+{{- if .Values.hostAliases }}
+      hostAliases:
+{{ toYaml .Values.hostAliases | indent 8 }}
+{{- end }}
       imagePullSecrets:
         - name: revsys-docker-registry
       containers:
@@ -61,6 +65,10 @@ spec:
         env: {{.Values.deploymentEnvironment}}
         imageTag: {{.Values.ImageTag}}
     spec:
+{{- if .Values.hostAliases }}
+      hostAliases:
+{{ toYaml .Values.hostAliases | indent 8 }}
+{{- end }}
       imagePullSecrets:
         - name: revsys-docker-registry
       containers:

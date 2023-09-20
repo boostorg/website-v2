@@ -19,6 +19,10 @@ spec:
         imageTag: {{.Values.ImageTag}}
 {{- include "InitAnnotation" . | indent 8 }}
     spec:
+{{- if .Values.hostAliases }}
+      hostAliases:
+{{ toYaml .Values.hostAliases | indent 8 }}
+{{- end }}
 {{- include "InitSpec" . | indent 6 }}
       {{ if .Values.tolerations -}}
       tolerations:
