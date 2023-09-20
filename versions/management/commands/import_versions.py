@@ -19,10 +19,12 @@ BASE_GITHUB_URL = "https://github.com/boostorg/boost/releases/tag/"
 @click.command()
 @click.option("--verbose", is_flag=True, help="Enable verbose output.")
 @click.option("--delete-versions", is_flag=True, help="Delete all existing versions")
+@click.option("--new", is_flag=True, help="Only import new versions")
 @click.option("--token", is_flag=False, help="Github API token")
 def command(
     verbose,
     delete_versions,
+    new,
     token,
 ):
     """Imports Boost release information from Github and updates the local database.
@@ -50,11 +52,12 @@ def command(
 
     for tag in tags:
         name = tag["name"]
+
+        if skip_tag(name, new):
+            continue
+
         if verbose:
             click.secho(f"Importing {name}...", fg="yellow")
-
-        if skip_tag(name):
-            continue
 
         # Save the Version object
         version, _ = Version.objects.update_or_create(
@@ -87,8 +90,12 @@ def add_release_downloads(version):
     call_command("import_artifactory_release_data", release=version_num)
 
 
-def skip_tag(name):
+def skip_tag(name, new=False):
     """Returns True if the given tag should be skipped."""
+    # If we are only importing new versions, and we already have this one, skip
+    if new and Version.objects.filter(name=name).exists():
+        return True
+
     # If this version falls in our exclusion list, skip it
     if any(pattern in name.lower() for pattern in EXCLUSIONS):
         return True
