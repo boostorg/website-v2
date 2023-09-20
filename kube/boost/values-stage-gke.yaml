@@ -168,9 +168,14 @@ NginxVolumeMounts:
   - name: run
     mountPath: /run
 
+hostAliases:
+  - ip: "10.67.224.11"
+    hostnames:
+      - "redis"
+
 ingressType: gce
 managedCertName: managed-cert-boost-stage
 secretCertName: boostorgcert
 ingressStaticIp: boost-stage-ingress1
-redisInstall: true
+redisInstall: false
 celeryInstall: true
