@@ -183,6 +183,6 @@ jobs:
           set -xe
           TAG=${{ env.SHORT_SHA }}
           cd kube/boost
-          helm upgrade --install --create-namespace -n ${{ env.K8S_NAMESPACE }} -f values-${{ env.K8S_NAMESPACE }}-gke.yaml --timeout=3600s --set=Image=${DOCKER_IMAGE} --set=ImageTag="${TAG}" ${{ env.HELM_RELEASE_NAME }} .
+          helm upgrade --install --create-namespace -n ${{ env.K8S_NAMESPACE }} -f values-${{ env.K8S_NAMESPACE }}-gke.yaml --timeout=3600s --set=Image=${DOCKER_IMAGE} --set-string ImageTag="${TAG}" ${{ env.HELM_RELEASE_NAME }} .
           kubectl rollout status deployment/$DEPLOYMENT_NAME -n ${{ env.K8S_NAMESPACE }}
           kubectl get services -o wide -n ${{ env.K8S_NAMESPACE }}

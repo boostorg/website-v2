@@ -4,7 +4,7 @@ metadata:
   name: boost
   labels:
     env: {{ .Values.deploymentEnvironment }}
-    image: {{ .Values.ImageTag }}
+    image: "{{ .Values.ImageTag }}"
 spec:
   ports:
     - port: 80
