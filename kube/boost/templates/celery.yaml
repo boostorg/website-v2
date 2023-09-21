@@ -18,7 +18,7 @@ spec:
       labels:
         app: celery-worker
         env: {{.Values.deploymentEnvironment}}
-        imageTag: {{.Values.ImageTag}}
+        imageTag: "{{.Values.ImageTag}}"
     spec:
 {{- if .Values.hostAliases }}
       hostAliases:
@@ -63,7 +63,7 @@ spec:
       labels:
         app: celery-beat
         env: {{.Values.deploymentEnvironment}}
-        imageTag: {{.Values.ImageTag}}
+        imageTag: "{{.Values.ImageTag}}"
     spec:
 {{- if .Values.hostAliases }}
       hostAliases:
