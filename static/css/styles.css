@@ -1125,6 +1125,14 @@ select.dropdown {
   z-index: 10;
 }
 
+.z-20 {
+  z-index: 20;
+}
+
+.z-40 {
+  z-index: 40;
+}
+
 .order-3 {
   order: 3;
 }
@@ -2150,14 +2158,14 @@ select.dropdown {
   background-color: rgb(52 211 153 / var(--tw-bg-opacity));
 }
 
-.bg-charcoal {
-  --tw-bg-opacity: 1;
-  background-color: rgb(23 42 52 / var(--tw-bg-opacity));
-}
-
 .bg-gray-100 {
   --tw-bg-opacity: 1;
   background-color: rgb(243 244 246 / var(--tw-bg-opacity));
+}
+
+.bg-charcoal {
+  --tw-bg-opacity: 1;
+  background-color: rgb(23 42 52 / var(--tw-bg-opacity));
 }
 
 .bg-green\/70 {
@@ -2222,11 +2230,6 @@ select.dropdown {
   padding-right: 1rem;
 }
 
-.px-6 {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-}
-
 .py-0 {
   padding-top: 0px;
   padding-bottom: 0px;
@@ -2270,6 +2273,11 @@ select.dropdown {
 .py-5 {
   padding-top: 1.25rem;
   padding-bottom: 1.25rem;
+}
+
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 .px-12 {
@@ -2891,6 +2899,11 @@ select.dropdown {
   border-color: rgb(23 42 52 / var(--tw-border-opacity));
 }
 
+.dark .dark\:border-gray-700 {
+  --tw-border-opacity: 1;
+  border-color: rgb(55 65 81 / var(--tw-border-opacity));
+}
+
 .dark .dark\:bg-black {
   --tw-bg-opacity: 1;
   background-color: rgb(5 26 38 / var(--tw-bg-opacity));
@@ -3384,6 +3397,11 @@ select.dropdown {
     padding: 0px;
   }
 
+  .md\:px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
   .md\:px-3 {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
@@ -3429,9 +3447,9 @@ select.dropdown {
     padding-bottom: 0.5rem;
   }
 
-  .md\:px-6 {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+  .md\:px-1 {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
   }
 
   .md\:py-0 {
