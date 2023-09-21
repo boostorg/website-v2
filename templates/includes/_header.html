@@ -5,7 +5,7 @@
 <div class="relative z-50 bg-gray-200 md:fixed md:top-0 right-0 left-0 dark:bg-black">
 
   <div class="relative mx-auto">
-    <div class="max-w-7xl px-1 md:px-6 mx-auto">
+    <div class="max-w-7xl md:px-1 md:px-6 mx-auto">
       <div class="hidden items-center py-1 px-2 border-b-2 border-gray-300 md:flex dark:border-charcoal">
         <div class="w-[100px]">
           <a href="{% url 'home' %}">
@@ -197,14 +197,14 @@
                   x-bind:aria-expanded="open.toString()">
             <span class="sr-only">Open main menu</span>
             <svg x-description="Icon when menu is closed." x-state:on="Menu open" x-state:off="Menu closed"
-                 class="block w-6 h-6"
+                 class="block w-6 h-6 text-slate dark:text-white"
                  :class="{ 'hidden': isOpen, 'block': !(isOpen) }" xmlns="http://www.w3.org/2000/svg" fill="none"
                  viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round"
                     d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
             </svg>
             <svg x-description="Icon when menu is open." x-state:on="Menu open" x-state:off="Menu opened"
-                 class="hidden w-6 h-6"
+                 class="hidden w-6 h-6 text-slate dark:text-white"
                  :class="{ 'block': isOpen, 'hidden': !(isOpen) }" xmlns="http://www.w3.org/2000/svg" fill="none"
                  viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
@@ -245,7 +245,7 @@
                   }
               }"
 
-              class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 ring-1 ring-gray-300 shadow-lg origin-top-right dark:ring-gray-500 dark:bg-charcoal"
+              class="absolute right-0 z-50 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 ring-1 ring-gray-300 shadow-lg origin-top-right dark:ring-gray-500 dark:bg-charcoal"
             >
               <a
                 @click="mode='light'; setColorMode('light'); modeOpen = false;"
@@ -267,24 +267,31 @@
             </div>
           </span>
         </div>
-        <div x-show="isOpen" class="absolute inset-x-0 top-10 z-50 h-screen bg-charcoal">
-          <div class="px-2 pt-2 pb-3 text-2xl">
-            <a href="{% url 'news' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">News</a>
+        <div x-show="isOpen" class="absolute inset-x-0 top-10 z-40 h-screen bg-gray-200 dark:bg-charcoal">
+          <div class="px-2 pt-6 pb-3 text-2xl">
+            <a href="{% url 'news' %}" class="block py-2 px-3 text-slate dark:text-white">News</a>
 
-            <a href="{% url 'docs' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Learn</a>
+            <a href="{% url 'docs' %}" class="block py-2 px-3 text-slate dark:text-white">Learn</a>
 
-            <a href="{% url 'community' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Community</a>
+            <a href="{% url 'community' %}" class="block py-2 px-3 text-slate dark:text-white">Community</a>
 
-            <a href="/libraries/" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Libraries</a>
+            <a href="/libraries/" class="block py-2 px-3 text-slate dark:text-white">Libraries</a>
 
-            <a href="{% url 'releases-most-recent' %}" class="block py-2 px-3 text-white dark:hover:text-orange hover:text-orange">Releases</a>
+            <a href="{% url 'releases-most-recent' %}" class="block py-2 px-3 text-slate dark:text-white">Releases</a>
           </div>
-          <div class="absolute left-0 bottom-10 px-2 pt-2 pb-3 text-sm">
-            <a href="{% url 'support' %}" class="block py-2 px-3 text-gray-700 text-thin">Support</a>
-
-            <a href="{% url 'account_signup' %}" class="block py-2 px-3 text-gray-700 text-thin">Sign Up</a>
-
-            <a href="#" class="block py-2 px-3 text-gray-700 text-thin">Log In </a>
+          <div class="absolute left-0 bottom-10 px-2 pt-6 pb-3 text-sm border-t border-gray-300 dark:border-gray-700 w-full">
+            {% if not user.is_authenticated %}
+              <a href="{% url 'account_signup' %}" class="block py-2 px-3 text-gray-500 dark:text-gray-400">Join</a>
+            {% else %}
+              {% if user.image %}
+                <span class="block py-2 px-3">
+                  <img src="{{ user.image.url }}" alt="user" class="inline -mt-1 rounded cursor-pointer w-[30px]" @click="userOpen = !userOpen" />
+                </span>
+              {% endif %}
+              <a href="{% url 'profile-account' %}" class="block py-2 px-3 text-gray-500 dark:text-gray-400">My Profile</a>
+              <a href="{% url 'account_logout' %}" class="block py-2 px-3 text-gray-500 dark:text-gray-400">Log Out</a>
+            {% endif %}
+            <a href="{% url 'support' %}" class="block py-2 px-3 text-gray-500 dark:text-gray-400">Support</a>
           </div>
         </div>
       </div>
