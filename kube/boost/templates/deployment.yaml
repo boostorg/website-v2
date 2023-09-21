@@ -16,7 +16,7 @@ spec:
       labels:
         app: boost
         env: {{.Values.deploymentEnvironment}}
-        imageTag: {{.Values.ImageTag}}
+        imageTag: "{{.Values.ImageTag}}"
 {{- include "InitAnnotation" . | indent 8 }}
     spec:
 {{- if .Values.hostAliases }}
