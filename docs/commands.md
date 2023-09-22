@@ -45,8 +45,8 @@ Imports `Version` objects from GitHub.
 | Options              | Format | Description                                                  |
 |----------------------|--------|--------------------------------------------------------------|
 | `--delete-versions`  | bool   | If passed, will delete all Version objects before importing Versions. |
+| `--new`  | bool   | If passed, will import only new Version objects. |
 | `--token`            | string | GitHub API Token. If passed, will use this value. If not passed, will use the value in settings. |
-| `--verbose` | bool | If passed, will print output. If not passed, will not print any output. |
 
 **Process**
 

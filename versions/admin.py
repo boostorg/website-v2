@@ -1,10 +1,10 @@
 from django.contrib import admin
-from django.core.management import call_command
 
 from django.http import HttpResponseRedirect
 from django.urls import path
 
 from . import models
+from .tasks import import_versions
 
 
 class VersionFileInline(admin.StackedInline):
@@ -33,7 +33,7 @@ class VersionAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def import_new_releases(self, request):
-        call_command("import_versions", "--new")
+        import_versions(new_versions_only=True)
         self.message_user(
             request,
             """
