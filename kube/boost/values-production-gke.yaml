@@ -23,6 +23,7 @@ initCommands:
 
 publicFqdn: &fqdn boost.cppalliance.org
 publicFqdn2: &fqdn2 boost.org
+publicFqdn3: &fqdn3 preview.boost.org
 
 Env:
   - name: DJANGO_SETTINGS_MODULE
@@ -55,9 +56,9 @@ Env:
   - name: DJANGO_FQDN
     value: *fqdn
   - name: ALLOWED_HOSTS
-    value: "boost.cppalliance.org, www.boost.cppalliance.org, boost.org, www.boost.org"
+    value: "boost.cppalliance.org, www.boost.cppalliance.org, boost.org, www.boost.org, preview.boost.org, www.preview.boost.org"
   - name: CSRF_TRUSTED_ORIGINS
-    value: "http://0.0.0.0, http://localhost, https://boost.cppalliance.org, https://www.boost.cppalliance.org, https://boost.org, https://www.boost.org"
+    value: "http://0.0.0.0, http://localhost, https://boost.cppalliance.org, https://www.boost.cppalliance.org, https://boost.org, https://www.boost.org, https://preview.boost.org, https://www.preview.boost.org"
 
   # silence django deprecation warnings
   - name: PYTHONWARNINGS
@@ -174,7 +175,7 @@ hostAliases:
       - "redis"
 
 ingressType: gce
-managedCertName: managed-cert-boost-production
+managedCertName: managed-cert-boost-production,managed-cert-boost-production2
 secretCertName: boostorgcert
 ingressStaticIp: boost-production-ingress1
 redisInstall: false

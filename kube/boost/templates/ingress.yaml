@@ -23,7 +23,7 @@ spec:
       secretName: www.{{.Values.publicFqdn}}-tls
   rules:
     - host: www.{{.Values.publicFqdn}}
-      http:
+      http: &http_rules
         paths:
           - path: /
             pathType: Prefix
@@ -33,35 +33,15 @@ spec:
                 port:
                   number: 80
     - host: {{ .Values.publicFqdn }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: boost
-                port:
-                  number: 80
+      http: *http_rules
     - host: www.{{.Values.publicFqdn2 }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: boost
-                port:
-                  number: 80
+      http: *http_rules
     - host: {{ .Values.publicFqdn2 }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: boost
-                port:
-                  number: 80
+      http: *http_rules
+    - host: www.{{.Values.publicFqdn3 }}
+      http: *http_rules
+    - host: {{ .Values.publicFqdn3 }}
+      http: *http_rules
 
 {{- else if eq .Values.ingressType "gce" }}
 
@@ -87,7 +67,7 @@ spec:
     - secretName: {{ .Values.secretCertName }}
   rules:
     - host: www.{{.Values.publicFqdn}}
-      http:
+      http: &http_rules_gcp
         paths:
           - path: /
             pathType: Prefix
@@ -97,35 +77,15 @@ spec:
                 port:
                   number: 80
     - host: {{ .Values.publicFqdn }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: boost
-                port:
-                  number: 80
+      http: *http_rules_gcp
     - host: www.{{.Values.publicFqdn2 }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: boost
-                port:
-                  number: 80
+      http: *http_rules_gcp
     - host: {{ .Values.publicFqdn2 }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: boost
-                port:
-                  number: 80
+      http: *http_rules_gcp
+    - host: www.{{.Values.publicFqdn3 }}
+      http: *http_rules_gcp
+    - host: {{ .Values.publicFqdn3 }}
+      http: *http_rules_gcp
 ---
 apiVersion: networking.gke.io/v1beta1
 kind: FrontendConfig
