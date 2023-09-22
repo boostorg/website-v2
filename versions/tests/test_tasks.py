@@ -1,6 +1,6 @@
 from datetime import datetime
 from unittest.mock import MagicMock, patch
-from versions.tasks import get_release_date_for_version
+from versions.tasks import get_release_date_for_version, skip_tag
 
 import pytest
 
@@ -31,3 +31,20 @@ def test_get_release_date_for_version(version):
 
     version.refresh_from_db()
     assert version.release_date == expected
+
+
+def test_skip_tag(version):
+    # Assert that existing tag names are skipped if new is True
+    assert skip_tag(version.name, True) is True
+
+    # Assert that existing tag names are not skipped if new is False
+    assert skip_tag(version.name, False) is False
+
+    # Assert that if it's on the exclusion list, it's skipped
+    assert skip_tag("boost-beta-1.0") is True
+
+    # Assert that if the version is lower that the min, it's skipped
+    assert skip_tag("boost-0.9.0") is True
+
+    # Assert a random tag name is not skipped
+    assert skip_tag("sample") is False
