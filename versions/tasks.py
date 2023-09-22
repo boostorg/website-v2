@@ -93,6 +93,16 @@ def import_versions(delete_versions=False, new_versions_only=False, token=None):
         # Load release downloads
         import_release_downloads.delay(version.pk)
 
+        # Load library-versions
+        version_num = version.name.replace("boost-", "")
+        import_library_versions.delay(version_num)
+
+
+@app.task
+def import_library_versions(version_num):
+    """version_num should be in the format N.NN.N, as in 1.83.0"""
+    call_command("import_library_versions", "--release", version_num)
+
 
 @app.task
 def import_release_downloads(version_pk):
