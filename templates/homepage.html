@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block content %}
-  <!-- Homepage Hero Section -->
+  {# homepage hero #}
   <main class="px-4 my-16 mx-auto sm:mt-24">
     <div class="md:flex mb-16">
       <div class="order-1 mt-6 w-full text-center md:order-2 md:mt-3 md:w-1/2">
@@ -58,6 +58,63 @@
       </div>
     </div>
 
+    <div class="px-4 my-4 pt-8 mx-auto">
+      <div class="bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md">
+        <div class="p-5 w-full">
+          <div class="my-6 ml-6">
+            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-emerald-700 bg-emerald-200 dark:bg-opacity-10">schedule of events</span>
+          </div>
+        </div>
+        <div class="flex flex-col justify-center items-center pb-4 h-full">
+          <div class="relative mx-auto w-4/5"
+               x-data="{ activeSlide: 1, slides: [1, 2, 3] }">
+            <!-- Slides -->
+            <div x-show="activeSlide === 1"
+                 class="flex items-center py-0 px-12 h-full text-5xl font-bold rounded-lg">
+              <div class="w-full">
+                <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">September 2023</h3>
+                <span class="pb-1 mx-auto w-full text-sm align-left">
+                  29th: SAM review
+                  <br />
+                </span>
+              </div>
+            </div>
+            <div x-show="activeSlide === 2"
+                 class="flex items-center py-0 px-12 h-full text-5xl font-bold rounded-lg">
+              <div class="w-full">
+                <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">October 2023</h3>
+                <span class="pb-1 mx-auto w-full text-sm align-left">
+                  29th: SAM review
+                  <br />
+                </span>
+              </div>
+            </div>
+            <div x-show="activeSlide === 3"
+                 class="flex items-center py-0 px-12 h-full text-5xl font-bold rounded-lg">
+              <div class="w-full">
+                <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">November 2023</h3>
+                <span class="pb-1 mx-auto w-full text-sm align-left">
+                  29th: SAM review
+                  <br />
+                </span>
+              </div>
+            </div>
+            <!-- Prev/Next Arrows -->
+            <div class="flex absolute inset-0">
+              <div class="flex justify-start items-center w-1/2">
+                <button class="-ml-6 w-12 h-12 font-bold text-white bg-gray-400 rounded-full"
+                        x-on:click="activeSlide = activeSlide === 1 ? slides.length : activeSlide - 1">&#8592;</button>
+              </div>
+              <div class="flex justify-end items-center w-1/2">
+                <button class="-mr-6 w-12 h-12 font-bold text-white bg-gray-400 rounded-full"
+                        x-on:click="activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1">&#8594;</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="my-4 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
       <div class="p-4 relative bg-white rounded lg:p-11 lg:w-1/2 dark:bg-charcoal min-h-[500px]">
         {% if featured_library %}
@@ -102,69 +159,44 @@
           {% endcomment %}
         {% endif %}
       </div>
-      <div class="p-4 bg-white rounded lg:p-11 lg:w-1/2 dark:bg-charcoal">
+      <div class="p-4 relative bg-white rounded lg:p-11 lg:w-1/2 dark:bg-charcoal min-h-[500px]">
+        <div class="mb-6">
+          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">recent news</span>
+        </div>
+        <div class="absolute top-1 right-8 p-2 group">
+          <a href="{% url 'news' %}"
+            class="text-sm font-medium md:text-base lg:text-base text-slate dark:text-sky-600">
+            All News&nbsp;<i class="fas fa-chevron-right text-slate dark:text-sky-600"></i>
+          </a>
+        </div>
+        <div class="space-y-8 divide-y divide-gray-200 dark:divide-slate">
+          {% for entry in entries %}
+            <div class="pt-6">
+              <h3 class="mb-2 text-xl">{{ entry.title }}</h3>
+              <p class="mb-3">{{ entry.publish_at|date:"m/d/Y" }}</p>
+              <p class="mb-3">{{ entry.content|truncatewords:20 }}... <a href="{% url 'news-detail' slug=entry.slug %}" class="text-orange">Read&nbsp;More</a></p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+    <div class="my-4 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
+      <div class="p-4 bg-white rounded lg:p-11 w-full dark:bg-charcoal">
         <div class="mb-6">
           <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">featured video</span>
         </div>
-        <div
-        class="relative h-0 overflow-hidden max-w-full w-full"
-      style="padding-bottom: 56.25%"
-     >
-      <iframe
-             src="https://www.youtube.com/embed/CP_U4sb75cM"
-              frameborder="0"
-              allowfullscreen
-              class="absolute top-0 left-0 w-full h-full"
-          ></iframe>
-    </div>
-        <div class="text-lg">Name of Video</div>
+        <div class="relative h-0 overflow-hidden max-w-full w-full" style="padding-bottom: 56.25%">
+          <iframe
+            src="https://www.youtube.com/embed/CP_U4sb75cM"
+            frameborder="0"
+            allowfullscreen
+            class="absolute top-0 left-0 w-full h-full"></iframe>
+        </div>
       </div>
     </div>
 
-     <!-- RECENT NEWS & JOIN CONVERSATION -->
-    {% if entries %}
-      <div class="my-4 md:flex md:my-16 md:space-x-4">
-        <div class="py-5 px-4 bg-white rounded md:px-11 md:w-1/2 dark:bg-charcoal">
-          <div class="flex justify-between items-center mb-6">
-            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">recent news</span>
-            <span class="inline w-auto text-xs uppercase md:text-base text-orange"><a href="{% url 'news' %}">See All ></a></span>
-          </div>
-          <div class="space-y-8 divide-y divide-gray-200 dark:divide-slate">
-            {% for entry in entries %}
-              <div class="pt-6">
-                <h3 class="mb-2 text-xl">{{ entry.title }}</h3>
-                <p class="mb-3">{{ entry.publish_at|date:"m/d/Y" }}</p>
-                <p class="mb-3">{{ entry.content|truncatewords:20 }}... <a href="{% url 'news-detail' slug=entry.slug %}" class="text-orange">Read&nbsp;More</a></p>
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-        <div class="py-5 px-4 my-4 bg-white rounded md:px-11 md:my-0 md:w-1/2 dark:bg-charcoal">
-          <div class="flex justify-between items-center mb-6">
-            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">Join the conversation</span>
-            <span class="inline w-auto text-xs uppercase md:text-base text-orange"></span>
-          </div>
-          <div class="space-y-8 divide-y divide-gray-200 dark:divide-slate">
-            <div class="pt-6">
-              <h3 class="text-xl">Topic of discussion headline from the Forum</h3>
-              <div class="mt-3"><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-3" /> Name of Author</div>
-            </div>
-            <div class="pt-6">
-              <h3 class="text-xl">Topic of discussion headline from the Forum</h3>
-              <div class="mt-3"><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-3" /> Name of Author</div>
-            </div>
-            <div class="pt-6">
-              <h3 class="text-xl">Topic of discussion headline from the Forum</h3>
-              <div class="mt-3"><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-3" /> Name of Author</div>
-            </div>
-            <div class="pt-6">
-              <h3 class="text-xl">Topic of discussion headline from the Forum</h3>
-              <div class="mt-3"><img src="{% static 'img/fpo/user.png' %}" alt="user" class="inline mr-3" /> Name of Author</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endif %}
     <!-- END RECENT NEWS & JOIN CONVERSATION -->
 
     <!-- BOOST LIBRARIES LOGOS AND TESTIMONIALS -->
