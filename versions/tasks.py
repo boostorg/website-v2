@@ -1,3 +1,4 @@
+import requests
 import structlog
 
 from config.celery import app
@@ -5,6 +6,9 @@ from django.conf import settings
 from django.core.management import call_command
 from fastcore.xtras import obj2dict
 from core.githubhelper import GithubAPIClient, GithubDataParser
+from libraries.github import LibraryUpdater
+from libraries.models import Library, LibraryVersion
+from libraries.tasks import get_and_store_library_version_documentation_urls_for_version
 from versions.models import Version
 
 
@@ -94,14 +98,104 @@ def import_versions(delete_versions=False, new_versions_only=False, token=None):
         import_release_downloads.delay(version.pk)
 
         # Load library-versions
-        version_num = version.name.replace("boost-", "")
-        import_library_versions.delay(version_num)
+        import_library_versions.delay(version.name, token=token)
 
 
 @app.task
-def import_library_versions(version_num):
-    """version_num should be in the format N.NN.N, as in 1.83.0"""
-    call_command("import_library_versions", "--release", version_num)
+def import_library_versions(version_name, token=None):
+    """For a specific version, imports all LibraryVersions using GitHub data"""
+    try:
+        version = Version.objects.get(name=version_name)
+    except Version.DoesNotExist:
+        logger.info(
+            "import_library_versions_version_not_found", version_name=version_name
+        )
+
+    client = GithubAPIClient(token=token)
+    updater = LibraryUpdater(client=client)
+    parser = GithubDataParser()
+
+    # Get the gitmodules file for the version, which contains library data
+    ref = client.get_ref(ref=f"tags/{version_name}")
+    raw_gitmodules = client.get_gitmodules(ref=ref)
+    if not raw_gitmodules:
+        logger.info(
+            "import_library_versions_invalid_gitmodules", version_name=version_name
+        )
+        return
+
+    gitmodules = parser.parse_gitmodules(raw_gitmodules.decode("utf-8"))
+
+    # For each gitmodule, gets its libraries.json file and save the libraries
+    # to the version
+    for gitmodule in gitmodules:
+        library_name = gitmodule["module"]
+        if library_name in updater.skip_modules:
+            continue
+
+        try:
+            libraries_json = client.get_libraries_json(
+                repo_slug=library_name, tag=version_name
+            )
+        except (
+            requests.exceptions.JSONDecodeError,
+            requests.exceptions.HTTPError,
+            Exception,
+        ):
+            # Can happen with older releases
+            library_version = save_library_version_by_library_key(
+                library_name, version, gitmodule
+            )
+            if library_version:
+                logger.info(
+                    "import_library_versions_by_library_key",
+                    version_name=version_name,
+                    library_name=library_name,
+                )
+            else:
+                logger.info(
+                    "import_library_versions_skipped_library",
+                    version_name=version_name,
+                    library_name=library_name,
+                )
+            continue
+
+        if not libraries_json:
+            # Can happen with older releases -- we try to catch all exceptions
+            # so this is just in case
+            logger.info(
+                "import_library_versions_skipped_library",
+                version_name=version_name,
+                library_name=library_name,
+            )
+            continue
+
+        libraries = (
+            libraries_json if isinstance(libraries_json, list) else [libraries_json]
+        )
+        parsed_libraries = [parser.parse_libraries_json(lib) for lib in libraries]
+        for lib_data in parsed_libraries:
+            library, created = Library.objects.get_or_create(
+                key=lib_data["key"],
+                defaults={
+                    "name": lib_data.get("name"),
+                    "description": lib_data.get("description"),
+                    "cpp_standard_minimum": lib_data.get("cxxstd"),
+                    "data": lib_data,
+                },
+            )
+            library_version, _ = LibraryVersion.objects.update_or_create(
+                version=version, library=library, defaults={"data": lib_data}
+            )
+            if not library.github_url:
+                pass
+            #     # todo: handle this. Need a github_url for these.
+
+    # Retrieve and store the docs url for each library-version in this release
+    get_and_store_library_version_documentation_urls_for_version.delay(version.pk)
+
+    # Load maintainers for library-versions
+    call_command("update_maintainers", "--release", version.name)
 
 
 @app.task
@@ -158,3 +252,18 @@ def get_release_date_for_version(version_pk, commit_sha, token=None):
         logger.info("get_release_date_for_version_success", version_pk=version_pk)
     else:
         logger.error("get_release_date_for_version_error", version_pk=version_pk)
+
+
+# Helper functions
+
+
+def save_library_version_by_library_key(library_key, version, gitmodule={}):
+    """Saves a LibraryVersion instance by library key and version."""
+    try:
+        library = Library.objects.get(key=library_key)
+        library_version, _ = LibraryVersion.objects.update_or_create(
+            version=version, library=library, defaults={"data": gitmodule}
+        )
+        return library_version
+    except Library.DoesNotExist:
+        return

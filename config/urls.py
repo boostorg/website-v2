@@ -54,7 +54,7 @@ from users.views import (
     ProfileView,
     UserViewSet,
 )
-from versions.api import VersionViewSet
+from versions.api import ImportVersionsView, VersionViewSet
 from versions.views import VersionCurrentReleaseDetail, VersionDetail
 
 router = routers.SimpleRouter()
@@ -73,6 +73,11 @@ urlpatterns = (
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
         path("users/<int:pk>/", ProfileView.as_view(), name="profile-user"),
         path("api/v1/users/me/", CurrentUserAPIView.as_view(), name="current-user"),
+        path(
+            "api/v1/import-versions/",
+            ImportVersionsView.as_view(),
+            name="import-versions",
+        ),
         path("api/v1/", include(router.urls)),
         path("200", OKView.as_view(), name="ok"),
         path("403", ForbiddenView.as_view(), name="forbidden"),
