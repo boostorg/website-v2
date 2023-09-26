@@ -2357,6 +2357,10 @@ select.dropdown {
   padding-top: 0.5rem;
 }
 
+.pt-6 {
+  padding-top: 1.5rem;
+}
+
 .pl-8 {
   padding-left: 2rem;
 }
@@ -2381,6 +2385,10 @@ select.dropdown {
   padding-top: 2rem;
 }
 
+.pb-10 {
+  padding-bottom: 2.5rem;
+}
+
 .pb-4 {
   padding-bottom: 1rem;
 }
@@ -2389,8 +2397,8 @@ select.dropdown {
   padding-bottom: 0.5rem;
 }
 
-.pt-6 {
-  padding-top: 1.5rem;
+.pt-1 {
+  padding-top: 0.25rem;
 }
 
 .pr-8 {
@@ -2425,10 +2433,6 @@ select.dropdown {
   padding-bottom: 0.75rem;
 }
 
-.pt-1 {
-  padding-top: 0.25rem;
-}
-
 .pl-6 {
   padding-left: 1.5rem;
 }
@@ -2441,6 +2445,10 @@ select.dropdown {
   padding-right: 2.75rem;
 }
 
+.pt-\[1px\] {
+  padding-top: 1px;
+}
+
 .pb-6 {
   padding-bottom: 1.5rem;
 }
@@ -2451,14 +2459,6 @@ select.dropdown {
 
 .pl-0 {
   padding-left: 0px;
-}
-
-.pb-8 {
-  padding-bottom: 2rem;
-}
-
-.pb-10 {
-  padding-bottom: 2.5rem;
 }
 
 .text-left {
@@ -2546,12 +2546,12 @@ select.dropdown {
   font-weight: 500;
 }
 
-.font-semibold {
-  font-weight: 600;
-}
-
 .font-light {
   font-weight: 300;
+}
+
+.font-semibold {
+  font-weight: 600;
 }
 
 .uppercase {
@@ -3168,16 +3168,16 @@ select.dropdown {
     margin-bottom: 0.5rem;
   }
 
-  .md\:mt-3 {
-    margin-top: 0.75rem;
-  }
-
   .md\:mt-5 {
     margin-top: 1.25rem;
   }
 
   .md\:mb-11 {
     margin-bottom: 2.75rem;
+  }
+
+  .md\:mt-3 {
+    margin-top: 0.75rem;
   }
 
   .md\:mt-8 {
@@ -3306,10 +3306,6 @@ select.dropdown {
 
   .md\:justify-start {
     justify-content: flex-start;
-  }
-
-  .md\:justify-between {
-    justify-content: space-between;
   }
 
   .md\:gap-x-10 {
