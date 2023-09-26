@@ -1216,14 +1216,14 @@ select.dropdown {
   margin-bottom: 1rem;
 }
 
-.my-3 {
-  margin-top: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
 .my-6 {
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
+}
+
+.my-3 {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
 .my-11 {
@@ -1293,24 +1293,20 @@ select.dropdown {
   margin-right: 4rem;
 }
 
-.mb-6 {
-  margin-bottom: 1.5rem;
-}
-
-.mr-5 {
-  margin-right: 1.25rem;
-}
-
-.mr-3 {
-  margin-right: 0.75rem;
-}
-
 .-ml-6 {
   margin-left: -1.5rem;
 }
 
 .-mr-6 {
   margin-right: -1.5rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.mr-5 {
+  margin-right: 1.25rem;
 }
 
 .mt-0 {
@@ -1365,6 +1361,10 @@ select.dropdown {
   margin-bottom: 1.25rem;
 }
 
+.mr-3 {
+  margin-right: 0.75rem;
+}
+
 .-ml-4 {
   margin-left: -1rem;
 }
@@ -1387,10 +1387,6 @@ select.dropdown {
 
 .ml-4 {
   margin-left: 1rem;
-}
-
-.mt-8 {
-  margin-top: 2rem;
 }
 
 .block {
@@ -1441,20 +1437,20 @@ select.dropdown {
   height: 0.75rem;
 }
 
-.h-0 {
-  height: 0px;
-}
-
 .h-full {
   height: 100%;
 }
 
-.h-7 {
-  height: 1.75rem;
-}
-
 .h-12 {
   height: 3rem;
+}
+
+.h-0 {
+  height: 0px;
+}
+
+.h-7 {
+  height: 1.75rem;
 }
 
 .h-10 {
@@ -1493,12 +1489,12 @@ select.dropdown {
   max-height: 24rem;
 }
 
-.min-h-\[500px\] {
-  min-height: 500px;
-}
-
 .min-h-full {
   min-height: 100%;
+}
+
+.min-h-\[500px\] {
+  min-height: 500px;
 }
 
 .w-full {
@@ -1521,6 +1517,14 @@ select.dropdown {
   width: 66.666667%;
 }
 
+.w-4\/5 {
+  width: 80%;
+}
+
+.w-12 {
+  width: 3rem;
+}
+
 .w-48 {
   width: 12rem;
 }
@@ -1532,14 +1536,6 @@ select.dropdown {
 
 .w-8 {
   width: 2rem;
-}
-
-.w-4\/5 {
-  width: 80%;
-}
-
-.w-12 {
-  width: 3rem;
 }
 
 .w-10 {
@@ -1618,12 +1614,12 @@ select.dropdown {
   width: 300px;
 }
 
-.min-w-\[100px\] {
-  min-width: 100px;
-}
-
 .min-w-full {
   min-width: 100%;
+}
+
+.min-w-\[100px\] {
+  min-width: 100px;
 }
 
 .max-w-7xl {
@@ -2127,15 +2123,6 @@ select.dropdown {
   background-color: rgb(255 159 0 / var(--tw-bg-opacity));
 }
 
-.bg-green\/10 {
-  background-color: rgb(90 213 153 / 0.1);
-}
-
-.bg-gray-300 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(209 213 219 / var(--tw-bg-opacity));
-}
-
 .bg-gray-400 {
   --tw-bg-opacity: 1;
   background-color: rgb(156 163 175 / var(--tw-bg-opacity));
@@ -2144,6 +2131,15 @@ select.dropdown {
 .bg-emerald-200 {
   --tw-bg-opacity: 1;
   background-color: rgb(167 243 208 / var(--tw-bg-opacity));
+}
+
+.bg-green\/10 {
+  background-color: rgb(90 213 153 / 0.1);
+}
+
+.bg-gray-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(209 213 219 / var(--tw-bg-opacity));
 }
 
 .bg-sky-200 {
@@ -2197,19 +2193,14 @@ select.dropdown {
      object-fit: cover;
 }
 
-.object-bottom {
-  -o-object-position: bottom;
-     object-position: bottom;
-}
-
-.object-top {
-  -o-object-position: top;
-     object-position: top;
-}
-
 .object-center {
   -o-object-position: center;
      object-position: center;
+}
+
+.object-bottom {
+  -o-object-position: bottom;
+     object-position: bottom;
 }
 
 .p-6 {
@@ -2224,12 +2215,12 @@ select.dropdown {
   padding: 1rem;
 }
 
-.p-2 {
-  padding: 0.5rem;
-}
-
 .p-5 {
   padding: 1.25rem;
+}
+
+.p-2 {
+  padding: 0.5rem;
 }
 
 .p-10 {
@@ -2293,19 +2284,14 @@ select.dropdown {
   padding-bottom: 1rem;
 }
 
-.py-5 {
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
+.px-12 {
+  padding-left: 3rem;
+  padding-right: 3rem;
 }
 
 .px-6 {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
-}
-
-.px-12 {
-  padding-left: 3rem;
-  padding-right: 3rem;
 }
 
 .py-6 {
@@ -2326,6 +2312,11 @@ select.dropdown {
 .py-16 {
   padding-top: 4rem;
   padding-bottom: 4rem;
+}
+
+.py-5 {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
 }
 
 .py-2 {
@@ -2390,12 +2381,12 @@ select.dropdown {
   padding-top: 2rem;
 }
 
-.pb-2 {
-  padding-bottom: 0.5rem;
-}
-
 .pb-4 {
   padding-bottom: 1rem;
+}
+
+.pb-2 {
+  padding-bottom: 0.5rem;
 }
 
 .pt-6 {
@@ -2460,6 +2451,14 @@ select.dropdown {
 
 .pl-0 {
   padding-left: 0px;
+}
+
+.pb-8 {
+  padding-bottom: 2rem;
+}
+
+.pb-10 {
+  padding-bottom: 2.5rem;
 }
 
 .text-left {
@@ -2599,6 +2598,11 @@ select.dropdown {
   color: rgb(2 132 199 / var(--tw-text-opacity));
 }
 
+.text-emerald-700 {
+  --tw-text-opacity: 1;
+  color: rgb(4 120 87 / var(--tw-text-opacity));
+}
+
 .text-green {
   --tw-text-opacity: 1;
   color: rgb(90 213 153 / var(--tw-text-opacity));
@@ -2607,11 +2611,6 @@ select.dropdown {
 .text-black {
   --tw-text-opacity: 1;
   color: rgb(5 26 38 / var(--tw-text-opacity));
-}
-
-.text-emerald-700 {
-  --tw-text-opacity: 1;
-  color: rgb(4 120 87 / var(--tw-text-opacity));
 }
 
 .text-gray-600 {
@@ -3092,6 +3091,12 @@ select.dropdown {
     grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
+  .sm\:space-x-3 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 0;
+    margin-right: calc(0.75rem * var(--tw-space-x-reverse));
+    margin-left: calc(0.75rem * calc(1 - var(--tw-space-x-reverse)));
+  }
+
   .sm\:space-y-0 > :not([hidden]) ~ :not([hidden]) {
     --tw-space-y-reverse: 0;
     margin-top: calc(0px * calc(1 - var(--tw-space-y-reverse)));
@@ -3102,12 +3107,6 @@ select.dropdown {
     --tw-space-y-reverse: 0;
     margin-top: calc(2.75rem * calc(1 - var(--tw-space-y-reverse)));
     margin-bottom: calc(2.75rem * var(--tw-space-y-reverse));
-  }
-
-  .sm\:space-x-3 > :not([hidden]) ~ :not([hidden]) {
-    --tw-space-x-reverse: 0;
-    margin-right: calc(0.75rem * var(--tw-space-x-reverse));
-    margin-left: calc(0.75rem * calc(1 - var(--tw-space-x-reverse)));
   }
 
   .sm\:px-14 {
@@ -3141,16 +3140,6 @@ select.dropdown {
     float: left;
   }
 
-  .md\:my-16 {
-    margin-top: 4rem;
-    margin-bottom: 4rem;
-  }
-
-  .md\:my-0 {
-    margin-top: 0px;
-    margin-bottom: 0px;
-  }
-
   .md\:my-5 {
     margin-top: 1.25rem;
     margin-bottom: 1.25rem;
@@ -3164,6 +3153,11 @@ select.dropdown {
   .md\:mx-auto {
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .md\:my-16 {
+    margin-top: 4rem;
+    margin-bottom: 4rem;
   }
 
   .md\:mt-14 {
@@ -3329,28 +3323,22 @@ select.dropdown {
     margin-bottom: calc(0px * var(--tw-space-y-reverse));
   }
 
-  .md\:space-x-4 > :not([hidden]) ~ :not([hidden]) {
-    --tw-space-x-reverse: 0;
-    margin-right: calc(1rem * var(--tw-space-x-reverse));
-    margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
-  }
-
   .md\:space-x-10 > :not([hidden]) ~ :not([hidden]) {
     --tw-space-x-reverse: 0;
     margin-right: calc(2.5rem * var(--tw-space-x-reverse));
     margin-left: calc(2.5rem * calc(1 - var(--tw-space-x-reverse)));
   }
 
-  .md\:space-x-3 > :not([hidden]) ~ :not([hidden]) {
-    --tw-space-x-reverse: 0;
-    margin-right: calc(0.75rem * var(--tw-space-x-reverse));
-    margin-left: calc(0.75rem * calc(1 - var(--tw-space-x-reverse)));
-  }
-
   .md\:space-x-6 > :not([hidden]) ~ :not([hidden]) {
     --tw-space-x-reverse: 0;
     margin-right: calc(1.5rem * var(--tw-space-x-reverse));
     margin-left: calc(1.5rem * calc(1 - var(--tw-space-x-reverse)));
+  }
+
+  .md\:space-x-3 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 0;
+    margin-right: calc(0.75rem * var(--tw-space-x-reverse));
+    margin-left: calc(0.75rem * calc(1 - var(--tw-space-x-reverse)));
   }
 
   .md\:space-x-8 > :not([hidden]) ~ :not([hidden]) {
@@ -3465,11 +3453,6 @@ select.dropdown {
     padding-right: 2.5rem;
   }
 
-  .md\:px-11 {
-    padding-left: 2.75rem;
-    padding-right: 2.75rem;
-  }
-
   .md\:py-1 {
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
@@ -3490,6 +3473,11 @@ select.dropdown {
     padding-bottom: 0px;
   }
 
+  .md\:px-11 {
+    padding-left: 2.75rem;
+    padding-right: 2.75rem;
+  }
+
   .md\:pt-11 {
     padding-top: 2.75rem;
   }
@@ -3508,6 +3496,10 @@ select.dropdown {
 
   .md\:pl-6 {
     padding-left: 1.5rem;
+  }
+
+  .md\:text-left {
+    text-align: left;
   }
 
   .md\:text-3xl {

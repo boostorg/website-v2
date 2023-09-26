@@ -45,7 +45,7 @@
       <!-- End Actions -->
 
       {% if entry.external_url %}
-      <p>{{ entry.external_url|escape }}</p>
+      <p>{{ entry.external_url|escape|urlize }}</p>
       {% endif %}
 
       {% if entry.image %}
