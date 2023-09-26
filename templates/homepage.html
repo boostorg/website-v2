@@ -6,15 +6,16 @@
   {# homepage hero #}
   <main class="px-4 my-16 mx-auto sm:mt-24">
     <div class="md:flex mb-16">
-      <div class="order-1 mt-6 w-full text-center md:order-2 md:mt-3 md:w-1/2">
-        <div id="scene03"></div>
-      </div>
-      <div class="text-left md:w-1/2">
+
+      <div class="text-center md:text-left md:w-1/2">
         <h1 class="text-4xl font-extrabold md:text-6xl">
           <span class="block xl:inline">Boost provides free peer-reviewed portable C++ source libraries.</span>
         </h1>
         <p class="mx-auto mt-3 max-w-md text-base text-lg md:mt-5 md:mb-11 md:max-w-3xl md:text-xl">Experience C++ libraries created by experts to be reliable, skillfully designed, and well-tested.</p>
-        <div class="justify-center mt-5 space-y-3 max-w-md md:flex md:justify-between md:mt-8 md:space-y-0">
+
+      </div>
+      <div class="mt-6 w-full text-center md:mt-3 md:w-1/2">
+        <div class="mx-auto justify-center items-center mt-5 space-y-3 max-w-md md:flex md:mt-8 md:space-y-0">
           <a href="{% url 'releases-most-recent' %}" class="flex justify-center items-center py-3 px-8 text-base font-medium text-white rounded-md border md:py-4 md:px-4 md:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
             <i class="pr-2 text-white fas fa-arrow-circle-down dark:text-orange"></i> Download Latest
           </a>
@@ -59,7 +60,7 @@
     </div>
 
     <div class="px-4 my-4 pt-8 mx-auto">
-      <div class="bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md">
+      <div class="pb-10 bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md">
         <div class="p-5 w-full">
           <div class="my-6 ml-6">
             <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-emerald-700 bg-emerald-200 dark:bg-opacity-10">schedule of events</span>
@@ -70,31 +71,60 @@
                x-data="{ activeSlide: 1, slides: [1, 2, 3] }">
             <!-- Slides -->
             <div x-show="activeSlide === 1"
-                 class="flex items-center py-0 px-12 h-full text-5xl font-bold rounded-lg">
-              <div class="w-full">
-                <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">September 2023</h3>
-                <span class="pb-1 mx-auto w-full text-sm align-left">
-                  29th: SAM review
-                  <br />
-                </span>
-              </div>
-            </div>
-            <div x-show="activeSlide === 2"
-                 class="flex items-center py-0 px-12 h-full text-5xl font-bold rounded-lg">
+                 class="flex items-center py-0 px-12 h-full rounded-lg">
               <div class="w-full">
                 <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">October 2023</h3>
                 <span class="pb-1 mx-auto w-full text-sm align-left">
-                  29th: SAM review
+                  <strong>Wednesday October 25th:</strong> Boost 1.84.0 closed for new libraries and breaking changes
+                  <br />
+                  <div class="pt-1 pl-4 font-light">Release branch is closed for new libraries and breaking changes to existing libraries. Still open for bug fixes and other routine changes to all libraries without release manager review.</div>
+                </span>
+              </div>
+            </div>
+            <div x-show="activeSlide === 2" x-cloak
+                 class="flex items-center py-0 px-12 h-full rounded-lg">
+              <div class="w-full">
+                <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">November 2023</h3>
+                <span class="pb-1 mx-auto w-full text-sm align-left">
+                  <strong>Wednesday November 1st:</strong> Boost 1.84.0 closed for major changes
+                  <br />
+                  <div class="pt-1 pl-4 font-light">Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review.</div>
+                  <br />
+                </span>
+                <span class="pb-1 mx-auto w-full text-sm align-left">
+                  <strong>Wednesday November 8th:</strong> Boost 1.84.0 closed for beta
+                  <br />
+                  <div class="pt-1 pl-4 font-light">Release closed for all changes.</div>
+                  <br />
+                </span>
+                <span class="pb-1 mx-auto w-full text-sm align-left">
+                  <strong>Wednesday November 15th:</strong> Boost 1.84.0 beta
+                  <br />
+                  <div class="pt-1 pl-4 font-light">Beta posted for download.</div>
+                  <br />
+                </span>
+                <span class="pb-1 mx-auto w-full text-sm align-left">
+                  <strong>Thursday November 16th:</strong> Boost 1.84.0 open for bug fixes
+                  <br />
+                  <div class="pt-1 pl-4 font-light">Release open for bug fixes and documentation updates. Other changes by permission of a release manager.</div>
                   <br />
                 </span>
               </div>
             </div>
-            <div x-show="activeSlide === 3"
-                 class="flex items-center py-0 px-12 h-full text-5xl font-bold rounded-lg">
+            <div x-show="activeSlide === 3" x-cloak
+                 class="flex items-center py-0 px-12 h-full rounded-lg">
               <div class="w-full">
-                <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">November 2023</h3>
+                <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">December 2023</h3>
                 <span class="pb-1 mx-auto w-full text-sm align-left">
-                  29th: SAM review
+                  <strong>Wednesday December 6th:</strong> Boost 1.84.0 closed
+                  <br />
+                  <div class="pt-1 pl-4 font-light">Release closed for all changes.</div>
+                  <br />
+                </span>
+                <span class="pb-1 mx-auto w-full text-sm align-left">
+                  <strong>Wednesday November 8th:</strong> Boost 1.84.0 release
+                  <br />
+                  <div class="pt-1 pl-4 font-light">Release posted for download.</div>
                   <br />
                 </span>
               </div>
