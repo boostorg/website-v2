@@ -30,7 +30,6 @@
     <meta name="keywords" content="{% block keywords %}{% endblock %}" />
     <meta name="author" content="{% block author %}Boost C++ Libraries{% endblock %}" />
     <link rel="shortcut icon" href="{% static 'img/Boost_Symbol_Transparent.svg' %}" type="image/x-icon" />
-    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
 
     <meta class="meta-theme" name="theme-color" content="#FAFAFA" data-dark="#18181B" data-light="#FAFAFA" />
     <meta class="meta-theme" name="color-scheme" content="light" data-dark="dark" data-light="light" />
@@ -44,7 +43,9 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <!-- detect dark or light mode -->
     <script src="{% static 'js/DetectMode.js' %}"></script>
-    {% block extra_head %}{% endblock %}
+    {% block extra_head %}
+      <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+    {% endblock %}
   </head>
 
   <body x-init="() => {const m = localStorage.getItem('colorMode');

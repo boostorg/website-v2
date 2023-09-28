@@ -1,2 +1,22 @@
 @tailwind components;
 @tailwind utilities;
+
+[x-cloak] {
+  display: none !important;
+}
+
+body {
+  @apply md:pt-11 m-0;
+}
+
+hr:first-of-type {
+  @apply border-0;
+}
+
+#mobile-menu-button {
+  @apply outline-none border-0 bg-transparent;
+}
+
+.section, .spirit-nav, .copyright-footer {
+  @apply max-w-7xl px-3 md:px-6 mx-auto;
+}
