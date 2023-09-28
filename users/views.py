@@ -6,7 +6,8 @@ from django.urls import reverse_lazy
 from django.views.generic import DetailView
 from django.views.generic.base import TemplateView
 
-from allauth.account.forms import ChangePasswordForm
+from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
+from allauth.account.views import SignupView
 from allauth.socialaccount.models import SocialAccount
 
 from rest_framework import generics
@@ -14,6 +15,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from .forms import PreferencesForm, UserProfileForm, UserProfilePhotoForm
+
 from .models import User
 from .permissions import CustomUserPermissions
 from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
@@ -174,3 +176,53 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
         else:
             for error in form.errors.values():
                 messages.error(request, f"{error}")
+
+
+class CustomSignupView(SignupView):
+    """
+    Override the allauth SignupView to customize behavior:
+
+    - Check to see if the user who is registering already has an account
+    because one was created for them, and it has not been claimed. This happens
+    with authors and maintainers.
+    """
+
+    def form_invalid(self, form):
+        """
+        Override this form to catch users who were created as part of the GitHub data
+        import and who need to create their accounts
+        """
+        for field, errors in form.errors.items():
+            if field == "email":
+                email = form.data.get("email")
+
+                if not email:
+                    continue
+
+                user = User.objects.filter(email__iexact=email).first()
+                if not user:
+                    continue
+
+                if user.claimed:
+                    continue
+
+                # If the user has not been claimed, then we need to send
+                # them a password reset email
+                form = ResetPasswordForm({"email": email})
+                if form.is_valid():
+                    form.save(request=self.request)
+                    messages.info(
+                        self.request,
+                        """
+                        An account already exists for you. Check your email for
+                        instructions on resetting your password so you can claim
+                        your account.
+                        """,
+                    )
+                    return HttpResponseRedirect(reverse_lazy("account_login"))
+
+        return super().form_invalid(form)
+
+
+# TODO: Then, we need to override the set password form to mark the user
+# as claimed once they set their password.
