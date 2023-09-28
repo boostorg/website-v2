@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django import forms
+from django.core.validators import EmailValidator
 
 from .models import Preferences
 from news.models import NEWS_MODELS
@@ -9,6 +10,18 @@ from news.acl import can_approve
 User = get_user_model()
 
 NEWS_ENTRY_CHOICES = [(m.news_type, m._meta.verbose_name.title()) for m in NEWS_MODELS]
+
+
+class PasswordlessLoginForm(forms.Form):
+    """
+    Form for capturing email for passwordless authentication.
+    """
+
+    email = forms.EmailField(
+        label="Your Email",
+        validators=[EmailValidator()],
+        widget=forms.EmailInput(attrs={"placeholder": "Enter your email"}),
+    )
 
 
 class PreferencesForm(forms.ModelForm):
