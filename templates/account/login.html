@@ -66,23 +66,20 @@
                   {% endfor %}
                 {% endif %}
 
-                {% for field in form.visible_fields %}
-                  <div>
-                    <label class="text-xs uppercase text-slate dark:text-white/70">{{ field.label }}
-                    {{ field }}
-                    </label>
-                    {% if field.help_text %}
-                      <small>{{ field.help_text }}</small>
-                    {% endif %}
-                  </div>
-                {% endfor %}
+                <!-- Display only email field for passwordless auth -->
+                <div>
+                  <label class="text-xs uppercase text-slate dark:text-white/70">E-mail
+                  <input type="email" name="login" placeholder="E-mail address" autocomplete="email" required id="id_login">
+                  </label>
+                </div>
 
                 {% if redirect_field_value %}
                   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
                 {% endif %}
 
+
                 <div class="flex justify-between mb-4">
-                  <a class="text-orange" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+                  <!-- Won't need to reset password since auth is passwordless <a class="text-orange" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a> -->
                   <button type="submit"
                           x-on:click="boostlogin = 'email'"
                           class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">{% trans "Login" %}</button>
