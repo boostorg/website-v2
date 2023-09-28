@@ -131,6 +131,8 @@ Env:
       secretKeyRef:
         name: mailgun
         key: key
+  - name: MAILGUN_SENDER_DOMAIN
+    value: cppal-dev.boost.cppalliance.org
   - name: GITHUB_TOKEN
     valueFrom:
       secretKeyRef:
