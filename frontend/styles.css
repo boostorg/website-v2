@@ -44,6 +44,7 @@
   }
   input[type=checkbox] {
     @apply mr-3 rounded bg-white dark:bg-charcoal border border-slate text-orange;
+    @apply cursor-pointer;
   }
   input[type=file] {
     @apply block w-full px-3 py-1 text-base text-slate dark:text-white font-normal text-orange bg-clip-padding border border-solid border-slate rounded transition ease-in-out my-2;
