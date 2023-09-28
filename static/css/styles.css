@@ -696,6 +696,10 @@ input[type=checkbox] {
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
 }
 
+input[type=checkbox] {
+  cursor: pointer;
+}
+
 input[type=file] {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
