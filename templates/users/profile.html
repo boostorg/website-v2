@@ -73,23 +73,6 @@
         </div>
 
         <div class="rounded bg-white dark:bg-charcoal p-4">
-          <h3>{% trans "Set Password" %}</h3>
-          <form method="POST" action="." class="password_set space-y-3">
-            {% csrf_token %}
-            {% for field in change_password_form.visible_fields %}
-              <div>
-                {% include "includes/_form_input.html" with form=change_password_form field=field %}
-              </div>
-            {% endfor %}
-            <div class="mt-4">
-              <button name="change_password" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Set
-                Password
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <div class="rounded bg-white dark:bg-charcoal p-4">
           <h3>{% trans "Account Connections" %}</h3>
           <div class="mt-4">
             <a href="{% url 'socialaccount_connections' %}"><button class="py-2 px-3 text-sm text-white rounded bg-orange">{% trans 'Manage Account Connections' %}</button></a>

@@ -6,7 +6,6 @@ from django.urls import reverse_lazy
 from django.views.generic import DetailView
 from django.views.generic.base import TemplateView
 
-from allauth.account.forms import ChangePasswordForm
 from allauth.socialaccount.models import SocialAccount
 
 from rest_framework import generics
@@ -77,7 +76,6 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["change_password_form"] = ChangePasswordForm(user=self.request.user)
         context["profile_form"] = UserProfileForm(instance=self.request.user)
         context["profile_photo_form"] = UserProfilePhotoForm(instance=self.request.user)
         context["profile_preferences_form"] = PreferencesForm(
@@ -103,12 +101,6 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
         """
         Process each form submission individually if present
         """
-        if "change_password" in request.POST:
-            change_password_form = ChangePasswordForm(
-                data=request.POST, user=self.request.user
-            )
-            self.change_password(change_password_form, request)
-
         if "update_profile" in request.POST:
             profile_form = UserProfileForm(
                 self.request.POST, instance=self.request.user
@@ -131,17 +123,6 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
             self.update_preferences(profile_preferences_form, request)
 
         return HttpResponseRedirect(self.success_url)
-
-    def change_password(self, form, request):
-        """Change the password of the user."""
-        if form.is_valid():
-            self.object = request.user
-            self.object.set_password(form.cleaned_data["password1"])
-            self.object.save()
-            messages.success(request, "Your password was successfully updated.")
-        else:
-            for error in form.errors.values():
-                messages.error(request, f"{error}")
 
     def update_photo(self, form, request):
         """Update the profile photo of the user."""

@@ -3,7 +3,6 @@ import tempfile
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from allauth.account.forms import ChangePasswordForm
 from PIL import Image
 
 from ..forms import PreferencesForm, UserProfilePhotoForm
@@ -18,7 +17,6 @@ def test_current_user_profile_not_authenticated(tp, user):
 def test_current_user_profile_view_get(user, tp):
     with tp.login(user):
         response = tp.assertGoodView(tp.reverse("profile-account"), verbose=True)
-        assert isinstance(response.context["change_password_form"], ChangePasswordForm)
         assert isinstance(response.context["profile_photo_form"], UserProfilePhotoForm)
         assert isinstance(response.context["profile_preferences_form"], PreferencesForm)
 
