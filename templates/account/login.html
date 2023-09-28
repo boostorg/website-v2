@@ -18,7 +18,7 @@
       <div class="md:w-full">
         <h1 class="text-4xl text-center">{% trans "Log In" %}</h1>
         <p class="mt-0 text-center">{% blocktrans %}If you have not created an account yet, please
-            <a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}
+            <a href="{{ signup_url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">sign up</a> first.{% endblocktrans %}
         </p>
       </div>
 
@@ -68,7 +68,7 @@
 
                 {% for field in form.visible_fields %}
                   <div>
-                    <label class="text-xs uppercase text-slate dark:text-white/70">{{ field.label }}
+                    <label class="text-xs uppercase text-slate dark:text-white/70" for="{{ field.id_for_label }}">{{ field.label }}{% if field.widget_type == 'checkbox' %}&nbsp;&nbsp;{% endif %}
                     {{ field }}
                     </label>
                     {% if field.help_text %}
@@ -82,7 +82,7 @@
                 {% endif %}
 
                 <div class="flex justify-between mb-4">
-                  <a class="text-orange" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+                  <a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
                   <button type="submit"
                           x-on:click="boostlogin = 'email'"
                           class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">{% trans "Login" %}</button>
