@@ -51,6 +51,7 @@ from support.views import SupportView
 from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
+    PasswordlessLoginView,
     ProfileView,
     UserViewSet,
 )
@@ -69,6 +70,7 @@ urlpatterns = (
         path("", HomepageView.as_view(), name="home"),
         path("homepage-beta/", HomepageBetaView.as_view(), name="home-beta"),
         path("admin/", admin.site.urls),
+        path("accounts/login/", PasswordlessLoginView.as_view(), name="account_login"),
         path("accounts/", include("allauth.urls")),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
         path("users/<int:pk>/", ProfileView.as_view(), name="profile-user"),

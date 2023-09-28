@@ -17,7 +17,7 @@ class PasswordlessLoginForm(forms.Form):
     Form for capturing email for passwordless authentication.
     """
 
-    email = forms.EmailField(
+    login = forms.EmailField(
         label="Your Email",
         validators=[EmailValidator()],
         widget=forms.EmailInput(attrs={"placeholder": "Enter your email"}),

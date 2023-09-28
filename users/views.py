@@ -1,10 +1,15 @@
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.mail import send_mail
+from django.core.validators import EmailValidator
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import DetailView
 from django.views.generic.base import TemplateView
+from django.views.generic.edit import FormView
 
 from allauth.socialaccount.models import SocialAccount
 
@@ -12,11 +17,18 @@ from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from .forms import PreferencesForm, UserProfileForm, UserProfilePhotoForm
-from .models import User
+from .forms import (
+    PasswordlessLoginForm,
+    PreferencesForm,
+    UserProfileForm,
+    UserProfilePhotoForm,
+)
 from .permissions import CustomUserPermissions
 from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
 from . import tasks
+
+
+User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -155,3 +167,40 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
         else:
             for error in form.errors.values():
                 messages.error(request, f"{error}")
+
+
+class PasswordlessLoginView(FormView):
+    """
+    A custom view to handle passwordless login.
+    """
+
+    template_name = "account/login.html"
+    form_class = PasswordlessLoginForm
+    subject = "Your Boost login link"
+    success_url = reverse_lazy("profile-account")
+
+    def form_valid(self, form):
+        email = form.cleaned_data["login"]
+
+        # Validate it's a real email
+        validator = EmailValidator()
+        validator(email)
+
+        # Check if email exists in the system
+        if not User.objects.filter(email=email).exists():
+            return self.form_invalid(form)
+
+        # Generate token
+        user = User.objects.get(email=email)
+        token = default_token_generator.make_token(user)
+
+        # Send email
+        # fixme: real link
+        send_mail(
+            subject=self.subject,
+            message=f"Click here to login: http://your_domain.com/login?token={token}",
+            from_email="from@example.com",
+            recipient_list=[email],
+        )
+
+        return super().form_valid(form)

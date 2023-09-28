@@ -9,7 +9,7 @@ def test_valid_email():
     """
     Test that the PasswordlessLoginForm validates correct email.
     """
-    form = PasswordlessLoginForm({"email": "taylor@example.com"})
+    form = PasswordlessLoginForm({"login": "taylor@example.com"})
     assert form.is_valid()
 
 
@@ -17,9 +17,9 @@ def test_invalid_email():
     """
     Test that the PasswordlessLoginForm flags invalid email.
     """
-    form = PasswordlessLoginForm({"email": "taylor-invalid-email"})
+    form = PasswordlessLoginForm({"login": "taylor-invalid-email"})
     assert not form.is_valid()
-    assert "email" in form.errors
+    assert "login" in form.errors
 
 
 def test_preferences_form_fields_no_user():
