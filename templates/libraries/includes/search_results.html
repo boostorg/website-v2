@@ -1,13 +1,15 @@
 {% for library in libraries %}
-  <div class="bg-white dark:bg-charcoal flex py-1 px-3 cursor-default select-none group">
-    <a href="{% url 'library-detail' slug=library.slug %}">
+  <div class="bg-white dark:bg-gray-800 flex py-2 px-3 cursor-pointer select-none group" @click="document.location.href = '{% url 'library-detail' slug=library.slug %}';">
+    <a href="{% url 'library-detail' slug=library.slug %}" class="group-hover:text-orange">
       <span class="">
         {{ library.name|capfirst }}
       </span>
     </a>
   </div>
 {% empty %}
+  {% comment %}
   <div class="py-14 px-6 text-center sm:px-14">
     <p class="mt-4 text-sm text-gray-200">We couldn't find any libraries with that search term. Please try again.</p>
   </div>
+  {% endcomment %}
 {% endfor %}

@@ -1,13 +1,13 @@
 {% load static %}
 
-<footer class="py-5 px-4 my-5 mx-auto max-w-full sm:mt-24 md:pt-4 md:pb-11 md:mt-6 md:mb-11">
-
-  <div class="items-center px-5 pt-4 mt-16 text-center">
-    <div class="justify-between pt-3 pb-3 sm:space-x-3 xl:space-x-6">
+<footer class="py-2 px-4 my-5 mx-auto max-w-full md:pb-11 md:mb-11">
+  <div class="items-center px-5 pt-4 mt-4 text-center">
+    <div class="justify-between pt-3 pb-3 sm:space-x-3 xl:space-x-6 border-dotted border-t-2 px-20 border-t-white/5 w-fit mx-auto">
       <a class="block my-2 sm:inline hover:text-orange" href="{% url 'privacy' %}">Privacy Policy</a>
       <a class="block my-2 sm:inline hover:text-orange" href="{% url 'terms-of-use' %}">Terms of Use</a>
-      <a href="https://twitter.com/boost_libraries" target="_blank" class="hover:text-orange">Twitter</a>
-      <a href="https://github.com/boostorg" target="_blank" class="hover:text-orange">GitHub</a>
+      <a class="my-2 inline hover:text-orange" href="https://twitter.com/boost_libraries" target="_blank">Twitter</a>
+      <span class="inline sm:hidden text-white/30">&nbsp;&nbsp; | &nbsp;&nbsp;</span>
+      <a class="my-2 inline hover:text-orange" href="https://github.com/boostorg" target="_blank">GitHub</a>
     </div>
     {# <div><span class="text-sm">&#169; <a href="https://cppalliance.org/" class="dark:text-white text-slate">The C++ Alliance, Inc.</a></span></div> #}
   </div>
