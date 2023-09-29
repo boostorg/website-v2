@@ -42,6 +42,29 @@ def test_current_user_profile_view_post_valid_password(user, tp):
 
 
 @pytest.mark.django_db
+def test_current_user_profile_view_post_valid_password_unclaimed_user(user, tp):
+    user.claimed = False
+    user.save()
+    user.refresh_from_db()
+    with tp.login(user):
+        response = tp.post(
+            tp.reverse("profile-account"),
+            data={
+                "email": user.email,
+                "oldpassword": "password",
+                "password1": "new_password",
+                "password2": "new_password",
+                "change_password": True,
+            },
+            follow=True,
+        )
+        assert response.status_code == 200
+        user.refresh_from_db()
+        user.check_password("new_password")
+        assert user.claimed
+
+
+@pytest.mark.django_db
 def test_current_user_profile_view_post_invalid_password(user, tp):
     old_password = "password"
     with tp.login(user):
