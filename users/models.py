@@ -1,12 +1,13 @@
+import binascii
 import logging
 import os
-import requests
 
+import requests
 from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser,
-    PermissionsMixin,
     BaseUserManager,
+    PermissionsMixin,
 )
 from django.core.files import File
 from django.core.mail import send_mail
@@ -14,9 +15,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-
 
 logger = logging.getLogger(__name__)
 
@@ -196,6 +195,10 @@ class Badge(models.Model):
     display_name = models.CharField(_("display name"), max_length=100, blank=True)
 
 
+def create_random_string(length):
+    return binascii.hexlify(os.urandom(int(length / 2))).decode()
+
+
 class User(BaseUser):
     """
     Our custom user model.
@@ -223,8 +226,8 @@ class User(BaseUser):
 
     def save_image_from_github(self, avatar_url):
         response = requests.get(avatar_url)
-        base_filename = f"{slugify(self.get_full_name())}-profile"
-        filename = f"{base_filename}.png"
+        some_randomness = create_random_string(10)
+        filename = f"profile-{self.pk}-{some_randomness}.png"
         os.path.join(settings.MEDIA_ROOT, "media", "profile-images", filename)
 
         with open(filename, "wb") as f:
