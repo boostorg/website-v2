@@ -293,6 +293,11 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 SOCIALACCOUNT_QUERY_EMAIL = True
 ACCOUNT_UNIQUE_EMAIL = True
 
+# Allow us to override some of allauth's forms
+ACCOUNT_FORMS = {
+    "reset_password_from_key": "users.forms.CustomResetPasswordFromKeyForm",
+}
+
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "SCOPE": [

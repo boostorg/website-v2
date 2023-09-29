@@ -16,7 +16,6 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from .forms import PreferencesForm, UserProfileForm, UserProfilePhotoForm
-
 from .models import User
 from .permissions import CustomUserPermissions
 from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
@@ -141,6 +140,10 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
             self.object = request.user
             self.object.set_password(form.cleaned_data["password1"])
             self.object.save()
+
+            # Resetting the password acts as confirmation that the user has
+            # claimed their account, so mark it claimed.
+            self.object.claim()
             messages.success(request, "Your password was successfully updated.")
         else:
             for error in form.errors.values():

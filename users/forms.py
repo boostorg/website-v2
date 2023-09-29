@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django import forms
 
+from allauth.account.forms import ResetPasswordKeyForm
+
 from .models import Preferences
 from news.models import NEWS_MODELS
 from news.acl import can_approve
@@ -9,6 +11,15 @@ from news.acl import can_approve
 User = get_user_model()
 
 NEWS_ENTRY_CHOICES = [(m.news_type, m._meta.verbose_name.title()) for m in NEWS_MODELS]
+
+
+class CustomResetPasswordFromKeyForm(ResetPasswordKeyForm):
+    def save(self, **kwargs):
+        """Override default reset password form so we can mark unclaimed
+        users as claimed once they have reset their passwords."""
+        result = super().save(**kwargs)
+        self.user.claim()
+        return result
 
 
 class PreferencesForm(forms.ModelForm):
