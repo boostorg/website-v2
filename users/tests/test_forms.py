@@ -1,8 +1,29 @@
 import pytest
 
-from ..forms import PreferencesForm, UserProfileForm
+from ..forms import CustomResetPasswordFromKeyForm, PreferencesForm, UserProfileForm
 from ..models import Preferences
 from news.models import NEWS_MODELS
+
+
+def test_custom_reset_password_form(user):
+    user.claimed = False
+    user.save()
+    user.refresh_from_db()
+
+    reset_key = "your_reset_key"
+    form = CustomResetPasswordFromKeyForm(
+        data={
+            "key": reset_key,
+            "email": user.email,
+            "password1": "new_password",
+            "password2": "new_password",
+        },
+        user=user,
+    )
+    assert form.is_valid()
+    form.save()
+    user.refresh_from_db()
+    assert user.claimed is True
 
 
 def test_preferences_form_fields_no_user():

@@ -241,6 +241,12 @@ class User(BaseUser):
         else:
             return self.first_name or self.last_name
 
+    def claim(self):
+        """Claim the user"""
+        if not self.claimed:
+            self.claimed = True
+            self.save()
+
 
 class LastSeen(models.Model):
     """

@@ -60,6 +60,17 @@ def test_user_save_image_from_github(user):
     pass
 
 
+def test_claim(user):
+    user.claimed = False
+    user.save()
+    user.refresh_from_db()
+
+    assert not user.claimed
+    user.claim()
+    user.refresh_from_db()
+    assert user.claimed
+
+
 def test_find_contributor_by_email(user):
     found_user = User.objects.find_contributor(email=user.email)
     assert found_user == user
