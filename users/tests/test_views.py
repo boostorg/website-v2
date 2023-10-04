@@ -148,3 +148,27 @@ def test_current_user_profile_view_post_valid_preferences(
     assert_messages(
         response, [("success", "Your preferences were successfully updated.")]
     )
+
+
+# Test for ClaimExistingAccountMixin
+
+
+@pytest.mark.skip(
+    reason="Not actually hitting the endpoint; did a live test locally instead. FIXME."
+)
+@pytest.mark.django_db
+def test_CustomSocialSignupViewView_existing_unclaimed_account(client, rf, user, tp):
+    """
+    Test if an existing but unclaimed account receives a password reset email.
+    """
+    user.claimed = False
+    user.save()
+    user.refresh_from_db()
+    form_data = {"email": user.email}
+
+    # Act
+    response = client.post(
+        tp.reverse("socialaccount_signup"), data=form_data, follow=True
+    )
+
+    assert response.status_code == 200
