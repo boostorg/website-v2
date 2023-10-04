@@ -1,4 +1,3 @@
-import binascii
 import logging
 import os
 
@@ -195,10 +194,6 @@ class Badge(models.Model):
     display_name = models.CharField(_("display name"), max_length=100, blank=True)
 
 
-def create_random_string(length):
-    return binascii.hexlify(os.urandom(int(length / 2))).decode()
-
-
 class User(BaseUser):
     """
     Our custom user model.
@@ -226,8 +221,7 @@ class User(BaseUser):
 
     def save_image_from_github(self, avatar_url):
         response = requests.get(avatar_url)
-        some_randomness = create_random_string(10)
-        filename = f"profile-{self.pk}-{some_randomness}.png"
+        filename = f"profile-{self.pk}.png"
         os.path.join(settings.MEDIA_ROOT, "media", "profile-images", filename)
 
         with open(filename, "wb") as f:
