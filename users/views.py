@@ -9,6 +9,7 @@ from django.views.generic.base import TemplateView
 from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
 from allauth.account.views import SignupView
 from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.views import SignupView as SocialSignupView
 
 from rest_framework import generics
 from rest_framework import viewsets
@@ -178,7 +179,64 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
                 messages.error(request, f"{error}")
 
 
-class CustomSignupView(SignupView):
+# Custom Allauth Views
+
+
+class ClaimExistingAccountMixin:
+    """
+    When a new user attempts to register with an email address that exists, but
+    has not been claimed, send the user a password reset for that account so they can
+    claim it.
+    """
+
+    message = """
+        An account already exists for you. Check your email for
+        instructions on resetting your password so you can claim
+        your account.
+    """
+
+    def check_and_send_reset_email(self, form, message=None):
+        if not message:
+            message = self.message
+
+        for field, errors in form.errors.items():
+            if field == "email":
+                email = form.data.get("email")
+                user = User.objects.filter(email__iexact=email).first()
+
+                if user and not user.claimed:
+                    form = ResetPasswordForm({"email": email})
+                    if form.is_valid():
+                        form.save(request=self.request)
+                        messages.info(self.request, message)
+                        return HttpResponseRedirect(reverse_lazy("account_login"))
+
+        return None
+
+
+#
+class CustomSocialSignupViewView(ClaimExistingAccountMixin, SocialSignupView):
+    """
+    Override the allauth social account SignupView to customize behavior:
+    """
+
+    message = """
+        An account already exists for you. Check your email for
+        instructions on resetting your password so you can claim
+        your account. Once you have logged into that account, connect your
+        social account from your Profile.
+        """
+
+    def form_invalid(self, form):
+        """
+        Override this form to catch users who were created as part of the GitHub data
+        import and who need to create their accounts
+        """
+        res = self.check_and_send_reset_email(form, message=self.message)
+        return res if res else super().form_invalid(form)
+
+
+class CustomSignupView(ClaimExistingAccountMixin, SignupView):
     """
     Override the allauth SignupView to customize behavior:
 
@@ -192,36 +250,8 @@ class CustomSignupView(SignupView):
         Override this form to catch users who were created as part of the GitHub data
         import and who need to create their accounts
         """
-        for field, errors in form.errors.items():
-            if field == "email":
-                email = form.data.get("email")
-
-                if not email:
-                    continue
-
-                user = User.objects.filter(email__iexact=email).first()
-                if not user:
-                    continue
-
-                if user.claimed:
-                    continue
-
-                # If the user has not been claimed, then we need to send
-                # them a password reset email
-                form = ResetPasswordForm({"email": email})
-                if form.is_valid():
-                    form.save(request=self.request)
-                    messages.info(
-                        self.request,
-                        """
-                        An account already exists for you. Check your email for
-                        instructions on resetting your password so you can claim
-                        your account.
-                        """,
-                    )
-                    return HttpResponseRedirect(reverse_lazy("account_login"))
-
-        return super().form_invalid(form)
+        res = self.check_and_send_reset_email(form, message=self.message)
+        return res if res else super().form_invalid(form)
 
 
 # TODO: Then, we need to override the set password form to mark the user
