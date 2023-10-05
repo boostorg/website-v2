@@ -1,5 +1,9 @@
-{% extends "base.html" %} {% load i18n %} {% load static %} {% block title %} {%
-trans "Terms of Use" %} {% endblock %} {% block content %}
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% block title %}{% trans "Terms of Use" %}{% endblock %}
+{% block content %}
+<main class="content">
 <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
   <h1>TERMS OF USE</h1>
   Last updated July 24, 2023<br />
@@ -839,4 +843,5 @@ trans "Terms of Use" %} {% endblock %} {% block content %}
     info@cppalliance.com
   </p>
 </div>
+</main>
 {% endblock %}
