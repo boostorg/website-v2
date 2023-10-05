@@ -131,7 +131,7 @@ def get_s3_client():
         "s3",
         aws_access_key_id=settings.STATIC_CONTENT_AWS_ACCESS_KEY_ID,
         aws_secret_access_key=settings.STATIC_CONTENT_AWS_SECRET_ACCESS_KEY,
-        region_name="us-east-1",
+        region_name=settings.STATIC_CONTENT_REGION,
     )
 
 
