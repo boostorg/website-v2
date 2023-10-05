@@ -377,7 +377,12 @@ STATIC_CONTENT_AWS_SECRET_ACCESS_KEY = env(
     "STATIC_CONTENT_AWS_SECRET_ACCESS_KEY", default="changeme"
 )
 STATIC_CONTENT_BUCKET_NAME = env("STATIC_CONTENT_BUCKET_NAME", default="changeme")
-STATIC_CONTENT_AWS_S3_ENDPOINT_URL = "s3.amazonaws.com"
+
+STATIC_CONTENT_REGION = env("STATIC_CONTENT_REGION", default="us-east-2")
+
+STATIC_CONTENT_AWS_S3_ENDPOINT_URL = env(
+    "STATIC_CONTENT_AWS_S3_ENDPOINT_URL", default="https://s3.us-east-2.amazonaws.com"
+)
 
 # Markdown content
 BASE_CONTENT = env("BOOST_CONTENT_DIRECTORY", "/website")
