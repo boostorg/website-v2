@@ -2492,6 +2492,10 @@ select.dropdown {
   padding-left: 0px;
 }
 
+.pr-4 {
+  padding-right: 1rem;
+}
+
 .text-left {
   text-align: left;
 }
@@ -2730,11 +2734,6 @@ select.dropdown {
   --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-}
-
-.shadow-charcoal\/20 {
-  --tw-shadow-color: rgb(23 42 52 / 0.2);
-  --tw-shadow: var(--tw-shadow-colored);
 }
 
 .shadow-charcoal\/50 {
@@ -3639,6 +3638,10 @@ select.dropdown {
 
   .lg\:mb-10 {
     margin-bottom: 2.5rem;
+  }
+
+  .lg\:mr-16 {
+    margin-right: 4rem;
   }
 
   .lg\:flex {
