@@ -1305,10 +1305,6 @@ select.dropdown {
   margin-top: 1.25rem;
 }
 
-.mr-16 {
-  margin-right: 4rem;
-}
-
 .-ml-6 {
   margin-left: -1.5rem;
 }
@@ -2416,6 +2412,10 @@ select.dropdown {
   padding-top: 2rem;
 }
 
+.pr-4 {
+  padding-right: 1rem;
+}
+
 .pb-10 {
   padding-bottom: 2.5rem;
 }
@@ -2490,10 +2490,6 @@ select.dropdown {
 
 .pl-0 {
   padding-left: 0px;
-}
-
-.pr-4 {
-  padding-right: 1rem;
 }
 
 .text-left {
@@ -3636,12 +3632,12 @@ select.dropdown {
     margin-bottom: 4rem;
   }
 
-  .lg\:mb-10 {
-    margin-bottom: 2.5rem;
-  }
-
   .lg\:mr-16 {
     margin-right: 4rem;
+  }
+
+  .lg\:mb-10 {
+    margin-bottom: 2.5rem;
   }
 
   .lg\:flex {
