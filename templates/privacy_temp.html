@@ -1,5 +1,9 @@
-{% extends "base.html" %} {% load i18n %} {% load static %} {% block title %} {%
-trans "Privacy Policy" %} {% endblock %} {% block content %}
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% block title %}{% trans "Privacy Policy" %}{% endblock %}
+{% block content %}
+<main class="content">
 <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
   <h1>PRIVACY POLICY</h1>
   Last updated July 24, 2023<br />
@@ -316,4 +320,5 @@ trans "Privacy Policy" %} {% endblock %} {% block content %}
   information, or delete it. To request to review, update, or delete your
   personal information, please visit: https://www.boost.org/contact.<br />
 </div>
+</main>
 {% endblock %}
