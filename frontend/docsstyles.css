@@ -6,7 +6,9 @@
 }
 
 body {
-  @apply md:pt-11 m-0;
+  @apply max-w-7xl mx-auto md:pt-11 md:px-6 my-0;
+  @apply h-screen font-cairo;
+  @apply font-cairo;
 }
 
 hr:first-of-type {
@@ -17,6 +19,11 @@ hr:first-of-type {
   @apply outline-none border-0 bg-transparent;
 }
 
-.section, .spirit-nav, .copyright-footer {
-  @apply max-w-7xl px-3 md:px-6 mx-auto;
+.section,
+.spirit-nav,
+.copyright-footer,
+.chapter,
+.refentry,
+.book {
+  @apply max-w-7xl px-3 md:px-20;
 }
