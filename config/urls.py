@@ -246,10 +246,11 @@ urlpatterns = (
     + [
         # Libraries docs, some HTML parts are re-written
         re_path(
-            r"^docs/libs/(?P<content_path>.+)/?",
+            r"^doc/libs/(?P<content_path>.+)/?",
             DocLibsTemplateView.as_view(),
             name="docs-libs-page",
         ),
+        # TODO: Greg - determine correct route for user-guide
         re_path(
             r"^doc/(?P<content_path>.+)/?",
             UserGuideTemplateView.as_view(),
