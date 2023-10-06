@@ -19,11 +19,12 @@ hr:first-of-type {
   @apply outline-none border-0 bg-transparent;
 }
 
+
 .section,
 .spirit-nav,
 .copyright-footer,
 .chapter,
 .refentry,
 .book {
-  @apply max-w-7xl px-3 md:px-20;
+  @apply max-w-7xl px-3 md:px-6 mx-auto;
 }
