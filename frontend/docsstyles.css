@@ -20,11 +20,11 @@ hr:first-of-type {
 }
 
 
-.section,
-.spirit-nav,
-.copyright-footer,
-.chapter,
-.refentry,
-.book {
+div.section:first-of-type,
+div.spirit-nav:first-of-type,,
+div.copyright-footer:first-of-type,,
+div.chapter:first-of-type,,
+div.refentry:first-of-type,,
+div.book:first-of-type, {
   @apply max-w-7xl px-3 md:px-6 mx-auto;
 }
