@@ -8,7 +8,7 @@
     <div class="max-w-7xl md:px-1 md:px-6 mx-auto">
       <div class="hidden items-center py-1 px-2 border-b-2 border-gray-300 md:flex dark:border-charcoal">
         <div class="w-[100px]">
-          <a href="{% url 'home' %}">
+          <a href="{% url 'home' %}" class="inline-block">
               <img class="hidden w-auto dark:inline-block h-[25px] -mb-[1px]"
                    src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}"
                    alt="Boost">
@@ -21,13 +21,13 @@
 
         <div class="flex pt-1 w-full">
           <nav class="relative items-center pl-6 space-x-4 w-full text-lg text-left md:space-x-6 lg:space-x-10">
-            <a href="{% url 'news' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:6" == '/news/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-inherit">News</a>
-            <a href="{% url 'docs' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:6" == '/docs/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-inherit">Learn</a>
-            <a href="{% url 'community' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:11" == '/community/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-inherit">Community</a>
-            <a href="{% url 'libraries' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:11" == '/libraries/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-inherit">Libraries</a>
-            <a href="{% url 'releases-most-recent' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:10" == '/releases/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-inherit">Releases</a>
+            <a href="{% url 'news' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:6" == '/news/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-black">News</a>
+            <a href="{% url 'docs' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:6" == '/docs/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-black">Learn</a>
+            <a href="{% url 'community' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:11" == '/community/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-black">Community</a>
+            <a href="{% url 'libraries' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:11" == '/libraries/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-black">Libraries</a>
+            <a href="{% url 'releases-most-recent' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:10" == '/releases/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-black">Releases</a>
           </nav>
-          <nav class="float-right items-center space-x-3 w-[200px] text-right lg:space-x-5" x-data="{ 'searchOpen': false }">
+          <nav class="flex items-center space-x-3 lg:space-x-5 h-[30px]" x-data="{ 'searchOpen': false }">
           {% comment %}
               <span class="relative">
               <i class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="searchOpen = true; $nextTick(() => { setTimeout(() => { document.getElementById('hq').focus(); }, 300);});"></i>
@@ -137,12 +137,12 @@
             </span>
             {% endif %}
 
-            <span x-data="{ 'userOpen': false }" class="relative">
+            <span x-data="{ 'userOpen': false }" class="relative w-[30px]">
               {% if not user.is_authenticated %}
                 <a href="{% url 'account_signup' %}" class="hover:no-underline inline font-medium dark:text-white dark:visited:text-white text-slate visited:text-slate dark:hover:text-orange hover:text-orange">Join</a>
               {% else %}
                 {% if user.image %}
-                  <img src="{{ user.image.url }}" alt="user" class="inline -mt-1 rounded cursor-pointer w-[30px]" @click="userOpen = !userOpen" />
+                  <img src="{{ user.image.url }}" alt="user" class="rounded cursor-pointer h-[30px] w-[30px]" @click="userOpen = !userOpen" />
                 {% else %}
                   <i class="inline mr-2 cursor-pointer fas fa-user text-charcoal dark:text-white/60" @click="userOpen = !userOpen"></i>
                 {% endif %}
@@ -212,6 +212,7 @@
           </button>
 
           {# theme switcher #}
+          {% if not disable_theme_switcher %}
           <span x-data="{ 'modeOpen': false }" class="px-6 mt-2 float-right relative">
             <span class="dark:hidden">
               <i class="inline-block cursor-pointer text-slate fas fa-sun dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="modeOpen = !modeOpen"></i>
@@ -266,6 +267,7 @@
               </a>
             </div>
           </span>
+          {% endif %}
         </div>
         <div x-show="isOpen" class="absolute inset-x-0 top-10 z-40 h-screen bg-gray-200 dark:bg-charcoal">
           <div class="px-2 pt-6 pb-3 text-2xl">
