@@ -72,8 +72,8 @@ REMOVE_CSS_CLASSESS = [
     ("div", {"class": "body-1"}),
     ("div", {"class": "body-2"}),
     # /docs/libs/1_82_0/libs/numeric/conversion/doc/html/index.html
-    ("div", {"class": "toc"}),
-    ("dl", {"class": "toc"}),
+    # ("div", {"class": "toc"}),
+    # ("dl", {"class": "toc"}),
 ]
 
 
