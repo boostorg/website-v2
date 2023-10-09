@@ -157,7 +157,7 @@ def modernize_legacy_page(content, base_html, head_selector="head", insert_body=
                 append=False,
             )
 
-    content = result.prettify()
+    content = str(result)
 
     # Replace all links to boost.org with a local link
     content = content.replace("https://www.boost.org/doc/libs/", "/docs/libs/")
