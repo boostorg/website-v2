@@ -10,6 +10,16 @@ clientMaxBodySize: 250m
 
 replicaCount: "2"
 
+wsgiResources:
+  limits:
+    cpu: "500m"
+    ephemeral-storage: 1Gi
+    memory: 2Gi
+  requests:
+    cpu: "500m"
+    ephemeral-storage: 1Gi
+    memory: 2Gi
+
 ## NOTE ##
 # set publcFqdn to the target domain. `www` will be prepended to the domain
 # where necessary

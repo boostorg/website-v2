@@ -35,6 +35,8 @@ spec:
       containers:
         -
           name: wsgi
+          resources:
+{{- toYaml .Values.wsgiResources | nindent 12 }}
           image: {{.Values.Image}}:{{.Values.ImageTag}}
           volumeMounts:
 {{ toYaml .Values.VolumeMounts | indent 12 }}
