@@ -4,7 +4,7 @@ from django.http import HttpResponseRedirect
 from django.urls import path
 
 from . import models
-from .tasks import import_versions
+from .tasks import import_versions, import_most_recent_beta_release
 
 
 class VersionFileInline(admin.StackedInline):
@@ -34,6 +34,7 @@ class VersionAdmin(admin.ModelAdmin):
 
     def import_new_releases(self, request):
         import_versions(new_versions_only=True)
+        import_most_recent_beta_release(delete_old=True)
         self.message_user(
             request,
             """
