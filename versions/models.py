@@ -22,6 +22,9 @@ class Version(models.Model):
         null=True,
         help_text="The URL of the Boost version's GitHub repository.",
     )
+    beta = models.BooleanField(
+        default=False, help_text="Whether this is a beta release"
+    )
     data = models.JSONField(default=dict)
 
     objects = VersionManager()

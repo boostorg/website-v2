@@ -37,5 +37,9 @@ def command(token):
     call_command("import_commit_counts", "--token", token)
     click.secho("Finished importing library commit history.", fg="green")
 
+    click.secho("Importing most recent beta version...", fg="green")
+    call_command("import_beta_release", "--token", token, "--delete-versions")
+    click.secho("Finished importing most recent beta version.", fg="green")
+
     end = timezone.now()
     click.secho(f"All done! Completed in {end - start}", fg="green")
