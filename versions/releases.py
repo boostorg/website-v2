@@ -24,7 +24,14 @@ def get_artifactory_downloads_for_release(release: str = "1.81.0") -> list:
             - display_name (str): The name of the release file.
     """
     file_extensions = [".tar.bz2", ".tar.gz", ".7z", ".zip"]
-    release_path = f"{settings.ARTIFACTORY_URL}release/{release}/source/"
+
+    beta = False
+
+    if "beta" in release:
+        beta = True
+        release_path = f"{settings.ARTIFACTORY_URL}beta/{release}/source/"
+    else:
+        release_path = f"{settings.ARTIFACTORY_URL}release/{release}/source/"
 
     try:
         resp = requests.get(release_path)
@@ -41,12 +48,20 @@ def get_artifactory_downloads_for_release(release: str = "1.81.0") -> list:
     uris = []
     for child in children:
         uri = child["uri"]
+
         # The directory may include the release candidates and beta releases; skip those
-        if (
-            "rc" not in uri
-            and "beta" not in uri
-            and any(uri.endswith(ext) for ext in file_extensions)
+        # unless this is a beta release
+        if any(
+            [
+                ("beta" in uri and not beta),
+                ("rc" in uri),
+                (uri.endswith(".json")),
+            ]
         ):
+            # go to next
+            continue
+
+        if any(uri.endswith(ext) for ext in file_extensions):
             uris.append(f"{base_uri}/{uri}")
 
     return uris

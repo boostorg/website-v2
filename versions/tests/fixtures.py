@@ -13,6 +13,29 @@ def fake_checksum():
 
 
 @pytest.fixture
+def beta_version(db):
+    # Make version
+    v = baker.make(
+        "versions.Version",
+        name="Version 1.79.0-beta",
+        description="Some awesome description of the library",
+        release_date=datetime.date.today(),
+        beta=True,
+    )
+
+    # Make version download file
+    c = fake_checksum()
+    baker.make(
+        "versions.VersionFile",
+        version=v,
+        checksum=c,
+        url="https://example.com/version_1.tar.gz",
+    )
+
+    return v
+
+
+@pytest.fixture
 def version(db):
     # Make version
     yesterday = datetime.date.today() - datetime.timedelta(days=1)
