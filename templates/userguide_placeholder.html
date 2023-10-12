@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}
+  <link data-modernizer="boost-legacy-docs-extra-head" href="{% static 'css/userguidestyles.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block content_header %}
+  <div id="boost-legacy-docs-header">
+    {{ block.super }}
+  </div>
+{% endblock %}
