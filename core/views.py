@@ -351,7 +351,7 @@ class UserGuideTemplateView(StaticContentTemplateView):
 
         context = {"disable_theme_switcher": False}
         base_html = render_to_string(
-            "docs_libs_placeholder.html", context, request=self.request
+            "userguide_placeholder.html", context, request=self.request
         )
         insert_body = modernize == "max"
         head_selector = (
