@@ -193,9 +193,10 @@ class ClaimExistingAccountMixin:
     """
 
     message = """
-        An account already exists for you. Check your email for
-        instructions on resetting your password so you can claim
-        your account.
+        We recognize your email address as matching that of a Boost Author or
+        Maintainer, and have already created an account for you. We have sent you an
+        email to reset the password for your account. Once your password has been
+        reset, your account is claimed.
     """
 
     def check_and_send_reset_email(self, form, message=None):
@@ -224,10 +225,11 @@ class CustomSocialSignupViewView(ClaimExistingAccountMixin, SocialSignupView):
     """
 
     message = """
-        An account already exists for you. Check your email for
-        instructions on resetting your password so you can claim
-        your account. Once you have logged into that account, connect your
-        social account from your Profile.
+        We recognize your email address as matching that of a Boost Author or
+        Maintainer, and have already created an account for you. We have sent you an
+        email to reset the password for your account. Once your password has been
+        reset, your account is claimed and you can connect your social account
+        from your Profile.
         """
 
     def form_invalid(self, form):
@@ -255,7 +257,3 @@ class CustomSignupView(ClaimExistingAccountMixin, SignupView):
         """
         res = self.check_and_send_reset_email(form, message=self.message)
         return res if res else super().form_invalid(form)
-
-
-# TODO: Then, we need to override the set password form to mark the user
-# as claimed once they set their password.
