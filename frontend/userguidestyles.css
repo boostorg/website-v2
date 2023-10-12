@@ -1,0 +1,32 @@
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+  display: none !important;
+}
+
+body {
+  @apply h-screen font-cairo;
+  @apply font-cairo;
+}
+
+body.article {
+  @apply pt-0;
+}
+
+#headblock {
+ @apply border-0;
+}
+
+aside.nav,
+div.toolbar {
+  @apply top-10;
+}
+
+hr:first-of-type {
+  @apply border-0;
+}
+
+#mobile-menu-button {
+  @apply outline-none border-0 bg-transparent;
+}
