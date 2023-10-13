@@ -18,18 +18,22 @@
 
         <!-- Display non-field errors -->
         {% if form.non_field_errors %}
+          <div class="py-1 px-3 my-3 text-white bg-red-400 rounded">
           {% for error in form.non_field_errors %}
-            <div class="py-1 px-3 text-white bg-red-600">
+            <div class="py-1 px-3">
              {{ error }}
             </div>
           {% endfor %}
+          </div>
         {% endif %}
 
         {% for field in form.visible_fields %}
           {% if field.errors %}
+            <div class="py-1 px-3 my-3 text-white bg-red-400 rounded">
             {% for error in field.errors %}
-              <div class="text-red-600">{{ error }}</div>
+              <div class="py-1 px-3">{{ error }}</div>
             {% endfor %}
+            </div>
           {% endif %}
 
           <div class="text-left">
