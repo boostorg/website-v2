@@ -91,4 +91,45 @@
     @apply bg-red-300 py-2 px-3 rounded text-white;
   }
 
+  /* STYLES FOR THE LIBRARY README
+  These can't easily be handled in the template so doing globally.
+   */
+  #libraryReadMe h1 {
+    @apply text-3xl font-semibold border-b border-gray-300 dark:border-slate;
+  }
+  #libraryReadMe h1 a {
+    @apply float-right inline-block mx-2;
+  }
+  #libraryReadMe h2 {
+    @apply mt-3 text-2xl font-semibold border-b border-gray-300 dark:border-slate;
+  }
+  #libraryReadMe h3 {
+    @apply mt-3 text-xl font-semibold;
+  }
+  #libraryReadMe p {
+    @apply text-base pb-1 font-light;
+  }
+  #libraryReadMe ul {
+    @apply list-disc list-inside;
+  }
+  #libraryReadMe ul li {
+    @apply text-base py-1 font-light;
+  }
+  #libraryReadMe table {
+    @apply table-auto w-full;
+  }
+  #libraryReadMe code {
+    @apply text-sm;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    /* 1 */
+    @apply text-sm bg-gray-200 dark:bg-black overflow-x-scroll;
+    /* 2 */
+  }
+
 }
