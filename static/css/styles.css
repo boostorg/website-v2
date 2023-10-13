@@ -889,6 +889,111 @@ select.dropdown {
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
+/* STYLES FOR THE LIBRARY README
+  These can't easily be handled in the template so doing globally.
+   */
+
+#libraryReadMe h1 {
+  border-bottom-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(209 213 219 / var(--tw-border-opacity));
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 600;
+}
+
+.dark #libraryReadMe h1 {
+  --tw-border-opacity: 1;
+  border-color: rgb(49 74 87 / var(--tw-border-opacity));
+}
+
+#libraryReadMe h1 a {
+  float: right;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  display: inline-block;
+}
+
+#libraryReadMe h2 {
+  margin-top: 0.75rem;
+  border-bottom-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(209 213 219 / var(--tw-border-opacity));
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+}
+
+.dark #libraryReadMe h2 {
+  --tw-border-opacity: 1;
+  border-color: rgb(49 74 87 / var(--tw-border-opacity));
+}
+
+#libraryReadMe h3 {
+  margin-top: 0.75rem;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+}
+
+#libraryReadMe p {
+  padding-bottom: 0.25rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 300;
+}
+
+#libraryReadMe ul {
+  list-style-position: inside;
+  list-style-type: disc;
+}
+
+#libraryReadMe ul li {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 300;
+}
+
+#libraryReadMe table {
+  width: 100%;
+  table-layout: auto;
+}
+
+#libraryReadMe code {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+code,
+  kbd,
+  samp,
+  pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  /* 1 */
+  overflow-x: scroll;
+  --tw-bg-opacity: 1;
+  background-color: rgb(229 231 235 / var(--tw-bg-opacity));
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.dark code,.dark
+  kbd,.dark
+  samp,.dark
+  pre {
+  --tw-bg-opacity: 1;
+  background-color: rgb(5 26 38 / var(--tw-bg-opacity));
+}
+
+code,
+  kbd,
+  samp,
+  pre {
+  /* 2 */
+}
+
 *, ::before, ::after {
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;
@@ -2190,18 +2295,13 @@ select.dropdown {
   background-color: rgb(90 213 153 / 0.7);
 }
 
-.bg-yellow-200\/70 {
-  background-color: rgb(254 240 138 / 0.7);
-}
-
-.bg-red-300 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(252 165 165 / var(--tw-bg-opacity));
-}
-
 .bg-red-400 {
   --tw-bg-opacity: 1;
   background-color: rgb(248 113 113 / var(--tw-bg-opacity));
+}
+
+.bg-yellow-200\/70 {
+  background-color: rgb(254 240 138 / 0.7);
 }
 
 .bg-opacity-10 {
