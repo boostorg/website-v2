@@ -116,30 +116,29 @@
       </div>
     </section>
 
-    <section
-      class="p-6 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+    {% if maintainers %}
+    <section class="p-6 pt-1 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
       <!-- Avatars -->
       <h2 class="text-2xl">Maintainers</h2>
-      <div class="flex flex-wrap">
-        {% for user in maintainers %}
-          {% if user.image %}
-            <div class="p-1 md:p-2">
+      <div class="flex flex-wrap justify-start">
+      {% for user in maintainers %}
+          <div class="p-1 md:p-2 w-min text-center">
+            <div class="bg-gray-300 dark:bg-slate rounded w-[80px]">
+            {% if user.image %}
               <img src="{{ user.image.url }}"
-                   title="{{ user.get_full_name }}"
-                   alt="{{ user.get_full_name }}"
-                   class="rounded w-[80px]"/>
+                title="{{ user.get_full_name }}"
+                alt="{{ user.get_full_name }}"
+                class="rounded w-[80px]" />
+            {% else %}
+              <i class="py-4 px-5 text-5xl fas fa-user text-white dark:text-white/60" title="{{ user.get_full_name }}"></i>
+            {% endif %}
             </div>
-          {% else %}
-            <div class="p-1 md:p-2">
-              <div class="bg-gray-300 dark:bg-slate rounded w-[80px]">
-                <i class="py-4 px-5 text-5xl fas fa-user text-white dark:text-white/60"
-                   title="{{ user.get_full_name }}"></i>
-              </div>
-            </div>
-          {% endif %}
-        {% endfor %}
+            <span>{{ user.get_full_name }}</span>
+          </div>
+      {% endfor %}
       </div>
     </section>
+    {% endif %}
 
     {% if description %}
       <section id="libraryReadMe"
