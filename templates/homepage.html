@@ -162,17 +162,28 @@
             {{ featured_library.description }}
           </span>
           <p class="pb-1 mx-auto w-full text-sm align-left">{% if featured_library.first_boost_version %}Added in {{ featured_library.first_boost_version.display_name }}{% endif %}</p>
-          <div class="absolute bottom-4 pb-4">
+          <div class="py-4">
             {% if featured_library.authors %}
-              <span class="mr-5">Authors</span>
+              <div class="flex flex-wrap justify-start">
               {% for author in featured_library.authors.all %}
-                {% if author.image %}
-                  <img src="{{ author.image.url }}" alt="Photo of {{ author.get_full_name }}" title="{{ author.get_full_name }}" class="inline" />
-                {% else %}
-                  <i class="mr-2 text-5xl fas fa-user" title="{{ author.get_full_name }}"></i>
-                {% endif %}
+                <div class="p-1 md:p-2 w-min text-center">
+                  <div class="bg-gray-300 dark:bg-slate rounded w-[80px]">
+                  {% if author.image %}
+                    <img src="{{ author.image.url }}"
+                      title="{{ author.get_full_name }}"
+                      alt="{{ author.get_full_name }}"
+                      class="rounded w-[80px]" />
+                  {% else %}
+                    <i class="py-4 px-5 text-5xl fas fa-user text-white dark:text-white/60" title="{{ author.get_full_name }}"></i>
+                  {% endif %}
+                  </div>
+                  <span class="text-xs">{{ author.get_full_name }}</span>
+                </div>
               {% endfor %}
-            {% endif %}</div>
+              </div>
+            {% endif %}
+
+          </div>
           {% comment %}
             <div class="mt-5 max-w-md sm:flex md:mt-8">
             <div class="rounded-md shadow">
@@ -199,12 +210,14 @@
             All News&nbsp;<i class="fas fa-chevron-right text-slate dark:text-sky-600"></i>
           </a>
         </div>
-        <div class="space-y-8 divide-y divide-gray-200 dark:divide-slate">
+        <div class="space-y-4">
           {% for entry in entries %}
-            <div class="pt-6">
-              <h3 class="mb-2 text-xl">{{ entry.title }}</h3>
-              <p class="mb-3">{{ entry.publish_at|date:"m/d/Y" }}</p>
-              <p class="mb-3">{{ entry.content|truncatewords:20 }}... <a href="{% url 'news-detail' slug=entry.slug %}" class="text-orange">Read&nbsp;More</a></p>
+            <div class="pt-0">
+              <h3 class="pb-2 mb-4 text-3xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'news-detail' slug=entry.slug %}">{{ entry.title }}</a></h3>
+              {% if entry.content %}
+              <span class="pb-1 mx-auto w-full text-lg align-left">{{ entry.content|truncatewords:20 }}...</span>
+              {% endif %}
+              <p class="pb-1 mx-auto w-full text-xs align-left">Published on {{ entry.publish_at|date:"m/d/Y" }}</p>
             </div>
           {% endfor %}
         </div>
