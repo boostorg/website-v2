@@ -23,7 +23,7 @@ class VersionDetail(FormMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         obj = self.get_object()
-        context["versions"] = Version.objects.active().order_by("-release_date")
+        context["versions"] = Version.objects.version_dropdown()
         downloads = obj.downloads.all().order_by("operating_system")
         context["downloads"] = {
             k: list(v)

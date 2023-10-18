@@ -17,7 +17,7 @@ def beta_version(db):
     # Make version
     v = baker.make(
         "versions.Version",
-        name="Version 1.79.0-beta",
+        name="boost-1.79.0-beta",
         description="Some awesome description of the library",
         release_date=datetime.date.today(),
         beta=True,
@@ -41,7 +41,7 @@ def version(db):
     yesterday = datetime.date.today() - datetime.timedelta(days=1)
     v = baker.make(
         "versions.Version",
-        name="Version 1.79.0",
+        name="boost-1.79.0",
         description="Some awesome description of the library",
         release_date=yesterday,
     )
@@ -64,7 +64,7 @@ def inactive_version(db):
     yesterday = datetime.date.today() - datetime.timedelta(days=1)
     v = baker.make(
         "versions.Version",
-        name="Version 1.0.0",
+        name="boost-1.0.0",
         description="Some old description of the library",
         release_date=yesterday,
         active=False,
@@ -88,7 +88,7 @@ def old_version(db):
     last_year = datetime.date.today() - datetime.timedelta(days=365)
     v = baker.make(
         "versions.Version",
-        name="Version 1.70.0",
+        name="boost-1.70.0",
         description="Some awesome description of the library",
         release_date=last_year,
     )
@@ -112,7 +112,7 @@ def full_version_one(db):
     base_url_suffix = ".tar.gz"
     v = baker.make(
         "versions.Version",
-        name="1.79.0",
+        name="boost-1.79.0",
         description="Some old description of the library for v1.79.0",
         release_date=yesterday,
         active=False,

@@ -75,12 +75,12 @@ class LibraryList(VersionAlertMixin, ListView):
         """
         Return a queryset of all versions to display in the version dropdown.
         """
-        versions = Version.objects.active().order_by("-release_date")
+        versions = Version.objects.version_dropdown().order_by("-name")
 
         # Annotate each version with the number of libraries it has
         versions = versions.annotate(
             library_count=Count("library_version", distinct=True)
-        ).order_by("-release_date")
+        ).order_by("-name")
 
         # Filter out versions with no libraries
         versions = versions.filter(library_count__gt=0)
