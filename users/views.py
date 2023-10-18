@@ -7,7 +7,7 @@ from django.views.generic import DetailView
 from django.views.generic.base import TemplateView
 
 from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
-from allauth.account.views import SignupView
+from allauth.account.views import LoginView, SignupView
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.views import SignupView as SocialSignupView
 
@@ -212,7 +212,9 @@ class ClaimExistingAccountMixin:
                     form = ResetPasswordForm({"email": email})
                     if form.is_valid():
                         form.save(request=self.request)
-                        messages.info(self.request, message)
+                        self.request.session[
+                            "contributor_account_redirect_message"
+                        ] = message
                         return HttpResponseRedirect(reverse_lazy("account_login"))
 
         return None
@@ -257,3 +259,12 @@ class CustomSignupView(ClaimExistingAccountMixin, SignupView):
         """
         res = self.check_and_send_reset_email(form, message=self.message)
         return res if res else super().form_invalid(form)
+
+
+class CustomLoginView(LoginView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["contributor_account_redirect_message"] = self.request.session.pop(
+            "contributor_account_redirect_message", None
+        )
+        return context
