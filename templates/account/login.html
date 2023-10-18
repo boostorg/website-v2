@@ -16,6 +16,14 @@
 
     <div class="md:pt-11 md:mt-11 w-full bg-white dark:bg-charcoal mx-auto rounded py-6 px-3">
       <div class="md:w-full">
+        {% if contributor_account_redirect_message %}
+        <div role="alert" class="py-2 px-3 mb-3 text-center rounded-sm bg-yellow-200/70">
+            <p class="p-0 m-0">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ contributor_account_redirect_message }}
+            </p>
+        </div>
+      {% endif %}
         <h1 class="text-4xl text-center">{% trans "Log In" %}</h1>
         <p class="mt-0 text-center">{% blocktrans %}If you have not created an account yet, please
             <a href="{{ signup_url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">sign up</a> first.{% endblocktrans %}
