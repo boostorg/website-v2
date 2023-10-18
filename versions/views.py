@@ -3,6 +3,7 @@ import structlog
 from django.views.generic import DetailView
 from django.views.generic.edit import FormMixin
 from django.shortcuts import redirect
+from django.contrib import messages
 from itertools import groupby
 from operator import attrgetter
 
@@ -23,6 +24,20 @@ class VersionDetail(FormMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         obj = self.get_object()
+
+        # Handle the case where no data has been uploaded
+        if not obj:
+            messages.add_message(
+                self.request,
+                messages.WARNING,
+                "No data has been imported yet. Please check back later.",
+            )
+            context["versions"] = None
+            context["downloads"] = None
+            context["current_release"] = None
+            context["is_current_release"] = False
+            return context
+
         context["versions"] = Version.objects.version_dropdown()
         downloads = obj.downloads.all().order_by("operating_system")
         context["downloads"] = {

@@ -5,6 +5,9 @@ from dateutil.relativedelta import relativedelta
 
 from model_bakery import baker
 
+from ..models import Library
+from versions.models import Version
+
 
 def test_library_list(library_version, tp, url_name="libraries"):
     """GET /libraries/"""
@@ -32,9 +35,25 @@ def test_library_list(library_version, tp, url_name="libraries"):
     assert v_no_libraries not in res.context["versions"]
 
 
+def test_library_list_no_data(tp):
+    """GET /libraries/"""
+    Library.objects.all().delete()
+    Version.objects.all().delete()
+    res = tp.get("libraries")
+    tp.response_200(res)
+
+
 def test_library_list_mini(library_version, tp):
     """GET /libraries/mini/"""
     test_library_list(library_version, tp, url_name="libraries-mini")
+
+
+def test_library_list_mini_no_data(tp):
+    """GET /libraries/"""
+    Library.objects.all().delete()
+    Version.objects.all().delete()
+    res = tp.get("libraries-mini")
+    tp.response_200(res)
 
 
 def test_library_list_no_pagination(library_version, tp):

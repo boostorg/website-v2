@@ -3,6 +3,7 @@ import structlog
 
 from dateutil.relativedelta import relativedelta
 from django.http import Http404
+from django.contrib import messages
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, ListView
@@ -39,7 +40,17 @@ class LibraryList(VersionAlertMixin, ListView):
 
         # default to the most recent version
         if "version" not in params:
-            params["version"] = Version.objects.most_recent().slug
+            version = Version.objects.most_recent()
+            if version:
+                params["version"] = version.slug
+            else:
+                # Add a message that no data has been imported
+                messages.add_message(
+                    self.request,
+                    messages.WARNING,
+                    "No data has been imported yet. Please check back later.",
+                )
+                return Library.objects.none()
 
         queryset = queryset.filter(library_version__version__slug=params["version"])
 
@@ -51,6 +62,21 @@ class LibraryList(VersionAlertMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Handle the case where data hasn't been imported yet
+        version = Version.objects.most_recent()
+        if not version:
+            context.update(
+                {
+                    "category": None,
+                    "version": None,
+                    "categories": Category.objects.none(),
+                    "versions": Version.objects.none(),
+                    "library_list": Library.objects.none(),
+                }
+            )
+            return context
+
         if "category" in self.request.GET and self.request.GET["category"] != "":
             context["category"] = Category.objects.get(
                 slug=self.request.GET["category"]
