@@ -2,7 +2,11 @@
     <div role="alert" class="py-2 px-3 mb-3 text-center rounded-sm bg-yellow-200/70">
         <p class="p-0 m-0">
             <i class="fas fa-exclamation-circle"></i>
+            {% if version.beta %}
+            This is a beta version of Boost.
+            {% else %}
             This is an older version and was released in {{ version.release_date|date:"Y"}}.
+            {% endif %}
            The current version is
             {% if latest_library_version %}
                 <a href="{% url 'library-detail' slug=latest_library_version.library.slug %}" class="font-semibold underline dark:text-white text-charcoal">
