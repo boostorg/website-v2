@@ -51,6 +51,7 @@ from support.views import SupportView
 from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
+    CustomLoginView,
     CustomSocialSignupViewView,
     CustomSignupView,
     ProfileView,
@@ -77,6 +78,7 @@ urlpatterns = (
             name="socialaccount_signup",
         ),
         path("accounts/signup/", CustomSignupView.as_view(), name="account_signup"),
+        path("accounts/login/", CustomLoginView.as_view(), name="account_login"),
         path("accounts/", include("allauth.urls")),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
         path("users/<int:pk>/", ProfileView.as_view(), name="profile-user"),
