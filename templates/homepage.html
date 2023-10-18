@@ -146,8 +146,9 @@
     </div>
 
     <div class="my-4 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
+      {% if featured_library %}
       <div class="p-4 relative bg-white rounded lg:p-11 lg:w-1/2 dark:bg-charcoal min-h-[500px]">
-        {% if featured_library %}
+
           <div class="mb-6">
             <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">library spotlight</span>
           </div>
@@ -198,8 +199,9 @@
             </div>
           </div>
           {% endcomment %}
-        {% endif %}
+
       </div>
+      {% endif %}
       <div class="p-4 relative bg-white rounded lg:p-11 lg:w-1/2 dark:bg-charcoal min-h-[500px]">
         <div class="mb-6">
           <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">recent news</span>
