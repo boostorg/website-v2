@@ -1634,9 +1634,9 @@ code,
   width: 3rem;
 }
 
-.w-max {
-  width: -moz-max-content;
-  width: max-content;
+.w-min {
+  width: -moz-min-content;
+  width: min-content;
 }
 
 .w-\[80px\] {
@@ -1645,11 +1645,6 @@ code,
 
 .w-48 {
   width: 12rem;
-}
-
-.w-min {
-  width: -moz-min-content;
-  width: min-content;
 }
 
 .w-8 {
