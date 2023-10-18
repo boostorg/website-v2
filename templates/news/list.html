@@ -174,7 +174,9 @@
           </div>
         </div>
         {% empty %}
-        <p class="text-center">No news yet; consider submitting something!</p>
+          {% if  user.is_authenticated %}
+            <p class="text-center">No news yet; consider submitting something!</p>
+          {% endif %}
         {% endfor %}
       </div>
     </div>
