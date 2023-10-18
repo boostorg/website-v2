@@ -5,14 +5,14 @@ from dateutil.relativedelta import relativedelta
 
 from model_bakery import baker
 
-from versions.models import Version
-
 
 def test_library_list(library_version, tp, url_name="libraries"):
     """GET /libraries/"""
     # Create a version with a library
     last_year = library_version.version.release_date - datetime.timedelta(days=365)
-    v2 = baker.make("versions.Version", name="Version 1.78.0", release_date=last_year)
+    v2 = baker.make(
+        "versions.Version", name="boost-1.78.0", release_date=last_year, beta=False
+    )
     lib2 = baker.make(
         "libraries.Library",
         name="sample",
@@ -21,11 +21,8 @@ def test_library_list(library_version, tp, url_name="libraries"):
 
     # Create a version with no libraries
     v_no_libraries = baker.make(
-        "versions.Version", name="No Libraries", release_date=last_year
+        "versions.Version", name="boost-1.0.0", release_date=last_year, beta=False
     )
-
-    # Confirm that you know which version is the most recent
-    assert library_version.version == Version.objects.most_recent()
 
     res = tp.get(url_name)
     tp.response_200(res)

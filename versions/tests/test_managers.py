@@ -1,4 +1,6 @@
+import pytest
 from model_bakery import baker
+from django.db.models import Q
 
 from versions.models import Version, VersionFile
 
@@ -28,6 +30,54 @@ def test_most_recent_beta_manager(version, inactive_version, old_version, beta_v
     version.name = "2.0.beta"
     version.save()
     assert Version.objects.most_recent_beta() == version
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "most_recent_name,most_recent_beta_name,should_show_beta",
+    [
+        # Beta is newer than newest version
+        ("1.84.0", "1.85.0.beta1", True),
+        # Beta is newer minor version than newest version
+        ("1.84.0", "1.84.1.beta1", True),
+        # Beta is for the newest version
+        ("1.84.0", "1.84.0.beta1", False),
+        # Beta is older than newest version
+        ("1.84.0", "1.83.0.beta1", False),
+        # There is no beta
+        ("1.84.0", None, False),
+    ],
+)
+def test_version_dropdown(
+    most_recent_name, most_recent_beta_name, should_show_beta, version, beta_version
+):
+    """Test the version_dropdown manager method"""
+    version.name = most_recent_name
+    version.save()
+
+    if most_recent_beta_name:
+        beta_version.name = most_recent_beta_name
+        beta_version.save()
+        most_recent_beta = beta_version
+    else:
+        most_recent_beta = None
+
+    queryset = Version.objects.version_dropdown()
+
+    if should_show_beta:
+        beta_queryset = Version.objects.active().filter(Q(name=most_recent_beta.name))
+        expected = list(
+            (
+                Version.objects.active().filter(beta=False).order_by("-release_date")
+                | beta_queryset
+            ).order_by("-release_date")
+        )
+    else:
+        expected = list(
+            Version.objects.active().filter(beta=False).order_by("-release_date")
+        )
+
+    assert list(queryset) == expected
 
 
 def test_active_file_manager(version, inactive_version):
