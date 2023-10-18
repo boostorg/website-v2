@@ -1,3 +1,4 @@
+import re
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.text import slugify
@@ -76,6 +77,16 @@ class Version(models.Model):
         site_path = "/doc/libs/"
         slug = self.slug.replace("-", "_").replace(".", "_")
         return f"{site_path}{slug}/index.html"
+
+    @cached_property
+    def cleaned_version_parts(self):
+        """Returns only the release data from the name. Also omits "boost", "beta"
+        information from the name."""
+        if not self.name:
+            return
+
+        cleaned = re.sub(r"^[^0-9]*", "", self.name).split("beta")[0]
+        return [part for part in cleaned.split(".") if part]
 
 
 class VersionFile(models.Model):
