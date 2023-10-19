@@ -28,6 +28,13 @@
             <a href="{% url 'releases-most-recent' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:10" == '/releases/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-black">Releases</a>
           </nav>
           <nav class="flex items-center space-x-3 lg:space-x-5 h-[30px]" x-data="{ 'searchOpen': false }">
+            <span class="relative">
+              <i id="gecko-search-button" data-current-boost-version="1_83_0" data-theme-mode="light" data-font-family="Cairo, sans-serif" class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange"></i>
+              <script>
+                const geckoSearchButton = document.getElementById('gecko-search-button');
+                geckoSearchButton.setAttribute('data-theme-mode', localStorage.getItem('colorMode') === 'dark' ? 'dark' : 'light');
+              </script>
+            </span>
           {% comment %}
               <span class="relative">
               <i class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="searchOpen = true; $nextTick(() => { setTimeout(() => { document.getElementById('hq').focus(); }, 300);});"></i>
@@ -111,6 +118,7 @@
                             }
                           });
                         }
+                        document.getElementById('gecko-search-button').setAttribute('data-theme-mode', m);
                     }
                 }"
 
