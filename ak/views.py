@@ -144,6 +144,10 @@ class NotFoundView(View):
         raise Http404("404 Not Found")
 
 
+def custom_404_view(request, exception=None):
+    return render(request, "404.html", status=404)
+
+
 class OKView(View):
     def get(self, *args, **kwargs):
         return HttpResponse("200 OK", status=200)
