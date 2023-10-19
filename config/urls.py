@@ -270,3 +270,5 @@ urlpatterns = (
         ),
     ]
 )
+
+handler404 = "ak.views.custom_404_view"

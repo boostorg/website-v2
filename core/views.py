@@ -118,7 +118,7 @@ class MarkdownTemplateView(TemplateView):
                 content_path=kwargs.get("content_path"),
                 status_code=404,
             )
-            raise Http404("Page not found")
+            raise Http404("Markdown not found")
 
         if not os.path.isfile(path):
             logger.info(
@@ -175,7 +175,7 @@ class StaticContentTemplateView(TemplateView):
                 content_path=content_path,
                 status_code=404,
             )
-            return HttpResponseNotFound("Page not found")
+            raise Http404("Content not found")
         return super().get(request, *args, **kwargs)
 
     def cache_result(self, static_content_cache, cache_key, result):
