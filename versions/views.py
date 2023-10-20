@@ -47,9 +47,25 @@ class VersionDetail(FormMixin, DetailView):
         current_release = Version.objects.most_recent()
         context["current_release"] = current_release
         obj = self.get_object()
-        context["is_current_release"] = bool(current_release == obj)
+        is_current_release = bool(current_release == obj)
+        context["is_current_release"] = is_current_release
+
+        context["heading"] = self.get_version_heading(obj, is_current_release)
 
         return context
+
+    def get_version_heading(self, obj, is_current_release):
+        """Returns the heading of the versions template"""
+        heading = "Release"
+
+        if is_current_release:
+            heading = f"Newest {heading}"
+        elif all([not is_current_release, obj.beta]):
+            heading = f"Beta {heading}"
+        elif not is_current_release:
+            heading = f"Prior {heading}"
+
+        return heading
 
     def post(self, request, *args, **kwargs):
         """User has submitted a form and will be redirected to the right record."""
