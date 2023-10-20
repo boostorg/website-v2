@@ -13,13 +13,7 @@
       <div class="flex-auto mb-2 w-full">
 
         <div>
-          <span class="text-xl md:text-3xl lg:text-4xl">
-            {% if is_current_release %}
-              Newest
-            {% else %}
-              Prior
-            {% endif %}
-          Release </span>
+          <span class="text-xl md:text-3xl lg:text-4xl">{{ heading }}</span>
           <span class="text-lg whitespace-nowrap md:text-xl lg:text-3xl pr-[1vw]">({{ version.display_name }})</span>
           <img src="{% static 'img/fpo/boost-release-package.png' %}"
                height="32" width="32"
