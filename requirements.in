@@ -58,6 +58,7 @@ beautifulsoup4
 
 django-haystack>=3.2
 django-mptt==0.14
+elasticsearch==7.17.9
 
 # Github
 ghapi

@@ -40,6 +40,7 @@ celery==5.2.7
     # via -r ./requirements.in
 certifi==2023.5.7
     # via
+    #   elasticsearch
     #   minio
     #   requests
 cffi==1.15.1
@@ -139,6 +140,8 @@ djangorestframework==3.14.0
     # via
     #   -r ./requirements.in
     #   django-rest-auth
+elasticsearch==7.17.9
+    # via -r ./requirements.in
 environs[django]==9.5.0
     # via -r ./requirements.in
 executing==1.2.0
@@ -315,6 +318,7 @@ urllib3==1.26.16
     # via
     #   botocore
     #   django-anymail
+    #   elasticsearch
     #   minio
     #   requests
     #   responses
