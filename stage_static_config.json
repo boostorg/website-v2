@@ -28,6 +28,10 @@
     "s3_path": "/site-pages/develop/help.adoc"
   },
   {
+    "site_path": "/page/",
+    "s3_path": "/site-pages/develop/"
+  },
+  {
     "site_path": "/doc/libs/",
     "s3_path": "/archives/"
   },
