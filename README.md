@@ -63,6 +63,10 @@ using:
 $ docker compose down
 ```
 
+### :bell: Updating the Docker image with new dependencies
+
+> If new dependencies exist in `requirements.in`, see [Dependency Management](docs/dependencies.md) for details on how to rebuild the Docker image with those new dependencies.
+
 ## Running the tests
 
 To run the tests, execute:
