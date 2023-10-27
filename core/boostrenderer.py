@@ -1,19 +1,19 @@
-import boto3
-from botocore.exceptions import ClientError
-from bs4 import BeautifulSoup, Tag
 import json
 import os
 import re
+
+import boto3
 import structlog
-
+from botocore.exceptions import ClientError
+from bs4 import BeautifulSoup, Tag
 from django.conf import settings
-
 from mistletoe import HTMLRenderer
 from mistletoe.span_token import SpanToken
 from pygments import highlight
-from pygments.styles import get_style_by_name as get_style
-from pygments.lexers import get_lexer_by_name as get_lexer, guess_lexer
 from pygments.formatters.html import HtmlFormatter
+from pygments.lexers import get_lexer_by_name as get_lexer
+from pygments.lexers import guess_lexer
+from pygments.styles import get_style_by_name as get_style
 
 logger = structlog.get_logger()
 
@@ -135,10 +135,14 @@ def get_s3_client():
     )
 
 
-def get_s3_keys(content_path, config_filename="stage_static_config.json"):
+def get_s3_keys(content_path, config_filename=None):
     """
     Get the S3 key for a given content path
     """
+    # Get configuration from settings if not specifically given
+    if config_filename is None:
+        config_filename = settings.STATIC_CONTENT_MAPPING
+
     # Get the config file for the static content URL settings.
     project_root = settings.BASE_DIR
     config_file_path = os.path.join(project_root, config_filename)
