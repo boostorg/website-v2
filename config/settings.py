@@ -394,6 +394,11 @@ STATIC_CONTENT_AWS_S3_ENDPOINT_URL = env(
     "STATIC_CONTENT_AWS_S3_ENDPOINT_URL", default="https://s3.us-east-2.amazonaws.com"
 )
 
+# JSON configuration of how we map static content in the S3 buckets to URL paths
+STATIC_CONTENT_MAPPING = env(
+    "STATIC_CONTENT_MAPPING", default="stage_static_config.json"
+)
+
 # Markdown content
 BASE_CONTENT = env("BOOST_CONTENT_DIRECTORY", "/website")
 
