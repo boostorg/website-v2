@@ -247,6 +247,14 @@ class User(BaseUser):
             self.claimed = True
             self.save()
 
+    @property
+    def username(self):
+        """
+        This property should not be used by Boost code at all. It exists simply to fix a bug in django_mailman3 which
+        is required by hyperkitty.  It assumes a username field exists when it emits logs in it's `create_profile` signal.
+        """
+        return self.email
+
 
 class LastSeen(models.Model):
     """
