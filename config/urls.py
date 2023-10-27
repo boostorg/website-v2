@@ -52,8 +52,8 @@ from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
     CustomLoginView,
-    CustomSocialSignupViewView,
     CustomSignupView,
+    CustomSocialSignupViewView,
     ProfileView,
     UserViewSet,
 )
@@ -135,6 +135,7 @@ urlpatterns = (
             LibraryDetail.as_view(),
             name="library-detail",
         ),
+        path("mailing-list/archive/", include("hyperkitty.urls")),
         path(
             "mailing-list/<int:pk>/",
             MailingListDetailView.as_view(),

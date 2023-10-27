@@ -75,6 +75,10 @@ INSTALLED_APPS += [
     "mptt",
     "haystack",
     "widget_tweaks",
+    # Hyperkitty dependencies:
+    "django_mailman3",
+    "hyperkitty",
+    "compressor",
 ]
 
 # Our Apps
@@ -106,6 +110,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 if DEBUG:
@@ -132,6 +137,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context_processors.login_url",
             ],
             "loaders": [
                 "django.template.loaders.filesystem.Loader",
@@ -202,6 +208,13 @@ STATICFILES_DIRS = [
 # This is the directory where all of the collected static files are put
 # after running collectstatic
 STATIC_ROOT = str(BASE_DIR.joinpath("static_deploy"))
+
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    # other finders..
+    "compressor.finders.CompressorFinder",
+]
 
 # Directory where uploaded media is saved.
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -295,6 +308,7 @@ JDOODLE_API_CLIENT_SECRET = env("JDOODLE_API_CLIENT_SECRET", "")
 SITE_ID = 1
 ACCOUNT_EMAIL_VERIFICATION = "none"
 LOGIN_REDIRECT_URL = "home"
+LOGIN_URL = "account_login"
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
