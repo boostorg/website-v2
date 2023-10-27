@@ -15,19 +15,23 @@
 
       </div>
       <div class="mt-6 w-full text-center md:mt-3 md:w-1/2">
-        <div class="mx-auto flex justify-center items-center mt-5 space-y-3 max-w-md md:mt-8 md:space-y-0">
-          <a href="{% url 'releases-most-recent' %}" class="w-80 flex justify-left items-center py-4 pl-6 md:pl-3 text-base font-medium text-white rounded-md border md:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
-            <i class="pl-2 pr-7 md:pr-6 text-white fas fa-arrow-circle-down dark:text-orange"></i> Download the Latest Release
+        <div class="mx-auto group flex justify-center items-center mt-5 space-y-3 max-w-md md:mt-8 md:space-y-0">
+          <a href="{% url 'releases-most-recent' %}" class="w-80 flex justify-left items-center py-4 pl-6 md:pl-3 text-base font-medium link-header text-white rounded-md border md:text-lg border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75">
+            <i class="pl-2 pr-7 md:pr-6 text-white group-hover:text-sky-600 fas fa-arrow-circle-down dark:text-orange"></i> Download the Latest Release
           </a>
         </div>
         <div class="mx-auto flex justify-center items-center mt-5 space-y-3 max-w-md md:mt-8 md:space-y-0 truncate">
-          <a href="https://cpplang.slack.com/" target="_blank" rel="noopener" class="w-80 flex justify-left items-center pr-8 text-base font-medium text-charcoal rounded-md border md:pr-4 md:text-lg border-orange bg-white ">
-            <img class="mx-auto" width="60" height="60" src="{% static 'img/icons/icon_slack.svg' %}" alt="Visit the C++ Slack Workspace" /> Visit the C++ Slack&#174; Workspace
+          <a href="https://cpplang.slack.com/" target="_blank" rel="noopener" class="w-80 flex justify-left items-center pr-8 text-base font-medium text-charcoal rounded-md border md:pr-4 md:text-lg border-orange bg-white hover:text-underline ">
+            <img class="mx-auto" width="60" height="60" src="{% static 'img/icons/icon_slack.svg' %}" alt="Visit the C++ Slack Workspace" />
+            <div class="group transition duration-300">
+              Visit the C++ Slack&#174; Workspace
+              <span class="block max-w-0 group-hover:max-w-full transition-all duration-300 h-0.5 bg-sky-600"></span>
+            </div>
           </a>
         </div>
         <div class="mx-auto flex justify-center items-center mt-1 max-w-md truncate">
           <a href="https://cppalliance.org/slack/" target="_blank" rel="noopener" class="w-80 flex justify-left items-center pr-8 text-sm font-medium md:pr-4 md:text-sm text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
-            <i class="pl-2 pr-1 text-white fas fa-rocket dark:text-orange"></i> Get invited to the workspace if it's your first time.
+            <i class="pl-2 pr-1 text-charcoal dark:text-white fas fa-rocket dark:text-orange"></i> Get invited to the workspace if it's your first time.
           </a>
         </div>
       </div>
@@ -159,15 +163,15 @@
       <div class="p-6 relative bg-white rounded-lg md:p-11 lg:w-1/2 dark:bg-charcoal min-h-[500px]">
 
           <div class="mb-6">
-            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">library spotlight</span>
+            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-orange/30">library spotlight</span>
           </div>
           <div class="absolute top-1 right-8 p-2 group">
             <a href="{% url 'libraries' %}"
-               class="text-sm font-medium md:text-base lg:text-base text-slate dark:text-sky-600">
-              All Libraries&nbsp;<i class="fas fa-chevron-right text-slate dark:text-sky-600"></i>
+               class="text-sm font-medium md:text-base lg:text-base  text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange">
+              All Libraries&nbsp;<i class="fas fa-chevron-right  text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange"></i>
             </a>
           </div>
-          <h3 class="pb-2 mb-4 text-3xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'library-detail' slug=featured_library.slug %}">{{ featured_library.name }}</a></h3>
+          <h3 class="pb-2 mb-4 text-3xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'library-detail' slug=featured_library.slug %}" class="link-header">{{ featured_library.name }}</a></h3>
           <span class="pb-1 mx-auto w-full text-lg align-left">
             {{ featured_library.description }}
           </span>
@@ -213,18 +217,18 @@
       {% endif %}
       <div class="p-6 relative bg-white rounded-lg md:p-11 lg:w-1/2 dark:bg-charcoal min-h-[500px]">
         <div class="mb-6">
-          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">recent news</span>
+          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-orange/30">recent news</span>
         </div>
         <div class="absolute top-1 right-8 p-2 group">
           <a href="{% url 'news' %}"
-            class="text-sm font-medium md:text-base lg:text-base text-slate dark:text-sky-600">
-            All News&nbsp;<i class="fas fa-chevron-right text-slate dark:text-sky-600"></i>
+            class="text-sm font-medium md:text-base lg:text-base text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange">
+            All News&nbsp;<i class="fas fa-chevron-right text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange"></i>
           </a>
         </div>
         <div class="space-y-4">
           {% for entry in entries %}
             <div class="pt-0">
-              <h3 class="pb-2 mb-4 text-3xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'news-detail' slug=entry.slug %}">{{ entry.title }}</a></h3>
+              <h3 class="pb-2 mb-4 text-3xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'news-detail' slug=entry.slug %}" class="link-header">{{ entry.title }}</a></h3>
               {% if entry.content %}
               <span class="pb-1 mx-auto w-full text-lg align-left">{{ entry.content|truncatewords:20 }}...</span>
               {% endif %}
@@ -239,7 +243,7 @@
     <div class="my-4 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
       <div class="p-4 bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
         <div class="mb-6">
-          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-green bg-green/10">featured video</span>
+          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-orange/30">featured video</span>
         </div>
         <div class="relative h-0 overflow-hidden max-w-full w-full" style="padding-bottom: 56.25%">
           <iframe
