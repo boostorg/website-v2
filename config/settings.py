@@ -412,7 +412,7 @@ NEWS_MODERATION_ALLOWLIST = [
 # EMAIL SETTINGS -- THESE NEED ADJUSTMENT WHEN DECIDED WHICH ESP WILL BE USED
 EMAIL_HOST = "maildev"
 EMAIL_PORT = 1025
-DEFAULT_FROM_EMAIL = "info@cppalliance.org"
+DEFAULT_FROM_EMAIL = "boost@cppalliance.org"
 SERVER_EMAIL = "errors@cppalliance.org"
 
 # Deployed email configuration
