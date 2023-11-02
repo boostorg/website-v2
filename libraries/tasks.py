@@ -9,7 +9,6 @@ from libraries.models import LibraryVersion
 from libraries.utils import get_first_last_day_last_month
 from versions.models import Version
 
-
 logger = structlog.getLogger(__name__)
 
 
@@ -69,9 +68,9 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
 
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    # Executes every 5th of the month at 7:30 a.m.
+    # Executes daily at 7:05 AM
     sender.add_periodic_task(
-        crontab(hour=7, minute=05),
+        crontab(hour=7, minute=5),
         update_libraries.s(),
     )
 
