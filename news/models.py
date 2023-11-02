@@ -55,7 +55,7 @@ class Entry(models.Model):
         """The entry cannot be approved again."""
 
     news_type = ""
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=300)
     title = models.CharField(max_length=255)
     content = models.TextField(blank=True, default="")
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -66,7 +66,7 @@ class Entry(models.Model):
         blank=True,
         related_name="moderated_entries_set",
     )
-    external_url = models.URLField(_("URL"), blank=True, default="")
+    external_url = models.URLField(_("URL"), blank=True, default="", max_length=500)
     image = models.ImageField(upload_to="news/%Y/%m/", null=True, blank=True)
     created_at = models.DateTimeField(default=now)
     approved_at = models.DateTimeField(null=True, blank=True)
