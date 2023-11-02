@@ -67,6 +67,12 @@
             <i class="fa fa-video"></i>
           </a>
 
+          {% if is_moderator %}
+          <a href="{% url "news-moderate" %}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+            <h6 class="pb-1 text-base">Moderate</h6>
+            <i class="fa fa-thumbs-up"></i>
+          </a>
+          {% endif %}
         </div>
 
       </div>

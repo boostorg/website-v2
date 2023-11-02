@@ -81,6 +81,14 @@ class EntryListView(ListView):
             entry.display_publish_at = display_publish_at(entry.publish_at, right_now)
         return result
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_moderator"] = False
+
+        if self.request.user.is_authenticated:
+            context["is_moderator"] = can_approve(self.request.user)
+        return context
+
 
 class BlogPostListView(EntryListView):
     model = BlogPost
