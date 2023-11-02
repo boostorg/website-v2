@@ -1510,10 +1510,6 @@ code,
   margin-left: 1rem;
 }
 
-.-ml-1 {
-  margin-left: -0.25rem;
-}
-
 .block {
   display: block;
 }
@@ -3618,12 +3614,12 @@ code,
     border-left-width: 0px;
   }
 
-  .md\:border-b-0 {
-    border-bottom-width: 0px;
-  }
-
   .md\:border-l-2 {
     border-left-width: 2px;
+  }
+
+  .md\:border-b-0 {
+    border-bottom-width: 0px;
   }
 
   .md\:border-orange {
