@@ -310,6 +310,11 @@
 
             <a href="{% url 'releases-most-recent' %}" class="block py-2 px-3 text-slate dark:text-white">Releases</a>
           </div>
+          <div class="px-2 pt-6 pb-3 text-base">
+            <a href="/doc/user-guide/index.html" class="block py-2 px-3 text-slate dark:text-white">User Guide</a>
+            <a href="/doc/contributor-guide/index.html" class="block py-2 px-3 text-slate dark:text-white">Contributor Guide</a>
+            <a href="/doc/formal-reviews/index.html" class="block py-2 px-3 text-slate dark:text-white">Formal Reviews</a>
+          </div>
           <div class="absolute left-0 bottom-10 px-2 pt-6 pb-3 text-sm border-t border-gray-300 dark:border-gray-700 w-full">
             {% if not user.is_authenticated %}
               <a href="{% url 'account_signup' %}" class="block py-2 px-3 text-gray-500 dark:text-gray-400">Join</a>
