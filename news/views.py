@@ -168,6 +168,7 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context["add_label"] = self.add_label
         context["add_url_name"] = self.add_url_name
+        context["cancel_url"] = reverse_lazy("news")
         return context
 
 
@@ -285,6 +286,13 @@ class EntryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         else:
             result = EntryForm
         return result
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cancel_url"] = reverse_lazy(
+            "news-detail", kwargs={"slug": self.object.slug}
+        )
+        return context
 
 
 class EntryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
