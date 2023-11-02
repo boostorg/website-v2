@@ -418,7 +418,7 @@ def test_news_create_post(
             b"GIF89a\x01\x00\x01\x00\x00\x00\x00!\xf9\x04\x01\x00\x00\x00"
             b"\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x01\x00\x00"
         )
-        img.name = f"random-value-{uuid.uuid4()}.gif"
+        img.name = f"random-value-{uuid.uuid4()}.png"
         data["image"] = img
 
     data["publish_at"] = right_now = now()
