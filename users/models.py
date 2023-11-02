@@ -16,6 +16,8 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from core.validators import image_validator, max_file_size_validator
+
 logger = logging.getLogger(__name__)
 
 
@@ -203,7 +205,12 @@ class User(BaseUser):
 
     badges = models.ManyToManyField(Badge)
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
-    image = models.FileField(upload_to="profile-images", null=True, blank=True)
+    image = models.FileField(
+        upload_to="profile-images",
+        null=True,
+        blank=True,
+        validators=[image_validator, max_file_size_validator],
+    )
     claimed = models.BooleanField(
         _("claimed"),
         default=True,
