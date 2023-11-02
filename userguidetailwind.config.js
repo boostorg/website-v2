@@ -26,6 +26,7 @@ module.exports = {
       gold: '#F4CA1F',
       bronze: '#BB8A56',
       silver: '#B5C9D3',
+      active: '#1565c0',
     },
     extend: {
       fontFamily: {
