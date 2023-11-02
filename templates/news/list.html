@@ -116,10 +116,12 @@
           </div>
           <div class="hidden pt-2 mt-4 text-xs text-left md:block w-[70px]">
             {% if entry.author.image %}
-              <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="inline rounded w-[30px]" />
+              <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded">
+                <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
+              </span>
             {% else %}
-              <span class="inline px-2 pt-3 pb-1 bg-white rounded dark:text-white dark:bg-slate">
-                <i class="text-2xl fas fa-user" title="{{ entry.author.get_full_name }}"></i>
+              <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate">
+                <i class="text-2xl fas fa-user ml-1" title="{{ entry.author.get_full_name }}"></i>
               </span>
             {% endif %}
           </div>
@@ -139,7 +141,7 @@
               <div class="mt-6 w-1/3 text-sm text-left capitalize">
                 <a href="{{ entry.get_absolute_url }}">{{ entry.display_publish_at }}</a>
               </div>
-              <div class="pt-6 w-1/3 text-center border-l-2 border-white dark:border-slate">
+              <div class="pt-6 w-1/3 text-center md:border-l-2 border-white dark:border-slate">
                 {% if entry.tag == "link" %}
                   {% url 'news-link-list' as target_url %}
                   <a href="{{ target_url }}" title="Link" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
@@ -171,10 +173,12 @@
               </div>
               <div class="pt-2 mt-4 w-1/3 text-xs text-right">
                 {% if entry.author.image %}
-                  <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="inline rounded-sm w-[30px]" />
+                  <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded">
+                    <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
+                  </span>
                 {% else %}
-                  <span class="inline px-2 pt-3 pb-1 bg-white rounded-sm dark:text-white dark:bg-slate">
-                    <i class="text-2xl fas fa-user" title="{{ entry.author.get_full_name }}"></i>
+                  <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate">
+                    <i class="text-2xl fas fa-user mr-1" title="{{ entry.author.get_full_name }}"></i>
                   </span>
                 {% endif %}
               </div>

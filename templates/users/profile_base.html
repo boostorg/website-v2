@@ -6,7 +6,9 @@
   <div class="flex items-center py-3 px-4 border-b md:px-0 md:border-0 border-slate">
     <div>
       {% if user.image %}
-        <img src="{{ user.image.url }}" alt="user" class="inline rounded-lg w-[80px]" />
+        <div class="h-[80px] w-[80px] overflow-hidden rounded-lg">
+          <img src="{{ user.image.url }}" alt="user" class="h-full w-full object-cover" />
+        </div>
       {% else %}
         <i class="mr-2 text-5xl fas fa-user text-white/60"></i>
       {% endif %}
