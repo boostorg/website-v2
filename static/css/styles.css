@@ -1510,6 +1510,10 @@ code,
   margin-left: 1rem;
 }
 
+.-ml-1 {
+  margin-left: -0.25rem;
+}
+
 .block {
   display: block;
 }
@@ -1596,6 +1600,10 @@ code,
 
 .h-auto {
   height: auto;
+}
+
+.h-\[80px\] {
+  height: 80px;
 }
 
 .h-8 {
@@ -3612,6 +3620,10 @@ code,
 
   .md\:border-b-0 {
     border-bottom-width: 0px;
+  }
+
+  .md\:border-l-2 {
+    border-left-width: 2px;
   }
 
   .md\:border-orange {
