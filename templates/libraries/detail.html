@@ -53,7 +53,7 @@
 
                 {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}{{ library.cpp_standard_minimum }}{% else %}03{% endif %} or Later">
               {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}
-                {{ library.cpp_standard_minimum }}{% else %}03{% endif %}+
+                {{ library.cpp_standard_minimum }}{% else %}03{% endif %}
             </span>
             <span class="float-right">{% if object.first_boost_version %}Added in Boost
               {{ object.first_boost_version.display_name }}{% endif %}</span>
