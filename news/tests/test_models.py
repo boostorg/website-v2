@@ -2,6 +2,8 @@ import datetime
 
 import pytest
 from django.contrib.auth.models import Permission
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from model_bakery import baker
 
@@ -60,6 +62,54 @@ def test_entry_not_published(make_entry):
 def test_entry_absolute_url(tp):
     entry = baker.make("Entry", slug="the-slug")
     assert entry.get_absolute_url() == tp.reverse("news-detail", "the-slug")
+
+
+def test_entry_model_image_validator(tp):
+    """
+    Test that the `image` field only accepts certain file types.
+    """
+    author = baker.make("users.User")
+    entry = Entry.objects.create(title="😀 Foo Bar Baz!@! +", author=author)
+    # Valid image file
+    valid_image = SimpleUploadedFile(
+        "test.jpg", b"file_content", content_type="image/jpeg"
+    )
+    entry.image = valid_image
+    # This should not raise any errors
+    entry.full_clean()
+
+    # Invalid image file
+    invalid_image = SimpleUploadedFile(
+        "test.pdf", b"file_content", content_type="application/pdf"
+    )
+    entry.image = invalid_image
+    # This should raise a ValidationError
+    with pytest.raises(ValidationError):
+        entry.full_clean()
+
+
+def test_entry_model_image_file_size(tp):
+    """
+    Test that the `image` field rejects files larger than a specific size.
+    """
+    author = baker.make("users.User")
+    entry = Entry.objects.create(title="😀 Foo Bar Baz!@! +", author=author)
+
+    valid_image = SimpleUploadedFile(
+        "test.jpg", b"a" * (1 * 1024 * 1024 - 1), content_type="image/jpeg"
+    )
+    entry.image = valid_image
+    # This should not raise any errors
+    entry.full_clean()
+
+    # This should fail (just over 1MB)
+    invalid_image = SimpleUploadedFile(
+        "too_large.jpg", b"a" * (1 * 1024 * 1024 + 1), content_type="image/jpeg"
+    )
+    entry.image = invalid_image
+    # This should raise a ValidationError for file size
+    with pytest.raises(ValidationError):
+        entry.full_clean()
 
 
 def test_approve_entry(make_entry):

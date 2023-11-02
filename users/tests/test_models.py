@@ -1,6 +1,8 @@
 import pytest
 
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.exceptions import ValidationError
 from pytest_django.asserts import assertQuerySetEqual
 
 from ..models import Preferences
@@ -50,14 +52,47 @@ def test_get_display_name(user):
     assert user.get_display_name == "Last"
 
 
-@pytest.mark.skip("Add this test when I have the patience for mocks")
-def test_user_save_image_from_github(user):
+def test_user_model_image_validator(user):
     """
-    Test `User.save_image_from_github(avatar_url)`
-    See test_signals -- you will need to do something similar here, but
-    dealing with a File object might make it trickier.
+    Test that the `image` field on the User model only accepts certain file types.
     """
-    pass
+    # Valid image file
+    valid_image = SimpleUploadedFile(
+        "test.jpg", b"file_content", content_type="image/jpeg"
+    )
+    user.image = valid_image
+    # This should not raise any errors
+    user.full_clean()
+
+    # Invalid image file
+    invalid_image = SimpleUploadedFile(
+        "test.pdf", b"file_content", content_type="application/pdf"
+    )
+    user.image = invalid_image
+    # This should raise a ValidationError
+    with pytest.raises(ValidationError):
+        user.full_clean()
+
+
+def test_user_model_image_file_size(user):
+    """
+    Test that the `image` field rejects files larger than a specific size.
+    """
+    valid_image = SimpleUploadedFile(
+        "test.jpg", b"a" * (1 * 1024 * 1024 - 1), content_type="image/jpeg"
+    )
+    user.image = valid_image
+    # This should not raise any errors
+    user.full_clean()
+
+    # This should fail (just over 1MB)
+    invalid_image = SimpleUploadedFile(
+        "too_large.jpg", b"a" * (1 * 1024 * 1024 + 1), content_type="image/jpeg"
+    )
+    user.image = invalid_image
+    # This should raise a ValidationError for file size
+    with pytest.raises(ValidationError):
+        user.full_clean()
 
 
 def test_claim(user):

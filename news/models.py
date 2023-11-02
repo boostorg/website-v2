@@ -7,6 +7,8 @@ from django.utils.text import slugify
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
+from core.validators import image_validator, max_file_size_validator
+
 from . import acl
 
 User = get_user_model()
@@ -67,7 +69,12 @@ class Entry(models.Model):
         related_name="moderated_entries_set",
     )
     external_url = models.URLField(_("URL"), blank=True, default="", max_length=500)
-    image = models.ImageField(upload_to="news/%Y/%m/", null=True, blank=True)
+    image = models.ImageField(
+        upload_to="news/%Y/%m/",
+        null=True,
+        blank=True,
+        validators=[image_validator, max_file_size_validator],
+    )
     created_at = models.DateTimeField(default=now)
     approved_at = models.DateTimeField(null=True, blank=True)
     modified_at = models.DateTimeField(auto_now=True)
