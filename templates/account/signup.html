@@ -2,6 +2,7 @@
 
 {% load i18n %}
 
+{% load widget_tweaks %}
 {% load account socialaccount %}
 
 {% block head_title %}{% trans "Sign Up" %}{% endblock %}
@@ -55,7 +56,7 @@
                   {% endif %}
                   <div>
                     <label class="text-xs uppercase text-slate dark:text-white/70">{{ field.label }}
-                      {{ field }}
+                      {% render_field field placeholder="" %}
                     </label>
 
                     {% if field.help_text %}
