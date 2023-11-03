@@ -2159,6 +2159,11 @@ code,
   border-radius: 0.125rem;
 }
 
+.rounded-b-none {
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+
 .rounded-t-none {
   border-top-left-radius: 0px;
   border-top-right-radius: 0px;
@@ -2382,11 +2387,6 @@ code,
 
 .bg-yellow-200\/70 {
   background-color: rgb(254 240 138 / 0.7);
-}
-
-.bg-slate {
-  --tw-bg-opacity: 1;
-  background-color: rgb(49 74 87 / var(--tw-bg-opacity));
 }
 
 .bg-opacity-10 {
@@ -2673,10 +2673,6 @@ code,
 
 .pt-8 {
   padding-top: 2rem;
-}
-
-.pt-\[1px\] {
-  padding-top: 1px;
 }
 
 .text-left {
@@ -3058,21 +3054,6 @@ code,
   background-color: rgb(255 255 255 / 0.6);
 }
 
-.hover\:bg-charcoal:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(23 42 52 / var(--tw-bg-opacity));
-}
-
-.hover\:bg-slate:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(49 74 87 / var(--tw-bg-opacity));
-}
-
-.hover\:bg-orange:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 159 0 / var(--tw-bg-opacity));
-}
-
 .hover\:\!text-white:hover {
   --tw-text-opacity: 1 !important;
   color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
@@ -3091,11 +3072,6 @@ code,
 .hover\:text-white:hover {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
-.hover\:text-sky-600:hover {
-  --tw-text-opacity: 1;
-  color: rgb(2 132 199 / var(--tw-text-opacity));
 }
 
 .hover\:no-underline:hover {
@@ -3247,11 +3223,6 @@ code,
 :is(.dark .dark\:bg-white) {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
-:is(.dark .dark\:bg-orange) {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 159 0 / var(--tw-bg-opacity));
 }
 
 :is(.dark .dark\:bg-opacity-10) {
@@ -3899,6 +3870,10 @@ code,
     margin-bottom: 4rem;
   }
 
+  .lg\:mb-0 {
+    margin-bottom: 0px;
+  }
+
   .lg\:mb-10 {
     margin-bottom: 2.5rem;
   }
@@ -3987,6 +3962,16 @@ code,
     margin-bottom: calc(0px * var(--tw-space-y-reverse));
   }
 
+  .lg\:rounded-l-none {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+  }
+
+  .lg\:rounded-r-none {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+  }
+
   .lg\:rounded-bl-lg {
     border-bottom-left-radius: 0.5rem;
   }
@@ -4001,6 +3986,10 @@ code,
 
   .lg\:rounded-tr-lg {
     border-top-right-radius: 0.5rem;
+  }
+
+  .lg\:pt-6 {
+    padding-top: 1.5rem;
   }
 
   .lg\:text-3xl {
