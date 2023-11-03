@@ -1,5 +1,4 @@
 from django import forms
-from .helpers import get_link_preview_data
 from .models import BlogPost, Entry, Link, News, Poll, Video
 
 
