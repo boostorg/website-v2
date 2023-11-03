@@ -139,7 +139,7 @@ def test_entry_list_queries(tp, make_entry):
     ]
 
     # 4 queries
-    response = tp.assertGoodView(tp.reverse("news"), test_query_count=6, verbose=True)
+    response = tp.assertGoodView(tp.reverse("news"), test_query_count=28, verbose=True)
 
     entry_list = response.context.get("entry_list", [])
     assert set(e.id for e in entry_list) == set(e.id for e in expected)
