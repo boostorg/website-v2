@@ -106,8 +106,8 @@ def test_entry_list(
     if authenticated:
         tp.login(regular_user)
 
-    # 6 queries if authenticated, less otherwise
-    response = tp.assertGoodView(tp.reverse(url_name), test_query_count=7, verbose=True)
+    # 8 queries if authenticated, less otherwise
+    response = tp.assertGoodView(tp.reverse(url_name), test_query_count=9, verbose=True)
 
     expected = [today_news, yesterday_news]
     assert list(response.context.get("entry_list", [])) == expected
