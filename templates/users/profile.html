@@ -48,28 +48,32 @@
 
         <div class="rounded bg-white dark:bg-charcoal p-4">
           <h3>{% trans "Update Profile Photo" %}</h3>
-          {% if user.github_username %}
-            <form method="POST" action="." class="space-y-3">
-              {% csrf_token %}
-              <button name="update_github_photo" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Use
-                My GitHub Photo
-              </button>
-            </form>
-          {% endif %}
+          {% if can_update_image %}
+            {% if user.github_username %}
+              <form method="POST" action="." class="space-y-3">
+                {% csrf_token %}
+                <button name="update_github_photo" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Use
+                  My GitHub Photo
+                </button>
+              </form>
+            {% endif %}
 
-          <form method="POST" enctype="multipart/form-data" action="." class="space-y-3">
-            {% csrf_token %}
-            {% for field in profile_photo_form.visible_fields %}
-              <div>
-                {% include "includes/_form_input.html" with form=profile_photo_form field=field %}
+            <form method="POST" enctype="multipart/form-data" action="." class="space-y-3">
+              {% csrf_token %}
+              {% for field in profile_photo_form.visible_fields %}
+                <div>
+                  {% include "includes/_form_input.html" with form=profile_photo_form field=field %}
+                </div>
+              {% endfor %}
+              <div class="mt-4">
+                <button name="update_photo" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Upload
+                  Profile Photo
+                </button>
               </div>
-            {% endfor %}
-            <div class="mt-4">
-              <button name="update_photo" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Upload
-                Profile Photo
-              </button>
-            </div>
-          </form>
+            </form>
+          {% else %}
+            <div>Please contact an administrator to update your profile photo.</div>
+          {% endif %}
         </div>
 
         <div class="rounded bg-white dark:bg-charcoal p-4">
