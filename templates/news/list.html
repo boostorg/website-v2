@@ -10,7 +10,7 @@
     <div class="md:w-full">
       <h1 class="text-4xl">Latest Stories</h1>
 
-      <div class="md:flex md:space-x-16">
+      <div class="md:flex md:space-x-11">
         <div class="md:w-1/2 w-full">
           <p class="mt-0 text-justify">
             Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, polls, and user-created content.
@@ -114,11 +114,11 @@
           </div>
           <div class="hidden pt-2 mt-4 text-xs text-left md:block w-[70px]">
             {% if entry.author.image %}
-              <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
+              <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded">
                 <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
               </span>
             {% else %}
-              <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
+              <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate">
                 <i class="text-2xl fas fa-user ml-1" title="{{ entry.author.get_full_name }}"></i>
               </span>
             {% endif %}
@@ -177,11 +177,11 @@
               </div>
               <div class="pt-2 mt-4 w-1/3 text-xs text-right">
                 {% if entry.author.image %}
-                  <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
+                  <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded">
                     <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
                   </span>
                 {% else %}
-                  <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
+                  <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate">
                     <i class="text-2xl fas fa-user mr-1" title="{{ entry.author.get_full_name }}"></i>
                   </span>
                 {% endif %}
