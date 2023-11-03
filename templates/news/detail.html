@@ -16,7 +16,7 @@
           {% if user_can_approve %}
           <form method="POST" action="{% url 'news-approve' entry.slug %}">
             {% csrf_token %}
-            <button type="submit" name="approve" class="flex justify-center items-center py-2 px-8 text-base font-medium text-white rounded-md border md:py-4 md:px-4 md:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
+            <button type="submit" name="approve" class="py-1 px-2 mb-3 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75">
               {% translate "Approve" %}
             </button>
             {% if next_url %}
@@ -24,7 +24,7 @@
             {% endif %}
           </form>
           {% else %}
-          <strong>{% translate "Pending Moderation" %}</strong>
+          <strong class="text-base text-red-500">{% translate "Pending Moderation" %}</strong>
           {% endif %}
         </div>
         {% endif %}
