@@ -395,9 +395,9 @@ STATIC_CONTENT_AWS_S3_ENDPOINT_URL = env(
 )
 
 # LinkPreview API Key
-LINK_PREVIEW_API_KEY = env(
-    "LINK_PREVIEW_API_KEY", default="changeme"
-)
+# LINK_PREVIEW_API_KEY = env(
+#     "LINK_PREVIEW_API_KEY", default="changeme"
+# )
 
 # JSON configuration of how we map static content in the S3 buckets to URL paths
 STATIC_CONTENT_MAPPING = env(
