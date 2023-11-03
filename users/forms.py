@@ -84,3 +84,13 @@ class UserProfilePhotoForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["image"]
+
+    def clean(self):
+        """Ensure a user can't update their photo if they
+        don't have permission."""
+        cleaned_data = super().clean()
+        if not self.instance.can_update_image:
+            raise forms.ValidationError(
+                "You do not have permission to update your profile photo."
+            )
+        return cleaned_data

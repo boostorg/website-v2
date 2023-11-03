@@ -225,6 +225,14 @@ class User(BaseUser):
         ),
     )
     display_name = models.CharField(max_length=255, blank=True, null=True)
+    can_update_image = models.BooleanField(
+        _("can_update_image"),
+        default=True,
+        help_text=_(
+            "Designates whether the user can update their profile photo. To turn off "
+            "a user's ability to update their own profile photo, uncheck this box."
+        ),
+    )
 
     def save_image_from_github(self, avatar_url):
         response = requests.get(avatar_url)

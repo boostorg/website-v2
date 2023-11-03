@@ -82,6 +82,7 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
         context["change_password_form"] = ChangePasswordForm(user=self.request.user)
         context["profile_form"] = UserProfileForm(instance=self.request.user)
         context["profile_photo_form"] = UserProfilePhotoForm(instance=self.request.user)
+        context["can_update_image"] = self.request.user.can_update_image
         context["profile_preferences_form"] = PreferencesForm(
             instance=self.request.user.preferences
         )
