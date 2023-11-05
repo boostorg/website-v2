@@ -24,7 +24,7 @@
 
         <!-- General filters, by news type -->
         <div class="md:w-1/2 w-full pt-6">
-          <div class="grid grid-cols-3 justify-center place-items-center space-y-1 space-x-1 sm:grid-cols-6 sm:space-y-0">
+          <div class="grid grid-cols-3 justify-center place-items-center space-y-1 space-x-1 {% if is_moderator %}sm:grid-cols-6{% else %}sm:grid-cols-5{% endif %} sm:space-y-0">
 
             {% url 'news' as target_url %}
             <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
