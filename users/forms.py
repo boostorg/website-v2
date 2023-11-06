@@ -94,3 +94,19 @@ class UserProfilePhotoForm(forms.ModelForm):
                 "You do not have permission to update your profile photo."
             )
         return cleaned_data
+
+    def save(self, commit=True):
+        # Temporarily store the old image
+        old_image = self.instance.image
+        # Save the new image
+        user = super().save(commit=False)
+
+        if old_image:
+            # Delete the old image file if there's a new image being uploaded
+            if self.cleaned_data["image"] != old_image:
+                old_image.delete(save=False)
+
+        if commit:
+            user.save()
+
+        return user
