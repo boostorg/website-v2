@@ -76,17 +76,19 @@ def setup_periodic_tasks(sender, **kwargs):
 
 
 @app.task
-def update_libraries():
+def update_libraries(update_all=False):
     """Update local libraries from GitHub Boost libraries.
 
     Use the LibraryUpdater, which retrieves the active boost libraries from the
     Boost GitHub repo, to update the models with the latest information on that
     library (repo) along with its issues, pull requests, and related objects
     from GitHub.
-
     """
-    since, until = get_first_last_day_last_month()
     updater = LibraryUpdater()
-    updater.update_libraries(since=since, until=until)
-
-    logger.info("libraries_tasks_update_libraries_finished")
+    if update_all:
+        updater.update_libraries()
+        logger.info("libraries_tasks_update_all_libraries_finished")
+    else:
+        since, until = get_first_last_day_last_month()
+        updater.update_libraries(since=since, until=until)
+        logger.info("libraries_tasks_update_libraries_finished")
