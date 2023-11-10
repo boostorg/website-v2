@@ -57,7 +57,7 @@
 
           <div class="w-full md:w-1/2">
             <h2 class="text-xl text-center items-center">
-              Or Log In with Email <span x-cloak class="text-xs bg-emerald-400 text-white rounded px-1 ml-2" x-show='loginMethod === "\"email\""'>Last Log In</span>
+              Or Log In with Email <span x-cloak class="text-xs bg-emerald-400 text-slate rounded px-1 ml-2" x-show='loginMethod === "\"email\""'>Last Log In</span>
             </h2>
             <form class="login"
                   method="POST"
@@ -95,7 +95,7 @@
                   <a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
                   <button type="submit"
                           x-on:click="boostlogin = 'email'"
-                          class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">{% trans "Login" %}</button>
+                          class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">{% trans "Log in" %}</button>
                 </div>
               </div>
             </form>
