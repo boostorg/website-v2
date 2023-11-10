@@ -119,6 +119,11 @@ urlpatterns = (
             name="donate",
         ),
         path(
+            "style-guide/",
+            TemplateView.as_view(template_name="style_guide.html"),
+            name="donate",
+        ),
+        path(
             "libraries/by-category/",
             LibraryListByCategory.as_view(),
             name="libraries-by-category",
