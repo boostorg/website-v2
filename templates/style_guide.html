@@ -86,10 +86,10 @@
 			<div class="p-2">
 				<div class="p-6 text-white bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
 					<h5 class="text-2xl leading-tight text-orange">Community Panel Header</h5>
-					<p class="py-1 my-2 border-b border-gray-700">
+					<p class="py-1 my-2 border-b border-gray-700 text-slate dark:text-white">
 						Panel Subheader
 					</p>
-					<p>Panel paragraph text..</p>
+					<p class="text-slate dark:text-white">Panel paragraph text..</p>
 				</div>
 
 				<button class="rounded-full py-2 text-xs cursor-pointer w-4 whitespace-nowrap" @click="if (mode == 'dark') { mode='light'; setColorMode('light'); } else { mode='dark'; setColorMode('dark'); }"><i class="hidden dark:inline-block mr-1 font-semibold fas fa-sun text-white px-2 mx-2"></i><i class="inline-block dark:hidden mr-1 font-semibold fas fa-moon text-black px-2 mx-2"></i></button>
@@ -272,12 +272,42 @@
           </a>
         </div>
 
+				<button class="rounded-full py-2 text-xs cursor-pointer w-4 whitespace-nowrap" @click="if (mode == 'dark') { mode='light'; setColorMode('light'); } else { mode='dark'; setColorMode('dark'); }"><i class="hidden dark:inline-block mr-1 font-semibold fas fa-sun text-white px-2 mx-2"></i><i class="inline-block dark:hidden mr-1 font-semibold fas fa-moon text-black px-2 mx-2"></i></button>
+
 				<div class="mt-2 py-2 px-2 space-y-2 w-full bg-white rounded-lg dark:bg-charcoal">
 					<div class="highlight" style="background: #002b36"><pre style="line-height: 125%;">{% filter force_escape %}
 <a href="{% url 'releases-most-recent' %}" class="w-80 flex justify-left items-center py-4 pl-6 md:pl-3 text-base font-medium link-header text-white rounded-md border md:text-lg border-orange bg-orange dark:bg-charcoal dark:hover:bg-charcoal/75">
 	<i class="pl-2 pr-7 md:pr-6 text-white group-hover:text-sky-600 fas fa-arrow-circle-down dark:text-orange"></i> Homepage Hero Button
 </a>
 {% endfilter %}</pre></div>
+				</div>
+
+			</div>
+
+			<br clear="all" />
+
+			<div class="p-2">
+				<div class="space-y-6 w-full text-center">
+          <a class="relative w-96 block px-20 py-3 text-base font-medium rounded-md border border-orange !text-white hover:!text-white bg-orange hover:bg-orange/80 dark:bg-slate dark:hover:bg-charcoal hover:drop-shadow-md md:py-4 md:text-lg md:px-10"
+       			href="#">
+        		<span class="absolute right-1 top-1 text-xs bg-white text-slate rounded p-1">Special Notice</span>
+        		<i class="fas fa-icons"></i> Provider Button
+    			</a>
+        </div>
+
+				<button class="rounded-full py-2 text-xs cursor-pointer w-4 whitespace-nowrap" @click="if (mode == 'dark') { mode='light'; setColorMode('light'); } else { mode='dark'; setColorMode('dark'); }"><i class="hidden dark:inline-block mr-1 font-semibold fas fa-sun text-white px-2 mx-2"></i><i class="inline-block dark:hidden mr-1 font-semibold fas fa-moon text-black px-2 mx-2"></i></button>
+
+				<div class="mt-2 py-2 px-2 space-y-2 w-full bg-white rounded-lg dark:bg-charcoal">
+					<div class="highlight" style="background: #002b36"><pre style="line-height: 125%;">{% filter force_escape %}
+<div class="space-y-6 w-full text-center">
+	<a class="relative w-96 block px-20 py-3 text-base font-medium rounded-md border border-orange !text-white hover:!text-white bg-orange hover:bg-orange/80 dark:bg-slate dark:hover:bg-charcoal hover:drop-shadow-md md:py-4 md:text-lg md:px-10"
+			href="#">
+		<span class="absolute right-1 top-1 text-xs bg-white text-slate rounded p-1">Special Notice</span>
+		<i class="fas fa-icons"></i> Provider Button
+	</a>
+</div>
+{% endfilter %}</pre></div>
+				</div>
 
 			</div>
 

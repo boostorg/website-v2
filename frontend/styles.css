@@ -43,7 +43,7 @@
     @apply w-full rounded bg-white dark:bg-charcoal border border-slate;
   }
   input[type=checkbox] {
-    @apply mr-3 rounded bg-white dark:bg-charcoal border border-slate text-orange;
+    @apply mr-3 rounded bg-white dark:bg-charcoal border border-slate text-orange dark:border-slate;
     @apply cursor-pointer;
   }
   input[type=file] {
@@ -84,7 +84,7 @@
   }
 
   select.dropdown {
-    @apply py-1 mb-3 text-sm bg-white rounded-md border border-gray-300 cursor-pointer dark:bg-black text-sky-600 dark:text-orange dark:border-slate;
+    @apply py-1 mb-3 min-w-[8rem] text-sm bg-white rounded-md border border-gray-300 cursor-pointer dark:bg-black text-sky-600 dark:text-orange dark:border-slate;
   }
 
   .errorlist {
