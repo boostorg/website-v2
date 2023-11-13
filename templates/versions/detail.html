@@ -73,6 +73,7 @@
       </div>
       <div class="overflow-x-hidden pb-2 pl-0 ml-0 space-x-6 w-full h-auto md:pb-0 md:pl-6 md:ml-6">
         <div class="flex space-x-3">
+          {% if downloads %}
           <table class="p-0 m-0 w-full text-sm text-left border-0 border-separate table-auto dark:text-white border-spacing-0 text-slate">
             <tbody>
               <tr>
@@ -92,7 +93,6 @@
                   SHA256 Hash
                 </th>
               </tr>
-              {% if downloads %}
                 {% for os, download_files in downloads.items %}
                   {% for download in download_files %}
                     <tr>
@@ -124,9 +124,10 @@
                     </tr>
                   {% endfor %}
                 {% endfor %}
-              {% endif %}
+
             </tbody>
           </table>
+          {% endif %}
         </div>
       </div>
     </section>

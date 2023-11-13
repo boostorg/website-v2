@@ -47,22 +47,42 @@ def import_versions(delete_versions=False, new_versions_only=False, token=None):
             continue
 
         logger.info("import_versions_importing_version", version_name=name)
-        import_version.delay(name, tag, token=token)
+        import_version.delay(name, tag=tag, token=token)
+
+    # Import the master and develop branches
+    import_development_versions.delay()
 
 
 @app.task
-def import_version(name, tag, token=None, beta=False):
-    """Imports a single Boost version from Github and updates the local database.
-    Also runs import_release_downloads and import_library_versions for the version.
+def import_version(
+    name,
+    tag=None,
+    token=None,
+    beta=False,
+    full_release=True,
+    base_url="https://github.com/boostorg/boost/releases/tag/",
+    get_release_date=True,
+):
+    """Imports a single Boost version from Github and updates the local
+    database. Also runs import_release_downloads and import_library_versions
+    for the version.
+
+    base_url: Most base_url values will be for tags, but we do save some
+    Version objects that are branches and not tags (mainly master and develop).
     """
-    # Base url to generate the GitHub release URL
-    BASE_URL = "https://github.com/boostorg/boost/releases/tag/"
+    # Save the response we got from Github, if present
+    if tag:
+        data = obj2dict(tag)
+    else:
+        data = {}
+
     version, created = Version.objects.update_or_create(
         name=name,
         defaults={
-            "github_url": f"{BASE_URL}/{name}",
+            "github_url": f"{base_url}{name}",
             "beta": beta,
-            "data": obj2dict(tag),
+            "full_release": full_release,
+            "data": data,
         },
     )
 
@@ -80,7 +100,7 @@ def import_version(name, tag, token=None, beta=False):
         )
 
     # Get the release date for the version
-    if not version.release_date:
+    if get_release_date and not version.release_date:
         commit_sha = tag["commit"]["sha"]
         get_release_date_for_version.delay(version.pk, commit_sha, token=token)
 
@@ -89,6 +109,23 @@ def import_version(name, tag, token=None, beta=False):
 
     # Load library-versions
     import_library_versions.delay(version.name, token=token)
+
+
+@app.task
+def import_development_versions():
+    """Imports the `master` and `develop` branches as Versions"""
+    branches = ["master", "develop"]
+    base_url = "https://github.com/boostorg/boost/tree/"
+
+    for branch in branches:
+        import_version(
+            branch,
+            branch,
+            beta=False,
+            full_release=False,
+            get_release_date=False,
+            base_url=base_url,
+        )
 
 
 @app.task
@@ -117,7 +154,7 @@ def import_most_recent_beta_release(token=None, delete_old=False):
         # the most recent stable version
         if "beta" in name and name >= most_recent_version.name:
             logger.info("import_most_recent_beta_release", version_name=name)
-            import_version.delay(name, tag, token=token, beta=True)
+            import_version.delay(name, tag, token=token, beta=True, full_release=False)
             return
 
 
