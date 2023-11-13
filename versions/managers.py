@@ -8,7 +8,12 @@ class VersionQuerySet(models.QuerySet):
 
     def most_recent(self):
         """Return most recent active non-beta version"""
-        return self.active().filter(beta=False).order_by("-name").first()
+        return (
+            self.active()
+            .filter(beta=False, full_release=True)
+            .order_by("-name")
+            .first()
+        )
 
     def most_recent_beta(self):
         """Return most recent active beta version.

@@ -26,6 +26,11 @@ class Version(models.Model):
     beta = models.BooleanField(
         default=False, help_text="Whether this is a beta release"
     )
+    full_release = models.BooleanField(
+        default=True,
+        help_text="Whether this is a full release and not a "
+        "beta release or a development version",
+    )
     data = models.JSONField(default=dict)
 
     objects = VersionManager()

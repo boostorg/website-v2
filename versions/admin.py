@@ -17,8 +17,8 @@ class VersionFileInline(admin.StackedInline):
 
 @admin.register(models.Version)
 class VersionAdmin(admin.ModelAdmin):
-    list_display = ["name", "release_date", "active"]
-    list_filter = ["active"]
+    list_display = ["name", "release_date", "active", "full_release", "beta"]
+    list_filter = ["active", "full_release", "beta"]
     ordering = ["-release_date", "-name"]
     search_fields = ["name", "description"]
     date_hierarchy = "release_date"
