@@ -66,9 +66,9 @@ Env:
   - name: DJANGO_FQDN
     value: *fqdn
   - name: ALLOWED_HOSTS
-    value: "cppal-dev.boost.cppalliance.org, www.cppal-dev.boost.cppalliance.org, boost.org, www.boost.org, cppal-dev2.boost.cppalliance.org, www.cppal-dev2.boost.cppalliance.org"
+    value: "*.boost.org, *.boost.cppalliance.org, cppal-dev.boost.cppalliance.org, www.cppal-dev.boost.cppalliance.org, boost.org, www.boost.org, cppal-dev2.boost.cppalliance.org, www.cppal-dev2.boost.cppalliance.org"
   - name: CSRF_TRUSTED_ORIGINS
-    value: "http://0.0.0.0, http://localhost, https://cppal-dev.boost.cppalliance.org, https://www.cppal-dev.boost.cppalliance.org, https://boost.org, https://www.boost.org, https://cppal-dev2.boost.cppalliance.org, https://www.cppal-dev2.boost.cppalliance.org"
+    value: "http://*.boost.cppalliance.org, https://*.boost.cppalliance.org, http://0.0.0.0, http://localhost, https://cppal-dev.boost.cppalliance.org, https://www.cppal-dev.boost.cppalliance.org, https://boost.org, https://www.boost.org, https://cppal-dev2.boost.cppalliance.org, https://www.cppal-dev2.boost.cppalliance.org"
 
   # silence django deprecation warnings
   - name: PYTHONWARNINGS
@@ -225,7 +225,9 @@ hostAliases:
     hostnames:
       - "mailman-cppal-dev.boost.cppalliance.org"
 
-ingressType: gce
+ingressType: "none"
+gatewayType: "gce"
+certmap: "cppal-dev-certmap"
 managedCertName: managed-cert-cppal-dev,managed-cert-cppal-dev2
 secretCertName: boostorgcert
 ingressStaticIp: cppal-dev-ingress1
