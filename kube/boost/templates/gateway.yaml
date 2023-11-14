@@ -1,0 +1,77 @@
+# vim: ft=sls nolist
+
+{{- if eq .Values.gatewayType "gce" }}
+kind: Gateway
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: www-boost-{{.Values.deploymentEnvironment}}
+  annotations:
+    networking.gke.io/certmap: {{ .Values.certmap }}
+spec:
+  gatewayClassName: gke-l7-global-external-managed
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+    - name: http
+      protocol: HTTP
+      port: 80
+
+---
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: www-boost-{{.Values.deploymentEnvironment}}
+spec:
+  parentRefs:
+    - kind: Gateway
+      name: www-boost-{{.Values.deploymentEnvironment}}
+      sectionName: https
+  hostnames:
+    - www.{{.Values.publicFqdn}}
+    - {{.Values.publicFqdn}}
+    - www.{{.Values.publicFqdn2}}
+    - {{.Values.publicFqdn2}}
+    - www.{{.Values.publicFqdn3}}
+    - {{.Values.publicFqdn3}}
+  rules:
+    - matches:
+      - path:
+          value: /
+      backendRefs:
+      - name: boost
+        port: 80
+{{ end }}
+
+---
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: www-boost-{{.Values.deploymentEnvironment}}
+spec:
+  default:
+    config:
+      type: HTTP
+      httpHealthCheck:
+        port: 80
+        requestPath: /lbcheck
+  targetRef:
+    group: ""
+    kind: Service
+    name: boost
+
+---
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: redirect
+spec:
+  parentRefs:
+    - kind: Gateway
+      name: www-boost-{{.Values.deploymentEnvironment}}
+      sectionName: http
+  rules:
+  - filters:
+    - type: RequestRedirect
+      requestRedirect:
+        scheme: https

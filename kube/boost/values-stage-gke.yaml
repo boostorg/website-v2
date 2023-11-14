@@ -225,7 +225,9 @@ hostAliases:
     hostnames:
       - "mailman-cppal-dev.boost.cppalliance.org"
 
-ingressType: gce
+ingressType: "none"
+gatewayType: "gce"
+certmap: "stage-certmap"
 managedCertName: managed-cert-boost-stage,managed-cert-boost-stage2
 secretCertName: boostorgcert
 ingressStaticIp: boost-stage-ingress1

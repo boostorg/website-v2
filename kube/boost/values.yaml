@@ -201,6 +201,8 @@ NginxVolumeMounts:
 
 hostAliases: {}
 
-ingressType: nginx
+ingressType: "nginx"
+gatewayType: "none"
+certmap: "revsys-certmap"
 redisInstall: false
 celeryInstall: false
