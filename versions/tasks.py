@@ -49,9 +49,6 @@ def import_versions(delete_versions=False, new_versions_only=False, token=None):
         logger.info("import_versions_importing_version", version_name=name)
         import_version.delay(name, tag=tag, token=token)
 
-    # Import the master and develop branches
-    import_development_versions.delay()
-
 
 @app.task
 def import_version(
@@ -118,7 +115,7 @@ def import_development_versions():
     base_url = "https://github.com/boostorg/boost/tree/"
 
     for branch in branches:
-        import_version(
+        import_version.delay(
             branch,
             branch,
             beta=False,
@@ -126,6 +123,8 @@ def import_development_versions():
             get_release_date=False,
             base_url=base_url,
         )
+
+        import_library_versions.delay(branch, version_type="branch")
 
 
 @app.task
@@ -159,7 +158,7 @@ def import_most_recent_beta_release(token=None, delete_old=False):
 
 
 @app.task
-def import_library_versions(version_name, token=None):
+def import_library_versions(version_name, token=None, version_type="tag"):
     """For a specific version, imports all LibraryVersions using GitHub data"""
     try:
         version = Version.objects.get(name=version_name)
@@ -173,7 +172,13 @@ def import_library_versions(version_name, token=None):
     parser = GithubDataParser()
 
     # Get the gitmodules file for the version, which contains library data
-    ref = client.get_ref(ref=f"tags/{version_name}")
+    # The master and develop branches are not tags, so we retrieve their data
+    # from the heads/ namespace instead of tags/
+    if version_type == "tag":
+        ref = client.get_ref(ref=f"tags/{version_name}")
+    else:
+        ref = client.get_ref(ref=f"heads/{version_name}")
+
     raw_gitmodules = client.get_gitmodules(ref=ref)
     if not raw_gitmodules:
         logger.info(
