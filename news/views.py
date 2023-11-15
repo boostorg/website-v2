@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.humanize.templatetags import humanize
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import redirect
 from django.template.defaultfilters import date as datefilter
 from django.urls import reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -219,6 +220,13 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
             "add_label": view.add_label,
             "add_url_name": view.add_url_name,
         }
+
+    def dispatch(self, request, *args, **kwargs):
+        """User must have a profile photo to post an entry."""
+        if request.user.is_authenticated and not request.user.image:
+            messages.warning(request, "Please add a profile photo first.")
+            return redirect("profile-account")
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

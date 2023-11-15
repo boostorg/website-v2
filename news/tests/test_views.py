@@ -347,6 +347,25 @@ def test_news_create_multiplexer(tp, user_type, request):
         assert model_class.__name__ == item["model_name"]
 
 
+def test_news_create_require_profile_photo(tp, user):
+    """Users must have a profile photo before they can post news."""
+    url_name = "news-create"
+    url = tp.reverse(url_name)
+
+    # Test with the image
+    with tp.login(user):
+        response = tp.get(url)
+        tp.response_200(response)
+
+    # Delete the user's image and confirm they can access the page
+    user.image.delete()
+    user.refresh_from_db()
+    with tp.login(user):
+        response = tp.get(url)
+        tp.response_302(response)
+        assert response.url == tp.reverse("profile-account")
+
+
 @pytest.mark.parametrize(
     "method", ["DELETE", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
 )
