@@ -41,7 +41,6 @@
       </div>
       <!-- End Actions -->
       <h1 class="text-4xl">{{ entry.title }}</h1>
-      <p class="mt-0 py-0 text-xs">{{ entry.publish_at|date:"M jS, Y" }}</p>
       <div class="space-x-2 mt-3 flex items-center">
         {% if entry.author.image %}
           <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
@@ -53,7 +52,10 @@
           </span>
         {% endif %}
         {% if entry.author.get_full_name %}
-          <span class="inline-block">{{ entry.author.get_full_name }}</span>
+          <div class="inline-block p-0 m-0">
+            {{ entry.author.get_full_name }}<br />
+            <span class="block py-0 text-xs">{{ entry.publish_at|date:"M jS, Y" }}</span>
+          </div>
         {% endif %}
       </div>
 

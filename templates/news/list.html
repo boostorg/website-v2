@@ -130,20 +130,24 @@
                 <i class="fas fa-edit"></i>
               </a>
             {% endif %}
-            <h2 class="py-0 my-0 text-xl font-semibold"><a class="text-orange hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
-              {{ entry.title }}
-            </a></h2>
-            {% if entry.image %}
-            <img src="{{ entry.image.url }}" class="mb-5 w-full h-auto md:float-right md:ml-5 md:w-1/6 md:min-w-[200px]">
-            {% endif %}
+              <h2 class="py-0 my-0 text-xl font-semibold">
+                <a class="text-orange hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+                  {{ entry.title }}
+                </a>
+                <span class="md:block float-right text-xs hidden -mt-2 mr-2">
+                  {{ entry.author.get_full_name }}<br />
+                  <span class="text-xs">{{ entry.publish_at|date:"M jS, Y" }}</span>
+                </span>
+              </h2>
             {% if entry.content %}
             <p class="text-base text-gray-500 dark:text-white/70">{{ entry.content|truncatechars:300 }}</p>
             {% endif %}
 
             <!-- footer of cards only for mobile devices -->
             <div class="flex border-t border-gray-300 md:hidden">
-              <div class="mt-6 w-1/3 text-sm text-left capitalize">
-                <a href="{{ entry.get_absolute_url }}">{{ entry.display_publish_at }}</a>
+              <div class="mt-6 w-1/3 text-xs text-left capitalize">
+                {{ entry.author.get_full_name }}<br />
+                {{ entry.display_publish_at }}
               </div>
               <div class="pt-6 w-1/3 text-center md:border-l-2 border-white dark:border-slate">
                 {% if entry.tag == "link" %}
