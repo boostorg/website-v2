@@ -172,10 +172,12 @@
               {% else %}
                 {% if user.image %}
                   <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded mt-1 border border-gray-400 dark:border-gray-500">
-                  <img src="{{ user.image.url }}" alt="user" class="h-full w-full cursor-pointer object-cover" @click="userOpen = !userOpen" />
+                    <img src="{{ user.image.url }}" alt="user" class="h-full w-full cursor-pointer object-cover" @click="userOpen = !userOpen" />
                   </span>
-                {% else %}
-                  <i class="inline mr-2 cursor-pointer fas fa-user text-charcoal dark:text-white/60" @click="userOpen = !userOpen"></i>
+                  {% else %}
+                  <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white mt-1 dark:bg-slate border border-gray-400 dark:border-gray-500">
+                    <i class="fas fa-user text-2xl ml-[4px]" @click="userOpen = !userOpen"></i>
+                  </span>
                 {% endif %}
               {% endif %}
 
