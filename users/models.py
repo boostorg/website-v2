@@ -15,6 +15,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
 
 from core.validators import image_validator, max_file_size_validator
 
@@ -210,6 +212,12 @@ class User(BaseUser):
         null=True,
         blank=True,
         validators=[image_validator, max_file_size_validator],
+    )
+    image_thumbnail = ImageSpecField(
+        source="image",
+        processors=[ResizeToFill(100, 100)],
+        format="JPEG",
+        options={"quality": 90},
     )
     claimed = models.BooleanField(
         _("claimed"),

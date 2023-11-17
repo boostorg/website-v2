@@ -66,6 +66,7 @@ INSTALLED_APPS += [
     "health_check",
     "health_check.db",
     "health_check.contrib.celery",
+    "imagekit",
     # Allauth dependencies:
     "allauth",
     "allauth.account",
