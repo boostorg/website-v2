@@ -23,4 +23,4 @@ def url_target_blank(value, arg):
     """
     Use after urlize to add target="_blank" and add classes.
     """
-    return value.replace("<a ", '<a target="_blank" class="%s" ') % (arg)
+    return value.replace("<a ", f'<a target="_blank" class="{arg}" ')
