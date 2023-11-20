@@ -59,7 +59,7 @@
       </div>
     </div>
 
-    <div class="px-4 my-4 pt-8 mx-auto">
+    <div class="px-4 mt-4 pt-8 my-12 lg:mb-4 mx-auto">
       <div class="pb-10 bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md">
         <div class="p-5 w-full">
           <div class="my-6 ml-6">
@@ -68,10 +68,10 @@
         </div>
         <div class="flex flex-col justify-center items-center pb-4 h-full">
           <div class="relative mx-auto w-4/5"
-               x-data="{ activeSlide: 1, slides: [1, 2] }">
+               x-data="{ activeSlide: 1, slides: [1] }">
             <!-- Slides -->
 
-            <div x-show="activeSlide === 1" x-cloak
+            {% comment %}<div x-show="activeSlide === 1" x-cloak
                  class="flex items-center py-0 px-12 h-full rounded-lg">
               <div class="w-full">
                 <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">November 2023</h3>
@@ -100,8 +100,8 @@
                   <br />
                 </span>
               </div>
-            </div>
-            <div x-show="activeSlide === 2" x-cloak
+            </div>{% endcomment %}
+            <div x-show="activeSlide === 1" x-cloak
                  class="flex items-center py-0 px-12 h-full rounded-lg">
               <div class="w-full">
                 <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">December 2023</h3>
@@ -120,6 +120,8 @@
               </div>
             </div>
             <!-- Prev/Next Arrows -->
+
+            {% comment %}
             <div class="flex absolute inset-0">
               <div class="flex justify-start items-center w-1/2">
                 <button class="-ml-6 w-12 h-12 font-bold text-white bg-gray-400 rounded-full"
@@ -129,16 +131,15 @@
                 <button class="-mr-6 w-12 h-12 font-bold text-white bg-gray-400 rounded-full"
                         x-on:click="activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1">&#8594;</button>
               </div>
-            </div>
+            </div>{% endcomment %}
           </div>
         </div>
       </div>
     </div>
 
-    <div class="my-4 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-12">
-      {% if featured_library %}
-      <div class="p-6 relative bg-white rounded-lg md:p-11 lg:w-1/2 dark:bg-charcoal min-h-[500px]">
-
+    {% if featured_library %}
+    <div class="my-12 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
+      <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
           <div class="mb-6">
             <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-orange/30">library spotlight</span>
           </div>
@@ -191,8 +192,11 @@
           {% endcomment %}
 
       </div>
-      {% endif %}
-      <div class="p-6 relative bg-white rounded-lg md:p-11 lg:w-1/2 dark:bg-charcoal min-h-[500px]">
+    </div>
+    {% endif %}
+
+    <div class="my-12 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
+      <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
         <div class="mb-6">
           <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-orange/30">recent news</span>
         </div>
@@ -207,7 +211,9 @@
             <div class="pt-0">
               <h3 class="pb-2 mb-4 text-3xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'news-detail' slug=entry.slug %}" class="link-header">{{ entry.title }}</a></h3>
               {% if entry.content %}
+              <div class="truncate">
               <span class="pb-1 mx-auto w-full text-lg align-left">{{ entry.content|truncatewords:20 }}...</span>
+              </div>
               {% endif %}
               <p class="pb-1 mx-auto w-full text-xs align-left">Published on {{ entry.publish_at|date:"m/d/Y" }}</p>
             </div>
@@ -217,7 +223,7 @@
 
     </div>
 
-    <div class="my-4 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
+    <div class="my-12 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
       <div class="p-6 bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
         <div class="mb-6">
           <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-orange/30">featured video</span>

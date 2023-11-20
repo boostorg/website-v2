@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% load text_helpers %}
 
 {% block title %}{% trans "News" %}{% endblock %}
 
@@ -67,7 +68,9 @@
         {% if entry.image %}
         <img src="{{ entry.image.url }}" class="mb-2 w-full h-auto md:float-right md:ml-5 md:mt-6 md:w-1/6 md:min-w-[200px] border border-black">
         {% endif %}
-        {{ entry.content|linebreaks }}
+        <div class="break-all">
+        {{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaks }}
+        </div>
       </div>
 
     </div>
