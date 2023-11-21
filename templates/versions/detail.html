@@ -131,6 +131,14 @@
         </div>
       </div>
     </section>
+
+    {% if release_notes %}
+      <section id="libraryReadMe"
+        class="p-6 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+        {{ release_notes|safe }}
+      </section>
+    {% endif %}
+
   {% endif %}
   </main>
 {% endblock %}

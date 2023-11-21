@@ -2,7 +2,10 @@ import requests
 import structlog
 from django.conf import settings
 
-from .models import VersionFile
+from core.boostrenderer import get_body_from_html
+from core.models import RenderedContent
+
+from .models import Version, VersionFile
 
 
 logger = structlog.get_logger(__name__)
@@ -86,6 +89,59 @@ def get_artifactory_download_data(url):
         "checksum": resp.json()["checksums"]["sha256"],
         "display_name": url.split("/")[-1],
     }
+
+
+def get_release_notes_for_version(version_pk):
+    """Retrieve the release notes for a given version.
+
+    We retrieve the rendered release notes for older versions.
+    """
+    try:
+        version = Version.objects.get(pk=version_pk)
+    except Version.DoesNotExist:
+        raise Version.DoesNotExist
+    base_url = (
+        "https://raw.githubusercontent.com/boostorg/website/master/users/history/"
+    )
+    filename = f"{version.slug.replace('boost', 'version').replace('-', '_')}.html"
+    url = f"{base_url}{filename}"
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.content
+
+
+def store_release_notes_for_version(version_pk):
+    """Retrieve and store the release notes for a given version"""
+    # Get the release notes content
+    content = get_release_notes_for_version(version_pk)
+    stripped_content = get_body_from_html(content)
+    # FIXME: Add logic to strip extra content from the release notes
+
+    # Get the version
+    try:
+        version = Version.objects.get(pk=version_pk)
+    except Version.DoesNotExist:
+        logger.info(
+            "store_release_notes_for_version_error_version_not_found",
+            version_pk=version_pk,
+        )
+        raise Version.DoesNotExist
+
+    # Save the result to the rendered content model with the version cache key
+    rendered_content, _ = RenderedContent.objects.update_or_create(
+        cache_key=version.release_notes_cache_key,
+        defaults={
+            "content_type": "text/html",
+            "content_original": content,
+            "content_html": stripped_content,
+        },
+    )
+    logger.info(
+        "store_release_notes_for_version_success",
+        rendered_content_pk=rendered_content.id,
+        version_pk=version_pk,
+    )
+    return rendered_content
 
 
 def store_release_downloads_for_version(version, release_data):
