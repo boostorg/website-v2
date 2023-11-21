@@ -93,6 +93,12 @@ class Version(models.Model):
         cleaned = re.sub(r"^[^0-9]*", "", self.name).split("beta")[0]
         return [part for part in cleaned.split(".") if part]
 
+    @cached_property
+    def release_notes_cache_key(self):
+        """Returns the cahe key used to access the release notes in the
+        RenderedContent model."""
+        return f"release_notes_{self.slug}"
+
 
 class VersionFile(models.Model):
     Unix = "Unix"
