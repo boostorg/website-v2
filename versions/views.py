@@ -7,6 +7,7 @@ from django.contrib import messages
 from itertools import groupby
 from operator import attrgetter
 
+from core.models import RenderedContent
 from libraries.forms import VersionSelectionForm
 from versions.models import Version
 
@@ -51,8 +52,18 @@ class VersionDetail(FormMixin, DetailView):
         context["is_current_release"] = is_current_release
 
         context["heading"] = self.get_version_heading(obj, is_current_release)
+        context["release_notes"] = self.get_release_notes(obj)
 
         return context
+
+    def get_release_notes(self, obj):
+        try:
+            rendered_content = RenderedContent.objects.get(
+                cache_key=obj.release_notes_cache_key
+            )
+            return rendered_content.content_html
+        except RenderedContent.DoesNotExist:
+            return
 
     def get_version_heading(self, obj, is_current_release):
         """Returns the heading of the versions template"""

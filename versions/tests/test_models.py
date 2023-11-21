@@ -70,5 +70,11 @@ def test_cleaned_version_parts(name, expected_cleaned_parts, version):
     assert version.cleaned_version_parts == expected_cleaned_parts
 
 
+def test_release_notes_cache_key(version):
+    """Test the release_notes_cache_key property method"""
+    expected = f"release_notes_{version.slug}"
+    assert version.release_notes_cache_key == expected
+
+
 def test_version_file_creation(full_version_one):
     assert full_version_one.downloads.count() == 3
