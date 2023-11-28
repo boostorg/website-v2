@@ -80,8 +80,8 @@
       <div class="mx-auto w-full">
         {% for entry in entry_list %}
         <div class="md:flex md:space-x-3">
-          <div class="hidden mt-6 text-sm text-left capitalize md:block w-[160px]">
-            <a href="{{ entry.get_absolute_url }}">{{ entry.display_publish_at }}</a>
+          <div class="hidden mt-6 text-sm text-left capitalize md:block w-[160px] whitespace-nowrap">
+            <a href="{{ entry.get_absolute_url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ entry.display_publish_at }}&nbsp;&nbsp;</a>
           </div>
           <div class="hidden pt-6 border-l-2 border-white md:block w-[50px] dark:border-slate">
             {% if entry.tag == "link" %}
@@ -132,7 +132,7 @@
               </a>
             {% endif %}
               <h2 class="py-0 my-0 text-xl font-semibold">
-                <a class="text-orange hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+                <a class="link-header" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
                   {{ entry.title }}
                 </a>
                 <span class="md:block float-right text-xs hidden -mt-2 mr-2">
@@ -142,7 +142,7 @@
               </h2>
             {% if entry.content %}
             <div class="truncate">
-              <span class="text-base text-gray-500 dark:text-white/70">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaks|truncatewords:20 }}...</span>
+              <span class="text-base text-gray-500 dark:text-white/70">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|truncatewords:20 }}...</span>
               </div>
             {% endif %}
 
