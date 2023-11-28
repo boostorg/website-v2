@@ -453,6 +453,34 @@
 
 			</div>
 
+			<br clear="all" />
+
+			<div class="p-2">
+				<span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white mt-1 dark:bg-slate border border-gray-400 dark:border-gray-500">
+					<i class="fas fa-user text-2xl ml-[4px]"></i>
+				</span>
+				<br clear="all" />
+				<span class="inline-block h-[30px] w-[30px] overflow-hidden rounded mt-1 border border-gray-400 dark:border-gray-500">
+					<img src="https://s3.us-east-2.amazonaws.com/boost.org.media/profile-images/IMG_6155_1.jpg" alt="user" class="h-full w-full cursor-pointer object-cover"/>
+				</span>
+
+				<p>User Avatars</p>
+
+				<button class="rounded-full py-2 text-xs cursor-pointer w-4 whitespace-nowrap" @click="if (mode == 'dark') { mode='light'; setColorMode('light'); } else { mode='dark'; setColorMode('dark'); }"><i class="hidden dark:inline-block mr-1 font-semibold fas fa-sun text-white px-2 mx-2"></i><i class="inline-block dark:hidden mr-1 font-semibold fas fa-moon text-black px-2 mx-2"></i></button>
+
+				<div class="mt-2 py-2 px-2 space-y-2 w-full bg-white rounded-lg dark:bg-charcoal">
+					<div class="highlight" style="background: #002b36"><pre style="line-height: 125%;">{% filter force_escape %}
+<span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white mt-1 dark:bg-slate border border-gray-400 dark:border-gray-500">
+	<i class="fas fa-user text-2xl ml-[4px]"></i>
+</span>
+<span class="inline-block h-[30px] w-[30px] overflow-hidden rounded mt-1 border border-gray-400 dark:border-gray-500">
+	<img src="https://s3.us-east-2.amazonaws.com/boost.org.media/profile-images/IMG_6155_1.jpg" alt="user" class="h-full w-full cursor-pointer object-cover"/>
+</span>
+{% endfilter %}</pre></div>
+				</div>
+
+			</div>
+
 		</div>
   </div>
 {% endblock %}
