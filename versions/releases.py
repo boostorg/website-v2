@@ -2,7 +2,7 @@ import requests
 import structlog
 from django.conf import settings
 
-from core.boostrenderer import get_body_from_html
+from core.htmlhelper import modernize_release_notes
 from core.models import RenderedContent
 
 from .models import Version, VersionFile
@@ -110,13 +110,13 @@ def get_release_notes_for_version(version_pk):
     return response.content
 
 
+def process_release_notes(content):
+    stripped_content = modernize_release_notes(content)
+    return stripped_content
+
+
 def store_release_notes_for_version(version_pk):
     """Retrieve and store the release notes for a given version"""
-    # Get the release notes content
-    content = get_release_notes_for_version(version_pk)
-    stripped_content = get_body_from_html(content)
-    # FIXME: Add logic to strip extra content from the release notes
-
     # Get the version
     try:
         version = Version.objects.get(pk=version_pk)
@@ -126,6 +126,11 @@ def store_release_notes_for_version(version_pk):
             version_pk=version_pk,
         )
         raise Version.DoesNotExist
+
+    # Get the release notes content
+    content = get_release_notes_for_version(version_pk)
+    stripped_content = process_release_notes(content)
+    assert stripped_content
 
     # Save the result to the rendered content model with the version cache key
     rendered_content, _ = RenderedContent.objects.update_or_create(
