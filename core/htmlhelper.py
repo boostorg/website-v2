@@ -1,5 +1,7 @@
 from bs4 import BeautifulSoup
 
+from core.boostrenderer import get_body_from_html
+
 
 # List HTML elements (with relevant attributes) to remove the FIRST occurrence
 REMOVE_TAGS = [
@@ -66,7 +68,7 @@ REMOVE_ALL = [
 ]
 
 # List HTML elements (with relevant attributes) to remove ONLY their CSS class
-REMOVE_CSS_CLASSESS = [
+REMOVE_CSS_CLASSES = [
     # /docs/libs/1_55_0/libs/exception/doc/boost_exception_all_hpp.html
     ("div", {"class": "body-0"}),
     ("div", {"class": "body-1"}),
@@ -124,7 +126,7 @@ def modernize_legacy_page(content, base_html, head_selector="head", insert_body=
             tag.decompose()
 
     # Remove CSS classes that produce visual harm
-    for tag_name, tag_attrs in REMOVE_CSS_CLASSESS:
+    for tag_name, tag_attrs in REMOVE_CSS_CLASSES:
         for tag in result.find_all(tag_name, tag_attrs):
             tag.attrs.pop("class")
 
@@ -209,3 +211,265 @@ def get_library_documentation_urls(content, name="Alphabetically", parent="h2"):
         results.append((library_name, url_path))
 
     return results
+
+
+### Code to modernize legacy release notes ###
+
+
+def convert_h1_to_h2(soup):
+    """Convert all h1 tags to h2 tags."""
+    for h1 in soup.find_all("h1"):
+        h1.name = "h2"  # change h1 to h2
+
+    return soup
+
+
+def format_nested_lists(soup):
+    """Flattens nested lists"""
+    try:
+        top_level_ul = soup.find_all("ul")
+    except AttributeError:
+        # If there are no ul tags, return soup
+        return soup
+
+    for ul in top_level_ul:
+        list_items = ul.find_all("li", recursive=False)  # Only direct children of <ul>
+        for li in list_items:
+            # Extract and remove the non-<ul> contents from <li>
+            non_ul_contents = [
+                content for content in li.contents if not content.name == "ul"
+            ]
+            for content in non_ul_contents:
+                content.extract()
+
+            # Convert the extracted contents to a string and parse it as HTML
+            text_content = "".join(str(content) for content in non_ul_contents).strip()
+            if text_content:
+                new_soup = BeautifulSoup(text_content, "html.parser")
+                h4_tag = soup.new_tag("h4")
+                h4_tag.append(new_soup)
+                # decompose the li tag and append the new h4 tag
+                li.decompose()
+                ul.append(h4_tag)
+
+    # Correct the HTML structure
+    # Process <h4> and associated <ul> tags
+    for h4 in soup.find_all("h4"):
+        next_ul = h4.find_next_sibling("ul")
+        if next_ul:
+            # Clean up <ul> and <li> tags under <h4>
+            for li in next_ul.find_all("li"):
+                # Unwrap or clean <div> tags inside <li>
+                for div in li.find_all("div"):
+                    div.unwrap()
+
+            # Reinsert the cleaned <ul> after the <h4>
+            h4.insert_after(next_ul)  # remove the h4 tag but keep its content
+
+    return soup
+
+
+def process_new_libraries(soup):
+    """Custom function to process the new libraries section
+    of legacy release notes"""
+    try:
+        new_libraries_divs = soup.find_all(
+            "div", class_=lambda x: x and "new_libraries" in x
+        )
+    except AttributeError:
+        # No div found
+        return soup
+
+    for div in new_libraries_divs:
+        h3_tag = div.find("h3")
+        if h3_tag and h3_tag.span:
+            # Extract text from h3 span and update h3 tag
+            h3_text = h3_tag.span.get_text()
+            h3_tag.clear()
+            h3_tag.append(h3_text)
+
+        ul_tag = div.find("ul")
+        if ul_tag:
+            list_items = ul_tag.find_all("li", recursive=False)
+            for li in list_items:
+                # Extract and restructure contents of div inside li
+                inner_div = li.find("div")
+                if inner_div:
+                    # Move the anchor tag and text outside of the inner div
+                    for content in inner_div.contents:
+                        li.append(content)
+                    # Remove the now-empty div
+                    inner_div.decompose()
+
+    return soup
+
+
+def remove_css(soup, tags):
+    """Remove all CSS classes from the given tags."""
+    for tag_name, tag_attrs in tags:
+        try:
+            found_tags = soup.find_all(tag_name, tag_attrs)
+        except AttributeError:
+            # No tags found
+            continue
+        for tag in found_tags:
+            tag.attrs.pop("class")
+
+    return soup
+
+
+def remove_duplicate_tag(soup, tag_name):
+    """Remove duplicate tags with identical content."""
+    try:
+        tags = soup.find_all(tag_name)
+    except AttributeError:
+        # no tags
+        return soup
+
+    for i in range(len(tags) - 1):
+        current_tag = tags[i]
+        next_tag = tags[i + 1]
+
+        # Check if the next tag has the same text content
+        if current_tag.get_text(strip=True) == next_tag.get_text(strip=True):
+            next_tag.decompose()  # Remove the duplicate
+            break
+
+    return soup
+
+
+def remove_first_tag(soup, tags):
+    """Remove the first occurrence of legacy header(s) and other stuff."""
+    for tag_name, tag_attrs in tags:
+        tag = soup.find(tag_name, tag_attrs)
+        if tag:
+            tag.decompose()
+
+    return soup
+
+
+def remove_ids(soup, ids):
+    """Remove all tags with the given id."""
+    for id_value in ids:
+        try:
+            tag = soup.find(id=id_value)
+        except AttributeError:
+            # Tag not found
+            continue
+        if tag and not tag.get_text(strip=True) == "":
+            tag.unwrap()
+        elif tag:
+            tag.decompose()
+
+    return soup
+
+
+def remove_release_classes(soup, classes):
+    """Remove all tags with the given class name. Unwrap the tag if it has text."""
+    for class_value in classes:
+        try:
+            tags = soup.find_all(class_=class_value)
+        except AttributeError:
+            # Tag not found
+            continue
+        for tag in tags:
+            if tag and not tag.get_text(strip=True) == "":
+                tag.unwrap()
+            else:
+                tag.decompose()
+
+    return soup
+
+
+def remove_tables(soup, class_name):
+    """Remove all tables with the given class name."""
+    for table in soup.find_all("table", class_=class_name):
+        table.decompose()
+
+    return soup
+
+
+def remove_tags(soup, tags):
+    """Remove all tags with the given tag name and attributes."""
+    for tag_name, tag_attrs in tags:
+        for tag in soup.find_all(tag_name, tag_attrs):
+            tag.decompose()
+
+    return soup
+
+
+def style_links(soup, class_name):
+    """Add the given class name to all links."""
+    for a_tag in soup.find_all("a"):
+        a_tag["class"] = class_name
+
+    return soup
+
+
+def modernize_release_notes(html_content):
+    IDS_TO_REMOVE = ["heading", "body" "body-inner", "content"]
+    CLASSES_TO_REMOVE = [
+        "section",
+        "section-0",
+        "section-title",
+        "section-body",
+        "news-title",
+        "news-date",
+        "news-description",
+        "description",
+        "link",
+        "identifier",
+        "library",
+    ]
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Remove unwanted tables
+    soup = remove_tables(soup, "download-table")
+
+    # Normalize headings
+    soup = convert_h1_to_h2(soup)
+
+    # Remove the first occurrence of legacy header(s) and other stuff
+    soup = remove_first_tag(soup, REMOVE_TAGS)
+
+    # Remove all navbar-like divs, if any
+    soup = remove_tags(soup, REMOVE_ALL)
+
+    # Remove CSS classes that produce visual harm
+    soup = remove_css(soup, REMOVE_CSS_CLASSES)
+
+    # Add custom class to all <a> tags
+    soup = style_links(soup, "text-sky-600")
+
+    # # Strip what's left of other things we don't want
+
+    # Unwrap elements with specific IDs
+    soup = remove_ids(soup, IDS_TO_REMOVE)
+
+    # Unwrap elements with specific classes
+    soup = remove_release_classes(soup, CLASSES_TO_REMOVE)
+
+    # Process divs with class 'new_libraries'
+    soup = process_new_libraries(soup)
+
+    # Convert nested <ul>'s to <h4>s with single <ul> inside
+    soup = format_nested_lists(soup)
+
+    # Remove duplicate header tags
+    soup = remove_duplicate_tag(soup, "h2")
+
+    # Remove unnecessary divs
+    try:
+        excess_divs = soup.find_all("div")
+
+    except AttributeError:
+        # not found
+        excess_divs = []
+
+    for div in excess_divs:
+        div.unwrap()
+
+    result = str(soup)
+    # Replace all links to boost.org with a local link
+    content = result.replace("https://www.boost.org/doc/libs/", "/docs/libs/")
+    return get_body_from_html(content)
