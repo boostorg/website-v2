@@ -1,6 +1,6 @@
 {% extends "users/profile_base.html" %}
 
-{% load static i18n %}
+{% load static i18n widget_tweaks %}
 
 {% block content %}
   <div class="container">
@@ -50,25 +50,36 @@
           <h3>{% trans "Update Profile Photo" %}</h3>
           {% if can_update_image %}
             {% if user.github_username %}
-              <form method="POST" action="." class="space-y-3">
+              <form method="POST" action="." class="space-y-3 border-b border-slate py-3">
                 {% csrf_token %}
-                <button name="update_github_photo" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Use
-                  My GitHub Photo
+                <button name="update_github_photo" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">
+                Use My GitHub Photo
                 </button>
               </form>
             {% endif %}
 
-            <form method="POST" enctype="multipart/form-data" action="." class="space-y-3">
+            <form method="POST" enctype="multipart/form-data" action="." class="space-y-3 py-3">
               {% csrf_token %}
               {% for field in profile_photo_form.visible_fields %}
-                <div>
-                  {% include "includes/_form_input.html" with form=profile_photo_form field=field %}
+              <div>
+                {% if field.errors %}
+                {% for error in field.errors %}
+                <div class="py-1 px-3 text-white bg-red-600">
+                  {{ error }}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% if user.image %}
+                <img src="{{ user.image.url }}" alt="user" class="ml-4 inline -mt-1 rounded bg-white dark:bg-slate w-[30px] mr-2" />
+                {% endif %}
+
+                {% render_field field class="text-sm text-grey-500 !border-0 file:mr-5 file:py-2 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white file:text-slate hover:file:cursor-pointer hover:file:bg-orange hover:file:text-white"%}
+
                 </div>
               {% endfor %}
               <div class="mt-4">
-                <button name="update_photo" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Upload
-                  Profile Photo
-                </button>
+                <button name="update_photo" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Save</button>
               </div>
             </form>
           {% else %}
