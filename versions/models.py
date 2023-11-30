@@ -66,6 +66,16 @@ class Version(models.Model):
         return self.slug.replace("-", "_").replace(".", "_")
 
     @cached_property
+    def stripped_boost_url_slug(self):
+        """Return the only the numbers and underscores for this version
+
+        Example:
+        - "boost-1.75.0" --> "1_75_0"
+        - "develop" --> "develop"
+        """
+        return self.slug.replace("-", "_").replace(".", "_").replace("boost_", "")
+
+    @cached_property
     def boost_release_notes_url(self):
         """Return the URL path to the release notes for this version of Boost on
         the existing Boost.org website.
