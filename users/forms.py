@@ -87,11 +87,11 @@ class CustomClearableFileInput(forms.ClearableFileInput):
     to clear the field.
     """
 
-    template_name = "users/includes/clearable_file_input.html"
+    template_name = "users/clearable_file_input.html"
 
 
 class UserProfilePhotoForm(forms.ModelForm):
-    # image = forms.FileField(widget=CustomClearableFileInput, required=False)
+    image = forms.FileField(widget=CustomClearableFileInput, required=False)
 
     class Meta:
         model = User
