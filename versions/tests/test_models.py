@@ -78,3 +78,18 @@ def test_release_notes_cache_key(version):
 
 def test_version_file_creation(full_version_one):
     assert full_version_one.downloads.count() == 3
+
+
+@pytest.mark.parametrize(
+    "slug, expected",
+    [
+        ("boost-1.75.0", "1_75_0"),
+        ("develop", "develop"),
+        ("boost_2.0.1", "2_0_1"),
+    ],
+)
+def test_stripped_boost_url_slug(slug, expected, version):
+    version.slug = slug
+    version.save()
+    version.refresh_from_db()
+    assert version.stripped_boost_url_slug == expected
