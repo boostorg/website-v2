@@ -71,7 +71,7 @@
                 {% endif %}
 
                 {% if user.image %}
-                <img src="{{ user.image.url }}" alt="user" class="inline -mt-1 rounded-sm w-[30px] mr-2" />
+                <img src="{{ user.image.url }}" alt="user" class="inline -mt-1 rounded bg-white dark:bg-slate w-[30px] mr-2" />
                 {% endif %}
 
                 {% render_field field class="text-sm text-grey-500 !border-0 file:mr-5 file:py-2 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white file:text-slate hover:file:cursor-pointer hover:file:bg-orange hover:file:text-white"%}

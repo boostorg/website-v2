@@ -171,11 +171,11 @@
                 <a href="{% url 'account_signup' %}" class="hover:no-underline inline font-medium dark:text-white dark:visited:text-white text-slate visited:text-slate dark:hover:text-orange hover:text-orange">Join</a>
               {% else %}
                 {% if user.image %}
-                  <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded mt-1 border border-gray-400 dark:border-gray-500">
+                  <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded mt-1 bg-white dark:bt-slate">
                     <img src="{{ user.image_thumbnail.url }}" alt="user" class="h-full w-full cursor-pointer object-cover" @click="userOpen = !userOpen" />
                   </span>
                   {% else %}
-                  <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white mt-1 dark:bg-slate border border-gray-400 dark:border-gray-500">
+                  <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white mt-1 dark:bg-slate">
                     <i class="fas fa-user text-2xl ml-[4px]" @click="userOpen = !userOpen"></i>
                   </span>
                 {% endif %}
