@@ -115,11 +115,11 @@
           </div>
           <div class="hidden pt-2 mt-4 text-xs text-left md:block min-w-[70px]">
             {% if entry.author.image %}
-              <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
-                <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
+              <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded bg-white dark:bg-slate">
+                <img src="{{ entry.author.image_thumbnail.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
               </span>
             {% else %}
-              <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
+              <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate">
                 <i class="text-2xl fas fa-user ml-1" title="{{ entry.author.get_full_name }}"></i>
               </span>
             {% endif %}

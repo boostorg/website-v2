@@ -80,7 +80,19 @@ class UserProfileForm(forms.ModelForm):
         fields = ["email", "first_name", "last_name"]
 
 
+class CustomClearableFileInput(forms.ClearableFileInput):
+    """
+    Overrides the template for clearable file input so that we can display
+    the widget without the filename/path displayed and change the checkbox
+    to clear the field.
+    """
+
+    template_name = "users/clearable_file_input.html"
+
+
 class UserProfilePhotoForm(forms.ModelForm):
+    image = forms.FileField(widget=CustomClearableFileInput, required=False)
+
     class Meta:
         model = User
         fields = ["image"]
