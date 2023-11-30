@@ -37,8 +37,8 @@ class VersionAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def import_new_releases(self, request):
-        import_versions(new_versions_only=True)
-        import_most_recent_beta_release(delete_old=True)
+        import_versions.delay(new_versions_only=True)
+        import_most_recent_beta_release.delay(delete_old=True)
         # Import the master and develop branches
         import_development_versions.delay()
         self.message_user(
