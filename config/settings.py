@@ -66,6 +66,7 @@ INSTALLED_APPS += [
     "health_check",
     "health_check.db",
     "health_check.contrib.celery",
+    "imagekit",
     # Allauth dependencies:
     "allauth",
     "allauth.account",
@@ -132,8 +133,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                # Our stuff (see core.context_processors.py)
-                "core.context_processors.current_release",
             ],
             "loaders": [
                 "django.template.loaders.filesystem.Loader",
