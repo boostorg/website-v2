@@ -29,7 +29,9 @@
           </nav>
           <nav class="flex items-center space-x-3 lg:space-x-5 h-[30px]" x-data="{ 'searchOpen': false }">
             <span class="relative">
-              <i id="gecko-search-button" data-current-boost-version="1_83_0" data-theme-mode="light" data-font-family="Cairo, sans-serif" class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange"></i>
+              {% if current_release %}
+              <i id="gecko-search-button" data-current-boost-version="{{ current_release.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="Cairo, sans-serif" class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange"></i>
+              {% endif %}
               <script>
                 const geckoSearchButton = document.getElementById('gecko-search-button');
                 geckoSearchButton.setAttribute('data-theme-mode', localStorage.getItem('colorMode') === 'dark' ? 'dark' : 'light');
