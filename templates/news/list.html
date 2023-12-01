@@ -124,7 +124,7 @@
               </span>
             {% endif %}
           </div>
-          <div class="block p-6 mb-10 w-full bg-white rounded-lg md:ml-6 dark:bg-charcoal truncate">
+          <div class="block p-6 mb-10 w-full bg-white rounded-lg md:ml-6 dark:bg-charcoal overflow-hidden">
             {% can_edit news_item=entry as editable %}
             {% if editable %}
               <a href="{% url 'news-update' entry.slug %}" class="float-right dark:text-white/50 hover:text-orange dark:hover:text-orange -mt-5 -mr-3 text-sm">
