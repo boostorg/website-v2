@@ -80,10 +80,10 @@
       <div class="mx-auto w-full">
         {% for entry in entry_list %}
         <div class="md:flex md:space-x-3">
-          <div class="hidden mt-6 text-sm text-left capitalize md:block w-[160px] whitespace-nowrap">
+          <div class="hidden mt-6 text-sm text-left capitalize md:block min-w-[120px] whitespace-nowrap">
             <a href="{{ entry.get_absolute_url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ entry.display_publish_at }}&nbsp;&nbsp;</a>
           </div>
-          <div class="hidden pt-6 border-l-2 border-white md:block w-[50px] dark:border-slate">
+          <div class="hidden pt-6 border-l-2 border-white md:block min-w-[50px] dark:border-slate">
             {% if entry.tag == "link" %}
               {% url 'news-link-list' as target_url %}
               <a href="{{ target_url }}" title="Link" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
@@ -113,7 +113,7 @@
               <i class="text-gray-400 fas fa-calendar-alt dark:text-white/60" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate"></i>
             {% endif %}
           </div>
-          <div class="hidden pt-2 mt-4 text-xs text-left md:block w-[70px]">
+          <div class="hidden pt-2 mt-4 text-xs text-left md:block min-w-[70px]">
             {% if entry.author.image %}
               <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
                 <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
@@ -124,22 +124,26 @@
               </span>
             {% endif %}
           </div>
-          <div class="block p-6 mb-10 w-full bg-white rounded-lg md:ml-6 dark:bg-charcoal">
+          <div class="block p-6 mb-10 w-full bg-white rounded-lg md:ml-6 dark:bg-charcoal truncate">
             {% can_edit news_item=entry as editable %}
             {% if editable %}
               <a href="{% url 'news-update' entry.slug %}" class="float-right dark:text-white/50 hover:text-orange dark:hover:text-orange -mt-5 -mr-3 text-sm">
                 <i class="fas fa-edit"></i>
               </a>
             {% endif %}
-              <h2 class="py-0 my-0 text-xl font-semibold">
+            <div class="flex">
+              <div class="flex-grow-1">
+              <h2 class="py-0 my-0 text-xl font-semibold mr-4">
                 <a class="link-header" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
                   {{ entry.title }}
                 </a>
-                <span class="md:block float-right text-xs hidden -mt-2 mr-2">
-                  {{ entry.author.get_full_name }}<br />
-                  <span class="text-xs">{{ entry.publish_at|date:"M jS, Y" }}</span>
-                </span>
               </h2>
+            </div>
+              <div class="md:block text-xs hidden ml-auto">
+                {{ entry.author.get_full_name }}<br />
+                <span class="text-xs">{{ entry.publish_at|date:"M jS, Y" }}</span>
+              </div>
+            </div>
             {% if entry.content %}
             <div class="truncate">
               <span class="text-base text-gray-500 dark:text-white/70">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|truncatechars:500 }}...</span>
