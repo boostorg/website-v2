@@ -1577,6 +1577,18 @@ code,
   margin-top: 1.5rem;
 }
 
+.mr-6 {
+  margin-right: 1.5rem;
+}
+
+.ml-auto {
+  margin-left: auto;
+}
+
+.mr-4 {
+  margin-right: 1rem;
+}
+
 .block {
   display: block;
 }
@@ -1769,10 +1781,6 @@ code,
   width: 100px;
 }
 
-.w-\[160px\] {
-  width: 160px;
-}
-
 .w-\[30px\] {
   width: 30px;
 }
@@ -1815,12 +1823,28 @@ code,
   width: min-content;
 }
 
+.w-3\/4 {
+  width: 75%;
+}
+
 .min-w-\[100px\] {
   min-width: 100px;
 }
 
+.min-w-\[120px\] {
+  min-width: 120px;
+}
+
 .min-w-full {
   min-width: 100%;
+}
+
+.min-w-\[50px\] {
+  min-width: 50px;
+}
+
+.min-w-\[70px\] {
+  min-width: 70px;
 }
 
 .max-w-7xl {
@@ -1843,8 +1867,16 @@ code,
   flex-shrink: 1;
 }
 
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+
 .flex-grow {
   flex-grow: 1;
+}
+
+.flex-grow-0 {
+  flex-grow: 0;
 }
 
 .table-auto {
