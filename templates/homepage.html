@@ -213,10 +213,10 @@
               <h3 class="pb-2 mb-4 text-3xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'news-detail' slug=entry.slug %}" class="link-header">{{ entry.title }}</a></h3>
               {% if entry.content %}
               <div class="truncate">
-              <span class="pb-1 mx-auto w-full text-lg align-left">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|truncatewords:20 }}...</span>
+              <span class="pb-1 mx-auto w-full text-lg align-left">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|truncatechars:500 }}...</span>
               </div>
               {% endif %}
-              <p class="pb-1 mx-auto w-full text-xs align-left">Published on {{ entry.publish_at|date:"m/d/Y" }}</p>
+              <p class="pb-1 mx-auto w-full text-xs align-left"><i>Published on {{ entry.publish_at|date:"m/d/Y" }} by {{ entry.author.get_full_name }}</i></p>
             </div>
           {% endfor %}
         </div>
