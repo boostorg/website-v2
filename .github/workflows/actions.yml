@@ -61,7 +61,7 @@ jobs:
           SECRET_KEY: "for-testing-only"
           REDIS_HOST: "localhost"
         run: |
-          python -m pytest -vvv
+          python -m pytest
 
       - name: Lints with pre-commit
         run: |
