@@ -325,7 +325,6 @@ def test_news_detail_next_url(tp, make_entry, moderator_user, model_class):
     )
 
 
-@pytest.skip("test is failing - find out why", allow_module_level=True)
 @pytest.mark.parametrize("user_type", ["user", "moderator_user"])
 def test_news_create_multiplexer(tp, user_type, request):
     url_name = "news-create"
