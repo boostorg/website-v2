@@ -6,7 +6,6 @@ from django.conf import settings
 from django.core.management import call_command
 from fastcore.xtras import obj2dict
 from core.githubhelper import GithubAPIClient, GithubDataParser
-from core.models import RenderedContent
 from libraries.github import LibraryUpdater
 from libraries.models import Library, LibraryVersion
 from libraries.tasks import get_and_store_library_version_documentation_urls_for_version
@@ -52,22 +51,28 @@ def import_versions(delete_versions=False, new_versions_only=False, token=None):
         import_version.delay(name, tag=tag, token=token)
 
     # Get all release notes
-    import_release_notes(new_versions_only=new_versions_only)
+    import_release_notes.delay()
 
 
 @app.task
-def import_release_notes(new_versions_only):
+def import_release_notes():
     """Imports release notes from the existing rendered
     release notes in the repository."""
     for version in Version.objects.active().filter(full_release=True):
-        if (
-            new_versions_only
-            and RenderedContent.objects.filter(
-                cache_key=version.release_notes_cache_key
-            ).exists()
-        ):
-            continue
-        store_release_notes_for_version(version.pk)
+        store_release_notes_task.delay(str(version.pk))
+
+
+@app.task
+def store_release_notes_task(version_pk):
+    """Stores the release notes for a single version."""
+    try:
+        Version.objects.get(pk=version_pk)
+    except Version.DoesNotExist:
+        logger.error(
+            "store_release_notes_task_version_does_not_exist", version_pk=version_pk
+        )
+        return
+    store_release_notes_for_version(version_pk)
 
 
 @app.task
