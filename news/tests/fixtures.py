@@ -25,6 +25,7 @@ def make_entry(db):
         kwargs.setdefault("approved_at", approved_at)
         kwargs.setdefault("moderator", moderator)
         kwargs.setdefault("publish_at", publish_at)
+        kwargs.setdefault("title", "Admin User's Q3 Update")
         entry = baker.make(model_class, **kwargs)
         entry.author.set_password("password")
         entry.author.save()
@@ -64,7 +65,7 @@ def make_user(db):
         groups=None,
         password="password",
         allow_notification_others_news_posted=None,
-        **kwargs
+        **kwargs,
     ):
         user = baker.make("users.User", **kwargs)
         user.set_password(password)
