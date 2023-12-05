@@ -2,6 +2,7 @@ from datetime import date
 
 import pytest
 from django.core import mail
+from django.utils.html import escape
 from django.urls import reverse
 
 from ..models import NEWS_MODELS
@@ -27,6 +28,7 @@ def test_send_email_news_approved(rf, tp, make_entry, model_class):
     msg = mail.outbox[0]
     assert "news entry approved" in msg.subject.lower()
     assert entry.title in msg.body
+    assert escape(entry.title) not in msg.body
     assert "May 31st, 2023" in msg.body
     assert request.build_absolute_uri(entry.get_absolute_url()) in msg.body
     assert msg.recipients() == [entry.author.email]
@@ -100,6 +102,7 @@ def test_send_email_news_needs_moderation(
     msg = mail.outbox[0]
     assert "news entry needs moderation" in msg.subject.lower()
     assert entry.title in msg.body
+    assert escape(entry.title) not in msg.body
     assert entry.author.get_display_name in msg.body
     assert entry.author.email in msg.body
     assert request.build_absolute_uri(entry.get_absolute_url()) in msg.body
@@ -183,6 +186,7 @@ def test_send_email_news_posted_many_users(rf, tp, make_entry, make_user, model_
     msg = mail.outbox[0]
     assert "news entry posted" in msg.subject.lower()
     assert entry.title in msg.body
+    assert escape(entry.title) not in msg.body
     assert entry.author.email not in msg.body  # never disclose author email!
     assert request.build_absolute_uri(entry.get_absolute_url()) in msg.body
     assert request.build_absolute_uri(tp.reverse("profile-account")) in msg.body

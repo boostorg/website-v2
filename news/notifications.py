@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import EmailMessage, send_mail
 from django.template import Template, Context
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 from .acl import moderators
 
@@ -13,7 +14,7 @@ def send_email_news_approved(request, entry):
         return False
 
     template = Template(
-        'Congratulations! The news entry "{{ entry.title }}" that you submitted on '
+        'Congratulations! The news entry "{{ title }}" that you submitted on '
         '{{ entry.created_at|date:"M jS, Y" }} was approved.\n'
         "You can view this news at {{ url }}.\n\n"
         "Thank you, the Boost moderator team."
@@ -23,6 +24,7 @@ def send_email_news_approved(request, entry):
             {
                 "entry": entry,
                 "url": request.build_absolute_uri(entry.get_absolute_url()),
+                "title": mark_safe(entry.title),  # Mark the title as safe
             }
         )
     )
@@ -48,22 +50,27 @@ def send_email_news_needs_moderation(request, entry):
         "Hello! You are receiving this email because you are a Boost news moderator.\n"
         "The user {{ user.get_display_name|default:user.email }} has submitted a "
         "new {{ newstype }} that requires moderation:\n\n"
-        "{{ entry.title }}\n\n"
+        "{{ title }}\n\n"
         "You can view, approve or delete this item at: {{ detail_url }}.\n\n"
         "The complete list of news pending moderation can be found at: {{ url }}\n\n"
         "Thank you, the Boost moderator team."
     )
+
     body = template.render(
         Context(
             {
                 "entry": entry,
                 "user": entry.author,
                 "newstype": entry.tag,
-                "detail_url": request.build_absolute_uri(entry.get_absolute_url()),
-                "url": request.build_absolute_uri(reverse("news-moderate")),
+                "detail_url": mark_safe(
+                    request.build_absolute_uri(entry.get_absolute_url())
+                ),
+                "url": mark_safe(request.build_absolute_uri(reverse("news-moderate"))),
+                "title": mark_safe(entry.title),
             }
         )
     )
+
     subject = "Boost.org: News entry needs moderation"
     return send_mail(
         subject=subject,
@@ -87,7 +94,7 @@ def send_email_news_posted(request, entry):
 
     template = Template(
         "Hello! A news entry was just posted:\n\n"
-        "{{ entry.title }}\n\n"
+        "{{ title }}\n\n"
         "You can view this news at: {{ detail_url }}.\n\n"
         "If you no longer wish to receive these emails, please review your "
         "notifications preferences at {{ preferences_url }}.\n\n"
@@ -101,6 +108,7 @@ def send_email_news_posted(request, entry):
                 "preferences_url": request.build_absolute_uri(
                     reverse("profile-account")
                 ),
+                "title": mark_safe(entry.title),
             }
         )
     )
