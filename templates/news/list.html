@@ -139,13 +139,13 @@
                 </a>
               </h2>
             </div>
-              <div class="md:block text-xs hidden ml-auto" style="margin-left: auto;">
+              <div class="md:block text-xs hidden ml-auto text-right w-[150px]">
                 {{ entry.author.get_full_name }}<br />
                 <span class="text-xs">{{ entry.publish_at|date:"M jS, Y" }}</span>
               </div>
             </div>
             {% if entry.content %}
-            <div class="truncate">
+            <div>
               <span class="text-base text-gray-500 dark:text-white/70">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|truncatechars:500 }}...</span>
               </div>
             {% endif %}
