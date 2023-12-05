@@ -308,12 +308,13 @@ def remove_css(soup, tags):
     """Remove all CSS classes from the given tags."""
     for tag_name, tag_attrs in tags:
         try:
-            found_tags = soup.find_all(tag_name, tag_attrs)
+            found_tags = soup.find_all(tag_name, **tag_attrs)
         except AttributeError:
             # No tags found
             continue
         for tag in found_tags:
-            tag.attrs.pop("class")
+            if "class" in tag.attrs:
+                tag.attrs.pop("class")
 
     return soup
 

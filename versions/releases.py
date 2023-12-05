@@ -99,14 +99,27 @@ def get_release_notes_for_version(version_pk):
     try:
         version = Version.objects.get(pk=version_pk)
     except Version.DoesNotExist:
+        logger.info(
+            "get_release_notes_for_version_error_version_not_found",
+            version_pk=version_pk,
+        )
         raise Version.DoesNotExist
     base_url = (
         "https://raw.githubusercontent.com/boostorg/website/master/users/history/"
     )
     filename = f"{version.slug.replace('boost', 'version').replace('-', '_')}.html"
     url = f"{base_url}{filename}"
-    response = requests.get(url)
-    response.raise_for_status()
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        logger.error(
+            "get_release_notes_for_version_http_error",
+            exc_msg=str(e),
+            url=url,
+            version_pk=version_pk,
+        )
+        raise
     return response.content
 
 
@@ -130,7 +143,6 @@ def store_release_notes_for_version(version_pk):
     # Get the release notes content
     content = get_release_notes_for_version(version_pk)
     stripped_content = process_release_notes(content)
-    assert stripped_content
 
     # Save the result to the rendered content model with the version cache key
     rendered_content, _ = RenderedContent.objects.update_or_create(

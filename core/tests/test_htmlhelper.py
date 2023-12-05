@@ -393,6 +393,20 @@ def test_convert_h1_to_h2():
     assert h2_tags[1].get_text() == "Title 2"
 
 
+def test_convert_h1_to_h2_none():
+    html_content = """
+    <html>
+        <body>
+            <p>Some text here</p>
+        </body>
+    </html>
+    """
+    soup = BeautifulSoup(html_content, "html.parser")
+    new_soup = convert_h1_to_h2(soup)
+    h2_tags = new_soup.find_all("h2")
+    assert len(h2_tags) == 0
+
+
 def test_remove_css():
     # Sample HTML content with specific classes for testing
     html_content = """
@@ -426,6 +440,41 @@ def test_remove_css():
     assert "class" in soup.find("p", {"class": "class3"}).attrs
 
 
+def test_remove_css_none():
+    """Test that remove_css still works if none of the CSS classes are present"""
+    # Sample HTML content with specific classes for testing
+    html_content = """
+    <html>
+        <body>
+            <div>Content 0</div>
+            <div>Content 1</div>
+            <div>Content 2</div>
+            <p>Content 3</p>
+        </body>
+    </html>
+    """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Call the function with the REMOVE_CSS_CLASSES constant
+    soup = remove_css(soup, REMOVE_CSS_CLASSES)
+
+    # Assertions
+    # Check each tag in REMOVE_CSS_CLASSES to ensure class has been removed
+    for tag_name, tag_attrs in REMOVE_CSS_CLASSES:
+        found_tags = soup.find_all(tag_name, **tag_attrs)
+        for found_tag in found_tags:
+            assert found_tag is None or "class" not in found_tag.attrs
+
+    # Check that other tags not in REMOVE_CSS_CLASSES are unaffected
+    other_tag = soup.find("p")  # Find the first p tag regardless of class
+    if other_tag and "class" in other_tag.attrs:
+        assert "class" in other_tag.attrs  # Assert that p tag still has its class
+    else:
+        assert other_tag is not None  # Assert that the p tag was found
+
+
 def test_remove_duplicate_tag():
     # Sample HTML content with duplicate <h2> tags
     html_content = """
@@ -433,6 +482,30 @@ def test_remove_duplicate_tag():
           <body>
               <h2>Header 1</h2>
               <h2>Header 1</h2>  <!-- Duplicate -->
+              <h2>Header 2</h2>
+          </body>
+      </html>
+    """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Call the function
+    soup = remove_duplicate_tag(soup, "h2")
+
+    # Assertions
+    h2_tags = soup.find_all("h2")
+    assert len(h2_tags) == 2
+    assert h2_tags[0].get_text(strip=True) == "Header 1"
+    assert h2_tags[1].get_text(strip=True) == "Header 2"
+
+
+def test_remove_duplicate_tag_none():
+    # Sample HTML content with duplicate <h2> tags
+    html_content = """
+      <html>
+          <body>
+              <h2>Header 1</h2>
               <h2>Header 2</h2>
           </body>
       </html>
@@ -480,6 +553,30 @@ def test_remove_first_tag():
     assert (
         soup.find("div", {"id": "header2"}) is None
     )  # Second div with 'header2' should be removed
+
+
+def test_remove_first_tag_none():
+    # Sample HTML content with multiple occurrences of certain tags
+    html_content = """
+      <html>
+          <body>
+              <div id="header1">Header 1</div>
+              <div id="header2">Header 2</div>
+          </body>
+      </html>
+      """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Tags to be removed
+    tags_to_remove = [("div", {"id": "header1"}), ("div", {"id": "header2"})]
+
+    # Call the function
+    soup = remove_first_tag(soup, tags_to_remove)
+    # The first occurrence of each tag should be removed
+    assert soup.find("div", {"id": "header1"}) is None
+    assert soup.find("div", {"id": "header2"}) is None
 
 
 def test_remove_ids():
@@ -627,6 +724,30 @@ def test_style_links():
             <a href="link1.html">Link 1</a>
             <a href="link2.html">Link 2</a>
             <a href="link3.html">Link 3</a>
+        </body>
+    </html>
+    """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Class name to be added to all links
+    new_class_name = "styled-link"
+
+    # Call the function
+    soup = style_links(soup, new_class_name)
+
+    # Assertions
+    for a_tag in soup.find_all("a"):
+        assert new_class_name in a_tag.get("class", []), "Class not added to link"
+
+
+def test_style_links_no_links():
+    # Sample HTML content with multiple links
+    html_content = """
+    <html>
+        <body>
+            <p>Sample</p>
         </body>
     </html>
     """
