@@ -41,7 +41,8 @@ class VersionManager(models.Manager):
 
     def version_dropdown(self):
         """Return the versions that should show in the version drop-down"""
-        all_versions = self.active().filter(beta=False)
+        # Includes full releases, not betas or the master/develop branch
+        all_versions = self.active().filter(full_release=True)
         most_recent = self.most_recent()
         most_recent_beta = self.most_recent_beta()
 
@@ -50,6 +51,8 @@ class VersionManager(models.Manager):
             if not most_recent_beta:
                 return False
 
+            # If the beta is for a newer version than the most recent version,
+            # show it
             return (
                 most_recent_beta.cleaned_version_parts
                 > most_recent.cleaned_version_parts

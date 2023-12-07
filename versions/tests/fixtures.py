@@ -21,6 +21,7 @@ def beta_version(db):
         description="Some awesome description of the library",
         release_date=datetime.date.today(),
         beta=True,
+        full_release=False,
     )
 
     # Make version download file
@@ -44,6 +45,7 @@ def version(db):
         name="boost-1.79.0",
         description="Some awesome description of the library",
         release_date=yesterday,
+        full_release=True,
     )
 
     # Make version download file
@@ -68,6 +70,7 @@ def inactive_version(db):
         description="Some old description of the library",
         release_date=yesterday,
         active=False,
+        full_release=True,
     )
 
     # Make version download file
@@ -91,6 +94,7 @@ def old_version(db):
         name="boost-1.70.0",
         description="Some awesome description of the library",
         release_date=last_year,
+        full_release=True,
     )
 
     # Make version download file
