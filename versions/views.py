@@ -1,9 +1,10 @@
 import structlog
 
+from django.conf import settings
+from django.contrib import messages
+from django.shortcuts import redirect
 from django.views.generic import DetailView
 from django.views.generic.edit import FormMixin
-from django.shortcuts import redirect
-from django.contrib import messages
 from itertools import groupby
 from operator import attrgetter
 
@@ -53,6 +54,8 @@ class VersionDetail(FormMixin, DetailView):
 
         context["heading"] = self.get_version_heading(obj, is_current_release)
         context["release_notes"] = self.get_release_notes(obj)
+        context["master_branch_url"] = settings.BOOST_MASTER_BRANCH
+        context["develop_branch_url"] = settings.BOOST_DEVELOP_BRANCH
 
         return context
 

@@ -69,6 +69,25 @@
             </a>
             {% endif %}
           </div>
+
+          <div class="-ml-2 h-14">
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
+               href="{{ version.github_url }}">
+              <i class="float-right mt-1 fab fa-github"></i>
+              <span class="dark:text-white text-slate"><code>master</code> branch</span>
+              <span class="block text-xs">{{ master_branch_url|cut:"https://" }}</span>
+            </a>
+          </div>
+
+          <div class="-ml-2 h-14">
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
+               href="{{ version.github_url }}">
+              <i class="float-right mt-1 fab fa-github"></i>
+              <span class="dark:text-white text-slate"><code>develop</code> branch</span>
+              <span class="block text-xs">{{ develop_branch_url|cut:"https://" }}</span>
+            </a>
+          </div>
+
         </div>
       </div>
       <div class="overflow-x-hidden pb-2 pl-0 ml-0 space-x-6 w-full h-auto md:pb-0 md:pl-6 md:ml-6">
