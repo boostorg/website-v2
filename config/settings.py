@@ -462,3 +462,8 @@ ARTIFACTORY_URL = env(
 # The min Boost version is the oldest version of Boost that our import scripts
 # will retrieve. It's determined by the files we store in the archives/ in S3.
 MINIMUM_BOOST_VERSION = "1.31.0"
+
+# Boost URLS
+
+BOOST_MASTER_BRANCH = "https://github.com/boostorg/boost/tree/master"
+BOOST_DEVELOP_BRANCH = "https://github.com/boostorg/boost/tree/develop"
