@@ -47,7 +47,7 @@ class VersionManager(models.Manager):
 
         def should_show_beta(most_recent, most_recent_beta):
             """Returns bool for whether to show beta version in dropdown"""
-            if not most_recent_beta:
+            if not most_recent_beta or most_recent is None:
                 return False
 
             return (
@@ -61,6 +61,13 @@ class VersionManager(models.Manager):
             return (all_versions | beta_queryset).order_by("-name")
         else:
             return all_versions.order_by("-name")
+
+    def version_dropdown_strict(self):
+        """Returns the versions to be shown in the drop-down, but does not include
+        the development branches"""
+        versions = self.version_dropdown()
+        # exclude if full_release is False and beta is False
+        return versions.exclude(full_release=False, beta=False)
 
 
 class VersionFileQuerySet(models.QuerySet):
