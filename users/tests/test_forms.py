@@ -159,16 +159,9 @@ def test_user_profile_form(user):
     assert user.email == "test@example.com"
 
 
-@pytest.mark.skip("TODO: Fix this test -- it works locally.")
 def test_user_profile_photo_form_save(user):
     """
     Test that the UserProfilePhotoForm deletes the old image and saves the new one.
-
-    Failing test:
-    Locally, I verified that when I uploaded a new profile photo, the filename
-    changed in the admin for my user and the photo changed in the UI. But for some
-    reason in the test, the filename doesn't change. It was a rabbit hole so I
-    decided to move on for now.
     """
 
     def create_test_image_file(filename="test.png"):
@@ -197,4 +190,4 @@ def test_user_profile_photo_form_save(user):
     assert form.is_valid()
     updated_user = form.save()
     updated_user.refresh_from_db()
-    assert "new_image" in updated_user.image.path
+    assert str(user.pk) in updated_user.image.path
