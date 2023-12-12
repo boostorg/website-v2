@@ -231,5 +231,6 @@ certmap: "cppal-dev-certmap"
 managedCertName: managed-cert-cppal-dev,managed-cert-cppal-dev2
 secretCertName: boostorgcert
 ingressStaticIp: cppal-dev-ingress1
+gatewayStaticIp: cppal-dev-ingress1
 redisInstall: false
 celeryInstall: true
