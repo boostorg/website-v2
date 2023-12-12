@@ -52,6 +52,10 @@ def test_get_display_name(user):
     assert user.get_display_name == "Last"
 
 
+def test_profile_image_filename_root(user):
+    assert user.profile_image_filename_root == f"profile-{user.id}"
+
+
 def test_user_model_image_validator(user):
     """
     Test that the `image` field on the User model only accepts certain file types.

@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth import get_user_model
 from django import forms
 
@@ -117,6 +119,13 @@ class UserProfilePhotoForm(forms.ModelForm):
             # Delete the old image file if there's a new image being uploaded
             if self.cleaned_data["image"] != old_image:
                 old_image.delete(save=False)
+
+        if self.cleaned_data.get("image"):
+            new_image = self.cleaned_data["image"]
+            _, file_extension = os.path.splitext(new_image.name)
+            new_image.name = f"{user.profile_image_filename_root}.{file_extension}"
+
+            user.image = new_image
 
         if commit:
             user.save()
