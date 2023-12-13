@@ -226,12 +226,14 @@ hostAliases:
     hostnames:
       - "mailman-cppal-dev.boost.cppalliance.org"
 
-ingressType: "none"
-gatewayType: "gce"
-certmap: "cppal-dev-certmap"
+ingressType: "gce"
+gatewayType: "none"
+# Not using gateway at this moment, so no need for certmap.
+# certmap: "cppal-dev-certmap"
+certmap: "none"
 managedCertName: managed-cert-cppal-dev,managed-cert-cppal-dev2
 secretCertName: boostorgcert
 ingressStaticIp: cppal-dev-ingress1
-gatewayStaticIp: cppal-dev-ingress1
+gatewayStaticIp: ""
 redisInstall: false
 celeryInstall: true

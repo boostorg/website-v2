@@ -24,8 +24,14 @@ data:
     }
 
     server {
+      listen 80;
+      server_name {{.Values.publicFqdn4}};
+      return 301 $scheme://www.{{.Values.publicFqdn4}}$request_uri;
+    }
+
+    server {
       listen 80 deferred default;
-      server_name www.{{.Values.publicFqdn}} www.{{.Values.publicFqdn2}} www.{{.Values.publicFqdn3}} ;
+      server_name www.{{.Values.publicFqdn}} www.{{.Values.publicFqdn2}} www.{{.Values.publicFqdn3}} www.{{.Values.publicFqdn4}} ;
 
       error_log /dev/stdout info;
       access_log /dev/stdout main;
