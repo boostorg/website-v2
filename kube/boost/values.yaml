@@ -34,6 +34,7 @@ initCommands:
 publicFqdn: &fqdn boost.revsys.dev
 publicFqdn2: &fqdn2 boost.org
 publicFqdn3: &fqdn3 preview.boost.org
+publicFqdn4: &fqdn4 boost.io
 
 Env:
   - name: DJANGO_SETTINGS_MODULE
@@ -66,9 +67,9 @@ Env:
   - name: DJANGO_FQDN
     value: *fqdn
   - name: ALLOWED_HOSTS
-    value: "boost.revsys.dev, www.boost.revsys.dev, boost.org, www.boost.org, preview.boost.org, www.preview.boost.org"
+    value: "boost.revsys.dev, www.boost.revsys.dev, boost.org, www.boost.org, preview.boost.org, www.preview.boost.org, boost.io, www.boost.io"
   - name: CSRF_TRUSTED_ORIGINS
-    value: "http://0.0.0.0, http://localhost, https://boost.revsys.dev, https://www.boost.revsys.dev, https://boost.org, https://www.boost.org, https://preview.boost.org, https://www.preview.boost.org"
+    value: "http://0.0.0.0, http://localhost, https://boost.revsys.dev, https://www.boost.revsys.dev, https://boost.org, https://www.boost.org, https://preview.boost.org, https://www.preview.boost.org, https://boost.io, https://www.boost.io"
 
   # silence django deprecation warnings
   - name: PYTHONWARNINGS

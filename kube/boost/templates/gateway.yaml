@@ -37,12 +37,14 @@ spec:
     - {{.Values.publicFqdn2}}
     - www.{{.Values.publicFqdn3}}
     - {{.Values.publicFqdn3}}
+    - www.{{.Values.publicFqdn4}}
+    - {{.Values.publicFqdn4}}
   rules:
     - matches:
       - path:
           value: /
       backendRefs:
-      - name: boost
+      - name: boost-gateway-svc
         port: 80
 {{ end }}
 
@@ -61,7 +63,7 @@ spec:
   targetRef:
     group: ""
     kind: Service
-    name: boost
+    name: boost-gateway-svc
 
 ---
 kind: HTTPRoute
