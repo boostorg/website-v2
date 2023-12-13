@@ -34,6 +34,7 @@ initCommands:
 publicFqdn: &fqdn cppal-dev.boost.cppalliance.org
 publicFqdn2: &fqdn2 boost.org
 publicFqdn3: &fqdn3 cppal-dev2.boost.cppalliance.org
+publicFqdn4: &fqdn4 boost.io
 
 Env:
   - name: DJANGO_SETTINGS_MODULE
@@ -66,9 +67,9 @@ Env:
   - name: DJANGO_FQDN
     value: *fqdn
   - name: ALLOWED_HOSTS
-    value: "*.boost.org, *.boost.cppalliance.org, cppal-dev.boost.cppalliance.org, www.cppal-dev.boost.cppalliance.org, boost.org, www.boost.org, cppal-dev2.boost.cppalliance.org, www.cppal-dev2.boost.cppalliance.org"
+    value: "*.boost.org, *.boost.cppalliance.org, cppal-dev.boost.cppalliance.org, www.cppal-dev.boost.cppalliance.org, boost.org, www.boost.org, cppal-dev2.boost.cppalliance.org, www.cppal-dev2.boost.cppalliance.org, boost.io, www.boost.io"
   - name: CSRF_TRUSTED_ORIGINS
-    value: "http://*.boost.cppalliance.org, https://*.boost.cppalliance.org, http://0.0.0.0, http://localhost, https://cppal-dev.boost.cppalliance.org, https://www.cppal-dev.boost.cppalliance.org, https://boost.org, https://www.boost.org, https://cppal-dev2.boost.cppalliance.org, https://www.cppal-dev2.boost.cppalliance.org"
+    value: "http://*.boost.cppalliance.org, https://*.boost.cppalliance.org, http://0.0.0.0, http://localhost, https://cppal-dev.boost.cppalliance.org, https://www.cppal-dev.boost.cppalliance.org, https://boost.org, https://www.boost.org, https://cppal-dev2.boost.cppalliance.org, https://www.cppal-dev2.boost.cppalliance.org, https://boost.io, https://www.boost.io"
 
   # silence django deprecation warnings
   - name: PYTHONWARNINGS
