@@ -34,6 +34,7 @@ initCommands:
 publicFqdn: &fqdn stage.boost.cppalliance.org
 publicFqdn2: &fqdn2 stage.boost.org
 publicFqdn3: &fqdn3 stage2.boost.cppalliance.org
+publicFqdn4: &fqdn4 boost.io
 
 Env:
   - name: DJANGO_SETTINGS_MODULE
@@ -66,9 +67,9 @@ Env:
   - name: DJANGO_FQDN
     value: *fqdn
   - name: ALLOWED_HOSTS
-    value: "stage.boost.cppalliance.org, www.stage.boost.cppalliance.org, stage.boost.org, www.stage.boost.org, stage2.boost.cppalliance.org, www.stage2.boost.cppalliance.org"
+    value: "stage.boost.cppalliance.org, www.stage.boost.cppalliance.org, stage.boost.org, www.stage.boost.org, stage2.boost.cppalliance.org, www.stage2.boost.cppalliance.org, boost.io, www.boost.io"
   - name: CSRF_TRUSTED_ORIGINS
-    value: "http://0.0.0.0, http://localhost, https://stage.boost.cppalliance.org, https://www.stage.boost.cppalliance.org, https://stage.boost.org, https://www.stage.boost.org, https://stage2.boost.cppalliance.org, https://www.stage2.boost.cppalliance.org"
+    value: "http://0.0.0.0, http://localhost, https://stage.boost.cppalliance.org, https://www.stage.boost.cppalliance.org, https://stage.boost.org, https://www.stage.boost.org, https://stage2.boost.cppalliance.org, https://www.stage2.boost.cppalliance.org, https://boost.io, https://www.boost.io"
 
   # silence django deprecation warnings
   - name: PYTHONWARNINGS
