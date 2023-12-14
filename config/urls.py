@@ -14,6 +14,7 @@ from ak.views import (
     OKView,
 )
 from core.views import (
+    CalendarView,
     ClearCacheView,
     DocLibsTemplateView,
     MarkdownTemplateView,
@@ -113,6 +114,8 @@ urlpatterns = (
             TemplateView.as_view(template_name="community_temp.html"),
             name="community",
         ),
+        # Boost community calendar
+        path("calendar/", CalendarView.as_view(), name="calendar"),
         # Boost versions views
         path("releases/<slug:slug>/", VersionDetail.as_view(), name="release-detail"),
         path(

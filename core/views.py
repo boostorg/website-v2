@@ -28,6 +28,14 @@ from .tasks import (
 logger = structlog.get_logger()
 
 
+class CalendarView(TemplateView):
+    template_name = "calendar.html"
+
+    def get(self, request, *args, **kwargs):
+        context = {"boost_calendar": settings.BOOST_CALENDAR}
+        return self.render_to_response(context)
+
+
 class ClearCacheView(UserPassesTestMixin, View):
     http_method_names = ["get"]
     login_url = "/login/"

@@ -462,3 +462,7 @@ ARTIFACTORY_URL = env(
 # The min Boost version is the oldest version of Boost that our import scripts
 # will retrieve. It's determined by the files we store in the archives/ in S3.
 MINIMUM_BOOST_VERSION = "1.31.0"
+
+# Boost Google Calendar
+BOOST_CALENDAR = "5rorfm42nvmpt77ac0vult9iig@group.calendar.google.com"
+CALENDAR_API_KEY = env("CALENDAR_API_KEY", default="changeme")

@@ -35,3 +35,9 @@ This project uses environment variables to configure certain aspects of the appl
 - Specifies the name of the Amazon S3 bucket where static content is stored
 - For **local development**, obtain valid value from the Boost team.
 - In **deployed environments**, the valid value is set in `kube/boost/values.yaml` (or the environment-specific yaml file).
+
+## `CALENDAR_API_KEY`
+
+- API key for the Boost Google calendar
+- For **local development**, obtain valid value from the Boost team.
+- In **deployed environments**, the valid value is set in `kube/boost/values.yaml` (or the environment-specific yaml file).

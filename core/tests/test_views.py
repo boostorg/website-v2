@@ -246,3 +246,8 @@ def test_docs_libs_gateway_200_html_transformed(rf, tp, mock_get_file_data):
     </div>
     """
     tp.assertResponseNotContains(legacy_body, response)
+
+
+def test_calendar(rf, tp):
+    response = tp.get("calendar")
+    tp.response_200(response)
