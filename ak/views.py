@@ -1,4 +1,5 @@
 import requests
+import structlog
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
@@ -6,9 +7,13 @@ from django.views import View
 from django.views.generic import TemplateView
 
 from config.settings import JDOODLE_API_CLIENT_ID, JDOODLE_API_CLIENT_SECRET
+from core.calendar import extract_calendar_events, events_by_month, get_calendar
 from libraries.models import Category, Library
 from news.models import Entry
 from versions.models import Version
+
+
+logger = structlog.get_logger()
 
 
 class HomepageView(TemplateView):
@@ -25,7 +30,26 @@ class HomepageView(TemplateView):
         latest_version = Version.objects.most_recent()
         context["latest_version"] = latest_version
         context["featured_library"] = self.get_featured_library(latest_version)
+        context["events"] = self.get_events()
+        if context["events"]:
+            context["num_months"] = len(context["events"])
+        else:
+            context["num_months"] = 0
         return context
+
+    def get_events(self):
+        try:
+            raw_event_data = get_calendar()
+        except Exception:
+            logger.info("Error getting events")
+            return
+
+        if not raw_event_data:
+            return
+
+        events = extract_calendar_events(raw_event_data)
+        sorted_events = events_by_month(events)
+        return dict(sorted_events)
 
     def get_featured_library(self, latest_version):
         library = Library.objects.filter(featured=True).first()

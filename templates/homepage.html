@@ -60,83 +60,59 @@
       </div>
     </div>
 
-    <div class="px-4 mt-4 pt-8 my-12 lg:mb-4 mx-auto">
-      <div class="pb-10 bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md">
-        <div class="p-5 w-full">
-          <div class="my-6 ml-6">
-            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded-lg md:text-base text-emerald-700 bg-emerald-200 dark:bg-opacity-10">schedule of events</span>
-          </div>
-        </div>
-        <div class="flex flex-col justify-center items-center pb-4 h-full">
-          <div class="relative mx-auto w-4/5"
-               x-data="{ activeSlide: 1, slides: [1] }">
-            <!-- Slides -->
-
-            {% comment %}<div x-show="activeSlide === 1" x-cloak
-                 class="flex items-center py-0 px-12 h-full rounded-lg">
-              <div class="w-full">
-                <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">November 2023</h3>
-                <span class="pb-1 mx-auto w-full text-sm align-left">
-                  <strong>Wednesday November 1st:</strong> Boost 1.84.0 closed for major changes
-                  <br />
-                  <div class="pt-1 pl-4 font-light">Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review.</div>
-                  <br />
-                </span>
-                <span class="pb-1 mx-auto w-full text-sm align-left">
-                  <strong>Wednesday November 8th:</strong> Boost 1.84.0 closed for beta
-                  <br />
-                  <div class="pt-1 pl-4 font-light">Release closed for all changes.</div>
-                  <br />
-                </span>
-                <span class="pb-1 mx-auto w-full text-sm align-left">
-                  <strong>Wednesday November 15th:</strong> Boost 1.84.0 beta
-                  <br />
-                  <div class="pt-1 pl-4 font-light">Beta posted for download.</div>
-                  <br />
-                </span>
-                <span class="pb-1 mx-auto w-full text-sm align-left">
-                  <strong>Thursday November 16th:</strong> Boost 1.84.0 open for bug fixes
-                  <br />
-                  <div class="pt-1 pl-4 font-light">Release open for bug fixes and documentation updates. Other changes by permission of a release manager.</div>
-                  <br />
-                </span>
-              </div>
-            </div>{% endcomment %}
-            <div x-show="activeSlide === 1" x-cloak
-                 class="flex items-center py-0 px-12 h-full rounded-lg">
-              <div class="w-full">
-                <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">December 2023</h3>
-                <span class="pb-1 mx-auto w-full text-sm align-left">
-                  <strong>Wednesday December 6th:</strong> Boost 1.84.0 closed
-                  <br />
-                  <div class="pt-1 pl-4 font-light">Release closed for all changes.</div>
-                  <br />
-                </span>
-                <span class="pb-1 mx-auto w-full text-sm align-left">
-                  <strong>Wednesday November 8th:</strong> Boost 1.84.0 release
-                  <br />
-                  <div class="pt-1 pl-4 font-light">Release posted for download.</div>
-                  <br />
-                </span>
+    {% if events %}
+        <div class="px-4 mt-4 pt-8 my-12 lg:mb-4 mx-auto">
+          <div class="pb-10 bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md">
+            <div class="p-5 w-full">
+              <div class="my-6 ml-6">
+                <span class="inline py-1 px-3 w-auto text-sm uppercase rounded-lg md:text-base text-emerald-700 bg-emerald-200 dark:bg-opacity-10">schedule of events</span>
               </div>
             </div>
-            <!-- Prev/Next Arrows -->
-
-            {% comment %}
-            <div class="flex absolute inset-0">
-              <div class="flex justify-start items-center w-1/2">
-                <button class="-ml-6 w-12 h-12 font-bold text-white bg-gray-400 rounded-full"
-                        x-on:click="activeSlide = activeSlide === 1 ? slides.length : activeSlide - 1">&#8592;</button>
+            <div class="flex flex-col justify-center items-center pb-4 h-full">
+              <div class="relative mx-auto w-4/5"
+              x-data="{ activeSlide: 1, slides: Array.from({ length: {{ num_months }} }, (_, i) => i + 1) }">
+                <!-- Slides -->
+                {% for month_year, month_events in events.items %}
+                <div x-show="activeSlide === {{ forloop.counter }}" x-cloak
+                    class="flex items-center py-0 px-12 h-full rounded-lg">
+                  <div class="w-full">
+                    <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">{{ month_year }}</h3>
+                    {% for event in month_events %}
+                    <span class="pb-1 mx-auto w-full text-sm align-left">
+                      <strong>{{ event.start.date }}:</strong> {{ event.name }}
+                      <br />
+                      <div class="pt-1 pl-4 font-light">{{ event.description }}</div>
+                      <br />
+                    </span>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% endfor %}
+                <!-- Prev/Next Arrows -->
+                <div class="flex absolute inset-0">
+                  <div class="flex justify-start items-center w-1/2">
+                    <button
+                      x-show="activeSlide !== 1"
+                      class="-ml-6 w-12 h-12 font-bold text-white bg-gray-400 rounded-full"
+                      x-on:click="activeSlide = activeSlide === 1 ? slides.length : activeSlide - 1">
+                      &#8592;
+                    </button>
+                  </div>
+                  <div class="flex justify-end items-center w-1/2">
+                    <button
+                      x-show="activeSlide !== slides.length"
+                      class="-mr-6 w-12 h-12 font-bold text-white bg-gray-400 rounded-full"
+                      x-on:click="activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1">
+                      &#8594;
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div class="flex justify-end items-center w-1/2">
-                <button class="-mr-6 w-12 h-12 font-bold text-white bg-gray-400 rounded-full"
-                        x-on:click="activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1">&#8594;</button>
-              </div>
-            </div>{% endcomment %}
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+    {% endif %}
+
 
     {% if featured_library %}
     <div class="my-12 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
