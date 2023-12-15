@@ -93,3 +93,8 @@ def test_stripped_boost_url_slug(slug, expected, version):
     version.save()
     version.refresh_from_db()
     assert version.stripped_boost_url_slug == expected
+
+
+def test_get_absolute_url(version):
+    expected_url = f"/releases/{version.slug}/"
+    assert version.get_absolute_url() == expected_url
