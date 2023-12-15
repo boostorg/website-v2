@@ -1,5 +1,6 @@
 import re
 from django.db import models
+from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
@@ -42,6 +43,9 @@ class Version(models.Model):
         if not self.slug:
             self.slug = self.get_slug()
         return super(Version, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse("release-detail", args=[str(self.slug)])
 
     def get_slug(self):
         if self.slug:

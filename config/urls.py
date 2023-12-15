@@ -58,6 +58,7 @@ from users.views import (
     UserAvatar,
 )
 from versions.api import ImportVersionsView, VersionViewSet
+from versions.feeds import AtomVersionFeed, RSSVersionFeed
 from versions.views import VersionCurrentReleaseDetail, VersionDetail
 
 router = routers.SimpleRouter()
@@ -72,6 +73,8 @@ urlpatterns = (
         path("", HomepageView.as_view(), name="home"),
         path("homepage-beta/", HomepageBetaView.as_view(), name="home-beta"),
         path("admin/", admin.site.urls),
+        path("feed/downloads.rss", RSSVersionFeed(), name="downloads_feed_rss"),
+        path("feed/downloads.atom", AtomVersionFeed(), name="downloads_feed_atom"),
         path(
             "accounts/social/signup/",
             CustomSocialSignupViewView.as_view(),
