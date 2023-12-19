@@ -19,7 +19,7 @@
             Or, <a href="{% url 'news-create' %}" class="whitespace-nowrap text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Create a Post</a> to include in the feed (posts are reviewed before publication).
             {% else %}
             Signed-in users may submit items to include in the feed (posts are reviewed before publication).
-            {% endif %}
+            {% endif %} (<a href="{% url 'news_feed_rss' %}" class="whitespace-nowrap text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">RSS</a>)
           </p>
         </div>
 
