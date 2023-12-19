@@ -28,6 +28,7 @@ from libraries.views import (
     LibraryListMini,
 )
 from mailing_list.views import MailingListDetailView, MailingListView
+from news.feeds import AtomNewsFeed, RSSNewsFeed
 from news.views import (
     AllTypesCreateView,
     BlogPostCreateView,
@@ -75,6 +76,8 @@ urlpatterns = (
         path("admin/", admin.site.urls),
         path("feed/downloads.rss", RSSVersionFeed(), name="downloads_feed_rss"),
         path("feed/downloads.atom", AtomVersionFeed(), name="downloads_feed_atom"),
+        path("feed/news.rss", RSSNewsFeed(), name="news_feed_rss"),
+        path("feed/news.atom", AtomNewsFeed(), name="news_feed_atom"),
         path(
             "accounts/social/signup/",
             CustomSocialSignupViewView.as_view(),
