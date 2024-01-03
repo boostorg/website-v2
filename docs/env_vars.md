@@ -36,8 +36,19 @@ This project uses environment variables to configure certain aspects of the appl
 - For **local development**, obtain valid value from the Boost team.
 - In **deployed environments**, the valid value is set in `kube/boost/values.yaml` (or the environment-specific yaml file).
 
-## `CALENDAR_API_KEY`
+## Boost Google Calendar settings
+
+### `BOOST_CALENDAR`
+
+- Address for the Boost Google Calendar
+- Hard-coded in `settings.py` in all environments
+### `CALENDAR_API_KEY`
 
 - API key for the Boost Google calendar
 - For **local development**, obtain valid value from the Boost team.
 - In **deployed environments**, the valid value is set in `kube/boost/values.yaml` (or the environment-specific yaml file).
+
+### `EVENTS_CACHE_KEY` and `EVENTS_CACHE_TIMEOUT`
+
+- The cache key and timeout length for the Google Calendar events
+- Hard-coded in `settings.py` in all environments

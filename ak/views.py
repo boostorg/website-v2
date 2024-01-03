@@ -1,5 +1,7 @@
 import requests
 import structlog
+from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
@@ -38,6 +40,11 @@ class HomepageView(TemplateView):
         return context
 
     def get_events(self):
+        """Returns the events from the Boost Google Calendar."""
+        cached_events = cache.get(settings.EVENTS_CACHE_KEY)
+        if cached_events:
+            return cached_events
+
         try:
             raw_event_data = get_calendar()
         except Exception:
@@ -49,6 +56,12 @@ class HomepageView(TemplateView):
 
         events = extract_calendar_events(raw_event_data)
         sorted_events = events_by_month(events)
+        cache.set(
+            settings.EVENTS_CACHE_KEY,
+            dict(sorted_events),
+            settings.EVENTS_CACHE_TIMEOUT,
+        )
+
         return dict(sorted_events)
 
     def get_featured_library(self, latest_version):

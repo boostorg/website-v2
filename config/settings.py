@@ -466,3 +466,5 @@ MINIMUM_BOOST_VERSION = "1.31.0"
 # Boost Google Calendar
 BOOST_CALENDAR = "5rorfm42nvmpt77ac0vult9iig@group.calendar.google.com"
 CALENDAR_API_KEY = env("CALENDAR_API_KEY", default="changeme")
+EVENTS_CACHE_KEY = "homepage_events"
+EVENTS_CACHE_TIMEOUT = 300  # 5 min
