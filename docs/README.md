@@ -4,6 +4,7 @@
 - [Dependency Management](./dependencies.md)
 - [Development Setup Notes](./development_setup_notes.md)
 - [Environment Variables](./env_vars.md)
+- [Events Calendar](./calendar.md)
 - [Example Files](./examples/README.md) - Contains samples of `libraries.json`. `.gitmodules`, and other files that Boost data depends on
 - [Hosting](./hosting/README.md)
 - [Mailman](./mailman/README.md)
