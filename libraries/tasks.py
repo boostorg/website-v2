@@ -1,5 +1,4 @@
 import structlog
-from celery.schedules import crontab
 
 from config.celery import app
 from core.boostrenderer import get_content_from_s3
@@ -64,15 +63,6 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
                 version_slug=version.slug,
             )
             continue
-
-
-@app.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
-    # Executes daily at 7:05 AM
-    sender.add_periodic_task(
-        crontab(hour=7, minute=5),
-        update_libraries.s(),
-    )
 
 
 @app.task

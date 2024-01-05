@@ -1,16 +1,21 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
 
 from .managers import RenderedContentManager
 
 
-class RenderedContent(models.Model):
+class RenderedContent(TimeStampedModel):
     """Stores a copy of rendered content. Generally, this content is retrieved
     from the S3 buckets and, if necessary, converted to HTML.
 
     This model is intended to be used as a cache. If the content is not found,
     it will be retrieved from S3 and stored in this model. If the content is
-    found, it will be returned from this model."""
+    found, it will be returned from this model.
+
+    TimeStampedModel adds `created` and `modified` fields:
+    https://django-extensions.readthedocs.io/en/latest/model_extensions.html
+    """
 
     cache_key = models.CharField(
         max_length=255,

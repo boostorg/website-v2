@@ -1,6 +1,7 @@
 # Documentation for the Boost Website
 
 - [API Documentation](./api.md) - We don't have many API endpoints, but the ones we do have are documented here
+- [Caching and the `RenderedContent` model](./caching_rendered_content.md)
 - [Dependency Management](./dependencies.md)
 - [Development Setup Notes](./development_setup_notes.md)
 - [Environment Variables](./env_vars.md)
