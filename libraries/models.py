@@ -148,7 +148,7 @@ class Library(models.Model):
 
         # Try to get the content from the cache first
         static_content_cache = caches["static_content"]
-        cache_key = f"static_content_{self.github_repo}_{tag}"
+        cache_key = f"library_description_{self.github_repo}_{tag}"
         cached_result = static_content_cache.get(cache_key)
         if cached_result:
             return cached_result
