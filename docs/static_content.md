@@ -54,3 +54,9 @@ Take a look at this sample `{env}_static_config.json` file:
 - `/site/index.html`
 
 We first try to retrieve the static content using the exact S3 key specified in the site-to-S3 mapping. If we can't find the content using that key, we will try alternative S3 keys based on the `site_path` and `s3_path` properties in the `{env}_static_config.json` file.
+
+## Caching
+
+See [Caching and the `RenderedContent` model](./caching_rendered_content.md) for how Django-side caching is handled.
+
+Cacching is also handled via Fastly CDN.
