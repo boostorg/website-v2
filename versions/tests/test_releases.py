@@ -17,10 +17,10 @@ def test_get_artifactory_downloads_for_release():
     url = f"{settings.ARTIFACTORY_URL}release/{version_num}/source/"
     data = {
         "children": [
-            {"uri": "boost_1_81_0.tar.bz2"},  # include
-            {"uri": "boost_1_81_0-rc.tar.gz"},  # exclude, release candidate
-            {"uri": "boost_1_81_0-beta.tar.gz"},  # exclude, beta
-            {"uri": "boost_1_81_0.html"},  # exclude, wrong extension
+            {"uri": "/boost_1_81_0.tar.bz2"},  # include
+            {"uri": "/boost_1_81_0-rc.tar.gz"},  # exclude, release candidate
+            {"uri": "/boost_1_81_0-beta.tar.gz"},  # exclude, beta
+            {"uri": "/boost_1_81_0.html"},  # exclude, wrong extension
         ]
     }
     responses.add(responses.GET, url, json=data)
@@ -35,10 +35,10 @@ def test_get_artifactory_downloads_for_release_beta():
     url = f"{settings.ARTIFACTORY_URL}beta/{version_num}/source/"
     data = {
         "children": [
-            {"uri": "boost_1_81_0.tar.bz2"},  # include, because not excluded
-            {"uri": "boost_1_81_0-rc.tar.gz"},  # exclude, release candidate
-            {"uri": "boost_1_81_0-beta.tar.gz"},  # include, beta
-            {"uri": "boost_1_81_0.html"},  # exclude, wrong extension
+            {"uri": "/boost_1_81_0.tar.bz2"},  # include, because not excluded
+            {"uri": "/boost_1_81_0-rc.tar.gz"},  # exclude, release candidate
+            {"uri": "/boost_1_81_0-beta.tar.gz"},  # include, beta
+            {"uri": "/boost_1_81_0.html"},  # exclude, wrong extension
         ]
     }
     responses.add(responses.GET, url, json=data)
