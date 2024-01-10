@@ -30,11 +30,11 @@ def setup_periodic_tasks(sender, **kwargs):
     # Update library data from GitHub. Executes daily at 7:05 AM
     sender.add_periodic_task(
         crontab(hour=7, minute=5),
-        "libraries.tasks.update_libraries",
+        app.signature("libraries.tasks.update_libraries"),
     )
 
     # Clear the static content database cache. Executs daily at 4:05 AM.
     sender.add_periodic_task(
         crontab(hour=4, minute=5),
-        "core.tasks.clear_static_content_cache",
+        app.signature("core.tasks.clear_static_content_cache"),
     )
