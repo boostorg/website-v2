@@ -2,6 +2,8 @@ import djclick as click
 
 import requests
 
+from django.conf import settings
+
 from versions.models import Version
 from versions.releases import (
     get_artifactory_download_data,
@@ -20,7 +22,7 @@ def command(release):
     specified release. If no release is specified, it will import the release data
     for all releases included in Artifactory.
     """
-    last_release = "boost-1.63.0"
+    last_release = settings.MIN_ARTIFACTORY_RELEASE
 
     if release:
         versions = Version.objects.filter(name__icontains=release)

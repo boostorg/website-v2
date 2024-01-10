@@ -458,6 +458,7 @@ CORS_ALLOW_HEADERS = (
 ARTIFACTORY_URL = env(
     "ARTIFACTORY_URL", default="https://boostorg.jfrog.io/artifactory/api/storage/main/"
 )
+MIN_ARTIFACTORY_RELEASE = "boost-1.63.0"
 
 # The min Boost version is the oldest version of Boost that our import scripts
 # will retrieve. It's determined by the files we store in the archives/ in S3.
