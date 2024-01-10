@@ -65,7 +65,7 @@ def get_artifactory_downloads_for_release(release: str = "1.81.0") -> list:
             continue
 
         if any(uri.endswith(ext) for ext in file_extensions):
-            uris.append(f"{base_uri}/{uri}")
+            uris.append(f"{base_uri}{uri}")
 
     return uris
 

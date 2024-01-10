@@ -36,6 +36,19 @@ This project uses environment variables to configure certain aspects of the appl
 - For **local development**, obtain valid value from the Boost team.
 - In **deployed environments**, the valid value is set in `kube/boost/values.yaml` (or the environment-specific yaml file).
 
+## Boost Release Downloads Settings
+
+### `ARTIFACTORY_URL`
+
+- Base API endpoint for accessing the JFrog Artifactory release downloads. This is NOT the base URL for the downloads themselves.
+- For **local development**, there is a default value in `config/settings.py`
+- In **deployed environments**, the valid value is set in `kube/boost/values.yaml` (or the environment-specific yaml file).
+
+### `MIN_ARTIFACTORY_RELEASE`
+
+- The lowest version of Boost with its downloads stored in JFrog Artifactory
+- Hard-coded in `config/settings.py` in all environments
+
 ## Boost Google Calendar settings
 
 ### `BOOST_CALENDAR`
