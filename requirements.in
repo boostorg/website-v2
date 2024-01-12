@@ -8,6 +8,7 @@ django-db-geventpool
 django-extensions
 django-health-check
 django-imagekit
+django-oauth-toolkit
 django-redis
 django-rest-auth
 django-widget-tweaks

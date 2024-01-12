@@ -75,6 +75,7 @@ urlpatterns = (
         path("", HomepageView.as_view(), name="home"),
         path("homepage-beta/", HomepageBetaView.as_view(), name="home-beta"),
         path("admin/", admin.site.urls),
+        path("oauth2/", include("oauth2_provider.urls", namespace="oauth2_provider")),
         path("feed/downloads.rss", RSSVersionFeed(), name="downloads_feed_rss"),
         path("feed/downloads.atom", AtomVersionFeed(), name="downloads_feed_atom"),
         path("feed/news.rss", RSSNewsFeed(), name="news_feed_rss"),

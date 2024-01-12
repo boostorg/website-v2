@@ -67,6 +67,8 @@ INSTALLED_APPS += [
     "health_check.db",
     "health_check.contrib.celery",
     "imagekit",
+    # Allows authentication for Mailman
+    "oauth2_provider",
     # Allauth dependencies:
     "allauth",
     "allauth.account",
@@ -107,6 +109,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "oauth2_provider.middleware.OAuth2TokenMiddleware",
 ]
 
 if DEBUG:
@@ -286,7 +289,10 @@ HAYSTACK_CONNECTIONS = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-AUTHENTICATION_BACKENDS = ("allauth.account.auth_backends.AuthenticationBackend",)
+AUTHENTICATION_BACKENDS = (
+    "allauth.account.auth_backends.AuthenticationBackend",
+    "oauth2_provider.backends.OAuth2Backend",
+)
 
 # GitHub settings
 
@@ -472,3 +478,8 @@ BOOST_CALENDAR = "5rorfm42nvmpt77ac0vult9iig@group.calendar.google.com"
 CALENDAR_API_KEY = env("CALENDAR_API_KEY", default="changeme")
 EVENTS_CACHE_KEY = "homepage_events"
 EVENTS_CACHE_TIMEOUT = 300  # 5 min
+
+# OAuth settings
+OAUTH_APP_NAME = (
+    "Boost OAuth Concept"  # Stored in the admin; replicated for convenience
+)
