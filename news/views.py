@@ -222,10 +222,22 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
         }
 
     def dispatch(self, request, *args, **kwargs):
-        """User must have a profile photo to post an entry."""
-        if request.user.is_authenticated and not request.user.image:
-            messages.warning(request, "Please add a profile photo first.")
-            return redirect("profile-account")
+        """User must have a profile photo and a name to post an entry."""
+        if request.user.is_authenticated:
+            missing_data = []
+
+            if not request.user.first_name and not request.user.last_name:
+                missing_data.append("your name")
+
+            if not request.user.image:
+                missing_data.append("a profile photo")
+
+            if missing_data:
+                messages.warning(
+                    request, f"Please add {' and '.join(missing_data)} first."
+                )
+                return redirect("profile-account")
+
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
