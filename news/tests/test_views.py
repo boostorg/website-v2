@@ -19,9 +19,6 @@ from ..notifications import (
 from ..views import datefilter, display_publish_at
 
 
-pytest.skip(allow_module_level=True)
-
-
 def test_display_publish_at_now():
     since = now()
     # Now or future
@@ -136,6 +133,9 @@ def test_entry_list(
     assert (tp.reverse("news-create") in content) == authenticated
 
 
+@pytest.mark.skip(
+    reason="Fails; prefer to skip test functions and not the whole test suite"
+)
 def test_entry_list_queries(tp, make_entry):
     expected = [
         make_entry(model_class)
@@ -174,6 +174,9 @@ def test_entry_list_authenticated(tp, make_entry, url_name, model_class, regular
     )
 
 
+@pytest.mark.skip(
+    reason="Fails; prefer to skip test functions and not the whole test suite"
+)
 @pytest.mark.parametrize("model_class", NEWS_MODELS)
 @pytest.mark.parametrize("with_image", [False, True])
 def test_news_detail(tp, make_entry, model_class, with_image):
@@ -328,6 +331,9 @@ def test_news_detail_next_url(tp, make_entry, moderator_user, model_class):
     )
 
 
+@pytest.mark.skip(
+    reason="Fails; prefer to skip test functions and not the whole test suite"
+)
 @pytest.mark.parametrize("user_type", ["user", "moderator_user"])
 def test_news_create_multiplexer(tp, user_type, request):
     url_name = "news-create"
@@ -352,23 +358,38 @@ def test_news_create_multiplexer(tp, user_type, request):
         assert model_class.__name__ == item["model_name"]
 
 
-def test_news_create_require_profile_photo(tp, user):
-    """Users must have a profile photo before they can post news."""
+@pytest.mark.parametrize(
+    "has_image, has_first_name, has_last_name, should_redirect",
+    [
+        (True, True, False, False),  # Has image and first name
+        (True, False, True, False),  # Has image and last name
+        (True, True, True, False),  # Has image, first name, and last name
+        (False, True, True, True),  # Missing image
+        (True, False, False, True),  # Missing names
+        (False, False, False, True),  # Missing everything
+    ],
+)
+def test_news_create_requirements(
+    tp, user, has_image, has_first_name, has_last_name, should_redirect
+):
+    """Users must have a profile photo and at least one of the names: first or last."""
     url_name = "news-create"
     url = tp.reverse(url_name)
 
-    # Test with the image
-    with tp.login(user):
-        response = tp.get(url)
-        tp.response_200(response)
+    # Setup user based on parameters
+    user.image = "test_image.jpg" if has_image else None
+    user.first_name = "Test" if has_first_name else ""
+    user.last_name = "User" if has_last_name else ""
+    user.save()
 
-    # Delete the user's image and confirm they can access the page
-    user.image.delete()
-    user.refresh_from_db()
     with tp.login(user):
         response = tp.get(url)
-        tp.response_302(response)
-        assert response.url == tp.reverse("profile-account")
+
+        if should_redirect:
+            tp.response_302(response)
+            assert response.url == tp.reverse("profile-account")
+        else:
+            tp.response_200(response)
 
 
 @pytest.mark.parametrize(
@@ -409,6 +430,7 @@ def test_news_create_get(tp, regular_user, url_name, form_class):
     #    tp.assertResponseContains(str(field), response)
 
 
+@pytest.mark.skip(reason="Fails in CI due to missing file")
 @pytest.mark.parametrize(
     "url_name, model_class, data_fields",
     [
@@ -649,6 +671,9 @@ def test_news_moderation_list(tp, regular_user, moderator_user):
     tp.response_200(response)
 
 
+@pytest.mark.skip(
+    reason="Fails; prefer to skip test functions and not the whole test suite"
+)
 def test_news_moderation_filter_unapproved_news(tp, make_entry, moderator_user):
     unapproved_published = [
         make_entry(model_class, approved=False, published=True)
@@ -791,6 +816,9 @@ def test_news_delete_acl(
     tp.response_200(response)
 
 
+@pytest.mark.skip(
+    reason="Fails; prefer to skip test functions and not the whole test suite"
+)
 @pytest.mark.parametrize("model_class", NEWS_MODELS)
 def test_news_delete(tp, make_entry, moderator_user, model_class):
     entry = make_entry(model_class, approved=False)
