@@ -322,7 +322,10 @@ class DocLibsTemplateView(StaticContentTemplateView):
         """Replace page header with the local one."""
         content_type = self.content_dict.get("content_type")
         modernize = self.request.GET.get("modernize", "med").lower()
-        if content_type != "text/html" or modernize not in ("max", "med", "min"):
+
+        if (
+            "text/html" or "text/html; charset=utf-8"
+        ) not in content_type or modernize not in ("max", "med", "min"):
             # eventually check for more things, for example ensure this HTML
             # was not generate from Antora builders.
             return content
