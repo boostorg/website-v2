@@ -4,7 +4,6 @@ import structlog
 from dateutil.parser import parse
 
 from django.conf import settings
-
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
 from django.http import Http404, HttpResponse, HttpResponseNotFound
@@ -15,7 +14,12 @@ from django.views.generic import TemplateView
 
 
 from .asciidoc import process_adoc_to_html_content
-from .boostrenderer import get_content_from_s3
+from .boostrenderer import (
+    get_content_from_s3,
+    get_s3_client,
+    extract_file_data,
+    convert_img_paths,
+)
 from .htmlhelper import modernize_legacy_page
 from .markdown import process_md
 from .models import RenderedContent
@@ -153,7 +157,7 @@ class ContentNotFoundException(Exception):
     pass
 
 
-class StaticContentTemplateView(TemplateView):
+class BaseStaticContentTemplateView(TemplateView):
     template_name = "adoc_content.html"
 
     def get(self, request, *args, **kwargs):
@@ -274,6 +278,8 @@ class StaticContentTemplateView(TemplateView):
     def render_to_response(self, context, **response_kwargs):
         """Return the HTML response with a template, or just the content directly."""
         if self.get_template_names():
+            content = self.process_content(context["content"])
+            context["content"] = content
             return super().render_to_response(context, **response_kwargs)
         content = self.process_content(context["content"])
         return HttpResponse(content, content_type=context["content_type"])
@@ -304,7 +310,32 @@ class StaticContentTemplateView(TemplateView):
         return content
 
 
-class DocLibsTemplateView(StaticContentTemplateView):
+class StaticContentTemplateView(BaseStaticContentTemplateView):
+    def process_content(self, content):
+        """Process the content we receive from S3"""
+        content_html = self.content_dict.get("content")
+        content_type = self.content_dict.get("content_type")
+        content_key = self.content_dict.get("content_key")
+
+        # Replace relative image paths will fully-qualified ones so they will render
+        if content_type == "text/html" or content_type == "text/asciidoc":
+            # Prefix the new URL path with "/images" so it routes through
+            # our ImageView class
+            url_parts = ["/images"]
+
+            if content_key:
+                # Get the path from the S3 key by stripping the filename from the S3 key
+                directory = os.path.dirname(content_key)
+                url_parts.append(directory.lstrip("/"))
+
+            # Generate the replacement path to the image
+            s3_path = "/".join(url_parts)
+            # Process the HTML to replace the image paths
+            content = convert_img_paths(str(content_html), s3_path)
+        return content
+
+
+class DocLibsTemplateView(BaseStaticContentTemplateView):
     # possible library versions are: boost_1_53_0_beta1, 1_82_0, 1_55_0b1
     boost_lib_path_re = re.compile(r"^(boost_){0,1}([0-9_]*[0-9]+[^/]*)/(.*)")
 
@@ -347,7 +378,7 @@ class DocLibsTemplateView(StaticContentTemplateView):
         )
 
 
-class UserGuideTemplateView(StaticContentTemplateView):
+class UserGuideTemplateView(BaseStaticContentTemplateView):
     def get_from_s3(self, content_path):
         legacy_url = f"/doc/{content_path}"
         return super().get_from_s3(legacy_url)
@@ -375,3 +406,22 @@ class UserGuideTemplateView(StaticContentTemplateView):
         return modernize_legacy_page(
             content, base_html, insert_body=insert_body, head_selector=head_selector
         )
+
+
+class ImageView(View):
+    def get(self, request, *args, **kwargs):
+        # TODO: Add caching logic
+        content_path = self.kwargs.get("content_path")
+
+        client = get_s3_client()
+        try:
+            response = client.get_object(
+                Bucket=settings.STATIC_CONTENT_BUCKET_NAME, Key=content_path
+            )
+            file_data = extract_file_data(response, content_path)
+            content = file_data["content"]
+            content_type = file_data["content_type"]
+
+            return HttpResponse(content, content_type=content_type)
+        except ContentNotFoundException:
+            raise Http404("Content not found")

@@ -47,6 +47,7 @@ def refresh_content_from_s3(s3_key, cache_key):
     """Calls S3 with the s3_key, then saves the result to the
     RenderedContent object with the given cache_key."""
     content_dict = get_content_from_s3(key=s3_key)
+
     content = content_dict.get("content")
     if content_dict and content:
         content_type = content_dict.get("content_type")
