@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from unittest.mock import Mock, patch
 import datetime
 from io import BytesIO
@@ -9,6 +10,7 @@ from ..boostrenderer import (
     get_content_type,
     get_file_data,
     get_s3_keys,
+    convert_img_paths,
 )
 
 
@@ -109,6 +111,8 @@ def test_get_file_data():
 
 def test_get_s3_keys():
     """
+    Test cases for get_s3_keys function.
+
     Test cases:
 
     - "/marshmallow/index.html" -> "site/develop/tools/auto_index/index.html"
@@ -116,7 +120,6 @@ def test_get_s3_keys():
     - "/rst.css" -> "site/develop/rst.css"
     - "/site/develop/doc/html/about.html" -> "site/develop/doc/html/about.html"
     """
-
     assert "/site-docs/develop/user-guide/index.html" in get_s3_keys(
         "/doc/user-guide/index.html"
     )
@@ -129,3 +132,30 @@ def test_get_s3_keys():
     assert "/site-docs/develop/release-process/index.html" in get_s3_keys(
         "/doc/release-process/index.html"
     )
+
+
+def test_convert_img_paths():
+    # Test data
+    html_content = """
+        <html>
+            <body>
+                <img src="image1.png" alt="Image 1"/>
+            </body>
+        </html>
+    """
+
+    # Expected output after conversion
+    expected_html = """
+        <html>
+            <body>
+                <img src="/images/site-pages/develop/image1.png" alt="Image 1"/>
+            </body>
+        </html>
+    """  # noqa
+    s3_path = "/images/site-pages/develop"
+
+    result = convert_img_paths(html_content, s3_path)
+
+    expected_soup = BeautifulSoup(expected_html, "html.parser")
+    result_soup = BeautifulSoup(result, "html.parser")
+    assert result_soup == expected_soup

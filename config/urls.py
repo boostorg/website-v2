@@ -17,6 +17,7 @@ from core.views import (
     CalendarView,
     ClearCacheView,
     DocLibsTemplateView,
+    ImageView,
     MarkdownTemplateView,
     StaticContentTemplateView,
     UserGuideTemplateView,
@@ -277,6 +278,12 @@ urlpatterns = (
             r"^markdown/(?P<content_path>.+)/?",
             MarkdownTemplateView.as_view(),
             name="markdown-page",
+        ),
+        # Images from static content
+        re_path(
+            r"^images/(?P<content_path>.+)/?",
+            ImageView.as_view(),
+            name="images-page",
         ),
         # Static content
         re_path(
