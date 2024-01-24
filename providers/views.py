@@ -16,13 +16,18 @@ class CustomAdapter(OAuth2Adapter):
 
     authorize_url = f"{settings.OAUTH_SERVER_BASEURL}/oauth2/authorize/"
 
+    def dispatch(self, request, *args, **kwargs):
+        print("In the dispatch")
+        return super().dispatch(request, *args, **kwargs)
+
     def complete_login(self, request, app, token, **kwargs):
+        print("in the complete login method")
         headers = {
             "Authorization": f"Bearer {token.token}",
             "Accept": "application/json",
         }
-        email = kwargs["response"]["email"]
-        resp = requests.get(self.profile_url + f"{email}?type=email", headers=headers)
+        kwargs["response"]["email"]
+        resp = requests.get(self.profile_url, headers=headers)
         resp.raise_for_status()
         print(resp.status_code)
         extra_data = resp.json()
