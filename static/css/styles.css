@@ -2934,6 +2934,11 @@ code,
   color: rgb(90 213 153 / var(--tw-text-opacity));
 }
 
+.\!text-slate {
+  --tw-text-opacity: 1 !important;
+  color: rgb(49 74 87 / var(--tw-text-opacity)) !important;
+}
+
 .underline {
   text-decoration-line: underline;
 }
