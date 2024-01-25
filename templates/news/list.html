@@ -24,7 +24,7 @@
         </div>
 
         <!-- General filters, by news type -->
-        <div class="md:w-1/2 w-full pt-6">
+        <div class="md:w-1/2 w-full pt-2 md:pt-6">
           <div class="grid grid-cols-3 justify-center place-items-center space-y-1 space-x-1 {% if is_moderator %}sm:grid-cols-6{% else %}sm:grid-cols-5{% endif %} sm:space-y-0">
 
             {% url 'news' as target_url %}
@@ -113,7 +113,7 @@
               <i class="text-gray-400 fas fa-calendar-alt dark:text-white/60" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate"></i>
             {% endif %}
           </div>
-          <div class="hidden pt-2 mt-4 text-xs text-left md:block min-w-[70px]">
+          <div class="hidden pt-2 mt-4 text-xs text-left md:block min-w-[70px] relative group">
             {% if entry.author.image %}
               <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded bg-white dark:bg-slate">
                 <img src="{{ entry.author.image_thumbnail.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
@@ -123,11 +123,12 @@
                 <i class="text-2xl fas fa-user ml-1" title="{{ entry.author.get_full_name }}"></i>
               </span>
             {% endif %}
+            <span class="group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-md absolute left-1/5 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">{{ entry.author.get_full_name }}</span>
           </div>
           <div class="block p-6 mb-10 w-full bg-white rounded-lg md:ml-6 dark:bg-charcoal overflow-hidden">
             {% can_edit news_item=entry as editable %}
             {% if editable %}
-              <a href="{% url 'news-update' entry.slug %}" class="float-right dark:text-white/50 hover:text-orange dark:hover:text-orange -mt-5 -mr-3 text-sm">
+              <a href="{% url 'news-update' entry.slug %}" class="float-right dark:text-white/50 hover:text-orange dark:hover:text-orange -mt-5 -mr-4 text-sm">
                 <i class="fas fa-edit"></i>
               </a>
             {% endif %}
