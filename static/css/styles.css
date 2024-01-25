@@ -1671,6 +1671,10 @@ code,
   height: 2rem;
 }
 
+.h-\[34px\] {
+  height: 34px;
+}
+
 .max-h-96 {
   max-height: 24rem;
 }
@@ -1799,6 +1803,10 @@ code,
 
 .w-1\/5 {
   width: 20%;
+}
+
+.w-\[34px\] {
+  width: 34px;
 }
 
 .min-w-full {
