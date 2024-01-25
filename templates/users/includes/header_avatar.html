@@ -18,14 +18,14 @@
     </a>
   {% else %}
       {% if user.image %}
-        <div class="inline-block h-[30px] w-[30px] overflow-hidden rounded mt-1 bg-white dark:bt-slate">
+        <div class="h-[30px] w-[30px] bg-black text-slate rounded dark:text-white dark:bg-slate justify-center flex overflow-hidden">
           <img src="{{ user.image_thumbnail.url }}"
                alt="user"
                class="h-full w-full cursor-pointer object-cover"
                @click="userOpen = !userOpen" />
         </div>
         {% else %}
-        <div class="inline-block h-[30px] w-[30px] bg-white text-slate rounded dark:text-white dark:bg-slate justify-center flex">
+        <div class="h-[30px] w-[30px] bg-white text-slate rounded dark:text-white dark:bg-slate justify-center flex">
           <i class="fas fa-user text-2xl" @click="userOpen = !userOpen"></i>
         </div>
       {% endif %}
