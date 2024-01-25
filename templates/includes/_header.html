@@ -42,13 +42,14 @@
               <div
                 x-show="guideOpen" x-cloak
                 @click.away="guideOpen = false"
+                id="guideMenu"
                 x-transition:enter="transition ease-out duration-100"
                 x-transition:enter-start="transform opacity-0 scale-95"
                 x-transition:enter-end="transform opacity-100 scale-100"
                 x-transition:leave="transition ease-in duration-75"
                 x-transition:leave-start="transform opacity-100 scale-100"
                 x-transition:leave-end="transform opacity-0 scale-95"
-                class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 dark:divide-gray-700 ring-1 ring-gray-300 shadow-lg origin-top-right dark:ring-gray-500 dark:bg-charcoal"
+                class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 dark:divide-gray-700 ring-gray-300 shadow-lg origin-top-right dark:ring-gray-500 dark:bg-charcoal"
               >
                 <a href="/doc/user-guide/index.html" class="ml-2 block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">User Guide</a>
                 <a href="/doc/contributor-guide/index.html" class="ml-2 block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">Contributor Guide</a>

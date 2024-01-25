@@ -18,33 +18,33 @@
     </a>
   {% else %}
       {% if user.image %}
-        <div class="h-[30px] w-[30px] bg-black text-slate rounded dark:text-white dark:bg-slate justify-center flex overflow-hidden">
+        <div class="h-[30px] w-[30px] text-slate rounded dark:text-white dark:bg-slate justify-center flex overflow-hidden">
           <img src="{{ user.image_thumbnail.url }}"
                alt="user"
                class="h-full w-full cursor-pointer object-cover"
                @click="userOpen = !userOpen" />
         </div>
         {% else %}
-        <div class="h-[30px] w-[30px] bg-white text-slate rounded dark:text-white dark:bg-slate justify-center flex cursor-pointer">
+        <div class="h-[30px] w-[30px] bg-white text-slate rounded dark:text-white dark:bg-slate justify-center flex">
           <i class="fas fa-user text-2xl" @click="userOpen = !userOpen"></i>
         </div>
       {% endif %}
       <div x-show="userOpen"
              @click.away="userOpen = false"
+             id="userMenu"
              x-transition:enter="transition ease-out duration-100"
              x-transition:enter-start="transform opacity-0 scale-95"
              x-transition:enter-end="transform opacity-100 scale-100"
              x-transition:leave="transition ease-in duration-75"
              x-transition:leave-start="transform opacity-100 scale-100"
              x-transition:leave-end="transform opacity-0 scale-95"
-             class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 ring-1 ring-gray-300 shadow-lg origin-top-right dark:ring-gray-500 darK:divide-gray-500 dark:bg-charcoal"
              x-ref="menu-items"
              x-description="Profile Menu"
              role="menu"
              aria-orientation="vertical"
              aria-labelledby="user-menu-button"
              tabindex="-1"
-             style="display: none;"
+             class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 border border-gray-300 shadow-lg  dark:ring-gray-500 dark:divide-gray-500 dark:bg-charcoal"
         >
           <a href="{% url 'profile-account' %}" class="block py-2 text-xs font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">My Profile</a>
           <a href="{% url 'account_logout' %}" class="block py-2 text-xs font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">Log Out</a>
