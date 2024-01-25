@@ -33,3 +33,7 @@ div.book:first-of-type, {
 #avatar>div>img {
   @apply rounded;
 }
+
+#userMenu, #guideMenu {
+  border: 1px solid #d1d5db;
+}
