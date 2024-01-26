@@ -24,6 +24,7 @@ def active_link(
         return ""
     active = False
     views = viewnames.split("||")
+
     for viewname in views:
         try:
             path = reverse(viewname.strip(), args=args, kwargs=kwargs)
