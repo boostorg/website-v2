@@ -7,6 +7,11 @@
     display: none !important;
   }
 
+  /* there is a bug somewhere that is preventing the cursor-pointer from working by default; for now setting this here */
+  a:link {
+    @apply cursor-pointer;
+  }
+
   body {
     @apply text-slate dark:text-white;
     @apply font-cairo;
@@ -47,7 +52,7 @@
     @apply cursor-pointer;
   }
   input[type=file] {
-    @apply block w-full px-3 py-1 text-base text-slate dark:text-white font-normal text-orange bg-clip-padding border border-solid border-slate rounded transition ease-in-out my-2;
+    @apply block w-full px-3 py-1 text-base text-slate dark:text-white font-normal bg-clip-padding border border-solid border-slate rounded transition ease-in-out my-2;
   }
   #signup_form input[type=email],
   #signup_form input[type=password]{
