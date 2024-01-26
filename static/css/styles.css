@@ -1464,10 +1464,6 @@ code,
   margin-left: 0.25rem;
 }
 
-.ml-\[40px\] {
-  margin-left: 40px;
-}
-
 .mr-1 {
   margin-right: 0.25rem;
 }
@@ -3543,6 +3539,10 @@ code,
 
   .md\:mt-8 {
     margin-top: 2rem;
+  }
+
+  .md\:ml-\[40px\] {
+    margin-left: 40px;
   }
 
   .md\:mb-10 {
