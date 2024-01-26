@@ -26,7 +26,7 @@ def multi_truncate_middle(value, arg):
         if len(word) > ln:
             start = word[: ln // 2]
             end = word[-((ln + 1) // 2) :]
-            return f"{start}...{end}"
+            return f"{start}....{end}"
         return word
 
     pattern = re.compile(r"\b\w+\b")
