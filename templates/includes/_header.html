@@ -21,12 +21,13 @@
 
         <div class="flex pt-1 w-full">
           <nav class="relative items-center pl-6 space-x-4 w-full text-lg text-left md:space-x-6 lg:space-x-10">
-            <a href="{% url 'news' %}" class="hover:no-underline font-semibold dark:font-medium {% active_link 'news' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white hover:text-slate' inactive_class='dark:text-white text-slate' %}">News</a>
-            {% comment %}Fix the paths for docs in the template tag{% endcomment %}
-            <a href="{% url 'docs' %}" class="hover:no-underline font-semibold dark:font-medium {% active_link 'docs || ddocs-user-guide ' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white hover:text-slate' inactive_class='dark:text-white text-slate' strict=True %}">Learn</a>
-            <a href="{% url 'community' %}" class="hover:no-underline font-semibold dark:font-medium {% active_link 'community' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white hover:text-slate' inactive_class='dark:text-white text-slate' %}">Community</a>
-            <a href="{% url 'libraries' %}" class="hover:no-underline font-semibold dark:font-medium {% active_link 'libraries || docs-libs-page' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white hover:text-slate' inactive_class='dark:text-white text-slate' %}">Libraries</a>
-            <a href="{% url 'releases-most-recent' %}" class="hover:no-underline font-semibold dark:font-medium {% active_link 'releases-most-recent' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white hover:text-slate' inactive_class='dark:text-white text-slate' %}">Releases</a>
+            <a href="{% url 'news' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange {% active_link 'news' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">News</a>
+            {% comment %}TODO: Greg - Fix the paths for docs in the template tag{% endcomment %}
+            <a href="{% url 'docs' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange {% active_link 'docs||docs-user-guide' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">Learn</a>
+            <a href="{% url 'community' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange {% active_link 'community' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">Community</a>
+            {% comment %}TODO: Greg - Fix the paths for libraries in the template tag{% endcomment %}
+            <a href="{% url 'libraries' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange {% active_link 'libraries||docs-libs-page' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">Libraries</a>
+            <a href="{% url 'releases-most-recent' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange {% active_link 'releases-most-recent' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">Releases</a>
           </nav>
           <nav class="flex items-center space-x-3 lg:space-x-5 h-[30px]" x-data="{ 'searchOpen': false }">
             <span class="relative">
