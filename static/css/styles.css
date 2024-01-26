@@ -2367,6 +2367,11 @@ code,
   border-color: rgb(255 255 255 / var(--tw-border-opacity));
 }
 
+.border-gray-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(107 114 128 / var(--tw-border-opacity));
+}
+
 .border-t-white\/5 {
   border-top-color: rgb(255 255 255 / 0.05);
 }
