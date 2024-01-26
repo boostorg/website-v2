@@ -1241,6 +1241,10 @@ code,
   left: 50%;
 }
 
+.top-5 {
+  top: 1.25rem;
+}
+
 .isolate {
   isolation: isolate;
 }
