@@ -186,13 +186,28 @@
         <div class="space-y-4">
           {% for entry in entries %}
             <div class="pt-0">
-              <h3 class="pb-2 mb-4 text-3xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'news-detail' slug=entry.slug %}" class="link-header">{{ entry.title }}</a></h3>
+              <h2 class="pb-2 mb-3 text-3xl font-semibold mr-4 border-b border-gray-400 dark:border-slate">
+                <div class="inline-block pt-2 mt-4 text-xs">
+                  {% if entry.author.image %}
+                    <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
+                      <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
+                    </span>
+                  {% else %}
+                    <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
+                      <i class="text-2xl fas fa-user ml-1" title="{{ entry.author.get_full_name }}"></i>
+                    </span>
+                  {% endif %}
+                </div>
+                <a class="link-header" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+                  {{ entry.title }}
+                </a>
+              </h2>
+              <p class="pt-0 pb-4 mx-auto w-full text-xs align-left">Posted on {{ entry.publish_at|date:"M jS, Y" }} by {{ entry.author.get_full_name }}</p>
               {% if entry.content %}
-              <div class="truncate">
-              <span class="pb-1 mx-auto w-full text-lg align-left">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|truncatechars:500 }}...</span>
-              </div>
+              <div class="ml-[40px]">
+                <span class="text-base text-gray-500 dark:text-white/70">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|multi_truncate_middle:20|truncatechars:500 }}</span>
+                </div>
               {% endif %}
-              <p class="pb-1 mx-auto w-full text-xs align-left"><i>Published on {{ entry.publish_at|date:"m/d/Y" }} by {{ entry.author.get_full_name }}</i></p>
             </div>
           {% endfor %}
         </div>
