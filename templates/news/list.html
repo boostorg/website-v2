@@ -147,7 +147,7 @@
             </div>
             {% if entry.content %}
             <div>
-              <span class="text-base text-gray-500 dark:text-white/70">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|multi_truncate_middle:20|truncatechars:500 }}</span>
+              <span class="text-base text-gray-500 dark:text-white/70">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|multi_truncate_middle:20|truncatechars_html:500 }}</span>
               </div>
             {% endif %}
 
