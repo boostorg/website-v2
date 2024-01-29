@@ -22,14 +22,34 @@ def truncate_middle(value, arg):
 @stringfilter
 def multi_truncate_middle(value, arg):
     def replace_match(match):
-        word = match.group(0)
+        word_or_link = match.group(0)
+
+        link_inner_match = re.search(r"<a\b[^>]*>(.*?)<\/a>", word_or_link)
+
+        if link_inner_match:
+            word = re.sub(r"https?://", "", link_inner_match.group(1))
+
+        else:
+            word = word_or_link
+
+        print(word_or_link)
+
         if len(word) > ln:
             start = word[: ln // 2]
             end = word[-((ln + 1) // 2) :]
-            return f"{start}....{end}"
+            truncated_word = f"{start}....{end}"
+            if link_inner_match:
+                return re.sub(
+                    r"(<a\b[^>]*>)(.*?)(<\/a>)",
+                    r"\1" + truncated_word + r"\3",
+                    word_or_link,
+                )
+            return truncated_word
         return word
 
-    pattern = re.compile(r"\b\w+\b")
+    pattern = re.compile(
+        r"\b(\w{" + str(arg) + r",})\b|<a\b[^>]*>((.|\n|\r|(\n\r))*?)<\/a>"
+    )
 
     try:
         ln = int(arg)
