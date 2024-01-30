@@ -122,8 +122,8 @@ class LibraryAdmin(admin.ModelAdmin):
 
 @admin.register(LibraryVersion)
 class LibraryVersionAdmin(admin.ModelAdmin):
-    list_display = ["library", "version", "documentation_url"]
-    list_filter = ["library", "version"]
+    list_display = ["library", "version", "missing_docs", "documentation_url"]
+    list_filter = ["library", "version", "missing_docs"]
     ordering = ["library__name", "-version__name"]
     search_fields = ["library__name", "version__name"]
     change_list_template = "admin/libraryversion_change_list.html"
