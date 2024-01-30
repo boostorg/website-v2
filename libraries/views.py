@@ -306,9 +306,17 @@ class LibraryDetail(FormMixin, DetailView):
         """Get the documentation URL for the current library."""
         obj = self.get_object()
         library_version = LibraryVersion.objects.get(library=obj, version=version)
-        if library_version.documentation_url:
+        docs_url = version.documentation_url
+
+        # If we know the library-version docs are missing, return the version docs
+        if library_version.missing_docs:
+            return docs_url
+        # If we have the library-version docs and believe they are valid, return those
+        elif library_version.documentation_url:
             return library_version.documentation_url
-        return version.documentation_url
+        # If we wind up here, return the version docs
+        else:
+            return docs_url
 
     def get_github_url(self, version):
         """Get the GitHub URL for the current library."""
