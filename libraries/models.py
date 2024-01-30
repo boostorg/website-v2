@@ -281,6 +281,10 @@ class LibraryVersion(models.Model):
         on_delete=models.CASCADE,
     )
     maintainers = models.ManyToManyField("users.User", related_name="maintainers")
+    missing_docs = models.BooleanField(
+        default=False,
+        help_text="If true, then there are not docs for this version of this library.",
+    )
     documentation_url = models.CharField(
         max_length=255,
         blank=True,
