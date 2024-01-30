@@ -34,18 +34,22 @@ def multi_truncate_middle(value, arg):
 
         print(word_or_link)
 
-        if len(word) > ln:
-            start = word[: ln // 2]
-            end = word[-((ln + 1) // 2) :]
-            truncated_word = f"{start}....{end}"
-            if link_inner_match:
+        if link_inner_match:
+            if len(word) > ln + 10:
+                start = word[: ((ln + 10) // 2)]
+                end = word[-(((ln + 10) + 1) // 2) :]
+                truncated_word = f"{start}....{end}"
                 return re.sub(
                     r"(<a\b[^>]*>)(.*?)(<\/a>)",
                     r"\1" + truncated_word + r"\3",
                     word_or_link,
                 )
+        elif len(word) > ln:
+            start = word[: (ln // 2)]
+            end = word[-((ln + 1) // 2) :]
+            truncated_word = f"{start}....{end}"
             return truncated_word
-        return word
+        return word_or_link
 
     pattern = re.compile(
         r"\b(\w{" + str(arg) + r",})\b|<a\b[^>]*>((.|\n|\r|(\n\r))*?)<\/a>"
