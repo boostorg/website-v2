@@ -42,7 +42,7 @@ class LibraryAdmin(admin.ModelAdmin):
 
 @admin.register(LibraryVersion)
 class LibraryVersionAdmin(admin.ModelAdmin):
-    list_display = ["library", "version"]
+    list_display = ["library", "version", "documentation_url"]
     list_filter = ["library", "version"]
     ordering = ["library__name", "-version__name"]
     search_fields = ["library__name", "version__name"]
