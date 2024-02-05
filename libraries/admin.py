@@ -3,7 +3,10 @@ from django.http import HttpResponseRedirect
 from django.urls import path
 
 from .models import Category, Issue, Library, LibraryVersion, PullRequest
-from .tasks import update_libraries
+from .tasks import (
+    update_libraries,
+    update_library_version_documentation_urls_all_versions,
+)
 
 
 @admin.register(Category)
@@ -46,6 +49,25 @@ class LibraryVersionAdmin(admin.ModelAdmin):
     list_filter = ["library", "version"]
     ordering = ["library__name", "-version__name"]
     search_fields = ["library__name", "version__name"]
+    change_list_template = "admin/libraryversion_change_list.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path("update_docs_urls/", self.update_docs_urls, name="update_docs_urls"),
+        ]
+        return my_urls + urls
+
+    def update_docs_urls(self, request):
+        """Run the task to refresh the documentation URLS from S3"""
+        update_library_version_documentation_urls_all_versions.delay()
+        self.message_user(
+            request,
+            """
+            Documentation links are being refreshed.
+        """,
+        )
+        return HttpResponseRedirect("../")
 
 
 @admin.register(Issue)

@@ -1,14 +1,26 @@
 import structlog
 
 from config.celery import app
+from django.db.models import Q
 from core.boostrenderer import get_content_from_s3
 from core.htmlhelper import get_library_documentation_urls
 from libraries.github import LibraryUpdater
 from libraries.models import LibraryVersion
 from libraries.utils import get_first_last_day_last_month
 from versions.models import Version
+from .utils import generate_library_docs_url
 
 logger = structlog.getLogger(__name__)
+
+
+LIBRARY_DOCS_EXCEPTIONS = {"detail": generate_library_docs_url}
+
+
+@app.task
+def update_library_version_documentation_urls_all_versions():
+    """Run the task to update all documentation URLs for all versions"""
+    for version in Version.objects.all():
+        get_and_store_library_version_documentation_urls_for_version.delay(version.pk)
 
 
 @app.task
@@ -63,6 +75,20 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
                 version_slug=version.slug,
             )
             continue
+
+    # See if we can load missing docs URLS another way
+    library_versions = LibraryVersion.objects.filter(version=version).filter(
+        Q(documentation_url="") | Q(documentation_url__isnull=True)
+    )
+    for library_version in library_versions:
+        exception_url_generator = LIBRARY_DOCS_EXCEPTIONS.get(
+            library_version.library.name.lower()
+        )
+        if exception_url_generator:
+            library_version.documentation_url = exception_url_generator(
+                version.boost_url_slug, library_version.library.slug.lower()
+            )
+            library_version.save()
 
 
 @app.task

@@ -1,0 +1,11 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools %}
+<ul class="object-tools">
+    {% block object-tools-items %}
+        {{ block.super }}
+        <li><a href="{% url 'admin:update_docs_urls' %}" class="addlink">{% trans "Refresh Documentation Links" %}</a></li>
+    {% endblock %}
+</ul>
+{% endblock %}
