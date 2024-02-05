@@ -13,7 +13,10 @@ from .utils import generate_library_docs_url
 logger = structlog.getLogger(__name__)
 
 
-LIBRARY_DOCS_EXCEPTIONS = {"detail": generate_library_docs_url}
+LIBRARY_DOCS_EXCEPTIONS = {
+    "detail": generate_library_docs_url,
+    "winapi": generate_library_docs_url,
+}
 
 
 @app.task
@@ -85,10 +88,16 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
             library_version.library.name.lower()
         )
         if exception_url_generator:
-            library_version.documentation_url = exception_url_generator(
+            documentation_url = exception_url_generator(
                 version.boost_url_slug, library_version.library.slug.lower()
             )
-            library_version.save()
+            # validate this in S3
+            content = get_content_from_s3(documentation_url)
+            if content:
+                library_version.documentation_url = documentation_url
+                library_version.save()
+            else:
+                logger.info(f"No valid dos in S3 for key {documentation_url}")
 
 
 @app.task
