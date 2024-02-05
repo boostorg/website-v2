@@ -28,6 +28,11 @@ def generate_fake_email(val: str) -> str:
     return f"{local_email}@example.com"
 
 
+def generate_library_docs_url(boost_url_slug, library_slug):
+    """Generate a documentation url with a specific format"""
+    return f"/doc/libs/{boost_url_slug}/libs/{library_slug}/doc/html/index.html"
+
+
 def get_first_last_day_last_month():
     now = datetime.now()
     first_day_this_month = now.replace(day=1)
