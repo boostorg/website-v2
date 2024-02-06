@@ -262,7 +262,9 @@ def import_library_versions(version_name, token=None, version_type="tag"):
         )
         parsed_libraries = [parser.parse_libraries_json(lib) for lib in libraries]
         for lib_data in parsed_libraries:
-            library, created = Library.objects.get_or_create(
+            if lib_data["key"] in updater.skip_libraries:
+                continue
+            library, _ = Library.objects.get_or_create(
                 key=lib_data["key"],
                 defaults={
                     "name": lib_data.get("name"),
