@@ -45,6 +45,9 @@ class LibraryUpdater:
             "cmake",
             "more",
         ]
+        # Libraries to skip that are not "modules", but appear as child-libraries
+        # of other modules. Identified by the key used in the libraries.json file.
+        self.skip_libraries = ["chrono/stopwatch"]
 
     def get_library_list(self, gitmodules=None):
         """
@@ -73,10 +76,14 @@ class LibraryUpdater:
             if type(libraries_json) is list:
                 for library in libraries_json:
                     data = self.parser.parse_libraries_json(library)
+                    if data["key"] in self.skip_libraries:
+                        continue
                     libraries.append({**data, **extra_data})
 
             elif type(libraries_json) is dict:
                 data = self.parser.parse_libraries_json(libraries_json)
+                if data["key"] in self.skip_libraries:
+                    continue
                 libraries.append({**data, **extra_data})
 
         return libraries
