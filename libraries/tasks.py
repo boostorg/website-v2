@@ -12,6 +12,7 @@ from .utils import (
     generate_library_docs_url,
     generate_library_docs_url_v2,
     generate_library_docs_url_v3,
+    generate_library_docs_url_string_ref,
     version_within_range,
 )
 
@@ -20,7 +21,6 @@ logger = structlog.getLogger(__name__)
 
 LIBRARY_DOCS_EXCEPTIONS = {
     "detail": [{"generator": generate_library_docs_url}],
-    "winapi": [{"generator": generate_library_docs_url}],
     "io": [
         {"generator": generate_library_docs_url_v2, "min_version": "boost_1_73_0"},
         {
@@ -29,6 +29,13 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "max_version": "boost_1_72_0",
         },
     ],
+    "string-ref": [
+        {
+            "generator": generate_library_docs_url_string_ref,
+            "max_version": "boost_1_77_0",
+        }
+    ],
+    "winapi": [{"generator": generate_library_docs_url}],
 }
 
 
@@ -107,7 +114,8 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
             ):
                 exception_url_generator = exception["generator"]
                 documentation_url = exception_url_generator(
-                    version.boost_url_slug, library_version.library.slug.lower()
+                    version.boost_url_slug,
+                    library_version.library.slug.lower().replace("-", "_"),
                 )
                 break  # Stop looking once a matching version is found
 
