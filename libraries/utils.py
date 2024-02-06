@@ -29,8 +29,43 @@ def generate_fake_email(val: str) -> str:
 
 
 def generate_library_docs_url(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format"""
+    """Generate a documentation url with a specific format
+
+    General use
+    """
     return f"/doc/libs/{boost_url_slug}/libs/{library_slug}/doc/html/index.html"
+
+
+def generate_library_docs_url_v2(boost_url_slug, library_slug):
+    """ "Generate a documentation url with a specific format
+
+    For use primarily with IO, versions 1.73.0 and up
+    """
+    new_boost_url_slug = boost_url_slug.replace("boost_", "")
+    return f"/doc/libs/{new_boost_url_slug}/libs/{library_slug}/doc/html/{library_slug}.html"  # noqa
+
+
+def generate_library_docs_url_v3(boost_url_slug, library_slug):
+    """ "Generate a documentation url with a specific format
+
+    For use primarily with IO, versions 1.64.0-1.72.
+    """
+    return f"/doc/libs/{boost_url_slug}/libs/{library_slug}/doc/index.html"
+
+
+def version_within_range(
+    version: str, min_version: str = None, max_version: str = None
+):
+    """Direct string comparison, assuming 'version', 'min_version', and 'max_version'
+    follow the same format.
+
+    Expects format `boost-1.84.0`
+    """
+    if min_version and version < min_version:
+        return False
+    if max_version and version > max_version:
+        return False
+    return True
 
 
 def get_first_last_day_last_month():

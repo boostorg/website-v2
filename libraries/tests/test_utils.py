@@ -1,13 +1,17 @@
+import os
+import pytest
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-import os
 
 from libraries.utils import (
     decode_content,
     generate_fake_email,
     generate_library_docs_url,
+    generate_library_docs_url_v2,
+    generate_library_docs_url_v3,
     get_first_last_day_last_month,
     parse_date,
+    version_within_range,
     write_content_to_tempfile,
 )
 
@@ -32,6 +36,45 @@ def test_generate_fake_email():
 def test_generate_library_docs_url():
     expected = "/doc/libs/boost_1_84_0/libs/detail/doc/html/index.html"
     assert generate_library_docs_url("boost_1_84_0", "detail") == expected
+
+
+def test_generate_library_docs_url_v2():
+    expected = "/doc/libs/1_73_0/libs/io/doc/html/io.html"
+    assert generate_library_docs_url_v2("boost_1_73_0", "io") == expected
+
+
+def test_generate_library_docs_url_v3():
+    expected = "/doc/libs/boost_1_72_0/libs/io/doc/index.html"
+    assert generate_library_docs_url_v3("boost_1_72_0", "io") == expected
+
+
+@pytest.mark.parametrize(
+    "version, min_version, max_version, expected",
+    [
+        # Case: No version restrictions
+        ("boost-1.84.0", None, None, True),
+        # Case: Version meets minimum version requirement
+        ("boost-1.84.0", "boost-1.83.0", None, True),
+        # Case: Version does not meet minimum version requirement
+        ("boost-1.82.0", "boost-1.83.0", None, False),
+        # Case: Version meets maximum version requirement
+        ("boost-1.84.0", None, "boost-1.85.0", True),
+        # Case: Version does not meet maximum version requirement
+        ("boost-1.86.0", None, "boost-1.85.0", False),
+        # Case: Version is between min and max version
+        ("boost-1.84.0", "boost-1.83.0", "boost-1.85.0", True),
+        # Case: Version is exactly min version
+        ("boost-1.83.0", "boost-1.83.0", "boost-1.85.0", True),
+        # Case: Version is exactly max version
+        ("boost-1.85.0", "boost-1.83.0", "boost-1.85.0", True),
+        # Case: Version is below min version
+        ("boost-1.82.0", "boost-1.83.0", "boost-1.85.0", False),
+        # Case: Version is above max version
+        ("boost-1.86.0", "boost-1.83.0", "boost-1.85.0", False),
+    ],
+)
+def test_version_within_range(version, min_version, max_version, expected):
+    assert version_within_range(version, min_version, max_version) == expected
 
 
 def test_get_first_last_day_last_month():

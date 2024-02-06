@@ -8,14 +8,27 @@ from libraries.github import LibraryUpdater
 from libraries.models import LibraryVersion
 from libraries.utils import get_first_last_day_last_month
 from versions.models import Version
-from .utils import generate_library_docs_url
+from .utils import (
+    generate_library_docs_url,
+    generate_library_docs_url_v2,
+    generate_library_docs_url_v3,
+    version_within_range,
+)
 
 logger = structlog.getLogger(__name__)
 
 
 LIBRARY_DOCS_EXCEPTIONS = {
-    "detail": generate_library_docs_url,
-    "winapi": generate_library_docs_url,
+    "detail": [{"generator": generate_library_docs_url}],
+    "winapi": [{"generator": generate_library_docs_url}],
+    "io": [
+        {"generator": generate_library_docs_url_v2, "min_version": "boost_1_73_0"},
+        {
+            "generator": generate_library_docs_url_v3,
+            "min_version": "boost_1_64_0",
+            "max_version": "boost_1_72_0",
+        },
+    ],
 }
 
 
@@ -84,20 +97,28 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
         Q(documentation_url="") | Q(documentation_url__isnull=True)
     )
     for library_version in library_versions:
-        exception_url_generator = LIBRARY_DOCS_EXCEPTIONS.get(
-            library_version.library.name.lower()
-        )
-        if exception_url_generator:
-            documentation_url = exception_url_generator(
-                version.boost_url_slug, library_version.library.slug.lower()
-            )
+        exceptions = LIBRARY_DOCS_EXCEPTIONS.get(library_version.library.slug, [])
+        documentation_url = None
+        for exception in exceptions:
+            if version_within_range(
+                library_version.version.boost_url_slug,
+                min_version=exception.get("min_version"),
+                max_version=exception.get("max_version"),
+            ):
+                exception_url_generator = exception["generator"]
+                documentation_url = exception_url_generator(
+                    version.boost_url_slug, library_version.library.slug.lower()
+                )
+                break  # Stop looking once a matching version is found
+
+        if documentation_url:
             # validate this in S3
             content = get_content_from_s3(documentation_url)
             if content:
                 library_version.documentation_url = documentation_url
                 library_version.save()
             else:
-                logger.info(f"No valid dos in S3 for key {documentation_url}")
+                logger.info(f"No valid docs in S3 for key {documentation_url}")
 
 
 @app.task
