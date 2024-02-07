@@ -58,6 +58,11 @@ def generate_library_docs_url_string_ref(boost_url_slug, library_slug):
     return f"/doc/libs/{boost_url_slug}/libs/utility/doc/html/{library_slug}.html"
 
 
+def generate_library_docs_url_string_view(boost_url_slug, library_slug):
+    """Generate a documentation URL for the string-view library-versions"""
+    return f"/doc/libs/{boost_url_slug}/libs/utility/doc/html/utility/utilities/{library_slug}.html"  # noqa
+
+
 def version_within_range(
     version: str, min_version: str = None, max_version: str = None
 ):

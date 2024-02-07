@@ -13,6 +13,7 @@ from .utils import (
     generate_library_docs_url_v2,
     generate_library_docs_url_v3,
     generate_library_docs_url_string_ref,
+    generate_library_docs_url_string_view,
     version_within_range,
 )
 
@@ -33,6 +34,12 @@ LIBRARY_DOCS_EXCEPTIONS = {
         {
             "generator": generate_library_docs_url_string_ref,
             "max_version": "boost_1_77_0",
+        }
+    ],
+    "string-view": [
+        {
+            "generator": generate_library_docs_url_string_view,
+            "max_version": "boost_1_83_0",
         }
     ],
     "winapi": [{"generator": generate_library_docs_url}],
