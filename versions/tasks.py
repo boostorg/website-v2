@@ -9,6 +9,7 @@ from core.githubhelper import GithubAPIClient, GithubDataParser
 from libraries.github import LibraryUpdater
 from libraries.models import Library, LibraryVersion
 from libraries.tasks import get_and_store_library_version_documentation_urls_for_version
+from libraries.utils import version_within_range
 from versions.models import Version
 from versions.releases import store_release_notes_for_version
 
@@ -182,6 +183,17 @@ def import_most_recent_beta_release(token=None, delete_old=False):
             return
 
 
+LIBRARY_KEY_EXCEPTIONS = {
+    "utility/string_ref": [
+        {
+            "new_key": "utility/string_view",
+            "new_name": "String View",
+            "min_version": "boost-1.78.0",  # Apply change for versions >= boost-1.78.0
+        }
+    ],
+}
+
+
 @app.task
 def import_library_versions(version_name, token=None, version_type="tag"):
     """For a specific version, imports all LibraryVersions using GitHub data"""
@@ -264,6 +276,19 @@ def import_library_versions(version_name, token=None, version_type="tag"):
         for lib_data in parsed_libraries:
             if lib_data["key"] in updater.skip_libraries:
                 continue
+
+            # Handle exceptions based on version and library key
+            exceptions = LIBRARY_KEY_EXCEPTIONS.get(lib_data["key"], [])
+            for exception in exceptions:
+                if version_within_range(
+                    version_name,
+                    min_version=exception.get("min_version"),
+                    max_version=exception.get("max_version"),
+                ):
+                    lib_data["key"] = exception["new_key"]
+                    lib_data["name"] = exception.get("name", lib_data["name"])
+                    break  # Stop checking exceptions if a match is found
+
             library, _ = Library.objects.get_or_create(
                 key=lib_data["key"],
                 defaults={

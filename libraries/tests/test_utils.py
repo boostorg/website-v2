@@ -10,6 +10,7 @@ from libraries.utils import (
     generate_library_docs_url_v2,
     generate_library_docs_url_v3,
     generate_library_docs_url_string_ref,
+    generate_library_docs_url_string_view,
     get_first_last_day_last_month,
     parse_date,
     version_within_range,
@@ -53,6 +54,13 @@ def test_generate_library_docs_ur_string_ref():
     expected = "/doc/libs/boost_1_72_0/libs/utility/doc/html/string_ref.html"
     assert (
         generate_library_docs_url_string_ref("boost_1_72_0", "string_ref") == expected
+    )
+
+
+def test_generate_library_docs_url_string_view():
+    expected = "/doc/libs/boost_1_72_0/libs/utility/doc/html/utility/utilities/string_view.html"  # noqa
+    assert (
+        generate_library_docs_url_string_view("boost_1_72_0", "string_view") == expected
     )
 
 
