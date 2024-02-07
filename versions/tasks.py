@@ -262,11 +262,15 @@ def import_library_versions(version_name, token=None, version_type="tag"):
         if not libraries_json:
             # Can happen with older releases -- we try to catch all exceptions
             # so this is just in case
-            logger.info(
-                "import_library_versions_skipped_library",
-                version_name=version_name,
-                library_name=library_name,
+            library_version = save_library_version_by_library_key(
+                library_name, version, gitmodule
             )
+            if not library_version:
+                logger.info(
+                    "import_library_versions_skipped_library",
+                    version_name=version_name,
+                    library_name=library_name,
+                )
             continue
 
         libraries = (
