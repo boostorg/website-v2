@@ -80,6 +80,9 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "max_version": "boost_1_72_0",
         },
     ],
+    "iterator": [
+        {"generator": generate_library_docs_url_v3, "min_version": "boost_1_52_0"},
+    ],
     "program-options": [
         {"generator": generate_library_docs_url_v4, "max_version": "boost_1_60_0"}
     ],
