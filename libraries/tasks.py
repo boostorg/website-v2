@@ -66,6 +66,9 @@ LIBRARY_DOCS_EXCEPTIONS = {
     "program-options": [
         {"generator": generate_library_docs_url_v4, "max_version": "boost_1_60_0"}
     ],
+    "string-algo": [
+        {"generator": generate_library_docs_url_v4, "max_version": "boost_1_60_0"}
+    ],
     "string-ref": [
         {
             "generator": generate_library_docs_url_string_ref,
