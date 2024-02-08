@@ -69,12 +69,22 @@ def generate_library_docs_url_v5(boost_url_slug, library_slug):
     return f"/doc/libs/{boost_url_slug}/libs/utility/{library_slug}.htm"
 
 
-def generate_library_docs_url_double_nested_library(boost_url_slug, library_slug):
+def generate_library_docs_url_double_nested_library_html(boost_url_slug, library_slug):
     """Generate a documentation url with a specific format
 
     First used for Dynamic Bitset, versions 1.60.0 and below.
     """
     return f"/doc/libs/{boost_url_slug}/libs/{library_slug}/{library_slug}.html"
+
+
+def generate_library_docs_url_double_nested_library_htm(boost_url_slug, library_slug):
+    """Generate a documentation url with a specific format
+
+    Ends in .htm, not .html
+
+    First used for Dynamic Bitset, versions 1.60.0 and below.
+    """
+    return f"/doc/libs/{boost_url_slug}/libs/{library_slug}/{library_slug}.htm"
 
 
 def generate_library_docs_url_numeric(boost_url_slug, library_slug):

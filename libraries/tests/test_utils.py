@@ -11,7 +11,8 @@ from libraries.utils import (
     generate_library_docs_url_v3,
     generate_library_docs_url_v4,
     generate_library_docs_url_v5,
-    generate_library_docs_url_double_nested_library,
+    generate_library_docs_url_double_nested_library_htm,
+    generate_library_docs_url_double_nested_library_html,
     generate_library_docs_url_numeric,
     generate_library_docs_url_string_ref,
     generate_library_docs_url_string_view,
@@ -64,10 +65,20 @@ def test_generate_library_docs_url_v5():
     assert generate_library_docs_url_v5("boost_1_60_0", "call_traits") == expected
 
 
-def test_generate_library_docs_url_double_nested_library():
+def test_generate_library_docs_url_double_nested_library_html():
     expected = "/doc/libs/boost_1_60_0/libs/dynamic_bitset/dynamic_bitset.html"
     assert (
-        generate_library_docs_url_double_nested_library(
+        generate_library_docs_url_double_nested_library_html(
+            "boost_1_60_0", "dynamic_bitset"
+        )
+        == expected
+    )
+
+
+def test_generate_library_docs_url_double_nested_library_htm():
+    expected = "/doc/libs/boost_1_60_0/libs/dynamic_bitset/dynamic_bitset.htm"
+    assert (
+        generate_library_docs_url_double_nested_library_htm(
             "boost_1_60_0", "dynamic_bitset"
         )
         == expected
