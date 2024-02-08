@@ -77,6 +77,15 @@ def generate_library_docs_url_dynamic_bitset(boost_url_slug, library_slug):
     return f"/doc/libs/{boost_url_slug}/libs/{library_slug}/{library_slug}.html"
 
 
+def generate_library_docs_url_numeric(boost_url_slug, library_slug):
+    """Generate a documentation url with a specific format
+
+    First used with Interval, versions 1.60.0 and below"""
+    return (
+        f"/doc/libs/{boost_url_slug}/libs/numeric/{library_slug}/doc/{library_slug}.htm"
+    )
+
+
 def generate_library_docs_url_string_ref(boost_url_slug, library_slug):
     """Generate a documentation URL for the string-ref library-versions"""
     return f"/doc/libs/{boost_url_slug}/libs/utility/doc/html/{library_slug}.html"
