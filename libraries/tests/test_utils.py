@@ -12,6 +12,7 @@ from libraries.utils import (
     generate_library_docs_url_v4,
     generate_library_docs_url_v5,
     generate_library_docs_url_dynamic_bitset,
+    generate_library_docs_url_numeric,
     generate_library_docs_url_string_ref,
     generate_library_docs_url_string_view,
     get_first_last_day_last_month,
@@ -69,6 +70,11 @@ def test_generate_library_docs_url_dynamic_bitset():
         generate_library_docs_url_dynamic_bitset("boost_1_60_0", "dynamic_bitset")
         == expected
     )
+
+
+def test_generate_library_docs_url_numeric():
+    expected = "/doc/libs/boost_1_60_0/libs/numeric/interval/doc/interval.htm"
+    assert generate_library_docs_url_numeric("boost_1_60_0", "interval") == expected
 
 
 def test_generate_library_docs_ur_string_ref():
