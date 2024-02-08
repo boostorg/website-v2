@@ -13,7 +13,7 @@ from .utils import (
     generate_library_docs_url_v2,
     generate_library_docs_url_v3,
     generate_library_docs_url_v4,
-    generate_library_docs_url_call_traits,
+    generate_library_docs_url_v5,
     generate_library_docs_url_dynamic_bitset,
     generate_library_docs_url_string_ref,
     generate_library_docs_url_string_view,
@@ -33,13 +33,19 @@ LIBRARY_DOCS_EXCEPTIONS = {
     ],
     "call-traits": [
         {
-            "generator": generate_library_docs_url_call_traits,
+            "generator": generate_library_docs_url_v5,
             "max_version": "boost_1_60_0",
         }
     ],
     "circular-buffer": [
         {
             "generator": generate_library_docs_url_v4,
+            "max_version": "boost_1_60_0",
+        }
+    ],
+    "compressed-pair": [
+        {
+            "generator": generate_library_docs_url_v5,
             "max_version": "boost_1_60_0",
         }
     ],
