@@ -81,6 +81,9 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "max_version": "boost_1_83_0",
         }
     ],
+    "type-traits": [
+        {"generator": generate_library_docs_url, "max_version": "boost_1_60_0"}
+    ],
     "winapi": [{"generator": generate_library_docs_url}],
 }
 
