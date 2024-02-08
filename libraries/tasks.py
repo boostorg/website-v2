@@ -49,6 +49,9 @@ LIBRARY_DOCS_EXCEPTIONS = {
         }
     ],
     "detail": [{"generator": generate_library_docs_url}],
+    "interprocess": [
+        {"generator": generate_library_docs_url_v4, "max_version": "boost_1_47_0"}
+    ],
     "io": [
         {"generator": generate_library_docs_url_v2, "min_version": "boost_1_73_0"},
         {
