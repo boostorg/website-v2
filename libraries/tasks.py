@@ -14,6 +14,7 @@ from .utils import (
     generate_library_docs_url_v3,
     generate_library_docs_url_v4,
     generate_library_docs_url_call_traits,
+    generate_library_docs_url_dynamic_bitset,
     generate_library_docs_url_string_ref,
     generate_library_docs_url_string_view,
     version_within_range,
@@ -49,6 +50,12 @@ LIBRARY_DOCS_EXCEPTIONS = {
         }
     ],
     "detail": [{"generator": generate_library_docs_url}],
+    "dynamic-bitset": [
+        {
+            "generator": generate_library_docs_url_dynamic_bitset,
+            "max_version": "boost_1_60_0",
+        }
+    ],
     "interprocess": [
         {"generator": generate_library_docs_url_v4, "max_version": "boost_1_47_0"}
     ],

@@ -11,6 +11,7 @@ from libraries.utils import (
     generate_library_docs_url_v3,
     generate_library_docs_url_v4,
     generate_library_docs_url_call_traits,
+    generate_library_docs_url_dynamic_bitset,
     generate_library_docs_url_string_ref,
     generate_library_docs_url_string_view,
     get_first_last_day_last_month,
@@ -61,6 +62,14 @@ def test_generate_library_docs_url_call_traits():
     expected = "/doc/libs/boost_1_60_0/libs/utility/call_traits.htm"
     assert (
         generate_library_docs_url_call_traits("boost_1_60_0", "call_traits") == expected
+    )
+
+
+def test_generate_library_docs_url_dynamic_bitset():
+    expected = "/doc/libs/boost_1_60_0/libs/dynamic_bitset/dynamic_bitset.html"
+    assert (
+        generate_library_docs_url_dynamic_bitset("boost_1_60_0", "dynamic_bitset")
+        == expected
     )
 
 
