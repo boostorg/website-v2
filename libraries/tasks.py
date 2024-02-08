@@ -42,6 +42,12 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "max_version": "boost_1_60_0",
         }
     ],
+    "date-time": [
+        {
+            "generator": generate_library_docs_url_v4,
+            "max_version": "boost_1_60_0",
+        }
+    ],
     "detail": [{"generator": generate_library_docs_url}],
     "io": [
         {"generator": generate_library_docs_url_v2, "min_version": "boost_1_73_0"},
