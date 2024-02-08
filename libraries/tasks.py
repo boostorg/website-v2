@@ -98,6 +98,12 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "max_version": "boost_1_60_0",
         }
     ],
+    "static-assert": [
+        {
+            "generator": generate_library_docs_url_double_nested_library,
+            "max_version": "boost_1_60_0",
+        }
+    ],
     "string-algo": [
         {"generator": generate_library_docs_url_v4, "max_version": "boost_1_60_0"}
     ],
@@ -117,6 +123,9 @@ LIBRARY_DOCS_EXCEPTIONS = {
         {"generator": generate_library_docs_url, "max_version": "boost_1_60_0"}
     ],
     "winapi": [{"generator": generate_library_docs_url}],
+    "value-initialized": [
+        {"generator": generate_library_docs_url_v5, "max_version": "boost_1_60_0"}
+    ],
 }
 
 
