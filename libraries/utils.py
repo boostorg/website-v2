@@ -61,7 +61,7 @@ def generate_library_docs_url_v4(boost_url_slug, library_slug):
     return f"/doc/libs/{boost_url_slug}/doc/html/{library_slug}.html"
 
 
-def generate_library_docs_url_call_traits(boost_url_slug, library_slug):
+def generate_library_docs_url_v5(boost_url_slug, library_slug):
     """Generate a documentation url with a specific format
 
     First used for Call Traits, versions 1.60.0 and below.
