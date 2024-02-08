@@ -15,6 +15,7 @@ from .utils import (
     generate_library_docs_url_v4,
     generate_library_docs_url_v5,
     generate_library_docs_url_dynamic_bitset,
+    generate_library_docs_url_numeric,
     generate_library_docs_url_string_ref,
     generate_library_docs_url_string_view,
     version_within_range,
@@ -64,6 +65,9 @@ LIBRARY_DOCS_EXCEPTIONS = {
     ],
     "interprocess": [
         {"generator": generate_library_docs_url_v4, "max_version": "boost_1_47_0"}
+    ],
+    "interval": [
+        {"generator": generate_library_docs_url_numeric, "max_version": "boost_1_47_0"}
     ],
     "intrusive": [
         {"generator": generate_library_docs_url_v4, "max_version": "boost_1_47_0"}
