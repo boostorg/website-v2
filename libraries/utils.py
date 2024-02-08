@@ -69,7 +69,7 @@ def generate_library_docs_url_v5(boost_url_slug, library_slug):
     return f"/doc/libs/{boost_url_slug}/libs/utility/{library_slug}.htm"
 
 
-def generate_library_docs_url_dynamic_bitset(boost_url_slug, library_slug):
+def generate_library_docs_url_double_nested_library(boost_url_slug, library_slug):
     """Generate a documentation url with a specific format
 
     First used for Dynamic Bitset, versions 1.60.0 and below.

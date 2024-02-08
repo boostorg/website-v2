@@ -14,7 +14,7 @@ from .utils import (
     generate_library_docs_url_v3,
     generate_library_docs_url_v4,
     generate_library_docs_url_v5,
-    generate_library_docs_url_dynamic_bitset,
+    generate_library_docs_url_double_nested_library,
     generate_library_docs_url_numeric,
     generate_library_docs_url_string_ref,
     generate_library_docs_url_string_view,
@@ -59,7 +59,7 @@ LIBRARY_DOCS_EXCEPTIONS = {
     "detail": [{"generator": generate_library_docs_url}],
     "dynamic-bitset": [
         {
-            "generator": generate_library_docs_url_dynamic_bitset,
+            "generator": generate_library_docs_url_double_nested_library,
             "max_version": "boost_1_60_0",
         }
     ],
@@ -83,8 +83,20 @@ LIBRARY_DOCS_EXCEPTIONS = {
     "iterator": [
         {"generator": generate_library_docs_url_v3, "min_version": "boost_1_52_0"},
     ],
+    "multi-array": [
+        {"generator": generate_library_docs_url_v3, "max_version": "boost_1_60_0"},
+    ],
+    "multi-index": [
+        {"generator": generate_library_docs_url_v3, "max_version": "boost_1_60_0"},
+    ],
     "program-options": [
         {"generator": generate_library_docs_url_v4, "max_version": "boost_1_60_0"}
+    ],
+    "smart-ptr": [
+        {
+            "generator": generate_library_docs_url_double_nested_library,
+            "max_version": "boost_1_60_0",
+        }
     ],
     "string-algo": [
         {"generator": generate_library_docs_url_v4, "max_version": "boost_1_60_0"}
