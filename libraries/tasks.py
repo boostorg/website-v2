@@ -13,6 +13,7 @@ from .utils import (
     generate_library_docs_url_v2,
     generate_library_docs_url_v3,
     generate_library_docs_url_v4,
+    generate_library_docs_url_call_traits,
     generate_library_docs_url_string_ref,
     generate_library_docs_url_string_view,
     version_within_range,
@@ -27,6 +28,12 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "generator": generate_library_docs_url_v4,
             "min_version": "boost_1_29_0",
             "max_version": "boost_1_33_0",
+        }
+    ],
+    "call-traits": [
+        {
+            "generator": generate_library_docs_url_call_traits,
+            "max_version": "boost_1_60_0",
         }
     ],
     "detail": [{"generator": generate_library_docs_url}],
