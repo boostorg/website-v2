@@ -37,3 +37,12 @@ div.book:first-of-type, {
 #userMenu, #guideMenu {
   border: 1px solid #d1d5db;
 }
+
+#headblock nav a,
+#headblock nav a:visited {
+  @apply dark:text-white text-slate;
+}
+
+#headblock nav a:hover {
+  @apply !text-orange;
+}
