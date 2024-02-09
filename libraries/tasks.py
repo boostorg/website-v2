@@ -15,6 +15,7 @@ from .utils import (
     generate_library_docs_url_v4,
     generate_library_docs_url_utility_v1,
     generate_library_docs_url_utility_v2,
+    generate_library_docs_url_utility_v3,
     generate_library_docs_url_circular_buffer,
     generate_library_docs_url_core,
     generate_library_docs_url_double_nested_library_htm,
@@ -99,6 +100,13 @@ LIBRARY_DOCS_EXCEPTIONS = {
         {
             "generator": generate_library_docs_url_utility_v2,
             "max_version": "boost_1_60_0",
+        }
+    ],
+    "in-place-factory-typed-in-place-factory": [
+        {
+            "generator": generate_library_docs_url_utility_v3,
+            "max_version": "boost_1_60_0",
+            "alternate_slug": "in_place_factories",
         }
     ],
     "interprocess": [

@@ -77,6 +77,16 @@ def generate_library_docs_url_utility_v2(boost_url_slug, library_slug):
     return f"/doc/libs/{boost_url_slug}/libs/utility/{library_slug}/doc/html/index.html"
 
 
+def generate_library_docs_url_utility_v3(boost_url_slug, library_slug):
+    """Generate a documentation url with a specific format
+
+    Same as v1, but .html and not .htm
+
+    First used for In Place Factories, version 1.60.0 and below.
+    """
+    return f"/doc/libs/{boost_url_slug}/libs/utility/{library_slug}.html"
+
+
 def generate_library_docs_url_circular_buffer(boost_url_slug, library_slug):
     """Generate a documentation url with a specific format
 
