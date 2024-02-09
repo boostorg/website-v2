@@ -16,8 +16,8 @@ spec:
       restartPolicy: OnFailure
       volumes:
 {{ toYaml .Values.Volumes | indent 6 }}
-      imagePullSecrets:
-        - name: revsys-docker-registry
+      # imagePullSecrets:
+      #  - name: revsys-docker-registry
       containers:
         - name: database-migrations
           image: {{ .Values.Image }}:{{ .Values.ImageTag }}
