@@ -61,6 +61,14 @@ def generate_library_docs_url_v4(boost_url_slug, library_slug):
     return f"/doc/libs/{boost_url_slug}/doc/html/{library_slug}.html"
 
 
+def generate_library_docs_url_math_v1(boost_url_slug, library_slug):
+    """Generate a documentation url with a specific format
+
+    First used for Math Common Factor, versions 1.60.0 and older
+    """
+    return f"/doc/libs/{boost_url_slug}/libs/math/doc/html/{library_slug}.html"
+
+
 def generate_library_docs_url_utility_v1(boost_url_slug, library_slug):
     """Generate a documentation url with a specific format
 

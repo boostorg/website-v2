@@ -13,6 +13,7 @@ from .utils import (
     generate_library_docs_url_v2,
     generate_library_docs_url_v3,
     generate_library_docs_url_v4,
+    generate_library_docs_url_math_v1,
     generate_library_docs_url_utility_v1,
     generate_library_docs_url_utility_v2,
     generate_library_docs_url_utility_v3,
@@ -130,6 +131,13 @@ LIBRARY_DOCS_EXCEPTIONS = {
     # Not loading before 1.51.0
     "iterator": [
         {"generator": generate_library_docs_url_v3, "min_version": "boost_1_52_0"},
+    ],
+    "math-common-factor": [
+        {
+            "generator": generate_library_docs_url_math_v1,
+            "max_version": "boost_1_60_0",
+            "alternate_slug": "gcd_lcm",
+        }
     ],
     "multi-array": [
         {"generator": generate_library_docs_url_v3, "max_version": "boost_1_60_0"},
