@@ -86,6 +86,14 @@ LIBRARY_DOCS_EXCEPTIONS = {
     "function-types": [
         {"generator": generate_library_docs_url, "max_version": "boost_1_60_0"}
     ],
+    "graphparallel": [
+        {
+            "generator": generate_library_docs_url,
+            "max_version": "boost_1_60_0",
+            "min_version": "boost_1_40",
+            "alternate_slug": "graph_parallel",
+        }
+    ],
     "interprocess": [
         {"generator": generate_library_docs_url_v4, "max_version": "boost_1_47_0"}
     ],
@@ -232,9 +240,14 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
                 max_version=exception.get("max_version"),
             ):
                 exception_url_generator = exception["generator"]
+                # Some libs use slugs that don't conform to what we generate via slugify
+                slug = exception.get(
+                    "alternate_slug",
+                    library_version.library.slug.lower().replace("-", "_"),
+                )
                 documentation_url = exception_url_generator(
                     version.boost_url_slug,
-                    library_version.library.slug.lower().replace("-", "_"),
+                    slug,
                 )
                 break  # Stop looking once a matching version is found
 
