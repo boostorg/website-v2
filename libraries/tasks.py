@@ -139,6 +139,13 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "alternate_slug": "gcd_lcm",
         }
     ],
+    "math-octonion": [
+        {
+            "generator": generate_library_docs_url_math_v1,
+            "max_version": "boost_1_60_0",
+            "alternate_slug": "octonions",
+        }
+    ],
     "multi-array": [
         {"generator": generate_library_docs_url_v3, "max_version": "boost_1_60_0"},
     ],
