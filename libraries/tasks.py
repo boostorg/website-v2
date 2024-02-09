@@ -13,6 +13,8 @@ from .utils import (
     generate_library_docs_url_v2,
     generate_library_docs_url_v3,
     generate_library_docs_url_v4,
+    generate_library_docs_url_bind_v1,
+    generate_library_docs_url_bind_v2,
     generate_library_docs_url_math_v1,
     generate_library_docs_url_utility_v1,
     generate_library_docs_url_utility_v2,
@@ -145,6 +147,26 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "max_version": "boost_1_60_0",
             "alternate_slug": "octonions",
         }
+    ],
+    "mathspecial-functions": [
+        {
+            "generator": generate_library_docs_url_math_v1,
+            "max_version": "boost_1_60_0",
+            "alternate_slug": "special",
+        }
+    ],
+    "member-function": [
+        {
+            "generator": generate_library_docs_url_bind_v1,
+            "max_version": "boost_1_60_0",
+            "min_version": "boost_1_59_0",
+            "alternate_slug": "mem_fn",
+        },
+        {
+            "generator": generate_library_docs_url_bind_v2,
+            "max_version": "boost_1_57_0",
+            "alternate_slug": "mem_fn",
+        },
     ],
     "multi-array": [
         {"generator": generate_library_docs_url_v3, "max_version": "boost_1_60_0"},

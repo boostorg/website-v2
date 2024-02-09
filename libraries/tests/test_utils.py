@@ -10,6 +10,8 @@ from libraries.utils import (
     generate_library_docs_url_v2,
     generate_library_docs_url_v3,
     generate_library_docs_url_v4,
+    generate_library_docs_url_bind_v1,
+    generate_library_docs_url_bind_v2,
     generate_library_docs_url_math_v1,
     generate_library_docs_url_utility_v1,
     generate_library_docs_url_utility_v2,
@@ -65,6 +67,16 @@ def test_generate_library_docs_url_v4():
     assert generate_library_docs_url_v4("boost_1_32_0", "any") == expected
 
 
+def test_generate_library_docs_url_bind_v1():
+    expected = "/doc/libs/boost_1_60_0/libs/bind/doc/html/mem_fn.html"
+    assert generate_library_docs_url_bind_v1("boost_1_60_0", "mem_fn") == expected
+
+
+def test_generate_library_docs_url_bind_v2():
+    expected = "/doc/libs/boost_1_49_0/libs/bind/mem_fn.html"
+    assert generate_library_docs_url_bind_v2("boost_1_49_0", "mem_fn") == expected
+
+
 def test_generate_library_docs_url_math_v1():
     expected = "/doc/libs/boost_1_60_0/libs/math/doc/html/gcd_lcm.html"
     assert generate_library_docs_url_math_v1("boost_1_60_0", "gcd_lcm") == expected
@@ -86,7 +98,7 @@ def test_generate_library_docs_url_utility_v2():
 
 
 def test_generate_library_docs_url_utility_v3():
-    expected = "/doc/libs/boost_1_60_0/libs/utility/in_place_factories.htm"
+    expected = "/doc/libs/boost_1_60_0/libs/utility/in_place_factories.html"
     assert (
         generate_library_docs_url_utility_v3("boost_1_60_0", "in_place_factories")
         == expected
