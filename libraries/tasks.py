@@ -14,6 +14,8 @@ from .utils import (
     generate_library_docs_url_v3,
     generate_library_docs_url_v4,
     generate_library_docs_url_v5,
+    generate_library_docs_url_circular_buffer,
+    generate_library_docs_url_core,
     generate_library_docs_url_double_nested_library_htm,
     generate_library_docs_url_double_nested_library_html,
     generate_library_docs_url_numeric,
@@ -25,6 +27,13 @@ from .utils import (
 logger = structlog.getLogger(__name__)
 
 
+# Mapping for exeptions to loading URLs for older docs.
+# key: Taken from Library.slug
+# value: List of dictionaries with instructions for how to format docs URLs for
+# those library-versions
+#   - generator: function to use to generate the URL. Required.
+#   - min_version: The earliest version that should use that generator. Optional.
+#   - max_version: The most recent version that should use that generator. Optional.
 LIBRARY_DOCS_EXCEPTIONS = {
     "any": [
         {
@@ -39,11 +48,17 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "max_version": "boost_1_60_0",
         }
     ],
+    # Incomplete import
     "circular-buffer": [
         {
             "generator": generate_library_docs_url_v4,
             "max_version": "boost_1_60_0",
-        }
+            "min_version": "boost_1_55_0",
+        },
+        {
+            "generator": generate_library_docs_url_circular_buffer,
+            "max_version": "boost_1_54_0",
+        },
     ],
     "compressed-pair": [
         {
@@ -57,12 +72,16 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "max_version": "boost_1_60_0",
         }
     ],
-    "detail": [{"generator": generate_library_docs_url}],
+    # FIXME: Load correct path for 1.60.0 and prior
+    "detail": [{"generator": generate_library_docs_url, "min_version": "boost_61_0"}],
     "dynamic-bitset": [
         {
             "generator": generate_library_docs_url_double_nested_library_html,
             "max_version": "boost_1_60_0",
         }
+    ],
+    "enable-if": [
+        {"generator": generate_library_docs_url_core, "max_version": "boost_1_60_0"}
     ],
     "interprocess": [
         {"generator": generate_library_docs_url_v4, "max_version": "boost_1_47_0"}
@@ -73,6 +92,7 @@ LIBRARY_DOCS_EXCEPTIONS = {
     "intrusive": [
         {"generator": generate_library_docs_url_v4, "max_version": "boost_1_47_0"}
     ],
+    # Nothing before 1.63.0, so need to add that
     "io": [
         {"generator": generate_library_docs_url_v2, "min_version": "boost_1_73_0"},
         {
@@ -81,6 +101,7 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "max_version": "boost_1_72_0",
         },
     ],
+    # Not loading before 1.51.0
     "iterator": [
         {"generator": generate_library_docs_url_v3, "min_version": "boost_1_52_0"},
     ],
@@ -114,16 +135,20 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "max_version": "boost_1_77_0",
         }
     ],
+    # Still need to deal with the upload changes
     "string-view": [
         {
             "generator": generate_library_docs_url_string_view,
             "max_version": "boost_1_83_0",
         }
     ],
+    # Not loading before 1.34.0
     "type-traits": [
         {"generator": generate_library_docs_url, "max_version": "boost_1_60_0"}
     ],
+    # Missing before 1.60.0
     "winapi": [{"generator": generate_library_docs_url}],
+    # Not loading the ones before 1.60.0
     "value-initialized": [
         {"generator": generate_library_docs_url_v5, "max_version": "boost_1_60_0"}
     ],

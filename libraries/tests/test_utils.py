@@ -11,6 +11,8 @@ from libraries.utils import (
     generate_library_docs_url_v3,
     generate_library_docs_url_v4,
     generate_library_docs_url_v5,
+    generate_library_docs_url_circular_buffer,
+    generate_library_docs_url_core,
     generate_library_docs_url_double_nested_library_htm,
     generate_library_docs_url_double_nested_library_html,
     generate_library_docs_url_numeric,
@@ -63,6 +65,18 @@ def test_generate_library_docs_url_v4():
 def test_generate_library_docs_url_v5():
     expected = "/doc/libs/boost_1_60_0/libs/utility/call_traits.htm"
     assert generate_library_docs_url_v5("boost_1_60_0", "call_traits") == expected
+
+
+def test_generate_library_docs_url_circular_buffer():
+    expected = "/doc/libs/boost_1_54_0/libs/circular_buffer/doc/circular_buffer.html"
+    assert (
+        generate_library_docs_url_circular_buffer("boost_1_54_0", "circular_buffer")
+        == expected
+    )
+
+
+def test_generate_library_docs_url_core():
+    assert generate_library_docs_url_core("boost_1_60_0", "enable_if")
 
 
 def test_generate_library_docs_url_double_nested_library_html():
