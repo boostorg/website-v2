@@ -83,6 +83,9 @@ LIBRARY_DOCS_EXCEPTIONS = {
     "enable-if": [
         {"generator": generate_library_docs_url_core, "max_version": "boost_1_60_0"}
     ],
+    "function-types": [
+        {"generator": generate_library_docs_url, "max_version": "boost_1_60_0"}
+    ],
     "interprocess": [
         {"generator": generate_library_docs_url_v4, "max_version": "boost_1_47_0"}
     ],
