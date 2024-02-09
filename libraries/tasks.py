@@ -13,7 +13,8 @@ from .utils import (
     generate_library_docs_url_v2,
     generate_library_docs_url_v3,
     generate_library_docs_url_v4,
-    generate_library_docs_url_v5,
+    generate_library_docs_url_utility_v1,
+    generate_library_docs_url_utility_v2,
     generate_library_docs_url_circular_buffer,
     generate_library_docs_url_core,
     generate_library_docs_url_double_nested_library_htm,
@@ -44,7 +45,7 @@ LIBRARY_DOCS_EXCEPTIONS = {
     ],
     "call-traits": [
         {
-            "generator": generate_library_docs_url_v5,
+            "generator": generate_library_docs_url_utility_v1,
             "max_version": "boost_1_60_0",
         }
     ],
@@ -62,7 +63,7 @@ LIBRARY_DOCS_EXCEPTIONS = {
     ],
     "compressed-pair": [
         {
-            "generator": generate_library_docs_url_v5,
+            "generator": generate_library_docs_url_utility_v1,
             "max_version": "boost_1_60_0",
         }
     ],
@@ -92,6 +93,12 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "max_version": "boost_1_60_0",
             "min_version": "boost_1_40",
             "alternate_slug": "graph_parallel",
+        }
+    ],
+    "identity-type": [
+        {
+            "generator": generate_library_docs_url_utility_v2,
+            "max_version": "boost_1_60_0",
         }
     ],
     "interprocess": [
@@ -161,7 +168,10 @@ LIBRARY_DOCS_EXCEPTIONS = {
     "winapi": [{"generator": generate_library_docs_url}],
     # Not loading the ones before 1.60.0
     "value-initialized": [
-        {"generator": generate_library_docs_url_v5, "max_version": "boost_1_60_0"}
+        {
+            "generator": generate_library_docs_url_utility_v1,
+            "max_version": "boost_1_60_0",
+        }
     ],
 }
 

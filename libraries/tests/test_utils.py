@@ -10,7 +10,8 @@ from libraries.utils import (
     generate_library_docs_url_v2,
     generate_library_docs_url_v3,
     generate_library_docs_url_v4,
-    generate_library_docs_url_v5,
+    generate_library_docs_url_utility_v1,
+    generate_library_docs_url_utility_v2,
     generate_library_docs_url_circular_buffer,
     generate_library_docs_url_core,
     generate_library_docs_url_double_nested_library_htm,
@@ -62,9 +63,19 @@ def test_generate_library_docs_url_v4():
     assert generate_library_docs_url_v4("boost_1_32_0", "any") == expected
 
 
-def test_generate_library_docs_url_v5():
+def test_generate_library_docs_url_utility_v1():
     expected = "/doc/libs/boost_1_60_0/libs/utility/call_traits.htm"
-    assert generate_library_docs_url_v5("boost_1_60_0", "call_traits") == expected
+    assert (
+        generate_library_docs_url_utility_v1("boost_1_60_0", "call_traits") == expected
+    )
+
+
+def test_generate_library_docs_url_utility_v2():
+    expected = "/doc/libs/boost_1_60_0/libs/utility/identity_type/doc/html/index.html"
+    assert (
+        generate_library_docs_url_utility_v2("boost_1_60_0", "identity_type")
+        == expected
+    )
 
 
 def test_generate_library_docs_url_circular_buffer():
