@@ -61,6 +61,7 @@ class CommitData(models.Model):
 
     class Meta:
         unique_together = ("library", "month_year", "branch")
+        verbose_name_plural = "Commit Data"
 
     def __str__(self):
         return (
