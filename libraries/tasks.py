@@ -1,12 +1,13 @@
 import structlog
+from dateutil.relativedelta import relativedelta
 
 from config.celery import app
 from django.db.models import Q
+from django.utils import timezone
 from core.boostrenderer import get_content_from_s3
 from core.htmlhelper import get_library_documentation_urls
 from libraries.github import LibraryUpdater
 from libraries.models import LibraryVersion
-from libraries.utils import get_first_last_day_last_month
 from versions.models import Version
 from .utils import (
     generate_library_docs_url,
@@ -317,7 +318,7 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
 
 
 @app.task
-def update_libraries(update_all=False):
+def update_libraries():
     """Update local libraries from GitHub Boost libraries.
 
     Use the LibraryUpdater, which retrieves the active boost libraries from the
@@ -326,10 +327,28 @@ def update_libraries(update_all=False):
     from GitHub.
     """
     updater = LibraryUpdater()
-    if update_all:
-        updater.update_libraries()
-        logger.info("libraries_tasks_update_all_libraries_finished")
-    else:
-        since, until = get_first_last_day_last_month()
-        updater.update_libraries(since=since, until=until)
-        logger.info("libraries_tasks_update_libraries_finished")
+    updater.update_libraries()
+    logger.info("libraries_tasks_update_all_libraries_finished")
+
+
+@app.task
+def update_commit_counts(token=None):
+    """Imports commit counts for all libraries, broken down by month, and saves
+    them to the database. See LibraryUpdater class for defaults.
+    """
+    updater = LibraryUpdater(token=token)
+    updater.update_monthly_commit_counts()
+    logger.info("libraries_update_commit_counts_finished")
+
+
+@app.task
+def update_current_month_commit_counts(token=None):
+    """Imports commit counts for all libraries for the current month."""
+    updater = LibraryUpdater(token=token)
+    now = timezone.now()
+    # First of this month
+    since = timezone.make_aware(
+        timezone.datetime(year=now.year, month=now.month, day=1)
+    ) - relativedelta(days=1)
+    updater.update_monthly_commit_counts(since=since, until=now)
+    logger.info("libraries_update_current_month_commit_counts_finished")
