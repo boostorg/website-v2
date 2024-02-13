@@ -46,3 +46,7 @@ div.book:first-of-type, {
 #headblock nav a:hover {
   @apply !text-orange;
 }
+
+#avatar>div {
+  @apply bg-white text-slate rounded dark:text-white dark:bg-slate;
+}
