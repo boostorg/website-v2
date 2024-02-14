@@ -79,7 +79,12 @@ LIBRARY_DOCS_EXCEPTIONS = {
         }
     ],
     # FIXME: Load correct path for 1.60.0 and prior
-    "detail": [{"generator": generate_library_docs_url, "min_version": "boost_61_0"}],
+    "detail": [
+        {
+            "generator": generate_library_docs_url,
+            "min_version": "boost_1_61_0",
+        },
+    ],
     "dynamic-bitset": [
         {
             "generator": generate_library_docs_url_double_nested_library_html,
@@ -91,6 +96,20 @@ LIBRARY_DOCS_EXCEPTIONS = {
     ],
     "function-types": [
         {"generator": generate_library_docs_url, "max_version": "boost_1_60_0"}
+    ],
+    "functionalhash": [
+        {
+            "generator": generate_library_docs_url_v4,
+            "max_version": "boost_1_66_0",
+            "alternate_slug": "hash",
+        }
+    ],
+    "functionaloverloaded-function": [
+        {
+            "generator": generate_library_docs_url,
+            "max_version": "boost_1_60_0",
+            "alternate_slug": "functional/overloaded_function",
+        }
     ],
     "graphparallel": [
         {

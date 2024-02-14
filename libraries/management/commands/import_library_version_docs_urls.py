@@ -10,19 +10,16 @@ from versions.models import Version
 @click.command()
 @click.option(
     "--version",
-    type=str,
-    is_flag=False,
     help="Boost version number (example: 1.81.0). If a partial version number is "
     "provided, the command process all versions that contain the partial version "
     "number (example: '--version='1.7' would process 1.7.0, 1.7.1, 1.7.2, etc.)",
 )
 @click.option(
     "--min-version",
-    type=str,
     default=settings.MINIMUM_BOOST_VERSION,
     help="Minimum Boost version to process (default: 1.30.0)",
 )
-def command(version, min_version):
+def command(version: str, min_version: str):
     """Cycles through all Versions in the database, and for each version gets the
     corresponding tag's .gitmodules.
 

@@ -195,6 +195,15 @@ LIBRARY_KEY_EXCEPTIONS = {
 
 
 @app.task
+def import_all_library_versions(token=None, version_type="tag"):
+    """Run import_library_versions for all versions"""
+    for version in Version.objects.active():
+        import_library_versions.delay(
+            version.name, token=token, version_type=version_type
+        )
+
+
+@app.task
 def import_library_versions(version_name, token=None, version_type="tag"):
     """For a specific version, imports all LibraryVersions using GitHub data"""
     try:
@@ -306,8 +315,9 @@ def import_library_versions(version_name, token=None, version_type="tag"):
                 version=version, library=library, defaults={"data": lib_data}
             )
             if not library.github_url:
-                pass
-            #     # todo: handle this. Need a github_url for these.
+                github_data = client.get_repo(repo_slug=library_name)
+                library.github_url = github_data.get("html_url", "")
+                library.save()
 
     # Retrieve and store the docs url for each library-version in this release
     get_and_store_library_version_documentation_urls_for_version.delay(version.pk)
