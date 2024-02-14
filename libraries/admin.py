@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils.html import format_html
 
+from versions.tasks import import_all_library_versions
 from .models import Category, CommitData, Issue, Library, LibraryVersion, PullRequest
 from .tasks import (
     update_commit_counts,
@@ -83,6 +84,13 @@ class CommitDataAdmin(admin.ModelAdmin):
         return HttpResponseRedirect("../")
 
 
+class LibraryVersionInline(admin.TabularInline):
+    model = LibraryVersion
+    extra = 0
+    ordering = ["-version__name"]
+    fields = ["version", "documentation_url"]
+
+
 @admin.register(Library)
 class LibraryAdmin(admin.ModelAdmin):
     list_display = ["name", "key", "github_url"]
@@ -90,6 +98,7 @@ class LibraryAdmin(admin.ModelAdmin):
     list_filter = ["categories"]
     ordering = ["name"]
     change_list_template = "admin/library_change_list.html"
+    inlines = [LibraryVersionInline]
 
     def get_urls(self):
         urls = super().get_urls()
@@ -101,6 +110,7 @@ class LibraryAdmin(admin.ModelAdmin):
     def update_libraries(self, request):
         """Run the task to refresh the library data from GitHub"""
         update_libraries.delay()
+        import_all_library_versions.delay()
         self.message_user(
             request,
             """
@@ -126,7 +136,8 @@ class LibraryVersionAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def update_docs_urls(self, request):
-        """Run the task to refresh the documentation URLS from S3"""
+        """Run the task to refresh the documentation URLS from S3 and refresh data"""
+        import_all_library_versions.delay()
         update_library_version_documentation_urls_all_versions.delay()
         self.message_user(
             request,

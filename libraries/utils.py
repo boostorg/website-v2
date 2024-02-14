@@ -1,5 +1,7 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+import random
+import string
 import structlog
 import tempfile
 
@@ -161,6 +163,12 @@ def generate_library_docs_url_string_ref(boost_url_slug, library_slug):
 def generate_library_docs_url_string_view(boost_url_slug, library_slug):
     """Generate a documentation URL for the string-view library-versions"""
     return f"/doc/libs/{boost_url_slug}/libs/utility/doc/html/utility/utilities/{library_slug}.html"  # noqa
+
+
+def generate_random_string(length=4):
+    characters = string.ascii_letters
+    random_string = "".join(random.choice(characters) for _ in range(length))
+    return random_string
 
 
 def version_within_range(

@@ -11,7 +11,7 @@ from core.models import RenderedContent
 from core.tasks import adoc_to_html
 
 from .managers import CommitDataManager
-from .utils import write_content_to_tempfile
+from .utils import generate_random_string, write_content_to_tempfile
 
 
 class Category(models.Model):
@@ -131,9 +131,27 @@ class Library(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        """Override the save method to confirm the slug is set (or set it)"""
+        """Override the save method to confirm the slug is set (or set it)
+
+        We need the slug to be unique, but we want to intelligently make that happen,
+        because there are libraries (like Container Hash) that are more easily managed
+        as two records due to changes in the data between versions.
+        """
+        # Generate slug based on name
         if not self.slug:
-            self.slug = slugify(self.name)
+            slug = slugify(self.name)
+
+            # If there is a library with that slug, try a slug based on the key from the
+            # gitmodules file
+            if Library.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = slugify(self.key)
+
+            # If that slug already exists, append a random string to the slug
+            if Library.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                random_str = generate_random_string()
+                slug = f"{slug}-{random_str}"
+
+            self.slug = slug
         return super().save(*args, **kwargs)
 
     def get_description(self, client, tag="develop"):
