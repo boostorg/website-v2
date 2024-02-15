@@ -136,8 +136,7 @@ class LibraryVersionAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def update_docs_urls(self, request):
-        """Run the task to refresh the documentation URLS from S3 and refresh data"""
-        import_all_library_versions.delay()
+        """Run the task to refresh the documentation URLS from S3"""
         update_library_version_documentation_urls_all_versions.delay()
         self.message_user(
             request,

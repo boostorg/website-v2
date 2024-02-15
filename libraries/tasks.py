@@ -24,9 +24,13 @@ from .utils import (
     generate_library_docs_url_core,
     generate_library_docs_url_double_nested_library_htm,
     generate_library_docs_url_double_nested_library_html,
+    generate_library_docs_url_algorithm,
     generate_library_docs_url_numeric,
+    generate_library_docs_url_numeric_2,
     generate_library_docs_url_string_ref,
     generate_library_docs_url_string_view,
+    generate_library_docs_url_utility_anchor,
+    generate_library_docs_url_throwexception,
     version_within_range,
 )
 
@@ -154,6 +158,16 @@ LIBRARY_DOCS_EXCEPTIONS = {
     "iterator": [
         {"generator": generate_library_docs_url_v3, "min_version": "boost_1_52_0"},
     ],
+    "lexical-cast": [
+        {
+            "generator": generate_library_docs_url_v4,
+            "max_version": "boost_1_60_0",
+            "alternate_slug": "boost_lexical_cast",
+        }
+    ],
+    "local-function": [
+        {"generator": generate_library_docs_url, "max_version": "boost_1_60_0"}
+    ],
     "math-common-factor": [
         {
             "generator": generate_library_docs_url_math_v1,
@@ -166,6 +180,13 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "generator": generate_library_docs_url_math_v1,
             "max_version": "boost_1_60_0",
             "alternate_slug": "octonions",
+        }
+    ],
+    "math-quaternion": [
+        {
+            "generator": generate_library_docs_url_math_v1,
+            "max_version": "boost_1_60_0",
+            "alternate_slug": "quaternions",
         }
     ],
     "mathspecial-functions": [
@@ -188,14 +209,37 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "alternate_slug": "mem_fn",
         },
     ],
+    "min-max": [
+        {
+            "generator": generate_library_docs_url_algorithm,
+            "max_version": "boost_1_60_0",
+            "alternate_slug": "minmax",
+        }
+    ],
     "multi-array": [
         {"generator": generate_library_docs_url_v3, "max_version": "boost_1_60_0"},
     ],
     "multi-index": [
         {"generator": generate_library_docs_url_v3, "max_version": "boost_1_60_0"},
     ],
+    "numeric-conversion": [
+        {
+            "generator": generate_library_docs_url_numeric_2,
+            "max_version": "boost_1_60_0",
+            "alternate_slug": "conversion",
+        }
+    ],
     "program-options": [
         {"generator": generate_library_docs_url_v4, "max_version": "boost_1_60_0"}
+    ],
+    "result-of": [
+        {
+            "generator": generate_library_docs_url_utility_anchor,
+            "max_version": "boost_1_60_0",
+        }
+    ],
+    "scope-exit": [
+        {"generator": generate_library_docs_url, "max_version": "boost_1_60_0"}
     ],
     "smart-ptr": [
         {
@@ -225,6 +269,27 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "max_version": "boost_1_83_0",
         }
     ],
+    "throwexception": [
+        {
+            "generator": generate_library_docs_url_throwexception,
+            "max_version": "boost_1_60_0",
+            "alternate_slug": "boost_throw_exception_hpp",
+        }
+    ],
+    "type-erasure": [
+        {
+            "generator": generate_library_docs_url_v4,
+            "max_version": "boost_1_60_0",
+            "alternate_slug": "boost_typeerasure",
+        }
+    ],
+    "type-index": [
+        {
+            "generator": generate_library_docs_url_v4,
+            "max_version": "boost_1_60_0",
+            "alternate_slug": "boost_typeindex",
+        }
+    ],
     # Not loading before 1.34.0
     "type-traits": [
         {"generator": generate_library_docs_url, "max_version": "boost_1_60_0"}
@@ -236,6 +301,7 @@ LIBRARY_DOCS_EXCEPTIONS = {
         {
             "generator": generate_library_docs_url_utility_v1,
             "max_version": "boost_1_60_0",
+            "alternate_slug": "value_init",
         }
     ],
 }
@@ -245,7 +311,7 @@ LIBRARY_DOCS_EXCEPTIONS = {
 def update_library_version_documentation_urls_all_versions():
     """Run the task to update all documentation URLs for all versions"""
     for version in Version.objects.all():
-        get_and_store_library_version_documentation_urls_for_version.delay(version.pk)
+        get_and_store_library_version_documentation_urls_for_version(version.pk)
 
 
 @app.task
@@ -328,7 +394,8 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
 
         if documentation_url:
             # validate this in S3
-            content = get_content_from_s3(documentation_url)
+            key = documentation_url.split("#")
+            content = get_content_from_s3(key[0])
             if content:
                 library_version.documentation_url = documentation_url
                 library_version.save()
