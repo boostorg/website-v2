@@ -146,6 +146,13 @@ def generate_library_docs_url_double_nested_library_htm(boost_url_slug, library_
     return f"/doc/libs/{boost_url_slug}/libs/{library_slug}/{library_slug}.htm"
 
 
+def generate_library_docs_url_algorithm(boost_url_slug, library_slug):
+    """Generate a documentation url with a specific format
+
+    First used with Min Max, versions 1.60.0 and below"""
+    return f"/doc/libs/{boost_url_slug}/libs/algorithm/{library_slug}/index.html"
+
+
 def generate_library_docs_url_numeric(boost_url_slug, library_slug):
     """Generate a documentation url with a specific format
 
@@ -153,6 +160,13 @@ def generate_library_docs_url_numeric(boost_url_slug, library_slug):
     return (
         f"/doc/libs/{boost_url_slug}/libs/numeric/{library_slug}/doc/{library_slug}.htm"
     )
+
+
+def generate_library_docs_url_numeric_2(boost_url_slug, library_slug):
+    """Generate a documentation url with a specific format
+
+    First used with Interval, versions 1.60.0 and below"""
+    return f"/doc/libs/{boost_url_slug}/libs/numeric/{library_slug}/doc/html/index.html"
 
 
 def generate_library_docs_url_string_ref(boost_url_slug, library_slug):
@@ -163,6 +177,16 @@ def generate_library_docs_url_string_ref(boost_url_slug, library_slug):
 def generate_library_docs_url_string_view(boost_url_slug, library_slug):
     """Generate a documentation URL for the string-view library-versions"""
     return f"/doc/libs/{boost_url_slug}/libs/utility/doc/html/utility/utilities/{library_slug}.html"  # noqa
+
+
+def generate_library_docs_url_throwexception(boost_url_slug, library_slug):
+    """Generate a documentation URL for the string-view library-versions"""
+    return f"/doc/libs/{boost_url_slug}/libs/exception/doc/{library_slug}.html"
+
+
+def generate_library_docs_url_utility_anchor(boost_url_slug, library_slug):
+    """Generate a documentation URL for a URL that uses an anchor"""
+    return f"/doc/libs/{boost_url_slug}/libs/utility/utility.htm#{library_slug}"
 
 
 def generate_random_string(length=4):
