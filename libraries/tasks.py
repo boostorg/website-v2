@@ -44,6 +44,8 @@ logger = structlog.getLogger(__name__)
 #   - generator: function to use to generate the URL. Required.
 #   - min_version: The earliest version that should use that generator. Optional.
 #   - max_version: The most recent version that should use that generator. Optional.
+#   - alternate_slug: If a slug other than the one in the db should be used to generate
+#     the URL
 LIBRARY_DOCS_EXCEPTIONS = {
     "any": [
         {
@@ -58,7 +60,6 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "max_version": "boost_1_60_0",
         }
     ],
-    # Incomplete import
     "circular-buffer": [
         {
             "generator": generate_library_docs_url_v4,
@@ -82,7 +83,6 @@ LIBRARY_DOCS_EXCEPTIONS = {
             "max_version": "boost_1_60_0",
         }
     ],
-    # FIXME: Load correct path for 1.60.0 and prior
     "detail": [
         {
             "generator": generate_library_docs_url,
@@ -118,10 +118,10 @@ LIBRARY_DOCS_EXCEPTIONS = {
     "graphparallel": [
         {
             "generator": generate_library_docs_url,
-            "max_version": "boost_1_60_0",
+            "max_version": "boost_1_62_0",
             "min_version": "boost_1_40",
             "alternate_slug": "graph_parallel",
-        }
+        },
     ],
     "identity-type": [
         {
@@ -145,18 +145,15 @@ LIBRARY_DOCS_EXCEPTIONS = {
     "intrusive": [
         {"generator": generate_library_docs_url_v4, "max_version": "boost_1_47_0"}
     ],
-    # Nothing before 1.63.0, so need to add that
     "io": [
         {"generator": generate_library_docs_url_v2, "min_version": "boost_1_73_0"},
         {
             "generator": generate_library_docs_url_v3,
-            "min_version": "boost_1_64_0",
             "max_version": "boost_1_72_0",
         },
     ],
-    # Not loading before 1.51.0
     "iterator": [
-        {"generator": generate_library_docs_url_v3, "min_version": "boost_1_52_0"},
+        {"generator": generate_library_docs_url_v3, "max_version": "boost_1_60_0"},
     ],
     "lexical-cast": [
         {
@@ -310,7 +307,7 @@ LIBRARY_DOCS_EXCEPTIONS = {
 @app.task
 def update_library_version_documentation_urls_all_versions():
     """Run the task to update all documentation URLs for all versions"""
-    for version in Version.objects.all():
+    for version in Version.objects.all().order_by("-name"):
         get_and_store_library_version_documentation_urls_for_version(version.pk)
 
 
