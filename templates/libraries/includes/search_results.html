@@ -1,3 +1,11 @@
+<!--
+Copyright (c) 2024 The C++ Alliance, Inc. (https://cppalliance.org)
+
+Distributed under the Boost Software License, Version 1.0. (See accompanying
+file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+Official repository: https://github.com/boostorg/website-v2
+-->
 {% for library in libraries %}
   <div class="bg-white dark:bg-gray-800 flex py-2 px-3 cursor-pointer select-none group" @click="document.location.href = '{% url 'library-detail' slug=library.slug %}';">
     <a href="{% url 'library-detail' slug=library.slug %}" class="group-hover:text-orange">

@@ -1,3 +1,11 @@
+<!--
+Copyright (c) 2024 The C++ Alliance, Inc. (https://cppalliance.org)
+
+Distributed under the Boost Software License, Version 1.0. (See accompanying
+file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+Official repository: https://github.com/boostorg/website-v2
+-->
 # Caching and the `RenderedContent` model
 
 This model is mostly used as a database cache or backup for data that is retrieved from GitHub or from the S3 buckets.
