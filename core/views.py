@@ -33,6 +33,17 @@ from .tasks import (
 logger = structlog.get_logger()
 
 
+def BSLView(request):
+    file_path = os.path.join(settings.BASE_DIR, "static/license.txt")
+
+    if os.path.exists(file_path):
+        with open(file_path, "r") as file:
+            content = file.read()
+        return HttpResponse(content, content_type="text/plain")
+    else:
+        raise Http404("File not found.")
+
+
 class CalendarView(TemplateView):
     template_name = "calendar.html"
 
