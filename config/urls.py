@@ -205,13 +205,15 @@ urlpatterns = (
         ),
         path(
             "privacy/",
-            TemplateView.as_view(template_name="privacy_temp.html"),
+            MarkdownTemplateView.as_view(),
             name="privacy",
+            kwargs={"markdown_local": "privacy-policy"},
         ),
         path(
             "terms-of-use/",
-            TemplateView.as_view(template_name="terms_of_use.html"),
+            MarkdownTemplateView.as_view(),
             name="terms-of-use",
+            kwargs={"markdown_local": "terms-of-use"},
         ),
         path(
             "moderators/",

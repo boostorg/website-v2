@@ -1142,10 +1142,6 @@ code,
   border-width: 0;
 }
 
-.visible {
-  visibility: visible;
-}
-
 .static {
   position: static;
 }
@@ -1460,8 +1456,8 @@ code,
   margin-right: 1rem;
 }
 
-.ml-1 {
-  margin-left: 0.25rem;
+.ml-4 {
+  margin-left: 1rem;
 }
 
 .mr-1 {
@@ -1512,6 +1508,10 @@ code,
   margin-left: 0px;
 }
 
+.ml-1 {
+  margin-left: 0.25rem;
+}
+
 .mr-3 {
   margin-right: 0.75rem;
 }
@@ -1558,10 +1558,6 @@ code,
 
 .mb-8 {
   margin-bottom: 2rem;
-}
-
-.ml-4 {
-  margin-left: 1rem;
 }
 
 .block {
@@ -3906,6 +3902,11 @@ code,
     font-size: 0.875rem;
     line-height: 1.25rem;
   }
+
+  .md\:text-5xl {
+    font-size: 3rem;
+    line-height: 1;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -4098,14 +4099,19 @@ code,
     line-height: 2.5rem;
   }
 
+  .lg\:text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
   .lg\:text-base {
     font-size: 1rem;
     line-height: 1.5rem;
   }
 
-  .lg\:text-2xl {
-    font-size: 1.5rem;
-    line-height: 2rem;
+  .lg\:text-3xl {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
   }
 
   .lg\:text-lg {
@@ -4113,9 +4119,9 @@ code,
     line-height: 1.75rem;
   }
 
-  .lg\:text-3xl {
-    font-size: 1.875rem;
-    line-height: 2.25rem;
+  .lg\:text-6xl {
+    font-size: 3.75rem;
+    line-height: 1;
   }
 }
 

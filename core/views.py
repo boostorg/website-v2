@@ -79,12 +79,26 @@ class ClearCacheView(UserPassesTestMixin, View):
 class MarkdownTemplateView(TemplateView):
     template_name = "markdown_template.html"
     content_dir = settings.BASE_CONTENT
+    markdown_local = None
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.markdown_local = kwargs.get("markdown_local", None)
 
     def build_path(self):
         """
         Builds the path from URL kwargs
         """
         content_path = self.kwargs.get("content_path")
+
+        print(self.markdown_local)
+        if self.markdown_local:
+            # Can we find a file with this path?
+            path = (
+                f"{settings.TEMPLATES[0]['DIRS'][0]}/markdown/{self.markdown_local}.md"
+            )
+            if os.path.isfile(path):
+                return path
 
         if not content_path:
             return
