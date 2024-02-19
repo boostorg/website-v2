@@ -76,9 +76,9 @@
                 <div x-show="activeSlide === {{ forloop.counter }}" x-cloak
                     class="flex items-center py-0 px-12 h-full rounded-lg">
                   <div class="w-full">
-                    <h3 class="pb-2 mb-2 text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">{{ month_year }}</h3>
+                    <h3 class="pb-2 mb-2 text-sm md:text-lg lg:text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">{{ month_year }}</h3>
                     {% for event in month_events %}
-                    <span class="pb-1 mx-auto w-full text-sm align-left">
+                    <span class="pb-1 mx-auto w-full text-sm md:text-base align-left">
                       <strong>{{ event.start.date }}:</strong> {{ event.name }}
                       <br />
                       <div class="pt-1 pl-4 font-light">{{ event.description }}</div>
@@ -115,7 +115,7 @@
 
 
     {% if featured_library %}
-    <div class="my-12 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
+    <div class="my-12 mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-4 lg:space-y-0 lg:space-x-4">
       <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
           <div class="mb-6">
             <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-orange/30">library spotlight</span>
@@ -126,11 +126,11 @@
               All Libraries&nbsp;<i class="fas fa-chevron-right  text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange"></i>
             </a>
           </div>
-          <h3 class="pb-2 mb-4 text-3xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'library-detail' slug=featured_library.slug %}" class="link-header">{{ featured_library.name }}</a></h3>
-          <span class="pb-1 mx-auto w-full text-lg align-left">
+          <h3 class="pb-2 mb-4 text-lg md:text-2xl lg:text-3xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'library-detail' slug=featured_library.slug %}" class="link-header">{{ featured_library.name }}</a></h3>
+          <span class="pb-1 mx-auto w-full text-sm md:text-base align-left">
             {{ featured_library.description }}
           </span>
-          <p class="pb-1 mx-auto w-full text-sm align-left">{% if featured_library.first_boost_version %}Added in {{ featured_library.first_boost_version.display_name }}{% endif %}</p>
+          <p class="pb-1 mx-auto w-full text-xs md:text-sm align-left">{% if featured_library.first_boost_version %}Added in {{ featured_library.first_boost_version.display_name }}{% endif %}</p>
           <div class="py-4">
             {% if featured_library.authors %}
               <div class="flex flex-wrap justify-start">
@@ -172,7 +172,26 @@
     </div>
     {% endif %}
 
-    <div class="my-12 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
+    <div class="px-4 mt-4 pt-8 my-12 lg:mb-4 mx-auto">
+      <div class="pb-3 bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md">
+        <div class="p-5 pb-0 w-full">
+          <div class="mt-6 mb-0 ml-6">
+            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded-lg md:text-base text-emerald-700 bg-emerald-200 dark:bg-opacity-10">featured video</span>
+          </div>
+        </div>
+        <div class="flex flex-col justify-center items-center h-full pb-4">
+          <div class="w-4/5 mx-auto">
+            <div class="flex items-center justify-center h-full px-12 py-4 rounded-lg">
+              <a href="https://www.youtube.com/watch?v=Z1imC1HcJUA" target="_blank" rel="noopener noreferrer" class="text-sm md:text-lg lg:text-2xl text-center text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
+                C++ Tutorial: Using Boost.MP11 C++ Library - Jody Hagins - CppNow 2023
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:mt-4 lg:space-y-0 lg:space-x-4">
       <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
         <div class="mb-6">
           <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-orange/30">recent news</span>
@@ -186,26 +205,25 @@
         <div class="space-y-4">
           {% for entry in entries %}
             <div class="pt-0">
-              <h2 class="pb-2 mb-3 text-3xl font-semibold mr-4 border-b border-gray-400 dark:border-slate">
-                <div class="inline-block pt-2 mt-4 text-xs">
-                  {% if entry.author.image %}
-                    <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
-                      <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
-                    </span>
-                  {% else %}
-                    <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
-                      <i class="text-2xl fas fa-user ml-1" title="{{ entry.author.get_full_name }}"></i>
-                    </span>
-                  {% endif %}
-                </div>
-                <a class="link-header" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+              <h2 class="flex items-center pb-2 mb-3 text-lg md:text-2xl lg:text-3xl font-semibold mr-4 border-b border-gray-400 dark:border-slate">
+                {% if entry.author.image %}
+                  <span class="flex items-center h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
+                    <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
+                  </span>
+                {% else %}
+                  <span class="flex items-center justify-center h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
+                    <i class="text-2xl fas fa-user" title="{{ entry.author.get_full_name }}"></i>
+                  </span>
+                {% endif %}
+                <a class="link-header ml-4" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
                   {{ entry.title }}
                 </a>
               </h2>
-              <p class="pt-0 pb-4 mx-auto w-full text-xs align-left">Posted on {{ entry.publish_at|date:"M jS, Y" }} by {{ entry.author.get_full_name }}</p>
+
+              <p class="pt-0 pb-4 mx-auto w-full text-xs md:text-sm align-left">Posted on {{ entry.publish_at|date:"M jS, Y" }} by {{ entry.author.get_full_name }}</p>
               {% if entry.content %}
               <div class="md:ml-[40px]">
-                <span class="text-base text-gray-500 dark:text-white/70">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|multi_truncate_middle:30|truncatechars_html:500 }}</span>
+                <span class="text-sm md:text-base text-gray-500 dark:text-white/70">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|multi_truncate_middle:30|truncatechars_html:500 }}</span>
                 </div>
               {% endif %}
             </div>
@@ -215,6 +233,7 @@
 
     </div>
 
+    {% comment %}
     <div class="my-12 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
       <div class="p-6 bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
         <div class="mb-6">
@@ -229,6 +248,7 @@
         </div>
       </div>
     </div>
+    {% endcomment %}
 
     <!-- END RECENT NEWS & JOIN CONVERSATION -->
 
