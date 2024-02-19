@@ -14,6 +14,7 @@ from ak.views import (
     OKView,
 )
 from core.views import (
+    BSLView,
     CalendarView,
     ClearCacheView,
     DocLibsTemplateView,
@@ -81,6 +82,7 @@ urlpatterns = (
         path("feed/downloads.atom", AtomVersionFeed(), name="downloads_feed_atom"),
         path("feed/news.rss", RSSNewsFeed(), name="news_feed_rss"),
         path("feed/news.atom", AtomNewsFeed(), name="news_feed_atom"),
+        path("LICENSE_1_0.txt", BSLView, name="license"),
         path(
             "accounts/social/signup/",
             CustomSocialSignupViewView.as_view(),
