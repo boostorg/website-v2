@@ -9,299 +9,14 @@ from core.htmlhelper import get_library_documentation_urls
 from libraries.github import LibraryUpdater
 from libraries.models import LibraryVersion
 from versions.models import Version
-from .utils import (
-    generate_library_docs_url,
-    generate_library_docs_url_v2,
-    generate_library_docs_url_v3,
-    generate_library_docs_url_v4,
-    generate_library_docs_url_bind_v1,
-    generate_library_docs_url_bind_v2,
-    generate_library_docs_url_math_v1,
-    generate_library_docs_url_utility_v1,
-    generate_library_docs_url_utility_v2,
-    generate_library_docs_url_utility_v3,
-    generate_library_docs_url_circular_buffer,
-    generate_library_docs_url_core,
-    generate_library_docs_url_double_nested_library_htm,
-    generate_library_docs_url_double_nested_library_html,
-    generate_library_docs_url_algorithm,
-    generate_library_docs_url_numeric,
-    generate_library_docs_url_numeric_2,
-    generate_library_docs_url_string_ref,
-    generate_library_docs_url_string_view,
-    generate_library_docs_url_utility_anchor,
-    generate_library_docs_url_throwexception,
-    version_within_range,
+from .constants import (
+    LIBRARY_DOCS_EXCEPTIONS,
+    LIBRARY_DOCS_MISSING,
+    VERSION_DOCS_MISSING,
 )
+from .utils import version_within_range
 
 logger = structlog.getLogger(__name__)
-
-
-# Mapping for exeptions to loading URLs for older docs.
-# key: Taken from Library.slug
-# value: List of dictionaries with instructions for how to format docs URLs for
-# those library-versions
-#   - generator: function to use to generate the URL. Required.
-#   - min_version: The earliest version that should use that generator. Optional.
-#   - max_version: The most recent version that should use that generator. Optional.
-#   - alternate_slug: If a slug other than the one in the db should be used to generate
-#     the URL
-LIBRARY_DOCS_EXCEPTIONS = {
-    "any": [
-        {
-            "generator": generate_library_docs_url_v4,
-            "min_version": "boost_1_29_0",
-            "max_version": "boost_1_33_0",
-        }
-    ],
-    "call-traits": [
-        {
-            "generator": generate_library_docs_url_utility_v1,
-            "max_version": "boost_1_60_0",
-        }
-    ],
-    "circular-buffer": [
-        {
-            "generator": generate_library_docs_url_v4,
-            "max_version": "boost_1_60_0",
-            "min_version": "boost_1_55_0",
-        },
-        {
-            "generator": generate_library_docs_url_circular_buffer,
-            "max_version": "boost_1_54_0",
-        },
-    ],
-    "compressed-pair": [
-        {
-            "generator": generate_library_docs_url_utility_v1,
-            "max_version": "boost_1_60_0",
-        }
-    ],
-    "date-time": [
-        {
-            "generator": generate_library_docs_url_v4,
-            "max_version": "boost_1_60_0",
-        }
-    ],
-    "detail": [
-        {
-            "generator": generate_library_docs_url,
-            "min_version": "boost_1_61_0",
-        },
-    ],
-    "dynamic-bitset": [
-        {
-            "generator": generate_library_docs_url_double_nested_library_html,
-            "max_version": "boost_1_60_0",
-        }
-    ],
-    "enable-if": [
-        {"generator": generate_library_docs_url_core, "max_version": "boost_1_60_0"}
-    ],
-    "function-types": [
-        {"generator": generate_library_docs_url, "max_version": "boost_1_60_0"}
-    ],
-    "functionalhash": [
-        {
-            "generator": generate_library_docs_url_v4,
-            "max_version": "boost_1_66_0",
-            "alternate_slug": "hash",
-        }
-    ],
-    "functionaloverloaded-function": [
-        {
-            "generator": generate_library_docs_url,
-            "max_version": "boost_1_60_0",
-            "alternate_slug": "functional/overloaded_function",
-        }
-    ],
-    "graphparallel": [
-        {
-            "generator": generate_library_docs_url,
-            "max_version": "boost_1_62_0",
-            "min_version": "boost_1_40",
-            "alternate_slug": "graph_parallel",
-        },
-    ],
-    "identity-type": [
-        {
-            "generator": generate_library_docs_url_utility_v2,
-            "max_version": "boost_1_60_0",
-        }
-    ],
-    "in-place-factory-typed-in-place-factory": [
-        {
-            "generator": generate_library_docs_url_utility_v3,
-            "max_version": "boost_1_60_0",
-            "alternate_slug": "in_place_factories",
-        }
-    ],
-    "interprocess": [
-        {"generator": generate_library_docs_url_v4, "max_version": "boost_1_47_0"}
-    ],
-    "interval": [
-        {"generator": generate_library_docs_url_numeric, "max_version": "boost_1_47_0"}
-    ],
-    "intrusive": [
-        {"generator": generate_library_docs_url_v4, "max_version": "boost_1_47_0"}
-    ],
-    "io": [
-        {"generator": generate_library_docs_url_v2, "min_version": "boost_1_73_0"},
-        {
-            "generator": generate_library_docs_url_v3,
-            "max_version": "boost_1_72_0",
-        },
-    ],
-    "iterator": [
-        {"generator": generate_library_docs_url_v3, "max_version": "boost_1_60_0"},
-    ],
-    "lexical-cast": [
-        {
-            "generator": generate_library_docs_url_v4,
-            "max_version": "boost_1_60_0",
-            "alternate_slug": "boost_lexical_cast",
-        }
-    ],
-    "local-function": [
-        {"generator": generate_library_docs_url, "max_version": "boost_1_60_0"}
-    ],
-    "math-common-factor": [
-        {
-            "generator": generate_library_docs_url_math_v1,
-            "max_version": "boost_1_60_0",
-            "alternate_slug": "gcd_lcm",
-        }
-    ],
-    "math-octonion": [
-        {
-            "generator": generate_library_docs_url_math_v1,
-            "max_version": "boost_1_60_0",
-            "alternate_slug": "octonions",
-        }
-    ],
-    "math-quaternion": [
-        {
-            "generator": generate_library_docs_url_math_v1,
-            "max_version": "boost_1_60_0",
-            "alternate_slug": "quaternions",
-        }
-    ],
-    "mathspecial-functions": [
-        {
-            "generator": generate_library_docs_url_math_v1,
-            "max_version": "boost_1_60_0",
-            "alternate_slug": "special",
-        }
-    ],
-    "member-function": [
-        {
-            "generator": generate_library_docs_url_bind_v1,
-            "max_version": "boost_1_60_0",
-            "min_version": "boost_1_59_0",
-            "alternate_slug": "mem_fn",
-        },
-        {
-            "generator": generate_library_docs_url_bind_v2,
-            "max_version": "boost_1_57_0",
-            "alternate_slug": "mem_fn",
-        },
-    ],
-    "min-max": [
-        {
-            "generator": generate_library_docs_url_algorithm,
-            "max_version": "boost_1_60_0",
-            "alternate_slug": "minmax",
-        }
-    ],
-    "multi-array": [
-        {"generator": generate_library_docs_url_v3, "max_version": "boost_1_60_0"},
-    ],
-    "multi-index": [
-        {"generator": generate_library_docs_url_v3, "max_version": "boost_1_60_0"},
-    ],
-    "numeric-conversion": [
-        {
-            "generator": generate_library_docs_url_numeric_2,
-            "max_version": "boost_1_60_0",
-            "alternate_slug": "conversion",
-        }
-    ],
-    "program-options": [
-        {"generator": generate_library_docs_url_v4, "max_version": "boost_1_60_0"}
-    ],
-    "result-of": [
-        {
-            "generator": generate_library_docs_url_utility_anchor,
-            "max_version": "boost_1_60_0",
-        }
-    ],
-    "scope-exit": [
-        {"generator": generate_library_docs_url, "max_version": "boost_1_60_0"}
-    ],
-    "smart-ptr": [
-        {
-            "generator": generate_library_docs_url_double_nested_library_htm,
-            "max_version": "boost_1_60_0",
-        }
-    ],
-    "static-assert": [
-        {
-            "generator": generate_library_docs_url_double_nested_library_htm,
-            "max_version": "boost_1_60_0",
-        }
-    ],
-    "string-algo": [
-        {"generator": generate_library_docs_url_v4, "max_version": "boost_1_60_0"}
-    ],
-    "string-ref": [
-        {
-            "generator": generate_library_docs_url_string_ref,
-            "max_version": "boost_1_77_0",
-        }
-    ],
-    # Still need to deal with the upload changes
-    "string-view": [
-        {
-            "generator": generate_library_docs_url_string_view,
-            "max_version": "boost_1_83_0",
-        }
-    ],
-    "throwexception": [
-        {
-            "generator": generate_library_docs_url_throwexception,
-            "max_version": "boost_1_60_0",
-            "alternate_slug": "boost_throw_exception_hpp",
-        }
-    ],
-    "type-erasure": [
-        {
-            "generator": generate_library_docs_url_v4,
-            "max_version": "boost_1_60_0",
-            "alternate_slug": "boost_typeerasure",
-        }
-    ],
-    "type-index": [
-        {
-            "generator": generate_library_docs_url_v4,
-            "max_version": "boost_1_60_0",
-            "alternate_slug": "boost_typeindex",
-        }
-    ],
-    # Not loading before 1.34.0
-    "type-traits": [
-        {"generator": generate_library_docs_url, "max_version": "boost_1_60_0"}
-    ],
-    # Missing before 1.60.0
-    "winapi": [{"generator": generate_library_docs_url}],
-    # Not loading the ones before 1.60.0
-    "value-initialized": [
-        {
-            "generator": generate_library_docs_url_utility_v1,
-            "max_version": "boost_1_60_0",
-            "alternate_slug": "value_init",
-        }
-    ],
-}
 
 
 @app.task
@@ -331,6 +46,13 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
         version = Version.objects.get(pk=version_pk)
     except Version.DoesNotExist:
         raise
+
+    if version_missing_docs(version):
+        # If we know the docs for this version are missing, update related records
+        LibraryVersion.objects.filter(version=version, missing_docs=False).update(
+            missing_docs=True
+        )
+        return
 
     base_path = f"doc/libs/{version.boost_url_slug}/libs/"
     key = f"{base_path}libraries.htm"
@@ -365,10 +87,20 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
             continue
 
     # See if we can load missing docs URLS another way
-    library_versions = LibraryVersion.objects.filter(version=version).filter(
-        Q(documentation_url="") | Q(documentation_url__isnull=True)
+    library_versions = (
+        LibraryVersion.objects.filter(missing_docs=False)
+        .filter(version=version)
+        .filter(Q(documentation_url="") | Q(documentation_url__isnull=True))
     )
     for library_version in library_versions:
+        # Check whether we know this library-version doesn't have docs
+        if library_version_missing_docs(library_version):
+            # Record that the docs are missing, since we know they are
+            library_version.missing_docs = True
+            library_version.save()
+            continue
+
+        # Check whether this library-version stores its docs in another location
         exceptions = LIBRARY_DOCS_EXCEPTIONS.get(library_version.library.slug, [])
         documentation_url = None
         for exception in exceptions:
@@ -398,6 +130,44 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
                 library_version.save()
             else:
                 logger.info(f"No valid docs in S3 for key {documentation_url}")
+
+
+def version_missing_docs(version):
+    """Returns True if we know the docs for this release are missing
+
+    In this module to avoid a circular import"""
+    # Check if the version is called out in VERSION_DOCS_MISSING
+    if version.name in VERSION_DOCS_MISSING:
+        return True
+
+    # Check if the version is older than our oldest version
+    # stored in S3
+    if version_within_range(version.name, max_version="boost-1.30.0"):
+        return True
+
+    return False
+
+
+def library_version_missing_docs(library_version):
+    """Returns True if we know the docs for this lib-version
+    are missing
+
+    In this module to avoid a circular import
+    """
+    if library_version.missing_docs:
+        return True
+
+    missing_docs = LIBRARY_DOCS_MISSING.get(library_version.library.slug, [])
+    version_name = library_version.version.name
+    for entry in missing_docs:
+        # Check if version is within specified range
+        if version_within_range(
+            version=version_name,
+            min_version=entry.get("min_version"),
+            max_version=entry.get("max_version"),
+        ):
+            return True
+    return False
 
 
 @app.task
