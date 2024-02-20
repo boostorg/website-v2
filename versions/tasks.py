@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.management import call_command
 from fastcore.xtras import obj2dict
 from core.githubhelper import GithubAPIClient, GithubDataParser
+from libraries.constants import SKIP_LIBRARY_VERSIONS
 from libraries.github import LibraryUpdater
 from libraries.models import Library, LibraryVersion
 from libraries.tasks import get_and_store_library_version_documentation_urls_for_version
@@ -203,6 +204,23 @@ def import_all_library_versions(token=None, version_type="tag"):
         )
 
 
+def skip_library_version(library_slug, version_slug):
+    """Returns True if the given library-version should be skipped."""
+    skipped_records = SKIP_LIBRARY_VERSIONS.get(library_slug, [])
+    if not skipped_records:
+        return False
+
+    for exception in skipped_records:
+        if version_within_range(
+            version_slug,
+            min_version=exception.get("min_version"),
+            max_version=exception.get("max_version"),
+        ):
+            return True
+
+    return False
+
+
 @app.task
 def import_library_versions(version_name, token=None, version_type="tag"):
     """For a specific version, imports all LibraryVersions using GitHub data"""
@@ -239,6 +257,9 @@ def import_library_versions(version_name, token=None, version_type="tag"):
     for gitmodule in gitmodules:
         library_name = gitmodule["module"]
         if library_name in updater.skip_modules:
+            continue
+
+        if skip_library_version(library_name, version_name):
             continue
 
         try:
