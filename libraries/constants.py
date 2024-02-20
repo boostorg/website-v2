@@ -301,5 +301,11 @@ LIBRARY_DOCS_MISSING = {
     "winapi": [{"min_version": "boost-1.56.0", "max_version": "boost-1.60.0"}],
 }
 
+# Library-versions that we should not attempt to load at all
+SKIP_LIBRARY_VERSIONS = {
+    "algorithm": [{"max_version": "boost-1.49.0"}],
+    "identity-type": [{"max_version": "boost-1.49.0"}],
+}
+
 # List of versions for which we know docs are missing
 VERSION_DOCS_MISSING = ["boost-1.33.0"]
