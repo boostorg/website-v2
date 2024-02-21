@@ -81,7 +81,7 @@ jobs:
     needs: [test]
     name: Build and Publish Docker image
     runs-on: ubuntu-latest
-    if: ( github.repository == 'cppalliance/temp-site' && github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )) || ( github.repository == 'sdarwin/temp-site' && github.event_name == 'push' && github.ref == 'refs/heads/cppal-dev' )
+    if: ( github.repository == 'boostorg/website-v2' && github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )) || ( github.repository == 'sdarwin/temp-site' && github.event_name == 'push' && github.ref == 'refs/heads/cppal-dev' )
 
     steps:
       - name: Set environment for branches
