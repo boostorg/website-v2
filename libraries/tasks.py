@@ -2,6 +2,7 @@ import structlog
 from dateutil.relativedelta import relativedelta
 
 from config.celery import app
+from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
 from core.boostrenderer import get_content_from_s3
@@ -142,10 +143,9 @@ def version_missing_docs(version):
 
     # Check if the version is older than our oldest version
     # stored in S3
-    if version_within_range(version.name, max_version="boost-1.30.0"):
-        return True
-
-    return False
+    return version_within_range(
+        version.name, max_version=settings.MAXIMUM_BOOST_DOCS_VERSION
+    )
 
 
 def library_version_missing_docs(library_version):
