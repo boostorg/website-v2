@@ -5,7 +5,7 @@ author: ""
 ---
 # Terms of Use
 
-Last Updated: 2024-02-20
+Last Updated: 2024-02-22
 
 We are The C Plus Plus Alliance, Inc., a company registered in California,
 United States at 5716 Corsa Ave suite 110, Westlake Village, CA 91362, USA.
@@ -29,6 +29,11 @@ to periodically review these Legal Terms to stay informed of updates. You will
 be subject to, and will be deemed to have been made aware of and to have
 accepted, the changes in any revised Legal Terms by your continued use of the
 Services after the date such revised Legal Terms are posted.
+
+We will make our best effort to notify registered users who have provided us with a
+valid email address of any changes to our Terms of Use via email. While we aim to
+ensure timely and accurate notifications, we do not guarantee that all changes will
+be communicated.
 
 ## Intellectual Property
 
@@ -81,7 +86,7 @@ As a user of the Services, you agree not to:
 
 - Register another account after you have been terminated or suspended from the Services.
 
-In addition your contribitions must meet these requirements:
+In addition your contributions must meet these requirements:
 
 - They are not obscene, lewd, lascivious, filthy, violent, harassing, libelous,
   slanderous, or otherwise objectionable (as determined by us).
@@ -92,7 +97,7 @@ In addition your contribitions must meet these requirements:
   to race, national origin, gender, sexual preference, or physical handicap.
 
 - Your contributions must adhere to all relevant laws regarding child pornography and
-  should be aimed at safeguarding the health and well-being of minors.
+any which can or does result in the harming of a minor is strictly prohibited.
 
 ## Third-Party Websites and Content
 
