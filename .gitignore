@@ -155,3 +155,6 @@ python.log
 
 # mailman
 mailman/web/static/
+
+# dev
+*.code-workspace
