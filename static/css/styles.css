@@ -1556,6 +1556,10 @@ code,
   margin-bottom: 2rem;
 }
 
+.mb-12 {
+  margin-bottom: 3rem;
+}
+
 .block {
   display: block;
 }
@@ -3521,12 +3525,16 @@ code,
     margin-top: 1.25rem;
   }
 
-  .md\:mb-11 {
-    margin-bottom: 2.75rem;
+  .md\:mb-5 {
+    margin-bottom: 1.25rem;
   }
 
   .md\:mt-3 {
     margin-top: 0.75rem;
+  }
+
+  .md\:mb-11 {
+    margin-bottom: 2.75rem;
   }
 
   .md\:mt-8 {
@@ -3563,6 +3571,10 @@ code,
 
   .md\:ml-6 {
     margin-left: 1.5rem;
+  }
+
+  .md\:mb-3 {
+    margin-bottom: 0.75rem;
   }
 
   .md\:block {
@@ -4117,6 +4129,11 @@ code,
 
   .lg\:text-lg {
     font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  .lg\:text-xl {
+    font-size: 1.25rem;
     line-height: 1.75rem;
   }
 }
