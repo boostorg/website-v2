@@ -155,6 +155,7 @@ class LibraryDetail(FormMixin, DetailView):
     form_class = VersionSelectionForm
     model = Library
     template_name = "libraries/detail.html"
+    redirect_to_docs = False
 
     def get_context_data(self, **kwargs):
         """Set the form action to the main libraries page"""
@@ -342,6 +343,15 @@ class LibraryDetail(FormMixin, DetailView):
             return get_object_or_404(Version, slug=version_slug)
         else:
             return Version.objects.most_recent()
+
+    def dispatch(self, request, *args, **kwargs):
+        """Check if the user has requested a specific version of the library."""
+
+        # Redirect to the documentation page, if requested to.
+        if self.redirect_to_docs:
+            return redirect(self.get_documentation_url(self.get_version()))
+
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         """User has submitted a form and will be redirected to the right record."""

@@ -135,7 +135,7 @@ urlpatterns = (
         path(
             "style-guide/",
             TemplateView.as_view(template_name="style_guide.html"),
-            name="donate",
+            name="style-guide",
         ),
         path(
             "libraries/by-category/",
@@ -153,6 +153,12 @@ urlpatterns = (
             "libraries/<slug:slug>/",
             LibraryDetail.as_view(),
             name="library-detail",
+        ),
+        # Redirect for legacy boost.org urls.
+        path(
+            "libs/<slug:slug>/",
+            LibraryDetail.as_view(redirect_to_docs=True),
+            name="library-docs-redirect",
         ),
         path(
             "mailing-list/<int:pk>/",
