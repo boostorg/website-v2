@@ -345,9 +345,7 @@ class LibraryDetail(FormMixin, DetailView):
             return Version.objects.most_recent()
 
     def dispatch(self, request, *args, **kwargs):
-        """Check if the user has requested a specific version of the library."""
-
-        # Redirect to the documentation page, if requested to.
+        """Redirect to the documentation page, if configured to."""
         if self.redirect_to_docs:
             return redirect(self.get_documentation_url(self.get_version()))
 
