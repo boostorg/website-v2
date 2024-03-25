@@ -154,12 +154,6 @@ urlpatterns = (
             LibraryDetail.as_view(),
             name="library-detail",
         ),
-        # Redirect for legacy boost.org urls.
-        path(
-            "libs/<slug:slug>/",
-            LibraryDetail.as_view(redirect_to_docs=True),
-            name="library-docs-redirect",
-        ),
         path(
             "mailing-list/<int:pk>/",
             MailingListDetailView.as_view(),
@@ -271,6 +265,12 @@ urlpatterns = (
     ]
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     + [
+        # Redirect for '/libs/' legacy boost.org urls.
+        re_path(
+            r"libs/(?P<slug>.+)/?$",
+            LibraryDetail.as_view(redirect_to_docs=True),
+            name="library-docs-redirect",
+        ),
         # Libraries docs, some HTML parts are re-written
         re_path(
             r"^doc/libs/(?P<content_path>.+)/?",
