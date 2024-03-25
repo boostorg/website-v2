@@ -138,7 +138,7 @@ def test_library_detail_404(library, tp):
     tp.response_404(response)
 
 
-def test_library_docs_redirect(tp, library, library_version):
+def test_library_docs_redirect(tp, library):
     """
     GET /libs/{slug}/
     Test that redirection occurs when the library has a documentation URL
