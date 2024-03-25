@@ -138,6 +138,18 @@ def test_library_detail_404(library, tp):
     tp.response_404(response)
 
 
+def test_library_docs_redirect(tp, library, library_version):
+    """
+    GET /libs/{slug}/
+    Test that redirection occurs when the library has a documentation URL
+    """
+    url = tp.reverse("library-docs-redirect", library.slug)
+    assert url.startswith("/libs/")
+
+    resp = tp.get(url, follow=False)
+    tp.response_302(resp)
+
+
 def test_library_detail_context_get_commit_data_annual(tp, library_version):
     """
     GET /libraries/{slug}/
