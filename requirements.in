@@ -15,7 +15,7 @@ django-widget-tweaks
 djangorestframework>=3.14
 environs[django]
 greenlet==2.0.1
-gevent==22.10.2
+gevent==23.9.0
 gunicorn
 psycopg2-binary
 whitenoise

@@ -165,7 +165,7 @@ filelock==3.12.2
     # via virtualenv
 fs==2.4.16
     # via django-bakery
-gevent==22.10.2
+gevent==23.9.0
     # via -r ./requirements.in
 ghapi==1.0.4
     # via -r ./requirements.in
