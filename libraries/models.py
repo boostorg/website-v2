@@ -139,7 +139,8 @@ class Library(models.Model):
         """
         # Generate slug based on name
         if not self.slug:
-            slug = slugify(self.name)
+            # Base the slug name off of the key from the gitmodules file.
+            slug = slugify(self.key)
 
             # If there is a library with that slug, try a slug based on the key from the
             # gitmodules file
