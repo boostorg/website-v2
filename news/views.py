@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.humanize.templatetags import humanize
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import redirect
 from django.template.defaultfilters import date as datefilter
 from django.urls import reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -80,6 +81,14 @@ class EntryListView(ListView):
         for entry in result:
             entry.display_publish_at = display_publish_at(entry.publish_at, right_now)
         return result
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_moderator"] = False
+
+        if self.request.user.is_authenticated:
+            context["is_moderator"] = can_approve(self.request.user)
+        return context
 
 
 class BlogPostListView(EntryListView):
@@ -160,6 +169,7 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context["add_label"] = self.add_label
         context["add_url_name"] = self.add_url_name
+        context["cancel_url"] = reverse_lazy("news")
         return context
 
 
@@ -210,6 +220,25 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
             "add_label": view.add_label,
             "add_url_name": view.add_url_name,
         }
+
+    def dispatch(self, request, *args, **kwargs):
+        """User must have a profile photo and a name to post an entry."""
+        if request.user.is_authenticated:
+            missing_data = []
+
+            if not request.user.first_name and not request.user.last_name:
+                missing_data.append("your name")
+
+            if not request.user.image:
+                missing_data.append("a profile photo")
+
+            if missing_data:
+                messages.warning(
+                    request, f"Please add {' and '.join(missing_data)} first."
+                )
+                return redirect("profile-account")
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -277,6 +306,13 @@ class EntryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         else:
             result = EntryForm
         return result
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cancel_url"] = reverse_lazy(
+            "news-detail", kwargs={"slug": self.object.slug}
+        )
+        return context
 
 
 class EntryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):

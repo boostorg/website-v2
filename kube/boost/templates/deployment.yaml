@@ -30,11 +30,13 @@ spec:
       {{- end }}
       volumes:
 {{ toYaml .Values.Volumes | indent 8 }}
-      imagePullSecrets:
-        - name: revsys-docker-registry
+      # imagePullSecrets:
+      #  - name: revsys-docker-registry
       containers:
         -
           name: wsgi
+          resources:
+{{- toYaml .Values.wsgiResources | nindent 12 }}
           image: {{.Values.Image}}:{{.Values.ImageTag}}
           volumeMounts:
 {{ toYaml .Values.VolumeMounts | indent 12 }}

@@ -14,8 +14,11 @@ from ak.views import (
     OKView,
 )
 from core.views import (
+    BSLView,
+    CalendarView,
     ClearCacheView,
     DocLibsTemplateView,
+    ImageView,
     MarkdownTemplateView,
     StaticContentTemplateView,
     UserGuideTemplateView,
@@ -28,6 +31,7 @@ from libraries.views import (
     LibraryListMini,
 )
 from mailing_list.views import MailingListDetailView, MailingListView
+from news.feeds import AtomNewsFeed, RSSNewsFeed
 from news.views import (
     AllTypesCreateView,
     BlogPostCreateView,
@@ -47,16 +51,18 @@ from news.views import (
     VideoCreateView,
     VideoListView,
 )
-from support.views import SupportView
 from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
+    CustomLoginView,
     CustomSocialSignupViewView,
     CustomSignupView,
     ProfileView,
     UserViewSet,
+    UserAvatar,
 )
 from versions.api import ImportVersionsView, VersionViewSet
+from versions.feeds import AtomVersionFeed, RSSVersionFeed
 from versions.views import VersionCurrentReleaseDetail, VersionDetail
 
 router = routers.SimpleRouter()
@@ -71,15 +77,23 @@ urlpatterns = (
         path("", HomepageView.as_view(), name="home"),
         path("homepage-beta/", HomepageBetaView.as_view(), name="home-beta"),
         path("admin/", admin.site.urls),
+        path("oauth2/", include("oauth2_provider.urls", namespace="oauth2_provider")),
+        path("feed/downloads.rss", RSSVersionFeed(), name="downloads_feed_rss"),
+        path("feed/downloads.atom", AtomVersionFeed(), name="downloads_feed_atom"),
+        path("feed/news.rss", RSSNewsFeed(), name="news_feed_rss"),
+        path("feed/news.atom", AtomNewsFeed(), name="news_feed_atom"),
+        path("LICENSE_1_0.txt", BSLView, name="license"),
         path(
             "accounts/social/signup/",
             CustomSocialSignupViewView.as_view(),
             name="socialaccount_signup",
         ),
         path("accounts/signup/", CustomSignupView.as_view(), name="account_signup"),
+        path("accounts/login/", CustomLoginView.as_view(), name="account_login"),
         path("accounts/", include("allauth.urls")),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
         path("users/<int:pk>/", ProfileView.as_view(), name="profile-user"),
+        path("users/avatar/", UserAvatar.as_view(), name="user-avatar"),
         path("api/v1/users/me/", CurrentUserAPIView.as_view(), name="current-user"),
         path(
             "api/v1/import-versions/",
@@ -104,6 +118,8 @@ urlpatterns = (
             TemplateView.as_view(template_name="community_temp.html"),
             name="community",
         ),
+        # Boost community calendar
+        path("calendar/", CalendarView.as_view(), name="calendar"),
         # Boost versions views
         path("releases/<slug:slug>/", VersionDetail.as_view(), name="release-detail"),
         path(
@@ -115,6 +131,11 @@ urlpatterns = (
             "donate/",
             TemplateView.as_view(template_name="donate/donate.html"),
             name="donate",
+        ),
+        path(
+            "style-guide/",
+            TemplateView.as_view(template_name="style_guide.html"),
+            name="style-guide",
         ),
         path(
             "libraries/by-category/",
@@ -132,6 +153,12 @@ urlpatterns = (
             "libraries/<slug:slug>/",
             LibraryDetail.as_view(),
             name="library-detail",
+        ),
+        # Redirect for '/libs/' legacy boost.org urls.
+        re_path(
+            r"^libs/(?P<slug>[-\w]+)/?$",
+            LibraryDetail.as_view(redirect_to_docs=True),
+            name="library-docs-redirect",
         ),
         path(
             "mailing-list/<int:pk>/",
@@ -186,13 +213,15 @@ urlpatterns = (
         ),
         path(
             "privacy/",
-            TemplateView.as_view(template_name="privacy_temp.html"),
+            MarkdownTemplateView.as_view(),
             name="privacy",
+            kwargs={"markdown_local": "privacy-policy"},
         ),
         path(
             "terms-of-use/",
-            TemplateView.as_view(template_name="terms_of_use.html"),
+            MarkdownTemplateView.as_view(),
             name="terms-of-use",
+            kwargs={"markdown_local": "terms-of-use"},
         ),
         path(
             "moderators/",
@@ -232,8 +261,6 @@ urlpatterns = (
             TemplateView.as_view(template_name="review/review_process.html"),
             name="review-process",
         ),
-        # support views
-        path("support/", SupportView.as_view(), name="support"),
         path(
             "getting-started/",
             TemplateView.as_view(template_name="support/getting_started.html"),
@@ -262,6 +289,12 @@ urlpatterns = (
             MarkdownTemplateView.as_view(),
             name="markdown-page",
         ),
+        # Images from static content
+        re_path(
+            r"^images/(?P<content_path>.+)/?",
+            ImageView.as_view(),
+            name="images-page",
+        ),
         # Static content
         re_path(
             r"^(?P<content_path>.+)/?",
@@ -270,3 +303,5 @@ urlpatterns = (
         ),
     ]
 )
+
+handler404 = "ak.views.custom_404_view"

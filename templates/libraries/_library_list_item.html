@@ -25,7 +25,7 @@
     <div class="w-1/6">
       <span class="py-0 px-2 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40"
         title="C++ Version {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}{{ library.cpp_standard_minimum }}{% else %}03{% endif %} or Later">
-        {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}{{ library.cpp_standard_minimum }}{% else %}03{% endif %}+
+        {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}{{ library.cpp_standard_minimum }}{% else %}03{% endif %}
       </span>
     </div>
 {#<div class="w-1/6 tracking-wider text-charcoal dark:text-white/60">{% if library.first_boost_version %}{{ library.first_boost_version.release_date|years_since }} yrs{% endif %}</div>#}

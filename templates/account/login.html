@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
 {% load i18n %}
+
+{% load widget_tweaks %}
 {% load account socialaccount %}
 {% load static %}
 
@@ -16,6 +18,14 @@
 
     <div class="md:pt-11 md:mt-11 w-full bg-white dark:bg-charcoal mx-auto rounded py-6 px-3">
       <div class="md:w-full">
+        {% if contributor_account_redirect_message %}
+        <div role="alert" class="py-2 px-3 mb-3 text-center rounded-sm bg-yellow-200/70">
+            <p class="p-0 m-0">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ contributor_account_redirect_message }}
+            </p>
+        </div>
+      {% endif %}
         <h1 class="text-4xl text-center">{% trans "Log In" %}</h1>
         <p class="mt-0 text-center">{% blocktrans %}If you have not created an account yet, please
             <a href="{{ signup_url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">sign up</a> first.{% endblocktrans %}
@@ -47,7 +57,7 @@
 
           <div class="w-full md:w-1/2">
             <h2 class="text-xl text-center items-center">
-              Or Log In with Email <span x-cloak class="text-xs bg-emerald-400 text-white rounded px-1 ml-2" x-show='loginMethod === "\"email\""'>Last Log In</span>
+              Or Log In with Email <span x-cloak class="text-xs bg-emerald-400 text-slate rounded px-1 ml-2" x-show='loginMethod === "\"email\""'>Last Log In</span>
             </h2>
             <form class="login"
                   method="POST"
@@ -69,7 +79,7 @@
                 {% for field in form.visible_fields %}
                   <div>
                     <label class="text-xs uppercase text-slate dark:text-white/70" for="{{ field.id_for_label }}">{{ field.label }}{% if field.widget_type == 'checkbox' %}&nbsp;&nbsp;{% endif %}
-                    {{ field }}
+                      {% render_field field placeholder="" %}
                     </label>
                     {% if field.help_text %}
                       <small>{{ field.help_text }}</small>
@@ -85,7 +95,7 @@
                   <a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
                   <button type="submit"
                           x-on:click="boostlogin = 'email'"
-                          class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">{% trans "Login" %}</button>
+                          class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">{% trans "Log in" %}</button>
                 </div>
               </div>
             </form>

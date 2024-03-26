@@ -7,6 +7,7 @@
 
 {% block content %}
 <main class="content">
+  {% if library_list %}
   <div class="py-0 px-0 mt-0 mb-0 w-full md:mb-2 flex flex-row flex-nowrap items-center md:block">
     <div class="flex-auto mb-2 w-full md:block md:w-auto md:mb-0">
       <div>
@@ -53,9 +54,18 @@
 
         {# Display options #}
         <div class="flex space-x-3">
-          <div><a title="Name View" href="{% url 'libraries-mini' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-list p-[10px] hover:bg-gray-100 dark:hover:bg-slate"></i></a></div>
-          <div><a title="Grid View" href="{% url 'libraries' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-th-large p-[10px] bg-gray-100 dark:bg-slate"></i></a></div>
-          <div><a title="Category View" href="{% url 'libraries-by-category' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-cat p-[10px] hover:bg-gray-100 dark:hover:bg-slate"></i></a></div>
+          <div class="relative group">
+            <a title="Name View" href="{% url 'libraries-mini' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-list p-[10px] hover:bg-gray-100 dark:hover:bg-slate"></i></a>
+            <span class="group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">List&nbsp;View</span>
+          </div>
+          <div class="relative group">
+            <a title="Grid View" href="{% url 'libraries' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-th-large p-[10px] bg-gray-100 dark:bg-slate"></i></a>
+            <span class="group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">Grid&nbsp;View</span>
+          </div>
+          <div class="relative group">
+            <a title="Category View" href="{% url 'libraries-by-category' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-cat p-[10px] hover:bg-gray-100 dark:hover:bg-slate"></i></a>
+            <span class="group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">Category&nbsp;View</span>
+          </div>
         </div>
 
 
@@ -98,5 +108,6 @@
   {# end pagination #}
   {% endif %}
 
+  {% endif %}
 </main>
 {% endblock %}

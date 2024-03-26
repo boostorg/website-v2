@@ -5,6 +5,7 @@ from dateutil.relativedelta import relativedelta
 
 from model_bakery import baker
 
+from ..models import Library
 from versions.models import Version
 
 
@@ -12,7 +13,9 @@ def test_library_list(library_version, tp, url_name="libraries"):
     """GET /libraries/"""
     # Create a version with a library
     last_year = library_version.version.release_date - datetime.timedelta(days=365)
-    v2 = baker.make("versions.Version", name="Version 1.78.0", release_date=last_year)
+    v2 = baker.make(
+        "versions.Version", name="boost-1.78.0", release_date=last_year, beta=False
+    )
     lib2 = baker.make(
         "libraries.Library",
         name="sample",
@@ -21,11 +24,8 @@ def test_library_list(library_version, tp, url_name="libraries"):
 
     # Create a version with no libraries
     v_no_libraries = baker.make(
-        "versions.Version", name="No Libraries", release_date=last_year
+        "versions.Version", name="boost-1.0.0", release_date=last_year, beta=False
     )
-
-    # Confirm that you know which version is the most recent
-    assert library_version.version == Version.objects.most_recent()
 
     res = tp.get(url_name)
     tp.response_200(res)
@@ -35,9 +35,25 @@ def test_library_list(library_version, tp, url_name="libraries"):
     assert v_no_libraries not in res.context["versions"]
 
 
+def test_library_list_no_data(tp):
+    """GET /libraries/"""
+    Library.objects.all().delete()
+    Version.objects.all().delete()
+    res = tp.get("libraries")
+    tp.response_200(res)
+
+
 def test_library_list_mini(library_version, tp):
     """GET /libraries/mini/"""
     test_library_list(library_version, tp, url_name="libraries-mini")
+
+
+def test_library_list_mini_no_data(tp):
+    """GET /libraries/"""
+    Library.objects.all().delete()
+    Version.objects.all().delete()
+    res = tp.get("libraries-mini")
+    tp.response_200(res)
 
 
 def test_library_list_no_pagination(library_version, tp):
@@ -120,6 +136,18 @@ def test_library_detail_404(library, tp):
     url = tp.reverse("library-detail", library.slug)
     response = tp.get(url)
     tp.response_404(response)
+
+
+def test_library_docs_redirect(tp, library, library_version):
+    """
+    GET /libs/{slug}/
+    Test that redirection occurs when the library has a documentation URL
+    """
+    url = tp.reverse("library-docs-redirect", library.slug)
+    assert url.startswith("/libs/")
+
+    resp = tp.get(url, follow=False)
+    tp.response_302(resp)
 
 
 def test_library_detail_context_get_commit_data_annual(tp, library_version):
@@ -223,7 +251,9 @@ def test_library_detail_context_get_maintainers(tp, user, library_version):
     assert response.context["maintainers"][0] == user
 
 
-def test_library_detail_context_get_documentation_url(tp, user, library_version):
+def test_library_detail_context_get_documentation_url_no_docs_link(
+    tp, user, library_version
+):
     """
     GET /libraries/{slug}/
     Test that the maintainers var appears as expected
@@ -240,6 +270,47 @@ def test_library_detail_context_get_documentation_url(tp, user, library_version)
         response.context["documentation_url"]
         == library_version.version.documentation_url
     )
+
+
+def test_library_detail_context_get_documentation_url_missing_docs_bool(
+    tp, user, library_version
+):
+    """
+    GET /libraries/{slug}/
+    Test that the maintainers var appears as expected
+    """
+    library_version.documentation_url = None
+    library_version.missing_docs = True
+    library_version.save()
+
+    library = library_version.library
+    url = tp.reverse("library-detail", library.slug)
+    response = tp.get(url)
+    tp.response_200(response)
+    assert "documentation_url" in response.context
+    assert (
+        response.context["documentation_url"]
+        == library_version.version.documentation_url
+    )
+
+
+def test_library_detail_context_get_documentation_url_docs_present(
+    tp, user, library_version
+):
+    """
+    GET /libraries/{slug}/
+    Test that the maintainers var appears as expected
+    """
+    library_version.documentation_url = "https://example.com"
+    library_version.missing_docs = False
+    library_version.save()
+
+    library = library_version.library
+    url = tp.reverse("library-detail", library.slug)
+    response = tp.get(url)
+    tp.response_200(response)
+    assert "documentation_url" in response.context
+    assert response.context["documentation_url"] == library_version.documentation_url
 
 
 def test_libraries_by_version_detail(tp, library_version):

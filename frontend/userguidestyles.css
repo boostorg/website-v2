@@ -7,12 +7,84 @@
 }
 
 html {
-  @apply text-base;
+  @apply text-base dark:!text-white;
 }
 
 body {
-  @apply h-screen font-cairo;
+  @apply h-screen font-cairo dark:bg-black dark:!text-white;
   @apply font-cairo;
+}
+
+p a:link, p a:visited, table a, .title a {
+  @apply dark:text-sky-300;
+}
+
+p a:hover {
+  @apply dark:text-orange;
+}
+
+.nav-panel-explore,
+.navbar-item.search {
+  @apply hidden;
+}
+
+.navmenu {
+  @apply pt-11;
+}
+
+a.home-link {
+  @apply dark:bg-white/40 rounded dark:hover:bg-orange;
+}
+
+footer, .components, .footer a {
+  @apply dark:bg-black dark:!text-white;
+}
+
+.breadcrumbs {
+  @apply dark:text-white;
+}
+
+.breadcrumbs a, .edit-this-page a {
+  @apply dark:!text-white dark:hover:!text-orange;
+}
+
+.doc {
+  @apply pt-6;
+}
+
+.doc table.stripes-even>tbody>tr:nth-of-type(2n) {
+  @apply dark:bg-slate;
+}
+
+.doc h1,.doc h2,.doc h3,.doc h4,.doc h5,.doc h6, .doc p, .title, .version, .toc-menu, .toc .toc-menu h3, table {
+  @apply dark:!text-white;
+}
+
+.doc h2:not(.discrete) {
+  @apply dark:border-slate;
+}
+
+.toc .toc-menu a {
+  @apply dark:border-slate;
+}
+
+.toc .toc-menu a.is-active {
+  @apply dark:!text-orange dark:border-orange;
+}
+
+.toc .toc-menu a {
+  @apply dark:hover:text-orange;
+}
+
+.doc .listingblock pre:not(.highlight),
+.doc .literalblock pre,
+.tablist>ul li, .tabpanel,
+.tabs.is-loading .tablist li:not(:first-child), .tabs:not(.is-loading) .tablist li:not(.is-selected) {
+  @apply dark:bg-slate;
+}
+
+.doc .admonitionblock td.content {
+  @apply dark:bg-slate dark:text-white;
 }
 
 body.article {
@@ -25,7 +97,11 @@ body.article {
 
 aside.nav,
 div.toolbar {
-  @apply top-10;
+  @apply top-10 dark:bg-black;
+}
+
+div.toolbar {
+  @apply z-40 border-b-0;
 }
 
 hr:first-of-type {
@@ -34,4 +110,17 @@ hr:first-of-type {
 
 #mobile-menu-button {
   @apply outline-none border-0 bg-transparent;
+}
+
+select, #search-input {
+  @apply dark:bg-charcoal dark:text-white dark:border-slate;
+}
+
+#avatar>div,
+#avatar>div>img {
+  @apply rounded;
+}
+
+#userMenu, #guideMenu {
+  border: 1px solid #d1d5db;
 }

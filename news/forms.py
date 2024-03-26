@@ -30,6 +30,15 @@ class LinkForm(EntryForm):
         model = Link
         fields = ["title", "publish_at", "external_url", "image"]
 
+    # Holding on this as it's a new feature Issue #437
+    # def save(self, *args, commit=True, **kwargs):
+    #     instance = super().save(*args, commit=False, **kwargs)
+    #     if self.cleaned_data["external_url"] and not self.cleaned_data["image"]:
+    #         link_data = get_link_preview_data(self.cleaned_data["external_url"])
+    #         print(link_data)
+    #     instance.save()
+    #     return instance
+
 
 class NewsForm(EntryForm):
     class Meta:

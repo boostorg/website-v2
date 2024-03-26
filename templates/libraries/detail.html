@@ -7,10 +7,10 @@
 {% block author %}{{ author_tag }}{% endblock %}
 
 {% block content %}
-<main class="content">
-  <header class="py-0 px-0 mb-0 w-full md:mb-2 flex flex-row flex-nowrap items-center"
-            x-data="{'showSearch': false}"
-            x-on:keydown.escape="showSearch=false">
+  <main class="content">
+    <div class="py-0 px-0 mb-0 w-full md:mb-2 flex flex-row flex-nowrap items-center"
+         x-data="{'showSearch': false}"
+         x-on:keydown.escape="showSearch=false">
       <div class="flex-auto mb-2 w-full">
         <div id="overview">
           <span class="text-xl md:text-3xl lg:text-4xl text-orange">Boost.{{ object.name }}</span>
@@ -36,22 +36,27 @@
           </div>
         </form>
       </div>
-    </header>
+    </div>
 
     <!-- alert for non-current Boost versions -->
     {% include "libraries/includes/version_alert.html" %}
 
     <section class="content divide-x-0 divide-transparent md:divide-x md:divide-gray-200">
 
-      <div class="pb-2 w-full md:pb-0 md:w-1/3 overflow-x-hidden">
+      <div class="pb-2 w-full md:pb-0 md:w-1/3">
         <div class="flex flex-col">
 
-          <div class="pb-4 pt-[1px]">
-            <span class="py-0 px-2 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40"
-            title="CPP Version {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}{{ library.cpp_standard_minimum }}{% else %}03{% endif %} or Later">
-              {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}{{ library.cpp_standard_minimum }}{% else %}03{% endif %}+
+          <div class="pb-4 pt-1">
+            <span
+              class="py-0 px-2 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40"
+              title="C++ Version
+
+                {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}{{ library.cpp_standard_minimum }}{% else %}03{% endif %} or Later">
+              {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}
+                {{ library.cpp_standard_minimum }}{% else %}03{% endif %}
             </span>
-            <span class="float-right">{% if object.first_boost_version %}Added in Boost {{ object.first_boost_version.display_name }}{% endif %}</span>
+            <span class="float-right">{% if object.first_boost_version %}Added in Boost
+              {{ object.first_boost_version.display_name }}{% endif %}</span>
           </div>
 
           <div>
@@ -59,31 +64,36 @@
               <span class="font-bold">Categories:</span>
               {% for category in object.categories.all %}
                 <a class="inline text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-                  href="{% url 'libraries' %}?category={{ category.slug }}{% if version %}&version={{ version.slug }}{% endif %}">{{ category.name }}</a>{% if not forloop.last %}, {% endif %}
+                href="{% url 'libraries' %}?category={{ category.slug }}{% if version %}&version={{ version.slug }}{% endif %}">{{ category.name }}</a>
+                {% if not forloop.last %}, {% endif %}
               {% endfor %}
             </div>
 
-           <p class="pt-4 mt-4 whitespace-normal text-lg border-t border-gray-700">{{ object.description }}</p>
+            <p class="pt-4 mt-4 whitespace-normal text-lg border-t border-gray-700">{{ object.description }}</p>
           </div>
 
           <div class="-ml-2 h-14">
-            {% if documentation_url %}<a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-               href="{{ documentation_url }}">
+            {% if documentation_url %}
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
+              href="{{ documentation_url }}">
               <span class="dark:text-white text-slate">Documentation</span>
               <span class="block text-xs">{{ request.get_host }}{{ documentation_url|cut:"https://" }}</span>
-            </a>{% endif %}
+            </a>
+            {% endif %}
           </div>
           <div class="-ml-2 h-14">
-            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-               href="{{ object.github_issues_url }}">
+            <a
+              class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
+              href="{{ object.github_issues_url }}">
               <i class="float-right mt-1 fas fa-bug"></i>
               <span class="dark:text-white text-slate">GitHub Issues</span>
               <span class="block text-xs">{{ object.github_issues_url|cut:"https://" }}</span>
             </a>
           </div>
           <div class="-ml-2 h-14">
-            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-               href="{{ github_url }}">
+            <a
+              class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
+              href="{{ github_url }}">
               <i class="float-right mt-1 fab fa-github"></i>
               <span class="dark:text-white text-slate">Source Code</span>
               <span class="block text-xs">{{ github_url|cut:"https://" }}</span>
@@ -106,52 +116,50 @@
       </div>
     </section>
 
-    <section class="p-6 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+    {% if maintainers %}
+    <section class="p-6 pt-1 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
       <!-- Avatars -->
       <h2 class="text-2xl">Maintainers</h2>
-      <div class="flex flex-wrap">
+      <div class="flex flex-wrap justify-start">
       {% for user in maintainers %}
-        {% if user.image %}
-          <div class="p-1 md:p-2">
-          <img src="{{ user.image.url }}"
-               title="{{ user.get_full_name }}"
-               alt="{{ user.get_full_name }}"
-               class="rounded w-[80px]" />
-          </div>
-        {% else %}
-          <div class="p-1 md:p-2">
+          <div class="p-1 md:p-2 w-min text-center">
             <div class="bg-gray-300 dark:bg-slate rounded w-[80px]">
+            {% if user.image %}
+              <img src="{{ user.image.url }}"
+                title="{{ user.get_full_name }}"
+                alt="{{ user.get_full_name }}"
+                class="rounded w-[80px]" />
+            {% else %}
               <i class="py-4 px-5 text-5xl fas fa-user text-white dark:text-white/60" title="{{ user.get_full_name }}"></i>
+            {% endif %}
             </div>
+            <span class="text-xs">{{ user.get_full_name }}</span>
           </div>
-        {% endif %}
       {% endfor %}
       </div>
     </section>
+    {% endif %}
 
     {% if description %}
-      <section class="p-6 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+      <section id="libraryReadMe"
+        class="p-6 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
         {{ description|safe }}
       </section>
     {% endif %}
-  </div>
-  <!-- end overview -->
-</div>
-</div>
-</main>
+  </main>
 {% endblock %}
 {% block footer_js %}
   <script>
     var options = {
-        series: [{
+      series: [{
         name: 'Commits',
         data: [{% for commit_data in commit_data_last_12_months %}{{ commit_data.commit_count }}, {% endfor %}]
       }],
       chart: {
         height: 350,
         type: 'bar',
-        foreColor: localStorage.getItem('colorMode') === 'dark' ? '#f6f7f8': '#373d3f',
-        background: localStorage.getItem('colorMode') === 'dark' ? '#172A34': '#ffffff',
+        foreColor: localStorage.getItem('colorMode') === 'dark' ? '#f6f7f8' : '#373d3f',
+        background: localStorage.getItem('colorMode') === 'dark' ? '#172A34' : '#ffffff',
       },
       theme: {
         mode: localStorage.getItem('colorMode') === 'dark' ? 'dark' : 'light',

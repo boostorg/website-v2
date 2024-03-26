@@ -7,15 +7,14 @@ from versions.tasks import import_library_versions
 
 
 @click.command()
-@click.option("--token", is_flag=False, help="Github API token")
-@click.option("--release", is_flag=False, help="Boost version number (example: 1.81.0)")
+@click.option("--token", help="Github API token")
+@click.option("--release", help="Boost version number (example: 1.81.0)")
 @click.option(
     "--min-release",
-    type=str,
     default=settings.MINIMUM_BOOST_VERSION,
     help="Minimum Boost version to process (default: 1.31.0)",
 )
-def command(min_release, release, token):
+def command(min_release: str, release: str, token: str):
     """Cycles through all Versions in the database, and for each version gets the
     corresponding tag's .gitmodules.
 

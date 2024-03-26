@@ -12,6 +12,11 @@
   </div>
 
   <div class="mt-4 text-right">
+    {% if cancel_url %}
+    <a class="py-2 px-3 text-sm text-black dark:text-white rounded" href="{{ cancel_url }}">
+      Cancel
+    </a>
+    {% endif %}
     <button class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit" name="update">
       {% if entry.pk %}{% translate "Update" %}{% else %}{% translate "Submit" %}{% endif %}
     </button>

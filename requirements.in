@@ -7,13 +7,15 @@ django-cors-headers
 django-db-geventpool
 django-extensions
 django-health-check
+django-imagekit
+django-oauth-toolkit
 django-redis
 django-rest-auth
 django-widget-tweaks
 djangorestframework>=3.14
 environs[django]
 greenlet==2.0.1
-gevent==22.10.2
+gevent==23.9.0
 gunicorn
 psycopg2-binary
 whitenoise
@@ -58,6 +60,7 @@ beautifulsoup4
 
 django-haystack>=3.2
 django-mptt==0.14
+elasticsearch==7.17.9
 
 # Github
 ghapi

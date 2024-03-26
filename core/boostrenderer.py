@@ -1,19 +1,18 @@
-import boto3
-from botocore.exceptions import ClientError
-from bs4 import BeautifulSoup, Tag
 import json
 import os
 import re
+import boto3
 import structlog
-
+from botocore.exceptions import ClientError
+from bs4 import BeautifulSoup, Tag
 from django.conf import settings
-
 from mistletoe import HTMLRenderer
 from mistletoe.span_token import SpanToken
 from pygments import highlight
-from pygments.styles import get_style_by_name as get_style
-from pygments.lexers import get_lexer_by_name as get_lexer, guess_lexer
 from pygments.formatters.html import HtmlFormatter
+from pygments.lexers import get_lexer_by_name as get_lexer
+from pygments.lexers import guess_lexer
+from pygments.styles import get_style_by_name as get_style
 
 logger = structlog.get_logger()
 
@@ -135,10 +134,14 @@ def get_s3_client():
     )
 
 
-def get_s3_keys(content_path, config_filename="stage_static_config.json"):
+def get_s3_keys(content_path, config_filename=None):
     """
     Get the S3 key for a given content path
     """
+    # Get configuration from settings if not specifically given
+    if config_filename is None:
+        config_filename = settings.STATIC_CONTENT_MAPPING
+
     # Get the config file for the static content URL settings.
     project_root = settings.BASE_DIR
     config_file_path = os.path.join(project_root, config_filename)
@@ -164,6 +167,54 @@ def get_s3_keys(content_path, config_filename="stage_static_config.json"):
             s3_keys.append(content_path.replace(site_path, s3_path))
 
     return s3_keys
+
+
+def convert_img_paths(html_content: str, s3_path: str = None):
+    """
+    Convert all relative images paths to absolute paths.
+
+    Args:
+    - html_content: The HTML content you want to convert
+    - s3_path: The key ultimately used to retrieve the HTML data.
+        If present, will be whatever key from get_s3_keys() that worked
+        to retrieve the HTML data
+
+    Explanation:
+
+    The config file allows us to add shortcut URLs to specific S3 keys. An example is
+    the /help/ page; see the config file for how it maps the site_path to the S3 key
+    that will retrieve the data.
+
+    However, most images in these files will be relative, and when the config file
+    masks the S3 keys, the image URLs can't be found in the browser.
+
+    This function retrieves all images and updates their URLs to be fully-qualified
+    by routing them through our `/images/` view, which will retrieve them from S3
+    directly.
+
+    NOTE: This hasn't been well-tested and it's possible it will need updates as
+    we encounter more special cases related to the static content.
+    """
+    if not html_content:
+        return
+
+    if type(html_content) is not str:
+        raise ValueError(
+            f"HTML content must be a string, and it is {type(html_content)}."
+        )
+
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    for img in soup.find_all("img"):
+        original_src = img.get("src", "")
+        if not original_src.startswith(("http://", "https://")):
+            # Construct the new absolute URL for the image
+            new_src = "/".join([s3_path, original_src])
+            if not new_src.startswith("/"):
+                new_src = f"/{new_src}"
+            img["src"] = new_src
+
+    return str(soup)
 
 
 class Youtube(SpanToken):

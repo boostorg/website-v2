@@ -1,12 +1,22 @@
+from bs4 import BeautifulSoup
 import pytest
 from pytest_django.asserts import assertHTMLEqual
 
 from core.htmlhelper import (
     REMOVE_ALL,
-    REMOVE_CSS_CLASSESS,
+    REMOVE_CSS_CLASSES,
     REMOVE_TAGS,
-    modernize_legacy_page,
+    convert_h1_to_h2,
     get_library_documentation_urls,
+    modernize_legacy_page,
+    remove_css,
+    remove_duplicate_tag,
+    remove_first_tag,
+    remove_ids,
+    remove_release_classes,
+    remove_tables,
+    remove_tags,
+    style_links,
 )
 
 
@@ -252,7 +262,7 @@ def test_modernize_legacy_page_remove_all_tags_found(tag_name, tag_attrs):
     assertHTMLEqual(result, expected)
 
 
-@pytest.mark.parametrize("tag_name, tag_attrs", REMOVE_CSS_CLASSESS)
+@pytest.mark.parametrize("tag_name, tag_attrs", REMOVE_CSS_CLASSES)
 def test_modernize_legacy_page_remove_only_css_class(tag_name, tag_attrs):
     tag_attrs = tag_attrs.copy()
     tag_attrs.setdefault("class", "something-to-remove")
@@ -358,3 +368,399 @@ def test_get_library_documentation_urls_with_name_and_parent():
         test_content, name="CustomSection", parent="div"
     )
     assert result == expected_output
+
+
+def test_convert_h1_to_h2():
+    html_content = """
+    <html>
+        <body>
+            <h1>Title 1</h1>
+            <h1>Title 2</h1>
+            <p>Some text here</p>
+        </body>
+    </html>
+    """
+    soup = BeautifulSoup(html_content, "html.parser")
+    new_soup = convert_h1_to_h2(soup)
+
+    # Check if there are no h1 tags left
+    assert not new_soup.find_all("h1")
+
+    # Check if the h2 tags have the correct content
+    h2_tags = new_soup.find_all("h2")
+    assert len(h2_tags) == 2
+    assert h2_tags[0].get_text() == "Title 1"
+    assert h2_tags[1].get_text() == "Title 2"
+
+
+def test_convert_h1_to_h2_none():
+    html_content = """
+    <html>
+        <body>
+            <p>Some text here</p>
+        </body>
+    </html>
+    """
+    soup = BeautifulSoup(html_content, "html.parser")
+    new_soup = convert_h1_to_h2(soup)
+    h2_tags = new_soup.find_all("h2")
+    assert len(h2_tags) == 0
+
+
+def test_remove_css():
+    # Sample HTML content with specific classes for testing
+    html_content = """
+    <html>
+        <body>
+            <div class="body-0">Content 0</div>
+            <div class="body-1">Content 1</div>
+            <div class="body-2">Content 2</div>
+            <p class="class3">Content 3</p>
+        </body>
+    </html>
+    """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Call the function with the REMOVE_CSS_CLASSES constant
+    soup = remove_css(soup, REMOVE_CSS_CLASSES)
+
+    # Assertions
+    # Check each tag in REMOVE_CSS_CLASSES to ensure its class has been removed
+    for tag_name, tag_attrs in REMOVE_CSS_CLASSES:
+        found_tag = soup.find(tag_name, tag_attrs)
+        if found_tag:
+            assert "class" not in found_tag.attrs
+        else:
+            # Handle the case where the tag wasn't found
+            print(f"Tag not found: {tag_name} with attributes {tag_attrs}")
+
+    # Check that other tags not in REMOVE_CSS_CLASSES are unaffected
+    assert "class" in soup.find("p", {"class": "class3"}).attrs
+
+
+def test_remove_css_none():
+    """Test that remove_css still works if none of the CSS classes are present"""
+    # Sample HTML content with specific classes for testing
+    html_content = """
+    <html>
+        <body>
+            <div>Content 0</div>
+            <div>Content 1</div>
+            <div>Content 2</div>
+            <p>Content 3</p>
+        </body>
+    </html>
+    """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Call the function with the REMOVE_CSS_CLASSES constant
+    soup = remove_css(soup, REMOVE_CSS_CLASSES)
+
+    # Assertions
+    # Check each tag in REMOVE_CSS_CLASSES to ensure class has been removed
+    for tag_name, tag_attrs in REMOVE_CSS_CLASSES:
+        found_tags = soup.find_all(tag_name, **tag_attrs)
+        for found_tag in found_tags:
+            assert found_tag is None or "class" not in found_tag.attrs
+
+    # Check that other tags not in REMOVE_CSS_CLASSES are unaffected
+    other_tag = soup.find("p")  # Find the first p tag regardless of class
+    if other_tag and "class" in other_tag.attrs:
+        assert "class" in other_tag.attrs  # Assert that p tag still has its class
+    else:
+        assert other_tag is not None  # Assert that the p tag was found
+
+
+def test_remove_duplicate_tag():
+    # Sample HTML content with duplicate <h2> tags
+    html_content = """
+      <html>
+          <body>
+              <h2>Header 1</h2>
+              <h2>Header 1</h2>  <!-- Duplicate -->
+              <h2>Header 2</h2>
+          </body>
+      </html>
+    """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Call the function
+    soup = remove_duplicate_tag(soup, "h2")
+
+    # Assertions
+    h2_tags = soup.find_all("h2")
+    assert len(h2_tags) == 2
+    assert h2_tags[0].get_text(strip=True) == "Header 1"
+    assert h2_tags[1].get_text(strip=True) == "Header 2"
+
+
+def test_remove_duplicate_tag_none():
+    # Sample HTML content with duplicate <h2> tags
+    html_content = """
+      <html>
+          <body>
+              <h2>Header 1</h2>
+              <h2>Header 2</h2>
+          </body>
+      </html>
+    """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Call the function
+    soup = remove_duplicate_tag(soup, "h2")
+
+    # Assertions
+    h2_tags = soup.find_all("h2")
+    assert len(h2_tags) == 2
+    assert h2_tags[0].get_text(strip=True) == "Header 1"
+    assert h2_tags[1].get_text(strip=True) == "Header 2"
+
+
+def test_remove_first_tag():
+    # Sample HTML content with multiple occurrences of certain tags
+    html_content = """
+      <html>
+          <body>
+              <div id="header1">Header 1</div>
+              <div id="header2">Header 2</div>
+              <div id="header1">Another Header 1</div>
+          </body>
+      </html>
+      """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Tags to be removed
+    tags_to_remove = [("div", {"id": "header1"}), ("div", {"id": "header2"})]
+
+    # Call the function
+    soup = remove_first_tag(soup, tags_to_remove)
+
+    # Assertions
+    # The first occurrence of each tag should be removed
+    assert (
+        soup.find("div", {"id": "header1"}).get_text(strip=True) == "Another Header 1"
+    )
+    assert (
+        soup.find("div", {"id": "header2"}) is None
+    )  # Second div with 'header2' should be removed
+
+
+def test_remove_first_tag_none():
+    # Sample HTML content with multiple occurrences of certain tags
+    html_content = """
+      <html>
+          <body>
+              <div id="header1">Header 1</div>
+              <div id="header2">Header 2</div>
+          </body>
+      </html>
+      """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Tags to be removed
+    tags_to_remove = [("div", {"id": "header1"}), ("div", {"id": "header2"})]
+
+    # Call the function
+    soup = remove_first_tag(soup, tags_to_remove)
+    # The first occurrence of each tag should be removed
+    assert soup.find("div", {"id": "header1"}) is None
+    assert soup.find("div", {"id": "header2"}) is None
+
+
+def test_remove_ids():
+    # Sample HTML content with multiple tags having specific ids
+    html_content = """
+    <html>
+        <body>
+            <div id="remove1">Remove me</div>
+            <div id="unwrap1"><p>Unwrap me</p></div>
+            <div id="keep1">Keep me</div>
+        </body>
+    </html>
+    """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Ids to be processed
+    ids_to_process = ["remove1", "unwrap1"]
+
+    # Call the function
+    soup = remove_ids(soup, ids_to_process)
+
+    # Assertions
+    # The tag with id 'remove1' should be removed
+    assert soup.find(id="remove1") is None
+
+    # The tag with id 'unwrap1' should be unwrapped
+    assert soup.find(id="unwrap1") is None
+    assert soup.find("p").get_text(strip=True) == "Unwrap me"
+
+    # The tag with id 'keep1' should not be affected
+    assert soup.find(id="keep1") is not None
+    assert soup.find(id="keep1").get_text(strip=True) == "Keep me"
+
+
+def test_remove_release_classes():
+    # Sample HTML content with multiple tags having specific classes
+    html_content = """
+    <html>
+        <body>
+            <div class="class-to-remove">Remove me</div>
+            <div class="class-to-unwrap"><p>Unwrap me</p></div>
+            <div class="class-to-keep">Keep me</div>
+        </body>
+    </html>
+    """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Classes to be processed
+    classes_to_process = ["class-to-remove", "class-to-unwrap"]
+
+    # Call the function
+    soup = remove_release_classes(soup, classes_to_process)
+
+    # Assertions
+    # The tag with class 'class-to-remove' should be removed
+    assert soup.find(class_="class-to-remove") is None
+
+    # The tag with class 'class-to-unwrap' should be unwrapped
+    assert soup.find(class_="class-to-unwrap") is None
+    assert soup.find("p").get_text(strip=True) == "Unwrap me"
+
+    # The tag with class 'class-to-keep' should not be affected
+    assert soup.find(class_="class-to-keep") is not None
+    assert soup.find(class_="class-to-keep").get_text(strip=True) == "Keep me"
+
+
+def test_remove_tables():
+    # Sample HTML content with multiple tables
+    html_content = """
+    <html>
+        <body>
+            <table class="table-to-remove">Content 1</table>
+            <table class="table-to-remove">Content 2</table>
+            <table class="other-class">Content 3</table>
+            <table>Content 4</table>
+        </body>
+    </html>
+    """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # The class name of the tables to be removed
+    class_name_to_remove = "table-to-remove"
+
+    # Call the function
+    soup = remove_tables(soup, class_name_to_remove)
+
+    # Assertions
+    assert (
+        soup.find_all("table", {"class": class_name_to_remove}) == []
+    )  # All tables with class 'table-to-remove' should be removed
+    assert (
+        soup.find("table", {"class": "other-class"}).get_text(strip=True) == "Content 3"
+    )  # This table should not be affected
+    assert (
+        soup.find("table", class_=False).get_text(strip=True) == "Content 4"
+    )  # The table without a class should not be affected
+
+
+def test_remove_tags():
+    # Sample HTML content with multiple tags and attributes
+    html_content = """
+    <html>
+        <body>
+            <div class="class-to-remove">Content 1</div>
+            <p id="id-to-remove">Content 2</p>
+            <span custom-attr="value-to-remove">Content 3</span>
+            <div>Content 4</div>
+        </body>
+    </html>
+    """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Tags with attributes to be removed
+    tags_to_remove = [
+        ("div", {"class": "class-to-remove"}),
+        ("p", {"id": "id-to-remove"}),
+        ("span", {"custom-attr": "value-to-remove"}),
+    ]
+
+    # Call the function
+    soup = remove_tags(soup, tags_to_remove)
+
+    # Assertions
+    assert soup.find("div", {"class": "class-to-remove"}) is None
+    assert soup.find("p", {"id": "id-to-remove"}) is None
+    assert soup.find("span", {"custom-attr": "value-to-remove"}) is None
+    assert (
+        soup.find("div").get_text(strip=True) == "Content 4"
+    )  # The last div should not be affected
+
+
+def test_style_links():
+    # Sample HTML content with multiple links
+    html_content = """
+    <html>
+        <body>
+            <a href="link1.html">Link 1</a>
+            <a href="link2.html">Link 2</a>
+            <a href="link3.html">Link 3</a>
+        </body>
+    </html>
+    """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Class name to be added to all links
+    new_class_name = "styled-link"
+
+    # Call the function
+    soup = style_links(soup, new_class_name)
+
+    # Assertions
+    for a_tag in soup.find_all("a"):
+        assert new_class_name in a_tag.get("class", []), "Class not added to link"
+
+
+def test_style_links_no_links():
+    # Sample HTML content with multiple links
+    html_content = """
+    <html>
+        <body>
+            <p>Sample</p>
+        </body>
+    </html>
+    """
+
+    # Parse HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Class name to be added to all links
+    new_class_name = "styled-link"
+
+    # Call the function
+    soup = style_links(soup, new_class_name)
+
+    # Assertions
+    for a_tag in soup.find_all("a"):
+        assert new_class_name in a_tag.get("class", []), "Class not added to link"

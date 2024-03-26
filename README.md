@@ -4,6 +4,11 @@
 
 A Django based website that will power a new Boost website. See the [documentation](./docs/README.md) for more information about maintaining this project.
 
+Links:
+
+- https://stage.boost.cppalliance.org/ - staging
+- https://www.preview.boost.org/ - production
+
 ---
 
 ## Local Development Setup
@@ -57,6 +62,10 @@ using:
 ```shell
 $ docker compose down
 ```
+
+### :bell: Updating the Docker image with new dependencies
+
+> If new dependencies exist in `requirements.in`, see [Dependency Management](docs/dependencies.md) for details on how to rebuild the Docker image with those new dependencies.
 
 ## Running the tests
 

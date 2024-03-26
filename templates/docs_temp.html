@@ -23,13 +23,12 @@ make the columns go to 1
 
     <div class="pt-6 grid grid-cols-1 lg:grid-cols-2 gap-y-0 lg:gap-y-5 grid-flow-row auto-rows-min">
 
-      <div class="order-2 lg:order-1 p-4 dark:text-white text-slate bg-white lg:rounded-tl-lg dark:bg-charcoal dark:bg-neutral-700">
-        <h5
-            class="text-3xl font-bold leading-tight text-orange mb-2">
+      <div class="order-2 mb-5 lg:mb-0 lg:order-1 p-6 pt-0 lg:pt-6 dark:text-white text-slate bg-white rounded-lg rounded-t-none lg:rounded-tl-lg lg:rounded-r-none dark:bg-charcoal dark:bg-neutral-700">
+          <h5 class="text-2xl leading-tight text-orange">
             <a href="/doc/user-guide/index.html" class="link-header">User Guide</a>
           </h5>
-          <p class="text-xl py-1 border-b border-gray-700">How to use the libraries in your programs</p>
-          <div class="grid grid-cols-2 gap-2 mt-6 text-xl">
+          <p class="text-lg py-1 border-b border-gray-700">How to use the libraries in your programs</p>
+          <div class="grid grid-cols-2 gap-2 mt-6 text-lg">
 
             <div class="w-full col-span-2 md:col-span-1"><a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/user-guide/intro.html"><i class="mt-1 mr-2 fas fa-book inline-block w-6 text-center"></i>Intro to Boost</a></div>
             <div class="w-full col-span-2 md:col-span-1"><a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/user-guide/getting-started.html"><i class="mt-1 mr-2 fas fa-school inline-block w-6 text-center"></i>Getting Started</a></div>
@@ -43,10 +42,10 @@ make the columns go to 1
             <div class="w-auto ml-6 mr-2 col-span-2 md:col-span-1"><a class="list-item text-base text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/user-guide/resources.html">Additional Resources</a></div>
           </div>
       </div>
-      <div class="order-1 lg:order-2 p-4 dark:text-white text-slate bg-white lg:rounded-tr-lg dark:bg-charcoal dark:bg-neutral-700 min-h-96 max-h-96 lg:max-h-max overflow-y-hidden">
+      <div class="order-1 lg:order-2 p-6 dark:text-white text-slate bg-white rounded-lg rounded-b-none lg:rounded-br-lg lg:rounded-l-none dark:bg-charcoal dark:bg-neutral-700 min-h-96 max-h-96 lg:max-h-max overflow-y-hidden">
         <a href="/doc/user-guide/">
           <img
-            class="lg:rounded-tr-lg object-cover object-center min-w-full min-h-full h-full border border-gray-100 dark:border-0"
+            class="rounded-lg lg:rounded-l-none object-cover object-center min-w-full min-h-full h-full border border-gray-100 dark:border-0"
             width="572"
             height="470"
             src="{% static 'img/fpo/learn_userguide.png' %}"
@@ -54,29 +53,30 @@ make the columns go to 1
         </a>
       </div>
 
+      {% comment %}
       <div class="order-3 my-5 lg:my-0 w-auto col-span-1 lg:col-span-2  dark:text-white text-slate bg-transparent">
         <div class="w-4/6 p-4 mx-auto text-center bg-green/40 rounded-lg text-lg">
           <i class="fab fa-xl fa-slack"></i> You can also find help by <a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="https://cppalliance.org/slack/">joining the C++ Slack</a> and then <a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="https://cpplang.slack.com/">visiting the workspace</a>.
         </div>
       </div>
+      {% endcomment %}
 
-      <div class="order-4 p-4 dark:text-white text-slate bg-white lg:rounded-tl-lg lg:rounded-bl-lg dark:bg-charcoal dark:bg-neutral-700 min-h-96 max-h-96 lg:max-h-max overflow-y-hidden">
+      <div class="order-4 p-6 dark:text-white text-slate bg-white rounded-lg rounded-b-none lg:rounded-bl-lg lg:rounded-r-none dark:bg-charcoal dark:bg-neutral-700 min-h-96 max-h-96 lg:max-h-max overflow-y-hidden">
         <a href="/doc/contributor-guide/">
           <img
-            class="lg:rounded-tr-lg object-cover object-bottom min-w-full min-h-full h-full border border-gray-100 dark:border-0"
+            class="rounded-lg lg:rounded-r-none object-cover object-bottom min-w-full min-h-full h-full border border-gray-100 dark:border-0"
             width="572"
             height="470"
             src="{% static 'img/fpo/learn_beaverdam.png' %}"
             alt="Contributor Guide" />
         </a>
       </div>
-      <div class="order-5 p-4 pl-8 dark:text-white text-slate bg-white lg:rounded-tr-lg lg:rounded-br-lg dark:bg-charcoal dark:bg-neutral-700">
-        <h5
-        class="text-3xl font-bold leading-tight text-orange mb-2">
+      <div class="order-5 mb-5 lg:mb-0 p-6 pl-8 pt-0 lg:pt-6 dark:text-white text-slate bg-white rounded-lg rounded-t-none lg:rounded-tr-lg lg:rounded-l-none dark:bg-charcoal dark:bg-neutral-700">
+          <h5 class="text-2xl leading-tight text-orange">
             <a href="/doc/contributor-guide/index.html" class="link-header">Contributor Guide</a>
           </h5>
           <p class="text-xl py-1 border-b border-gray-700">Resources to help you contribute</p>
-          <div class="grid grid-cols-2 gap-2 mt-6 text-xl">
+          <div class="grid grid-cols-2 gap-2 mt-6 text-lg">
 
             <div class="w-full col-span-2 md:col-span-1"><a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/contributor-guide/getting-involved.html"><i class="mt-1 mr-2 far fa-handshake inline-block w-6 text-center"></i>Getting Involved</a></div>
             <div class="w-full col-span-2 md:col-span-1"><a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/contributor-guide/design-guide/design-guide.html"><i class="mt-1 mr-2 fas fa-diagram-project inline-block w-6 text-center"></i>Design Guide</a></div>
@@ -92,15 +92,14 @@ make the columns go to 1
 
       </div>
 
-      <div class="order-7 lg:order-6 p-4 dark:text-white text-slate bg-white lg:rounded-bl-lg dark:bg-charcoal dark:bg-neutral-700">
-        <h5
-        class="text-3xl font-bold leading-tight text-orange mb-2">
+      <div class="order-7 lg:order-6 p-6 pt-0 lg:pt-6 dark:text-white text-slate bg-white rounded-lg rounded-t-none lg:rounded-tl-lg lg:rounded-r-none dark:bg-charcoal dark:bg-neutral-700">
+         <h5 class="text-2xl leading-tight text-orange">
             <a href="/doc/formal-reviews/index.html" class="link-header">Boost Formal Reviews</a>
           </h5>
           <p class="text-xl py-1 border-b border-gray-700">
             Learn how new libraries are added
           </p>
-          <div class="grid grid-cols-1 gap-4 mt-6 text-xl pl-4">
+          <div class="grid grid-cols-1 gap-4 mt-6 text-lg pl-4">
             <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/formal-reviews/index.html">Introduction</a></div>
             <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/formal-reviews/submissions.html">Submission Process</a></div>
             <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/formal-reviews/writing-reviews.html">Write a Review</a></div>
@@ -108,10 +107,10 @@ make the columns go to 1
           </div>
 
       </div>
-      <div class="order-6 lg:order-7 p-4 dark:text-white text-slate bg-white lg:rounded-br-lg dark:bg-charcoal dark:bg-neutral-700 min-h-96 max-h-96 lg:max-h-max overflow-y-hidden">
+      <div class="order-6 lg:order-7 p-6 dark:text-white text-slate bg-white rounded-lg rounded-b-none lg:rounded-br-lg lg:rounded-l-none dark:bg-charcoal dark:bg-neutral-700 min-h-96 max-h-96 lg:max-h-max overflow-y-hidden">
         <a href="/doc/formal-reviews/">
           <img
-            class="lg:rounded-tr-lg object-cover object-center min-w-full min-h-full h-full border border-gray-100 dark:border-0"
+            class="rounded-lg lg:rounded-l-none object-cover object-center min-w-full min-h-full h-full border border-gray-100 dark:border-0"
             width="572"
             height="470"
             src="{% static 'img/fpo/learn_courtroom.png' %}"

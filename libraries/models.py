@@ -11,7 +11,7 @@ from core.models import RenderedContent
 from core.tasks import adoc_to_html
 
 from .managers import CommitDataManager
-from .utils import write_content_to_tempfile
+from .utils import generate_random_string, write_content_to_tempfile
 
 
 class Category(models.Model):
@@ -61,6 +61,7 @@ class CommitData(models.Model):
 
     class Meta:
         unique_together = ("library", "month_year", "branch")
+        verbose_name_plural = "Commit Data"
 
     def __str__(self):
         return (
@@ -130,9 +131,28 @@ class Library(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        """Override the save method to confirm the slug is set (or set it)"""
+        """Override the save method to confirm the slug is set (or set it)
+
+        We need the slug to be unique, but we want to intelligently make that happen,
+        because there are libraries (like Container Hash) that are more easily managed
+        as two records due to changes in the data between versions.
+        """
+        # Generate slug based on name
         if not self.slug:
-            self.slug = slugify(self.name)
+            # Base the slug name off of the key from the gitmodules file.
+            slug = slugify(self.key)
+
+            # If there is a library with that slug, try a slug based on the key from the
+            # gitmodules file
+            if Library.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = slugify(self.key)
+
+            # If that slug already exists, append a random string to the slug
+            if Library.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                random_str = generate_random_string()
+                slug = f"{slug}-{random_str}"
+
+            self.slug = slug
         return super().save(*args, **kwargs)
 
     def get_description(self, client, tag="develop"):
@@ -148,7 +168,7 @@ class Library(models.Model):
 
         # Try to get the content from the cache first
         static_content_cache = caches["static_content"]
-        cache_key = f"static_content_{self.github_repo}_{tag}"
+        cache_key = f"library_description_{self.github_repo}_{tag}"
         cached_result = static_content_cache.get(cache_key)
         if cached_result:
             return cached_result
@@ -262,6 +282,10 @@ class LibraryVersion(models.Model):
         on_delete=models.CASCADE,
     )
     maintainers = models.ManyToManyField("users.User", related_name="maintainers")
+    missing_docs = models.BooleanField(
+        default=False,
+        help_text="If true, then there are not docs for this version of this library.",
+    )
     documentation_url = models.CharField(
         max_length=255,
         blank=True,

@@ -1,10 +1,47 @@
-# Retrieving Static Content from the Boost Amazon S3 Bucket
+# Boost Static Content
 
-The `StaticContentTemplateView` class (in the `core/` app) is a Django view that handles requests for static content.
+**Static Content** refers to content such as HTML files, markdown files, asciidoc files, etc. that is retrieved from Amazon S3 and rendered within the Boost site.
+
+We can add "shortcut" URL paths to specific directories or files within S3 by updating the file `stage_static_config.json`.
+
+## Quick Start
+
+### Adding a shortcut url to a static page
+
+1. Identify the URL pattern you would like to use. Example: `/style-guide/`
+2. Identify the S3 path to the file you would like that URL to load. Example: `/site-pages/develop/style-guides.adoc`
+3. Add an entry to `stage_static_config.json`. `site_path` is your URL route, with a `/` on either side. `s3_path` is the path to your desired file in S3, with a leading `/`:
+
+```javascript
+  ...
+  },
+  {
+    "site_path": "/style-guide/",
+    "s3_path": "/site-pages/develop/style-guides.adoc"
+  },
+  {
+  ...
+```
+
+4. Restart your server and load `/style-guide/` in your browser to confirm it works.
+
+## About Retrieving Static Content
+
+An example shortcut url is the `/help/` page. This is the route that the `/help/` URL takes to render that page:
+
+- The user enters `/help/` into the browser
+- There is no `help/` path in `config/urls.py`, so the route falls through to the view that handles static content, `StaticContentTemplateView`.
+- In this view, the `content_path` will be `help` . The view uses the `content_path` to try and retrieve the content for the `/help/` page from the Redis cache, the `RenderedContent` table, or from Amazon S3.
+- The logic for retrieving the content from Amazon S3 is stored in `core/boostrenderer.py::get_content_from_s3()`. See [Retrieving Static Content from the Boost Amazon S3 Bucket](#retrieving-static-content-from-the-boost-amazon-s3-bucket) and [How we decide which S3 keys to try](#how-we-decide-which-s3-keys-to-try) for more information.
+- Back in the view, if the view receives content from S3 (or the Redis cache or the database), it will return that. Otherwise, a 404 is raised.
+
+## Retrieving Static Content from the Boost Amazon S3 Bucket
+
+The `StaticContentTemplateView` class (in the `core/` app) is a Django view that handles requests for static content. It inherits from `BaseStaticContentTemplateView`, which is the class that contains the bulk of the logic.
 
 Its URL path is the very last path in our list of URL patterns (see `config/urls.py`) because it functions as the fallback URL pattern. If a user enters a URL that doesn't match anything else defined in our URL patterns, this view will attempt to retrieve the request as static content from S3 using the URL path.
 
-The `StaticContentTemplateView` calls S3 using the URL pattern and generates a list of potential keys to check. It then checks the specified S3 bucket for each of those keys and returns the first match it finds, along with the file content type. Passing the content type with the bucket contents allows the content to be delivered appropriately to the user (so HTML files will be rendered as HTML, etc.)
+`StaticContentTemplateView` calls S3 using the URL pattern. The S3 retrieval code in `core/boostrenderer.py::get_content_from_s3()` generates a list of potential keys to check. It then checks the specified S3 bucket for each of those keys and returns the first match it finds, along with the file content type. Passing the content type with the bucket contents allows the content to be delivered appropriately to the user (so HTML files will be rendered as HTML, etc.)
 
 Boost uses the AWS SDK for Python (boto3) to connect to an S3 bucket and retrieve the static content. If no bucket name is provided, pur process uses the `STATIC_CONTENT_BUCKET_NAME` setting from the Django project settings.
 
@@ -33,6 +70,10 @@ Take a look at this sample `{env}_static_config.json` file:
         "s3_path": "/site/develop/doc/html/"
     },
     {
+      "site_path": "/doc/_/",
+      "s3_path": "/site-docs/develop/_/"
+    },
+    {
         "site_path": "/",
         "s3_path": "/site/develop/"
     }
@@ -43,14 +84,29 @@ Take a look at this sample `{env}_static_config.json` file:
 
 - `/site/develop/libs/index.html`
 
+Note that the `site_path` and the `s3_path` don't have to be to the same depth; the `site_path` in this example is 2 levels deep, and the `s3_path` is 3 levels deep. It doesn't matter.
+
 **Example 2**: If the URL request is for `/develop/doc/index.html`, the S3 keys that the function would try are:
 
 - `/site/develop/doc/html/index.html`
 - `/site/develop/doc/index.html`
 
-**Example 3**: If the URL request is for `/index.html`, the S3 keys that the function would try are:
+**Example 3**: If the url request is for `/doc/accumulators/`, the S3 keys that the function would try are:
+
+- `/site-docs/develop/accumulators/`
+- `/site-docs/develop/accumulators/index.html`
+
+In this example, the `_` functions as a wildcard, so `/doc/accumulators/` would shortcut to `/site-docs/develop/accumulators/`, and `/doc/algorithm/` would shortcut to `/site-docs/develop/algorithm/`, even though neither `accumulators` nor `algorithm` have their own entries in the config file.
+
+**Example 4**: If the URL request is for `/index.html`, the S3 keys that the function would try are:
 
 - `/site/develop/index.html`
 - `/site/index.html`
 
 We first try to retrieve the static content using the exact S3 key specified in the site-to-S3 mapping. If we can't find the content using that key, we will try alternative S3 keys based on the `site_path` and `s3_path` properties in the `{env}_static_config.json` file.
+
+## Caching
+
+See [Caching and the `RenderedContent` model](./caching_rendered_content.md) for how Django-side caching is handled.
+
+Caching is also handled via Fastly CDN.

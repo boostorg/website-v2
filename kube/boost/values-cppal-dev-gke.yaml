@@ -10,6 +10,16 @@ clientMaxBodySize: 250m
 
 replicaCount: "2"
 
+wsgiResources:
+  limits:
+    cpu: "500m"
+    ephemeral-storage: 1Gi
+    memory: 2Gi
+  requests:
+    cpu: "500m"
+    ephemeral-storage: 1Gi
+    memory: 2Gi
+
 ## NOTE ##
 # set publcFqdn to the target domain. `www` will be prepended to the domain
 # where necessary
@@ -24,6 +34,7 @@ initCommands:
 publicFqdn: &fqdn cppal-dev.boost.cppalliance.org
 publicFqdn2: &fqdn2 boost.org
 publicFqdn3: &fqdn3 cppal-dev2.boost.cppalliance.org
+publicFqdn4: &fqdn4 boost.io
 
 Env:
   - name: DJANGO_SETTINGS_MODULE
@@ -56,9 +67,9 @@ Env:
   - name: DJANGO_FQDN
     value: *fqdn
   - name: ALLOWED_HOSTS
-    value: "cppal-dev.boost.cppalliance.org, www.cppal-dev.boost.cppalliance.org, boost.org, www.boost.org, cppal-dev2.boost.cppalliance.org, www.cppal-dev2.boost.cppalliance.org"
+    value: "*.boost.org, *.boost.cppalliance.org, cppal-dev.boost.cppalliance.org, www.cppal-dev.boost.cppalliance.org, boost.org, www.boost.org, cppal-dev2.boost.cppalliance.org, www.cppal-dev2.boost.cppalliance.org, boost.io, www.boost.io"
   - name: CSRF_TRUSTED_ORIGINS
-    value: "http://0.0.0.0, http://localhost, https://cppal-dev.boost.cppalliance.org, https://www.cppal-dev.boost.cppalliance.org, https://boost.org, https://www.boost.org, https://cppal-dev2.boost.cppalliance.org, https://www.cppal-dev2.boost.cppalliance.org"
+    value: "http://*.boost.cppalliance.org, https://*.boost.cppalliance.org, http://0.0.0.0, http://localhost, https://cppal-dev.boost.cppalliance.org, https://www.cppal-dev.boost.cppalliance.org, https://boost.org, https://www.boost.org, https://cppal-dev2.boost.cppalliance.org, https://www.cppal-dev2.boost.cppalliance.org, https://boost.io, https://www.boost.io"
 
   # silence django deprecation warnings
   - name: PYTHONWARNINGS
@@ -133,6 +144,41 @@ Env:
         key: key
   - name: MAILGUN_SENDER_DOMAIN
     value: cppal-dev.boost.cppalliance.org
+  - name: MAILMAN_REST_API_URL
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: api_url
+  - name: MAILMAN_REST_API_USER
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: api_user
+  - name: MAILMAN_REST_API_PASS
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: api_pass
+  - name: MAILMAN_ARCHIVER_KEY
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: archiver_key
+  - name: MAILMAN_ELASTIC_INDEX
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: elastic_index
+  - name: MAILMAN_HAYSTACK_URL
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: haystack_url
+  - name: CALENDAR_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: general-web-secrets
+        key: calendar_api_key
   - name: GITHUB_TOKEN
     valueFrom:
       secretKeyRef:
@@ -175,10 +221,23 @@ hostAliases:
   - ip: "10.67.224.3"
     hostnames:
       - "redis"
+  - ip: "10.128.0.15"
+    hostnames:
+      - "mailman.boost.cppalliance.org"
+  - ip: "10.128.15.240"
+    hostnames:
+      - "mailman-stage.boost.cppalliance.org"
+  - ip: "10.128.0.16"
+    hostnames:
+      - "mailman-cppal-dev.boost.cppalliance.org"
 
-ingressType: gce
+ingressType: "none"
+gatewayType: "gce"
+certmap: "cppal-dev-certmap"
+# certmap: "none"
 managedCertName: managed-cert-cppal-dev,managed-cert-cppal-dev2
 secretCertName: boostorgcert
 ingressStaticIp: cppal-dev-ingress1
+gatewayStaticIp: cppal-dev-ingress1
 redisInstall: false
 celeryInstall: true

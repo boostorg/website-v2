@@ -200,3 +200,21 @@ If both the `--release` and the `--library-name` are passed, the command will lo
 |----------------------|--------|--------------------------------------------------------------|
 | `--branch`            | string | Specify the branch you want to count commits for. Defaults to `master`. |
 | `--token`  | string   | Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`. |
+
+
+## `import_beta_release`
+
+**Purpose**: Imports the most recent beta release
+
+**Example**
+
+```bash
+./manage.py import_beta_release
+```
+
+**Options**
+
+| Options              | Format | Description                                                  |
+|----------------------|--------|--------------------------------------------------------------|
+| `--token`  | string   | Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`. |
+| `--delete-versions`  | bool  | If passed, all existing beta Version records will be deleted before the new beta release is imported. |

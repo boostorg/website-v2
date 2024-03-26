@@ -35,3 +35,33 @@ This project uses environment variables to configure certain aspects of the appl
 - Specifies the name of the Amazon S3 bucket where static content is stored
 - For **local development**, obtain valid value from the Boost team.
 - In **deployed environments**, the valid value is set in `kube/boost/values.yaml` (or the environment-specific yaml file).
+
+## Boost Release Downloads Settings
+
+### `ARTIFACTORY_URL`
+
+- Base API endpoint for accessing the JFrog Artifactory release downloads. This is NOT the base URL for the downloads themselves.
+- For **local development**, there is a default value in `config/settings.py`
+- In **deployed environments**, the valid value is set in `kube/boost/values.yaml` (or the environment-specific yaml file).
+
+### `MIN_ARTIFACTORY_RELEASE`
+
+- The lowest version of Boost with its downloads stored in JFrog Artifactory
+- Hard-coded in `config/settings.py` in all environments
+
+## Boost Google Calendar settings
+
+### `BOOST_CALENDAR`
+
+- Address for the Boost Google Calendar
+- Hard-coded in `settings.py` in all environments
+### `CALENDAR_API_KEY`
+
+- API key for the Boost Google calendar
+- For **local development**, obtain valid value from the Boost team.
+- In **deployed environments**, the valid value is set in `kube/boost/values.yaml` (or the environment-specific yaml file).
+
+### `EVENTS_CACHE_KEY` and `EVENTS_CACHE_TIMEOUT`
+
+- The cache key and timeout length for the Google Calendar events
+- Hard-coded in `settings.py` in all environments

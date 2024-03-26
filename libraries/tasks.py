@@ -1,16 +1,30 @@
 import structlog
-from celery.schedules import crontab
+from dateutil.relativedelta import relativedelta
 
 from config.celery import app
+from django.conf import settings
+from django.db.models import Q
+from django.utils import timezone
 from core.boostrenderer import get_content_from_s3
 from core.htmlhelper import get_library_documentation_urls
 from libraries.github import LibraryUpdater
 from libraries.models import LibraryVersion
-from libraries.utils import get_first_last_day_last_month
 from versions.models import Version
-
+from .constants import (
+    LIBRARY_DOCS_EXCEPTIONS,
+    LIBRARY_DOCS_MISSING,
+    VERSION_DOCS_MISSING,
+)
+from .utils import version_within_range
 
 logger = structlog.getLogger(__name__)
+
+
+@app.task
+def update_library_version_documentation_urls_all_versions():
+    """Run the task to update all documentation URLs for all versions"""
+    for version in Version.objects.all().order_by("-name"):
+        get_and_store_library_version_documentation_urls_for_version(version.pk)
 
 
 @app.task
@@ -33,6 +47,13 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
         version = Version.objects.get(pk=version_pk)
     except Version.DoesNotExist:
         raise
+
+    if version_missing_docs(version):
+        # If we know the docs for this version are missing, update related records
+        LibraryVersion.objects.filter(version=version, missing_docs=False).update(
+            missing_docs=True
+        )
+        return
 
     base_path = f"doc/libs/{version.boost_url_slug}/libs/"
     key = f"{base_path}libraries.htm"
@@ -66,14 +87,87 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
             )
             continue
 
-
-@app.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
-    # Executes every 5th of the month at 7:30 a.m.
-    sender.add_periodic_task(
-        crontab(hour=7, minute=30, day_of_month=5),
-        update_libraries.s(),
+    # See if we can load missing docs URLS another way
+    library_versions = (
+        LibraryVersion.objects.filter(missing_docs=False)
+        .filter(version=version)
+        .filter(Q(documentation_url="") | Q(documentation_url__isnull=True))
     )
+    for library_version in library_versions:
+        # Check whether we know this library-version doesn't have docs
+        if library_version_missing_docs(library_version):
+            # Record that the docs are missing, since we know they are
+            library_version.missing_docs = True
+            library_version.save()
+            continue
+
+        # Check whether this library-version stores its docs in another location
+        exceptions = LIBRARY_DOCS_EXCEPTIONS.get(library_version.library.slug, [])
+        documentation_url = None
+        for exception in exceptions:
+            if version_within_range(
+                library_version.version.boost_url_slug,
+                min_version=exception.get("min_version"),
+                max_version=exception.get("max_version"),
+            ):
+                exception_url_generator = exception["generator"]
+                # Some libs use slugs that don't conform to what we generate via slugify
+                slug = exception.get(
+                    "alternate_slug",
+                    library_version.library.slug.lower().replace("-", "_"),
+                )
+                documentation_url = exception_url_generator(
+                    version.boost_url_slug,
+                    slug,
+                )
+                break  # Stop looking once a matching version is found
+
+        if documentation_url:
+            # validate this in S3
+            key = documentation_url.split("#")
+            content = get_content_from_s3(key[0])
+            if content:
+                library_version.documentation_url = documentation_url
+                library_version.save()
+            else:
+                logger.info(f"No valid docs in S3 for key {documentation_url}")
+
+
+def version_missing_docs(version):
+    """Returns True if we know the docs for this release are missing
+
+    In this module to avoid a circular import"""
+    # Check if the version is called out in VERSION_DOCS_MISSING
+    if version.name in VERSION_DOCS_MISSING:
+        return True
+
+    # Check if the version is older than our oldest version
+    # stored in S3
+    return version_within_range(
+        version.name, max_version=settings.MAXIMUM_BOOST_DOCS_VERSION
+    )
+
+
+def library_version_missing_docs(library_version):
+    """Returns True if we know the docs for this lib-version
+    are missing
+
+    In this module to avoid a circular import
+    """
+    if library_version.missing_docs:
+        return True
+
+    missing_docs = LIBRARY_DOCS_MISSING.get(library_version.library.slug, [])
+    version_name = library_version.version.name
+    for entry in missing_docs:
+        # Check if version is within specified range
+        if version_within_range(
+            version=version_name,
+            min_version=entry.get("min_version"),
+            max_version=entry.get("max_version"),
+        ):
+            return True
+    return False
 
 
 @app.task
@@ -84,10 +178,30 @@ def update_libraries():
     Boost GitHub repo, to update the models with the latest information on that
     library (repo) along with its issues, pull requests, and related objects
     from GitHub.
-
     """
-    since, until = get_first_last_day_last_month()
     updater = LibraryUpdater()
-    updater.update_libraries(since=since, until=until)
+    updater.update_libraries()
+    logger.info("libraries_tasks_update_all_libraries_finished")
 
-    logger.info("libraries_tasks_update_libraries_finished")
+
+@app.task
+def update_commit_counts(token=None):
+    """Imports commit counts for all libraries, broken down by month, and saves
+    them to the database. See LibraryUpdater class for defaults.
+    """
+    updater = LibraryUpdater(token=token)
+    updater.update_monthly_commit_counts()
+    logger.info("libraries_update_commit_counts_finished")
+
+
+@app.task
+def update_current_month_commit_counts(token=None):
+    """Imports commit counts for all libraries for the current month."""
+    updater = LibraryUpdater(token=token)
+    now = timezone.now()
+    # First of this month
+    since = timezone.make_aware(
+        timezone.datetime(year=now.year, month=now.month, day=1)
+    ) - relativedelta(days=1)
+    updater.update_monthly_commit_counts(since=since, until=now)
+    logger.info("libraries_update_current_month_commit_counts_finished")

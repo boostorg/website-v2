@@ -2,7 +2,10 @@ import requests
 import structlog
 from django.conf import settings
 
-from .models import VersionFile
+from core.htmlhelper import modernize_release_notes
+from core.models import RenderedContent
+
+from .models import Version, VersionFile
 
 
 logger = structlog.get_logger(__name__)
@@ -24,7 +27,14 @@ def get_artifactory_downloads_for_release(release: str = "1.81.0") -> list:
             - display_name (str): The name of the release file.
     """
     file_extensions = [".tar.bz2", ".tar.gz", ".7z", ".zip"]
-    release_path = f"{settings.ARTIFACTORY_URL}release/{release}/source/"
+
+    beta = False
+
+    if "beta" in release:
+        beta = True
+        release_path = f"{settings.ARTIFACTORY_URL}beta/{release}/source/"
+    else:
+        release_path = f"{settings.ARTIFACTORY_URL}release/{release}/source/"
 
     try:
         resp = requests.get(release_path)
@@ -41,13 +51,21 @@ def get_artifactory_downloads_for_release(release: str = "1.81.0") -> list:
     uris = []
     for child in children:
         uri = child["uri"]
+
         # The directory may include the release candidates and beta releases; skip those
-        if (
-            "rc" not in uri
-            and "beta" not in uri
-            and any(uri.endswith(ext) for ext in file_extensions)
+        # unless this is a beta release
+        if any(
+            [
+                ("beta" in uri and not beta),
+                ("rc" in uri),
+                (uri.endswith(".json")),
+            ]
         ):
-            uris.append(f"{base_uri}/{uri}")
+            # go to next
+            continue
+
+        if any(uri.endswith(ext) for ext in file_extensions):
+            uris.append(f"{base_uri}{uri}")
 
     return uris
 
@@ -71,6 +89,76 @@ def get_artifactory_download_data(url):
         "checksum": resp.json()["checksums"]["sha256"],
         "display_name": url.split("/")[-1],
     }
+
+
+def get_release_notes_for_version(version_pk):
+    """Retrieve the release notes for a given version.
+
+    We retrieve the rendered release notes for older versions.
+    """
+    try:
+        version = Version.objects.get(pk=version_pk)
+    except Version.DoesNotExist:
+        logger.info(
+            "get_release_notes_for_version_error_version_not_found",
+            version_pk=version_pk,
+        )
+        raise Version.DoesNotExist
+    base_url = (
+        "https://raw.githubusercontent.com/boostorg/website/master/users/history/"
+    )
+    filename = f"{version.slug.replace('boost', 'version').replace('-', '_')}.html"
+    url = f"{base_url}{filename}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        logger.error(
+            "get_release_notes_for_version_http_error",
+            exc_msg=str(e),
+            url=url,
+            version_pk=version_pk,
+        )
+        raise
+    return response.content
+
+
+def process_release_notes(content):
+    stripped_content = modernize_release_notes(content)
+    return stripped_content
+
+
+def store_release_notes_for_version(version_pk):
+    """Retrieve and store the release notes for a given version"""
+    # Get the version
+    try:
+        version = Version.objects.get(pk=version_pk)
+    except Version.DoesNotExist:
+        logger.info(
+            "store_release_notes_for_version_error_version_not_found",
+            version_pk=version_pk,
+        )
+        raise Version.DoesNotExist
+
+    # Get the release notes content
+    content = get_release_notes_for_version(version_pk)
+    stripped_content = process_release_notes(content)
+
+    # Save the result to the rendered content model with the version cache key
+    rendered_content, _ = RenderedContent.objects.update_or_create(
+        cache_key=version.release_notes_cache_key,
+        defaults={
+            "content_type": "text/html",
+            "content_original": content,
+            "content_html": stripped_content,
+        },
+    )
+    logger.info(
+        "store_release_notes_for_version_success",
+        rendered_content_pk=rendered_content.id,
+        version_pk=version_pk,
+    )
+    return rendered_content
 
 
 def store_release_downloads_for_version(version, release_data):

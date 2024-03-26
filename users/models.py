@@ -14,7 +14,12 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
+
+from core.validators import image_validator, max_file_size_validator
 
 logger = logging.getLogger(__name__)
 
@@ -203,7 +208,18 @@ class User(BaseUser):
 
     badges = models.ManyToManyField(Badge)
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
-    image = models.FileField(upload_to="profile-images", null=True, blank=True)
+    image = models.FileField(
+        upload_to="profile-images",
+        null=True,
+        blank=True,
+        validators=[image_validator, max_file_size_validator],
+    )
+    image_thumbnail = ImageSpecField(
+        source="image",
+        processors=[ResizeToFill(100, 100)],
+        format="JPEG",
+        options={"quality": 90},
+    )
     claimed = models.BooleanField(
         _("claimed"),
         default=True,
@@ -218,10 +234,18 @@ class User(BaseUser):
         ),
     )
     display_name = models.CharField(max_length=255, blank=True, null=True)
+    can_update_image = models.BooleanField(
+        _("can_update_image"),
+        default=True,
+        help_text=_(
+            "Designates whether the user can update their profile photo. To turn off "
+            "a user's ability to update their own profile photo, uncheck this box."
+        ),
+    )
 
     def save_image_from_github(self, avatar_url):
         response = requests.get(avatar_url)
-        filename = f"profile-{self.pk}.png"
+        filename = f"{self.profile_image_filename_root}.png"
         os.path.join(settings.MEDIA_ROOT, "media", "profile-images", filename)
 
         with open(filename, "wb") as f:
@@ -230,6 +254,12 @@ class User(BaseUser):
         reopen = open(filename, "rb")
         django_file = File(reopen)
         self.image.save(filename, django_file, save=True)
+
+    @cached_property
+    def profile_image_filename_root(self):
+        """Returns the user's PK as part of the filename for their image.
+        Does not include the file extension."""
+        return f"profile-{self.pk}"
 
     @property
     def get_display_name(self):

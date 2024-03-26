@@ -53,5 +53,48 @@ def test_version_documentation_url(version):
     assert version.documentation_url == "/doc/libs/boost_1_81_0/index.html"
 
 
+@pytest.mark.parametrize(
+    "name,expected_cleaned_parts",
+    [
+        ("boost-1.80.0", ["1", "80", "0"]),
+        ("boost-1.79.0.beta1", ["1", "79", "0"]),
+        ("Boost 1.80.9.beta", ["1", "80", "9"]),
+        ("Version 1.82.0.beta1", ["1", "82", "0"]),
+    ],
+)
+def test_cleaned_version_parts(name, expected_cleaned_parts, version):
+    """Test the cleaned_version_parts property method"""
+    version.name = name
+    version.save()
+
+    assert version.cleaned_version_parts == expected_cleaned_parts
+
+
+def test_release_notes_cache_key(version):
+    """Test the release_notes_cache_key property method"""
+    expected = f"release_notes_{version.slug}"
+    assert version.release_notes_cache_key == expected
+
+
 def test_version_file_creation(full_version_one):
     assert full_version_one.downloads.count() == 3
+
+
+@pytest.mark.parametrize(
+    "slug, expected",
+    [
+        ("boost-1.75.0", "1_75_0"),
+        ("develop", "develop"),
+        ("boost_2.0.1", "2_0_1"),
+    ],
+)
+def test_stripped_boost_url_slug(slug, expected, version):
+    version.slug = slug
+    version.save()
+    version.refresh_from_db()
+    assert version.stripped_boost_url_slug == expected
+
+
+def test_get_absolute_url(version):
+    expected_url = f"/releases/{version.slug}/"
+    assert version.get_absolute_url() == expected_url
