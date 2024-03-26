@@ -1,6 +1,17 @@
+import io
 import pytest
 
-from ..forms import CustomResetPasswordFromKeyForm, PreferencesForm, UserProfileForm
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.files.images import ImageFile
+from PIL import Image
+
+
+from ..forms import (
+    CustomResetPasswordFromKeyForm,
+    PreferencesForm,
+    UserProfileForm,
+    UserProfilePhotoForm,
+)
 from ..models import Preferences
 from news.models import NEWS_MODELS
 
@@ -146,3 +157,37 @@ def test_user_profile_form(user):
     form.save()
     user.refresh_from_db()
     assert user.email == "test@example.com"
+
+
+def test_user_profile_photo_form_save(user):
+    """
+    Test that the UserProfilePhotoForm deletes the old image and saves the new one.
+    """
+
+    def create_test_image_file(filename="test.png"):
+        file = io.BytesIO()
+        image = Image.new("RGBA", size=(100, 100), color=(155, 0, 0))
+        image.save(file, "png")
+        file.name = filename
+        file.seek(0)
+        return file
+
+    old_image = ImageFile(create_test_image_file(filename="initial_image.png"))
+    user.image.save("initial_image.png", old_image)
+
+    # Make sure the initial image was saved
+    initial_path = user.image.path
+    assert initial_path is not None
+
+    # Create new image for upload
+    new_image = SimpleUploadedFile(
+        "new_image.jpeg",
+        create_test_image_file(filename="new_image.jpeg").read(),
+        content_type="image/jpeg",
+    )
+
+    form = UserProfilePhotoForm({"image": new_image}, instance=user)
+    assert form.is_valid()
+    updated_user = form.save()
+    updated_user.refresh_from_db()
+    assert str(user.pk) in updated_user.image.path

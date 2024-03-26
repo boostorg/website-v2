@@ -3,10 +3,29 @@ import structlog
 from django.core.cache import caches
 from django.db import models
 
+from django.utils import timezone
+import datetime
+from django.conf import settings
+
 logger = structlog.get_logger()
 
 
 class RenderedContentManager(models.Manager):
+    def clear_cache_by_cache_type_and_date(
+        self,
+        cache_type="static_content_",
+        older_than_days=settings.CLEAR_STATIC_CONTENT_CACHE_DAYS,
+    ):
+        older_than = timezone.now() - datetime.timedelta(days=older_than_days)
+        deleted_count, _ = self.filter(
+            cache_key__startswith=cache_type, created__lte=older_than
+        ).delete()
+        logger.info(
+            "rendered_content_manager_clear_cache_by_cache_type_and_date",
+            cache_type=cache_type,
+            count=deleted_count,
+        )
+
     def clear_cache_by_content_type(self, content_type):
         """Clears the static content cache of all rendered content of a given type."""
         cache = caches["static_content"]

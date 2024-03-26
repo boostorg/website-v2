@@ -66,6 +66,9 @@ INSTALLED_APPS += [
     "health_check",
     "health_check.db",
     "health_check.contrib.celery",
+    "imagekit",
+    # Allows authentication for Mailman
+    "oauth2_provider",
     # Allauth dependencies:
     "allauth",
     "allauth.account",
@@ -106,6 +109,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "oauth2_provider.middleware.OAuth2TokenMiddleware",
 ]
 
 if DEBUG:
@@ -132,6 +136,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context_processors.current_release",
             ],
             "loaders": [
                 "django.template.loaders.filesystem.Loader",
@@ -263,16 +268,32 @@ CACHES = {
     },
 }
 
+# Default interval by which to clear the static content cache
+CLEAR_STATIC_CONTENT_CACHE_DAYS = 7
 
+# Mailman API credentials
+MAILMAN_REST_API_URL = env("MAILMAN_REST_API_URL", default="http://localhost:8001")
+MAILMAN_REST_API_USER = env("MAILMAN_REST_API_USER", default="restadmin")
+MAILMAN_REST_API_PASS = env("MAILMAN_REST_API_PASS", default="restpass")
+MAILMAN_ARCHIVER_KEY = env("MAILMAN_ARCHIVER_KEY", default="password")
+MAILMAN_ELASTIC_INDEX = env("MAILMAN_ELASTIC_INDEX", default="haystack")
+MAILMAN_HAYSTACK_URL = env("MAILMAN_HAYSTACK_URL", default="http://127.0.0.1:9200/")
+
+# Must still be configured:
 HAYSTACK_CONNECTIONS = {
     "default": {
-        "ENGINE": "haystack.backends.simple_backend.SimpleEngine",
+        "ENGINE": "haystack.backends.elasticsearch7_backend.Elasticsearch7SearchEngine",
+        "URL": MAILMAN_HAYSTACK_URL,
+        "INDEX_NAME": MAILMAN_ELASTIC_INDEX,
     },
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-AUTHENTICATION_BACKENDS = ("allauth.account.auth_backends.AuthenticationBackend",)
+AUTHENTICATION_BACKENDS = (
+    "allauth.account.auth_backends.AuthenticationBackend",
+    "oauth2_provider.backends.OAuth2Backend",
+)
 
 # GitHub settings
 
@@ -384,6 +405,16 @@ STATIC_CONTENT_AWS_S3_ENDPOINT_URL = env(
     "STATIC_CONTENT_AWS_S3_ENDPOINT_URL", default="https://s3.us-east-2.amazonaws.com"
 )
 
+# LinkPreview API Key
+# LINK_PREVIEW_API_KEY = env(
+#     "LINK_PREVIEW_API_KEY", default="changeme"
+# )
+
+# JSON configuration of how we map static content in the S3 buckets to URL paths
+STATIC_CONTENT_MAPPING = env(
+    "STATIC_CONTENT_MAPPING", default="stage_static_config.json"
+)
+
 # Markdown content
 BASE_CONTENT = env("BOOST_CONTENT_DIRECTORY", "/website")
 
@@ -397,7 +428,7 @@ NEWS_MODERATION_ALLOWLIST = [
 # EMAIL SETTINGS -- THESE NEED ADJUSTMENT WHEN DECIDED WHICH ESP WILL BE USED
 EMAIL_HOST = "maildev"
 EMAIL_PORT = 1025
-DEFAULT_FROM_EMAIL = "info@cppalliance.org"
+DEFAULT_FROM_EMAIL = "boost@cppalliance.org"
 SERVER_EMAIL = "errors@cppalliance.org"
 
 # Deployed email configuration
@@ -437,7 +468,21 @@ CORS_ALLOW_HEADERS = (
 ARTIFACTORY_URL = env(
     "ARTIFACTORY_URL", default="https://boostorg.jfrog.io/artifactory/api/storage/main/"
 )
+MIN_ARTIFACTORY_RELEASE = "boost-1.63.0"
 
 # The min Boost version is the oldest version of Boost that our import scripts
-# will retrieve. It's determined by the files we store in the archives/ in S3.
-MINIMUM_BOOST_VERSION = "1.31.0"
+# will retrieve.
+MINIMUM_BOOST_VERSION = "1.16.1"
+# The highest Boost version with its docs stored in S3
+MAXIMUM_BOOST_DOCS_VERSION = "boost-1.30.2"
+
+# Boost Google Calendar
+BOOST_CALENDAR = "5rorfm42nvmpt77ac0vult9iig@group.calendar.google.com"
+CALENDAR_API_KEY = env("CALENDAR_API_KEY", default="changeme")
+EVENTS_CACHE_KEY = "homepage_events"
+EVENTS_CACHE_TIMEOUT = 300  # 5 min
+
+# OAuth settings
+OAUTH_APP_NAME = (
+    "Boost OAuth Concept"  # Stored in the admin; replicated for convenience
+)

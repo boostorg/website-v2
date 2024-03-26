@@ -1,81 +1,89 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% load news_tags %}
+{% load text_helpers %}
 
 {% block title %}{% trans "News" %}{% endblock %}
 
 {% block content %}
-  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+  <div class="py-0 px-3 md:px-0 mt-0 mb-0 w-full md:mb-2">
     <div class="md:w-full">
-      <h1 class="text-4xl text-center">Latest Stories</h1>
+      <h1 class="text-4xl">Latest Stories</h1>
 
-      <div class="mx-auto w-auto sm:w-[550px]">
-      <p class="mt-0 text-justify">
-        Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, polls, and user-created content.
-        {% if user.is_authenticated %}
-        Or, <a href="{% url 'news-create' %}" class="whitespace-nowrap text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Create a Post</a> to include in the feed (posts are reviewed before publication).
-        {% else %}
-        Signed-in users may submit items to include in the feed (posts are reviewed before publication).
-        {% endif %}
-      </p>
-    </div>
-
-
-
-
-
-      <!-- General filters, by news type -->
-      <div class="mx-auto w-full sm:w-fit">
-        <div class="grid grid-cols-3 justify-center place-items-center space-y-1 space-x-1 sm:grid-cols-6 sm:space-y-0">
-
-          {% url 'news' as target_url %}
-          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
-            <h6 class="pb-1 text-base">All</h6>
-            <i class="fa fa-globe"></i>
-          </a>
-
-          {% url 'news-news-list' as target_url %}
-          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
-            <h6 class="pb-1 text-base">News</h6>
-            <i class="fa fa-newspaper"></i>
-          </a>
-
-          {% url 'news-blogpost-list' as target_url %}
-          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
-            <h6 class="pb-1 text-base">Blogs</h6>
-            <i class="fa fa-comment"></i>
-          </a>
-
-          {% url 'news-link-list' as target_url %}
-          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
-            <h6 class="pb-1 text-base">Links</h6>
-            <i class="fas fa-link"></i>
-          </a>
-
-          {% url 'news-poll-list' as target_url %}
-          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
-            <h6 class="pb-1 text-base">Polls</h6>
-            <i class="fa fa-poll"></i>
-          </a>
-
-          {% url 'news-video-list' as target_url %}
-          <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
-            <h6 class="pb-1 text-base">Videos</h6>
-            <i class="fa fa-video"></i>
-          </a>
-
+      <div class="md:flex md:space-x-16">
+        <div class="md:w-1/2 w-full">
+          <p class="mt-0 text-justify">
+            Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, polls, and user-created content.
+            {% if user.is_authenticated %}
+            Or, <a href="{% url 'news-create' %}" class="whitespace-nowrap text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Create a Post</a> to include in the feed (posts are reviewed before publication).
+            {% else %}
+            Signed-in users may submit items to include in the feed (posts are reviewed before publication).
+            {% endif %} (<a href="{% url 'news_feed_rss' %}" class="whitespace-nowrap text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">RSS</a>)
+          </p>
         </div>
 
-      </div>
+        <!-- General filters, by news type -->
+        <div class="md:w-1/2 w-full pt-2 md:pt-6">
+          <div class="grid grid-cols-3 justify-center place-items-center space-y-1 space-x-1 {% if is_moderator %}sm:grid-cols-6{% else %}sm:grid-cols-5{% endif %} sm:space-y-0">
+
+            {% url 'news' as target_url %}
+            <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+              <h6 class="pb-1 text-base">All</h6>
+              <i class="fa fa-globe"></i>
+            </a>
+
+            {% url 'news-news-list' as target_url %}
+            <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+              <h6 class="pb-1 text-base">News</h6>
+              <i class="fa fa-newspaper"></i>
+            </a>
+
+            {% url 'news-blogpost-list' as target_url %}
+            <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+              <h6 class="pb-1 text-base">Blogs</h6>
+              <i class="fa fa-comment"></i>
+            </a>
+
+            {% url 'news-link-list' as target_url %}
+            <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+              <h6 class="pb-1 text-base">Links</h6>
+              <i class="fas fa-link"></i>
+            </a>
+
+            {% comment %}
+            <!-- turning off polls for now -->
+            {% url 'news-poll-list' as target_url %}
+            <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+              <h6 class="pb-1 text-base">Polls</h6>
+              <i class="fa fa-poll"></i>
+            </a>
+            {% endcomment %}
+
+            {% url 'news-video-list' as target_url %}
+            <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+              <h6 class="pb-1 text-base">Videos</h6>
+              <i class="fa fa-video"></i>
+            </a>
+
+            {% if is_moderator %}
+            <a href="{% url "news-moderate" %}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+              <h6 class="pb-1 text-base">Moderate</h6>
+              <i class="fa fa-thumbs-up"></i>
+            </a>
+            {% endif %}
+          </div>
+        </div>
+    </div>
 
     <div class="my-5">
       <div class="mx-auto w-full">
         {% for entry in entry_list %}
         <div class="md:flex md:space-x-3">
-          <div class="hidden mt-6 text-sm text-left capitalize md:block w-[160px]">
-            <a href="{{ entry.get_absolute_url }}">{{ entry.display_publish_at }}</a>
+          <div class="hidden mt-6 text-sm text-left capitalize md:block min-w-[120px] whitespace-nowrap">
+            <a href="{{ entry.get_absolute_url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ entry.display_publish_at }}&nbsp;&nbsp;</a>
           </div>
-          <div class="hidden pt-6 border-l-2 border-white md:block w-[50px] dark:border-slate">
+          <div class="hidden pt-6 border-l-2 border-white md:block min-w-[50px] dark:border-slate">
             {% if entry.tag == "link" %}
               {% url 'news-link-list' as target_url %}
               <a href="{{ target_url }}" title="Link" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
@@ -105,32 +113,51 @@
               <i class="text-gray-400 fas fa-calendar-alt dark:text-white/60" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate"></i>
             {% endif %}
           </div>
-          <div class="hidden pt-2 mt-4 text-xs text-left md:block w-[70px]">
+          <div class="hidden pt-2 mt-4 text-xs text-left md:block min-w-[70px] relative group">
             {% if entry.author.image %}
-              <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="inline rounded w-[30px]" />
+              <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded bg-white dark:bg-slate">
+                <img src="{{ entry.author.image_thumbnail.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
+              </span>
             {% else %}
-              <span class="inline px-2 pt-3 pb-1 bg-white rounded dark:text-white dark:bg-slate">
-                <i class="text-2xl fas fa-user" title="{{ entry.author.get_full_name }}"></i>
+              <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate">
+                <i class="text-2xl fas fa-user ml-1" title="{{ entry.author.get_full_name }}"></i>
               </span>
             {% endif %}
+            <span class="group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">{{ entry.author.first_name}}&nbsp;{{ entry.author.last_name }}</span>
           </div>
-          <div class="block p-6 mb-10 w-full bg-white rounded-lg md:ml-6 dark:bg-charcoal">
-            <h2 class="py-0 my-0 text-xl font-semibold"><a class="text-orange hover:text-info-600 focus:text-info-600 active:text-info-700" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
-              {{ entry.title }}
-            </a></h2>
-            {% if entry.image %}
-            <img src="{{ entry.image.url }}" class="mb-5 w-full h-auto md:float-right md:ml-5 md:w-1/6 md:min-w-[200px]">
+          <div class="block p-6 mb-10 w-full bg-white rounded-lg md:ml-6 dark:bg-charcoal overflow-hidden">
+            {% can_edit news_item=entry as editable %}
+            {% if editable %}
+              <a href="{% url 'news-update' entry.slug %}" class="float-right dark:text-white/50 hover:text-orange dark:hover:text-orange -mt-5 -mr-4 text-sm">
+                <i class="fas fa-edit"></i>
+              </a>
             {% endif %}
+            <div class="flex">
+              <div class="flex-grow-1">
+              <h2 class="py-0 my-0 text-xl font-semibold mr-4">
+                <a class="link-header" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+                  {{ entry.title }}
+                </a>
+              </h2>
+            </div>
+              <div class="md:block text-xs hidden ml-auto text-right w-[150px]">
+                {{ entry.author.get_full_name }}<br />
+                <span class="text-xs">{{ entry.publish_at|date:"M jS, Y" }}</span>
+              </div>
+            </div>
             {% if entry.content %}
-            <p class="text-base text-gray-500 dark:text-white/70">{{ entry.content|truncatechars:300 }}</p>
+            <div>
+              <span class="text-base text-gray-500 dark:text-white/70">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|multi_truncate_middle:30|truncatechars_html:500 }}</span>
+              </div>
             {% endif %}
 
             <!-- footer of cards only for mobile devices -->
             <div class="flex border-t border-gray-300 md:hidden">
-              <div class="mt-6 w-1/3 text-sm text-left capitalize">
-                <a href="{{ entry.get_absolute_url }}">{{ entry.display_publish_at }}</a>
+              <div class="mt-6 w-1/3 text-xs text-left capitalize">
+                {{ entry.author.get_full_name }}<br />
+                {{ entry.display_publish_at }}
               </div>
-              <div class="pt-6 w-1/3 text-center border-l-2 border-white dark:border-slate">
+              <div class="pt-6 w-1/3 text-center md:border-l-2 border-white dark:border-slate">
                 {% if entry.tag == "link" %}
                   {% url 'news-link-list' as target_url %}
                   <a href="{{ target_url }}" title="Link" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
@@ -162,10 +189,12 @@
               </div>
               <div class="pt-2 mt-4 w-1/3 text-xs text-right">
                 {% if entry.author.image %}
-                  <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="inline rounded-sm w-[30px]" />
+                  <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
+                    <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
+                  </span>
                 {% else %}
-                  <span class="inline px-2 pt-3 pb-1 bg-white rounded-sm dark:text-white dark:bg-slate">
-                    <i class="text-2xl fas fa-user" title="{{ entry.author.get_full_name }}"></i>
+                  <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
+                    <i class="text-2xl fas fa-user mr-1" title="{{ entry.author.get_full_name }}"></i>
                   </span>
                 {% endif %}
               </div>
@@ -174,7 +203,9 @@
           </div>
         </div>
         {% empty %}
-        <p class="text-center">No news yet; consider submitting something!</p>
+          {% if  user.is_authenticated %}
+            <p class="text-center">No news yet; consider submitting something!</p>
+          {% endif %}
         {% endfor %}
       </div>
     </div>

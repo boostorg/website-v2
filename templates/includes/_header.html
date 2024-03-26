@@ -1,5 +1,5 @@
 {% load static %}
-{% load account socialaccount %}
+{% load account socialaccount active_link_tags %}
 
 
 <div class="relative z-50 bg-gray-200 md:fixed md:top-0 right-0 left-0 dark:bg-black">
@@ -7,7 +7,7 @@
   <div class="relative mx-auto">
     <div class="max-w-7xl md:px-6 mx-auto">
       <div id="headblock" class="hidden items-center py-1 px-2 border-b-2 border-gray-300 md:flex dark:border-charcoal">
-        <div class="w-[100px]">
+        <div class="w-[100px] h-[25px] -mt-[3px]">
           <a href="{% url 'home' %}" class="inline-block">
               <img class="hidden w-auto dark:inline-block h-[25px]"
                    src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}"
@@ -21,49 +21,44 @@
 
         <div class="flex pt-1 w-full">
           <nav class="relative items-center pl-6 space-x-4 w-full text-lg text-left md:space-x-6 lg:space-x-10">
-            <a href="{% url 'news' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:6" == '/news/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-black">News</a>
-            <a href="{% url 'docs' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:6" == '/docs/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-black">Learn</a>
-            <a href="{% url 'community' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:11" == '/community/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-black">Community</a>
-            <a href="{% url 'libraries' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:11" == '/libraries/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-black">Libraries</a>
-            <a href="{% url 'releases-most-recent' %}" class="hover:no-underline font-semibold dark:font-medium {% if request.path|slice:"0:10" == '/releases/' %}dark:text-orange text-orange dark:hover:text-white hover:text-slate {% else %}dark:text-white text-slate dark:hover:text-orange hover:text-orange {% endif %} link-none visited:text-black">Releases</a>
+            <a href="{% url 'news' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'news' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">News</a>
+            <a href="{% url 'docs' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'docs||docs-user-guide' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' url='/doc/user-guide/' %}">Learn</a>
+            <a href="{% url 'community' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'community' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">Community</a>
+            <a href="{% url 'libraries' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'libraries||docs-libs-page' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' url='/doc/libs/' %}">Libraries</a>
+            <a href="{% url 'releases-most-recent' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'releases-most-recent' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">Releases</a>
           </nav>
           <nav class="flex items-center space-x-3 lg:space-x-5 h-[30px]" x-data="{ 'searchOpen': false }">
-          {% comment %}
-              <span class="relative">
-              <i class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="searchOpen = true; $nextTick(() => { setTimeout(() => { document.getElementById('hq').focus(); }, 300);});"></i>
-              <div x-show="searchOpen"
-                   @click.away="searchOpen = false"
-                   x-transition:enter="transition ease-out duration-100"
-                   x-transition:enter-start="transform opacity-0 scale-95"
-                   x-transition:enter-end="transform opacity-100 scale-100"
-                   x-transition:leave="transition ease-in duration-75"
-                   x-transition:leave-start="transform opacity-100 scale-100"
-                   x-transition:leave-end="transform opacity-0 scale-95"
-                   class="absolute -right-2 z-10 -top-[2px]"
-                   x-ref="search-form"
-                   x-description="Search"
-                   role="menu"
-                   aria-orientation="vertical"
-                   aria-labelledby="search-button"
-                   tabindex="-1"
-                   style="display: none;"
+            <span class="relative">
+              <i id="gecko-search-button" data-current-boost-version="{{ current_release.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="Cairo, sans-serif" class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange"></i>
+              <script>
+                const geckoSearchButton = document.getElementById('gecko-search-button');
+                geckoSearchButton.setAttribute('data-theme-mode', localStorage.getItem('colorMode') === 'dark' ? 'dark' : 'light');
+              </script>
+            </span>
+
+            <span x-data="{ 'guideOpen': false }" class="relative">
+              <i class="inline-block cursor-pointer text-slate fas fa-question-circle dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="guideOpen = !guideOpen"></i>
+
+              <div
+                x-show="guideOpen" x-cloak
+                @click.away="guideOpen = false"
+                id="guideMenu"
+                x-transition:enter="transition ease-out duration-100"
+                x-transition:enter-start="transform opacity-0 scale-95"
+                x-transition:enter-end="transform opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-75"
+                x-transition:leave-start="transform opacity-100 scale-100"
+                x-transition:leave-end="transform opacity-0 scale-95"
+                class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 dark:divide-gray-700 ring-gray-300 shadow-lg origin-top-right dark:ring-gray-500 dark:bg-charcoal"
               >
-                <form action="https://www.google.com/search" method="get" name="searchform" target="_blank">
-                  <input name="sitesearch" type="hidden" value="boost.org">
-                  <input autocomplete="on"
-                         class="py-2 px-3 text-xs bg-white rounded-lg border-gray-300 text-charcoal dark:text-charcoal dark:border-slate dark:bg-charcoal"
-                         name="q"
-                         id="hq"
-                         placeholder="Search Boost.org"
-                         required="required"
-                         type="text"
-                  >
-                </form>
+                <a href="/doc/user-guide/index.html" class="ml-2 block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">User Guide</a>
+                <a href="/doc/contributor-guide/index.html" class="ml-2 block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">Contributor Guide</a>
+                <a href="/doc/formal-reviews/index.html" class="ml-2 block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">Formal Reviews</a>
+
               </div>
             </span>
-            {% endcomment %}
 
-            <a href="/doc/user-guide/intro.html" class="inline link-none"><i class="text-slate fas fa-question-circle dark:text-white/50 dark:hover:text-orange hover:text-orange"></i></a>
+            {# <a href="/doc/user-guide/intro.html" class="inline link-none"><i class="text-slate fas fa-question-circle dark:text-white/50 dark:hover:text-orange hover:text-orange"></i></a> #}
 
             {% if not disable_theme_switcher %}
             {# theme switcher #}
@@ -111,17 +106,18 @@
                             }
                           });
                         }
+                        document.getElementById('gecko-search-button').setAttribute('data-theme-mode', m);
                     }
                 }"
 
-                class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 ring-1 ring-gray-300 shadow-lg origin-top-right dark:ring-gray-500 dark:bg-charcoal"
+                class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 dark:divide-gray-700 ring-1 ring-gray-300 shadow-lg origin-top-right dark:ring-gray-500 dark:bg-charcoal"
               >
                 <a
                   @click="mode='light'; setColorMode('light'); modeOpen = false;"
                   :class="{'font-bold': mode === 'light', 'font-medium': mode !== 'light' }"
                   class="block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange"
                   >
-                  <i class="inline-block mr-1 ml-0.5 font-semibold fas fa-sun text-gold"></i>
+                  <i class="inline-block mr-1 font-semibold fas fa-sun text-gold"></i>
                   Light Mode
                 </a>
 
@@ -130,46 +126,29 @@
                   :class="{'font-bold': mode === 'dark', 'font-medium': mode !== 'dark' }"
                   class="block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange"
                   >
-                  <i class="inline-block mr-1 ml-1 fas fa-moon text-sky-600"></i>
+                  <i class="ml-[2px] inline-block mr-[4px] fas fa-moon text-sky-600"></i>
                   Dark Mode
                 </a>
               </div>
             </span>
             {% endif %}
 
+            {% comment %}
+            The html and context for the user avatar and profile dropdown menu are coming from the view as
+            and html fragment fetched view htmx get request and inserted into #avatar
+            {% endcomment %}
             <span x-data="{ 'userOpen': false }" class="relative w-[30px]">
-              {% if not user.is_authenticated %}
-                <a href="{% url 'account_signup' %}" class="hover:no-underline inline font-medium dark:text-white dark:visited:text-white text-slate visited:text-slate dark:hover:text-orange hover:text-orange">Join</a>
-              {% else %}
-                {% if user.image %}
-                  <img src="{{ user.image.url }}" alt="user" class="rounded cursor-pointer h-[30px] w-[30px]" @click="userOpen = !userOpen" />
-                {% else %}
-                  <i class="inline mr-2 cursor-pointer fas fa-user text-charcoal dark:text-white/60" @click="userOpen = !userOpen"></i>
-                {% endif %}
-              {% endif %}
-
-              {% if user.is_authenticated %}
-              <div x-show="userOpen"
-                   @click.away="userOpen = false"
-                   x-transition:enter="transition ease-out duration-100"
-                   x-transition:enter-start="transform opacity-0 scale-95"
-                   x-transition:enter-end="transform opacity-100 scale-100"
-                   x-transition:leave="transition ease-in duration-75"
-                   x-transition:leave-start="transform opacity-100 scale-100"
-                   x-transition:leave-end="transform opacity-0 scale-95"
-                   class="absolute right-0 z-10 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 ring-1 ring-gray-300 shadow-lg origin-top-right dark:ring-gray-500 darK:divide-gray-500 dark:bg-charcoal"
-                   x-ref="menu-items"
-                   x-description="Profile Menu"
-                   role="menu"
-                   aria-orientation="vertical"
-                   aria-labelledby="user-menu-button"
-                   tabindex="-1"
-                   style="display: none;"
-              >
-                <a href="{% url 'profile-account' %}" class="block py-2 text-xs font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">My Profile</a>
-                <a href="{% url 'account_logout' %}" class="block py-2 text-xs font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">Log Out</a>
+              <div hx-get="/users/avatar/"
+                   hx-trigger="load"
+                   hx-target="#avatar"
+                   hx-indicator=".htmx-indicator">
               </div>
-            {% endif %}
+              <span id="avatar">
+                <svg aria-hidden="true" class="w-4 h-4 text-gray-200 animate-spin dark:text-gray-600 fill-orange" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                </svg>
+              </span>
             </span>
           </nav>
         </div>
@@ -281,19 +260,25 @@
 
             <a href="{% url 'releases-most-recent' %}" class="block py-2 px-3 text-slate dark:text-white">Releases</a>
           </div>
+          <div class="px-2 pt-6 pb-3 text-base">
+            <a href="/doc/user-guide/index.html" class="block py-2 px-3 text-slate dark:text-white">User Guide</a>
+            <a href="/doc/contributor-guide/index.html" class="block py-2 px-3 text-slate dark:text-white">Contributor Guide</a>
+            <a href="/doc/formal-reviews/index.html" class="block py-2 px-3 text-slate dark:text-white">Formal Reviews</a>
+          </div>
           <div class="absolute left-0 bottom-10 px-2 pt-6 pb-3 text-sm border-t border-gray-300 dark:border-gray-700 w-full">
-            {% if not user.is_authenticated %}
-              <a href="{% url 'account_signup' %}" class="block py-2 px-3 text-gray-500 dark:text-gray-400">Join</a>
-            {% else %}
-              {% if user.image %}
-                <span class="block py-2 px-3">
-                  <img src="{{ user.image.url }}" alt="user" class="inline -mt-1 rounded cursor-pointer w-[30px]" @click="userOpen = !userOpen" />
-                </span>
-              {% endif %}
-              <a href="{% url 'profile-account' %}" class="block py-2 px-3 text-gray-500 dark:text-gray-400">My Profile</a>
-              <a href="{% url 'account_logout' %}" class="block py-2 px-3 text-gray-500 dark:text-gray-400">Log Out</a>
-            {% endif %}
-            <a href="{% url 'support' %}" class="block py-2 px-3 text-gray-500 dark:text-gray-400">Support</a>
+            <span x-data="{ 'userOpen': false }" class="relative w-[30px]">
+              <div hx-get="/users/avatar/?ui=mobile"
+                   hx-trigger="load"
+                   hx-target="#mobileavatar"
+                   hx-indicator=".htmx-indicator">
+              </div>
+              <span id="mobileavatar">
+                <svg aria-hidden="true" class="w-4 h-4 text-gray-200 animate-spin dark:text-gray-600 fill-orange" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                </svg>
+              </span>
+            </span>
           </div>
         </div>
       </div>

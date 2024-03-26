@@ -7,13 +7,13 @@ from django.views.generic import DetailView
 from django.views.generic.base import TemplateView
 
 from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
-from allauth.account.views import SignupView
+from allauth.account.views import LoginView, SignupView
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.views import SignupView as SocialSignupView
 
 from rest_framework import generics
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .forms import PreferencesForm, UserProfileForm, UserProfilePhotoForm
 from .models import User
@@ -82,6 +82,7 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
         context["change_password_form"] = ChangePasswordForm(user=self.request.user)
         context["profile_form"] = UserProfileForm(instance=self.request.user)
         context["profile_photo_form"] = UserProfilePhotoForm(instance=self.request.user)
+        context["can_update_image"] = self.request.user.can_update_image
         context["profile_preferences_form"] = PreferencesForm(
             instance=self.request.user.preferences
         )
@@ -193,9 +194,10 @@ class ClaimExistingAccountMixin:
     """
 
     message = """
-        An account already exists for you. Check your email for
-        instructions on resetting your password so you can claim
-        your account.
+        We recognize your email address as matching that of a Boost Author or
+        Maintainer, and have already created an account for you. We have sent you an
+        email to reset the password for your account. Once your password has been
+        reset, your account is claimed.
     """
 
     def check_and_send_reset_email(self, form, message=None):
@@ -211,7 +213,9 @@ class ClaimExistingAccountMixin:
                     form = ResetPasswordForm({"email": email})
                     if form.is_valid():
                         form.save(request=self.request)
-                        messages.info(self.request, message)
+                        self.request.session[
+                            "contributor_account_redirect_message"
+                        ] = message
                         return HttpResponseRedirect(reverse_lazy("account_login"))
 
         return None
@@ -224,10 +228,11 @@ class CustomSocialSignupViewView(ClaimExistingAccountMixin, SocialSignupView):
     """
 
     message = """
-        An account already exists for you. Check your email for
-        instructions on resetting your password so you can claim
-        your account. Once you have logged into that account, connect your
-        social account from your Profile.
+        We recognize your email address as matching that of a Boost Author or
+        Maintainer, and have already created an account for you. We have sent you an
+        email to reset the password for your account. Once your password has been
+        reset, your account is claimed and you can connect your social account
+        from your Profile.
         """
 
     def form_invalid(self, form):
@@ -257,5 +262,25 @@ class CustomSignupView(ClaimExistingAccountMixin, SignupView):
         return res if res else super().form_invalid(form)
 
 
-# TODO: Then, we need to override the set password form to mark the user
-# as claimed once they set their password.
+class CustomLoginView(LoginView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["contributor_account_redirect_message"] = self.request.session.pop(
+            "contributor_account_redirect_message", None
+        )
+        return context
+
+
+class UserAvatar(TemplateView):
+    """
+    Returns the template for the user's avatar in the header from the htmx request.
+    """
+
+    permission_classes = [AllowAny]
+    template_name = "users/includes/header_avatar.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["user"] = self.request.user
+        context["mobile"] = self.request.GET.get("ui")
+        return context

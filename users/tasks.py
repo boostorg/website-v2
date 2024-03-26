@@ -2,6 +2,9 @@ import structlog
 
 from django.contrib.auth import get_user_model
 
+from celery import shared_task
+from oauth2_provider.models import clear_expired
+
 from config.celery import app
 from core.githubhelper import GithubAPIClient
 
@@ -31,3 +34,12 @@ def update_user_github_photo(user_pk):
     avatar_url = response["avatar_url"]
     user.save_image_from_github(avatar_url)
     logger.info("users_tasks_update_gh_photo_finished", user_pk=user_pk)
+
+
+# OAuth2 Tasks
+
+
+@shared_task
+def clear_tokens():
+    """Clears all expired tokens"""
+    clear_expired()

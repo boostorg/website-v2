@@ -7,6 +7,11 @@
     display: none !important;
   }
 
+  /* there is a bug somewhere that is preventing the cursor-pointer from working by default; for now setting this here */
+  a:link {
+    @apply cursor-pointer;
+  }
+
   body {
     @apply text-slate dark:text-white;
     @apply font-cairo;
@@ -43,11 +48,11 @@
     @apply w-full rounded bg-white dark:bg-charcoal border border-slate;
   }
   input[type=checkbox] {
-    @apply mr-3 rounded bg-white dark:bg-charcoal border border-slate text-orange;
+    @apply mr-3 rounded bg-white dark:bg-charcoal border border-slate text-orange dark:border-slate;
     @apply cursor-pointer;
   }
   input[type=file] {
-    @apply block w-full px-3 py-1 text-base text-slate dark:text-white font-normal text-orange bg-clip-padding border border-solid border-slate rounded transition ease-in-out my-2;
+    @apply block w-full px-3 py-1 text-base text-slate dark:text-white font-normal bg-clip-padding border border-solid border-slate rounded transition ease-in-out my-2;
   }
   #signup_form input[type=email],
   #signup_form input[type=password]{
@@ -84,11 +89,52 @@
   }
 
   select.dropdown {
-    @apply py-1 mb-3 text-sm bg-white rounded-md border border-gray-300 cursor-pointer dark:bg-black text-sky-600 dark:text-orange dark:border-slate;
+    @apply py-1 mb-3 min-w-[8rem] text-sm bg-white rounded-md border border-gray-300 cursor-pointer dark:bg-black text-sky-600 dark:text-orange dark:border-slate;
   }
 
   .errorlist {
     @apply bg-red-300 py-2 px-3 rounded text-white;
+  }
+
+  /* STYLES FOR THE LIBRARY README
+  These can't easily be handled in the template so doing globally.
+   */
+  #libraryReadMe h1 {
+    @apply text-3xl font-semibold border-b border-gray-300 dark:border-slate;
+  }
+  #libraryReadMe h1 a {
+    @apply float-right inline-block mx-2;
+  }
+  #libraryReadMe h2 {
+    @apply mt-3 text-2xl font-semibold border-b border-gray-300 dark:border-slate;
+  }
+  #libraryReadMe h3 {
+    @apply mt-3 text-xl font-semibold;
+  }
+  #libraryReadMe p {
+    @apply text-base pb-1 font-light;
+  }
+  #libraryReadMe ul {
+    @apply list-disc list-inside;
+  }
+  #libraryReadMe ul li {
+    @apply text-base py-1 font-light;
+  }
+  #libraryReadMe table {
+    @apply table-auto w-full;
+  }
+  #libraryReadMe code {
+    @apply text-sm;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    /* 1 */
+    @apply text-sm bg-gray-200 dark:bg-black overflow-x-scroll;
+    /* 2 */
   }
 
 }

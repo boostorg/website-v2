@@ -4,6 +4,7 @@ import pytest
 from django.core.cache import caches
 from django.test import RequestFactory
 from django.test.utils import override_settings
+from django.http import Http404
 
 from core.views import StaticContentTemplateView
 
@@ -71,12 +72,13 @@ def test_content_found(request_factory):
 @override_settings(
     CACHES=TEST_CACHES,
 )
-def test_content_not_found(request_factory):
+def test_content_not_found(tp, request_factory):
     """Test that a 404 response is returned for nonexistent content."""
     content_path = "/nonexistent/file.html"
-    with patch("core.views.get_content_from_s3", return_value=None):
-        response = call_view(request_factory, content_path)
-    assert response.status_code == 404
+
+    with patch("core.views.get_content_from_s3", side_effect=Http404):
+        with pytest.raises(Http404):
+            call_view(request_factory, content_path)
 
 
 @pytest.mark.django_db
@@ -197,7 +199,6 @@ def test_docs_libs_gateway_404(tp, mock_get_file_data):
     mock_get_file_data("<html></html>", "a-url")
 
     response = tp.get("docs-libs-page", content_path="other-url")
-
     tp.response_404(response)
 
 
@@ -245,3 +246,8 @@ def test_docs_libs_gateway_200_html_transformed(rf, tp, mock_get_file_data):
     </div>
     """
     tp.assertResponseNotContains(legacy_body, response)
+
+
+def test_calendar(rf, tp):
+    response = tp.get("calendar")
+    tp.response_200(response)

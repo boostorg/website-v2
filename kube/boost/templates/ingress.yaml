@@ -42,6 +42,10 @@ spec:
       http: *http_rules
     - host: {{ .Values.publicFqdn3 }}
       http: *http_rules
+    - host: www.{{.Values.publicFqdn4 }}
+      http: *http_rules
+    - host: {{ .Values.publicFqdn4 }}
+      http: *http_rules
 
 {{- else if eq .Values.ingressType "gce" }}
 
@@ -85,6 +89,10 @@ spec:
     - host: www.{{.Values.publicFqdn3 }}
       http: *http_rules_gcp
     - host: {{ .Values.publicFqdn3 }}
+      http: *http_rules_gcp
+    - host: www.{{.Values.publicFqdn4 }}
+      http: *http_rules_gcp
+    - host: {{ .Values.publicFqdn4 }}
       http: *http_rules_gcp
 ---
 apiVersion: networking.gke.io/v1beta1

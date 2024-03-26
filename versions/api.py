@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.views import View
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.decorators import method_decorator
-from versions.tasks import import_versions
+from versions.tasks import import_versions, import_most_recent_beta_release
 
 
 @method_decorator(staff_member_required, name="dispatch")
@@ -20,6 +20,7 @@ class ImportVersionsView(View):
 
     def post(self, request, *args, **kwargs):
         import_versions.delay(new_versions_only=True)
+        import_most_recent_beta_release.delay(delete_old=True)
         return JsonResponse({"status": "Importing versions..."}, status=200)
 
 

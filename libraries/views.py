@@ -3,6 +3,7 @@ import structlog
 
 from dateutil.relativedelta import relativedelta
 from django.http import Http404
+from django.contrib import messages
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, ListView
@@ -39,7 +40,17 @@ class LibraryList(VersionAlertMixin, ListView):
 
         # default to the most recent version
         if "version" not in params:
-            params["version"] = Version.objects.most_recent().slug
+            version = Version.objects.most_recent()
+            if version:
+                params["version"] = version.slug
+            else:
+                # Add a message that no data has been imported
+                messages.add_message(
+                    self.request,
+                    messages.WARNING,
+                    "No data has been imported yet. Please check back later.",
+                )
+                return Library.objects.none()
 
         queryset = queryset.filter(library_version__version__slug=params["version"])
 
@@ -51,6 +62,21 @@ class LibraryList(VersionAlertMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Handle the case where data hasn't been imported yet
+        version = Version.objects.most_recent()
+        if not version:
+            context.update(
+                {
+                    "category": None,
+                    "version": None,
+                    "categories": Category.objects.none(),
+                    "versions": Version.objects.none(),
+                    "library_list": Library.objects.none(),
+                }
+            )
+            return context
+
         if "category" in self.request.GET and self.request.GET["category"] != "":
             context["category"] = Category.objects.get(
                 slug=self.request.GET["category"]
@@ -75,12 +101,12 @@ class LibraryList(VersionAlertMixin, ListView):
         """
         Return a queryset of all versions to display in the version dropdown.
         """
-        versions = Version.objects.active().order_by("-release_date")
+        versions = Version.objects.version_dropdown().order_by("-name")
 
         # Annotate each version with the number of libraries it has
         versions = versions.annotate(
             library_count=Count("library_version", distinct=True)
-        ).order_by("-release_date")
+        ).order_by("-name")
 
         # Filter out versions with no libraries
         versions = versions.filter(library_count__gt=0)
@@ -129,6 +155,7 @@ class LibraryDetail(FormMixin, DetailView):
     form_class = VersionSelectionForm
     model = Library
     template_name = "libraries/detail.html"
+    redirect_to_docs = False
 
     def get_context_data(self, **kwargs):
         """Set the form action to the main libraries page"""
@@ -280,9 +307,17 @@ class LibraryDetail(FormMixin, DetailView):
         """Get the documentation URL for the current library."""
         obj = self.get_object()
         library_version = LibraryVersion.objects.get(library=obj, version=version)
-        if library_version.documentation_url:
+        docs_url = version.documentation_url
+
+        # If we know the library-version docs are missing, return the version docs
+        if library_version.missing_docs:
+            return docs_url
+        # If we have the library-version docs and believe they are valid, return those
+        elif library_version.documentation_url:
             return library_version.documentation_url
-        return version.documentation_url
+        # If we wind up here, return the version docs
+        else:
+            return docs_url
 
     def get_github_url(self, version):
         """Get the GitHub URL for the current library."""
@@ -308,6 +343,13 @@ class LibraryDetail(FormMixin, DetailView):
             return get_object_or_404(Version, slug=version_slug)
         else:
             return Version.objects.most_recent()
+
+    def dispatch(self, request, *args, **kwargs):
+        """Redirect to the documentation page, if configured to."""
+        if self.redirect_to_docs:
+            return redirect(self.get_documentation_url(self.get_version()))
+
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         """User has submitted a form and will be redirected to the right record."""

@@ -10,7 +10,7 @@
     <div class="md:w-full text-center">
       <h1 class="text-4xl">{% trans "Sign Up" %}</h1>
 
-      <p>{% blocktrans with provider_name=account.get_provider.name site_name=site.name %}You are about to use your {{provider_name}} account to login to
+      <p>{% blocktrans with provider_name=account.get_provider.name site_name=site.name %}You are about to use your {{provider_name}} account to log in to
 {{site_name}}. As a final step, please complete the following form:{% endblocktrans %}</p>
 
       <form id="signup_form" method="post" action="{% url 'socialaccount_signup' %}" class="w-full md:w-1/2 mx-auto">

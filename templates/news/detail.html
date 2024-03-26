@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% load text_helpers %}
 
 {% block title %}{% trans "News" %}{% endblock %}
 
@@ -8,10 +9,7 @@
 
   <!-- end breadcrumb -->
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
-    <div class="py-16 md:mx-auto md:w-3/4">
-      <h1 class="text-4xl">{{ entry.title }}</h1>
-      <p class="mt-0 text-sm font-light">{{ entry.publish_at|date:"M jS, Y" }}</p>
-
+    <div class="py-8 md:mx-auto md:w-3/4">
       <!-- Author or Moderator Actions -->
       <div class="space-x-3 text-right">
         {% if not entry.is_approved %}
@@ -19,7 +17,7 @@
           {% if user_can_approve %}
           <form method="POST" action="{% url 'news-approve' entry.slug %}">
             {% csrf_token %}
-            <button type="submit" name="approve" class="flex justify-center items-center py-2 px-8 text-base font-medium text-white rounded-md border md:py-4 md:px-4 md:text-lg border-orange bg-orange dark:bg-charcoal dark:text-orange">
+            <button type="submit" name="approve" class="py-1 px-2 mb-3 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75">
               {% translate "Approve" %}
             </button>
             {% if next_url %}
@@ -27,54 +25,68 @@
             {% endif %}
           </form>
           {% else %}
-          <strong>{% translate "Pending Moderation" %}</strong>
+          <strong class="text-base text-red-500">{% translate "Pending Moderation" %}</strong>
           {% endif %}
         </div>
         {% endif %}
-        {% if user_can_edit %}
-          <a href="{% url 'news-update' entry.slug %}" class="inline-block items-center dark:text-white">
-            <i class="fas fa-edit"></i>
+        {% if user_can_delete %}
+          <a href="{% url 'news-delete' entry.slug %}" class="float-right inline-block items-center dark:text-white/50 dark:hover:text-orange text-sm ml-3 mt-2">
+            <i class="fas fa-trash-alt"></i>
           </a>
         {% endif %}
-        {% if user_can_delete %}
-          <a href="{% url 'news-delete' entry.slug %}" class="inline-block items-center dark:text-white">
-            <i class="fas fa-trash-alt"></i>
+        {% if user_can_edit %}
+          <a href="{% url 'news-update' entry.slug %}" class="float-right inline-block items-center dark:text-white/50 dark:hover:text-orange text-sm ml-3 mt-2">
+            <i class="fas fa-edit"></i>
           </a>
         {% endif %}
       </div>
       <!-- End Actions -->
+      <h1 class="text-4xl">{{ entry.title }}</h1>
+      <div class="space-x-3 mt-3 flex items-center">
+        {% if entry.author.image %}
+          <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
+            <img src="{{ entry.author.image_thumbnail.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
+          </span>
+        {% else %}
+          <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
+            <i class="text-2xl fas fa-user ml-1" title="{{ entry.author.get_full_name }}"></i>
+          </span>
+        {% endif %}
+        {% if entry.author.get_full_name %}
+          <div class="inline-block p-0 m-0">
+            {{ entry.author.get_full_name }}<br />
+            <span class="block py-0 text-xs">{{ entry.publish_at|date:"M jS, Y" }}</span>
+          </div>
+        {% endif %}
+      </div>
 
-      {% if entry.external_url %}
-      <p>{{ entry.external_url|escape|urlize }}</p>
-      {% endif %}
+      <div class="block px-6 py-4 my-6 w-full bg-white rounded-lg dark:bg-charcoal">
+        {% if entry.external_url %}
+        <p>{{ entry.external_url|escape|urlize }}</p>
+        {% endif %}
 
-      {% if entry.image %}
-      <img src="{{ entry.image.url }}" class="mb-5 w-full h-auto md:float-left md:mr-5 md:w-1/6 md:min-w-[200px]">
-      {% endif %}
-      {{ entry.content|linebreaks }}
+        {% if entry.image %}
+        <img src="{{ entry.image.url }}" class="mb-2 w-full h-auto md:float-right md:ml-5 md:mt-6 md:w-1/6 md:min-w-[200px] border border-black">
+        {% endif %}
+        <div class="break-all">
+        {{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaks }}
+        </div>
+      </div>
 
-    </div>
-
-    <div class="flex py-3 my-3 space-x-4 border-t border-b border-gray-400 md:mx-auto md:w-3/4">
-      <span class="inline-block">Share:</span>
-      <img class="inline-block" src="{% static 'img/icons/icon_Facebook-logo.svg' %}" alt="Facebook" />
-      <img class="inline-block" src="{% static 'img/icons/icon_Twitter-logo.svg' %}" alt="Twitter" />
-      <img class="inline-block" src="{% static 'img/icons/icon_Linkedin-logo.svg' %}" alt="Linkedin" />
-      <img class="inline-block" src="{% static 'img/icons/icon_email.svg' %}" alt="Email" />
     </div>
 
     {% if next or prev %}
-    <div class="flex my-16 md:mx-auto md:w-3/4">
-      {% if next %}
+    <div class="flex my-4 md:mx-auto md:w-3/4">
       <div class="w-1/2 text-left">
-        <a href="{{ next.get_absolute_url }}" class="py-2 px-3 text-sm font-medium uppercase bg-gray-300 rounded-md border border-slate">Newer Entries</a>
-      </div>
+      {% if next %}
+        <a href="{{ next.get_absolute_url }}" class="py-1 px-2 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75">Newer Entries</a>
       {% endif  %}
-      {% if prev %}
-      <div class="w-1/2 text-right">
-        <a href="{{ prev.get_absolute_url }}" class="py-2 px-3 text-sm font-medium uppercase bg-gray-300 rounded-md border border-slate">Older Entries</a>
       </div>
+      <div class="w-1/2 text-right">
+      {% if prev %}
+        <a href="{{ prev.get_absolute_url }}" class="py-1 px-2 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75">Older Entries</a>
       {% endif %}
+      </div>
     </div>
     {% endif %}
 

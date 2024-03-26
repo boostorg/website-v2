@@ -7,6 +7,8 @@ from django.utils.text import slugify
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
+from core.validators import image_validator, max_file_size_validator
+
 from . import acl
 
 User = get_user_model()
@@ -55,7 +57,7 @@ class Entry(models.Model):
         """The entry cannot be approved again."""
 
     news_type = ""
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=300)
     title = models.CharField(max_length=255)
     content = models.TextField(blank=True, default="")
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -66,8 +68,13 @@ class Entry(models.Model):
         blank=True,
         related_name="moderated_entries_set",
     )
-    external_url = models.URLField(_("URL"), blank=True, default="")
-    image = models.ImageField(upload_to="news/%Y/%m/", null=True, blank=True)
+    external_url = models.URLField(_("URL"), blank=True, default="", max_length=500)
+    image = models.ImageField(
+        upload_to="news/%Y/%m/",
+        null=True,
+        blank=True,
+        validators=[image_validator, max_file_size_validator],
+    )
     created_at = models.DateTimeField(default=now)
     approved_at = models.DateTimeField(null=True, blank=True)
     modified_at = models.DateTimeField(auto_now=True)
@@ -179,7 +186,7 @@ class News(Entry):
 
     class Meta:
         verbose_name = "News"
-        verbose_name_plural = "News"
+        verbose_name_plural = "News Items"
 
 
 class BlogPost(Entry):

@@ -1,4 +1,6 @@
+import re
 from django.db import models
+from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
@@ -22,6 +24,14 @@ class Version(models.Model):
         null=True,
         help_text="The URL of the Boost version's GitHub repository.",
     )
+    beta = models.BooleanField(
+        default=False, help_text="Whether this is a beta release"
+    )
+    full_release = models.BooleanField(
+        default=True,
+        help_text="Whether this is a full release and not a "
+        "beta release or a development version",
+    )
     data = models.JSONField(default=dict)
 
     objects = VersionManager()
@@ -33,6 +43,9 @@ class Version(models.Model):
         if not self.slug:
             self.slug = self.get_slug()
         return super(Version, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse("release-detail", args=[str(self.slug)])
 
     def get_slug(self):
         if self.slug:
@@ -57,6 +70,16 @@ class Version(models.Model):
         return self.slug.replace("-", "_").replace(".", "_")
 
     @cached_property
+    def stripped_boost_url_slug(self):
+        """Return the only the numbers and underscores for this version
+
+        Example:
+        - "boost-1.75.0" --> "1_75_0"
+        - "develop" --> "develop"
+        """
+        return self.slug.replace("-", "_").replace(".", "_").replace("boost_", "")
+
+    @cached_property
     def boost_release_notes_url(self):
         """Return the URL path to the release notes for this version of Boost on
         the existing Boost.org website.
@@ -73,6 +96,22 @@ class Version(models.Model):
         site_path = "/doc/libs/"
         slug = self.slug.replace("-", "_").replace(".", "_")
         return f"{site_path}{slug}/index.html"
+
+    @cached_property
+    def cleaned_version_parts(self):
+        """Returns only the release data from the name. Also omits "boost", "beta"
+        information from the name."""
+        if not self.name:
+            return
+
+        cleaned = re.sub(r"^[^0-9]*", "", self.name).split("beta")[0]
+        return [part for part in cleaned.split(".") if part]
+
+    @cached_property
+    def release_notes_cache_key(self):
+        """Returns the cahe key used to access the release notes in the
+        RenderedContent model."""
+        return f"release_notes_{self.slug}"
 
 
 class VersionFile(models.Model):

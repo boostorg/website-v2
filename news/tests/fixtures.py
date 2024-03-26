@@ -25,6 +25,7 @@ def make_entry(db):
         kwargs.setdefault("approved_at", approved_at)
         kwargs.setdefault("moderator", moderator)
         kwargs.setdefault("publish_at", publish_at)
+        kwargs.setdefault("title", "Admin User's Q3 Update")
         entry = baker.make(model_class, **kwargs)
         entry.author.set_password("password")
         entry.author.save()
@@ -64,7 +65,7 @@ def make_user(db):
         groups=None,
         password="password",
         allow_notification_others_news_posted=None,
-        **kwargs
+        **kwargs,
     ):
         user = baker.make("users.User", **kwargs)
         user.set_password(password)
@@ -96,12 +97,18 @@ def make_user(db):
 def moderator_user(db, make_user):
     # we could use `tp.make_user` but we need this fix to be released
     # https://github.com/revsys/django-test-plus/issues/199
-    return make_user(email="moderator@example.com", perms=["news.*"])
+    user = make_user(email="moderator@example.com", perms=["news.*"])
+    user.image = "test.png"
+    user.save()
+    return user
 
 
 @pytest.fixture
 def regular_user(db, make_user):
-    return make_user(email="regular@example.com")
+    user = make_user(email="regular@example.com")
+    user.image = "test.png"
+    user.save()
+    return user
 
 
 @pytest.fixture

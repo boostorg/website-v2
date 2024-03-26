@@ -1,5 +1,7 @@
 import structlog
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from fastcore.xtras import obj2dict
 
 from core.githubhelper import GithubAPIClient, GithubDataParser
@@ -11,6 +13,15 @@ from .utils import generate_fake_email, parse_date
 logger = structlog.get_logger()
 
 User = get_user_model()
+
+
+now = timezone.now()
+FIRST_OF_MONTH_ONE_YEAR_AGO = timezone.make_aware(
+    timezone.datetime(year=now.year - 1, month=now.month, day=1)
+)
+FIRST_OF_CURRENT_MONTH = timezone.make_aware(
+    timezone.datetime(year=now.year, month=now.month, day=1)
+) - relativedelta(days=1)
 
 
 class LibraryUpdater:
@@ -45,6 +56,9 @@ class LibraryUpdater:
             "cmake",
             "more",
         ]
+        # Libraries to skip that are not "modules", but appear as child-libraries
+        # of other modules. Identified by the key used in the libraries.json file.
+        self.skip_libraries = ["chrono/stopwatch"]
 
     def get_library_list(self, gitmodules=None):
         """
@@ -73,17 +87,19 @@ class LibraryUpdater:
             if type(libraries_json) is list:
                 for library in libraries_json:
                     data = self.parser.parse_libraries_json(library)
+                    if data["key"] in self.skip_libraries:
+                        continue
                     libraries.append({**data, **extra_data})
 
             elif type(libraries_json) is dict:
                 data = self.parser.parse_libraries_json(libraries_json)
+                if data["key"] in self.skip_libraries:
+                    continue
                 libraries.append({**data, **extra_data})
 
         return libraries
 
-    def update_libraries(
-        self,
-    ):
+    def update_libraries(self):
         """
         Update all libraries with the metadata from their libraries.json file.
         """
@@ -204,23 +220,34 @@ class LibraryUpdater:
             self.logger.info(f"User {user.email} added as a maintainer of {obj}")
 
     def update_monthly_commit_counts(
-        self, obj: Library, branch: str = "master", since=None, until=None
+        self,
+        branch: str = "master",
+        since=FIRST_OF_MONTH_ONE_YEAR_AGO,
+        until=FIRST_OF_CURRENT_MONTH,
     ):
-        """Update the monthly commit data for a library.
+        """Update the monthly commit data for all libraries
 
-        :param obj: Library object
-        :param commit_data: Dictionary of commit data, as output by the parser's
-            get_commits_per_month method.
         :param branch: Branch to update commit data for. Defaults to "master".
+        :param since: Year to update commit data for. Defaults to a year ago
+        :param until: Year to update commit data for. Defaults to present year
 
         Note: Overrides CommitData objects for the library; does not increment
         the count.
         """
-        if not obj.github_repo:
-            self.logger.info("updating_monthly_commit_data_skipped_no_repo")
-            return
-
         self.logger.info("updating_monthly_commit_data")
+        for library in Library.objects.all():
+            self.update_monthly_commit_counts_for_library(
+                library, branch=branch, since=since, until=until
+            )
+
+    def update_monthly_commit_counts_for_library(
+        self,
+        obj,
+        branch: str = "master",
+        since=FIRST_OF_MONTH_ONE_YEAR_AGO,
+        until=FIRST_OF_CURRENT_MONTH,
+    ):
+        """Update the commit counts for a specific library."""
         commits = self.client.get_commits(
             repo_slug=obj.github_repo, branch=branch, since=since, until=until
         )

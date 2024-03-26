@@ -35,10 +35,19 @@ def clear_rendered_content_cache_by_content_type(content_type):
 
 
 @shared_task
+def clear_static_content_cache():
+    """Runs the manager method to clear the static content cache"""
+    RenderedContent.objects.clear_cache_by_cache_type_and_date(
+        cache_type="static_content_"
+    )
+
+
+@shared_task
 def refresh_content_from_s3(s3_key, cache_key):
     """Calls S3 with the s3_key, then saves the result to the
     RenderedContent object with the given cache_key."""
     content_dict = get_content_from_s3(key=s3_key)
+
     content = content_dict.get("content")
     if content_dict and content:
         content_type = content_dict.get("content_type")

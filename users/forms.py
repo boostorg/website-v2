@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth import get_user_model
 from django import forms
 
@@ -80,7 +82,55 @@ class UserProfileForm(forms.ModelForm):
         fields = ["email", "first_name", "last_name"]
 
 
+class CustomClearableFileInput(forms.ClearableFileInput):
+    """
+    Overrides the template for clearable file input so that we can display
+    the widget without the filename/path displayed and change the checkbox
+    to clear the field.
+    """
+
+    template_name = "users/clearable_file_input.html"
+
+
 class UserProfilePhotoForm(forms.ModelForm):
+    image = forms.FileField(widget=CustomClearableFileInput, required=False)
+
     class Meta:
         model = User
         fields = ["image"]
+
+    def clean(self):
+        """Ensure a user can't update their photo if they
+        don't have permission."""
+        cleaned_data = super().clean()
+        if not self.instance.can_update_image:
+            raise forms.ValidationError(
+                "You do not have permission to update your profile photo."
+            )
+        return cleaned_data
+
+    def save(self, commit=True):
+        # Temporarily store the old image
+        old_image = self.instance.image
+        # Save the new image
+        user = super().save(commit=False)
+
+        if old_image:
+            # Delete the old image file if there's a new image being uploaded
+            if self.cleaned_data["image"] != old_image:
+                old_image.delete(save=False)
+
+        if self.cleaned_data.get("image"):
+            new_image = self.cleaned_data["image"]
+            _, file_extension = os.path.splitext(new_image.name)
+
+            # Strip the leading period from the file extension.
+            file_extension = file_extension.lstrip(".")
+
+            new_image.name = f"{user.profile_image_filename_root}.{file_extension}"
+            user.image = new_image
+
+        if commit:
+            user.save()
+
+        return user

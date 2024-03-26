@@ -28,3 +28,25 @@ div.refentry:first-of-type,,
 div.book:first-of-type, {
   @apply max-w-7xl px-3 md:px-6 mx-auto;
 }
+
+#avatar>div,
+#avatar>div>img {
+  @apply rounded;
+}
+
+#userMenu, #guideMenu {
+  border: 1px solid #d1d5db;
+}
+
+#headblock nav a,
+#headblock nav a:visited {
+  @apply dark:text-white text-slate;
+}
+
+#headblock nav a:hover {
+  @apply !text-orange;
+}
+
+#avatar>div {
+  @apply bg-white text-slate rounded dark:text-white dark:bg-slate;
+}

@@ -13,10 +13,10 @@
 {% endif %}
 
 {% if field.field.widget.input_type == "file" %}
-  {% render_field field class="text-sm text-grey-500 !border-0 file:mr-5 file:py-2 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white file:text-slate hover:file:cursor-pointer hover:file:bg-orange hover:file:text-white" placeholder=field.label %}
+  {% render_field field class="text-sm text-grey-500 !border-0 file:mr-5 file:py-2 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white file:text-slate hover:file:cursor-pointer hover:file:bg-orange hover:file:text-white"%}
 {% elif field.field.widget.input_type == "checkbox" %}
   {% render_field field %}
 {% else %}
-  {% render_field field class="w-full bg-white rounded border-gray-300 dark:text-white text-slate dark:border-slate dark:bg-charcoal" %}
+  {% render_field field class="w-full bg-white rounded border-gray-300 dark:text-white text-slate dark:border-slate dark:bg-charcoal" placeholder="" %}
 {% endif %}
 </label>

@@ -1,7 +1,10 @@
+import datetime
 from model_bakery import baker
 
+from django.conf import settings
 from django.core.cache import caches
 from django.test import override_settings
+from django.utils import timezone
 
 from ..models import RenderedContent
 
@@ -57,3 +60,21 @@ def test_delete_by_cache_key():
 
     assert RenderedContent.objects.filter(cache_key="keep").exists()
     assert not RenderedContent.objects.filter(cache_key="clear").exists()
+
+
+def test_clear_cache_by_cache_type_and_date(rendered_content):
+    cache_type = "cache-key"
+    older_than_days = settings.CLEAR_STATIC_CONTENT_CACHE_DAYS
+
+    # Create old cache entry
+    old_date = timezone.now() - datetime.timedelta(days=older_than_days + 1)
+    old_content = baker.make("core.RenderedContent", cache_key=f"{cache_type}_old")
+    old_content.created = old_date
+    old_content.save()
+
+    initial_count = RenderedContent.objects.count()
+    RenderedContent.objects.clear_cache_by_cache_type_and_date(cache_type=cache_type)
+    final_count = RenderedContent.objects.count()
+    assert final_count == initial_count - 1
+    assert not RenderedContent.objects.filter(cache_key=f"{cache_type}_old").exists()
+    assert RenderedContent.objects.filter(cache_key=rendered_content.cache_key).exists()

@@ -12,15 +12,7 @@
         }
       });
     </script>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1N51ZC252K"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-1N51ZC252K');
-    </script>
+    <script defer data-domain="preview.boost.org" src="https://plausible.io/js/script.js"></script>
 
     <title>{% block title %}Boost{% endblock %}</title>
     <meta charset="utf-8" />
@@ -34,7 +26,7 @@
     <meta class="meta-theme" name="theme-color" content="#FAFAFA" data-dark="#18181B" data-light="#FAFAFA" />
     <meta class="meta-theme" name="color-scheme" content="light" data-dark="dark" data-light="light" />
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.css" />
     <script src="https://cdn.jsdelivr.net/npm/@ryangjchandler/alpine-clipboard@2.x.x/dist/alpine-clipboard.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js" defer></script>
     <script src="//unpkg.com/alpinejs" defer></script>
@@ -43,9 +35,12 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <!-- detect dark or light mode -->
     <script src="{% static 'js/DetectMode.js' %}"></script>
+    <script src="{% static 'js/boost-gecko/main.d32fa2d9.js' %}" defer></script>
     {% block extra_head %}
       <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
     {% endblock %}
+
+    {% block css %}{% endblock css %}
   </head>
 
   <body x-init="() => {const m = localStorage.getItem('colorMode');
