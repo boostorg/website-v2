@@ -115,3 +115,12 @@ hr:first-of-type {
 select, #search-input {
   @apply dark:bg-charcoal dark:text-white dark:border-slate;
 }
+
+#avatar>div,
+#avatar>div>img {
+  @apply rounded;
+}
+
+#userMenu, #guideMenu {
+  border: 1px solid #d1d5db;
+}

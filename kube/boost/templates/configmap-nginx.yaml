@@ -54,8 +54,22 @@ data:
           add_header Content-Type text/plain;
       }
 
-      location / {
+      location @django1 {
           proxy_pass http://unix:/run/gunicorn.sock;
+          proxy_intercept_errors on;
+          recursive_error_pages on;
+          error_page 404 = @django2;
+      }
+
+      location @django2 {
+          if ($uri !~* /$ ) {
+              rewrite  ^(.*)$  $1/ redirect;
+          }
+          proxy_pass http://unix:/run/gunicorn.sock;
+      }
+
+      location / {
+          try_files not_a_file.html @django1;
       }
 
       location /static {

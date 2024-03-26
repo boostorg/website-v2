@@ -155,6 +155,7 @@ class LibraryDetail(FormMixin, DetailView):
     form_class = VersionSelectionForm
     model = Library
     template_name = "libraries/detail.html"
+    redirect_to_docs = False
 
     def get_context_data(self, **kwargs):
         """Set the form action to the main libraries page"""
@@ -306,9 +307,17 @@ class LibraryDetail(FormMixin, DetailView):
         """Get the documentation URL for the current library."""
         obj = self.get_object()
         library_version = LibraryVersion.objects.get(library=obj, version=version)
-        if library_version.documentation_url:
+        docs_url = version.documentation_url
+
+        # If we know the library-version docs are missing, return the version docs
+        if library_version.missing_docs:
+            return docs_url
+        # If we have the library-version docs and believe they are valid, return those
+        elif library_version.documentation_url:
             return library_version.documentation_url
-        return version.documentation_url
+        # If we wind up here, return the version docs
+        else:
+            return docs_url
 
     def get_github_url(self, version):
         """Get the GitHub URL for the current library."""
@@ -334,6 +343,13 @@ class LibraryDetail(FormMixin, DetailView):
             return get_object_or_404(Version, slug=version_slug)
         else:
             return Version.objects.most_recent()
+
+    def dispatch(self, request, *args, **kwargs):
+        """Redirect to the documentation page, if configured to."""
+        if self.redirect_to_docs:
+            return redirect(self.get_documentation_url(self.get_version()))
+
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         """User has submitted a form and will be redirected to the right record."""

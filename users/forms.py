@@ -123,8 +123,11 @@ class UserProfilePhotoForm(forms.ModelForm):
         if self.cleaned_data.get("image"):
             new_image = self.cleaned_data["image"]
             _, file_extension = os.path.splitext(new_image.name)
-            new_image.name = f"{user.profile_image_filename_root}.{file_extension}"
 
+            # Strip the leading period from the file extension.
+            file_extension = file_extension.lstrip(".")
+
+            new_image.name = f"{user.profile_image_filename_root}.{file_extension}"
             user.image = new_image
 
         if commit:

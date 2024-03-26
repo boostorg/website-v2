@@ -14,9 +14,11 @@ from ak.views import (
     OKView,
 )
 from core.views import (
+    BSLView,
     CalendarView,
     ClearCacheView,
     DocLibsTemplateView,
+    ImageView,
     MarkdownTemplateView,
     StaticContentTemplateView,
     UserGuideTemplateView,
@@ -81,6 +83,7 @@ urlpatterns = (
         path("feed/downloads.atom", AtomVersionFeed(), name="downloads_feed_atom"),
         path("feed/news.rss", RSSNewsFeed(), name="news_feed_rss"),
         path("feed/news.atom", AtomNewsFeed(), name="news_feed_atom"),
+        path("LICENSE_1_0.txt", BSLView, name="license"),
         path(
             "accounts/social/signup/",
             CustomSocialSignupViewView.as_view(),
@@ -133,7 +136,7 @@ urlpatterns = (
         path(
             "style-guide/",
             TemplateView.as_view(template_name="style_guide.html"),
-            name="donate",
+            name="style-guide",
         ),
         path(
             "libraries/by-category/",
@@ -151,6 +154,12 @@ urlpatterns = (
             "libraries/<slug:slug>/",
             LibraryDetail.as_view(),
             name="library-detail",
+        ),
+        # Redirect for '/libs/' legacy boost.org urls.
+        re_path(
+            r"^libs/(?P<slug>[-\w]+)/?$",
+            LibraryDetail.as_view(redirect_to_docs=True),
+            name="library-docs-redirect",
         ),
         path(
             "mailing-list/<int:pk>/",
@@ -205,13 +214,15 @@ urlpatterns = (
         ),
         path(
             "privacy/",
-            TemplateView.as_view(template_name="privacy_temp.html"),
+            MarkdownTemplateView.as_view(),
             name="privacy",
+            kwargs={"markdown_local": "privacy-policy"},
         ),
         path(
             "terms-of-use/",
-            TemplateView.as_view(template_name="terms_of_use.html"),
+            MarkdownTemplateView.as_view(),
             name="terms-of-use",
+            kwargs={"markdown_local": "terms-of-use"},
         ),
         path(
             "moderators/",
@@ -278,6 +289,12 @@ urlpatterns = (
             r"^markdown/(?P<content_path>.+)/?",
             MarkdownTemplateView.as_view(),
             name="markdown-page",
+        ),
+        # Images from static content
+        re_path(
+            r"^images/(?P<content_path>.+)/?",
+            ImageView.as_view(),
+            name="images-page",
         ),
         # Static content
         re_path(

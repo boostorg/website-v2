@@ -6,9 +6,11 @@ from django.conf import settings
 from django.core.management import call_command
 from fastcore.xtras import obj2dict
 from core.githubhelper import GithubAPIClient, GithubDataParser
+from libraries.constants import SKIP_LIBRARY_VERSIONS
 from libraries.github import LibraryUpdater
 from libraries.models import Library, LibraryVersion
 from libraries.tasks import get_and_store_library_version_documentation_urls_for_version
+from libraries.utils import version_within_range
 from versions.models import Version
 from versions.releases import store_release_notes_for_version
 
@@ -182,6 +184,43 @@ def import_most_recent_beta_release(token=None, delete_old=False):
             return
 
 
+LIBRARY_KEY_EXCEPTIONS = {
+    "utility/string_ref": [
+        {
+            "new_key": "utility/string_view",
+            "new_name": "String View",
+            "min_version": "boost-1.78.0",  # Apply change for versions >= boost-1.78.0
+        }
+    ],
+}
+
+
+@app.task
+def import_all_library_versions(token=None, version_type="tag"):
+    """Run import_library_versions for all versions"""
+    for version in Version.objects.active():
+        import_library_versions.delay(
+            version.name, token=token, version_type=version_type
+        )
+
+
+def skip_library_version(library_slug, version_slug):
+    """Returns True if the given library-version should be skipped."""
+    skipped_records = SKIP_LIBRARY_VERSIONS.get(library_slug, [])
+    if not skipped_records:
+        return False
+
+    for exception in skipped_records:
+        if version_within_range(
+            version_slug,
+            min_version=exception.get("min_version"),
+            max_version=exception.get("max_version"),
+        ):
+            return True
+
+    return False
+
+
 @app.task
 def import_library_versions(version_name, token=None, version_type="tag"):
     """For a specific version, imports all LibraryVersions using GitHub data"""
@@ -220,6 +259,9 @@ def import_library_versions(version_name, token=None, version_type="tag"):
         if library_name in updater.skip_modules:
             continue
 
+        if skip_library_version(library_name, version_name):
+            continue
+
         try:
             libraries_json = client.get_libraries_json(
                 repo_slug=library_name, tag=version_name
@@ -250,11 +292,15 @@ def import_library_versions(version_name, token=None, version_type="tag"):
         if not libraries_json:
             # Can happen with older releases -- we try to catch all exceptions
             # so this is just in case
-            logger.info(
-                "import_library_versions_skipped_library",
-                version_name=version_name,
-                library_name=library_name,
+            library_version = save_library_version_by_library_key(
+                library_name, version, gitmodule
             )
+            if not library_version:
+                logger.info(
+                    "import_library_versions_skipped_library",
+                    version_name=version_name,
+                    library_name=library_name,
+                )
             continue
 
         libraries = (
@@ -262,7 +308,22 @@ def import_library_versions(version_name, token=None, version_type="tag"):
         )
         parsed_libraries = [parser.parse_libraries_json(lib) for lib in libraries]
         for lib_data in parsed_libraries:
-            library, created = Library.objects.get_or_create(
+            if lib_data["key"] in updater.skip_libraries:
+                continue
+
+            # Handle exceptions based on version and library key
+            exceptions = LIBRARY_KEY_EXCEPTIONS.get(lib_data["key"], [])
+            for exception in exceptions:
+                if version_within_range(
+                    version_name,
+                    min_version=exception.get("min_version"),
+                    max_version=exception.get("max_version"),
+                ):
+                    lib_data["key"] = exception["new_key"]
+                    lib_data["name"] = exception.get("name", lib_data["name"])
+                    break  # Stop checking exceptions if a match is found
+
+            library, _ = Library.objects.get_or_create(
                 key=lib_data["key"],
                 defaults={
                     "name": lib_data.get("name"),
@@ -275,8 +336,9 @@ def import_library_versions(version_name, token=None, version_type="tag"):
                 version=version, library=library, defaults={"data": lib_data}
             )
             if not library.github_url:
-                pass
-            #     # todo: handle this. Need a github_url for these.
+                github_data = client.get_repo(repo_slug=library_name)
+                library.github_url = github_data.get("html_url", "")
+                library.save()
 
     # Retrieve and store the docs url for each library-version in this release
     get_and_store_library_version_documentation_urls_for_version.delay(version.pk)

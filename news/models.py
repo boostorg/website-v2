@@ -186,7 +186,7 @@ class News(Entry):
 
     class Meta:
         verbose_name = "News"
-        verbose_name_plural = "News"
+        verbose_name_plural = "News Items"
 
 
 class BlogPost(Entry):
