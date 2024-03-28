@@ -1,4 +1,4 @@
-Django>=4.0, <=5.0
+Django>=4.0, <5.0
 bumpversion
 django-admin-env-notice
 django-allauth==0.53.1
