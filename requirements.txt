@@ -20,7 +20,7 @@ beautifulsoup4==4.12.2
     # via -r requirements.in
 billiard==3.6.4.0
     # via celery
-black==23.3.0
+black==24.3.0
     # via -r requirements.in
 boto3==1.26.154
     # via
@@ -335,7 +335,7 @@ typing-extensions==4.6.3
     # via
     #   dj-database-url
     #   jwcrypto
-urllib3==1.26.16
+urllib3==1.26.18
     # via
     #   botocore
     #   django-anymail
