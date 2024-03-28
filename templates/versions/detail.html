@@ -22,7 +22,7 @@
         <form action="." method="post">
           {% csrf_token %}
           <div>
-            <label for="id_version" hidden="true">Versions:</label>
+            <label for="id_version">Release Version:</label>
             <select onchange="this.form.submit()"
                     name="version"
                     class="dropdown"
