@@ -335,7 +335,7 @@ types-pyyaml==6.0.12.10
     # via responses
 typing-extensions==4.6.3
     # via dj-database-url
-urllib3==1.26.16
+urllib3==1.26.18
     # via
     #   botocore
     #   django-anymail
