@@ -76,8 +76,6 @@ decorator==5.1.1
     # via ipython
 defusedxml==0.7.1
     # via python3-openid
-deprecated==1.2.14
-    # via jwcrypto
 distlib==0.3.6
     # via virtualenv
 dj-database-url==2.0.0
@@ -189,7 +187,7 @@ jmespath==1.0.1
     # via
     #   boto3
     #   botocore
-jwcrypto==1.5.1
+jwcrypto==1.5.6
     # via django-oauth-toolkit
 kombu==5.3.1
     # via celery
@@ -334,7 +332,9 @@ traitlets==5.9.0
 types-pyyaml==6.0.12.10
     # via responses
 typing-extensions==4.6.3
-    # via dj-database-url
+    # via
+    #   dj-database-url
+    #   jwcrypto
 urllib3==1.26.16
     # via
     #   botocore
@@ -358,8 +358,6 @@ wheel==0.40.0
     #   pip-tools
 whitenoise==6.5.0
     # via -r requirements.in
-wrapt==1.16.0
-    # via deprecated
 zope-event==4.6
     # via gevent
 zope-interface==6.0
