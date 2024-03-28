@@ -44,6 +44,7 @@
           <div class="h-8">
             <span class="block pb-1 font-bold">{{ version.release_date|date:"F j, Y" }}</span>
           </div>
+          <div class="-ml-2 h-3"></div>
           <div class="-ml-2 h-14">
             <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
                href="{{ version.documentation_url }}">
@@ -59,17 +60,7 @@
               <span class="block text-xs">{{ version.github_url|cut:"https://" }}</span>
             </a>
           </div>
-          <div class="-ml-2 h-14">
-            {% comment %}Release notes are only for full releases {% endcomment %}
-            {% if version.full_release %}
-            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-               href="{{ version.boost_release_notes_url }}">
-              <i class="float-right mt-1 fas fa-arrow-up-right-from-square"></i>
-              <span class="dark:text-white text-slate">Release Notes</span>
-              <span class="block text-xs">{{ version.boost_release_notes_url|cut:"https://" }}</span>
-            </a>
-            {% endif %}
-          </div>
+
         </div>
       </div>
       <div class="overflow-x-hidden pb-2 pl-0 ml-0 space-x-6 w-full h-auto md:pb-0 md:ml-6">
