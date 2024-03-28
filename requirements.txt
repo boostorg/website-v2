@@ -229,7 +229,7 @@ pickleshare==0.7.5
     # via ipython
 pilkit==3.0
     # via django-imagekit
-pillow==9.4.0
+pillow==10.2.0
     # via
     #   -r requirements.in
     #   pilkit
