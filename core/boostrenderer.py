@@ -31,6 +31,27 @@ def extract_file_data(response, s3_key):
     }
 
 
+def get_meta_redirect_from_html(html_string: str) -> str:
+    """Use BeautifulSoup to get the meta redirect from an HTML document, if it exists.
+
+    Args:
+        html_string (str): The HTML document as a string
+
+    Returns:
+        str: The meta redirect content as a string
+    """
+    soup = BeautifulSoup(html_string, "html.parser")
+    meta_tag = soup.find("meta", attrs={"http-equiv": "refresh"})
+
+    redirect_url = None
+    if meta_tag:
+        meta_tag_content = meta_tag.get("content")
+        if meta_tag_content:
+            redirect_url = meta_tag_content.split("URL=")[1]
+
+    return redirect_url
+
+
 def get_body_from_html(html_string: str) -> str:
     """Use BeautifulSoup to get the body content from an HTML document, without
     the <body> tag.
