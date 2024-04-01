@@ -11,6 +11,7 @@ from ..boostrenderer import (
     get_file_data,
     get_s3_keys,
     convert_img_paths,
+    get_meta_redirect_from_html,
 )
 
 
@@ -60,6 +61,31 @@ def test_get_body_from_html_strip_footer():
     """
     body_content = get_body_from_html(html_string)
     assert body_content == "<h1>Test</h1>"
+
+
+def test_get_meta_redirect_from_html():
+    html_string = """
+    <html>
+        <meta http-equiv="refresh" content="0; url=http://example.com">
+        <head><title>Test</title></head>
+        <body>
+            <h1>Test</h1>
+        </body>
+    </html>
+    """
+    assert get_meta_redirect_from_html(html_string) == "http://example.com"
+
+
+def test_get_meta_redirect_from_html_no_redirect():
+    html_string = """
+    <html>
+        <head><title>Test</title></head>
+        <body>
+            <h1>Test</h1>
+        </body>
+    </html>
+    """
+    assert get_meta_redirect_from_html(html_string) is None
 
 
 def test_get_content_type():
