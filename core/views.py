@@ -19,6 +19,7 @@ from .boostrenderer import (
     get_s3_client,
     extract_file_data,
     convert_img_paths,
+    get_meta_redirect_from_html,
 )
 from .htmlhelper import modernize_legacy_page
 from .markdown import process_md
@@ -204,9 +205,12 @@ class BaseStaticContentTemplateView(TemplateView):
         # must manually redirect it.
         if "accounts/github/login/callback" in content_path:
             return redirect(content_path)
-
         try:
             self.content_dict = self.get_content(content_path)
+            # If the content is an HTML file with a meta redirect, redirect the user.
+            if self.content_dict.get("redirect"):
+                return redirect(self.content_dict.get("redirect"))
+
         except ContentNotFoundException:
             logger.info(
                 "get_content_from_s3_view_not_in_cache",
@@ -289,8 +293,15 @@ class BaseStaticContentTemplateView(TemplateView):
         if result and result.get("content"):
             content = result.get("content")
             content_type = result.get("content_type")
+
+            # Check if the content is an asciidoc file. If so, convert it to HTML.
             if content_type == "text/asciidoc":
                 result["content"] = self.convert_adoc_to_html(content)
+
+            # Check if the content is an HTML file. If so, check for a meta redirect.
+            if content_type.startswith("text/html"):
+                result["redirect"] = get_meta_redirect_from_html(content)
+
             return result
 
     def get_template_names(self):
