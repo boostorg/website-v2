@@ -31,23 +31,23 @@ def extract_file_data(response, s3_key):
     }
 
 
-def get_meta_redirect_from_html(html_string: str) -> str:
+def get_meta_redirect_from_html(html_string: str) -> str | None:
     """Use BeautifulSoup to get the meta redirect from an HTML document, if it exists.
 
     Args:
         html_string (str): The HTML document as a string
 
     Returns:
-        str: The meta redirect content as a string
+        str: The redirect URL as a string, or None if no redirect exists.
     """
     soup = BeautifulSoup(html_string, "html.parser")
     meta_tag = soup.find("meta", attrs={"http-equiv": "refresh"})
 
     redirect_url = None
     if meta_tag:
-        meta_tag_content = meta_tag.get("content")
+        meta_tag_content = meta_tag.get("content").lower()
         if meta_tag_content:
-            redirect_url = meta_tag_content.split("URL=")[1]
+            redirect_url = meta_tag_content.split("url=")[1]
 
     return redirect_url
 
