@@ -7,7 +7,7 @@ RUN apt update && apt install -y build-essential gcc python-dev-is-python3 libpq
 # Install Asciidoctor
 RUN gem install asciidoctor
 
-RUN pip install -U pip
+RUN pip install -U uv
 
 COPY ./requirements.txt ./code/requirements.txt
 
@@ -15,8 +15,7 @@ RUN python3 -m venv /venv
 
 RUN --mount=type=cache,target=/root/.cache \
     . /venv/bin/activate && \
-    pip install -U pip && \
-    pip install --no-compile -r /code/requirements.txt
+    uv pip install -r /code/requirements.txt
 
 FROM python:3.11-slim AS release
 
