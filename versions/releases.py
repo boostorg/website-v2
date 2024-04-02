@@ -122,6 +122,7 @@ def get_archives_download_data(url):
         raise
 
     try:
+        # Parse the JSON response, which sometimes has trailing commas.
         json_parser = JsonComment(json)
         resp_json = json_parser.loads(resp.text)
 
