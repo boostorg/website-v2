@@ -122,7 +122,7 @@ def test_get_artifactory_download_data_value_error():
 
 @responses.activate
 def test_get_archives_download_data_value_error():
-    url = "https://example.com/release/1.81.0/source/boost_1_81_0.tar.bz2"
+    url = "https://example.com/release/1.81.0/source/boost_1_81_0.tar.bz2.json"
     responses.add(responses.GET, url, json={})
     with pytest.raises(ValueError):
         get_archives_download_data(url)
