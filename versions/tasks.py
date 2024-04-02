@@ -357,7 +357,7 @@ def import_release_downloads(version_pk):
         logger.info("import_release_downloads_skipped", version_name=version.name)
         return
 
-    call_command("import_artifactory_release_data", release=version_num)
+    call_command("import_archives_release_data", release=version_num)
     logger.info("import_release_downloads_complete", version_name=version.name)
 
 

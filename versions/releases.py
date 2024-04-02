@@ -1,6 +1,11 @@
+import json
+from json.decoder import JSONDecodeError
+
 import requests
 import structlog
+from bs4 import BeautifulSoup
 from django.conf import settings
+from jsoncomment import JsonComment
 
 from core.htmlhelper import modernize_release_notes
 from core.models import RenderedContent
@@ -11,7 +16,44 @@ from .models import Version, VersionFile
 logger = structlog.get_logger(__name__)
 
 
-def get_artifactory_downloads_for_release(release: str = "1.81.0") -> list:
+def get_archives_download_uris_for_release(release: str = "1.81.0") -> list:
+    """Get the download information for a Boost release from the Boost Archives.
+
+    Args:
+        release (str): The Boost release to get download information for. Defaults to
+            "1.81.0".
+
+    Returns:
+        list: A list of URLs to download the release data from.
+    """
+    file_extensions = [".tar.bz2", ".tar.gz", ".7z", ".zip"]
+
+    if "beta" in release:
+        release_path = f"{settings.ARCHIVES_URL}beta/{release}/source/"
+    else:
+        release_path = f"{settings.ARCHIVES_URL}release/{release}/source/"
+
+    try:
+        resp = requests.get(release_path)
+        resp.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        logger.error(
+            "get_archives_releases_list_error", exc_msg=str(e), url=release_path
+        )
+        raise
+
+    # Get the list of archives downloads for this release
+    soup = BeautifulSoup(resp.text, "html.parser")
+    uris = []
+    for a in soup.find_all("a"):
+        uri = a.get("href")
+        if any(uri.endswith(ext) for ext in file_extensions):
+            uris.append(f"{release_path}{uri}")
+
+    return uris
+
+
+def get_artifactory_download_uris_for_release(release: str = "1.81.0") -> list:
     """Get the download information for a Boost release from the Boost artifactory.
 
     Args:
@@ -19,12 +61,7 @@ def get_artifactory_downloads_for_release(release: str = "1.81.0") -> list:
             "1.81.0".
 
     Returns:
-        list: A list of dictionaries containing the download information for the
-            release. Each dictionary contains the following keys:
-            - url (str): The URL to download the release from.
-            - operating_system (str): The operating system the release is for.
-            - checksum (str): The sha256 checksum for the release.
-            - display_name (str): The name of the release file.
+        list: A list of URLs to download the release data from.
     """
     file_extensions = [".tar.bz2", ".tar.gz", ".7z", ".zip"]
 
@@ -68,6 +105,35 @@ def get_artifactory_downloads_for_release(release: str = "1.81.0") -> list:
             uris.append(f"{base_uri}{uri}")
 
     return uris
+
+
+def get_archives_download_data(url):
+    """Get the download information for a Boost release from the Boost Archives."""
+
+    # Append .json to the end of the URL to get the download information.
+    json_url = f"{url}.json"
+
+    try:
+        resp = requests.get(json_url)
+        resp.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        logger.error("get_archives_download_data_error", exc_msg=str(e), url=json_url)
+        raise
+
+    try:
+        json_parser = JsonComment(json)
+        resp_json = json_parser.loads(resp.text)
+
+    except JSONDecodeError:
+        logger.error("get_archives_download_data_error", url=json_url)
+        raise ValueError(f"Invalid response from {json_url}")
+
+    return {
+        "url": url,
+        "operating_system": "Unix" if ".tar" in url else "Windows",
+        "checksum": resp_json["sha256"],
+        "display_name": url.split("/")[-1],
+    }
 
 
 def get_artifactory_download_data(url):
