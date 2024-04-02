@@ -1,14 +1,17 @@
 # Management Commands
 
-- [`boost_setup`](#boost_setup)
-- [`import_versions`](#import_versions)
-- [`import_artifactory_release_data`](#import_artifactory_release_data)
-- [`update_libraries`](#update_libraries)
-- [`import_library_versions`](#import_library_versions)
-- [`import_library_version_docs_urls`](#import_library_version_docs_urls)
-- [`update_maintainers`](#update_maintainers)
-- [`update_authors`](#update_authors)
-- [`import_commit_counts`](#import_commit_counts)
+- [Management Commands](#management-commands)
+  - [`boost_setup`](#boost_setup)
+  - [`import_versions`](#import_versions)
+  - [`import_archives_release_data`](#import_archives_release_data)
+  - [`import_artifactory_release_data`](#import_artifactory_release_data)
+  - [`update_libraries`](#update_libraries)
+  - [`import_library_versions`](#import_library_versions)
+  - [`import_library_version_docs_urls`](#import_library_version_docs_urls)
+  - [`update_maintainers`](#update_maintainers)
+  - [`update_authors`](#update_authors)
+  - [`import_commit_counts`](#import_commit_counts)
+  - [`import_beta_release`](#import_beta_release)
 
 ## `boost_setup`
 
@@ -55,9 +58,33 @@ Imports `Version` objects from GitHub.
 - For each successful tag, import it as a `Version` object
 - Then, run the command to the release downloads from Artifactory as `VersionFile` objects
 
-## `import_artifactory_release_data`
+## `import_archives_release_data`
 
 *This process is run automatically as part of `import_versions`.*
+
+Import `VersionFile` objects from Artifactory.
+
+**Example**
+
+```bash
+./manage.py import_archives_release_data
+```
+
+**Options**
+
+| Options              | Format | Description                                                  |
+|----------------------|--------|--------------------------------------------------------------|
+| `--release`  | string   | Format: `boost-1.63.0`. If passed, will import Artifactory urls for only that version. |
+
+**More Information**
+
+- Loops through `Version` objects and calls the task that retrieves the Artifactory data with the version information
+- Saves the Archives JSON data as `VersionFile` objects
+
+
+## `import_artifactory_release_data`
+
+*This process was run automatically as part of `import_versions`, but has been replaced by `import_archives_release_data`.*
 
 Import `VersionFile` objects from Artifactory.
 
