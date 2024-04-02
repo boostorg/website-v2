@@ -35,32 +35,27 @@ def test_get_artifactory_downloads_for_release():
 def test_get_archives_downloads_for_release():
     version_num = "1.81.0"
     url = f"{settings.ARCHIVES_URL}release/{version_num}/source/"
-    data = """<html><head><title>Index of /release/1.81.0/source/</title><style type="text/css"></style></head>
+    data = """
+<html><head><title>Index of /release/1.81.0/source/</title></head>
 <body>
 <h1>Index of /release/1.81.0/source/</h1><hr><pre><a href="../">../</a>
-<a href="boost_1_81_0.7z">boost_1_81_0.7z</a>                                    15-Dec-2022 03:50           101553425
-<a href="boost_1_81_0.7z.json">boost_1_81_0.7z.json</a>                               15-Dec-2022 03:50                 196
-<a href="boost_1_81_0.tar.bz2">boost_1_81_0.tar.bz2</a>                               15-Dec-2022 03:50           118797750
-<a href="boost_1_81_0.tar.bz2.json">boost_1_81_0.tar.bz2.json</a>                          15-Dec-2022 03:50                 201
-<a href="boost_1_81_0.tar.gz">boost_1_81_0.tar.gz</a>                                15-Dec-2022 03:50           140221178
-<a href="boost_1_81_0.tar.gz.json">boost_1_81_0.tar.gz.json</a>                           15-Dec-2022 03:50                 200
-<a href="boost_1_81_0.zip">boost_1_81_0.zip</a>                                   15-Dec-2022 03:50           204805644
-<a href="boost_1_81_0.zip.json">boost_1_81_0.zip.json</a>                              15-Dec-2022 03:50                 197
-<a href="boost_1_81_0_rc1.7z">boost_1_81_0_rc1.7z</a>                                09-Dec-2022 03:47           101553425
-<a href="boost_1_81_0_rc1.7z.json">boost_1_81_0_rc1.7z.json</a>                           09-Dec-2022 03:47                 200
-<a href="boost_1_81_0_rc1.tar.bz2">boost_1_81_0_rc1.tar.bz2</a>                           09-Dec-2022 03:47           118797750
-<a href="boost_1_81_0_rc1.tar.bz2.json">boost_1_81_0_rc1.tar.bz2.json</a>                      09-Dec-2022 03:47                 205
-<a href="boost_1_81_0_rc1.tar.gz">boost_1_81_0_rc1.tar.gz</a>                            09-Dec-2022 03:47           140221178
-<a href="boost_1_81_0_rc1.tar.gz.json">boost_1_81_0_rc1.tar.gz.json</a>                       09-Dec-2022 03:47                 204
-<a href="boost_1_81_0_rc1.zip">boost_1_81_0_rc1.zip</a>                               09-Dec-2022 03:47           204805644
-<a href="boost_1_81_0_rc1.zip.json">boost_1_81_0_rc1.zip.json</a>                          09-Dec-2022 03:47                 201
+<a href="boost_1_81_0.7z">boost_1_81_0.7z</a> 15-Dec-2022 03:50           101553425
+<a href="boost_1_81_0.7z.json">boost_1_81_0.7z.json</a>  15-Dec-2022 03:50    196
+<a href="boost_1_81_0.tar.bz2">boost_1_81_0.tar.bz2</a>   15-Dec-2022 03:50  118797750
+<a href="boost_1_81_0.tar.bz2.json">boost_1_81_0.tar.bz2.json</a> 15-Dec-2022 03:50 201
+<a href="boost_1_81_0.tar.gz">boost_1_81_0.tar.gz</a> 15-Dec-2022 03:50  140221178
+<a href="boost_1_81_0.tar.gz.json">boost_1_81_0.tar.gz.json</a> 15-Dec-2022 03:50  200
+<a href="boost_1_81_0.zip">boost_1_81_0.zip</a> 15-Dec-2022 03:50  204805644
+<a href="boost_1_81_0.zip.json">boost_1_81_0.zip.json</a>   15-Dec-2022 03:50  197
+<a href="boost_1_81_0_rc1.7z">boost_1_81_0_rc1.7z</a>   09-Dec-2022 03:47 101553425
+<a href="boost_1_81_0_rc1.7z.json">boost_1_81_0_rc1.7z.json</a> 09-Dec-2022 03:47 200
 </pre><hr>
 
 </body></html>
     """
     responses.add(responses.GET, url, body=data)
     downloads = get_archives_download_uris_for_release(version_num)
-    assert len(downloads) == 8
+    assert len(downloads) == 5
     assert downloads[0] == f"{url}boost_1_81_0.7z"
 
 
