@@ -48,6 +48,7 @@ def get_archives_download_uris_for_release(release: str = "1.81.0") -> list:
     uris = []
     for a in soup.find_all("a"):
         uri = a.get("href")
+        # Only include the download links with valid file extensions.
         if any(uri.endswith(ext) for ext in file_extensions):
             uris.append(f"{release_path}{uri}")
 
