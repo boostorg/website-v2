@@ -303,7 +303,9 @@ JDOODLE_API_CLIENT_SECRET = env("JDOODLE_API_CLIENT_SECRET", "")
 
 # Django Allauth settings
 
-SITE_ID = 1
+# Allow `get_current_site(request)` to dynamically choose the SITE_ID,
+# rather than setting it.
+# SITE_ID = 1
 ACCOUNT_EMAIL_VERIFICATION = "none"
 LOGIN_REDIRECT_URL = "home"
 ACCOUNT_LOGOUT_ON_GET = True
