@@ -474,7 +474,7 @@ MIN_ARTIFACTORY_RELEASE = "boost-1.63.0"
 
 # archives.boost.io settings
 # This is the URL where the archives.boost.io site is hosted.
-ARCHIVES_URL = "https://archives.boost.io/"
+ARCHIVES_URL = env("ARCHIVES_URL", default="https://archives.boost.io/")
 MIN_ARCHIVES_RELEASE = "boost-1.63.0"
 
 # The min Boost version is the oldest version of Boost that our import scripts
