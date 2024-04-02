@@ -464,11 +464,16 @@ CORS_ALLOW_HEADERS = (
     "credentials",
 )
 
-# Artifactory settings
+# Legacy Artifactory settings
+# Please note that these settings are not used in the current version of the site,
+# but are kept here for reference.
 ARTIFACTORY_URL = env(
     "ARTIFACTORY_URL", default="https://boostorg.jfrog.io/artifactory/api/storage/main/"
 )
 MIN_ARTIFACTORY_RELEASE = "boost-1.63.0"
+
+# archives.boost.io settings
+# This is the URL where the archives.boost.io site is hosted.
 ARCHIVES_URL = "https://archives.boost.io/"
 MIN_ARCHIVES_RELEASE = "boost-1.63.0"
 
