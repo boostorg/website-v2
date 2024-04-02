@@ -14,6 +14,7 @@ from .models import Version, VersionFile
 
 
 logger = structlog.get_logger(__name__)
+session = requests.Session()
 
 
 def get_archives_download_uris_for_release(release: str = "1.81.0") -> list:
@@ -34,7 +35,7 @@ def get_archives_download_uris_for_release(release: str = "1.81.0") -> list:
         release_path = f"{settings.ARCHIVES_URL}release/{release}/source/"
 
     try:
-        resp = requests.get(release_path)
+        resp = session.get(release_path)
         resp.raise_for_status()
     except requests.exceptions.HTTPError as e:
         logger.error(
@@ -74,7 +75,7 @@ def get_artifactory_download_uris_for_release(release: str = "1.81.0") -> list:
         release_path = f"{settings.ARTIFACTORY_URL}release/{release}/source/"
 
     try:
-        resp = requests.get(release_path)
+        resp = session.get(release_path)
         resp.raise_for_status()
     except requests.exceptions.HTTPError as e:
         logger.error(
@@ -114,7 +115,7 @@ def get_archives_download_data(url):
     json_url = f"{url}.json"
 
     try:
-        resp = requests.get(json_url)
+        resp = session.get(json_url)
         resp.raise_for_status()
     except requests.exceptions.HTTPError as e:
         logger.error("get_archives_download_data_error", exc_msg=str(e), url=json_url)
@@ -139,7 +140,7 @@ def get_archives_download_data(url):
 def get_artifactory_download_data(url):
     """Get the download information for a Boost release from the Boost artifactory."""
     try:
-        resp = requests.get(url)
+        resp = session.get(url)
         resp.raise_for_status()
     except requests.exceptions.HTTPError as e:
         logger.error("get_artifactory_releases_detail_error", exc_msg=str(e), url=url)
@@ -176,7 +177,7 @@ def get_release_notes_for_version(version_pk):
     filename = f"{version.slug.replace('boost', 'version').replace('-', '_')}.html"
     url = f"{base_url}{filename}"
     try:
-        response = requests.get(url)
+        response = session.get(url)
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
         logger.error(
