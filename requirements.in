@@ -26,6 +26,7 @@ django-storages
 wheel
 cryptography
 boto3
+jsoncomment
 
 # Logging
 django-tracer
