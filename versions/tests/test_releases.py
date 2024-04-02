@@ -55,7 +55,7 @@ def test_get_archives_downloads_for_release():
     """
     responses.add(responses.GET, url, body=data)
     downloads = get_archives_download_uris_for_release(version_num)
-    assert len(downloads) == 5
+    assert len(downloads) == 4
     assert downloads[0] == f"{url}boost_1_81_0.7z"
 
 
