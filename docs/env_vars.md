@@ -38,11 +38,17 @@ This project uses environment variables to configure certain aspects of the appl
 
 ## Boost Release Downloads Settings
 
-### `ARTIFACTORY_URL`
+### `ARTIFACTORY_URL` (deprecated)
 
 - Base API endpoint for accessing the JFrog Artifactory release downloads. This is NOT the base URL for the downloads themselves.
 - For **local development**, there is a default value in `config/settings.py`
 - In **deployed environments**, the valid value is set in `kube/boost/values.yaml` (or the environment-specific yaml file).
+
+### `ARCHIVES_URL`
+
+- Base API endpoint for accessing the archives.boost.io release downloads.
+- For **development and production**, there is a default value in `config/settings.py`
+- Alternatively, the value can be set in `kube/boost/values.yaml`.
 
 ### `MIN_ARTIFACTORY_RELEASE`
 
