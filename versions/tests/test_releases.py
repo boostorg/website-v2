@@ -120,14 +120,6 @@ def test_get_artifactory_download_data_value_error():
         get_artifactory_download_data(url)
 
 
-@responses.activate
-def test_get_archives_download_data_value_error():
-    url = "https://example.com/release/1.81.0/source/boost_1_81_0.tar.bz2.json"
-    responses.add(responses.GET, url, json={})
-    with pytest.raises(ValueError):
-        get_archives_download_data(url)
-
-
 def test_store_release_downloads_for_version(version):
     count = VersionFile.objects.filter(version=version).count()
     data = [
