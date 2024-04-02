@@ -28,6 +28,7 @@ def get_archives_download_uris_for_release(release: str = "1.81.0") -> list:
         list: A list of URLs to download the release data from.
     """
     file_extensions = [".tar.bz2", ".tar.gz", ".7z", ".zip"]
+    file_name_excludes = ["_rc"]
 
     if "beta" in release:
         release_path = f"{settings.ARCHIVES_URL}beta/{release}/source/"
@@ -50,7 +51,9 @@ def get_archives_download_uris_for_release(release: str = "1.81.0") -> list:
         uri = a.get("href")
         # Only include the download links with valid file extensions.
         if any(uri.endswith(ext) for ext in file_extensions):
-            uris.append(f"{release_path}{uri}")
+            # Exclude release candidates
+            if not any(exclude in uri for exclude in file_name_excludes):
+                uris.append(f"{release_path}{uri}")
 
     return uris
 
