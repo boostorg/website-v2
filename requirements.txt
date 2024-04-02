@@ -182,6 +182,8 @@ identify==2.5.35
     # via pre-commit
 idna==3.6
     # via requests
+importlib-metadata==5.2.0
+    # via json-spec
 iniconfig==2.0.0
     # via pytest
 ipython==8.22.2
@@ -192,6 +194,10 @@ jmespath==1.0.1
     # via
     #   boto3
     #   botocore
+json-spec==0.11.0
+    # via jsoncomment
+jsoncomment==0.4.2
+    # via -r ./requirements.in
 jwcrypto==1.5.6
     # via django-oauth-toolkit
 kombu==5.3.6
@@ -361,6 +367,8 @@ wheel==0.43.0
     #   pip-tools
 whitenoise==6.6.0
     # via -r ./requirements.in
+zipp==3.18.1
+    # via importlib-metadata
 zope-event==5.0
     # via gevent
 zope-interface==6.2
