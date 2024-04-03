@@ -314,7 +314,7 @@ class LibraryDetail(FormMixin, DetailView):
             # If we know the library-version docs are missing, return the version docs
             if library_version.missing_docs:
                 return docs_url
-            # If we have the library-version docs and believe they are valid, return those
+            # If we have the library-version docs and they are valid, return those
             elif library_version.documentation_url:
                 return library_version.documentation_url
             # If we wind up here, return the version docs
