@@ -37,7 +37,19 @@ class RSSNewsFeed(Feed):
                 f"External link to <a href='{ item.external_url }'>"
                 f"{ item.external_url }</a>."
             )
-        return linebreaks(urlize(item.content))
+
+        content = item.content
+
+        # Convert URLs in the content to clickable links.
+        content = urlize(content)
+
+        # Convert newlines to <p> and <br> tags.
+        if content:
+            # Don't add empty paragraphs.
+            content = linebreaks(content)
+        return content
+
+    linebreaks(urlize(item.content))
 
     def item_title(self, item):
         return item.title
