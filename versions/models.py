@@ -50,7 +50,7 @@ class Version(models.Model):
     def get_slug(self):
         if self.slug:
             return self.slug
-        name = self.name.replace(".", " ")
+        name = self.name.replace(".", " ").replace("boost_", "")
         return slugify(name)[:50]
 
     @cached_property
@@ -94,8 +94,7 @@ class Version(models.Model):
         static content config file for the mapping from the site_path to the
         S3 path."""
         site_path = "/doc/libs/"
-        slug = self.slug.replace("-", "_").replace(".", "_")
-        slug = slug.replace("boost_", "")
+        slug = self.slug.replace("-", "_").replace(".", "_").replace("boost_", "")
         return f"{site_path}{slug}/index.html"
 
     @cached_property
