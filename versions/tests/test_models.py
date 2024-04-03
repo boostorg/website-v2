@@ -50,7 +50,7 @@ def test_version_display_name(version):
 def test_version_documentation_url(version):
     version.slug = "boost-1.81.0"
     version.save()
-    assert version.documentation_url == "/doc/libs/boost_1_81_0/index.html"
+    assert version.documentation_url == "/doc/libs/1_81_0/index.html"
 
 
 @pytest.mark.parametrize(
