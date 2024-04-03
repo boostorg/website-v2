@@ -51,7 +51,6 @@ class Version(models.Model):
         if self.slug:
             return self.slug
         name = self.name.replace(".", " ")
-        name = name.replace("boost_", "")
         return slugify(name)[:50]
 
     @cached_property
