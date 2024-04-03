@@ -32,7 +32,10 @@ class RSSNewsFeed(Feed):
         """
 
         if item.external_url and not item.content:
-            return f"External link to <a href='{item.external_url}'>{item.external_url}</a>."
+            return (
+                f"External link to <a href='{ item.external_url }'>"
+                f"{ item.external_url }</a>."
+            )
         return item.content
 
     def item_title(self, item):
