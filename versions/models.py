@@ -51,6 +51,7 @@ class Version(models.Model):
         if self.slug:
             return self.slug
         name = self.name.replace(".", " ")
+        name = name.replace("boost_", "")
         return slugify(name)[:50]
 
     @cached_property
@@ -95,6 +96,7 @@ class Version(models.Model):
         S3 path."""
         site_path = "/doc/libs/"
         slug = self.slug.replace("-", "_").replace(".", "_")
+        slug = slug.replace("boost_", "")
         return f"{site_path}{slug}/index.html"
 
     @cached_property
