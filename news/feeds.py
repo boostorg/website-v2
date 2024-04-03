@@ -49,8 +49,6 @@ class RSSNewsFeed(Feed):
             content = linebreaks(content)
         return content
 
-    linebreaks(urlize(item.content))
-
     def item_title(self, item):
         return item.title
 
