@@ -44,7 +44,7 @@ def test_get_and_store_library_version_documentation_urls_for_version(
     # Assert that the docs_path was updated as expected
     assert (
         library_version.documentation_url
-        == f"/doc/libs/{version.stripped_boost_url_slug}/libs/{library_name}/index.html"
+        == f"/doc/libs/{version.boost_url_slug}/libs/{library_name}/index.html"
     )
 
 
