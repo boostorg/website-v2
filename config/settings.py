@@ -303,7 +303,11 @@ JDOODLE_API_CLIENT_SECRET = env("JDOODLE_API_CLIENT_SECRET", "")
 
 # Django Allauth settings
 
-SITE_ID = 1
+if DEBUG:
+    # This is the default value for the development environment.
+    # This enables the tests to run.
+    SITE_ID = 1
+
 ACCOUNT_EMAIL_VERIFICATION = "none"
 LOGIN_REDIRECT_URL = "home"
 ACCOUNT_LOGOUT_ON_GET = True
