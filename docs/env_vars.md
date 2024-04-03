@@ -71,3 +71,7 @@ This project uses environment variables to configure certain aspects of the appl
 
 - The cache key and timeout length for the Google Calendar events
 - Hard-coded in `settings.py` in all environments
+
+### `CI`
+
+- If set, will set SITE_ID to 1 in `settings.py`.
