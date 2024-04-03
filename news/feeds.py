@@ -2,6 +2,7 @@ from datetime import datetime
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Atom1Feed
 from django.utils.timezone import make_aware, utc
+from django.utils.html import urlize, linebreaks
 
 from .models import Entry
 
@@ -36,7 +37,7 @@ class RSSNewsFeed(Feed):
                 f"External link to <a href='{ item.external_url }'>"
                 f"{ item.external_url }</a>."
             )
-        return item.content
+        return linebreaks(urlize(item.content))
 
     def item_title(self, item):
         return item.title
