@@ -74,11 +74,11 @@ Import `VersionFile` objects from Artifactory.
 
 | Options              | Format | Description                                                  |
 |----------------------|--------|--------------------------------------------------------------|
-| `--release`  | string   | Format: `boost-1.63.0`. If passed, will import Artifactory urls for only that version. |
+| `--release`  | string   | Format: `boost-1.63.0`. If passed, will import Archive urls for only that version. |
 
 **More Information**
 
-- Loops through `Version` objects and calls the task that retrieves the Artifactory data with the version information
+- Loops through `Version` objects and calls the task that retrieves the Archives data with the version information
 - Saves the Archives JSON data as `VersionFile` objects
 
 
