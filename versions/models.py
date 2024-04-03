@@ -96,7 +96,7 @@ class Version(models.Model):
         site_path = "/doc/libs/"
         slug = self.slug.replace("-", "_").replace(".", "_")
         slug = slug.replace("boost_", "")
-        return f"{site_path}{slug}/"
+        return f"{site_path}{slug}/index.html"
 
     @cached_property
     def cleaned_version_parts(self):
