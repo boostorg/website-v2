@@ -126,6 +126,7 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
             # validate this in S3
             key = documentation_url.split("#")
             content = get_content_from_s3(key[0])
+
             if content:
                 library_version.documentation_url = documentation_url
                 library_version.save()
