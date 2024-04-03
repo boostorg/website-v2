@@ -314,7 +314,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 SOCIALACCOUNT_QUERY_EMAIL = True
 ACCOUNT_UNIQUE_EMAIL = True
 
-if CI or DEBUG:
+if CI or LOCAL_DEVELOPMENT:
     # This is the default value for the development environment.
     # This enables the tests to run.
     SITE_ID = 1
