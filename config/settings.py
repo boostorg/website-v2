@@ -22,6 +22,7 @@ DEBUG = env.bool("DJANGO_DEBUG", default=False)
 
 # Whether or not we're in local development mode
 LOCAL_DEVELOPMENT = env.bool("LOCAL_DEVELOPMENT", default=False)
+CI = env.bool("CI", default=False)
 
 if DEBUG:
     root = logging.getLogger()
@@ -313,7 +314,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 SOCIALACCOUNT_QUERY_EMAIL = True
 ACCOUNT_UNIQUE_EMAIL = True
 
-if LOCAL_DEVELOPMENT:
+if CI:
     # This is the default value for the development environment.
     # This enables the tests to run.
     SITE_ID = 1
