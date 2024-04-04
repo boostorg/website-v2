@@ -111,6 +111,8 @@ def _replace_body(result, original_body, base_body):
 
 
 def modernize_legacy_page(content, base_html, head_selector="head", insert_body=True):
+    """Modernize a legacy Boost documentation page."""
+
     result = BeautifulSoup(content, "html.parser")
     if result.html is None:
         # Not an HTML file we care about
@@ -164,7 +166,7 @@ def modernize_legacy_page(content, base_html, head_selector="head", insert_body=
     content = str(result)
 
     # Replace all links to boost.org with a local link
-    content = content.replace("https://www.boost.org/doc/libs/", "/docs/libs/")
+    content = content.replace("https://www.boost.org/doc/libs/", "/doc/libs/")
 
     return content
 
