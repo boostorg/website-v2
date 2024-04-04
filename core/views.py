@@ -392,9 +392,8 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         content_type = self.content_dict.get("content_type")
         # Is the request coming from an iframe? If so, let's disable the modernization.
 
-        is_iframe_destination = (
-            self.request.headers.get("Sec-Fetch-Dest", "") == "iframe"
-        )
+        sec_fetch_destination = self.request.headers.get("Sec-Fetch-Dest", "")
+        is_iframe_destination = sec_fetch_destination in ["iframe", "frame"]
 
         modernize = self.request.GET.get("modernize", "med").lower()
 
