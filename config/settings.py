@@ -498,3 +498,6 @@ EVENTS_CACHE_TIMEOUT = 300  # 5 min
 OAUTH_APP_NAME = (
     "Boost OAuth Concept"  # Stored in the admin; replicated for convenience
 )
+
+# Frame loading
+X_FRAME_OPTIONS = "SAMEORIGIN"
