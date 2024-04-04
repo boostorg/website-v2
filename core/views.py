@@ -374,6 +374,7 @@ class StaticContentTemplateView(BaseStaticContentTemplateView):
 class DocLibsTemplateView(BaseStaticContentTemplateView):
     # possible library versions are: boost_1_53_0_beta1, 1_82_0, 1_55_0b1
     boost_lib_path_re = re.compile(r"^(boost_){0,1}([0-9_]*[0-9]+[^/]*)/(.*)")
+    # is_iframe_view = False
 
     def get_from_s3(self, content_path):
         # perform URL matching/mapping, perhaps extract the version from content_path
@@ -389,11 +390,19 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
     def process_content(self, content):
         """Replace page header with the local one."""
         content_type = self.content_dict.get("content_type")
+        # Is the request coming from an iframe? If so, let's disable the modernization.
+
+        is_iframe_destination = (
+            self.request.headers.get("Sec-Fetch-Dest", "") == "iframe"
+        )
+
         modernize = self.request.GET.get("modernize", "med").lower()
 
         if (
-            "text/html" or "text/html; charset=utf-8"
-        ) not in content_type or modernize not in ("max", "med", "min"):
+            ("text/html" or "text/html; charset=utf-8") not in content_type
+            or modernize not in ("max", "med", "min")
+            or is_iframe_destination
+        ):
             # eventually check for more things, for example ensure this HTML
             # was not generate from Antora builders.
             return content
