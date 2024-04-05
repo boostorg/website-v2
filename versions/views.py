@@ -109,12 +109,12 @@ class VersionDetail(FormMixin, DetailView):
         if version_in_url:
             self.set_selected_boost_version(version_in_url)
         else:
-            stored_version = self.get_selected_boost_version()
-            if stored_version:
-                if stored_version != current_version_slug:
+            redirect_to_version = self.get_selected_boost_version()
+            if redirect_to_version:
+                if redirect_to_version != current_version_slug:
                     return redirect(
                         "release-detail",
-                        slug=stored_version,
+                        slug=redirect_to_version,
                     )
 
         return super().dispatch(request, *args, **kwargs)
