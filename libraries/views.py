@@ -16,6 +16,9 @@ from core.githubhelper import GithubAPIClient
 from .mixins import VersionAlertMixin
 from .models import Category, CommitData, Library, LibraryVersion
 
+
+SELECTED_BOOST_VERSION_SESSION_KEY = "boost_version"
+
 logger = structlog.get_logger()
 
 
@@ -34,9 +37,20 @@ class LibraryList(VersionAlertMixin, ListView):
     )
     template_name = "libraries/list.html"
 
+    def get_selected_boost_version(self):
+        return self.request.session.get(SELECTED_BOOST_VERSION_SESSION_KEY, None)
+
+    def set_selected_boost_version(self, version):
+        self.request.session[SELECTED_BOOST_VERSION_SESSION_KEY] = version
+
     def get_queryset(self):
         queryset = super().get_queryset()
         params = self.request.GET.copy()
+
+        # If the user has selected a version, fetch it from the session.
+        selected_boost_version = self.get_selected_boost_version()
+        if selected_boost_version != params.get("version", None):
+            params["version"] = selected_boost_version
 
         # default to the most recent version
         if "version" not in params:
@@ -118,6 +132,23 @@ class LibraryList(VersionAlertMixin, ListView):
             versions = versions | Version.objects.filter(pk=most_recent_version.pk)
 
         return versions
+
+    def dispatch(self, request, *args, **kwargs):
+        """Set the selected version in the session."""
+
+        # Was a version in the URL specified?
+        version_in_url = request.GET.get("version", None)
+        if version_in_url:
+            # If so, set the session value to the version in the URL.
+            self.set_selected_boost_version(version_in_url)
+        else:
+            # If no version is present in the URL,  to the session value.
+            redirect_to_version = self.get_selected_boost_version()
+            if redirect_to_version:
+                # TODO: convert this to a reverse URL lookup.
+                return redirect(f"/libraries/?version={redirect_to_version}")
+
+        return super().dispatch(request, *args, **kwargs)
 
 
 class LibraryListMini(LibraryList):
