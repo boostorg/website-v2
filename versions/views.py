@@ -103,19 +103,16 @@ class VersionDetail(FormMixin, DetailView):
         """Set the version if it is not already set."""
 
         version_in_url = self.kwargs.get("slug", False)
-        current_version = Version.objects.most_recent()
-        current_version_slug = current_version.slug if current_version else None
 
         if version_in_url:
             self.set_selected_boost_version(version_in_url)
         else:
             redirect_to_version = self.get_selected_boost_version()
             if redirect_to_version:
-                if redirect_to_version != current_version_slug:
-                    return redirect(
-                        "release-detail",
-                        slug=redirect_to_version,
-                    )
+                return redirect(
+                    "release-detail",
+                    slug=redirect_to_version,
+                )
 
         return super().dispatch(request, *args, **kwargs)
 
