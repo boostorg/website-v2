@@ -146,7 +146,9 @@ class LibraryList(VersionAlertMixin, ListView):
             redirect_to_version = self.get_selected_boost_version()
             if redirect_to_version:
                 # TODO: convert this to a reverse URL lookup.
-                return redirect(f"/libraries/?version={redirect_to_version}")
+                return redirect(
+                    f"/libraries/?version={redirect_to_version}", permanent=False
+                )
 
         return super().dispatch(request, *args, **kwargs)
 
