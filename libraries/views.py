@@ -137,8 +137,6 @@ class LibraryList(VersionAlertMixin, ListView):
     def dispatch(self, request, *args, **kwargs):
         """Set the selected version in the session."""
 
-        # TODO: Support other views (e.g. by category, etc.)
-
         # Was a version in the URL specified?
         version_in_url = request.GET.get("version", None)
         if version_in_url:
@@ -150,6 +148,7 @@ class LibraryList(VersionAlertMixin, ListView):
             if redirect_to_version:
                 path_info = request.get_full_path_info()
 
+                # Determine the route name based on the URL.
                 if "/by-category/" in path_info:
                     route_name = "libraries-by-category"
                 elif "/mini/" in path_info:
@@ -157,11 +156,16 @@ class LibraryList(VersionAlertMixin, ListView):
                 else:
                     route_name = "libraries"
 
+                # Construct the URL with the version from the session.
+                current_category = request.GET.get("category", "")
                 query_params = {
-                    "category": request.GET.get("category", ""),
+                    "category": current_category,
                     "version": redirect_to_version,
                 }
+                if not current_category:
+                    del query_params["category"]
 
+                # Redirect to the correct view with the correct version.
                 return redirect_to_view_with_params(route_name, kwargs, query_params)
 
         return super().dispatch(request, *args, **kwargs)

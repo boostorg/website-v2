@@ -241,6 +241,7 @@ def write_content_to_tempfile(content):
 
 
 def redirect_to_view_with_params(view_name, params, query_params):
+    """Redirect to a view with parameters and query parameters."""
     base_url = reverse(view_name, kwargs=params)
     query_string = urlencode(query_params)
     url = "{}?{}".format(base_url, query_string)
