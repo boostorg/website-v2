@@ -77,7 +77,7 @@ REMOVE_CSS_CLASSES = [
     # ("div", {"class": "toc"}),
     # ("dl", {"class": "toc"}),
     # /doc/libs/boost_1_84_0/libs/container_hash/doc/html/hash.html
-    ("div", {"class": "toc2"}),
+    # ("div", {"class": "toc2"}),
 ]
 
 
