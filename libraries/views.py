@@ -13,8 +13,12 @@ from versions.models import Version
 from .forms import VersionSelectionForm
 
 from core.githubhelper import GithubAPIClient
+from .utils import redirect_to_view_with_params
 from .mixins import VersionAlertMixin
 from .models import Category, CommitData, Library, LibraryVersion
+
+
+SELECTED_BOOST_VERSION_SESSION_KEY = "boost_version"
 
 logger = structlog.get_logger()
 
@@ -34,9 +38,20 @@ class LibraryList(VersionAlertMixin, ListView):
     )
     template_name = "libraries/list.html"
 
+    def get_selected_boost_version(self):
+        return self.request.session.get(SELECTED_BOOST_VERSION_SESSION_KEY, None)
+
+    def set_selected_boost_version(self, version):
+        self.request.session[SELECTED_BOOST_VERSION_SESSION_KEY] = version
+
     def get_queryset(self):
         queryset = super().get_queryset()
         params = self.request.GET.copy()
+
+        # If the user has selected a version, fetch it from the session.
+        selected_boost_version = self.get_selected_boost_version()
+        if selected_boost_version != params.get("version", None):
+            params["version"] = selected_boost_version
 
         # default to the most recent version
         if "version" not in params:
@@ -118,6 +133,42 @@ class LibraryList(VersionAlertMixin, ListView):
             versions = versions | Version.objects.filter(pk=most_recent_version.pk)
 
         return versions
+
+    def dispatch(self, request, *args, **kwargs):
+        """Set the selected version in the session."""
+
+        # Was a version in the URL specified?
+        version_in_url = request.GET.get("version", None)
+        if version_in_url:
+            # If so, set the session value to the version in the URL.
+            self.set_selected_boost_version(version_in_url)
+        else:
+            # If no version is present in the URL,  to the session value.
+            redirect_to_version = self.get_selected_boost_version()
+            if redirect_to_version:
+                path_info = request.get_full_path_info()
+
+                # Determine the route name based on the URL.
+                if "/by-category/" in path_info:
+                    route_name = "libraries-by-category"
+                elif "/mini/" in path_info:
+                    route_name = "libraries-mini"
+                else:
+                    route_name = "libraries"
+
+                # Construct the URL with the version from the session.
+                current_category = request.GET.get("category", "")
+                query_params = {
+                    "category": current_category,
+                    "version": redirect_to_version,
+                }
+                if not current_category:
+                    del query_params["category"]
+
+                # Redirect to the correct view with the correct version.
+                return redirect_to_view_with_params(route_name, kwargs, query_params)
+
+        return super().dispatch(request, *args, **kwargs)
 
 
 class LibraryListMini(LibraryList):

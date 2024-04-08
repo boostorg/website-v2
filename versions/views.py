@@ -11,6 +11,8 @@ from core.models import RenderedContent
 from libraries.forms import VersionSelectionForm
 from versions.models import Version
 
+SELECTED_BOOST_VERSION_SESSION_KEY = "boost_version"
+
 logger = structlog.get_logger(__name__)
 
 
@@ -21,6 +23,14 @@ class VersionDetail(FormMixin, DetailView):
     model = Version
     queryset = Version.objects.active().defer("data")
     template_name = "versions/detail.html"
+
+    def get_selected_boost_version(self):
+        """Returns the selected Boost version"""
+        return self.request.session.get(SELECTED_BOOST_VERSION_SESSION_KEY, None)
+
+    def set_selected_boost_version(self, version):
+        """Sets the selected Boost version"""
+        self.request.session[SELECTED_BOOST_VERSION_SESSION_KEY] = version
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -88,6 +98,22 @@ class VersionDetail(FormMixin, DetailView):
         else:
             logger.info("version_detail_invalid_version")
         return super().get(request)
+
+    def dispatch(self, request, *args, **kwargs):
+        """Set the version if it is not already set."""
+
+        version_in_url = self.kwargs.get("slug", False)
+
+        if version_in_url:
+            self.set_selected_boost_version(version_in_url)
+        else:
+            redirect_to_version = self.get_selected_boost_version()
+            if redirect_to_version:
+                return redirect(
+                    "release-detail", slug=redirect_to_version, permanent=False
+                )
+
+        return super().dispatch(request, *args, **kwargs)
 
 
 class VersionCurrentReleaseDetail(VersionDetail):

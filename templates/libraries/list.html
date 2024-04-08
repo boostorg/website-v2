@@ -40,21 +40,6 @@
 
         {% comment %} {% include "libraries/includes/search_input.html" %} {% endcomment %}
 
-        {# Select a category #}
-        <div>
-          {# todo: if someone selects a category and hits back, it retains their choice here. #}
-          <select onchange="this.form.submit()"
-            name="category"
-            class="block py-2 pr-11 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black dark:border-slate"
-            id="id_category"
-          >
-            <option value="">Filter by category</option>
-            {% for c in categories %}
-              <option value="{{ c.slug }}" {% if category == c %}selected="selected"{% endif %}>{{ c.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-
         {# Display options #}
         <div class="flex space-x-3">
           <div class="relative group">
@@ -69,6 +54,23 @@
             <a title="Category View" href="{% url 'libraries-by-category' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-cat p-[10px] hover:bg-gray-100 dark:hover:bg-slate"></i></a>
             <span class="group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">Category&nbsp;View</span>
           </div>
+        </div>
+        
+        <div></div>
+        
+        {# Select a category #}
+        <div>
+          {# todo: if someone selects a category and hits back, it retains their choice here. #}
+          <select onchange="this.form.submit()"
+            name="category"
+            class="block py-2 pr-11 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 md:w-auto dark:bg-black dark:border-slate"
+            id="id_category"
+          >
+            <option value="">Filter by category</option>
+            {% for c in categories %}
+              <option value="{{ c.slug }}" {% if category == c %}selected="selected"{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+          </select>
         </div>
 
 
