@@ -1,13 +1,15 @@
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
 import random
 import string
 import structlog
 import tempfile
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from urllib.parse import urlencode
 
 from dateutil.parser import ParserError, parse
 from django.utils.text import slugify
-
+from django.urls import reverse
+from django.shortcuts import redirect
 
 logger = structlog.get_logger()
 
@@ -236,3 +238,10 @@ def write_content_to_tempfile(content):
         temp_file.write(content)
         temp_file.close()
     return temp_file
+
+
+def redirect_to_view_with_params(view_name, params, query_params):
+    base_url = reverse(view_name, kwargs=params)
+    query_string = urlencode(query_params)
+    url = "{}?{}".format(base_url, query_string)
+    return redirect(url)

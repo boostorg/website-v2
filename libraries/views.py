@@ -13,6 +13,7 @@ from versions.models import Version
 from .forms import VersionSelectionForm
 
 from core.githubhelper import GithubAPIClient
+from .utils import redirect_to_view_with_params
 from .mixins import VersionAlertMixin
 from .models import Category, CommitData, Library, LibraryVersion
 
@@ -136,6 +137,8 @@ class LibraryList(VersionAlertMixin, ListView):
     def dispatch(self, request, *args, **kwargs):
         """Set the selected version in the session."""
 
+        # TODO: Support other views (e.g. by category, etc.)
+
         # Was a version in the URL specified?
         version_in_url = request.GET.get("version", None)
         if version_in_url:
@@ -145,10 +148,21 @@ class LibraryList(VersionAlertMixin, ListView):
             # If no version is present in the URL,  to the session value.
             redirect_to_version = self.get_selected_boost_version()
             if redirect_to_version:
-                # TODO: convert this to a reverse URL lookup.
-                return redirect(
-                    f"/libraries/?version={redirect_to_version}", permanent=False
-                )
+                path_info = request.get_full_path_info()
+
+                if "/by-category/" in path_info:
+                    route_name = "libraries-by-category"
+                elif "/mini/" in path_info:
+                    route_name = "libraries-mini"
+                else:
+                    route_name = "libraries"
+
+                query_params = {
+                    "category": request.GET.get("category", ""),
+                    "version": redirect_to_version,
+                }
+
+                return redirect_to_view_with_params(route_name, kwargs, query_params)
 
         return super().dispatch(request, *args, **kwargs)
 
