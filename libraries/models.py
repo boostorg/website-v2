@@ -1,3 +1,4 @@
+import re
 from urllib.parse import urlparse
 
 from django.core.cache import caches
@@ -129,23 +130,34 @@ class Library(models.Model):
 
     @cached_property
     def display_name(self):
-        """Returns the display name for the library"""
-        import re
+        """Returns the display name for the library."""
+        return "Boost." + self.display_name_short
 
-        words = []
+    @cached_property
+    def display_name_short(self):
+        """Returns the short display name for the library."""
 
-        # Split the name on spaces, hyphens, and underscores.
-        for word in re.split(r"[\s\-_]+", self.name):
-            # Capitalize the first letter of each word.
-            word_parts = []
+        # Custom method to capitalize words, taking care of special cases
+        def custom_capitalize(word):
+            return "".join(part.capitalize() for part in re.split(r"(/)", word))
 
-            for part in word.split("/"):
-                word_parts.append(part.capitalize())
-            word = "/".join(word_parts)
+        # Split the name into segments to handle parts inside parentheses separately
+        segments = re.split(r"(\([^\)]+\))", self.name)
+        processed_segments = []
 
-            words.append(word)
+        for segment in segments:
+            # Check if the segment is within parentheses
+            if segment.startswith("(") and segment.endswith(")"):
+                # Process the content within parentheses without the surrounding ()
+                inner_content = segment[1:-1]
+                processed_segments.append(f"({custom_capitalize(inner_content)})")
+            else:
+                # Split on whitespace, hyphens, underscores for regular segments
+                words = re.split(r"[\s\-_]+", segment)
+                capitalized_words = [custom_capitalize(word) for word in words]
+                processed_segments.append("".join(capitalized_words))
 
-        return "".join(words)
+        return "".join(processed_segments)
 
     def __str__(self):
         return self.name
