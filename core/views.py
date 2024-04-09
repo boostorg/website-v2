@@ -6,12 +6,16 @@ from dateutil.parser import parse
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
-from django.http import Http404, HttpResponse, HttpResponseNotFound
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseNotFound,
+    HttpResponseRedirect,
+)
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.views import View
 from django.views.generic import TemplateView
-
 
 from .asciidoc import process_adoc_to_html_content
 from .boostrenderer import (
@@ -30,6 +34,9 @@ from .tasks import (
     refresh_content_from_s3,
     save_rendered_content,
 )
+
+from versions.models import Version
+
 
 logger = structlog.get_logger()
 
@@ -469,3 +476,20 @@ class ImageView(View):
             return HttpResponse(content, content_type=content_type)
         except ContentNotFoundException:
             raise Http404("Content not found")
+
+
+def get_latest_library_version():
+    """Return the latest version for a given library."""
+    return Version.objects.most_recent().stripped_boost_url_slug
+
+
+def redirect_to_latest_version(request, libname, path):
+    latest_version = get_latest_library_version()
+    new_path = f"/doc/libs/{latest_version}/libs/{libname}/{path}"
+    return HttpResponseRedirect(new_path)
+
+
+def redirect_to_latest_version_html(request, libname, path):
+    latest_version = get_latest_library_version()
+    new_path = f"/doc/libs/{latest_version}/doc/html/{libname}/{path}"
+    return HttpResponseRedirect(new_path)
