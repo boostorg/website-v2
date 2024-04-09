@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}Boost.{{ object.name }} ({{ version.display_name }}){% endblock %}
+{% block title %}{{ object.display_name }} ({{ version.display_name }}){% endblock %}
 {% block description %}{% trans object.description %}{% endblock %}
 {% block author %}{{ author_tag }}{% endblock %}
 
