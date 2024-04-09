@@ -127,6 +127,26 @@ class Library(models.Model):
     class Meta:
         verbose_name_plural = "Libraries"
 
+    @cached_property
+    def display_name(self):
+        """Returns the display name for the library"""
+        import re
+
+        words = []
+
+        # Split the name on spaces, hyphens, and underscores.
+        for word in re.split(r"[\s\-_]+", self.name):
+            # Capitalize the first letter of each word.
+            word_parts = []
+
+            for part in word.split("/"):
+                word_parts.append(part.capitalize())
+            word = "/".join(word_parts)
+
+            words.append(word)
+
+        return "".join(words)
+
     def __str__(self):
         return self.name
 
