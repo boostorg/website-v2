@@ -22,8 +22,8 @@ from core.views import (
     MarkdownTemplateView,
     StaticContentTemplateView,
     UserGuideTemplateView,
-    redirect_to_latest_version,
-    redirect_to_latest_version_html,
+    RedirectToDocsView,
+    RedirectToHTMLDocsView,
 )
 from libraries.api import LibrarySearchView
 from libraries.views import (
@@ -274,12 +274,12 @@ urlpatterns = (
     + [
         re_path(
             r"^libs/(?P<libname>[^/]+)/(?P<path>.*)$",
-            redirect_to_latest_version,
+            RedirectToDocsView.as_view(),
             name="redirect_to_latest_lib",
         ),
         re_path(
             r"^doc/html/(?P<libname>[^/]+)/(?P<path>.*)$",
-            redirect_to_latest_version_html,
+            RedirectToHTMLDocsView.as_view(),
             name="redirect_to_latest_html",
         ),
     ]

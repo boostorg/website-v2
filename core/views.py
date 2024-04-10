@@ -478,18 +478,28 @@ class ImageView(View):
             raise Http404("Content not found")
 
 
-def get_latest_library_version():
-    """Return the latest version for a given library."""
-    return Version.objects.most_recent().stripped_boost_url_slug
+class BaseRedirectView(View):
+    """View to redirect to the latest version of a library."""
+
+    @staticmethod
+    def get_latest_library_version():
+        """Return the latest version for a given library."""
+        return Version.objects.most_recent().stripped_boost_url_slug
 
 
-def redirect_to_latest_version(request, libname, path):
-    latest_version = get_latest_library_version()
-    new_path = f"/doc/libs/{latest_version}/libs/{libname}/{path}"
-    return HttpResponseRedirect(new_path)
+class RedirectToDocsView(BaseRedirectView):
+    """View to redirect to the latest version of a library."""
+
+    def get(self, request, libname, path):
+        latest_version = self.get_latest_library_version()
+        new_path = f"/doc/libs/{latest_version}/libs/{libname}/{path}"
+        return HttpResponseRedirect(new_path)
 
 
-def redirect_to_latest_version_html(request, libname, path):
-    latest_version = get_latest_library_version()
-    new_path = f"/doc/libs/{latest_version}/doc/html/{libname}/{path}"
-    return HttpResponseRedirect(new_path)
+class RedirectToHTMLDocsView(BaseRedirectView):
+    """View to redirect to the latest version of a library."""
+
+    def get(self, request, libname, path):
+        latest_version = self.get_latest_library_version()
+        new_path = f"/doc/libs/{latest_version}/doc/html/{libname}/{path}"
+        return HttpResponseRedirect(new_path)
