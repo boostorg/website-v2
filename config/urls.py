@@ -22,6 +22,8 @@ from core.views import (
     MarkdownTemplateView,
     StaticContentTemplateView,
     UserGuideTemplateView,
+    redirect_to_latest_version,
+    redirect_to_latest_version_html,
 )
 from libraries.api import LibrarySearchView
 from libraries.views import (
@@ -269,6 +271,18 @@ urlpatterns = (
         # Internal functions
         path("internal/clear-cache/", ClearCacheView.as_view(), name="clear-cache"),
     ]
+    + [
+        re_path(
+            r"^libs/(?P<libname>[^/]+)/(?P<path>.*)$",
+            redirect_to_latest_version,
+            name="redirect_to_latest_lib",
+        ),
+        re_path(
+            r"^doc/html/(?P<libname>[^/]+)/(?P<path>.*)$",
+            redirect_to_latest_version_html,
+            name="redirect_to_latest_html",
+        ),
+    ]
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     + [
         # Libraries docs, some HTML parts are re-written
@@ -302,6 +316,7 @@ urlpatterns = (
             name="static-content-page",
         ),
     ]
+    # Redirects for old boost.org urls.
 )
 
 handler404 = "ak.views.custom_404_view"
