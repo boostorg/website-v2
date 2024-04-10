@@ -272,6 +272,7 @@ urlpatterns = (
         path("internal/clear-cache/", ClearCacheView.as_view(), name="clear-cache"),
     ]
     + [
+        # Redirects for old boost.org urls.
         re_path(
             r"^libs/(?P<libname>[^/]+)/(?P<path>.*)$",
             RedirectToDocsView.as_view(),
@@ -316,7 +317,6 @@ urlpatterns = (
             name="static-content-page",
         ),
     ]
-    # Redirects for old boost.org urls.
 )
 
 handler404 = "ak.views.custom_404_view"
