@@ -11,7 +11,7 @@ class RSSVersionFeed(Feed):
     """An RSS feed for Boost releases"""
 
     title = "Downloads"
-    link = "/downloads/"
+    link = "/releases/"
     description = "Recent downloads for Boost C++ Libraries."
 
     def items(self):
