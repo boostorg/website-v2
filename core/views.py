@@ -479,7 +479,7 @@ class ImageView(View):
 
 
 class BaseRedirectView(View):
-    """View to redirect to the latest version of a library."""
+    """Base view for redirecting to the latest version of a library."""
 
     @staticmethod
     def get_latest_library_version():
@@ -497,9 +497,31 @@ class RedirectToDocsView(BaseRedirectView):
 
 
 class RedirectToHTMLDocsView(BaseRedirectView):
-    """View to redirect to the latest version of a library."""
+    """View to redirect to the latest version of a library.
+    Supports the legacy URL structure for HTML docs.
+    """
 
     def get(self, request, libname, path):
         latest_version = self.get_latest_library_version()
         new_path = f"/doc/libs/{latest_version}/doc/html/{libname}/{path}"
+        return HttpResponseRedirect(new_path)
+
+
+class RedirectToToolsView(BaseRedirectView):
+    """View to redirect to the latest version of a library."""
+
+    def get(self, request, libname):
+        latest_version = self.get_latest_library_version()
+        new_path = f"/doc/libs/{latest_version}/tools/{libname}/"
+        return HttpResponseRedirect(new_path)
+
+
+class RedirectToHTMLToolsView(BaseRedirectView):
+    """View to redirect to the latest version of a library.
+    Supports the legacy URL structure for tools.
+    """
+
+    def get(self, request, libname, path):
+        latest_version = self.get_latest_library_version()
+        new_path = f"/doc/libs/{latest_version}/tools/{libname}/{path}"
         return HttpResponseRedirect(new_path)
