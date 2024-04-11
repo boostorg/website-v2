@@ -139,7 +139,10 @@ class Library(models.Model):
 
         # Custom method to capitalize words, taking care of special cases
         def custom_capitalize(word):
-            return "".join(part.capitalize() for part in re.split(r"(/)", word))
+            # Only capitalize if the word is not already in CamelCase
+            if not re.match(r"[A-Z][a-z]+[A-Z][A-Za-z]*", word):
+                return "".join(part.capitalize() for part in re.split(r"(/)", word))
+            return word
 
         # Split the name into segments to handle parts inside parentheses separately
         segments = re.split(r"(\([^\)]+\))", self.name)
