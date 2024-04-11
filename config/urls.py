@@ -24,6 +24,8 @@ from core.views import (
     UserGuideTemplateView,
     RedirectToDocsView,
     RedirectToHTMLDocsView,
+    RedirectToToolsView,
+    RedirectToHTMLToolsView,
 )
 from libraries.api import LibrarySearchView
 from libraries.views import (
@@ -276,12 +278,22 @@ urlpatterns = (
         re_path(
             r"^libs/(?P<libname>[^/]+)/(?P<path>.*)$",
             RedirectToDocsView.as_view(),
-            name="redirect_to_latest_lib",
+            name="redirect-to-latest-lib",
         ),
         re_path(
             r"^doc/html/(?P<libname>[^/]+)/(?P<path>.*)$",
             RedirectToHTMLDocsView.as_view(),
-            name="redirect_to_latest_html",
+            name="redirect-to-latest-html",
+        ),
+        re_path(
+            r"^tools/(?P<libname>[^/]+)$",
+            RedirectToToolsView.as_view(),
+            name="redirect-to-latest-tools",
+        ),
+        re_path(
+            r"^doc/html/(?P<libname>[^/]+)/(?P<path>.*)$",
+            RedirectToHTMLToolsView.as_view(),
+            name="redirect-to-latest-tools-html",
         ),
     ]
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
