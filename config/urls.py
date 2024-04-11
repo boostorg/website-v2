@@ -276,22 +276,22 @@ urlpatterns = (
     + [
         # Redirects for old boost.org urls.
         re_path(
-            r"^libs/(?P<libname>[^/]+)/(?P<path>.*)$",
+            r"^libs/(?P<libname>[^/]+)/(?P<path>.*)/?$",
             RedirectToDocsView.as_view(),
             name="redirect-to-latest-lib",
         ),
         re_path(
-            r"^doc/html/(?P<libname>[^/]+)/(?P<path>.*)$",
+            r"^doc/html/(?P<libname>[^/]+)/(?P<path>.*)/?$",
             RedirectToHTMLDocsView.as_view(),
             name="redirect-to-latest-html",
         ),
         re_path(
-            r"^tools/(?P<libname>[^/]+)$",
+            r"^tools/(?P<libname>[^/]+)/?$",
             RedirectToToolsView.as_view(),
             name="redirect-to-latest-tools",
         ),
         re_path(
-            r"^doc/html/(?P<libname>[^/]+)/(?P<path>.*)$",
+            r"^doc/html/(?P<libname>[^/]+)/(?P<path>.*)/?$",
             RedirectToHTMLToolsView.as_view(),
             name="redirect-to-latest-tools-html",
         ),
