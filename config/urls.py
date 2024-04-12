@@ -291,7 +291,7 @@ urlpatterns = (
             name="redirect-to-latest-tools",
         ),
         re_path(
-            r"^doc/html/(?P<libname>[^/]+)/(?P<path>.*)/?$",
+            r"^tools/(?P<libname>[^/]+)/(?P<path>.*)$",
             RedirectToHTMLToolsView.as_view(),
             name="redirect-to-latest-tools-html",
         ),
