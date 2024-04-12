@@ -86,7 +86,10 @@ def get_content_from_s3(key=None, bucket_name=None):
         raise ValueError("No key provided.")
 
     bucket_name = bucket_name or settings.STATIC_CONTENT_BUCKET_NAME
-    s3_keys = get_s3_keys(key) or [key]
+    # s3_keys = get_s3_keys(key) or [key]
+    # Force a successful lookup from get_s3_keys, otherwise no match at all.
+    # That removes any random default "/" lookups.
+    s3_keys = get_s3_keys(key) or []
     client = get_s3_client()
 
     for s3_key in s3_keys:
