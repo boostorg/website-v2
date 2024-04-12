@@ -38,9 +38,5 @@
   {
     "site_path": "/doc/",
     "s3_path": "/site-docs/develop/"
-  },
-  {
-    "site_path": "/",
-    "s3_path": "/site/develop/"
   }
 ]
