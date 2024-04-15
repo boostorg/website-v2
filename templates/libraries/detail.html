@@ -123,14 +123,14 @@
       <div class="flex flex-wrap justify-start">
       {% for user in maintainers %}
           <div class="p-1 md:p-2 w-min text-center">
-            <div class="bg-gray-300 dark:bg-slate rounded w-[80px]">
+            <div class="bg-gray-300 dark:bg-slate rounded w-[80px] h-[80px] overflow-hidden">
             {% if user.image %}
               <img src="{{ user.image.url }}"
                 title="{{ user.get_full_name }}"
                 alt="{{ user.get_full_name }}"
-                class="rounded w-[80px]" />
+                class="rounded h-full w-full object-cover" />
             {% else %}
-              <i class="py-4 px-5 text-5xl fas fa-user text-white dark:text-white/60" title="{{ user.get_full_name }}"></i>
+              <i class="py-4 px-5 text-5xl fas fa-user text-white dark:text-white/60 rounded" title="{{ user.get_full_name }}"></i>
             {% endif %}
             </div>
             <span class="text-xs">{{ user.get_full_name }}</span>
