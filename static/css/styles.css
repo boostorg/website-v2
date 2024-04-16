@@ -2750,7 +2750,7 @@ code,
 }
 
 .font-cairo {
-  font-family: 'Cairo', sans-serif;
+  /* font-family: 'Cairo', sans-serif; */
 }
 
 .text-5xl {
