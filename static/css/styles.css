@@ -753,7 +753,7 @@ input[type=file] {
   color: rgb(49 74 87 / var(--tw-text-opacity));
 }
 
-.dark #signup_form input[type=email],.dark
+.dark #signup_form input[type=email],.dark 
   #signup_form input[type=password] {
   --tw-bg-opacity: 1;
   background-color: rgb(23 42 52 / var(--tw-bg-opacity));
@@ -969,7 +969,11 @@ select.dropdown {
   table-layout: auto;
 }
 
-#libraryReadMe code {
+#libraryReadMe code,
+  #libraryReadMe kbd,
+  #libraryReadMe samp,
+  #libraryReadMe pre {
+  background-color: transparent;
   font-size: 0.875rem;
   line-height: 1.25rem;
 }
@@ -987,9 +991,9 @@ code,
   line-height: 1.25rem;
 }
 
-.dark code,.dark
-  kbd,.dark
-  samp,.dark
+.dark code,.dark 
+  kbd,.dark 
+  samp,.dark 
   pre {
   --tw-bg-opacity: 1;
   background-color: rgb(5 26 38 / var(--tw-bg-opacity));
@@ -1554,10 +1558,6 @@ code,
 
 .mb-8 {
   margin-bottom: 2rem;
-}
-
-.mb-12 {
-  margin-bottom: 3rem;
 }
 
 .block {
@@ -2637,6 +2637,10 @@ code,
   padding-left: 1rem;
 }
 
+.pb-0 {
+  padding-bottom: 0px;
+}
+
 .pl-6 {
   padding-left: 1.5rem;
 }
@@ -2647,10 +2651,6 @@ code,
 
 .pr-7 {
   padding-right: 1.75rem;
-}
-
-.pb-0 {
-  padding-bottom: 0px;
 }
 
 .pt-8 {
@@ -3521,20 +3521,20 @@ code,
     margin-bottom: 0.5rem;
   }
 
-  .md\:mt-5 {
-    margin-top: 1.25rem;
-  }
-
   .md\:mb-5 {
     margin-bottom: 1.25rem;
   }
 
-  .md\:mt-3 {
-    margin-top: 0.75rem;
+  .md\:mt-5 {
+    margin-top: 1.25rem;
   }
 
-  .md\:mb-11 {
-    margin-bottom: 2.75rem;
+  .md\:mb-3 {
+    margin-bottom: 0.75rem;
+  }
+
+  .md\:mt-3 {
+    margin-top: 0.75rem;
   }
 
   .md\:mt-8 {
@@ -3557,6 +3557,10 @@ code,
     margin-top: 2.75rem;
   }
 
+  .md\:mb-11 {
+    margin-bottom: 2.75rem;
+  }
+
   .md\:mb-6 {
     margin-bottom: 1.5rem;
   }
@@ -3571,10 +3575,6 @@ code,
 
   .md\:ml-6 {
     margin-left: 1.5rem;
-  }
-
-  .md\:mb-3 {
-    margin-bottom: 0.75rem;
   }
 
   .md\:block {
@@ -3891,19 +3891,9 @@ code,
     line-height: 1;
   }
 
-  .md\:text-xl {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
-  }
-
   .md\:text-lg {
     font-size: 1.125rem;
     line-height: 1.75rem;
-  }
-
-  .md\:text-2xl {
-    font-size: 1.5rem;
-    line-height: 2rem;
   }
 
   .md\:text-sm {
@@ -3911,9 +3901,19 @@ code,
     line-height: 1.25rem;
   }
 
+  .md\:text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
   .md\:text-6xl {
     font-size: 3.75rem;
     line-height: 1;
+  }
+
+  .md\:text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
   }
 }
 
@@ -4117,6 +4117,11 @@ code,
     line-height: 2rem;
   }
 
+  .lg\:text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
   .lg\:text-base {
     font-size: 1rem;
     line-height: 1.5rem;
@@ -4125,16 +4130,6 @@ code,
   .lg\:text-3xl {
     font-size: 1.875rem;
     line-height: 2.25rem;
-  }
-
-  .lg\:text-lg {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-  }
-
-  .lg\:text-xl {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
   }
 }
 
