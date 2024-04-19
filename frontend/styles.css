@@ -123,8 +123,11 @@
   #libraryReadMe table {
     @apply table-auto w-full;
   }
-  #libraryReadMe code {
-    @apply text-sm;
+  #libraryReadMe code,
+  #libraryReadMe kbd,
+  #libraryReadMe samp,
+  #libraryReadMe pre {
+    @apply bg-transparent;
   }
 
   code,
