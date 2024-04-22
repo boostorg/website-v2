@@ -3,19 +3,7 @@
 <html>
 
   <head>
-    <!-- Google fonts for Cairo -->
-    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
-    <script>
-    {% comment %}
-      WebFont.load({
-        google: {
-          families: ['Cairo:200:latin', 'Cairo:300:latin', 'Cairo:400:latin', 'Cairo:500:latin', 'Cairo:600:latin', 'Cairo:700:latin', 'Cairo:800:latin']
-        }
-      });
-    {% endcomment %}
-    </script>
     <script defer data-domain="preview.boost.org" src="https://plausible.io/js/script.js"></script>
-
     <title>{% block title %}Boost{% endblock %}</title>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -52,7 +40,7 @@
               el.setAttribute('content', el.getAttribute('data-' + m));
             });
         }"
-        class="h-screen bg-gray-200 dark:bg-black font-cairo" {% block body_id %}{% endblock %}>
+        class="h-screen bg-gray-200 dark:bg-black" {% block body_id %}{% endblock %}>
 
     <div class="max-w-7xl md:px-6 mx-auto md:mt-14">
       {% block content_header %}

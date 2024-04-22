@@ -28,11 +28,6 @@ module.exports = {
       silver: '#B5C9D3',
       active: '#1565c0',
     },
-    extend: {
-      fontFamily: {
-        cairo: "'Cairo', sans-serif",
-      },
-    },
   },
   variants: {
     extend: {},
