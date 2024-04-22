@@ -11,8 +11,8 @@ html {
 }
 
 body {
-  @apply h-screen font-cairo dark:bg-black dark:!text-white;
-  @apply font-cairo;
+  @apply h-screen dark:bg-black dark:!text-white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
 p a:link, p a:visited, table a, .title a {

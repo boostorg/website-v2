@@ -14,7 +14,6 @@
 
   body {
     @apply text-slate dark:text-white;
-    @apply font-cairo;
   }
   h1 {
     @apply text-6xl;

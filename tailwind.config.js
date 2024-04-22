@@ -27,11 +27,6 @@ module.exports = {
       bronze: '#BB8A56',
       silver: '#B5C9D3',
     },
-    extend: {
-      fontFamily: {
-        cairo: "'Cairo', sans-serif",
-      },
-    },
   },
   variants: {
     extend: {},
