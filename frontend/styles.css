@@ -128,6 +128,9 @@
   #libraryReadMe pre {
     @apply bg-transparent;
   }
+  #libraryReadMe a {
+    @apply text-sky-600;
+  }
 
   code,
   kbd,

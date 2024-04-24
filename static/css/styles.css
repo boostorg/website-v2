@@ -970,8 +970,11 @@ select.dropdown {
   #libraryReadMe samp,
   #libraryReadMe pre {
   background-color: transparent;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+}
+
+#libraryReadMe a {
+  --tw-text-opacity: 1;
+  color: rgb(2 132 199 / var(--tw-text-opacity));
 }
 
 code,
