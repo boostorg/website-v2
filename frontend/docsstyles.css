@@ -48,3 +48,8 @@ div.book:first-of-type {
 #avatar>div {
   @apply bg-white text-slate rounded dark:text-white dark:bg-slate;
 }
+
+#toc.toc2 {
+  top: 42px;
+  z-index: 25;
+}
