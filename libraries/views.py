@@ -42,7 +42,8 @@ class LibraryList(VersionAlertMixin, ListView):
         return self.request.session.get(SELECTED_BOOST_VERSION_SESSION_KEY, None)
 
     def set_selected_boost_version(self, version):
-        self.request.session[SELECTED_BOOST_VERSION_SESSION_KEY] = version
+        if version not in ["develop", "master", "head"]:
+            self.request.session[SELECTED_BOOST_VERSION_SESSION_KEY] = version
 
     def get_queryset(self):
         queryset = super().get_queryset()
