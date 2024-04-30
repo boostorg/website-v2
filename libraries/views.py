@@ -16,6 +16,8 @@ from core.githubhelper import GithubAPIClient
 from .utils import redirect_to_view_with_params
 from .mixins import VersionAlertMixin
 from .models import Category, CommitData, Library, LibraryVersion
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 
 SELECTED_BOOST_VERSION_SESSION_KEY = "boost_version"
@@ -201,6 +203,7 @@ class LibraryListByCategory(LibraryList):
         return results_by_category
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class LibraryDetail(FormMixin, DetailView):
     """Display a single Library in insolation"""
 
