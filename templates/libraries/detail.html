@@ -20,7 +20,6 @@
       <div class="flex-shrink">
         <form action="{% url 'library-detail' slug=object.slug %}"
               method="post">
-          {% csrf_token %}
           <div>
             <label for="id_version" hidden="true">Versions:</label>
             <select onchange="this.form.submit()"
