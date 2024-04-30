@@ -10,12 +10,15 @@ from operator import attrgetter
 from core.models import RenderedContent
 from libraries.forms import VersionSelectionForm
 from versions.models import Version
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 SELECTED_BOOST_VERSION_SESSION_KEY = "boost_version"
 
 logger = structlog.get_logger(__name__)
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class VersionDetail(FormMixin, DetailView):
     """Web display of list of Versions"""
 
