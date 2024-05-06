@@ -212,6 +212,9 @@ class LibraryDetail(FormMixin, DetailView):
     template_name = "libraries/detail.html"
     redirect_to_docs = False
 
+    def set_selected_boost_version(self, version):
+        self.request.session[SELECTED_BOOST_VERSION_SESSION_KEY] = version
+
     def get_context_data(self, **kwargs):
         """Set the form action to the main libraries page"""
         context = super().get_context_data(**kwargs)
@@ -421,6 +424,7 @@ class LibraryDetail(FormMixin, DetailView):
         form = self.get_form()
         if form.is_valid():
             version = form.cleaned_data["version"]
+            self.set_selected_boost_version(version.slug)
             return redirect(
                 "library-detail-by-version",
                 version_slug=version.slug,
