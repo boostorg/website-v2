@@ -28,6 +28,11 @@ module.exports = {
       silver: '#B5C9D3',
       active: '#1565c0',
     },
+    extend: {
+      fontFamily: {
+        'sans': ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', '"Helvetica Neue"', 'sans-serif'],
+      }
+    },
   },
   variants: {
     extend: {},

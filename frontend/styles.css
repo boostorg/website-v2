@@ -13,7 +13,7 @@
   }
 
   body {
-    @apply text-slate dark:text-white;
+    @apply font-sans text-slate dark:text-white;
   }
   h1 {
     @apply text-6xl;
