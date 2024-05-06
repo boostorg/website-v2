@@ -27,6 +27,11 @@ module.exports = {
       bronze: '#BB8A56',
       silver: '#B5C9D3',
     },
+    extend: {
+      fontFamily: {
+        'sans': ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', '"Helvetica Neue"', 'sans-serif'],
+      }
+    },
   },
   variants: {
     extend: {},
