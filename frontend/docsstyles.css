@@ -62,4 +62,33 @@ div.book:first-of-type {
 #toc.toc2 {
   top: 42px;
   z-index: 25;
+  padding-bottom: 4.5rem;
+}
+
+#content h2[id],
+#content h3[id],
+#content h4[id],
+#content h5[id],
+#content h6[id] {
+  margin-top: -2.625rem;
+}
+
+#content h2[id] {
+  padding-top: 4.25rem;
+}
+
+#content h3[id] {
+  padding-top: 4rem;
+}
+
+#content h4[id] {
+  padding-top: 3.75rem;
+}
+
+#content h5[id] {
+  padding-top: 3.5rem;
+}
+
+#content h6[id] {
+  padding-top: 3.25rem;
 }
