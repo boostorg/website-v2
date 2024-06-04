@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via celery
 black==24.4.2
     # via -r ./requirements.in
-boto3==1.34.100
+boto3==1.34.118
     # via
     #   -r ./requirements.in
     #   django-bakery
-botocore==1.34.100
+botocore==1.34.118
     # via
     #   boto3
     #   s3transfer
@@ -42,7 +42,7 @@ bumpversion==0.6.0
     # via -r ./requirements.in
 celery==5.2.7
     # via -r ./requirements.in
-certifi==2024.2.2
+certifi==2024.6.2
     # via
     #   elasticsearch
     #   minio
@@ -70,7 +70,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
-coverage[toml]==7.5.1
+coverage[toml]==7.5.3
     # via pytest-cov
 cryptography==42.0.7
     # via
@@ -83,7 +83,7 @@ defusedxml==0.7.1
     # via python3-openid
 distlib==0.3.8
     # via virtualenv
-dj-database-url==2.1.0
+dj-database-url==2.2.0
     # via environs
 dj-email-url==1.0.6
     # via environs
@@ -122,11 +122,11 @@ django-click==2.4.0
     # via -r ./requirements.in
 django-cors-headers==4.3.1
     # via -r ./requirements.in
-django-db-geventpool==4.0.2
+django-db-geventpool==4.0.3
     # via -r ./requirements.in
 django-extensions==3.2.3
     # via -r ./requirements.in
-django-haystack==3.2.1
+django-haystack==3.3.0
     # via -r ./requirements.in
 django-health-check==3.18.2
     # via -r ./requirements.in
@@ -136,7 +136,7 @@ django-js-asset==2.2.0
     # via django-mptt
 django-mptt==0.14
     # via -r ./requirements.in
-django-oauth-toolkit==2.3.0
+django-oauth-toolkit==2.4.0
     # via -r ./requirements.in
 django-redis==5.4.0
     # via -r ./requirements.in
@@ -160,9 +160,9 @@ environs[django]==11.0.0
     # via -r ./requirements.in
 executing==2.0.1
     # via stack-data
-faker==25.0.1
+faker==25.4.0
     # via -r ./requirements.in
-fastcore==1.5.33
+fastcore==1.5.43
     # via ghapi
 filelock==3.14.0
     # via virtualenv
@@ -184,7 +184,7 @@ idna==3.7
     # via requests
 iniconfig==2.0.0
     # via pytest
-ipython==8.24.0
+ipython==8.25.0
     # via -r ./requirements.in
 jedi==0.19.1
     # via ipython
@@ -208,11 +208,11 @@ minio==7.2.7
     # via -r ./requirements.in
 mistletoe==1.3.0
     # via -r ./requirements.in
-model-bakery==1.18.0
+model-bakery==1.18.1
     # via -r ./requirements.in
 mypy-extensions==1.0.0
     # via black
-nodeenv==1.8.0
+nodeenv==1.9.0
     # via pre-commit
 oauthlib==3.2.2
     # via
@@ -222,6 +222,7 @@ packaging==24.0
     # via
     #   black
     #   build
+    #   django-haystack
     #   fastcore
     #   ghapi
     #   gunicorn
@@ -241,20 +242,18 @@ pillow==10.2.0
     #   pilkit
 pip-tools==6.13.0
     # via -r ./requirements.in
-platformdirs==4.2.1
+platformdirs==4.2.2
     # via
     #   black
     #   virtualenv
 pluggy==1.5.0
     # via pytest
-pre-commit==3.7.0
+pre-commit==3.7.1
     # via -r ./requirements.in
-prompt-toolkit==3.0.43
+prompt-toolkit==3.0.46
     # via
     #   click-repl
     #   ipython
-psycogreen==1.0.2
-    # via django-db-geventpool
 psycopg2-binary==2.9.9
     # via -r ./requirements.in
 ptyprocess==0.7.0
@@ -271,7 +270,7 @@ pyjwt[crypto]==2.8.0
     # via django-allauth
 pyproject-hooks==1.1.0
     # via build
-pytest==8.2.0
+pytest==8.2.2
     # via
     #   -r ./requirements.in
     #   pytest-cov
@@ -294,7 +293,9 @@ python-json-logger==2.0.7
 python3-openid==3.2.0
     # via django-allauth
 pytz==2024.1
-    # via celery
+    # via
+    #   celery
+    #   django-oauth-toolkit
 pyyaml==6.0.1
     # via
     #   pre-commit
@@ -304,7 +305,7 @@ redis==4.5.4
     # via
     #   -r ./requirements.in
     #   django-redis
-requests==2.31.0
+requests==2.32.3
     # via
     #   -r ./requirements.in
     #   django-allauth
@@ -331,13 +332,13 @@ sqlparse==0.5.0
     # via django
 stack-data==0.6.3
     # via ipython
-structlog==24.1.0
+structlog==24.2.0
     # via -r ./requirements.in
 traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==4.11.0
+typing-extensions==4.12.1
     # via
     #   dj-database-url
     #   ipython
@@ -356,7 +357,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.1
+virtualenv==20.26.2
     # via pre-commit
 wcwidth==0.2.13
     # via prompt-toolkit
@@ -368,7 +369,7 @@ whitenoise==6.6.0
     # via -r ./requirements.in
 zope-event==5.0
     # via gevent
-zope-interface==6.3
+zope-interface==6.4.post2
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
