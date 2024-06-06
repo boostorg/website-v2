@@ -120,6 +120,10 @@ select, #search-input {
   @apply rounded;
 }
 
+#avatar > a {
+  @apply whitespace-nowrap;
+}
+
 #userMenu, #guideMenu {
   border: 1px solid #d1d5db;
 }
