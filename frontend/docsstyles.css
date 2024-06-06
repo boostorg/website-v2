@@ -59,12 +59,16 @@ div.book:first-of-type {
   @apply bg-white text-slate rounded dark:text-white dark:bg-slate;
 }
 
+/* Framed docs styles */
+
+/* Positioning and padding for table of contents */
 #toc.toc2 {
   top: 42px;
   z-index: 25;
   padding-bottom: 4.5rem;
 }
 
+/* Offset for headings to account for fixed header */
 #content h2[id],
 #content h3[id],
 #content h4[id],
@@ -73,6 +77,7 @@ div.book:first-of-type {
   margin-top: -2.625rem;
 }
 
+/* Additional padding for headings to ensure they're visible when navigated to */
 #content h2[id] {
   padding-top: 4.25rem;
 }
@@ -91,4 +96,11 @@ div.book:first-of-type {
 
 #content h6[id] {
   padding-top: 3.25rem;
+}
+
+
+/* Unframed docs styles */
+
+body:not([class]), body:not([class]) #navbar-container {
+  max-width: 77rem;
 }
