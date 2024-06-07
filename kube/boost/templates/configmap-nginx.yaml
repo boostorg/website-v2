@@ -126,6 +126,5 @@ data:
       location = /build/ { return 301 /tools/build; }
       location = /more/lib_guide.htm { return 301 /doc/contributor-guide/index.html; }
 
-include /etc/nginx/mime.types;
       include /etc/nginx/mime.types;
     }
