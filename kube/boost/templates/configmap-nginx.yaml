@@ -82,5 +82,55 @@ data:
         expires 1d;
       }
 
+      location /media {
+        alias /code/media;
+        expires 1d;
+      }
+
+      location = /more/getting_started/index.html { return 301 /doc/user-guide/getting-started.html; }
+      location = /map.html { return 301 /docs/; }
+      location = /users/ { return 301 /doc/user-guide/index.html; }
+      location = /users/download/ { return 301 /releases; }
+      location = /users/news/ { return 301 /news/; }
+      location = /users/history/ { return 301 /releases; }
+      location = /users/license.html { return 301 /doc/user-guide/bsl.html; }
+      location = /users/memoriam.html { return 301 /doc/user-guide/in-memoriam-beman-dawes.html; }
+      location = /users/memoriam/beman_dawes.html { return 301 /doc/user-guide/in-memoriam-beman-dawes.html; }
+      location = /users/bibliography.html { return 301 /doc/user-guide/resources.html; }
+      location = /users/faq.html { return 301 /doc/user-guide/faq.html; }
+      location = /users/proposal.pdf { return 301 /doc/user-guide/boost-history.html; }
+      location = /users/history/version_1_84_0.html { return 301 /releases/boost-1-84-0/; }
+      location = /community/groups.html { return 301 /community/; }
+      location = /community/policy.html { return 301 /doc/user-guide/discussion-policy.html; }
+      location = /community/cpp.html { return 301 /doc/user-guide/faq.html#isocommitteemeetings; }
+      location = /community/committee.html { return 301 /doc/user-guide/faq.html#isocommitteemeetings; }
+      location = /community/generic_programming.html { return 301 /doc/user-guide/generic-programming.html; }
+      location = /community/exception_safety.html { return 301 /doc/user-guide/exception-safety.html; }
+      location = /community/counted_body.html { return 301 /doc/user-guide/counted-body.html; }
+      location = /community/implementation_variations.html { return 301 /doc/user-guide/implementation-variations.html; }
+      location = /community/requests.html { return 301 /community/; }
+      location = /community/reviews.html { return 301 /doc/formal-reviews/index.html; }
+      location = /community/review_schedule.html { return 301 /formal-reviews/review-results.html; }
+      location = /development/submissions.html { return 301 /doc/formal-reviews/submissions.html; }
+      location = /development/bugs.html { return 301 /doc/user-guide/reporting-issues.html; }
+      location = /development/pull_requests.php { return 301 $scheme://$host; }
+      location = /development/testing.html { return 301 /doc/contributor-guide/testing/boost-test-matrix.html#_regression_dashboard; }
+      location = /development/tests/master/developer/summary.html { return 301 https://regression.boost.org/master/developer/summary.html; }
+      location = /development/tests/master/developer/issues.html { return 301 https://regression.boost.org/master/developer/issues.html; }
+      location = /development/tests/develop/developer/summary.html { return 301 https://regression.boost.org/develop/developer/summary.html; }
+      location = /development/tests/develop/developer/issues.html { return 301 https://regression.boost.org/develop/developer/issues.html; }
+      location = /development/running_regression_tests.html { return 301 /doc/contributor-guide/testing/regression-tests.html; }
+      location = /development/requirements.html { return 301 /doc/contributor-guide/index.html; }
+      location = /development/test.html { return 301 /doc/contributor-guide/testing/intro.html; }
+      location = /development/header.html { return 301 /doc/contributor-guide/design-guide/headers.html; }
+      location = /development/separate_compilation.html { return 301 /doc/contributor-guide/design-guide/separate-compilation.html; }
+      location = /development/library_metadata.html { return 301 /doc/contributor-guide/requirements/library-metadata.html; }
+      location = /doc/ { return 301 /libraries; }
+      location = /doc/libs/ { return 301 /libraries; }
+      location = /doc/libs/1_84_0/ { return 301 /libraries/?version=boost-1-84-0; }
+      location = /build/ { return 301 /tools/build; }
+      location = /more/lib_guide.htm { return 301 /doc/contributor-guide/index.html; }
+
+include /etc/nginx/mime.types;
       include /etc/nginx/mime.types;
     }
