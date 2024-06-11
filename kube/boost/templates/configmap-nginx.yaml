@@ -122,7 +122,6 @@ data:
       location = /development/library_metadata.html { return 301 /doc/contributor-guide/requirements/library-metadata.html; }
       location = /doc/ { return 301 /libraries; }
       location = /doc/libs/ { return 301 /libraries; }
-      location = /doc/libs/1_84_0/ { return 301 /libraries/?version=boost-1-84-0; }
       location = /build/ { return 301 /tools/build; }
       location = /more/lib_guide.htm { return 301 /doc/contributor-guide/index.html; }
 
