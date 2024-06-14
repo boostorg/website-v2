@@ -69,12 +69,17 @@ class VersionManager(models.Manager):
 
         return queryset
 
-    def version_dropdown_strict(self):
+    def version_dropdown_strict(self, *, exclude_branches=True):
         """Returns the versions to be shown in the drop-down, but does not include
         the development branches"""
         versions = self.version_dropdown()
         # exclude if full_release is False and beta is False
-        return versions.exclude(full_release=False, beta=False)
+        versions = versions.exclude(full_release=False, beta=False)
+
+        if exclude_branches:
+            versions = versions.exclude(name__in=["develop", "master", "head"])
+
+        return versions
 
 
 class VersionFileQuerySet(models.QuerySet):
