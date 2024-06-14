@@ -110,10 +110,10 @@ data:
       location = /development/bugs.html { return 301 /doc/user-guide/reporting-issues.html; }
       location = /development/pull_requests.php { return 301 $scheme://$host; }
       location = /development/testing.html { return 301 /doc/contributor-guide/testing/boost-test-matrix.html#_regression_dashboard; }
-      location = /development/tests/master/developer/summary.html { return 301 https://regression.boost.org/master/developer/summary.html; }
-      location = /development/tests/master/developer/issues.html { return 301 https://regression.boost.org/master/developer/issues.html; }
-      location = /development/tests/develop/developer/summary.html { return 301 https://regression.boost.org/develop/developer/summary.html; }
-      location = /development/tests/develop/developer/issues.html { return 301 https://regression.boost.org/develop/developer/issues.html; }
+      location = /development/tests/master/developer/summary.html { return 301 https://regression.boost.io/master/developer/summary.html; }
+      location = /development/tests/master/developer/issues.html { return 301 https://regression.boost.io/master/developer/issues.html; }
+      location = /development/tests/develop/developer/summary.html { return 301 https://regression.boost.io/develop/developer/summary.html; }
+      location = /development/tests/develop/developer/issues.html { return 301 https://regression.boost.io/develop/developer/issues.html; }
       location = /development/running_regression_tests.html { return 301 /doc/contributor-guide/testing/regression-tests.html; }
       location = /development/requirements.html { return 301 /doc/contributor-guide/index.html; }
       location = /development/test.html { return 301 /doc/contributor-guide/testing/intro.html; }
