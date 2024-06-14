@@ -458,7 +458,8 @@ def modernize_release_notes(html_content):
     soup = process_new_libraries(soup)
 
     # Convert nested <ul>'s to <h4>s with single <ul> inside
-    soup = format_nested_lists(soup)
+    # NOTE: Commented out because it's not needed for the current release notes.
+    # soup = format_nested_lists(soup)
 
     # Remove duplicate header tags
     soup = remove_duplicate_tag(soup, "h2")
