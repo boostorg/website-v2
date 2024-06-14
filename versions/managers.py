@@ -56,11 +56,18 @@ class VersionManager(models.Manager):
             )
 
         include_beta = should_show_beta(most_recent, most_recent_beta)
+        exclude_branches = True
+
         if include_beta:
             beta_queryset = self.active().filter(models.Q(name=most_recent_beta.name))
-            return (all_versions | beta_queryset).order_by("-name")
+            queryset = (all_versions | beta_queryset).order_by("-name")
         else:
-            return all_versions.order_by("-name")
+            queryset = all_versions.order_by("-name")
+
+        if exclude_branches:
+            queryset = queryset.exclude(name__in=["develop", "master", "head"])
+
+        return queryset
 
     def version_dropdown_strict(self):
         """Returns the versions to be shown in the drop-down, but does not include

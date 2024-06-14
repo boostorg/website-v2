@@ -135,6 +135,8 @@ class LibraryList(VersionAlertMixin, ListView):
         if most_recent_version not in versions:
             versions = versions | Version.objects.filter(pk=most_recent_version.pk)
 
+        # Manually exclude the master and develop branches.
+        versions = versions.exclude(name__in=["develop", "master", "head"])
         return versions
 
     def dispatch(self, request, *args, **kwargs):
