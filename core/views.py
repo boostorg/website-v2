@@ -528,7 +528,7 @@ class RedirectToHTMLToolsView(BaseRedirectView):
 
 
 class RedirectToReleaseView(BaseRedirectView):
-    """View to redirect to the latest version of a library."""
+    """View to redirect to a given release page."""
 
     def get(self, request, requested_version):
         # Get the requested version from the path of the URL.
@@ -536,4 +536,15 @@ class RedirectToReleaseView(BaseRedirectView):
         requested_version = requested_version.replace("version-", "")
 
         new_path = f"/releases/boost-{ requested_version }/"
+        return HttpResponseRedirect(new_path)
+
+
+class RedirectToLibraryView(BaseRedirectView):
+    """View to redirect to a versioned libraries page."""
+
+    def get(self, request, requested_version):
+        # Get the requested version from the path of the URL.
+        requested_version = requested_version.replace("_", "-")
+
+        new_path = f"/libraries/?version=boost-{ requested_version }/"
         return HttpResponseRedirect(new_path)
