@@ -105,7 +105,7 @@ data:
       location = /community/implementation_variations.html { return 301 /doc/user-guide/implementation-variations.html; }
       location = /community/requests.html { return 301 /community/; }
       location = /community/reviews.html { return 301 /doc/formal-reviews/index.html; }
-      location = /community/review_schedule.html { return 301 /doc/formal-reviews/review-results.html	; }
+      location = /community/review_schedule.html { return 301 /doc/formal-reviews/review-results.html; }
       location = /development/submissions.html { return 301 /doc/formal-reviews/submissions.html; }
       location = /development/bugs.html { return 301 /doc/user-guide/reporting-issues.html; }
       location = /development/pull_requests.php { return 301 $scheme://$host; }
