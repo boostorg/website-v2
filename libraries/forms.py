@@ -11,7 +11,6 @@ class LibraryForm(ModelForm):
 
 
 class VersionSelectionForm(Form):
-    # Remove non released versions from the queryset.
     queryset = Version.objects.active().defer("data")
 
     version = ModelChoiceField(
