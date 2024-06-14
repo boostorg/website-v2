@@ -26,6 +26,7 @@ from core.views import (
     RedirectToHTMLDocsView,
     RedirectToToolsView,
     RedirectToHTMLToolsView,
+    RedirectToReleaseView,
 )
 from libraries.api import LibrarySearchView
 from libraries.views import (
@@ -289,6 +290,11 @@ urlpatterns = (
             r"^tools/(?P<libname>[^/]+)/?$",
             RedirectToToolsView.as_view(),
             name="redirect-to-latest-tools",
+        ),
+        re_path(
+            r"^history/(?P<requested_version>[^/]+).html$",
+            RedirectToReleaseView.as_view(),
+            name="redirect-to-release",
         ),
         re_path(
             r"^tools/(?P<libname>[^/]+)/(?P<path>.*)$",
