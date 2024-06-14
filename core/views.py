@@ -525,3 +525,15 @@ class RedirectToHTMLToolsView(BaseRedirectView):
         latest_version = self.get_latest_library_version()
         new_path = f"/doc/libs/{latest_version}/tools/{libname}/{path}"
         return HttpResponseRedirect(new_path)
+
+
+class RedirectToReleaseView(BaseRedirectView):
+    """View to redirect to the latest version of a library."""
+
+    def get(self, request, requested_version):
+        # Get the requested version from the path of the URL.
+        requested_version = requested_version.replace("_", "-")
+        requested_version = requested_version.replace("version-", "")
+
+        new_path = f"/releases/boost-{ requested_version }/"
+        return HttpResponseRedirect(new_path)
