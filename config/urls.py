@@ -293,12 +293,12 @@ urlpatterns = (
             name="redirect-to-latest-tools",
         ),
         re_path(
-            r"^history/(?P<requested_version>[^/]+).html$",
+            r"^users/history/(?P<requested_version>[^/]+).html/?$",
             RedirectToReleaseView.as_view(),
             name="redirect-to-release",
         ),
         re_path(
-            r"^doc/libs/(?P<requested_version>[^/]+).html$",
+            r"^doc/libs/(?P<requested_version>[^/]+).html/?$",
             RedirectToLibraryView.as_view(),
             name="redirect-to-library-page",
         ),
