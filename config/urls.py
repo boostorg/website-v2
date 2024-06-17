@@ -298,7 +298,7 @@ urlpatterns = (
             name="redirect-to-release",
         ),
         re_path(
-            r"^doc/libs/(?P<requested_version>[^/]+).html/?$",
+            r"^doc/libs/(?P<requested_version>[^/]+)/?$",
             RedirectToLibraryView.as_view(),
             name="redirect-to-library-page",
         ),

@@ -546,5 +546,5 @@ class RedirectToLibraryView(BaseRedirectView):
         # Get the requested version from the path of the URL.
         requested_version = requested_version.replace("_", "-")
 
-        new_path = f"/libraries/?version=boost-{ requested_version }/"
+        new_path = f"/libraries/?version=boost-{ requested_version }"
         return HttpResponseRedirect(new_path)
