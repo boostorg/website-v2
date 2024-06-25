@@ -431,7 +431,11 @@ def add_class_to_sibling_by_header(
 
 def reformat_new_libraries_list(soup):
     new_libraries_list = add_class_to_sibling_by_header(
-        soup, "New Libraries", "new-libraries", search_tag="h3", target_tag="ul"
+        soup,
+        header_text="New Libraries",
+        class_to_add="new-libraries",
+        search_tag="h3",
+        target_tag="ul",
     )
 
     if new_libraries_list:
