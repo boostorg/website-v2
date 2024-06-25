@@ -411,6 +411,48 @@ def style_links(soup, class_name):
     return soup
 
 
+def add_class_to_sibling_by_header(
+    soup, header_text, class_to_add, header_tag="h3", target_tag="ul"
+):
+    """
+    Adds a class to the next sibling of a specified tag
+    if it matches the search criteria.
+    """
+    sections = soup.find_all(header_tag, string=header_text)
+    for section in sections:
+        target = section.find_next_sibling(target_tag)
+        if target:
+            existing_classes = target.get("class", [])
+            if class_to_add not in existing_classes:
+                target["class"] = existing_classes + [class_to_add]
+                return target
+    return None
+
+
+def reformat_new_libraries_list(soup):
+    new_libraries_list = add_class_to_sibling_by_header(
+        soup, "New Libraries", "new-libraries", search_tag="h3", target_tag="ul"
+    )
+
+    if new_libraries_list:
+        for li in new_libraries_list.find_all("li"):
+            a_tag = li.find("a")
+            if a_tag:
+                description_text = li.text.replace(a_tag.text, "").strip(": ").strip()
+                description_text = description_text.lstrip(":")
+
+                nested_ul = soup.new_tag("ul")
+                nested_li = soup.new_tag("li")
+                nested_li.string = description_text
+                nested_ul.append(nested_li)
+
+                li.clear()
+                li.append(a_tag)
+                li.append(": ")
+                li.append(nested_ul)
+    return soup
+
+
 def modernize_release_notes(html_content):
     IDS_TO_REMOVE = ["heading", "body" "body-inner", "content"]
     CLASSES_TO_REMOVE = [
@@ -460,6 +502,9 @@ def modernize_release_notes(html_content):
     # Convert nested <ul>'s to <h4>s with single <ul> inside
     # NOTE: Commented out because it's not needed for the current release notes.
     # soup = format_nested_lists(soup)
+
+    # Restructure New Libraries' HTML structure
+    soup = reformat_new_libraries_list(soup)
 
     # Remove duplicate header tags
     soup = remove_duplicate_tag(soup, "h2")
