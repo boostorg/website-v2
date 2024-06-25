@@ -426,7 +426,6 @@ def add_class_to_sibling_by_header(
             if class_to_add not in existing_classes:
                 target["class"] = existing_classes + [class_to_add]
                 return target
-    return None
 
 
 def reformat_new_libraries_list(soup):
@@ -434,7 +433,7 @@ def reformat_new_libraries_list(soup):
         soup,
         header_text="New Libraries",
         class_to_add="new-libraries",
-        search_tag="h3",
+        header_tag="h3",
         target_tag="ul",
     )
 
