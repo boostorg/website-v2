@@ -114,10 +114,28 @@
     @apply text-base pb-1 font-light;
   }
   #libraryReadMe ul {
-    @apply list-disc list-inside;
+    @apply list-disc list-inside pl-4;
   }
   #libraryReadMe ul li {
     @apply text-base py-1 font-light;
+  }
+  #libraryReadMe > h3 + ul {
+    @apply list-none;
+  }
+  #libraryReadMe > h3 + ul > li > a {
+    @apply font-semibold;
+  }
+  #libraryReadMe ul > li > ul > li {
+    @apply list-disc;
+  }
+  #libraryReadMe ul > li > ul > li > a {
+    @apply font-normal;
+  }
+  #libraryReadMe h3 + p + ul {
+    @apply list-none;
+  }
+  #libraryReadMe h3 + p + ul > li {
+    @apply font-semibold;
   }
   #libraryReadMe table {
     @apply table-auto w-full;
