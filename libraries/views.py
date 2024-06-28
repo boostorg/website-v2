@@ -233,8 +233,10 @@ class LibraryDetail(FormMixin, DetailView):
             .order_by("-release_date")
         )
         # Manually exclude the master and develop branches.
-        context["versions"] = context["versions"].exclude(name__in=["develop", "master", "head"])
-        # Manually exclude non–full releases.
+        context["versions"] = context["versions"].exclude(
+            name__in=["develop", "master", "head"]
+        )
+        # Manually exclude non– full releases.
         context["versions"] = context["versions"].exclude(full_release=True)
 
         # Show an alert if the user is on an older version
