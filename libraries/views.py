@@ -21,6 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 SELECTED_BOOST_VERSION_SESSION_KEY = "boost_version"
+# SELECTED_LIBRARY_VIEW_SESSION_KEY = "library_selected_view"
 
 logger = structlog.get_logger()
 
@@ -227,10 +228,13 @@ class LibraryDetail(FormMixin, DetailView):
         context["latest_version"] = latest_version
         context["versions"] = (
             Version.objects.active()
-            .filter(library_version__library=self.object)
+            .filter(library_version__library=self.object, full_release=True)
             .distinct()
             .order_by("-release_date")
         )
+        # Manually exclude the master and develop branches.
+        context["versions"] = context["versions"].exclude(name__in=["develop", "master", "head"])
+        context["versions"] = context["versions"].exclude()
 
         # Show an alert if the user is on an older version
         if context["version"] != latest_version:
