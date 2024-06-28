@@ -228,13 +228,14 @@ class LibraryDetail(FormMixin, DetailView):
         context["latest_version"] = latest_version
         context["versions"] = (
             Version.objects.active()
-            .filter(library_version__library=self.object, full_release=True)
+            .filter(library_version__library=self.object)
             .distinct()
             .order_by("-release_date")
         )
         # Manually exclude the master and develop branches.
         context["versions"] = context["versions"].exclude(name__in=["develop", "master", "head"])
-        context["versions"] = context["versions"].exclude()
+        # Manually exclude non–full releases.
+        context["versions"] = context["versions"].exclude(full_release=True)
 
         # Show an alert if the user is on an older version
         if context["version"] != latest_version:
