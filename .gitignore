@@ -159,3 +159,4 @@ mailman/web/static/
 # dev
 *.code-workspace
 .vscode/settings.json
+.idea
