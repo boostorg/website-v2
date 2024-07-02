@@ -21,6 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 SELECTED_BOOST_VERSION_SESSION_KEY = "boost_version"
+SELECTED_LIBRARY_VIEW_SESSION_KEY = "library_view"
 
 logger = structlog.get_logger()
 
@@ -46,6 +47,12 @@ class LibraryList(VersionAlertMixin, ListView):
     def set_selected_boost_version(self, version):
         if version not in ["develop", "master", "head"]:
             self.request.session[SELECTED_BOOST_VERSION_SESSION_KEY] = version
+
+    def get_selected_library_view(self):
+        return self.request.session.get(SELECTED_LIBRARY_VIEW_SESSION_KEY, None)
+
+    def set_selected_library_view(self, view):
+        self.request.session[SELECTED_LIBRARY_VIEW_SESSION_KEY] = view
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -153,6 +160,7 @@ class LibraryList(VersionAlertMixin, ListView):
             if redirect_to_version:
                 path_info = request.get_full_path_info()
 
+                
                 # Determine the route name based on the URL.
                 if "/by-category/" in path_info:
                     route_name = "libraries-by-category"
@@ -160,6 +168,9 @@ class LibraryList(VersionAlertMixin, ListView):
                     route_name = "libraries-mini"
                 else:
                     route_name = "libraries"
+
+                # Remember which view the user prefers.
+                self.set_selected_library_view(route_name)
 
                 # Construct the URL with the version from the session.
                 current_category = request.GET.get("category", "")
