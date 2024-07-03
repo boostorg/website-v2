@@ -59,7 +59,6 @@ class LibraryList(VersionAlertMixin, ListView):
         """Set the user's preferred view for the libraries page."""
         if clear:
             self.request.session.pop(SELECTED_LIBRARY_VIEW_SESSION_KEY, None)
-            return None
         else:
             self.request.session[SELECTED_LIBRARY_VIEW_SESSION_KEY] = view
             return view
@@ -188,11 +187,14 @@ class LibraryList(VersionAlertMixin, ListView):
 
         redirect_to_version = self.get_selected_boost_version()
         redirect_to_route = self.get_selected_library_view()
+        route_in_url = self.view_route_from_url()
         version_in_url = self.get_version_request_from_url()
 
         # If the user has a preferred view, use that.
-        if redirect_to_route:
-            self.set_selected_library_view(redirect_to_route)
+        if redirect_to_route and route_in_url != redirect_to_route:
+            if "reset_view" not in request.GET:
+                self.set_selected_library_view(redirect_to_route)
+                return redirect(redirect_to_route)
             route_name = redirect_to_route
 
         # Set the session value to the version in the URL.
@@ -219,7 +221,7 @@ class LibraryList(VersionAlertMixin, ListView):
                 redirect_to_route = self.get_selected_library_view()
                 route_name = redirect_to_route if redirect_to_route else route_name
 
-                r = redirect_to_view_with_params(route_name, kwargs, query_params)
+                return redirect_to_view_with_params(route_name, kwargs, query_params)
 
         return r
 
