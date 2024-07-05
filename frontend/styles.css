@@ -151,7 +151,7 @@
   }
 
   #libraryReadMe a img {
-    @apply inline m-1;
+    @apply inline;
   }
 
   code,
