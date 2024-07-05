@@ -1,7 +1,8 @@
 {% load static %}
 {% load date_filters %}
 
-<div class="relative content-between p-3 bg-white rounded-lg shadow-lg md:p-5 dark:bg-charcoal">
+<div class="relative content-between p-3 bg-white rounded-lg shadow-lg md:p-5 dark:bg-charcoal hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out cursor-pointer"
+onclick="window.location='{% if version %}{% url 'library-detail-by-version' slug=library.slug version_slug=version.slug %}{% else %}{% url 'library-detail' slug=library.slug %}{% endif %}'">
   <div class="">
     <h3 class="pb-2 text-xl md:text-2xl capitalize border-b border-gray-700">
       <a class="link-header" href="
