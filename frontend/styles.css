@@ -150,6 +150,10 @@
     @apply text-sky-600;
   }
 
+  #libraryReadMe a img {
+    @apply inline;
+  }
+
   code,
   kbd,
   samp,
