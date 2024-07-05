@@ -234,10 +234,10 @@
     const ValidateGitImages = () => {
       var all = document.getElementsByTagName("img");
       for (var i = 0; i < all.length; i++) {
-        (function(index) { 
+        (function(index) {
             var img = new Image();
             img.src = all[index].getAttribute('src');
-            
+
             img.onerror = function() {
                 var alt = all[index].getAttribute('alt');
                 if (alt) {
@@ -246,7 +246,7 @@
                 }
                 all[index].remove();
             };
-        })(i); 
+        })(i);
     }
     }
 
