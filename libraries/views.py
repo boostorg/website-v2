@@ -21,6 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 SELECTED_BOOST_VERSION_SESSION_KEY = "boost_version"
+SELECTED_LIBRARY_VIEW_SESSION_KEY = "library_view"
 
 logger = structlog.get_logger()
 
@@ -40,12 +41,27 @@ class LibraryList(VersionAlertMixin, ListView):
     )
     template_name = "libraries/list.html"
 
-    def get_selected_boost_version(self):
+    def get_selected_boost_version(self) -> str:
+        """Get the selected version from the session."""
         return self.request.session.get(SELECTED_BOOST_VERSION_SESSION_KEY, None)
 
-    def set_selected_boost_version(self, version):
+    def set_selected_boost_version(self, version: str) -> None:
+        """Set the selected version in the session."""
         if version not in ["develop", "master", "head"]:
             self.request.session[SELECTED_BOOST_VERSION_SESSION_KEY] = version
+            return version
+
+    def get_selected_library_view(self) -> str:
+        """Get the user's preferred view for the libraries page."""
+        return self.request.session.get(SELECTED_LIBRARY_VIEW_SESSION_KEY)
+
+    def set_selected_library_view(self, view: str, *, clear: bool = False) -> str:
+        """Set the user's preferred view for the libraries page."""
+        if clear:
+            self.request.session.pop(SELECTED_LIBRARY_VIEW_SESSION_KEY, None)
+        else:
+            self.request.session[SELECTED_LIBRARY_VIEW_SESSION_KEY] = view
+            return view
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -58,6 +74,7 @@ class LibraryList(VersionAlertMixin, ListView):
 
         # default to the most recent version
         if "version" not in params:
+            # If no version is specified, show the most recent version.
             version = Version.objects.most_recent()
             if version:
                 params["version"] = version.slug
@@ -139,41 +156,74 @@ class LibraryList(VersionAlertMixin, ListView):
         versions = versions.exclude(name__in=["develop", "master", "head"])
         return versions
 
+    def get_version_request_from_url(self):
+        return self.request.GET.get("version")
+
+    def view_route_from_url(self):
+        path_info = self.request.path_info
+
+        # Determine the route name based on the URL.
+        if "/by-category/" in path_info:
+            route_name = "libraries-by-category"
+        elif "/mini/" in path_info:
+            route_name = "libraries-mini"
+        else:
+            route_name = "libraries"
+
+        return route_name
+
     def dispatch(self, request, *args, **kwargs):
         """Set the selected version in the session."""
+        r = super().dispatch(request, *args, **kwargs)
 
-        # Was a version in the URL specified?
-        version_in_url = request.GET.get("version", None)
+        # If the user has requested a reset, clear the session value.
+        if "reset_view" in request.GET:
+            self.set_selected_library_view("", clear=True)
+
+        # Determine the route name based on the URL.
+        route_name = self.view_route_from_url()
+        if route_name in ["libraries-mini", "libraries-by-category"]:
+            self.set_selected_library_view(route_name)
+
+        redirect_to_version = self.get_selected_boost_version()
+        redirect_to_route = self.get_selected_library_view()
+        route_in_url = self.view_route_from_url()
+        version_in_url = self.get_version_request_from_url()
+
+        # If the user has a preferred view, use that.
+        if redirect_to_route and route_in_url != redirect_to_route:
+            if "reset_view" not in request.GET:
+                self.set_selected_library_view(redirect_to_route)
+                return redirect(redirect_to_route)
+            route_name = redirect_to_route
+
+        # Set the session value to the version in the URL.
         if version_in_url:
-            # If so, set the session value to the version in the URL.
             self.set_selected_boost_version(version_in_url)
         else:
-            # If no version is present in the URL,  to the session value.
-            redirect_to_version = self.get_selected_boost_version()
+            # If no version is present in the URL, default to the session value.
             if redirect_to_version:
-                path_info = request.get_full_path_info()
-
-                # Determine the route name based on the URL.
-                if "/by-category/" in path_info:
-                    route_name = "libraries-by-category"
-                elif "/mini/" in path_info:
-                    route_name = "libraries-mini"
-                else:
-                    route_name = "libraries"
-
                 # Construct the URL with the version from the session.
                 current_category = request.GET.get("category", "")
+                reset_view = "reset_view" in request.GET
+
                 query_params = {
                     "category": current_category,
                     "version": redirect_to_version,
                 }
+                if reset_view:
+                    query_params.update(reset_view="1")
+
                 if not current_category:
                     del query_params["category"]
 
                 # Redirect to the correct view with the correct version.
+                redirect_to_route = self.get_selected_library_view()
+                route_name = redirect_to_route if redirect_to_route else route_name
+
                 return redirect_to_view_with_params(route_name, kwargs, query_params)
 
-        return super().dispatch(request, *args, **kwargs)
+        return r
 
 
 class LibraryListMini(LibraryList):
@@ -231,6 +281,14 @@ class LibraryDetail(FormMixin, DetailView):
             .distinct()
             .order_by("-release_date")
         )
+
+        # Manually exclude feature branches from the version dropdown.
+        context["versions"] = context["versions"].exclude(
+            name__in=["develop", "master", "head"]
+        )
+
+        # Manually exclude beta releases from the version dropdown.
+        context["versions"] = context["versions"].exclude(beta=True)
 
         # Show an alert if the user is on an older version
         if context["version"] != latest_version:
