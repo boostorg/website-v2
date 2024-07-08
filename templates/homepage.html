@@ -216,7 +216,7 @@
             <div class="pt-0">
               <h2 class="flex items-center pb-2 mb-3 text-lg md:text-2xl lg:text-3xl font-semibold mr-4 border-b border-gray-400 dark:border-slate">
                 {% if entry.author.image %}
-                  <span class="flex items-center h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
+                  <span class="flex flex-shrink-0 items-center h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
                     <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
                   </span>
                 {% else %}
