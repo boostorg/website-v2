@@ -150,6 +150,10 @@
     @apply text-sky-600;
   }
 
+  #libraryReadMe a img {
+    @apply inline;
+  }
+
   code,
   kbd,
   samp,
@@ -159,5 +163,4 @@
     @apply text-sm bg-gray-200 dark:bg-black overflow-x-scroll;
     /* 2 */
   }
-
 }

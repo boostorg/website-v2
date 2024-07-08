@@ -52,6 +52,7 @@
 
                 {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}{{ library.cpp_standard_minimum }}{% else %}03{% endif %} or Later">
               {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}
+              <span class="scale-x-75 text-white dark:text-gray-800 tracking-wide origin-left w-6 inline-block">C++</span>
                 {{ library.cpp_standard_minimum }}{% else %}03{% endif %}
             </span>
             <span class="float-right">{% if object.first_boost_version %}Added in Boost
@@ -113,6 +114,7 @@
           </div>
         </div>
       </div>
+
     </section>
 
     {% if maintainers %}
@@ -229,5 +231,28 @@
     // SS: putting this in the window object, a bit hacky, to be able to access it in the light/dark switcher - probably a better way
     window.chart = new ApexCharts(document.querySelector("#chart1"), options);
     window.chart.render();
+
+    const ValidateGitImages = () => {
+      var all = document.getElementsByTagName("img");
+      for (var i = 0; i < all.length; i++) {
+        (function(index) {
+            var img = new Image();
+            img.src = all[index].getAttribute('src');
+
+            img.onerror = function() {
+                var alt = all[index].getAttribute('alt');
+                if (alt) {
+                    all[index].parentElement.insertAdjacentText('afterbegin', alt);
+                    all[index].parentElement.classList.add('text-xs');
+                }
+                all[index].remove();
+            };
+        })(i);
+    }
+    }
+
+    window.addEventListener('load', function() {
+      ValidateGitImages();
+    });
   </script>
 {% endblock %}
