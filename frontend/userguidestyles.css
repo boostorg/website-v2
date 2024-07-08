@@ -48,7 +48,7 @@ footer, .components, .footer a {
 }
 
 .doc {
-  @apply pt-6;
+  @apply pt-6 dark:text-white;
 }
 
 .doc table.stripes-even>tbody>tr:nth-of-type(2n) {
@@ -84,6 +84,22 @@ footer, .components, .footer a {
 
 .doc .admonitionblock td.content {
   @apply dark:bg-slate dark:text-white;
+}
+
+.doc .admonitionblock {
+  @apply dark:bg-slate;
+}
+
+.doc table.tableblock tr th {
+  @apply dark:bg-transparent;
+}
+
+.doc .admonitionblock .icon i {
+  @apply font-sans dark:text-white;
+}
+
+.article .doc .tabs .tab:not(.is-selected) {
+  @apply dark:bg-charcoal;
 }
 
 body.article {

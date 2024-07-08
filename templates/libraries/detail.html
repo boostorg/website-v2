@@ -26,7 +26,7 @@
                     name="version"
                     class="dropdown"
                     id="id_version">
-              <option>Filter by version</option>
+              {% comment %} <option>Filter by version</option> {% endcomment %}
               {% for v in versions %}
                 <option value="{{ v.pk }}"
                         {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
