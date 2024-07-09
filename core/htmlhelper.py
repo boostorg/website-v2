@@ -394,6 +394,23 @@ def remove_tables(soup, class_name):
     return soup
 
 
+def remove_cpp_alliance_links(soup):
+    """Remove download link sponsorship notes about The C++ Alliance."""
+
+    # Convert soup to string to use replace.
+    content = str(soup)
+
+    # Remove the C++ Alliance link from the content.
+    replace_text = (
+        '* The download links are supported by grants from <a class="text-sky-600" '
+        'href="https://cppalliance.org/" target="_blank">The C++ Alliance</a>.'
+    )
+    content = content.replace(replace_text, "")
+
+    # Convert the content back to a soup object.
+    return BeautifulSoup(content, "html.parser")
+
+
 def remove_tags(soup, tags):
     """Remove all tags with the given tag name and attributes."""
     for tag_name, tag_attrs in tags:
@@ -511,6 +528,9 @@ def modernize_release_notes(html_content):
 
     # Remove duplicate header tags
     soup = remove_duplicate_tag(soup, "h2")
+
+    # Remove sponsorship links about downloads from release notes.
+    soup = remove_cpp_alliance_links(soup)
 
     # Remove unnecessary divs
     try:
