@@ -6,7 +6,7 @@ onclick="window.location='{% if version %}{% url 'library-detail-by-version' slu
   </td>
 
   <td class="py-2 align-top w-12">
-    <span class="flex justify-center py-0 px-1 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40 tabular-nums"
+    <span class="flex justify-center py-0 px-2 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40 tabular-nums"
           title="{% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}C++ Version {{ library.cpp_standard_minimum }} or Later{% else %}C++ Version 03 or Later{% endif %}">
           <span class="text-white dark:text-gray-800 tracking-wide scale-x-75 origin-left w-6 text-nowrap">C++</span>
           {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}{{ library.cpp_standard_minimum }}{% else %}03{% endif %}
