@@ -11,7 +11,7 @@ RUN gem install asciidoctor
 RUN pip install --upgrade pip
 
 # Boostrap uv.
-RUN pip install -U 'uv>=0.2.27,<0.3'
+RUN pip install 'uv>=0.2.27,<0.3'
 COPY ./requirements.txt ./code/requirements.txt
 
 # Create the virtualenv.
@@ -38,6 +38,9 @@ RUN apt update && apt install -y git libpq-dev ruby ruby-dev && rm -rf /var/lib/
 
 # Install Asciidoctor
 RUN gem install asciidoctor
+
+# Boostrap uv.
+RUN pip install'uv>=0.2.27,<0.3'
 
 ENV PATH /venv/bin:/bin:/usr/bin:/usr/local/bin
 ENV PYTHONDONTWRITEBYTECODE=true
