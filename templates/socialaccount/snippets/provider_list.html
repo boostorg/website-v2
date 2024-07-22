@@ -13,6 +13,7 @@
 {% endif %}
   {% if provider.name == "GitHub" %}
     <a title="{{provider.name}}"
+       id="gitButton"
        class="relative w-2/3 mx-auto block px-8 py-3 text-base font-medium rounded-md border border-orange !text-white hover:!text-white bg-orange hover:bg-orange/80 dark:bg-slate dark:hover:bg-charcoal hover:drop-shadow-md md:py-4 md:text-lg md:px-10 {{provider.id}}"
        href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"
     >
@@ -23,6 +24,7 @@
   {% endif %}
   {% if provider.name == "Google" %}
     <a title="{{provider.name}}"
+       id="googleButton"
        class="relative w-2/3 mx-auto block px-8 py-3 text-base font-medium rounded-md border border-orange !text-white hover:!text-white bg-orange hover:bg-orange/80 dark:bg-slate dark:hover:bg-charcoal hover:drop-shadow-md md:py-4 md:text-lg md:px-10 {{provider.id}}"
        href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"
     >
