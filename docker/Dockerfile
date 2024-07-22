@@ -28,6 +28,7 @@ FROM node:22-slim AS builder-js
 
 COPY . /code/
 WORKDIR /code/
+RUN yarn install
 RUN yarn build
 
 
@@ -52,8 +53,8 @@ RUN mkdir /code
 
 COPY --from=builder-py /venv/ /venv/
 COPY --from=builder-py /code/ /code/
-COPY --from=builder-js /code/static/css/styles.css /code/static/css/styles.css
 COPY . /code/
+COPY --from=builder-js /code/static/css/styles.css /code/static/css/styles.css
 
 WORKDIR /code
 
