@@ -156,6 +156,9 @@ python.log
 # mailman
 mailman/web/static/
 
+# static files, rendered by docker.
+static/css/styles.css
+
 # dev
 *.code-workspace
 .vscode/settings.json
