@@ -53,7 +53,7 @@ pytest-django
 responses
 
 # Packaging
-pip-tools==6.13.0
+uv>=0.2.27,<0.3
 
 # Parsing content from external sources (like S3)
 mistletoe
@@ -67,6 +67,3 @@ elasticsearch==7.17.9
 # Github
 ghapi
 requests
-
-# Build toolchain
-uv>=0.2.27,<0.3
