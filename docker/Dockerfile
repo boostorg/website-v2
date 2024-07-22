@@ -17,6 +17,14 @@ RUN --mount=type=cache,target=/root/.cache \
     . /venv/bin/activate && \
     uv pip install -r /code/requirements.txt
 
+
+FROM node:22-slim AS builder-js
+
+COPY . /code/
+WORKDIR /code/
+RUN yarn install && yarn build
+
+
 FROM python:3.11-slim AS release
 
 RUN apt update && apt install -y git libpq-dev ruby ruby-dev && rm -rf /var/lib/apt/lists/*
@@ -34,6 +42,7 @@ RUN mkdir /code
 
 COPY --from=builder-py /venv/ /venv/
 COPY --from=builder-py /code/ /code/
+COPY --from=builder-js /code/static/css/styles.css /code/static/css/styles.css
 COPY . /code/
 
 WORKDIR /code
