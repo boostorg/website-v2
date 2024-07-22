@@ -40,7 +40,7 @@ RUN apt update && apt install -y git libpq-dev ruby ruby-dev && rm -rf /var/lib/
 RUN gem install asciidoctor
 
 # Boostrap uv.
-RUN pip install'uv>=0.2.27,<0.3'
+RUN pip install 'uv>=0.2.27,<0.3'
 
 ENV PATH /venv/bin:/bin:/usr/bin:/usr/local/bin
 ENV PYTHONDONTWRITEBYTECODE=true
