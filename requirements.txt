@@ -22,11 +22,11 @@ billiard==3.6.4.0
     # via celery
 black==24.4.2
     # via -r ./requirements.in
-boto3==1.34.145
+boto3==1.34.146
     # via
     #   -r ./requirements.in
     #   django-bakery
-botocore==1.34.145
+botocore==1.34.146
     # via
     #   boto3
     #   s3transfer
