@@ -75,3 +75,7 @@ This project uses environment variables to configure certain aspects of the appl
 ### `CI`
 
 - If set, will set SITE_ID to 1 in `settings.py`.
+
+### `MAX_CELERY_CONNECTIONS`
+
+- If set, will set the maximum number of connections to the Celery in `settings.py`. Defaults to 60.
