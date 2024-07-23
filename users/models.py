@@ -207,7 +207,6 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     def delete(self, using=None, keep_parents=False):
         """Delete the user"""
         self.is_active = False
-        # super().delete(using=using, keep_parents=keep_parents)
         logger.info("Deleted user with email=%s", self.email)
 
 
@@ -296,6 +295,8 @@ class User(BaseUser):
 
     def gdpr_delete(self):
         """Anonymize user data to comply with GDPR."""
+
+        # TODO: email address is stored in a seperate table. Is this okay?
 
         self.email = f"deleted_user_{self.pk}@example.com"
         self.first_name = "Deleted"
