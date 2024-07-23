@@ -52,7 +52,7 @@
 
                 {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}{{ library.cpp_standard_minimum }}{% else %}03{% endif %} or Later">
               {% if library.cpp_standard_minimum and library.cpp_standard_minimum != 'None' %}
-              <span class="scale-x-75 text-white dark:text-gray-800 tracking-wide origin-left w-6 inline-block">C++</span>
+              <span class="scale-x-75 text-white dark:text-gray-800 tracking-wide origin-left w-6 inline-block whitespace-nowrap">C++</span>
                 {{ library.cpp_standard_minimum }}{% else %}03{% endif %}
             </span>
             <span class="float-right">{% if object.first_boost_version %}Added in Boost
