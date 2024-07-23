@@ -254,6 +254,9 @@ CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "UTC"
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    "max_connections": env.int("MAX_CELERY_CONNECTIONS", default=60)
+}
 
 CACHES = {
     "default": {
