@@ -40,16 +40,16 @@ jobs:
 
     steps:
       - name: Git - Get Sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.11
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/base.txt') }}
@@ -82,7 +82,7 @@ jobs:
     needs: [test]
     name: Build and Publish Docker image
     runs-on: ubuntu-latest
-    if: ( github.repository == 'boostorg/website-v2' && github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )) || ( github.repository == 'sdarwin/temp-site' && github.event_name == 'push' && github.ref == 'refs/heads/cppal-dev' )
+    if: ( github.repository == 'boostorg/website-v2' && github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' )) || ( github.repository == 'sdarwin/website-v2' && github.event_name == 'push' && github.ref == 'refs/heads/cppal-dev' )
 
     steps:
       - name: Set environment for branches
@@ -100,7 +100,7 @@ jobs:
           fi
 
       - name: Git - Get Sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -109,7 +109,7 @@ jobs:
           git fetch --depth=1 origin +refs/tags/*:refs/tags/* || true
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.11
 
