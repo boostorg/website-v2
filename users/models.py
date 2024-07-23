@@ -43,6 +43,17 @@ class UserManager(BaseUserManager):
         logger.info("Creating user with email='%s'", email)
         return self._create_user(email, password, **extra_fields)
 
+    def delete_user(self, email, *, delete_all=True):
+        """Deletes a User with the given email."""
+        try:
+            email = self.normalize_email(email)
+            user = self.get(email=email)
+        except self.model.DoesNotExist:
+            logger.warning("User with email='%s' does not exist", email)
+
+        user.delete()
+        logger.info("Deleted user with email='%s'", email)
+
     def create_staffuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", False)
@@ -193,6 +204,12 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
 
         return super().save(*args, **kwargs)
 
+    def delete(self, using=None, keep_parents=False):
+        """Delete the user"""
+        self.is_active = False
+        # super().delete(using=using, keep_parents=keep_parents)
+        logger.info(f"Deleted user with email={ self.email!r }")
+
 
 class Badge(models.Model):
     name = models.CharField(_("name"), max_length=100, blank=True)
@@ -272,10 +289,23 @@ class User(BaseUser):
             return self.first_name or self.last_name
 
     def claim(self):
-        """Claim the user"""
+        """Claim the user."""
         if not self.claimed:
             self.claimed = True
             self.save()
+
+    def delete(self, using=None, keep_parents=False, *, hard_delete=False):
+        """Delete the user."""
+
+        # Set the user as inactive.
+        self.is_active = False
+        self.save()
+        logger.info("User with email='%s' set as inactive", self.email)
+
+        if hard_delete:
+            # Actually delete the user.
+            super().delete(using=using, keep_parents=keep_parents)
+            logger.info("User with email='%s' deleted", self.email)
 
 
 class LastSeen(models.Model):
