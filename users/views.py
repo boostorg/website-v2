@@ -5,6 +5,10 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import DetailView
 from django.views.generic.base import TemplateView
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from django.views.decorators.http import require_POST
 
 from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
 from allauth.account.views import LoginView, SignupView
@@ -133,6 +137,9 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
             )
             self.update_preferences(profile_preferences_form, request)
 
+        if "delete_account" in request.POST:
+            self.delete_account(request)
+
         return HttpResponseRedirect(self.success_url)
 
     def change_password(self, form, request):
@@ -213,9 +220,9 @@ class ClaimExistingAccountMixin:
                     form = ResetPasswordForm({"email": email})
                     if form.is_valid():
                         form.save(request=self.request)
-                        self.request.session[
-                            "contributor_account_redirect_message"
-                        ] = message
+                        self.request.session["contributor_account_redirect_message"] = (
+                            message
+                        )
                         return HttpResponseRedirect(reverse_lazy("account_login"))
 
         return None
@@ -284,3 +291,22 @@ class UserAvatar(TemplateView):
         context["user"] = self.request.user
         context["mobile"] = self.request.GET.get("ui")
         return context
+
+
+@login_required
+@require_POST
+def delete_account(request):
+    user = request.user
+    is_gdpr_delete = True
+
+    # Perform the deletion.
+    user.delete(gdpr=is_gdpr_delete)
+
+    # Log the user out.
+    logout(request)
+
+    # Add a message to be displayed on the next page.
+    messages.success(request, "Your account has been successfully deleted.")
+
+    # Redirect to the home page or any other appropriate page.
+    return redirect("home")

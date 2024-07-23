@@ -208,7 +208,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
         """Delete the user"""
         self.is_active = False
         # super().delete(using=using, keep_parents=keep_parents)
-        logger.info(f"Deleted user with email={ self.email!r }")
+        logger.info("Deleted user with email=%s", self.email)
 
 
 class Badge(models.Model):
@@ -294,18 +294,28 @@ class User(BaseUser):
             self.claimed = True
             self.save()
 
-    def delete(self, using=None, keep_parents=False, *, hard_delete=False):
-        """Delete the user."""
+    def gdpr_delete(self):
+        """Anonymize user data to comply with GDPR."""
 
-        # Set the user as inactive.
+        self.email = f"deleted_user_{self.pk}@example.com"
+        self.first_name = "Deleted"
+        self.last_name = "User"
+        self.github_username = ""
+        self.display_name = ""
+        self.data = {}
         self.is_active = False
         self.save()
-        logger.info("User with email='%s' set as inactive", self.email)
 
-        if hard_delete:
-            # Actually delete the user.
-            super().delete(using=using, keep_parents=keep_parents)
-            logger.info("User with email='%s' deleted", self.email)
+        logger.info("User with email='%s' anonymized for GDPR compliance", self.email)
+
+    def delete(self, using=None, keep_parents=False, *, gdpr=True):
+        """Delete the user."""
+        if gdpr:
+            self.gdpr_delete()
+        else:
+            self.is_active = False
+            self.save()
+            logger.info("User with email='%s' set as inactive", self.email)
 
 
 class LastSeen(models.Model):
