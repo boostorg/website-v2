@@ -110,6 +110,15 @@
             <a href="{% url 'socialaccount_connections' %}"><button class="py-2 px-3 text-sm text-white rounded bg-orange">{% trans 'Manage Account Connections' %}</button></a>
           </div>
         </div>
+
+        <div class="rounded bg-white dark:bg-charcoal p-4">
+            <h3>{% trans "Deactivate Account" %}</h3>
+            <div class="mt-4">
+              <a href="{% url 'account-deactivate' %}"><button class="py-2 px-3 text-sm text-white rounded bg-red">{% trans 'Deactivate Account' %}</button></a>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
