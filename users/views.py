@@ -305,7 +305,7 @@ def deactivate_account(request):
     logout(request)
 
     # Add a message to be displayed on the next page.
-    messages.success(request, "Your account has been successfully deleted.")
+    messages.success(request, "Your account has been successfully deactivated.")
 
     # Redirect to the home page or any other appropriate page.
     return redirect("home")
