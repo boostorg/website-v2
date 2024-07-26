@@ -205,9 +205,17 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
         return super().save(*args, **kwargs)
 
     def deactivate(self, using=None, keep_parents=False):
-        """Deactivates the user"""
+        """Deactivates the user."""
         self.is_active = False
+        self.save()
         logger.info("Deactivated user with email=%s", self.email)
+
+    def reactivate(self):
+        """Reactivates the user."""
+
+        self.is_active = True
+        self.save()
+        logger.info("Reactivated user with email=%s", self.email)
 
 
 class Badge(models.Model):

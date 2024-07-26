@@ -309,3 +309,18 @@ def deactivate_account(request):
 
     # Redirect to the home page or any other appropriate page.
     return redirect("home")
+
+
+@login_required
+@require_POST
+def reactivate_account(request):
+    user = request.user
+
+    # Reactivate the user account
+    user.reactivate()
+
+    # Add a success message
+    messages.success(request, "Your account has been successfully reactivated.")
+
+    # Redirect to the profile page or any other appropriate page
+    return redirect("profile-account")
