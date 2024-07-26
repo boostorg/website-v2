@@ -212,7 +212,6 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
 
     def reactivate(self):
         """Reactivates the user."""
-
         self.is_active = True
         self.save()
         logger.info("Reactivated user with email=%s", self.email)
