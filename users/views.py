@@ -312,6 +312,7 @@ def deactivate_account(request):
 
 
 @login_required
+@require_POST
 def reactivate_account(request):
     user = request.user
 
