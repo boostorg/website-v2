@@ -3,28 +3,18 @@
 {% load i18n %}
 {% load account %}
 
-{% block head_title %}{% trans "Account Reactivation" %}{% endblock %}
+{% block head_title %}{% trans "Deactivated Account" %}{% endblock %}
 
 {% block content %}
 
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
     <div class="md:pt-11 md:mt-11 w-full bg-white dark:bg-charcoal mx-auto rounded py-6 px-3">
       <div class="md:w-full text-center">
-        <h1 class="text-4xl">{% trans "Account Reactivation" %}</h1>
+        <h1 class="text-4xl">{% trans "Deactivated Account" %}</h1>
 
-        <p>{% trans "Your account is inactive. Please reactivate your account by clicking the button below." %}</p>
-        <form method="POST" action="{% url 'account-reactivate' %}" class="password_reset text-left">
-            {% csrf_token %}
-            <div class="mx-auto w-full md:w-1/2">
+        <p>{% trans "Your account has been deactivated" %}.</p>
 
-              <div class="my-3 text-center">
-                <button type="submit"
-                        class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">
-                  {% trans 'Reactivate My Account' %}
-                </button>
-              </div>
-            </div>
-        </form>
+
 
       </div>
     </div>
