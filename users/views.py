@@ -295,12 +295,11 @@ class UserAvatar(TemplateView):
 
 @login_required
 @require_POST
-def delete_account(request):
+def deactivate_account(request):
     user = request.user
-    is_gdpr_delete = True
 
     # Perform the deletion.
-    user.delete(gdpr=is_gdpr_delete)
+    user.deactivate()
 
     # Log the user out.
     logout(request)

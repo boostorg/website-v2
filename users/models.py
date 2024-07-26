@@ -204,10 +204,10 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
 
         return super().save(*args, **kwargs)
 
-    def delete(self, using=None, keep_parents=False):
-        """Delete the user"""
+    def deactivate(self, using=None, keep_parents=False):
+        """Deactivates the user"""
         self.is_active = False
-        logger.info("Deleted user with email=%s", self.email)
+        logger.info("Deactivated user with email=%s", self.email)
 
 
 class Badge(models.Model):
@@ -293,8 +293,8 @@ class User(BaseUser):
             self.claimed = True
             self.save()
 
-    def delete(self, using=None, keep_parents=False):
-        """Delete the user."""
+    def deactivate(self, using=None, keep_parents=False):
+        """Equivalent to deleting the user."""
         self.is_active = False
         self.save()
         logger.info("User with email='%s' set as inactive", self.email)
