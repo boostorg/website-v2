@@ -204,7 +204,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
 
         return super().save(*args, **kwargs)
 
-    def deactivate(self, using=None, keep_parents=False):
+    def deactivate(self):
         """Deactivates the user."""
         self.is_active = False
         self.save()

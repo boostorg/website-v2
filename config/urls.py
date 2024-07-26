@@ -67,6 +67,7 @@ from users.views import (
     UserViewSet,
     UserAvatar,
     deactivate_account,
+    reactivate_account,
 )
 from versions.api import ImportVersionsView, VersionViewSet
 from versions.feeds import AtomVersionFeed, RSSVersionFeed
@@ -100,6 +101,7 @@ urlpatterns = (
         path("accounts/", include("allauth.urls")),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
         path("users/me/deactivate/", deactivate_account, name="account-deactivate"),
+        path("users/me/reactivate/", reactivate_account, name="account-reactivate"),
         path("users/<int:pk>/", ProfileView.as_view(), name="profile-user"),
         path("users/avatar/", UserAvatar.as_view(), name="user-avatar"),
         path("api/v1/users/me/", CurrentUserAPIView.as_view(), name="current-user"),
