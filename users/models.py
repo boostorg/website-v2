@@ -293,30 +293,11 @@ class User(BaseUser):
             self.claimed = True
             self.save()
 
-    def gdpr_delete(self):
-        """Anonymize user data to comply with GDPR."""
-
-        # TODO: email address is stored in a seperate table. Is this okay?
-
-        self.email = f"deleted_user_{self.pk}@example.com"
-        self.first_name = "Deleted"
-        self.last_name = "User"
-        self.github_username = ""
-        self.display_name = ""
-        self.data = {}
+    def delete(self, using=None, keep_parents=False):
+        """Delete the user."""
         self.is_active = False
         self.save()
-
-        logger.info("User with email='%s' anonymized for GDPR compliance", self.email)
-
-    def delete(self, using=None, keep_parents=False, *, gdpr=True):
-        """Delete the user."""
-        if gdpr:
-            self.gdpr_delete()
-        else:
-            self.is_active = False
-            self.save()
-            logger.info("User with email='%s' set as inactive", self.email)
+        logger.info("User with email='%s' set as inactive", self.email)
 
 
 class LastSeen(models.Model):
