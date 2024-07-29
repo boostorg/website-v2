@@ -29,7 +29,9 @@ class VersionDetail(FormMixin, DetailView):
 
     def get_selected_boost_version(self):
         """Returns the selected Boost version"""
-        version_slug = self.request.COOKIES.get(SELECTED_BOOST_VERSION_COOKIE_NAME, None)
+        version_slug = self.request.COOKIES.get(
+            SELECTED_BOOST_VERSION_COOKIE_NAME, None
+        )
         if version_slug:
             try:
                 version = Version.objects.get(slug=version_slug)
@@ -42,7 +44,7 @@ class VersionDetail(FormMixin, DetailView):
     def set_selected_boost_version(self, response, version_slug):
         """Sets the selected Boost version"""
         try:
-            version = Version.objects.get(slug=version_slug)
+            Version.objects.get(slug=version_slug)
             response.set_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME, version_slug)
         except Version.DoesNotExist:
             logger.warning(f"Attempted to set invalid version slug: {version_slug}")
