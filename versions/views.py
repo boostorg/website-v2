@@ -13,7 +13,7 @@ from versions.models import Version
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-SELECTED_BOOST_VERSION_SESSION_KEY = "boost_version"
+SELECTED_BOOST_VERSION_COOKIE_NAME = "boost_version"
 
 logger = structlog.get_logger(__name__)
 
@@ -29,11 +29,26 @@ class VersionDetail(FormMixin, DetailView):
 
     def get_selected_boost_version(self):
         """Returns the selected Boost version"""
-        return self.request.session.get(SELECTED_BOOST_VERSION_SESSION_KEY, None)
+        version_slug = self.request.COOKIES.get(
+            SELECTED_BOOST_VERSION_COOKIE_NAME, None
+        )
+        if version_slug:
+            try:
+                version = Version.objects.get(slug=version_slug)
+                return version
+            except Version.DoesNotExist:
+                logger.warning(f"Invalid version slug in cookies: {version_slug}")
+                return None
+        return None
 
-    def set_selected_boost_version(self, version):
+    def set_selected_boost_version(self, response, version_slug):
         """Sets the selected Boost version"""
-        self.request.session[SELECTED_BOOST_VERSION_SESSION_KEY] = version
+        try:
+            Version.objects.get(slug=version_slug)
+            response.set_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME, version_slug)
+        except Version.DoesNotExist:
+            logger.warning(f"Attempted to set invalid version slug: {version_slug}")
+            messages.error(self.request, "Invalid version selected.")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -94,10 +109,12 @@ class VersionDetail(FormMixin, DetailView):
         form = self.get_form()
         if form.is_valid():
             version = form.cleaned_data["version"]
-            return redirect(
+            response = redirect(
                 "release-detail",
                 slug=version.slug,
             )
+            self.set_selected_boost_version(response, version.slug)
+            return response
         else:
             logger.info("version_detail_invalid_version")
         return super().get(request)
@@ -108,12 +125,14 @@ class VersionDetail(FormMixin, DetailView):
         version_in_url = self.kwargs.get("slug", False)
 
         if version_in_url:
-            self.set_selected_boost_version(version_in_url)
+            response = super().dispatch(request, *args, **kwargs)
+            self.set_selected_boost_version(response, version_in_url)
+            return response
         else:
             redirect_to_version = self.get_selected_boost_version()
             if redirect_to_version:
                 return redirect(
-                    "release-detail", slug=redirect_to_version, permanent=False
+                    "release-detail", slug=redirect_to_version.slug, permanent=False
                 )
 
         return super().dispatch(request, *args, **kwargs)

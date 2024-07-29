@@ -20,8 +20,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
 
-SELECTED_BOOST_VERSION_SESSION_KEY = "boost_version"
-SELECTED_LIBRARY_VIEW_SESSION_KEY = "library_view"
+SELECTED_BOOST_VERSION_COOKIE_NAME = "boost_version"
+SELECTED_LIBRARY_VIEW_COOKIE_NAME = "library_view"
 
 logger = structlog.get_logger()
 
@@ -42,32 +42,46 @@ class LibraryList(VersionAlertMixin, ListView):
     template_name = "libraries/list.html"
 
     def get_selected_boost_version(self) -> str:
-        """Get the selected version from the session."""
-        return self.request.session.get(SELECTED_BOOST_VERSION_SESSION_KEY, None)
+        """Get the selected version from the cookies."""
+        valid_versions = Version.objects.version_dropdown_strict()
+        version_slug = self.request.COOKIES.get(
+            SELECTED_BOOST_VERSION_COOKIE_NAME, None
+        )
 
-    def set_selected_boost_version(self, version: str) -> None:
-        """Set the selected version in the session."""
-        if version not in ["develop", "master", "head"]:
-            self.request.session[SELECTED_BOOST_VERSION_SESSION_KEY] = version
-            return version
+        if version_slug in [v.slug for v in valid_versions]:
+            return version_slug
+        else:
+            logger.warning(f"Invalid version slug in cookies: {version_slug}")
+            return None
+
+    def set_selected_boost_version(self, response, version: str) -> None:
+        """Set the selected version in the cookies."""
+        valid_versions = Version.objects.version_dropdown_strict()
+
+        if version in [v.slug for v in valid_versions]:
+            response.set_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME, version)
+        else:
+            logger.warning(f"Attempted to set invalid version slug: {version}")
 
     def get_selected_library_view(self) -> str:
         """Get the user's preferred view for the libraries page."""
-        return self.request.session.get(SELECTED_LIBRARY_VIEW_SESSION_KEY)
+        return self.request.COOKIES.get(SELECTED_LIBRARY_VIEW_COOKIE_NAME)
 
-    def set_selected_library_view(self, view: str, *, clear: bool = False) -> str:
+    def set_selected_library_view(
+        self, response, view: str, *, clear: bool = False
+    ) -> str:
         """Set the user's preferred view for the libraries page."""
         if clear:
-            self.request.session.pop(SELECTED_LIBRARY_VIEW_SESSION_KEY, None)
+            response.delete_cookie(SELECTED_LIBRARY_VIEW_COOKIE_NAME)
         else:
-            self.request.session[SELECTED_LIBRARY_VIEW_SESSION_KEY] = view
+            response.set_cookie(SELECTED_LIBRARY_VIEW_COOKIE_NAME, view)
             return view
 
     def get_queryset(self):
         queryset = super().get_queryset()
         params = self.request.GET.copy()
 
-        # If the user has selected a version, fetch it from the session.
+        # If the user has selected a version, fetch it from the cookies.
         selected_boost_version = self.get_selected_boost_version()
         if selected_boost_version != params.get("version", None):
             params["version"] = selected_boost_version
@@ -173,17 +187,17 @@ class LibraryList(VersionAlertMixin, ListView):
         return route_name
 
     def dispatch(self, request, *args, **kwargs):
-        """Set the selected version in the session."""
-        r = super().dispatch(request, *args, **kwargs)
+        """Set the selected version in the cookies."""
+        response = super().dispatch(request, *args, **kwargs)
 
         # If the user has requested a reset, clear the session value.
         if "reset_view" in request.GET:
-            self.set_selected_library_view("", clear=True)
+            self.set_selected_library_view(response, "", clear=True)
 
         # Determine the route name based on the URL.
         route_name = self.view_route_from_url()
         if route_name in ["libraries-mini", "libraries-by-category"]:
-            self.set_selected_library_view(route_name)
+            self.set_selected_library_view(response, route_name)
 
         redirect_to_version = self.get_selected_boost_version()
         redirect_to_route = self.get_selected_library_view()
@@ -193,17 +207,17 @@ class LibraryList(VersionAlertMixin, ListView):
         # If the user has a preferred view, use that.
         if redirect_to_route and route_in_url != redirect_to_route:
             if "reset_view" not in request.GET:
-                self.set_selected_library_view(redirect_to_route)
+                self.set_selected_library_view(response, route_name)
                 return redirect(redirect_to_route)
             route_name = redirect_to_route
 
-        # Set the session value to the version in the URL.
+        # Set the cookie value to the version in the URL.
         if version_in_url:
-            self.set_selected_boost_version(version_in_url)
+            self.set_selected_boost_version(response, version_in_url)
         else:
-            # If no version is present in the URL, default to the session value.
+            # If no version is present in the URL, default to the cookie value.
             if redirect_to_version:
-                # Construct the URL with the version from the session.
+                # Construct the URL with the version from the cookie.
                 current_category = request.GET.get("category", "")
                 reset_view = "reset_view" in request.GET
 
@@ -223,7 +237,7 @@ class LibraryList(VersionAlertMixin, ListView):
 
                 return redirect_to_view_with_params(route_name, kwargs, query_params)
 
-        return r
+        return response
 
 
 class LibraryListMini(LibraryList):
@@ -265,7 +279,7 @@ class LibraryDetail(FormMixin, DetailView):
     redirect_to_docs = False
 
     def set_selected_boost_version(self, version):
-        self.request.session[SELECTED_BOOST_VERSION_SESSION_KEY] = version
+        self.request.COOKIES[SELECTED_BOOST_VERSION_COOKIE_NAME] = version
 
     def get_context_data(self, **kwargs):
         """Set the form action to the main libraries page"""
