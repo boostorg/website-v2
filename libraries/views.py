@@ -43,13 +43,25 @@ class LibraryList(VersionAlertMixin, ListView):
 
     def get_selected_boost_version(self) -> str:
         """Get the selected version from the session."""
-        return self.request.session.get(SELECTED_BOOST_VERSION_SESSION_KEY, None)
+        valid_versions = Version.objects.version_dropdown_strict()
+        version_slug = self.request.session.get(
+            SELECTED_BOOST_VERSION_SESSION_KEY, None
+        )
+
+        if version_slug in [v.slug for v in valid_versions]:
+            return version_slug
+        else:
+            logger.warning(f"Invalid version slug in session: {version_slug}")
 
     def set_selected_boost_version(self, version: str) -> None:
         """Set the selected version in the session."""
-        if version not in ["develop", "master", "head"]:
+        valid_versions = Version.objects.version_dropdown_strict()
+
+        if version in [v.slug for v in valid_versions]:
             self.request.session[SELECTED_BOOST_VERSION_SESSION_KEY] = version
             return version
+        else:
+            logger.warning(f"Attempted to set invalid version slug: {version}")
 
     def get_selected_library_view(self) -> str:
         """Get the user's preferred view for the libraries page."""

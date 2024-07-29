@@ -29,11 +29,21 @@ class VersionDetail(FormMixin, DetailView):
 
     def get_selected_boost_version(self):
         """Returns the selected Boost version"""
-        return self.request.session.get(SELECTED_BOOST_VERSION_SESSION_KEY, None)
+        valid_versions = Version.objects.version_dropdown_strict()
 
-    def set_selected_boost_version(self, version):
+        version_slug = self.request.session.get(
+            SELECTED_BOOST_VERSION_SESSION_KEY, None
+        )
+
+        if version_slug in [v.slug for v in valid_versions]:
+            return version_slug
+
+    def set_selected_boost_version(self, version_slug):
         """Sets the selected Boost version"""
-        self.request.session[SELECTED_BOOST_VERSION_SESSION_KEY] = version
+        valid_versions = Version.objects.version_dropdown_strict()
+
+        if version_slug in [v.slug for v in valid_versions]:
+            self.request.session[SELECTED_BOOST_VERSION_SESSION_KEY] = version_slug
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
