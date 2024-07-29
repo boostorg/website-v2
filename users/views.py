@@ -137,9 +137,6 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
             )
             self.update_preferences(profile_preferences_form, request)
 
-        if "delete_account" in request.POST:
-            self.delete_account(request)
-
         return HttpResponseRedirect(self.success_url)
 
     def change_password(self, form, request):
@@ -220,9 +217,9 @@ class ClaimExistingAccountMixin:
                     form = ResetPasswordForm({"email": email})
                     if form.is_valid():
                         form.save(request=self.request)
-                        self.request.session[
-                            "contributor_account_redirect_message"
-                        ] = message
+                        self.request.session["contributor_account_redirect_message"] = (
+                            message
+                        )
                         return HttpResponseRedirect(reverse_lazy("account_login"))
 
         return None
