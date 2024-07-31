@@ -217,9 +217,9 @@ class ClaimExistingAccountMixin:
                     form = ResetPasswordForm({"email": email})
                     if form.is_valid():
                         form.save(request=self.request)
-                        self.request.session["contributor_account_redirect_message"] = (
-                            message
-                        )
+                        self.request.session[
+                            "contributor_account_redirect_message"
+                        ] = message
                         return HttpResponseRedirect(reverse_lazy("account_login"))
 
         return None
