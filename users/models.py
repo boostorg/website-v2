@@ -43,17 +43,6 @@ class UserManager(BaseUserManager):
         logger.info("Creating user with email='%s'", email)
         return self._create_user(email, password, **extra_fields)
 
-    def delete_user(self, email, *, delete_all=True):
-        """Deletes a User with the given email."""
-        try:
-            email = self.normalize_email(email)
-            user = self.get(email=email)
-        except self.model.DoesNotExist:
-            logger.warning("User with email='%s' does not exist", email)
-
-        user.delete()
-        logger.info("Deleted user with email='%s'", email)
-
     def create_staffuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", False)
