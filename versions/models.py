@@ -111,7 +111,8 @@ class Version(models.Model):
     def release_notes_cache_key(self):
         """Returns the cahe key used to access the release notes in the
         RenderedContent model."""
-        return f"release_notes_{self.slug}"
+        version = "-".join(self.cleaned_version_parts)
+        return f"release_notes_boost-{version}"
 
 
 class VersionFile(models.Model):
