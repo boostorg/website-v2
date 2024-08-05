@@ -90,6 +90,7 @@ INSTALLED_APPS += [
     "mailing_list",
     "news",
     "core",
+    "providers",
 ]
 
 AUTH_USER_MODEL = "users.User"
@@ -317,6 +318,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
 ACCOUNT_UNIQUE_EMAIL = True
+OAUTH_SERVER_BASEURL = "https://www.stage.boost.cppalliance.org"
 
 if CI or LOCAL_DEVELOPMENT:
     # This is the default value for the development environment.
