@@ -110,6 +110,20 @@
             <a href="{% url 'socialaccount_connections' %}"><button class="py-2 px-3 text-sm text-white rounded bg-orange">{% trans 'Manage Account Connections' %}</button></a>
           </div>
         </div>
+
+        <div class="rounded bg-white dark:bg-charcoal p-4">
+            <h3>{% trans "Deactivate Account" %}</h3>
+            <div class="mt-4">
+              <form method="POST" action="{% url 'account-deactivate' %}">
+                {% csrf_token %}
+                <button name="deactivate_account" class="py-2 px-3 text-sm text-white rounded bg-red-600" type="submit">
+                  {% trans 'Deactivate Account' %}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

@@ -5,6 +5,10 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import DetailView
 from django.views.generic.base import TemplateView
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from django.views.decorators.http import require_POST
 
 from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
 from allauth.account.views import LoginView, SignupView
@@ -284,3 +288,21 @@ class UserAvatar(TemplateView):
         context["user"] = self.request.user
         context["mobile"] = self.request.GET.get("ui")
         return context
+
+
+@login_required
+@require_POST
+def deactivate_account(request):
+    user = request.user
+
+    # Perform the deletion.
+    user.deactivate()
+
+    # Log the user out.
+    logout(request)
+
+    # Add a message to be displayed on the next page.
+    messages.success(request, "Your account has been successfully deactivated.")
+
+    # Redirect to the home page or any other appropriate page.
+    return redirect("home")

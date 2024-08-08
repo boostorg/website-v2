@@ -193,6 +193,18 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
 
         return super().save(*args, **kwargs)
 
+    def deactivate(self):
+        """Deactivates the user."""
+        self.is_active = False
+        self.save()
+        logger.info("Deactivated user with email=%s", self.email)
+
+    def reactivate(self):
+        """Reactivates the user."""
+        self.is_active = True
+        self.save()
+        logger.info("Reactivated user with email=%s", self.email)
+
 
 class Badge(models.Model):
     name = models.CharField(_("name"), max_length=100, blank=True)
@@ -272,10 +284,16 @@ class User(BaseUser):
             return self.first_name or self.last_name
 
     def claim(self):
-        """Claim the user"""
+        """Claim the user."""
         if not self.claimed:
             self.claimed = True
             self.save()
+
+    def deactivate(self, using=None, keep_parents=False):
+        """Equivalent to deleting the user."""
+        self.is_active = False
+        self.save()
+        logger.info("User with email='%s' set as inactive", self.email)
 
 
 class LastSeen(models.Model):
