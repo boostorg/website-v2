@@ -6,8 +6,8 @@ A Django based website that will power a new Boost website. See the [documentati
 
 Links:
 
-- https://stage.boost.cppalliance.org/ - staging
-- https://www.preview.boost.org/ - production
+- https://www.stage.boost.cppalliance.org/ - staging
+- https://www.boost.io/ - production
 
 ---
 
@@ -51,6 +51,24 @@ $ docker compose run --rm web python manage.py migrate
 
 This will create the Docker image, install dependencies, start the services
 defined in `docker-compose.yml`, and start the webserver.
+
+styles.css is still missing in a local docker-compose environment. Steps to add it:
+
+```
+# One-time setup
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+. ~/.bashrc
+nvm install 20
+nvm use 20
+npm install -g yarn
+```
+
+```
+# Each time - rebuild styles.css
+yarn
+yarn build
+cp static/css/styles.css static_deploy/css/styles.css
+```
 
 Access the site at http://localhost:8000.
 
