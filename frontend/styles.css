@@ -13,10 +13,10 @@
   }
 
   body {
-    @apply font-sans text-slate dark:text-white;
+    @apply font-sans text-slate dark:text-offwhite;
   }
   h1 {
-    @apply text-6xl;
+    @apply text-6xl dark:text-white;
     @apply mb-3;
   }
   h2 {
@@ -25,13 +25,13 @@
     @apply my-5;
   }
   h3 {
-    @apply text-2xl;
+    @apply text-2xl dark:text-white;
   }
   h4 {
-    @apply text-xl;
+    @apply text-xl dark:text-white;
   }
   h5 {
-    @apply text-base
+    @apply text-base dark:text-white;
   }
   p {
     @apply py-5;
@@ -84,7 +84,7 @@
   }
 
   section.content {
-    @apply p-6 mb-4 w-full bg-white rounded-lg shadow-lg md:flex  dark:text-white truncate text-slate dark:bg-charcoal;
+    @apply p-6 mb-4 w-full bg-white rounded-lg shadow-lg md:flex  dark:text-offwhite truncate text-slate dark:bg-charcoal;
   }
 
   select.dropdown {
@@ -92,7 +92,7 @@
   }
 
   .errorlist {
-    @apply bg-red-300 py-2 px-3 rounded text-white;
+    @apply bg-red-400 py-2 px-3 rounded text-white;
   }
 
   /* STYLES FOR THE LIBRARY README
@@ -147,7 +147,7 @@
     @apply bg-transparent;
   }
   #libraryReadMe a {
-    @apply text-sky-600;
+    @apply text-sky-600 dark:text-sky-400;
   }
 
   #libraryReadMe a img {
@@ -155,12 +155,23 @@
   }
 
   code,
+  tt,
   kbd,
   samp,
   pre {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     /* 1 */
-    @apply text-sm bg-gray-200 dark:bg-black overflow-x-scroll;
+    @apply text-sm text-sky-800 dark:text-sky-200 overflow-x-scroll;
     /* 2 */
   }
+}
+
+.nav-shadow {
+    box-shadow: 0px 1px 0px #d1d1d1;
+    border-bottom: 1px solid #f6f6f6;
+  }
+
+.dark .nav-shadow {
+  border-bottom: 1px solid #07405f;
+  box-shadow: 0 1px 0 #000;
 }
