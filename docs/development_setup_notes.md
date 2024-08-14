@@ -24,7 +24,7 @@ After rebooting, open Powershell (wait a minute, it may continue installing WSL)
 wsl
 ```
 
-When running the Django website, everything should be done from a WSL session, not Powershell, DOS, or git-bash.  Do not `git clone` the files in a DOS window, for example. However, once it's up and running, files may be edited elsewhere. The file path in explorer will be `\\wsl.localhost\Ubuntu\opt\github\cppalliance\temp-site`
+When running the Django website, everything should be done from a WSL session, not Powershell, DOS, or git-bash.  Do not `git clone` the files in a DOS window, for example. However, once it's up and running, files may be edited elsewhere. The file path in explorer will be `\\wsl.localhost\Ubuntu\opt\github\boostorg\website-v2`
 
 Continue to the [Ubuntu 22.04 instructions](#ubuntu-2204) below. Return here before executing `docker compose`.
 
@@ -43,16 +43,15 @@ Continue (as root) to the instructions in the top-level README.md file.
 
 ## Ubuntu 22.04
 
-Check if python 3.11 is installed.
+Check if python3 is installed.
 ```
 python3 --version
 ```
 
-or install python 3.11:
+or
+
 ```
-sudo add-apt-repository ppa:deadsnakes/ppa
-sudo apt-get update
-sudo apt-get install -y python3.11
+apt-get install -y python3
 ```
 
 Install `makedeb` (as a standard user, not root).
@@ -91,10 +90,13 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 As root, clone the repository and switch to that directory.
 ```
 sudo su -
-mkdir -p /opt/github/cppalliance
-cd /opt/github/cppalliance
-git clone https://github.com/cppalliance/temp-site
-cd temp-site
+```
+
+```
+mkdir -p /opt/github/boostorg
+cd /opt/github/boostorg
+git clone https://github.com/boostorg/website-v2
+cd website-v2
 cp env.template .env
 ```
 
