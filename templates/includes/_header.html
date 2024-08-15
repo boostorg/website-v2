@@ -2,12 +2,23 @@
 {% load account socialaccount active_link_tags %}
 
 
-<div class="absolute top-0 z-50 bg-gray-200 md:absolute md:top-0 right-0 left-0 dark:bg-black">
 
+<div class="absolute top-0 z-50 bg-gray-200 md:absolute md:top-0 right-0 left-0 dark:bg-black navbar-mobile">
+  <style>
+    .nav-shadow {
+      box-shadow: 0px 1px 0px #d1d1d1;
+      border-bottom: 1px solid #f6f6f6;
+    }
+
+    .dark .nav-shadow {
+      border-bottom: 1px solid #07405f;
+      box-shadow: 0 1px 0 #000;
+    }
+  </style>
   <div class="relative mx-auto">
     <div id="navbar-container" class="max-w-7xl md:px-6 mx-auto" x-data="searchToggleComponent" @resize.window="updateSearchButtonLocation()">
       <div id="headblock" class="hidden items-center py-1 px-2 nav-shadow md:flex">
-        <div class="w-[40px] h-[25px] -mt-[3px]">
+        <div class="w-[40px] h-[25px] -mt-[3px]" style="width:40px">
           <a href="{% url 'home' %}" class="inline-block">
               <img class="hidden w-auto dark:inline-block h-[25px]"
                    src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
@@ -161,11 +172,11 @@
           <div class="inline-block relative pt-2 pl-2 mx-auto">
             <a href="{% url 'home' %}">
                 <img class="hidden w-auto dark:inline h-[30px]"
-                    src="{% static 'img/Boost_Brandmark_WhiteBoost_Transparent.svg' %}"
+                    src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
                     alt="Boost">
 
                 <img class="inline w-auto dark:hidden h-[30px]"
-                    src="{% static 'img/Boost_Brandmark_BlackBoost_Transparent.svg' %}"
+                    src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
                     alt="Boost">
               </a>
           </div>
