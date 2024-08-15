@@ -4,17 +4,17 @@
 
 
 <div class="absolute top-0 z-50 bg-gray-200 md:absolute md:top-0 right-0 left-0 dark:bg-black navbar-mobile">
-<style>
-  .nav-shadow {
-    box-shadow: 0px 1px 0px #d1d1d1;
-    border-bottom: 1px solid #f6f6f6;
-  }
-
-  .dark .nav-shadow {
-    border-bottom: 1px solid #07405f;
-    box-shadow: 0 1px 0 #000;
-  }
-</style>
+  <style>
+    .nav-shadow {
+      box-shadow: 0px 1px 0px #d1d1d1;
+      border-bottom: 1px solid #f6f6f6;
+    }
+    
+    .dark .nav-shadow {
+      border-bottom: 1px solid #07405f;
+      box-shadow: 0 1px 0 #000;
+    }
+  </style>
   <div class="relative mx-auto">
     <div id="navbar-container" class="max-w-7xl md:px-6 mx-auto" x-data="searchToggleComponent" @resize.window="updateSearchButtonLocation()">
       <div id="headblock" class="hidden items-center py-1 px-2 nav-shadow md:flex">
