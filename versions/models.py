@@ -95,7 +95,7 @@ class Version(models.Model):
         S3 path."""
         site_path = "/doc/libs/"
         slug = self.slug.replace("-", "_").replace(".", "_").replace("boost_", "")
-        return f"{site_path}{slug}/index.html"
+        return f"{site_path}{slug}"
 
     @cached_property
     def cleaned_version_parts(self):
