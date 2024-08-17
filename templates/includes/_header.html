@@ -1,7 +1,7 @@
 {% load static %}
 {% load account socialaccount active_link_tags %}
 
-<div class="bg-gray-200 dark:bg-black navbar-mobile">
+<div class="bg-gray-200 dark:bg-black">
   <style>
     .nav-shadow {
       box-shadow: 0px 1px 0px #d1d1d1;
@@ -14,9 +14,9 @@
     }
   </style>
   <div class="relative mx-auto">
-    <div id="navbar-container" class="max-w-7xl md:px-6 mx-auto" x-data="searchToggleComponent" @resize.window="updateSearchButtonLocation()">
+    <div id="navbar-container" class="max-w-7xl md:px-3 mx-auto" x-data="searchToggleComponent" @resize.window="updateSearchButtonLocation()">
       <div id="headblock" class="hidden items-center py-1 px-2 nav-shadow md:flex">
-        <div class="w-[40px] h-[25px] -mt-[3px]" style="width:40px">
+        <div class="w-[25px] h-[25px] -mt-[3px]" style="width:25px">
           <a href="{% url 'home' %}" class="inline-block">
               <img class="hidden w-auto dark:inline-block h-[25px]"
                    src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
@@ -29,14 +29,14 @@
         </div>
 
         <div class="flex pt-1 w-full">
-          <nav class="relative items-center pl-6 space-x-4 w-full text-lg text-left md:space-x-6 lg:space-x-10">
+          <nav class="relative items-center pl-6 space-x-4 w-full text-lg text-left md:space-x-6">
             <a href="{% url 'news' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'news' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">News</a>
             <a href="{% url 'docs' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'docs||docs-user-guide' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' url='/doc/user-guide/' %}">Learn</a>
             <a href="{% url 'community' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'community' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">Community</a>
             <a href="{% url 'libraries' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'libraries||docs-libs-page' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' url='/doc/libs/' %}">Libraries</a>
             <a href="{% url 'releases-most-recent' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'releases-most-recent' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">Releases</a>
           </nav>
-          <nav class="flex items-center space-x-3 lg:space-x-5 h-[30px]" x-data="{ 'searchOpen': false }">
+          <nav class="flex items-center space-x-4 h-[30px]" x-data="{ 'searchOpen': false }">
             <span class="relative" x-ref="desktopSearchArea">
               <i id="gecko-search-button" data-current-boost-version="{{ current_release.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="sans-serif" class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange"></i>
               <script>
@@ -166,14 +166,14 @@
       {# Mobile menu, show/hide based on menu open state. #}
       <div class="relative z-10 transition transform origin-top-right md:hidden" x-data="{ isOpen: false }">
 
-        <div class="pb-1 border-b-2 border-gray-300 dark:border-charcoal">
+        <div class="pb-1 border-b-2 border-gray-300 dark:border-charcoal nav-shadow">
           <div class="inline-block relative pt-2 pl-2 mx-auto">
             <a href="{% url 'home' %}">
-                <img class="hidden w-auto dark:inline h-[30px]"
+                <img class="hidden w-auto dark:inline h-[25px]"
                     src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
                     alt="Boost">
 
-                <img class="inline w-auto dark:hidden h-[30px]"
+                <img class="inline w-auto dark:hidden h-[25px]"
                     src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
                     alt="Boost">
               </a>

@@ -16,13 +16,6 @@
     @apply font-sans text-slate dark:text-offwhite;
   }
 
-  @media screen and (max-width: 768px) {
-    .navbar-mobile {
-      position: relative !important;
-      margin-bottom: 2rem;
-    }
-  }
-
   h1 {
     @apply text-6xl dark:text-white;
     @apply mb-3;
