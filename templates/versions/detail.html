@@ -7,7 +7,7 @@
 {% block content %}
   <main class="content">
     {% if version %}
-    <div class="py-0 md:mt-3 px-0 mb-0 w-full md:mb-2 flex flex-row flex-nowrap items-center"
+    <div class="py-0 md:mt-3 px-0 mb-0 w-full mb-2 flex flex-row flex-nowrap items-center"
             x-data="{'showSearch': false}"
             x-on:keydown.escape="showSearch=false">
       <div class="flex-auto mb-2 w-full">
@@ -23,7 +23,7 @@
           <div>
             <select onchange="this.form.submit()"
                     name="version"
-                    class="dropdown !mb-0"
+                    class="dropdown !mb-0 h-[38px]"
                     id="id_version">
               {% for v in versions %}
                 <option value="{{ v.pk }}"
@@ -61,7 +61,7 @@
 
         </div>
       </div>
-      <div class="overflow-x-hidden pb-2 pl-0 ml-0 space-x-6 w-full h-auto md:pb-0 md:ml-6">
+      <div class="overflow-x-hidden pb-2 pl-0 ml-0 space-x-6 w-full scroll-smooth h-auto md:pb-0 md:ml-6">
         <div class="flex space-x-3">
           {% if downloads %}
           <table class="p-0 m-0 w-full text-sm text-left border-0 border-separate table-auto dark:text-white border-spacing-0 text-slate">
@@ -69,7 +69,7 @@
               <tr>
                 <th scope="col"
                     width="150"
-                    class="p-3 h-8 text-base bg-gray-100 rounded-tl-lg border border-r-0 border-b-0 border-gray-400 dark:border-slate md:rounded-tl-none dark:bg-charcoal text-center">
+                    class="p-3 h-8 text-base bg-gray-100  border border-r-0 border-b-0 border-gray-400 dark:border-slate dark:bg-charcoal text-center">
                   Platform
                 </th>
                 <th scope="col"
@@ -79,7 +79,7 @@
                 </th>
                 <th scope="col"
                     colspan="2"
-                    class="p-3 text-base bg-gray-100 rounded-tr-lg border border-b-0 border-gray-400 dark:border-slate dark:bg-charcoal">
+                    class="p-3 text-base bg-gray-100 border border-b-0 border-gray-400 dark:border-slate dark:bg-charcoal">
                   SHA256 Hash
                 </th>
               </tr>
