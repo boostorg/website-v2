@@ -15,7 +15,7 @@
           <span class="text-xl md:text-3xl lg:text-4xl">Libraries by Name</span>
       </div>
     </div>
-    {% endcomment %}
+
     <div class="flex-shrink md:hidden">
       <form action="." method="get">
         <div>
@@ -30,12 +30,13 @@
         </div>
       </form>
     </div>
+    {% endcomment %}
   </div>
 
-  <div class="pt-2 px-0 mb-2 text-right md:mb-6">
+  <div class="pt-2 px-0 mb-2 text-right md:mb-2">
 
     <form action="." method="get">
-      <div class="flex relative space-x-3 justify-between md:justify-start">
+      <div class="flex relative space-x-3 justify-start">
         {# Search #}
         {% comment %} {% include "libraries/includes/search_input.html" %} {% endcomment %}
 
@@ -74,15 +75,17 @@
 
 
         {# Select a version #}
+         <div class="grow">
         <select onchange="this.form.submit()"
                 name="version"
-                class="dropdown absolute right-0 hidden md:inline"
+                class="dropdown py-2 ml-auto md:block h-[38px]"
                 id="id_version">
           {% for v in versions %}
           <option value="{{ v.slug }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
           {% endfor %}
         </select>
       </div>
+    </div>
     </form>
   </div>
 
