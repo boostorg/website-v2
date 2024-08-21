@@ -12,33 +12,32 @@
       border-bottom: 1px solid #07405f;
       box-shadow: 0 1px 0 #000;
     }
-  </style>
-  <div class="relative mx-auto">
-    <div id="navbar-container" class="max-w-7xl md:px-3 mx-auto" x-data="searchToggleComponent" @resize.window="updateSearchButtonLocation()">
-      <div id="headblock" class="hidden items-center py-1 px-2 nav-shadow md:flex">
-        <div class="w-[25px] h-[25px] -mt-[3px]" style="width:25px">
-          <a href="{% url 'home' %}" class="inline-block">
-              <img class="hidden w-auto dark:inline-block h-[25px]"
-                   src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
-                   alt="Boost">
 
-              <img class="inline-block w-auto dark:hidden h-[25px]"
+    @media screen and (max-width: 639px) {
+      #navlinks {
+        max-width: 18rem;
+      }
+    }
+  </style>
+  <div class="relative mx-auto max-w-7xl">
+    <div id="navbar-container" class="sm:px-3 mx-auto" x-data="searchToggleComponent" @resize.window="updateSearchButtonLocation()">
+      <div id="headblock" class=" items-center py-1 px-2 nav-shadow flex">
+        <div class="flex items-center center pt-1 w-full">
+          <nav id="navlinks"class="relative flex items-center max-w-72 sm:pl-0 justify-between sm:max-w-md sm:justify-start sm:space-x-4 w-full text-lg text-left">
+            <a href="{% url 'home' %}" title="Boost Home" style="min-width: 23px;">
+              <img class="min-w-6 h-[25px]"
                    src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
                    alt="Boost">
           </a>
-        </div>
-
-        <div class="flex pt-1 w-full">
-          <nav class="relative items-center pl-6 space-x-4 w-full text-lg text-left md:space-x-6">
-            <a href="{% url 'news' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'news' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">News</a>
-            <a href="{% url 'docs' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'docs||docs-user-guide' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' url='/doc/user-guide/' %}">Learn</a>
-            <a href="{% url 'community' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'community' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">Community</a>
-            <a href="{% url 'libraries' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'libraries||docs-libs-page' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' url='/doc/libs/' %}">Libraries</a>
-            <a href="{% url 'releases-most-recent' %}" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange {% active_link 'releases-most-recent' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">Releases</a>
+            <a href="{% url 'news' %}" title="News" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px] {% active_link 'news' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}"><span class="material-symbols-outlined flex self-center sm:hidden">newspaper</span><span class="hidden sm:inline">News</span></a>
+            <a href="{% url 'docs' %}" title="Learn" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px] {% active_link 'docs||docs-user-guide' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' url='/doc/user-guide/' %}"><span class="material-symbols-outlined flex self-center sm:hidden">school</span><span class="hidden sm:inline">Learn</span></a>
+            <a href="{% url 'community' %}" title="Community" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px]  {% active_link 'community' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}"><span class="material-symbols-outlined flex self-center  sm:hidden">groups</span><span class="hidden sm:inline">Community</span></a>
+            <a href="{% url 'libraries' %}" title="Libraries" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px] {% active_link 'libraries||docs-libs-page' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' url='/doc/libs/' %}"><span class="material-symbols-outlined flex self-center sm:hidden">terminal</span><span class="hidden sm:inline">Libraries</span></a>
+            <a href="{% url 'releases-most-recent' %}" title="Releases" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px] {% active_link 'releases-most-recent' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}"><span class="material-symbols-outlined flex self-center sm:hidden">package_2</span><span class="hidden sm:inline">Releases</span></a>
           </nav>
-          <nav class="flex items-center space-x-4 h-[30px]" x-data="{ 'searchOpen': false }">
+          <nav class="flex items-center space-x-4 h-[30px] justify-end grow ml-[15px] mr-2" x-data="{ 'searchOpen': false }">
             <span class="relative" x-ref="desktopSearchArea">
-              <i id="gecko-search-button" data-current-boost-version="{{ current_release.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="sans-serif" class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange"></i>
+              <i id="gecko-search-button" data-current-boost-version="{{ current_release.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="sans-serif" class="inline -mt-1 cursor-pointer text-gray-400 fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange"></i>
               <script>
                 const geckoSearchButton = document.getElementById('gecko-search-button');
                 geckoSearchButton.setAttribute('data-theme-mode', localStorage.getItem('colorMode') === 'dark' ? 'dark' : 'light');
@@ -46,7 +45,7 @@
             </span>
 
             <span x-data="{ 'guideOpen': false }" class="relative">
-              <i class="inline-block cursor-pointer text-slate fas fa-question-circle dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="guideOpen = !guideOpen"></i>
+              <i class="inline-block cursor-pointer text-gray-400 fas fa-question-circle dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="guideOpen = !guideOpen"></i>
 
               <div
                 x-show="guideOpen" x-cloak
@@ -72,11 +71,8 @@
             {% if not disable_theme_switcher %}
             {# theme switcher #}
             <span x-data="{ 'modeOpen': false }" class="relative">
-              <span class="dark:hidden">
-                <i class="inline-block cursor-pointer text-slate fas fa-sun dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="modeOpen = !modeOpen"></i>
-              </span>
-              <span class="hidden dark:inline">
-                <i class="inline-block cursor-pointer text-slate fas fa-moon dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="modeOpen = !modeOpen"></i>
+              <span class="">
+                <i class="inline-block cursor-pointer text-gray-400 fas fa-sun dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="modeOpen = !modeOpen"></i>
               </span>
 
               <div
@@ -160,136 +156,6 @@
               </span>
             </span>
           </nav>
-        </div>
-      </div>
-
-      {# Mobile menu, show/hide based on menu open state. #}
-      <div class="relative z-10 transition transform origin-top-right md:hidden" x-data="{ isOpen: false }">
-
-        <div class="pb-1 border-b-2 border-gray-300 dark:border-charcoal nav-shadow">
-          <div class="inline-block relative pt-2 pl-2 mx-auto">
-            <a href="{% url 'home' %}">
-                <img class="hidden w-auto dark:inline h-[25px]"
-                    src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
-                    alt="Boost">
-
-                <img class="inline w-auto dark:hidden h-[25px]"
-                    src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
-                    alt="Boost">
-              </a>
-          </div>
-
-          <button type="button" id="mobile-menu-button"
-                  class="inline-flex float-right justify-center items-center p-2 rounded-md hover:text-white focus:outline-none"
-                  aria-controls="mobile-menu" @click="isOpen = !isOpen" aria-expanded="false"
-                  x-bind:aria-expanded="open.toString()">
-            <span class="sr-only">Open main menu</span>
-            <svg x-description="Icon when menu is closed." x-state:on="Menu open" x-state:off="Menu closed"
-                 class="block w-6 h-6 text-slate dark:text-white"
-                 :class="{ 'hidden': isOpen, 'block': !(isOpen) }" xmlns="http://www.w3.org/2000/svg" fill="none"
-                 viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
-            </svg>
-            <svg x-description="Icon when menu is open." x-state:on="Menu open" x-state:off="Menu opened"
-                 class="hidden w-6 h-6 text-slate dark:text-white"
-                 :class="{ 'block': isOpen, 'hidden': !(isOpen) }" xmlns="http://www.w3.org/2000/svg" fill="none"
-                 viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-
-          {# theme switcher #}
-          {% if not disable_theme_switcher %}
-          <span x-data="{ 'modeOpen': false }" class="px-6 mt-2 float-right relative">
-            <span class="dark:hidden">
-              <i class="inline-block cursor-pointer text-slate fas fa-sun dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="modeOpen = !modeOpen"></i>
-            </span>
-            <span class="hidden dark:inline">
-              <i class="inline-block cursor-pointer text-slate fas fa-moon dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="modeOpen = !modeOpen"></i>
-            </span>
-
-            <div
-              x-show="modeOpen" x-cloak
-              @click.away="modeOpen = false"
-              x-transition:enter="transition ease-out duration-100"
-              x-transition:enter-start="transform opacity-0 scale-95"
-              x-transition:enter-end="transform opacity-100 scale-100"
-              x-transition:leave="transition ease-in duration-75"
-              x-transition:leave-start="transform opacity-100 scale-100"
-              x-transition:leave-end="transform opacity-0 scale-95"
-              x-data="{
-                  mode: '',
-                  setColorMode: m => {
-                      if (m === 'dark') {
-                          document.documentElement.classList.add('dark')
-                          localStorage.setItem('colorMode', 'dark')
-                      } else {
-                          document.documentElement.classList.remove('dark')
-                          localStorage.setItem('colorMode', 'light')
-                      }
-                      document.head.querySelectorAll('.meta-theme').forEach((el) => {
-                        el.setAttribute('content', el.getAttribute('data-' + m));
-                      });
-                  }
-              }"
-
-              class="absolute right-0 z-50 py-1 px-2 mt-2 w-32 text-left bg-white rounded-md divide-y divide-gray-300 ring-1 ring-gray-300 shadow-lg origin-top-right dark:ring-gray-500 dark:bg-charcoal"
-            >
-              <a
-                @click="mode='light'; setColorMode('light'); modeOpen = false;"
-                :class="{'font-bold': mode === 'light', 'font-medium': mode !== 'light' }"
-                class="block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange"
-                >
-                <i class="inline-block ml-0.5 mr-1 font-semibold fas fa-sun text-gold"></i>
-                Light Mode
-              </a>
-
-              <a
-                @click="mode = 'dark'; setColorMode('dark'); modeOpen = false;"
-                :class="{'font-bold': mode === 'dark', 'font-medium': mode !== 'dark' }"
-                class="block py-2 text-xs cursor-pointer dark:text-white text-charcoal dark:hover:text-orange hover:text-orange"
-                >
-                <i class="inline-block ml-1 mr-1 fas fa-moon text-sky-600"></i>
-                Dark Mode
-              </a>
-            </div>
-          </span>
-          {% endif %}
-          <span x-ref="mobileSearchArea" class="mt-2 float-right relative"></span>
-        </div>
-        <div x-show="isOpen" class="absolute inset-x-0 top-10 z-40 h-screen bg-gray-200 dark:bg-charcoal">
-          <div class="px-2 pt-6 pb-3 text-2xl">
-            <a href="{% url 'news' %}" class="block py-2 px-3 text-slate dark:text-white">News</a>
-
-            <a href="{% url 'docs' %}" class="block py-2 px-3 text-slate dark:text-white">Learn</a>
-
-            <a href="{% url 'community' %}" class="block py-2 px-3 text-slate dark:text-white">Community</a>
-
-            <a href="/libraries/" class="block py-2 px-3 text-slate dark:text-white">Libraries</a>
-
-            <a href="{% url 'releases-most-recent' %}" class="block py-2 px-3 text-slate dark:text-white">Releases</a>
-          </div>
-          <div class="px-2 pt-6 pb-3 text-base">
-            <a href="/doc/user-guide/index.html" class="block py-2 px-3 text-slate dark:text-white">User Guide</a>
-            <a href="/doc/contributor-guide/index.html" class="block py-2 px-3 text-slate dark:text-white">Contributor Guide</a>
-            <a href="/doc/formal-reviews/index.html" class="block py-2 px-3 text-slate dark:text-white">Formal Reviews</a>
-          </div>
-          <div class="absolute left-0 bottom-10 px-2 pt-6 pb-3 text-sm border-t border-gray-300 dark:border-gray-700 w-full">
-            <span x-data="{ 'userOpen': false }" class="relative w-[30px]">
-              <div hx-get="/users/avatar/?ui=mobile"
-                   hx-trigger="load"
-                   hx-target="#mobileavatar"
-                   hx-indicator=".htmx-indicator">
-              </div>
-              <span id="mobileavatar">
-                <svg aria-hidden="true" class="w-4 h-4 text-gray-200 animate-spin dark:text-gray-600 fill-orange" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-                </svg>
-              </span>
-            </span>
-          </div>
         </div>
       </div>
     </div>
