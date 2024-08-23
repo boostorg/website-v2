@@ -13,31 +13,69 @@
       box-shadow: 0 1px 0 #000;
     }
 
-    @media screen and (max-width: 639px) {
-      #navlinks {
-        max-width: 18rem;
-      }
+    #selectedpage {
+      margin-left: 20px;
     }
+
+    .mobile-menu-item {
+      min-width: 10rem;
+      padding: .5rem 1rem;
+    }
+
+    #righticons {
+      flex-grow: 1;
+      justify-content: flex-end;
+    }
+
+    @media (min-width: 768px) {
+        #navlinks {
+          display: inline;
+          max-width: 40rem;
+        }
+     }
+
+     #navlinks a {
+      margin-left:20px;
+     }
+
+     #pageselector {
+      position: absolute;
+      top: 1px;
+      left: 2.75rem;
+      flex-direction: column;
+      background-color: rgb(209, 213, 219)
+     }
   </style>
   <div class="relative mx-auto max-w-7xl">
-    <div id="navbar-container" class="sm:px-3 mx-auto" x-data="searchToggleComponent" @resize.window="updateSearchButtonLocation()">
-      <div id="headblock" class=" items-center py-1 px-2 nav-shadow flex">
+    <div id="navbar-container" class="md:px-3 mx-auto transition-all" x-data="searchToggleComponent" @resize.window="updateSearchButtonLocation()">
+      <div id="headblock" class=" items-center py-1 px-4 md:px-2 nav-shadow flex transition-all">
         <div class="flex items-center center pt-1 w-full">
-          <nav id="navlinks"class="relative flex items-center max-w-72 sm:pl-0 justify-between sm:max-w-md sm:justify-start sm:space-x-4 w-full text-lg text-left">
-            <a href="{% url 'home' %}" title="Boost Home" style="min-width: 23px;">
+          <a href="{% url 'home' %}" title="Boost Home" style="min-width: 23px;">
               <img class="min-w-6 h-[25px]"
                    src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
                    alt="Boost">
           </a>
-            <a href="{% url 'news' %}" title="News" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px] {% active_link 'news' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}"><span class="material-symbols-outlined flex self-center sm:hidden">newspaper</span><span class="hidden sm:inline">News</span></a>
-            <a href="{% url 'docs' %}" title="Learn" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px] {% active_link 'docs||docs-user-guide' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' url='/doc/user-guide/' %}"><span class="material-symbols-outlined flex self-center sm:hidden">school</span><span class="hidden sm:inline">Learn</span></a>
-            <a href="{% url 'community' %}" title="Community" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px]  {% active_link 'community' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}"><span class="material-symbols-outlined flex self-center  sm:hidden">groups</span><span class="hidden sm:inline">Community</span></a>
-            <a href="{% url 'libraries' %}" title="Libraries" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px] {% active_link 'libraries||docs-libs-page' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' url='/doc/libs/' %}"><span class="material-symbols-outlined flex self-center sm:hidden">terminal</span><span class="hidden sm:inline">Libraries</span></a>
-            <a href="{% url 'releases-most-recent' %}" title="Releases" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px] {% active_link 'releases-most-recent' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}"><span class="material-symbols-outlined flex self-center sm:hidden">package_2</span><span class="hidden sm:inline">Releases</span></a>
+          <div class="md:hidden flex items-center">
+          <div id="selectedpage" onclick="openNav()" class="text-lg flex items-center justify-between hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange pl-[10px]"><div id="pageName" class="capitalize">where</div><div class="material-symbols-outlined ml-1">arrow_drop_down</div></div>
+          <div id="pageselector" class="text-lg hidden absolute top-1 left-11 bg-gray-300 flex flex-col z-10 ">
+            <div class="bg-gray-300 border-grey-200 border-b-2 mobile-menu-item"><a href="{% url 'news' %}" title="News" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[11px]">News</a></div>
+            <div class="bg-gray-300 border-grey-200 mobile-menu-item border-b-2 mobile-menu-item"><a href="{% url 'docs' %}" title="Learn" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[11px]">Learn</a></div>
+            <div class="bg-gray-300 mobile-menu-item border-grey-200  border-b-2 mobile-menu-item"><a href="{% url 'community' %}" title="Community" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[11px]">Community</a></div>
+            <div class="bg-gray-300 mobile-menu-item border-grey-200 border-b-2 mobile-menu-item"><a href="{% url 'libraries' %}" title="Libraries" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[11px]">Libraries</a></div>
+            <div class="bg-gray-300 mobile-menu-item border-grey-200 border-b-2 mobile-menu-item"><a href="{% url 'releases-most-recent' %}" title="Releases" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[11px]">Releases</a></div>
+          </div>
+          </div>
+         <nav id="navlinks" class="relative hidden items-center md:inline max-w-72 md:pl-0  md:justify-start w-full text-lg text-left">
+
+            <a href="{% url 'news' %}" title="News" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px] {% active_link 'news' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">News</a>
+            <a href="{% url 'docs' %}" title="Learn" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px] {% active_link 'docs||docs-user-guide' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' url='/doc/user-guide/' %}">Learn</a>
+            <a href="{% url 'community' %}" title="Community" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px]  {% active_link 'community' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">Community</a>
+            <a href="{% url 'libraries' %}" title="Libraries" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px] {% active_link 'libraries||docs-libs-page' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' url='/doc/libs/' %}">Libraries</a>
+            <a href="{% url 'releases-most-recent' %}" title="Releases" class="hover:no-underline font-semibold dark:font-medium hover:text-orange dark:hover:text-orange ml-[15px] {% active_link 'releases-most-recent' css_class='dark:text-orange dark:visited:text-orange text-orange visited:text-orange dark:hover:text-white' inactive_class='dark:text-white text-slate' %}">Releases</a>
           </nav>
-          <nav class="flex items-center space-x-4 h-[30px] justify-end grow ml-[15px] mr-2" x-data="{ 'searchOpen': false }">
+          <nav id="righticons" class="flex items-center space-x-4 h-[30px] justify-end grow ml-[15px] mr-2" x-data="{ 'searchOpen': false }">
             <span class="relative" x-ref="desktopSearchArea">
-              <i id="gecko-search-button" data-current-boost-version="{{ current_release.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="sans-serif" class="inline -mt-1 cursor-pointer text-gray-400 fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange"></i>
+              <i id="gecko-search-button" data-current-boost-version="{{ current_release.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="sans-serif" class="inline -mt-1 cursor-pointer text-slate fas fa-search dark:text-white/50 dark:hover:text-orange hover:text-orange"></i>
               <script>
                 const geckoSearchButton = document.getElementById('gecko-search-button');
                 geckoSearchButton.setAttribute('data-theme-mode', localStorage.getItem('colorMode') === 'dark' ? 'dark' : 'light');
@@ -45,7 +83,7 @@
             </span>
 
             <span x-data="{ 'guideOpen': false }" class="relative">
-              <i class="inline-block cursor-pointer text-gray-400 fas fa-question-circle dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="guideOpen = !guideOpen"></i>
+              <i class="inline-block cursor-pointer text-slate fas fa-question-circle dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="guideOpen = !guideOpen"></i>
 
               <div
                 x-show="guideOpen" x-cloak
@@ -72,7 +110,7 @@
             {# theme switcher #}
             <span x-data="{ 'modeOpen': false }" class="relative">
               <span class="">
-                <i class="inline-block cursor-pointer text-gray-400 fas fa-sun dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="modeOpen = !modeOpen"></i>
+                <i class="inline-block cursor-pointer text-slate fas fa-sun dark:text-white/50 dark:hover:text-orange hover:text-orange" @click="modeOpen = !modeOpen"></i>
               </span>
 
               <div
@@ -181,6 +219,40 @@
           }
         }))
       });
+
+      var url = window.location.pathname;
+      var words = url.split("\/");
+      words[1] = words[1].replaceAll("\/", "");
+      console.log(words[1])
+      var tabname = "Home"
+
+      var pagename = document.getElementById("pageName")
+      switch (words[1]) {
+        case 'doc':
+        case 'docs':
+        tabname = "Learn"
+        break;
+        case 'community':
+        tabname = "community"
+        break;
+        case 'news':
+        tabname = "news"
+        break;
+        case 'libraries':
+        tabname = "libraries"
+        break;
+        case 'releases':
+        tabname = "releases"
+        break;
+      }
+      pagename.innerText='';
+      pagename.appendChild(document.createTextNode(tabname));
+
+      function openNav() {
+        ps = document.getElementById("pageselector");
+        ps.classList.remove('hidden');
+      }
+
     </script>
   </div>
 </div>
