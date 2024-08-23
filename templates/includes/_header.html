@@ -14,7 +14,7 @@
     }
 
     #selectedpage {
-      margin-left: 5px;
+      margin-left: 20px;
     }
 
     .mobile-menu-item {
@@ -234,6 +234,14 @@
             }
           }
         }))
+      });
+
+      let containingElement = document.getElementById("pageselector");
+
+      document.body.addEventListener('click', function( event ){
+        if(!containingElement.contains( event.target ) ){
+          closeNav();
+        }
       });
 
       var url = window.location.pathname;
