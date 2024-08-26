@@ -5,7 +5,7 @@
 
 {% block content %}
   {# homepage hero #}
-  <main class="px-4 my-16 mx-auto sm:mt-24">
+  <main class="px-4 my-16 mx-auto sm:mt-16">
     <div class="md:flex mb-16 md:mb-5">
 
       <div class="text-center md:text-left md:w-1/2">
@@ -62,11 +62,11 @@
     </div>
 
     {% if events %}
-        <div class="px-4 mt-4 pt-8 my-12 lg:mb-4 mx-auto">
-          <div class="pb-10 bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md">
-            <div class="p-5 w-full relative">
-              <div class="my-6 ml-6">
-                <span class="inline py-1 px-3 w-auto text-sm uppercase rounded-lg md:text-base text-emerald-700 bg-emerald-200 dark:bg-opacity-10">schedule of events</span>
+        <div class="my-12 mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-16 lg:mb-4 lg:space-y-0 lg:space-x-4">
+      <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
+            <div class="w-full">
+              <div class="mb-6">
+            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">schedule of events</span>
                 <a id="schedule"></a>
                 <div class="absolute top-6 right-8 p-2 group">
                   <a href="/calendar/"
@@ -124,10 +124,10 @@
 
 
     {% if featured_library %}
-    <div class="my-12 mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-4 lg:space-y-0 lg:space-x-4">
+    <div class="my-12 mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-16 lg:mb-4 lg:space-y-0 lg:space-x-4">
       <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
           <div class="mb-6">
-            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-orange/30">library spotlight</span>
+            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">library spotlight</span>
           </div>
           <div class="absolute top-6 right-8 p-2 group">
             <a href="{% url 'libraries' %}"
@@ -181,16 +181,14 @@
     </div>
     {% endif %}
 
-    <div class="px-4 mt-4 pt-8 my-12 mx-auto">
-      <div class="pb-3 bg-gray-400 dark:bg-gray-900 bg-opacity-10 rounded-md">
-        <div class="p-5 pb-0 w-full">
-          <div class="mt-6 mb-0 ml-6">
-            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded-lg md:text-base text-emerald-700 bg-emerald-200 dark:bg-opacity-10">featured video</span>
-          </div>
+    <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:mt-4 lg:space-y-0 lg:space-x-4">
+      <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
+          <div class="mb-6">
+          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">featured video</span>
         </div>
         <div class="flex flex-col justify-center items-center h-full pb-4">
-          <div class="w-4/5 mx-auto">
-            <div class="flex items-center justify-center h-full px-12 py-4 rounded-lg">
+          <div class="mx-auto">
+            <div class="flex items-center justify-center h-full py-4 rounded-lg">
               <a href="https://www.youtube.com/watch?v=Z1imC1HcJUA" target="_blank" rel="noopener noreferrer" class="text-sm md:text-lg lg:text-2xl text-center text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
                 C++ Tutorial: Using Boost.MP11 C++ Library - Jody Hagins - CppNow 2023
               </a>
@@ -203,7 +201,7 @@
     <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:mt-4 lg:space-y-0 lg:space-x-4">
       <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
         <div class="mb-6">
-          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-orange/30">recent news</span>
+          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">recent news</span>
         </div>
         <div class="absolute top-6 right-8 p-2 group">
           <a href="{% url 'news' %}"
@@ -246,7 +244,7 @@
     <div class="my-12 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
       <div class="p-6 bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
         <div class="mb-6">
-          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-orange/30">featured video</span>
+          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">featured video</span>
         </div>
         <div class="relative h-0 overflow-hidden max-w-full w-full" style="padding-bottom: 56.25%">
           <iframe
