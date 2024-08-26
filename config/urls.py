@@ -17,6 +17,7 @@ from core.views import (
     BSLView,
     CalendarView,
     ClearCacheView,
+    ContentToReleaseView,
     DocLibsTemplateView,
     ImageView,
     MarkdownTemplateView,
@@ -313,7 +314,7 @@ urlpatterns = (
         # Libraries docs, some HTML parts are re-written
         re_path(
             r"^doc/libs/release/(?P<content_path>.+)/?",
-            RedirectToReleaseView.as_view(),
+            ContentToReleaseView.as_view(),
             name="docs-libs-release-page",
         ),
         re_path(

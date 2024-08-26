@@ -554,7 +554,7 @@ class RedirectToLibraryView(BaseRedirectView):
         return HttpResponseRedirect(new_path)
 
 
-class RedirectToReleaseView(BaseRedirectView):
+class ContentToReleaseView(BaseRedirectView):
     """View to redirect to the latest release page."""
 
     def get(self, request, *args, **kwargs):
