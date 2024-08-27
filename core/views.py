@@ -1,8 +1,8 @@
 import os
 import re
+
 import structlog
 from dateutil.parser import parse
-
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
@@ -17,13 +17,15 @@ from django.template.loader import render_to_string
 from django.views import View
 from django.views.generic import TemplateView
 
+from versions.models import Version
+
 from .asciidoc import process_adoc_to_html_content
 from .boostrenderer import (
-    get_content_from_s3,
-    get_s3_client,
-    extract_file_data,
     convert_img_paths,
+    extract_file_data,
+    get_content_from_s3,
     get_meta_redirect_from_html,
+    get_s3_client,
 )
 from .htmlhelper import modernize_legacy_page
 from .markdown import process_md
@@ -34,9 +36,6 @@ from .tasks import (
     refresh_content_from_s3,
     save_rendered_content,
 )
-
-from versions.models import Version
-
 
 logger = structlog.get_logger()
 
@@ -546,5 +545,28 @@ class RedirectToLibraryView(BaseRedirectView):
         # Get the requested version from the path of the URL.
         requested_version = requested_version.replace("_", "-")
 
+        # Handle the special case for "release" versions to redirect to the
+        # most recent Boost release
+        if requested_version == "release":
+            requested_version = Version.objects.most_recent().slug
+
         new_path = f"/libraries/?version=boost-{ requested_version }"
         return HttpResponseRedirect(new_path)
+
+
+class ContentToReleaseView(BaseRedirectView):
+    """View to redirect to the latest release page."""
+
+    def get(self, request, *args, **kwargs):
+        # Grab the rest of the content path
+        content_path = self.kwargs.get("content_path")
+
+        # Determine the latest release
+        latest_release = Version.objects.most_recent()
+        latest_release_slug = latest_release.stripped_boost_url_slug
+
+        # Piece it all together to redirect the user to the latest release's
+        # docs
+        url = f"/doc/libs/{latest_release_slug}/{content_path}"
+
+        return HttpResponseRedirect(url)

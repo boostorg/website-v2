@@ -3,15 +3,15 @@ import os
 import re
 from collections import defaultdict
 from datetime import datetime
-from dateutil.parser import parse
+
 import requests
 import structlog
+from dateutil.parser import parse
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from fastcore.net import HTTP404NotFoundError, HTTP422UnprocessableEntityError
 from fastcore.xtras import obj2dict
 from ghapi.all import GhApi, paged
-
 
 logger = structlog.get_logger()
 
