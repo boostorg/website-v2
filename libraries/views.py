@@ -1,24 +1,23 @@
 import datetime
-import structlog
 
+import structlog
 from dateutil.relativedelta import relativedelta
-from django.http import Http404
 from django.contrib import messages
 from django.db.models import Count
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
 
-from versions.models import Version
-from .forms import VersionSelectionForm
-
 from core.githubhelper import GithubAPIClient
-from .utils import redirect_to_view_with_params
+from versions.models import Version
+
+from .forms import VersionSelectionForm
 from .mixins import VersionAlertMixin
 from .models import Category, CommitData, Library, LibraryVersion
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-
+from .utils import redirect_to_view_with_params
 
 SELECTED_BOOST_VERSION_COOKIE_NAME = "boost_version"
 SELECTED_LIBRARY_VIEW_COOKIE_NAME = "library_view"
@@ -47,6 +46,9 @@ class LibraryList(VersionAlertMixin, ListView):
         version_slug = self.request.COOKIES.get(
             SELECTED_BOOST_VERSION_COOKIE_NAME, None
         )
+
+        if version_slug is None:
+            version_slug = self.request.GET.get("version", None)
 
         if version_slug in [v.slug for v in valid_versions]:
             return version_slug

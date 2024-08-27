@@ -17,17 +17,18 @@ from core.views import (
     BSLView,
     CalendarView,
     ClearCacheView,
+    ContentToReleaseView,
     DocLibsTemplateView,
     ImageView,
     MarkdownTemplateView,
-    StaticContentTemplateView,
-    UserGuideTemplateView,
     RedirectToDocsView,
     RedirectToHTMLDocsView,
-    RedirectToToolsView,
     RedirectToHTMLToolsView,
-    RedirectToReleaseView,
     RedirectToLibraryView,
+    RedirectToReleaseView,
+    RedirectToToolsView,
+    StaticContentTemplateView,
+    UserGuideTemplateView,
 )
 from libraries.api import LibrarySearchView
 from libraries.views import (
@@ -61,11 +62,11 @@ from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
     CustomLoginView,
-    CustomSocialSignupViewView,
     CustomSignupView,
+    CustomSocialSignupViewView,
     ProfileView,
-    UserViewSet,
     UserAvatar,
+    UserViewSet,
 )
 from versions.api import ImportVersionsView, VersionViewSet
 from versions.feeds import AtomVersionFeed, RSSVersionFeed
@@ -311,6 +312,11 @@ urlpatterns = (
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     + [
         # Libraries docs, some HTML parts are re-written
+        re_path(
+            r"^doc/libs/release/(?P<content_path>.+)/?",
+            ContentToReleaseView.as_view(),
+            name="docs-libs-release-page",
+        ),
         re_path(
             r"^doc/libs/(?P<content_path>.+)/?",
             DocLibsTemplateView.as_view(),
