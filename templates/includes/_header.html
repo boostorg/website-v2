@@ -5,7 +5,7 @@
   <style>
     .nav-shadow {
       box-shadow: 0px 1px 0px #d1d1d1;
-      border-bottom: 1px solid #f6f6f6;
+      border-bottom: 1px solid #f6f6f6 !important;
     }
 
     .dark .nav-shadow {
@@ -15,6 +15,7 @@
 
     #selectedpage {
       margin-left: 20px;
+      padding-left: 10px;
     }
 
     .mobile-menu-item {
@@ -34,8 +35,13 @@
         }
      }
 
-     #navlinks a {
-      margin-left:20px;
+     body.article #navlinks a {
+      margin-left: 15px;
+      font-weight: 700;
+     }
+
+     body.article #avatar > a {
+      font-weight: 600 !important;
      }
 
      #pageselector {
@@ -51,7 +57,7 @@
       }
 
       .dark #pageselector div {
-        border-color:rgb(7, 89, 133);
+        border-color: rgb(7, 89, 133);
       }
 
      .dark #pageselector {
@@ -61,8 +67,43 @@
       flex-direction: column;
       background-color: rgb(23, 42, 52);
      }
+
+     /* specific to docs */
+     body.article {
+      max-width: 100% !important;
+      margin: 0;
+      padding: 0px;
+     }
+
+     body .body {
+      margin: 0px 1.25rem;
+      padding: 1rem 0rem 0;
+      max-width: 80rem;
+    }
+
+    body.article  #headblock {
+      padding: 0.25rem 1rem !important;
+     }
+
+    @media (min-width: 768px) {
+      body.article {
+        max-width: 80rem !important;
+        margin: auto;
+        padding: 0px 2.25rem;
+     }
+
+    body.article  #headblock {
+      padding: 0.25rem 0.5rem !important;
+     }
+
+    }
+
+  #righticons {
+    margin-right: 0.5rem;
+  }
+}
   </style>
-  <div class="relative mx-auto max-w-7xl">
+  <div class="relative mx-auto max-w-7xl md:px-3">
     <div id="navbar-container" class="md:px-3 mx-auto transition-transform" x-data="searchToggleComponent" @resize.window="updateSearchButtonLocation()">
       <div id="headblock" class=" items-center py-1 px-4 md:px-2 nav-shadow flex transition-all">
         <div class="flex items-center center pt-1 w-full">
