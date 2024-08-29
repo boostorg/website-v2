@@ -1,17 +1,94 @@
 ## Development Setup Notes
 
-The procedure to configure a development environment is mainly covered in the top-level README.md. This document will contain more details about installing prerequisites: Just, Python 3.11, Docker, and Docker Compose.
+The procedure to configure a development environment is mainly covered in the top-level README.md. This document will contain more details about installing prerequisites: Just, Python, Docker, and Docker Compose.
 
 - [Development Setup Notes](#development-setup-notes)
 - [Windows](#windows)
 - [Ubuntu 22.04](#ubuntu-2204)
+- [macOS](#macOS)
 - [Local Development](#local-development)
   - [Social Login with django-allauth](#social-login-with-django-allauth)
 
 
 ## Windows
 
-(Tested on: Windows 2022 Server)
+There are multiple alternatives to choose from.
+
+Method 1:
+
+The script dev-bootstrap-win.ps1 will automatically install prerequisites, and with the -all or -launch flag will also run docker-compose.
+
+Open a Powershell terminal (Admin mode).
+
+Enable Powershell scripts with `Set-ExecutionPolicy Bypass`.
+
+Clone your fork of the repo, and run the script `.\docs\scripts\dev-bootstrap-win.ps1`, or just download a copy of the script by itself, and run it.
+
+```
+curl -o dev-bootstrap-win.ps1 https://raw.githubusercontent.com/boostorg/website-v2/develop/docs/scripts/dev-bootstrap-win.ps1
+.\dev-bootstrap-win.ps1
+```
+
+Method 2:
+
+Or, instead of running the script, manually install the necessary packages as discussed below. It's only necessary to run each command if that package is missing.
+
+Install choco
+```
+iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
+# refresh environment
+$env:ChocolateyInstall = Convert-Path "$((Get-Command choco).Path)\..\.."
+Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+refreshenv
+```
+
+Install git
+```
+choco install -y --no-progress git
+```
+
+Install python
+```
+choco install -y --no-progress python
+```
+
+Install just
+```
+choco install -y --no-progress just
+```
+
+Install nvm, npm, and yarn
+```
+choco install -y --no-progress nvm
+# close and open the powershell terminal (admin)
+nvm install 20
+nvm use 20
+npm install -g yarn
+```
+
+Install Docker Desktop
+```
+choco install -y --no-progress docker-desktop
+```
+
+In a desktop GUI window, run Docker Desktop, and complete the installation.
+
+Clone the repository and switch to that directory.
+```
+mkdir -p $HOME\github\_your_user_name_
+cd $HOME\github\_your_user_name_
+git clone https://github.com/_your_user_name_/website-v2
+cd website-v2
+cp env.template .env
+```
+
+Edit the .env, adding AWS keys.
+
+Continue to the instructions in the top-level README.md file.
+
+Method 3:
+
+This is a more complicated WSL method.
 
 In Powershell, install WSL:
 ```
@@ -43,15 +120,25 @@ Continue (as root) to the instructions in the top-level README.md file.
 
 ## Ubuntu 22.04
 
-Check if python3 is installed.
+Method 1:
+
+The script dev-bootstrap-linux.sh will automatically install prerequisites, and with the --all or --launch flag will also run docker-compose.
+
+While the dev-bootstrap-linux.sh script should be run as a standard user, after it has been all set up, later you will generally run "docker compose" as root. This is to assure that the permissions match inside the container where the user is also root. Another option is to eventually add a Docker Desktop method for linux to the script.
+
 ```
-python3 --version
+curl -o dev-bootstrap-linux.sh https://raw.githubusercontent.com/boostorg/website-v2/develop/docs/scripts/dev-bootstrap-linux.sh
+chmod 755 dev-bootstrap-linux.sh
+./dev-bootstrap-linux.sh
 ```
 
-or
+Method 2:
 
+Or, instead of running the script, manually install the necessary packages as discussed below. It's only necessary to run each command if that package is missing.
+
+Install python
 ```
-apt-get install -y python3
+sudo apt-get install -y python3
 ```
 
 Install `makedeb` (as a standard user, not root).
@@ -70,6 +157,15 @@ cd /opt/justinstall
 git clone 'https://mpr.makedeb.org/just'
 cd just
 makedeb -si
+```
+
+Install nvm, npm, and yarn, if not installed.
+```
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+. ~/.bashrc
+nvm install 20
+nvm use 20
+npm install -g yarn
 ```
 
 Install docker and docker-compose.
@@ -100,9 +196,87 @@ cd website-v2
 cp env.template .env
 ```
 
+Edit the .env, adding AWS keys.
+
 Continue (as the root user) to the instructions in the top-level README.md file. Or if using WSL, review the last few steps in that section again.
 
-The advantage of running `docker compose` as root is the userid (0) will match the containers and the shared files.
+On Linux, the advantage of running `docker compose` as root is the userid (0) will match the containers and the shared files. Another option is
+to install Docker Desktop, which would allow you to stay as a regular user.
+
+## macOS
+
+Method 1:
+
+The script dev-bootstrap-macos.sh will automatically install prerequisites, and with the --all or --launch flag will also run docker-compose.
+
+As a standard user account, clone your fork of the repo, and run the script `docs/scripts/dev-bootstrap-macos.ps1`, or just download a copy of the script by itself, and run it.
+
+```
+curl -o dev-bootstrap-macos.sh https://raw.githubusercontent.com/boostorg/website-v2/develop/docs/scripts/dev-bootstrap-macos.sh
+chmod 755 dev-bootstrap-macos.sh
+./dev-bootstrap-macos.sh
+```
+
+Method 2:
+
+Or, instead of running the script, manually install the necessary packages as discussed below. It's only necessary to run each command if that package is missing.
+
+Install brew
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Install rosetta
+```
+sudo softwareupdate --install-rosetta --agree-to-license
+```
+
+Install git
+```
+brew install git
+```
+
+Install python
+```
+brew install python3
+```
+
+Install just
+```
+brew install just
+```
+
+Install nvm, npm, and yarn
+```
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+. ~/.zprofile
+nvm install 20
+nvm use 20
+npm install -g yarn
+```
+
+Install docker and docker-compose
+```
+curl -o /tmp/Docker.dmg https://desktop.docker.com/mac/main/arm64/160616/Docker.dmg
+sudo hdiutil attach /tmp/Docker.dmg
+sudo /Volumes/Docker/Docker.app/Contents/MacOS/install
+sudo hdiutil detach /Volumes/Docker
+```
+
+In a desktop GUI window, run Docker Desktop, and complete the installation.
+
+Clone the repository and switch to that directory.
+```
+mkdir -p ~/github/_your_user_name_
+cd ~/github/_your_user_name_
+git clone https://github.com/_your_user_name_/website-v2
+cd website-v2
+cp env.template .env
+```
+
+Edit the .env, adding AWS keys.
+
+Continue to the instructions in the top-level README.md file.
 
 ## Local Development
 
