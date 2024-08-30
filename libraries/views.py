@@ -60,7 +60,7 @@ class LibraryList(VersionAlertMixin, ListView):
         """Set the selected version in the cookies."""
         valid_versions = Version.objects.version_dropdown_strict()
 
-        if version in [v.slug for v in valid_versions]:
+        if version in [v.slug for v in valid_versions] or version == "latest":
             response.set_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME, version)
         else:
             logger.warning(f"Attempted to set invalid version slug: {version}")
@@ -89,7 +89,7 @@ class LibraryList(VersionAlertMixin, ListView):
             params["version"] = selected_boost_version
 
         # default to the most recent version
-        if "version" not in params:
+        if "version" not in params or params["version"] == "latest":
             # If no version is specified, show the most recent version.
             version = Version.objects.most_recent()
             if version:
@@ -132,10 +132,12 @@ class LibraryList(VersionAlertMixin, ListView):
             context["category"] = Category.objects.get(
                 slug=self.request.GET["category"]
             )
-        if "version" in self.request.GET:
-            context["version"] = Version.objects.get(slug=self.request.GET["version"])
-        else:
+
+        if "version" not in self.request.GET or self.request.GET["version"] == "latest":
             context["version"] = Version.objects.most_recent()
+        else:
+            context["version"] = Version.objects.get(slug=self.request.GET["version"])
+
         context["categories"] = self.get_categories(context["version"])
         context["versions"] = self.get_versions()
         context["library_list"] = self.get_queryset()
