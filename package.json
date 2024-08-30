@@ -7,6 +7,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "tailwindcss -i frontend/styles.css -o static/css/styles.css --watch",
+    "dev-windows": "tailwindcss -i frontend/styles.css -o static/css/styles.css",
     "build": "NODE_ENV=production tailwindcss -i frontend/styles.css -o static/css/styles.css --minify",
     "builddocs": "NODE_ENV=production tailwindcss -c ./docstailwind.config.js -i frontend/docsstyles.css -o static/css/docsstyles.css --minify",
     "builduserguide": "NODE_ENV=production tailwindcss -c ./userguidetailwind.config.js -i frontend/userguidestyles.css -o static/css/userguidestyles.css --minify"
