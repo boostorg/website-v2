@@ -14,9 +14,9 @@ django-rest-auth
 django-widget-tweaks
 djangorestframework>=3.14
 environs[django]
-greenlet==2.0.1
+greenlet==3.0.3
 psycogreen
-gevent==23.9.0
+gevent==24.2.1
 gunicorn
 psycopg2-binary
 whitenoise
@@ -35,8 +35,8 @@ python-json-logger
 structlog
 
 # Celery
-celery==5.2.7
-redis==4.5.4
+celery==5.4.0
+redis==5.0.8
 
 # Testing
 Faker
