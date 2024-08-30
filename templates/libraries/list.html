@@ -80,6 +80,7 @@
                 name="version"
                 class="dropdown py-2 ml-auto md:block h-[38px]"
                 id="id_version">
+          <option value="latest" {% if version == "latest" %}selected="selected"{% endif %}>Latest</option>
           {% for v in versions %}
           <option value="{{ v.slug }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
           {% endfor %}
