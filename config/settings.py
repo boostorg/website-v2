@@ -257,6 +257,7 @@ CELERY_TIMEZONE = "UTC"
 CELERY_BROKER_TRANSPORT_OPTIONS = {
     "max_connections": env.int("MAX_CELERY_CONNECTIONS", default=60)
 }
+CELERY_RESULT_BACKEND_THREAD_SAFE = True
 
 CACHES = {
     "default": {
