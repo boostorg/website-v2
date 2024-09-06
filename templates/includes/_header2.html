@@ -8,61 +8,6 @@
     --site-dark-card-color: rgb(23, 42, 52);
     --site-light-border-color: #d1d1d1;
     --site-dark-border-color: #07405f;
-    --site-light-text-color: rgb(49, 74, 87);
-    --site-dark-text-color: #ccc;
-    --site-dark-heading-text-color: #fff;
-    --site-light-heading-text-color: rgb(49, 74, 87);
-    --site-primary-orange: rgb(255, 159, 0);
-    --site-light-secondary-blue: rgb(2, 132, 199);
-    --site-dark-secondary-blue: rgb(125, 211, 252);
-    --site-light-teritary-green: rgb(14, 174, 96);
-    --site-dark-teritary-green: rgb(90, 213, 153);
-    /* specific use colors */
-}
-
-html {
-    --bg-color: var(--site-light-bg-color);
-    --card-color: var(--site-light-card-color);
-    --border-color: var(--site-light-border-color);
-    --text-color: var(--site-light-text-color);
-    --header-color: var(--site-light-heading-text-color);
-    --primary-color: var(--site-primary-orange);
-    --secondary-color: var(--site-light-secondary-blue);
-    --teritary-color: var(--site-light-teritary-green);
-    /* specific use colors */
-}
-
-html.dark {
-    --bg-color: var(--site-dark-bg-color);
-    --card-color: var(--site-dark-card-color);
-    --border-color: var(--site-dark-border-color);
-    --text-color: var(--site-dark-text-color);
-    --header-color: var(--site-dark-heading-text-color);
-    --primary-color: var(--site-primary-orange);
-    --secondary-color: var(--site-dark-secondary-blue);
-    --teritary-color: var(--site-dark-teritary-green);
-    /* specific use colors */
-}
-
-.header-menu-bar {
-    padding: 0rem 1rem;
-    height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0px 1px 0px #d1d1d1;
-    border-bottom: 1px solid #f6f6f6 !important;
-    max-width:80rem;
-    margin: 0 auto;
-}
-<style>
-:root {
-    --site-light-bg-color: rgb(229, 231, 235);
-    --site-dark-bg-color: rgb(5, 26, 38);
-    --site-light-card-color: #fff;
-    --site-dark-card-color: rgb(23, 42, 52);
-    --site-light-border-color: #d1d1d1;
-    --site-dark-border-color: #07405f;
     --site-light-text-color: #000;
     --site-dark-text-color: #ccc;
     --site-dark-heading-text-color: #fff;
@@ -98,24 +43,20 @@ html.dark {
     --teritary-color: var(--site-dark-teritary-green);
     /* specific use colors */
 }
-
+</style>
+<style scoped>
 .header-menu-bar {
-    padding: 0 1rem;
+    padding: 1rem;
     height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     box-shadow: 0px 1px 0px #d1d1d1;
     border-bottom: 1px solid #f6f6f6 !important;
-    max-width: 80rem;
+    max-width:80rem;
     margin: 0 auto;
-    color: var(--text-color);
 }
 
-.dark .header-menu-bar {
-    border-bottom: 1px solid #07405f;
-    box-shadow: 0 1px 0 #000;
-}
 .dark .header-menu-bar {
     border-bottom: 1px solid #07405f;
     box-shadow: 0 1px 0 #000;
@@ -142,16 +83,7 @@ html.dark {
 
 .header-menu-bar .menu-link {
     text-transform: capitalize;
-    text-decoration: none;
     margin-left: 1rem;
-    font-weight: 500;
-    color: var(--text-color);
-    font-weight: 18px;
-}
-
-.header-menu-bar .menu-link-right {
-    text-transform: capitalize;
-    margin-right: 1rem;
     font-weight: 600;
     color: var(--text-color);
 }
@@ -270,11 +202,14 @@ html.dark {
         display: none;
     }
 }
+
+</style>
+<style>
      /* specific to docs */
      body.article {
       max-width: 100% !important;
       margin: 0;
-      padding: 0px .75rem !important;
+      padding: 0px;
      }
 
      body .body {
@@ -316,7 +251,7 @@ html.dark {
         </div>
     <!-- desktop navbar -->
     <div id="desktopNav" class="left-menubar">
-        <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
+        <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img  src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
         <a href="{% url 'news' %}" class="menu-link {% active_link 'news' css_class=' menu-link active-link' inactive_class='menu-link' %}">news</a>
         <a href="{% url 'docs' %}" class="menu-link {% active_link 'docs||docs-user-guide' css_class=' menu-link active-link' inactive_class='menu-link' %}">learn</a>
         <a href="{% url 'community' %}"  class="menu-link {% active_link 'community' css_class=' menu-link active-link' inactive_class='menu-link' %}">community</a>
