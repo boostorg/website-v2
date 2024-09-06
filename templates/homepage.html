@@ -5,32 +5,41 @@
 
 {% block content %}
   {# homepage hero #}
-  <main class="px-4 my-16 mx-auto sm:mt-16">
+  <main class="px-4 my-4 mx-auto sm:mt-4">
     <div class="md:flex mb-16 md:mb-5">
+<style>
+  .toon {
+    background-image: url('{% static 'img/boost-toon.png' %}');
+    background-size: cover;
+    width: 100%;
+    min-height: 19rem;
+  }
+</style>
 
-      <div class="text-center md:text-left md:w-1/2">
-        <h1 class="text-4xl font-extrabold md:text-5xl lg:text-6xl">
-          <span class="block xl:inline">The Boost C++ Libraries are open source, peer-reviewed, portable and free </span>
-        </h1>
-        <p class="mx-auto pb-0 mt-3 max-w-md text-base md:text-lg md:mt-5 md:mb-3 md:max-w-3xl lg:text-2xl">Created by experts to be reliable, skillfully-designed, and well-tested.</p>
-        <p class="mx-auto max-w-md text-xs md:text-sm md:mb-5 md:max-w-3xl lg:text-lg">Proposed for <a href="https://boost.org/" target="_blank" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">boost.org</a>.</span></p>
-
-      </div>
-      <div class="mt-6 w-full text-center md:mt-3 md:w-1/2">
-        <div class="mx-auto group flex justify-center items-center mt-5 space-y-3 max-w-md md:mt-8 md:space-y-0">
-          <a href="{% url 'releases-most-recent' %}" class="w-80 flex justify-left items-center py-4 pl-6 md:pl-3 text-base font-medium link-header text-white rounded-md border md:text-lg border-orange bg-orange dark:bg-charcoal dark:hover:bg-charcoal/75">
-            <i class="pl-2 pr-7 md:pr-6 text-white group-hover:text-sky-600 fas fa-arrow-circle-down dark:text-orange"></i> Download the Latest Release
-          </a>
+      <div class="mt-6 w-full text-center md:mt-3 flex flex-col-reverse md:flex-row justify-between">
+        <div class="flex md:flex-col items-center justify-top">
+          <div class="hidden md:block toon w-max h-max mx-auto my-3 rounded-lg"></div>
+          <div class="mx-auto group flex justify-center items-center mt-5 space-y-3 max-w-md md:mt-8 md:space-y-0 ">
+            <a href="{% url 'releases-most-recent' %}" class="w-80 flex justify-left items-center py-4 pl-6 md:pl-3 text-base font-medium link-header text-white hover:text-white hover:bg-sky-600 hover:border-white dark:hover:bg-sky-600 rounded-md border md:text-lg border-orange bg-orange dark:bg-charcoal dark:hover:bg-charcoal/75">
+              <i class="pl-2 pr-4 md:pr-2 text-white fas fa-arrow-circle-down dark:text-orange dark:group-hover:text-sky-600 dark:group-hover:border-orange"></i> Download the Latest Release
+            </a>
+          </div>
         </div>
+        <div class="text-center grow flex-col md:ml-6 md:text-left md:w-1/2 flex items-center">
+          <h1 class="text-4xl font-extrabold md:text-5xl lg:text-6xl">
+            <span class="block xl:inline">The <span class="active-link">Boost</span> C++ Libraries are open source, peer-reviewed, portable and free </span>
+          </h1>
+          <p class=" pb-0 mt-3 max-w-md text md:text-lg md:mt-5 md:mb-3 md:max-w-3xl lg:text-2xl">Created by experts to be reliable, skillfully-designed, and well-tested.</p>
+          <p class=" max-w-md text-right text-xs md:text-sm md:self-end md:mb-5 md:max-w-3xl lg:text-lg">Proposed for <a href="https://boost.org/" target="_blank" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">boost.org</a>.</span></p>
 
+        </div>
       </div>
     </div>
 
     <div class="p-6 dark:text-white text-slate bg-white rounded-lg dark:bg-charcoal dark:bg-neutral-700">
       <div class="lg:flex">
         <div class="lg:order-last lg:w-1/2 px-4 pt-2">
-          <h5
-          class="text-3xl leading-tight text-orange mb-2">Boost Mission</h5>
+          <h5 class="text-3xl leading-tight text-orange mb-2">Boost Mission</h5>
           <ul class="mb-0 pl-2 ml-6 space-y-2 list-disc">
           <li>development of high quality, expert reviewed, legally unencumbered, open-source libraries,</li>
           <li>inspiring standard enhancements, and</li>
