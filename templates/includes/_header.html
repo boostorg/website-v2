@@ -146,7 +146,7 @@ html.dark {
     margin-left: 1rem;
     font-weight: 500;
     color: var(--text-color);
-    font-weight: 18px;
+    font-size: 18px;
 }
 
 .header-menu-bar .menu-link-right {
@@ -154,6 +154,7 @@ html.dark {
     margin-right: 1rem;
     font-weight: 600;
     color: var(--text-color);
+    font-size: 18px;
 }
 
 .icon-link {
@@ -210,7 +211,7 @@ html.dark {
 #pageselector {
     text-transform: capitalize;
     margin-left: 1rem;
-    font-weight: 600;
+    font-weight: 500;
     display:flex;
     position: absolute;
     top: 0.25rem;
@@ -278,8 +279,8 @@ html.dark {
      }
 
      body .body {
-      margin: 0px 1.25rem;
-      padding: 1rem 0rem 0;
+      margin: 0px 1rem;
+      padding: 1.5rem 0rem 0;
       max-width: 80rem;
     }
 
@@ -504,4 +505,18 @@ html.dark {
             setTheme(localStorage.getItem("colorMode"));
         }
 
+        function removejscssfile(filename, filetype){
+          var targetelement=(filetype=="js")? "script" : (filetype=="css")? "link" : "none" //determine element type to create nodelist from
+          var targetattr=(filetype=="js")? "src" : (filetype=="css")? "href" : "none" //determine corresponding attribute to test for
+          var allsuspects=document.getElementsByTagName(targetelement)
+            for (var i=allsuspects.length; i>=0; i--){ //search backwards within nodelist for matching elements to remove
+            if (allsuspects[i] && allsuspects[i].getAttribute(targetattr)!=null && allsuspects[i].getAttribute(targetattr).indexOf(filename)!=-1)
+                allsuspects[i].parentNode.removeChild(allsuspects[i]) //remove element by calling parentNode.removeChild()
+            }
+        }
+        document.onreadystatechange = () => {
+          if (document.readyState === 'complete') {
+            removejscssfile("boostbook.css", "css")
+          }
+        }
     </script>
