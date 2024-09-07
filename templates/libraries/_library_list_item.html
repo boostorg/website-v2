@@ -32,9 +32,9 @@ onclick="window.location='{% if version %}{% url 'library-detail-by-version' slu
       </span>
     </div>
 {#<div class="w-1/6 tracking-wider text-charcoal dark:text-white/60">{% if library.first_boost_version %}{{ library.first_boost_version.release_date|years_since }} yrs{% endif %}</div>#}
-    <div class="w-5/6 text-right font-bold capitalize text-sky-600 dark:text-sky-300">
+    <div class="w-5/6 text-right font-bold capitalize  text-sky-600 dark:text-sky-300">
       {% for c in library.categories.all %}
-        <a href="{% url 'libraries' %}?category={{ c.slug }}{% if version %}&version={{ version.slug }}{% endif %}">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+        <a href="{% url 'libraries' %}?category={{ c.slug }}{% if version %}&version={{ version.slug }}{% endif %}" class="hover:text-orange">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
     </div>
   </div>
 </div>
