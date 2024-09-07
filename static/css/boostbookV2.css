@@ -135,7 +135,7 @@ Body defaults
     pre { background-color: var(--code-bg-color);}
 
     body > .section, body > .chapter {
-        margin-top: 1rem;
+        margin-top: 1.5rem;
         padding: 1rem;
         background-color: var(--card-color);
         border-radius: 0.5rem;
@@ -314,7 +314,7 @@ Spirit style navigation
     .spirit-nav
     {
         position: absolute;
-        top: 3.5rem;
+        top: 4rem;
         right: calc(((100% - 80rem) / 2));
         text-align: right;
         margin: 0.75rem;
