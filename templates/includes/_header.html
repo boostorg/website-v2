@@ -110,6 +110,7 @@ html.dark {
     max-width: 80rem;
     margin: 0 auto;
     color: var(--text-color);
+    font-family: "Noto Sans" !important;
 }
 
 .dark .header-menu-bar {
@@ -144,7 +145,7 @@ html.dark {
     text-transform: capitalize;
     text-decoration: none;
     margin-left: 1rem;
-    font-weight: 400;
+    font-weight: 500;
     color: var(--text-color);
     font-size: 18px;
 }
@@ -152,7 +153,7 @@ html.dark {
 .header-menu-bar .menu-link-right {
     text-transform: capitalize;
     margin-right: 1rem;
-    font-weight: 400;
+    font-weight: 500;
     color: var(--text-color);
     font-size: 18px;
 }
@@ -211,7 +212,7 @@ html.dark {
 #pageselector {
     text-transform: capitalize;
     margin-left: 1rem;
-    font-weight: 400;
+    font-weight: 500;
     display:flex;
     position: absolute;
     top: 0.25rem;
@@ -250,7 +251,7 @@ html.dark {
     align-items: center;
     justify-content: space-between;
     padding-left: 10px;
-    font-weight: 400;
+    font-weight: 500;
     font-size: 18px;
 }
 
@@ -273,14 +274,20 @@ html.dark {
         display: none;
     }
 }
-     /* specific to docs */
-     body.article {
+    /* specific to docs */
+    body.article {
       max-width: 100% !important;
       margin: 0;
       padding: 0px .75rem !important;
-     }
+    }
 
-     body .body {
+    body.article .menu-link,
+    body.article .menu-link-right,
+    body.article #selectedpage {
+      font-weight: 550 !important;
+    }
+
+    body .body {
       margin: 0px 1rem;
       padding: 1.5rem 0rem 0;
       max-width: 80rem;
@@ -288,13 +295,19 @@ html.dark {
 
     body.article  #headblock {
       padding: 0.25rem 1rem !important;
-     }
+    }
+
+    article.card {
+      border-radius: .5rem;
+      padding-top: .5rem !important;
+    }
 
     @media (min-width: 768px) {
       body.article {
         max-width: 80rem !important;
         margin: auto;
         padding: 0px 2.25rem;
+        border-radius: .5rem;
      }
 
     body.article  #headblock {

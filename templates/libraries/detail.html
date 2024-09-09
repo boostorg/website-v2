@@ -72,7 +72,7 @@
             <p class="pt-4 mt-4 whitespace-normal text-lg border-t border-gray-700">{{ object.description }}</p>
           </div>
 
-          <div class="-ml-2 h-16">
+          <div class="-ml-2 min-h-16">
             {% if documentation_url %}
             <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
               href="{{ documentation_url }}">
@@ -81,7 +81,7 @@
             </a>
             {% endif %}
           </div>
-          <div class="-ml-2 h-16">
+          <div class="-ml-2 min-h-16">
             <a
               class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
               href="{{ object.github_issues_url }}">
@@ -90,7 +90,7 @@
               <span class="block text-xs whitespace-pre-line mb-2">{{ object.github_issues_url|cut:"https://" }}</span>
             </a>
           </div>
-          <div class="-ml-2 h-16">
+          <div class="-ml-2 min-h-16">
             <a
               class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
               href="{{ github_url }}">
