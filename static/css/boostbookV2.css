@@ -127,7 +127,7 @@ Body defaults
         background-color: var(--bg-color) !important;
         color: var(--text-color);
         max-width: 80rem;
-        padding:0rem 1rem;
+        padding:0rem 0.75rem;
         margin: auto;
     }
 
