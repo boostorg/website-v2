@@ -135,7 +135,7 @@ Body defaults
     pre { background-color: var(--code-bg-color);}
 
     body > .section, body > .chapter {
-        margin-top: 1.5rem;
+        margin: 1.5rem 1rem;
         padding: 1rem;
         background-color: var(--card-color);
         border-radius: 0.5rem;
@@ -323,7 +323,7 @@ Spirit style navigation
 
     @media screen and (max-width: 80rem) {
         .spirit-nav {
-            right: 1rem;
+            right: 2rem;
         }
     }
 
@@ -565,6 +565,10 @@ Misc
 
     hr {
         display:none;
+    }
+
+    .header-menu-bar {
+        padding: 0 0.75rem !important;
     }
 
 /*=============================================================================
