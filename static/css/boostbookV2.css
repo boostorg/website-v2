@@ -143,11 +143,15 @@ Body defaults
         border-radius: 0.5rem;
     }
 
-    @media screen and (max-width < 769) {
+    @media screen and (max-width: 768px) {
+        body {
+            padding: 0;
+        }
+
         body > .section,
         body > .chapter {
-            margin-top: 1.5rem;
-            padding: 0;
+            margin: 1.5rem 0;
+            padding: 1rem;
             background-color: var(--card-color);
             border-radius: 0rem;
         }
@@ -336,6 +340,12 @@ Spirit style navigation
     @media screen and (max-width: 80rem) {
         .spirit-nav {
             right: 2rem;
+        }
+    }
+
+    @media screen and (max-width: 768px) {
+        .spirit-nav {
+            right: 0.5rem;
         }
     }
 
@@ -580,7 +590,8 @@ Misc
     }
 
     .header-menu-bar {
-        padding: 0 0.75rem !important;
+        padding: 0 1rem !important;
+        height: 40px !important;
     }
 
 /*=============================================================================
