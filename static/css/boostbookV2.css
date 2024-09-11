@@ -4,6 +4,8 @@ Modified 2024 Rob Beeston
 Copyright (c) 2004 Joel de Guzman
 http://spirit.sourceforge.net/
 
+static/css/
+
 Copyright 2013 Niall Douglas additions for colors and alignment.
 Copyright 2013 Paul A. Bristow additions for more colors and alignments.
 Copyright 2017 Tom Westerhout font fixes to support Sphinx
@@ -141,7 +143,7 @@ Body defaults
         border-radius: 0.5rem;
     }
 
-    @media screen and (max-width <= 768) {
+    @media screen and (max-width < 769) {
         body > .section,
         body > .chapter {
             margin-top: 1.5rem;
