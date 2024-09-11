@@ -177,6 +177,7 @@ html.dark {
       min-width: 10rem;
       padding: .5rem 1rem;
       border-bottom: var(--border-color) 1px solid;
+      text-transform: capitalize;
     }
 
 #avatar svg {
@@ -198,6 +199,10 @@ html.dark {
     padding-left: 10px;
     font-weight: 500;
     font-size: 18px;
+}
+
+#pageName {
+  text-transform: capitalize;
 }
 
 @media screen and (min-width: 768px) {
@@ -255,9 +260,21 @@ html.dark {
         padding: 0px 2.25rem;
         border-radius: .5rem;
      }
+    }
+
+    @media (max-width: 769px) {
+      body.article {
+        padding: 0px !important;
+        border-radius: 0rem !important;
+        margin: 0 !important;
+     }
 
     body.article  #headblock {
       padding: 0.25rem 0.5rem !important;
+     }
+
+     body.body {
+      margin: 0;
      }
 
     }
@@ -265,25 +282,25 @@ html.dark {
 </style>
 <div class="header-menu-bar topnavbar">
     <!-- mobile navbar -->
-     <div id="mobileNav" >
-        <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img  src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
-        <div id="selectedpage" onclick="openNav()" class=""><div id="pageName" class="capitalize">where</div><div class="material-symbols-outlined ml-1">arrow_drop_down</div></div>
-        <div id="pageselector" onmouseleave="closeNav()" class="hide"  >
-            <div class="mobile-menu-item"><a href="{% url 'news' %}" title="News">News</a></div>
-            <div class="mobile-menu-item"><a href="{% url 'docs' %}" title="Learn">Learn</a></div>
-            <div class="mobile-menu-item"><a href="{% url 'community' %}" title="Community">Community</a></div>
-            <div class="mobile-menu-item"><a href="{% url 'libraries' %}" title="Libraries">Libraries</a></div>
-            <div class="mobile-menu-item"><a href="{% url 'releases-most-recent' %}" title="Releases">Releases</a></div>
-        </div>
-        </div>
+    <div id="mobileNav" >
+      <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img  src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
+      <div id="selectedpage" onclick="openNav()" class=""><div id="pageName" class="capitalize">where</div><div class="material-symbols-outlined ml-1">arrow_drop_down</div></div>
+      <div id="pageselector" onmouseleave="closeNav()" class="hide"  >
+          <div class="mobile-menu-item"><a href="{% url 'news' %}" title="News">News</a></div>
+          <div class="mobile-menu-item"><a href="{% url 'docs' %}" title="Learn">Learn</a></div>
+          <div class="mobile-menu-item"><a href="{% url 'community' %}" title="Community">Community</a></div>
+          <div class="mobile-menu-item"><a href="{% url 'libraries' %}" title="Libraries">Libraries</a></div>
+          <div class="mobile-menu-item"><a href="{% url 'releases-most-recent' %}" title="Releases">Releases</a></div>
+      </div>
+    </div>
     <!-- desktop navbar -->
     <div id="desktopNav" class="left-menubar">
         <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
-        <a href="{% url 'news' %}" class="menu-link {% active_link 'news' css_class=' menu-link active-link' inactive_class='menu-link' %}">news</a>
-        <a href="{% url 'docs' %}" class="menu-link {% active_link 'docs||docs-user-guide' css_class=' menu-link active-link' inactive_class='menu-link' %}">learn</a>
-        <a href="{% url 'community' %}"  class="menu-link {% active_link 'community' css_class=' menu-link active-link' inactive_class='menu-link' %}">community</a>
-        <a href="{% url 'libraries' %}" class="menu-link {% active_link 'libraries||docs-libs-page' css_class=' menu-link active-link' inactive_class='menu-link' %}">libraries</a>
-        <a href="{% url 'releases-most-recent' %}" class="menu-link {% active_link 'releases-most-recent' css_class=' menu-link active-link' inactive_class='menu-link' %}">releases</a>
+        <a href="{% url 'news' %}" id="news" class="menu-link {% active_link 'news' css_class=' menu-link active-link' inactive_class='menu-link' %}">news</a>
+        <a href="{% url 'docs' %}" id="learn" class="menu-link {% active_link 'docs||docs-user-guide' css_class=' menu-link active-link' inactive_class='menu-link' %}">learn</a>
+        <a href="{% url 'community' %}" id="community" class="menu-link {% active_link 'community' css_class=' menu-link active-link' inactive_class='menu-link' %}">community</a>
+        <a href="{% url 'libraries' %}" id="libraries" class="menu-link {% active_link 'libraries||docs-libs-page' css_class=' menu-link active-link' inactive_class='menu-link' %}">libraries</a>
+        <a href="{% url 'releases-most-recent' %}" id="releases" class="menu-link {% active_link 'releases-most-recent' css_class=' menu-link active-link' inactive_class='menu-link' %}">releases</a>
     </div>
     <div class="right-menubar" x-data="{ 'searchOpen': false }">
         <span style="position: relative;" x-ref="desktopSearchArea">
@@ -365,10 +382,8 @@ html.dark {
       var pagename = document.getElementById("pageName")
       switch (words[1]) {
         case 'doc':
-        tabname = "Learn"
-        break;
         case 'docs':
-        tabname = "Learn"
+        tabname = "learn"
         break;
         case 'community':
         tabname = "community"
@@ -384,6 +399,8 @@ html.dark {
         break;
       }
       pagename.innerText='';
+      var activename = document.getElementById(tabname);
+      activename.classList.add('active-link');
       pagename.appendChild(document.createTextNode(tabname));
 
       function openNav() {
