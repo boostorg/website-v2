@@ -277,7 +277,7 @@ html.dark {
     <!-- mobile navbar -->
     <div id="mobileNav" >
       <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img  src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
-      <div id="selectedpage" onclick="openNav()" class=""><div id="pageName" class="capitalize">where</div><div class="material-symbols-outlined ml-1">arrow_drop_down</div></div>
+      <div id="selectedpage" onclick="openNav()" class=""><div id="pageName" class="capitalize">where</div><div class="material-symbols-outlined">arrow_drop_down</div></div>
       <div id="pageselector" onmouseleave="closeNav()" class="hide"  >
           <div class="mobile-menu-item"><a href="{% url 'news' %}" title="News">News</a></div>
           <div class="mobile-menu-item"><a href="{% url 'docs' %}" title="Learn">Learn</a></div>
@@ -371,29 +371,32 @@ html.dark {
       words[1] = words[1].replaceAll("\/", "");
       console.log(words[1])
       var tabname = "Home"
-
       var pagename = document.getElementById("pageName")
-      switch (words[1]) {
-        case 'doc':
-        case 'docs':
-        tabname = "learn"
-        break;
-        case 'community':
-        tabname = "community"
-        break;
-        case 'news':
-        tabname = "news"
-        break;
-        case 'libraries':
-        tabname = "libraries"
-        break;
-        case 'releases':
-        tabname = "releases"
-        break;
+
+      if (words[1].length != '') {
+        switch (words[1]) {
+          case 'doc':
+          case 'docs':
+          tabname = "learn"
+          break;
+          case 'community':
+          tabname = "community"
+          break;
+          case 'news':
+          tabname = "news"
+          break;
+          case 'libraries':
+          tabname = "libraries"
+          break;
+          case 'releases':
+          tabname = "releases"
+          break;
+        }
+        var activename = document.getElementById(tabname);
+        activename.classList.add('active-link');
       }
+
       pagename.innerText='';
-      var activename = document.getElementById(tabname);
-      activename.classList.add('active-link');
       pagename.appendChild(document.createTextNode(tabname));
 
       function openNav() {
