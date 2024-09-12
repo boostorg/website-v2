@@ -7,15 +7,15 @@
 {% block content %}
   <main class="content">
     {% if version %}
-    <div class="py-1 md:mt-3 px-0 mb-0 w-full mb-2 flex flex-row flex-nowrap items-center"
+    <div class="py-3 md:mt-3 px-0 mb-0 w-full flex flex-row flex-nowrap items-center"
             x-data="{'showSearch': false}"
             x-on:keydown.escape="showSearch=false">
-      <div class="flex-auto mb-2 w-full">
+      <div class="flex-auto pb-1 w-full">
 
         <div>
           <span class="text-xl md:text-3xl">{{ heading }}</span>
           <span class="text-lg whitespace-nowrap md:text-xl  pr-[1vw]">({{ version.display_name }})</span>
-          <span><a href="{% url 'downloads_feed_rss' %}">RSS Feed</a></span>
+          <span><a href="{% url 'downloads_feed_rss' %}" class="text-sky-600 dark:text-sky-400 hover:text-orange"><i class="fa-solid fa-rss"></i> RSS</a></span>
         </div>
       </div>
       <div class="flex-shrink text-right">

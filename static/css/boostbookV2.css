@@ -186,6 +186,7 @@ Program listings
         margin: 1pc 4% 0pc 4%;
         padding: 0.5pc 0.5pc 0.5pc 0.5pc;
         color: var(--text-color);
+        overflow-x: auto;
     }
 
     div.highlight,
@@ -197,6 +198,7 @@ Program listings
         margin: 1pc 4% 0pc 4%;
         padding: 0.5pc 0.5pc 0.5pc 0.5pc;
         color: var(--text-color);
+        overflow-x: auto;
     }
 
     /* Program listings in tables don't get borders */
