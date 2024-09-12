@@ -305,7 +305,7 @@ html.dark {
         </span>
         <span x-data="{ 'guideOpen': false }" style="position:relative;">
             <i class="icon-link fas fa-question-circle" @click="guideOpen = !guideOpen"></i>
-                <div x-show="guideOpen" x-cloak @click.away="guideOpen = false" id="guideMenu" class="guide-modal">
+                <div x-show="guideOpen" x-cloak @click.away="guideOpen = false" id="guideMenu" class="guide-modal hidden">
                     <a href="/doc/user-guide/index.html">User Guide</a>
                     <a href="/doc/contributor-guide/index.html">Contributor Guide</a>
                     <a href="/doc/formal-reviews/index.html">Formal Reviews</a>
@@ -491,6 +491,8 @@ html.dark {
       document.onreadystatechange = () => {
         if (document.readyState === 'complete') {
           removejscssfile("boostbook.css", "css")
+          var guide = document.getElementById("guideMenu")
+          guide.classList.remove("hidden");
         }
       }
     </script>
