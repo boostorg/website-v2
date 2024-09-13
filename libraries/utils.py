@@ -11,6 +11,12 @@ from django.utils.text import slugify
 from django.urls import reverse
 from django.shortcuts import redirect
 
+from libraries.constants import (
+    DEFAULT_LIBRARIES_LANDING_VIEW,
+    SELECTED_BOOST_VERSION_COOKIE_NAME,
+    SELECTED_LIBRARY_VIEW_COOKIE_NAME,
+)
+
 logger = structlog.get_logger()
 
 
@@ -30,165 +36,6 @@ def generate_fake_email(val: str) -> str:
     slug = slugify(val)
     local_email = slug.replace("-", "_")[:50]
     return f"{local_email}@example.com"
-
-
-def generate_library_docs_url(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    General use
-    """
-    return f"/doc/libs/{boost_url_slug}/libs/{library_slug}/doc/html/index.html"
-
-
-def generate_library_docs_url_v2(boost_url_slug, library_slug):
-    """ "Generate a documentation url with a specific format
-
-    For use primarily with IO, versions 1.73.0 and up
-    """
-    new_boost_url_slug = boost_url_slug.replace("boost_", "")
-    return f"/doc/libs/{new_boost_url_slug}/libs/{library_slug}/doc/html/{library_slug}.html"  # noqa
-
-
-def generate_library_docs_url_v3(boost_url_slug, library_slug):
-    """ "Generate a documentation url with a specific format
-
-    For use primarily with IO, versions 1.64.0-1.72.
-    """
-    return f"/doc/libs/{boost_url_slug}/libs/{library_slug}/doc/index.html"
-
-
-def generate_library_docs_url_v4(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    First used for Any, versions 1.33.0 and older
-    """
-    return f"/doc/libs/{boost_url_slug}/doc/html/{library_slug}.html"
-
-
-def generate_library_docs_url_bind_v1(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    First used for Member Function, versions 1.60.0 and older
-    """
-    return f"/doc/libs/{boost_url_slug}/libs/bind/doc/html/{library_slug}.html"
-
-
-def generate_library_docs_url_bind_v2(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    First used for Member Function, versions 1.60.0 and older
-    """
-    return f"/doc/libs/{boost_url_slug}/libs/bind/{library_slug}.html"
-
-
-def generate_library_docs_url_math_v1(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    First used for Math Common Factor, versions 1.60.0 and older
-    """
-    return f"/doc/libs/{boost_url_slug}/libs/math/doc/html/{library_slug}.html"
-
-
-def generate_library_docs_url_utility_v1(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    First used for Call Traits, versions 1.60.0 and below.
-    """
-    return f"/doc/libs/{boost_url_slug}/libs/utility/{library_slug}.htm"
-
-
-def generate_library_docs_url_utility_v2(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    First used for Identity Types, version 1.60.0 and below.
-    """
-    return f"/doc/libs/{boost_url_slug}/libs/utility/{library_slug}/doc/html/index.html"
-
-
-def generate_library_docs_url_utility_v3(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    Same as v1, but .html and not .htm
-
-    First used for In Place Factories, version 1.60.0 and below.
-    """
-    return f"/doc/libs/{boost_url_slug}/libs/utility/{library_slug}.html"
-
-
-def generate_library_docs_url_circular_buffer(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    First used with Circular Buffer v. 1.54.0 and before"""
-    return f"/doc/libs/{boost_url_slug}/libs/{library_slug}/doc/{library_slug}.html"
-
-
-def generate_library_docs_url_core(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    First used for Enable If, versions 1.60.0 and below.
-    """
-    return f"/doc/libs/{boost_url_slug}/libs/core/doc/html/core/{library_slug}.html"
-
-
-def generate_library_docs_url_double_nested_library_html(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    First used for Dynamic Bitset, versions 1.60.0 and below.
-    """
-    return f"/doc/libs/{boost_url_slug}/libs/{library_slug}/{library_slug}.html"
-
-
-def generate_library_docs_url_double_nested_library_htm(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    Ends in .htm, not .html
-
-    First used for Dynamic Bitset, versions 1.60.0 and below.
-    """
-    return f"/doc/libs/{boost_url_slug}/libs/{library_slug}/{library_slug}.htm"
-
-
-def generate_library_docs_url_algorithm(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    First used with Min Max, versions 1.60.0 and below"""
-    return f"/doc/libs/{boost_url_slug}/libs/algorithm/{library_slug}/index.html"
-
-
-def generate_library_docs_url_numeric(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    First used with Interval, versions 1.60.0 and below"""
-    return (
-        f"/doc/libs/{boost_url_slug}/libs/numeric/{library_slug}/doc/{library_slug}.htm"
-    )
-
-
-def generate_library_docs_url_numeric_2(boost_url_slug, library_slug):
-    """Generate a documentation url with a specific format
-
-    First used with Interval, versions 1.60.0 and below"""
-    return f"/doc/libs/{boost_url_slug}/libs/numeric/{library_slug}/doc/html/index.html"
-
-
-def generate_library_docs_url_string_ref(boost_url_slug, library_slug):
-    """Generate a documentation URL for the string-ref library-versions"""
-    return f"/doc/libs/{boost_url_slug}/libs/utility/doc/html/{library_slug}.html"
-
-
-def generate_library_docs_url_string_view(boost_url_slug, library_slug):
-    """Generate a documentation URL for the string-view library-versions"""
-    return f"/doc/libs/{boost_url_slug}/libs/utility/doc/html/utility/utilities/{library_slug}.html"  # noqa
-
-
-def generate_library_docs_url_throwexception(boost_url_slug, library_slug):
-    """Generate a documentation URL for the string-view library-versions"""
-    return f"/doc/libs/{boost_url_slug}/libs/exception/doc/{library_slug}.html"
-
-
-def generate_library_docs_url_utility_anchor(boost_url_slug, library_slug):
-    """Generate a documentation URL for a URL that uses an anchor"""
-    return f"/doc/libs/{boost_url_slug}/libs/utility/utility.htm#{library_slug}"
 
 
 def generate_random_string(length=4):
@@ -244,5 +91,76 @@ def redirect_to_view_with_params(view_name, params, query_params):
     """Redirect to a view with parameters and query parameters."""
     base_url = reverse(view_name, kwargs=params)
     query_string = urlencode(query_params)
-    url = "{}?{}".format(base_url, query_string)
+    url = base_url
+    if query_string:
+        url = "{}?{}".format(base_url, query_string)
     return redirect(url)
+
+
+def get_version_from_url(request):
+    return request.GET.get("version")
+
+
+def get_version_from_cookie(request):
+    return request.COOKIES.get(SELECTED_BOOST_VERSION_COOKIE_NAME)
+
+
+def get_view_from_url(request):
+    return request.GET.get("view")
+
+
+def get_view_from_cookie(request):
+    return request.COOKIES.get(SELECTED_LIBRARY_VIEW_COOKIE_NAME)
+
+
+def set_view_in_cookie(response, view):
+    response.set_cookie(SELECTED_LIBRARY_VIEW_COOKIE_NAME, view)
+
+
+def get_prioritized_version(request):
+    """
+    Version Priorities:
+    1. URL parameter
+    2. Cookie
+    3. Default to latest version
+    """
+    url_version = get_version_from_url(request)
+    cookie_version = get_version_from_cookie(request)
+    default_version = None
+    return url_version or cookie_version or default_version
+
+
+def get_prioritized_library_view(request):
+    """
+    View Priorities:
+    1. URL parameter
+    2. Cookie
+    3. Default to grid view
+    """
+    url_view = get_view_from_url(request)
+    cookie_view = get_view_from_cookie(request)
+    return url_view or cookie_view or DEFAULT_LIBRARIES_LANDING_VIEW
+
+
+def build_view_query_params_from_request(request):
+    query_params = {}
+    version = get_prioritized_version(request)
+    category = get_category(request)
+    if version and version != "latest":
+        query_params["version"] = version
+    if category:
+        query_params["category"] = category
+    return query_params
+
+
+def get_category(request):
+    return request.GET.get("category", "")
+
+
+def build_route_name_for_view(view):
+    return f"libraries-{view}"
+
+
+def determine_view_from_library_request(request):
+    split_path_info = request.path_info.split("/")
+    return None if split_path_info[-2] == "libraries" else split_path_info[-2]
