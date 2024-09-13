@@ -19,24 +19,24 @@
       <div class="mt-6 w-full text-center md:mt-3 flex flex-col-reverse md:flex-row justify-between">
         <div class="flex md:flex-col items-center justify-top">
           <div class="hidden md:block toon w-max h-max mx-auto my-3 rounded-lg"></div>
-          <div class="mx-auto group flex justify-center items-center mt-5 space-y-3 max-w-md md:mt-8 md:space-y-0 ">
+          <div class="mx-auto group flex justify-center items-center my-5 space-y-3 max-w-md md:mt-8 md:space-y-0 ">
             <a href="{% url 'releases-most-recent' %}" class="w-80 flex justify-left items-center py-4 pl-6 md:pl-3 text-base font-medium link-header text-white hover:text-white hover:bg-sky-600 hover:border-white dark:hover:bg-sky-600 rounded-md border md:text-lg border-orange bg-orange dark:bg-charcoal dark:hover:bg-charcoal/75">
               <i class="pl-2 pr-4 md:pr-2 text-white fas fa-arrow-circle-down dark:text-orange dark:group-hover:text-sky-600 dark:group-hover:border-orange"></i> Download the Latest Release
             </a>
           </div>
         </div>
-        <div class="text-center grow flex-col md:ml-6 md:text-left md:w-1/2 flex items-center">
-          <h1 class="text-4xl font-extrabold md:text-5xl lg:text-6xl">
+        <div class="text-center grow flex-col md:ml-6 md:text-left md:w-1/2 flex items-center justify-center">
+          <h1 class="text-4xl font-extrabold md:text-5xl md:leading-[3.5rem]">
             <span class="block xl:inline">The <span class="active-link">Boost</span> C++ Libraries are open source, peer-reviewed, portable and free </span>
           </h1>
-          <p class=" pb-0 mt-3 max-w-md text md:text-lg md:mt-5 md:mb-3 md:max-w-3xl lg:text-2xl">Created by experts to be reliable, skillfully-designed, and well-tested.</p>
-          <p class=" max-w-md text-right text-xs md:text-sm md:self-end md:mb-5 md:max-w-3xl lg:text-lg">Proposed for <a href="https://boost.org/" target="_blank" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">boost.org</a>.</span></p>
+          <p class=" pb-0 mt-3 max-w-md text md:text-lg md:mt-5 md:mb-3 md:max-w-3xl ">Created by experts to be reliable, skillfully-designed, and well-tested.</p>
+          <p class=" max-w-md text-right text-xs md:text-sm md:self-end md:mb-5 md:max-w-3xl">Proposed for <a href="https://boost.org/" target="_blank" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">boost.org</a>.</span></p>
 
         </div>
       </div>
     </div>
 
-    <div class="p-6 dark:text-white text-slate bg-white rounded-lg dark:bg-charcoal dark:bg-neutral-700">
+    <div class="p-6 dark:text-white text-slate bg-white rounded-lg dark:bg-charcoal dark:bg-neutral-700 shadow-lg">
       <div class="lg:flex">
         <div class="lg:order-last lg:w-1/2 px-4 pt-2">
           <h5 class="text-3xl leading-tight text-orange mb-2">Boost Mission</h5>
@@ -71,7 +71,7 @@
     </div>
 
     {% if events %}
-        <div class="my-12 mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-16 lg:mb-4 lg:space-y-0 lg:space-x-4">
+        <div class="my-12 mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-16 lg:mb-4 lg:space-y-0 lg:space-x-4 shadow-lg">
       <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
             <div class="w-full">
               <div class="mb-6">
@@ -133,7 +133,7 @@
 
 
     {% if featured_library %}
-    <div class="my-12 mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-16 lg:mb-4 lg:space-y-0 lg:space-x-4">
+    <div class="my-12 mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-16 lg:mb-4 lg:space-y-0 lg:space-x-4 shadow-lg">
       <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
           <div class="mb-6">
             <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">library spotlight</span>
@@ -190,7 +190,7 @@
     </div>
     {% endif %}
 
-    <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:space-y-0 lg:space-x-4">
+    <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:space-y-0 lg:space-x-4 shadow-lg">
       <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
           <div class="mb-6">
           <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">featured video</span>
@@ -207,7 +207,7 @@
       </div>
     </div>
 
-    <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:space-y-0 lg:space-x-4">
+    <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:space-y-0 lg:space-x-4 shadow-lg">
       <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
         <div class="mb-6">
           <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">recent news</span>
