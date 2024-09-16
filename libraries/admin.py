@@ -1,15 +1,65 @@
 from django.contrib import admin
+from django.db import transaction
+from django.db.models import F, Count, OuterRef, Window
+from django.db.models.functions import RowNumber
 from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
+from libraries.forms import CreateReportForm
 from versions.tasks import import_all_library_versions
-from .models import Category, CommitData, Issue, Library, LibraryVersion, PullRequest
+from .models import (
+    Category,
+    Commit,
+    CommitAuthor,
+    CommitAuthorEmail,
+    CommitData,
+    Issue,
+    Library,
+    LibraryVersion,
+    PullRequest,
+)
 from .tasks import (
     update_commit_counts,
     update_libraries,
     update_library_version_documentation_urls_all_versions,
 )
+
+
+@admin.register(Commit)
+class CommitAdmin(admin.ModelAdmin):
+    list_display = ["library_version", "sha", "author"]
+    autocomplete_fields = ["author", "library_version"]
+    list_filter = ["library_version__library"]
+    search_fields = ["sha", "author__name"]
+
+
+class CommitAuthorEmailInline(admin.TabularInline):
+    model = CommitAuthorEmail
+    extra = 0
+
+
+@admin.register(CommitAuthor)
+class CommitAuthorAdmin(admin.ModelAdmin):
+    search_fields = ["name"]
+    actions = ["merge_authors"]
+    inlines = [CommitAuthorEmailInline]
+
+    @admin.action(
+        description="Combine 2 or more authors into one. References will be updated."
+    )
+    def merge_authors(self, request, queryset):
+        objects = list(queryset)
+        if len(objects) < 2:
+            return
+        author = objects[0]
+        with transaction.atomic():
+            for other in objects[1:]:
+                author.merge_author(other)
+        message = "Merged authors -- " + ", ".join([x.name for x in objects])
+        self.message_user(request, message)
 
 
 @admin.register(Category)
@@ -93,7 +143,7 @@ class LibraryVersionInline(admin.TabularInline):
 
 @admin.register(Library)
 class LibraryAdmin(admin.ModelAdmin):
-    list_display = ["name", "key", "github_url"]
+    list_display = ["name", "key", "github_url", "view_stats"]
     search_fields = ["name", "description"]
     list_filter = ["categories"]
     ordering = ["name"]
@@ -104,8 +154,33 @@ class LibraryAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         my_urls = [
             path("update_libraries/", self.update_libraries, name="update_libraries"),
+            path(
+                "<int:pk>/stats/",
+                self.admin_site.admin_view(self.library_stat_detail),
+                name="library_stat_detail",
+            ),
+            path(
+                "report/",
+                self.admin_site.admin_view(self.report_view),
+                name="library-report",
+            ),
         ]
         return my_urls + urls
+
+    def report_view(self, request):
+        form = CreateReportForm()
+        context = {}
+        if request.GET.get("version", None):
+            form = CreateReportForm(request.GET)
+            if form.is_valid():
+                context.update(form.get_stats())
+        context["form"] = form
+        return TemplateResponse(request, "admin/library_report.html", context)
+
+    def view_stats(self, instance):
+        return mark_safe(
+            f"<a href='{reverse('admin:library_stat_detail', kwargs={'pk': instance.pk})}'>View Stats</a>"
+        )
 
     def update_libraries(self, request):
         """Run the task to refresh the library data from GitHub"""
@@ -118,6 +193,46 @@ class LibraryAdmin(admin.ModelAdmin):
         """,
         )
         return HttpResponseRedirect("../")
+
+    def library_stat_detail(self, request, pk):
+        library = self.get_object(request, pk)
+        commits_per_release = (
+            LibraryVersion.objects.filter(library_id=pk)
+            .annotate(count=Count("commit"), version_name=F("version__name"))
+            .order_by("-version__name")
+            .filter(count__gt=0)
+        )[:10]
+        commits_per_author = (
+            CommitAuthor.objects.filter(commit__library_version__library=library)
+            .annotate(count=Count("commit"))
+            .order_by("-count")[:20]
+        )
+        commits_per_author_release = (
+            LibraryVersion.objects.filter(library_id=pk)
+            .filter(commit__author__isnull=False)
+            .annotate(
+                count=Count("commit"),
+                row_number=Window(
+                    expression=RowNumber(), partition_by=["id"], order_by=["-count"]
+                ),
+            )
+            .values(
+                "count",
+                "commit__author",
+                "commit__author__name",
+                "version__name",
+                "commit__author__avatar_url",
+            )
+            .order_by("-version__name", "-count")
+            .filter(row_number__lte=3)
+        )
+        context = {
+            "object": library,
+            "commits_per_release": commits_per_release,
+            "commits_per_author": commits_per_author,
+            "commits_per_author_release": commits_per_author_release,
+        }
+        return TemplateResponse(request, "admin/library_stat_detail.html", context)
 
 
 @admin.register(LibraryVersion)

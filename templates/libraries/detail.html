@@ -141,6 +141,54 @@
     </section>
     {% endif %}
 
+    {% if top_contributors_release %}
+    <section class="p-6 pt-1 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+      <!-- Avatars -->
+      <h2 class="text-2xl">Top Contributors for {{ version.name }}</h2>
+      <div class="flex flex-wrap justify-start">
+      {% for author in top_contributors_release %}
+          <div class="p-1 md:p-2 w-min text-center">
+            <div class="bg-gray-300 dark:bg-slate rounded w-[80px] h-[80px] overflow-hidden">
+            {% if author.avatar_url %}
+              <img src="{{ author.avatar_url }}"
+                title="{{ author.name }}"
+                alt="{{ author.name }}"
+                class="rounded h-full w-full object-cover" />
+            {% else %}
+              <i class="py-4 px-5 text-5xl fas fa-user text-white dark:text-white/60 rounded" title="{{ author.name }}"></i>
+            {% endif %}
+            </div>
+            <span class="text-xs">{{ author.name }} ({{ author.count }})</span>
+          </div>
+      {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    {% if top_contributors_overall %}
+    <section class="p-6 pt-1 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+      <!-- Avatars -->
+      <h2 class="text-2xl">Top Contributors Overall</h2>
+      <div class="flex flex-wrap justify-start">
+      {% for author in top_contributors_overall %}
+          <div class="p-1 md:p-2 w-min text-center">
+            <div class="bg-gray-300 dark:bg-slate rounded w-[80px] h-[80px] overflow-hidden">
+            {% if author.avatar_url %}
+              <img src="{{ author.avatar_url }}"
+                title="{{ author.name }}"
+                alt="{{ author.name }}"
+                class="rounded h-full w-full object-cover" />
+            {% else %}
+              <i class="py-4 px-5 text-5xl fas fa-user text-white dark:text-white/60 rounded" title="{{ author.name }}"></i>
+            {% endif %}
+            </div>
+            <span class="text-xs">{{ author.name }}</span>
+          </div>
+      {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
     {% if description %}
       <section id="libraryReadMe"
         class="p-6 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
@@ -154,7 +202,7 @@
     var options = {
       series: [{
         name: 'Commits',
-        data: [{% for commit_data in commit_data_last_12_months %}{{ commit_data.commit_count }}, {% endfor %}]
+        data: [{% for commit_data in commit_data_by_release %}{{ commit_data.commit_count }}, {% endfor %}]
       }],
       chart: {
         height: 350,
@@ -190,7 +238,7 @@
       },
 
       xaxis: {
-        categories: [{% for commit_data in commit_data_last_12_months %}"{{ commit_data.date|date:'M' }}",{% endfor %}],
+        categories: [{% for commit_data in commit_data_by_release %}"{{ commit_data.release }}",{% endfor %}],
         position: 'top',
         axisBorder: {
           show: false
@@ -220,7 +268,7 @@
 
       },
       title: {
-        text: 'Commits per Month',
+        text: 'Commits Per Release',
         floating: true,
         offsetY: 330,
         align: 'center',

@@ -3,7 +3,7 @@ import datetime
 import structlog
 from dateutil.relativedelta import relativedelta
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import F, Q, Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -16,7 +16,7 @@ from versions.models import Version
 
 from .forms import VersionSelectionForm
 from .mixins import VersionAlertMixin
-from .models import Category, CommitData, Library, LibraryVersion
+from .models import Category, CommitAuthor, CommitData, Library, LibraryVersion
 from .utils import redirect_to_view_with_params
 
 SELECTED_BOOST_VERSION_COOKIE_NAME = "boost_version"
@@ -322,10 +322,14 @@ class LibraryDetail(FormMixin, DetailView):
         context["github_url"] = self.get_github_url(context["version"])
         context["maintainers"] = self.get_maintainers(context["version"])
         context["author_tag"] = self.get_author_tag()
+        context["top_contributors_overall"] = self.get_top_contributors()
+        context["top_contributors_release"] = self.get_top_contributors(
+            version=context["version"]
+        )
 
         # Populate the commit graphs
         context["commit_data_annual"] = self.get_commit_data_annual()
-        context["commit_data_last_12_months"] = self.get_commit_data_last_12_months()
+        context["commit_data_by_release"] = self.get_commit_data_by_release()
 
         # Populate the library description
         client = GithubAPIClient(repo_slug=self.object.github_repo)
@@ -334,6 +338,20 @@ class LibraryDetail(FormMixin, DetailView):
         )
 
         return context
+
+    def get_commit_data_by_release(self):
+        qs = (
+            LibraryVersion.objects.filter(library=self.object)
+            .annotate(count=Count("commit"), version_name=F("version__name"))
+            .order_by("-version__name")
+        )[:20]
+        return [
+            {
+                "release": x.version_name.strip("boost-"),
+                "commit_count": x.count,
+            }
+            for x in reversed(list(qs))
+        ]
 
     def get_object(self):
         """Get the current library object from the slug in the URL.
@@ -480,6 +498,17 @@ class LibraryDetail(FormMixin, DetailView):
         obj = self.get_object()
         library_version = LibraryVersion.objects.get(library=obj, version=version)
         return library_version.maintainers.all()
+
+    def get_top_contributors(self, version=None):
+        if version:
+            library_version = LibraryVersion.objects.get(
+                library=self.object, version=version
+            )
+            qs = CommitAuthor.objects.filter(commit__library_version=library_version)
+        else:
+            qs = CommitAuthor.objects.filter(commit__library_version__library=self.object)
+        qs = qs.annotate(count=Count("commit")).order_by("-count")[:12]
+        return qs
 
     def get_version(self):
         """Get the version of Boost for the library we're currently looking at."""

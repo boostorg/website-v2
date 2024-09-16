@@ -3,6 +3,9 @@ import os
 import re
 from collections import defaultdict
 from datetime import datetime
+from socket import gaierror
+import time
+from urllib.error import URLError
 
 import requests
 import structlog
@@ -67,6 +70,26 @@ class GithubAPIClient:
             token = os.environ.get("GITHUB_TOKEN", None)
         return GhApi(token=token)
 
+    def with_retry(self, fn, retry_count=5):
+        count = 0
+        while count < 5:
+            count += 1
+            try:
+                output = fn()
+            except URLError as e:
+                if getattr(e, "args", None) and isinstance(
+                    e.args[0], gaierror
+                ):  # connection error
+                    if count == retry_count:
+                        raise e
+                    self.logger.warning(f"URLError: {e}")
+                    self.logger.info(f"Retry backoff {2**count} seconds.")
+                    time.sleep(2**count)
+                else:
+                    raise e
+            else:
+                return output
+
     def get_blob(self, repo_slug: str = None, file_sha: str = None) -> dict:
         """
         Get the blob from the GitHub API.
@@ -88,6 +111,14 @@ class GithubAPIClient:
         return self.api.git.get_commit(
             owner=self.owner, repo=repo_slug, commit_sha=commit_sha
         )
+
+    def get_repo_ref(self, repo_slug: str = None, ref: str = None) -> dict:
+        """Get a repo commit by ref."""
+        if not repo_slug:
+            repo_slug = self.repo_slug
+        return self.with_retry(lambda: self.api.repos.get_commit(
+            owner=self.owner, repo=repo_slug, ref=ref
+        ))
 
     def get_commits(
         self,
@@ -131,6 +162,58 @@ class GithubAPIClient:
             return []
 
         return all_commits
+
+    def compare(
+        self,
+        repo_slug: str = None,
+        ref_from: str = None,
+        ref_to: str = None,
+    ):
+        """Compare and get commits between 2 refs.
+
+        :param repo_slug: str, the repository slug. If not provided, the class
+            instance's repo_slug will be used.
+        :param ref_from: str, the ref to start from.
+        :param ref_to: str, the ref to end with.
+        :return: List[ComparePage], list of the pages returned by compare_commits
+        """
+        repo_slug = repo_slug or self.repo_slug
+
+        # Get the commits
+        all_pages = []
+        basehead = f"{ref_from}...{ref_to}"
+
+        try:
+            page = 1
+            per_page = 100
+            while True:
+                output = self.with_retry(
+                    lambda: self.api.repos.compare_commits(
+                        owner=self.owner,
+                        repo=repo_slug,
+                        basehead=basehead,
+                        per_page=per_page,
+                        page=page,
+                    )
+                )
+                if not output:
+                    break
+                all_pages.append(output)
+                if len(output["commits"]) < per_page:
+                    break
+                page += 1
+
+        except Exception as e:
+            self.logger.exception(
+                "compare refs failed",
+                repo=repo_slug,
+                ref_from=ref_from,
+                ref_to=ref_to,
+                exc_msg=str(e),
+            )
+            return []
+
+        return all_pages
 
     def get_first_tag(self, repo_slug: str = None):
         """

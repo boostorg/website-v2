@@ -1,8 +1,9 @@
 import re
+from typing import Self
 from urllib.parse import urlparse
 
 from django.core.cache import caches
-from django.db import models
+from django.db import models, transaction
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
@@ -69,6 +70,57 @@ class CommitData(models.Model):
             f"{self.library.name} commits for "
             f"{self.month_year:%B %Y} to {self.branch} branch: {self.commit_count}"
         )
+
+
+class CommitAuthor(models.Model):
+    name = models.CharField(max_length=100)
+    avatar_url = models.URLField(null=True, max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    @transaction.atomic
+    def merge_author(self, other: Self):
+        """Update references to `other` to point to `self`.
+
+        Deletes `other` after updating references.
+        """
+        if self.pk == other.pk:
+            return
+        Commit.objects.filter(author=other).update(author=self)
+        other.commitauthoremail_set.update(author=self)
+        if not self.avatar_url:
+            self.avatar_url = other.avatar_url
+        self.save(update_fields=["avatar_url"])
+        other.delete()
+
+
+class CommitAuthorEmail(models.Model):
+    author = models.ForeignKey(CommitAuthor, on_delete=models.CASCADE)
+    email = models.CharField(unique=True)
+
+    def __str__(self):
+        return f"{self.author.name}: {self.email}"
+
+
+class Commit(models.Model):
+    author = models.ForeignKey(CommitAuthor, on_delete=models.CASCADE)
+    library_version = models.ForeignKey("LibraryVersion", on_delete=models.CASCADE)
+    sha = models.CharField(max_length=40)
+    message = models.TextField(default="")
+    committed_at = models.DateTimeField(db_index=True)
+    is_merge = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["sha", "library_version"],
+                name="%(app_label)s_%(class)s_sha_library_version_unique",
+            )
+        ]
+
+    def __str__(self):
+        return self.sha
 
 
 class Library(models.Model):
