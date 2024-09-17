@@ -117,7 +117,7 @@ class CreateReportForm(Form):
             libraries.annotate(commit_count=Count("library_version__commit")).values(
                 "commit_count", "id"
             )
-        ), key=lambda x: -library_order.index(x["id"]))
+        ), key=lambda x: library_order.index(x["id"]))
 
         library_version_counts = sorted(list(
             libraries.filter(
@@ -127,7 +127,7 @@ class CreateReportForm(Form):
             )
             .annotate(commit_count=Count("library_version__commit"))
             .values("commit_count", "id")
-        ), key=lambda x: -library_order.index(x["id"]))
+        ), key=lambda x: library_order.index(x["id"]))
 
         top_contributors_release = []
         for library_id in library_order:
