@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.db import transaction
-from django.db.models import F, Count, OuterRef, Window
+from django.db.models import F, Count, Window
 from django.db.models.functions import RowNumber
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -174,7 +174,8 @@ class LibraryAdmin(admin.ModelAdmin):
             form = CreateReportForm(request.GET)
             if form.is_valid():
                 context.update(form.get_stats())
-        context["form"] = form
+        if not context:
+            context["form"] = form
         return TemplateResponse(request, "admin/library_report.html", context)
 
     def view_stats(self, instance):

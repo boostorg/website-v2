@@ -4,7 +4,9 @@
 
 <head>
   <script defer data-domain="preview.boost.org" src="https://plausible.io/js/script.js"></script>
-  <title>{% block title %}Boost{% endblock %}</title>
+  <title>
+    {% block title %}Boost{% endblock %}
+  </title>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,10 +14,6 @@
   <meta name="keywords" content="{% block keywords %}{% endblock %}" />
   <meta name="author" content="{% block author %}Boost C++ Libraries{% endblock %}" />
   <link rel="shortcut icon" href="{% static 'img/Boost_Symbol_Transparent.svg' %}" type="image/x-icon" />
-
-  <meta class="meta-theme" name="theme-color" content="#FAFAFA" data-dark="#18181B" data-light="#FAFAFA" />
-  <meta class="meta-theme" name="color-scheme" content="light" data-dark="dark" data-light="light" />
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
@@ -24,112 +22,186 @@
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@ryangjchandler/alpine-clipboard@2.x.x/dist/alpine-clipboard.js"
-    defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js" defer></script>
-  <script src="//unpkg.com/alpinejs" defer></script>
-  <script src="https://unpkg.com/htmx.org@1.8.5"
-    integrity="sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w"
-    crossorigin="anonymous"></script>
   <!-- TODO bring this local if we like it -->
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <!-- detect dark or light mode -->
-  <script src="{% static 'js/DetectMode.js' %}"></script>
   <script src="{% static 'js/boost-gecko/main.062e4862.js' %}" defer></script>
   {% block extra_head %}
   <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
   {% endblock %}
+  {% block css %}
+  {% endblock css %}
+  <style>
+    @page {
+      margin: 0;
+      size: 300mm 180mm;
+    }
 
-  {% block css %}{% endblock css %}
+    .pdf-page {
+      padding: 5mm;
+      height: 180mm;
+      width: 300mm;
+      page-break-after: always;
+    }
+  </style>
 </head>
 
-<body x-init="() => {const m = localStorage.getItem('colorMode');
-    if (m !== 'dark' && m !== 'light') return;
-    mode = m;
-    document.head.querySelectorAll('.meta-theme').forEach((el) => {
-      el.setAttribute('content', el.getAttribute('data-' + m));
-    });
-  }" class="h-screen bg-gray-200 dark:bg-black">
+{% with bg_color='bg-gradient-to-tr from-[#7ac3e6]/50 to-[#d9b05e]/50' %}
 
-  <div class="container mx-auto my-3">
+<body>
+  <div>
+    {% if form %}
     <div>
       <form action="">
         {{ form.as_div }}
         <button class="px-2 border border-gray-300 rounded py-1" type="submit">submit</button>
       </form>
     </div>
-
-    <div class="flex flex-col gap-y-8">
+    {% endif %}
+    {% if not form %}
+    <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
       <div>
-        <h1>Boost Stats</h1>
-        <div>
-          Total Commits In All Releases Across All Repos: {{ commit_count|intcomma }}
-        </div>
+        <h1>Boost</h1>
+        <div>{{ commit_count|intcomma }} commits up through {{ version.display_name }}</div>
       </div>
-
       <div>
-        <h1>Boost Stats For Release: {{ version.name }}</h1>
-        <div>
-          Total Commits: {{ version_commit_count|intcomma }}
-        </div>
-        <div>
-          Top Libraries
-          <div>
-            {% for library in top_libraries_release %}
-              <div class="ml-4">
-                <div>{{ library.name }} ({{ library.commit_count }})</div>
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-        <div>
-          <div>Top Contributors This Release</div>
-          <div class="flex gap-x-2 flex-wrap">
-            {% for author in top_contributors_release_overall %}
-              <div class="flex flex-col gap-y-2 items-center justify-center w-32 border border-gray-300 rounded">
-                {% if author.avatar_url %}
-                  <img src="{{ author.avatar_url }}" alt="{{ author.name }}" class="w-12 h-12 rounded mx-auto">
-                {% else %}
-                  <div class="w-12 h-12 rounded bg-gray-300"></div>
-                {% endif %}
-                <div class="text-xs">{{ author.name }} ({{ author.commit_count }})</div>
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <h1>Library Data For Release: {{ version.name }}</h1>
-        {% for item in library_data %}
-          <div class="my-4">
-            <h3>{{ item.library.name }}</h3>
-            <div>
-              Total Commits: {{ item.full_count.commit_count }}
-            </div>
-            <div>
-              Commits for Release: {{ item.version_count.commit_count }}
-            </div>
-            <div>
-              <div>Top Contributors</div>
-              <div class="flex gap-x-2 flex-wrap">
-                {% for author in item.top_contributors_release %}
-                  <div class="flex flex-col gap-y-2 items-center justify-center w-32 border border-gray-300 rounded">
-                    {% if author.avatar_url %}
-                      <img src="{{ author.avatar_url }}" alt="{{ author.name }}" class="w-12 h-12 rounded mx-auto">
-                    {% else %}
-                      <div class="w-12 h-12 rounded bg-gray-300 mx-auto"></div>
-                    {% endif %}
-                    <div class="text-xs">{{ author.name }} ({{ author.commit_count }})</div>
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-        {% endfor %}
+        There were {{ version_commit_count|intcomma }} commits in {{ version.display_name }}
       </div>
     </div>
+    <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
+      <div class="flex flex-col">
+        <h1 class="mx-auto">Boost {{ version.display_name }}</h1>
+        <div class="mx-auto mb-4">{{ version_commit_count|intcomma }} Commits Across {{ library_count }} Repositories</div>
+        <div class="flex gap-x-2">
+          <div>
+            <div class="grid grid-cols-5 gap-2">
+              {% for author in top_contributors_release_overall %}
+              <div class="flex flex-col gap-y-2 w-20">
+                {% if author.avatar_url %}
+                <img src="{{ author.avatar_url }}" alt="{{ author.name }}" class="w-8 h-8 rounded mx-auto">
+                {% else %}
+                <div class="w-8 h-8 rounded bg-gray-300 mx-auto"></div>
+                {% endif %}
+                <div class="w-full flex flex-col">
+                  <div class="text-[0.6rem] overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-center">
+                    {{ author.name }}
+                  </div>
+                  <div class="text-[0.6rem] mx-auto">({{ author.commit_count }})</div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-col">
+        <h3 class="mx-auto">Most Committed Libraries</h3>
+        <div id="top-committed-libraries-chart" class="w-full text-center"></div>
+      </div>
+    </div>
+    {% for item in library_data %}
+    <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
+      <div>
+        <h3>{{ item.library.name }}</h3>
+        <div>
+          {{ item.library.description}}
+        </div>
+      </div>
+      <div>
+        <h4 class="mb-8">There were {{ item.version_count.commit_count }} commits in release {{ version.display_name }}</h4>
+        <div>
+          <div class="mb-2">Top Contributors</div>
+          <div class="grid grid-cols-5 gap-2 flex-wrap">
+            {% for author in item.top_contributors_release %}
+            <div class="flex flex-col gap-y-2 w-20">
+              {% if author.avatar_url %}
+              <img src="{{ author.avatar_url }}" alt="{{ author.name }}" class="w-8 h-8 rounded mx-auto">
+              {% else %}
+              <div class="w-8 h-8 rounded bg-gray-300 mx-auto"></div>
+              {% endif %}
+              <div class="w-full flex flex-col justify-center items-center">
+                <div class="text-[0.6rem] overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-center">{{ author.name }}</div>
+                <div class="text-[0.6rem]">({{ author.commit_count }})</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
   </div>
+  <div class="pdf-page {{ bg_color }}" style="page-break-after: avoid;">This is the last page</div>
+  {% endif %}
+
+
+  <script>
+    var options = {
+      series: [{
+        name: 'Commits',
+        data: [{% for library in top_libraries_release %}{{library.commit_count}}, {% endfor %}]
+      }],
+    chart: {
+      height: 300,
+      type: 'bar',
+      foreColor: '#373d3f',
+      background: '#ffffff00',
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: 2,
+        dataLabels: {
+          position: 'top', // top, center, bottom
+        },
+      }
+    },
+    dataLabels: {
+      offsetY: -16,
+      enabled: true,
+      formatter: function (val) {
+        //return val + "%";
+        return val;
+      },
+      style: {
+        fontSize: '11px',
+        colors: ["rgb(49, 74, 87)"],
+      }
+    },
+    xaxis: {
+      categories: [{% for library in top_libraries_release %} "{{ library.name }}", {% endfor %}],
+      position: 'bottom',
+        axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      },
+      tooltip: {
+        enabled: true,
+      }
+    },
+    yaxis: {
+      axisBorder: {
+        show: true
+      },
+      axisTicks: {
+        show: true,
+      },
+      labels: {
+        show: true,
+          formatter: function (val) {
+            return val;
+          }
+      }
+    },
+  };
+    // SS: putting this in the window object, a bit hacky, to be able to access it in the light/dark switcher - probably a better way
+    const chart = new ApexCharts(document.querySelector("#top-committed-libraries-chart"), options);
+    chart.render();
+  </script>
 </body>
+{% endwith %}
 
 </html>
