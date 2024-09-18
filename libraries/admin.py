@@ -216,14 +216,14 @@ class LibraryAdmin(admin.ModelAdmin):
     def library_stat_detail(self, request, pk):
         context = {
             "object": self.get_object(request, pk),
-            "commits_per_release": self._get_commits_per_release(pk),
-            "commits_per_author": self._get_commits_per_author(pk),
-            "commits_per_author_release": self._get_commits_per_author_release(pk),
-            "new_contributor_counts": self._get_new_contributor_counts(pk),
+            "commits_per_release": self.get_commits_per_release(pk),
+            "commits_per_author": self.get_commits_per_author(pk),
+            "commits_per_author_release": self.get_commits_per_author_release(pk),
+            "new_contributor_counts": self.get_new_contributor_counts(pk),
         }
         return TemplateResponse(request, "admin/library_stat_detail.html", context)
 
-    def _get_commits_per_release(self, pk):
+    def get_commits_per_release(self, pk):
         return (
             LibraryVersion.objects.filter(library_id=pk)
             .annotate(count=Count("commit"), version_name=F("version__name"))
@@ -231,14 +231,14 @@ class LibraryAdmin(admin.ModelAdmin):
             .filter(count__gt=0)
         )[:10]
 
-    def _get_commits_per_author(self, pk):
+    def get_commits_per_author(self, pk):
         return (
             CommitAuthor.objects.filter(commit__library_version__library_id=pk)
             .annotate(count=Count("commit"))
             .order_by("-count")[:20]
         )
 
-    def _get_commits_per_author_release(self, pk):
+    def get_commits_per_author_release(self, pk):
         return (
             LibraryVersion.objects.filter(library_id=pk)
             .filter(commit__author__isnull=False)
@@ -259,7 +259,7 @@ class LibraryAdmin(admin.ModelAdmin):
             .filter(row_number__lte=3)
         )
 
-    def _get_new_contributor_counts(self, pk):
+    def get_new_contributor_counts(self, pk):
         return (
             LibraryVersion.objects.filter(library_id=pk)
             .annotate(

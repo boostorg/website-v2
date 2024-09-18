@@ -3,7 +3,7 @@ import datetime
 import structlog
 from dateutil.relativedelta import relativedelta
 from django.contrib import messages
-from django.db.models import F, Q, Count
+from django.db.models import F, Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
