@@ -7,6 +7,7 @@ from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.shortcuts import redirect
 
 from libraries.forms import CreateReportForm
 from versions.tasks import import_all_library_versions
@@ -160,23 +161,38 @@ class LibraryAdmin(admin.ModelAdmin):
                 name="library_stat_detail",
             ),
             path(
+                "report-form/",
+                self.admin_site.admin_view(self.report_form_view),
+                name="library_report_form",
+            ),
+            path(
                 "report/",
                 self.admin_site.admin_view(self.report_view),
-                name="library-report",
+                name="library_report",
             ),
         ]
         return my_urls + urls
 
-    def report_view(self, request):
+    def report_form_view(self, request):
         form = CreateReportForm()
         context = {}
         if request.GET.get("version", None):
             form = CreateReportForm(request.GET)
             if form.is_valid():
                 context.update(form.get_stats())
+                return redirect(reverse("admin:library_report") + f"?{request.GET.urlencode()}")
         if not context:
             context["form"] = form
-        return TemplateResponse(request, "admin/library_report.html", context)
+        return TemplateResponse(request, "admin/library_report_form.html", context)
+
+    def report_view(self, request):
+        form = CreateReportForm(request.GET)
+        context = {'form': form}
+        if form.is_valid():
+            context.update(form.get_stats())
+        else:
+            return redirect('admin:library_report_form')
+        return TemplateResponse(request, "admin/library_report_detail.html", context)
 
     def view_stats(self, instance):
         return mark_safe(
