@@ -543,7 +543,6 @@ class LibraryUpdater:
             key__in=[x.most_recent_library_key for x in authors]
         )
         repos = {x.key: x for x in libraries}
-        self.logger.info(f"{len(authors)} to update.")
         for author in authors:
             try:
                 commit = self.client.get_repo_ref(
@@ -551,7 +550,7 @@ class LibraryUpdater:
                     ref=author.most_recent_commit_sha,
                 )
             except HTTP404NotFoundError:
-                print("skipping")
+                self.logger.info(f"Commit not found. Skipping avatar update for {author}.")
                 continue
             if gh_author := commit["author"]:
                 author.avatar_url = gh_author["avatar_url"]
