@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.db import transaction
-from django.db.models import F, Count, Window
+from django.db.models import F, Count, OuterRef, Window
 from django.db.models.functions import RowNumber
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -180,18 +180,20 @@ class LibraryAdmin(admin.ModelAdmin):
             form = CreateReportForm(request.GET)
             if form.is_valid():
                 context.update(form.get_stats())
-                return redirect(reverse("admin:library_report") + f"?{request.GET.urlencode()}")
+                return redirect(
+                    reverse("admin:library_report") + f"?{request.GET.urlencode()}"
+                )
         if not context:
             context["form"] = form
         return TemplateResponse(request, "admin/library_report_form.html", context)
 
     def report_view(self, request):
         form = CreateReportForm(request.GET)
-        context = {'form': form}
+        context = {"form": form}
         if form.is_valid():
             context.update(form.get_stats())
         else:
-            return redirect('admin:library_report_form')
+            return redirect("admin:library_report_form")
         return TemplateResponse(request, "admin/library_report_detail.html", context)
 
     def view_stats(self, instance):
@@ -243,11 +245,40 @@ class LibraryAdmin(admin.ModelAdmin):
             .order_by("-version__name", "-count")
             .filter(row_number__lte=3)
         )
+
+        new_contributor_counts = (
+            LibraryVersion.objects.filter(library_id=pk)
+            .annotate(
+                up_to_count=CommitAuthor.objects.filter(
+                    commit__library_version__version__name__lte=OuterRef(
+                        "version__name"
+                    ),
+                    commit__library_version__library_id=pk,
+                )
+                .values("commit__library_version__library")
+                .annotate(count=Count("id", distinct=True))
+                .values("count")[:1],
+                before_count=CommitAuthor.objects.filter(
+                    commit__library_version__version__name__lt=OuterRef(
+                        "version__name"
+                    ),
+                    commit__library_version__library_id=pk,
+                )
+                .values("commit__library_version__library")
+                .annotate(count=Count("id", distinct=True))
+                .values("count")[:1],
+                count=F("up_to_count") - F("before_count"),
+            )
+            .order_by("-version__name")
+            .select_related("version")
+        )
+        print(new_contributor_counts.query)
         context = {
             "object": library,
             "commits_per_release": commits_per_release,
             "commits_per_author": commits_per_author,
             "commits_per_author_release": commits_per_author_release,
+            "new_contributor_counts": new_contributor_counts,
         }
         return TemplateResponse(request, "admin/library_stat_detail.html", context)
 

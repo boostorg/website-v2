@@ -75,6 +75,24 @@
           {% endfor %}
         </div>
       </div>
+
+      <div>
+        <h3 class="mb-2">
+          New Contributors Per Release
+        </h3>
+        <div class="flex flex-col gap-y-1">
+          {% for lv in new_contributor_counts %}
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                {{ lv.version.display_name }}
+              </div>
+              <div>
+                {{ lv.count }} new contributors ({{ lv.up_to_count }} total)
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
     </div>
 
   </div>
