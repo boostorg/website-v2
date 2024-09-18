@@ -20,6 +20,9 @@
     --site-light-shadow-color: rgba(0,0,0,0.3);
     --site-dark-shadow-color: transparent;
     /* specific use colors */
+
+     /* header height var for docs positioning */
+    --header-height: 2.5rem;
 }
 
 html {
@@ -55,17 +58,13 @@ html.dark {
     align-items: center;
     justify-content: space-between;
     box-shadow: 0px 1px 0px #d1d1d1;
-    border-bottom: 1px solid #f6f6f6 !important;
+    border-bottom: 1px solid #f6f6f6;
     max-width: 80rem;
     margin: 0 auto;
     color: var(--text-color);
     font-family: "Noto Sans" !important;
 }
 
-.dark .header-menu-bar {
-    border-bottom: 1px solid #07405f;
-    box-shadow: 0 1px 0 #000;
-}
 .dark .header-menu-bar {
     border-bottom: 1px solid #07405f;
     box-shadow: 0 1px 0 #000;
@@ -135,7 +134,7 @@ html.dark {
     z-index: 10;
     padding: .25rem .5rem;
     margin-top: .5rem;
-    width: 8rem;
+    width: 10rem;
     text-align:left;
     background-color: var(--card-color);
     border-radius: 0.375rem;
@@ -147,7 +146,7 @@ html.dark {
     margin-left: .5rem;
     display: block;
     padding: .5rem 0;
-    font-size: .7rem;
+    font-size: .8rem;
     cursor: pointer;
     color: var(--text-color);
     border-bottom: var(--border-color) 1px solid;
@@ -167,13 +166,15 @@ html.dark {
     font-weight: 500;
     display:flex;
     position: absolute;
-    top: 0.25rem;
+    top: 2.25rem;
     left: 1.75rem;
     flex-direction: column;
     z-index: 10;
     color: var(--text-color);
     background-color: var(--card-color);
-    font-size: 18px;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
 }
 
 .hide {
@@ -186,6 +187,10 @@ html.dark {
       border-bottom: var(--border-color) 1px solid;
       text-transform: capitalize;
     }
+
+.mobile-menu-item:last-child {
+  border-bottom: none;
+}
 
 #avatar svg {
     width: 1rem;
@@ -222,7 +227,7 @@ html.dark {
     }
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 767px) {
     #mobileNav {
         display: flex;
     }
@@ -253,7 +258,7 @@ html.dark {
       padding-top: .5rem !important;
     }
 
-    @media (min-width: 768px) {
+    @media (min-width: 769px) {
       body.article {
         max-width: 80rem !important;
         margin: auto;
@@ -262,7 +267,7 @@ html.dark {
      }
     }
 
-    @media (max-width: 769px) {
+    @media (max-width: 768px) {
       body.article {
         padding: 0px !important;
         border-radius: 0rem !important;
@@ -285,7 +290,7 @@ html.dark {
     <div id="mobileNav" >
       <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img  src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
       <div id="selectedpage" onclick="openNav()" class=""><div id="pageName" class="capitalize">where</div><div class="material-symbols-outlined">arrow_drop_down</div></div>
-      <div id="pageselector" onmouseleave="closeNav()" class="hide"  >
+      <div id="pageselector" onmouseleave="closeNav()" class="hide boost-drop-shadow"  >
           <div class="mobile-menu-item"><a href="{% url 'news' %}" title="News">News</a></div>
           <div class="mobile-menu-item"><a href="{% url 'docs' %}" title="Learn">Learn</a></div>
           <div class="mobile-menu-item"><a href="{% url 'community' %}" title="Community">Community</a></div>
@@ -354,7 +359,7 @@ html.dark {
             this.updateSearchButtonLocation();
           },
           updateSearchButtonLocation() {
-            if (window.innerWidth >= 768) {
+            if (window.innerWidth > 769) {
               this.desktopSearchArea.appendChild(this.searchButton);
             } else {
               this.mobileSearchArea.appendChild(this.searchButton);
