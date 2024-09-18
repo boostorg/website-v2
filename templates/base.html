@@ -18,8 +18,6 @@
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.css" />
     <script src="https://cdn.jsdelivr.net/npm/@ryangjchandler/alpine-clipboard@2.x.x/dist/alpine-clipboard.js" defer></script>
@@ -34,6 +32,7 @@
     <script src="{% static 'js/boost-gecko/main.062e4862.js' %}" defer></script>
     {% block extra_head %}
       <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+      <link href="{% static 'css/fonts.css' %}" rel="stylesheet" />
     {% endblock %}
 
     {% block css %}{% endblock css %}
@@ -56,7 +55,7 @@
         {% block messages %}{% include "partials/messages.html" %}{% endblock messages %}
       </div>
 
-      <div class="md:px-4 min-vh-110">
+      <div class="md:px-0 min-vh-110">
       {% block content_wrapper %}
         {% block subnav %}{% endblock %}
         {% block content %}{% endblock %}

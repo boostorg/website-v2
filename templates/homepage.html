@@ -5,7 +5,7 @@
 
 {% block content %}
   {# homepage hero #}
-  <main class="px-4 my-4 mx-auto sm:mt-4">
+  <main class="px-0 md:px-4 my-4 mx-auto sm:mt-4">
     <div class="md:flex mb-16 md:mb-5">
 <style>
   .toon {
@@ -36,7 +36,7 @@
       </div>
     </div>
 
-    <div class="p-6 dark:text-white text-slate bg-white rounded-lg dark:bg-charcoal dark:bg-neutral-700 shadow-lg">
+    <div class="p-6 dark:text-white text-slate bg-white md:rounded-lg dark:bg-charcoal dark:bg-neutral-700 md:shadow-lg">
       <div class="lg:flex">
         <div class="lg:order-last lg:w-1/2 px-4 pt-2">
           <h5 class="text-3xl leading-tight text-orange mb-2">Boost Mission</h5>
@@ -71,8 +71,8 @@
     </div>
 
     {% if events %}
-        <div class="my-12 mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-16 lg:mb-4 lg:space-y-0 lg:space-x-4 shadow-lg">
-      <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
+        <div class="my-12 mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-4 lg:space-y-0 lg:space-x-4 md:shadow-lg">
+      <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
             <div class="w-full">
               <div class="mb-6">
             <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">schedule of events</span>
@@ -133,8 +133,8 @@
 
 
     {% if featured_library %}
-    <div class="my-12 mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-16 lg:mb-4 lg:space-y-0 lg:space-x-4 shadow-lg">
-      <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
+    <div class="my-12 mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-4 lg:space-y-0 lg:space-x-4 md:shadow-lg">
+      <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
           <div class="mb-6">
             <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">library spotlight</span>
           </div>
@@ -190,8 +190,8 @@
     </div>
     {% endif %}
 
-    <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:space-y-0 lg:space-x-4 shadow-lg">
-      <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
+    <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:space-y-0 lg:space-x-4 md:shadow-lg">
+      <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
           <div class="mb-6">
           <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">featured video</span>
         </div>
@@ -207,8 +207,8 @@
       </div>
     </div>
 
-    <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:space-y-0 lg:space-x-4 shadow-lg">
-      <div class="p-6 relative bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
+    <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:space-y-0 lg:space-x-4 md:shadow-lg">
+      <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
         <div class="mb-6">
           <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">recent news</span>
         </div>
@@ -223,7 +223,7 @@
             <div class="pt-0">
               <h2 class="flex items-center pb-2 mb-3 text-lg md:text-2xl lg:text-3xl font-semibold mr-4 border-b border-gray-400 dark:border-slate">
                 {% if entry.author.image %}
-                  <span class="flex flex-shrink-0 items-center h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
+                  <span class="flex flex-shrink-0 items-center h-[36px] w-[36px] overflow-hidden rounded-lg border border-gray-400 dark:border-gray-500">
                     <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
                   </span>
                 {% else %}
@@ -251,7 +251,7 @@
 
     {% comment %}
     <div class="my-12 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">
-      <div class="p-6 bg-white rounded-lg md:p-11 w-full dark:bg-charcoal">
+      <div class="p-6 bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
         <div class="mb-6">
           <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">featured video</span>
         </div>
