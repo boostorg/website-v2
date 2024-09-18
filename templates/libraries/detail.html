@@ -144,14 +144,14 @@
       <div class="flex flex-wrap justify-start">
       {% for author in top_contributors_release %}
           <div class="p-1 md:p-2 w-min text-center">
-            <div class="bg-gray-300 dark:bg-slate rounded w-[80px] h-[80px] overflow-hidden">
+            <div class="bg-gray-300 dark:bg-slate rounded-lg h-9 w-9 overflow-hidden">
             {% if author.avatar_url %}
               <img src="{{ author.avatar_url }}"
                 title="{{ author.name }}"
                 alt="{{ author.name }}"
-                class="rounded h-full w-full object-cover" />
+                class="rounded-lg h-9 w-9 object-cover" />
             {% else %}
-              <i class="py-4 px-5 text-5xl fas fa-user text-white dark:text-white/60 rounded" title="{{ author.name }}"></i>
+              <i class="h-9 w-9 m-auto text-3xl fas fa-user text-white dark:text-white/60 " title="{{ author.name }}"></i>
             {% endif %}
             </div>
             <span class="text-xs">{{ author.name }} ({{ author.count }})</span>
@@ -168,14 +168,14 @@
       <div class="flex flex-wrap justify-start">
       {% for author in top_contributors_overall %}
           <div class="p-1 md:p-2 w-min text-center">
-            <div class="bg-gray-300 dark:bg-slate rounded w-[80px] h-[80px] overflow-hidden">
+            <div class="bg-gray-300 dark:bg-slate rounded-lg h-9 w-9 overflow-hidden">
             {% if author.avatar_url %}
               <img src="{{ author.avatar_url }}"
                 title="{{ author.name }}"
                 alt="{{ author.name }}"
-                class="rounded h-full w-full object-cover" />
+                class="rounded-lg h-9 w-9 object-cover" />
             {% else %}
-              <i class="py-4 px-5 text-5xl fas fa-user text-white dark:text-white/60 rounded" title="{{ author.name }}"></i>
+              <i class="h-9 w-9 m-auto text-3xl fas fa-user text-white dark:text-white/60 " title="{{ author.name }}"></i>
             {% endif %}
             </div>
             <span class="text-xs">{{ author.name }}</span>
