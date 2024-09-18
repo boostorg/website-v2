@@ -138,67 +138,64 @@
       </div>
       <div class="pdf-page {{ bg_color }}" style="page-break-after: avoid;">This is the last page</div>
       <script>
-    var options = {
-      series: [{
-        name: 'Commits',
-        data: [{% for library in top_libraries_for_version %}{{library.commit_count}}, {% endfor %}]
-      }],
-    chart: {
-      height: 300,
-        type: 'bar',
-          foreColor: '#373d3f',
+        var options = {
+          series: [{
+            name: 'Commits',
+            data: [{% for library in top_libraries_for_version %}{{library.commit_count}}, {% endfor %}]
+          }],
+          chart: {
+            height: 300,
+            type: 'bar',
+            foreColor: '#373d3f',
             background: '#ffffff00',
-              toolbar: {
-        show: false,
-      },
-    },
-    plotOptions: {
-      bar: {
-        borderRadius: 2,
+            toolbar: {
+              show: false,
+            },
+          },
+          plotOptions: {
+            bar: {
+              borderRadius: 2,
+              dataLabels: {
+                position: 'top', // top, center, bottom
+              },
+            }
+          },
           dataLabels: {
-          position: 'top', // top, center, bottom
-        },
-      }
-    },
-    dataLabels: {
-      offsetY: -16,
-        enabled: true,
-          style: {
-        fontSize: '11px',
-          colors: ["rgb(49, 74, 87)"],
-      }
-    },
-    xaxis: {
-      categories: [{% for library in top_libraries_for_version %} "{{ library.name }}", {% endfor %}],
-    position: 'bottom',
-      axisBorder: {
-      show: false
-    },
-    axisTicks: {
-      show: false
-    },
-    tooltip: {
-      enabled: true,
-      }
-    },
-    yaxis: {
-      axisBorder: {
-        show: true
-      },
-      axisTicks: {
-        show: true,
-      },
-      labels: {
-        show: true,
-          formatter: function (val) {
-            return val;
-          }
-      }
-    },
-  };
-    // SS: putting this in the window object, a bit hacky, to be able to access it in the light/dark switcher - probably a better way
-    const chart = new ApexCharts(document.querySelector("#top-committed-libraries-chart"), options);
-    chart.render();
+            offsetY: -16,
+            enabled: true,
+            style: {
+              fontSize: '11px',
+              colors: ["rgb(49, 74, 87)"],
+            }
+          },
+          xaxis: {
+            categories: [{% for library in top_libraries_for_version %} "{{ library.name }}", {% endfor %}],
+            position: 'bottom',
+            axisBorder: {
+              show: false
+            },
+            axisTicks: {
+              show: false
+            },
+            tooltip: {
+              enabled: true,
+            }
+          },
+          yaxis: {
+            axisBorder: {
+              show: true
+            },
+            axisTicks: {
+              show: true,
+            },
+            labels: {
+              show: true,
+            }
+          },
+        };
+        // SS: putting this in the window object, a bit hacky, to be able to access it in the light/dark switcher - probably a better way
+        const chart = new ApexCharts(document.querySelector("#top-committed-libraries-chart"), options);
+        chart.render();
       </script>
     </body>
   {% endwith %}
