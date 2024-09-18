@@ -7,7 +7,7 @@
 {% block content %}
   <main class="content">
     {% if version %}
-    <div class="py-3 md:mt-3 px-0 mb-0 w-full flex flex-row flex-nowrap items-center"
+    <div class="py-3 px-3 md:mt-3 md:px-0 mb-0 w-full flex flex-row flex-nowrap items-center"
             x-data="{'showSearch': false}"
             x-on:keydown.escape="showSearch=false">
       <div class="flex-auto pb-1 w-full">
@@ -15,7 +15,7 @@
         <div>
           <span class="text-xl md:text-3xl">{{ heading }}</span>
           <span class="text-lg whitespace-nowrap md:text-xl  pr-[1vw]">({{ version.display_name }})</span>
-          <span><a href="{% url 'downloads_feed_rss' %}" class="text-sky-600 dark:text-sky-400 hover:text-orange"><i class="fa-solid fa-rss"></i> RSS</a></span>
+          <span><a href="{% url 'downloads_feed_rss' %}" title="RSS feed" class="text-sky-600 dark:text-sky-400 hover:text-orange"><i class="fa-solid fa-rss"></i></a></span>
         </div>
       </div>
       <div class="flex-shrink text-right">
@@ -40,7 +40,7 @@
       <div class="pb-2 w-full h-auto md:pb-0 md:w-auto">
         <div class="flex flex-col">
           <div class="h-8">
-            <span class="block pb-1 font-bold">{{ version.release_date|date:"F j, Y" }}</span>
+            <span class="block pb-1 text-xs md:text-base font-bold">{{ version.release_date|date:"F j, Y" }}</span>
           </div>
           <div class="-ml-2 h-3"></div>
           <div class="-ml-2 h-14">
@@ -124,7 +124,7 @@
 
     {% if release_notes %}
       <section id="libraryReadMe"
-        class="p-6 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+        class="p-6 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
         {{ release_notes|safe }}
       </section>
     {% endif %}

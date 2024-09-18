@@ -81,11 +81,11 @@
 
   /* just using .content as a class for these for now, but we can change later */
   main.content {
-    @apply px-3 mb-3 md:px-0;
+    @apply px-0 md:px-3 md:mb-3;
   }
 
   section.content {
-    @apply p-6 mb-4 w-full bg-white rounded-lg shadow-lg md:flex  dark:text-offwhite truncate text-slate dark:bg-charcoal;
+    @apply p-6 mb-4 w-full bg-white md:rounded-lg md:shadow-lg md:flex  dark:text-offwhite truncate text-slate dark:bg-charcoal;
   }
 
   select.dropdown {
@@ -160,7 +160,7 @@
   kbd,
   samp,
   pre {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-family: 'Noto Mono', monospace;
     /* 1 */
     @apply text-sm text-sky-800 dark:text-sky-200 overflow-x-scroll;
     /* 2 */
