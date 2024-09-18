@@ -33,7 +33,7 @@
     {% endcomment %}
   </div>
 
-  <div class="pt-2 px-0 mb-2 text-right md:mb-2">
+  <div class="pt-2 px-0 mb-2 text-right md:mb-2 mx-3 md:mx-0">
 
     <form action="." method="get">
       <div class="flex relative space-x-3 justify-start">
@@ -59,7 +59,7 @@
         {% endcomment %}
 
         {# Display options #}
-        <div class="flex space-x-3">
+        <div class=" flex space-x-3">
           <div class="relative group">
             <a title="Name View" href="{% url 'libraries-mini' %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-list p-[10px] hover:bg-gray-100 dark:hover:bg-slate"></i></a>
             <span class="group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">List&nbsp;View</span>
@@ -79,7 +79,7 @@
         <div class="grow">
         <select onchange="this.form.submit()"
                 name="version"
-                class="dropdown py-2 ml-auto md:block h-[38px]"
+                class="dropdown py-2  md:block h-[38px] ml-3 md:ml-0 "
                 id="id_version">
           {% for v in versions %}
           <option value="{{ v.slug }}" {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
@@ -96,8 +96,8 @@
   {# Libraries list #}
   <div class="space-y-3">
     {% for result in library_list %}
-      <div class="relative content-between p-3 w-full bg-white rounded-lg shadow-lg md:p-5 dark:bg-charcoal">
-        <h5 class="mb-2 pb-2 text-2xl font-bold leading-tight text-orange border-b border-gray-300 dark:border-slate">{{ result.category }}</h5>
+      <div class="relative content-between p-3 w-full bg-white md:rounded-lg md:shadow-lg md:p-5 dark:bg-charcoal">
+        <h5 class="mb-2 pb-2 text-xl md:text-2xl leading-tight text-orange border-b border-gray-300 dark:border-slate">{{ result.category }}</h5>
         <table class="table-auto w-full">
           <tbody>
           {% for library in result.libraries %}

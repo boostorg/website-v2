@@ -8,16 +8,16 @@
 
 {% block content %}
   <main class="content">
-    <div class="py-4 px-0 mb-0 w-full md:mb-2 flex flex-row flex-nowrap items-center"
+    <div class="pt-3 md:py-4 px-0 mb-0 w-full md:mb-2 flex flex-row flex-nowrap items-center"
          x-data="{'showSearch': false}"
          x-on:keydown.escape="showSearch=false">
       <div class="flex-auto mb-2 w-full">
         <div id="overview">
-          <span class="text-xl md:text-3xl lg:text-4xl text-orange">{{ object.display_name }}</span>
+          <span class="mx-3 text-xl md:text-3xl lg:text-4xl text-orange">{{ object.display_name }}</span>
 
         </div>
       </div>
-      <div class="flex-shrink">
+      <div class="flex-shrink mr-3 md:mr-0">
         <form action="{% url 'library-detail' slug=object.slug %}"
               method="post">
           <div>
@@ -118,20 +118,20 @@
     </section>
 
     {% if maintainers %}
-    <section class="p-6 pt-1 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+    <section class="p-6 pt-1 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
       <!-- Avatars -->
       <h2 class="text-2xl">Maintainers</h2>
       <div class="flex flex-wrap justify-start">
       {% for user in maintainers %}
-          <div class="p-1 md:p-2 w-min text-center">
-            <div class="bg-gray-300 dark:bg-slate rounded w-[80px] h-[80px] overflow-hidden">
+          <div class="p-1 md:p-2 w-min text-center flex flex-col items-center">
+            <div class="bg-gray-300 dark:bg-slate rounded h-9 w-9 overflow-hidden">
             {% if user.image %}
               <img src="{{ user.image.url }}"
                 title="{{ user.get_full_name }}"
                 alt="{{ user.get_full_name }}"
-                class="rounded h-full w-full object-cover" />
+                class="rounded h-9 w-9 object-cover" />
             {% else %}
-              <i class="py-4 px-5 text-5xl fas fa-user text-white dark:text-white/60 rounded" title="{{ user.get_full_name }}"></i>
+              <i class="h-9 w-9 m-auto text-3xl fas fa-user text-white dark:text-white/60 rounded" title="{{ user.get_full_name }}"></i>
             {% endif %}
             </div>
             <span class="text-xs">{{ user.get_full_name }}</span>
@@ -143,7 +143,7 @@
 
     {% if description %}
       <section id="libraryReadMe"
-        class="p-6 my-4 bg-white rounded-lg shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+        class="p-6 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
         {{ description|safe }}
       </section>
     {% endif %}
