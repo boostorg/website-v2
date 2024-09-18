@@ -214,19 +214,32 @@ class LibraryAdmin(admin.ModelAdmin):
         return HttpResponseRedirect("../")
 
     def library_stat_detail(self, request, pk):
-        library = self.get_object(request, pk)
-        commits_per_release = (
+        context = {
+            "object": self.get_object(request, pk),
+            "commits_per_release": self._get_commits_per_release(pk),
+            "commits_per_author": self._get_commits_per_author(pk),
+            "commits_per_author_release": self._get_commits_per_author_release(pk),
+            "new_contributor_counts": self._get_new_contributor_counts(pk),
+        }
+        return TemplateResponse(request, "admin/library_stat_detail.html", context)
+
+    def _get_commits_per_release(self, pk):
+        return (
             LibraryVersion.objects.filter(library_id=pk)
             .annotate(count=Count("commit"), version_name=F("version__name"))
             .order_by("-version__name")
             .filter(count__gt=0)
         )[:10]
-        commits_per_author = (
-            CommitAuthor.objects.filter(commit__library_version__library=library)
+
+    def _get_commits_per_author(self, pk):
+        return (
+            CommitAuthor.objects.filter(commit__library_version__library_id=pk)
             .annotate(count=Count("commit"))
             .order_by("-count")[:20]
         )
-        commits_per_author_release = (
+
+    def _get_commits_per_author_release(self, pk):
+        return (
             LibraryVersion.objects.filter(library_id=pk)
             .filter(commit__author__isnull=False)
             .annotate(
@@ -246,7 +259,8 @@ class LibraryAdmin(admin.ModelAdmin):
             .filter(row_number__lte=3)
         )
 
-        new_contributor_counts = (
+    def _get_new_contributor_counts(self, pk):
+        return (
             LibraryVersion.objects.filter(library_id=pk)
             .annotate(
                 up_to_count=CommitAuthor.objects.filter(
@@ -272,15 +286,6 @@ class LibraryAdmin(admin.ModelAdmin):
             .order_by("-version__name")
             .select_related("version")
         )
-        print(new_contributor_counts.query)
-        context = {
-            "object": library,
-            "commits_per_release": commits_per_release,
-            "commits_per_author": commits_per_author,
-            "commits_per_author_release": commits_per_author_release,
-            "new_contributor_counts": new_contributor_counts,
-        }
-        return TemplateResponse(request, "admin/library_stat_detail.html", context)
 
 
 @admin.register(LibraryVersion)
