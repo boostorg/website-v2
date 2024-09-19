@@ -1,6 +1,8 @@
 {% load static %}
 {% load account socialaccount active_link_tags %}
 <style>
+@import url("../../static/css/fonts.css");
+
 :root {
     --site-light-bg-color: rgb(229, 231, 235);
     --site-dark-bg-color: rgb(5, 26, 38);
@@ -388,6 +390,12 @@ html.dark {
       if (words[1].length != '') {
         switch (words[1]) {
           case 'doc':
+            if (words[2] == 'libs') {
+              tabname = "libraries"
+            } else {
+              tabname = "learn"
+            }
+          break;
           case 'docs':
           tabname = "learn"
           break;

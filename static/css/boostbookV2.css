@@ -41,20 +41,20 @@ Default light/dark color scheme
     --site-light-green: green;
     --site-light-lime: #00FF00;
     --site-light-blue: blue;
-    --site-light-navy: navy;
+    --site-light-navy: rgb(20, 20, 164);
     --site-light-yellow: yellow;
     --site-light-magenta: magenta;
     --site-light-indigo: #4B0082;
     --site-light-cyan: cyan;
     --site-light-purple: purple;
-    --site-light-gold: #bd9802;
+    --site-light-gold: #987301;
     --site-light-silver: silver; /* lighter gray */
     --site-light-gray: #808080; /* light gray */
     --site-dark-red: #fa6f6f;
     --site-dark-green: #45b945;
     --site-dark-lime: #00FF00;
     --site-dark-blue: #6666f8;
-    --site-dark-navy: #5959ca;
+    --site-dark-navy: #6060c4;
     --site-dark-yellow: yellow;
     --site-dark-magenta: magenta;
     --site-dark-indigo: #a53def;
@@ -125,7 +125,7 @@ Body defaults
     {
         margin: 1em;
         font-size: 16px;
-        font-family: sans-serif;
+        font-family: 'Noto Sans', sans-serif;
         background-color: var(--bg-color) !important;
         color: var(--text-color);
         max-width: 80rem;
@@ -150,7 +150,7 @@ Body defaults
 
         body > .section,
         body > .chapter {
-            margin: 1.5rem 0;
+            margin: 0;
             padding: 1rem;
             background-color: var(--card-color);
             border-radius: 0rem;
@@ -348,6 +348,7 @@ Spirit style navigation
     @media screen and (max-width: 768px) {
         .spirit-nav {
             right: 0.5rem;
+            top: 2.5rem;
         }
     }
 
@@ -446,7 +447,7 @@ Tables
         text-align: left;
         font-size: 9pt;
         color: var(--text-color);
-        background-color: var(--bg-color);
+        background-color: var(--card-color);
     }
 
     div.informaltable table tr th,
@@ -456,7 +457,7 @@ Tables
         border: 1pt solid var(--border-color);
         color: var(--text-color);
         font-size: 80%;
-        background-color: var(--border-color);
+        background-color: var(--bg-color);
     }
 
     table.simplelist
@@ -637,12 +638,12 @@ Colors
         .highlight .vc,
         .highlight .vg,
         .highlight .vi,
-        .identifier { color: var(--text-color); }
+        .identifier { color: var(--color-navy); }
 
-        .special { color: var(--color-gray);  }
+        .special { color: var(--text-color);  }
 
         .highlight .cp,
-        .preprocessor { color: var(--color-purple); ; }
+        .preprocessor { color: var(--color-blue); ; }
 
         .highlight .sc
         .char { color: var(--color-lime); ; }
@@ -676,7 +677,7 @@ Colors
         .highlight .mh,
         .highlight .mi,
         .highlight .mo,
-        .number { color: var(--color-gold); ; }
+        .number { color: var(--color-red); ; }
 
         .highlight,
         .white_bkd { background-color: var(--card-color); ; }
