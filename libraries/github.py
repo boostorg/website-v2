@@ -463,6 +463,7 @@ class LibraryUpdater:
                 )
 
     def update_commits(self, obj: Library, clean=False):
+        """Import a record of all commits between LibraryVersions."""
         authors = {}
         commits = []
         library_versions = {
@@ -511,6 +512,7 @@ class LibraryUpdater:
         )
 
     def update_commit_author_github_data(self, obj=None, email=None, overwrite=False):
+        """Update CommitAuthor data by parsing the author data on their most recent commit."""
         if email:
             authors = CommitAuthor.objects.filter(
                 Exists(CommitAuthorEmail.objects.filter(id=OuterRef("pk"), email=email))

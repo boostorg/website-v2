@@ -8,7 +8,10 @@ from libraries.models import Library
 @click.option("--clean", is_flag=True, help="Library Key", default=False)
 def command(key, clean):
     updater = LibraryUpdater()
-    click.secho("Updating author avatars from github...", fg="green")
+    click.secho(
+        "Updating author avatars from github. This may take a while, depending on how many authors need to be updated...",
+        fg="green",
+    )
     if key is None:
         updater.update_commit_author_github_data(overwrite=clean)
     else:
