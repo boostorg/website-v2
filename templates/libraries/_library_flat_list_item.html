@@ -2,7 +2,13 @@
 onclick="window.location='{% if version %}{% url 'library-detail-by-version' slug=library.slug version_slug=version.slug %}{% else %}{% url 'library-detail' slug=library.slug %}{% endif %}'">
   <td class="py-2 align-top md:w-1/5">
     <a class="mr-1 pl-1 font-bold capitalize text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-       href="{% url 'library-detail' slug=library.slug %}">{{ library.name }}</a>
+       href="
+        {% if version_str != LATEST_RELEASE_URL_PATH_STR %}
+          {% url 'library-detail-by-version' slug=library.slug version_slug=version.slug %}
+        {% else %}
+          {% url 'library-detail' slug=library.slug %}
+        {% endif %}"
+    >{{ library.name }}</a>
   </td>
 
   <td class="py-2 px-2 align-top w-12">

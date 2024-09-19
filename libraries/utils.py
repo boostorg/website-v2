@@ -16,6 +16,7 @@ from libraries.constants import (
     SELECTED_BOOST_VERSION_COOKIE_NAME,
     SELECTED_LIBRARY_VIEW_COOKIE_NAME,
 )
+from versions.models import Version
 
 logger = structlog.get_logger()
 
@@ -164,3 +165,24 @@ def build_route_name_for_view(view):
 def determine_view_from_library_request(request):
     split_path_info = request.path_info.split("/")
     return None if split_path_info[-2] == "libraries" else split_path_info[-2]
+
+
+def determine_selected_boost_version(request_value, request):
+    valid_versions = Version.objects.version_dropdown_strict()
+    version_slug = get_version_from_cookie(request) or request_value
+    if version_slug in [v.slug for v in valid_versions]:
+        return version_slug
+    else:
+        logger.warning(f"Invalid version slug in cookies: {version_slug}")
+        return None
+
+
+def set_selected_boost_version(version_slug: str, response) -> None:
+    """Update the selected version in the cookies."""
+    valid_versions = Version.objects.version_dropdown_strict()
+    if version_slug in [v.slug for v in valid_versions]:
+        response.set_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME, version_slug)
+    elif version_slug == "latest":
+        response.delete_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME)
+    else:
+        logger.warning(f"Attempted to set invalid version slug: {version_slug}")

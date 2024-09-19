@@ -17,6 +17,7 @@ from django.template.loader import render_to_string
 from django.views import View
 from django.views.generic import TemplateView
 
+from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from versions.models import Version
 
 from .asciidoc import process_adoc_to_html_content
@@ -211,6 +212,13 @@ class BaseStaticContentTemplateView(TemplateView):
         # must manually redirect it.
         if "accounts/github/login/callback" in content_path:
             return redirect(content_path)
+
+        # here we handle the translation from "release/..." to /$version_x_y_z/...
+        if content_path.startswith(f"{LATEST_RELEASE_URL_PATH_STR}/"):
+            version = Version.objects.most_recent()
+            content_path = content_path.replace(
+                f"{LATEST_RELEASE_URL_PATH_STR}/", f"{version.stripped_boost_url_slug}/"
+            )
         try:
             self.content_dict = self.get_content(content_path)
             # If the content is an HTML file with a meta redirect, redirect the user.
@@ -552,21 +560,3 @@ class RedirectToLibraryView(BaseRedirectView):
 
         new_path = f"/libraries/?version=boost-{ requested_version }"
         return HttpResponseRedirect(new_path)
-
-
-class ContentToReleaseView(BaseRedirectView):
-    """View to redirect to the latest release page."""
-
-    def get(self, request, *args, **kwargs):
-        # Grab the rest of the content path
-        content_path = self.kwargs.get("content_path")
-
-        # Determine the latest release
-        latest_release = Version.objects.most_recent()
-        latest_release_slug = latest_release.stripped_boost_url_slug
-
-        # Piece it all together to redirect the user to the latest release's
-        # docs
-        url = f"/doc/libs/{latest_release_slug}/{content_path}"
-
-        return HttpResponseRedirect(url)

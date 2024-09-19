@@ -26,10 +26,9 @@
                     name="version"
                     class="dropdown"
                     id="id_version">
-              <option value="latest" {% if version == "latest" %}selected="selected"{% endif %}>Latest</option>
+              <option value="latest" {% if version_str == LATEST_RELEASE_URL_PATH_NAME %}selected="selected"{% endif %}>Latest</option>
               {% for v in versions %}
-                <option value="{{ v.pk }}"
-                        {% if version == v %}selected="selected"{% endif %}>{{ v.display_name }}</option>
+                <option value="{{ v.pk }}" {% if version_str == v.slug %}selected="selected"{% endif %}>{{ v.display_name }}</option>
               {% endfor %}
             </select>
           </div>
@@ -64,7 +63,7 @@
               <span class="font-bold">Categories:</span>
               {% for category in object.categories.all %}
                 <a class="inline text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-                href="{% url 'libraries' %}?category={{ category.slug }}{% if version %}&version={{ version.slug }}{% endif %}">{{ category.name }}</a>
+                href="{% url 'libraries' %}?category={{ category.slug }}{% if version_str != LATEST_RELEASE_URL_PATH_NAME %}&version={{ version.slug }}{% endif %}">{{ category.name }}</a>
                 {% if not forloop.last %}, {% endif %}
               {% endfor %}
             </div>
