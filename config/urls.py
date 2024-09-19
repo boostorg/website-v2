@@ -149,8 +149,9 @@ urlpatterns = (
             LibraryListByCategory.as_view(),
             name="libraries-by-category",
         ),
-        path("libraries/mini/", LibraryListMini.as_view(), name="libraries-mini"),
         path("libraries/", LibraryList.as_view(), name="libraries"),
+        path("libraries/mini/", LibraryListMini.as_view(), name="libraries-mini"),
+        path("libraries/grid/", LibraryList.as_view(), name="libraries-grid"),
         path(
             "libraries/<slug:slug>/<slug:version_slug>/",
             LibraryDetail.as_view(),
