@@ -204,6 +204,9 @@
         type: 'bar',
         foreColor: localStorage.getItem('colorMode') === 'dark' ? '#f6f7f8' : '#373d3f',
         background: localStorage.getItem('colorMode') === 'dark' ? '#172A34' : '#ffffff',
+        toolbar: {
+          show: false,
+        },
       },
       theme: {
         mode: localStorage.getItem('colorMode') === 'dark' ? 'dark' : 'light',
