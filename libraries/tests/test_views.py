@@ -29,6 +29,9 @@ def test_library_list(library_version, tp, url_name="libraries"):
     )
 
     res = tp.get(url_name)
+    if url_name == "libraries":
+        tp.response_302(res)
+        return
     tp.response_200(res)
     assert "library_list" in res.context
     assert library_version.library in res.context["library_list"]
@@ -36,11 +39,18 @@ def test_library_list(library_version, tp, url_name="libraries"):
     assert v_no_libraries not in res.context["versions"]
 
 
+def test_library_root_redirect_to_grid(tp):
+    """GET /"""
+    res = tp.get("libraries")
+    tp.response_302(res)
+    assert res.url == "/libraries/grid/"
+
+
 def test_library_list_no_data(tp):
     """GET /libraries/"""
     Library.objects.all().delete()
     Version.objects.all().delete()
-    res = tp.get("libraries")
+    res = tp.get("libraries-grid")
     tp.response_200(res)
 
 
@@ -67,7 +77,7 @@ def test_library_list_no_pagination(library_version, tp):
         ).library
         for i in range(30)
     ] + [library_version.library]
-    res = tp.get("libraries")
+    res = tp.get("libraries-grid")
     tp.response_200(res)
 
     library_list = res.context.get("library_list")
@@ -86,7 +96,7 @@ def test_library_list_select_category(library_version, category, tp):
     new_lib_version = baker.make(
         "libraries.LibraryVersion", version=library_version.version, library=new_lib
     )
-    res = tp.get(f"/libraries/?category={category.slug}")
+    res = tp.get(f"/libraries/grid/?category={category.slug}")
     tp.response_200(res)
     assert library_version.library in res.context["library_list"]
     assert new_lib_version.library not in res.context["library_list"]
