@@ -510,7 +510,7 @@ class LibraryUpdater:
             unique_fields=["library_version", "sha"],
         )
 
-    def update_author_avatars(self, obj=None, email=None, overwrite=False):
+    def update_commit_author_github_data(self, obj=None, email=None, overwrite=False):
         if email:
             authors = CommitAuthor.objects.filter(
                 Exists(CommitAuthorEmail.objects.filter(id=OuterRef("pk"), email=email))
@@ -546,12 +546,15 @@ class LibraryUpdater:
         for author in authors:
             try:
                 commit = self.client.get_repo_ref(
-                    repo_slug=repos[author.most_recent_library_key],
+                    repo_slug=repos[author.most_recent_library_key].github_repo,
                     ref=author.most_recent_commit_sha,
                 )
             except HTTP404NotFoundError:
-                self.logger.info(f"Commit not found. Skipping avatar update for {author}.")
+                self.logger.info(
+                    f"Commit not found. Skipping avatar update for {author}."
+                )
                 continue
             if gh_author := commit["author"]:
                 author.avatar_url = gh_author["avatar_url"]
-                author.save(update_fields=["avatar_url"])
+                author.github_profile_url = gh_author["html_url"]
+                author.save(update_fields=["avatar_url", "github_profile_url"])

@@ -75,6 +75,7 @@ class CommitData(models.Model):
 class CommitAuthor(models.Model):
     name = models.CharField(max_length=100)
     avatar_url = models.URLField(null=True, max_length=100)
+    github_profile_url = models.URLField(null=True, max_length=100)
 
     def __str__(self):
         return self.name
@@ -91,7 +92,9 @@ class CommitAuthor(models.Model):
         other.commitauthoremail_set.update(author=self)
         if not self.avatar_url:
             self.avatar_url = other.avatar_url
-        self.save(update_fields=["avatar_url"])
+        if not self.github_profile_url:
+            self.github_profile_url = other.github_profile_url
+        self.save(update_fields=["avatar_url", "github_profile_url"])
         other.delete()
 
 

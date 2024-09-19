@@ -13,9 +13,9 @@ def command(key, clean):
         for library in Library.objects.all():
             click.secho(f"Importing commits for {library}")
             updater.update_commits(library, clean=clean)
-        updater.update_author_avatars()
+        updater.update_commit_author_github_data()
     else:
         library = Library.objects.get(key=key)
         updater.update_commits(library, clean=clean)
-        updater.update_author_avatars(obj=library)
+        updater.update_commit_author_github_data(obj=library)
     click.secho("Finished importing individual library commits.", fg="green")

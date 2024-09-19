@@ -10,8 +10,8 @@ def command(key, clean):
     updater = LibraryUpdater()
     click.secho("Updating author avatars from github...", fg="green")
     if key is None:
-        updater.update_author_avatars(overwrite=clean)
+        updater.update_commit_author_github_data(overwrite=clean)
     else:
         library = Library.objects.get(key=key)
-        updater.update_author_avatars(obj=library, overwrite=clean)
+        updater.update_commit_author_github_data(obj=library, overwrite=clean)
     click.secho("Finished updating author avatars from github...", fg="green")
