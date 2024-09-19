@@ -322,10 +322,11 @@ class LibraryDetail(FormMixin, DetailView):
         context["github_url"] = self.get_github_url(context["version"])
         context["maintainers"] = self.get_maintainers(context["version"])
         context["author_tag"] = self.get_author_tag()
-        context["top_contributors_overall"] = self.get_top_contributors()
         context["top_contributors_release"] = self.get_top_contributors(
             version=context["version"]
         )
+        context["top_contributors_overall"] = self.get_top_contributors(exclude=context["top_contributors_release"])
+        context["all_contributors"] = (context['top_contributors_release'] | context['top_contributors_overall']).order_by("name")
 
         # Populate the commit graphs
         context["commit_data_annual"] = self.get_commit_data_annual()
@@ -499,7 +500,7 @@ class LibraryDetail(FormMixin, DetailView):
         library_version = LibraryVersion.objects.get(library=obj, version=version)
         return library_version.maintainers.all()
 
-    def get_top_contributors(self, version=None):
+    def get_top_contributors(self, version=None, exclude=None):
         if version:
             library_version = LibraryVersion.objects.get(
                 library=self.object, version=version
@@ -507,7 +508,9 @@ class LibraryDetail(FormMixin, DetailView):
             qs = CommitAuthor.objects.filter(commit__library_version=library_version)
         else:
             qs = CommitAuthor.objects.filter(commit__library_version__library=self.object)
-        qs = qs.annotate(count=Count("commit")).order_by("-count")[:12]
+        if exclude:
+            qs = qs.exclude(id__in=exclude.values('id'))
+        qs = qs.annotate(count=Count("commit")).order_by("-count")
         return qs
 
     def get_version(self):
