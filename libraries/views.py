@@ -1,9 +1,11 @@
 import datetime
+from itertools import chain
 
 import structlog
 from dateutil.relativedelta import relativedelta
 from django.contrib import messages
 from django.db.models import F, Count
+from django.db.models.functions import Lower
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -16,7 +18,14 @@ from versions.models import Version
 
 from .forms import VersionSelectionForm
 from .mixins import VersionAlertMixin
-from .models import Category, CommitAuthor, CommitData, Library, LibraryVersion
+from .models import (
+    Category,
+    CommitAuthor,
+    CommitAuthorEmail,
+    CommitData,
+    Library,
+    LibraryVersion,
+)
 from .utils import redirect_to_view_with_params
 
 SELECTED_BOOST_VERSION_COOKIE_NAME = "boost_version"
@@ -322,11 +331,34 @@ class LibraryDetail(FormMixin, DetailView):
         context["github_url"] = self.get_github_url(context["version"])
         context["maintainers"] = self.get_maintainers(context["version"])
         context["author_tag"] = self.get_author_tag()
+        exclude_maintainer_ids = [
+            getattr(x.commitauthor, "id")
+            for x in context["maintainers"]
+            if x.commitauthor
+        ]
         context["top_contributors_release"] = self.get_top_contributors(
-            version=context["version"]
+            version=context["version"],
+            exclude=exclude_maintainer_ids,
         )
-        context["top_contributors_overall"] = self.get_top_contributors(exclude=context["top_contributors_release"])
-        context["all_contributors"] = (context['top_contributors_release'] | context['top_contributors_overall']).order_by("name")
+        exclude_top_contributor_ids = [
+            x.id for x in context["top_contributors_release"]
+        ]
+        context["top_contributors_overall"] = self.get_top_contributors(
+            exclude=exclude_maintainer_ids + exclude_top_contributor_ids
+        )
+        # Since we need to execute these queries separately anyway, just concatenate
+        # their results instead of making a new query
+        all_contributors = []
+        for x in chain(context["top_contributors_release"], context["top_contributors_overall"]):
+            all_contributors.append({
+                'name': x.name,
+            })
+        for x in context['maintainers']:
+            all_contributors.append({
+                'name': x.get_full_name(),
+            })
+
+        context["all_contributors"] = all_contributors
 
         # Populate the commit graphs
         context["commit_data_annual"] = self.get_commit_data_annual()
@@ -495,10 +527,27 @@ class LibraryDetail(FormMixin, DetailView):
             return self.object.github_url
 
     def get_maintainers(self, version):
-        """Get the maintainers for the current LibraryVersion."""
+        """Get the maintainers for the current LibraryVersion.
+
+        Also patches the CommitAuthor onto the user, if a matching email exists.
+        """
         obj = self.get_object()
         library_version = LibraryVersion.objects.get(library=obj, version=version)
-        return library_version.maintainers.all()
+        qs = list(library_version.maintainers.all())
+        commit_authors = {
+            author_email.email: author_email
+            for author_email in CommitAuthorEmail.objects.annotate(
+                email_lower=Lower("email")
+            )
+            .filter(email_lower__in=[x.email.lower() for x in qs])
+            .select_related("author")
+        }
+        for user in qs:
+            if author_email := commit_authors.get(user.email.lower(), None):
+                user.commitauthor = author_email.author
+            else:
+                user.commitauthor = None
+        return qs
 
     def get_top_contributors(self, version=None, exclude=None):
         if version:
@@ -507,9 +556,11 @@ class LibraryDetail(FormMixin, DetailView):
             )
             qs = CommitAuthor.objects.filter(commit__library_version=library_version)
         else:
-            qs = CommitAuthor.objects.filter(commit__library_version__library=self.object)
+            qs = CommitAuthor.objects.filter(
+                commit__library_version__library=self.object
+            )
         if exclude:
-            qs = qs.exclude(id__in=exclude.values('id'))
+            qs = qs.exclude(id__in=exclude)
         qs = qs.annotate(count=Count("commit")).order_by("-count")
         return qs
 

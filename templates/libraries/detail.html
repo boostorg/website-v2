@@ -113,16 +113,17 @@
 
     </section>
 
-    {% if maintainers %}
+    {% if maintainers or top_contributors_release or top_contributors_overall %}
     <section class="p-6 pt-1 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
       <!-- Avatars -->
       <h2 class="text-2xl">Maintainers &amp; Contributors</h2>
       <div class="flex flex-wrap justify-around">
       {% for user in maintainers %}
+        <a {% if user.commitauthor.github_profile_url %}href="{{ user.commitauthor.github_profile_url }}"{% endif %}>
           <div class="p-1 md:p-2 w-min text-center flex flex-col items-center">
             <div class="bg-gray-300 dark:bg-slate rounded-lg h-12 w-12">
-            {% if user.image %}
-              <img src="{{ user.image.url }}"
+            {% if user.image or user.commitauthor.avatar_url %}
+              <img src="{% if user.image %}{{ user.image.url}}{% else %}{{ user.commitauthor.avatar_url }}{% endif %}"
                 title="{{ user.get_full_name }}"
                 alt="{{ user.get_full_name }}"
                 class="rounded-lg h-12 w-12 object-cover" />
@@ -132,12 +133,17 @@
             </div>
             <span class="text-xs">{{ user.get_full_name }}</span>
           </div>
+        </a>
       {% endfor %}
       </div>
 
       <div class="flex flex-wrap justify-around">
       {% for author in top_contributors_release %}
-        <a href="{{ author.github_profile_url }}" disabled>
+        <a
+          {% if author.github_profile_url %}
+            href="{{ author.github_profile_url }}"
+          {% endif %}
+        >
           <div class="p-1 md:p-2 flex justify-center" title="{{ author.name }}">
             <div class="bg-gray-300 dark:bg-slate rounded-lg h-9 w-9 overflow-hidden">
             {% if author.avatar_url %}
@@ -156,9 +162,7 @@
 
       <div class="flex flex-wrap justify-around">
       {% for author in top_contributors_overall %}
-        <a
-          class="{% if not author.github_profile_url %}pointer-events-none cursor-default{% endif %}"
-          href="{{ author.github_profile_url }}">
+        <a {% if author.github_profile_url %}href="{{ author.github_profile_url }}"{% endif %}>
           <div class="p-1 md:p-2 w-20 flex text-center justify-center" title="{{ author.name }}">
             <div class="bg-gray-300 dark:bg-slate rounded-lg h-9 w-9 overflow-hidden">
             {% if author.avatar_url %}
