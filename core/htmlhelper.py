@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from django.template.loader import render_to_string
 
 from core.boostrenderer import get_body_from_html
 
@@ -157,11 +158,15 @@ def modernize_legacy_page(content, base_html, head_selector="head", insert_body=
             # <div id="boost-legacy-docs-body"></div> block
             _replace_body(result, original_body, base_body=placeholder.body)
         else:
+            result.body.wrap(result.new_tag("div", id="boost-legacy-docs-wrapper"))
             _insert_in_doc(
                 result.body,
                 placeholder.find("div", {"id": "boost-legacy-docs-header"}),
                 append=False,
             )
+            rendered_template = render_to_string("includes/_footer.html", {})
+            rendered_template_as_dom = BeautifulSoup(rendered_template, "html.parser")
+            result.append(rendered_template_as_dom)
 
     content = str(result)
 
