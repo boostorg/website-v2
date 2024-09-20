@@ -116,9 +116,9 @@ class GithubAPIClient:
         """Get a repo commit by ref."""
         if not repo_slug:
             repo_slug = self.repo_slug
-        return self.with_retry(lambda: self.api.repos.get_commit(
-            owner=self.owner, repo=repo_slug, ref=ref
-        ))
+        return self.with_retry(
+            lambda: self.api.repos.get_commit(owner=self.owner, repo=repo_slug, ref=ref)
+        )
 
     def get_commits(
         self,
