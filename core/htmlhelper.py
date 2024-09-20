@@ -118,7 +118,9 @@ def modernize_legacy_page(content, base_html, head_selector="head", insert_body=
     if result.html is None:
         # Not an HTML file we care about
         return content
-
+    boostlook_content = result.find("div", {"class": "boostlook"})
+    if boostlook_content:
+        boostlook_content.wrap(result.new_tag("div", id="boost-legacy-docs-wrapper"))
     # Remove the first occurrence of legacy header(s) and other stuff
     for tag_name, tag_attrs in REMOVE_TAGS:
         tag = result.find(tag_name, tag_attrs)
@@ -158,7 +160,6 @@ def modernize_legacy_page(content, base_html, head_selector="head", insert_body=
             # <div id="boost-legacy-docs-body"></div> block
             _replace_body(result, original_body, base_body=placeholder.body)
         else:
-            result.body.wrap(result.new_tag("div", id="boost-legacy-docs-wrapper"))
             _insert_in_doc(
                 result.body,
                 placeholder.find("div", {"id": "boost-legacy-docs-header"}),
