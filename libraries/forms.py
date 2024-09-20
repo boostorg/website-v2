@@ -32,7 +32,9 @@ class CreateReportForm(Form):
     library_1 = ModelChoiceField(
         queryset=library_queryset,
         required=False,
-        help_text="If none are selected, the top 5 for this release will be auto-selected.",
+        help_text=(
+            "If none are selected, the top 5 for this release will be auto-selected."
+        ),
     )
     library_2 = ModelChoiceField(
         queryset=library_queryset,
@@ -148,10 +150,12 @@ class CreateReportForm(Form):
                         filter=Q(library_version__in=lte_subquery),
                         distinct=True,
                     ),
-                ).annotate(
+                )
+                .annotate(
                     count=F("authors_through_release_count")
                     - F("authors_before_release_count")
-                ).values("id", "count")
+                )
+                .values("id", "count")
             ),
             key=lambda x: library_order.index(x["id"]),
         )
@@ -205,12 +209,12 @@ class CreateReportForm(Form):
                 self._count_new_contributors(libraries, library_order),
             )
         ]
-
+        top_contributors = self._get_top_contributors_for_version()
         return {
             "version": version,
             "commit_count": commit_count,
             "version_commit_count": version_commit_count,
-            "top_contributors_release_overall": self._get_top_contributors_for_version(),
+            "top_contributors_release_overall": top_contributors,
             "library_data": library_data,
             "top_libraries_for_version": top_libraries_for_version,
             "library_count": Library.objects.all().count(),

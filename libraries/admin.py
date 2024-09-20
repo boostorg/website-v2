@@ -220,8 +220,9 @@ class LibraryAdmin(admin.ModelAdmin):
         return TemplateResponse(request, "admin/library_report_detail.html", context)
 
     def view_stats(self, instance):
+        url = reverse('admin:library_stat_detail', kwargs={'pk': instance.pk})
         return mark_safe(
-            f"<a href='{reverse('admin:library_stat_detail', kwargs={'pk': instance.pk})}'>View Stats</a>"
+            f"<a href='{url}'>View Stats</a>"
         )
 
     def update_libraries(self, request):

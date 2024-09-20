@@ -294,14 +294,20 @@ class LibraryDetail(FormMixin, DetailView):
         # Since we need to execute these queries separately anyway, just concatenate
         # their results instead of making a new query
         all_contributors = []
-        for x in chain(context["top_contributors_release"], context["top_contributors_overall"]):
-            all_contributors.append({
-                'name': x.name,
-            })
-        for x in context['maintainers']:
-            all_contributors.append({
-                'name': x.get_full_name(),
-            })
+        for x in chain(
+            context["top_contributors_release"], context["top_contributors_overall"]
+        ):
+            all_contributors.append(
+                {
+                    "name": x.name,
+                }
+            )
+        for x in context["maintainers"]:
+            all_contributors.append(
+                {
+                    "name": x.get_full_name(),
+                }
+            )
 
         context["all_contributors"] = all_contributors
 

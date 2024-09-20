@@ -59,7 +59,9 @@ class ParsedCommit:
 def get_commit_data_for_repo_versions(key):
     library = Library.objects.get(key=key)
     parser = re.compile(
-        r"^commit (?P<sha>\w+)(?:\n(?P<merge>Merge).*)?\nAuthor: (?P<name>[^\<]+)\s+\<(?P<email>[^\>]+)\>\nDate:\s+(?P<date>.*)\n(?P<message>(.|\n)+?)(?=(commit|\Z))",
+        r"^commit (?P<sha>\w+)(?:\n(?P<merge>Merge).*)?\nAuthor: (?P<name>[^\<]+)"
+        r"\s+\<(?P<email>[^\>]+)\>\nDate:\s+(?P<date>.*)\n(?P<message>(.|\n)+?)"
+        r"(?=(commit|\Z))",
         flags=re.MULTILINE,
     )
 
@@ -75,7 +77,7 @@ def get_commit_data_for_repo_versions(key):
             error = completed.stderr.decode()
             if "fatal: unable to access" in error:
                 logger.warning(
-                    f"{completed.args} failed. Retrying git clone. Retry {retry_count}. Error: {error}"
+                    f"{completed.args} failed. Retrying git clone. Retry {retry_count}."
                 )
                 time.sleep(2**retry_count)
                 continue
@@ -512,7 +514,7 @@ class LibraryUpdater:
         )
 
     def update_commit_author_github_data(self, obj=None, email=None, overwrite=False):
-        """Update CommitAuthor data by parsing the author data on their most recent commit."""
+        """Update CommitAuthor data by parsing data on their most recent commit."""
         if email:
             authors = CommitAuthor.objects.filter(
                 Exists(CommitAuthorEmail.objects.filter(id=OuterRef("pk"), email=email))
