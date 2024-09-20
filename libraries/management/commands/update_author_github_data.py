@@ -9,7 +9,8 @@ from libraries.models import Library
 def command(key, clean):
     updater = LibraryUpdater()
     click.secho(
-        "Updating author avatars from github. This may take a while, depending on how many authors need to be updated...",
+        "Updating author avatars from github. This may take a while, "
+        "depending on how many authors need to be updated...",
         fg="green",
     )
     if key is None:
