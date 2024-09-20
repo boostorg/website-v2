@@ -213,3 +213,4 @@ def update_commits(token=None):
     updater = LibraryUpdater(token=token)
     for library in Library.objects.all():
         updater.update_commits(obj=library)
+    logger.info("update_commits finished.")
