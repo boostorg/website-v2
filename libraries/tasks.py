@@ -8,7 +8,7 @@ from django.utils import timezone
 from core.boostrenderer import get_content_from_s3
 from core.htmlhelper import get_library_documentation_urls
 from libraries.github import LibraryUpdater
-from libraries.models import LibraryVersion
+from libraries.models import Library, LibraryVersion
 from versions.models import Version
 from .constants import (
     LIBRARY_DOCS_EXCEPTIONS,
@@ -206,3 +206,10 @@ def update_current_month_commit_counts(token=None):
     ) - relativedelta(days=1)
     updater.update_monthly_commit_counts(since=since, until=now)
     logger.info("libraries_update_current_month_commit_counts_finished")
+
+
+@app.task
+def update_commits(token=None):
+    updater = LibraryUpdater(token=token)
+    for library in Library.objects.all():
+        updater.update_commits(obj=library)

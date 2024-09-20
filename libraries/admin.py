@@ -24,6 +24,7 @@ from .models import (
 )
 from .tasks import (
     update_commit_counts,
+    update_commits,
     update_libraries,
     update_library_version_documentation_urls_all_versions,
 )
@@ -35,6 +36,28 @@ class CommitAdmin(admin.ModelAdmin):
     autocomplete_fields = ["author", "library_version"]
     list_filter = ["library_version__library"]
     search_fields = ["sha", "author__name"]
+    change_list_template = "admin/commit_change_list.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path(
+                "update_commits/",
+                self.admin_site.admin_view(self.update_commits),
+                name="update_commits",
+            ),
+        ]
+        return my_urls + urls
+
+    def update_commits(self, request):
+        update_commits.delay()
+        self.message_user(
+            request,
+            """
+            Commits for all libraries are being imported.
+            """,
+        )
+        return HttpResponseRedirect("../")
 
 
 class CommitAuthorEmailInline(admin.TabularInline):
