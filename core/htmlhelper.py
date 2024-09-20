@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Comment
 from django.template.loader import render_to_string
 
 from core.boostrenderer import get_body_from_html
@@ -111,6 +111,29 @@ def _replace_body(result, original_body, base_body):
         result.body.body.unwrap()
 
 
+def wrap_main_body_elements(result):
+    def is_end_comment(element):
+        return (
+            isinstance(element, Comment) and element == " END Manually appending items "
+        )
+
+    start_index = None
+    elements_to_wrap = []
+    wrapper_div = result.new_tag("div", id="boost-legacy-docs-wrapper")
+    for index, element in enumerate(result.find("body").children):
+        if is_end_comment(element):
+            start_index = index
+            # we want to leave the comment where it is
+            continue
+        if start_index:
+            elements_to_wrap.append(element)
+
+    for index, element in enumerate(elements_to_wrap):
+        wrapper_div.append(element)
+
+    result.append(wrapper_div)
+
+
 def modernize_legacy_page(content, base_html, head_selector="head", insert_body=True):
     """Modernize a legacy Boost documentation page."""
 
@@ -118,9 +141,6 @@ def modernize_legacy_page(content, base_html, head_selector="head", insert_body=
     if result.html is None:
         # Not an HTML file we care about
         return content
-    boostlook_content = result.find("div", {"class": "boostlook"})
-    if boostlook_content:
-        boostlook_content.wrap(result.new_tag("div", id="boost-legacy-docs-wrapper"))
     # Remove the first occurrence of legacy header(s) and other stuff
     for tag_name, tag_attrs in REMOVE_TAGS:
         tag = result.find(tag_name, tag_attrs)
@@ -165,6 +185,7 @@ def modernize_legacy_page(content, base_html, head_selector="head", insert_body=
                 placeholder.find("div", {"id": "boost-legacy-docs-header"}),
                 append=False,
             )
+            wrap_main_body_elements(result)
             rendered_template = render_to_string("includes/_footer.html", {})
             rendered_template_as_dom = BeautifulSoup(rendered_template, "html.parser")
             result.append(rendered_template_as_dom)
