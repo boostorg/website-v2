@@ -9,9 +9,9 @@
 {% block content %}
   <div class="py-0 px-0 md:px-4 mt-4 mb-0 w-full md:mb-2">
     <div class="md:w-full">
-      <h1 class="text-4xl">Latest Stories</h1>
+      <h1 class="text-4xl px-3 md:px-0">Latest Stories</h1>
 
-      <div class="md:flex md:space-x-16">
+      <div class="md:flex md:space-x-16 px-3 md:px-0">
         <div class="md:w-1/2 w-full">
           <p class="mt-0 text-justify">
             Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, polls, and user-created content.
@@ -125,7 +125,7 @@
             {% endif %}
             <span class="group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">{{ entry.author.first_name}}&nbsp;{{ entry.author.last_name }}</span>
           </div>
-          <div class="block p-6 mb-10 w-full bg-white md:rounded-lg md:shadow-lg md:ml-6 dark:bg-charcoal overflow-hidden">
+          <div class="block p-6 mb-3 md:mb-10 w-full bg-white md:rounded-lg md:shadow-lg md:ml-6 dark:bg-charcoal overflow-hidden">
             {% can_edit news_item=entry as editable %}
             {% if editable %}
               <a href="{% url 'news-update' entry.slug %}" class="float-right dark:text-white/50 hover:text-orange dark:hover:text-orange -mt-5 -mr-4 text-sm">
@@ -152,7 +152,7 @@
             {% endif %}
 
             <!-- footer of cards only for mobile devices -->
-            <div class="flex border-t border-gray-300 md:hidden">
+            <div class="flex border-t mt-4 border-gray-300 md:hidden">
               <div class="mt-6 w-1/3 text-xs text-left capitalize">
                 {{ entry.author.get_full_name }}<br />
                 {{ entry.display_publish_at }}
@@ -189,11 +189,11 @@
               </div>
               <div class="pt-2 mt-4 w-1/3 text-xs text-right">
                 {% if entry.author.image %}
-                  <span class="inline-block h-[36px] w-[36px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
+                  <span class="inline-block h-[36px] w-[36px] overflow-hidden rounded-lg  ">
                     <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
                   </span>
                 {% else %}
-                  <span class="inline-block h-[36px] w-[36px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
+                  <span class="inline-block h-[36px] w-[36px] bg-white rounded-lg dark:text-white dark:bg-slate border">
                     <i class="text-2xl fas fa-user mr-1" title="{{ entry.author.get_full_name }}"></i>
                   </span>
                 {% endif %}

@@ -1,4 +1,4 @@
-from .utils import (
+from .constants_utils import (
     generate_library_docs_url,
     generate_library_docs_url_v2,
     generate_library_docs_url_v3,
@@ -11,17 +11,16 @@ from .utils import (
     generate_library_docs_url_utility_v3,
     generate_library_docs_url_circular_buffer,
     generate_library_docs_url_core,
-    generate_library_docs_url_double_nested_library_htm,
     generate_library_docs_url_double_nested_library_html,
+    generate_library_docs_url_double_nested_library_htm,
     generate_library_docs_url_algorithm,
     generate_library_docs_url_numeric,
     generate_library_docs_url_numeric_2,
     generate_library_docs_url_string_ref,
     generate_library_docs_url_string_view,
-    generate_library_docs_url_utility_anchor,
     generate_library_docs_url_throwexception,
+    generate_library_docs_url_utility_anchor,
 )
-
 
 # Mapping for exeptions to loading URLs for older docs.
 # key: Taken from Library.slug
@@ -309,3 +308,7 @@ SKIP_LIBRARY_VERSIONS = {
 
 # List of versions for which we know docs are missing
 VERSION_DOCS_MISSING = ["boost-1.33.0"]
+
+DEFAULT_LIBRARIES_LANDING_VIEW = "libraries-grid"
+SELECTED_BOOST_VERSION_COOKIE_NAME = "boost_version"
+SELECTED_LIBRARY_VIEW_COOKIE_NAME = "library_view"

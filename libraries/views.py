@@ -26,10 +26,16 @@ from .models import (
     Library,
     LibraryVersion,
 )
-from .utils import redirect_to_view_with_params
-
-SELECTED_BOOST_VERSION_COOKIE_NAME = "boost_version"
-SELECTED_LIBRARY_VIEW_COOKIE_NAME = "library_view"
+from .utils import (
+    redirect_to_view_with_params,
+    get_view_from_cookie,
+    set_view_in_cookie,
+    get_prioritized_library_view,
+    build_view_query_params_from_request,
+    build_route_name_for_view,
+    determine_view_from_library_request,
+)
+from .constants import SELECTED_BOOST_VERSION_COOKIE_NAME
 
 logger = structlog.get_logger()
 
@@ -55,7 +61,6 @@ class LibraryList(VersionAlertMixin, ListView):
         version_slug = self.request.COOKIES.get(
             SELECTED_BOOST_VERSION_COOKIE_NAME, None
         )
-
         if version_slug is None:
             version_slug = self.request.GET.get("version", None)
 
@@ -68,25 +73,12 @@ class LibraryList(VersionAlertMixin, ListView):
     def set_selected_boost_version(self, response, version: str) -> None:
         """Set the selected version in the cookies."""
         valid_versions = Version.objects.version_dropdown_strict()
-
-        if version in [v.slug for v in valid_versions] or version == "latest":
+        if version in [v.slug for v in valid_versions]:
             response.set_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME, version)
+        elif version == "latest":
+            response.delete_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME)
         else:
             logger.warning(f"Attempted to set invalid version slug: {version}")
-
-    def get_selected_library_view(self) -> str:
-        """Get the user's preferred view for the libraries page."""
-        return self.request.COOKIES.get(SELECTED_LIBRARY_VIEW_COOKIE_NAME)
-
-    def set_selected_library_view(
-        self, response, view: str, *, clear: bool = False
-    ) -> str:
-        """Set the user's preferred view for the libraries page."""
-        if clear:
-            response.delete_cookie(SELECTED_LIBRARY_VIEW_COOKIE_NAME)
-        else:
-            response.set_cookie(SELECTED_LIBRARY_VIEW_COOKIE_NAME, view)
-            return view
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -150,6 +142,7 @@ class LibraryList(VersionAlertMixin, ListView):
         context["categories"] = self.get_categories(context["version"])
         context["versions"] = self.get_versions()
         context["library_list"] = self.get_queryset()
+        context["url_params"] = build_view_query_params_from_request(self.request)
         return context
 
     def get_categories(self, version=None):
@@ -183,72 +176,24 @@ class LibraryList(VersionAlertMixin, ListView):
         versions = versions.exclude(name__in=["develop", "master", "head"])
         return versions
 
-    def get_version_request_from_url(self):
-        return self.request.GET.get("version")
-
-    def view_route_from_url(self):
-        path_info = self.request.path_info
-
-        # Determine the route name based on the URL.
-        if "/by-category/" in path_info:
-            route_name = "libraries-by-category"
-        elif "/mini/" in path_info:
-            route_name = "libraries-mini"
-        else:
-            route_name = "libraries"
-
-        return route_name
-
     def dispatch(self, request, *args, **kwargs):
         """Set the selected version in the cookies."""
         response = super().dispatch(request, *args, **kwargs)
+        query_params = build_view_query_params_from_request(request)
+        # check if one was set, if not then default to cookie value for latest
+        # (practically speaking, that means no cookie)
+        self.set_selected_boost_version(response, query_params.get("version", "latest"))
 
-        # If the user has requested a reset, clear the session value.
-        if "reset_view" in request.GET:
-            self.set_selected_library_view(response, "", clear=True)
+        view = determine_view_from_library_request(request)
+        # The following conditional practically only applies on "/libraries/", at
+        # which point the redirection will be determined by prioritised view
+        if not view:
+            view = get_prioritized_library_view(request)
+            set_view_in_cookie(response, build_route_name_for_view(view))
+            return redirect_to_view_with_params(view, kwargs, query_params)
 
-        # Determine the route name based on the URL.
-        route_name = self.view_route_from_url()
-        if route_name in ["libraries-mini", "libraries-by-category"]:
-            self.set_selected_library_view(response, route_name)
-
-        redirect_to_version = self.get_selected_boost_version()
-        redirect_to_route = self.get_selected_library_view()
-        route_in_url = self.view_route_from_url()
-        version_in_url = self.get_version_request_from_url()
-
-        # If the user has a preferred view, use that.
-        if redirect_to_route and route_in_url != redirect_to_route:
-            if "reset_view" not in request.GET:
-                self.set_selected_library_view(response, route_name)
-                return redirect(redirect_to_route)
-            route_name = redirect_to_route
-
-        # Set the cookie value to the version in the URL.
-        if version_in_url:
-            self.set_selected_boost_version(response, version_in_url)
-        else:
-            # If no version is present in the URL, default to the cookie value.
-            if redirect_to_version:
-                # Construct the URL with the version from the cookie.
-                current_category = request.GET.get("category", "")
-                reset_view = "reset_view" in request.GET
-
-                query_params = {
-                    "category": current_category,
-                    "version": redirect_to_version,
-                }
-                if reset_view:
-                    query_params.update(reset_view="1")
-
-                if not current_category:
-                    del query_params["category"]
-
-                # Redirect to the correct view with the correct version.
-                redirect_to_route = self.get_selected_library_view()
-                route_name = redirect_to_route if redirect_to_route else route_name
-
-                return redirect_to_view_with_params(route_name, kwargs, query_params)
+        if view != get_view_from_cookie(request):
+            set_view_in_cookie(response, build_route_name_for_view(view))
 
         return response
 
