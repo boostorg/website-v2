@@ -312,54 +312,6 @@ class LibraryUpdater:
             obj.maintainers.add(user)
             self.logger.info(f"User {user.email} added as a maintainer of {obj}")
 
-    def update_monthly_commit_counts(
-        self,
-        branch: str = "master",
-        since=FIRST_OF_MONTH_ONE_YEAR_AGO,
-        until=FIRST_OF_CURRENT_MONTH,
-    ):
-        """Update the monthly commit data for all libraries
-
-        :param branch: Branch to update commit data for. Defaults to "master".
-        :param since: Year to update commit data for. Defaults to a year ago
-        :param until: Year to update commit data for. Defaults to present year
-
-        Note: Overrides CommitData objects for the library; does not increment
-        the count.
-        """
-        self.logger.info("updating_monthly_commit_data")
-        for library in Library.objects.all():
-            self.update_monthly_commit_counts_for_library(
-                library, branch=branch, since=since, until=until
-            )
-
-    def update_monthly_commit_counts_for_library(
-        self,
-        obj,
-        branch: str = "master",
-        since=FIRST_OF_MONTH_ONE_YEAR_AGO,
-        until=FIRST_OF_CURRENT_MONTH,
-    ):
-        """Update the commit counts for a specific library."""
-        commits = self.client.get_commits(
-            repo_slug=obj.github_repo, branch=branch, since=since, until=until
-        )
-        commit_data = self.parser.get_commits_per_month(commits)
-
-        for month_year, commit_count in commit_data.items():
-            data_obj, created = obj.commit_data.update_or_create(
-                month_year=month_year,
-                branch=branch,
-                defaults={"commit_count": commit_count},
-            )
-            self.logger.info(
-                "commit_data_updated",
-                commit_data_pk=data_obj.pk,
-                obj_created=created,
-                library=obj.name,
-                branch=branch,
-            )
-
     def update_issues(self, obj):
         """Import GitHub issues for the library and update the database"""
         self.logger.info("updating_repo_issues")
