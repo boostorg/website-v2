@@ -10,7 +10,7 @@
   - [`import_library_version_docs_urls`](#import_library_version_docs_urls)
   - [`update_maintainers`](#update_maintainers)
   - [`update_authors`](#update_authors)
-  - [`import_commit_counts`](#import_commit_counts)
+  - [`import_commits`](#import_commits)
   - [`import_beta_release`](#import_beta_release)
 
 ## `boost_setup`
@@ -209,24 +209,22 @@ If both the `--release` and the `--library-name` are passed, the command will lo
 | `--library-name`  | string   | Name of the library. If passed, the command will load maintainers for only this library. |
 
 
+## `import_commits`
 
-
-## `import_commit_counts`
-
-**Purpose**: Saves `CommitData` objects. Each object contains the data for the number of commits made to the `master` branch of a given `Library` with in a given month.
+**Purpose**: Cycles through all libraries and their library versions to import `Commit`, `CommitAuthor`, and `CommitAuthorEmail` models. Updates `CommitAuthor` github profile URLs and avatar URLs.
 
 **Example**
 
 ```bash
-./manage.py import_commit_counts
+./manage.py import_commits
 ```
 
 **Options**
 
 | Options              | Format | Description                                                  |
 |----------------------|--------|--------------------------------------------------------------|
-| `--branch`            | string | Specify the branch you want to count commits for. Defaults to `master`. |
-| `--token`  | string   | Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`. |
+| `--key`  | string   | Key of the library. If passed, the command will import commits for only this library. |
+| `--clean`  | boolean   | If passed, will delete all existing commits before importing new ones. |
 
 
 ## `import_beta_release`
