@@ -309,6 +309,7 @@ class LibraryDetail(FormMixin, DetailView):
                 }
             )
 
+        all_contributors.sort(key=lambda x: x['name'].lower())
         context["all_contributors"] = all_contributors
 
         # Populate the commit graphs
