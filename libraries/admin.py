@@ -23,6 +23,7 @@ from .models import (
     PullRequest,
 )
 from .tasks import (
+    update_commit_author_github_data,
     update_commit_counts,
     update_commits,
     update_libraries,
@@ -70,6 +71,28 @@ class CommitAuthorAdmin(admin.ModelAdmin):
     search_fields = ["name"]
     actions = ["merge_authors"]
     inlines = [CommitAuthorEmailInline]
+    change_list_template = "admin/commit_author_change_list.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path(
+                "update_github_data/",
+                self.admin_site.admin_view(self.update_github_data),
+                name="commit_author_update_github_data",
+            ),
+        ]
+        return my_urls + urls
+
+    def update_github_data(self, request):
+        update_commit_author_github_data.delay(clean=True)
+        self.message_user(
+            request,
+            """
+            Updating CommitAuthor Github data.
+            """,
+        )
+        return HttpResponseRedirect("../")
 
     @admin.action(
         description="Combine 2 or more authors into one. References will be updated."

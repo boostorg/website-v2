@@ -214,3 +214,10 @@ def update_commits(token=None):
     for library in Library.objects.all():
         updater.update_commits(obj=library)
     logger.info("update_commits finished.")
+
+
+@app.task
+def update_commit_author_github_data(token=None, clean=False):
+    updater = LibraryUpdater(token=token)
+    updater.update_commit_author_github_data(overwrite=clean)
+    logger.info("update_commit_author_github_data finished.")
