@@ -5,7 +5,6 @@ from django.db.models.functions import RowNumber
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.shortcuts import redirect
 
@@ -16,7 +15,6 @@ from .models import (
     Commit,
     CommitAuthor,
     CommitAuthorEmail,
-    CommitData,
     Issue,
     Library,
     LibraryVersion,
@@ -24,7 +22,6 @@ from .models import (
 )
 from .tasks import (
     update_commit_author_github_data,
-    update_commit_counts,
     update_commits,
     update_libraries,
     update_library_version_documentation_urls_all_versions,
@@ -114,71 +111,6 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ["name"]
     ordering = ["name"]
     search_fields = ["name"]
-
-
-@admin.register(CommitData)
-class CommitDataAdmin(admin.ModelAdmin):
-    list_display = (
-        "library",
-        "commit_count_formatted",
-        "month_year_formatted",
-        "branch",
-        "library_link",
-    )
-    list_filter = ("library__name", "branch", "month_year")
-    search_fields = ("library__name", "branch")
-    date_hierarchy = "month_year"
-    ordering = ("library__name", "-month_year")
-    autocomplete_fields = ["library"]
-    change_list_template = "admin/commit_data_change_list.html"
-
-    def commit_count_formatted(self, obj):
-        return f"{obj.commit_count:,}"
-
-    commit_count_formatted.admin_order_field = "commit_count"
-    commit_count_formatted.short_description = "Commit Count"
-
-    def month_year_formatted(self, obj):
-        return obj.month_year.strftime("%B %Y")
-
-    month_year_formatted.admin_order_field = "month_year"
-    month_year_formatted.short_description = "Month/Year"
-
-    def library_link(self, obj):
-        return format_html(
-            '<a href="{}">{}</a>',
-            reverse("admin:libraries_library_change", args=(obj.library.pk,)),
-            obj.library.name,
-        )
-
-    library_link.short_description = "Library Details"
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "library":
-            kwargs["queryset"] = Library.objects.order_by("name")
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-    def get_urls(self):
-        urls = super().get_urls()
-        my_urls = [
-            path(
-                "update_commit_data/",
-                self.update_commit_data,
-                name="update_commit_data",
-            ),
-        ]
-        return my_urls + urls
-
-    def update_commit_data(self, request):
-        """Run the task to refresh the library data from GitHub"""
-        update_commit_counts.delay()
-        self.message_user(
-            request,
-            """
-            Commit data is being refreshed.
-        """,
-        )
-        return HttpResponseRedirect("../")
 
 
 class LibraryVersionInline(admin.TabularInline):

@@ -2,7 +2,6 @@ import datetime
 from itertools import chain
 
 import structlog
-from dateutil.relativedelta import relativedelta
 from django.contrib import messages
 from django.db.models import F, Count
 from django.db.models.functions import Lower
@@ -22,7 +21,6 @@ from .models import (
     Category,
     CommitAuthor,
     CommitAuthorEmail,
-    CommitData,
     Library,
     LibraryVersion,
 )
@@ -313,7 +311,6 @@ class LibraryDetail(FormMixin, DetailView):
         context["all_contributors"] = all_contributors
 
         # Populate the commit graphs
-        context["commit_data_annual"] = self.get_commit_data_annual()
         context["commit_data_by_release"] = self.get_commit_data_by_release()
 
         # Populate the library description
@@ -380,60 +377,6 @@ class LibraryDetail(FormMixin, DetailView):
             commit_data_list.append({"date": date, "commit_count": commit_count})
 
         return commit_data_list
-
-    def get_commit_data_annual(self):
-        """Retrieve number of commits to the library per year."""
-        if not self.object.commit_data.exists():
-            return []
-
-        # Get the first and last commit dates to determine the range of years
-        first_commit = self.object.commit_data.earliest("month_year")
-        first_year = first_commit.month_year.year
-        current_year = datetime.date.today().year
-        years = list(range(first_year, current_year + 1))
-
-        # For years there were no commits, return the year and the 0 count
-        commit_data_annual = {year: 0 for year in years}
-        actual_data = dict(
-            CommitData.objects.get_annual_commit_data_for_library(
-                self.object
-            ).values_list("year", "commit_count")
-        )
-        commit_data_annual.update(actual_data)
-        prepared_commit_data = [
-            {"date": year, "commit_count": count}
-            for year, count in commit_data_annual.items()
-        ]
-        # Sort the data by date
-        prepared_commit_data.sort(key=lambda x: x["date"])
-        return self._prepare_commit_data(prepared_commit_data, "annual")
-
-    def get_commit_data_last_12_months(self):
-        """Retrieve the number of commits per month for the last year."""
-        if not self.object.commit_data.exists():
-            return []
-
-        # Generate default dict of last 12 months with 0 commits so we still see
-        # months with no commits
-        today = datetime.date.today()
-        months = [(today - relativedelta(months=i)).replace(day=1) for i in range(12)]
-        commit_data_monthly = {month: 0 for month in months}
-
-        # Update dict with real data from the database.
-        actual_data = dict(
-            CommitData.objects.get_commit_data_for_last_12_months_for_library(
-                self.object
-            ).values_list("month_year", "commit_count")
-        )
-        commit_data_monthly.update(actual_data)
-        prepared_commit_data = [
-            {"date": month, "commit_count": count}
-            for month, count in commit_data_monthly.items()
-        ]
-        # Sort the data by date
-        prepared_commit_data.sort(key=lambda x: x["date"])
-        result = self._prepare_commit_data(prepared_commit_data, "monthly")
-        return result
 
     def get_current_library_version(self, version):
         """Return the library-version for the latest version of Boost"""

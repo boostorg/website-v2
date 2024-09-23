@@ -12,7 +12,6 @@ from core.markdown import process_md
 from core.models import RenderedContent
 from core.tasks import adoc_to_html
 
-from .managers import CommitDataManager
 from .utils import generate_random_string, write_content_to_tempfile
 
 
@@ -37,39 +36,6 @@ class Category(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         return super(Category, self).save(*args, **kwargs)
-
-
-class CommitData(models.Model):
-    library = models.ForeignKey(
-        "libraries.Library",
-        on_delete=models.CASCADE,
-        help_text="The Library to which these commits belong.",
-        related_name="commit_data",
-    )
-    commit_count = models.PositiveIntegerField(
-        default=0, help_text="The number of commits made during the month."
-    )
-    month_year = models.DateField(
-        help_text="The month and year when the commits were made. Day is always set to "
-        "the first of the month."
-    )
-    branch = models.CharField(
-        max_length=256,
-        default="master",
-        help_text="The GitHub branch to which these commits were made.",
-    )
-
-    objects = CommitDataManager()
-
-    class Meta:
-        unique_together = ("library", "month_year", "branch")
-        verbose_name_plural = "Commit Data"
-
-    def __str__(self):
-        return (
-            f"{self.library.name} commits for "
-            f"{self.month_year:%B %Y} to {self.branch} branch: {self.commit_count}"
-        )
 
 
 class CommitAuthor(models.Model):
