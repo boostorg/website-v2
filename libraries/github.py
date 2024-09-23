@@ -559,6 +559,8 @@ class LibraryUpdater:
                 )
                 continue
             if gh_author := commit["author"]:
-                author.avatar_url = gh_author["avatar_url"]
-                author.github_profile_url = gh_author["html_url"]
+                if gh_author["avatar_url"]:
+                    author.avatar_url = gh_author["avatar_url"]
+                if gh_author["html_url"]:
+                    author.github_profile_url = gh_author["html_url"]
                 author.save(update_fields=["avatar_url", "github_profile_url"])
