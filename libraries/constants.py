@@ -312,3 +312,5 @@ VERSION_DOCS_MISSING = ["boost-1.33.0"]
 DEFAULT_LIBRARIES_LANDING_VIEW = "libraries-grid"
 SELECTED_BOOST_VERSION_COOKIE_NAME = "boost_version"
 SELECTED_LIBRARY_VIEW_COOKIE_NAME = "library_view"
+# change this to switch from /libraries/align/release/ to /libraries/align/latest/
+LATEST_RELEASE_URL_PATH_STR = "release"
