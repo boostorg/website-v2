@@ -1,4 +1,5 @@
 import datetime
+import re
 
 import structlog
 from dateutil.relativedelta import relativedelta
@@ -25,8 +26,10 @@ from .utils import (
     build_view_query_params_from_request,
     build_route_name_for_view,
     determine_view_from_library_request,
+    determine_selected_boost_version,
+    set_selected_boost_version,
 )
-from .constants import SELECTED_BOOST_VERSION_COOKIE_NAME
+from .constants import LATEST_RELEASE_URL_PATH_STR
 
 logger = structlog.get_logger()
 
@@ -46,38 +49,15 @@ class LibraryList(VersionAlertMixin, ListView):
     )
     template_name = "libraries/list.html"
 
-    def get_selected_boost_version(self) -> str:
-        """Get the selected version from the cookies."""
-        valid_versions = Version.objects.version_dropdown_strict()
-        version_slug = self.request.COOKIES.get(
-            SELECTED_BOOST_VERSION_COOKIE_NAME, None
-        )
-        if version_slug is None:
-            version_slug = self.request.GET.get("version", None)
-
-        if version_slug in [v.slug for v in valid_versions]:
-            return version_slug
-        else:
-            logger.warning(f"Invalid version slug in cookies: {version_slug}")
-            return None
-
-    def set_selected_boost_version(self, response, version: str) -> None:
-        """Set the selected version in the cookies."""
-        valid_versions = Version.objects.version_dropdown_strict()
-        if version in [v.slug for v in valid_versions]:
-            response.set_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME, version)
-        elif version == "latest":
-            response.delete_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME)
-        else:
-            logger.warning(f"Attempted to set invalid version slug: {version}")
-
     def get_queryset(self):
         queryset = super().get_queryset()
         params = self.request.GET.copy()
 
         # If the user has selected a version, fetch it from the cookies.
-        selected_boost_version = self.get_selected_boost_version()
-        if selected_boost_version != params.get("version", None):
+        selected_boost_version = determine_selected_boost_version(
+            self.request.GET.get("version"), self.request
+        )
+        if selected_boost_version != params.get("version"):
             params["version"] = selected_boost_version
 
         # default to the most recent version
@@ -105,6 +85,7 @@ class LibraryList(VersionAlertMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        req_version = self.request.GET.get("version", "latest")
 
         # Handle the case where data hasn't been imported yet
         version = Version.objects.most_recent()
@@ -124,11 +105,16 @@ class LibraryList(VersionAlertMixin, ListView):
             context["category"] = Category.objects.get(
                 slug=self.request.GET["category"]
             )
-
-        if "version" not in self.request.GET or self.request.GET["version"] == "latest":
+        context["LATEST_RELEASE_URL_PATH_STR"] = LATEST_RELEASE_URL_PATH_STR
+        # 'version_str' is representative of what the user has chosen, while 'version'
+        # is the actual version instance that will be used in the template
+        # here we use 'latest' as the default in order to normalize behavior
+        if req_version == "latest":
             context["version"] = Version.objects.most_recent()
+            context["version_str"] = LATEST_RELEASE_URL_PATH_STR
         else:
             context["version"] = Version.objects.get(slug=self.request.GET["version"])
+            context["version_str"] = req_version
 
         context["categories"] = self.get_categories(context["version"])
         context["versions"] = self.get_versions()
@@ -171,13 +157,10 @@ class LibraryList(VersionAlertMixin, ListView):
         """Set the selected version in the cookies."""
         response = super().dispatch(request, *args, **kwargs)
         query_params = build_view_query_params_from_request(request)
-        # check if one was set, if not then default to cookie value for latest
-        # (practically speaking, that means no cookie)
-        self.set_selected_boost_version(response, query_params.get("version", "latest"))
-
-        view = determine_view_from_library_request(request)
+        set_selected_boost_version(query_params.get("version", "latest"), response)
         # The following conditional practically only applies on "/libraries/", at
         # which point the redirection will be determined by prioritised view
+        view = determine_view_from_library_request(request)
         if not view:
             view = get_prioritized_library_view(request)
             set_view_in_cookie(response, build_route_name_for_view(view))
@@ -227,9 +210,6 @@ class LibraryDetail(FormMixin, DetailView):
     template_name = "libraries/detail.html"
     redirect_to_docs = False
 
-    def set_selected_boost_version(self, version):
-        self.request.COOKIES[SELECTED_BOOST_VERSION_COOKIE_NAME] = version
-
     def get_context_data(self, **kwargs):
         """Set the form action to the main libraries page"""
         context = super().get_context_data(**kwargs)
@@ -252,18 +232,28 @@ class LibraryDetail(FormMixin, DetailView):
 
         # Manually exclude beta releases from the version dropdown.
         context["versions"] = context["versions"].exclude(beta=True)
-
+        context["LATEST_RELEASE_URL_PATH_NAME"] = LATEST_RELEASE_URL_PATH_STR
+        documentation_url = self.get_documentation_url(context["version"])
         # Show an alert if the user is on an older version
-        if context["version"] != latest_version:
-            context["version_alert"] = True
+        context["version_alert"] = (
+            True if context["version"] != latest_version else False
+        )
+        # here we use 'latest' as the default just to normalise behavior
+        req_version = self.kwargs.get("version_slug", "latest")
+        if req_version != "latest":
             context["latest_library_version"] = self.get_current_library_version(
                 context["version"]
             )
+            context["version_str"] = context["version"].slug
+            context["documentation_url"] = documentation_url
         else:
-            context["version_alert"] = False
+            context["version_str"] = LATEST_RELEASE_URL_PATH_STR
+            p = re.compile(r"(/doc/libs/)[a-zA-Z0-9_]+(/[/\S]+)$")
+            if p.match(documentation_url):
+                documentation_url = p.sub(r"\1release\2", documentation_url)
+            context["documentation_url"] = documentation_url
 
         # Get general data and version-sensitive data
-        context["documentation_url"] = self.get_documentation_url(context["version"])
         context["github_url"] = self.get_github_url(context["version"])
         context["maintainers"] = self.get_maintainers(context["version"])
         context["author_tag"] = self.get_author_tag()
@@ -438,8 +428,9 @@ class LibraryDetail(FormMixin, DetailView):
         """Redirect to the documentation page, if configured to."""
         if self.redirect_to_docs:
             return redirect(self.get_documentation_url(self.get_version()))
-
-        return super().dispatch(request, *args, **kwargs)
+        response = super().dispatch(request, *args, **kwargs)
+        set_selected_boost_version(kwargs.get("version_slug", "latest"), response)
+        return response
 
     def post(self, request, *args, **kwargs):
         """User has submitted a form and will be redirected to the right record."""
@@ -447,7 +438,6 @@ class LibraryDetail(FormMixin, DetailView):
         form = self.get_form()
         if form.is_valid():
             version = form.cleaned_data["version"]
-            self.set_selected_boost_version(version.slug)
             return redirect(
                 "library-detail-by-version",
                 version_slug=version.slug,
