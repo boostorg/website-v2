@@ -179,6 +179,21 @@ Env:
       secretKeyRef:
         name: general-web-secrets
         key: calendar_api_key
+  - name: FASTLY_SERVICE
+    valueFrom:
+      secretKeyRef:
+        name: fastly
+        key: service
+  - name: FASTLY_SERVICE2
+    valueFrom:
+      secretKeyRef:
+        name: fastly
+        key: service2
+  - name: FASTLY_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: fastly
+        key: api-token
   - name: GITHUB_TOKEN
     valueFrom:
       secretKeyRef:
