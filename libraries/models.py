@@ -1,8 +1,9 @@
 import re
+from typing import Self
 from urllib.parse import urlparse
 
 from django.core.cache import caches
-from django.db import models
+from django.db import models, transaction
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
@@ -11,7 +12,6 @@ from core.markdown import process_md
 from core.models import RenderedContent
 from core.tasks import adoc_to_html
 
-from .managers import CommitDataManager
 from .utils import generate_random_string, write_content_to_tempfile
 
 
@@ -38,37 +38,58 @@ class Category(models.Model):
         return super(Category, self).save(*args, **kwargs)
 
 
-class CommitData(models.Model):
-    library = models.ForeignKey(
-        "libraries.Library",
-        on_delete=models.CASCADE,
-        help_text="The Library to which these commits belong.",
-        related_name="commit_data",
-    )
-    commit_count = models.PositiveIntegerField(
-        default=0, help_text="The number of commits made during the month."
-    )
-    month_year = models.DateField(
-        help_text="The month and year when the commits were made. Day is always set to "
-        "the first of the month."
-    )
-    branch = models.CharField(
-        max_length=256,
-        default="master",
-        help_text="The GitHub branch to which these commits were made.",
-    )
-
-    objects = CommitDataManager()
-
-    class Meta:
-        unique_together = ("library", "month_year", "branch")
-        verbose_name_plural = "Commit Data"
+class CommitAuthor(models.Model):
+    name = models.CharField(max_length=100)
+    avatar_url = models.URLField(null=True, max_length=100)
+    github_profile_url = models.URLField(null=True, max_length=100)
 
     def __str__(self):
-        return (
-            f"{self.library.name} commits for "
-            f"{self.month_year:%B %Y} to {self.branch} branch: {self.commit_count}"
-        )
+        return self.name
+
+    @transaction.atomic
+    def merge_author(self, other: Self):
+        """Update references to `other` to point to `self`.
+
+        Deletes `other` after updating references.
+        """
+        if self.pk == other.pk:
+            return
+        Commit.objects.filter(author=other).update(author=self)
+        other.commitauthoremail_set.update(author=self)
+        if not self.avatar_url:
+            self.avatar_url = other.avatar_url
+        if not self.github_profile_url:
+            self.github_profile_url = other.github_profile_url
+        self.save(update_fields=["avatar_url", "github_profile_url"])
+        other.delete()
+
+
+class CommitAuthorEmail(models.Model):
+    author = models.ForeignKey(CommitAuthor, on_delete=models.CASCADE)
+    email = models.CharField(unique=True)
+
+    def __str__(self):
+        return f"{self.author.name}: {self.email}"
+
+
+class Commit(models.Model):
+    author = models.ForeignKey(CommitAuthor, on_delete=models.CASCADE)
+    library_version = models.ForeignKey("LibraryVersion", on_delete=models.CASCADE)
+    sha = models.CharField(max_length=40)
+    message = models.TextField(default="")
+    committed_at = models.DateTimeField(db_index=True)
+    is_merge = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["sha", "library_version"],
+                name="%(app_label)s_%(class)s_sha_library_version_unique",
+            )
+        ]
+
+    def __str__(self):
+        return self.sha
 
 
 class Library(models.Model):

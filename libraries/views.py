@@ -1,10 +1,11 @@
 import datetime
+from itertools import chain
 import re
 
 import structlog
-from dateutil.relativedelta import relativedelta
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import F, Count
+from django.db.models.functions import Lower
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -17,7 +18,13 @@ from versions.models import Version
 
 from .forms import VersionSelectionForm
 from .mixins import VersionAlertMixin
-from .models import Category, CommitData, Library, LibraryVersion
+from .models import (
+    Category,
+    CommitAuthor,
+    CommitAuthorEmail,
+    Library,
+    LibraryVersion,
+)
 from .utils import (
     redirect_to_view_with_params,
     get_view_from_cookie,
@@ -257,10 +264,44 @@ class LibraryDetail(FormMixin, DetailView):
         context["github_url"] = self.get_github_url(context["version"])
         context["maintainers"] = self.get_maintainers(context["version"])
         context["author_tag"] = self.get_author_tag()
+        exclude_maintainer_ids = [
+            getattr(x.commitauthor, "id")
+            for x in context["maintainers"]
+            if x.commitauthor
+        ]
+        context["top_contributors_release"] = self.get_top_contributors(
+            version=context["version"],
+            exclude=exclude_maintainer_ids,
+        )
+        exclude_top_contributor_ids = [
+            x.id for x in context["top_contributors_release"]
+        ]
+        context["top_contributors_overall"] = self.get_top_contributors(
+            exclude=exclude_maintainer_ids + exclude_top_contributor_ids
+        )
+        # Since we need to execute these queries separately anyway, just concatenate
+        # their results instead of making a new query
+        all_contributors = []
+        for x in chain(
+            context["top_contributors_release"], context["top_contributors_overall"]
+        ):
+            all_contributors.append(
+                {
+                    "name": x.name,
+                }
+            )
+        for x in context["maintainers"]:
+            all_contributors.append(
+                {
+                    "name": x.get_full_name(),
+                }
+            )
+
+        all_contributors.sort(key=lambda x: x["name"].lower())
+        context["all_contributors"] = all_contributors
 
         # Populate the commit graphs
-        context["commit_data_annual"] = self.get_commit_data_annual()
-        context["commit_data_last_12_months"] = self.get_commit_data_last_12_months()
+        context["commit_data_by_release"] = self.get_commit_data_by_release()
 
         # Populate the library description
         client = GithubAPIClient(repo_slug=self.object.github_repo)
@@ -269,6 +310,20 @@ class LibraryDetail(FormMixin, DetailView):
         )
 
         return context
+
+    def get_commit_data_by_release(self):
+        qs = (
+            LibraryVersion.objects.filter(library=self.object)
+            .annotate(count=Count("commit"), version_name=F("version__name"))
+            .order_by("-version__name")
+        )[:20]
+        return [
+            {
+                "release": x.version_name.strip("boost-"),
+                "commit_count": x.count,
+            }
+            for x in reversed(list(qs))
+        ]
 
     def get_object(self):
         """Get the current library object from the slug in the URL.
@@ -312,60 +367,6 @@ class LibraryDetail(FormMixin, DetailView):
             commit_data_list.append({"date": date, "commit_count": commit_count})
 
         return commit_data_list
-
-    def get_commit_data_annual(self):
-        """Retrieve number of commits to the library per year."""
-        if not self.object.commit_data.exists():
-            return []
-
-        # Get the first and last commit dates to determine the range of years
-        first_commit = self.object.commit_data.earliest("month_year")
-        first_year = first_commit.month_year.year
-        current_year = datetime.date.today().year
-        years = list(range(first_year, current_year + 1))
-
-        # For years there were no commits, return the year and the 0 count
-        commit_data_annual = {year: 0 for year in years}
-        actual_data = dict(
-            CommitData.objects.get_annual_commit_data_for_library(
-                self.object
-            ).values_list("year", "commit_count")
-        )
-        commit_data_annual.update(actual_data)
-        prepared_commit_data = [
-            {"date": year, "commit_count": count}
-            for year, count in commit_data_annual.items()
-        ]
-        # Sort the data by date
-        prepared_commit_data.sort(key=lambda x: x["date"])
-        return self._prepare_commit_data(prepared_commit_data, "annual")
-
-    def get_commit_data_last_12_months(self):
-        """Retrieve the number of commits per month for the last year."""
-        if not self.object.commit_data.exists():
-            return []
-
-        # Generate default dict of last 12 months with 0 commits so we still see
-        # months with no commits
-        today = datetime.date.today()
-        months = [(today - relativedelta(months=i)).replace(day=1) for i in range(12)]
-        commit_data_monthly = {month: 0 for month in months}
-
-        # Update dict with real data from the database.
-        actual_data = dict(
-            CommitData.objects.get_commit_data_for_last_12_months_for_library(
-                self.object
-            ).values_list("month_year", "commit_count")
-        )
-        commit_data_monthly.update(actual_data)
-        prepared_commit_data = [
-            {"date": month, "commit_count": count}
-            for month, count in commit_data_monthly.items()
-        ]
-        # Sort the data by date
-        prepared_commit_data.sort(key=lambda x: x["date"])
-        result = self._prepare_commit_data(prepared_commit_data, "monthly")
-        return result
 
     def get_current_library_version(self, version):
         """Return the library-version for the latest version of Boost"""
@@ -411,10 +412,42 @@ class LibraryDetail(FormMixin, DetailView):
             return self.object.github_url
 
     def get_maintainers(self, version):
-        """Get the maintainers for the current LibraryVersion."""
+        """Get the maintainers for the current LibraryVersion.
+
+        Also patches the CommitAuthor onto the user, if a matching email exists.
+        """
         obj = self.get_object()
         library_version = LibraryVersion.objects.get(library=obj, version=version)
-        return library_version.maintainers.all()
+        qs = list(library_version.maintainers.all())
+        commit_authors = {
+            author_email.email: author_email
+            for author_email in CommitAuthorEmail.objects.annotate(
+                email_lower=Lower("email")
+            )
+            .filter(email_lower__in=[x.email.lower() for x in qs])
+            .select_related("author")
+        }
+        for user in qs:
+            if author_email := commit_authors.get(user.email.lower(), None):
+                user.commitauthor = author_email.author
+            else:
+                user.commitauthor = None
+        return qs
+
+    def get_top_contributors(self, version=None, exclude=None):
+        if version:
+            library_version = LibraryVersion.objects.get(
+                library=self.object, version=version
+            )
+            qs = CommitAuthor.objects.filter(commit__library_version=library_version)
+        else:
+            qs = CommitAuthor.objects.filter(
+                commit__library_version__library=self.object
+            )
+        if exclude:
+            qs = qs.exclude(id__in=exclude)
+        qs = qs.annotate(count=Count("commit")).order_by("-count")
+        return qs
 
     def get_version(self):
         """Get the version of Boost for the library we're currently looking at."""

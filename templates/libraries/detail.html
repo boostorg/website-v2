@@ -103,12 +103,8 @@
       <div class="pb-2 px-0 ml-0 w-full h-auto md:w-2/3 md:pb-0 md:pl-6 md:mx-6">
         <div class="flex">
           <div class="flex w-full">
-            {# todo: add a toggle between the two types #}
             <div class="w-full">
-              <div id="chart1" class="w-full text-center">{# Commits per Month #}</div>
-            </div>
-            <div class="w-full hidden">
-              <div id="chart2" class="w-full text-center">{# Commits per Year #}</div>
+              <div id="chart1" class="w-full text-center">{# Commits per Release #}</div>
             </div>
           </div>
         </div>
@@ -116,26 +112,78 @@
 
     </section>
 
-    {% if maintainers %}
+    {% if maintainers or top_contributors_release or top_contributors_overall %}
     <section class="p-6 pt-1 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
       <!-- Avatars -->
-      <h2 class="text-2xl">Maintainers</h2>
-      <div class="flex flex-wrap justify-start">
-      {% for user in maintainers %}
-          <div class="p-1 md:p-2 w-min text-center flex flex-col items-center">
-            <div class="bg-gray-300 dark:bg-slate rounded-lg h-9 w-9 overflow-hidden">
-            {% if user.image %}
-              <img src="{{ user.image.url }}"
-                title="{{ user.get_full_name }}"
-                alt="{{ user.get_full_name }}"
-                class="rounded-lg h-9 w-9 object-cover" />
-            {% else %}
-              <i class="h-9 w-9 m-auto text-3xl fas fa-user text-white dark:text-white/60 " title="{{ user.get_full_name }}"></i>
-            {% endif %}
+      <h2 class="text-2xl">Maintainers &amp; Contributors</h2>
+      <div class="flex flex-col gap-y-4">
+        <div class="flex flex-wrap justify-center">
+        {% for user in maintainers %}
+          <a {% if user.commitauthor.github_profile_url %}href="{{ user.commitauthor.github_profile_url }}"{% endif %}>
+            <div class="p-1 md:p-2 w-min text-center flex flex-col items-center">
+              <div class="bg-gray-300 dark:bg-slate rounded-lg h-12 w-12">
+              {% if user.image or user.commitauthor.avatar_url %}
+                <img src="{% if user.image %}{{ user.image.url}}{% else %}{{ user.commitauthor.avatar_url }}{% endif %}"
+                  title="{{ user.get_full_name }}"
+                  alt="{{ user.get_full_name }}"
+                  class="rounded-lg h-12 w-12 object-cover" />
+              {% else %}
+                <i class="h-12 w-12 m-auto text-3xl align-middle fas fa-user text-white dark:text-white/60 " title="{{ user.get_full_name }}"></i>
+              {% endif %}
+              </div>
+              <span class="text-xs">{{ user.get_full_name }}</span>
             </div>
-            <span class="text-xs">{{ user.get_full_name }}</span>
-          </div>
-      {% endfor %}
+          </a>
+        {% endfor %}
+        </div>
+
+        <div class="flex flex-wrap justify-center">
+        {% for author in top_contributors_release %}
+          <a
+            {% if author.github_profile_url %}
+              href="{{ author.github_profile_url }}"
+            {% endif %}
+          >
+            <div class="p-1 md:p-2 flex text-center justify-center" title="{{ author.name }}">
+              <div class="bg-gray-300 dark:bg-slate rounded-lg h-9 w-9 overflow-hidden">
+              {% if author.avatar_url %}
+                <img src="{{ author.avatar_url }}"
+                  title="{{ author.name }}"
+                  alt="{{ author.name }}"
+                  class="rounded-lg h-9 w-9 object-cover" />
+              {% else %}
+                <i class="h-9 w-9 m-auto text-3xl fas fa-user text-white dark:text-white/60 " title="{{ author.name }}"></i>
+              {% endif %}
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+        </div>
+
+        <div class="flex flex-wrap justify-center">
+        {% for author in top_contributors_overall %}
+          <a {% if author.github_profile_url %}href="{{ author.github_profile_url }}"{% endif %}>
+            <div class="p-1 md:p-2 flex text-center justify-center" title="{{ author.name }}">
+              <div class="bg-gray-300 dark:bg-slate rounded-lg h-9 w-9 overflow-hidden">
+              {% if author.avatar_url %}
+                <img src="{{ author.avatar_url }}"
+                  title="{{ author.name }}"
+                  alt="{{ author.name }}"
+                  class="rounded-lg h-9 w-9 object-cover" />
+              {% else %}
+                <i class="h-9 w-9 m-auto text-3xl fas fa-user text-white dark:text-white/60 " title="{{ author.name }}"></i>
+              {% endif %}
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-x-4 gap-y-2">
+          {% for author in all_contributors %}
+            <div>{{ author.name }}</div>
+          {% endfor %}
+        </div>
       </div>
     </section>
     {% endif %}
@@ -153,13 +201,16 @@
     var options = {
       series: [{
         name: 'Commits',
-        data: [{% for commit_data in commit_data_last_12_months %}{{ commit_data.commit_count }}, {% endfor %}]
+        data: [{% for commit_data in commit_data_by_release %}{{ commit_data.commit_count }}, {% endfor %}]
       }],
       chart: {
         height: 350,
         type: 'bar',
         foreColor: localStorage.getItem('colorMode') === 'dark' ? '#f6f7f8' : '#373d3f',
         background: localStorage.getItem('colorMode') === 'dark' ? '#172A34' : '#ffffff',
+        toolbar: {
+          show: false,
+        },
       },
       theme: {
         mode: localStorage.getItem('colorMode') === 'dark' ? 'dark' : 'light',
@@ -189,7 +240,7 @@
       },
 
       xaxis: {
-        categories: [{% for commit_data in commit_data_last_12_months %}"{{ commit_data.date|date:'M' }}",{% endfor %}],
+        categories: [{% for commit_data in commit_data_by_release %}"{{ commit_data.release }}",{% endfor %}],
         position: 'top',
         axisBorder: {
           show: false
@@ -219,7 +270,7 @@
 
       },
       title: {
-        text: 'Commits per Month',
+        text: 'Commits Per Release',
         floating: true,
         offsetY: 330,
         align: 'center',
