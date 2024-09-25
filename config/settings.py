@@ -284,6 +284,11 @@ MAILMAN_ARCHIVER_KEY = env("MAILMAN_ARCHIVER_KEY", default="password")
 MAILMAN_ELASTIC_INDEX = env("MAILMAN_ELASTIC_INDEX", default="haystack")
 MAILMAN_HAYSTACK_URL = env("MAILMAN_HAYSTACK_URL", default="http://127.0.0.1:9200/")
 
+# Fastly API credentials
+FASTLY_SERVICE = env("FASTLY_SERVICE", default="empty")
+FASTLY_SERVICE2 = env("FASTLY_SERVICE2", default="empty")
+FASTLY_API_TOKEN = env("FASTLY_API_TOKEN", default="empty")
+
 # Must still be configured:
 HAYSTACK_CONNECTIONS = {
     "default": {
