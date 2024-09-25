@@ -116,74 +116,75 @@
     <section class="p-6 pt-1 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
       <!-- Avatars -->
       <h2 class="text-2xl">Maintainers &amp; Contributors</h2>
-      <div class="flex flex-wrap justify-around">
-      {% for user in maintainers %}
-        <a {% if user.commitauthor.github_profile_url %}href="{{ user.commitauthor.github_profile_url }}"{% endif %}>
-          <div class="p-1 md:p-2 w-min text-center flex flex-col items-center">
-            <div class="bg-gray-300 dark:bg-slate rounded-lg h-12 w-12">
-            {% if user.image or user.commitauthor.avatar_url %}
-              <img src="{% if user.image %}{{ user.image.url}}{% else %}{{ user.commitauthor.avatar_url }}{% endif %}"
-                title="{{ user.get_full_name }}"
-                alt="{{ user.get_full_name }}"
-                class="rounded-lg h-12 w-12 object-cover" />
-            {% else %}
-              <i class="h-12 w-12 m-auto text-3xl align-middle fas fa-user text-white dark:text-white/60 " title="{{ user.get_full_name }}"></i>
-            {% endif %}
+      <div class="flex flex-col gap-y-4">
+        <div class="flex flex-wrap justify-center">
+        {% for user in maintainers %}
+          <a {% if user.commitauthor.github_profile_url %}href="{{ user.commitauthor.github_profile_url }}"{% endif %}>
+            <div class="p-1 md:p-2 w-min text-center flex flex-col items-center">
+              <div class="bg-gray-300 dark:bg-slate rounded-lg h-12 w-12">
+              {% if user.image or user.commitauthor.avatar_url %}
+                <img src="{% if user.image %}{{ user.image.url}}{% else %}{{ user.commitauthor.avatar_url }}{% endif %}"
+                  title="{{ user.get_full_name }}"
+                  alt="{{ user.get_full_name }}"
+                  class="rounded-lg h-12 w-12 object-cover" />
+              {% else %}
+                <i class="h-12 w-12 m-auto text-3xl align-middle fas fa-user text-white dark:text-white/60 " title="{{ user.get_full_name }}"></i>
+              {% endif %}
+              </div>
+              <span class="text-xs">{{ user.get_full_name }}</span>
             </div>
-            <span class="text-xs">{{ user.get_full_name }}</span>
-          </div>
-        </a>
-      {% endfor %}
-      </div>
-
-      <div class="flex flex-wrap justify-around">
-      {% for author in top_contributors_release %}
-        <a
-          {% if author.github_profile_url %}
-            href="{{ author.github_profile_url }}"
-          {% endif %}
-        >
-          <div class="p-1 md:p-2 flex text-center justify-center" title="{{ author.name }}">
-            <div class="bg-gray-300 dark:bg-slate rounded-lg h-9 w-9 overflow-hidden">
-            {% if author.avatar_url %}
-              <img src="{{ author.avatar_url }}"
-                title="{{ author.name }}"
-                alt="{{ author.name }}"
-                class="rounded-lg h-9 w-9 object-cover" />
-            {% else %}
-              <i class="h-9 w-9 m-auto text-3xl fas fa-user text-white dark:text-white/60 " title="{{ author.name }}"></i>
-            {% endif %}
-            </div>
-          </div>
-        </a>
-      {% endfor %}
-      </div>
-
-      <div class="flex flex-wrap justify-around">
-      {% for author in top_contributors_overall %}
-        <a {% if author.github_profile_url %}href="{{ author.github_profile_url }}"{% endif %}>
-          <div class="p-1 md:p-2 w-20 flex text-center justify-center" title="{{ author.name }}">
-            <div class="bg-gray-300 dark:bg-slate rounded-lg h-9 w-9 overflow-hidden">
-            {% if author.avatar_url %}
-              <img src="{{ author.avatar_url }}"
-                title="{{ author.name }}"
-                alt="{{ author.name }}"
-                class="rounded-lg h-9 w-9 object-cover" />
-            {% else %}
-              <i class="h-9 w-9 m-auto text-3xl fas fa-user text-white dark:text-white/60 " title="{{ author.name }}"></i>
-            {% endif %}
-            </div>
-          </div>
-        </a>
-      {% endfor %}
-      </div>
-
-      <div class="flex flex-wrap justify-around gap-x-4 gap-y-2">
-        {% for author in all_contributors %}
-          <div>{{ author.name }}</div>
+          </a>
         {% endfor %}
-      </div>
+        </div>
 
+        <div class="flex flex-wrap justify-center">
+        {% for author in top_contributors_release %}
+          <a
+            {% if author.github_profile_url %}
+              href="{{ author.github_profile_url }}"
+            {% endif %}
+          >
+            <div class="p-1 md:p-2 flex text-center justify-center" title="{{ author.name }}">
+              <div class="bg-gray-300 dark:bg-slate rounded-lg h-9 w-9 overflow-hidden">
+              {% if author.avatar_url %}
+                <img src="{{ author.avatar_url }}"
+                  title="{{ author.name }}"
+                  alt="{{ author.name }}"
+                  class="rounded-lg h-9 w-9 object-cover" />
+              {% else %}
+                <i class="h-9 w-9 m-auto text-3xl fas fa-user text-white dark:text-white/60 " title="{{ author.name }}"></i>
+              {% endif %}
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+        </div>
+
+        <div class="flex flex-wrap justify-center">
+        {% for author in top_contributors_overall %}
+          <a {% if author.github_profile_url %}href="{{ author.github_profile_url }}"{% endif %}>
+            <div class="p-1 md:p-2 flex text-center justify-center" title="{{ author.name }}">
+              <div class="bg-gray-300 dark:bg-slate rounded-lg h-9 w-9 overflow-hidden">
+              {% if author.avatar_url %}
+                <img src="{{ author.avatar_url }}"
+                  title="{{ author.name }}"
+                  alt="{{ author.name }}"
+                  class="rounded-lg h-9 w-9 object-cover" />
+              {% else %}
+                <i class="h-9 w-9 m-auto text-3xl fas fa-user text-white dark:text-white/60 " title="{{ author.name }}"></i>
+              {% endif %}
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-x-4 gap-y-2">
+          {% for author in all_contributors %}
+            <div>{{ author.name }}</div>
+          {% endfor %}
+        </div>
+      </div>
     </section>
     {% endif %}
 
