@@ -14,14 +14,6 @@ body {
   @apply font-sans h-screen dark:bg-black dark:!text-white;
 }
 
-p a:link, p a:visited, table a, .title a {
-  @apply dark:text-sky-300;
-}
-
-p a:hover {
-  @apply dark:text-orange;
-}
-
 .nav-panel-explore,
 .navbar-item.search {
   @apply hidden;
@@ -95,7 +87,7 @@ footer, .components, .footer a {
 }
 
 .doc .admonitionblock .icon i {
-  @apply font-sans dark:text-white;
+  @apply dark:text-white;
 }
 
 .article .doc .tabs .tab:not(.is-selected) {
