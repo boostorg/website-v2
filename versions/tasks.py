@@ -417,7 +417,7 @@ def get_release_date_for_version(version_pk, commit_sha, token=None):
 
 @app.task
 def purge_fastly_release_cache():
-    if not settings.FASTLY_API_TOKEN:
+    if not settings.FASTLY_API_TOKEN or settings.FASTLY_API_TOKEN == 'empty':
         logger.warning("FASTLY_API_TOKEN not found. Not purging cache.")
 
     headers = {
