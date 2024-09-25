@@ -106,6 +106,7 @@ html.dark {
     font-weight: 500;
     color: var(--text-color);
     font-size: 18px;
+    white-space: nowrap;
 }
 
 .icon-link {
@@ -280,18 +281,87 @@ html.dark {
       padding: 0.25rem 0.5rem !important;
      }
 
-     body.body {
-      margin: 0;
+     .body {
+      margin: 0 !important;
+      padding: 0 !important;
+     }
+
+     .article .card {
+      border-radius: 0 !important;
      }
 
     }
+
+     /* asciidoc layout base */
+      #boost-legacy-docs-wrapper {
+        margin: auto;
+        max-width: 80rem;
+      }
+
+
+     #boost-legacy-docs-wrapper #toc.toc2 {
+        margin-top: 1.25rem !important;
+        background: var(--card-color);
+        position: absolute;
+        width: 15rem;
+        left: initial;
+        top: initial;
+        border-right: 1px solid var(--border-color);
+        border-top-width: 0 !important;
+        border-bottom-width: 0 !important;
+        z-index: 1000;
+        padding: 1.25em 1em;
+        height: auto;
+        overflow: auto;
+        border-radius: .5rem;
+     }
+
+    #boost-legacy-docs-wrapper #header>h1:first-child {
+      margin-top: .5rem !important;
+    }
+
+    #boost-legacy-docs-wrapper #content {
+      margin-left: 17rem !important;
+      padding: 1rem !important;
+      border-radius: .5rem !important;
+      background-color: var(--card-color) !important;
+      width: calc(100% - 18rem) !important;
+      max-width: 63rem !important;
+    }
+
+    #boost-legacy-docs-wrapper #content > h4 {
+      margin-top: 0 !important;
+    }
+
+    #boost-legacy-docs-wrapper #header, #boost-legacy-docs-wrapper #footnotes, #boost-legacy-docs-wrapper #footer {
+    width: 100% !important;
+    margin: 0 auto !important;
+    position: relative;
+    padding-left: .9375em;
+    padding-right: .9375em;
+    max-width: 100%
+    }
+
+     @media (max-width: 768px) {
+      #boost-legacy-docs-wrapper #toc.toc2 {
+        display: none;
+      }
+
+      #boost-legacy-docs-wrapper #content {
+        margin-left: 0rem !important;
+        width: 100% !important;
+        border-radius: 0rem !important;
+        margin-top: 0 !important;
+      }
+     }
+
 
 </style>
 <div class="header-menu-bar topnavbar">
     <!-- mobile navbar -->
     <div id="mobileNav" >
-      <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img  src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
-      <div id="selectedpage" onclick="openNav()" class=""><div id="pageName" class="capitalize">where</div><div class="material-symbols-outlined">arrow_drop_down</div></div>
+      <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img style="width:1.3rem" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
+      <div id="selectedpage" onclick="openNav()" class=""><div id="pageName" class="capitalize">boost</div><div class="material-symbols-outlined">arrow_drop_down</div></div>
       <div id="pageselector" onmouseleave="closeNav()" class="hide boost-drop-shadow"  >
           <div class="mobile-menu-item"><a href="{% url 'news' %}" title="News">News</a></div>
           <div class="mobile-menu-item"><a href="{% url 'docs' %}" title="Learn">Learn</a></div>
@@ -410,6 +480,9 @@ html.dark {
           break;
           case 'releases':
           tabname = "releases"
+          break;
+          case 'accounts':
+          tabname= 'account'
           break;
         }
         var activename = document.getElementById(tabname);
