@@ -1,0 +1,99 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% block extrahead %}
+  <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+{% endblock extrahead %}
+{% block content %}
+  {{ block.super }}
+  <div class='container mx-auto'>
+    <h1>
+      {{ object.name }} Stats
+    </h1>
+
+    <div class="flex gap-x-4 flex-wrap">
+      <div>
+        <h3 class="mb-2">
+          Commit Count By Release
+        </h3>
+        <div class="flex flex-col gap-y-1">
+          {% for release in commits_per_release %}
+            <div>
+              {{ release.version_name }}: {{ release.count }}
+            </div>
+          {% endfor %}
+          <div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="mb-2">
+          Top Contributors Overall
+        </h3>
+        <div class="flex flex-col gap-y-1">
+          {% for author in commits_per_author %}
+            <div class="flex gap-x-1">
+              {% if author.avatar_url %}
+                <img src="{{ author.avatar_url }}" alt="github avatar" class="w-8 rounded">
+              {% else %}
+                <div class="w-8 h-8 rounded bg-silver">
+                </div>
+              {% endif %}
+              <div>
+                {{ author.name }}: {{ author.count }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div>
+        <h3 class="mb-2">
+          Top 3 Contributors Per Release
+        </h3>
+        <div class="flex flex-col gap-y-1">
+          {% for item in commits_per_author_release %}
+            {% ifchanged item.version__name %}
+              <h3 class="my-2">
+                {{ item.version__name }}
+              </h3>
+              <hr>
+            {% endifchanged %}
+            <div class="flex gap-x-1">
+              {% if item.commit__author__avatar_url %}
+                <img src="{{ item.commit__author__avatar_url }}"
+                     alt="github avatar"
+                     class="w-8 rounded">
+              {% else %}
+                <div class="w-8 h-8 rounded bg-silver">
+                </div>
+              {% endif %}
+              <div>
+                {{ item.commit__author__name }}: {{ item.count }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div>
+        <h3 class="mb-2">
+          New Contributors Per Release
+        </h3>
+        <div class="flex flex-col gap-y-1">
+          {% for lv in new_contributor_counts %}
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                {{ lv.version.display_name }}
+              </div>
+              <div>
+                {{ lv.count }} new contributors ({{ lv.up_to_count }} total)
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+{% endblock content %}

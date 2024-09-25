@@ -1,14 +1,12 @@
 import structlog
-from dateutil.relativedelta import relativedelta
 
 from config.celery import app
 from django.conf import settings
 from django.db.models import Q
-from django.utils import timezone
 from core.boostrenderer import get_content_from_s3
 from core.htmlhelper import get_library_documentation_urls
 from libraries.github import LibraryUpdater
-from libraries.models import LibraryVersion
+from libraries.models import Library, LibraryVersion
 from versions.models import Version
 from .constants import (
     LIBRARY_DOCS_EXCEPTIONS,
@@ -186,23 +184,15 @@ def update_libraries():
 
 
 @app.task
-def update_commit_counts(token=None):
-    """Imports commit counts for all libraries, broken down by month, and saves
-    them to the database. See LibraryUpdater class for defaults.
-    """
+def update_commits(token=None):
     updater = LibraryUpdater(token=token)
-    updater.update_monthly_commit_counts()
-    logger.info("libraries_update_commit_counts_finished")
+    for library in Library.objects.all():
+        updater.update_commits(obj=library)
+    logger.info("update_commits finished.")
 
 
 @app.task
-def update_current_month_commit_counts(token=None):
-    """Imports commit counts for all libraries for the current month."""
+def update_commit_author_github_data(token=None, clean=False):
     updater = LibraryUpdater(token=token)
-    now = timezone.now()
-    # First of this month
-    since = timezone.make_aware(
-        timezone.datetime(year=now.year, month=now.month, day=1)
-    ) - relativedelta(days=1)
-    updater.update_monthly_commit_counts(since=since, until=now)
-    logger.info("libraries_update_current_month_commit_counts_finished")
+    updater.update_commit_author_github_data(overwrite=clean)
+    logger.info("update_commit_author_github_data finished.")

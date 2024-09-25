@@ -1,13 +1,33 @@
-import structlog
+import re
+import time
+import tempfile
+from dataclasses import dataclass
+from pathlib import Path
 from dateutil.relativedelta import relativedelta
-from django.contrib.auth import get_user_model
-from django.utils import timezone
+
+import structlog
+from ghapi.core import HTTP404NotFoundError
 from fastcore.xtras import obj2dict
 
+from django.db.models import Exists, OuterRef
+from django.utils.autoreload import subprocess
+from django.contrib.auth import get_user_model
+from django.db import transaction
+from django.utils import dateparse, timezone
+
+from versions.models import Version
+from .models import (
+    Category,
+    Commit,
+    CommitAuthor,
+    CommitAuthorEmail,
+    Issue,
+    Library,
+    LibraryVersion,
+    PullRequest,
+)
 from core.githubhelper import GithubAPIClient, GithubDataParser
 
-
-from .models import Category, Issue, Library, PullRequest
 from .utils import generate_fake_email, parse_date
 
 logger = structlog.get_logger()
@@ -22,6 +42,79 @@ FIRST_OF_MONTH_ONE_YEAR_AGO = timezone.make_aware(
 FIRST_OF_CURRENT_MONTH = timezone.make_aware(
     timezone.datetime(year=now.year, month=now.month, day=1)
 ) - relativedelta(days=1)
+
+
+@dataclass
+class ParsedCommit:
+    email: str
+    name: str
+    message: str
+    sha: str
+    version: str
+    is_merge: bool
+    committed_at: timezone.datetime
+    avatar_url: str | None = None
+
+
+def get_commit_data_for_repo_versions(key):
+    library = Library.objects.get(key=key)
+    parser = re.compile(
+        r"^commit (?P<sha>\w+)(?:\n(?P<merge>Merge).*)?\nAuthor: (?P<name>[^\<]+)"
+        r"\s+\<(?P<email>[^\>]+)\>\nDate:\s+(?P<date>.*)\n(?P<message>(.|\n)+?)"
+        r"(?=(commit|\Z))",
+        flags=re.MULTILINE,
+    )
+
+    retry_count = 0
+    with tempfile.TemporaryDirectory() as temp_dir:
+        git_dir = Path(temp_dir) / f"{library.key}.git"
+        while retry_count < 5:
+            retry_count += 1
+            completed = subprocess.run(
+                ["git", "clone", f"{library.github_url}.git", "--bare", str(git_dir)],
+                capture_output=True,
+            )
+            error = completed.stderr.decode()
+            if "fatal: unable to access" in error:
+                logger.warning(
+                    f"{completed.args} failed. Retrying git clone. Retry {retry_count}."
+                )
+                time.sleep(2**retry_count)
+                continue
+            else:
+                break
+        versions = [""] + list(
+            Version.objects.filter(library_version__library__key=library.key)
+            .order_by("name")
+            .values_list("name", flat=True)
+        )
+        for a, b in zip(versions, versions[1:]):
+            log_output = subprocess.run(
+                ["git", "--git-dir", str(git_dir), "log", f"{a}..{b}", "--date", "iso"],
+                capture_output=True,
+            )
+            commits = log_output.stdout.decode()
+            for match in parser.finditer(commits):
+                groups = match.groupdict()
+                name = groups["name"].strip()
+                email = groups["email"].strip()
+                sha = groups["sha"].strip()
+                is_merge = bool(groups.get("merge", False))
+                message = groups["message"].strip("\n")
+                message = "\n".join(
+                    [m[4:] if m.startswith("    ") else m for m in message.split("\n")]
+                )
+                committed_at = dateparse.parse_datetime(groups["date"])
+                assert committed_at  # should always exist
+                yield ParsedCommit(
+                    email=email,
+                    name=name,
+                    message=message,
+                    sha=sha,
+                    committed_at=committed_at,
+                    is_merge=is_merge,
+                    version=b,
+                )
 
 
 class LibraryUpdater:
@@ -219,54 +312,6 @@ class LibraryUpdater:
             obj.maintainers.add(user)
             self.logger.info(f"User {user.email} added as a maintainer of {obj}")
 
-    def update_monthly_commit_counts(
-        self,
-        branch: str = "master",
-        since=FIRST_OF_MONTH_ONE_YEAR_AGO,
-        until=FIRST_OF_CURRENT_MONTH,
-    ):
-        """Update the monthly commit data for all libraries
-
-        :param branch: Branch to update commit data for. Defaults to "master".
-        :param since: Year to update commit data for. Defaults to a year ago
-        :param until: Year to update commit data for. Defaults to present year
-
-        Note: Overrides CommitData objects for the library; does not increment
-        the count.
-        """
-        self.logger.info("updating_monthly_commit_data")
-        for library in Library.objects.all():
-            self.update_monthly_commit_counts_for_library(
-                library, branch=branch, since=since, until=until
-            )
-
-    def update_monthly_commit_counts_for_library(
-        self,
-        obj,
-        branch: str = "master",
-        since=FIRST_OF_MONTH_ONE_YEAR_AGO,
-        until=FIRST_OF_CURRENT_MONTH,
-    ):
-        """Update the commit counts for a specific library."""
-        commits = self.client.get_commits(
-            repo_slug=obj.github_repo, branch=branch, since=since, until=until
-        )
-        commit_data = self.parser.get_commits_per_month(commits)
-
-        for month_year, commit_count in commit_data.items():
-            data_obj, created = obj.commit_data.update_or_create(
-                month_year=month_year,
-                branch=branch,
-                defaults={"commit_count": commit_count},
-            )
-            self.logger.info(
-                "commit_data_updated",
-                commit_data_pk=data_obj.pk,
-                obj_created=created,
-                library=obj.name,
-                branch=branch,
-            )
-
     def update_issues(self, obj):
         """Import GitHub issues for the library and update the database"""
         self.logger.info("updating_repo_issues")
@@ -370,3 +415,104 @@ class LibraryUpdater:
                     pr_github_id=pr_dict.get("id"),
                     exc_msg=str(e),
                 )
+
+    def update_commits(self, obj: Library, clean=False):
+        """Import a record of all commits between LibraryVersions."""
+        authors = {}
+        commits = []
+        library_versions = {
+            x.version.name: x
+            for x in LibraryVersion.objects.filter(library=obj).select_related(
+                "version"
+            )
+        }
+        with transaction.atomic():
+            if clean:
+                Commit.objects.filter(library_versions__library=obj).delete()
+            for commit in get_commit_data_for_repo_versions(obj.key):
+                author = authors.get(commit.email, None)
+                if not author:
+                    if (
+                        commit_author_email := CommitAuthorEmail.objects.filter(
+                            email=commit.email,
+                        )
+                        .select_related("author")
+                        .first()
+                    ):
+                        author = commit_author_email.author
+                    else:
+                        author = CommitAuthor.objects.create(
+                            name=commit.name, avatar_url=commit.avatar_url
+                        )
+                        CommitAuthorEmail.objects.create(
+                            email=commit.email, author=author
+                        )
+                    authors[commit.email] = author
+                commits.append(
+                    Commit(
+                        author=author,
+                        library_version=library_versions[commit.version],
+                        sha=commit.sha,
+                        message=commit.message,
+                        committed_at=commit.committed_at,
+                        is_merge=commit.is_merge,
+                    )
+                )
+        Commit.objects.bulk_create(
+            commits,
+            update_conflicts=True,
+            update_fields=["author", "message", "committed_at", "is_merge"],
+            unique_fields=["library_version", "sha"],
+        )
+
+    def update_commit_author_github_data(self, obj=None, email=None, overwrite=False):
+        """Update CommitAuthor data by parsing data on their most recent commit."""
+        if email:
+            authors = CommitAuthor.objects.filter(
+                Exists(CommitAuthorEmail.objects.filter(id=OuterRef("pk"), email=email))
+            )
+        elif obj:
+            authors = CommitAuthor.objects.filter(
+                Exists(
+                    Library.objects.filter(
+                        library_version__commit__author=OuterRef("id"),
+                        pk=obj.pk,
+                    )
+                )
+            )
+        else:
+            authors = CommitAuthor.objects.all()
+
+        if not overwrite:
+            authors = authors.filter(avatar_url=None)
+
+        authors = authors.annotate(
+            most_recent_commit_sha=Commit.objects.filter(author=OuterRef("pk"))
+            .order_by("-committed_at")
+            .values("sha")[:1]
+        ).annotate(
+            most_recent_library_key=Library.objects.filter(
+                library_version__commit__sha=OuterRef("most_recent_commit_sha")
+            ).values("key")[:1]
+        )
+        libraries = Library.objects.filter(
+            key__in=[x.most_recent_library_key for x in authors]
+        )
+        repos = {x.key: x for x in libraries}
+        for author in authors:
+            try:
+                commit = self.client.get_repo_ref(
+                    repo_slug=repos[author.most_recent_library_key].github_repo,
+                    ref=author.most_recent_commit_sha,
+                )
+            except HTTP404NotFoundError:
+                self.logger.info(
+                    f"Commit not found. Skipping avatar update for {author}."
+                )
+                continue
+            if gh_author := commit["author"]:
+                if gh_author["avatar_url"]:
+                    author.avatar_url = gh_author["avatar_url"]
+                if gh_author["html_url"]:
+                    author.github_profile_url = gh_author["html_url"]
+                author.save(update_fields=["avatar_url", "github_profile_url"])

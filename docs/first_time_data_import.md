@@ -34,7 +34,7 @@ The `boost_setup` command will run all of the processes listed here:
 # Save other data we need for Libraries and LibraryVersions
 ./manage.py update_maintainers
 ./manage.py update_authors
-./manage.py import_commit_counts
+./manage.py import_commits
 
 # Get the most recent beta release, and delete old beta releases
 ./manage.py import_beta_release --delete-versions
@@ -49,7 +49,7 @@ Collectively, this is what these management commands accomplish:
 3. `import_library_versions`: Establishes which Boost libraries are included in which Boost versions. That information is stored in `LibraryVersion` objects. This process also stores the link to the version-specific Boost documentation for this library.
 4. `update_maintainers`: For each `LibraryVersion`, saves the maintainers as `User` objects and makes sure they are associated with the `LibraryVersion`.
 5. `update_authors`: For each `Library`, saves the authors as `User` objects and makes sure they are associated with the `Library`.
-6. `import_commit_counts`: For each `Library`, uses information in the GitHub API to save the last 12 months of commit history. One `CommitData` object per library, per month is created to store the number of commits to the `master` branch of that library for that month.
+6. `import_commits`: For each `Library`, iterate through the `LibraryVersion`s and create `Commit`, `CommitAuthor`, and `CommitAuthorEmail` objects.  Also attempts to update `CommitAuthor`s with their github profile URL and Avatar URL.
 7. `import_beta_release`: Retrieves the most recent beta release from GitHub and imports it. If `--delete-versions` is passed, will delete the existing beta releases in the database.
 
 ## Further Reading
