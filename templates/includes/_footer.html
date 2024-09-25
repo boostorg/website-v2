@@ -1,18 +1,92 @@
 {% load static %}
+<style>
+  .footer {
+    padding: .5rem 1rem;
+    margin: auto;
+  }
 
-<footer class="py-2 px-4 my-5 mx-auto max-w-full md:pb-11 md:mb-11">
-  <div class="items-center px-5 pt-4 mt-4 text-center">
-    <div class="justify-between pt-3 pb-3 sm:space-x-3 xl:space-x-6 border-dotted border-t-2 px-20 border-t-white/5 w-fit mx-auto">
-      <a class="block my-2 sm:inline hover:text-orange" href="https://lists.boost.org/mailman/listinfo.cgi/boost-users">Contact</a>
-      <a class="block my-2 sm:inline hover:text-orange" href="{% url 'privacy' %}">Privacy Policy</a>
-      <a class="block my-2 sm:inline hover:text-orange" href="{% url 'terms-of-use' %}">Terms of Use</a>
-      <a class="block my-2 sm:inline hover:text-orange" href="/doc/user-guide/reporting-issues.html">Report Bug</a>
-      <a class="my-2 inline hover:text-orange" title="X Social Media" href="https://x.com/boost_libraries" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
-	  <span class="inline sm:hidden text-white/30">&nbsp;&nbsp; | &nbsp;&nbsp;</span>
-      <a class="my-2 inline hover:text-orange" title="Github" href="https://github.com/boostorg" target="_blank"><i class="fa-brands fa-github"></i></a>
+  .footer-container {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 2.25rem 0 2.25rem;
+    margin: 2rem auto;
+    text-align: center;
+    max-width:60rem;
+  }
+
+  .links {
+    display: flex;
+    justify-content: space-between;
+    padding-top: .75rem;
+    width: 100%;
+    padding: 0 5rem;
+    margin: 0;
+  }
+
+  .links a {
+    display: block;
+    margin: .5rem 0;
+  }
+
+  .links a:hover, .link-icons a:hover {
+    color: var(--color-primary);
+  }
+
+  .link-icons {
+    display:flex;
+    width: 6rem;
+    align-items:center;
+    justify-content: space-between;
+    margin: 0;
+  }
+
+  .small-text {
+    font-size: .875rem;
+    line-height: 1.25rem;
+  }
+
+  .xsmall-text {
+    font-style: italic;
+    font-size: .75rem;
+    line-height: 1rem;
+  }
+
+@media screen and (max-width: 767px) {
+  .footer {
+    padding-bottom: 2.75rem;
+    margin-bottom: 2.75rem;
+  }
+
+  .links {
+    flex-direction: column;
+  }
+
+  .footer-container {
+    padding: 0rem 2.25rem 0 2.25rem;
+    margin-top: 0;
+  }
+
+  .link-icons {
+    margin: auto;
+    width: 4rem;
+  }
+}
+</style>
+<footer class="footer">
+  <div class="footer-container">
+    <div class="links">
+      <a href="https://lists.boost.org/mailman/listinfo.cgi/boost-users">Contact</a>
+      <a href="{% url 'privacy' %}">Privacy Policy</a>
+      <a href="{% url 'terms-of-use' %}">Terms of Use</a>
+      <a href="/doc/user-guide/reporting-issues.html">Report Bug</a>
+      <div class="link-icons">
+        <a title="X Social Media" href="https://x.com/boost_libraries" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+        <a class=title="Github" href="https://github.com/boostorg" target="_blank"><i class="fa-brands fa-github"></i></a>
+      </div>
     </div>
-    <div><span class="text-sm">Website supported by grants from <a href="https://cppalliance.org/" target="_blank" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">The C++ Alliance</a>. Proposed for <a href="https://boost.org/" target="_blank" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">boost.org</a>.</span></div>
-    <div><span class="text-xs italic">Distributed under the <a href="/LICENSE_1_0.txt" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Boost Software License, Version 1.0</a>.</span></div>
+    <div><span class="small-text">Website supported by grants from <a href="https://cppalliance.org/" target="_blank" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">The C++ Alliance</a>. Proposed for <a href="https://boost.org/" target="_blank" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">boost.org</a>.</span></div>
+    <div><span class="xsmall-text">Distributed under the <a href="/LICENSE_1_0.txt" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Boost Software License, Version 1.0</a>.</span></div>
     {# <div><span class="text-sm"><i>Slack is a registered trademark and service mark of Slack Technologies, Inc.</i></span></div> #}
   </div>
 </footer>
