@@ -1,6 +1,8 @@
 import requests
 import structlog
 
+from celery import group
+
 from config.celery import app
 from django.conf import settings
 from django.core.management import call_command
@@ -19,7 +21,9 @@ logger = structlog.getLogger(__name__)
 
 
 @app.task
-def import_versions(delete_versions=False, new_versions_only=False, token=None):
+def import_versions(
+    delete_versions=False, new_versions_only=False, token=None, purge_after=True
+):
     """Imports Boost release information from Github and updates the local database.
 
     The function retrieves Boost tags from the main Github repo, excluding beta releases
@@ -34,6 +38,8 @@ def import_versions(delete_versions=False, new_versions_only=False, token=None):
             exist in the database.
         token (str): Github API token, if you need to use something other than the
             setting.
+        purge_after (bool): If True, call purge_fastly_release_cache after the version
+            imports are finished.
     """
     if delete_versions:
         Version.objects.all().delete()
@@ -43,6 +49,7 @@ def import_versions(delete_versions=False, new_versions_only=False, token=None):
     client = GithubAPIClient(token=token)
     tags = client.get_tags()
 
+    import_version_task_group = []
     for tag in tags:
         name = tag["name"]
 
@@ -50,9 +57,12 @@ def import_versions(delete_versions=False, new_versions_only=False, token=None):
             continue
 
         logger.info("import_versions_importing_version", version_name=name)
-        import_version.delay(name, tag=tag, token=token)
+        import_version_task_group.append(import_version.s(name, tag=tag, token=token))
 
-    # Get all release notes
+    task_group = group(*import_version_task_group)
+    if purge_after:
+        task_group.link(purge_fastly_release_cache.s())
+    task_group()
     import_release_notes.delay()
 
 
@@ -129,10 +139,10 @@ def import_version(
         get_release_date_for_version.delay(version.pk, commit_sha, token=token)
 
     # Load release downloads
-    import_release_downloads.delay(version.pk)
+    import_release_downloads(version.pk)
 
     # Load library-versions
-    import_library_versions.delay(version.name, token=token)
+    import_library_versions(version.name, token=token)
 
 
 @app.task
@@ -403,6 +413,25 @@ def get_release_date_for_version(version_pk, commit_sha, token=None):
         logger.info("get_release_date_for_version_success", version_pk=version_pk)
     else:
         logger.error("get_release_date_for_version_error", version_pk=version_pk)
+
+
+@app.task
+def purge_fastly_release_cache():
+    if not settings.FASTLY_API_TOKEN:
+        logger.warning("FASTLY_API_TOKEN not found. Not purging cache.")
+
+    headers = {
+        "Fastly-Key": settings.FASTLY_API_TOKEN,
+        "Fastly-Soft-Purge": "1",
+        "Accept": "application/json",
+    }
+
+    for service in [settings.FASTLY_SERVICE, settings.FASTLY_SERVICE2]:
+        if not service or service == "empty":
+            continue
+        url = f"https://api.fastly.com/service/{service}/purge/release"
+        requests.post(url, headers=headers)
+        logger.info(f"Sent fastly purge request for {service=}.")
 
 
 # Helper functions
