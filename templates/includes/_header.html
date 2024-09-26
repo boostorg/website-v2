@@ -296,64 +296,69 @@ html.dark {
       #boost-legacy-docs-wrapper {
         margin: auto;
         max-width: 80rem;
+        overflow: hidden;
+        positiom: relative;
+        margin-top: 1rem;
       }
 
 
      #boost-legacy-docs-wrapper #toc.toc2 {
-        margin-top: 1.25rem !important;
-        background: var(--card-color);
-        position: absolute;
-        width: 15rem;
-        left: initial;
-        top: initial;
-        border-right: 1px solid var(--border-color);
+        position: absolute !important;
+        top: 0;
         border-top-width: 0 !important;
         border-bottom-width: 0 !important;
         z-index: 1000;
         padding: 1.25em 1em;
         height: auto;
         overflow: auto;
-        border-radius: .5rem;
+        position: absolute;
+        left: -15rem;
      }
 
     #boost-legacy-docs-wrapper #header>h1:first-child {
       margin-top: .5rem !important;
     }
 
-    #boost-legacy-docs-wrapper #content {
-      margin-left: 17rem !important;
-      padding: 1rem !important;
-      border-radius: .5rem !important;
-      background-color: var(--card-color) !important;
-      width: calc(100% - 18rem) !important;
-      max-width: 63rem !important;
+    #boost-legacy-docs-wrapper #header,
+    #boost-legacy-docs-wrapper #content,
+    #boost-legacy-docs-wrapper #footer,
+    #boost-legacy-docs-wrapper #footnotes {
+      width: auto;
+      max-width: 62rem;
+     margin-left: 15rem;
     }
 
-    #boost-legacy-docs-wrapper #content > h4 {
-      margin-top: 0 !important;
+
+@media screen and (min-width: 1280px) {
+  #toc.toc2 {
+    width: 20em;
+    left: -20rem !important;
+  }
+
+  #boost-legacy-docs-wrapper #header,
+    #boost-legacy-docs-wrapper #content,
+    #boost-legacy-docs-wrapper #footer,
+    #boost-legacy-docs-wrapper #footnotes {
+      margin-left: 20rem;
+      max-width: 59rem !important;
     }
+}
 
-    #boost-legacy-docs-wrapper #header, #boost-legacy-docs-wrapper #footnotes, #boost-legacy-docs-wrapper #footer {
-    width: 100% !important;
-    margin: 0 auto !important;
-    position: relative;
-    padding-left: .9375em;
-    padding-right: .9375em;
-    max-width: 100%
+@media screen and (max-width: 769px) {
+  #boost-legacy-docs-wrapper  #toc.toc2 {
+    position: relative !important;
+    width: 100%;
+    left: 0;
+  }
+
+  #boost-legacy-docs-wrapper #header,
+    #boost-legacy-docs-wrapper #content,
+    #boost-legacy-docs-wrapper #footer,
+    #boost-legacy-docs-wrapper #footnotes {
+      margin-left: 0rem;
+      max-width: 100% !important;
     }
-
-     @media (max-width: 768px) {
-      #boost-legacy-docs-wrapper #toc.toc2 {
-        display: none;
-      }
-
-      #boost-legacy-docs-wrapper #content {
-        margin-left: 0rem !important;
-        width: 100% !important;
-        border-radius: 0rem !important;
-        margin-top: 0 !important;
-      }
-     }
+}
 
 
 </style>
@@ -372,7 +377,7 @@ html.dark {
     </div>
     <!-- desktop navbar -->
     <div id="desktopNav" class="left-menubar">
-        <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
+        <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img style="width:1.3rem" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
         <a href="{% url 'news' %}" id="news" class="menu-link {% active_link 'news' css_class=' menu-link active-link' inactive_class='menu-link' %}">news</a>
         <a href="{% url 'docs' %}" id="learn" class="menu-link {% active_link 'docs||docs-user-guide' css_class=' menu-link active-link' inactive_class='menu-link' %}">learn</a>
         <a href="{% url 'community' %}" id="community" class="menu-link {% active_link 'community' css_class=' menu-link active-link' inactive_class='menu-link' %}">community</a>
