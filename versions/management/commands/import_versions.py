@@ -28,6 +28,9 @@ def command(
     """
     click.secho("Importing versions...", fg="green")
     import_versions.delay(
-        delete_versions=delete_versions, new_versions_only=new, token=token
+        delete_versions=delete_versions,
+        new_versions_only=new,
+        token=token,
+        purge_after=True,
     )
     click.secho("Finished importing versions.", fg="green")
