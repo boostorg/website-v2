@@ -118,19 +118,19 @@
       <div class="flex flex-col gap-y-4">
         <div class="flex flex-wrap justify-center gap-2">
         {% for user in maintainers %}
-          {% avatar image_url=user.image|default:user.commitauthor.avatar_url href=user.commitauthor.github_profile_url name=user.get_full_name image_size="h-12 w-12" is_show_name=True %}
+          {% avatar user=user commitauthor=user.commitauthor image_size="h-12 w-12" is_show_name=True %}
         {% endfor %}
         </div>
 
         <div class="flex flex-wrap justify-center gap-2">
         {% for author in top_contributors_release %}
-          {% avatar image_url=author.avatar_url href=author.github_profile_url name=author.name %}
+          {% avatar commitauthor=author %}
         {% endfor %}
         </div>
 
         <div class="flex flex-wrap justify-center gap-2">
         {% for author in top_contributors_overall %}
-          {% avatar image_url=author.avatar_url href=author.github_profile_url name=author.name %}
+          {% avatar commitauthor=author %}
         {% endfor %}
         </div>
 

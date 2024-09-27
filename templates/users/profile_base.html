@@ -4,7 +4,7 @@
 
 {% block subnav %}
   <div class="flex items-center py-3 px-4 border-b md:px-0 md:border-0 border-slate">
-    {% avatar image_url=user.get_thumbnail_url href=None name=user.get_full_name image_size="h-[80px] w-[80px]" icon_size="text-7xl" %}
+    {% avatar user=user image_size="h-[80px] w-[80px]" icon_size="text-7xl" %}
     <div class="ml-4 text-base">
       <span class="block">{{ user.get_full_name }}</span>
       <span class="text-xs text-slate dark:text-white/60  ">Joined {{ user.date_joined }}</span>

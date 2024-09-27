@@ -1,6 +1,7 @@
 import datetime
 from itertools import chain
 import re
+from types import SimpleNamespace
 
 import structlog
 from django.contrib import messages
@@ -431,10 +432,10 @@ class LibraryDetail(FormMixin, DetailView):
             if author_email := commit_authors.get(user.email.lower(), None):
                 user.commitauthor = author_email.author
             else:
-                user.commitauthor = {
-                    "github_profile_url": "",
-                    "avatar_url": "",
-                }
+                user.commitauthor = SimpleNamespace(
+                    github_profile_url="",
+                    avatar_url="",
+                )
         return qs
 
     def get_top_contributors(self, version=None, exclude=None):

@@ -66,7 +66,7 @@
                 <div class="grid grid-cols-5 gap-2">
                   {% for author in top_contributors_release_overall %}
                     <div class="flex flex-col gap-y-2 w-20 items-center">
-                      {% avatar name=author.name image_url=author.avatar_url href=author.github_profile_url %}
+                      {% avatar commitauthor=author %}
                       <div class="w-full flex flex-col">
                         <div class="text-[0.6rem] overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-center">
                           {{ author.name }}
@@ -106,7 +106,7 @@
                 <div class="grid grid-cols-5 gap-2 flex-wrap">
                   {% for author in item.top_contributors_release %}
                     <div class="flex flex-col gap-y-2 w-20 items-center">
-                      {% avatar name=author.name image_url=author.avatar_url href=author.github_profile_url %}
+                      {% avatar commitauthor=author %}
                       <div class="w-full flex flex-col justify-center items-center">
                         <div class="text-[0.6rem] overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-center">
                           {{ author.name }}

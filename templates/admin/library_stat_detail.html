@@ -33,7 +33,7 @@
         <div class="flex flex-col gap-y-1">
           {% for author in commits_per_author %}
             <div class="flex gap-x-1">
-              {% avatar name=author.name image_url=author.avatar_url href=author.github_profile_url %}
+              {% avatar commitauthor=author %}
               <div>
                 {{ author.name }}: {{ author.count }}
               </div>
@@ -55,7 +55,7 @@
               <hr>
             {% endifchanged %}
             <div class="flex gap-x-1">
-              {% avatar name=item.commit__author__name image_url=item.commit__author__avatar_url href=None %}
+              {% base_avatar name=item.commit__author__name image_url=item.commit__author__avatar_url href=None %}
               <div>
                 {{ item.commit__author__name }}: {{ item.count }}
               </div>
