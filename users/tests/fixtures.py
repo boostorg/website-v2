@@ -1,8 +1,10 @@
+import io
+
+from PIL import Image
 import pytest
+from model_bakery import baker
 
 from django.utils import timezone
-
-from model_bakery import baker
 
 
 @pytest.fixture
@@ -14,8 +16,16 @@ def user(db):
         first_name="Regular",
         last_name="User",
         last_login=timezone.now(),
-        image="static/img/fpo/user.png",
+        image=None,
     )
+    filename = "normal-user.png"
+    file = io.BytesIO()
+    file.name = filename
+    image = Image.new("RGBA", size=(100, 100), color=(155, 0, 0))
+    image.save(file, "png")
+    file.seek(0)
+    user.image.save(filename, file)
+
     user.set_password("password")
     user.save()
 
@@ -32,8 +42,16 @@ def staff_user(db):
         last_name="User",
         last_login=timezone.now(),
         is_staff=True,
-        image="static/img/fpo/user.png",
+        image=None,
     )
+    filename = "staff-user.png"
+    file = io.BytesIO()
+    file.name = filename
+    image = Image.new("RGBA", size=(100, 100), color=(155, 0, 0))
+    image.save(file, "png")
+    file.seek(0)
+    user.image.save(filename, file)
+
     user.set_password("password")
     user.save()
 
@@ -51,8 +69,15 @@ def super_user(db):
         last_login=timezone.now(),
         is_staff=True,
         is_superuser=True,
-        image="static/img/fpo/user.png",
+        image=None,
     )
+    filename = "super-user.png"
+    file = io.BytesIO()
+    file.name = filename
+    image = Image.new("RGBA", size=(100, 100), color=(155, 0, 0))
+    image.save(file, "png")
+    file.seek(0)
+    user.image.save(filename, file)
     user.set_password("password")
     user.save()
 

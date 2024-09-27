@@ -1,5 +1,7 @@
 import datetime
+import io
 
+from PIL import Image
 import pytest
 from django.db.models import Q
 from django.contrib.auth.models import Group, Permission
@@ -98,7 +100,14 @@ def moderator_user(db, make_user):
     # we could use `tp.make_user` but we need this fix to be released
     # https://github.com/revsys/django-test-plus/issues/199
     user = make_user(email="moderator@example.com", perms=["news.*"])
-    user.image = "test.png"
+
+    file = io.BytesIO()
+    filename = "test.png"
+    file.name = filename
+    image = Image.new("RGBA", size=(100, 100), color=(155, 0, 0))
+    image.save(file, "png")
+    file.seek(0)
+    user.image.save(filename, file)
     user.save()
     return user
 
@@ -106,7 +115,13 @@ def moderator_user(db, make_user):
 @pytest.fixture
 def regular_user(db, make_user):
     user = make_user(email="regular@example.com")
-    user.image = "test.png"
+    filename = "test.png"
+    file = io.BytesIO()
+    file.name = filename
+    image = Image.new("RGBA", size=(100, 100), color=(155, 0, 0))
+    image.save(file, "png")
+    file.seek(0)
+    user.image.save(filename, file)
     user.save()
     return user
 
