@@ -303,16 +303,17 @@ html.dark {
 
 
      #boost-legacy-docs-wrapper #toc.toc2 {
-        position: absolute !important;
-        top: 0;
+        position: fixed !important;
+        top: 3rem;
         border-top-width: 0 !important;
         border-bottom-width: 0 !important;
         z-index: 1000;
         padding: 1.25em 1em;
-        height: auto;
+        height: calc(100vh - 4rem);
         overflow: auto;
         position: absolute;
-        left: -15rem;
+        left: 1rem;
+        -webkit-transform: translateZ(0);
      }
 
     #boost-legacy-docs-wrapper #header>h1:first-child {
@@ -331,8 +332,10 @@ html.dark {
 
 @media screen and (min-width: 1280px) {
   #toc.toc2 {
+    position: fixed !important;
     width: 20em;
-    left: -20rem !important;
+    left: calc((100% - 79rem) / 2) !important;
+    -webkit-transform: translateZ(0);
   }
 
   #boost-legacy-docs-wrapper #header,
@@ -346,9 +349,13 @@ html.dark {
 
 @media screen and (max-width: 769px) {
   #boost-legacy-docs-wrapper  #toc.toc2 {
-    position: relative !important;
     width: 100%;
     left: 0;
+    top: 0;
+    position: relative !important;
+    -webkit-transform: none;
+    padding: 0;
+    height: auto;
   }
 
   #boost-legacy-docs-wrapper #header,
