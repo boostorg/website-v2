@@ -1,6 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
-{% load static %}
+{% load i18n static avatar_tags %}
 
 {% block title %}{{ object.display_name }} ({{ version.display_name }}){% endblock %}
 {% block description %}{% trans object.description %}{% endblock %}
@@ -117,65 +116,21 @@
       <!-- Avatars -->
       <h2 class="text-2xl">Maintainers &amp; Contributors</h2>
       <div class="flex flex-col gap-y-4">
-        <div class="flex flex-wrap justify-center">
+        <div class="flex flex-wrap justify-center gap-2">
         {% for user in maintainers %}
-          <a {% if user.commitauthor.github_profile_url %}href="{{ user.commitauthor.github_profile_url }}"{% endif %}>
-            <div class="p-1 md:p-2 w-min text-center flex flex-col items-center">
-              <div class="bg-gray-300 dark:bg-slate rounded-lg h-12 w-12">
-              {% if user.image or user.commitauthor.avatar_url %}
-                <img src="{% if user.image %}{{ user.image.url}}{% else %}{{ user.commitauthor.avatar_url }}{% endif %}"
-                  title="{{ user.get_full_name }}"
-                  alt="{{ user.get_full_name }}"
-                  class="rounded-lg h-12 w-12 object-cover" />
-              {% else %}
-                <i class="h-12 w-12 m-auto text-3xl align-middle fas fa-user text-white dark:text-white/60 " title="{{ user.get_full_name }}"></i>
-              {% endif %}
-              </div>
-              <span class="text-xs">{{ user.get_full_name }}</span>
-            </div>
-          </a>
+          {% avatar image_url=user.image|default:user.commitauthor.avatar_url href=user.commitauthor.github_profile_url name=user.get_full_name image_size="h-12 w-12" is_show_name=True %}
         {% endfor %}
         </div>
 
-        <div class="flex flex-wrap justify-center">
+        <div class="flex flex-wrap justify-center gap-2">
         {% for author in top_contributors_release %}
-          <a
-            {% if author.github_profile_url %}
-              href="{{ author.github_profile_url }}"
-            {% endif %}
-          >
-            <div class="p-1 md:p-2 flex text-center justify-center" title="{{ author.name }}">
-              <div class="bg-gray-300 dark:bg-slate rounded-lg h-9 w-9 overflow-hidden">
-              {% if author.avatar_url %}
-                <img src="{{ author.avatar_url }}"
-                  title="{{ author.name }}"
-                  alt="{{ author.name }}"
-                  class="rounded-lg h-9 w-9 object-cover" />
-              {% else %}
-                <i class="h-9 w-9 m-auto text-3xl fas fa-user text-white dark:text-white/60 " title="{{ author.name }}"></i>
-              {% endif %}
-              </div>
-            </div>
-          </a>
+          {% avatar image_url=author.avatar_url href=author.github_profile_url name=author.name %}
         {% endfor %}
         </div>
 
-        <div class="flex flex-wrap justify-center">
+        <div class="flex flex-wrap justify-center gap-2">
         {% for author in top_contributors_overall %}
-          <a {% if author.github_profile_url %}href="{{ author.github_profile_url }}"{% endif %}>
-            <div class="p-1 md:p-2 flex text-center justify-center" title="{{ author.name }}">
-              <div class="bg-gray-300 dark:bg-slate rounded-lg h-9 w-9 overflow-hidden">
-              {% if author.avatar_url %}
-                <img src="{{ author.avatar_url }}"
-                  title="{{ author.name }}"
-                  alt="{{ author.name }}"
-                  class="rounded-lg h-9 w-9 object-cover" />
-              {% else %}
-                <i class="h-9 w-9 m-auto text-3xl fas fa-user text-white dark:text-white/60 " title="{{ author.name }}"></i>
-              {% endif %}
-              </div>
-            </div>
-          </a>
+          {% avatar image_url=author.avatar_url href=author.github_profile_url name=author.name %}
         {% endfor %}
         </div>
 

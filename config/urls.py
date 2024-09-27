@@ -64,7 +64,6 @@ from users.views import (
     CustomSignupView,
     CustomSocialSignupViewView,
     ProfileView,
-    UserAvatar,
     UserViewSet,
 )
 from versions.api import ImportVersionsView, VersionViewSet
@@ -99,7 +98,6 @@ urlpatterns = (
         path("accounts/", include("allauth.urls")),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
         path("users/<int:pk>/", ProfileView.as_view(), name="profile-user"),
-        path("users/avatar/", UserAvatar.as_view(), name="user-avatar"),
         path("api/v1/users/me/", CurrentUserAPIView.as_view(), name="current-user"),
         path(
             "api/v1/import-versions/",

@@ -277,6 +277,11 @@ class User(BaseUser):
             self.claimed = True
             self.save()
 
+    def get_thumbnail_url(self):
+        # convenience method for templates
+        if self.image_thumbnail:
+            return self.image_thumbnail.url
+
 
 class LastSeen(models.Model):
     """

@@ -269,18 +269,3 @@ class CustomLoginView(LoginView):
             "contributor_account_redirect_message", None
         )
         return context
-
-
-class UserAvatar(TemplateView):
-    """
-    Returns the template for the user's avatar in the header from the htmx request.
-    """
-
-    permission_classes = [AllowAny]
-    template_name = "users/includes/header_avatar.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["user"] = self.request.user
-        context["mobile"] = self.request.GET.get("ui")
-        return context

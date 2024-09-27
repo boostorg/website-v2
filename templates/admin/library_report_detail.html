@@ -1,4 +1,4 @@
-{% load static humanize %}
+{% load static humanize avatar_tags %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -65,14 +65,8 @@
               <div>
                 <div class="grid grid-cols-5 gap-2">
                   {% for author in top_contributors_release_overall %}
-                    <div class="flex flex-col gap-y-2 w-20">
-                      {% if author.avatar_url %}
-                        <img src="{{ author.avatar_url }}"
-                             alt="{{ author.name }}"
-                             class="w-8 h-8 rounded mx-auto">
-                      {% else %}
-                        <div class="w-8 h-8 rounded bg-gray-300 mx-auto"></div>
-                      {% endif %}
+                    <div class="flex flex-col gap-y-2 w-20 items-center">
+                      {% avatar name=author.name image_url=author.avatar_url href=author.github_profile_url %}
                       <div class="w-full flex flex-col">
                         <div class="text-[0.6rem] overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-center">
                           {{ author.name }}
@@ -111,14 +105,8 @@
                 <div class="mb-2">Top Contributors</div>
                 <div class="grid grid-cols-5 gap-2 flex-wrap">
                   {% for author in item.top_contributors_release %}
-                    <div class="flex flex-col gap-y-2 w-20">
-                      {% if author.avatar_url %}
-                        <img src="{{ author.avatar_url }}"
-                             alt="{{ author.name }}"
-                             class="w-8 h-8 rounded mx-auto">
-                      {% else %}
-                        <div class="w-8 h-8 rounded bg-gray-300 mx-auto"></div>
-                      {% endif %}
+                    <div class="flex flex-col gap-y-2 w-20 items-center">
+                      {% avatar name=author.name image_url=author.avatar_url href=author.github_profile_url %}
                       <div class="w-full flex flex-col justify-center items-center">
                         <div class="text-[0.6rem] overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-center">
                           {{ author.name }}

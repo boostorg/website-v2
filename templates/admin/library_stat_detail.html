@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load static %}
+{% load static avatar_tags %}
 {% block extrahead %}
   <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
 {% endblock extrahead %}
@@ -33,12 +33,7 @@
         <div class="flex flex-col gap-y-1">
           {% for author in commits_per_author %}
             <div class="flex gap-x-1">
-              {% if author.avatar_url %}
-                <img src="{{ author.avatar_url }}" alt="github avatar" class="w-8 rounded">
-              {% else %}
-                <div class="w-8 h-8 rounded bg-silver">
-                </div>
-              {% endif %}
+              {% avatar name=author.name image_url=author.avatar_url href=author.github_profile_url %}
               <div>
                 {{ author.name }}: {{ author.count }}
               </div>
@@ -60,14 +55,7 @@
               <hr>
             {% endifchanged %}
             <div class="flex gap-x-1">
-              {% if item.commit__author__avatar_url %}
-                <img src="{{ item.commit__author__avatar_url }}"
-                     alt="github avatar"
-                     class="w-8 rounded">
-              {% else %}
-                <div class="w-8 h-8 rounded bg-silver">
-                </div>
-              {% endif %}
+              {% avatar name=item.commit__author__name image_url=item.commit__author__avatar_url href=None %}
               <div>
                 {{ item.commit__author__name }}: {{ item.count }}
               </div>
