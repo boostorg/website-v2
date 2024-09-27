@@ -1,6 +1,7 @@
 import datetime
 from itertools import chain
 import re
+from types import SimpleNamespace
 
 import structlog
 from django.contrib import messages
@@ -265,9 +266,9 @@ class LibraryDetail(FormMixin, DetailView):
         context["maintainers"] = self.get_maintainers(context["version"])
         context["author_tag"] = self.get_author_tag()
         exclude_maintainer_ids = [
-            getattr(x.commitauthor, "id")
+            x.commitauthor.id
             for x in context["maintainers"]
-            if x.commitauthor
+            if getattr(x.commitauthor, "id", None)
         ]
         context["top_contributors_release"] = self.get_top_contributors(
             version=context["version"],
@@ -431,7 +432,10 @@ class LibraryDetail(FormMixin, DetailView):
             if author_email := commit_authors.get(user.email.lower(), None):
                 user.commitauthor = author_email.author
             else:
-                user.commitauthor = None
+                user.commitauthor = SimpleNamespace(
+                    github_profile_url="",
+                    avatar_url="",
+                )
         return qs
 
     def get_top_contributors(self, version=None, exclude=None):

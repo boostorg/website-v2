@@ -277,6 +277,17 @@ class User(BaseUser):
             self.claimed = True
             self.save()
 
+    def get_thumbnail_url(self):
+        # convenience method for templates
+        if self.image and self.image_thumbnail:
+            return getattr(self.image_thumbnail, "url", None)
+
+    @property
+    def github_profile_url(self):
+        if not self.github_username:
+            return None
+        return f"https://github.com/{self.github_username}"
+
 
 class LastSeen(models.Model):
     """
