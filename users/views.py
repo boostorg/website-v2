@@ -13,7 +13,7 @@ from allauth.socialaccount.views import SignupView as SocialSignupView
 
 from rest_framework import generics
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 
 from .forms import PreferencesForm, UserProfileForm, UserProfilePhotoForm
 from .models import User
