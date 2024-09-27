@@ -3,6 +3,7 @@ import uuid
 from datetime import date, timedelta
 from io import BytesIO
 
+from PIL import Image
 import pytest
 from django.core import mail
 from django.utils.text import slugify
@@ -377,7 +378,17 @@ def test_news_create_requirements(
     url = tp.reverse(url_name)
 
     # Setup user based on parameters
-    user.image = "test_image.jpg" if has_image else None
+    if has_image:
+        file = BytesIO()
+        filename = "test_image.jpg"
+        file.name = filename
+        image = Image.new("RGB", size=(100, 100), color=(155, 0, 0))
+        image.save(file, "jpeg")
+        file.seek(0)
+        user.image.save(filename, file)
+    else:
+        user.image = None
+
     user.first_name = "Test" if has_first_name else ""
     user.last_name = "User" if has_last_name else ""
     user.save()

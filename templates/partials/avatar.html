@@ -1,7 +1,21 @@
-{% if profile.avatar %}
-<img class="avatar" src="{{ profile.avatar.url }}" alt="{{ profile.user }}" />
-{% elif show_placeholder %}
-<span class="avatar empty">
-  <i class="far fa-user fa-4x" ></i>
-</span>
-{% endif %}
+{# Intended to be used with a django tag: avatar_tags.avatar #}
+{% with av_size=av_size|default:"w-9 h-9" av_show_name=av_show_name|default:False av_title=av_title|default:av_name %}
+{% with av_alt=av_alt|default:av_name av_icon_size=av_icon_size|default:"text-3xl" %}
+  <a {% if av_href and av_is_link %}href="{{ av_href }}"{% endif %}>
+    <div class="w-min text-center flex flex-col justify-center items-center">
+      <div class="bg-gray-300 dark:bg-slate rounded-lg {{ av_size }} flex items-center justify-center relative" title="{{ av_title }}">
+      {% if av_image_url %}
+        <img src="{{ av_image_url }}"
+          alt="{{ av_alt }}"
+          class="rounded-lg {{ av_size }} object-cover mx-auto" />
+      {% else %}
+        <i class="{{ av_icon_size }} align-middle fas fa-user text-white dark:text-white/60"></i>
+      {% endif %}
+      </div>
+      {% if av_show_name %}
+        <span class="text-xs">{{ av_name }}</span>
+      {% endif %}
+    </div>
+  </a>
+{% endwith %}
+{% endwith %}
