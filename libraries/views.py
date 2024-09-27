@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 import structlog
 from django.contrib import messages
-from django.db.models import F, Count
+from django.db.models import F, Count, Exists, OuterRef
 from django.db.models.functions import Lower
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -21,6 +21,7 @@ from .forms import VersionSelectionForm
 from .mixins import VersionAlertMixin
 from .models import (
     Category,
+    Commit,
     CommitAuthor,
     CommitAuthorEmail,
     Library,
@@ -443,7 +444,18 @@ class LibraryDetail(FormMixin, DetailView):
             library_version = LibraryVersion.objects.get(
                 library=self.object, version=version
             )
-            qs = CommitAuthor.objects.filter(commit__library_version=library_version)
+            qs = CommitAuthor.objects.filter(
+                commit__library_version=library_version
+            ).annotate(
+                is_new=~Exists(
+                    Commit.objects.filter(
+                        author_id=OuterRef("id"),
+                        library_version__in=LibraryVersion.objects.filter(
+                            version__name__lt=version.name, library=self.object
+                        ),
+                    )
+                )
+            )
         else:
             qs = CommitAuthor.objects.filter(
                 commit__library_version__library=self.object

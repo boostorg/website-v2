@@ -15,6 +15,7 @@ def base_avatar(
     title=None,
     image_size=None,
     icon_size=None,
+    is_new=False,
 ):
     context = {
         "av_name": name,
@@ -26,6 +27,7 @@ def base_avatar(
         "av_icon_size": icon_size,
         "av_title": title,
         "av_alt": alt,
+        "av_is_new": is_new,
     }
     return render_to_string("partials/avatar.html", context)
 
@@ -40,7 +42,17 @@ def avatar(
     title=None,
     image_size=None,
     icon_size=None,
+    is_new=False,
 ):
+    kwargs = {
+        "is_link": is_link,
+        "is_show_name": is_show_name,
+        "alt": alt,
+        "title": title,
+        "image_size": image_size,
+        "icon_size": icon_size,
+        "is_new": is_new,
+    }
     if user and commitauthor:
         image_url = user.get_thumbnail_url() or commitauthor.avatar_url
         href = user.github_profile_url or commitauthor.github_profile_url
@@ -48,35 +60,20 @@ def avatar(
             user.get_full_name(),
             image_url,
             href,
-            is_link=is_link,
-            is_show_name=is_show_name,
-            alt=alt,
-            title=title,
-            image_size=image_size,
-            icon_size=icon_size,
+            **kwargs,
         )
     elif user:
         return base_avatar(
             user.get_full_name(),
             user.get_thumbnail_url(),
             user.github_profile_url,
-            is_link=is_link,
-            is_show_name=is_show_name,
-            alt=alt,
-            title=title,
-            image_size=image_size,
-            icon_size=icon_size,
+            **kwargs,
         )
     elif commitauthor:
         return base_avatar(
             commitauthor.name,
             commitauthor.avatar_url,
             commitauthor.github_profile_url,
-            is_link=is_link,
-            is_show_name=is_show_name,
-            alt=alt,
-            title=title,
-            image_size=image_size,
-            icon_size=icon_size,
+            **kwargs,
         )
     raise ValueError("Must provide user or commitauthor.")
