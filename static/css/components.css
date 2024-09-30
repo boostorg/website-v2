@@ -1,0 +1,72 @@
+:root {
+  --modalWidth: 70vw;
+  --modalHeight: 70vh;
+  --light-modal-background: rgba(240,240,240,0.7);
+  --dark-modal-background: rgba(0,0,0,0.7);
+}
+
+html {
+    --modal-background: var(--light-modal-background);
+}
+
+html.dark {
+    --modal-background: var(--dark-modal-background);
+}
+
+.modal-overlay {
+    transition-property: opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: var(--modal-background);
+    align-items: center;
+    justify-content: center;
+    display: none;
+    z-index: 1010;
+}
+
+.modal-content {
+    width: var(--modalWidth);
+    height: var(--modalHeight);
+    margin: 0;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,.2),0 4px 6px -4px rgba(0,0,0,.2);
+    background-color: var(--card-color);
+    position: relative;
+}
+
+.modal-confirm {
+    width: auto;
+    height: auto;
+    padding: 2rem;
+}
+
+.modal-close {
+    color: var(--text-color);
+    position: absolute;
+    top: .75rem;
+    right: 1rem;
+    cursor: pointer;
+}
+
+.show-modal {
+    display: flex;
+}
+
+/* standard button CSS */
+/* a primary solid button should only be seen once on a page for a promary action to be made on that page. */
+.primary-button-solid {
+@apply py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-lg border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:text-slate dark:hover:text-charcoal  hover:drop-shadow-md
+
+}
+/* standard button CSS */
+.primary-button-outline {
+@apply py-3 px-8 text-sm text-base font-medium text-white capitalize rounded-lg border md:py-1 md:px-4 md:text-lg text-orange border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md
+
+}
