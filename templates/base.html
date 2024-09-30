@@ -34,6 +34,7 @@
     <script src="{% static 'js/boost-gecko/main.062e4862.js' %}" defer></script>
     {% block extra_head %}
       <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+      <link href="{% static 'css/components.css' %}" rel="stylesheet" />
       <link rel="preload" as="style" href="{% static 'css/fonts.css' %}" rel="stylesheet" />
     {% endblock %}
 
@@ -48,6 +49,7 @@
             });
         }"
         class="h-screen bg-gray-200 dark:bg-black" {% block body_id %}{% endblock %}>
+         <div class="modal-overlay" id="modalOverlay"><div class="modal-content"><iframe src="" id="modalFrame" class="w-full h-full rounded-xl m-0 p-0"></iframe><div class="modal-close" id="modalClose" onclick="closeModal()"><i class="fa-solid fa-xmark fa-lg"></i></div></div></div>
     <div class="max-w-7xl md:px-3 mx-auto transition-all">
       {% block content_header %}
         {% include "includes/_header.html" %}
@@ -69,6 +71,32 @@
 
 
     {% block footer_js %}{% endblock %}
+
+     <script>
+      var r = document.querySelector(':root');
+
+      function modalSize(h,w) {
+        var rs = getComputedStyle(r);
+        r.style.setProperty('--modalWidth', w);
+        r.style.setProperty('--modalHeight', h);
+      }
+
+      /********* Function to open modal ***********/
+      function displayModal(height,width,src) {
+        event.preventDefault()
+        let modal = document.getElementById('modalOverlay');
+        modal.classList.add('show-modal');
+        modalSize(height,width);
+        let modalframe = document.getElementById('modalFrame');
+        modalframe.setAttribute("src", src);
+      }
+
+      function closeModal() {
+        let modal = document.getElementById('modalOverlay');
+        modal.classList.remove('show-modal');
+      }
+
+    </script>
 
   </body>
 
