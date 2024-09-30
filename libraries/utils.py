@@ -1,5 +1,7 @@
 import random
 import string
+import re
+
 import structlog
 import tempfile
 from datetime import datetime
@@ -15,6 +17,7 @@ from libraries.constants import (
     DEFAULT_LIBRARIES_LANDING_VIEW,
     SELECTED_BOOST_VERSION_COOKIE_NAME,
     SELECTED_LIBRARY_VIEW_COOKIE_NAME,
+    LATEST_RELEASE_URL_PATH_STR,
 )
 from versions.models import Version
 
@@ -147,7 +150,7 @@ def build_view_query_params_from_request(request):
     query_params = {}
     version = get_prioritized_version(request)
     category = get_category(request)
-    if version and version != "latest":
+    if version and version != LATEST_RELEASE_URL_PATH_STR:
         query_params["version"] = version
     if category:
         query_params["category"] = category
@@ -182,7 +185,41 @@ def set_selected_boost_version(version_slug: str, response) -> None:
     valid_versions = Version.objects.version_dropdown_strict()
     if version_slug in [v.slug for v in valid_versions]:
         response.set_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME, version_slug)
-    elif version_slug == "latest":
+    elif version_slug == LATEST_RELEASE_URL_PATH_STR:
         response.delete_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME)
     else:
         logger.warning(f"Attempted to set invalid version slug: {version_slug}")
+
+
+def library_doc_latest_transform(url):
+    p = re.compile(r"(/doc/libs/)[a-zA-Z0-9_]+([//\S]*)$")
+    if p.match(url):
+        url = p.sub(r"\1release\2", url)
+    return url
+
+
+def get_documentation_url(library_version, latest):
+    """Get the documentation URL for the current library."""
+
+    def find_documentation_url(library_version):
+        version = library_version.version
+        docs_url = version.documentation_url
+
+        # If we know the library-version docs are missing, return the version docs
+        if library_version.missing_docs:
+            return docs_url
+        # If we have the library-version docs and they are valid, return those
+        elif library_version.documentation_url:
+            return library_version.documentation_url
+        # If we wind up here, return the version docs
+        else:
+            return docs_url
+
+    # Get the URL for the version.
+    url = find_documentation_url(library_version)
+    # Remove the "boost_" prefix from the URL.
+    url = url.replace("boost_", "")
+    if latest:
+        url = library_doc_latest_transform(url)
+
+    return url

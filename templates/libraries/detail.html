@@ -25,7 +25,7 @@
                     name="version"
                     class="dropdown pb-0"
                     id="id_version">
-              <option value="latest" {% if version_str == LATEST_RELEASE_URL_PATH_NAME %}selected="selected"{% endif %}>Latest</option>
+              <option value="{{ LATEST_RELEASE_URL_PATH_STR }}" {% if version_str == LATEST_RELEASE_URL_PATH_NAME %}selected="selected"{% endif %}>Latest</option>
               {% for v in versions %}
                 <option value="{{ v.pk }}" {% if version_str == v.slug %}selected="selected"{% endif %}>{{ v.display_name }}</option>
               {% endfor %}
