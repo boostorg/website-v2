@@ -271,31 +271,27 @@ class LibraryDetail(FormMixin, DetailView):
             for x in context["maintainers"]
             if getattr(x.commitauthor, "id", None)
         ]
-        context["top_contributors_release"] = self.get_top_contributors(
+        top_contributors_release = self.get_top_contributors(
             version=context["version"],
             exclude=exclude_maintainer_ids,
         )
-        exclude_top_contributor_ids = [
-            x.id for x in context["top_contributors_release"]
+        context["top_contributors_release_new"] = [
+            x for x in top_contributors_release if x.is_new
         ]
+        context["top_contributors_release_old"] = [
+            x for x in top_contributors_release if not x.is_new
+        ]
+        exclude_top_contributor_ids = [x.id for x in top_contributors_release]
         context["top_contributors_overall"] = self.get_top_contributors(
             exclude=exclude_maintainer_ids + exclude_top_contributor_ids
         )
         # Since we need to execute these queries separately anyway, just concatenate
         # their results instead of making a new query
         all_contributors = []
-        for x in chain(
-            context["top_contributors_release"], context["top_contributors_overall"]
-        ):
+        for x in chain(top_contributors_release, context["top_contributors_overall"]):
             all_contributors.append(
                 {
                     "name": x.name,
-                }
-            )
-        for x in context["maintainers"]:
-            all_contributors.append(
-                {
-                    "name": x.get_full_name(),
                 }
             )
 

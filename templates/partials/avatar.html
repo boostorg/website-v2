@@ -6,18 +6,10 @@
       <div
         class="{{ av_size }} bg-gray-300 dark:bg-slate flex items-center justify-center relative rounded-lg"
         title="{{ av_title }}{% if av_is_new %} - NEW!{% endif %}">
-      {% if av_is_new %}
-        <div class="absolute top-[-12px] right-[-8px]">
-          <i class="fas fa-solid fa-star text-sm text-gold"></i>
-        </div>
-      {% endif %}
       {% if av_image_url %}
         <img src="{{ av_image_url }}"
           alt="{{ av_alt }}"
           class="
-            {% if av_is_new %}
-              border-2 border-gold
-            {% endif %}
             rounded-lg h-full w-full object-cover mx-auto
             "
           />
@@ -26,9 +18,6 @@
           class="
             {{ av_icon_size }}
             align-middle fas fa-user text-white dark:text-white/60
-            {% if av_is_new %}
-              border-2 border-gold
-            {% endif %}
           "
         ></i>
       {% endif %}
