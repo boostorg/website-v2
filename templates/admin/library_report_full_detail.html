@@ -1,70 +1,17 @@
-{% load static humanize avatar_tags %}
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>
-      {% block title %}Boost{% endblock %}
-    </title>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="{% block description %}{% endblock %}" />
-    <meta name="keywords" content="{% block keywords %}{% endblock %}" />
-    <meta name="author"
-          content="{% block author %}Boost C++ Libraries{% endblock %}" />
-    <link rel="shortcut icon"
-          href="{% static 'img/Boost_Symbol_Transparent.svg' %}"
-          type="image/x-icon" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
-          rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono&display=swap"
-          rel="stylesheet">
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.css" />
-    <!-- TODO bring this local if we like it -->
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script src="{% static 'js/boost-gecko/main.062e4862.js' %}" defer></script>
-    {% block extra_head %}
-      <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
-    {% endblock %}
-    {% block css %}
-    {% endblock css %}
-    <style>
-      @page {
-        margin: 0;
-        size: 300mm 180mm;
-      }
-
-      .pdf-page {
-        padding: 5mm;
-        height: 180mm;
-        width: 300mm;
-        page-break-after: always;
-      }
-    </style>
-  </head>
+{% extends "admin/library_report_base.html" %}
+{% load humanize avatar_tags %}
+{% block content %}
   {% with bg_color='bg-gradient-to-tr from-[#7ac3e6]/50 to-[#d9b05e]/50' %}
     <body>
       <div>
         <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
-          <div>
-            <h1>Boost</h1>
-            <div>{{ commit_count|intcomma }} commits up through {{ version.display_name }}</div>
-          </div>
-          <div>There were {{ version_commit_count|intcomma }} commits in {{ version.display_name }}</div>
-        </div>
-        <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
           <div class="flex flex-col">
-            <h1 class="mx-auto">Boost {{ version.display_name }}</h1>
-            <div class="mx-auto mb-4">{{ version_commit_count|intcomma }} Commits Across {{ library_count }} Repositories</div>
+            <h1 class="mx-auto">Boost</h1>
+            <div class="mx-auto mb-4">{{ commit_count|intcomma }} in all releases across all {{ library_count }} libraries</div>
             <div class="flex gap-x-2">
               <div>
                 <div class="grid grid-cols-5 gap-2">
-                  {% for author in top_contributors_release_overall %}
+                  {% for author in top_contributors %}
                     <div class="flex flex-col gap-y-2 w-20 items-center">
                       {% avatar commitauthor=author %}
                       <div class="w-full flex flex-col">
@@ -91,20 +38,11 @@
               <div>{{ item.library.description }}</div>
             </div>
             <div class="flex flex-col gap-y-8">
-              <h4>There were {{ item.version_count.commit_count }} commits in release {{ version.display_name }}</h4>
-              {% if item.new_contributors_count.count > 1 %}
-                <div>
-                  There were {{ item.new_contributors_count.count }} new contributors this release!
-                </div>
-              {% elif item.new_contributors_count.count == 1 %}
-                <div>
-                  There was {{ item.new_contributors_count.count }} new contributor this release!
-                </div>
-              {% endif %}
+              <h4>There are {{ item.full_count.commit_count|intcomma }} commits across all releases</h4>
               <div>
                 <div class="mb-2">Top Contributors</div>
                 <div class="grid grid-cols-5 gap-2 flex-wrap">
-                  {% for author in item.top_contributors_release %}
+                  {% for author in item.top_contributors %}
                     <div class="flex flex-col gap-y-2 w-20 items-center">
                       {% avatar commitauthor=author %}
                       <div class="w-full flex flex-col justify-center items-center">
@@ -126,7 +64,7 @@
         var options = {
           series: [{
             name: 'Commits',
-            data: [{% for library in top_libraries_for_version %}{{library.commit_count}}, {% endfor %}]
+            data: [{% for library in top_libraries %}{{library.commit_count}}, {% endfor %}]
           }],
           chart: {
             height: 300,
@@ -154,7 +92,7 @@
             }
           },
           xaxis: {
-            categories: [{% for library in top_libraries_for_version %} "{{ library.name }}", {% endfor %}],
+            categories: [{% for library in top_libraries %} "{{ library.name }}", {% endfor %}],
             position: 'bottom',
             axisBorder: {
               show: false
@@ -182,6 +120,5 @@
         const chart = new ApexCharts(document.querySelector("#top-committed-libraries-chart"), options);
         chart.render();
       </script>
-    </body>
   {% endwith %}
-</html>
+{% endblock content %}

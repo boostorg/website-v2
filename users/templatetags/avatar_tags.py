@@ -69,9 +69,11 @@ def avatar(
         )
     elif commitauthor:
         return base_avatar(
-            commitauthor.name,
-            commitauthor.avatar_url,
-            commitauthor.github_profile_url,
+            getattr(commitauthor, "name", commitauthor["name"]),
+            getattr(commitauthor, "avatar_url", commitauthor["avatar_url"]),
+            getattr(
+                commitauthor, "github_profile_url", commitauthor["github_profile_url"]
+            ),
             is_link=is_link,
             is_show_name=is_show_name,
             alt=alt,

@@ -8,7 +8,7 @@ from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 from django.shortcuts import redirect
 
-from libraries.forms import CreateReportForm
+from libraries.forms import CreateReportForm, CreateReportFullForm
 from versions.tasks import import_all_library_versions
 from .models import (
     Category,
@@ -139,40 +139,75 @@ class LibraryAdmin(admin.ModelAdmin):
                 name="library_stat_detail",
             ),
             path(
-                "report-form/",
-                self.admin_site.admin_view(self.report_form_view),
-                name="library_report_form",
+                "release-report-form/",
+                self.admin_site.admin_view(self.release_report_form),
+                name="release_report_form",
             ),
             path(
-                "report/",
-                self.admin_site.admin_view(self.report_view),
-                name="library_report",
+                "release-report/",
+                self.admin_site.admin_view(self.release_report_view),
+                name="release_report",
+            ),
+            path(
+                "report-full-form/",
+                self.admin_site.admin_view(self.report_form_full_view),
+                name="library_report_full_form",
+            ),
+            path(
+                "report-full/",
+                self.admin_site.admin_view(self.report_full_view),
+                name="library_report_full",
             ),
         ]
         return my_urls + urls
 
-    def report_form_view(self, request):
+    def release_report_form(self, request):
         form = CreateReportForm()
         context = {}
-        if request.GET.get("version", None):
+        if request.GET.get("submit", None):
             form = CreateReportForm(request.GET)
             if form.is_valid():
                 context.update(form.get_stats())
                 return redirect(
-                    reverse("admin:library_report") + f"?{request.GET.urlencode()}"
+                    reverse("admin:release_report") + f"?{request.GET.urlencode()}"
                 )
         if not context:
             context["form"] = form
         return TemplateResponse(request, "admin/library_report_form.html", context)
 
-    def report_view(self, request):
+    def release_report_view(self, request):
         form = CreateReportForm(request.GET)
         context = {"form": form}
         if form.is_valid():
             context.update(form.get_stats())
         else:
-            return redirect("admin:library_report_form")
-        return TemplateResponse(request, "admin/library_report_detail.html", context)
+            return redirect("admin:release_report_form")
+        return TemplateResponse(request, "admin/release_report_detail.html", context)
+
+    def report_form_full_view(self, request):
+        form = CreateReportFullForm()
+        context = {}
+        if request.GET.get("submit", None):
+            form = CreateReportFullForm(request.GET)
+            if form.is_valid():
+                context.update(form.get_stats())
+                return redirect(
+                    reverse("admin:library_report_full") + f"?{request.GET.urlencode()}"
+                )
+        if not context:
+            context["form"] = form
+        return TemplateResponse(request, "admin/library_report_form.html", context)
+
+    def report_full_view(self, request):
+        form = CreateReportFullForm(request.GET)
+        context = {"form": form}
+        if form.is_valid():
+            context.update(form.get_stats())
+        else:
+            return redirect("admin:library_report_full_form")
+        return TemplateResponse(
+            request, "admin/library_report_full_detail.html", context
+        )
 
     def view_stats(self, instance):
         url = reverse("admin:library_stat_detail", kwargs={"pk": instance.pk})
