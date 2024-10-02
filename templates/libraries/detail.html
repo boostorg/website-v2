@@ -8,12 +8,12 @@
 
 {% block content %}
   <main class="content">
-    <div class="pt-3 md:py-4 px-0 mb-0 w-full md:mb-2 flex flex-row flex-nowrap items-center"
+    <div class="pt-3 md:pt-4 md:pb-1 px-0 mb-0 w-full md:mb-2 flex flex-row flex-nowrap items-center"
          x-data="{'showSearch': false}"
          x-on:keydown.escape="showSearch=false">
       <div class="flex-auto mb-2 w-full">
         <div id="overview">
-          <span class="mx-3 text-xl md:text-3xl lg:text-4xl text-orange">{{ object.display_name }}</span>
+          <span class="mx-3 text-xl md:text-3xl text-orange">{{ object.display_name }}</span>
 
         </div>
       </div>
@@ -24,7 +24,7 @@
             <label for="id_version" hidden="true">Versions:</label>
             <select onchange="this.form.submit()"
                     name="version"
-                    class="dropdown"
+                    class="dropdown pb-0"
                     id="id_version">
               <option value="latest" {% if version_str == LATEST_RELEASE_URL_PATH_NAME %}selected="selected"{% endif %}>Latest</option>
               {% for v in versions %}
