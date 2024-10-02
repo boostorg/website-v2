@@ -1,5 +1,6 @@
 import structlog
 
+from django.db.models import Q, Count
 from django.views.generic import DetailView
 from django.views.generic.edit import FormMixin
 from django.shortcuts import redirect
@@ -9,6 +10,7 @@ from operator import attrgetter
 
 from core.models import RenderedContent
 from libraries.forms import VersionSelectionForm
+from libraries.models import Commit, CommitAuthor
 from versions.models import Version
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -81,8 +83,20 @@ class VersionDetail(FormMixin, DetailView):
 
         context["heading"] = self.get_version_heading(obj, is_current_release)
         context["release_notes"] = self.get_release_notes(obj)
+        context["top_contributors_release"] = self.get_top_contributors_release(obj)
 
         return context
+
+    def get_top_contributors_release(self, version: Version):
+        version_commits = Commit.objects.filter(library_version__version=version)
+        qs = (
+            CommitAuthor.objects.annotate(
+                count=Count("commit", filter=Q(commit__in=version_commits)),
+            )
+            .filter(count__gte=1)
+            .order_by("-count")
+        )
+        return qs
 
     def get_release_notes(self, obj):
         try:
