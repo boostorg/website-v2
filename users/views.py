@@ -1,3 +1,4 @@
+from allauth.account import app_settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -7,7 +8,7 @@ from django.views.generic import DetailView
 from django.views.generic.base import TemplateView
 
 from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
-from allauth.account.views import LoginView, SignupView
+from allauth.account.views import LoginView, SignupView, EmailVerificationSentView
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.views import SignupView as SocialSignupView
 
@@ -268,4 +269,13 @@ class CustomLoginView(LoginView):
         context["contributor_account_redirect_message"] = self.request.session.pop(
             "contributor_account_redirect_message", None
         )
+        return context
+
+
+class CustomEmailVerificationSentView(EmailVerificationSentView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context[
+            "EMAIL_CONFIRMATION_EXPIRE_DAYS"
+        ] = app_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS
         return context

@@ -286,6 +286,7 @@ Follow these instructions to use the social logins through django-allauth on you
 
 See https://testdriven.io/blog/django-social-auth/ for more information.
 
+#### Github
 - Go to https://github.com/settings/applications/new and add a new OAuth application
 - Set `http://localhost:8000` as the Homepage URL
 - Set `http://localhost:8000/accounts/github/login/callback/` as the Callback URL
@@ -314,3 +315,22 @@ It's ready!
 To test the flow including authorizing Github for the Boost account, log into your GitHub account settings and click **Applications** in the left menu. Find the "Boost" authorization and delete it. The next time you log into Boost with this GitHub account, you will have to re-authorize it.
 
 <img src="https://user-images.githubusercontent.com/2286304/204642346-8b269aaf-4693-4351-9474-0a998b97689c.png" alt="The 'Authorized OAuth Apps' tab in your GitHub Applications" width="400">
+
+#### Google
+
+More detailed instructions at:
+
+https://docs.allauth.org/en/latest/socialaccount/providers/google.html
+
+Go to https://console.developers.google.com/ and create a new project. Create OAuth 2.0 credentials.
+
+The client id is the full value including domain and tld.
+
+For the "authorized javascript origins" values use:
+
+* `http://localhost:8000`
+
+For the "authorized redirect URIs" use:
+
+* `http://localhost:8000/accounts/google/login/callback/`
+* `http://localhost:8000/accounts/google/login/callback/?flowName=GeneralOAuthFlow`

@@ -1,7 +1,8 @@
 Django>=4.0, <5.0
 bumpversion
 django-admin-env-notice
-django-allauth==0.53.1
+django-allauth
+django-allauth[socialaccount]
 django-anymail[mailgun]
 django-cors-headers
 django-db-geventpool

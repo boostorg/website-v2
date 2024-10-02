@@ -70,8 +70,6 @@ cryptography==43.0.0
     #   pyjwt
 decorator==5.1.1
     # via ipython
-defusedxml==0.7.1
-    # via python3-openid
 distlib==0.3.8
     # via virtualenv
 dj-database-url==2.2.0
@@ -99,7 +97,7 @@ django==4.2.15
     #   model-bakery
 django-admin-env-notice==1.0
     # via -r ./requirements.in
-django-allauth==0.53.1
+django-allauth[socialaccount]==65.0.2
     # via -r ./requirements.in
 django-anymail[mailgun]==11.1
     # via -r ./requirements.in
@@ -281,8 +279,6 @@ python-frontmatter==1.1.0
     # via -r ./requirements.in
 python-json-logger==2.0.7
     # via -r ./requirements.in
-python3-openid==3.2.0
-    # via django-allauth
 pytz==2024.1
     # via django-oauth-toolkit
 pyyaml==6.0.2
