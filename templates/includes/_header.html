@@ -220,6 +220,10 @@ html.dark {
   text-transform: capitalize;
 }
 
+#desktopNav {
+        display: none;
+    }
+
 @media screen and (min-width: 768px) {
     #mobileNav {
         display: none;
@@ -230,15 +234,8 @@ html.dark {
     }
 }
 
-@media screen and (max-width: 767px) {
-    #mobileNav {
-        display: flex;
-    }
 
-    #desktopNav {
-        display: none;
-    }
-}
+
     /* specific to docs */
     body.article {
       max-width: 100% !important;

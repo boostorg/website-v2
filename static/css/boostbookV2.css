@@ -136,8 +136,8 @@ Body defaults
     .toc,
     pre { background-color: var(--code-bg-color);}
 
-    body > .section, body > .chapter {
-        margin: 1.5rem 1rem;
+    body > .section, body > .chapter , #boost-legacy-docs-wrapper > .section, #boost-legacy-docs-wrapper > .chapter {
+        margin: 0rem 1rem;
         padding: 1rem;
         background-color: var(--card-color);
         border-radius: 0.5rem;
@@ -148,8 +148,12 @@ Body defaults
             padding: 0;
         }
 
-        body > .section,
-        body > .chapter {
+        #boost-legacy-docs-wrapper {
+            margin-top: 0 !important;
+        }
+
+        #boost-legacy-docs-wrapper > .section,
+        #boost-legacy-docs-wrapper > .chapter {
             margin: 0;
             padding: 1rem;
             background-color: var(--card-color);
