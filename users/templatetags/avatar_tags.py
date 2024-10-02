@@ -70,12 +70,18 @@ def avatar(
             **kwargs,
         )
     elif commitauthor:
+        if isinstance(commitauthor, dict):
+            name = commitauthor["name"]
+            avatar_url = commitauthor["avatar_url"]
+            github_profile_url = commitauthor["github_profile_url"]
+        else:
+            name = commitauthor.name
+            avatar_url = commitauthor.avatar_url
+            github_profile_url = commitauthor.github_profile_url
         return base_avatar(
-            getattr(commitauthor, "name", commitauthor["name"]),
-            getattr(commitauthor, "avatar_url", commitauthor["avatar_url"]),
-            getattr(
-                commitauthor, "github_profile_url", commitauthor["github_profile_url"]
-            ),
+            name,
+            avatar_url,
+            github_profile_url,
             **kwargs,
         )
     raise ValueError("Must provide user or commitauthor.")
