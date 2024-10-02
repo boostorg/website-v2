@@ -123,7 +123,13 @@
         </div>
 
         <div class="flex flex-wrap justify-center gap-2">
-        {% for author in top_contributors_release %}
+        {% for author in top_contributors_release_new %}
+          {% avatar commitauthor=author is_new=author.is_new %}
+        {% endfor %}
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-2">
+        {% for author in top_contributors_release_old %}
           {% avatar commitauthor=author %}
         {% endfor %}
         </div>
