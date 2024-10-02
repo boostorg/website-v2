@@ -3,13 +3,23 @@
 {% with av_alt=av_alt|default:av_name av_icon_size=av_icon_size|default:"text-3xl" %}
   <a {% if av_href and av_is_link %}href="{{ av_href }}"{% endif %}>
     <div class="w-min text-center flex flex-col justify-center items-center">
-      <div class="bg-gray-300 dark:bg-slate rounded-lg {{ av_size }} flex items-center justify-center relative" title="{{ av_title }}">
+      <div
+        class="{{ av_size }} bg-gray-300 dark:bg-slate flex items-center justify-center relative rounded-lg"
+        title="{{ av_title }}{% if av_is_new %} - NEW!{% endif %}">
       {% if av_image_url %}
         <img src="{{ av_image_url }}"
           alt="{{ av_alt }}"
-          class="rounded-lg {{ av_size }} object-cover mx-auto" />
+          class="
+            rounded-lg h-full w-full object-cover mx-auto
+            "
+          />
       {% else %}
-        <i class="{{ av_icon_size }} align-middle fas fa-user text-white dark:text-white/60"></i>
+        <i
+          class="
+            {{ av_icon_size }}
+            align-middle fas fa-user text-white dark:text-white/60
+          "
+        ></i>
       {% endif %}
       </div>
       {% if av_show_name %}

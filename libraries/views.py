@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 import structlog
 from django.contrib import messages
-from django.db.models import F, Count
+from django.db.models import F, Count, Exists, OuterRef
 from django.db.models.functions import Lower
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -21,6 +21,7 @@ from .forms import VersionSelectionForm
 from .mixins import VersionAlertMixin
 from .models import (
     Category,
+    Commit,
     CommitAuthor,
     CommitAuthorEmail,
     Library,
@@ -270,31 +271,27 @@ class LibraryDetail(FormMixin, DetailView):
             for x in context["maintainers"]
             if getattr(x.commitauthor, "id", None)
         ]
-        context["top_contributors_release"] = self.get_top_contributors(
+        top_contributors_release = self.get_top_contributors(
             version=context["version"],
             exclude=exclude_maintainer_ids,
         )
-        exclude_top_contributor_ids = [
-            x.id for x in context["top_contributors_release"]
+        context["top_contributors_release_new"] = [
+            x for x in top_contributors_release if x.is_new
         ]
+        context["top_contributors_release_old"] = [
+            x for x in top_contributors_release if not x.is_new
+        ]
+        exclude_top_contributor_ids = [x.id for x in top_contributors_release]
         context["top_contributors_overall"] = self.get_top_contributors(
             exclude=exclude_maintainer_ids + exclude_top_contributor_ids
         )
         # Since we need to execute these queries separately anyway, just concatenate
         # their results instead of making a new query
         all_contributors = []
-        for x in chain(
-            context["top_contributors_release"], context["top_contributors_overall"]
-        ):
+        for x in chain(top_contributors_release, context["top_contributors_overall"]):
             all_contributors.append(
                 {
                     "name": x.name,
-                }
-            )
-        for x in context["maintainers"]:
-            all_contributors.append(
-                {
-                    "name": x.get_full_name(),
                 }
             )
 
@@ -443,7 +440,18 @@ class LibraryDetail(FormMixin, DetailView):
             library_version = LibraryVersion.objects.get(
                 library=self.object, version=version
             )
-            qs = CommitAuthor.objects.filter(commit__library_version=library_version)
+            qs = CommitAuthor.objects.filter(
+                commit__library_version=library_version
+            ).annotate(
+                is_new=~Exists(
+                    Commit.objects.filter(
+                        author_id=OuterRef("id"),
+                        library_version__in=LibraryVersion.objects.filter(
+                            version__name__lt=version.name, library=self.object
+                        ),
+                    )
+                )
+            )
         else:
             qs = CommitAuthor.objects.filter(
                 commit__library_version__library=self.object
