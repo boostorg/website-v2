@@ -337,7 +337,7 @@ Spirit style navigation
     {
         position: absolute;
         top: 4rem;
-        right: calc(((100% - 80rem) / 2));
+        right: calc(((100% - 77rem) / 2));
         text-align: right;
         margin: 0.75rem;
         max-width: 80rem;
