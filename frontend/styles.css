@@ -89,7 +89,7 @@
   }
 
   select.dropdown {
-    @apply py-1 mb-3 min-w-[8rem] text-sm bg-white rounded-md border border-gray-300 cursor-pointer dark:bg-black text-sky-600 dark:text-orange dark:border-slate;
+    @apply py-1 mb-3 h-[38px] min-w-[8rem] text-sm bg-white rounded-md border border-gray-300 cursor-pointer dark:bg-black text-sky-600 dark:text-orange dark:border-slate;
   }
 
   .errorlist {
@@ -112,7 +112,7 @@
     @apply mt-3 text-xl font-semibold;
   }
   #libraryReadMe p {
-    @apply text-base pb-1 font-light;
+    @apply text-base pb-1 font-light inline-block;
   }
   #libraryReadMe ul {
     @apply list-disc list-inside pl-4;
