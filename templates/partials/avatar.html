@@ -1,31 +1,51 @@
 {# Intended to be used with a django tag: avatar_tags.avatar #}
-{% with av_size=av_size|default:"w-9 h-9" av_show_name=av_show_name|default:False av_title=av_title|default:av_name %}
+{% with av_size=av_size|default:"w-9 h-9" av_title=av_title|default:av_name %}
 {% with av_alt=av_alt|default:av_name av_icon_size=av_icon_size|default:"text-3xl" %}
-  <a {% if av_href and av_is_link %}href="{{ av_href }}"{% endif %}>
-    <div class="w-min text-center flex flex-col justify-center items-center">
-      <div
-        class="{{ av_size }} bg-gray-300 dark:bg-slate flex items-center justify-center relative rounded-lg"
-        title="{{ av_title }}{% if av_is_new %} - NEW!{% endif %}">
-      {% if av_image_url %}
-        <img src="{{ av_image_url }}"
-          alt="{{ av_alt }}"
-          class="
-            rounded-lg h-full w-full object-cover mx-auto
+  <div class="flex gap-x-2 items-center hover:bg-gray-100 dark:hover:bg-black rounded-lg">
+    <a {% if av_href and av_is_link %}href="{{ av_href }}"{% endif %}>
+      <div class="w-min text-center flex flex-col justify-center items-center">
+        <div
+          class="{{ av_size }} bg-gray-300 dark:bg-slate flex items-center justify-center relative rounded-lg"
+          title="{{ av_title }}">
+        {% if av_image_url %}
+          <img src="{{ av_image_url }}"
+            alt="{{ av_alt }}"
+            class="
+              rounded-lg h-full w-full object-cover mx-auto
+              "
+            />
+        {% else %}
+          <i
+            class="
+              {{ av_icon_size }}
+              align-middle fas fa-user text-white dark:text-white/60
             "
-          />
-      {% else %}
-        <i
-          class="
-            {{ av_icon_size }}
-            align-middle fas fa-user text-white dark:text-white/60
-          "
-        ></i>
-      {% endif %}
+          ></i>
+        {% endif %}
+        </div>
       </div>
-      {% if av_show_name %}
-        <span class="text-xs">{{ av_name }}</span>
-      {% endif %}
-    </div>
-  </a>
+    </a>
+    {% if av_avatar_type == "wide" %}
+      <div class="flex flex-col leading-tight min-w-[15rem]">
+        <div class="text-black dark:text-white">
+          {{ av_name }}
+        </div>
+        <div
+          class="
+            {% if av_contributor_label|lower == 'maintainer' %}
+              text-orange
+            {% elif av_contributor_label|lower == 'new contributor' %}
+              text-green
+            {% elif av_contributor_label|lower == 'contributor' %}
+              text-gray-400
+            {% endif %}
+            font-bold text-sm
+          "
+        >
+          {{ av_contributor_label }}
+        </div>
+      </div>
+    {% endif %}
+  </div>
 {% endwith %}
 {% endwith %}
