@@ -1,7 +1,10 @@
+from allauth.account.signals import user_logged_in
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
 from allauth.socialaccount.models import SocialAccount
+
+from users.constants import LOGIN_METHOD_SESSION_FIELD_NAME
 
 GITHUB = "github"
 
@@ -26,3 +29,14 @@ def import_social_profile_data(sender, instance, created, **kwargs):
 
     if avatar_url:
         instance.user.save_image_from_github(avatar_url)
+
+
+@receiver(user_logged_in)
+def user_logged_in_handler(request, user, **kwargs):
+    # We trigger this here as well as on the profile update in case there are two users
+    #  on one machine, we need to reflag for the cookie update
+    try:
+        method = request.session["account_authentication_methods"][0].get("provider")
+    except (KeyError, IndexError):
+        method = None
+    request.session[LOGIN_METHOD_SESSION_FIELD_NAME] = method or "email"

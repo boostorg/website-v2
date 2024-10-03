@@ -242,6 +242,10 @@ class User(BaseUser):
             "a user's ability to update their own profile photo, uncheck this box."
         ),
     )
+    indicate_last_login_method = models.BooleanField(
+        default=False,
+        help_text="Indicate on the login page the last login method used.",
+    )
 
     def save_image_from_github(self, avatar_url):
         response = requests.get(avatar_url)

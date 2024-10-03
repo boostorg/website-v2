@@ -146,11 +146,13 @@ def test_user_profile_form(user):
         "first_name",
         "last_name",
         "email",
+        "indicate_last_login_method",
     }
     assert form.initial == {
         "first_name": user.first_name,
         "last_name": user.last_name,
         "email": user.email,
+        "indicate_last_login_method": user.indicate_last_login_method,
     }
     form = UserProfileForm(instance=user, data={"email": "test@example.com"})
     assert form.is_valid()
