@@ -90,13 +90,19 @@ jobs:
           if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
               echo "K8S_NAMESPACE=production" >> "$GITHUB_ENV"
               echo "HELM_RELEASE_NAME=boost-production" >> "$GITHUB_ENV"
+              echo "FASTLY_SERVICE_ID_1=${{ secrets.FASTLY_SERVICE_ID_PRODUCTION_1 }}" >> "$GITHUB_ENV"
+              echo "FASTLY_SERVICE_ID_2=${{ secrets.FASTLY_SERVICE_ID_PRODUCTION_2 }}" >> "$GITHUB_ENV"
           elif [[ $GITHUB_REF == 'refs/heads/develop' ]]; then
               echo "K8S_NAMESPACE=stage" >> "$GITHUB_ENV"
               echo "HELM_RELEASE_NAME=boost-stage" >> "$GITHUB_ENV"
+              echo "FASTLY_SERVICE_ID_1=${{ secrets.FASTLY_SERVICE_ID_STAGE_1 }}" >> "$GITHUB_ENV"
+              echo "FASTLY_SERVICE_ID_2=${{ secrets.FASTLY_SERVICE_ID_STAGE_2 }}" >> "$GITHUB_ENV"
           elif [[ $GITHUB_REF == 'refs/heads/cppal-dev' ]]; then
               # cppal-dev is a test branch in another fork. Doesn't need to be created in the main repo.
               echo "K8S_NAMESPACE=cppal-dev" >> "$GITHUB_ENV"
               echo "HELM_RELEASE_NAME=boost-cppal-dev" >> "$GITHUB_ENV"
+              echo "FASTLY_SERVICE_ID_1=${{ secrets.FASTLY_SERVICE_ID_CPPAL_DEV_1 }}" >> "$GITHUB_ENV"
+              echo "FASTLY_SERVICE_ID_2=${{ secrets.FASTLY_SERVICE_ID_CPPAL_DEV_2 }}" >> "$GITHUB_ENV"
           fi
 
       - name: Git - Get Sources
@@ -187,3 +193,14 @@ jobs:
           helm upgrade --install --create-namespace -n ${{ env.K8S_NAMESPACE }} -f values-${{ env.K8S_NAMESPACE }}-gke.yaml --timeout=3600s --set=Image=${DOCKER_IMAGE} --set-string ImageTag="${TAG}" ${{ env.HELM_RELEASE_NAME }} .
           kubectl rollout status deployment/$DEPLOYMENT_NAME -n ${{ env.K8S_NAMESPACE }}
           kubectl get services -o wide -n ${{ env.K8S_NAMESPACE }}
+
+      - name: Purge CDN cache
+        run: |
+          set -xe
+          # Clears files selected by the Surrogate Key "deployment", which can be adjusted in the VCL.
+          if [ -n "${{ env.FASTLY_SERVICE_ID_1 }}" ]; then
+              curl -X POST -H 'Fastly-Soft-Purge:1' -H "Fastly-Key: ${{ secrets.FASTLY_TOKEN }}" -H 'Accept: application/json' https://api.fastly.com/service/${{ env.FASTLY_SERVICE_ID_1 }}/purge/deployment
+          fi
+          if [ -n "${{ env.FASTLY_SERVICE_ID_2 }}" ]; then
+              curl -X POST -H 'Fastly-Soft-Purge:1' -H "Fastly-Key: ${{ secrets.FASTLY_TOKEN }}" -H 'Accept: application/json' https://api.fastly.com/service/${{ env.FASTLY_SERVICE_ID_2 }}/purge/deployment
+          fi
