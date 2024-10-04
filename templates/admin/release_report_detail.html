@@ -1,0 +1,139 @@
+{% extends "admin/library_report_base.html" %}
+{% load humanize avatar_tags %}
+{% block content %}
+  {% with bg_color='bg-gradient-to-tr from-[#7ac3e6]/50 to-[#d9b05e]/50' %}
+    <div>
+      <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
+        <div>
+          <h1>Boost</h1>
+          <div>{{ commit_count|intcomma }} commits up through {{ version.display_name }}</div>
+        </div>
+        <div>There were {{ version_commit_count|intcomma }} commits in {{ version.display_name }}</div>
+      </div>
+      <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
+        <div class="flex flex-col">
+          <h1 class="mx-auto">Boost {{ version.display_name }}</h1>
+          <div class="mx-auto mb-4">{{ version_commit_count|intcomma }} Commits Across {{ library_count }} Repositories</div>
+          <div class="flex gap-x-2">
+            <div>
+              <div class="grid grid-cols-5 gap-2">
+                {% for author in top_contributors_release_overall %}
+                  <div class="flex flex-col gap-y-2 w-20 items-center">
+                    {% avatar commitauthor=author %}
+                    <div class="w-full flex flex-col">
+                      <div class="text-[0.6rem] overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-center">
+                        {{ author.name }}
+                      </div>
+                      <div class="text-[0.6rem] mx-auto">({{ author.commit_count }})</div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col">
+          <h3 class="mx-auto">Most Committed Libraries</h3>
+          <div id="top-committed-libraries-chart" class="w-full text-center"></div>
+        </div>
+      </div>
+      {% for item in library_data %}
+        <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
+          <div>
+            <h3>{{ item.library.name }}</h3>
+            <div>{{ item.library.description }}</div>
+          </div>
+          <div class="flex flex-col gap-y-8">
+            <h4>There were {{ item.version_count.commit_count }} commits in release {{ version.display_name }}</h4>
+            {% if item.new_contributors_count.count > 1 %}
+              <div>
+                There were {{ item.new_contributors_count.count }} new contributors this release!
+              </div>
+            {% elif item.new_contributors_count.count == 1 %}
+              <div>
+                There was {{ item.new_contributors_count.count }} new contributor this release!
+              </div>
+            {% endif %}
+            <div>
+              <div class="mb-2">Top Contributors</div>
+              <div class="grid grid-cols-5 gap-2 flex-wrap">
+                {% for author in item.top_contributors_release %}
+                  <div class="flex flex-col gap-y-2 w-20 items-center">
+                    {% avatar commitauthor=author %}
+                    <div class="w-full flex flex-col justify-center items-center">
+                      <div class="text-[0.6rem] overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-center">
+                        {{ author.name }}
+                      </div>
+                      <div class="text-[0.6rem]">({{ author.commit_count }})</div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="pdf-page {{ bg_color }}" style="page-break-after: avoid;">This is the last page</div>
+    <script>
+      var options = {
+        series: [{
+          name: 'Commits',
+          data: [{% for library in top_libraries_for_version %}{{library.commit_count}}, {% endfor %}]
+        }],
+        chart: {
+          height: 300,
+          type: 'bar',
+          foreColor: '#373d3f',
+          background: '#ffffff00',
+          toolbar: {
+            show: false,
+          },
+        },
+        plotOptions: {
+          bar: {
+            borderRadius: 2,
+            dataLabels: {
+              position: 'top', // top, center, bottom
+            },
+          }
+        },
+        dataLabels: {
+          offsetY: -16,
+          enabled: true,
+          style: {
+            fontSize: '11px',
+            colors: ["rgb(49, 74, 87)"],
+          }
+        },
+        xaxis: {
+          categories: [{% for library in top_libraries_for_version %} "{{ library.name }}", {% endfor %}],
+          position: 'bottom',
+          axisBorder: {
+            show: false
+          },
+          axisTicks: {
+            show: false
+          },
+          tooltip: {
+            enabled: true,
+          }
+        },
+        yaxis: {
+          axisBorder: {
+            show: true
+          },
+          axisTicks: {
+            show: true,
+          },
+          labels: {
+            show: true,
+          }
+        },
+      };
+      // SS: putting this in the window object, a bit hacky, to be able to access it in the light/dark switcher - probably a better way
+      const chart = new ApexCharts(document.querySelector("#top-committed-libraries-chart"), options);
+      chart.render();
+    </script>
+  {% endwith %}
+{% endblock content %}

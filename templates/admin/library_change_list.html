@@ -6,7 +6,8 @@
     {% block object-tools-items %}
         {{ block.super }}
         <li><a href="{% url 'admin:update_libraries' %}" class="addlink">{% trans "Update Library Data" %}</a></li>
-        <li><a href="{% url 'admin:library_report_form' %}" class="addlink">{% trans "Get Release Report" %}</a></li>
+        <li><a href="{% url 'admin:release_report_form' %}" class="addlink">{% trans "Get Release Report" %}</a></li>
+        <li><a href="{% url 'admin:library_report_full_form' %}" class="addlink">{% trans "Get Library Report" %}</a></li>
     {% endblock %}
 </ul>
 {% endblock %}

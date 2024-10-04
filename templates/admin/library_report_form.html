@@ -3,11 +3,11 @@
 {% block content %}
   {{ block.super }}
   <div class='container mx-auto'>
-    <h1>Generate Report for Release</h1>
+    <h1>Generate Report</h1>
     <div>
       <form action="">
         {{ form.as_p }}
-        <input class="default" type="submit" />
+        <input name="submit" value="Submit" class="default" type="submit" />
       </form>
     </div>
   </div>
