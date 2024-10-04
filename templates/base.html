@@ -74,6 +74,9 @@
 
      <script>
       var r = document.querySelector(':root');
+      const messageVisibilitySeconds = 6;
+      const opacityTransitionTime = 0.15; // matches the tailwind transition-opacity time
+      const delay = ms => new Promise(res => setTimeout(res, ms));
 
       function modalSize(h,w) {
         var rs = getComputedStyle(r);
@@ -96,6 +99,39 @@
         modal.classList.remove('show-modal');
       }
 
+      const hideMessage = async () => {
+        const message = document.getElementById('messages');
+        message.classList.add('opacity-0');
+        await delay(opacityTransitionTime * 1000);
+        const messageButton = message.querySelector('button');
+        if (messageButton) {
+          messageButton.click();
+        }
+      }
+
+      const providerMatchesLastLogin = async (provider) => {
+        const lastLoginProvider = localStorage.getItem('boostLoginMethod') || null;
+        return provider === lastLoginProvider;
+      }
+
+      const trackLoginUpdateCheck = async () => {
+        const footer = document.querySelector('footer');
+        const indicator = footer.dataset.trackLoginMethod; // intentionally not cast to boolean
+        const loginMethod = footer.dataset.loginMethod;
+        if (indicator) {
+          if (indicator === 'True') {
+            localStorage.setItem('boostLoginMethod', loginMethod);
+          } else {
+            localStorage.removeItem('boostLoginMethod');
+          }
+        }
+      }
+
+      (async () => {
+        await trackLoginUpdateCheck();
+        await delay(messageVisibilitySeconds * 1000);
+        await hideMessage();
+      })();
     </script>
 
   </body>

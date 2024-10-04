@@ -87,6 +87,7 @@
           {% endif %}
         </div>
 
+        {% if not social_accounts %}
         <div class="rounded bg-white dark:bg-charcoal p-4">
           <h3>{% trans "Set Password" %}</h3>
           <form method="POST" action="." class="password_set space-y-3">
@@ -103,13 +104,15 @@
             </div>
           </form>
         </div>
-
+        {% else %}
         <div class="rounded bg-white dark:bg-charcoal p-4">
           <h3>{% trans "Account Connections" %}</h3>
           <div class="mt-4">
             <a href="{% url 'socialaccount_connections' %}"><button class="py-2 px-3 text-sm text-white rounded bg-orange">{% trans 'Manage Account Connections' %}</button></a>
           </div>
         </div>
+        {% endif %}
+
       </div>
     </div>
   </div>

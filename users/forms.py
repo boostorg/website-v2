@@ -79,7 +79,7 @@ class PreferencesForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name"]
+        fields = ["email", "first_name", "last_name", "indicate_last_login_method"]
 
 
 class CustomClearableFileInput(forms.ClearableFileInput):
