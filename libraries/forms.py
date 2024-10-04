@@ -22,19 +22,14 @@ class VersionSelectionForm(Form):
     )
 
 
-class CreateReportForm(Form):
+class CreateReportFullForm(Form):
+    """Form for creating a report over all releases."""
+
     library_queryset = Library.objects.all().order_by("name")
-    version = ModelChoiceField(
-        queryset=Version.objects.active()
-        .exclude(name__in=["develop", "master", "head"])
-        .order_by("-name")
-    )
     library_1 = ModelChoiceField(
         queryset=library_queryset,
         required=False,
-        help_text=(
-            "If none are selected, the top 5 for this release will be auto-selected."
-        ),
+        help_text="If none are selected, the top 5 will be auto-selected.",
     )
     library_2 = ModelChoiceField(
         queryset=library_queryset,
@@ -65,28 +60,14 @@ class CreateReportForm(Form):
         required=False,
     )
 
-    def _get_top_contributors_for_version(self):
+    def _get_top_libraries(self):
         return (
-            CommitAuthor.objects.filter(
-                commit__library_version__version=self.cleaned_data["version"]
-            )
-            .annotate(commit_count=Count("commit"))
-            .values("name", "avatar_url", "commit_count")
-            .order_by("-commit_count")[:10]
-        )
-
-    def _get_top_libraries_for_version(self):
-        return (
-            Library.objects.filter(
-                library_version=LibraryVersion.objects.filter(
-                    library=OuterRef("id"), version=self.cleaned_data["version"]
-                )[:1],
-            )
+            Library.objects.all()
             .annotate(commit_count=Count("library_version__commit"))
             .order_by("-commit_count")[:5]
         )
 
-    def _get_library_order(self, top_libraries_release):
+    def _get_library_order(self, top_libraries):
         library_order = [
             x.id
             for x in [
@@ -102,7 +83,7 @@ class CreateReportForm(Form):
             if x is not None
         ]
         if not library_order:
-            library_order = [x.id for x in top_libraries_release]
+            library_order = [x.id for x in top_libraries]
         return library_order
 
     def _get_library_full_counts(self, libraries, library_order):
@@ -113,6 +94,99 @@ class CreateReportForm(Form):
                 ).values("commit_count", "id")
             ),
             key=lambda x: library_order.index(x["id"]),
+        )
+
+    def _get_top_contributors_overall(self):
+        return (
+            CommitAuthor.objects.all()
+            .annotate(commit_count=Count("commit"))
+            .values("name", "avatar_url", "commit_count", "github_profile_url")
+            .order_by("-commit_count")[:10]
+        )
+
+    def _get_top_contributors_for_library(self, library_order):
+        top_contributors_library = []
+        for library_id in library_order:
+            top_contributors_library.append(
+                CommitAuthor.objects.filter(
+                    commit__library_version__library_id=library_id
+                )
+                .annotate(commit_count=Count("commit"))
+                .values(
+                    "name",
+                    "avatar_url",
+                    "github_profile_url",
+                    "commit_count",
+                    "commit__library_version__library_id",
+                )
+                .order_by("-commit_count")[:10]
+            )
+        return top_contributors_library
+
+    def get_stats(self):
+        commit_count = Commit.objects.count()
+
+        top_libraries = self._get_top_libraries()
+        library_order = self._get_library_order(top_libraries)
+        libraries = Library.objects.filter(id__in=library_order)
+        library_data = [
+            {
+                "library": x[0],
+                "full_count": x[1],
+                "top_contributors": x[2],
+            }
+            for x in zip(
+                sorted(list(libraries), key=lambda x: library_order.index(x.id)),
+                self._get_library_full_counts(libraries, library_order),
+                self._get_top_contributors_for_library(library_order),
+            )
+        ]
+        top_contributors = self._get_top_contributors_overall()
+        return {
+            "commit_count": commit_count,
+            "top_contributors": top_contributors,
+            "library_data": library_data,
+            "top_libraries": top_libraries,
+            "library_count": Library.objects.all().count(),
+        }
+
+
+class CreateReportForm(CreateReportFullForm):
+    """Form for creating a report for a specific release."""
+
+    version = ModelChoiceField(
+        queryset=Version.objects.active()
+        .exclude(name__in=["develop", "master", "head"])
+        .order_by("-name")
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields[
+            "library_1"
+        ].help_text = (
+            "If none are selected, the top 5 for this release will be auto-selected."
+        )
+
+    def _get_top_contributors_for_version(self):
+        return (
+            CommitAuthor.objects.filter(
+                commit__library_version__version=self.cleaned_data["version"]
+            )
+            .annotate(commit_count=Count("commit"))
+            .values("name", "avatar_url", "commit_count", "github_profile_url")
+            .order_by("-commit_count")[:10]
+        )
+
+    def _get_top_libraries_for_version(self):
+        return (
+            Library.objects.filter(
+                library_version=LibraryVersion.objects.filter(
+                    library=OuterRef("id"), version=self.cleaned_data["version"]
+                )[:1],
+            )
+            .annotate(commit_count=Count("library_version__commit"))
+            .order_by("-commit_count")[:5]
         )
 
     def _get_library_version_counts(self, libraries, library_order):
@@ -173,6 +247,7 @@ class CreateReportForm(Form):
                 .values(
                     "name",
                     "avatar_url",
+                    "github_profile_url",
                     "commit_count",
                     "commit__library_version__library_id",
                 )
