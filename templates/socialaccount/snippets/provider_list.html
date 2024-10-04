@@ -1,36 +1,35 @@
 {% load socialaccount %}
 
 {% get_providers as socialaccount_providers %}
-
-{% for provider in socialaccount_providers %}
-{% if provider.id == "openid" %}
-{% for brand in provider.get_brands %}
-  <a title="{{brand.name}}"
-     class="block px-8 py-3 border border-steel text-base font-medium rounded-md text-orange md:py-4 md:text-lg md:px-10 {{provider.id}} {{brand.id}}"
-     href="{% provider_login_url provider.id openid=brand.openid_url process=process %}"
-     >{{brand.name}}</a>
-{% endfor %}
-{% endif %}
-  {% if provider.name == "GitHub" %}
-    <a title="{{provider.name}}"
-       id="gitButton"
-       class="relative w-2/3 mx-auto block px-8 py-3 text-base font-medium rounded-md border border-orange !text-white hover:!text-white bg-orange hover:bg-orange/80 dark:bg-slate dark:hover:bg-charcoal hover:drop-shadow-md md:py-4 md:text-lg md:px-10 {{provider.id}}"
-       href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"
-    >
-        <span x-cloak class="absolute right-1 top-1 text-xs bg-white text-slate rounded p-1" x-show='loginMethod === "\"GitHub\""'>Last Log in</span>
-        <i class="fab fa-github"></i>
-    Use {{provider.name}}
-    </a>
-  {% endif %}
-  {% if provider.name == "Google" %}
-    <a title="{{provider.name}}"
-       id="googleButton"
-       class="relative w-2/3 mx-auto block px-8 py-3 text-base font-medium rounded-md border border-orange !text-white hover:!text-white bg-orange hover:bg-orange/80 dark:bg-slate dark:hover:bg-charcoal hover:drop-shadow-md md:py-4 md:text-lg md:px-10 {{provider.id}}"
-       href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"
-    >
-        <span x-cloak class="absolute right-1 top-1 text-xs bg-white text-slate rounded p-1" x-show='loginMethod === "\"Google\""'>Last Log in</span>
-        <i class="fab fa-google"></i>
-      Use {{provider.name}}
-    </a>
-  {% endif %}
-{% endfor %}
+  {% for provider in socialaccount_providers %}
+    {% if provider.id == "openid" %}
+    {% for brand in provider.get_brands %}
+      <a title="{{brand.name}}"
+         class="block px-8 py-3 border border-steel text-base font-medium rounded-md text-orange md:py-4 md:text-lg md:px-10 {{provider.id}} {{brand.id}}"
+         href="{% provider_login_url provider.id openid=brand.openid_url process=process %}"
+         >{{brand.name}}</a>
+    {% endfor %}
+    {% endif %}
+      {% if provider.name == "GitHub" %}
+        <a title="{{provider.name}}"
+           id="gitButton"
+           class="relative w-2/3 mx-auto block px-8 py-3 text-base font-medium rounded-md border border-orange !text-white hover:!text-white bg-orange hover:bg-orange/80 dark:bg-slate dark:hover:bg-charcoal hover:drop-shadow-md md:py-4 md:text-lg md:px-10 {{provider.id}}"
+           href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"
+        >
+            <span x-cloak class="absolute right-1 top-1 text-xs bg-white text-slate rounded p-1" x-show='loginMethod === "\"GitHub\""'>Last Log in</span>
+            <i class="fab fa-github"></i>
+        Use {{provider.name}}
+        </a>
+      {% endif %}
+      {% if provider.name == "Google" %}
+        <a title="{{provider.name}}"
+           id="googleButton"
+           class="relative w-2/3 mx-auto block px-8 py-3 text-base font-medium rounded-md border border-orange !text-white hover:!text-white bg-orange hover:bg-orange/80 dark:bg-slate dark:hover:bg-charcoal hover:drop-shadow-md md:py-4 md:text-lg md:px-10 {{provider.id}}"
+           href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"
+        >
+            <span x-cloak class="absolute right-1 top-1 text-xs bg-white text-slate rounded p-1" x-show='loginMethod === "\"Google\""'>Last Log in</span>
+            <i class="fab fa-google"></i>
+          Use {{provider.name}}
+        </a>
+      {% endif %}
+    {% endfor %}

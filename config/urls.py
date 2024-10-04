@@ -60,6 +60,7 @@ from news.views import (
 from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
+    CustomEmailVerificationSentView,
     CustomLoginView,
     CustomSignupView,
     CustomSocialSignupViewView,
@@ -95,6 +96,11 @@ urlpatterns = (
         ),
         path("accounts/signup/", CustomSignupView.as_view(), name="account_signup"),
         path("accounts/login/", CustomLoginView.as_view(), name="account_login"),
+        path(
+            "accounts/confirm-email/",
+            CustomEmailVerificationSentView.as_view(),
+            name="account_confirm_email",
+        ),
         path("accounts/", include("allauth.urls")),
         path("users/me/", CurrentUserProfileView.as_view(), name="profile-account"),
         path("users/<int:pk>/", ProfileView.as_view(), name="profile-user"),

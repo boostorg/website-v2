@@ -146,8 +146,8 @@
 </div>
 
 <script>
-  function toggleButtonsOff(disable) {
-    const buttonIds = ["gitButton", "googleButton", "signup"];
+  function toggleElementsOff(disable) {
+    const buttonIds = ["gitButton", "googleButton", "id_email", "id_password1", "id_password2", "signup"];
     buttonIds.forEach((id) => {
       const button = document.getElementById(id);
       if (button) {
@@ -162,7 +162,7 @@
 
   function accepted() {
     const tosCheckbox = document.getElementById("readTOS");
-    toggleButtonsOff(!tosCheckbox.checked);
+    toggleElementsOff(!tosCheckbox.checked);
   }
 
   window.addEventListener("load", function () {
@@ -170,7 +170,7 @@
     let yesjs = document.getElementById("jsvalidation");
     nojs.classList.add("hidden");
     yesjs.classList.remove("hidden");
-    toggleButtonsOff(true);
+    toggleElementsOff(true);
   });
 </script>
 

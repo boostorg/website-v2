@@ -110,6 +110,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "oauth2_provider.middleware.OAuth2TokenMiddleware",
 ]
 
@@ -313,7 +314,7 @@ JDOODLE_API_CLIENT_SECRET = env("JDOODLE_API_CLIENT_SECRET", "")
 
 # Django Allauth settings
 
-ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 LOGIN_REDIRECT_URL = "home"
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
@@ -343,6 +344,7 @@ SOCIALACCOUNT_PROVIDERS = {
         "AUTH_PARAMS": {
             "access_type": "online",
         },
+        "OAUTH_PKCE_ENABLED": True,
     }
 }
 
