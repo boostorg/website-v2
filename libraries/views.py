@@ -1,5 +1,4 @@
 import datetime
-from itertools import chain
 import re
 from types import SimpleNamespace
 
@@ -282,22 +281,10 @@ class LibraryDetail(FormMixin, DetailView):
             x for x in top_contributors_release if not x.is_new
         ]
         exclude_top_contributor_ids = [x.id for x in top_contributors_release]
-        context["top_contributors_overall"] = self.get_top_contributors(
-            exclude=exclude_maintainer_ids + exclude_top_contributor_ids
+        context["previous_contributors"] = self.get_previous_contributors(
+            context["version"],
+            exclude=exclude_maintainer_ids + exclude_top_contributor_ids,
         )
-        # Since we need to execute these queries separately anyway, just concatenate
-        # their results instead of making a new query
-        all_contributors = []
-        for x in chain(top_contributors_release, context["top_contributors_overall"]):
-            all_contributors.append(
-                {
-                    "name": x.name,
-                }
-            )
-
-        all_contributors.sort(key=lambda x: x["name"].lower())
-        context["all_contributors"] = all_contributors
-
         # Populate the commit graphs
         context["commit_data_by_release"] = self.get_commit_data_by_release()
 
@@ -459,6 +446,19 @@ class LibraryDetail(FormMixin, DetailView):
         if exclude:
             qs = qs.exclude(id__in=exclude)
         qs = qs.annotate(count=Count("commit")).order_by("-count")
+        return qs
+
+    def get_previous_contributors(self, version, exclude=None):
+        library_versions = LibraryVersion.objects.filter(
+            library=self.object, version__name__lt=version.name
+        )
+        qs = (
+            CommitAuthor.objects.filter(commit__library_version__in=library_versions)
+            .annotate(count=Count("commit"))
+            .order_by("-count")
+        )
+        if exclude:
+            qs = qs.exclude(id__in=exclude)
         return qs
 
     def get_version(self):
