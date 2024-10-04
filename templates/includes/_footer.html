@@ -77,7 +77,7 @@
   }
 }
 </style>
-<footer class="footer">
+<footer class="footer"{% if user.is_authenticated %} data-track-login-method="{{ request.user.indicate_last_login_method }}" data-login-method="{{ request.session.boost_login_method }}"{% endif %}>
   <div class="footer-container">
     <div class="links">
       <a href="https://lists.boost.org/mailman/listinfo.cgi/boost-users">Contact</a>
