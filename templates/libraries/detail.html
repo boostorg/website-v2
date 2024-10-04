@@ -141,12 +141,12 @@
       </section>
     {% endif %}
 
-    {% if top_contributors_overall %}
+    {% if previous_contributors %}
     <section class="p-6 pt-1 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
       <h2 class="text-2xl">Previous Contributors</h2>
       <div class="flex flex-col gap-y-4">
         <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-3 gap-x-2">
-        {% for author in top_contributors_overall %}
+        {% for author in previous_contributors %}
           {% avatar commitauthor=author avatar_type="wide" contributor_label="Contributor" %}
         {% endfor %}
         </div>
