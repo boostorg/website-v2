@@ -202,6 +202,10 @@
       xaxis: {
         categories: [{% for commit_data in commit_data_by_release %}"{{ commit_data.release }}",{% endfor %}],
         position: 'top',
+        labels: {
+          rotate: -45,
+          rotateAlways: true,
+        },
         axisBorder: {
           show: false
         },

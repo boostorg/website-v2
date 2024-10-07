@@ -155,9 +155,7 @@ class CreateReportForm(CreateReportFullForm):
     """Form for creating a report for a specific release."""
 
     version = ModelChoiceField(
-        queryset=Version.objects.active()
-        .exclude(name__in=["develop", "master", "head"])
-        .order_by("-name")
+        queryset=Version.objects.minor_versions().order_by("-version_array")
     )
 
     def __init__(self, *args, **kwargs):
@@ -205,11 +203,19 @@ class CreateReportForm(CreateReportFullForm):
 
     def _count_new_contributors(self, libraries, library_order):
         version = self.cleaned_data["version"]
+        version_lt = list(
+            Version.objects.minor_versions()
+            .filter(version_array__lt=version.cleaned_version_parts_int)
+            .values_list("id", flat=True)
+        )
+        version_lte = version_lt + [version.id]
         lt_subquery = LibraryVersion.objects.filter(
-            version__name__lt=version.name, library=OuterRef("id")
+            version__in=version_lt,
+            library=OuterRef("id"),
         ).values("id")
         lte_subquery = LibraryVersion.objects.filter(
-            version__name__lte=version.name, library=OuterRef("id")
+            version__in=version_lte,
+            library=OuterRef("id"),
         ).values("id")
         return sorted(
             list(
