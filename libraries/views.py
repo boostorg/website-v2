@@ -1,5 +1,4 @@
 import datetime
-import re
 from types import SimpleNamespace
 
 import structlog
@@ -36,6 +35,7 @@ from .utils import (
     determine_view_from_library_request,
     determine_selected_boost_version,
     set_selected_boost_version,
+    get_documentation_url,
 )
 from .constants import LATEST_RELEASE_URL_PATH_STR
 
@@ -69,7 +69,10 @@ class LibraryList(VersionAlertMixin, ListView):
             params["version"] = selected_boost_version
 
         # default to the most recent version
-        if "version" not in params or params["version"] == "latest":
+        if (
+            params.get("version", LATEST_RELEASE_URL_PATH_STR)
+            == LATEST_RELEASE_URL_PATH_STR
+        ):
             # If no version is specified, show the most recent version.
             version = Version.objects.most_recent()
             if version:
@@ -83,18 +86,17 @@ class LibraryList(VersionAlertMixin, ListView):
                 )
                 return Library.objects.none()
 
-        queryset = queryset.filter(library_version__version__slug=params["version"])
+        if params.get("version"):
+            queryset = queryset.filter(library_version__version__slug=params["version"])
 
         # avoid attempting to look up libraries with blank categories
-        if "category" in params and params["category"] != "":
+        if params.get("category"):
             queryset = queryset.filter(categories__slug=params["category"])
 
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        req_version = self.request.GET.get("version", "latest")
-
         # Handle the case where data hasn't been imported yet
         version = Version.objects.most_recent()
         if not version:
@@ -109,25 +111,15 @@ class LibraryList(VersionAlertMixin, ListView):
             )
             return context
 
-        if "category" in self.request.GET and self.request.GET["category"] != "":
+        if self.request.GET.get("category"):
             context["category"] = Category.objects.get(
                 slug=self.request.GET["category"]
             )
-        context["LATEST_RELEASE_URL_PATH_STR"] = LATEST_RELEASE_URL_PATH_STR
-        # 'version_str' is representative of what the user has chosen, while 'version'
-        # is the actual version instance that will be used in the template
-        # here we use 'latest' as the default in order to normalize behavior
-        if req_version == "latest":
-            context["version"] = Version.objects.most_recent()
-            context["version_str"] = LATEST_RELEASE_URL_PATH_STR
-        else:
-            context["version"] = Version.objects.get(slug=self.request.GET["version"])
-            context["version_str"] = req_version
-
         context["categories"] = self.get_categories(context["version"])
         context["versions"] = self.get_versions()
         context["library_list"] = self.get_queryset()
         context["url_params"] = build_view_query_params_from_request(self.request)
+
         return context
 
     def get_categories(self, version=None):
@@ -165,7 +157,9 @@ class LibraryList(VersionAlertMixin, ListView):
         """Set the selected version in the cookies."""
         response = super().dispatch(request, *args, **kwargs)
         query_params = build_view_query_params_from_request(request)
-        set_selected_boost_version(query_params.get("version", "latest"), response)
+        set_selected_boost_version(
+            query_params.get("version", LATEST_RELEASE_URL_PATH_STR), response
+        )
         # The following conditional practically only applies on "/libraries/", at
         # which point the redirection will be determined by prioritised view
         view = determine_view_from_library_request(request)
@@ -210,7 +204,7 @@ class LibraryListByCategory(LibraryList):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class LibraryDetail(FormMixin, DetailView):
+class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
     """Display a single Library in insolation"""
 
     form_class = VersionSelectionForm
@@ -221,11 +215,7 @@ class LibraryDetail(FormMixin, DetailView):
     def get_context_data(self, **kwargs):
         """Set the form action to the main libraries page"""
         context = super().get_context_data(**kwargs)
-
         # Get fields related to Boost versions
-        context["version"] = self.get_version()
-        latest_version = Version.objects.most_recent()
-        context["latest_version"] = latest_version
         context["versions"] = (
             Version.objects.active()
             .filter(library_version__library=self.object)
@@ -241,27 +231,13 @@ class LibraryDetail(FormMixin, DetailView):
         # Manually exclude beta releases from the version dropdown.
         context["versions"] = context["versions"].exclude(beta=True)
         context["LATEST_RELEASE_URL_PATH_NAME"] = LATEST_RELEASE_URL_PATH_STR
-        documentation_url = self.get_documentation_url(context["version"])
-        # Show an alert if the user is on an older version
-        context["version_alert"] = (
-            True if context["version"] != latest_version else False
-        )
-        # here we use 'latest' as the default just to normalise behavior
-        req_version = self.kwargs.get("version_slug", "latest")
-        if req_version != "latest":
-            context["latest_library_version"] = self.get_current_library_version(
-                context["version"]
-            )
-            context["version_str"] = context["version"].slug
-            context["documentation_url"] = documentation_url
-        else:
-            context["version_str"] = LATEST_RELEASE_URL_PATH_STR
-            p = re.compile(r"(/doc/libs/)[a-zA-Z0-9_]+(/[/\S]+)$")
-            if p.match(documentation_url):
-                documentation_url = p.sub(r"\1release\2", documentation_url)
-            context["documentation_url"] = documentation_url
-
         # Get general data and version-sensitive data
+        library_version = LibraryVersion.objects.get(
+            library=self.get_object(), version=context["version"]
+        )
+        context["documentation_url"] = get_documentation_url(
+            library_version, context["version_str"] == LATEST_RELEASE_URL_PATH_STR
+        )
         context["github_url"] = self.get_github_url(context["version"])
         context["maintainers"] = self.get_maintainers(context["version"])
         context["author_tag"] = self.get_author_tag()
@@ -363,31 +339,6 @@ class LibraryDetail(FormMixin, DetailView):
             library=self.object, version=version
         ).first()
 
-    def get_documentation_url(self, version):
-        """Get the documentation URL for the current library."""
-
-        def find_documentation_url(version):
-            obj = self.get_object()
-            library_version = LibraryVersion.objects.get(library=obj, version=version)
-            docs_url = version.documentation_url
-
-            # If we know the library-version docs are missing, return the version docs
-            if library_version.missing_docs:
-                return docs_url
-            # If we have the library-version docs and they are valid, return those
-            elif library_version.documentation_url:
-                return library_version.documentation_url
-            # If we wind up here, return the version docs
-            else:
-                return docs_url
-
-        # Get the URL for the version.
-        url = find_documentation_url(version)
-        # Remove the "boost_" prefix from the URL.
-        url = url.replace("boost_", "")
-
-        return url
-
     def get_github_url(self, version):
         """Get the GitHub URL for the current library."""
         try:
@@ -481,9 +432,19 @@ class LibraryDetail(FormMixin, DetailView):
     def dispatch(self, request, *args, **kwargs):
         """Redirect to the documentation page, if configured to."""
         if self.redirect_to_docs:
-            return redirect(self.get_documentation_url(self.get_version()))
+            return redirect(
+                get_documentation_url(
+                    LibraryVersion.objects.get(
+                        library__slug=self.kwargs.get("slug"),
+                        version=self.get_version(),
+                    ),
+                    latest=True,
+                )
+            )
         response = super().dispatch(request, *args, **kwargs)
-        set_selected_boost_version(kwargs.get("version_slug", "latest"), response)
+        set_selected_boost_version(
+            kwargs.get("version_slug", LATEST_RELEASE_URL_PATH_STR), response
+        )
         return response
 
     def post(self, request, *args, **kwargs):

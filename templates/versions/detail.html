@@ -26,9 +26,10 @@
                     name="version"
                     class="dropdown !mb-0 h-[38px]"
                     id="id_version">
+              <option value="{{ LATEST_RELEASE_URL_PATH_STR }}" {% if version_str == LATEST_RELEASE_URL_PATH_STR %}selected="selected"{% endif %}>Latest</option>
               {% for v in versions %}
                 <option value="{{ v.pk }}"
-                        {% if version == v %}selected="selected"{% endif %}>
+                        {% if version_str == v.slug %}selected="selected"{% endif %}>
                   {{ v.display_name }}
                 </option>
               {% endfor %}
@@ -37,6 +38,9 @@
         </form>
       </div>
     </div>
+    <!-- alert for non-current Boost versions -->
+    {% include "libraries/includes/version_alert.html" %}
+
     <section class="content">
       <div class="pb-2 w-full h-auto md:pb-0 md:w-auto">
         <div class="flex flex-col">
@@ -46,9 +50,9 @@
           <div class="-ml-2 h-3"></div>
           <div class="-ml-2 h-14">
             <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-               href="{{ version.documentation_url }}">
+               href="{{ documentation_url }}">
               <span class="dark:text-white text-slate">Documentation</span>
-              <span class="block text-xs">{{ request.scheme }}://{{ request.get_host }}{{ version.documentation_url|cut:"https://"|cut:"index.html" }}</span>
+              <span class="block text-xs">{{ request.scheme }}://{{ request.get_host }}{{ documentation_url }}</span>
             </a>
           </div>
           <div class="-ml-2 h-14">

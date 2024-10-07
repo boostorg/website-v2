@@ -555,8 +555,7 @@ class RedirectToLibraryView(BaseRedirectView):
 
         # Handle the special case for "release" versions to redirect to the
         # most recent Boost release
-        if requested_version == "release":
-            requested_version = Version.objects.most_recent().slug
-
         new_path = f"/libraries/?version=boost-{ requested_version }"
+        if requested_version == "release":
+            new_path = "/libraries/"
         return HttpResponseRedirect(new_path)

@@ -3,54 +3,37 @@ import structlog
 from django.db.models import Q, Count
 from django.views.generic import DetailView
 from django.views.generic.edit import FormMixin
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 from itertools import groupby
 from operator import attrgetter
 
 from core.models import RenderedContent
+from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.forms import VersionSelectionForm
+from libraries.mixins import VersionAlertMixin
 from libraries.models import Commit, CommitAuthor
+from libraries.utils import (
+    set_selected_boost_version,
+    determine_selected_boost_version,
+    library_doc_latest_transform,
+)
 from versions.models import Version
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-SELECTED_BOOST_VERSION_COOKIE_NAME = "boost_version"
 
 logger = structlog.get_logger(__name__)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class VersionDetail(FormMixin, DetailView):
+class VersionDetail(FormMixin, VersionAlertMixin, DetailView):
     """Web display of list of Versions"""
 
     form_class = VersionSelectionForm
     model = Version
     queryset = Version.objects.active().defer("data")
     template_name = "versions/detail.html"
-
-    def get_selected_boost_version(self):
-        """Returns the selected Boost version"""
-        version_slug = self.request.COOKIES.get(
-            SELECTED_BOOST_VERSION_COOKIE_NAME, None
-        )
-        if version_slug:
-            try:
-                version = Version.objects.get(slug=version_slug)
-                return version
-            except Version.DoesNotExist:
-                logger.warning(f"Invalid version slug in cookies: {version_slug}")
-                return None
-        return None
-
-    def set_selected_boost_version(self, response, version_slug):
-        """Sets the selected Boost version"""
-        try:
-            Version.objects.get(slug=version_slug)
-            response.set_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME, version_slug)
-        except Version.DoesNotExist:
-            logger.warning(f"Attempted to set invalid version slug: {version_slug}")
-            messages.error(self.request, "Invalid version selected.")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -68,23 +51,25 @@ class VersionDetail(FormMixin, DetailView):
             context["current_release"] = None
             context["is_current_release"] = False
             return context
-
         context["versions"] = Version.objects.version_dropdown_strict()
         downloads = obj.downloads.all().order_by("operating_system")
         context["downloads"] = {
             k: list(v)
             for k, v in groupby(downloads, key=attrgetter("operating_system"))
         }
-        current_release = Version.objects.most_recent()
-        context["current_release"] = current_release
         obj = self.get_object()
-        is_current_release = bool(current_release == obj)
-        context["is_current_release"] = is_current_release
-
-        context["heading"] = self.get_version_heading(obj, is_current_release)
+        context["heading"] = self.get_version_heading(
+            obj, context["current_release"] == obj
+        )
         context["release_notes"] = self.get_release_notes(obj)
         context["top_contributors_release"] = self.get_top_contributors_release(obj)
 
+        context["documentation_url"] = obj.documentation_url
+        if context["version_str"] == LATEST_RELEASE_URL_PATH_STR:
+            context["documentation_url"] = library_doc_latest_transform(
+                obj.documentation_url
+            )
+            context["version_alert"] = False
         return context
 
     def get_top_contributors_release(self, version: Version):
@@ -121,44 +106,51 @@ class VersionDetail(FormMixin, DetailView):
     def post(self, request, *args, **kwargs):
         """User has submitted a form and will be redirected to the right record."""
         form = self.get_form()
-        if form.is_valid():
+        version_slug = self.request.POST.get("version")
+        if version_slug == LATEST_RELEASE_URL_PATH_STR:
+            response = redirect("releases-most-recent")
+            set_selected_boost_version(LATEST_RELEASE_URL_PATH_STR, response)
+            return response
+        elif form.is_valid():
             version = form.cleaned_data["version"]
             response = redirect(
                 "release-detail",
                 slug=version.slug,
             )
-            self.set_selected_boost_version(response, version.slug)
+            set_selected_boost_version(version.slug, response)
             return response
         else:
             logger.info("version_detail_invalid_version")
         return super().get(request)
 
     def dispatch(self, request, *args, **kwargs):
-        """Set the version if it is not already set."""
+        response = super().dispatch(request, *args, **kwargs)
 
-        version_in_url = self.kwargs.get("slug", False)
-
-        if version_in_url:
-            response = super().dispatch(request, *args, **kwargs)
-            self.set_selected_boost_version(response, version_in_url)
+        # if 'release' clear the version values, e.g. from version_alert
+        if self.kwargs.get("slug") == LATEST_RELEASE_URL_PATH_STR:
+            response = redirect("releases-most-recent")
+            set_selected_boost_version(LATEST_RELEASE_URL_PATH_STR, response)
             return response
+
+        version = determine_selected_boost_version(
+            self.kwargs.get("slug"), self.request
+        )
+        if version != self.kwargs.get("slug"):
+            response = redirect(
+                "release-detail",
+                slug=version,
+            )
+
+        return response
+
+    def get_object(self, queryset=None):
+        """Return the object that the view is displaying"""
+        if self.request.POST:
+            version_slug = self.request.POST.get("version")
         else:
-            redirect_to_version = self.get_selected_boost_version()
-            if redirect_to_version:
-                return redirect(
-                    "release-detail", slug=redirect_to_version.slug, permanent=False
-                )
+            version_slug = self.kwargs.get("slug", LATEST_RELEASE_URL_PATH_STR)
 
-        return super().dispatch(request, *args, **kwargs)
+        if version_slug == LATEST_RELEASE_URL_PATH_STR:
+            return Version.objects.most_recent()
 
-
-class VersionCurrentReleaseDetail(VersionDetail):
-    """Web display of list of Versions"""
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data()
-        context["is_current_release"] = True
-        return context
-
-    def get_object(self):
-        return Version.objects.most_recent()
+        return get_object_or_404(Version, slug=version_slug)
