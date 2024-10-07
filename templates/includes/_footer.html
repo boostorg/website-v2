@@ -1,6 +1,6 @@
 {% load static %}
 <style>
-  .footer {
+  .main-footer {
     padding: .5rem 1rem;
     margin: auto;
   }
@@ -27,10 +27,11 @@
   .links a {
     display: block;
     margin: .5rem 0;
+    color: var(--text-color);
   }
 
   .links a:hover, .link-icons a:hover {
-    color: var(--color-primary);
+    color: var(--primary-color);
   }
 
   .link-icons {
@@ -77,7 +78,7 @@
   }
 }
 </style>
-<footer class="footer"{% if user.is_authenticated %} data-track-login-method="{{ request.user.indicate_last_login_method }}" data-login-method="{{ request.session.boost_login_method }}"{% endif %}>
+<footer class="main-footer"{% if user.is_authenticated %} data-track-login-method="{{ request.user.indicate_last_login_method }}" data-login-method="{{ request.session.boost_login_method }}"{% endif %}>
   <div class="footer-container">
     <div class="links">
       <a href="https://lists.boost.org/mailman/listinfo.cgi/boost-users">Contact</a>
