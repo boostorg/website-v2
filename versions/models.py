@@ -108,6 +108,13 @@ class Version(models.Model):
         return [part for part in cleaned.split(".") if part]
 
     @cached_property
+    def cleaned_version_parts_int(self):
+        """Returns the release data as a list of integers."""
+        if not self.cleaned_version_parts:
+            return []
+        return [int(x) if x.isdigit() else 0 for x in self.cleaned_version_parts]
+
+    @cached_property
     def release_notes_cache_key(self):
         """Returns the cahe key used to access the release notes in the
         RenderedContent model."""

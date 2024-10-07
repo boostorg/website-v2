@@ -57,6 +57,12 @@ class ParsedCommit:
 
 
 def get_commit_data_for_repo_versions(key):
+    """Fetch commit data between minor versions (ignore patches).
+
+    Get commits from one x.x.0 release to the next x.x.0 release. Commits
+    to and from patches or beta versions are ignored.
+
+    """
     library = Library.objects.get(key=key)
     parser = re.compile(
         r"^commit (?P<sha>\w+)(?:\n(?P<merge>Merge).*)?\nAuthor: (?P<name>[^\<]+)"
@@ -84,8 +90,9 @@ def get_commit_data_for_repo_versions(key):
             else:
                 break
         versions = [""] + list(
-            Version.objects.filter(library_version__library__key=library.key)
-            .order_by("name")
+            Version.objects.minor_versions()
+            .filter(library_version__library__key=library.key)
+            .order_by("version_array")
             .values_list("name", flat=True)
         )
         for a, b in zip(versions, versions[1:]):
@@ -428,7 +435,7 @@ class LibraryUpdater:
         }
         with transaction.atomic():
             if clean:
-                Commit.objects.filter(library_versions__library=obj).delete()
+                Commit.objects.filter(library_version__library=obj).delete()
             for commit in get_commit_data_for_repo_versions(obj.key):
                 author = authors.get(commit.email, None)
                 if not author:

@@ -184,10 +184,10 @@ def update_libraries():
 
 
 @app.task
-def update_commits(token=None):
+def update_commits(token=None, clean=False):
     updater = LibraryUpdater(token=token)
     for library in Library.objects.all():
-        updater.update_commits(obj=library)
+        updater.update_commits(obj=library, clean=clean)
     logger.info("update_commits finished.")
 
 

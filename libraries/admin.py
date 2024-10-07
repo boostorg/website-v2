@@ -9,6 +9,7 @@ from django.utils.safestring import mark_safe
 from django.shortcuts import redirect
 
 from libraries.forms import CreateReportForm, CreateReportFullForm
+from versions.models import Version
 from versions.tasks import import_all_library_versions
 from .models import (
     Category,
@@ -48,7 +49,7 @@ class CommitAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def update_commits(self, request):
-        update_commits.delay()
+        update_commits.delay(clean=True)
         self.message_user(
             request,
             """
@@ -237,7 +238,9 @@ class LibraryAdmin(admin.ModelAdmin):
 
     def get_commits_per_release(self, pk):
         return (
-            LibraryVersion.objects.filter(library_id=pk)
+            LibraryVersion.objects.filter(
+                library_id=pk, version__in=Version.objects.minor_versions()
+            )
             .annotate(count=Count("commit"), version_name=F("version__name"))
             .order_by("-version__name")
             .filter(count__gt=0)
@@ -273,7 +276,9 @@ class LibraryAdmin(admin.ModelAdmin):
 
     def get_new_contributor_counts(self, pk):
         return (
-            LibraryVersion.objects.filter(library_id=pk)
+            LibraryVersion.objects.filter(
+                library_id=pk, version__in=Version.objects.minor_versions()
+            )
             .annotate(
                 up_to_count=CommitAuthor.objects.filter(
                     commit__library_version__version__name__lte=OuterRef(

@@ -1,4 +1,7 @@
 from django.db import models
+from django.db.models import Func, Value
+from django.db.models.functions import Replace
+from django.contrib.postgres.fields import ArrayField
 
 
 class VersionQuerySet(models.QuerySet):
@@ -22,6 +25,34 @@ class VersionQuerySet(models.QuerySet):
         old ones are generally deleted. But just in case."""
         return self.active().filter(beta=True).order_by("-name").first()
 
+    def with_version_split(self):
+        """Separates name into an array of [major, minor, patch].
+
+        Anything not matching the regex is removed from the queryset.
+
+        Example:
+            name = boost-1.85.0
+            version_array -> [1, 85, 0]
+            major -> 1
+            minor -> 85
+            patch -> 0
+
+        """
+        return self.filter(name__regex=r"^(boost-)?\d+\.\d+\.\d+$").annotate(
+            simple_version=Replace("name", Value("boost-"), Value("")),
+            version_array=Func(
+                "simple_version",
+                Value(r"\."),
+                function="regexp_split_to_array",
+                template="(%(function)s(%(expressions)s)::int[])",
+                arity=2,
+                output_field=ArrayField(models.IntegerField()),
+            ),
+            major=models.F("version_array__0"),
+            minor=models.F("version_array__1"),
+            patch=models.F("version_array__2"),
+        )
+
 
 class VersionManager(models.Manager):
     def get_queryset(self):
@@ -38,6 +69,14 @@ class VersionManager(models.Manager):
     def most_recent_beta(self):
         """Return most recent active beta version"""
         return self.get_queryset().most_recent_beta()
+
+    def minor_versions(self):
+        """Filters for versions with patch = 0
+
+        Beta versions are removed.
+
+        """
+        return self.get_queryset().with_version_split().filter(patch=0)
 
     def version_dropdown(self):
         """Return the versions that should show in the version drop-down"""

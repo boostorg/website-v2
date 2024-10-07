@@ -298,7 +298,10 @@ class LibraryDetail(FormMixin, DetailView):
 
     def get_commit_data_by_release(self):
         qs = (
-            LibraryVersion.objects.filter(library=self.object)
+            LibraryVersion.objects.filter(
+                library=self.object,
+                version__in=Version.objects.minor_versions(),
+            )
             .annotate(count=Count("commit"), version_name=F("version__name"))
             .order_by("-version__name")
         )[:20]
@@ -427,6 +430,9 @@ class LibraryDetail(FormMixin, DetailView):
             library_version = LibraryVersion.objects.get(
                 library=self.object, version=version
             )
+            prev_versions = Version.objects.minor_versions().filter(
+                version_array__lt=version.cleaned_version_parts_int
+            )
             qs = CommitAuthor.objects.filter(
                 commit__library_version=library_version
             ).annotate(
@@ -434,7 +440,7 @@ class LibraryDetail(FormMixin, DetailView):
                     Commit.objects.filter(
                         author_id=OuterRef("id"),
                         library_version__in=LibraryVersion.objects.filter(
-                            version__name__lt=version.name, library=self.object
+                            version__in=prev_versions, library=self.object
                         ),
                     )
                 )
@@ -450,7 +456,10 @@ class LibraryDetail(FormMixin, DetailView):
 
     def get_previous_contributors(self, version, exclude=None):
         library_versions = LibraryVersion.objects.filter(
-            library=self.object, version__name__lt=version.name
+            library=self.object,
+            version__in=Version.objects.minor_versions().filter(
+                version_array__lt=version.cleaned_version_parts_int
+            ),
         )
         qs = (
             CommitAuthor.objects.filter(commit__library_version__in=library_versions)
