@@ -127,12 +127,22 @@
         }
       }
 
+      const versionResetForm = (event) => {
+        if (event.persisted) {
+          const form = document.getElementById('id_version').closest('form');
+          if (form) {
+            form.reset();
+          }
+        }
+      }
+
       (async () => {
         await trackLoginUpdateCheck();
         await delay(messageVisibilitySeconds * 1000);
         await hideMessage();
       })();
-    </script>
+      window.addEventListener('pageshow', versionResetForm);
+   </script>
 
   </body>
 
