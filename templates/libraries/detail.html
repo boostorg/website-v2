@@ -114,17 +114,14 @@
     {% if maintainers or top_contributors_release_new or top_contributors_release_old %}
     <section class="p-6 pt-1 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
       <!-- Avatars -->
-      <h2 class="text-2xl">Release Maintainers &amp; Contributors</h2>
+      <h2 class="text-2xl">This Release</h2>
       <div class="flex flex-col gap-y-4">
         <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-3 gap-x-2">
         {% for user in maintainers %}
           {% avatar user=user commitauthor=user.commitauthor avatar_type="wide" contributor_label="Maintainer" %}
         {% endfor %}
-        </div>
-
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-3 gap-x-2">
         {% for author in top_contributors_release_new %}
-          {% avatar commitauthor=author avatar_type="wide" contributor_label="New Contributor" %}
+          {% avatar commitauthor=author avatar_type="wide" contributor_label="Contributor - New" %}
         {% endfor %}
         {% for author in top_contributors_release_old %}
           {% avatar commitauthor=author avatar_type="wide" contributor_label="Contributor" %}
@@ -143,7 +140,7 @@
 
     {% if previous_contributors %}
     <section class="p-6 pt-1 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-      <h2 class="text-2xl">Previous Contributors</h2>
+      <h2 class="text-2xl">All Time</h2>
       <div class="flex flex-col gap-y-4">
         <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-3 gap-x-2">
         {% for author in previous_contributors %}

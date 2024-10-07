@@ -32,14 +32,16 @@
         </div>
         <div
           class="
+            text-sm
             {% if av_contributor_label|lower == 'maintainer' %}
-              text-orange
-            {% elif av_contributor_label|lower == 'new contributor' %}
-              text-green
+              text-orange font-normal
+            {% elif av_contributor_label|lower == 'author' %}
+              text-gray-400 font-normal
+            {% elif av_contributor_label|lower == 'contributor - new' %}
+              text-gray-400 font-light
             {% elif av_contributor_label|lower == 'contributor' %}
-              text-gray-400
+              text-gray-400 font-light
             {% endif %}
-            font-bold text-sm
           "
         >
           {{ av_contributor_label }}
