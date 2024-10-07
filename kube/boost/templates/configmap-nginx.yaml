@@ -74,12 +74,14 @@ data:
 
       location /static {
         alias /code/static_deploy;
-        expires 7d;
+        # manage in CDN
+        # expires 7d;
       }
 
       location /media {
         alias /code/media;
-        expires 1d;
+        # manage in CDN
+        # expires 1d;
       }
 
       location = /more/getting_started/index.html { return 301 /doc/user-guide/getting-started.html; }
