@@ -1,21 +1,19 @@
 {% if version_alert %}
-    <div role="alert" class="py-2 px-3 mb-3 text-center rounded-sm bg-yellow-200/70">
-        <p class="p-0 m-0">
-            <i class="fas fa-exclamation-circle"></i>
-            {% if version.beta %}
-            This is a beta version of Boost.
-            {% elif version.full_release %}
-            This is an older version and was released in {{ version.release_date|date:"Y"}}.
-            {% else %}
-            This version of Boost is under active development.
-            {% endif %}
-           The current version is
-            {% if latest_library_version %}
-                <a href="{% url 'library-detail' slug=latest_library_version.library.slug %}" class="font-semibold underline dark:text-white text-charcoal">
-            {% else %}
-                <a href="{% url 'release-detail' latest_version.slug %}" class="font-semibold underline dark:text-white text-charcoal">
-            {% endif %}
-            {{ latest_version.display_name }}</a>
-        </p>
-    </div>
+  <div role="alert" class="py-2 px-3 mb-3 text-center rounded-sm bg-yellow-200/70">
+    <p class="p-0 m-0">
+      <i class="fas fa-exclamation-circle"></i>
+      {% if version == current_release %}
+        You've currently chosen the {{ current_release.display_name }} version. If a newer release comes out, you will continue to view the {{ current_release.display_name }} version, not the new <a href="{{ version_alert_url }}" class="font-semibold underline dark:text-white text-charcoal">latest release</a>.
+      {% else %}
+        {% if version.beta %}
+          This is a beta version of Boost.
+        {% elif version.full_release %}
+          This is an older version and was released in {{ version.release_date|date:"Y"}}.
+        {% else %}
+          This version of Boost is under active development.
+        {% endif %}
+      The <a href="{{ version_alert_url }}" class="font-semibold underline dark:text-white text-charcoal">current version</a> is {{ current_release.display_name }}.
+      {% endif %}
+    </p>
+  </div>
 {% endif %}

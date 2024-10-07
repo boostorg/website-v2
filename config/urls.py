@@ -69,7 +69,7 @@ from users.views import (
 )
 from versions.api import ImportVersionsView, VersionViewSet
 from versions.feeds import AtomVersionFeed, RSSVersionFeed
-from versions.views import VersionCurrentReleaseDetail, VersionDetail
+from versions.views import VersionDetail
 
 router = routers.SimpleRouter()
 
@@ -131,12 +131,8 @@ urlpatterns = (
         # Boost community calendar
         path("calendar/", CalendarView.as_view(), name="calendar"),
         # Boost versions views
+        path("releases/", VersionDetail.as_view(), name="releases-most-recent"),
         path("releases/<slug:slug>/", VersionDetail.as_view(), name="release-detail"),
-        path(
-            "releases/",
-            VersionCurrentReleaseDetail.as_view(),
-            name="releases-most-recent",
-        ),
         path(
             "donate/",
             TemplateView.as_view(template_name="donate/donate.html"),

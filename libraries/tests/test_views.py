@@ -221,10 +221,7 @@ def test_library_detail_context_get_documentation_url_no_docs_link(
     response = tp.get(url)
     tp.response_200(response)
     assert "documentation_url" in response.context
-    assert (
-        response.context["documentation_url"]
-        == library_version.version.documentation_url
-    )
+    assert response.context["documentation_url"] == "/doc/libs/release"
 
 
 def test_library_detail_context_get_documentation_url_missing_docs_bool(
@@ -243,10 +240,7 @@ def test_library_detail_context_get_documentation_url_missing_docs_bool(
     response = tp.get(url)
     tp.response_200(response)
     assert "documentation_url" in response.context
-    assert (
-        response.context["documentation_url"]
-        == library_version.version.documentation_url
-    )
+    assert response.context["documentation_url"] == "/doc/libs/release"
 
 
 def test_library_detail_context_get_documentation_url_docs_present(
