@@ -1,4 +1,3 @@
-import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -123,30 +122,6 @@ def test_update_maintainers(library_updater, user, library_version):
     assert library_version.maintainers.filter(email="t_testerson@example.com").exists()
     assert library_version.maintainers.filter(
         email="tester2_testerson2@example.com"
-    ).exists()
-
-
-@pytest.mark.skip("Needs API mocking")
-def test_update_monthly_commit_counts(library_version, library_updater):
-    # Assert no current data
-    assert library_version.library.commit_data.exists() is False
-
-    {
-        datetime.date(2023, 1, 1): 2,
-        datetime.date(2023, 2, 1): 3,
-        datetime.date(2023, 3, 1): 1,
-    }
-    library_updater.update_monthly_commit_counts(library_version.library, branch="main")
-    assert library_version.library.commit_data.exists() is True
-    assert library_version.library.commit_data.count() == 3
-    assert library_version.library.commit_data.filter(
-        month_year=datetime.date(2023, 1, 1), commit_count=2
-    ).exists()
-    assert library_version.library.commit_data.filter(
-        month_year=datetime.date(2023, 2, 1), commit_count=3
-    ).exists()
-    assert library_version.library.commit_data.filter(
-        month_year=datetime.date(2023, 3, 1), commit_count=1
     ).exists()
 
 
