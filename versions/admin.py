@@ -32,7 +32,11 @@ class VersionAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
-            path("new_versions/", self.import_new_releases, name="import_new_releases"),
+            path(
+                "new_versions/",
+                self.admin_site.admin_view(self.import_new_releases),
+                name="import_new_releases",
+            ),
         ]
         return my_urls + urls
 
