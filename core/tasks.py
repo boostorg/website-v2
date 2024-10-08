@@ -5,16 +5,11 @@ from dateutil.parser import parse
 
 from django.core.cache import caches
 
-from .asciidoc import convert_adoc_to_html, process_adoc_to_html_content
+from core.asciidoc import convert_adoc_to_html
 from .boostrenderer import get_content_from_s3
 from .models import RenderedContent
 
 logger = structlog.get_logger()
-
-
-@shared_task
-def adoc_to_html(file_path, delete_file=True):
-    return convert_adoc_to_html(file_path, delete_file=delete_file)
 
 
 @shared_task
@@ -52,7 +47,7 @@ def refresh_content_from_s3(s3_key, cache_key):
     if content_dict and content:
         content_type = content_dict.get("content_type")
         if content_type == "text/asciidoc":
-            content = process_adoc_to_html_content(content)
+            content = convert_adoc_to_html(content)
         last_updated_at_raw = content_dict.get("last_updated_at")
         last_updated_at = parse(last_updated_at_raw) if last_updated_at_raw else None
         # Clear the cache because we're going to update it.
