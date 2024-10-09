@@ -239,16 +239,26 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
             library_version, context["version_str"] == LATEST_RELEASE_URL_PATH_STR
         )
         context["github_url"] = self.get_github_url(context["version"])
-        context["maintainers"] = self.get_maintainers(context["version"])
+        context["authors"] = self.get_related(library_version, "authors")
+        context["maintainers"] = self.get_related(
+            library_version,
+            "maintainers",
+            exclude_ids=[x.id for x in context["authors"]],
+        )
         context["author_tag"] = self.get_author_tag()
         exclude_maintainer_ids = [
             x.commitauthor.id
             for x in context["maintainers"]
             if getattr(x.commitauthor, "id", None)
         ]
+        exclude_author_ids = [
+            x.commitauthor.id
+            for x in context["authors"]
+            if getattr(x.commitauthor, "id", None)
+        ]
         top_contributors_release = self.get_top_contributors(
             version=context["version"],
-            exclude=exclude_maintainer_ids,
+            exclude=exclude_maintainer_ids + exclude_author_ids,
         )
         context["top_contributors_release_new"] = [
             x for x in top_contributors_release if x.is_new
@@ -259,7 +269,9 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
         exclude_top_contributor_ids = [x.id for x in top_contributors_release]
         context["previous_contributors"] = self.get_previous_contributors(
             context["version"],
-            exclude=exclude_maintainer_ids + exclude_top_contributor_ids,
+            exclude=exclude_maintainer_ids
+            + exclude_top_contributor_ids
+            + exclude_author_ids,
         )
         # Populate the commit graphs
         context["commit_data_by_release"] = self.get_commit_data_by_release()
@@ -350,14 +362,20 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
             # This should never happen because it should be caught in get_object
             return self.object.github_url
 
-    def get_maintainers(self, version):
-        """Get the maintainers for the current LibraryVersion.
+    def get_related(self, library_version, relation="maintainers", exclude_ids=None):
+        """Get the maintainers|authors for the current LibraryVersion.
 
         Also patches the CommitAuthor onto the user, if a matching email exists.
         """
-        obj = self.get_object()
-        library_version = LibraryVersion.objects.get(library=obj, version=version)
-        qs = list(library_version.maintainers.all())
+        if relation == "maintainers":
+            qs = library_version.maintainers.all()
+        elif relation == "authors":
+            qs = library_version.authors.all()
+        else:
+            raise ValueError("relation must be maintainers or authors.")
+        if exclude_ids:
+            qs = qs.exclude(id__in=exclude_ids)
+        qs = list(qs)
         commit_authors = {
             author_email.email: author_email
             for author_email in CommitAuthorEmail.objects.annotate(

@@ -1,3 +1,4 @@
+from django.core.management import call_command
 import structlog
 
 from config.celery import app
@@ -181,6 +182,13 @@ def update_libraries():
     updater = LibraryUpdater()
     updater.update_libraries()
     logger.info("libraries_tasks_update_all_libraries_finished")
+
+
+@app.task
+def update_authors_and_maintainers():
+    call_command("update_authors")
+    call_command("update_maintainers")
+    call_command("update_library_version_authors", "--clean")
 
 
 @app.task
