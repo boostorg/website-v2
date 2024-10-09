@@ -16,15 +16,15 @@ asttokens==2.4.1
     # via stack-data
 beautifulsoup4==4.12.3
     # via -r ./requirements.in
-billiard==4.2.0
+billiard==4.2.1
     # via celery
-black==24.8.0
+black==24.10.0
     # via -r ./requirements.in
-boto3==1.35.7
+boto3==1.35.36
     # via
     #   -r ./requirements.in
     #   django-bakery
-botocore==1.35.7
+botocore==1.35.36
     # via
     #   boto3
     #   s3transfer
@@ -34,18 +34,18 @@ bumpversion==0.6.0
     # via -r ./requirements.in
 celery==5.4.0
     # via -r ./requirements.in
-certifi==2024.7.4
+certifi==2024.8.30
     # via
     #   elasticsearch
     #   minio
     #   requests
-cffi==1.17.0
+cffi==1.17.1
     # via
     #   argon2-cffi-bindings
     #   cryptography
 cfgv==3.4.0
     # via pre-commit
-charset-normalizer==3.3.2
+charset-normalizer==3.4.0
     # via requests
 click==8.1.7
     # via
@@ -61,9 +61,9 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
-coverage[toml]==7.6.1
+coverage[toml]==7.6.2
     # via pytest-cov
-cryptography==43.0.0
+cryptography==43.0.1
     # via
     #   -r ./requirements.in
     #   jwcrypto
@@ -76,7 +76,7 @@ dj-database-url==2.2.0
     # via environs
 dj-email-url==1.0.6
     # via environs
-django==4.2.15
+django==4.2.16
     # via
     #   -r ./requirements.in
     #   dj-database-url
@@ -99,7 +99,7 @@ django-admin-env-notice==1.0
     # via -r ./requirements.in
 django-allauth[socialaccount]==65.0.2
     # via -r ./requirements.in
-django-anymail[mailgun]==11.1
+django-anymail[mailgun]==12.0
     # via -r ./requirements.in
 django-appconf==1.0.6
     # via django-imagekit
@@ -125,7 +125,7 @@ django-js-asset==2.2.0
     # via django-mptt
 django-mptt==0.14.0
     # via -r ./requirements.in
-django-oauth-toolkit==2.4.0
+django-oauth-toolkit==3.0.1
     # via -r ./requirements.in
 django-redis==5.4.0
     # via -r ./requirements.in
@@ -147,19 +147,19 @@ elasticsearch==7.17.9
     # via -r ./requirements.in
 environs[django]==11.0.0
     # via -r ./requirements.in
-executing==2.0.1
+executing==2.1.0
     # via stack-data
-faker==28.0.0
+faker==30.3.0
     # via -r ./requirements.in
-fastcore==1.7.1
+fastcore==1.7.12
     # via ghapi
-filelock==3.15.4
+filelock==3.16.1
     # via virtualenv
 fs==2.4.16
     # via django-bakery
 gevent==24.2.1
     # via -r ./requirements.in
-ghapi==1.0.5
+ghapi==1.0.6
     # via -r ./requirements.in
 greenlet==3.0.3
     # via
@@ -167,13 +167,13 @@ greenlet==3.0.3
     #   gevent
 gunicorn==23.0.0
     # via -r ./requirements.in
-identify==2.6.0
+identify==2.6.1
     # via pre-commit
-idna==3.8
+idna==3.10
     # via requests
 iniconfig==2.0.0
     # via pytest
-ipython==8.26.0
+ipython==8.28.0
     # via -r ./requirements.in
 jedi==0.19.1
     # via ipython
@@ -187,13 +187,13 @@ jsoncomment==0.4.2
     # via -r ./requirements.in
 jwcrypto==1.5.6
     # via django-oauth-toolkit
-kombu==5.4.0
+kombu==5.4.2
     # via celery
 marshmallow==3.22.0
     # via environs
 matplotlib-inline==0.1.7
     # via ipython
-minio==7.2.8
+minio==7.2.9
     # via -r ./requirements.in
 mistletoe==1.4.0
     # via -r ./requirements.in
@@ -228,17 +228,15 @@ pillow==10.2.0
     # via
     #   -r ./requirements.in
     #   pilkit
-pip==24.2
-    # via ghapi
-platformdirs==4.2.2
+platformdirs==4.3.6
     # via
     #   black
     #   virtualenv
 pluggy==1.5.0
     # via pytest
-pre-commit==3.8.0
+pre-commit==4.0.1
     # via -r ./requirements.in
-prompt-toolkit==3.0.47
+prompt-toolkit==3.0.48
     # via
     #   click-repl
     #   ipython
@@ -252,20 +250,20 @@ pure-eval==0.2.3
     # via stack-data
 pycparser==2.22
     # via cffi
-pycryptodome==3.20.0
+pycryptodome==3.21.0
     # via minio
 pygments==2.18.0
     # via ipython
 pyjwt[crypto]==2.9.0
     # via django-allauth
-pytest==8.3.2
+pytest==8.3.3
     # via
     #   -r ./requirements.in
     #   pytest-cov
     #   pytest-django
 pytest-cov==5.0.0
     # via -r ./requirements.in
-pytest-django==4.8.0
+pytest-django==4.9.0
     # via -r ./requirements.in
 python-dateutil==2.9.0.post0
     # via
@@ -279,8 +277,6 @@ python-frontmatter==1.1.0
     # via -r ./requirements.in
 python-json-logger==2.0.7
     # via -r ./requirements.in
-pytz==2024.1
-    # via django-oauth-toolkit
 pyyaml==6.0.2
     # via
     #   pre-commit
@@ -302,9 +298,9 @@ requests-oauthlib==2.0.0
     # via django-allauth
 responses==0.25.3
     # via -r ./requirements.in
-s3transfer==0.10.2
+s3transfer==0.10.3
     # via boto3
-setuptools==74.0.0
+setuptools==75.1.0
     # via
     #   fs
     #   zope-event
@@ -331,12 +327,15 @@ traitlets==5.14.3
 typing-extensions==4.12.2
     # via
     #   dj-database-url
+    #   faker
     #   ipython
     #   jwcrypto
     #   minio
-tzdata==2024.1
-    # via celery
-urllib3==1.26.19
+tzdata==2024.2
+    # via
+    #   celery
+    #   kombu
+urllib3==1.26.20
     # via
     #   botocore
     #   django-anymail
@@ -351,7 +350,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.26.3
+virtualenv==20.26.6
     # via pre-commit
 wcwidth==0.2.13
     # via prompt-toolkit
