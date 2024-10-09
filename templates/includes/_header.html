@@ -366,7 +366,13 @@ html.dark {
         <i id="light-dark" class="fas fa-sun icon-link " onclick="changeTheme()"></i>
         {% endif %}
         <span x-data="{ 'userOpen': false }" class="menu-link w-8 relative">
-          {% include "users/includes/header_avatar.html" %}
+            {# HTMX to load the avatar content, allows cached docs/guides pages to load the user status #}
+            <div hx-get="/users/avatar/"
+                 hx-trigger="load"
+                 hx-target="#avatar"
+                 hx-indicator=".htmx-indicator">
+            </div>
+            <span id="avatar"></span>
         </span>
     </div>
 </div>
@@ -401,7 +407,6 @@ html.dark {
       var url = window.location.pathname;
       var words = url.split("\/");
       words[1] = words[1].replaceAll("\/", "");
-      console.log(words[1])
       var tabname = "Home"
       var pagename = document.getElementById("pageName")
       if (words[1].length != '') {
