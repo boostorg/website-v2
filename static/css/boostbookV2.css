@@ -136,7 +136,7 @@ Body defaults
     .toc,
     pre { background-color: var(--code-bg-color);}
 
-    body > .section, body > .chapter , #boost-legacy-docs-wrapper > .section, #boost-legacy-docs-wrapper > .chapter {
+    body > .section, body > .chapter , #boost-legacy-docs-wrapper > .section, #boost-legacy-docs-wrapper > .chapter, #boost-legacy-docs-wrapper > .document {
         margin: 0rem 1rem;
         padding: 1rem;
         background-color: var(--card-color);
@@ -336,7 +336,7 @@ Spirit style navigation
     .spirit-nav
     {
         position: absolute;
-        top: 4rem;
+        top: 0.2rem;
         right: calc(((100% - 77rem) / 2));
         text-align: right;
         margin: 0.75rem;
