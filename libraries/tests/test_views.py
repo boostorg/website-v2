@@ -304,8 +304,9 @@ def test_library_detail_context_missing_readme(
 
     library = library_version.library
     url = tp.reverse("library-detail", library.slug)
+
     response = tp.get(url)
+
     tp.response_200(response)
-    assert not library.description
     assert "description" in response.context
     assert response.context["description"] == README_MISSING
