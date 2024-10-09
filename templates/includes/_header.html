@@ -2,7 +2,6 @@
 {% load account socialaccount active_link_tags %}
 <style>
 @import url({% static 'css/fonts.css' %});
-
 :root {
     --site-light-bg-color: rgb(229, 231, 235);
     --site-dark-bg-color: rgb(5, 26, 38);
@@ -22,11 +21,9 @@
     --site-light-shadow-color: rgba(0,0,0,0.3);
     --site-dark-shadow-color: transparent;
     /* specific use colors */
-
      /* header height var for docs positioning */
     --header-height: 2.5rem;
 }
-
 html {
     --bg-color: var(--site-light-bg-color);
     --card-color: var(--site-light-card-color);
@@ -39,7 +36,6 @@ html {
     --shadow-color: var(--site-light-shadow-color);
     /* specific use colors */
 }
-
 html.dark {
     --bg-color: var(--site-dark-bg-color);
     --card-color: var(--site-dark-card-color);
@@ -52,7 +48,6 @@ html.dark {
     --shadow-color: var(--site-dark-shadow-color);
     /* specific use colors */
 }
-
 .header-menu-bar {
     padding: 0 1rem;
     height: 41px;
@@ -66,31 +61,26 @@ html.dark {
     color: var(--text-color);
     font-family: "Noto Sans" !important;
 }
-
 .dark .header-menu-bar {
     border-bottom: 1px solid #07405f;
     box-shadow: 0 1px 0 #000;
 }
-
 .header-menu-bar .left-menubar {
     display: flex;
     align-items: center;
     justify-content: flex-start;
     flex-grow: 1;
 }
-
 .header-menu-bar .right-menubar {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     max-width: 9rem;
 }
-
 .header-menu-bar .logo-link {
     width: 1.3rem;
     height: 1.6rem;
 }
-
 .header-menu-bar .menu-link {
     text-transform: capitalize;
     text-decoration: none;
@@ -99,7 +89,6 @@ html.dark {
     color: var(--text-color);
     font-size: 18px;
 }
-
 .header-menu-bar .menu-link-right {
     text-transform: capitalize;
     margin-right: 1rem;
@@ -108,17 +97,14 @@ html.dark {
     font-size: 18px;
     white-space: nowrap;
 }
-
 .icon-link {
     display:block;
     margin-left: 1rem;
     cursor: pointer
 }
-
 .dark .icon-link {
     opacity: 0.5;
 }
-
 .icon-link:hover,
 .menu-link:hover,
 .active-link,
@@ -126,11 +112,9 @@ html.dark {
     color: var(--primary-color) !important;
     opacity: 1;
 }
-
 .boost-drop-shadow {
   box-shadow: 2px 2px 5px 1px var(--shadow-color);
 }
-
 .guide-modal {
     position: absolute;
     right:0;
@@ -144,7 +128,6 @@ html.dark {
     border: 1px solid var(--border-color);
     box-shadow: 3px 3px 7px 1px var(--shadow-color);
 }
-
 .guide-modal a {
     margin-left: .5rem;
     display: block;
@@ -154,15 +137,12 @@ html.dark {
     color: var(--text-color);
     border-bottom: var(--border-color) 1px solid;
 }
-
 .guide-modal a:last-child {
     border-bottom: none;
 }
-
 .guide-modal a:hover {
     color: var(--primary-color);
 }
-
 #pageselector {
     text-transform: capitalize;
     margin-left: 1rem;
@@ -179,34 +159,28 @@ html.dark {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
 }
-
 .hide {
     display: none !important;
 }
-
 .mobile-menu-item {
       min-width: 10rem;
       padding: .5rem 1rem;
       border-bottom: var(--border-color) 1px solid;
       text-transform: capitalize;
     }
-
 .mobile-menu-item:last-child {
   border-bottom: none;
 }
-
 #avatar svg {
     width: 1rem;
     height: 1rem;
     color: var(--text-color);
     fill: var(--primary-color);
 }
-
 #mobileNav {
     display: flex;
     align-items: center;
 }
-
 #selectedpage {
     display: flex;
     align-items: center;
@@ -215,49 +189,38 @@ html.dark {
     font-weight: 500;
     font-size: 18px;
 }
-
 #pageName {
   text-transform: capitalize;
 }
-
 #desktopNav {
         display: none;
     }
-
 @media screen and (min-width: 768px) {
     #mobileNav {
         display: none;
     }
-
     #desktopNav {
         display: flex;
     }
 }
-
-
-
     /* specific to docs */
     body.article {
       max-width: 100% !important;
       margin: 0;
       padding: 0px .75rem !important;
     }
-
     body .body {
       margin: 0px 1rem;
       padding: 1.5rem 0rem 0;
       max-width: 80rem;
     }
-
     body.article  #headblock {
       padding: 0.25rem 1rem !important;
     }
-
     article.card {
       border-radius: .5rem;
       padding-top: .5rem !important;
     }
-
     @media (min-width: 769px) {
       body.article {
         max-width: 80rem !important;
@@ -266,42 +229,36 @@ html.dark {
         border-radius: .5rem;
      }
     }
-
     @media (max-width: 768px) {
       body.article {
         padding: 0px !important;
         border-radius: 0rem !important;
         margin: 0 !important;
      }
-
     body.article  #headblock {
       padding: 0.25rem 0.5rem !important;
      }
-
      .body {
       margin: 0 !important;
       padding: 0 !important;
      }
-
      .article .card {
       border-radius: 0 !important;
      }
-
     }
 
-     /* asciidoc layout base */
+    /* asciidoc layout base */
       #boost-legacy-docs-wrapper {
         margin: auto;
         max-width: 80rem;
         overflow: hidden;
         position: relative;
-        margin-top: .5rem;
+        margin-top: 1rem;
       }
-
 
      #boost-legacy-docs-wrapper #toc.toc2 {
         position: fixed !important;
-        top: 3rem;
+        top: 3.5rem;
         border-top-width: 0 !important;
         border-bottom-width: 0 !important;
         z-index: 1000;
@@ -312,12 +269,18 @@ html.dark {
         left: 1rem;
         -webkit-transform: translateZ(0);
      }
-
     #boost-legacy-docs-wrapper #header>h1:first-child {
       margin-top: .5rem !important;
     }
 
-
+    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #header,
+    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #content,
+    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #footer,
+    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #footnotes {
+      width: auto;
+      max-width: 62rem;
+     margin-left: 15rem;
+    }
 
 
 @media screen and (min-width: 1280px) {
@@ -328,6 +291,13 @@ html.dark {
     -webkit-transform: translateZ(0);
   }
 
+  #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #header,
+    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #content,
+    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #footer,
+    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #footnotes {
+      margin-left: 20rem;
+      max-width: 59rem !important;
+    }
 }
 
 @media screen and (max-width: 769px) {
@@ -340,8 +310,18 @@ html.dark {
     height: auto;
   }
 
-}
+  #boost-legacy-docs-wrapper {
+    margin-top:0;
+  }
 
+  #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #header,
+    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #content,
+    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #footer,
+    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #footnotes {
+      margin-left: 0rem;
+      max-width: 100% !important;
+    }
+}
 
 </style>
 <div class="header-menu-bar topnavbar">
@@ -400,7 +380,6 @@ html.dark {
             this.searchButton = document.getElementById("gecko-search-button");
             this.desktopSearchArea = this.$el.querySelector('[x-ref="desktopSearchArea"]');
             this.mobileSearchArea = this.$el.querySelector('[x-ref="mobileSearchArea"]');
-
             this.updateSearchButtonLocation();
           },
           updateSearchButtonLocation() {
@@ -412,24 +391,19 @@ html.dark {
           }
         }))
       });
-
       // ************ Mobile Navigation **************
-
       let containingElement = document.getElementById("pageselector");
-
       document.body.addEventListener('click', function( event ){
         if(!containingElement.contains( event.target ) ){
           closeNav();
         }
       });
-
       var url = window.location.pathname;
       var words = url.split("\/");
       words[1] = words[1].replaceAll("\/", "");
       console.log(words[1])
       var tabname = "Home"
       var pagename = document.getElementById("pageName")
-
       if (words[1].length != '') {
         switch (words[1]) {
           case 'doc':
@@ -461,15 +435,12 @@ html.dark {
         var activename = document.getElementById(tabname);
         activename.classList.add('active-link');
       }
-
       pagename.innerText='';
       pagename.appendChild(document.createTextNode(tabname));
-
       function openNav() {
         ps = document.getElementById("pageselector");
         ps.classList.remove('hide');
       }
-
       function closeNav() {
          ps = document.getElementById("pageselector");
         setTimeout(function() {
@@ -478,7 +449,6 @@ html.dark {
           }
         }, 2000);
       }
-
       // *********** manage theming *************
         function makeDark() {
             document.documentElement.classList.add('dark');
@@ -487,7 +457,6 @@ html.dark {
             iconchange.classList.remove('fa-moon');
             iconchange.classList.add('fa-sun');
         }
-
         function makeLight() {
             document.documentElement.classList.remove('dark');
             var iconchange = document.getElementById("light-dark")
@@ -495,7 +464,6 @@ html.dark {
             iconchange.classList.remove('fa-sun');
             iconchange.classList.add('fa-moon');
         }
-
         function changeTheme() {
             if (document.documentElement.classList.contains("dark")) {
                 makeLight();
@@ -503,7 +471,6 @@ html.dark {
             }
                 makeDark();
         }
-
         function setTheme(theme) {
             console.log(theme);
             if (theme == "dark") {
@@ -516,7 +483,6 @@ html.dark {
                 makeLight();
             }
         }
-
         function checkmedia() {
         if (window.matchMedia) {
           // Check if the dark-mode Media-Query matches
@@ -541,10 +507,8 @@ html.dark {
             setTheme(localStorage.getItem("colorMode"));
         }
       }
-
       checkmedia();
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) { checkmedia();})
-
       function removejscssfile(filename, filetype){
         var targetelement=(filetype=="js")? "script" : (filetype=="css")? "link" : "none" //determine element type to create nodelist from
         var targetattr=(filetype=="js")? "src" : (filetype=="css")? "href" : "none" //determine corresponding attribute to test for
