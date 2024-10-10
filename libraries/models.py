@@ -12,7 +12,6 @@ from core.markdown import process_md
 from core.models import RenderedContent
 from core.tasks import adoc_to_html
 
-from .constants import README_MISSING
 from .utils import generate_random_string, write_content_to_tempfile
 
 
@@ -260,7 +259,7 @@ class Library(models.Model):
                 return body_content
 
         # If no content was found for any of the files
-        return README_MISSING
+        return None
 
     def get_cpp_standard_minimum_display(self):
         """Returns the display name for the C++ standard, or the value if not found.
