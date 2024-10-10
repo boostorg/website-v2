@@ -268,9 +268,12 @@ html.dark {
         position: absolute;
         left: 1rem;
         -webkit-transform: translateZ(0);
+
      }
+
     #boost-legacy-docs-wrapper #header>h1:first-child {
       margin-top: .5rem !important;
+      color: var(--header-color) !important;
     }
 
     #boost-legacy-docs-wrapper > #header,
@@ -282,6 +285,9 @@ html.dark {
      margin-left: 15rem;
     }
 
+    .source-docs-antora .doc {
+        padding-top: 0 !important;
+    }
 
 @media screen and (min-width: 1280px) {
   #toc.toc2 {
@@ -309,6 +315,11 @@ html.dark {
         -webkit-transform: none;
         padding: 0;
         padding-left: 1rem;
+  }
+
+  .source-docs-asciidoc #header  #toc.toc2 {
+     position: relative !important;
+     height: auto;
   }
 
   #boost-legacy-docs-wrapper {
