@@ -28,6 +28,7 @@ from .boostrenderer import (
     get_meta_redirect_from_html,
     get_s3_client,
 )
+from .constants import SourceDocType
 from .htmlhelper import modernize_legacy_page
 from .markdown import process_md
 from .models import RenderedContent
@@ -319,7 +320,6 @@ class BaseStaticContentTemplateView(TemplateView):
             return result
 
     def get_template_names(self):
-        """Return the template name."""
         content_type = self.content_dict.get("content_type")
         if content_type == "text/asciidoc":
             return [self.template_name]
@@ -404,8 +404,8 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
     def process_content(self, content):
         """Replace page header with the local one."""
         content_type = self.content_dict.get("content_type")
+        original_docs_type = SourceDocType.ASCIIDOC
         # Is the request coming from an iframe? If so, let's disable the modernization.
-
         sec_fetch_destination = self.request.headers.get("Sec-Fetch-Dest", "")
         is_iframe_destination = sec_fetch_destination in ["iframe", "frame"]
 
@@ -432,7 +432,11 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         )
         # potentially pass version if needed for HTML modification
         return modernize_legacy_page(
-            content, base_html, insert_body=insert_body, head_selector=head_selector
+            content,
+            base_html,
+            insert_body=insert_body,
+            head_selector=head_selector,
+            original_docs_type=original_docs_type,
         )
 
 
@@ -444,6 +448,7 @@ class UserGuideTemplateView(BaseStaticContentTemplateView):
     def process_content(self, content):
         """Replace page header with the local one."""
         content_type = self.content_dict.get("content_type")
+        original_docs_type = SourceDocType.ANTORA
         modernize = self.request.GET.get("modernize", "med").lower()
         if content_type != "text/html" or modernize not in ("max", "med", "min"):
             # eventually check for more things, for example ensure this HTML
@@ -462,7 +467,11 @@ class UserGuideTemplateView(BaseStaticContentTemplateView):
         )
         # potentially pass version if needed for HTML modification
         return modernize_legacy_page(
-            content, base_html, insert_body=insert_body, head_selector=head_selector
+            content,
+            base_html,
+            insert_body=insert_body,
+            head_selector=head_selector,
+            original_docs_type=original_docs_type,
         )
 
 
