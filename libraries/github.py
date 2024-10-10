@@ -250,13 +250,13 @@ class LibraryUpdater:
             cat, _ = Category.objects.get_or_create(name=cat_name)
             obj.categories.add(cat)
 
-    def update_authors(self, obj, authors=None):
+    def update_authors(self, obj: Library | LibraryVersion, authors=None):
         """
-        Receives a list of strings from the libraries.json of a Boost library, and
-        an object with an "authors" attribute.
+        Receives a list of strings from the libraries.json of a Boost library
+        or library_version, and an object with an "authors" attribute.
 
         Processes that string into a User object that is added as an
-        Author to the Library.
+        Author to the Library or LibraryVersion.
         """
         if not authors:
             return obj

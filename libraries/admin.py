@@ -22,6 +22,7 @@ from .models import (
     PullRequest,
 )
 from .tasks import (
+    update_authors_and_maintainers,
     update_commit_author_github_data,
     update_commits,
     update_libraries,
@@ -135,6 +136,11 @@ class LibraryAdmin(admin.ModelAdmin):
         my_urls = [
             path("update_libraries/", self.update_libraries, name="update_libraries"),
             path(
+                "update_authors_and_maintainers/",
+                self.update_authors_and_maintainers,
+                name="update_authors_and_maintainers",
+            ),
+            path(
                 "<int:pk>/stats/",
                 self.admin_site.admin_view(self.library_stat_detail),
                 name="library_stat_detail",
@@ -214,6 +220,11 @@ class LibraryAdmin(admin.ModelAdmin):
         url = reverse("admin:library_stat_detail", kwargs={"pk": instance.pk})
         return mark_safe(f"<a href='{url}'>View Stats</a>")
 
+    def update_authors_and_maintainers(self, request):
+        update_authors_and_maintainers.delay()
+        self.message_user(request, "Authors and Maintainers are being updated.")
+        return HttpResponseRedirect("../")
+
     def update_libraries(self, request):
         """Run the task to refresh the library data from GitHub"""
         update_libraries.delay()
@@ -222,7 +233,7 @@ class LibraryAdmin(admin.ModelAdmin):
             request,
             """
             Library data is being refreshed.
-        """,
+            """,
         )
         return HttpResponseRedirect("../")
 
@@ -312,6 +323,7 @@ class LibraryVersionAdmin(admin.ModelAdmin):
     ordering = ["library__name", "-version__name"]
     search_fields = ["library__name", "version__name"]
     change_list_template = "admin/libraryversion_change_list.html"
+    autocomplete_fields = ["authors", "maintainers"]
 
     def get_urls(self):
         urls = super().get_urls()
