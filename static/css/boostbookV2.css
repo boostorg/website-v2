@@ -298,12 +298,14 @@ Lists
     ul
     {
         text-align: left;
+        margin: .5rem 2rem;
     }
 
     /* Ordered lists */
     ol
     {
         text-align: left;
+        margin: .5rem 2rem;
     }
 
 /*=============================================================================
@@ -341,6 +343,7 @@ Spirit style navigation
         text-align: right;
         margin: 0.75rem;
         max-width: 80rem;
+        display: flex;
     }
 
     @media screen and (max-width: 80rem) {

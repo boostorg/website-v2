@@ -273,10 +273,10 @@ html.dark {
       margin-top: .5rem !important;
     }
 
-    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #header,
-    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #content,
-    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #footer,
-    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #footnotes {
+    #boost-legacy-docs-wrapper > #header,
+    #boost-legacy-docs-wrapper > #content,
+    #boost-legacy-docs-wrapper > #footer,
+    #boost-legacy-docs-wrapper > #footnotes {
       width: auto;
       max-width: 62rem;
      margin-left: 15rem;
@@ -291,10 +291,10 @@ html.dark {
     -webkit-transform: translateZ(0);
   }
 
-  #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #header,
-    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #content,
-    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #footer,
-    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #footnotes {
+  #boost-legacy-docs-wrapper > #header,
+    #boost-legacy-docs-wrapper > #content,
+    #boost-legacy-docs-wrapper > #footer,
+    #boost-legacy-docs-wrapper > #footnotes {
       margin-left: 20rem;
       max-width: 59rem !important;
     }
@@ -302,22 +302,23 @@ html.dark {
 
 @media screen and (max-width: 769px) {
   #boost-legacy-docs-wrapper  #toc.toc2 {
-    width: 100%;
-    left: 0;
-    top: 0;
-    -webkit-transform: none;
-    padding: 0;
-    height: auto;
+        width: 100%;
+        left: 0;
+        top: 0;
+        margin-top: 4rem;
+        -webkit-transform: none;
+        padding: 0;
+        padding-left: 1rem;
   }
 
   #boost-legacy-docs-wrapper {
     margin-top:0;
   }
 
-  #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #header,
-    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #content,
-    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #footer,
-    #boost-legacy-docs-wrapper:first-child()not(:has(.boostlook))  #footnotes {
+  #boost-legacy-docs-wrapper > #header,
+    #boost-legacy-docs-wrapper > #content,
+    #boost-legacy-docs-wrapper > #footer,
+    #boost-legacy-docs-wrapper > #footnotes {
       margin-left: 0rem;
       max-width: 100% !important;
     }
