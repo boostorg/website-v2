@@ -33,6 +33,10 @@ def command(token):
     call_command("update_authors")
     click.secho("Finished adding library authors.", fg="green")
 
+    click.secho("Adding library version authors...", fg="green")
+    call_command("update_library_version_authors")
+    click.secho("Finished adding library version authors.", fg="green")
+
     click.secho("Importing most recent beta version...", fg="green")
     call_command("import_beta_release", "--token", token, "--delete-versions")
     click.secho("Finished importing most recent beta version.", fg="green")
