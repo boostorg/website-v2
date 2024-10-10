@@ -14,7 +14,7 @@ from allauth.socialaccount.views import SignupView as SocialSignupView
 
 from rest_framework import generics
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .forms import PreferencesForm, UserProfileForm, UserProfilePhotoForm
 from .models import User
@@ -278,4 +278,19 @@ class CustomEmailVerificationSentView(EmailVerificationSentView):
         context[
             "EMAIL_CONFIRMATION_EXPIRE_DAYS"
         ] = app_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS
+        return context
+
+
+class UserAvatar(TemplateView):
+    """
+    Returns the template for the user's avatar in the header from the htmx request.
+    """
+
+    permission_classes = [AllowAny]
+    template_name = "users/includes/header_avatar.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["user"] = self.request.user
+        context["mobile"] = self.request.GET.get("ui")
         return context
