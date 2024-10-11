@@ -20,7 +20,7 @@ from django.views.generic import TemplateView
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from versions.models import Version
 
-from .asciidoc import process_adoc_to_html_content
+from .asciidoc import convert_adoc_to_html
 from .boostrenderer import (
     convert_img_paths,
     extract_file_data,
@@ -353,7 +353,7 @@ class BaseStaticContentTemplateView(TemplateView):
 
     def convert_adoc_to_html(self, content):
         """Renders asciidoc content to HTML."""
-        return process_adoc_to_html_content(content)
+        return convert_adoc_to_html(content)
 
     def process_content(self, content):
         """No op, override in children if required."""
