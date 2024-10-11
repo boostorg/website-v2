@@ -7,10 +7,9 @@ from django.db import models, transaction
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
-from core.boostrenderer import get_body_from_html
 from core.markdown import process_md
 from core.models import RenderedContent
-from core.tasks import adoc_to_html
+from core.asciidoc import convert_adoc_to_html
 
 from .utils import generate_random_string, write_content_to_tempfile
 
@@ -244,11 +243,10 @@ class Library(models.Model):
             )
             if content:
                 # There is content, so process it
-                temp_file = write_content_to_tempfile(content)
                 if file_path.endswith(".adoc"):
-                    html_content = adoc_to_html(temp_file.name, delete_file=True)
-                    body_content = get_body_from_html(html_content)
+                    body_content = convert_adoc_to_html(content.decode("utf-8"))
                 else:
+                    temp_file = write_content_to_tempfile(content)
                     _, body_content = process_md(temp_file.name)
                 static_content_cache.set(cache_key, body_content)
                 RenderedContent.objects.update_or_create(
