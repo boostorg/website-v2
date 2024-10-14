@@ -263,7 +263,8 @@ html.dark {
         border-bottom-width: 0 !important;
         z-index: 1000;
         padding: 1.25em 1em;
-        height: calc(100vh - 4rem);
+        max-height: calc(100vh - 4rem);
+        height: fit-content;
         overflow: auto;
         position: absolute;
         left: 1rem;
@@ -285,8 +286,28 @@ html.dark {
      margin-left: 15rem;
     }
 
+    .main-footer {
+      max-width: 62rem !important;
+      margin-left: 15rem !important;
+    }
+
+    .link-icons {
+      width: 4rem;
+    }
+
+    .links {
+      padding: 0 0.5rem;
+    }
+
     .source-docs-antora .doc {
         padding-top: 0 !important;
+    }
+
+    @media screen and (max-width: 940px) {
+      .links {
+        flex-direction: column;
+        align-items: center;
+      }
     }
 
 @media screen and (min-width: 1280px) {
@@ -302,6 +323,11 @@ html.dark {
     #boost-legacy-docs-wrapper > #footer,
     #boost-legacy-docs-wrapper > #footnotes {
       margin-left: 20rem;
+      max-width: 59rem !important;
+    }
+
+    .main-footer {
+      margin-left: 20rem !important;
       max-width: 59rem !important;
     }
 }
@@ -332,6 +358,11 @@ html.dark {
     #boost-legacy-docs-wrapper > #footnotes {
       margin-left: 0rem;
       max-width: 100% !important;
+    }
+
+    .main-footer {
+      margin-left: 0 !important;
+      margin: auto !important
     }
 }
 
