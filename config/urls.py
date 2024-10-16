@@ -36,7 +36,6 @@ from libraries.views import (
     LibraryListByCategory,
     LibraryListMini,
 )
-from mailing_list.views import MailingListDetailView, MailingListView
 from news.feeds import AtomNewsFeed, RSSNewsFeed
 from news.views import (
     AllTypesCreateView,
@@ -169,12 +168,6 @@ urlpatterns = (
             LibraryDetail.as_view(redirect_to_docs=True),
             name="library-docs-redirect",
         ),
-        path(
-            "mailing-list/<int:pk>/",
-            MailingListDetailView.as_view(),
-            name="mailing-list-detail",
-        ),
-        path("mailing-list/", MailingListView.as_view(), name="mailing-list"),
         path("news/", EntryListView.as_view(), name="news"),
         path("news/blogpost/", BlogPostListView.as_view(), name="news-blogpost-list"),
         path("news/link/", LinkListView.as_view(), name="news-link-list"),
