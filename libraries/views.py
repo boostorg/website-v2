@@ -490,4 +490,5 @@ class LibraryDetail(FormMixin, DetailView):
             )
         else:
             logger.info("library_list_invalid_version")
+            return redirect(request.get_full_path())
         return super().get(request)
