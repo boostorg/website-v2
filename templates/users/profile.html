@@ -112,7 +112,10 @@
           </div>
         </div>
         {% endif %}
-
+        <div class="rounded bg-white dark:bg-charcoal p-4">
+          <h3>{% trans "Delete Account" %}</h3>
+          <a href="{% url "profile-delete" %}">{% trans 'Delete account' %}</a>
+        </div>
       </div>
     </div>
   </div>
