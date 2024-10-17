@@ -19,4 +19,9 @@
 {% else %}
   {% render_field field class="w-full bg-white rounded border-gray-300 dark:text-white text-slate dark:border-slate dark:bg-charcoal" placeholder="" %}
 {% endif %}
+{% if field.help_text %}
+<small>
+    {{ field.help_text }}
+</small>
+{% endif %}
 </label>
