@@ -243,3 +243,20 @@ If both the `--release` and the `--library-name` are passed, the command will lo
 |----------------------|--------|--------------------------------------------------------------|
 | `--token`  | string   | Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`. |
 | `--delete-versions`  | bool  | If passed, all existing beta Version records will be deleted before the new beta release is imported. |
+
+
+## `sync_mailinglist_stats`
+
+**Purpose**: Build EmailData objects from the hyperkitty email archive database.
+
+**Example**
+
+```bash
+./manage.py sync_mailinglist_stats
+```
+
+**Options**
+
+| Options              | Format | Description                                                  |
+|----------------------|--------|--------------------------------------------------------------|
+| `--clean`  | bool  | If passed, all existing beta EmailData records will be deleted before running the sync. |
