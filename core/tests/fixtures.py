@@ -35,3 +35,13 @@ def mock_get_file_data(monkeypatch):
         monkeypatch.setattr("core.boostrenderer.get_file_data", get_file_data)
 
     return _mock_get_file_data
+
+
+@pytest.fixture
+def mock_get_leaf_data():
+    return open("core/tests/content/leaf.html", "rb").read()
+
+
+@pytest.fixture
+def mock_get_accumulators_data():
+    return open("core/tests/content/accumulators.html", "rb").read()

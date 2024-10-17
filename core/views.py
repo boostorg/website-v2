@@ -16,6 +16,7 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.views import View
 from django.views.generic import TemplateView
+from requests.compat import chardet
 
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from versions.models import Version
@@ -214,13 +215,8 @@ class BaseStaticContentTemplateView(TemplateView):
         if "accounts/github/login/callback" in content_path:
             return redirect(content_path)
 
-        # here we handle the translation from "release/..." to /$version_x_y_z/...
-        if content_path.startswith(f"{LATEST_RELEASE_URL_PATH_STR}/"):
-            version = Version.objects.most_recent()
-            content_path = content_path.replace(
-                f"{LATEST_RELEASE_URL_PATH_STR}/", f"{version.stripped_boost_url_slug}/"
-            )
         try:
+            content_path = self.get_library_content_path(content_path)
             self.content_dict = self.get_content(content_path)
             # If the content is an HTML file with a meta redirect, redirect the user.
             if self.content_dict.get("redirect"):
@@ -234,6 +230,15 @@ class BaseStaticContentTemplateView(TemplateView):
             )
             raise Http404("Content not found")
         return super().get(request, *args, **kwargs)
+
+    def get_library_content_path(self, content_path):
+        # here we handle the translation from "release/..." to /$version_x_y_z/...
+        if content_path.startswith(f"{LATEST_RELEASE_URL_PATH_STR}/"):
+            version = Version.objects.most_recent()
+            content_path = content_path.replace(
+                f"{LATEST_RELEASE_URL_PATH_STR}/", f"{version.stripped_boost_url_slug}/"
+            )
+        return content_path
 
     def cache_result(self, static_content_cache, cache_key, result):
         static_content_cache.set(cache_key, result)
@@ -308,14 +313,24 @@ class BaseStaticContentTemplateView(TemplateView):
         if result and result.get("content"):
             content = result.get("content")
             content_type = result.get("content_type")
+            result["source_content_type"] = None
 
             # Check if the content is an asciidoc file. If so, convert it to HTML.
+            # todo: confirm necessary: not clear where this is still needed, as the
+            #  content type for library docs is set to text/html, maybe descriptions and
+            #  release notes
             if content_type == "text/asciidoc":
                 result["content"] = self.convert_adoc_to_html(content)
 
             # Check if the content is an HTML file. If so, check for a meta redirect.
             if content_type.startswith("text/html"):
                 result["redirect"] = get_meta_redirect_from_html(content)
+            if content_type == "text/html" and not result.get("redirect"):
+                # yes, this is a little gross, but it's the best we could think of
+                if "spirit-nav".encode() not in content:
+                    # this is not strictly accurate, this is essentially everything
+                    #  that's not an antoradoc. Perfect is the enemy of good enough.
+                    result["source_content_type"] = SourceDocType.ASCIIDOC
 
             return result
 
@@ -404,7 +419,7 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
     def process_content(self, content):
         """Replace page header with the local one."""
         content_type = self.content_dict.get("content_type")
-        original_docs_type = SourceDocType.ASCIIDOC
+        source_content_type = self.content_dict.get("source_content_type")
         # Is the request coming from an iframe? If so, let's disable the modernization.
         sec_fetch_destination = self.request.headers.get("Sec-Fetch-Dest", "")
         is_iframe_destination = sec_fetch_destination in ["iframe", "frame"]
@@ -421,22 +436,27 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
             return content
 
         context = {"disable_theme_switcher": False}
-        base_html = render_to_string(
-            "docs_libs_placeholder.html", context, request=self.request
-        )
         insert_body = modernize == "max"
         head_selector = (
             "head"
             if modernize in ("max", "med")
             else {"data-modernizer": "boost-legacy-docs-extra-head"}
         )
+        # asciidocs are viewed in an iframe
+        if source_content_type == SourceDocType.ASCIIDOC:
+            context["content"] = content.decode(chardet.detect(content)["encoding"])
+            return render_to_string("docsiframe.html", context, request=self.request)
+
         # potentially pass version if needed for HTML modification
+        base_html = render_to_string(
+            "docs_libs_placeholder.html", context, request=self.request
+        )
         return modernize_legacy_page(
             content,
             base_html,
             insert_body=insert_body,
             head_selector=head_selector,
-            original_docs_type=original_docs_type,
+            original_docs_type=SourceDocType.ANTORA,
         )
 
 
