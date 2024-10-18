@@ -214,14 +214,25 @@ def test_docs_libs_gateway_200_non_html(tp, mock_get_file_data):
     assert response.content == s3_content
 
 
-def test_docs_libs_gateway_200_lib_number(tp, mock_get_file_data):
-    s3_content = b"Content does not matter"
-    mock_get_file_data(s3_content, "boost_1_50_0/algorithm")
-
+def test_docs_libs_gateway_200_lib_number_iframe(
+    tp, mock_get_file_data, mock_get_leaf_data
+):
+    mock_get_file_data(mock_get_leaf_data, "boost_1_50_0/algorithm")
     response = tp.get("docs-libs-page", content_path="1_50_0/algorithm")
-
     tp.response_200(response)
-    assert response.content == s3_content
+    # check that the response contains the expected iframe
+    assert b"docsiframe" in response.content
+    assert b"spirit-nav" not in response.content
+
+
+def test_docs_libs_gateway_200_lib_number_no_iframe(
+    tp, mock_get_file_data, mock_get_accumulators_data
+):
+    mock_get_file_data(mock_get_accumulators_data, "boost_1_86_0/algorithm")
+    response = tp.get("docs-libs-page", content_path="1_86_0/algorithm")
+    tp.response_200(response)
+    assert b"docsiframe" not in response.content
+    assert b"spirit-nav" in response.content
 
 
 @pytest.mark.skip(reason="Redirects broke these tests.")

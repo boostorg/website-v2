@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <iframe
+        href="{{ content_url }}" srcdoc="{{ content }}"
+        onload="iframeCustomizations(this)"
+        id="docsiframe"
+    ></iframe>
+    <script>
+      function iframeCustomizations(iframe) {
+        let iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        resizeIframe(iframe);
+        addClickInterception(iframeDoc);
+        addBase(iframeDoc);
+      }
+
+      function resizeIframe(obj) {
+        obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+      }
+
+      function addClickInterception(iframeDoc) {
+        let anchorLinks = iframeDoc.querySelectorAll('a[href^="#"]');
+
+        anchorLinks.forEach(function (anchor) {
+          anchor.addEventListener('click', function (event) {
+            event.preventDefault();
+            let targetId = this.getAttribute('href').substring(1);
+            let targetElement = iframeDoc.getElementById(targetId);
+            if (targetElement) {
+              targetElement.scrollIntoView({behavior: 'smooth'});
+            }
+          });
+        });
+      }
+
+      function addBase(iframeDoc) {
+        let base = iframeDoc.createElement('base');
+        base.setAttribute('target', "_parent"); // Set to an appropriate base URL
+        let head = iframeDoc.getElementsByTagName('head')[0];
+        if (head) {
+          head.insertBefore(base, head.firstChild);
+        } else {
+          head = iframeDoc.createElement('head');
+          iframeDoc.documentElement.insertBefore(head, iframeDoc.body);
+          head.appendChild(base);
+        }
+      }
+    </script>
+{% endblock %}
