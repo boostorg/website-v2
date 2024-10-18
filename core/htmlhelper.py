@@ -45,6 +45,7 @@ REMOVE_TAGS = [
     # very prominent header
     # /docs/libs/1_82_0/libs/locale/doc/html/index.html
     ("div", {"id": "top"}),
+    ("div", {"id": "footer"}),
     # almost every other page has this as a header
     ("table", {"cellpadding": "2", "width": "100%"}),
 ]

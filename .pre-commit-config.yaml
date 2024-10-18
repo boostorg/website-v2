@@ -11,7 +11,9 @@ repos:
       - id: check-merge-conflict
       - id: check-yaml
       - id: end-of-file-fixer
+        exclude: ^core/tests/content/boost_release[a-zA-Z_]+.html
       - id: trailing-whitespace
+        exclude: ^core/tests/content/boost_release[a-zA-Z_]+.html
   - repo: https://github.com/ambv/black
     rev: 23.3.0
     hooks:
