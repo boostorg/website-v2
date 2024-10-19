@@ -325,7 +325,7 @@ class BaseStaticContentTemplateView(TemplateView):
             # Check if the content is an HTML file. If so, check for a meta redirect.
             if content_type.startswith("text/html"):
                 result["redirect"] = get_meta_redirect_from_html(content)
-            if content_type == "text/html" and not result.get("redirect"):
+            if content_type.startswith("text/html") and not result.get("redirect"):
                 # yes, this is a little gross, but it's the best we could think of
                 if "spirit-nav".encode() not in content:
                     # this is not strictly accurate, this is essentially everything
