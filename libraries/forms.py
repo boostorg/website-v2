@@ -1,8 +1,9 @@
-from django.db.models import F, Q, Count, OuterRef
+from django.db.models import F, Q, Count, OuterRef, Sum
 from django.forms import Form, ModelChoiceField, ModelForm
 
 from versions.models import Version
 from .models import Commit, CommitAuthor, Library, LibraryVersion
+from mailing_list.models import EmailData
 
 
 class LibraryForm(ModelForm):
@@ -123,6 +124,18 @@ class CreateReportFullForm(Form):
             )
         return top_contributors_library
 
+    def _get_top_emaildata_overall(self):
+        return (
+            EmailData.objects.annotate(
+                name=F("author__name"),
+                avatar_url=F("author__avatar_url"),
+                github_profile_url=F("author__avatar_url"),
+            )
+            .values("name", "avatar_url", "github_profile_url")
+            .annotate(total_count=Sum("count"))
+            .order_by("-total_count")
+        )
+
     def get_stats(self):
         commit_count = Commit.objects.count()
 
@@ -142,7 +155,14 @@ class CreateReportFullForm(Form):
             )
         ]
         top_contributors = self._get_top_contributors_overall()
+        mailinglist_total = EmailData.objects.all().aggregate(total=Sum("count"))[
+            "total"
+        ]
+        first_version = Version.objects.order_by("release_date").first()
         return {
+            "mailinglist_counts": self._get_top_emaildata_overall()[:10],
+            "mailinglist_total": mailinglist_total,
+            "first_version": first_version,
             "commit_count": commit_count,
             "top_contributors": top_contributors,
             "library_data": library_data,
@@ -261,6 +281,9 @@ class CreateReportForm(CreateReportFullForm):
             )
         return top_contributors_release
 
+    def _get_top_emaildata_release(self, version):
+        return self._get_top_emaildata_overall().filter(version=version)
+
     def get_stats(self):
         version = self.cleaned_data["version"]
 
@@ -291,8 +314,14 @@ class CreateReportForm(CreateReportFullForm):
             )
         ]
         top_contributors = self._get_top_contributors_for_version()
+        # total messages sent during this release (version)
+        total_mailinglist_count = EmailData.objects.filter(version=version).aggregate(
+            total=Sum("count")
+        )["total"]
         return {
             "version": version,
+            "mailinglist_counts": self._get_top_emaildata_release(version)[:10],
+            "mailinglist_total": total_mailinglist_count,
             "commit_count": commit_count,
             "version_commit_count": version_commit_count,
             "top_contributors_release_overall": top_contributors,
