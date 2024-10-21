@@ -25,7 +25,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@ryangjchandler/alpine-clipboard@2.x.x/dist/alpine-clipboard.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js" defer></script>
     <script src="//unpkg.com/alpinejs" defer></script>
-    <script src="https://unpkg.com/htmx.org@1.8.5" integrity="sha384-7aHh9lqPYGYZ7sTHvzP1t3BAfLhYSTy9ArHdP3Xsr9/3TlGurYgcPBoFmXX2TX/w" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
     <!-- TODO bring this local if we like it -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <!-- detect dark or light mode -->
@@ -118,6 +118,9 @@
 
       const trackLoginUpdateCheck = async () => {
         const footer = document.querySelector('footer');
+        if (!footer) {
+          return;
+        }
         const indicator = footer.dataset.trackLoginMethod; // intentionally not cast to boolean
         const loginMethod = footer.dataset.loginMethod;
         if (indicator) {

@@ -419,7 +419,7 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
     def process_content(self, content):
         """Replace page header with the local one."""
         content_type = self.content_dict.get("content_type")
-        # source_content_type = self.content_dict.get("source_content_type")
+        source_content_type = self.content_dict.get("source_content_type")
         # Is the request coming from an iframe? If so, let's disable the modernization.
         sec_fetch_destination = self.request.headers.get("Sec-Fetch-Dest", "")
         is_iframe_destination = sec_fetch_destination in ["iframe", "frame"]
@@ -442,23 +442,24 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
             if modernize in ("max", "med")
             else {"data-modernizer": "boost-legacy-docs-extra-head"}
         )
-        # asciidocs are viewed in an iframe
-        # if source_content_type == SourceDocType.ASCIIDOC:
-        if True:  # todo: remove this and the subsequent code if we stick with this
-            context["content"] = content.decode(chardet.detect(content)["encoding"])
-            return render_to_string("docsiframe.html", context, request=self.request)
 
-        # potentially pass version if needed for HTML modification
-        base_html = render_to_string(
-            "docs_libs_placeholder.html", context, request=self.request
-        )
-        return modernize_legacy_page(
-            content,
-            base_html,
-            insert_body=insert_body,
-            head_selector=head_selector,
-            original_docs_type=SourceDocType.ANTORA,
-        )
+        if source_content_type == SourceDocType.ASCIIDOC:
+            context["content"] = content.decode(chardet.detect(content)["encoding"])
+        else:
+            # potentially pass version if needed for HTML modification
+            base_html = render_to_string(
+                "docs_libs_placeholder.html", context, request=self.request
+            )
+            context["content"] = modernize_legacy_page(
+                content,
+                base_html,
+                insert_body=insert_body,
+                head_selector=head_selector,
+                original_docs_type=SourceDocType.ANTORA,
+                show_footer=False,
+                show_navbar=False,
+            )
+        return render_to_string("docsiframe.html", context, request=self.request)
 
 
 class UserGuideTemplateView(BaseStaticContentTemplateView):
