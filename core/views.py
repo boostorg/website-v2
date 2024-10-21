@@ -419,7 +419,7 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
     def process_content(self, content):
         """Replace page header with the local one."""
         content_type = self.content_dict.get("content_type")
-        source_content_type = self.content_dict.get("source_content_type")
+        # source_content_type = self.content_dict.get("source_content_type")
         # Is the request coming from an iframe? If so, let's disable the modernization.
         sec_fetch_destination = self.request.headers.get("Sec-Fetch-Dest", "")
         is_iframe_destination = sec_fetch_destination in ["iframe", "frame"]
@@ -443,7 +443,8 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
             else {"data-modernizer": "boost-legacy-docs-extra-head"}
         )
         # asciidocs are viewed in an iframe
-        if source_content_type == SourceDocType.ASCIIDOC:
+        # if source_content_type == SourceDocType.ASCIIDOC:
+        if True:  # todo: remove this and the subsequent code if we stick with this
             context["content"] = content.decode(chardet.detect(content)["encoding"])
             return render_to_string("docsiframe.html", context, request=self.request)
 

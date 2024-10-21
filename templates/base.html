@@ -66,7 +66,9 @@
       {% endblock %}
       </div>
 
-      {% include "includes/_footer.html" %}
+      {% if request.resolver_match.url_name != "docs-libs-page" %}
+        {% include "includes/_footer.html" %}
+      {% endif %}
     </div>
 
 
