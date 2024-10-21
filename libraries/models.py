@@ -4,12 +4,14 @@ from urllib.parse import urlparse
 
 from django.core.cache import caches
 from django.db import models, transaction
+from django.db.models import Sum
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 from core.markdown import process_md
 from core.models import RenderedContent
 from core.asciidoc import convert_adoc_to_html
+from mailing_list.models import EmailData
 
 from .utils import generate_random_string, write_content_to_tempfile
 
@@ -53,14 +55,38 @@ class CommitAuthor(models.Model):
         """
         if self.pk == other.pk:
             return
-        Commit.objects.filter(author=other).update(author=self)
         other.commitauthoremail_set.update(author=self)
+        other.commit_set.update(author=self)
+        self.merge_author_email_data(other)
         if not self.avatar_url:
             self.avatar_url = other.avatar_url
         if not self.github_profile_url:
             self.github_profile_url = other.github_profile_url
         self.save(update_fields=["avatar_url", "github_profile_url"])
         other.delete()
+
+    @transaction.atomic
+    def merge_author_email_data(self, other: Self):
+        """Merge EmailData for the 2 authors.
+
+        - Update or create EmailData with author=self with the total counts for
+        both `self` and `other` authors for each version.
+        - Delete all EmailData objects for the `other` author.
+
+        """
+        count_totals = (
+            EmailData.objects.filter(author__in=[self, other])
+            .values("version_id")
+            .annotate(total_count=Sum("count"))
+        )
+
+        for item in count_totals:
+            EmailData.objects.update_or_create(
+                author=self,
+                version_id=item["version_id"],
+                defaults={"count": item["total_count"]},
+            )
+        EmailData.objects.filter(author=other).delete()
 
 
 class CommitAuthorEmail(models.Model):

@@ -277,6 +277,9 @@ CACHES = {
 # Default interval by which to clear the static content cache
 CLEAR_STATIC_CONTENT_CACHE_DAYS = 7
 
+# Hyperkitty
+HYPERKITTY_DATABASE_URL = env("HYPERKITTY_DATABASE_URL", default="")
+
 # Mailman API credentials
 MAILMAN_REST_API_URL = env("MAILMAN_REST_API_URL", default="http://localhost:8001")
 MAILMAN_REST_API_USER = env("MAILMAN_REST_API_USER", default="restadmin")
