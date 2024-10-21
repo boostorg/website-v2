@@ -141,6 +141,12 @@ Then as a superuser log into the admin interface, go to "Versions" and click on 
 
 ---
 
+## Syncing EmailData Locally
+
+To work with mailinglist data locally, the django application expects to be
+able to query a copy of the hyperkitty database at HYPERKITTY_DATABASE_URL.
+Then, the `sync_mailinglist_stats` management command can be run.
+
 ## Deploying
 
 TDB
