@@ -67,7 +67,7 @@ class CommitAuthorEmailInline(admin.TabularInline):
 
 @admin.register(CommitAuthor)
 class CommitAuthorAdmin(admin.ModelAdmin):
-    search_fields = ["name"]
+    search_fields = ["name", "commitauthoremail__email"]
     actions = ["merge_authors"]
     inlines = [CommitAuthorEmailInline]
     change_list_template = "admin/commit_author_change_list.html"
