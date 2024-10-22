@@ -448,43 +448,45 @@ html.dark {
         }
       });
       var url = window.location.pathname;
-      var words = url.split("\/");
-      words[1] = words[1].replaceAll("\/", "");
-      var tabname = "Home"
-      var pagename = document.getElementById("pageName")
-      if (words[1].length != '') {
-        switch (words[1]) {
-          case 'doc':
-            if (words[2] == 'libs') {
-              tabname = "libraries"
-            } else {
+      if (url != "srcdoc") {
+        var words = url.split("\/");
+        words[1] = words[1].replaceAll("\/", "");
+        var tabname = "Home"
+        var pagename = document.getElementById("pageName")
+        if (words[1].length != '') {
+          switch (words[1]) {
+            case 'doc':
+              if (words[2] == 'libs') {
+                tabname = "libraries"
+              } else {
+                tabname = "learn"
+              }
+              break;
+            case 'docs':
               tabname = "learn"
-            }
-          break;
-          case 'docs':
-          tabname = "learn"
-          break;
-          case 'community':
-          tabname = "community"
-          break;
-          case 'news':
-          tabname = "news"
-          break;
-          case 'libraries':
-          tabname = "libraries"
-          break;
-          case 'releases':
-          tabname = "releases"
-          break;
-          case 'accounts':
-          tabname= 'account'
-          break;
+              break;
+            case 'community':
+              tabname = "community"
+              break;
+            case 'news':
+              tabname = "news"
+              break;
+            case 'libraries':
+              tabname = "libraries"
+              break;
+            case 'releases':
+              tabname = "releases"
+              break;
+            case 'accounts':
+              tabname= 'account'
+              break;
+          }
+          var activename = document.getElementById(tabname);
+          activename.classList.add('active-link');
         }
-        var activename = document.getElementById(tabname);
-        activename.classList.add('active-link');
+        pagename.innerText='';
+        pagename.appendChild(document.createTextNode(tabname));
       }
-      pagename.innerText='';
-      pagename.appendChild(document.createTextNode(tabname));
       function openNav() {
         ps = document.getElementById("pageselector");
         ps.classList.remove('hide');
@@ -499,28 +501,35 @@ html.dark {
       }
       // *********** manage theming *************
         function makeDark() {
-            document.documentElement.classList.add('dark');
-            var iconchange = document.getElementById("light-dark")
             localStorage.setItem("colorMode", "dark");
-            iconchange.classList.remove('fa-moon');
-            iconchange.classList.add('fa-sun');
+            // interval is used here to cause a tiny delay to allow iframe dark mode to
+            //  be set closer to when the parent dark mode is set
+            setTimeout(() => {
+                document.documentElement.classList.add('dark');
+                var iconchange = document.getElementById("light-dark")
+                iconchange.classList.remove('fa-moon');
+                iconchange.classList.add('fa-sun');
+            }, 0)
         }
         function makeLight() {
-            document.documentElement.classList.remove('dark');
-            var iconchange = document.getElementById("light-dark")
             localStorage.setItem("colorMode", "light");
-            iconchange.classList.remove('fa-sun');
-            iconchange.classList.add('fa-moon');
+            // timeout is used here to cause a tiny delay to allow iframe dark mode to
+            //  be set closer to when the parent dark mode is set
+            setTimeout(() => {
+                document.documentElement.classList.remove('dark');
+                var iconchange = document.getElementById("light-dark")
+                iconchange.classList.remove('fa-sun');
+                iconchange.classList.add('fa-moon');
+            }, 0);
         }
         function changeTheme() {
             if (document.documentElement.classList.contains("dark")) {
                 makeLight();
                 return;
             }
-                makeDark();
+            makeDark();
         }
         function setTheme(theme) {
-            console.log(theme);
             if (theme == "dark") {
                 makeDark();
                 return;
@@ -532,16 +541,17 @@ html.dark {
             }
         }
         function checkmedia() {
-        if (window.matchMedia) {
-          // Check if the dark-mode Media-Query matches
-            if(window.matchMedia('(prefers-color-scheme: dark)').matches){
+        const relevantWindow = window.parent || window;
+        if (relevantWindow.matchMedia) {
+            // Check if the dark-mode Media-Query matches
+            if(relevantWindow.matchMedia('(prefers-color-scheme: dark)').matches){
                 if(localStorage.getItem("colorMode") === null || localStorage.getItem("colorMode") == "dark" ) {
                     makeDark();
                     localStorage.removeItem("colorMode")
                 } else {
                     makeLight();
                 };
-            } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+            } else if (relevantWindow.matchMedia('(prefers-color-scheme: light)').matches) {
                 if(localStorage.getItem("colorMode") === null || localStorage.getItem("colorMode") == "light" ) {
                     makeLight();
                     localStorage.removeItem("colorMode")
@@ -551,12 +561,21 @@ html.dark {
             } else {
                 setTheme(localStorage.getItem("colorMode"));
             }
-        } else {
-            setTheme(localStorage.getItem("colorMode"));
         }
       }
+      if (window.parent) {
+        window.addEventListener('storage', function(e) {
+          if (e.key === 'colorMode') {
+            if (localStorage.getItem("colorMode") === "light"){
+              document.documentElement.classList.remove('dark');
+            }
+            else {
+              document.documentElement.classList.add('dark');
+            }
+          }
+        });
+      }
       checkmedia();
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) { checkmedia();})
       function removejscssfile(filename, filetype){
         var targetelement=(filetype=="js")? "script" : (filetype=="css")? "link" : "none" //determine element type to create nodelist from
         var targetattr=(filetype=="js")? "src" : (filetype=="css")? "href" : "none" //determine corresponding attribute to test for

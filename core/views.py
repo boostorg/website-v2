@@ -325,7 +325,7 @@ class BaseStaticContentTemplateView(TemplateView):
             # Check if the content is an HTML file. If so, check for a meta redirect.
             if content_type.startswith("text/html"):
                 result["redirect"] = get_meta_redirect_from_html(content)
-            if content_type == "text/html" and not result.get("redirect"):
+            if content_type.startswith("text/html") and not result.get("redirect"):
                 # yes, this is a little gross, but it's the best we could think of
                 if "spirit-nav".encode() not in content:
                     # this is not strictly accurate, this is essentially everything
@@ -442,22 +442,24 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
             if modernize in ("max", "med")
             else {"data-modernizer": "boost-legacy-docs-extra-head"}
         )
-        # asciidocs are viewed in an iframe
+
         if source_content_type == SourceDocType.ASCIIDOC:
             context["content"] = content.decode(chardet.detect(content)["encoding"])
-            return render_to_string("docsiframe.html", context, request=self.request)
-
-        # potentially pass version if needed for HTML modification
-        base_html = render_to_string(
-            "docs_libs_placeholder.html", context, request=self.request
-        )
-        return modernize_legacy_page(
-            content,
-            base_html,
-            insert_body=insert_body,
-            head_selector=head_selector,
-            original_docs_type=SourceDocType.ANTORA,
-        )
+        else:
+            # potentially pass version if needed for HTML modification
+            base_html = render_to_string(
+                "docs_libs_placeholder.html", context, request=self.request
+            )
+            context["content"] = modernize_legacy_page(
+                content,
+                base_html,
+                insert_body=insert_body,
+                head_selector=head_selector,
+                original_docs_type=SourceDocType.ANTORA,
+                show_footer=False,
+                show_navbar=False,
+            )
+        return render_to_string("docsiframe.html", context, request=self.request)
 
 
 class UserGuideTemplateView(BaseStaticContentTemplateView):
