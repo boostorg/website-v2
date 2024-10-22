@@ -15,7 +15,7 @@ def convert_adoc_to_html(input):
     :param input: The contents of the AsciiDoc file
     """
     result = subprocess.run(
-        ["asciidoctor", "-e", "-o", "-", "-"],
+        ["asciidoctor", "-r", "asciidoctor_boost", "-e", "-o", "-", "-"],
         check=True,
         capture_output=True,
         text=True,

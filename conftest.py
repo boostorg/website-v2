@@ -25,3 +25,19 @@ def temp_image_file():
     tmp_file.seek(0)
     file_obj = DjangoFile(open(tmp_file.name, mode="rb"), name="tmp_file")
     yield file_obj.seek(0)
+
+
+def pytest_collection_modifyitems(config, items):
+    """
+    Adds support for skipping tests based on the presence of markers:
+     - asciidoctor
+    """
+    keywordexpr = config.option.keyword
+    markexpr = config.option.markexpr
+    if keywordexpr or markexpr:
+        return  # let pytest handle this
+
+    skip_asciidoctor = pytest.mark.skip(reason="asciidoctor not selected")
+    for item in items:
+        if "asciidoctor" in item.keywords:
+            item.add_marker(skip_asciidoctor)

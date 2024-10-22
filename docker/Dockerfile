@@ -38,7 +38,7 @@ FROM python:3.11-slim AS release
 RUN apt update && apt install -y git libpq-dev ruby ruby-dev && rm -rf /var/lib/apt/lists/*
 
 # Install Asciidoctor
-RUN gem install asciidoctor
+RUN gem install asciidoctor asciidoctor-boost
 
 # Boostrap uv.
 RUN pip install 'uv>=0.2.27,<0.3'
