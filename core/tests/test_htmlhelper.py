@@ -17,8 +17,8 @@ from core.htmlhelper import (
     remove_tables,
     remove_tags,
     style_links,
+    modernize_release_notes,
 )
-
 
 BASE_HEAD = """
     <link rel="stylesheet" href="mystyle.css" />
@@ -764,3 +764,14 @@ def test_style_links_no_links():
     # Assertions
     for a_tag in soup.find_all("a"):
         assert new_class_name in a_tag.get("class", []), "Class not added to link"
+
+
+def test_modernize_release_notes():
+    content = open("core/tests/content/boost_release_notes_sample.html", "rb").read()
+    output = modernize_release_notes(content)
+    expected_output = (
+        open("core/tests/content/boost_release_notes_filtered_output.html")
+        .read()
+        .strip()
+    )
+    assert output == expected_output
