@@ -1,5 +1,12 @@
 import subprocess
 
+from .asciidoc_translators import (
+    AtLinkTranslator,
+    GithubIssueTranslator,
+    GithubPRTranslator,
+    PhraseTranslator,
+)
+
 
 def convert_adoc_to_html(input):
     """
@@ -19,8 +26,29 @@ def convert_adoc_to_html(input):
         check=True,
         capture_output=True,
         text=True,
-        input=input,
+        input=boost_macro_translator(input),
     )
 
     # Get the output from the command
     return result.stdout
+
+
+def boost_macro_translator(content: str) -> str:
+    parsers = [
+        AtLinkTranslator(),
+        GithubIssueTranslator(),
+        GithubPRTranslator(),
+        PhraseTranslator(),
+    ]
+
+    def process_lines(lines):
+        for line in lines:
+            for fn in parsers:
+                line = fn(line)
+            yield line
+
+    translated_input = []
+    for line in process_lines(content.splitlines()):
+        translated_input.append(line)
+
+    return "\n".join(translated_input)
