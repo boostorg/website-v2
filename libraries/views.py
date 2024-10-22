@@ -11,6 +11,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
+from django import urls
+from django.http import HttpResponseRedirect
 
 from core.githubhelper import GithubAPIClient
 from versions.models import Version
@@ -309,12 +311,12 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
         version = self.get_version()
 
         if not LibraryVersion.objects.filter(
-            version=version, library__slug=slug
+            version=version, library__slug__iexact=slug
         ).exists():
             raise Http404("No library found matching the query")
 
         try:
-            obj = self.get_queryset().get(slug=slug)
+            obj = self.get_queryset().get(slug__iexact=slug)
         except self.model.DoesNotExist:
             raise Http404("No library found matching the query")
         return obj
@@ -480,3 +482,25 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
             logger.info("library_list_invalid_version")
             return redirect(request.get_full_path())
         return super().get(request)
+
+    def render_to_response(self, context):
+        if self.object.slug != self.kwargs["slug"]:
+            # redirect to canonical case
+            try:
+                url = urls.reverse(
+                    "library-detail-by-version",
+                    kwargs={
+                        "slug": self.object.slug,
+                        "version_slug": self.kwargs["version_slug"],
+                    },
+                )
+            except KeyError:
+                url = urls.reverse(
+                    "library-detail",
+                    kwargs={
+                        "slug": self.object.slug,
+                    },
+                )
+            return HttpResponseRedirect(url)
+        else:
+            return super().render_to_response(context)
