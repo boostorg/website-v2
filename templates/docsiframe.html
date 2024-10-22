@@ -9,7 +9,7 @@
     <script>
       function iframeCustomizations(iframe) {
         let iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-        resizeIframe(iframe);
+        {#resizeIframe(iframe);#}
         addClickInterception(iframeDoc);
         addBase(iframeDoc);
       }

@@ -138,9 +138,18 @@ def wrap_main_body_elements(result, original_docs_type=None):
 
 
 def modernize_legacy_page(
-    content, base_html, head_selector="head", insert_body=True, original_docs_type=None
+    content,
+    base_html,
+    head_selector="head",
+    insert_body=True,
+    original_docs_type=None,
+    show_footer=True,
+    show_navbar=True,
 ):
     """Modernize a legacy Boost documentation page."""
+    HIDE_TAGS_BASE = []
+    if not show_navbar:
+        HIDE_TAGS_BASE.append(("div", {"class": "header-menu-bar topnavbar"})),
 
     result = BeautifulSoup(content, "html.parser")
     if result.html is None:
@@ -191,9 +200,18 @@ def modernize_legacy_page(
                 append=False,
             )
             wrap_main_body_elements(result, original_docs_type)
-            rendered_template = render_to_string("includes/_footer.html", {})
-            rendered_template_as_dom = BeautifulSoup(rendered_template, "html.parser")
-            result.append(rendered_template_as_dom)
+            if show_footer:
+                rendered_template = render_to_string("includes/_footer.html", {})
+                rendered_template_as_dom = BeautifulSoup(
+                    rendered_template, "html.parser"
+                )
+                result.append(rendered_template_as_dom)
+
+    # Remove tags from the base template
+    for tag_name, tag_attrs in HIDE_TAGS_BASE:
+        tag = result.find(tag_name, tag_attrs)
+        if tag:
+            tag["style"] = "display: none;"
 
     content = str(result)
 

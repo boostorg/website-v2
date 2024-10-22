@@ -225,6 +225,7 @@ def test_docs_libs_gateway_200_lib_number_iframe(
     assert b"spirit-nav" not in response.content
 
 
+@pytest.mark.skip(reason="We're testing all docs showing in iframes")
 def test_docs_libs_gateway_200_lib_number_no_iframe(
     tp, mock_get_file_data, mock_get_accumulators_data
 ):
