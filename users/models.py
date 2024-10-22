@@ -1,3 +1,4 @@
+import uuid
 import logging
 import os
 
@@ -10,7 +11,7 @@ from django.contrib.auth.models import (
 )
 from django.core.files import File
 from django.core.mail import send_mail
-from django.db import models
+from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -291,6 +292,22 @@ class User(BaseUser):
         if not self.github_username:
             return None
         return f"https://github.com/{self.github_username}"
+
+    @transaction.atomic
+    def delete_account(self):
+        self.socialaccount_set.all().delete()
+        self.preferences.delete()
+        self.is_active = False
+        self.set_unusable_password()
+        self.display_name = "John Doe"
+        self.first_name = "John"
+        self.last_name = "Doe"
+        self.email = "deleted-{}@example.com".format(uuid.uuid4())
+        image = self.image
+        transaction.on_commit(lambda: image.delete())
+        self.image = None
+        self.image_thumbnail = None
+        self.save()
 
 
 class LastSeen(models.Model):

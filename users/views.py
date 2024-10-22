@@ -1,10 +1,11 @@
 from allauth.account import app_settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import auth
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.views.generic import DetailView
+from django.views.generic import DetailView, DeleteView
 from django.views.generic.base import TemplateView
 
 from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
@@ -16,7 +17,12 @@ from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
-from .forms import PreferencesForm, UserProfileForm, UserProfilePhotoForm
+from .forms import (
+    PreferencesForm,
+    UserProfileForm,
+    UserProfilePhotoForm,
+    DeleteAccountForm,
+)
 from .models import User
 from .permissions import CustomUserPermissions
 from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
@@ -294,3 +300,22 @@ class UserAvatar(TemplateView):
         context["user"] = self.request.user
         context["mobile"] = self.request.GET.get("ui")
         return context
+
+
+class DeleteUserView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    template_name = "users/delete.html"
+    success_url = "/"
+    success_message = "Your profile was successfully deleted."
+    form_class = DeleteAccountForm
+
+    def get_object(self):
+        return self.request.user
+
+    def form_valid(self, form):
+        success_url = self.get_success_url()
+        auth.logout(self.request)
+        self.object.delete_account()
+        success_message = self.get_success_message(form.cleaned_data)
+        if success_message:
+            messages.success(self.request, success_message)
+        return HttpResponseRedirect(success_url)
