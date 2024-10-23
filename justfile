@@ -49,6 +49,9 @@ alias shell := console
 @test_pytest:
     -docker compose run --rm web pytest -s
 
+@test_pytest_asciidoctor:
+    -docker compose run --rm web pytest -m asciidoctor -s
+
 @test:
     just test_pytest
     docker compose down
