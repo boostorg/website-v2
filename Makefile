@@ -98,3 +98,35 @@ shell:
 .PHONY: up
 up:
 	docker compose up -d
+
+# todo: update make setup to use development-tofu-init
+.PHONY: development-tofu-init
+development-tofu-init:
+#	@command -v gh >/dev/null 2>&1 || { echo >&2 "gh is required but not installed. see: https://cli.github.com/ Aborting."; exit 1; }
+	@command -v gcloud >/dev/null 2>&1 || { echo >&2 "gcloud is required but not installed. see: https://cloud.google.com/sdk/docs/install Aborting."; exit 1; }
+	@command -v tofu >/dev/null 2>&1 || { echo >&2 "opentofu is required but not installed. see: https://opentofu.org/docs/intro/install/ Aborting."; exit 1; }
+	@if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" | grep -q '.'; then \
+		gcloud auth application-default login; \
+	fi
+	@cd development-tofu; tofu init
+
+.PHONY: development-tofu-plan
+development-tofu-plan:
+	@if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" | grep -q '.'; then \
+		gcloud auth application-default login; \
+	fi
+	@cd development-tofu; direnv allow && tofu plan
+
+.PHONY: development-tofu-apply
+development-tofu-apply:
+	@if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" | grep -q '.'; then \
+		gcloud auth application-default login; \
+	fi
+	@cd development-tofu; direnv allow && tofu apply
+
+.PHONY: development-tofu-destroy
+development-tofu-destroy:
+	@if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" | grep -q '.'; then \
+		gcloud auth application-default login; \
+	fi
+	@cd development-tofu; direnv allow && tofu destroy
