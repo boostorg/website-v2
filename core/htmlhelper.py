@@ -45,9 +45,13 @@ REMOVE_TAGS = [
     # very prominent header
     # /docs/libs/1_82_0/libs/locale/doc/html/index.html
     ("div", {"id": "top"}),
-    ("div", {"id": "footer"}),
     # almost every other page has this as a header
     ("table", {"cellpadding": "2", "width": "100%"}),
+]
+
+# these tags are only removed on the release page, update REMOVE_TAGS for all pages
+REMOVE_TAGS_RELEASE = [
+    ("div", {"id": "footer"}),
 ]
 
 # List HTML elements (with relevant attributes) to remove ALL occurrences
@@ -209,10 +213,7 @@ def modernize_legacy_page(
                 result.append(rendered_template_as_dom)
 
     # Remove tags from the base template
-    for tag_name, tag_attrs in HIDE_TAGS_BASE:
-        tag = result.find(tag_name, tag_attrs)
-        if tag:
-            tag["style"] = "display: none;"
+    result = hide_tags(result, HIDE_TAGS_BASE)
 
     content = str(result)
 
@@ -404,6 +405,14 @@ def remove_first_tag(soup, tags):
     return soup
 
 
+def hide_tags(soup, tags):
+    for tag_name, tag_attrs in tags:
+        tag = soup.find(tag_name, tag_attrs)
+        if tag:
+            tag["style"] = "display: none;"
+    return soup
+
+
 def remove_ids(soup, ids):
     """Remove all tags with the given id."""
     for id_value in ids:
@@ -549,6 +558,9 @@ def modernize_release_notes(html_content):
 
     # Remove the first occurrence of legacy header(s) and other stuff
     soup = remove_first_tag(soup, REMOVE_TAGS)
+
+    # Remove the first occurrence of legacy header(s) and other stuff
+    soup = remove_first_tag(soup, REMOVE_TAGS_RELEASE)
 
     # Remove all navbar-like divs, if any
     soup = remove_tags(soup, REMOVE_ALL)
