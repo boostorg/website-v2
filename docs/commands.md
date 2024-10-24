@@ -11,6 +11,7 @@
   - [`update_maintainers`](#update_maintainers)
   - [`update_authors`](#update_authors)
   - [`import_commits`](#import_commits)
+  - [`update_issues`](#update_issues)
   - [`import_beta_release`](#import_beta_release)
 
 ## `boost_setup`
@@ -225,6 +226,24 @@ If both the `--release` and the `--library-name` are passed, the command will lo
 |----------------------|--------|--------------------------------------------------------------|
 | `--key`  | string   | Key of the library. If passed, the command will import commits for only this library. |
 | `--clean`  | boolean   | If passed, will delete all existing commits before importing new ones. |
+
+
+## `update_issues`
+
+**Purpose**: Cycles through all libraries and imports github Issues for that Library
+
+**Example**
+
+```bash
+./manage.py update_issues
+```
+
+**Options**
+
+| Options              | Format | Description                                                  |
+|----------------------|--------|--------------------------------------------------------------|
+| `--key`  | string   | Key of the library. Only update_issues for one library. |
+| `--clean`  | boolean   | If passed, will delete the libraries' issues just before running the import. |
 
 
 ## `import_beta_release`

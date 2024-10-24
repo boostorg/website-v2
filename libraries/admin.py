@@ -25,6 +25,7 @@ from .tasks import (
     update_authors_and_maintainers,
     update_commit_author_github_data,
     update_commits,
+    update_issues,
     update_libraries,
     update_library_version_documentation_urls_all_versions,
 )
@@ -353,6 +354,7 @@ class IssueAdmin(admin.ModelAdmin):
     list_display = ["title", "number", "is_open", "closed"]
     search_fields = ["title"]
     list_filter = ["is_open", "library"]
+    change_list_template = "admin/issue_change_list.html"
 
     readonly_fields = [
         "title",
@@ -362,6 +364,22 @@ class IssueAdmin(admin.ModelAdmin):
         "modified",
         "closed",
     ]
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path(
+                "update_issues/",
+                self.admin_site.admin_view(self.update_issues),
+                name="update_issues",
+            ),
+        ]
+        return my_urls + urls
+
+    def update_issues(self, request):
+        update_issues.delay(clean=True)
+        self.message_user(request, "Issues are being updated.")
+        return HttpResponseRedirect("../")
 
 
 @admin.register(PullRequest)
