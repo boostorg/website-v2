@@ -7,6 +7,7 @@ from django.db import models, transaction
 from django.db.models import Sum
 from django.utils.functional import cached_property
 from django.utils.text import slugify
+from django.db.models.functions import Upper
 
 from core.markdown import process_md
 from core.models import RenderedContent
@@ -173,6 +174,9 @@ class Library(models.Model):
 
     class Meta:
         verbose_name_plural = "Libraries"
+        constraints = [
+            models.UniqueConstraint(Upper("slug"), name="slug_unique_case_insensitive")
+        ]
 
     @cached_property
     def display_name(self):
