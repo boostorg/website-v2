@@ -64,21 +64,18 @@ class LibraryList(VersionAlertMixin, ListView):
         params = self.request.GET.copy()
 
         # If the user has selected a version, fetch it from the cookies.
-        selected_boost_version = determine_selected_boost_version(
-            self.request.GET.get("version"), self.request
+        selected_boost_version = (
+            determine_selected_boost_version(
+                self.request.GET.get("version"), self.request
+            )
+            or LATEST_RELEASE_URL_PATH_STR
         )
-        if selected_boost_version != params.get("version"):
-            params["version"] = selected_boost_version
-
         # default to the most recent version
-        if (
-            params.get("version", LATEST_RELEASE_URL_PATH_STR)
-            == LATEST_RELEASE_URL_PATH_STR
-        ):
+        if selected_boost_version == LATEST_RELEASE_URL_PATH_STR:
             # If no version is specified, show the most recent version.
             version = Version.objects.most_recent()
             if version:
-                params["version"] = version.slug
+                selected_boost_version = version.slug
             else:
                 # Add a message that no data has been imported
                 messages.add_message(
@@ -88,12 +85,13 @@ class LibraryList(VersionAlertMixin, ListView):
                 )
                 return Library.objects.none()
 
-        if params.get("version"):
-            queryset = queryset.filter(library_version__version__slug=params["version"])
+        queryset = queryset.filter(
+            library_version__version__slug=selected_boost_version
+        )
 
         # avoid attempting to look up libraries with blank categories
         if params.get("category"):
-            queryset = queryset.filter(categories__slug=params["category"])
+            queryset = queryset.filter(categories__slug=params.get("category"))
 
         return queryset
 
@@ -101,11 +99,15 @@ class LibraryList(VersionAlertMixin, ListView):
         context = super().get_context_data(**kwargs)
         # Handle the case where data hasn't been imported yet
         version = Version.objects.most_recent()
+        version_str = determine_selected_boost_version(
+            self.request.GET.get("version"), self.request
+        )
         if not version:
             context.update(
                 {
                     "category": None,
                     "version": None,
+                    "version_str": version_str,
                     "categories": Category.objects.none(),
                     "versions": Version.objects.none(),
                     "library_list": Library.objects.none(),
@@ -119,6 +121,7 @@ class LibraryList(VersionAlertMixin, ListView):
             )
         context["categories"] = self.get_categories(context["version"])
         context["versions"] = self.get_versions()
+        context["version_str"] = version_str
         context["library_list"] = self.get_queryset()
         context["url_params"] = build_view_query_params_from_request(self.request)
 
