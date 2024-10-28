@@ -4,6 +4,7 @@ import structlog
 from django.urls import reverse
 
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
+from libraries.utils import determine_selected_boost_version
 from versions.models import Version
 
 logger = structlog.get_logger()
@@ -23,12 +24,16 @@ class VersionAlertMixin:
         version_slug_name = url_names_version_slug_override.get(url_name, "slug")
         version_slug = self.kwargs.get(
             version_slug_name,
-            self.request.GET.get("version", LATEST_RELEASE_URL_PATH_STR),
+            self.request.GET.get("version"),
         )
-        req_version = version_slug or LATEST_RELEASE_URL_PATH_STR
-
+        selected_boost_version = determine_selected_boost_version(
+            version_slug, self.request
+        )
+        if not selected_boost_version:
+            selected_boost_version = LATEST_RELEASE_URL_PATH_STR
+            version_slug = LATEST_RELEASE_URL_PATH_STR
         try:
-            selected_version = Version.objects.get(slug=version_slug)
+            selected_version = Version.objects.get(slug=selected_boost_version)
         except Version.DoesNotExist:
             selected_version = current_release
 
@@ -54,7 +59,7 @@ class VersionAlertMixin:
         # value of LATEST_RELEASE_URL_PATH_STR as the default in order to normalize
         # behavior
         context["version"] = selected_version
-        context["version_str"] = req_version
+        context["version_str"] = version_slug
         context["LATEST_RELEASE_URL_PATH_STR"] = LATEST_RELEASE_URL_PATH_STR
         context["current_release"] = current_release
         context["version_alert"] = context["version_str"] != LATEST_RELEASE_URL_PATH_STR

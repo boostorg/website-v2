@@ -172,7 +172,7 @@ def determine_view_from_library_request(request):
 
 def determine_selected_boost_version(request_value, request):
     valid_versions = Version.objects.version_dropdown_strict()
-    version_slug = get_version_from_cookie(request) or request_value
+    version_slug = request_value or get_version_from_cookie(request)
     if version_slug in [v.slug for v in valid_versions]:
         return version_slug
     else:
