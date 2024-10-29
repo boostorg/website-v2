@@ -491,6 +491,7 @@ class UserGuideTemplateView(BaseStaticContentTemplateView):
             else {"data-modernizer": "boost-legacy-docs-extra-head"}
         )
         # potentially pass version if needed for HTML modification
+        context["skip_use_boostbook"] = True
         base_html = render_to_string(
             "docs_libs_placeholder.html", context, request=self.request
         )
