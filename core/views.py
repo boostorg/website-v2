@@ -450,6 +450,7 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
             base_html = render_to_string(
                 "docs_libs_placeholder.html", context, request=self.request
             )
+            context["hide_footer"] = True
             context["content"] = modernize_legacy_page(
                 content,
                 base_html,
@@ -470,9 +471,11 @@ class UserGuideTemplateView(BaseStaticContentTemplateView):
     def process_content(self, content):
         """Replace page header with the local one."""
         content_type = self.content_dict.get("content_type")
-        original_docs_type = SourceDocType.ANTORA
         modernize = self.request.GET.get("modernize", "med").lower()
-        if content_type != "text/html" or modernize not in ("max", "med", "min"):
+
+        if (
+            "text/html" or "text/html; charset=utf-8"
+        ) not in content_type or modernize not in ("max", "med", "min"):
             # eventually check for more things, for example ensure this HTML
             # was not generate from Antora builders.
             return content
@@ -488,13 +491,20 @@ class UserGuideTemplateView(BaseStaticContentTemplateView):
             else {"data-modernizer": "boost-legacy-docs-extra-head"}
         )
         # potentially pass version if needed for HTML modification
-        return modernize_legacy_page(
+        base_html = render_to_string(
+            "docs_libs_placeholder.html", context, request=self.request
+        )
+        context["hide_footer"] = True
+        context["content"] = modernize_legacy_page(
             content,
             base_html,
             insert_body=insert_body,
             head_selector=head_selector,
-            original_docs_type=original_docs_type,
+            original_docs_type=SourceDocType.ANTORA,
+            show_footer=False,
+            show_navbar=False,
         )
+        return render_to_string("docsiframe.html", context, request=self.request)
 
 
 class ImageView(View):

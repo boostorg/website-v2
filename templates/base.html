@@ -25,7 +25,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@ryangjchandler/alpine-clipboard@2.x.x/dist/alpine-clipboard.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js" defer></script>
     <script src="//unpkg.com/alpinejs" defer></script>
-    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
     <!-- TODO bring this local if we like it -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <!-- detect dark or light mode -->
@@ -66,7 +66,7 @@
       {% endblock %}
       </div>
 
-      {% if request.resolver_match.url_name != "docs-libs-page" %}
+      {% if not hide_footer %}
         {% include "includes/_footer.html" %}
       {% endif %}
     </div>
