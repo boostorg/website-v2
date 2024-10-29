@@ -29,7 +29,13 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        'sans': ['"Noto Sans"', 'sans-serif'],
+        'sans': [
+          '"Noto Sans"',
+          process.env.ENVIRONMENT_NAME == 'Development Environment' ?
+            'serif'
+          :
+            'sans-serif',
+        ]
       }
     }
   },
