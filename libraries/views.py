@@ -102,6 +102,8 @@ class LibraryList(VersionAlertMixin, ListView):
         version_str = determine_selected_boost_version(
             self.request.GET.get("version"), self.request
         )
+        if not version_str:
+            version_str = LATEST_RELEASE_URL_PATH_STR
         if not version:
             context.update(
                 {
