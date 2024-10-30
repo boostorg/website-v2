@@ -348,8 +348,37 @@ SOCIALACCOUNT_PROVIDERS = {
             "access_type": "online",
         },
         "OAUTH_PKCE_ENABLED": True,
-    }
+    },
+    "github": {},
 }
+if LOCAL_DEVELOPMENT:
+    github_oauth_client_id = env("GITHUB_OAUTH_CLIENT_ID", default=None)
+    github_oauth_secret = env("GITHUB_OAUTH_CLIENT_SECRET", default=None)
+    if not github_oauth_client_id or not github_oauth_secret:
+        logging.warning("Github OAuth credentials not set")
+    else:
+        SOCIALACCOUNT_PROVIDERS["github"] = {
+            "APPS": [
+                {
+                    "client_id": github_oauth_client_id,
+                    "secret": github_oauth_secret,
+                }
+            ]
+        }
+    google_oauth_client_id = env("GOOGLE_OAUTH_CLIENT_ID", default=None)
+    google_oauth_secret = env("GOOGLE_OAUTH_CLIENT_SECRET", default=None)
+    if not google_oauth_client_id or not google_oauth_secret:
+        logging.warning("Google OAuth credentials not set")
+    else:
+        SOCIALACCOUNT_PROVIDERS["google"] = {
+            "APPS": [
+                {
+                    "client_id": google_oauth_client_id,
+                    "secret": google_oauth_secret,
+                }
+            ]
+        }
+
 
 # Allow Allauth to use HTTPS when deployed but HTTP for local dev
 SECURE_PROXY_SSL_HEADER_NAME = env("SECURE_PROXY_SSL_HEADER_NAME", default=None)
