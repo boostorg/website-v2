@@ -68,10 +68,17 @@ class CommitAuthorEmailInline(admin.TabularInline):
 
 @admin.register(CommitAuthor)
 class CommitAuthorAdmin(admin.ModelAdmin):
+    list_display = ["name", "emails"]
     search_fields = ["name", "commitauthoremail__email"]
     actions = ["merge_authors"]
     inlines = [CommitAuthorEmailInline]
     change_list_template = "admin/commit_author_change_list.html"
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related("commitauthoremail_set")
+
+    def emails(self, obj):
+        return ", ".join(x.email for x in obj.commitauthoremail_set.all())
 
     def get_urls(self):
         urls = super().get_urls()
