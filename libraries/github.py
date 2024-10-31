@@ -3,6 +3,7 @@ import time
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
+from typing import assert_never
 from dateutil.relativedelta import relativedelta
 
 import structlog
@@ -56,6 +57,14 @@ class ParsedCommit:
     avatar_url: str | None = None
 
 
+@dataclass
+class VersionDiffStat:
+    version: str
+    files_changed: int
+    insertions: int
+    deletions: int
+
+
 def get_commit_data_for_repo_versions(key):
     """Fetch commit data between minor versions (ignore patches).
 
@@ -69,6 +78,10 @@ def get_commit_data_for_repo_versions(key):
         r"\s+\<(?P<email>[^\>]+)\>\nDate:\s+(?P<date>.*)\n(?P<message>(.|\n)+?)"
         r"(?=(commit|\Z))",
         flags=re.MULTILINE,
+    )
+    re.compile(
+        r"(?:(?P<files_changed>\d+) files changed)?.*?"
+        r"(?:(?P<insertions>\d+) insertions)?.*?(?:(?P<deletions>\d+) deletions)?",
     )
 
     retry_count = 0
@@ -96,6 +109,25 @@ def get_commit_data_for_repo_versions(key):
             .values_list("name", flat=True)
         )
         for a, b in zip(versions, versions[1:]):
+            shortstat = subprocess.run(
+                ["git", "--git-dir", str(git_dir), "diff", f"{a}..{b}", "--shortstat"],
+                capture_output=True,
+            )
+            stat_output = shortstat.stdout.decode()
+            files_changed = insertions = deletions = 0
+            if m := re.search(r"(\d+) files changed", stat_output):
+                files_changed = int(m.group(1))
+            if m := re.search(r"(\d+) insertions", stat_output):
+                insertions = int(m.group(1))
+            if m := re.search(r"(\d+) deletions", stat_output):
+                deletions = int(m.group(1))
+            yield VersionDiffStat(
+                version=b,
+                insertions=insertions,
+                deletions=deletions,
+                files_changed=files_changed,
+            )
+
             log_output = subprocess.run(
                 ["git", "--git-dir", str(git_dir), "log", f"{a}..{b}", "--date", "iso"],
                 capture_output=True,
@@ -433,44 +465,63 @@ class LibraryUpdater:
                 "version"
             )
         }
+        library_version_updates = []
+
+        def handle_commit(commit: ParsedCommit):
+            author = authors.get(commit.email, None)
+            if not author:
+                if (
+                    commit_author_email := CommitAuthorEmail.objects.filter(
+                        email=commit.email,
+                    )
+                    .select_related("author")
+                    .first()
+                ):
+                    author = commit_author_email.author
+                else:
+                    author = CommitAuthor.objects.create(
+                        name=commit.name, avatar_url=commit.avatar_url
+                    )
+                    CommitAuthorEmail.objects.create(email=commit.email, author=author)
+                authors[commit.email] = author
+            return Commit(
+                author=author,
+                library_version=library_versions[commit.version],
+                sha=commit.sha,
+                message=commit.message,
+                committed_at=commit.committed_at,
+                is_merge=commit.is_merge,
+            )
+
+        def handle_version_diff_stat(diff: VersionDiffStat):
+            lv = library_versions[diff.version]
+            lv.insertions = diff.insertions
+            lv.deletions = diff.deletions
+            lv.files_changed = diff.files_changed
+            return lv
+
+        for item in get_commit_data_for_repo_versions(obj.key):
+            match item:
+                case ParsedCommit():
+                    commits.append(handle_commit(item))
+                case VersionDiffStat():
+                    library_version_updates.append(handle_version_diff_stat(item))
+                case _:
+                    assert_never()
+
         with transaction.atomic():
             if clean:
                 Commit.objects.filter(library_version__library=obj).delete()
-            for commit in get_commit_data_for_repo_versions(obj.key):
-                author = authors.get(commit.email, None)
-                if not author:
-                    if (
-                        commit_author_email := CommitAuthorEmail.objects.filter(
-                            email=commit.email,
-                        )
-                        .select_related("author")
-                        .first()
-                    ):
-                        author = commit_author_email.author
-                    else:
-                        author = CommitAuthor.objects.create(
-                            name=commit.name, avatar_url=commit.avatar_url
-                        )
-                        CommitAuthorEmail.objects.create(
-                            email=commit.email, author=author
-                        )
-                    authors[commit.email] = author
-                commits.append(
-                    Commit(
-                        author=author,
-                        library_version=library_versions[commit.version],
-                        sha=commit.sha,
-                        message=commit.message,
-                        committed_at=commit.committed_at,
-                        is_merge=commit.is_merge,
-                    )
-                )
-        Commit.objects.bulk_create(
-            commits,
-            update_conflicts=True,
-            update_fields=["author", "message", "committed_at", "is_merge"],
-            unique_fields=["library_version", "sha"],
-        )
+            Commit.objects.bulk_create(
+                commits,
+                update_conflicts=True,
+                update_fields=["author", "message", "committed_at", "is_merge"],
+                unique_fields=["library_version", "sha"],
+            )
+            LibraryVersion.objects.bulk_update(
+                library_version_updates,
+                ["insertions", "deletions", "files_changed"],
+            )
 
     def update_commit_author_github_data(self, obj=None, email=None, overwrite=False):
         """Update CommitAuthor data by parsing data on their most recent commit."""
@@ -493,14 +544,18 @@ class LibraryUpdater:
         if not overwrite:
             authors = authors.filter(avatar_url=None)
 
-        authors = authors.annotate(
-            most_recent_commit_sha=Commit.objects.filter(author=OuterRef("pk"))
-            .order_by("-committed_at")
-            .values("sha")[:1]
-        ).annotate(
-            most_recent_library_key=Library.objects.filter(
-                library_version__commit__sha=OuterRef("most_recent_commit_sha")
-            ).values("key")[:1]
+        authors = (
+            authors.annotate(
+                most_recent_commit_sha=Commit.objects.filter(author=OuterRef("pk"))
+                .order_by("-committed_at")
+                .values("sha")[:1]
+            )
+            .annotate(
+                most_recent_library_key=Library.objects.filter(
+                    library_version__commit__sha=OuterRef("most_recent_commit_sha")
+                ).values("key")[:1]
+            )
+            .filter(most_recent_library_key__isnull=False)
         )
         libraries = Library.objects.filter(
             key__in=[x.most_recent_library_key for x in authors]
