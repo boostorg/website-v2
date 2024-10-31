@@ -204,3 +204,11 @@ def update_commit_author_github_data(token=None, clean=False):
     updater = LibraryUpdater(token=token)
     updater.update_commit_author_github_data(overwrite=clean)
     logger.info("update_commit_author_github_data finished.")
+
+
+@app.task
+def update_issues(clean=False):
+    command = ["update_issues"]
+    if clean:
+        command.append("--clean")
+    call_command(*command)

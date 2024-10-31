@@ -12,6 +12,7 @@ from django.db.models.functions import Upper
 from core.markdown import process_md
 from core.models import RenderedContent
 from core.asciidoc import convert_adoc_to_html
+from libraries.managers import IssueManager
 from mailing_list.models import EmailData
 
 from .utils import generate_random_string, write_content_to_tempfile
@@ -382,6 +383,10 @@ class LibraryVersion(models.Model):
     data = models.JSONField(
         default=dict, help_text="Contains the libraries.json for this library-version"
     )
+    # stats from git stored between x.x.0 versions
+    insertions = models.IntegerField(default=0)
+    deletions = models.IntegerField(default=0)
+    files_changed = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.library.name} ({self.version.name})"
@@ -415,6 +420,8 @@ class Issue(models.Model):
     modified = models.DateTimeField(db_index=True)
 
     data = models.JSONField(default=dict)
+
+    objects = IssueManager()
 
     def __str__(self):
         return f"({self.number}) - {self.title}"

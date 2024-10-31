@@ -29,6 +29,7 @@ wheel
 cryptography
 boto3
 jsoncomment
+wordcloud
 
 # Logging
 django-tracer

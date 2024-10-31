@@ -387,12 +387,14 @@ class GithubAPIClient:
         https://fastcore.fast.ai/basics.html#attrdict
         """
         pages = list(
-            paged(
-                self.api.issues.list_for_repo,
-                owner=self.owner,
-                repo=repo_slug,
-                state=state,
-                per_page=100,
+            self.with_retry(
+                lambda: paged(
+                    self.api.issues.list_for_repo,
+                    owner=self.owner,
+                    repo=repo_slug,
+                    state=state,
+                    per_page=100,
+                )
             )
         )
         # Concatenate all pages into a single list
