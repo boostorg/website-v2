@@ -293,6 +293,9 @@ class LibraryUpdater:
         if not authors:
             return obj
 
+        if isinstance(authors, str):
+            authors = [authors]
+
         for author in authors:
             person_data = self.parser.extract_contributor_data(author)
             email = person_data["email"]
