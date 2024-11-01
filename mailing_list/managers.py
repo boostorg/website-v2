@@ -19,3 +19,6 @@ class EmailDataQuerySet(models.QuerySet):
 class EmailDataManager(models.Manager):
     def get_queryset(self):
         return EmailDataQuerySet(self.model, using=self._db)
+
+    def with_total_counts(self):
+        return self.get_queryset().with_total_counts()
