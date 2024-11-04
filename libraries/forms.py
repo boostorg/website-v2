@@ -504,7 +504,7 @@ class CreateReportForm(CreateReportFullForm):
             "opened_issues_count": Issue.objects.opened_during_release(version).count(),
             "closed_issues_count": Issue.objects.closed_during_release(version).count(),
             "mailinglist_counts": mailinglist_counts,
-            "mailinglist_total": total_mailinglist_count,
+            "mailinglist_total": total_mailinglist_count or 0,
             "mailinglist_contributor_release_count": mailinglist_contributor_release_count,  # noqa: E501
             "mailinglist_contributor_new_count": mailinglist_contributor_new_count,
             "commit_contributors_release_count": commit_contributors_release_count,
