@@ -68,7 +68,7 @@
         {% if entry.image %}
         <img src="{{ entry.image.url }}" class="mb-2 w-full h-auto md:float-right md:ml-5 md:mt-6 md:w-1/6 md:min-w-[200px] border border-black">
         {% endif %}
-        <div class="break-all">
+        <div class="break-words">
         {{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaks }}
         </div>
       </div>
