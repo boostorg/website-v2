@@ -175,6 +175,14 @@ def test_update_categories(library, library_updater):
     assert Category.objects.filter(name="Test").exists()
     assert library.categories.filter(name="Test").exists()
 
+    # Ensure category overrides respected
+    assert Category.objects.filter(name="Containers").exists() is False
+    assert Category.objects.filter(name="Container").exists() is False
+    library_updater.update_categories(library, ["Container"])  # overridden
+    library.refresh_from_db()
+    assert Category.objects.filter(name="Containers").exists() is True
+    assert Category.objects.filter(name="Container").exists() is False
+
 
 def test_update_issues_new(
     tp, library, github_api_repo_issues_response, library_updater
