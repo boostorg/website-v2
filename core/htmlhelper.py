@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup, Comment
 from django.template.loader import render_to_string
 
 from core.boostrenderer import get_body_from_html
+from core.models import RenderedContent
 
 
 # List HTML elements (with relevant attributes) to remove the FIRST occurrence
@@ -610,3 +611,29 @@ def modernize_release_notes(html_content):
     # Replace all links to boost.org with a local link
     content = result.replace("https://www.boost.org/doc/libs/", "/docs/libs/")
     return get_body_from_html(content)
+
+
+def get_release_notes_for_library_version(library_version):
+    """Attempts to find the release notes for specific library."""
+    html = None
+    try:
+        rendered_content = RenderedContent.objects.get(
+            cache_key=library_version.version.release_notes_cache_key
+        )
+        html = rendered_content.content_html
+    except RenderedContent.DoesNotExist:
+        pass
+    if not html:
+        return ""
+    soup = BeautifulSoup(html, "html.parser")
+    match = soup.find("a", text=library_version.library.name)
+    if not match:
+        return ""
+    release_notes = match.parent
+    if not release_notes:
+        return ""
+    ul = release_notes.find("ul")
+    if not ul:
+        return ""
+    points = ul.find_all("li", recursive=False)
+    return "".join(str(x) for x in points)
