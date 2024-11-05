@@ -14,7 +14,7 @@ onclick="window.location='{% if version_str != LATEST_RELEASE_URL_PATH_STR %}{% 
       >{{ library.name }}</a>
       {% for author in library.authors.all %}
         {% if author.image %}
-          <img src="{{ author.image.url }}" class="inline float-right rounded w-[30px]" alt="{{ author.get_display_name }}" />
+          <img src="{{ author.image.url }}" class="inline float-right rounded w-[30px] ml-1" alt="{{ author.get_display_name }}" />
         {% endif %}
       {% endfor %}
     </h3>
