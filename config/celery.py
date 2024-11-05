@@ -37,3 +37,9 @@ def setup_periodic_tasks(sender, **kwargs):
         crontab(hour=4, minute=5),
         app.signature("core.tasks.clear_static_content_cache"),
     )
+
+    # Fetch Slack activity. Executes daily at 3:07 AM.
+    sender.add_periodic_task(
+        crontab(hour=3, minute=7),
+        app.signature("slack.tasks.fetch_slack_activity"),
+    )

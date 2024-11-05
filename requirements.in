@@ -69,3 +69,4 @@ elasticsearch==7.17.9
 # Github
 ghapi
 requests
+slack_sdk

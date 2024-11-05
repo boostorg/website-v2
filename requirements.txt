@@ -333,6 +333,8 @@ six==1.16.0
     #   django-rest-auth
     #   fs
     #   python-dateutil
+slack-sdk==3.33.2
+    # via -r ./requirements.in
 soupsieve==2.6
     # via beautifulsoup4
 sqlparse==0.5.1
