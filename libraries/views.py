@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import structlog
 from django.contrib import messages
-from django.db.models import F, Count, Exists, OuterRef
+from django.db.models import F, Count, Exists, OuterRef, Prefetch
 from django.db.models.functions import Lower
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -201,17 +201,17 @@ class LibraryListByCategory(LibraryList):
 
     def get_results_by_category(self, version: Version | None):
         queryset = super().get_queryset()
-        results_by_category = []
         filter_kwargs = {"libraries__versions__name": version} if version else {}
-        for category in (
+        categories = (
             Category.objects.filter(**filter_kwargs).distinct().order_by("name")
-        ):
-            results_by_category.append(
-                {
-                    "category": category,
-                    "libraries": queryset.filter(categories=category).order_by("name"),
-                }
-            )
+        )
+        categories = categories.prefetch_related(
+            Prefetch("libraries", queryset=queryset, to_attr="prefetched_libraries")
+        )
+        results_by_category = [
+            {"category": category, "libraries": category.prefetched_libraries}
+            for category in categories
+        ]
         return results_by_category
 
 
