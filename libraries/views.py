@@ -194,13 +194,18 @@ class LibraryListByCategory(LibraryList):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["library_list"] = self.get_results_by_category()
+        context["library_list"] = self.get_results_by_category(
+            version=context.get("version")
+        )
         return context
 
-    def get_results_by_category(self):
+    def get_results_by_category(self, version: Version | None):
         queryset = super().get_queryset()
         results_by_category = []
-        for category in Category.objects.all().order_by("name"):
+        filter_kwargs = {"libraries__versions__name": version} if version else {}
+        for category in (
+            Category.objects.filter(**filter_kwargs).distinct().order_by("name")
+        ):
             results_by_category.append(
                 {
                     "category": category,
