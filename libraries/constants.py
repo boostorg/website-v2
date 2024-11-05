@@ -288,6 +288,14 @@ LIBRARY_DOCS_EXCEPTIONS = {
     ],
 }
 
+# Mapping for duplicate library categories. If a library has one of the keys
+# in this mapping as its category, the associated canonical category should be used.
+# key: Duplicate category's Category.slug
+# value: Category.slug of the canonical category
+CATEGORY_OVERRIDES = {
+    "Container": "Containers",
+}
+
 
 # This constant is for library-version docs that we know are missing
 LIBRARY_DOCS_MISSING = {
