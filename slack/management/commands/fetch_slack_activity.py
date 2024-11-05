@@ -73,6 +73,7 @@ def get_or_create_user(user_id):
                 "name": user_data.data["user"]["name"],
                 "real_name": user_data.data["user"].get("real_name", ""),
                 "email": user_data.data["user"]["profile"].get("email", ""),
+                "image_48": user_data["user"]["profile"].get("image_48", ""),
             },
         )
         USERS_CACHE[user_id] = obj

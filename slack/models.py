@@ -13,6 +13,7 @@ class SlackUser(models.Model):
     name = models.TextField()
     real_name = models.TextField()
     email = models.TextField()
+    image_48 = models.URLField()
 
 
 class Channel(models.Model):
