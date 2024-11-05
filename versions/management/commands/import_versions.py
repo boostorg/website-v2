@@ -23,6 +23,8 @@ def command(
         verbose (bool): Enable verbose output (show logging statements)
         delete_versions (bool): If True, deletes all existing Version instances before
             importing.
+        new (bool): If True, only imports versions that do not already exist in
+            the database.
         token (str): Github API token, if you need to use something other than the
             setting.
     """
