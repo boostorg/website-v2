@@ -346,6 +346,7 @@ def get_empty_notifications():
         Preferences.OWNS_NEWS_APPROVED: [Preferences.NEWS_TYPES_WILDCARD],
         Preferences.OTHERS_NEWS_POSTED: [],
         Preferences.OTHERS_NEWS_NEEDS_MODERATION: [Preferences.NEWS_TYPES_WILDCARD],
+        Preferences.TOU_MATERIALLY_CHANGED: [False],
     }
 
 
@@ -355,6 +356,7 @@ class Preferences(models.Model):
     OWNS_NEWS_APPROVED = "own-news-approved"
     OTHERS_NEWS_POSTED = "others-news-posted"
     OTHERS_NEWS_NEEDS_MODERATION = "others-news-needs-moderation"
+    TOU_MATERIALLY_CHANGED = "tou-materially-changed"
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -401,6 +403,16 @@ class Preferences(models.Model):
     @allow_notification_others_news_needs_moderation.setter
     def allow_notification_others_news_needs_moderation(self, value):
         self.change_notification_allowed(self.OTHERS_NEWS_NEEDS_MODERATION, value)
+
+    @property
+    def allow_notification_tou_changed(self) -> bool:
+        return self.notification_allowed(self.TOU_MATERIALLY_CHANGED)[0]
+
+    @allow_notification_tou_changed.setter
+    def allow_notification_tou_changed(self, value):
+        if isinstance(value, bool):
+            value = [value]
+        self.change_notification_allowed(self.TOU_MATERIALLY_CHANGED, value)
 
 
 @receiver(post_save, sender=User)

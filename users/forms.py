@@ -43,6 +43,10 @@ class PreferencesForm(forms.ModelForm):
         label="There are new entries pending moderation",
         required=False,
     )
+    allow_notification_tou_changed = forms.BooleanField(
+        label="The site's Terms of Use are changed",
+        required=False,
+    )
 
     def __init__(self, *args, instance=None, **kwargs):
         if instance is not None:
@@ -73,6 +77,7 @@ class PreferencesForm(forms.ModelForm):
             "allow_notification_own_news_approved",
             "allow_notification_others_news_posted",
             "allow_notification_others_news_needs_moderation",
+            "allow_notification_tou_changed",
         ]
 
 
