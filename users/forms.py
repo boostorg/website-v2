@@ -43,6 +43,10 @@ class PreferencesForm(forms.ModelForm):
         label="There are new entries pending moderation",
         required=False,
     )
+    allow_notification_terms_changed = forms.BooleanField(
+        label="The site's Terms of Use or Privacy Policy are changed",
+        required=False,
+    )
 
     def __init__(self, *args, instance=None, **kwargs):
         if instance is not None:
@@ -55,6 +59,10 @@ class PreferencesForm(forms.ModelForm):
             is_moderator = False
             all_news = Preferences.ALL_NEWS_TYPES
             kwargs["initial"] = {i: all_news for i in self.Meta.fields}
+            # Use default for terms changed field
+            kwargs["initial"][
+                "allow_notification_terms_changed"
+            ] = Preferences().allow_notification_terms_changed
 
         super().__init__(*args, instance=instance, **kwargs)
 
@@ -73,6 +81,7 @@ class PreferencesForm(forms.ModelForm):
             "allow_notification_own_news_approved",
             "allow_notification_others_news_posted",
             "allow_notification_others_news_needs_moderation",
+            "allow_notification_terms_changed",
         ]
 
 

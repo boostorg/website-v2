@@ -42,11 +42,13 @@ def test_preferences_form_fields_no_user():
     assert sorted(form.fields.keys()) == [
         "allow_notification_others_news_posted",
         "allow_notification_own_news_approved",
+        "allow_notification_terms_changed",
     ]
     all_news = sorted(m.news_type for m in NEWS_MODELS)
     assert form.initial == {
         "allow_notification_others_news_posted": all_news,
         "allow_notification_own_news_approved": all_news,
+        "allow_notification_terms_changed": False,
     }
 
 
@@ -56,6 +58,7 @@ def test_preferences_form_fields_regular_user(user):
     assert sorted(form.fields.keys()) == [
         "allow_notification_others_news_posted",
         "allow_notification_own_news_approved",
+        "allow_notification_terms_changed",
     ]
     assert form.initial == {i: getattr(instance, i) for i in form.fields}
 
@@ -67,6 +70,7 @@ def test_preferences_form_fields_moderator_user(moderator_user):
         "allow_notification_others_news_needs_moderation",
         "allow_notification_others_news_posted",
         "allow_notification_own_news_approved",
+        "allow_notification_terms_changed",
     ]
     assert form.initial == {i: getattr(instance, i) for i in form.fields}
 
@@ -77,8 +81,11 @@ def test_preferences_form_model_modifies_instance_empty_list_no_moderator(
     user, form_field, model_class
 ):
     original = Preferences.ALL_NEWS_TYPES
-    setattr(user.preferences, form_field, original)
     expected = []
+    if form_field == "allow_notification_terms_changed":
+        original = False
+        expected = True
+    setattr(user.preferences, form_field, original)
     form = PreferencesForm(instance=user.preferences, data={form_field: expected})
     assert form.is_valid(), form.errors
 
@@ -91,6 +98,10 @@ def test_preferences_form_model_modifies_instance_empty_list_no_moderator(
     assert getattr(result, form_field) == expected
     user.refresh_from_db()
     assert getattr(user.preferences, form_field) == expected
+
+    if form_field == "allow_notification_terms_changed":
+        # No further testing needed for this field
+        return
 
     # Now, set a single item.
     expected = [model_class.news_type]
@@ -113,6 +124,9 @@ def test_preferences_form_model_modifies_instance_empty_list_no_moderator(
 def test_preferences_form_model_modifies_instance_empty_list_user_moderator(
     moderator_user, form_field, model_class
 ):
+    if form_field == "allow_notification_terms_changed":
+        # this test doesn't make sense for this preference
+        return
     setattr(moderator_user.preferences, form_field, Preferences.ALL_NEWS_TYPES)
     expected = []
     form = PreferencesForm(
