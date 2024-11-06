@@ -346,6 +346,9 @@ def get_empty_notifications():
         Preferences.OWNS_NEWS_APPROVED: [Preferences.NEWS_TYPES_WILDCARD],
         Preferences.OTHERS_NEWS_POSTED: [],
         Preferences.OTHERS_NEWS_NEEDS_MODERATION: [Preferences.NEWS_TYPES_WILDCARD],
+        # Terms preference stored as a single-item list for compatability with other
+        # preferences. See special handling in associated property getter and setter.
+        Preferences.TERMS_CHANGED: [False],
     }
 
 
@@ -355,6 +358,7 @@ class Preferences(models.Model):
     OWNS_NEWS_APPROVED = "own-news-approved"
     OTHERS_NEWS_POSTED = "others-news-posted"
     OTHERS_NEWS_NEEDS_MODERATION = "others-news-needs-moderation"
+    TERMS_CHANGED = "terms-changed"
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -401,6 +405,18 @@ class Preferences(models.Model):
     @allow_notification_others_news_needs_moderation.setter
     def allow_notification_others_news_needs_moderation(self, value):
         self.change_notification_allowed(self.OTHERS_NEWS_NEEDS_MODERATION, value)
+
+    @property
+    def allow_notification_terms_changed(self) -> bool:
+        """Note special handling for this single-item preference."""
+        return self.notification_allowed(self.TERMS_CHANGED)[0]
+
+    @allow_notification_terms_changed.setter
+    def allow_notification_terms_changed(self, value: bool | list[bool]):
+        """Note special handling for this single-item preference."""
+        if isinstance(value, bool):
+            value = [value]
+        self.change_notification_allowed(self.TERMS_CHANGED, value)
 
 
 @receiver(post_save, sender=User)
