@@ -59,6 +59,10 @@ class PreferencesForm(forms.ModelForm):
             is_moderator = False
             all_news = Preferences.ALL_NEWS_TYPES
             kwargs["initial"] = {i: all_news for i in self.Meta.fields}
+            # Use default for terms changed field
+            kwargs["initial"][
+                "allow_notification_terms_changed"
+            ] = Preferences().allow_notification_terms_changed
 
         super().__init__(*args, instance=instance, **kwargs)
 
