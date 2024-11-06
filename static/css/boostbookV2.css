@@ -132,6 +132,9 @@ Body defaults
         padding: 0rem 0.75rem;
         margin: auto;
     }
+    body.DEBUG {
+        font-family: 'Noto Sans', serif;
+    }
 
     .doc {
         padding-top: 0 !important;

@@ -139,6 +139,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "core.context_processors.current_release",
+                "core.context_processors.debug",
             ],
             "loaders": [
                 "django.template.loaders.filesystem.Loader",
