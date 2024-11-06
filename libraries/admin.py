@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db import transaction
 from django.db.models import F, Count, OuterRef, Window
 from django.db.models.functions import RowNumber
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.safestring import mark_safe
@@ -22,12 +22,14 @@ from .models import (
     PullRequest,
 )
 from .tasks import (
+    generate_library_report,
     update_authors_and_maintainers,
     update_commit_author_github_data,
     update_commits,
     update_issues,
     update_libraries,
     update_library_version_documentation_urls_all_versions,
+    generate_release_report,
 )
 
 
@@ -182,7 +184,6 @@ class LibraryAdmin(admin.ModelAdmin):
         if request.GET.get("submit", None):
             form = CreateReportForm(request.GET)
             if form.is_valid():
-                context.update(form.get_stats())
                 return redirect(
                     reverse("admin:release_report") + f"?{request.GET.urlencode()}"
                 )
@@ -192,12 +193,28 @@ class LibraryAdmin(admin.ModelAdmin):
 
     def release_report_view(self, request):
         form = CreateReportForm(request.GET)
-        context = {"form": form}
         if form.is_valid():
-            context.update(form.get_stats())
+            if form.cleaned_data["no_cache"]:
+                get_params = request.GET.copy()
+                del get_params["no_cache"]
+                form.cache_clear()
+                return redirect(
+                    reverse("admin:release_report") + f"?{get_params.urlencode()}"
+                )
+            content = form.cache_get()
+            if not content:
+                # Set the cache to an empty string so that the task is not requeued
+                form.cache_set("")
+                generate_release_report.delay(request.GET.copy())
+            elif content.content_html:
+                return HttpResponse(content.content_html)
+            return TemplateResponse(
+                request,
+                "admin/report_polling.html",
+                {"report_type": "release report"},
+            )
         else:
             return redirect("admin:release_report_form")
-        return TemplateResponse(request, "admin/release_report_detail.html", context)
 
     def report_form_full_view(self, request):
         form = CreateReportFullForm()
@@ -205,7 +222,6 @@ class LibraryAdmin(admin.ModelAdmin):
         if request.GET.get("submit", None):
             form = CreateReportFullForm(request.GET)
             if form.is_valid():
-                context.update(form.get_stats())
                 return redirect(
                     reverse("admin:library_report_full") + f"?{request.GET.urlencode()}"
                 )
@@ -215,14 +231,28 @@ class LibraryAdmin(admin.ModelAdmin):
 
     def report_full_view(self, request):
         form = CreateReportFullForm(request.GET)
-        context = {"form": form}
         if form.is_valid():
-            context.update(form.get_stats())
+            if form.cleaned_data["no_cache"]:
+                get_params = request.GET.copy()
+                del get_params["no_cache"]
+                form.cache_clear()
+                return redirect(
+                    reverse("admin:library_report_full") + f"?{get_params.urlencode()}"
+                )
+            content = form.cache_get()
+            if not content:
+                # Set the cache to an empty string so that the task is not requeued
+                form.cache_set("")
+                generate_library_report.delay(request.GET.copy())
+            elif content.content_html:
+                return HttpResponse(content.content_html)
+            return TemplateResponse(
+                request,
+                "admin/report_polling.html",
+                {"report_type": "library report"},
+            )
         else:
             return redirect("admin:library_report_full_form")
-        return TemplateResponse(
-            request, "admin/library_report_full_detail.html", context
-        )
 
     def view_stats(self, instance):
         url = reverse("admin:library_stat_detail", kwargs={"pk": instance.pk})
