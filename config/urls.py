@@ -70,7 +70,7 @@ from users.views import (
 )
 from versions.api import ImportVersionsView, VersionViewSet
 from versions.feeds import AtomVersionFeed, RSSVersionFeed
-from versions.views import VersionDetail
+from versions.views import InProgressReleaseNotesView, VersionDetail
 
 router = routers.SimpleRouter()
 
@@ -135,6 +135,11 @@ urlpatterns = (
         path("calendar/", CalendarView.as_view(), name="calendar"),
         # Boost versions views
         path("releases/", VersionDetail.as_view(), name="releases-most-recent"),
+        path(
+            "releases/boost-in-progress/",
+            InProgressReleaseNotesView.as_view(),
+            name="release-in-progress",
+        ),
         path("releases/<slug:slug>/", VersionDetail.as_view(), name="release-detail"),
         path(
             "donate/",

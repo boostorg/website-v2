@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% block title %}{% blocktrans %}In Progress{% endblocktrans %}{% endblock %}
+{% block description %}{% blocktrans %}Discover what's new in Boost{% endblocktrans %}{% endblock %}
+{% block content %}
+  <main class="content">
+    <div class="py-3 px-3 md:mt-3 md:px-0 mb-0 w-full flex flex-row flex-nowrap items-center"
+            x-data="{'showSearch': false}"
+            x-on:keydown.escape="showSearch=false">
+    </div>
+    <!-- alert for non-current Boost versions -->
+    {% include "libraries/includes/version_alert.html" %}
+
+    <section id="libraryReadMe"
+      class="p-6 mb-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+      {{ release_notes|safe|default:"No data for in-progress release notes yet. Come back soon!" }}
+    </section>
+
+  </main>
+{% endblock %}
