@@ -1,12 +1,15 @@
 import structlog
+from itertools import groupby
+from operator import attrgetter
 
 from django.db.models import Q, Count
-from django.views.generic import DetailView
+from django.views.generic import DetailView, TemplateView
 from django.views.generic.edit import FormMixin
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
-from itertools import groupby
-from operator import attrgetter
+from django.conf import settings
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from core.models import RenderedContent
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
@@ -19,8 +22,6 @@ from libraries.utils import (
     library_doc_latest_transform,
 )
 from versions.models import Version
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 
 
 logger = structlog.get_logger(__name__)
@@ -154,3 +155,21 @@ class VersionDetail(FormMixin, VersionAlertMixin, DetailView):
             return Version.objects.most_recent()
 
         return get_object_or_404(Version, slug=version_slug)
+
+
+class InProgressReleaseNotesView(TemplateView):
+    template_name = "versions/in_progress_release_notes.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["release_notes"] = self.get_in_progress_release_notes()
+        return context
+
+    def get_in_progress_release_notes(self):
+        try:
+            rendered_content = RenderedContent.objects.get(
+                cache_key=settings.RELEASE_NOTES_IN_PROGRESS_CACHE_KEY
+            )
+            return rendered_content.content_html
+        except RenderedContent.DoesNotExist:
+            return

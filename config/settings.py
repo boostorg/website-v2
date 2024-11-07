@@ -533,6 +533,10 @@ MINIMUM_BOOST_VERSION = "1.16.1"
 # The highest Boost version with its docs stored in S3
 MAXIMUM_BOOST_DOCS_VERSION = "boost-1.30.2"
 
+# In Progress Release Notes URL
+RELEASE_NOTES_IN_PROGRESS_URL = "https://raw.githubusercontent.com/boostorg/website/master/users/history/in_progress.html"
+RELEASE_NOTES_IN_PROGRESS_CACHE_KEY = "release-notes-in-progress"
+
 # Boost Google Calendar
 BOOST_CALENDAR = "5rorfm42nvmpt77ac0vult9iig@group.calendar.google.com"
 CALENDAR_API_KEY = env("CALENDAR_API_KEY", default="changeme")

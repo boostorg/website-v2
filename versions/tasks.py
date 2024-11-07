@@ -14,7 +14,10 @@ from libraries.models import Library, LibraryVersion
 from libraries.tasks import get_and_store_library_version_documentation_urls_for_version
 from libraries.utils import version_within_range
 from versions.models import Version
-from versions.releases import store_release_notes_for_version
+from versions.releases import (
+    store_release_notes_for_in_progress,
+    store_release_notes_for_version,
+)
 
 
 logger = structlog.getLogger(__name__)
@@ -72,6 +75,7 @@ def import_release_notes():
     release notes in the repository."""
     for version in Version.objects.active().filter(full_release=True):
         store_release_notes_task.delay(str(version.pk))
+    store_release_notes_in_progress_task.delay()
 
 
 @app.task
@@ -85,6 +89,12 @@ def store_release_notes_task(version_pk):
         )
         return
     store_release_notes_for_version(version_pk)
+
+
+@app.task
+def store_release_notes_in_progress_task():
+    """Fetches and store in-progress release notes in RenderedContent."""
+    store_release_notes_for_in_progress()
 
 
 @app.task
