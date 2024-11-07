@@ -1,0 +1,15 @@
+{% extends "admin/library_report_base.html" %}
+
+{% block content %}
+  <div class="flex container my-4 mx-auto">
+    The {{ report_type }} is being generated. This page will refresh periodically, please wait.
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      setTimeout(function () {
+        window.location.reload()
+      }, 10000);
+    })
+  </script>
+{% endblock content %}
