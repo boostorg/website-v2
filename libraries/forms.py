@@ -5,10 +5,12 @@ import psycopg2
 from wordcloud import WordCloud, STOPWORDS
 from matplotlib import pyplot as plt
 
+from django.template.loader import render_to_string
 from django.db.models import F, Q, Count, OuterRef, Sum
-from django.forms import Form, ModelChoiceField, ModelForm
+from django.forms import Form, ModelChoiceField, ModelForm, BooleanField
 from django.conf import settings
 
+from core.models import RenderedContent
 from versions.models import Version
 from .models import Commit, CommitAuthor, Issue, Library, LibraryVersion
 from mailing_list.models import EmailData
@@ -33,6 +35,8 @@ class VersionSelectionForm(Form):
 
 class CreateReportFullForm(Form):
     """Form for creating a report over all releases."""
+
+    html_template_name = "admin/library_report_full_detail.html"
 
     library_queryset = Library.objects.all().order_by("name")
     library_1 = ModelChoiceField(
@@ -68,6 +72,26 @@ class CreateReportFullForm(Form):
         queryset=library_queryset,
         required=False,
     )
+    no_cache = BooleanField(
+        required=False,
+        initial=False,
+        help_text="Force the page to be regenerated, do not use cache.",
+    )
+
+    @property
+    def cache_key(self):
+        chosen_libraries = [
+            self.cleaned_data["library_1"],
+            self.cleaned_data["library_2"],
+            self.cleaned_data["library_3"],
+            self.cleaned_data["library_4"],
+            self.cleaned_data["library_5"],
+            self.cleaned_data["library_6"],
+            self.cleaned_data["library_7"],
+            self.cleaned_data["library_8"],
+        ]
+        lib_string = ",".join(str(x.id) if x else "" for x in chosen_libraries)
+        return f"full-report-{lib_string}"
 
     def _get_top_libraries(self):
         return (
@@ -168,9 +192,36 @@ class CreateReportFullForm(Form):
             "library_count": Library.objects.all().count(),
         }
 
+    def cache_html(self):
+        """Render and cache the html for this report."""
+        # ensure we have "cleaned_data"
+        if not self.is_valid():
+            return ""
+        html = render_to_string(self.html_template_name, self.get_stats())
+        self.cache_set(html)
+        return html
+
+    def cache_get(self) -> RenderedContent | None:
+        return RenderedContent.objects.filter(cache_key=self.cache_key).first()
+
+    def cache_clear(self):
+        return RenderedContent.objects.filter(cache_key=self.cache_key).delete()
+
+    def cache_set(self, content_html):
+        """Cache the html for this report."""
+        return RenderedContent.objects.update_or_create(
+            cache_key=self.cache_key,
+            defaults={
+                "content_html": content_html,
+                "content_type": "text/html",
+            },
+        )
+
 
 class CreateReportForm(CreateReportFullForm):
     """Form for creating a report for a specific release."""
+
+    html_template_name = "admin/release_report_detail.html"
 
     version = ModelChoiceField(
         queryset=Version.objects.minor_versions().order_by("-version_array")
@@ -181,6 +232,22 @@ class CreateReportForm(CreateReportFullForm):
         self.fields[
             "library_1"
         ].help_text = "If none are selected, all libraries will be selected."
+
+    @property
+    def cache_key(self):
+        chosen_libraries = [
+            self.cleaned_data["library_1"],
+            self.cleaned_data["library_2"],
+            self.cleaned_data["library_3"],
+            self.cleaned_data["library_4"],
+            self.cleaned_data["library_5"],
+            self.cleaned_data["library_6"],
+            self.cleaned_data["library_7"],
+            self.cleaned_data["library_8"],
+        ]
+        lib_string = ",".join(str(x.id) if x else "" for x in chosen_libraries)
+        version = self.cleaned_data["version"]
+        return f"release-report-{lib_string}-{version.name}"
 
     def _get_top_contributors_for_version(self):
         return (
