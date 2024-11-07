@@ -112,7 +112,7 @@
     @apply mt-3 text-xl font-semibold;
   }
   #libraryReadMe p {
-    @apply text-base pb-1 font-light inline-block;
+    @apply text-base pb-1 font-light;
   }
   #libraryReadMe ul {
     @apply list-disc list-inside pl-4;
