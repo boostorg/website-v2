@@ -1,0 +1,24 @@
+:noheader:
+:nofooter:
+:notitle:
+
+// standard asciidoctor content
+Some text
+
+https://asciidoctor.org - automatic!
+
+https://asciidoctor.org[Asciidoctor]
+
+devel@discuss.example.org
+
+// boost specific asciidoc content
+
+boost_at:/tools/boost/boost_1_75_0/libs/algorithm/doc/html/algorithm/[Algorithm Library]
+
+boost_phrase:library[Hi!]
+
+PR: boost_gh:pr[geometry,1247]
+
+Issue: boost_gh:issue[geometry,1231]
+
+boost_phrase:library[Charconv:,/libs/charconv/]
