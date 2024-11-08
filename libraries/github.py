@@ -195,7 +195,7 @@ class LibraryUpdater:
         Retrieve the full list of library data for Boost libraries from their Github
         repos.
 
-        Included libraries are rrtrieved from the list of modules in .gitmodules in the
+        Included libraries are retrieved from the list of modules in .gitmodules in the
         main Boost repo. The libraries.json file is retrieved from each module and
         parsed to get the library metadata. Most libraries.json files contain info
         about individual libraries, but a few such as "system", "functional", etc.
@@ -259,7 +259,6 @@ class LibraryUpdater:
                     "name": library_data["name"],
                     "github_url": library_data["github_url"],
                     "description": library_data["description"],
-                    "cpp_standard_minimum": library_data["cxxstd"],
                     "data": library_data,
                 },
             )

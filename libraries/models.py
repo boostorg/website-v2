@@ -150,7 +150,7 @@ class Library(models.Model):
     )
     description = models.TextField(
         blank=True, null=True, help_text="The description of the library."
-    )
+    )  # holds the most recent version's description
     github_url = models.URLField(
         max_length=500,
         blank=True,
@@ -160,7 +160,9 @@ class Library(models.Model):
     versions = models.ManyToManyField(
         "versions.Version", through="libraries.LibraryVersion", related_name="libraries"
     )
-    cpp_standard_minimum = models.CharField(max_length=50, blank=True, null=True)
+    cpp_standard_minimum = models.CharField(
+        max_length=50, blank=True, null=True
+    )  # deprecated for LibraryVersion.cpp_standard_minimum
     active_development = models.BooleanField(default=True, db_index=True)
     categories = models.ManyToManyField(Category, related_name="libraries")
 
@@ -291,21 +293,6 @@ class Library(models.Model):
         # If no content was found for any of the files
         return None
 
-    def get_cpp_standard_minimum_display(self):
-        """Returns the display name for the C++ standard, or the value if not found.
-
-        Source of values is
-        https://docs.cppalliance.org/user-guide/prev/library_metadata.html"""
-        display_names = {
-            "98": "C++98",
-            "03": "C++03",
-            "11": "C++11",
-            "14": "C++14",
-            "17": "C++17",
-            "20": "C++20",
-        }
-        return display_names.get(self.cpp_standard_minimum, self.cpp_standard_minimum)
-
     def github_properties(self):
         """Returns the owner and repo name for the library"""
         if not self.github_url:
@@ -381,6 +368,9 @@ class LibraryVersion(models.Model):
         null=True,
         help_text="The path to the docs for this library version.",
     )
+    description = models.TextField(
+        blank=True, null=True, help_text="The description of the library."
+    )
     data = models.JSONField(
         default=dict, help_text="Contains the libraries.json for this library-version"
     )
@@ -388,6 +378,7 @@ class LibraryVersion(models.Model):
     insertions = models.IntegerField(default=0)
     deletions = models.IntegerField(default=0)
     files_changed = models.IntegerField(default=0)
+    cpp_standard_minimum = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
         return f"{self.library.name} ({self.version.name})"
@@ -405,6 +396,21 @@ class LibraryVersion(models.Model):
     @cached_property
     def get_release_notes(self):
         return get_release_notes_for_library_version(self)
+
+    def get_cpp_standard_minimum_display(self):
+        """Returns the display name for the C++ standard, or the value if not found.
+
+        Source of values is
+        https://docs.cppalliance.org/user-guide/prev/library_metadata.html"""
+        display_names = {
+            "98": "C++98",
+            "03": "C++03",
+            "11": "C++11",
+            "14": "C++14",
+            "17": "C++17",
+            "20": "C++20",
+        }
+        return display_names.get(self.cpp_standard_minimum, self.cpp_standard_minimum)
 
 
 class Issue(models.Model):
