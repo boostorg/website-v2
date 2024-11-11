@@ -314,6 +314,35 @@ SKIP_LIBRARY_VERSIONS = {
     "identity-type": [{"max_version": "boost-1.49.0"}],
 }
 
+# dict of sub-library: parent
+SUB_LIBRARIES = {
+    "functional/factory": "functional",
+    "functional/forward": "functional",
+    "functional/hash": "functional",
+    "functional/overloaded_function": "functional",
+    "math/common_factor": "math",
+    "math/octonion": "math",
+    "math/quaternion": "math",
+    "math/special_functions": "math",
+    "math/statistical_distributions": "math",
+    "algorithm/minmax": "algorithm",
+    "algorithm/string": "algorithm",
+    "utility/call_traits": "utility",
+    "utility/compressed_pair": "utility",
+    "utility/identity_type": "utility",
+    "utility/in_place_factories": "utility",
+    "utility/operators": "utility",
+    "utility/ostream_string": "utility",
+    "utility/result_of": "utility",
+    "utility/string_ref": "utility",
+    "utility/string_view": "utility",
+    "utility/value_initialized": "utility",
+    "utility/enable_if": "core",
+    "bind/ref": "core",
+    "utility/swap": "core",
+    "bind/mem_fn": "bind",
+}
+
 # List of versions for which we know docs are missing
 VERSION_DOCS_MISSING = ["boost-1.33.0"]
 
