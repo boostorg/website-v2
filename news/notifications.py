@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.core.mail import EmailMessage, send_mail
+from django.core.mail import EmailMessage, get_connection, send_mail
 from django.template import Template, Context
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -113,9 +113,13 @@ def send_email_news_posted(request, entry):
         )
     )
     subject = "Boost.org: News entry posted"
-    return EmailMessage(
-        subject=subject,
-        body=body,
-        from_email=None,
-        bcc=recipient_list,
-    ).send()
+    messages = [
+        EmailMessage(
+            subject=subject,
+            body=body,
+            from_email=None,
+            to=[user_email],
+        )
+        for user_email in recipient_list
+    ]
+    return get_connection().send_messages(messages)
