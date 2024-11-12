@@ -199,6 +199,11 @@ Env:
       secretKeyRef:
         name: githubtoken
         key: key
+  - name: HYPERKITTY_DATABASE_URL
+    valueFrom:
+      secretKeyRef:
+        name: hyperkitty
+        key: database_url
   # Static content cache timeout
   - name: STATIC_CACHE_TIMEOUT
     value: "60"
