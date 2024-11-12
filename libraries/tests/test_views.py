@@ -4,6 +4,7 @@ import pytest
 
 from model_bakery import baker
 
+from ..constants import README_MISSING
 from ..models import Library
 from versions.models import Version
 
@@ -306,3 +307,21 @@ def test_libraries_by_version_detail_no_version_found(tp, library_version):
         000000,
     )
     tp.response_404(res)
+
+
+def test_library_detail_context_missing_readme(
+    tp, user, library_version
+):
+    """
+    GET /libraries/{slug}/
+    Test that the missing readme message appears as expected
+    """
+
+    library = library_version.library
+    url = tp.reverse("library-detail", library.slug)
+
+    response = tp.get(url)
+
+    tp.response_200(response)
+    assert "description" in response.context
+    assert response.context["description"] == README_MISSING

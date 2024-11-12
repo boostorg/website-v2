@@ -17,6 +17,7 @@ from django.http import HttpResponseRedirect
 from core.githubhelper import GithubAPIClient
 from versions.models import Version
 
+from .constants import README_MISSING
 from .forms import VersionSelectionForm
 from .mixins import VersionAlertMixin
 from .models import (
@@ -318,7 +319,7 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
         client = GithubAPIClient(repo_slug=self.object.github_repo)
         context["description"] = self.object.get_description(
             client, tag=context["version"].name
-        )
+        ) or README_MISSING
 
         return context
 
