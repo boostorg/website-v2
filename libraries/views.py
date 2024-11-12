@@ -112,7 +112,7 @@ class LibraryList(VersionAlertMixin, ListView):
                     "version_str": version_str,
                     "categories": Category.objects.none(),
                     "versions": Version.objects.none(),
-                    "library_list": Library.objects.none(),
+                    "library_version_list": LibraryVersion.objects.none(),
                 }
             )
             return context
@@ -124,7 +124,12 @@ class LibraryList(VersionAlertMixin, ListView):
         context["categories"] = self.get_categories(context["version"])
         context["versions"] = self.get_versions()
         context["version_str"] = version_str
-        context["library_list"] = self.get_queryset()
+        context["library_version_list"] = LibraryVersion.objects.filter(
+            version__slug=version_str
+            if version_str != LATEST_RELEASE_URL_PATH_STR
+            else version.slug
+        ).prefetch_related("authors", "library", "library__categories")
+
         context["url_params"] = build_view_query_params_from_request(self.request)
 
         return context
@@ -158,6 +163,7 @@ class LibraryList(VersionAlertMixin, ListView):
 
         # Manually exclude the master and develop branches.
         versions = versions.exclude(name__in=["develop", "master", "head"])
+        versions.prefetch_related("library_version")
         return versions
 
     def dispatch(self, request, *args, **kwargs):
@@ -194,24 +200,43 @@ class LibraryListByCategory(LibraryList):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["library_list"] = self.get_results_by_category(
+        context["library_versions_by_category"] = self.get_results_by_category(
             version=context.get("version")
         )
         return context
 
     def get_results_by_category(self, version: Version | None):
-        queryset = super().get_queryset()
-        filter_kwargs = {"libraries__versions__name": version} if version else {}
+        # Define filter kwargs based on whether version is provided
+        version_filter = {"version__name": version} if version else {}
+        category_filter = {"libraries__versions__name": version} if version else {}
+
+        library_versions_qs = LibraryVersion.objects.filter(**version_filter)
         categories = (
-            Category.objects.filter(**filter_kwargs).distinct().order_by("name")
+            Category.objects.filter(**category_filter)
+            .distinct()
+            .order_by("name")
+            .prefetch_related(
+                Prefetch(
+                    "libraries__library_version",
+                    queryset=library_versions_qs,
+                    to_attr="prefetched_library_versions",
+                )
+            )
         )
-        categories = categories.prefetch_related(
-            Prefetch("libraries", queryset=queryset, to_attr="prefetched_libraries")
-        )
-        results_by_category = [
-            {"category": category, "libraries": category.prefetched_libraries}
-            for category in categories
-        ]
+
+        results_by_category = []
+
+        for category in categories:
+            library_versions = []
+            for library in category.libraries.all():
+                prefetched_versions = getattr(
+                    library, "prefetched_library_versions", []
+                )
+                library_versions.extend(prefetched_versions)
+
+            results_by_category.append(
+                {"category": category, "library_version_list": library_versions}
+            )
         return results_by_category
 
 
@@ -247,6 +272,7 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
         library_version = LibraryVersion.objects.get(
             library=self.get_object(), version=context["version"]
         )
+        context["library_version"] = library_version
         context["documentation_url"] = get_documentation_url(
             library_version, context["version_str"] == LATEST_RELEASE_URL_PATH_STR
         )

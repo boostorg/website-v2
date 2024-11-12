@@ -125,9 +125,9 @@ def test_library_list_by_category(
     library_version.library.categories.add(category)
     res = tp.get(url)
     tp.response_200(res)
-    assert "library_list" in res.context
-    assert "category" in res.context["library_list"][0]
-    assert "libraries" in res.context["library_list"][0]
+    assert "library_versions_by_category" in res.context
+    assert "category" in res.context["library_versions_by_category"][0]
+    assert "library_version_list" in res.context["library_versions_by_category"][0]
 
     # Create a new library version that is not in the selected version
     existing_category = library_version.library.categories.first()
@@ -137,8 +137,12 @@ def test_library_list_by_category(
     baker.make("libraries.LibraryVersion", version=new_version, library=new_lib)
     res = tp.get(f"/libraries/by-category/?version={library_version.version.slug}")
     tp.response_200(res)
-    assert existing_category in [x["category"] for x in res.context["library_list"]]
-    assert new_category not in [x["category"] for x in res.context["library_list"]]
+    assert existing_category in [
+        x["category"] for x in res.context["library_versions_by_category"]
+    ]
+    assert new_category not in [
+        x["category"] for x in res.context["library_versions_by_category"]
+    ]
 
 
 def test_library_detail(library_version, tp):
