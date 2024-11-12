@@ -309,9 +309,7 @@ def test_libraries_by_version_detail_no_version_found(tp, library_version):
     tp.response_404(res)
 
 
-def test_library_detail_context_missing_readme(
-    tp, user, library_version
-):
+def test_library_detail_context_missing_readme(tp, user, library_version):
     """
     GET /libraries/{slug}/
     Test that the missing readme message appears as expected
