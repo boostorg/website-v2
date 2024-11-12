@@ -317,9 +317,10 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
 
         # Populate the library description
         client = GithubAPIClient(repo_slug=self.object.github_repo)
-        context["description"] = self.object.get_description(
-            client, tag=context["version"].name
-        ) or README_MISSING
+        context["description"] = (
+            self.object.get_description(client, tag=context["version"].name)
+            or README_MISSING
+        )
 
         return context
 
