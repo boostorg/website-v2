@@ -347,7 +347,10 @@ SUB_LIBRARIES = {
 VERSION_DOCS_MISSING = ["boost-1.33.0"]
 
 # This constant is for library-versions missing a README
-README_MISSING = "⚠️ This library has no README.md or library-details.adoc; consider contributing one."
+README_MISSING = (
+    "⚠️ This library has no README.md or library-details.adoc; "
+    "consider contributing one."
+)
 
 DEFAULT_LIBRARIES_LANDING_VIEW = "libraries-grid"
 SELECTED_BOOST_VERSION_COOKIE_NAME = "boost_version"
