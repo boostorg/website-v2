@@ -1,35 +1,57 @@
 /**
  * README:
- * This stylesheet contains styles for both AsciiDoctor and Antora templates.
- * The `boostlook` class is applied across both, but due to differences in their HTML structure,
- * specific CSS rules are necessary to target each appropriately.
+ * This stylesheet provides styles for both AsciiDoctor and Antora templates, using the
+ * `boostlook` class for a consistent appearance across both templates.
+ *
+ * Note: This is a work-in-progress and may continue to evolve as templates and requirements
+ * change.
  *
  * High-Level HTML Structure:
  *
- * - Antora Template:
+ * - Common Structure:
  *   <div class="boostlook">
- *     <div class="card nav-container">...</div>
- *     <div class="doc">...</div>
+ *     <div class="header">...</div>
+ *     <div class="content">...</div>
+ *     <div class="footer">...</div>
  *   </div>
  *
- * - AsciiDoctor Template:
+ * - AsciiDoctor Example:
  *   <div class="boostlook">
- *     <div id="header">...</div>
- *     <div id="content">...</div>
+ *     <div class="header">
+ *       <h1>...</h1>
+ *       <button id="toggle-toc">Show Table of Contents</button>
+ *       <div id="toc" class="toc2"></div>
+ *     </div>
+ *     <div id="content">
+ *       <div class="sect1">...</div>
+ *     </div>
  *     <div id="footer">...</div>
  *   </div>
  *
- * - For Antora templates:
- *   The `.boostlook .doc` selector targets elements within the `.doc` class, and the
- *   `.boostlook .nav-container` selector targets elements within the `.nav-container` class,
- *   both of which are specific to the Antora HTML structure.
+ * - Antora Example:
+ *   <div class="boostlook">
+ *     <div class="header">
+ *       <div class="nav-container toc2">...</div>
+ *     </div>
+ *     <div id="content">
+ *       <article class="doc max-width-reset">
+ *         <h1>Getting Started</h1>
+ *         <div class="sect1">...</div>
+ *       </article>
+ *     </div>
+ *     <div id="footer">...</div>
+ *   </div>
  *
- * - For AsciiDoctor templates:
- *   The `.boostlook:not(:has(.doc))` selector is used to target elements that do not have
- *   a `.doc` child, applying styles specific to AsciiDoctor content.
-
- *   Since the `.doc` class is not present in the structure above, the styles defined for
- *   `.boostlook:not(:has(.doc))` will apply.
+ * - Shared Styles:
+ *   Selectors like `.boostlook .header`, `.boostlook .content`, and `.boostlook .footer`
+ *   apply common styles across both templates.
+ *
+ * - Specific Styles:
+ *   Use `.boostlook:not(:has(.doc))` for AsciiDoctor-specific styles and
+ *   `.boostlook .doc` for Antora-specific styles to target unique elements accordingly.
+ *
+ * This CSS file aims to simplify maintenance by aligning the HTML structure and
+ * reducing the need for complex selectors.
  */
 
 /*----------------- Root Variables - Start -----------------*/
@@ -308,7 +330,7 @@ p, h1, h2, h3, h4, h5, h6 {
 .boostlook p kbd,
 .boostlook p samp,
 .boostlook p pre {
-  background-color: transparent !important;
+  overflow-x: hidden;
 }
 
 .boostlook .content div:has(> table) {
@@ -520,7 +542,7 @@ p, h1, h2, h3, h4, h5, h6 {
     overflow-y: auto;
   }
 
-  .boostlook {
+  .boostlook:not(#libraryReadMe) {
     margin-left: 18rem;
   }
 
@@ -696,6 +718,7 @@ p, h1, h2, h3, h4, h5, h6 {
 
 .boostlook .doc pre {
   padding: initial;
+  overflow-x: hidden;
 }
 
 /* Layout */
