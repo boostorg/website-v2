@@ -15,12 +15,12 @@
 
   {# Libraries list #}
   <div class="space-y-3">
-    {% for result in library_list %}
+    {% for result in library_versions_by_category %}
       <div class="relative content-between p-3 w-full bg-white md:rounded-lg md:shadow-lg md:p-5 dark:bg-charcoal">
         <h5 class="mb-2 pb-2 text-xl md:text-2xl leading-tight text-orange border-b border-gray-300 dark:border-slate">{{ result.category }}</h5>
         <table class="table-auto w-full">
           <tbody>
-          {% for library in result.libraries %}
+          {% for library_version in result.library_version_list %}
             {% include "libraries/_library_category_list_item.html" %}
           {% empty %}
             <p class="text-gray-600 dark:text-gray-400">No libraries in this category yet.</p>

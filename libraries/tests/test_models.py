@@ -6,14 +6,14 @@ from libraries.models import CommitAuthor
 from mailing_list.models import EmailData
 
 
-def test_get_cpp_standard_minimum_display(library):
-    library.cpp_standard_minimum = "11"
-    library.save()
-    assert library.get_cpp_standard_minimum_display() == "C++11"
+def test_get_cpp_standard_minimum_display(library_version):
+    library_version.cpp_standard_minimum = "11"
+    library_version.save()
+    assert library_version.get_cpp_standard_minimum_display() == "C++11"
 
-    library.cpp_standard_minimum = "42"
-    library.save()
-    assert library.get_cpp_standard_minimum_display() == "42"
+    library_version.cpp_standard_minimum = "42"
+    library_version.save()
+    assert library_version.get_cpp_standard_minimum_display() == "42"
 
 
 def test_github_properties(library):

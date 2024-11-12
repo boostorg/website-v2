@@ -244,6 +244,7 @@ def skip_library_version(library_slug, version_slug):
 @app.task
 def import_library_versions(version_name, token=None, version_type="tag"):
     """For a specific version, imports all LibraryVersions using GitHub data"""
+    # todo: this needs to be refactored and tests added
     try:
         version = Version.objects.get(name=version_name)
     except Version.DoesNotExist:
@@ -348,12 +349,17 @@ def import_library_versions(version_name, token=None, version_type="tag"):
                 defaults={
                     "name": lib_data.get("name"),
                     "description": lib_data.get("description"),
-                    "cpp_standard_minimum": lib_data.get("cxxstd"),
                     "data": lib_data,
                 },
             )
             library_version, _ = LibraryVersion.objects.update_or_create(
-                version=version, library=library, defaults={"data": lib_data}
+                version=version,
+                library=library,
+                defaults={
+                    "data": lib_data,
+                    "cpp_standard_minimum": lib_data.get("cxxstd"),
+                    "description": lib_data.get("description"),
+                },
             )
             if not library.github_url:
                 github_data = client.get_repo(repo_slug=library_name)
