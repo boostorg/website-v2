@@ -10,13 +10,12 @@ from django.utils.text import slugify
 from django.db.models.functions import Upper
 
 from core.htmlhelper import get_release_notes_for_library_version
-from core.markdown import process_md
 from core.models import RenderedContent
-from core.asciidoc import convert_adoc_to_html
+from core.asciidoc import convert_adoc_to_html, convert_md_to_html
 from libraries.managers import IssueManager
 from mailing_list.models import EmailData
 
-from .utils import generate_random_string, write_content_to_tempfile
+from .utils import generate_random_string
 
 
 class Category(models.Model):
@@ -278,8 +277,7 @@ class Library(models.Model):
                 if file_path.endswith(".adoc"):
                     body_content = convert_adoc_to_html(content.decode("utf-8"))
                 else:
-                    temp_file = write_content_to_tempfile(content)
-                    _, body_content = process_md(temp_file.name)
+                    body_content = convert_md_to_html(content.decode("utf-8"))
                 static_content_cache.set(cache_key, body_content)
                 RenderedContent.objects.update_or_create(
                     cache_key=cache_key,
