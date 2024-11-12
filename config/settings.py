@@ -279,7 +279,17 @@ CACHES = {
 CLEAR_STATIC_CONTENT_CACHE_DAYS = 7
 
 # Hyperkitty
-HYPERKITTY_DATABASE_URL = env("HYPERKITTY_DATABASE_URL", default="")
+HYPERKITTY_DATABASE_NAME = env("HYPERKITTY_DATABASE_NAME", default="")
+if HYPERKITTY_DATABASE_NAME:
+    HYPERKITTY_DATABASE_URL = "postgresql://{}:{}@{}:{}/{}".format(
+        DATABASES["default"]["USER"],
+        DATABASES["default"]["PASSWORD"],
+        DATABASES["default"]["HOST"],
+        DATABASES["default"]["PORT"],
+        HYPERKITTY_DATABASE_NAME,
+    )
+else:
+    HYPERKITTY_DATABASE_URL = ""
 
 # Mailman API credentials
 MAILMAN_REST_API_URL = env("MAILMAN_REST_API_URL", default="http://localhost:8001")

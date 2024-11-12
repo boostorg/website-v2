@@ -19,8 +19,8 @@ from versions.models import Version
     help="Delete all EmailData objects before importing.",
 )
 def command(clean):
-    if not settings.HYPERKITTY_DATABASE_URL:
-        click.echo("HYPERKITTY_DATABASE_URL setting is empty. Not syncing.")
+    if not settings.HYPERKITTY_DATABASE_NAME:
+        click.echo("HYPERKITTY_DATABASE_NAME setting is empty. Not syncing.")
         return
     conn = psycopg2.connect(settings.HYPERKITTY_DATABASE_URL)
     with transaction.atomic():
