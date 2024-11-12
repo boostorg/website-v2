@@ -151,3 +151,44 @@ class VersionFile(models.Model):
     display_name = models.CharField(max_length=256, blank=True, null=True)
 
     objects = VersionFileManager()
+
+
+# TODO: should this go in a new `reviews` app?
+class Review(models.Model):
+    submission = models.CharField()
+    submitter = models.CharField()
+    review_manager = models.CharField(blank=True, default="Needed!")
+    review_dates = models.CharField()
+    github_link = models.URLField(blank=True, default="")
+    documentation_link = models.URLField(blank=True, default="")
+
+    def __str__(self) -> str:
+        return self.submission
+
+    def __repr__(self) -> str:
+        return f"<Review: {self} ({self.pk})>"
+
+
+class ReviewResult(models.Model):
+    review = models.ForeignKey(Review, related_name="results", on_delete=models.CASCADE)
+    short_description = models.CharField()
+    is_most_recent = models.BooleanField(default=True)
+    announcement_link = models.URLField(blank=True, default="")
+
+    class Meta:
+        verbose_name_plural = "review results"
+
+    def __str__(self) -> str:
+        return self.short_description
+
+    def __repr__(self) -> str:
+        return f"<ReviewResult: {self} ({self.pk})>"
+
+    def save(self, *args, **kwargs):
+        """Ensure only one status is most recent per review."""
+        if self.is_most_recent:
+            sibling_results = ReviewResult.objects.filter(review=self.review).exclude(
+                pk=self.pk
+            )
+            sibling_results.update(is_most_recent=False)
+        super().save(*args, **kwargs)
