@@ -1,9 +1,10 @@
+from django.db.models.query import QuerySet
 import structlog
 from itertools import groupby
 from operator import attrgetter
 
 from django.db.models import Q, Count
-from django.views.generic import DetailView, TemplateView
+from django.views.generic import DetailView, TemplateView, ListView
 from django.views.generic.edit import FormMixin
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
@@ -21,7 +22,7 @@ from libraries.utils import (
     determine_selected_boost_version,
     library_doc_latest_transform,
 )
-from versions.models import Version
+from versions.models import Review, Version
 
 
 logger = structlog.get_logger(__name__)
@@ -173,3 +174,21 @@ class InProgressReleaseNotesView(TemplateView):
             return rendered_content.content_html
         except RenderedContent.DoesNotExist:
             return
+
+
+class PastReviewListView(ListView):
+    model = Review
+    template_name = "review/past_reviews.html"
+
+    def get_queryset(self) -> QuerySet[Review]:
+        qs = super().get_queryset()
+        return qs.filter(results__isnull=False).distinct()
+
+
+class ScheduledReviewListView(ListView):
+    model = Review
+    template_name = "review/upcoming_reviews.html"
+
+    def get_queryset(self) -> QuerySet[Review]:
+        qs = super().get_queryset()
+        return qs.exclude(results__isnull=False).distinct()

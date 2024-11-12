@@ -25,38 +25,19 @@
           <div class="p-3 w-1/5">Review Dates</div>
         </div>
 
-        <div class="py-6 border-b md:flex md:py-0 md:border-b-0 border-slate">
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submission:</span> Text (mini-review)</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submitter:</span> Zach Laine</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Link:</span> <a href="#" class="text-orange">Github Documentation</a></div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Manager:</span> Needed!</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Dates:</span> March 22, 2021 - March 31, 2021</div>
-        </div>
-
-        <div class="py-6 border-b md:flex md:py-0 md:border-b-0 border-slate">
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submission:</span> Text (mini-review)</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submitter:</span> Zach Laine</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Link:</span> <a href="#" class="text-orange">Github Documentation</a></div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Manager:</span> Needed!</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Dates:</span> March 22, 2021 - March 31, 2021</div>
-        </div>
-
-        <div class="py-6 border-b md:flex md:py-0 md:border-b-0 border-slate">
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submission:</span> Text (mini-review)</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submitter:</span> Zach Laine</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Link:</span> <a href="#" class="text-orange">Github Documentation</a></div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Manager:</span> Needed!</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Dates:</span> March 22, 2021 - March 31, 2021</div>
-        </div>
-
-        <div class="py-6 border-b md:flex md:py-0 md:border-b-0 border-slate">
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submission:</span> Text (mini-review)</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submitter:</span> Zach Laine</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Link:</span> <a href="#" class="text-orange">Github Documentation</a></div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Manager:</span> Needed!</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Dates:</span> March 22, 2021 - March 31, 2021</div>
-        </div>
-
+        {% for review in object_list %}
+          <div class="py-6 border-b md:flex md:py-0 md:border-b-0 border-slate">
+            <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submission:</span> {{ review.submission }}</div>
+            <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submitter:</span> {{ review.submitter }}</div>
+            <div class="p-3 text-left md:w-1/5 md:border md:border-slate">
+              <span class="font-bold md:hidden">Link:</span>
+              <p class="p-1 pt-0"><a href="{{ review.github_link }}" class="text-orange">Github</a></p>
+              <p class="p-1"><a href="{{ review.documentation_link }}" class="text-orange">Documentation</a></p>
+            </div>
+            <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Manager:</span> {{ review.review_manager }}</div>
+            <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Dates:</span> {{ review.review_dates }}</div>
+          </div>
+        {% endfor %}
       </div>
     </div>
 
@@ -65,7 +46,7 @@
         <h3>Overview</h3>
         <p>
           Reviews are scheduled when the review wizards approve a review manager and agree with the manager and
-          author on dates. See <a href="#" class="text-orange">Review Process</a> for more information.
+          author on dates. See <a href="{% url 'review-process' %}" class="text-orange">Review Process</a> for more information.
         </p>
         <p>
           In addition to upcoming reviews, the schedule includes recent reviews already completed; that helps track
