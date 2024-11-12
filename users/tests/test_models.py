@@ -179,7 +179,21 @@ def test_preferences(user):
         "own-news-approved": [Preferences.NEWS_TYPES_WILDCARD],
         "others-news-posted": [],
         "others-news-needs-moderation": [Preferences.NEWS_TYPES_WILDCARD],
+        "terms-changed": [False],
     }
+
+
+def test_preferences_set_value_terms(user):
+    notification_type = "terms-changed"
+    attr_name = f"allow_notification_{notification_type.replace('-', '_')}"
+
+    assert user.preferences.notifications[notification_type] == [False]
+    assert getattr(user.preferences, attr_name) is False
+
+    # Opt in
+    setattr(user.preferences, attr_name, True)
+    assert user.preferences.notifications[notification_type] == [True]
+    assert getattr(user.preferences, attr_name) is True
 
 
 @pytest.mark.parametrize(

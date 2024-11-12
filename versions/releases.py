@@ -195,6 +195,20 @@ def get_release_notes_for_version(version_pk):
     return response.content
 
 
+def get_in_progress_release_notes():
+    try:
+        response = session.get(settings.RELEASE_NOTES_IN_PROGRESS_URL)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        logger.error(
+            "get_in_progress_release_notes_error",
+            exc_msg=str(e),
+            url=settings.RELEASE_NOTES_IN_PROGRESS_URL,
+        )
+        raise
+    return response.content
+
+
 def process_release_notes(content):
     stripped_content = modernize_release_notes(content)
     return stripped_content
@@ -229,6 +243,28 @@ def store_release_notes_for_version(version_pk):
         "store_release_notes_for_version_success",
         rendered_content_pk=rendered_content.id,
         version_pk=version_pk,
+    )
+    return rendered_content
+
+
+def store_release_notes_for_in_progress():
+    """Retrieve and store the release notes for a given version"""
+    # Get the release notes content
+    content = get_in_progress_release_notes()
+    stripped_content = process_release_notes(content)
+
+    # Save the result to the rendered content model with the key
+    rendered_content, _ = RenderedContent.objects.update_or_create(
+        cache_key=settings.RELEASE_NOTES_IN_PROGRESS_CACHE_KEY,
+        defaults={
+            "content_type": "text/html",
+            "content_original": content,
+            "content_html": stripped_content,
+        },
+    )
+    logger.info(
+        "store_release_notes_in_progress_success",
+        rendered_content_pk=rendered_content.id,
     )
     return rendered_content
 

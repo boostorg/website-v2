@@ -146,7 +146,7 @@ def test_send_email_news_posted_no_other_user_allows(
     entry = make_entry(model_class, approved=False)
     request = rf.get("")
 
-    for i in range(3):
+    for _ in range(3):
         u = make_user()
         u.preferences.allow_notification_others_news_posted = []
         u.preferences.save()
@@ -161,35 +161,34 @@ def test_send_email_news_posted_many_users(rf, tp, make_entry, make_user, model_
     entry = make_entry(model_class, approved=False)
     request = rf.get("")
 
-    # user does not allow notifications
-    make_user(email="u1@example.com", allow_notification_others_news_posted=[])
-    # allows nofitications for all news type
-    make_user(
-        email="u2@example.com",
-        allow_notification_others_news_posted=[m.news_type for m in NEWS_MODELS],
-    )
-    # allows only for the same type as entry
-    make_user(email="u3@example.com", allow_notification_others_news_posted=[entry.tag])
-    # allows for any other type except entry's
-    make_user(
-        email="u4@example.com",
-        allow_notification_others_news_posted=[
+    recipients = {
+        # user does not allow notifications
+        "u1@example.com": [],
+        # allows nofitications for all news type
+        "u2@example.com": [m.news_type for m in NEWS_MODELS],
+        # allows only for the same type as entry
+        "u3@example.com": [entry.tag],
+        # allows for any other type except entry's
+        "u4@example.com": [
             m.news_type for m in NEWS_MODELS if m.news_type != entry.tag
         ],
-    )
+    }
+
+    for email, notifications in recipients.items():
+        make_user(email=email, allow_notification_others_news_posted=notifications)
 
     with tp.assertNumQueriesLessThan(2, verbose=True):
         result = send_email_news_posted(request, entry)
 
-    assert result == 1
-    assert len(mail.outbox) == 1
-    msg = mail.outbox[0]
-    assert "news entry posted" in msg.subject.lower()
-    assert entry.title in msg.body
-    assert escape(entry.title) not in msg.body
-    assert entry.author.email not in msg.body  # never disclose author email!
-    assert request.build_absolute_uri(entry.get_absolute_url()) in msg.body
-    assert request.build_absolute_uri(tp.reverse("profile-account")) in msg.body
-    assert msg.to == []  # do not share all emails among all recipients
-    assert msg.bcc == ["u2@example.com", "u3@example.com"]
-    assert msg.recipients() == ["u2@example.com", "u3@example.com"]
+    # We should send two emails - one to u2, one to u3
+    assert result == len(mail.outbox) == 2
+    for usr_num, msg in enumerate(mail.outbox, start=2):
+        assert "news entry posted" in msg.subject.lower()
+        assert entry.title in msg.body
+        assert escape(entry.title) not in msg.body
+        assert entry.author.email not in msg.body  # never disclose author email!
+        assert request.build_absolute_uri(entry.get_absolute_url()) in msg.body
+        assert request.build_absolute_uri(tp.reverse("profile-account")) in msg.body
+        # do not share all emails among all recipients
+        assert msg.to == [f"u{usr_num}@example.com"]
+        assert msg.recipients() == [f"u{usr_num}@example.com"]

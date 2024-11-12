@@ -6,6 +6,7 @@ from django.conf import settings
 from django.db.models import Q
 from core.boostrenderer import get_content_from_s3
 from core.htmlhelper import get_library_documentation_urls
+from libraries.forms import CreateReportForm, CreateReportFullForm
 from libraries.github import LibraryUpdater
 from libraries.models import Library, LibraryVersion
 from versions.models import Version
@@ -212,3 +213,17 @@ def update_issues(clean=False):
     if clean:
         command.append("--clean")
     call_command(*command)
+
+
+@app.task
+def generate_release_report(params):
+    """Generate a release report asynchronously and save it in RenderedContent."""
+    form = CreateReportForm(params)
+    form.cache_html()
+
+
+@app.task
+def generate_library_report(params):
+    """Generate a library report asynchronously and save it in RenderedContent."""
+    form = CreateReportFullForm(params)
+    form.cache_html()

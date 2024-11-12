@@ -21,15 +21,15 @@ Not all tags are official GitHub **Releases**, however, and this impacts where w
 To retrieve releases and tags, run:
 
 ```bash
-./manage.py import_releases
+./manage.py import_versions
 ```
 
-This will:
+Note the command enqueues a celery task rather than running synchronously. The task will:
 
-- Delete existing Versions and LibraryVersions
+- Delete existing Versions and LibraryVersions if you pass `--delete-versions` to the command
 - Retrieve tags and releases from the Boost GitHub repo
 - Create new Versions for each tag and release that is not a beta or rc release
-- Create a new LibraryVersion for each Library **but not for historical versions**
+- Create a new LibraryVersion for each Library (including for historical versions unless you pass `--new`)
 
 
 ## Library data

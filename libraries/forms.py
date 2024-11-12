@@ -5,12 +5,15 @@ import psycopg2
 from wordcloud import WordCloud, STOPWORDS
 from matplotlib import pyplot as plt
 
+from django.template.loader import render_to_string
 from django.db.models import F, Q, Count, OuterRef, Sum
-from django.forms import Form, ModelChoiceField, ModelForm
+from django.forms import Form, ModelChoiceField, ModelForm, BooleanField
 from django.conf import settings
 
+from core.models import RenderedContent
 from versions.models import Version
 from .models import Commit, CommitAuthor, Issue, Library, LibraryVersion
+from libraries.constants import SUB_LIBRARIES
 from mailing_list.models import EmailData
 
 
@@ -34,7 +37,9 @@ class VersionSelectionForm(Form):
 class CreateReportFullForm(Form):
     """Form for creating a report over all releases."""
 
-    library_queryset = Library.objects.all().order_by("name")
+    html_template_name = "admin/library_report_full_detail.html"
+
+    library_queryset = Library.objects.exclude(key__in=SUB_LIBRARIES).order_by("name")
     library_1 = ModelChoiceField(
         queryset=library_queryset,
         required=False,
@@ -68,13 +73,31 @@ class CreateReportFullForm(Form):
         queryset=library_queryset,
         required=False,
     )
+    no_cache = BooleanField(
+        required=False,
+        initial=False,
+        help_text="Force the page to be regenerated, do not use cache.",
+    )
+
+    @property
+    def cache_key(self):
+        chosen_libraries = [
+            self.cleaned_data["library_1"],
+            self.cleaned_data["library_2"],
+            self.cleaned_data["library_3"],
+            self.cleaned_data["library_4"],
+            self.cleaned_data["library_5"],
+            self.cleaned_data["library_6"],
+            self.cleaned_data["library_7"],
+            self.cleaned_data["library_8"],
+        ]
+        lib_string = ",".join(str(x.id) if x else "" for x in chosen_libraries)
+        return f"full-report-{lib_string}"
 
     def _get_top_libraries(self):
-        return (
-            Library.objects.all()
-            .annotate(commit_count=Count("library_version__commit"))
-            .order_by("-commit_count")[:5]
-        )
+        return self.library_queryset.annotate(
+            commit_count=Count("library_version__commit")
+        ).order_by("-commit_count")[:5]
 
     def _get_library_order(self, top_libraries):
         library_order = [
@@ -108,7 +131,14 @@ class CreateReportFullForm(Form):
     def _get_top_contributors_overall(self):
         return (
             CommitAuthor.objects.all()
-            .annotate(commit_count=Count("commit"))
+            .annotate(
+                commit_count=Count(
+                    "commit",
+                    filter=Q(
+                        commit__library_version__library__in=self.library_queryset
+                    ),
+                )
+            )
             .values("name", "avatar_url", "commit_count", "github_profile_url")
             .order_by("-commit_count")[:10]
         )
@@ -133,7 +163,9 @@ class CreateReportFullForm(Form):
         return top_contributors_library
 
     def get_stats(self):
-        commit_count = Commit.objects.count()
+        commit_count = Commit.objects.filter(
+            library_version__library__in=self.library_queryset
+        ).count()
 
         top_libraries = self._get_top_libraries()
         library_order = self._get_library_order(top_libraries)
@@ -165,12 +197,39 @@ class CreateReportFullForm(Form):
             "top_contributors": top_contributors,
             "library_data": library_data,
             "top_libraries": top_libraries,
-            "library_count": Library.objects.all().count(),
+            "library_count": self.library_queryset.count(),
         }
+
+    def cache_html(self):
+        """Render and cache the html for this report."""
+        # ensure we have "cleaned_data"
+        if not self.is_valid():
+            return ""
+        html = render_to_string(self.html_template_name, self.get_stats())
+        self.cache_set(html)
+        return html
+
+    def cache_get(self) -> RenderedContent | None:
+        return RenderedContent.objects.filter(cache_key=self.cache_key).first()
+
+    def cache_clear(self):
+        return RenderedContent.objects.filter(cache_key=self.cache_key).delete()
+
+    def cache_set(self, content_html):
+        """Cache the html for this report."""
+        return RenderedContent.objects.update_or_create(
+            cache_key=self.cache_key,
+            defaults={
+                "content_html": content_html,
+                "content_type": "text/html",
+            },
+        )
 
 
 class CreateReportForm(CreateReportFullForm):
     """Form for creating a report for a specific release."""
+
+    html_template_name = "admin/release_report_detail.html"
 
     version = ModelChoiceField(
         queryset=Version.objects.minor_versions().order_by("-version_array")
@@ -182,19 +241,42 @@ class CreateReportForm(CreateReportFullForm):
             "library_1"
         ].help_text = "If none are selected, all libraries will be selected."
 
+    @property
+    def cache_key(self):
+        chosen_libraries = [
+            self.cleaned_data["library_1"],
+            self.cleaned_data["library_2"],
+            self.cleaned_data["library_3"],
+            self.cleaned_data["library_4"],
+            self.cleaned_data["library_5"],
+            self.cleaned_data["library_6"],
+            self.cleaned_data["library_7"],
+            self.cleaned_data["library_8"],
+        ]
+        lib_string = ",".join(str(x.id) if x else "" for x in chosen_libraries)
+        version = self.cleaned_data["version"]
+        return f"release-report-{lib_string}-{version.name}"
+
     def _get_top_contributors_for_version(self):
         return (
             CommitAuthor.objects.filter(
                 commit__library_version__version=self.cleaned_data["version"]
             )
-            .annotate(commit_count=Count("commit"))
+            .annotate(
+                commit_count=Count(
+                    "commit",
+                    filter=Q(
+                        commit__library_version__library__in=self.library_queryset
+                    ),
+                )
+            )
             .values("name", "avatar_url", "commit_count", "github_profile_url")
             .order_by("-commit_count")[:10]
         )
 
     def _get_top_libraries_for_version(self):
         return (
-            Library.objects.filter(
+            self.library_queryset.filter(
                 library_version=LibraryVersion.objects.filter(
                     library=OuterRef("id"), version=self.cleaned_data["version"]
                 )[:1],
@@ -290,7 +372,7 @@ class CreateReportForm(CreateReportFullForm):
             version__in=version_lte,
             library=OuterRef("id"),
         ).values("id")
-        qs = Library.objects.aggregate(
+        qs = self.library_queryset.aggregate(
             this_release_count=Count(
                 "library_version__commit__author",
                 filter=Q(library_version__version=version),
@@ -427,17 +509,22 @@ class CreateReportForm(CreateReportFullForm):
         )
 
         commit_count = Commit.objects.filter(
-            library_version__version__name__lte=version.name
+            library_version__version__name__lte=version.name,
+            library_version__library__in=self.library_queryset,
         ).count()
         version_commit_count = Commit.objects.filter(
-            library_version__version=version
+            library_version__version=version,
+            library_version__library__in=self.library_queryset,
         ).count()
 
         top_libraries_for_version = self._get_top_libraries_for_version()
         library_order = self._get_library_order(top_libraries_for_version)
         libraries = Library.objects.filter(id__in=library_order)
         library_names = (
-            LibraryVersion.objects.filter(version=version)
+            LibraryVersion.objects.filter(
+                version=version,
+                library__in=self.library_queryset,
+            )
             .annotate(name=F("library__name"))
             .order_by("name")
             .values_list("name", flat=True)
@@ -480,29 +567,43 @@ class CreateReportForm(CreateReportFullForm):
             commit_contributors_release_count,
             commit_contributors_new_count,
         ) = self._count_commit_contributors_totals(version)
-        library_count = LibraryVersion.objects.filter(version=version).count()
+        library_count = LibraryVersion.objects.filter(
+            version=version,
+            library__in=self.library_queryset,
+        ).count()
         if prior_version:
             library_count_prior = LibraryVersion.objects.filter(
-                version=prior_version
+                version=prior_version,
+                library__in=self.library_queryset,
             ).count()
         else:
             library_count_prior = 0
 
         added_library_count = max(0, library_count - library_count_prior)
         removed_library_count = max(0, library_count_prior - library_count)
-        lines_added = LibraryVersion.objects.filter(version=version).aggregate(
-            lines=Sum("insertions")
-        )["lines"]
-        lines_removed = LibraryVersion.objects.filter(version=version).aggregate(
-            lines=Sum("deletions")
-        )["lines"]
+        lines_added = LibraryVersion.objects.filter(
+            version=version,
+            library__in=self.library_queryset,
+        ).aggregate(lines=Sum("insertions"))["lines"]
+        lines_removed = LibraryVersion.objects.filter(
+            version=version,
+            library__in=self.library_queryset,
+        ).aggregate(lines=Sum("deletions"))["lines"]
         return {
             "lines_added": lines_added,
             "lines_removed": lines_removed,
             "wordcloud_base64": self._generate_hyperkitty_word_cloud(version),
             "version": version,
-            "opened_issues_count": Issue.objects.opened_during_release(version).count(),
-            "closed_issues_count": Issue.objects.closed_during_release(version).count(),
+            "opened_issues_count": Issue.objects.filter(
+                library__in=self.library_queryset
+            )
+            .opened_during_release(version)
+            .count(),
+            "closed_issues_count": Issue.objects.filter(
+                library__in=self.library_queryset
+            )
+            .closed_during_release(version)
+            .count(),
             "mailinglist_counts": mailinglist_counts,
             "mailinglist_total": total_mailinglist_count or 0,
             "mailinglist_contributor_release_count": mailinglist_contributor_release_count,  # noqa: E501

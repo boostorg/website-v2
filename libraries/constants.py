@@ -288,6 +288,14 @@ LIBRARY_DOCS_EXCEPTIONS = {
     ],
 }
 
+# Mapping for duplicate library categories. If a library has one of the keys
+# in this mapping as its category, the associated canonical category should be used.
+# key: Duplicate category's Category.slug
+# value: Category.slug of the canonical category
+CATEGORY_OVERRIDES = {
+    "Container": "Containers",
+}
+
 
 # This constant is for library-version docs that we know are missing
 LIBRARY_DOCS_MISSING = {
@@ -304,6 +312,35 @@ LIBRARY_DOCS_MISSING = {
 SKIP_LIBRARY_VERSIONS = {
     "algorithm": [{"max_version": "boost-1.49.0"}],
     "identity-type": [{"max_version": "boost-1.49.0"}],
+}
+
+# dict of sub-library: parent
+SUB_LIBRARIES = {
+    "functional/factory": "functional",
+    "functional/forward": "functional",
+    "functional/hash": "functional",
+    "functional/overloaded_function": "functional",
+    "math/common_factor": "math",
+    "math/octonion": "math",
+    "math/quaternion": "math",
+    "math/special_functions": "math",
+    "math/statistical_distributions": "math",
+    "algorithm/minmax": "algorithm",
+    "algorithm/string": "algorithm",
+    "utility/call_traits": "utility",
+    "utility/compressed_pair": "utility",
+    "utility/identity_type": "utility",
+    "utility/in_place_factories": "utility",
+    "utility/operators": "utility",
+    "utility/ostream_string": "utility",
+    "utility/result_of": "utility",
+    "utility/string_ref": "utility",
+    "utility/string_view": "utility",
+    "utility/value_initialized": "utility",
+    "utility/enable_if": "core",
+    "bind/ref": "core",
+    "utility/swap": "core",
+    "bind/mem_fn": "bind",
 }
 
 # List of versions for which we know docs are missing

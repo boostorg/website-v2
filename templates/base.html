@@ -36,6 +36,7 @@
       <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
       <link href="{% static 'css/components.css' %}" rel="stylesheet" />
       <link rel="preload" as="style" href="{% static 'css/fonts.css' %}" rel="stylesheet" />
+      <link href="{% static 'css/boostlook.css' %}" rel="stylesheet" />
     {% endblock %}
 
     {% block css %}{% endblock css %}
@@ -48,7 +49,7 @@
               el.setAttribute('content', el.getAttribute('data-' + m));
             });
         }"
-        class="h-screen bg-gray-200 dark:bg-black" {% block body_id %}{% endblock %}>
+        class="h-screen bg-gray-200 dark:bg-black{% if DEBUG %} DEBUG{% endif %}" {% block body_id %}{% endblock %}>
          <div class="modal-overlay" id="modalOverlay"><div class="modal-content"><iframe src="" id="modalFrame" class="w-full h-full rounded-xl m-0 p-0"></iframe><div class="modal-close" id="modalClose" onclick="closeModal()"><i class="fa-solid fa-xmark fa-lg"></i></div></div></div>
     <div class="max-w-7xl md:px-3 mx-auto transition-all">
       {% block content_header %}

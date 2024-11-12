@@ -2,11 +2,12 @@ from django.contrib import admin
 from django.db import transaction
 from django.db.models import F, Count, OuterRef, Window
 from django.db.models.functions import RowNumber
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 from django.shortcuts import redirect
+from django.views.generic import TemplateView
 
 from libraries.forms import CreateReportForm, CreateReportFullForm
 from versions.models import Version
@@ -22,12 +23,14 @@ from .models import (
     PullRequest,
 )
 from .tasks import (
+    generate_library_report,
     update_authors_and_maintainers,
     update_commit_author_github_data,
     update_commits,
     update_issues,
     update_libraries,
     update_library_version_documentation_urls_all_versions,
+    generate_release_report,
 )
 
 
@@ -130,6 +133,72 @@ class LibraryVersionInline(admin.TabularInline):
     fields = ["version", "documentation_url"]
 
 
+class ReleaseReportView(TemplateView):
+    polling_template = "admin/report_polling.html"
+    form_template = "admin/library_report_form.html"
+    form_class = CreateReportForm
+    report_type = "release report"
+
+    def get_template_names(self):
+        if not self.request.GET.get("submit", None):
+            return [self.form_template]
+        form = self.get_form()
+        if not form.is_valid():
+            return [self.form_template]
+        if form.cleaned_data["no_cache"]:
+            return [self.form_template]
+        content = form.cache_get()
+        if content:
+            if not content.content_html:
+                return [self.polling_template]
+        else:
+            return [self.polling_template]
+
+    def get_form(self):
+        data = None
+        if self.request.GET.get("submit", None):
+            data = self.request.GET
+        return self.form_class(data)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["report_type"] = self.report_type
+        context["form"] = self.get_form()
+        return context
+
+    def generate_report(self):
+        generate_release_report.delay(self.request.GET)
+
+    def get(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            if form.cleaned_data["no_cache"]:
+                params = request.GET.copy()
+                form.cache_clear()
+                del params["no_cache"]
+                return redirect(request.path + f"?{params.urlencode()}")
+            content = form.cache_get()
+            if not content:
+                # Ensure a RenderedContent exists so the task is not re-queued
+                form.cache_set("")
+                self.generate_report()
+            elif content.content_html:
+                return HttpResponse(content.content_html)
+        return TemplateResponse(
+            request,
+            self.get_template_names(),
+            self.get_context_data(),
+        )
+
+
+class LibraryReportView(ReleaseReportView):
+    form_class = CreateReportFullForm
+    report_type = "library report"
+
+    def generate_report(self):
+        generate_library_report.delay(self.request.GET)
+
+
 @admin.register(Library)
 class LibraryAdmin(admin.ModelAdmin):
     list_display = ["name", "key", "github_url", "view_stats"]
@@ -154,75 +223,17 @@ class LibraryAdmin(admin.ModelAdmin):
                 name="library_stat_detail",
             ),
             path(
-                "release-report-form/",
-                self.admin_site.admin_view(self.release_report_form),
-                name="release_report_form",
-            ),
-            path(
                 "release-report/",
-                self.admin_site.admin_view(self.release_report_view),
+                self.admin_site.admin_view(ReleaseReportView.as_view()),
                 name="release_report",
             ),
             path(
-                "report-full-form/",
-                self.admin_site.admin_view(self.report_form_full_view),
-                name="library_report_full_form",
-            ),
-            path(
-                "report-full/",
-                self.admin_site.admin_view(self.report_full_view),
+                "library-report/",
+                self.admin_site.admin_view(LibraryReportView.as_view()),
                 name="library_report_full",
             ),
         ]
         return my_urls + urls
-
-    def release_report_form(self, request):
-        form = CreateReportForm()
-        context = {}
-        if request.GET.get("submit", None):
-            form = CreateReportForm(request.GET)
-            if form.is_valid():
-                context.update(form.get_stats())
-                return redirect(
-                    reverse("admin:release_report") + f"?{request.GET.urlencode()}"
-                )
-        if not context:
-            context["form"] = form
-        return TemplateResponse(request, "admin/library_report_form.html", context)
-
-    def release_report_view(self, request):
-        form = CreateReportForm(request.GET)
-        context = {"form": form}
-        if form.is_valid():
-            context.update(form.get_stats())
-        else:
-            return redirect("admin:release_report_form")
-        return TemplateResponse(request, "admin/release_report_detail.html", context)
-
-    def report_form_full_view(self, request):
-        form = CreateReportFullForm()
-        context = {}
-        if request.GET.get("submit", None):
-            form = CreateReportFullForm(request.GET)
-            if form.is_valid():
-                context.update(form.get_stats())
-                return redirect(
-                    reverse("admin:library_report_full") + f"?{request.GET.urlencode()}"
-                )
-        if not context:
-            context["form"] = form
-        return TemplateResponse(request, "admin/library_report_form.html", context)
-
-    def report_full_view(self, request):
-        form = CreateReportFullForm(request.GET)
-        context = {"form": form}
-        if form.is_valid():
-            context.update(form.get_stats())
-        else:
-            return redirect("admin:library_report_full_form")
-        return TemplateResponse(
-            request, "admin/library_report_full_detail.html", context
-        )
 
     def view_stats(self, instance):
         url = reverse("admin:library_stat_detail", kwargs={"pk": instance.pk})

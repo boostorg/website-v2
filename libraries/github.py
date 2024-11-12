@@ -17,6 +17,7 @@ from django.db import transaction
 from django.utils import dateparse, timezone
 
 from versions.models import Version
+from .constants import CATEGORY_OVERRIDES
 from .models import (
     Category,
     Commit,
@@ -163,10 +164,7 @@ class LibraryUpdater:
     """
 
     def __init__(self, client=None, token=None):
-        if client:
-            self.client = client
-        else:
-            self.client = GithubAPIClient()
+        self.client = client or GithubAPIClient()
         self.api = self.client.initialize_api(token=token)
         self.parser = GithubDataParser()
         self.logger = structlog.get_logger()
@@ -279,6 +277,7 @@ class LibraryUpdater:
 
         obj.categories.clear()
         for cat_name in categories:
+            cat_name = CATEGORY_OVERRIDES.get(cat_name, cat_name)
             cat, _ = Category.objects.get_or_create(name=cat_name)
             obj.categories.add(cat)
 
