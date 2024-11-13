@@ -244,22 +244,19 @@
     window.chart.render();
 
     const ValidateGitImages = () => {
-      var all = document.getElementsByTagName("img");
-      for (var i = 0; i < all.length; i++) {
-        (function(index) {
-            var img = new Image();
-            img.src = all[index].getAttribute('src');
+      document.querySelectorAll("img").forEach((img) => {
+        var test_img = new Image();
+        test_img.src = img.getAttribute('src');
 
-            img.onerror = function() {
-                var alt = all[index].getAttribute('alt');
-                if (alt) {
-                    all[index].parentElement.insertAdjacentText('afterbegin', alt);
-                    all[index].parentElement.classList.add('text-xs');
-                }
-                all[index].remove();
-            };
-        })(i);
-    }
+        test_img.onerror = function() {
+            var alt = img.getAttribute('alt');
+            if (alt) {
+                img.parentElement.insertAdjacentText('afterbegin', alt);
+                img.parentElement.classList.add('text-xs');
+            }
+            img.remove();
+        };
+      });
     }
 
     window.addEventListener('load', function() {
