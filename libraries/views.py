@@ -213,28 +213,35 @@ class LibraryListByCategory(LibraryList):
 
     def get_results_by_category(self, version: Version | None):
         # Define filter kwargs based on whether version is provided
-        version_filter = {"version__name": version} if version else {}
-        category_filter = {"libraries__versions__name": version} if version else {}
-
+        version_filter = {"version": version} if version else {}
+        category_filter = (
+            {"libraries__library_version__version": version} if version else {}
+        )
         library_versions_qs = LibraryVersion.objects.filter(**version_filter)
+
+        libraries_prefetch = Prefetch(
+            "libraries",
+            queryset=Library.objects.order_by("name").prefetch_related(
+                Prefetch(
+                    "library_version",
+                    queryset=library_versions_qs,
+                    to_attr="prefetched_library_versions",
+                )
+            ),
+            to_attr="prefetched_libraries",
+        )
+
         categories = (
             Category.objects.filter(**category_filter)
             .distinct()
             .order_by("name")
-            .prefetch_related(
-                Prefetch(
-                    "libraries__library_version",
-                    queryset=library_versions_qs,
-                    to_attr="prefetched_library_versions",
-                )
-            )
+            .prefetch_related(libraries_prefetch)
         )
 
         results_by_category = []
-
         for category in categories:
             library_versions = []
-            for library in category.libraries.all():
+            for library in getattr(category, "prefetched_libraries", []):
                 prefetched_versions = getattr(
                     library, "prefetched_library_versions", []
                 )
