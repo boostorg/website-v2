@@ -423,7 +423,7 @@ class CreateReportForm(CreateReportFullForm):
             .order_by("-release_date")
             .first()
         )
-        if not prior_version or not settings.HYPERKITTY_DATABASE_URL:
+        if not prior_version or not settings.HYPERKITTY_DATABASE_NAME:
             return []
         conn = psycopg2.connect(settings.HYPERKITTY_DATABASE_URL)
         with conn.cursor(name="fetch-mail-content") as cursor:
