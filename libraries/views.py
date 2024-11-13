@@ -125,11 +125,16 @@ class LibraryList(VersionAlertMixin, ListView):
         context["categories"] = self.get_categories(context["version"])
         context["versions"] = self.get_versions()
         context["version_str"] = version_str
-        context["library_version_list"] = LibraryVersion.objects.filter(
-            version__slug=version_str
-            if version_str != LATEST_RELEASE_URL_PATH_STR
-            else version.slug
-        ).prefetch_related("authors", "library", "library__categories")
+        # todo: add tests for sort order, consider refactor to queryset use
+        context["library_version_list"] = (
+            LibraryVersion.objects.filter(
+                version__slug=version_str
+                if version_str != LATEST_RELEASE_URL_PATH_STR
+                else version.slug
+            )
+            .prefetch_related("authors", "library", "library__categories")
+            .order_by("library__name")
+        )
 
         context["url_params"] = build_view_query_params_from_request(self.request)
 
