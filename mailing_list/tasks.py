@@ -12,7 +12,7 @@ logger = structlog.getLogger(__name__)
 @app.task
 def sync_mailinglist_stats():
     """Task to create EmailData from hyperkitty database."""
-    if not settings.HYPERKITTY_DATABASE_URL:
-        logger.warning("HYPERKITTY_DATABASE_URL not set.")
+    if not settings.HYPERKITTY_DATABASE_NAME:
+        logger.warning("HYPERKITTY_DATABASE_NAME not set.")
         return
     call_command("sync_mailinglist_stats")

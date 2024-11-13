@@ -30,13 +30,13 @@ class EmailDataAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def sync_mailinglist_stats(self, request):
-        if settings.HYPERKITTY_DATABASE_URL:
+        if settings.HYPERKITTY_DATABASE_NAME:
             sync_mailinglist_stats.delay()
             self.message_user(request, "Syncing EmailData.")
         else:
             self.message_user(
                 request,
-                "HYPERKITTY_DATABASE_URL setting not configured.",
+                "HYPERKITTY_DATABASE_NAME setting not configured.",
                 level=messages.WARNING,
             )
         return HttpResponseRedirect("../")
