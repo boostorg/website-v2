@@ -102,7 +102,8 @@ class UserManager(BaseUserManager):
 
         if not user and first_name and last_name:
             users = self.filter(
-                first_name__iexact=first_name, last_name__iexact=last_name
+                first_name__unaccent__iexact=first_name,
+                last_name__unaccent__iexact=last_name,
             )
             authors_or_maintainers = users.filter(
                 models.Q(authors__isnull=False) | models.Q(maintainers__isnull=False)

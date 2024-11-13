@@ -185,8 +185,9 @@ class PastReviewListView(ListView):
         return (
             qs.filter(results__isnull=False)
             .distinct()
-            .prefetch_related("results")
-            .order_by("-id")
+            .select_related("review_manager")
+            .prefetch_related("results", "submitters")
+            .order_by("id")
         )
 
 

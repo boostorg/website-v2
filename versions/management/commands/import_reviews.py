@@ -1,16 +1,24 @@
 from bs4 import BeautifulSoup
 import djclick as click
 import requests
+
+from django.contrib.auth import get_user_model
 from django.db import transaction
 
+from libraries.utils import generate_fake_email
 from versions.models import Review, ReviewResult
+
+User = get_user_model()
 
 
 @click.command()
 @click.option(
     "--dry-run", is_flag=True, help="Parse the data but don't save to database"
 )
-def command(dry_run):
+@click.option(
+    "--dry-run-users", is_flag=True, help="Save reviews, but don't link users"
+)
+def command(dry_run, dry_run_users):
     """Import Boost library reviews from boost.org table data"""
 
     url = "https://www.boost.org/community/review_schedule.html"
@@ -21,8 +29,8 @@ def command(dry_run):
     scheduled_review_table = soup.find("table", summary="Formal Review Schedule")
     past_review_table = soup.find("table", summary="Review Results")
 
-    upcoming_reviews = parse_table(scheduled_review_table)
-    past_reviews = parse_table(past_review_table, past_results=True)
+    upcoming_reviews = _parse_table(scheduled_review_table)
+    past_reviews = _parse_table(past_review_table, past_results=True)
 
     click.secho(
         f"Found {len(upcoming_reviews)} upcoming and {len(past_reviews)} past reviews"
@@ -48,10 +56,50 @@ def command(dry_run):
                 defaults=review_data,
             )
 
-    click.secho("Done!", fg="green")
+    click.secho("\nFinished importing reviews\n", fg="green")
+    click.secho("Attempting to parse users\n")
+
+    # Link users in separate transaction
+    with transaction.atomic():
+        for review in Review.objects.all():
+            # Handle submitters
+            submitter_names = _parse_users_from_raw_names(review.submitter_raw)
+            for first_name, last_name in submitter_names:
+                if dry_run_users:
+                    click.echo(
+                        "Would link submitter: "
+                        f"{first_name} {last_name} to {review.submission}"
+                    )
+                else:
+                    user = _get_user_from_name(first_name, last_name)
+                    if user:
+                        review.submitters.add(user)
+
+            # Handle review manager
+            if (
+                review.review_manager_raw
+                and review.review_manager_raw.lower() != "needed!"
+            ):
+                manager_names = _parse_users_from_raw_names(review.review_manager_raw)
+                if manager_names:
+                    first_name, last_name = manager_names[
+                        0
+                    ]  # Take first manager if multiple
+                    if dry_run_users:
+                        click.echo(
+                            "Would set manager: "
+                            f"{first_name} {last_name} for {review.submission}"
+                        )
+                    else:
+                        user = _get_user_from_name(first_name, last_name)
+                        if user:
+                            review.review_manager = user
+                            review.save()
+
+    click.secho("\nDone!", fg="green")
 
 
-def parse_table(table, past_results=False):
+def _parse_table(table, past_results=False):
     """Parse a review table and return review data"""
     rows = table.find_all("tr")[1:]  # Skip header row
     reviews = []
@@ -112,3 +160,67 @@ def parse_table(table, past_results=False):
         reviews.append((review_data, results_data))
 
     return reviews
+
+
+def _parse_users_from_raw_names(raw_name_string: str) -> list[tuple[str, str]]:
+    """
+    Parse a raw name string into a list of (first_name, last_name) tuples.
+    Handles inputs like:
+        "John Doe"
+        "John Doe & Jane Smith"
+        "John Doe and Jane Smith"
+        "John Doe, Jane Smith"
+        "John Doe, Jane Smith, Joaquin M López Muñoz"
+
+    Returns a list like:
+        [("John", "Doe"), ("Jane", "Smith"), ("Joaquin M López", "Muñoz")]
+    """
+    # Clean up the string - normalize whitespace and separators
+    cleaned = (
+        raw_name_string.replace("\n", " & ")
+        .replace("\t", " ")
+        .replace(" and ", " & ")
+        .replace(",", " & ")
+        .replace("ª", "")  # special character observed
+        .replace("OvermindDL1", "")  # replaced review manager observed
+    )
+
+    # Collapse multiple `&` separators
+    while " & & " in cleaned:
+        cleaned = cleaned.replace(" & & ", " & ")
+
+    # Collapse multiple spaces
+    cleaned = " ".join(cleaned.split())
+
+    # Split on & and clean up each name
+    names = [name.strip() for name in cleaned.split("&")]
+    parsed_names = []
+
+    for name in names:
+        if not name:
+            continue
+
+        # Try to split into first and last name
+        parts = name.split()
+        if len(parts) == 1:
+            # Just one name, treat as first name
+            parsed_names.append((parts[0], ""))
+        else:
+            # Assume last word is last name, rest is first name
+            parsed_names.append((" ".join(parts[:-1]), parts[-1]))
+
+    return parsed_names
+
+
+def _get_user_from_name(first_name, last_name):
+    try:
+        return User.objects.get(
+            first_name__unaccent__iexact=first_name,
+            last_name__unaccent__iexact=last_name,
+        )
+    except User.DoesNotExist:
+        # No existing user by this name; create a fake "stub" user
+        fake_email = generate_fake_email(f"{first_name} {last_name}")
+        return User.objects.create_stub_user(
+            fake_email.lower(), first_name=first_name, last_name=last_name
+        )

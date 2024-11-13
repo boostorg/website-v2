@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load static %}
+{% load static avatar_tags %}
 
 {% block title %}Upcoming Reviews{% endblock %}
 
@@ -30,13 +30,27 @@
         {% for review in object_list %}
           <div class="py-6 border-b md:flex md:py-0 md:border-b-0 border-slate">
             <div class="p-3 text-left md:w-1/5 md:border-b md:border-slate"><span class="font-bold md:hidden">Submission:</span> {{ review.submission }}</div>
-            <div class="p-3 text-left md:w-1/5 md:border-b md:border-slate"><span class="font-bold md:hidden">Submitter:</span> {{ review.submitter_raw }}</div>
+            <div class="p-3 text-left md:w-1/5 md:border-b md:border-slate">
+              <span class="font-bold md:hidden">Submitter:</span>
+              {% for submitter in review.submitters.all %}
+                {% avatar user=submitter avatar_type="with_name" %}<br/>
+              {% empty %}
+                {{ review.submitter_raw|default:"-" }}
+              {% endfor %}
+            </div>
             <div class="p-3 text-left md:w-1/5 md:border-b md:border-slate">
               <span class="font-bold md:hidden">Link:</span>
               <p class="p-1 pt-0"><a href="{{ review.github_link }}" class="text-orange">Github</a></p>
               <p class="p-1"><a href="{{ review.documentation_link }}" class="text-orange">Documentation</a></p>
             </div>
-            <div class="p-3 text-left md:w-1/5 md:border-b md:border-slate"><span class="font-bold md:hidden">Review Manager:</span> {{ review.review_manager_raw }}</div>
+            <div class="p-3 text-left md:w-1/5 md:border-b md:border-slate">
+              <span class="font-bold md:hidden">Review Manager:</span>
+              {% if review.review_manager %}
+                {% avatar user=review.review_manager avatar_type="with_name" %}
+              {% else %}
+                {{ review.review_manager_raw|default:"-" }}
+              {% endif %}
+            </div>
             <div class="p-3 text-left md:w-1/5 md:border-b md:border-slate"><span class="font-bold md:hidden">Review Dates:</span> {{ review.review_dates }}</div>
           </div>
         {% endfor %}
