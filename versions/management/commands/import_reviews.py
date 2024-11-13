@@ -34,19 +34,19 @@ def command(dry_run):
 
     # Import everything in a transaction
     with transaction.atomic():
-        # Create or update upcoming reviews
-        for review_data, _ in upcoming_reviews:
-            Review.objects.update_or_create(
-                submission=review_data["submission"],
-                submitter=review_data["submitter"],
-                defaults=review_data,
-            )
-
         # Create or update past reviews
         for review_data, results in past_reviews:
             review = Review.objects.create(**review_data)
             for result in results:
                 ReviewResult.objects.create(review=review, **result)
+
+        # Create or update upcoming reviews
+        for review_data, _ in upcoming_reviews:
+            Review.objects.update_or_create(
+                submission=review_data["submission"],
+                submitter_raw=review_data["submitter_raw"],
+                defaults=review_data,
+            )
 
     click.secho("Done!", fg="green")
 
@@ -63,25 +63,29 @@ def parse_table(table, past_results=False):
 
         review_data = {
             "submission": cells[0].text.strip(),
-            "submitter": cells[1].text.strip(),
-            "review_manager": cells[3].text.strip()
-            if past_results
-            else cells[3].text.strip(),
-            "review_dates": cells[4].text.strip(),
+            "submitter_raw": cells[1].text.strip(),
+            "review_manager_raw": cells[2 if past_results else 3].text.strip(),
+            "review_dates": cells[3 if past_results else 4].text.strip(),
+            "github_link": "",
+            "documentation_link": "",
         }
 
         # Handle links for upcoming reviews
         if not past_results:
             links = cells[2].find_all("a")
-            if links:
-                review_data["github_link"] = links[0].get("href", "")
-                if len(links) > 1:
-                    review_data["documentation_link"] = links[1].get("href", "")
+            for link in links:
+                if "github" in link.text.lower():
+                    review_data["github_link"] = link.get("href", "")
+                elif "documentation" in link.text.lower():
+                    review_data["documentation_link"] = link.get("href", "")
 
         # Handle results for past reviews
         results_data = []
         if past_results:
-            for element in cells[4].contents:
+            result_cell = cells[4]
+
+            # First handle any linked results
+            for element in result_cell.contents:
                 if element.name == "del":
                     link = element.find("a")
                     if link:
@@ -100,6 +104,10 @@ def parse_table(table, past_results=False):
                             "is_most_recent": True,
                         }
                     )
+
+            # If no results were found, use the text content of the cell
+            if not results_data and (description := result_cell.text.strip()):
+                results_data.append({"short_description": description})
 
         reviews.append((review_data, results_data))
 

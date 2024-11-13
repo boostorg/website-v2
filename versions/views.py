@@ -182,7 +182,12 @@ class PastReviewListView(ListView):
 
     def get_queryset(self) -> QuerySet[Review]:
         qs = super().get_queryset()
-        return qs.filter(results__isnull=False).distinct()
+        return (
+            qs.filter(results__isnull=False)
+            .distinct()
+            .prefetch_related("results")
+            .order_by("-id")
+        )
 
 
 class ScheduledReviewListView(ListView):

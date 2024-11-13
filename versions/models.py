@@ -1,10 +1,13 @@
 import re
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 from .managers import VersionManager, VersionFileManager
+
+User = get_user_model()
 
 
 class Version(models.Model):
@@ -156,8 +159,10 @@ class VersionFile(models.Model):
 # TODO: should this go in a new `reviews` app?
 class Review(models.Model):
     submission = models.CharField()
-    submitter = models.CharField()
-    review_manager = models.CharField(blank=True, default="Needed!")
+    # TODO: drop raw fields once users have been linked
+    submitter_raw = models.CharField()
+    review_manager_raw = models.CharField(blank=True, default="Needed!")
+    submitters = models.ManyToManyField(User, null=True, default=None)
     review_dates = models.CharField()
     github_link = models.URLField(blank=True, default="")
     documentation_link = models.URLField(blank=True, default="")
