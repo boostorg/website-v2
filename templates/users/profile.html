@@ -114,7 +114,17 @@
         {% endif %}
         <div class="rounded bg-white dark:bg-charcoal p-4">
           <h3>{% trans "Delete Account" %}</h3>
+          {% if user.delete_permanently_at %}
+          <p>
+          {% blocktrans with at=request.user.delete_permanently_at|date:'N j, Y, P e' trimmed %}
+          Your account is scheduled for deletion at {{ at }}
+          {% endblocktrans %}
+          </p>
+          <p><a href="{% url "profile-cancel-delete" %}">{% trans 'Cancel deletion' %}</a></p>
+          <p><a href="{% url "profile-delete-immediately" %}">{% trans 'Delete now' %}</a></p>
+          {% else %}
           <a href="{% url "profile-delete" %}">{% trans 'Delete account' %}</a>
+          {% endif %}
         </div>
       </div>
     </div>

@@ -1,3 +1,5 @@
+import datetime
+
 from allauth.account import app_settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -5,8 +7,11 @@ from django.contrib import auth
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.views.generic import DetailView, DeleteView
+from django.views.generic import DetailView, FormView
 from django.views.generic.base import TemplateView
+from django.utils import timezone
+from django.conf import settings
+from django import forms
 
 from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
 from allauth.account.views import LoginView, SignupView, EmailVerificationSentView
@@ -302,20 +307,57 @@ class UserAvatar(TemplateView):
         return context
 
 
-class DeleteUserView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class DeleteUserView(LoginRequiredMixin, FormView):
     template_name = "users/delete.html"
-    success_url = "/"
-    success_message = "Your profile was successfully deleted."
+    success_url = reverse_lazy("profile-account")
     form_class = DeleteAccountForm
 
     def get_object(self):
         return self.request.user
 
     def form_valid(self, form):
-        success_url = self.get_success_url()
+        user = self.get_object()
+        user.delete_permanently_at = timezone.now() + datetime.timedelta(
+            days=settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS
+        )
+        user.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context[
+            "ACCOUNT_DELETION_GRACE_PERIOD_DAYS"
+        ] = settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS
+        return context
+
+
+class CancelDeletionView(LoginRequiredMixin, SuccessMessageMixin, FormView):
+    form_class = forms.Form
+    success_url = reverse_lazy("profile-account")
+    template_name = "users/cancel_deletion.html"
+    success_message = "Your account is no longer scheduled for deletion."
+
+    def get_object(self):
+        return self.request.user
+
+    def form_valid(self, form):
+        user = self.get_object()
+        user.delete_permanently_at = None
+        user.save()
+        return super().form_valid(form)
+
+
+class DeleteImmediatelyView(LoginRequiredMixin, SuccessMessageMixin, FormView):
+    form_class = DeleteAccountForm
+    template_name = "users/delete_immediately.html"
+    success_url = "/"
+    success_message = "Your profile was successfully deleted."
+
+    def get_object(self):
+        return self.request.user
+
+    def form_valid(self, form):
+        user = self.get_object()
+        user.delete_account()
         auth.logout(self.request)
-        self.object.delete_account()
-        success_message = self.get_success_message(form.cleaned_data)
-        if success_message:
-            messages.success(self.request, success_message)
-        return HttpResponseRedirect(success_url)
+        return super().form_valid(form)
