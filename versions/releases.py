@@ -4,9 +4,12 @@ from json.decoder import JSONDecodeError
 import requests
 import structlog
 from bs4 import BeautifulSoup
-from django.conf import settings
 from jsoncomment import JsonComment
 
+from django.conf import settings
+
+from core.asciidoc import convert_adoc_to_html
+from core.boostrenderer import get_file_data, get_s3_client
 from core.htmlhelper import modernize_release_notes
 from core.models import RenderedContent
 
@@ -163,7 +166,30 @@ def get_artifactory_download_data(url):
     }
 
 
-def get_release_notes_for_version(version_pk):
+def get_release_notes_for_version_s3(version_pk):
+    """Retrieve the adoc release notes from S3 and return the converted html string"""
+    try:
+        version = Version.objects.get(pk=version_pk)
+    except Version.DoesNotExist:
+        logger.info(
+            "get_release_notes_for_version_s3_error_version_not_found",
+            version_pk=version_pk,
+        )
+        raise
+    # get_content_from_s3 only works for keys with matching keys
+    # in the STATIC_CONTENT_MAPPING. Use get_file_data directly instead.
+    filename = version.slug.replace("-", "_")
+    response = get_file_data(
+        get_s3_client(),
+        settings.STATIC_CONTENT_BUCKET_NAME,
+        f"release-notes/master/{filename}.adoc",
+    )
+    if response:
+        return response["content"].decode()
+    return ""
+
+
+def get_release_notes_for_version_github(version_pk):
     """Retrieve the release notes for a given version.
 
     We retrieve the rendered release notes for older versions.
@@ -175,7 +201,7 @@ def get_release_notes_for_version(version_pk):
             "get_release_notes_for_version_error_version_not_found",
             version_pk=version_pk,
         )
-        raise Version.DoesNotExist
+        raise
     base_url = (
         "https://raw.githubusercontent.com/boostorg/website/master/users/history/"
     )
@@ -193,6 +219,22 @@ def get_release_notes_for_version(version_pk):
         )
         raise
     return response.content
+
+
+def get_release_notes_for_version(version_pk):
+    """Get the release notes content.
+
+    Tries S3 first, and fallback to old github release notes if not found in S3.
+    """
+    content = get_release_notes_for_version_s3(version_pk)
+    if content:
+        processed_content = convert_adoc_to_html(content)
+        content_type = "text/asciidoc"
+    else:
+        content = get_release_notes_for_version_github(version_pk)
+        processed_content = process_release_notes(content)
+        content_type = "text/html"
+    return content, processed_content, content_type
 
 
 def get_in_progress_release_notes():
@@ -215,7 +257,7 @@ def process_release_notes(content):
 
 
 def store_release_notes_for_version(version_pk):
-    """Retrieve and store the release notes for a given version"""
+    """Check S3 and then github for release notes and store them in RenderedContent."""
     # Get the version
     try:
         version = Version.objects.get(pk=version_pk)
@@ -226,17 +268,15 @@ def store_release_notes_for_version(version_pk):
         )
         raise Version.DoesNotExist
 
-    # Get the release notes content
-    content = get_release_notes_for_version(version_pk)
-    stripped_content = process_release_notes(content)
+    content, processed_content, content_type = get_release_notes_for_version(version_pk)
 
     # Save the result to the rendered content model with the version cache key
     rendered_content, _ = RenderedContent.objects.update_or_create(
         cache_key=version.release_notes_cache_key,
         defaults={
-            "content_type": "text/html",
+            "content_type": content_type,
             "content_original": content,
-            "content_html": stripped_content,
+            "content_html": processed_content,
         },
     )
     logger.info(
