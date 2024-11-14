@@ -204,6 +204,11 @@ Env:
       secretKeyRef:
         name: hyperkitty
         key: database_name
+  - name: SLACK_BOT_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: slack
+        key: slack_bot_token
   # Static content cache timeout
   - name: STATIC_CACHE_TIMEOUT
     value: "60"

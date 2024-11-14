@@ -90,6 +90,7 @@ INSTALLED_APPS += [
     "mailing_list",
     "news",
     "core",
+    "slack",
 ]
 
 AUTH_USER_MODEL = "users.User"
@@ -560,3 +561,5 @@ OAUTH_APP_NAME = (
 
 # Frame loading
 X_FRAME_OPTIONS = "SAMEORIGIN"
+
+SLACK_BOT_TOKEN = env("SLACK_BOT_TOKEN", default="")
