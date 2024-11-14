@@ -4,6 +4,7 @@ import requests
 
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.db.models import Q
 
 from libraries.utils import generate_fake_email
 from versions.models import Review, ReviewResult
@@ -213,14 +214,28 @@ def _parse_users_from_raw_names(raw_name_string: str) -> list[tuple[str, str]]:
 
 
 def _get_user_from_name(first_name, last_name):
-    try:
-        return User.objects.get(
+    matching_users = User.objects.filter(
+        Q(first_name__iexact=first_name, last_name__iexact=last_name)
+        | Q(
             first_name__unaccent__iexact=first_name,
             last_name__unaccent__iexact=last_name,
         )
-    except User.DoesNotExist:
-        # No existing user by this name; create a fake "stub" user
-        fake_email = generate_fake_email(f"{first_name} {last_name}")
-        return User.objects.create_stub_user(
-            fake_email.lower(), first_name=first_name, last_name=last_name
+        | Q(display_name__unaccent__iexact=f"{first_name} {last_name}")
+        | Q(display_name__iexact=f"{first_name} {last_name}")
+    )
+    if count := matching_users.count() == 1:
+        return matching_users.first()
+    elif count:
+        click.secho(
+            f"Found multiple users with the same name: {first_name} {last_name}",
+            fg="red",
         )
+        return None
+
+    # No existing user by this name; create a fake "stub" user
+    fake_email = generate_fake_email(f"{first_name} {last_name}")
+    if user := User.objects.filter(email=fake_email).first():
+        return user
+    return User.objects.create_stub_user(
+        fake_email.lower(), first_name=first_name, last_name=last_name
+    )
