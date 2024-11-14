@@ -116,7 +116,13 @@
             <div>{{ item.library.description }}</div>
           </div>
           <div class="flex flex-col gap-y-4">
-            <h4>There were {{ item.version_count.commit_count }} commits in release {{ version.display_name }}</h4>
+            <h4>
+              There
+              {{ item.version_count.commit_count|pluralize:"was,were" }}
+              {{ item.version_count.commit_count }}
+              commit{{ item.version_count.commit_count|pluralize }}
+              in release {{ version.display_name }}
+            </h4>
             {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
               <div>
                 {{ insertions|intcomma }} line{{ insertions|pluralize }} added, {{ deletions|intcomma }} line{{ deletions|pluralize }} removed

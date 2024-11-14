@@ -549,6 +549,9 @@ class CreateReportForm(CreateReportFullForm):
                 self._get_library_versions(library_order, version),
             )
         ]
+        library_data = [
+            x for x in library_data if x["version_count"]["commit_count"] > 0
+        ]
         top_contributors = self._get_top_contributors_for_version()
         # total messages sent during this release (version)
         total_mailinglist_count = EmailData.objects.filter(version=version).aggregate(
