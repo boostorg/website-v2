@@ -1,4 +1,5 @@
 import os
+import datetime
 
 from celery import Celery
 from celery.schedules import crontab
@@ -42,4 +43,10 @@ def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(
         crontab(hour=3, minute=7),
         app.signature("slack.tasks.fetch_slack_activity"),
+    )
+
+    # delete users scheduled for deletion, arbitrarily every 61 minutes
+    sender.add_periodic_task(
+        datetime.timedelta(minutes=61),
+        app.signature("users.tasks.do_scheduled_user_deletions"),
     )

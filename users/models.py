@@ -247,6 +247,9 @@ class User(BaseUser):
         default=False,
         help_text="Indicate on the login page the last login method used.",
     )
+    # If non-null, the user has requested deletion but the grace period has not
+    # elapsed.
+    delete_permanently_at = models.DateTimeField(null=True, editable=False)
 
     def save_image_from_github(self, avatar_url):
         response = requests.get(avatar_url)
@@ -295,8 +298,13 @@ class User(BaseUser):
 
     @transaction.atomic
     def delete_account(self):
+        from . import tasks
+
+        email = self.email
+        transaction.on_commit(lambda: tasks.send_account_deleted_email.delay(email))
         self.socialaccount_set.all().delete()
         self.preferences.delete()
+        self.emailaddress_set.all().delete()
         self.is_active = False
         self.set_unusable_password()
         self.display_name = "John Doe"
@@ -307,6 +315,7 @@ class User(BaseUser):
         transaction.on_commit(lambda: image.delete())
         self.image = None
         self.image_thumbnail = None
+        self.delete_permanently_at = None
         self.save()
 
 

@@ -59,6 +59,24 @@
       <div class="w-full">
         {% block messages %}{% include "partials/messages.html" %}{% endblock messages %}
       </div>
+      {% if request.user.is_authenticated and request.user.delete_permanently_at %}
+      <div id="messages" class="w-full text-center transition-opacity" x-data="{show: true}">
+        <div x-show="show" class="w-2/3 mx-auto text-left items-center text-slate dark:text-white rounded text-base px-3 py-2 bg-red-500 fade show">
+          <button type="button"
+                  class="float-right"
+                  data-dismiss="alert"
+                  aria-hidden="true"
+                  x-on:click="show = ! show"
+          ><i class="fas fa-times-circle"></i></button>
+          <p>
+          Your account is scheduled for deletion at
+          {{ request.user.delete_permanently_at|date:'N j, Y, P e' }}
+          </p>
+          <p><a href="{% url "profile-cancel-delete" %}">Cancel deletion</a></p>
+          <p><a href="{% url "profile-delete-immediately" %}">Delete now</a></p>
+        </div>
+      </div>
+      {% endif %}
 
       <div class="md:px-0 min-vh-110">
       {% block content_wrapper %}
