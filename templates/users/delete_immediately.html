@@ -4,19 +4,10 @@
 
 {% block content %}
   <div class="container">
-    <h2>{% trans "Delete Account" %}</h2>
+    <h2>{% trans "Delete Account Immediately" %}</h2>
     <form method="POST">
       {% csrf_token %}
       {% for field in form %}
-      <p>
-      {% blocktrans count days=ACCOUNT_DELETION_GRACE_PERIOD_DAYS trimmed %}
-      Your account will be scheduled for deletion in {{ ACCOUNT_DELETION_GRACE_PERIOD_DAYS }} day.
-      You can cancel the deletion before then.
-      {% plural %}
-      Your account will be scheduled for deletion in {{ ACCOUNT_DELETION_GRACE_PERIOD_DAYS }} days.
-      You can cancel the deletion before then.
-      {% endblocktrans %}
-      </p>
       <div>
         {% include "includes/_form_input.html" %}
       </div>
