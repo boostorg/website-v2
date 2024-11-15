@@ -58,6 +58,16 @@ class Version(models.Model):
         return self.name.replace("boost-", "")
 
     @cached_property
+    def non_beta_slug(self):
+        """Return the slug without any beta suffix.
+
+        Example:
+        - "boost-1-75-0-beta1" --> "boost-1-75-0"
+        - "develop" --> "develop"
+        """
+        return self.slug.split("-beta")[0]
+
+    @cached_property
     def boost_url_slug(self):
         """Return the slug for the version that is used in the Boost URL to get to
         the existing Boost docs. The GitHub slug and the Boost slug don't match, so
