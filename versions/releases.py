@@ -178,7 +178,9 @@ def get_release_notes_for_version_s3(version_pk):
         raise
     # get_content_from_s3 only works for keys with matching keys
     # in the STATIC_CONTENT_MAPPING. Use get_file_data directly instead.
-    filename = version.slug.replace("-", "_")
+    # Note we are using the non-beta slug since release notes for beta
+    # versions are named without beta suffix.
+    filename = version.non_beta_slug.replace("-", "_")
     response = get_file_data(
         get_s3_client(),
         settings.STATIC_CONTENT_BUCKET_NAME,
@@ -205,7 +207,11 @@ def get_release_notes_for_version_github(version_pk):
     base_url = (
         "https://raw.githubusercontent.com/boostorg/website/master/users/history/"
     )
-    filename = f"{version.slug.replace('boost', 'version').replace('-', '_')}.html"
+    # Note we are using the non-beta slug since release notes for beta
+    # versions are named without beta suffix.
+    filename = (
+        f"{version.non_beta_slug.replace('boost', 'version').replace('-', '_')}.html"
+    )
     url = f"{base_url}{filename}"
     try:
         response = session.get(url)

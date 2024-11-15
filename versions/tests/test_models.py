@@ -19,15 +19,30 @@ def test_version_slug(version):
 
 
 @pytest.mark.parametrize(
-    "slug, expected_slug",
+    "name, expected_slug",
+    [
+        ("boost-1.71.0", "boost-1-71-0"),
+        ("boost-1.71.0.beta1", "boost-1-71-0"),
+        ("boost-1.71.0.beta2", "boost-1-71-0"),
+        ("boost-1.71.0.beta", "boost-1-71-0"),
+        ("develop", "develop"),
+    ],
+)
+def test_non_beta_slug(name, expected_slug):
+    version = baker.make("versions.Version", name=name)
+    assert version.non_beta_slug == expected_slug
+
+
+@pytest.mark.parametrize(
+    "name, expected_slug",
     [
         ("boost-1.71.0", "boost_1_71_0"),
         ("boost-1-71-0", "boost_1_71_0"),
         ("develop", "develop"),
     ],
 )
-def test_boost_url_slug(slug, expected_slug):
-    version = baker.make("versions.Version", name=slug)
+def test_boost_url_slug(name, expected_slug):
+    version = baker.make("versions.Version", name=name)
     assert version.boost_url_slug == expected_slug
 
 
