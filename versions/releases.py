@@ -181,11 +181,16 @@ def get_release_notes_for_version_s3(version_pk):
     # Note we are using the non-beta slug since release notes for beta
     # versions are named without beta suffix.
     filename = version.non_beta_slug.replace("-", "_")
-    response = get_file_data(
-        get_s3_client(),
-        settings.STATIC_CONTENT_BUCKET_NAME,
-        f"release-notes/master/{filename}.adoc",
-    )
+    s3_client = get_s3_client()
+    bucket_name = settings.STATIC_CONTENT_BUCKET_NAME
+
+    primary_key = f"release-notes/master/{filename}.adoc"
+    response = get_file_data(s3_client, bucket_name, primary_key)
+    if not response:
+        # Some beta release notes end in _x.html instead of _0.html; try that.
+        fallback_filename = filename.rsplit("_", 1)[0] + "_x"
+        fallback_key = f"release-notes/master/{fallback_filename}.adoc"
+        response = get_file_data(s3_client, bucket_name, fallback_key)
     if response:
         return response["content"].decode()
     return ""
