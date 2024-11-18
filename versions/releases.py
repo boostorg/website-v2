@@ -168,6 +168,9 @@ def get_artifactory_download_data(url):
 
 def get_release_notes_for_version_s3(version_pk):
     """Retrieve the adoc release notes from S3 and return the converted html string"""
+    # TODO: this and the github function have duplication (including of this comment!),
+    #  and are not extensible if we encounter additional filename patterns in the
+    #  future; we should refactor.
     try:
         version = Version.objects.get(pk=version_pk)
     except Version.DoesNotExist:
@@ -201,6 +204,9 @@ def get_release_notes_for_version_github(version_pk):
 
     We retrieve the rendered release notes for older versions.
     """
+    # TODO: this and the S3 function have duplication (including of this comment!),
+    #  and are not extensible if we encounter additional filename patterns in the
+    #  future; we should refactor.
     try:
         version = Version.objects.get(pk=version_pk)
     except Version.DoesNotExist:
