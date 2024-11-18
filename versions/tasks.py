@@ -73,7 +73,7 @@ def import_versions(
 def import_release_notes():
     """Imports release notes from the existing rendered
     release notes in the repository."""
-    for version in Version.objects.active().filter(full_release=True):
+    for version in Version.objects.active():
         store_release_notes_task.delay(str(version.pk))
     store_release_notes_in_progress_task.delay()
 
