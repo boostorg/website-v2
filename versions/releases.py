@@ -168,6 +168,9 @@ def get_artifactory_download_data(url):
 
 def get_release_notes_for_version_s3(version_pk):
     """Retrieve the adoc release notes from S3 and return the converted html string"""
+    # TODO: this and the github function have duplication (including of this comment!),
+    #  and are not extensible if we encounter additional filename patterns in the
+    #  future; we should refactor.
     try:
         version = Version.objects.get(pk=version_pk)
     except Version.DoesNotExist:
@@ -181,11 +184,16 @@ def get_release_notes_for_version_s3(version_pk):
     # Note we are using the non-beta slug since release notes for beta
     # versions are named without beta suffix.
     filename = version.non_beta_slug.replace("-", "_")
-    response = get_file_data(
-        get_s3_client(),
-        settings.STATIC_CONTENT_BUCKET_NAME,
-        f"release-notes/master/{filename}.adoc",
-    )
+    s3_client = get_s3_client()
+    bucket_name = settings.STATIC_CONTENT_BUCKET_NAME
+
+    primary_key = f"release-notes/master/{filename}.adoc"
+    response = get_file_data(s3_client, bucket_name, primary_key)
+    if not response:
+        # Some beta release notes end in _x.html instead of _0.html; try that.
+        fallback_filename = filename.rsplit("_", 1)[0] + "_x"
+        fallback_key = f"release-notes/master/{fallback_filename}.adoc"
+        response = get_file_data(s3_client, bucket_name, fallback_key)
     if response:
         return response["content"].decode()
     return ""
@@ -196,6 +204,9 @@ def get_release_notes_for_version_github(version_pk):
 
     We retrieve the rendered release notes for older versions.
     """
+    # TODO: this and the S3 function have duplication (including of this comment!),
+    #  and are not extensible if we encounter additional filename patterns in the
+    #  future; we should refactor.
     try:
         version = Version.objects.get(pk=version_pk)
     except Version.DoesNotExist:
@@ -209,18 +220,23 @@ def get_release_notes_for_version_github(version_pk):
     )
     # Note we are using the non-beta slug since release notes for beta
     # versions are named without beta suffix.
-    filename = (
-        f"{version.non_beta_slug.replace('boost', 'version').replace('-', '_')}.html"
+    base_filename = (
+        f"{version.non_beta_slug.replace('boost', 'version').replace('-', '_')}"
     )
-    url = f"{base_url}{filename}"
+    url = f"{base_url}{base_filename}.html"
     try:
         response = session.get(url)
+        if response.status_code == 404:
+            # Some beta release notes end in _x.html instead of _0.html; try that.
+            fallback_filename = base_filename.rsplit("_", 1)[0] + "_x"
+            fallback_url = f"{base_url}{fallback_filename}.html"
+            response = session.get(fallback_url)
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
         logger.error(
             "get_release_notes_for_version_http_error",
             exc_msg=str(e),
-            url=url,
+            url=fallback_url if "fallback_url" in locals() else url,
             version_pk=version_pk,
         )
         raise

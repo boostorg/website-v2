@@ -138,7 +138,7 @@ def get_file_data(client, bucket_name, s3_key):
         response = client.get_object(Bucket=bucket_name, Key=s3_key.lstrip("/"))
         return extract_file_data(response, s3_key)
     except ClientError as e:
-        # Log the exception but ignore it otherwise, since it's not necessaruly an error
+        # Log the exception but ignore it otherwise, since it's not necessarily an error
         logger.exception(
             "get_content_from_s3_error",
             s3_key=s3_key,
