@@ -209,18 +209,23 @@ def get_release_notes_for_version_github(version_pk):
     )
     # Note we are using the non-beta slug since release notes for beta
     # versions are named without beta suffix.
-    filename = (
-        f"{version.non_beta_slug.replace('boost', 'version').replace('-', '_')}.html"
+    base_filename = (
+        f"{version.non_beta_slug.replace('boost', 'version').replace('-', '_')}"
     )
-    url = f"{base_url}{filename}"
+    url = f"{base_url}{base_filename}.html"
     try:
         response = session.get(url)
+        if response.status_code == 404:
+            # Some beta release notes end in _x.html instead of _0.html; try that.
+            fallback_filename = base_filename.rsplit("_", 1)[0] + "_x"
+            fallback_url = f"{base_url}{fallback_filename}.html"
+            response = session.get(fallback_url)
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
         logger.error(
             "get_release_notes_for_version_http_error",
             exc_msg=str(e),
-            url=url,
+            url=fallback_url if "fallback_url" in locals() else url,
             version_pk=version_pk,
         )
         raise
