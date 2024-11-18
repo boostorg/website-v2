@@ -69,7 +69,7 @@
   --light-bl-code-background: rgb(255, 255, 255);
   --light-bl-code-border-color: rgb(220, 220, 220);
   --light-bl-code-text-color: rgb(0, 0, 0);
-  --light-bl-link-color: rgb(0, 90, 156);
+  --light-bl-link-color: rgb(2, 132, 199);
   --light-bl-link-hover-color: rgba(0, 90, 156, 0.7);
   --light-bl-hljs-attribute-color: rgb(70, 130, 180);
   --light-bl-hljs-doctag-color: rgb(221, 17, 68);
@@ -88,7 +88,7 @@
   --light-bl-table-head-background: rgb(248, 248, 248);
   --light-bl-table-stripe-color: rgb(248, 248, 248);
   --light-bl-tabpanel-background: rgb(255, 255, 255);
-  --light-bl-text-color: rgb(0, 0, 0);
+  --light-bl-text-color: rgb(51, 65, 85);
 
   /* Dark Theme Variables */
   --dark-bl-border-color: rgb(209, 228, 242);
@@ -267,6 +267,7 @@ p, h1, h2, h3, h4, h5, h6 {
   margin-top: 1em;
   margin-bottom: 1em;
   font-weight: 500;
+  letter-spacing: .1rem;
 }
 
 .boostlook h1 { font-size: 2.5rem; }
@@ -284,6 +285,26 @@ p, h1, h2, h3, h4, h5, h6 {
 .boostlook h6 {
   margin-top: 2rem;
   margin-bottom: 1rem;
+}
+
+.boostlook .doc h2:not(.discrete) {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.boostlook .doc h1 .anchor {
+  margin: 3px 0 0 -1.3ex;
+}
+
+.boostlook .doc h2 .anchor,
+.boostlook .doc h3 .anchor {
+  margin: 2px 0 0 -1.3ex;
+}
+
+.boostlook .doc h4 .anchor,
+.boostlook .doc h5 .anchor,
+.boostlook .doc h6 .anchor {
+  margin: 1px 0 0 -1.3ex;
 }
 
 .boostlook p {
@@ -341,6 +362,14 @@ p, h1, h2, h3, h4, h5, h6 {
 .boostlook .colist > table code {
   color: var(--bl-code-text-color) !important;
 }
+
+.boostlook .doc p code,
+.boostlook .doc table code {
+  background: none;
+  padding: 0;
+  font-weight: 600;
+}
+
 
 .boostlook .quoteblock,
 .boostlook .verseblock {
@@ -457,7 +486,7 @@ p, h1, h2, h3, h4, h5, h6 {
 
 .boostlook #toc ul {
   margin: 0;
-  padding: 0 0 0 0.5rem;
+  padding: 0 0 0 0.8rem;
   line-height: 1.725;
   font-size: 1rem;
   list-style: none;
@@ -494,6 +523,14 @@ p, h1, h2, h3, h4, h5, h6 {
   visibility: hidden;
   height: 0;
   width: 0;
+}
+
+.boostlook #toc .nav-menu > .nav-list {
+  padding-left: 0
+}
+
+.boostlook .nav-menu .title {
+  border-bottom: 1px solid var(--bl-table-border-color);
 }
 
 .boostlook #content .sect3:has(.tableblock) {
@@ -542,8 +579,12 @@ p, h1, h2, h3, h4, h5, h6 {
     overflow-y: auto;
   }
 
-  .boostlook:not(#libraryReadMe) {
+  .boostlook {
     margin-left: 18rem;
+  }
+
+  .boostlook#libraryReadMe {
+     margin-left: 0;
   }
 
   .boostlook #toggle-toc {
@@ -585,8 +626,6 @@ p, h1, h2, h3, h4, h5, h6 {
   }
 
   html.toc-hidden .boostlook #toc.toc2 {
-    width: 0;
-    opacity: 0;
     visibility: hidden;
   }
 
@@ -714,6 +753,8 @@ p, h1, h2, h3, h4, h5, h6 {
   background-color: var(--bl-code-background);
   border-color: var(--bl-code-border-color);
   color: var(--bl-code-text-color);
+  border-radius: 8px;
+  padding: 1.2em .8em
 }
 
 .boostlook .doc pre {
@@ -741,7 +782,7 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 .boostlook .nav-menu .title {
-  padding-left: 1rem;
+  padding-left: .8rem;
 }
 
 /* Admonitions */
@@ -751,6 +792,7 @@ p, h1, h2, h3, h4, h5, h6 {
 
 .boostlook .doc .admonitionblock {
   background-color: var(--bl-tabpanel-background);
+  border-radius: 8px;
 }
 
 /* Tabs */
@@ -763,8 +805,14 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 /* Tables */
+.boostlook .doc table.tableblock {
+  display: block;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
 .boostlook .doc table.tableblock tr th {
   background-color: transparent;
+  font-size: 1rem;
 }
 
 .dark .doc table.stripes-even>tbody>tr:nth-of-type(2n) {
