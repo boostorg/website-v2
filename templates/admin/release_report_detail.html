@@ -157,14 +157,6 @@
             </div>
           </div>
         </div>
-        {% if item.library_version.get_release_notes %}
-          <div class="pdf-page {{ bg_color }} release-notes-page">
-            <h3>{{ item.library.name }} Release Notes <span class="continued"></span></h3>
-            <div class="flex flex-col flex-wrap px-2 gap-x-4 text-xs h-[90%] w-1/2 release-notes-content">
-              {{ item.library_version.get_release_notes|safe }}
-            </div>
-          </div>
-        {% endif %}
       {% endfor %}
     </div>
     <div class="pdf-page {{ bg_color }}" style="page-break-after: avoid;">This is the last page</div>
@@ -226,57 +218,6 @@
       };
       const chart = new ApexCharts(document.querySelector("#top-committed-libraries-chart"), options);
       chart.render();
-    </script>
-
-    <script>
-      // Release notes can sometimes be too long for a single page.
-      // Logic for dynamically creating new pages for release notes based on content length.
-      // Iterates through bullet top level `li` elements and appends them until overflow,
-      //   creates a new page, and continues...
-      function getSides(element) {
-        const right = element.offsetLeft + element.offsetWidth;
-        const bottom = element.offsetTop + element.offsetHeight;
-        return {top: element.offsetTop, left: element.offsetLeft, right, bottom}
-      }
-
-      function cloneReleaseNotesPage(page) {
-        newPage = page.cloneNode(true);
-        newPage.querySelector(".release-notes-content").innerHTML = "";
-        newPage.querySelector(".continued").textContent = "(continued)"
-        page.parentNode.insertBefore(newPage, page.nextSibling);
-        return newPage
-      }
-
-      function fixReleaseNotes(page) {
-        let pageSize = getSides(page);
-        let insertIntoPage = 0;
-        let contents = page.querySelector(".release-notes-content");
-        const elements = contents.querySelectorAll(":scope > li");
-        contents.innerHTML = "";
-        for (let i=0; i<elements.length; i++) {
-          const el = elements[i];
-          contents.appendChild(el);
-          let size = getSides(el);
-          if (size.bottom > pageSize.bottom || size.right > pageSize.right) {
-            // we went too far, remove the element and add it to a new page
-            contents.removeChild(el);
-            page = cloneReleaseNotesPage(page);
-            contents = page.querySelector(".release-notes-content");
-            pageSize = getSides(page);
-            if (insertIntoPage > 0) {
-              i--;
-            }
-            insertIntoPage = 0;
-          } else {
-            insertIntoPage++;
-          }
-        }
-      }
-      document.addEventListener("DOMContentLoaded", function() {
-        for (const element of document.querySelectorAll(".release-notes-page")) {
-          fixReleaseNotes(element);
-        }
-      })
     </script>
   {% endwith %}
 {% endblock content %}
