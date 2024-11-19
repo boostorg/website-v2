@@ -19,6 +19,7 @@ greenlet==3.0.3
 psycogreen
 gevent==24.2.1
 gunicorn
+interrogate
 psycopg2-binary
 whitenoise
 django-click

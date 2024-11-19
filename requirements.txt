@@ -14,6 +14,8 @@ asgiref==3.8.1
     #   django-cors-headers
 asttokens==2.4.1
     # via stack-data
+attrs==24.2.0
+    # via interrogate
 beautifulsoup4==4.12.3
     # via -r ./requirements.in
 billiard==4.2.1
@@ -55,12 +57,15 @@ click==8.1.7
     #   click-plugins
     #   click-repl
     #   django-click
+    #   interrogate
 click-didyoumean==0.3.1
     # via celery
 click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
+colorama==0.4.6
+    # via interrogate
 contourpy==1.3.0
     # via matplotlib
 coverage[toml]==7.6.2
@@ -179,6 +184,8 @@ idna==3.10
     # via requests
 iniconfig==2.0.0
     # via pytest
+interrogate==1.7.0
+    # via -r ./requirements.in
 ipython==8.28.0
     # via -r ./requirements.in
 jedi==0.19.1
@@ -266,6 +273,8 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
+py==1.11.0
+    # via interrogate
 pycparser==2.22
     # via cffi
 pycryptodome==3.21.0
@@ -343,6 +352,8 @@ stack-data==0.6.3
     # via ipython
 structlog==24.4.0
     # via -r ./requirements.in
+tabulate==0.9.0
+    # via interrogate
 traitlets==5.14.3
     # via
     #   ipython
