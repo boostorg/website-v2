@@ -64,7 +64,7 @@ class RenderedContent(TimeStampedModel):
 class SiteSettings(models.Model):
     wordcloud_ignore = models.TextField(
         default="",
-        help_text="A comma-separated list of words to ignore in the release report wordcloud.",  # noqa
+        help_text="A comma-separated list of words to ignore in the release report wordcloud.",  # noqa E501
     )
 
     class Meta:
