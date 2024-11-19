@@ -10,7 +10,7 @@ from django.db.models import F, Q, Count, OuterRef, Sum
 from django.forms import Form, ModelChoiceField, ModelForm, BooleanField
 from django.conf import settings
 
-from core.models import RenderedContent
+from core.models import RenderedContent, SiteSettings
 from versions.models import Version
 from .models import Commit, CommitAuthor, Issue, Library, LibraryVersion
 from libraries.constants import SUB_LIBRARIES
@@ -442,7 +442,7 @@ class CreateReportForm(CreateReportFullForm):
         wc = WordCloud(
             width=1400,
             height=700,
-            stopwords=STOPWORDS | {"boost", "Boost", "http", "lists", "via", "https"},
+            stopwords=STOPWORDS | SiteSettings.load().wordcloud_ignore_set,
             font_path=settings.BASE_DIR / "static" / "font" / "notosans_mono.woff",
         )
         image_bytes = io.BytesIO()
