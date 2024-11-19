@@ -1,10 +1,11 @@
+import textwrap
 from os import getcwd, makedirs
 from unittest.mock import patch
 
 import pytest
 
 
-from core.asciidoc import convert_adoc_to_html
+from core.asciidoc import convert_adoc_to_html, convert_md_to_html
 
 
 def test_convert_adoc_to_html_subprocess():
@@ -40,3 +41,37 @@ def test_convert_adoc_to_html_content_file():
         makedirs("/tmp/asciidocs", exist_ok=True)
         open("/tmp/asciidocs/tmp.html", "w").write(output)
     assert output == expected_output
+
+
+@pytest.mark.asciidoctor
+def test_convert_md_to_html():
+    input = textwrap.dedent(
+        """
+        header
+        header
+        ------
+        text
+        """
+    )
+    output = textwrap.dedent(
+        """
+        <div class="sect1">
+        <h2 id="_header_header">header header</h2>
+        <div class="sectionbody">
+        <div class="paragraph">
+        <p>text</p>
+        </div>
+        </div>
+        </div>
+        """
+    )
+
+    assert convert_md_to_html(input).strip() == output.strip()
+
+
+@pytest.mark.asciidoctor
+def test_convert_md_to_html_huge_input():
+    """
+    Make sure we don't run into pipe buffering issues with large inputs.
+    """
+    convert_md_to_html("asdf\n" * 500000)

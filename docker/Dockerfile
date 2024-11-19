@@ -35,7 +35,7 @@ RUN yarn build
 # Final image.
 FROM python:3.11-slim AS release
 
-RUN apt update && apt install -y git libpq-dev ruby ruby-dev && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y git libpq-dev ruby ruby-dev pandoc && rm -rf /var/lib/apt/lists/*
 
 # Install Asciidoctor
 RUN gem install asciidoctor asciidoctor-boost
