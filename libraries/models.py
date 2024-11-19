@@ -9,7 +9,6 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.db.models.functions import Upper
 
-from core.htmlhelper import get_release_notes_for_library_version
 from core.markdown import process_md
 from core.models import RenderedContent
 from core.asciidoc import convert_adoc_to_html
@@ -392,10 +391,6 @@ class LibraryVersion(models.Model):
             raise ValueError("Invalid data for library version")
 
         return f"{self.library.github_url}/tree/{self.version.name}"
-
-    @cached_property
-    def get_release_notes(self):
-        return get_release_notes_for_library_version(self)
 
     def get_cpp_standard_minimum_display(self):
         """Returns the display name for the C++ standard, or the value if not found.
