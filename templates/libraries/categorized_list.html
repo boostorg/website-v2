@@ -2,27 +2,38 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{% trans "Boost Libraries" %}{% endblock %}
-{% block description %}{% trans "Explore our comprehensive list of Boost C++ Libraries and discover tools for multithreading, image processing, testing, and more." %}{% endblock %}
+{% block title %}{% trans "Boost Libraries by Category" %}{% endblock %}
+{% block description %}{% trans "Browse Boost C++ Libraries by category and discover tools for multithreading, image processing, testing, and more." %}{% endblock %}
+
 
 {% block content %}
 <main class="content">
-  {% if library_list %}
   {% include "libraries/includes/library_preferences.html" %}
 
   {# alert for non-current Boost versions #}
   {% include "libraries/includes/version_alert.html" %}
 
   {# Libraries list #}
-  <div class="grid grid-cols-1 gap-4 mb-5 md:grid-cols-2 lg:grid-cols-3">
-    {% for library_version in library_version_list %}
-      {% include "libraries/_library_list_item.html" %}
+  <div class="space-y-3">
+    {% for result in library_versions_by_category %}
+      <div class="relative content-between p-3 w-full bg-white md:rounded-lg md:shadow-lg md:p-5 dark:bg-charcoal">
+        <h5 class="mb-2 pb-2 text-xl md:text-2xl leading-tight text-orange border-b border-gray-300 dark:border-slate">{{ result.category }}</h5>
+        <table class="table-auto w-full">
+          <tbody>
+          {% for library_version in result.library_version_list %}
+            {% include "libraries/_library_categorized_list_item.html" %}
+          {% empty %}
+            <p class="text-gray-600 dark:text-gray-400">No libraries in this category yet.</p>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
     {% endfor %}
   </div>
   {# end libraries list #}
 
   {% if page_obj.paginator %}
-  {# pagination #}
+  {# Pagination #}
   <div class="space-x-3 text-center">
     {% if page_obj.has_previous %}
       <a href="?page=1" class="text-orange"><small> &lt;&lt; First</small></a>
@@ -36,6 +47,5 @@
   {# end pagination #}
   {% endif %}
 
-  {% endif %}
 </main>
 {% endblock %}

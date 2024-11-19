@@ -390,7 +390,7 @@ html.dark {
     </div>
     <div class="right-menubar" x-data="{ 'searchOpen': false }">
         <span style="position: relative;" x-ref="desktopSearchArea">
-         <i id="gecko-search-button" data-current-boost-version="{{ current_release.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="sans-serif" class="fas fa-search icon-link"></i>
+         <i id="gecko-search-button" data-current-boost-version="{{ current_version.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="sans-serif" class="fas fa-search icon-link"></i>
         <script>
                 const geckoSearchButton = document.getElementById('gecko-search-button');
                 geckoSearchButton.setAttribute('data-theme-mode', localStorage.getItem('colorMode') === 'dark' ? 'dark' : 'light');

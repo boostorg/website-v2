@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static avatar_tags %}
+{% load i18n static avatar_tags version_select %}
 
 {% block title %}{{ object.display_name }} ({{ version.display_name }}){% endblock %}
 {% block description %}{% if library_version.description %}{% trans library_version.description %}{% endif %}{% endblock %}
@@ -17,21 +17,7 @@
         </div>
       </div>
       <div class="flex-shrink mr-3 md:mr-0">
-        <form action="{% url 'library-detail' slug=object.slug %}"
-              method="post">
-          <div>
-            <label for="id_version" hidden="true">Versions:</label>
-            <select onchange="this.form.submit()"
-                    name="version"
-                    class="dropdown pb-0"
-                    id="id_version">
-              <option value="{{ LATEST_RELEASE_URL_PATH_STR }}" {% if version_str == LATEST_RELEASE_URL_PATH_NAME %}selected="selected"{% endif %}>Latest</option>
-              {% for v in versions %}
-                <option value="{{ v.pk }}" {% if version_str == v.slug %}selected="selected"{% endif %}>{{ v.display_name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-        </form>
+        {% version_select %}
       </div>
     </div>
 
@@ -59,7 +45,7 @@
               <span class="font-bold">Categories:</span>
               {% for category in object.categories.all %}
                 <a class="inline text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-                href="{% url 'libraries' %}?category={{ category.slug }}{% if version_str != LATEST_RELEASE_URL_PATH_NAME %}&version={{ version.slug }}{% endif %}">{{ category.name }}</a>
+                href="{% url 'libraries-list' category_slug=category.slug library_view_str=library_view_str version_slug=version_str %}">{{ category.name }}</a>
                 {% if not forloop.last %}, {% endif %}
               {% endfor %}
             </div>

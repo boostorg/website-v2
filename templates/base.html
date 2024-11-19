@@ -186,21 +186,56 @@
         }
       }
 
-      const versionResetForm = (event) => {
-        if (event.persisted) {
-          const form = document.getElementById('id_version').closest('form');
-          if (form) {
-            form.reset();
+      const changeVersionAndCategory = (event) => {
+        const urlPatterns = {
+          libraries: {
+            regex: /^(https?:\/\/[\S:]+\/libraries\/)([^\/]+)(\/?[a-z]*)(\/?\S*)?\/?$/,
+            substitution: (event) => {
+              switch (event.target.id) {
+                case 'id_category':
+                  return `$1$2$3${event.target.value ? `/${event.target.value}` : ''}/`;
+                case 'id_version':
+                  return `$1${event.target.value}$3$4`;
+                default:
+                  return null;
+              }
+            }
+          },
+          library: {
+            regex: /^(https?:\/\/[\S:]+\/library\/)([^\/]+)\/([^\/]+)\/?$/,
+            substitution: (event) => `$1${event.target.value}/$3/`
+          },
+          releases: {
+            regex: /^(https?:\/\/[\S:]+\/releases\/)([^\/]+)?\/?$/,
+            substitution: (event) => `$1${event.target.value}/`
+          }
+        };
+
+        const currentUrl = window.location.href;
+        for (const key in urlPatterns) {
+          const pattern = urlPatterns[key];
+          if (pattern.regex.test(currentUrl)) {
+            const substitutionString = pattern.substitution(event);
+            if (substitutionString) {
+              window.location.href = currentUrl.replace(pattern.regex, substitutionString);
+            }
+            break;
           }
         }
       }
 
+      window.addEventListener('DOMContentLoaded', () => {
+        // resets the form on back button press
+        document.getElementById("id_category")?.closest('form').reset();
+        document.getElementById("id_version")?.closest('form').reset();
+        document.getElementById("id_category")?.addEventListener("change", changeVersionAndCategory);
+        document.getElementById("id_version")?.addEventListener("change", changeVersionAndCategory);
+      });
       (async () => {
         await trackLoginUpdateCheck();
         await delay(messageVisibilitySeconds * 1000);
         await hideMessage();
       })();
-      window.addEventListener('pageshow', versionResetForm);
    </script>
 
   </body>

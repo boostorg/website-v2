@@ -1,15 +1,18 @@
+{% load boost_version %}
 <form action="." method="get">
-    <select onchange="this.form.submit()"
-            name="version"
-            class="dropdown !mb-0 h-[38px]"
-            id="id_version">
+    <select
+        name="version"
+        class="dropdown !mb-0 h-[38px]"
+        id="id_version"
+    >
         <option value="{{ LATEST_RELEASE_URL_PATH_STR }}"
                 {% if version_str == LATEST_RELEASE_URL_PATH_STR %}selected="selected"{% endif %}>
             Latest
         </option>
         {% for v in versions %}
-            <option value="{{ v.slug }}"
-                    {% if version_str == v.slug %}selected="selected"{% endif %}>
+            <option value="{{ v.slug|boost_version }}"
+                {% if version_str == v.slug %}selected="selected"{% endif %}
+            >
                 {{ v.display_name }}
             </option>
         {% endfor %}

@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path, re_path
+from django.urls import include, path, re_path, register_converter
 from django.views.generic import TemplateView
 from rest_framework import routers
 
@@ -32,9 +32,7 @@ from core.views import (
 from libraries.api import LibrarySearchView
 from libraries.views import (
     LibraryDetail,
-    LibraryList,
-    LibraryListByCategory,
-    LibraryListMini,
+    LibraryListDispatcher,
 )
 from news.feeds import AtomNewsFeed, RSSNewsFeed
 from news.views import (
@@ -71,6 +69,7 @@ from users.views import (
     DeleteImmediatelyView,
 )
 from versions.api import ImportVersionsView, VersionViewSet
+from versions.converters import BoostVersionSlugConverter
 from versions.feeds import AtomVersionFeed, RSSVersionFeed
 from versions.views import (
     InProgressReleaseNotesView,
@@ -79,12 +78,13 @@ from versions.views import (
     VersionDetail,
 )
 
+register_converter(BoostVersionSlugConverter, "boostversionslug")
+
 router = routers.SimpleRouter()
 
 router.register(r"users", UserViewSet, basename="users")
 router.register(r"versions", VersionViewSet, basename="versions")
 router.register(r"libraries", LibrarySearchView, basename="libraries")
-
 
 urlpatterns = (
     [
@@ -157,7 +157,11 @@ urlpatterns = (
             InProgressReleaseNotesView.as_view(),
             name="release-in-progress",
         ),
-        path("releases/<slug:slug>/", VersionDetail.as_view(), name="release-detail"),
+        path(
+            "releases/<boostversionslug:version_slug>/",
+            VersionDetail.as_view(),
+            name="release-detail",
+        ),
         path(
             "donate/",
             TemplateView.as_view(template_name="donate/donate.html"),
@@ -168,27 +172,25 @@ urlpatterns = (
             TemplateView.as_view(template_name="style_guide.html"),
             name="style-guide",
         ),
+        path("libraries/", LibraryListDispatcher.as_view(), name="libraries"),
         path(
-            "libraries/by-category/",
-            LibraryListByCategory.as_view(),
-            name="libraries-by-category",
-        ),
-        path("libraries/", LibraryList.as_view(), name="libraries"),
-        path("libraries/mini/", LibraryListMini.as_view(), name="libraries-mini"),
-        path("libraries/grid/", LibraryList.as_view(), name="libraries-grid"),
-        path(
-            "libraries/<slug:slug>/<slug:version_slug>/",
-            LibraryDetail.as_view(),
-            name="library-detail-by-version",
+            "libraries/<boostversionslug:version_slug>/<str:library_view_str>/",
+            LibraryListDispatcher.as_view(),
+            name="libraries-list",
         ),
         path(
-            "libraries/<slug:slug>/",
+            "libraries/<boostversionslug:version_slug>/<str:library_view_str>/<slug:category_slug>/",
+            LibraryListDispatcher.as_view(),
+            name="libraries-list",
+        ),
+        path(
+            "library/<boostversionslug:version_slug>/<slug:library_slug>/",
             LibraryDetail.as_view(),
             name="library-detail",
         ),
         # Redirect for '/libs/' legacy boost.org urls.
         re_path(
-            r"^libs/(?P<slug>[-\w]+)/?$",
+            r"^libs/(?P<library_slug>[-\w]+)/?$",
             LibraryDetail.as_view(redirect_to_docs=True),
             name="library-docs-redirect",
         ),

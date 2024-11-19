@@ -1,25 +1,23 @@
 import datetime
 from types import SimpleNamespace
 
-import structlog
 from django.contrib import messages
 from django.db.models import F, Count, Exists, OuterRef, Prefetch
 from django.db.models.functions import Lower
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
+from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormMixin
-from django import urls
-from django.http import HttpResponseRedirect
 
 from core.githubhelper import GithubAPIClient
 from versions.models import Version
 
 from .constants import README_MISSING
 from .forms import VersionSelectionForm
-from .mixins import VersionAlertMixin
+from .mixins import VersionAlertMixin, BoostVersionMixin
 from .models import (
     Category,
     Commit,
@@ -29,118 +27,87 @@ from .models import (
     LibraryVersion,
 )
 from .utils import (
-    redirect_to_view_with_params,
     get_view_from_cookie,
     set_view_in_cookie,
     get_prioritized_library_view,
-    build_view_query_params_from_request,
-    build_route_name_for_view,
-    determine_view_from_library_request,
     determine_selected_boost_version,
     set_selected_boost_version,
     get_documentation_url,
 )
 from .constants import LATEST_RELEASE_URL_PATH_STR
 
-logger = structlog.get_logger()
 
-
-class LibraryList(VersionAlertMixin, ListView):
-    """List all of our libraries for a specific Boost version, or default
-    to the current version."""
-
-    queryset = (
-        (
-            Library.objects.prefetch_related("authors", "categories")
-            .all()
-            .order_by("name")
-        )
-        .defer("data")
-        .distinct()
-    )
-    template_name = "libraries/list.html"
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        params = self.request.GET.copy()
-
-        # If the user has selected a version, fetch it from the cookies.
-        selected_boost_version = (
+class LibraryListDispatcher(View):
+    def dispatch(self, request, *args, **kwargs):
+        view_str = self.kwargs.get("library_view_str")
+        if view_str == "list":
+            view = LibraryVertical.as_view()
+        elif view_str == "categorized":
+            view = LibraryCategorized.as_view()
+        else:
+            # covers both /libraries and /libraries/.../grid[/...]
+            view = LibraryListBase.as_view()
+        version_str = (
             determine_selected_boost_version(
-                self.request.GET.get("version"), self.request
+                self.kwargs.get("version_slug"), self.request
             )
             or LATEST_RELEASE_URL_PATH_STR
         )
-        # default to the most recent version
-        if selected_boost_version == LATEST_RELEASE_URL_PATH_STR:
-            # If no version is specified, show the most recent version.
+        if not self.kwargs.get("version_slug"):
+            self.kwargs["version_slug"] = version_str
+        return view(request, *args, **self.kwargs)  # , *args, **kwargs)
+
+
+class LibraryListBase(BoostVersionMixin, VersionAlertMixin, ListView):
+    """Based on LibraryVersion, list all of our libraries in grid format for a specific
+    Boost version, or default to the current version."""
+
+    queryset = LibraryVersion.objects.prefetch_related(
+        "authors", "library", "library__categories"
+    ).defer("data")
+    ordering = "library__name"
+    template_name = "libraries/grid_list.html"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        version_slug = determine_selected_boost_version(
+            self.kwargs.get("version_slug"), self.request
+        )
+        if version_slug == LATEST_RELEASE_URL_PATH_STR:
             version = Version.objects.most_recent()
-            if version:
-                selected_boost_version = version.slug
-            else:
-                # Add a message that no data has been imported
+            if not version:
                 messages.add_message(
                     self.request,
                     messages.WARNING,
                     "No data has been imported yet. Please check back later.",
                 )
                 return Library.objects.none()
+            version_slug = version.slug
 
-        queryset = queryset.filter(
-            library_version__version__slug=selected_boost_version
-        )
+        version_filter_args = {"version__slug": version_slug}
 
-        # avoid attempting to look up libraries with blank categories
-        if params.get("category"):
-            queryset = queryset.filter(categories__slug=params.get("category"))
+        no_category_filtering_views = ["categorized"]
+        if (
+            self.kwargs.get("category_slug")
+            and self.kwargs.get("library_view_str") not in no_category_filtering_views
+        ):
+            version_filter_args["library__categories__slug"] = self.kwargs.get(
+                "category_slug"
+            )
 
-        return queryset
+        return queryset.filter(**version_filter_args)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Handle the case where data hasn't been imported yet
-        version = Version.objects.most_recent()
-        version_str = determine_selected_boost_version(
-            self.request.GET.get("version"), self.request
+        context = super().get_context_data(**self.kwargs)
+        context["categories"] = self.get_categories(context["selected_version"])
+        context["versions"] = self.get_versions(
+            current_version=context["current_version"]
         )
-        if not version_str:
-            version_str = LATEST_RELEASE_URL_PATH_STR
-        if not version:
-            context.update(
-                {
-                    "category": None,
-                    "version": None,
-                    "version_str": version_str,
-                    "categories": Category.objects.none(),
-                    "versions": Version.objects.none(),
-                    "library_version_list": LibraryVersion.objects.none(),
-                }
-            )
-            return context
-
-        if self.request.GET.get("category"):
+        # todo: add tests for sort order
+        if self.kwargs.get("category_slug"):
             context["category"] = Category.objects.get(
-                slug=self.request.GET["category"]
+                slug=self.kwargs.get("category_slug")
             )
-        context["categories"] = self.get_categories(context["version"])
-        context["versions"] = self.get_versions()
-        context["version_str"] = version_str
-        # todo: add tests for sort order, consider refactor to queryset use
-        library_versions_qs = (
-            LibraryVersion.objects.filter(
-                version__slug=version_str
-                if version_str != LATEST_RELEASE_URL_PATH_STR
-                else version.slug
-            )
-            .prefetch_related("authors", "library", "library__categories")
-            .order_by("library__name")
-        )
-        if self.request.GET.get("category"):
-            library_versions_qs = library_versions_qs.filter(
-                library__categories__slug=self.request.GET.get("category")
-            )
-        context["library_version_list"] = library_versions_qs
-        context["url_params"] = build_view_query_params_from_request(self.request)
 
         return context
 
@@ -151,7 +118,7 @@ class LibraryList(VersionAlertMixin, ListView):
             .order_by("name")
         )
 
-    def get_versions(self):
+    def get_versions(self, current_version):
         """
         Return a queryset of all versions to display in the version dropdown.
         """
@@ -165,70 +132,82 @@ class LibraryList(VersionAlertMixin, ListView):
         # Filter out versions with no libraries
         versions = versions.filter(library_count__gt=0)
 
-        most_recent_version = Version.objects.most_recent()
-
         # Confirm the most recent v is in the queryset, even if it has no libraries
-        if most_recent_version not in versions:
-            versions = versions | Version.objects.filter(pk=most_recent_version.pk)
+        if current_version and current_version not in versions:
+            versions = versions | Version.objects.filter(pk=current_version.pk)
 
         # Manually exclude the master and develop branches.
-        versions = versions.exclude(name__in=["develop", "master", "head"])
+        # todo: confirm is redundant with version_dropdown()'s matching exclude
+        # versions = versions.exclude(name__in=["develop", "master", "head"])
         versions.prefetch_related("library_version")
         return versions
 
     def dispatch(self, request, *args, **kwargs):
         """Set the selected version in the cookies."""
         response = super().dispatch(request, *args, **kwargs)
-        query_params = build_view_query_params_from_request(request)
-        set_selected_boost_version(
-            query_params.get("version", LATEST_RELEASE_URL_PATH_STR), response
-        )
-        # The following conditional practically only applies on "/libraries/", at
-        # which point the redirection will be determined by prioritised view
-        view = determine_view_from_library_request(request)
-        if not view:
-            view = get_prioritized_library_view(request)
-            set_view_in_cookie(response, build_route_name_for_view(view))
-            return redirect_to_view_with_params(view, kwargs, query_params)
+        set_selected_boost_version(self.kwargs.get("version_slug"), response)
+        view = get_prioritized_library_view(request)
+        if request.resolver_match.view_name == "libraries":
+            # todo: remove the following migration block some time after March 1st 2025
+            def update_deprecated_cookie_view(cookie_view, response):
+                deprecated_views = {
+                    "libraries-mini": "list",
+                    "libraries-grid": "grid",
+                    "libraries-by-category": "categorized",
+                }
+                if cookie_view in deprecated_views:
+                    cookie_view = deprecated_views[cookie_view]
+                    set_view_in_cookie(response, cookie_view)
+                return cookie_view
+
+            view = update_deprecated_cookie_view(view, response)
+            # todo: end of migration block
+
+            # set the cookie in case it has changed
+            set_view_in_cookie(response, view)
+            redirect_args = {
+                "version_slug": self.kwargs.get("version_slug"),
+                "library_view_str": view,
+            }
+            if self.kwargs.get("category_slug"):
+                redirect_args["category_slug"] = self.kwargs.get("category_slug")
+            return redirect("libraries-list", **redirect_args)
 
         if view != get_view_from_cookie(request):
-            set_view_in_cookie(response, build_route_name_for_view(view))
+            set_view_in_cookie(response, view)
 
         return response
 
 
-class LibraryListMini(LibraryList):
+class LibraryVertical(LibraryListBase):
     """Flat list version of LibraryList"""
 
-    template_name = "libraries/flat_list.html"
+    template_name = "libraries/vertical_list.html"
 
 
-class LibraryListByCategory(LibraryList):
+class LibraryCategorized(LibraryListBase):
     """List all Boost libraries sorted by Category."""
 
-    template_name = "libraries/category_list.html"
+    template_name = "libraries/categorized_list.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["library_versions_by_category"] = self.get_results_by_category(
-            version=context.get("version")
+            version=context.get("selected_version")
         )
         return context
 
     def get_results_by_category(self, version: Version | None):
         # Define filter kwargs based on whether version is provided
-        version_filter = {"version": version} if version else {}
         category_filter = (
             {"libraries__library_version__version": version} if version else {}
         )
-        library_versions_qs = LibraryVersion.objects.filter(**version_filter)
-
         libraries_prefetch = Prefetch(
             "libraries",
             queryset=Library.objects.order_by("name").prefetch_related(
                 Prefetch(
                     "library_version",
-                    queryset=library_versions_qs,
+                    queryset=self.get_queryset(),
                     to_attr="prefetched_library_versions",
                 )
             ),
@@ -258,7 +237,7 @@ class LibraryListByCategory(LibraryList):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
+class LibraryDetail(FormMixin, VersionAlertMixin, BoostVersionMixin, DetailView):
     """Display a single Library in insolation"""
 
     form_class = VersionSelectionForm
@@ -274,26 +253,24 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
             Version.objects.active()
             .filter(library_version__library=self.object)
             .distinct()
+            .exclude(name__in=["develop", "master", "head"])
+            .exclude(beta=True)
             .order_by("-release_date")
         )
-
-        # Manually exclude feature branches from the version dropdown.
-        context["versions"] = context["versions"].exclude(
-            name__in=["develop", "master", "head"]
-        )
-
-        # Manually exclude beta releases from the version dropdown.
-        context["versions"] = context["versions"].exclude(beta=True)
         context["LATEST_RELEASE_URL_PATH_NAME"] = LATEST_RELEASE_URL_PATH_STR
         # Get general data and version-sensitive data
         library_version = LibraryVersion.objects.get(
-            library=self.get_object(), version=context["version"]
+            library=self.get_object(), version=context["selected_version"]
         )
         context["library_version"] = library_version
         context["documentation_url"] = get_documentation_url(
             library_version, context["version_str"] == LATEST_RELEASE_URL_PATH_STR
         )
-        context["github_url"] = self.get_github_url(context["version"])
+        context["github_url"] = (
+            library_version.library_repo_url_for_version
+            if library_version
+            else self.object.github_url
+        )
         context["authors"] = self.get_related(library_version, "authors")
         context["maintainers"] = self.get_related(
             library_version,
@@ -312,7 +289,7 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
             if getattr(x.commitauthor, "id", None)
         ]
         top_contributors_release = self.get_top_contributors(
-            version=context["version"],
+            version=context["selected_version"],
             exclude=exclude_maintainer_ids + exclude_author_ids,
         )
         context["top_contributors_release_new"] = [
@@ -323,7 +300,7 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
         ]
         exclude_top_contributor_ids = [x.id for x in top_contributors_release]
         context["previous_contributors"] = self.get_previous_contributors(
-            context["version"],
+            context["selected_version"],
             exclude=exclude_maintainer_ids
             + exclude_top_contributor_ids
             + exclude_author_ids,
@@ -334,10 +311,10 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
         # Populate the library description
         client = GithubAPIClient(repo_slug=self.object.github_repo)
         context["description"] = (
-            self.object.get_description(client, tag=context["version"].name)
+            self.object.get_description(client, tag=context["selected_version"].name)
             or README_MISSING
         )
-
+        context["library_view_str"] = get_prioritized_library_view(self.request)
         return context
 
     def get_commit_data_by_release(self):
@@ -361,16 +338,16 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
         """Get the current library object from the slug in the URL.
         If present, use the version_slug to get the right LibraryVersion of the library.
         Otherwise, default to the most recent version."""
-        slug = self.kwargs.get("slug")
+        library_slug = self.kwargs.get("library_slug")
         version = self.get_version()
 
         if not LibraryVersion.objects.filter(
-            version=version, library__slug__iexact=slug
+            version=version, library__slug__iexact=library_slug
         ).exists():
             raise Http404("No library found matching the query")
 
         try:
-            obj = self.get_queryset().get(slug__iexact=slug)
+            obj = self.get_queryset().get(slug__iexact=library_slug)
         except self.model.DoesNotExist:
             raise Http404("No library found matching the query")
         return obj
@@ -399,13 +376,6 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
             commit_data_list.append({"date": date, "commit_count": commit_count})
 
         return commit_data_list
-
-    def get_current_library_version(self, version):
-        """Return the library-version for the latest version of Boost"""
-        # Avoid raising an error if the library has been removed from the latest version
-        return LibraryVersion.objects.filter(
-            library=self.object, version=version
-        ).first()
 
     def get_github_url(self, version):
         """Get the GitHub URL for the current library."""
@@ -498,10 +468,11 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
     def get_version(self):
         """Get the version of Boost for the library we're currently looking at."""
         version_slug = self.kwargs.get("version_slug")
-        if version_slug:
-            return get_object_or_404(Version, slug=version_slug)
-        else:
+        # here we need to check for not version_slug because of redirect_to_docs
+        # where it's not necessarily set by the source request
+        if not version_slug or version_slug == LATEST_RELEASE_URL_PATH_STR:
             return Version.objects.most_recent()
+        return get_object_or_404(Version, slug=version_slug)
 
     def dispatch(self, request, *args, **kwargs):
         """Redirect to the documentation page, if configured to."""
@@ -509,7 +480,7 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
             return redirect(
                 get_documentation_url(
                     LibraryVersion.objects.get(
-                        library__slug=self.kwargs.get("slug"),
+                        library__slug=self.kwargs.get("library_slug"),
                         version=self.get_version(),
                     ),
                     latest=True,
@@ -517,44 +488,6 @@ class LibraryDetail(FormMixin, VersionAlertMixin, DetailView):
             )
         response = super().dispatch(request, *args, **kwargs)
         set_selected_boost_version(
-            kwargs.get("version_slug", LATEST_RELEASE_URL_PATH_STR), response
+            self.kwargs.get("version_slug", LATEST_RELEASE_URL_PATH_STR), response
         )
         return response
-
-    def post(self, request, *args, **kwargs):
-        """User has submitted a form and will be redirected to the right record."""
-        self.object = self.get_object()
-        form = self.get_form()
-        if form.is_valid():
-            version = form.cleaned_data["version"]
-            return redirect(
-                "library-detail-by-version",
-                version_slug=version.slug,
-                slug=self.object.slug,
-            )
-        else:
-            logger.info("library_list_invalid_version")
-            return redirect(request.get_full_path())
-        return super().get(request)
-
-    def render_to_response(self, context):
-        if self.object.slug != self.kwargs["slug"]:
-            # redirect to canonical case
-            try:
-                url = urls.reverse(
-                    "library-detail-by-version",
-                    kwargs={
-                        "slug": self.object.slug,
-                        "version_slug": self.kwargs["version_slug"],
-                    },
-                )
-            except KeyError:
-                url = urls.reverse(
-                    "library-detail",
-                    kwargs={
-                        "slug": self.object.slug,
-                    },
-                )
-            return HttpResponseRedirect(url)
-        else:
-            return super().render_to_response(context)

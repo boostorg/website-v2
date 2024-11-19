@@ -352,8 +352,9 @@ README_MISSING = (
     "consider contributing one."
 )
 
-DEFAULT_LIBRARIES_LANDING_VIEW = "libraries-grid"
+DEFAULT_LIBRARIES_LANDING_VIEW = "grid"
 SELECTED_BOOST_VERSION_COOKIE_NAME = "boost_version"
 SELECTED_LIBRARY_VIEW_COOKIE_NAME = "library_view"
-# change this to switch from /libraries/align/release/ to /libraries/align/latest/
-LATEST_RELEASE_URL_PATH_STR = "release"
+LATEST_RELEASE_URL_PATH_STR = "latest"
+LEGACY_LATEST_RELEASE_URL_PATH_STR = "release"
+VERSION_SLUG_PREFIX = "boost-"
