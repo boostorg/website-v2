@@ -59,3 +59,29 @@ class RenderedContent(TimeStampedModel):
             self.content_type = self.content_type.decode("utf-8")
 
         super().save(*args, **kwargs)
+
+
+class SiteSettings(models.Model):
+    wordcloud_ignore = models.TextField(
+        default="",
+        help_text="A comma-separated list of words to ignore in the release report wordcloud.",  # noqa E501
+    )
+
+    class Meta:
+        constraints = [
+            # check constraint to only allow id=1 to exist
+            models.CheckConstraint(
+                name="%(app_label)s_%(class)s_single_instance",
+                check=models.Q(id=1),
+            ),
+        ]
+        verbose_name_plural = "Site Settings"
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    @property
+    def wordcloud_ignore_set(self):
+        return set(x.strip() for x in self.wordcloud_ignore.split(","))
