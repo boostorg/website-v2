@@ -79,7 +79,8 @@ def command(dry_run, dry_run_users):
             # Handle review manager
             if (
                 review.review_manager_raw
-                and review.review_manager_raw.lower() != "needed!"
+                and review.review_manager_raw
+                != Review._meta.get_field("review_manager_raw").default
             ):
                 manager_names = _parse_users_from_raw_names(review.review_manager_raw)
                 if manager_names:
