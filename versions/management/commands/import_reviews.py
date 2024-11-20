@@ -21,33 +21,42 @@ User = get_user_model()
 )
 def command(dry_run, dry_run_users):
     """Import Boost library reviews from boost.org table data"""
+    click.echo("Starting review import from boost.org")
 
     url = "https://www.boost.org/community/review_schedule.html"
     response = requests.get(url)
+
     soup = BeautifulSoup(response.text, "html.parser")
 
     # Parse both tables
     scheduled_review_table = soup.find("table", summary="Formal Review Schedule")
     past_review_table = soup.find("table", summary="Review Results")
 
+    if not scheduled_review_table or not past_review_table:
+        click.secho("Could not find review tables in page content", fg="red", err=True)
+        return
+
     upcoming_reviews = _parse_table(scheduled_review_table)
     past_reviews = _parse_table(past_review_table, past_results=True)
 
-    click.secho(
+    click.echo(
         f"Found {len(upcoming_reviews)} upcoming and {len(past_reviews)} past reviews"
     )
 
     if dry_run:
-        click.secho("Dry run - no changes made")
+        click.echo("Dry run - no changes made")
         return
 
+    reviews_created = results_created = 0
     # Import everything in a transaction
     with transaction.atomic():
         # Create or update past reviews
         for review_data, results in past_reviews:
             review = Review.objects.create(**review_data)
+            reviews_created += 1
             for result in results:
                 ReviewResult.objects.create(review=review, **result)
+                results_created += 1
 
         # Create or update upcoming reviews
         for review_data, _ in upcoming_reviews:
@@ -56,9 +65,16 @@ def command(dry_run, dry_run_users):
                 submitter_raw=review_data["submitter_raw"],
                 defaults=review_data,
             )
+            reviews_created += 1
 
-    click.secho("\nFinished importing reviews\n", fg="green")
-    click.secho("Attempting to parse users\n")
+    click.secho("\nFinished importing reviews", fg="green")
+    click.secho(
+        f"Created {reviews_created} reviews and {results_created} results", fg="green"
+    )
+
+    users_linked = 0
+    managers_linked = 0
+    click.echo("\nAttempting to parse users\n")
 
     # Link users in separate transaction
     with transaction.atomic():
@@ -75,6 +91,8 @@ def command(dry_run, dry_run_users):
                     user = _get_user_from_name(first_name, last_name)
                     if user:
                         review.submitters.add(user)
+                        users_linked += 1
+                        click.echo(f"Linked submitter {user} to {review.submission}")
 
             # Handle review manager
             if (
@@ -84,7 +102,6 @@ def command(dry_run, dry_run_users):
             ):
                 manager_names = _parse_users_from_raw_names(review.review_manager_raw)
                 if manager_names:
-                    # Take first manager if multiple are returned
                     first_name, last_name = manager_names[0]
                     if dry_run_users:
                         click.echo(
@@ -96,6 +113,13 @@ def command(dry_run, dry_run_users):
                         if user:
                             review.review_manager = user
                             review.save()
+                            managers_linked += 1
+                            click.echo(f"Linked manager {user} to {review.submission}")
+
+        click.secho(
+            f"\nLinked {users_linked} submitters and {managers_linked} managers",
+            fg="green",
+        )
 
     click.secho("\nDone!", fg="green")
 
