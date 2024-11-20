@@ -83,9 +83,8 @@ def command(dry_run, dry_run_users):
             ):
                 manager_names = _parse_users_from_raw_names(review.review_manager_raw)
                 if manager_names:
-                    first_name, last_name = manager_names[
-                        0
-                    ]  # Take first manager if multiple
+                    # Take first manager if multiple are returned
+                    first_name, last_name = manager_names[0]
                     if dry_run_users:
                         click.echo(
                             "Would set manager: "
@@ -166,6 +165,10 @@ def _parse_table(table, past_results=False):
 def _parse_users_from_raw_names(raw_name_string: str) -> list[tuple[str, str]]:
     """
     Parse a raw name string into a list of (first_name, last_name) tuples.
+
+    Marked as private since this is a fairly narrow, clunky solution optimized for
+    the names seen in the actual boost.org table.
+
     Handles inputs like:
         "John Doe"
         "John Doe & Jane Smith"
