@@ -42,6 +42,7 @@ def test_skip_tag(version):
 
     # Assert that if it's on the exclusion list, it's skipped
     assert skip_tag("boost-beta-1.0") is True
+    assert skip_tag("boost-1.25.1-bgl") is True
 
     # Assert that if the version is lower that the min, it's skipped
     assert skip_tag("boost-0.9.0") is True
