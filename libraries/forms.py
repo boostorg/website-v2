@@ -1,5 +1,7 @@
 import io
 import base64
+from itertools import groupby
+from operator import attrgetter
 
 import psycopg2
 from wordcloud import WordCloud, STOPWORDS
@@ -501,6 +503,14 @@ class CreateReportForm(CreateReportFullForm):
 
     def get_stats(self):
         version = self.cleaned_data["version"]
+
+        downloads = {
+            k: list(v)
+            for k, v in groupby(
+                version.downloads.all().order_by("operating_system"),
+                key=attrgetter("operating_system"),
+            )
+        }
         prior_version = (
             Version.objects.minor_versions()
             .filter(version_array__lt=version.cleaned_version_parts_int)
@@ -623,4 +633,5 @@ class CreateReportForm(CreateReportFullForm):
             "library_names": library_names,
             "added_library_count": added_library_count,
             "removed_library_count": removed_library_count,
+            "downloads": downloads,
         }

@@ -4,22 +4,56 @@
   {% with bg_color='bg-gradient-to-tr from-[#7ac3e6]/50 to-[#d9b05e]/50' %}
     <div>
       <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
-        <div>
-          <h1>Boost</h1>
-          <div>{{ commit_count|intcomma }} commit{{ commit_count|pluralize }} up through {{ version.display_name }}</div>
-          <div>{{ lines_added|intcomma }} line{{ lines_added|pluralize }} added, {{ lines_removed|intcomma }} line{{ lines_removed|pluralize }} removed</div>
-          <div>{{ version_commit_count|intcomma }} new commit{{ version_commit_count|pluralize }} in all library repositories</div>
-          <div>{{ commit_contributors_release_count }} commit contributors, {{ commit_contributors_new_count }} new</div>
-          <div>{{ opened_issues_count|intcomma }} issues opened, {{ closed_issues_count|intcomma }} closed</div>
-          <div>{{ mailinglist_total|intcomma }} posts to the developer's mailing list</div>
-          <div>{{ mailinglist_contributor_release_count }} unique mailing list users, {{ mailinglist_contributor_new_count }} new</div>
-          {% if added_library_count %}
-            <div>{{ added_library_count }} librar{{ added_library_count|pluralize:"y,ies" }} added</div>
+        <div class="flex flex-col h-full">
+          <div class="mb-auto">
+            <h1>Boost</h1>
+            <div>{{ commit_count|intcomma }} commit{{ commit_count|pluralize }} up through {{ version.display_name }}</div>
+            <div>{{ lines_added|intcomma }} line{{ lines_added|pluralize }} added, {{ lines_removed|intcomma }} line{{ lines_removed|pluralize }} removed</div>
+            <div>{{ version_commit_count|intcomma }} new commit{{ version_commit_count|pluralize }} in all library repositories</div>
+            <div>{{ commit_contributors_release_count }} commit contributors, {{ commit_contributors_new_count }} new</div>
+            <div>{{ opened_issues_count|intcomma }} issues opened, {{ closed_issues_count|intcomma }} closed</div>
+            <div>{{ mailinglist_total|intcomma }} posts to the developer's mailing list</div>
+            <div>{{ mailinglist_contributor_release_count }} unique mailing list users, {{ mailinglist_contributor_new_count }} new</div>
+            {% if added_library_count %}
+              <div>{{ added_library_count }} librar{{ added_library_count|pluralize:"y,ies" }} added</div>
+            {% endif %}
+            {% if removed_library_count %}
+              <div>{{ removed_library_count }} librar{{ removed_library_count|pluralize:"y,ies" }} removed</div>
+            {% endif %}
+            <div></div>
+          </div>
+          {% if downloads %}
+          <table class="p-0 m-0 w-full text-sm text-left border-0 border-separate table-auto border-spacing-0 text-slate">
+            <tbody>
+              <tr>
+                <th scope="col"
+                    class="p-3 h-8 text-base border border-r-0 border-b-0 border-gray-400 text-center">
+                  Platform
+                </th>
+                <th scope="col"
+                    class="p-3 text-base border border-b-0 border-gray-400">
+                  File
+                </th>
+              </tr>
+                {% for os, download_files in downloads.items %}
+                  {% for download in download_files %}
+                    <tr>
+                      {% if forloop.first %}
+                        <th scope="row"
+                            rowspan="{{ download_files|length }}"
+                            class="p-2 h-14 whitespace-nowrap border border-r-0 {% if not forloop.parentloop.last %}border-b-0 {% endif %}border-gray-400 text-center">
+                          <i class="fab fa-{% if os == 'Unix' %}linux{% else %}windows{% endif %}"></i> {{ os }}
+                        </th>
+                      {% endif %}
+                      <td class="p-2 border {% if not forloop.last or not forloop.parentloop.last %}border-b-0 {% endif %}border-gray-400">
+                        <a href="{{ download.url }}" class="text-sky-600 hover:text-orange">{{ download.display_name }}</a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% endfor %}
+            </tbody>
+          </table>
           {% endif %}
-          {% if removed_library_count %}
-            <div>{{ removed_library_count }} librar{{ removed_library_count|pluralize:"y,ies" }} removed</div>
-          {% endif %}
-          <div></div>
         </div>
       </div>
       <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
