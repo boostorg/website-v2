@@ -469,7 +469,7 @@ def save_library_version_by_library_key(library_key, version, gitmodule={}):
 def skip_tag(name, new=False):
     """Returns True if the given tag should be skipped."""
     # Skip beta releases, release candidates, and pre-1.0 versions
-    EXCLUSIONS = ["beta", "-rc"]
+    EXCLUSIONS = ["beta", "-rc", "-bgl"]
 
     # If we are only importing new versions, and we already have this one, skip
     if new and Version.objects.filter(name=name).exists():
