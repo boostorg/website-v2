@@ -55,6 +55,47 @@
           </table>
           {% endif %}
         </div>
+        <div class="flex flex-col">
+
+          {% if contribution_box_graph %}
+            <div class="flex flex-col gap-y-4">
+              <div class="flex gap-x-1">
+                {% for week in contribution_box_graph.weeks %}
+                  <div class="flex flex-col gap-y-1">
+                    <div class="h-4 relative">
+                      {% ifchanged week.days.0.date.month  %}
+                        {% if forloop.counter0 != 0 %}
+                          <div class="absolute top-0 left-[-5px] text-sm font-bold">
+                            {{ week.days.0.date|date:"M" }}
+                          </div>
+                        {% endif %}
+                      {% endifchanged %}
+                    </div>
+                    {% for day in week.days %}
+                      <div
+                        class="w-4 h-4 rounded-sm"
+                        {% if day.date >= prior_version.release_date %}
+                          style="background-color: {{ day.color }};"
+                        {% endif %}
+                        title="{{ day.count }} commit{{ day.count|pluralize }} on {{ day.date }}"
+                      >
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="flex gap-x-1 text-sm w-full mx-auto">
+                <div class="mr-1">0 commits</div>
+                {% for color in contribution_box_graph.colors %}
+                  <div class="h-4 w-4 rounded-sm" style="background-color: {{ color }}">
+                  </div>
+                {% endfor %}
+                <div class="ml-1">{{ contribution_box_graph.max }} commits</div>
+              </div>
+            </div>
+          {% endif %}
+
+        </div>
       </div>
       <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
         <div class="flex flex-col">

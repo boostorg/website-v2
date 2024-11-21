@@ -1,7 +1,10 @@
 import io
 import base64
+from functools import cached_property
 from itertools import groupby
 from operator import attrgetter
+from dataclasses import dataclass, field
+from datetime import date, timedelta
 
 import psycopg2
 from wordcloud import WordCloud, STOPWORDS
@@ -501,6 +504,110 @@ class CreateReportForm(CreateReportFullForm):
             key=lambda x: library_order.index(x.library_id),
         )
 
+    def _get_git_graph_data(self, prior_version: Version | None, version: Version):
+        """Fetch commit count data for a release and return an instance of Graph.
+
+        Returns data in a format to easily create a github style green box commit graph.
+
+        """
+        if prior_version is None:
+            return None
+        if prior_version.release_date is None or version.release_date is None:
+            return None
+
+        @dataclass
+        class Day:
+            date: date
+            count: int
+            color: str = ""
+
+        @dataclass
+        class Week:
+            days: list[Day] = field(default_factory=list)
+
+            @cached_property
+            def max(self):
+                """The max number of commits this week."""
+                return max(x.count for x in self.days)
+
+        @dataclass
+        class Graph:
+            weeks: list[Week] = field(default_factory=list)
+            colors: list[str] = field(
+                default_factory=lambda: [
+                    "#E8F5E9",
+                    "#C8E6C9",
+                    "#A5D6A7",
+                    "#81C784",
+                    "#66BB6A",
+                    "#4CAF50",
+                    "#43A047",
+                    "#388E3C",
+                    "#2E7D32",
+                    "#1B5E20",
+                ],
+            )
+
+            @cached_property
+            def max(self):
+                """The max number of commits in all weeks."""
+                return max(x.max for x in self.weeks)
+
+            def append_day(self, day: Day):
+                """Append a day into the last week of self.weeks.
+
+                - Automatically create a new week if there are already 7 days in the
+                last week.
+                """
+                if len(self.weeks) == 0 or len(self.weeks[-1].days) == 7:
+                    self.weeks.append(Week())
+                self.weeks[-1].days.append(day)
+
+            def apply_colors(self):
+                """Iterate through each day and apply a color.
+
+                - The color is selected based on the number of commits made on
+                that day, relative to the highest number of commits in all days in
+                Graph.weeks.days.
+
+                """
+                high = self.max
+                for week in self.weeks:
+                    for day in week.days:
+                        decimal = day.count / high
+                        if decimal == 1:
+                            day.color = self.colors[-1]
+                        else:
+                            idx = int(decimal * len(self.colors))
+                            day.color = self.colors[idx]
+
+        count_query = (
+            Commit.objects.filter(library_version__version=version)
+            .values("committed_at__date")
+            .annotate(count=Count("id"))
+        )
+        counts_by_date = {x["committed_at__date"]: x["count"] for x in count_query}
+
+        graph = Graph()
+        # The start date is the release date of the previous version
+        # The end date is one day before the release date of the current version
+        start: date = prior_version.release_date
+        end: date = version.release_date - timedelta(days=1)
+
+        # if the release started on a Thursday, we want to add Sun -> Wed to the data
+        # with empty counts, even if they aren't part of the release.
+        for i in range(start.weekday(), 0, -1):
+            day = Day(date=start - timedelta(days=i), count=0)
+            graph.append_day(day)
+
+        current_date = start
+        while current_date <= end:
+            day = Day(date=current_date, count=counts_by_date.get(current_date, 0))
+            graph.append_day(day)
+            current_date = current_date + timedelta(days=1)
+        graph.apply_colors()
+        return graph
+
     def get_stats(self):
         version = self.cleaned_data["version"]
 
@@ -607,6 +714,7 @@ class CreateReportForm(CreateReportFullForm):
             "lines_removed": lines_removed,
             "wordcloud_base64": self._generate_hyperkitty_word_cloud(version),
             "version": version,
+            "prior_version": prior_version,
             "opened_issues_count": Issue.objects.filter(
                 library__in=self.library_queryset
             )
@@ -634,4 +742,5 @@ class CreateReportForm(CreateReportFullForm):
             "added_library_count": added_library_count,
             "removed_library_count": removed_library_count,
             "downloads": downloads,
+            "contribution_box_graph": self._get_git_graph_data(prior_version, version),
         }
