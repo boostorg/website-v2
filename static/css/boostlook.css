@@ -113,6 +113,8 @@
   --dark-bl-pagination-color: rgb(200, 200, 200);
   --dark-bl-quote-background: rgb(11, 59, 82);
   --dark-bl-quote-word-color: rgb(209, 228, 242);
+  --dark-bl-table-border-color: rgb(3, 25, 37);
+  --dark-bl-table-head-background: rgb(5, 26, 38);
   --dark-bl-tab-background: rgb(23, 42, 52);
   --dark-bl-table-stripe-color: rgb(49,74,87);
   --dark-bl-tabpanel-background: rgb(49 74 87);
@@ -177,6 +179,8 @@ html.dark {
   --bl-quote-background: var(--dark-bl-quote-background);
   --bl-quote-word-color: var(--dark-bl-quote-word-color);
   --bl-tab-background: var(--dark-bl-tab-background);
+  --bl-table-border-color: var(--dark-bl-table-border-color);
+  --bl-table-head-background: var(--dark-bl-table-head-background);
   --bl-table-stripe-color: var(--dark-bl-table-stripe-color);
   --bl-tabpanel-background: var(--dark-bl-tabpanel-background);
   --bl-text-color: var(--dark-bl-text-color);
@@ -267,7 +271,6 @@ p, h1, h2, h3, h4, h5, h6 {
   margin-top: 1em;
   margin-bottom: 1em;
   font-weight: 500;
-  letter-spacing: .1rem;
 }
 
 .boostlook h1 { font-size: 2.5rem; }
@@ -358,16 +361,16 @@ p, h1, h2, h3, h4, h5, h6 {
   overflow-x: auto;
 }
 
+.boostlook code,
 .boostlook p code,
-.boostlook .colist > table code {
-  color: var(--bl-code-text-color) !important;
-}
-
+.boostlook li code,
 .boostlook .doc p code,
-.boostlook .doc table code {
+.boostlook .doc table code,
+.boostlook .doc .colist > table code {
   background: none;
   padding: 0;
   font-weight: 600;
+  color: var(--bl-code-text-color) !important;
 }
 
 
@@ -437,6 +440,11 @@ p, h1, h2, h3, h4, h5, h6 {
   padding-bottom: 1.5rem;
 }
 
+.boostlook b,
+.boostlook strong {
+  font-weight: bold;
+}
+
 /*----------------- Global Styles for .boostlook end -----------------*/
 
 /*----------------- Styles specific to AsciiDoctor content start -----------------*/
@@ -456,6 +464,11 @@ p, h1, h2, h3, h4, h5, h6 {
   margin-bottom: 1.25rem;
   padding: 1rem;
   overflow-x: auto;
+  border-radius: 8px;
+}
+
+.boostlook:not(:has(.doc)) div.highlight {
+  border-radius: 8px;
 }
 
 .boostlook:not(:has(.doc)) table {
@@ -525,12 +538,14 @@ p, h1, h2, h3, h4, h5, h6 {
   width: 0;
 }
 
-.boostlook #toc .nav-menu > .nav-list {
+.boostlook #toc .nav-menu > .nav-list,
+.boostlook #toc .nav-menu > .nav-list > .nav-list {
   padding-left: 0
 }
 
 .boostlook .nav-menu .title {
   border-bottom: 1px solid var(--bl-table-border-color);
+  margin-bottom: 16px;
 }
 
 .boostlook #content .sect3:has(.tableblock) {
@@ -715,6 +730,7 @@ p, h1, h2, h3, h4, h5, h6 {
 .source-docs-antora .boostlook #toc.toc2 {
   top: 1rem !important;
   max-height: calc(100vh - 1rem) !important;
+  padding: 1.25em 1.5em !important;
 }
 
 /* Active Page Indicator */
@@ -781,10 +797,6 @@ p, h1, h2, h3, h4, h5, h6 {
   padding: .25rem 0 0 0;
 }
 
-.boostlook .nav-menu .title {
-  padding-left: .8rem;
-}
-
 /* Admonitions */
 .boostlook .admonitionblock p {
   line-height: normal;
@@ -823,6 +835,12 @@ p, h1, h2, h3, h4, h5, h6 {
 .boostlook .toolbar .breadcrumbs a,
 .boostlook .toolbar .breadcrumbs li {
   color: var(--bl-text-color);
+}
+
+/* #libraryReadMe */
+
+#libraryReadMe li p {
+  display: inline;
 }
 
 /*----------------- Styles specific to Antora Templates end -----------------*/
