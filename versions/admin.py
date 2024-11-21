@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from django.http import HttpResponseRedirect
+from django.db.models.query import QuerySet
+from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import path
 
 from . import models
@@ -53,3 +54,32 @@ class VersionAdmin(admin.ModelAdmin):
         """,
         )
         return HttpResponseRedirect("../")
+
+
+class ResultInline(admin.StackedInline):
+    model = models.ReviewResult
+    autocomplete_fields = ("review",)
+    verbose_name = "Result"
+    verbose_name_plural = "Results"
+    extra = 0
+
+
+@admin.register(models.Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ["submission", "review_dates", "get_results"]
+    search_fields = ["submission"]
+    inlines = [ResultInline]
+
+    def get_results(self, obj):
+        return " | ".join(obj.results.values_list("short_description", flat=True))
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet:
+        return super().get_queryset(request).prefetch_related("results")
+
+
+@admin.register(models.ReviewResult)
+class ReviewResultAdmin(admin.ModelAdmin):
+    list_display = ["review", "short_description"]
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet:
+        return super().get_queryset(request).select_related("review")

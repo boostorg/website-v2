@@ -1,71 +1,75 @@
 {% extends "base.html" %}
 
-{% load static %}
+{% load static avatar_tags %}
 
-{% block subnav %}
-  <div class="py-8 px-4 space-y-4 text-sm uppercase border-b md:py-2 md:px-0 md:space-x-10 border-slate">
-    <a href="{% url 'review-process' %}" class="block md:inline">Review Process</a>
-    <a href="{% url 'review-request' %}" class="block md:inline">Submit Review</a>
-    <a href="{% url 'review-upcoming' %}" class="block md:inline md:py-1 md:border-b text-orange md:border-orange">Upcoming Reviews</a>
-    <a href="{% url 'review-past' %}" class="block md:inline">Past Reviews</a>
-  </div>
-{% endblock %}
+{% block title %}Upcoming Reviews{% endblock %}
 
 {% block content %}
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
-    <div class="py-16 space-y-11 md:w-full">
-      <h1 class="text-4xl text-center">Upcoming Reviews</h1>
-      <div class="p-6 w-full rounded bg-charcoal">
-
-        <div class="hidden w-full md:flex">
-          <div class="p-3 w-1/5">Submnission</div>
-          <div class="p-3 w-1/5">Submitter</div>
-          <div class="p-3 w-1/5">Link</div>
-          <div class="p-3 w-1/5">Review Manager</div>
-          <div class="p-3 w-1/5">Review Dates</div>
-        </div>
-
-        <div class="py-6 border-b md:flex md:py-0 md:border-b-0 border-slate">
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submission:</span> Text (mini-review)</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submitter:</span> Zach Laine</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Link:</span> <a href="#" class="text-orange">Github Documentation</a></div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Manager:</span> Needed!</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Dates:</span> March 22, 2021 - March 31, 2021</div>
-        </div>
-
-        <div class="py-6 border-b md:flex md:py-0 md:border-b-0 border-slate">
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submission:</span> Text (mini-review)</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submitter:</span> Zach Laine</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Link:</span> <a href="#" class="text-orange">Github Documentation</a></div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Manager:</span> Needed!</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Dates:</span> March 22, 2021 - March 31, 2021</div>
-        </div>
-
-        <div class="py-6 border-b md:flex md:py-0 md:border-b-0 border-slate">
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submission:</span> Text (mini-review)</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submitter:</span> Zach Laine</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Link:</span> <a href="#" class="text-orange">Github Documentation</a></div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Manager:</span> Needed!</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Dates:</span> March 22, 2021 - March 31, 2021</div>
-        </div>
-
-        <div class="py-6 border-b md:flex md:py-0 md:border-b-0 border-slate">
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submission:</span> Text (mini-review)</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Submitter:</span> Zach Laine</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Link:</span> <a href="#" class="text-orange">Github Documentation</a></div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Manager:</span> Needed!</div>
-          <div class="p-3 text-left md:w-1/5 md:border md:border-slate"><span class="font-bold md:hidden">Review Dates:</span> March 22, 2021 - March 31, 2021</div>
-        </div>
-
-      </div>
-    </div>
+    <h1 class="text-xl md:text-3xl">Upcoming Reviews</h1>
+    <section class="content my-4 !whitespace-normal">
+      <table class="p-0 m-0 w-full text-sm text-left border-0 border-separate table-auto dark:text-white border-spacing-0 text-slate dark:bg-charcoal">
+      <thead>
+        <tr>
+          <th scope="col" class="p-3 text-base bg-gray-100 border border-r-0 border-b-0 border-gray-400 dark:border-slate dark:bg-charcoal w-1/5">Submission</th>
+          <th scope="col" class="p-3 text-base bg-gray-100 border border-r-0 border-b-0 border-gray-400 dark:border-slate dark:bg-charcoal w-1/5">Submitter</th>
+          <th scope="col" class="p-3 text-base bg-gray-100 border border-r-0 border-b-0 border-gray-400 dark:border-slate dark:bg-charcoal w-1/5">Link</th>
+          <th scope="col" class="p-3 text-base bg-gray-100 border border-r-0 border-b-0 border-gray-400 dark:border-slate dark:bg-charcoal w-1/5">Review Manager</th>
+          <th scope="col" class="p-3 text-base bg-gray-100 border border-b-0 border-gray-400 dark:border-slate dark:bg-charcoal w-1/5">Review Dates</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for review in object_list %}
+          <tr>
+            <td class="p-3 border border-r-0 {% if not forloop.last %}border-b-0 {% endif %}border-gray-400 dark:border-slate">
+              <span class="font-bold md:hidden">Submission:</span> {{ review.submission }}
+            </td>
+            <td class="p-3 border border-r-0 {% if not forloop.last %}border-b-0 {% endif %}border-gray-400 dark:border-slate">
+              <span class="font-bold md:hidden">Submitter:</span>
+              {% for submitter in review.submitters.all %}
+                {% avatar user=submitter avatar_type="with_name" %}{% if not forloop.last %}<br/>{% endif %}
+              {% empty %}
+                {{ review.submitter_raw|default:"-" }}
+              {% endfor %}
+            </td>
+            <td class="p-3 border border-r-0 {% if not forloop.last %}border-b-0 {% endif %}border-gray-400 dark:border-slate">
+              <span class="font-bold md:hidden">Link:</span>
+              <p class="p-1 pt-0">
+                <a href="{{ review.github_link }}" class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
+                  <i class="float-left mt-1 mr-1 fab fa-github"></i>
+                  Github
+                </a>
+              </p>
+              <p class="p-1">
+                <a href="{{ review.documentation_link }}" class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
+                  <i class="float-left mt-1 mr-1 fa fa-book"></i>
+                  Documentation
+                </a>
+              </p>
+            </td>
+            <td class="p-3 border border-r-0 {% if not forloop.last %}border-b-0 {% endif %}border-gray-400 dark:border-slate">
+              <span class="font-bold md:hidden">Review Manager:</span>
+              {% if review.review_manager %}
+                {% avatar user=review.review_manager avatar_type="with_name" %}
+              {% else %}
+                {{ review.review_manager_raw|default:"-" }}
+              {% endif %}
+            </td>
+            <td class="p-3 border {% if not forloop.last %}border-b-0 {% endif %}border-gray-400 dark:border-slate">
+              <span class="font-bold md:hidden">Review Dates:</span> {{ review.review_dates }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </section>
 
     <div class="flex space-x-11">
       <div class="w-1/2">
         <h3>Overview</h3>
         <p>
           Reviews are scheduled when the review wizards approve a review manager and agree with the manager and
-          author on dates. See <a href="#" class="text-orange">Review Process</a> for more information.
+          author on dates. See <a href="{% url 'review-process' %}" class="cursor-pointer text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Review Process</a> for more information.
         </p>
         <p>
           In addition to upcoming reviews, the schedule includes recent reviews already completed; that helps track
@@ -79,8 +83,8 @@
           In order for a review to proceed, a Boost member must volunteer to manage the review. This should be someone
           with experience with the review process and knowledge of the library's domain. Reviewers have been celebrated
           and recognized for contributing to some of the greatest revolutionary programs. Be a leader and make an impact
-          within the Boost community! Contact Mateusz Loskot (<a href="#" class="text-orange">mateusz@loskot.net</a>) or
-          John Phillips (<a href="#" class="text-orange">johnphillipsithaca@gmail.com</a>) to become a reviewer.
+          within the Boost community! Contact Mateusz Loskot (<a href="mailto:mateusz@loskot.net" class="cursor-pointer text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">mateusz@loskot.net</a>) or
+          John Phillips (<a href="mailto:johnphillipsithaca@gmail.com" class="cursor-pointer text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">johnphillipsithaca@gmail.com</a>) to become a reviewer.
         </p>
       </div>
 

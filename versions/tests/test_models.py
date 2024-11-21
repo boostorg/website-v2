@@ -113,3 +113,19 @@ def test_stripped_boost_url_slug(slug, expected, version):
 def test_get_absolute_url(version):
     expected_url = f"/releases/{version.slug}/"
     assert version.get_absolute_url() == expected_url
+
+
+def test_review_results():
+    review = baker.make("versions.Review")
+    pending_result = baker.make(
+        "versions.ReviewResult", review=review, short_description="Pending"
+    )
+    assert pending_result.is_most_recent
+
+    accepted_result = baker.make(
+        "versions.ReviewResult", review=review, short_description="Accepted"
+    )
+    assert accepted_result.is_most_recent
+
+    pending_result.refresh_from_db()
+    assert not pending_result.is_most_recent

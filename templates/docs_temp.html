@@ -98,10 +98,12 @@ make the columns go to 1
             Learn how new libraries are added
           </p>
           <div class="grid grid-cols-1 gap-4 mt-6 text-lg pl-4">
-            <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/formal-reviews/index.html">Introduction</a></div>
-            <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/formal-reviews/submissions.html">Submission Process</a></div>
-            <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/formal-reviews/writing-reviews.html">Write a Review</a></div>
-            <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/formal-reviews/managing-reviews.html">Manage Reviews</a></div>
+{#            <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/formal-reviews/index.html">Introduction</a></div>#}
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="{% url 'review-process' %}">Submission Process</a></div>
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="{% url 'review-past' %}">Past Review Results and Milestones</a></div>
+            <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="{% url 'review-upcoming' %}">Upcoming Reviews</a></div>
+{#            <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/formal-reviews/writing-reviews.html">Write a Review</a></div>#}
+{#            <div class="w-auto ml-6 mr-2"><a class="list-item text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="/doc/formal-reviews/managing-reviews.html">Manage Reviews</a></div>#}
           </div>
 
       </div>

@@ -72,7 +72,12 @@ from users.views import (
 )
 from versions.api import ImportVersionsView, VersionViewSet
 from versions.feeds import AtomVersionFeed, RSSVersionFeed
-from versions.views import InProgressReleaseNotesView, VersionDetail
+from versions.views import (
+    InProgressReleaseNotesView,
+    PastReviewListView,
+    ScheduledReviewListView,
+    VersionDetail,
+)
 
 router = routers.SimpleRouter()
 
@@ -259,7 +264,7 @@ urlpatterns = (
         ),
         path(
             "review/past/",
-            TemplateView.as_view(template_name="review/past_reviews.html"),
+            PastReviewListView.as_view(),
             name="review-past",
         ),
         path(
@@ -269,7 +274,7 @@ urlpatterns = (
         ),
         path(
             "review/upcoming/",
-            TemplateView.as_view(template_name="review/upcoming_reviews.html"),
+            ScheduledReviewListView.as_view(),
             name="review-upcoming",
         ),
         path(
