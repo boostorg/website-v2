@@ -450,7 +450,7 @@ class GithubAPIClient:
             )
             return
 
-    def get_tags(self, repo_slug: str = None) -> dict:
+    def get_tags(self, repo_slug: str = None) -> list:
         """Get all the tags from the GitHub API."""
         if not repo_slug:
             repo_slug = self.repo_slug
