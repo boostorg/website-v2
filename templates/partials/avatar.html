@@ -25,11 +25,12 @@
         </div>
       </div>
     </a>
-    {% if av_avatar_type == "wide" %}
+    {% if av_avatar_type == "wide" or av_avatar_type == "with_name" %}
       <div class="flex flex-col leading-tight min-w-[15rem]">
         <div class="text-black dark:text-white">
           {{ av_name }}
         </div>
+        {% if av_avatar_type == "wide" %}
         <div
           class="
             text-sm
@@ -46,6 +47,7 @@
         >
           {{ av_contributor_label }}
         </div>
+        {% endif %}
       </div>
     {% endif %}
   </div>
