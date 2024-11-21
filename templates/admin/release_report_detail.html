@@ -55,7 +55,15 @@
           </table>
           {% endif %}
         </div>
-        <div class="flex flex-col">
+        <div class="flex flex-col h-full gap-y-4">
+
+          {% if version.release_report_cover_image.url %}
+            <img
+              class="max-h-[60%]"
+              src="{{ version.release_report_cover_image.url }}"
+              alt="release report cover image"
+            >
+          {% endif %}
 
           {% if contribution_box_graph %}
             <div class="flex flex-col gap-y-4">
