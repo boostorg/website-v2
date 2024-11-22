@@ -16,6 +16,7 @@ from django.forms import Form, ModelChoiceField, ModelForm, BooleanField
 from django.conf import settings
 
 from core.models import RenderedContent, SiteSettings
+from slack.models import SlackActivityBucket, SlackUser
 from versions.models import Version
 from .models import Commit, CommitAuthor, Issue, Library, LibraryVersion
 from libraries.constants import SUB_LIBRARIES
@@ -608,6 +609,41 @@ class CreateReportForm(CreateReportFullForm):
         graph.apply_colors()
         return graph
 
+    def _get_slack_stats(self, prior_version, version):
+        """Returns all slack related stats."""
+        start = prior_version.release_date
+        end = version.release_date - timedelta(days=1)
+        # count of all messages in the date range
+        total = SlackActivityBucket.objects.filter(
+            day__range=[start, end],
+        ).aggregate(
+            total=Sum("count")
+        )["total"]
+        # message counts per user in the date range
+        per_user = (
+            SlackUser.objects.annotate(
+                total=Sum(
+                    "slackactivitybucket__count",
+                    filter=Q(slackactivitybucket__day__range=[start, end]),
+                )
+            )
+            .filter(total__gt=0)
+            .order_by("-total")
+        )
+        distinct_users = SlackActivityBucket.objects.order_by("user_id").distinct(
+            "user_id"
+        )
+        new_user_count = (
+            distinct_users.filter(day__lte=end).count()
+            - distinct_users.filter(day__lt=start).count()
+        )
+        return {
+            "users": per_user[:10],
+            "user_count": per_user.count(),
+            "total": total,
+            "new_user_count": new_user_count,
+        }
+
     def get_stats(self):
         version = self.cleaned_data["version"]
 
@@ -743,4 +779,5 @@ class CreateReportForm(CreateReportFullForm):
             "removed_library_count": removed_library_count,
             "downloads": downloads,
             "contribution_box_graph": self._get_git_graph_data(prior_version, version),
+            "slack": self._get_slack_stats(prior_version, version),
         }
