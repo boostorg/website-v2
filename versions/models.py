@@ -36,6 +36,11 @@ class Version(models.Model):
         "beta release or a development version",
     )
     data = models.JSONField(default=dict)
+    release_report_cover_image = models.ImageField(
+        null=True,
+        blank=True,
+        upload_to="release_report_cover/",
+    )
 
     objects = VersionManager()
 
