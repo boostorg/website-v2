@@ -29,9 +29,9 @@
         <div>
           <select
             name="category"
-            class="block py-2 pr-11 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 ml-3 md:ml-0 md:w-auto dark:bg-black dark:border-slate disabled:dark:"
+            class="dropdown"
             id="id_category"
-            {% if library_view_str == 'categorized' %}disabled="disabled"{% endif %}
+            {% if library_view_str == "categorized" %}disabled="disabled"{% endif %}
           >
 
             <option value="">Filter by category</option>
