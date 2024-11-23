@@ -401,7 +401,7 @@ html.dark {
                 <div x-show="guideOpen" x-cloak @click.away="guideOpen = false" id="guideMenu" class="guide-modal boost-drop-shadow hidden">
                     <a href="/doc/user-guide/index.html">User Guide</a>
                     <a href="/doc/contributor-guide/index.html">Contributor Guide</a>
-                    <a href="/doc/formal-reviews/index.html">Formal Reviews</a>
+                    <a href="{% url 'review-process' %}">Formal Reviews</a>
                 </div>
             </span>
         {% if not disable_theme_switcher %}

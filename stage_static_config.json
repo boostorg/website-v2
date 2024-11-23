@@ -12,10 +12,6 @@
     "s3_path": "/site-docs/develop/contributor-guide/"
   },
   {
-    "site_path": "/doc/formal-reviews/",
-    "s3_path": "/site-docs/develop/formal-reviews/"
-  },
-  {
     "site_path": "/doc/release-process/",
     "s3_path": "/site-docs/develop/release-process/"
   },
