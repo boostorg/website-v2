@@ -7,7 +7,7 @@
     >
         <option value="{{ LATEST_RELEASE_URL_PATH_STR }}"
                 {% if version_str == LATEST_RELEASE_URL_PATH_STR %}selected="selected"{% endif %}>
-            Latest
+            Latest ({{ versions.first.display_name }})
         </option>
         {% for v in versions %}
             <option value="{{ v.slug|boost_version }}"
