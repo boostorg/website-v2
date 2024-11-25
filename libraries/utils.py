@@ -1,3 +1,4 @@
+from itertools import islice
 import random
 import string
 import re
@@ -223,3 +224,15 @@ def get_documentation_url(library_version, latest):
         url = library_doc_latest_transform(url)
 
     return url
+
+
+def batched(iterable, n, *, strict=False):
+    # batched('ABCDEFG', 3) → ABC DEF G
+    # In python 3.12, this function can be deleted in favor of itertools.batched
+    if n < 1:
+        raise ValueError("n must be at least one")
+    iterator = iter(iterable)
+    while batch := tuple(islice(iterator, n)):
+        if strict and len(batch) != n:
+            raise ValueError("batched(): incomplete batch")
+        yield batch
