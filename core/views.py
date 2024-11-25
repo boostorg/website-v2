@@ -443,6 +443,7 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
             else {"data-modernizer": "boost-legacy-docs-extra-head"}
         )
 
+        context["skip_use_boostbook_v2"] = "/antora/" in self.kwargs.get("content_path")
         if source_content_type == SourceDocType.ASCIIDOC:
             context["content"] = content.decode(chardet.detect(content)["encoding"])
         else:
@@ -491,7 +492,7 @@ class UserGuideTemplateView(BaseStaticContentTemplateView):
             else {"data-modernizer": "boost-legacy-docs-extra-head"}
         )
         # potentially pass version if needed for HTML modification
-        context["skip_use_boostbook"] = True
+        context["skip_use_boostbook_v2"] = True
         base_html = render_to_string(
             "docs_libs_placeholder.html", context, request=self.request
         )
