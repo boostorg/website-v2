@@ -1,13 +1,8 @@
 <tr class="border-0 md:border border-gray-200/10 border-dotted md:border-t-0 md:border-r-0 md:border-l-0 md:border-b-1  hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out cursor-pointer"
-onclick="window.location='{% if version_str != LATEST_RELEASE_URL_PATH_STR %}{% url 'library-detail-by-version' slug=library_version.library.slug version_slug=version.slug %}{% else %}{% url 'library-detail' slug=library_version.library.slug %}{% endif %}'">
+onclick="window.location='{% url 'library-detail' library_slug=library_version.library.slug version_slug=version_str %}'">
   <td class="py-2 align-top md:w-1/5">
     <a class="mr-1 font-bold capitalize text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-       href="
-        {% if version_str != LATEST_RELEASE_URL_PATH_STR %}
-          {% url 'library-detail-by-version' slug=library_version.library.slug version_slug=version.slug %}
-        {% else %}
-          {% url 'library-detail' slug=library_version.library.slug %}
-        {% endif %}"
+       href="{% url 'library-detail' library_slug=library_version.library.slug version_slug=version_str %}"
     >{{ library_version.library.name }}</a>
   </td>
 

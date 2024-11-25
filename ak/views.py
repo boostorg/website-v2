@@ -10,6 +10,7 @@ from django.views.generic import TemplateView
 
 from config.settings import JDOODLE_API_CLIENT_ID, JDOODLE_API_CLIENT_SECRET
 from core.calendar import extract_calendar_events, events_by_month, get_calendar
+from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.models import Category, Library
 from news.models import Entry
 from versions.models import Version
@@ -37,6 +38,7 @@ class HomepageView(TemplateView):
             context["num_months"] = len(context["events"])
         else:
             context["num_months"] = 0
+        context["LATEST_RELEASE_URL_PATH_STR"] = LATEST_RELEASE_URL_PATH_STR
         return context
 
     def get_events(self):

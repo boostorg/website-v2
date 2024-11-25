@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
+from .converters import to_url
 from .managers import VersionManager, VersionFileManager
 
 User = get_user_model()
@@ -53,7 +54,7 @@ class Version(models.Model):
         return super(Version, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("release-detail", args=[str(self.slug)])
+        return reverse("release-detail", args=[to_url(str(self.slug))])
 
     def get_slug(self):
         if self.slug:

@@ -6,12 +6,9 @@ import structlog
 import tempfile
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from urllib.parse import urlencode
 
 from dateutil.parser import ParserError, parse
 from django.utils.text import slugify
-from django.urls import reverse
-from django.shortcuts import redirect
 
 from libraries.constants import (
     DEFAULT_LIBRARIES_LANDING_VIEW,
@@ -91,16 +88,6 @@ def write_content_to_tempfile(content):
     return temp_file
 
 
-def redirect_to_view_with_params(view_name, params, query_params):
-    """Redirect to a view with parameters and query parameters."""
-    base_url = reverse(view_name, kwargs=params)
-    query_string = urlencode(query_params)
-    url = base_url
-    if query_string:
-        url = "{}?{}".format(base_url, query_string)
-    return redirect(url)
-
-
 def get_version_from_url(request):
     return request.GET.get("version")
 
@@ -110,7 +97,7 @@ def get_version_from_cookie(request):
 
 
 def get_view_from_url(request):
-    return request.GET.get("view")
+    return request.resolver_match.kwargs.get("library_view_str")
 
 
 def get_view_from_cookie(request):
@@ -118,6 +105,9 @@ def get_view_from_cookie(request):
 
 
 def set_view_in_cookie(response, view):
+    allowed_views = {"grid", "list", "categorized"}
+    if view not in allowed_views:
+        return
     response.set_cookie(SELECTED_LIBRARY_VIEW_COOKIE_NAME, view)
 
 
@@ -146,34 +136,14 @@ def get_prioritized_library_view(request):
     return url_view or cookie_view or DEFAULT_LIBRARIES_LANDING_VIEW
 
 
-def build_view_query_params_from_request(request):
-    query_params = {}
-    version = get_prioritized_version(request)
-    category = get_category(request)
-    if version and version != LATEST_RELEASE_URL_PATH_STR:
-        query_params["version"] = version
-    if category:
-        query_params["category"] = category
-    return query_params
-
-
 def get_category(request):
     return request.GET.get("category", "")
-
-
-def build_route_name_for_view(view):
-    return f"libraries-{view}"
-
-
-def determine_view_from_library_request(request):
-    split_path_info = request.path_info.split("/")
-    return None if split_path_info[-2] == "libraries" else split_path_info[-2]
 
 
 def determine_selected_boost_version(request_value, request):
     valid_versions = Version.objects.version_dropdown_strict()
     version_slug = request_value or get_version_from_cookie(request)
-    if version_slug in [v.slug for v in valid_versions]:
+    if version_slug in [v.slug for v in valid_versions] + [LATEST_RELEASE_URL_PATH_STR]:
         return version_slug
     else:
         logger.warning(f"Invalid version slug in cookies: {version_slug}")
@@ -192,9 +162,9 @@ def set_selected_boost_version(version_slug: str, response) -> None:
 
 
 def library_doc_latest_transform(url):
-    p = re.compile(r"(/doc/libs/)[a-zA-Z0-9_]+([//\S]*)$")
+    p = re.compile(r"^(/doc/libs/)[0-9_]+(/\S+)$")
     if p.match(url):
-        url = p.sub(r"\1release\2", url)
+        url = p.sub(rf"\1{LATEST_RELEASE_URL_PATH_STR}\2", url)
     return url
 
 
@@ -202,18 +172,15 @@ def get_documentation_url(library_version, latest):
     """Get the documentation URL for the current library."""
 
     def find_documentation_url(library_version):
-        version = library_version.version
-        docs_url = version.documentation_url
-
         # If we know the library-version docs are missing, return the version docs
         if library_version.missing_docs:
-            return docs_url
+            return library_version.version.documentation_url
         # If we have the library-version docs and they are valid, return those
         elif library_version.documentation_url:
             return library_version.documentation_url
         # If we wind up here, return the version docs
         else:
-            return docs_url
+            return library_version.version.documentation_url
 
     # Get the URL for the version.
     url = find_documentation_url(library_version)

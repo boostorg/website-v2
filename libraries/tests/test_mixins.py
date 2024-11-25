@@ -3,10 +3,10 @@ import pytest
 from django.test import RequestFactory
 from model_bakery import baker
 from libraries.mixins import VersionAlertMixin
-from libraries.views import LibraryList
+from libraries.views import LibraryListBase
 
 
-class MockView(LibraryList, VersionAlertMixin):
+class MockView(LibraryListBase, VersionAlertMixin):
     pass
 
 

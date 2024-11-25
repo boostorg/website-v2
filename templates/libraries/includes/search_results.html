@@ -1,6 +1,6 @@
 {% for library in libraries %}
-  <div class="bg-white dark:bg-gray-800 flex py-2 px-3 cursor-pointer select-none group" @click="document.location.href = '{% url 'library-detail' slug=library.slug %}';">
-    <a href="{% url 'library-detail' slug=library.slug %}" class="group-hover:text-orange">
+  <div class="bg-white dark:bg-gray-800 flex py-2 px-3 cursor-pointer select-none group" @click="document.location.href = '{% url 'library-detail' library_slug=library.slug version_slug='latest' %}';">
+    <a href="{% url 'library-detail' library_slug=library.slug version_slug='latest' %}" class="group-hover:text-orange">
       <span class="">
         {{ library.name|capfirst }}
       </span>
