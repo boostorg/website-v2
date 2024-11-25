@@ -3,7 +3,7 @@
 
 {% block extra_head %}
   <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
-  {% if not skip_use_boostbook %}
+  {% if not skip_use_boostbook_v2 %}
     <link rel="preload" data-modernizer="boost-legacy-docs-extra-head" href="{% static 'css/boostbookV2.css' %}" rel="stylesheet" />
   {% endif %}
   <link rel="preload" data-modernizer="boost-legacy-docs-extra-head" href="{% static 'css/fonts.css' %}" rel="stylesheet" />
