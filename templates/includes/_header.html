@@ -259,7 +259,7 @@ html.dark {
         margin-top: 1rem;
       }
 
-     #boost-legacy-docs-wrapper #toc.toc2 {
+     #boost-legacy-docs-wrapper:not(:has(article.doc)) #toc.toc2 {
         position: fixed !important;
         top: 3.5rem;
         border-top-width: 0 !important;
@@ -313,7 +313,7 @@ html.dark {
     }
 
 @media screen and (min-width: 1280px) {
-  #toc.toc2 {
+  #boost-legacy-docs-wrapper:not(:has(article.doc)) #toc.toc2 {
     position: fixed !important;
     width: 20em;
     left: calc((100% - 79rem) / 2) !important;
@@ -332,7 +332,7 @@ html.dark {
 }
 
 @media screen and (max-width: 769px) {
-  #boost-legacy-docs-wrapper  #toc.toc2 {
+  #boost-legacy-docs-wrapper:not(:has(article.doc))#toc.toc2 {
         width: 100%;
         left: 0;
         top: 0;
