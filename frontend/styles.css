@@ -3,6 +3,15 @@
 @tailwind utilities;
 
 @layer base {
+  .text-slate {
+    @apply text-slate-500;
+  }
+  .border-slate {
+    @apply border-slate-500;
+  }
+  .bg-slate {
+    @apply bg-slate-500;
+  }
   [x-cloak] {
     display: none !important;
   }
@@ -89,7 +98,7 @@
   }
 
   select.dropdown {
-    @apply py-1 mb-3 h-[38px] min-w-[8rem] text-sm bg-white rounded-md border border-gray-300 cursor-pointer dark:bg-black text-sky-600 dark:text-orange dark:border-slate;
+    @apply py-1 mb-3 h-[38px] min-w-[8rem] text-sm bg-white rounded-md border border-gray-300 cursor-pointer dark:bg-black text-sky-600 dark:text-sky-300 dark:border-slate disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-300 dark:disabled:text-slate-700 dark:disabled:border-slate-700;
   }
 
   .errorlist {
