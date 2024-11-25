@@ -1,4 +1,4 @@
-{%  load version_select %}
+{% load version_select %}
 {% with request.resolver_match.view_name as view_name %}
   <div class="pt-3 px-0 mb-2 text-right md:mb-2 mx-3 md:mx-0">
     <form action="{{request.path}}" method="get">
@@ -10,15 +10,15 @@
         {# Display options #}
         <div class="flex space-x-3">
           <div class="relative group">
-            <a title="Name View" href="{% url 'libraries-mini' %}{% if url_params %}?{{ request.GET.urlencode }}{% endif %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-list p-[10px] {% if view_name == 'libraries-mini' %}bg-gray-100 dark:bg-slate{% else %}hover:bg-gray-100 dark:hover:bg-slate{% endif %}"></i></a>
+            <a title="Name View" href="{% if category_slug %}{% url 'libraries-list' library_view_str='list' version_slug=version_str category_slug=category_slug %}{%  else %}{% url 'libraries-list' library_view_str='list' version_slug=version_str %}{% endif %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-list p-[10px] {% if library_view_str == 'list' %}bg-gray-100 dark:bg-slate{% else %}hover:bg-gray-100 dark:hover:bg-slate{% endif %}"></i></a>
             <span class="z-50 group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">List&nbsp;View</span>
           </div>
           <div class="relative group">
-            <a title="Grid View" href="{% url 'libraries-grid' %}{% if url_params %}?{{ request.GET.urlencode }}{% endif %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-th-large p-[10px] {% if view_name == 'libraries-grid' %}bg-gray-100 dark:bg-slate{% else %}hover:bg-gray-100 dark:hover:bg-slate{% endif %}"></i></a>
+            <a title="Grid View" href="{% if category_slug %}{% url 'libraries-list' library_view_str='grid' version_slug=version_str category_slug=category_slug %}{%  else %}{% url 'libraries-list' library_view_str='grid' version_slug=version_str %}{% endif %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-th-large p-[10px] {% if library_view_str == 'grid' %}bg-gray-100 dark:bg-slate{% else %}hover:bg-gray-100 dark:hover:bg-slate{% endif %}"></i></a>
             <span class="z-50 group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">Grid&nbsp;View</span>
           </div>
           <div class="relative group">
-            <a title="Category View" href="{% url 'libraries-by-category' %}{% if url_params %}?{{ request.GET.urlencode }}{% endif %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-cat p-[10px] {% if view_name == 'libraries-by-category' %}bg-gray-100 dark:bg-slate{% else %}hover:bg-gray-100 dark:hover:bg-slate{% endif %}"></i></a>
+            <a title="Category View" href="{% if category_slug %}{% url 'libraries-list' library_view_str='categorized' version_slug=version_str category_slug=category_slug %}{%  else %}{% url 'libraries-list' library_view_str='categorized' version_slug=version_str %}{% endif %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-cat p-[10px] {% if library_view_str == 'categorized' %}bg-gray-100 dark:bg-slate{% else %}hover:bg-gray-100 dark:hover:bg-slate{% endif %}"></i></a>
             <span class="z-50 group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">Category&nbsp;View</span>
           </div>
         </div>
@@ -26,22 +26,20 @@
         <div></div>
 
         {# Select a category #}
-        {% if view_name != 'libraries-by-category' %}
-          <div>
-          {# todo: if someone selects a category and hits back, it retains their choice here. #}
-          <select onchange="this.form.submit()"
+        <div>
+          <select
             name="category"
-            class="block py-2 pr-11 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 ml-3 md:ml-0 md:w-auto dark:bg-black dark:border-slate"
+            class="block py-2 pr-11 pl-5 mb-3 w-full text-sm bg-white rounded-md border border-gray-300 cursor-pointer sm:inline-block md:mb-0 ml-3 md:ml-0 md:w-auto dark:bg-black dark:border-slate disabled:dark:"
             id="id_category"
+            {% if library_view_str == 'categorized' %}disabled="disabled"{% endif %}
           >
+
             <option value="">Filter by category</option>
             {% for c in categories %}
               <option value="{{ c.slug }}" {% if category == c %}selected="selected"{% endif %}>{{ c.name }}</option>
             {% endfor %}
           </select>
         </div>
-        {% endif %}
-
         {# Select a version #}
         <div class="flex grow justify-end">
             {% version_select %}

@@ -144,7 +144,7 @@
               All Libraries&nbsp;<i class="fas fa-chevron-right  text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange"></i>
             </a>
           </div>
-          <h3 class="pb-2 mb-4 text-lg md:text-2xl lg:text-3xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'library-detail' slug=featured_library.slug %}" class="link-header">{{ featured_library.name }}</a></h3>
+          <h3 class="pb-2 mb-4 text-lg md:text-2xl lg:text-3xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'library-detail' library_slug=featured_library.slug version_slug=LATEST_RELEASE_URL_PATH_STR %}" class="link-header">{{ featured_library.name }}</a></h3>
           <span class="pb-1 mx-auto w-full text-sm md:text-base align-left">
             {{ featured_library.description }}
           </span>

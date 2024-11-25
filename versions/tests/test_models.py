@@ -111,7 +111,7 @@ def test_stripped_boost_url_slug(slug, expected, version):
 
 
 def test_get_absolute_url(version):
-    expected_url = f"/releases/{version.slug}/"
+    expected_url = f"/releases/{version.slug.replace('boost-', '').replace('-', '.')}/"
     assert version.get_absolute_url() == expected_url
 
 

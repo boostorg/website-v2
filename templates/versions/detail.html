@@ -3,11 +3,12 @@
 {% load static %}
 {% load text_helpers %}
 {% load avatar_tags %}
+{% load version_select %}
 {% block title %}{% blocktrans with version_name=version.display_name %}Boost {{ version_name }}{% endblocktrans %}{% endblock %}
 {% block description %}{% blocktrans with version_name=version.display_name %}Discover what's new in Boost {{ version_name }}{% endblocktrans %}{% endblock %}
 {% block content %}
   <main class="content">
-    {% if version %}
+    {% if selected_version %}
     <div class="py-3 px-3 md:mt-3 md:px-0 mb-0 w-full flex flex-row flex-nowrap items-center"
             x-data="{'showSearch': false}"
             x-on:keydown.escape="showSearch=false">
@@ -20,22 +21,7 @@
         </div>
       </div>
       <div class="flex-shrink text-right">
-        <form action="." method="post">
-          <div>
-            <select onchange="this.form.submit()"
-                    name="version"
-                    class="dropdown !mb-0 h-[38px]"
-                    id="id_version">
-              <option value="{{ LATEST_RELEASE_URL_PATH_STR }}" {% if version_str == LATEST_RELEASE_URL_PATH_STR %}selected="selected"{% endif %}>Latest</option>
-              {% for v in versions %}
-                <option value="{{ v.pk }}"
-                        {% if version_str == v.slug %}selected="selected"{% endif %}>
-                  {{ v.display_name }}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-        </form>
+        {% version_select %}
       </div>
     </div>
     <!-- alert for non-current Boost versions -->

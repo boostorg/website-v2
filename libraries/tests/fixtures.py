@@ -13,6 +13,7 @@ def library(db):
     return baker.make(
         "libraries.Library",
         name="multi_array",
+        slug="multi_array",
         description=(
             "Boost.MultiArray provides a generic N-dimensional array concept "
             "definition and common implementations of that interface."

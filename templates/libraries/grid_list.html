@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Boost Libraries" %}{% endblock %}
+{% block description %}{% trans "Explore our comprehensive list of Boost C++ Libraries and discover tools for multithreading, image processing, testing, and more." %}{% endblock %}
+
+{% block content %}
+<main class="content">
+  {% include "libraries/includes/library_preferences.html" %}
+  {% if object_list %}
+    {# alert for non-current Boost versions #}
+    {% include "libraries/includes/version_alert.html" %}
+
+    {# Libraries list #}
+    <div class="grid grid-cols-1 gap-4 mb-5 md:grid-cols-2 lg:grid-cols-3">
+      {% for library_version in object_list %}
+        {% include "libraries/_library_grid_list_item.html" %}
+      {% endfor %}
+    </div>
+    {# end libraries list #}
+
+    {% if page_obj.paginator %}
+      {# pagination #}
+      <div class="space-x-3 text-center">
+        {% if page_obj.has_previous %}
+          <a href="?page=1" class="text-orange"><small> &lt;&lt; First</small></a>
+          <a href="?page={{ page_obj.previous_page_number }}" class="text-orange"><small> &lt; Previous</small> </a>
+        {% endif %}
+        {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}" class="text-orange"><small>Next <small> &gt; </small></a>
+          <a href="?page={{ page_obj.paginator.num_pages }}" class="text-orange">Last <small> &gt;&gt;</small></a>
+        {% endif %}
+      </div>
+      {# end pagination #}
+    {% endif %}
+  {% else %}
+    <div>
+      No library records available at this time. Check back later.
+    </div>
+  {% endif %}
+</main>
+{% endblock %}
