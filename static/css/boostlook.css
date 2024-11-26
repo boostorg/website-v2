@@ -459,7 +459,6 @@ p, h1, h2, h3, h4, h5, h6 {
 
 .boostlook #content {
   padding-top: 1.25rem;
-  overflow-y: auto;
 }
 
 .boostlook #footer {
@@ -552,8 +551,12 @@ p, h1, h2, h3, h4, h5, h6 {
   overflow-y: auto;
 }
 
-.boostlook #toc.toc2 {
+.boostlook #toc.toc2,
+#boost-legacy-docs-wrapper:not(:has(article.doc)) #toc.toc2.is-active {
   position: static;
+}
+#boost-legacy-docs-wrapper:not(:has(article.doc)) #toc.toc2 {
+  position: fixed;
 }
 
 .boostlook #toc.toc2 > ul {
@@ -762,6 +765,10 @@ p, h1, h2, h3, h4, h5, h6 {
 
 .boostlook #toc.toc2.nav-container {
   position: fixed;
+}
+
+.boostlook #toc.toc2.nav-container.is-active {
+  position: static;
 }
 
 .boostlook #header .nav-container.is-active {
