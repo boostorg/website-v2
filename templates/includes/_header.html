@@ -391,10 +391,6 @@ html.dark {
     <div class="right-menubar" x-data="{ 'searchOpen': false }">
         <span style="position: relative;" x-ref="desktopSearchArea">
          <i id="gecko-search-button" data-current-boost-version="{{ current_version.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="sans-serif" class="fas fa-search icon-link"></i>
-        <script>
-                const geckoSearchButton = document.getElementById('gecko-search-button');
-                geckoSearchButton.setAttribute('data-theme-mode', localStorage.getItem('colorMode') === 'dark' ? 'dark' : 'light');
-        </script>
         </span>
         <span x-data="{ 'guideOpen': false }" style="position:relative;">
             <i class="icon-link fas fa-question-circle" @click="guideOpen = !guideOpen"></i>
@@ -419,26 +415,46 @@ html.dark {
     </div>
 </div>
     <script>
-        document.addEventListener("alpine:init", function() {
-        Alpine.data("searchToggleComponent", () => ({
-          searchButton: null,
-          desktopSearchArea: null,
-          mobileSearchArea: null,
-          init() {
-            this.searchButton = document.getElementById("gecko-search-button");
-            this.desktopSearchArea = this.$el.querySelector('[x-ref="desktopSearchArea"]');
-            this.mobileSearchArea = this.$el.querySelector('[x-ref="mobileSearchArea"]');
-            this.updateSearchButtonLocation();
-          },
-          updateSearchButtonLocation() {
-            if (window.innerWidth > 769) {
-              this.desktopSearchArea.appendChild(this.searchButton);
-            } else {
-              this.mobileSearchArea.appendChild(this.searchButton);
-            }
-          }
-        }))
-      });
+    // *********** manage theming *************
+    function setColorElements(colorMode) {
+      let iconchange = document.getElementById("light-dark")
+      if (!iconchange) {
+        return;
+      }
+      if (colorMode == "dark") {
+        iconchange.classList.remove('fa-moon');
+        iconchange.classList.add('fa-sun');
+        document.documentElement.classList.remove("light");
+      } else {
+        iconchange.classList.remove('fa-sun');
+        iconchange.classList.add('fa-moon');
+        document.documentElement.classList.remove("dark");
+      }
+      document.documentElement.classList.add(colorMode);
+    }
+
+    function getBrowserColorMode(win) {
+      // win is the appropriate window object
+      const prefersDark = win.matchMedia('(prefers-color-scheme: dark)').matches;
+      return prefersDark ? "dark" : "light";
+    }
+
+    function checkmedia() {
+      const relevantWindow = window.parent || window;
+      let browserColorMode = null;
+      const userColorMode = localStorage.getItem("colorMode");
+      if (!relevantWindow.matchMedia) {
+        browserColorMode = getBrowserColorMode(relevantWindow);
+        //  transparently removed on next load if matches browser setting
+        if (userColorMode === browserColorMode) {
+          localStorage.removeItem("colorMode");
+        }
+      }
+      setColorElements(userColorMode || browserColorMode || "light");
+    }
+
+    checkmedia();
+
       // ************ Mobile Navigation **************
       let containingElement = document.getElementById("pageselector");
       document.body.addEventListener('click', function( event ){
@@ -498,83 +514,6 @@ html.dark {
           }
         }, 2000);
       }
-      // *********** manage theming *************
-        function makeDark() {
-            localStorage.setItem("colorMode", "dark");
-            // interval is used here to cause a tiny delay to allow iframe dark mode to
-            //  be set closer to when the parent dark mode is set
-            setTimeout(() => {
-                document.documentElement.classList.add('dark');
-                var iconchange = document.getElementById("light-dark")
-                iconchange.classList.remove('fa-moon');
-                iconchange.classList.add('fa-sun');
-            }, 0)
-        }
-        function makeLight() {
-            localStorage.setItem("colorMode", "light");
-            // timeout is used here to cause a tiny delay to allow iframe dark mode to
-            //  be set closer to when the parent dark mode is set
-            setTimeout(() => {
-                document.documentElement.classList.remove('dark');
-                var iconchange = document.getElementById("light-dark")
-                iconchange.classList.remove('fa-sun');
-                iconchange.classList.add('fa-moon');
-            }, 0);
-        }
-        function changeTheme() {
-            if (document.documentElement.classList.contains("dark")) {
-                makeLight();
-                return;
-            }
-            makeDark();
-        }
-        function setTheme(theme) {
-            if (theme == "dark") {
-                makeDark();
-                return;
-            } else if (theme == "light") {
-                makeLight();
-                return;
-            } else {
-                makeLight();
-            }
-        }
-        function checkmedia() {
-        const relevantWindow = window.parent || window;
-        if (relevantWindow.matchMedia) {
-            // Check if the dark-mode Media-Query matches
-            if(relevantWindow.matchMedia('(prefers-color-scheme: dark)').matches){
-                if(localStorage.getItem("colorMode") === null || localStorage.getItem("colorMode") == "dark" ) {
-                    makeDark();
-                    localStorage.removeItem("colorMode")
-                } else {
-                    makeLight();
-                };
-            } else if (relevantWindow.matchMedia('(prefers-color-scheme: light)').matches) {
-                if(localStorage.getItem("colorMode") === null || localStorage.getItem("colorMode") == "light" ) {
-                    makeLight();
-                    localStorage.removeItem("colorMode")
-                } else {
-                    makeDark();
-                };
-            } else {
-                setTheme(localStorage.getItem("colorMode"));
-            }
-        }
-      }
-      if (window.parent) {
-        window.addEventListener('storage', function(e) {
-          if (e.key === 'colorMode') {
-            if (localStorage.getItem("colorMode") === "light"){
-              document.documentElement.classList.remove('dark');
-            }
-            else {
-              document.documentElement.classList.add('dark');
-            }
-          }
-        });
-      }
-      checkmedia();
       function removejscssfile(filename, filetype){
         var targetelement=(filetype=="js")? "script" : (filetype=="css")? "link" : "none" //determine element type to create nodelist from
         var targetattr=(filetype=="js")? "src" : (filetype=="css")? "href" : "none" //determine corresponding attribute to test for
