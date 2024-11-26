@@ -29,8 +29,7 @@ class LibraryForm(ModelForm):
 
 
 class VersionSelectionForm(Form):
-    queryset = Version.objects.active().defer("data")
-    queryset = queryset.exclude(name__in=["develop", "master", "head"])
+    queryset = Version.objects.version_dropdown_strict().defer("data")
 
     version = ModelChoiceField(
         queryset=queryset,

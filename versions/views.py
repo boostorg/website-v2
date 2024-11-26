@@ -30,7 +30,6 @@ class VersionDetail(FormMixin, BoostVersionMixin, VersionAlertMixin, DetailView)
 
     form_class = VersionSelectionForm
     model = Version
-    queryset = Version.objects.active().defer("data")
     template_name = "versions/detail.html"
 
     def get_context_data(self, **kwargs):
@@ -51,7 +50,7 @@ class VersionDetail(FormMixin, BoostVersionMixin, VersionAlertMixin, DetailView)
             context["is_current_release"] = False
             return context
 
-        context["versions"] = Version.objects.version_dropdown_strict()
+        context["versions"] = self.get_form().queryset
         downloads = obj.downloads.all().order_by("operating_system")
         context["downloads"] = {
             k: list(v)

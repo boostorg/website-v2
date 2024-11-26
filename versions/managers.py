@@ -78,7 +78,7 @@ class VersionManager(models.Manager):
         """
         return self.get_queryset().with_version_split().filter(patch=0)
 
-    def version_dropdown(self):
+    def version_dropdown(self, exclude_branches=True):
         """Return the versions that should show in the version drop-down"""
         all_versions = self.active().filter(beta=False)
         most_recent = self.most_recent()
@@ -95,28 +95,24 @@ class VersionManager(models.Manager):
             )
 
         include_beta = should_show_beta(most_recent, most_recent_beta)
-        exclude_branches = True
 
         if include_beta:
             beta_queryset = self.active().filter(models.Q(name=most_recent_beta.name))
-            queryset = (all_versions | beta_queryset).order_by("-name")
+            queryset = all_versions | beta_queryset
         else:
-            queryset = all_versions.order_by("-name")
+            queryset = all_versions
 
         if exclude_branches:
             queryset = queryset.exclude(name__in=["develop", "master", "head"])
 
-        return queryset
+        return queryset.order_by("-name")
 
     def version_dropdown_strict(self, *, exclude_branches=True):
         """Returns the versions to be shown in the drop-down, but does not include
         the development branches"""
-        versions = self.version_dropdown()
+        versions = self.version_dropdown(exclude_branches=exclude_branches)
         # exclude if full_release is False and beta is False
         versions = versions.exclude(full_release=False, beta=False)
-
-        if exclude_branches:
-            versions = versions.exclude(name__in=["develop", "master", "head"])
 
         return versions
 
