@@ -10,13 +10,11 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView
-from django.views.generic.edit import FormMixin
 
 from core.githubhelper import GithubAPIClient
 from versions.models import Version
 
 from .constants import README_MISSING
-from .forms import VersionSelectionForm
 from .mixins import VersionAlertMixin, BoostVersionMixin
 from .models import (
     Category,
@@ -234,10 +232,9 @@ class LibraryCategorized(LibraryListBase):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class LibraryDetail(FormMixin, VersionAlertMixin, BoostVersionMixin, DetailView):
+class LibraryDetail(VersionAlertMixin, BoostVersionMixin, DetailView):
     """Display a single Library in insolation"""
 
-    form_class = VersionSelectionForm
     model = Library
     template_name = "libraries/detail.html"
     redirect_to_docs = False

@@ -4,7 +4,6 @@ from operator import attrgetter
 
 from django.db.models import Q, Count
 from django.views.generic import DetailView, TemplateView, ListView
-from django.views.generic.edit import FormMixin
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 from django.conf import settings
@@ -13,7 +12,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 from core.models import RenderedContent
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
-from libraries.forms import VersionSelectionForm
 from libraries.mixins import VersionAlertMixin, BoostVersionMixin
 from libraries.models import Commit, CommitAuthor
 from libraries.utils import (
@@ -25,10 +23,9 @@ from versions.models import Review, Version
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class VersionDetail(FormMixin, BoostVersionMixin, VersionAlertMixin, DetailView):
+class VersionDetail(BoostVersionMixin, VersionAlertMixin, DetailView):
     """Web display of list of Versions"""
 
-    form_class = VersionSelectionForm
     model = Version
     template_name = "versions/detail.html"
 
