@@ -247,8 +247,8 @@ class LibraryDetail(FormMixin, VersionAlertMixin, BoostVersionMixin, DetailView)
         context = super().get_context_data(**kwargs)
         # Get fields related to Boost versions
         context["versions"] = (
-            self.get_form()
-            .queryset.filter(library_version__library=self.object)
+            Version.objects.version_dropdown_strict()
+            .filter(library_version__library=self.object)
             .distinct()
         )
         context["LATEST_RELEASE_URL_PATH_NAME"] = LATEST_RELEASE_URL_PATH_STR

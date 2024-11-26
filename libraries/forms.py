@@ -30,16 +30,14 @@ class LibraryForm(ModelForm):
 
 class VersionSelectionForm(Form):
     version = ModelChoiceField(
-        queryset=None,
+        queryset=None,  # populated in __init__
         label="Select a version",
         empty_label="Choose a version...",
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields[
-            "version"
-        ].queryset = Version.objects.version_dropdown_strict().defer("data")
+        self.fields["version"].queryset = Version.objects.version_dropdown_strict()
 
 
 class CreateReportFullForm(Form):

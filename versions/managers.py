@@ -105,7 +105,7 @@ class VersionManager(models.Manager):
         if exclude_branches:
             queryset = queryset.exclude(name__in=["develop", "master", "head"])
 
-        return queryset.order_by("-name")
+        return queryset.order_by("-name").defer("data")
 
     def version_dropdown_strict(self, *, exclude_branches=True):
         """Returns the versions to be shown in the drop-down, but does not include
