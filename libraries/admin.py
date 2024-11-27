@@ -147,12 +147,7 @@ class ReleaseReportView(TemplateView):
             return [self.form_template]
         if form.cleaned_data["no_cache"]:
             return [self.form_template]
-        content = form.cache_get()
-        if content:
-            if not content.content_html:
-                return [self.polling_template]
-        else:
-            return [self.polling_template]
+        return [self.polling_template]
 
     def get_form(self):
         data = None
