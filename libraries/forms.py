@@ -562,7 +562,11 @@ class CreateReportForm(CreateReportFullForm):
                 Graph.weeks.days.
 
                 """
-                high = self.max
+                if not (high := self.max):
+                    # No commits this release
+                    # TODO: we may want a more elegant solution
+                    #  than just not graphing this library
+                    return
                 for week in self.weeks:
                     for day in week.days:
                         decimal = day.count / high
