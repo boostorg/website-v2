@@ -16,6 +16,8 @@ from django.forms import Form, ModelChoiceField, ModelForm, BooleanField
 from django.conf import settings
 
 from core.models import RenderedContent, SiteSettings
+from libraries.utils import batched
+from slack.models import Channel, SlackActivityBucket, SlackUser
 from versions.models import Version
 from .models import Commit, CommitAuthor, Issue, Library, LibraryVersion
 from libraries.constants import SUB_LIBRARIES
@@ -608,6 +610,64 @@ class CreateReportForm(CreateReportFullForm):
         graph.apply_colors()
         return graph
 
+    def _get_slack_stats(self, prior_version, version):
+        """Returns all slack related stats."""
+        stats = []
+        for channel in Channel.objects.filter(name__istartswith="boost"):
+            channel_stat = self._get_slack_stats_for_channels(
+                prior_version, version, channels=[channel]
+            )
+            channel_stat["channel"] = channel
+            stats.append(channel_stat)
+        stats.sort(key=lambda x: -x["total"])
+        return stats
+
+    def _get_slack_stats_for_channels(
+        self, prior_version, version, channels: list[Channel] | None = None
+    ):
+        """Get slack stats for specific channels, or all channels."""
+        start = prior_version.release_date
+        end = version.release_date - timedelta(days=1)
+        # count of all messages in the date range
+        q = Q(day__range=[start, end])
+        if channels:
+            q &= Q(channel__in=channels)
+        total = SlackActivityBucket.objects.filter(q).aggregate(total=Sum("count"))[
+            "total"
+        ]
+        # message counts per user in the date range
+        q = Q(slackactivitybucket__day__range=[start, end])
+        if channels:
+            q &= Q(slackactivitybucket__channel__in=channels)
+        per_user = (
+            SlackUser.objects.annotate(
+                total=Sum(
+                    "slackactivitybucket__count",
+                    filter=q,
+                )
+            )
+            .filter(total__gt=0)
+            .order_by("-total")
+        )
+        q = Q()
+        if channels:
+            q &= Q(channel__in=channels)
+        distinct_users = (
+            SlackActivityBucket.objects.filter(q)
+            .order_by("user_id")
+            .distinct("user_id")
+        )
+        new_user_count = (
+            distinct_users.filter(day__lte=end).count()
+            - distinct_users.filter(day__lt=start).count()
+        )
+        return {
+            "users": per_user[:10],
+            "user_count": per_user.count(),
+            "total": total,
+            "new_user_count": new_user_count,
+        }
+
     def get_stats(self):
         version = self.cleaned_data["version"]
 
@@ -709,6 +769,8 @@ class CreateReportForm(CreateReportFullForm):
             version=version,
             library__in=self.library_queryset,
         ).aggregate(lines=Sum("deletions"))["lines"]
+        # we want 2 channels per pdf page, use batched to get groups of 2
+        slack_stats = batched(self._get_slack_stats(prior_version, version), 2)
         return {
             "lines_added": lines_added,
             "lines_removed": lines_removed,
@@ -743,4 +805,5 @@ class CreateReportForm(CreateReportFullForm):
             "removed_library_count": removed_library_count,
             "downloads": downloads,
             "contribution_box_graph": self._get_git_graph_data(prior_version, version),
+            "slack": slack_stats,
         }
