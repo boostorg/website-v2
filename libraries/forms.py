@@ -30,17 +30,6 @@ class LibraryForm(ModelForm):
         fields = ["categories"]
 
 
-class VersionSelectionForm(Form):
-    queryset = Version.objects.active().defer("data")
-    queryset = queryset.exclude(name__in=["develop", "master", "head"])
-
-    version = ModelChoiceField(
-        queryset=queryset,
-        label="Select a version",
-        empty_label="Choose a version...",
-    )
-
-
 class CreateReportFullForm(Form):
     """Form for creating a report over all releases."""
 

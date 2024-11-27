@@ -10,13 +10,11 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView
-from django.views.generic.edit import FormMixin
 
 from core.githubhelper import GithubAPIClient
 from versions.models import Version
 
 from .constants import README_MISSING
-from .forms import VersionSelectionForm
 from .mixins import VersionAlertMixin, BoostVersionMixin
 from .models import (
     Category,
@@ -122,12 +120,12 @@ class LibraryListBase(BoostVersionMixin, VersionAlertMixin, ListView):
         """
         Return a queryset of all versions to display in the version dropdown.
         """
-        versions = Version.objects.version_dropdown().order_by("-name")
+        versions = Version.objects.version_dropdown_strict()
 
         # Annotate each version with the number of libraries it has
         versions = versions.annotate(
             library_count=Count("library_version", distinct=True)
-        ).order_by("-name")
+        )
 
         # Filter out versions with no libraries
         versions = versions.filter(library_count__gt=0)
@@ -136,9 +134,6 @@ class LibraryListBase(BoostVersionMixin, VersionAlertMixin, ListView):
         if current_version and current_version not in versions:
             versions = versions | Version.objects.filter(pk=current_version.pk)
 
-        # Manually exclude the master and develop branches.
-        # todo: confirm is redundant with version_dropdown()'s matching exclude
-        # versions = versions.exclude(name__in=["develop", "master", "head"])
         versions.prefetch_related("library_version")
         return versions
 
@@ -237,10 +232,9 @@ class LibraryCategorized(LibraryListBase):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class LibraryDetail(FormMixin, VersionAlertMixin, BoostVersionMixin, DetailView):
+class LibraryDetail(VersionAlertMixin, BoostVersionMixin, DetailView):
     """Display a single Library in insolation"""
 
-    form_class = VersionSelectionForm
     model = Library
     template_name = "libraries/detail.html"
     redirect_to_docs = False
@@ -250,12 +244,9 @@ class LibraryDetail(FormMixin, VersionAlertMixin, BoostVersionMixin, DetailView)
         context = super().get_context_data(**kwargs)
         # Get fields related to Boost versions
         context["versions"] = (
-            Version.objects.active()
+            Version.objects.version_dropdown_strict()
             .filter(library_version__library=self.object)
             .distinct()
-            .exclude(name__in=["develop", "master", "head"])
-            .exclude(beta=True)
-            .order_by("-release_date")
         )
         context["LATEST_RELEASE_URL_PATH_NAME"] = LATEST_RELEASE_URL_PATH_STR
         # Get general data and version-sensitive data
