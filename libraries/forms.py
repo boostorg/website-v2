@@ -612,7 +612,7 @@ class CreateReportForm(CreateReportFullForm):
             )
             channel_stat["channel"] = channel
             stats.append(channel_stat)
-        stats.sort(key=lambda x: -x["total"])
+        stats.sort(key=lambda x: -(x["total"] or 0))  # Convert None to 0
         return stats
 
     def _get_slack_stats_for_channels(
