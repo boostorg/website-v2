@@ -18,6 +18,12 @@ CELERY_TASK_ALWAYS_EAGER = True
 
 DEBUG = False
 
+OAUTH2_PROVIDER_APPLICATION_MODEL = "oauth2_provider.Application"
+OAUTH2_PROVIDER_ACCESS_TOKEN_MODEL = "oauth2_provider.AccessToken"
+OAUTH2_PROVIDER_ID_TOKEN_MODEL = "oauth2_provider.IDToken"
+OAUTH2_PROVIDER_GRANT_MODEL = "oauth2_provider.Grant"
+OAUTH2_PROVIDER_REFRESH_TOKEN_MODEL = "oauth2_provider.RefreshToken"
+
 EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
 MIGRATION_MODULES = DisableMigrations()

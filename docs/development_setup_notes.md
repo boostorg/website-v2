@@ -340,3 +340,19 @@ Setup should be complete and you should be able to see an option to "Use Google"
 
 #### Additional Notes:
 **Working locally**: If you need to run through the login flows multiple times, create a superuser so you can log into the admin. Then, log into the admin and delete your "Social Account" from the admin. This will test a fresh connection to GitHub for your logged-in GitHub user.
+
+### Debugging
+For local development there is Django Debug Toolbar, and the option to set a debugger.
+
+#### Common Options
+In your env:
+- Django Debug Toolbar, enabled by default, can be disabled by setting DEBUG_TOOLBAR=False
+- IDE Debugging, disabled by default, can be enabled by uncommenting `PYTHONBREAKPOINT` in your .env file.
+
+
+#### Set Up Pycharm
+You can set up your IDE with a new "Python Debug Server" configuration as:
+<img src="images/pycharm_debugger_settings.png" alt="PyCharm Debugger Settings" width="400">
+
+#### Common Usage
+To use the debugger add `breakpoint()` somewhere before you want to start debugging and then add breakpoints by clicking on the gutter. The debugger will stop at these point, you can then step/inspect the variables.
