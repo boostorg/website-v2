@@ -127,7 +127,7 @@ def wrap_main_body_elements(result, original_docs_type=None):
     wrapper_div = result.new_tag("div", id="boost-legacy-docs-wrapper")
     if original_docs_type:
         # add a class based on the original docs type
-        wrapper_div["class"] = f"source-docs-{original_docs_type.value}"
+        wrapper_div["class"] = f"source-docs-{original_docs_type.value} boostlook"
     for index, element in enumerate(result.find("body").children):
         if is_end_comment(element):
             start_index = index
