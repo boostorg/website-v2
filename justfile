@@ -51,10 +51,10 @@ alias shell := console
     docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
 
 @test_pytest:  ## runs pytest
-    -docker compose run --rm web pytest -s --create-db
+    -docker compose run --rm -e DEBUG_TOOLBAR="False" web pytest -s --create-db
 
 @test_pytest_asciidoctor:  ## runs asciidoctor tests
-    -docker compose run --rm web pytest -m asciidoctor -s
+    -docker compose run --rm -e DEBUG_TOOLBAR="False" web pytest -m asciidoctor -s --create-db
 
 @test_interrogate:  ## runs interrogate tests
     docker compose run --rm web interrogate -vv --fail-under 100 --whitelist-regex "test_.*" .
@@ -122,6 +122,7 @@ alias shell := console
 # Dependency management
 @pip-compile ARGS='':  ## rebuilds our pip requirements
     docker compose run --rm web uv pip compile {{ ARGS }} ./requirements.in --no-strip-extras --output-file ./requirements.txt
+    docker compose run --rm web uv pip compile {{ ARGS }} ./requirements-dev.in --no-strip-extras --output-file ./requirements-dev.txt
 
 @pip-compile-upgrade:  ## Upgrade existing Python dependencies to their latest versions
     just pip-compile --upgrade
