@@ -89,6 +89,7 @@ router.register(r"libraries", LibrarySearchView, basename="libraries")
 urlpatterns = (
     [
         path("", HomepageView.as_view(), name="home"),
+        # todo: can we get rid of this?
         path("homepage-beta/", HomepageBetaView.as_view(), name="home-beta"),
         path("admin/", admin.site.urls),
         path("oauth2/", include("oauth2_provider.urls", namespace="oauth2_provider")),

@@ -143,7 +143,7 @@ def get_category(request):
 
 
 def determine_selected_boost_version(request_value, request):
-    valid_versions = Version.objects.version_dropdown_strict()
+    valid_versions = Version.objects.get_dropdown_versions()
     version_slug = request_value or get_version_from_cookie(request)
     if version_slug in [v.slug for v in valid_versions] + [LATEST_RELEASE_URL_PATH_STR]:
         return version_slug
@@ -154,7 +154,7 @@ def determine_selected_boost_version(request_value, request):
 
 def set_selected_boost_version(version_slug: str, response) -> None:
     """Update the selected version in the cookies."""
-    valid_versions = Version.objects.version_dropdown_strict()
+    valid_versions = Version.objects.get_dropdown_versions()
     if version_slug in [v.slug for v in valid_versions]:
         response.set_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME, version_slug)
     elif version_slug == LATEST_RELEASE_URL_PATH_STR:

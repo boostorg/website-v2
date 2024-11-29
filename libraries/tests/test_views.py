@@ -167,17 +167,22 @@ def test_library_detail(library_version, tp):
     tp.response_200(response)
 
 
-def test_library_detail_404(library, tp):
-    """GET /libraries/latest/{bad_library_slug}/"""
+def test_library_detail_404(library, old_version, tp):
+    """GET /library/latest/{bad_library_slug}/"""
     # 404 due to bad slug
     url = tp.reverse("library-detail", "latest", "bananas")
     response = tp.get(url)
     tp.response_404(response)
 
-    # 404 due to no existing version
-    url = tp.reverse("library-detail", "latest", library.slug)
+
+def test_library_detail_missing_version(library, old_version, tp):
+    # custom error due to no existing version
+    url = tp.reverse("library-detail", old_version.display_name, library.slug)
     response = tp.get(url)
-    tp.response_404(response)
+    assert (
+        "There was no version of the Boost.MultiArray library in the 1.70.0 version of "
+        "Boost." in response.content.decode("utf-8")
+    )
 
 
 def test_library_docs_redirect(tp, library, library_version):

@@ -1,4 +1,5 @@
 import structlog
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
@@ -41,8 +42,8 @@ class BoostVersionMixin:
         if context["version_str"] == LATEST_RELEASE_URL_PATH_STR:
             context["selected_version"] = context["current_version"]
         elif context["version_str"]:
-            context["selected_version"] = Version.objects.get(
-                slug=context["version_str"]
+            context["selected_version"] = get_object_or_404(
+                Version, slug=context["version_str"]
             )
 
         return context
