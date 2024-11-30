@@ -143,7 +143,10 @@ def get_category(request):
 
 
 def determine_selected_boost_version(request_value, request):
-    valid_versions = Version.objects.get_dropdown_versions()
+    # use the versions in the request if they are available otherwise fall back to DB
+    valid_versions = getattr(request, "extra_context", {}).get(
+        "versions", Version.objects.get_dropdown_versions()
+    )
     version_slug = request_value or get_version_from_cookie(request)
     if version_slug in [v.slug for v in valid_versions] + [LATEST_RELEASE_URL_PATH_STR]:
         return version_slug

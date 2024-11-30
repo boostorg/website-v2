@@ -98,10 +98,6 @@ class LibraryListBase(BoostVersionMixin, VersionAlertMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**self.kwargs)
         context["categories"] = self.get_categories(context["selected_version"])
-        context["versions"] = Version.objects.get_dropdown_versions(
-            filter_out_has_no_libraries=True,
-            force_version_inclusion=context["current_version"],
-        )
         # todo: add tests for sort order
         if self.kwargs.get("category_slug"):
             context["category"] = Category.objects.get(
@@ -225,9 +221,6 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["library_view_str"] = get_prioritized_library_view(self.request)
         # Get versions, flag when the current library isn't in each version
-        context["versions"] = Version.objects.get_dropdown_versions(
-            flag_versions_without_library=self.object
-        )
         context["LATEST_RELEASE_URL_PATH_NAME"] = LATEST_RELEASE_URL_PATH_STR
         if not self.object:
             raise Http404("No library found matching the query")

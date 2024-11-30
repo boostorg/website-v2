@@ -47,7 +47,6 @@ class VersionDetail(BoostVersionMixin, VersionAlertMixin, DetailView):
             context["is_current_release"] = False
             return context
 
-        context["versions"] = Version.objects.get_dropdown_versions()
         downloads = obj.downloads.all().order_by("operating_system")
         context["downloads"] = {
             k: list(v)
