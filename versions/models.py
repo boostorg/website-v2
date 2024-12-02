@@ -42,6 +42,11 @@ class Version(models.Model):
         blank=True,
         upload_to="release_report_cover/",
     )
+    sponsor_message = models.TextField(
+        default="",
+        blank=True,
+        help_text='Message to show in release reports on the "Fiscal Sponsorship Committee" page.',  # noqa: E501
+    )
 
     objects = VersionManager()
 
