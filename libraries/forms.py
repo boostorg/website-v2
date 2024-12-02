@@ -604,14 +604,18 @@ class CreateReportForm(CreateReportFullForm):
         return graph
 
     def _get_slack_stats(self, prior_version, version):
-        """Returns all slack related stats."""
+        """Returns all slack related stats.
+
+        Only returns channels with activity.
+        """
         stats = []
         for channel in Channel.objects.filter(name__istartswith="boost"):
             channel_stat = self._get_slack_stats_for_channels(
                 prior_version, version, channels=[channel]
             )
             channel_stat["channel"] = channel
-            stats.append(channel_stat)
+            if channel_stat["user_count"] > 0:
+                stats.append(channel_stat)
         stats.sort(key=lambda x: -(x["total"] or 0))  # Convert None to 0
         return stats
 
