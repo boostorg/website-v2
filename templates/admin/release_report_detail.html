@@ -105,6 +105,16 @@
 
         </div>
       </div>
+
+      {% if version.sponsor_message %}
+        <div class="pdf-page {{ bg_color }}">
+          <h2>From the Fiscal Sponsorship Committee</h2>
+          <div class="w-full h-[85%] dynamic-text">
+            {{ version.sponsor_message|linebreaksbr }}
+          </div>
+        </div>
+      {% endif %}
+
       <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
         <div class="flex flex-col">
           <h1 class="mx-auto">Boost {{ version.display_name }}</h1>
@@ -345,6 +355,31 @@
       };
       const chart = new ApexCharts(document.querySelector("#top-committed-libraries-chart"), options);
       chart.render();
+    </script>
+    <script>
+      // Use fitText to resize text to fit its container.
+      // Starts at MAX_FONT_SIZE and tries smaller sizes until it fits or hits MIN_FONT_SIZE.
+      function fitText() {
+        for (const text of document.querySelectorAll('.dynamic-text')) {
+          const MAX_FONT_SIZE = 24;
+          const MIN_FONT_SIZE = 10;
+          // Start with a large font size
+          let fontSize = MAX_FONT_SIZE;
+          text.style.fontSize = fontSize + 'px';
+
+          // Reduce font size until text fits container
+          while (
+            (text.scrollHeight > text.clientHeight ||
+            text.scrollWidth > text.clientWidth) &&
+            fontSize > MIN_FONT_SIZE
+          ) {
+            fontSize--;
+            text.style.fontSize = fontSize + 'px';
+          }
+        }
+      }
+
+      window.addEventListener('DOMContentLoaded', fitText);
     </script>
   {% endwith %}
 {% endblock content %}
