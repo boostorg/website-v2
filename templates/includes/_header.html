@@ -365,6 +365,10 @@ html.dark {
     }
 }
 
+.hidenav {
+  display: none !important;
+}
+
 </style>
 <div class="header-menu-bar topnavbar">
     <!-- mobile navbar -->
@@ -415,6 +419,13 @@ html.dark {
     </div>
 </div>
     <script>
+
+    if (window.parent !== window) {
+      var nav = document.getElementsByClassName('topnavbar');
+      console.log(nav);
+      nav[0].classList.add('hidenav');
+    }
+
     // *********** manage theming *************
     function setColorElements(colorMode) {
       let iconchange = document.getElementById("light-dark")
