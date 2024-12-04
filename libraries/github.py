@@ -5,13 +5,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import assert_never
 from dateutil.relativedelta import relativedelta
+import subprocess
 
 import structlog
 from ghapi.core import HTTP404NotFoundError
 from fastcore.xtras import obj2dict
 
 from django.db.models import Exists, OuterRef
-from django.utils.autoreload import subprocess
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils import dateparse, timezone
@@ -88,21 +88,29 @@ def get_commit_data_for_repo_versions(key):
     retry_count = 0
     with tempfile.TemporaryDirectory() as temp_dir:
         git_dir = Path(temp_dir) / f"{library.key}.git"
+        is_clone_successful = False
         while retry_count < 5:
             retry_count += 1
             completed = subprocess.run(
                 ["git", "clone", f"{library.github_url}.git", "--bare", str(git_dir)],
                 capture_output=True,
             )
+            message = completed.stdout.decode()
             error = completed.stderr.decode()
-            if "fatal: unable to access" in error:
+            # successful output always startswith 'Cloning into bare repository'
+            # Clone message comes out from stderr, not stdout
+            if not error.startswith("Cloning into bare repository"):
                 logger.warning(
                     f"{completed.args} failed. Retrying git clone. Retry {retry_count}."
                 )
                 time.sleep(2**retry_count)
                 continue
             else:
+                is_clone_successful = True
                 break
+        if not is_clone_successful:
+            logger.error(f"Clone failed for {library.key}. {message=} {error=}")
+            return
         versions = [""] + list(
             Version.objects.minor_versions()
             .filter(library_version__library__key=library.key)
