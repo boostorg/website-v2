@@ -30,7 +30,7 @@ from .models import (
 )
 from core.githubhelper import GithubAPIClient, GithubDataParser
 
-from .utils import generate_fake_email, parse_date
+from .utils import generate_fake_email, parse_boostdep_artifact, parse_date
 
 logger = structlog.get_logger()
 
@@ -172,8 +172,7 @@ class LibraryUpdater:
     """
 
     def __init__(self, client=None, token=None):
-        self.client = client or GithubAPIClient()
-        self.api = self.client.initialize_api(token=token)
+        self.client = client or GithubAPIClient(token=token)
         self.parser = GithubDataParser()
         self.logger = structlog.get_logger()
 
@@ -587,3 +586,44 @@ class LibraryUpdater:
                 if gh_author["html_url"]:
                     author.github_profile_url = gh_author["html_url"]
                 author.save(update_fields=["avatar_url", "github_profile_url"])
+
+    def fetch_most_recent_boost_dep_artifact_content(self, owner=None):
+        artifacts = self.client.get_artifacts(
+            owner=owner,
+            repo="website-v2",
+            name="boost-dep-artifact",
+        )
+        if not artifacts or not artifacts.get("artifacts", None):
+            logger.warning("No artifacts found.")
+            return
+        artifact = artifacts["artifacts"][0]
+        if artifact["expired"]:
+            logger.error("The most recent boost-dep-artifact is expired.")
+            return
+        return self.client.get_artifact_content(artifact["archive_download_url"])
+
+    def update_library_version_dependencies(self, owner=None, clean=False):
+        """Update LibraryVersion dependencies M2M via a github action artifact.
+
+        owner: The repo owner. Defaults to `boostorg` in self.client.
+        clean: Clear the M2M before adding dependencies.
+
+        """
+        saved_dependencies = 0
+        saved_library_versions = 0
+
+        content = self.fetch_most_recent_boost_dep_artifact_content(owner=owner)
+        if not content:
+            return
+        for library_version, dependencies in parse_boostdep_artifact(content):
+            with transaction.atomic():
+                if clean:
+                    library_version.dependencies.clear()
+                library_version.dependencies.add(*dependencies)
+            saved_library_versions += 1
+            saved_dependencies += len(dependencies)
+        logger.info(
+            "update_library_version_dependencies finished",
+            saved_dependencies=saved_dependencies,
+            saved_library_versions=saved_library_versions,
+        )
