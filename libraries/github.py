@@ -124,11 +124,11 @@ def get_commit_data_for_repo_versions(key):
             )
             stat_output = shortstat.stdout.decode()
             files_changed = insertions = deletions = 0
-            if m := re.search(r"(\d+) files changed", stat_output):
+            if m := re.search(r"(\d+) files? changed", stat_output):
                 files_changed = int(m.group(1))
-            if m := re.search(r"(\d+) insertions", stat_output):
+            if m := re.search(r"(\d+) insertions?", stat_output):
                 insertions = int(m.group(1))
-            if m := re.search(r"(\d+) deletions", stat_output):
+            if m := re.search(r"(\d+) deletions?", stat_output):
                 deletions = int(m.group(1))
             yield VersionDiffStat(
                 version=b,
