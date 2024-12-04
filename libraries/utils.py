@@ -16,6 +16,7 @@ from libraries.constants import (
     SELECTED_BOOST_VERSION_COOKIE_NAME,
     SELECTED_LIBRARY_VIEW_COOKIE_NAME,
     LATEST_RELEASE_URL_PATH_STR,
+    LEGACY_LATEST_RELEASE_URL_PATH_STR,
 )
 from versions.models import Version
 
@@ -203,3 +204,9 @@ def batched(iterable, n, *, strict=False):
         if strict and len(batch) != n:
             raise ValueError("batched(): incomplete batch")
         yield batch
+
+
+def legacy_path_transform(content_path):
+    if content_path and content_path.startswith(LEGACY_LATEST_RELEASE_URL_PATH_STR):
+        content_path = re.sub(r"([a-zA-Z0-9\.]+)/(\S+)", r"latest/\2", content_path)
+    return content_path
