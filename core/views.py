@@ -14,11 +14,13 @@ from django.http import (
 )
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView
 from requests.compat import chardet
 
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
+from libraries.utils import legacy_path_transform
 from versions.models import Version
 
 from .asciidoc import convert_adoc_to_html
@@ -111,6 +113,14 @@ class MarkdownTemplateView(TemplateView):
         Builds the path from URL kwargs
         """
         content_path = self.kwargs.get("content_path")
+        updated_legacy_path = legacy_path_transform(content_path)
+        if updated_legacy_path != content_path:
+            return redirect(
+                reverse(
+                    self.request.resolver_match.view_name,
+                    kwargs={"content_path": updated_legacy_path},
+                )
+            )
 
         print(self.markdown_local)
         if self.markdown_local:
@@ -208,6 +218,14 @@ class BaseStaticContentTemplateView(TemplateView):
         See the *_static_config.json files for URL mappings to specific S3 keys.
         """
         content_path = self.kwargs.get("content_path")
+        updated_legacy_path = legacy_path_transform(content_path)
+        if updated_legacy_path != content_path:
+            return redirect(
+                reverse(
+                    self.request.resolver_match.view_name,
+                    kwargs={"content_path": updated_legacy_path},
+                )
+            )
 
         # For some reason, if a user cancels a social signup (cancelling a GitHub
         # signup, for example), the redirect URL comes through this view, so we
@@ -513,6 +531,14 @@ class ImageView(View):
     def get(self, request, *args, **kwargs):
         # TODO: Add caching logic
         content_path = self.kwargs.get("content_path")
+        updated_legacy_path = legacy_path_transform(content_path)
+        if updated_legacy_path != content_path:
+            return redirect(
+                reverse(
+                    self.request.resolver_match.view_name,
+                    kwargs={"content_path": updated_legacy_path},
+                )
+            )
 
         client = get_s3_client()
         try:
