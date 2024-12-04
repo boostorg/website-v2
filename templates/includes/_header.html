@@ -373,9 +373,10 @@ html.dark {
 <div class="header-menu-bar topnavbar">
     <!-- mobile navbar -->
     <div id="mobileNav" >
-      <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img style="width:1.3rem" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
+{#      <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img style="width:1.3rem" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>#}
       <div id="selectedpage" onclick="openNav()" class=""><div id="pageName" class="capitalize">boost</div><div class="material-symbols-outlined">arrow_drop_down</div></div>
       <div id="pageselector" onmouseleave="closeNav()" class="hide boost-drop-shadow"  >
+          <div class="mobile-menu-item"><a href="{% url 'home' %}" title="Home">Home</a></div>
           <div class="mobile-menu-item"><a href="{% url 'news' %}" title="News">News</a></div>
           <div class="mobile-menu-item"><a href="{% url 'docs' %}" title="Learn">Learn</a></div>
           <div class="mobile-menu-item"><a href="{% url 'community' %}" title="Community">Community</a></div>
@@ -385,7 +386,8 @@ html.dark {
     </div>
     <!-- desktop navbar -->
     <div id="desktopNav" class="left-menubar">
-        <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img style="width:1.3rem" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
+{#        <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img style="width:1.3rem" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>#}
+        <a href="{% url 'home' %}" title="Boost Home" class="active-link text-lg font-semibold">Home</a>
         <a href="{% url 'news' %}" id="news" class="menu-link {% active_link 'news' css_class=' menu-link active-link' inactive_class='menu-link' %}">news</a>
         <a href="{% url 'docs' %}" id="learn" class="menu-link {% active_link 'docs||docs-user-guide' css_class=' menu-link active-link' inactive_class='menu-link' %}">learn</a>
         <a href="{% url 'community' %}" id="community" class="menu-link {% active_link 'community' css_class=' menu-link active-link' inactive_class='menu-link' %}">community</a>
