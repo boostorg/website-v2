@@ -1,25 +1,28 @@
+import structlog
 from django import template
+from django.conf import settings
 from django.urls import NoReverseMatch, reverse
 from django.utils.encoding import escape_uri_path
 
 register = template.Library()
+logger = structlog.get_logger()
 
 
 @register.simple_tag(takes_context=True)
 def active_link(
     context,
-    viewnames,
-    css_class=None,
+    viewnames: str,
+    css_class="",
     inactive_class="",
-    strict=None,
+    strict=False,
     url=None,
     *args,
-    **kwargs
+    **kwargs,
 ):
     """
     Renders the given CSS class if the request path matches the path of the view.
-    :param context: The context where the tag was called. Used to access the r
-    equest object.
+    :param context: The context where the tag was called. Used to access the
+    request object.
     :param viewnames: The name of the view or views separated by ||
     (include namespaces if any).
     :param css_class: The CSS classes to render.
@@ -41,6 +44,9 @@ def active_link(
         try:
             path = reverse(viewname.strip(), args=args, kwargs=kwargs)
         except NoReverseMatch:
+            logger.warning(f"active_link tag used with unknown viewname: {viewname}")
+            if settings.DEBUG:
+                raise
             continue
         request_path = escape_uri_path(request.path)
         if url and url in request_path:

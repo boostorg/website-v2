@@ -389,9 +389,9 @@ html.dark {
 {#        <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img style="width:1.3rem" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>#}
         <a href="{% url 'home' %}" title="Boost Home" class="menu-link {% active_link 'home' strict="True" css_class=" active-link" %}">Home</a>
         <a href="{% url 'news' %}" id="news" class="menu-link {% active_link 'news' css_class=' menu-link active-link' inactive_class='menu-link' %}">news</a>
-        <a href="{% url 'docs' %}" id="learn" class="menu-link {% active_link 'docs||docs-user-guide' css_class=' menu-link active-link' inactive_class='menu-link' %}">learn</a>
+        <a href="{% url 'docs' %}" id="learn" class="menu-link {% active_link 'docs' css_class=' menu-link active-link' inactive_class='menu-link' %}">learn</a>
         <a href="{% url 'community' %}" id="community" class="menu-link {% active_link 'community' css_class=' menu-link active-link' inactive_class='menu-link' %}">community</a>
-        <a href="{% url 'libraries' %}" id="libraries" class="menu-link {% active_link 'libraries||docs-libs-page' css_class=' menu-link active-link' inactive_class='menu-link' %}">libraries</a>
+        <a href="{% url 'libraries' %}" id="libraries" class="menu-link {% active_link 'libraries' css_class=' menu-link active-link' inactive_class='menu-link' %}">libraries</a>
         <a href="{% url 'releases-most-recent' %}" id="releases" class="menu-link {% active_link 'releases-most-recent' css_class=' menu-link active-link' inactive_class='menu-link' %}">releases</a>
     </div>
     <div class="right-menubar" x-data="{ 'searchOpen': false }">
