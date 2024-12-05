@@ -1,5 +1,5 @@
 {% load static %}
-{% load account socialaccount active_link_tags %}
+{% load account socialaccount %}
 <style>
 @import url({% static 'css/fonts.css' %});
 :root {
@@ -374,7 +374,10 @@ html.dark {
     <!-- mobile navbar -->
     <div id="mobileNav" >
 {#      <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img style="width:1.3rem" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>#}
-      <div id="selectedpage" onclick="openNav()" class=""><div id="pageName" class="capitalize">boost</div><div class="material-symbols-outlined">arrow_drop_down</div></div>
+      <div id="selectedpage" onclick="openNav()" class="">
+        <div id="pageName">{{ active_nav_item|title }}</div>
+        <div class="material-symbols-outlined">arrow_drop_down</div>
+      </div>
       <div id="pageselector" onmouseleave="closeNav()" class="hide boost-drop-shadow"  >
           <div class="mobile-menu-item"><a href="{% url 'home' %}" title="Home">Home</a></div>
           <div class="mobile-menu-item"><a href="{% url 'news' %}" title="News">News</a></div>
@@ -387,12 +390,12 @@ html.dark {
     <!-- desktop navbar -->
     <div id="desktopNav" class="left-menubar">
 {#        <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img style="width:1.3rem" src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>#}
-        <a href="{% url 'home' %}" title="Boost Home" class="menu-link {% active_link 'home' strict="True" css_class=" active-link" %}">Home</a>
-        <a href="{% url 'news' %}" id="news" class="menu-link {% active_link 'news' css_class=' menu-link active-link' inactive_class='menu-link' %}">news</a>
-        <a href="{% url 'docs' %}" id="learn" class="menu-link {% active_link 'docs' css_class=' menu-link active-link' inactive_class='menu-link' %}">learn</a>
-        <a href="{% url 'community' %}" id="community" class="menu-link {% active_link 'community' css_class=' menu-link active-link' inactive_class='menu-link' %}">community</a>
-        <a href="{% url 'libraries' %}" id="libraries" class="menu-link {% active_link 'libraries' css_class=' menu-link active-link' inactive_class='menu-link' %}">libraries</a>
-        <a href="{% url 'releases-most-recent' %}" id="releases" class="menu-link {% active_link 'releases-most-recent' css_class=' menu-link active-link' inactive_class='menu-link' %}">releases</a>
+        <a href="{% url 'home' %}" title="Boost Home" class="menu-link {% if active_nav_item == 'home' %}active-link{% endif %}">Home</a>
+        <a href="{% url 'news' %}" id="news" class="menu-link {% if active_nav_item == 'news' %}active-link{% endif %}">news</a>
+        <a href="{% url 'docs' %}" id="learn" class="menu-link {% if active_nav_item == 'learn' %}active-link{% endif %}">learn</a>
+        <a href="{% url 'community' %}" id="community" class="menu-link {% if active_nav_item == 'community' %}active-link{% endif %}">community</a>
+        <a href="{% url 'libraries' %}" id="libraries" class="menu-link {% if active_nav_item == 'libraries' %}active-link{% endif %}">libraries</a>
+        <a href="{% url 'releases-most-recent' %}" id="releases" class="menu-link {% if active_nav_item == 'releases' %}active-link{% endif %}">releases</a>
     </div>
     <div class="right-menubar" x-data="{ 'searchOpen': false }">
         <span style="position: relative;" x-ref="desktopSearchArea">
@@ -475,46 +478,6 @@ html.dark {
           closeNav();
         }
       });
-      var url = window.location.pathname;
-      if (url != "srcdoc") {
-        var words = url.split("\/");
-        words[1] = words[1].replaceAll("\/", "");
-        var tabname = "Home"
-        var pagename = document.getElementById("pageName")
-        if (words[1].length != '') {
-          switch (words[1]) {
-            case 'doc':
-              if (words[2] == 'libs') {
-                tabname = "libraries"
-              } else {
-                tabname = "learn"
-              }
-              break;
-            case 'docs':
-              tabname = "learn"
-              break;
-            case 'community':
-              tabname = "community"
-              break;
-            case 'news':
-              tabname = "news"
-              break;
-            case 'libraries':
-              tabname = "libraries"
-              break;
-            case 'releases':
-              tabname = "releases"
-              break;
-            case 'accounts':
-              tabname= 'account'
-              break;
-          }
-          var activename = document.getElementById(tabname);
-          activename.classList.add('active-link');
-        }
-        pagename.innerText='';
-        pagename.appendChild(document.createTextNode(tabname));
-      }
       function openNav() {
         ps = document.getElementById("pageselector");
         ps.classList.remove('hide');
