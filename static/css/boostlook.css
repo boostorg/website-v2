@@ -63,6 +63,7 @@
 
   /* Light Theme Variables */
   --light-bl-background: rgb(255, 255, 255);
+  --light-bl-border-color: rgb(220, 220, 220);
   --light-bl-breadcrumbs-svg-color: rgb(0, 0, 0);
   --light-bl-caret-svg: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20height='24px'%20viewBox='0%20-960%20960%20960'%20width='24px'%20fill='%23000000'%3E%3Cpath%20d='M320-200v-560l440%20280-440%20280Z'/%3E%3C/svg%3E");
   --light-bl-card-background-color: rgb(255, 255, 255);
@@ -70,7 +71,7 @@
   --light-bl-code-border-color: rgb(220, 220, 220);
   --light-bl-code-text-color: rgb(0, 0, 0);
   --light-bl-link-color: rgb(2, 132, 199);
-  --light-bl-link-hover-color: rgba(0, 90, 156, 0.7);
+  --light-bl-link-hover-color: rgba(255, 159, 0);
   --light-bl-hljs-attribute-color: rgb(70, 130, 180);
   --light-bl-hljs-doctag-color: rgb(221, 17, 68);
   --light-bl-hljs-keyword-color: rgb(51, 51, 51);
@@ -99,7 +100,7 @@
   --dark-bl-code-border-color: transparent;
   --dark-bl-code-text-color: rgb(255, 255, 255);
   --dark-bl-link-color: rgb(125 211 252);
-  --dark-bl-link-hover-color: rgb(100, 160, 210);
+  --dark-bl-link-hover-color: rgb(255, 159, 0);
   --dark-bl-hljs-attribute-color: rgb(70, 130, 180);
   --dark-bl-hljs-doctag-color: rgb(255, 99, 132);
   --dark-bl-hljs-keyword-color: rgb(173, 216, 230);
@@ -127,6 +128,7 @@
 
 html {
   --bl-background: var(--light-bl-background);
+  --bl-border-color: var(--light-bl-border-color);
   --bl-breadcrumbs-svg-color: var(--light-bl-breadcrumbs-svg-color);
   --bl-caret-svg: var(--light-bl-caret-svg);
   --bl-card-background-color: var(--light-bl-card-background-color);
@@ -175,6 +177,7 @@ html.dark {
   --bl-nav-fade-color: var(--dark-bl-nav-fade-color);
   --bl-paragraph-color: var(--dark-bl-paragraph-color);
   --bl-pasteboard-color: var(--dark-bl-pasteboard-color);
+  --bl-pre-background: var(--dark-bl-code-background);
   --bl-pagination-color: var(--dark-bl-pagination-color);
   --bl-quote-background: var(--dark-bl-quote-background);
   --bl-quote-word-color: var(--dark-bl-quote-word-color);
@@ -369,8 +372,38 @@ p, h1, h2, h3, h4, h5, h6 {
 .boostlook .doc .colist > table code {
   background: none;
   padding: 0;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--bl-code-text-color) !important;
+}
+
+.boostlook code a,
+.boostlook p code a,
+.boostlook li code a,
+.boostlook .doc p code a,
+.boostlook .doc table code a,
+.boostlook .doc .colist > table code a,
+.boostlook a code,
+.boostlook p a code,
+.boostlook li a code,
+.boostlook .doc p a code,
+.boostlook .doc table a code,
+.boostlook .doc .colist > table a code {
+  color: var(--bl-link-color) !important;
+}
+
+.boostlook code a:hover,
+.boostlook p code a:hover,
+.boostlook li code a:hover,
+.boostlook .doc p code a:hover,
+.boostlook .doc table code a:hover,
+.boostlook .doc .colist > table code a:hover,
+.boostlook a:hover code,
+.boostlook p a:hover code,
+.boostlook li a:hover code,
+.boostlook .doc p a:hover code,
+.boostlook .doc table a:hover code,
+.boostlook .doc .colist > table a:hover code {
+  color: var(--bl-link-hover-color) !important;
 }
 
 .boostlook .quoteblock,
@@ -491,6 +524,7 @@ p, h1, h2, h3, h4, h5, h6 {
   padding: 1rem;
   overflow-x: auto;
   border-radius: 8px;
+  border-color: var(--bl-code-border-color);
 }
 
 .boostlook:not(:has(.doc)) div.highlight {
@@ -499,7 +533,7 @@ p, h1, h2, h3, h4, h5, h6 {
 
 .boostlook:not(:has(.doc)) table {
   border-collapse: collapse;
-  margin: 1em;
+  margin: 1em 0;
   border: 1px solid var(--bl-table-border-color);
 }
 
@@ -507,7 +541,6 @@ p, h1, h2, h3, h4, h5, h6 {
   background-color: var(--bl-table-head-background);
   text-align: left;
   padding: 0.25em 0.55em;
-  font-weight: 550;
 }
 
 .boostlook:not(:has(.doc)) td {
@@ -586,9 +619,12 @@ p, h1, h2, h3, h4, h5, h6 {
   overflow-x: auto;
 }
 
+#boost-legacy-docs-wrapper h2.title,
+#boost-legacy-docs-wrapper h3.title,
 .boostlook .title {
   font-weight: bolder;
   margin-bottom: 0.5rem;
+  margin-top: 0;
 }
 
 .boostlook pre.rouge .o {
@@ -905,3 +941,159 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 /*----------------- Styles specific to website-v2 end -----------------*/
+
+
+/*---------- Quickbook docs styling fixes -----------*/
+#boost-legacy-docs-wrapper.boostlook p {
+  margin-bottom: 0;
+  font-size: 16px;
+}
+
+#boost-legacy-docs-wrapper li {
+  font-size: 16px;
+}
+
+#boost-legacy-docs-wrapper.boostlook:not(:has(.doc)) th {
+  background-color: var(--bg-color);
+}
+
+.boostlook div.note,
+.boostlook div.tip,
+.boostlook div.important,
+.boostlook div.caution,
+.boostlook div.warning,
+.boostlook div.blurb,
+.boostlook p.blurb {
+  border: 1px solid var(--bl-border-color);
+  border-radius: 8px;
+  background-color: var(--bl-tabpanel-background);
+  margin: 1pc 0 0 0;
+}
+
+.boostlook div.note table,
+.boostlook div.tip table,
+.boostlook div.important table,
+.boostlook div.caution table,
+.boostlook div.warning table,
+.boostlook div.blurb table,
+.boostlook p.blurb table {
+  border: none;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.boostlook div.note th,
+.boostlook div.tip th,
+.boostlook div.important th,
+.boostlook div.caution th,
+.boostlook div.warning th,
+.boostlook div.blurb th,
+.boostlook .blurb th {
+  background-color: transparent !important;
+  font-size: 16px;
+}
+
+.boostlook div.note td,
+.boostlook div.tip td,
+.boostlook div.important td,
+.boostlook div.caution td,
+.boostlook div.warning td,
+.boostlook div.blurb td,
+.boostlook p.blurb td {
+  border: none !important;
+  padding: 1px;
+}
+
+.boostlook:not(:has(.doc)) td pre {
+  padding: 5px;
+  border-radius: 0;
+}
+
+.boostlook .programlisting {
+  margin: 1rem 0;
+}
+
+.boostlook table h1,
+.boostlook table h2,
+.boostlook table h3 {
+  line-height: 2rem;
+}
+.boostlook table h4,
+.boostlook table h5,
+.boostlook table h6 {
+  line-height: 1.75rem;
+}
+
+.boostlook div.toc {
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+#boost-legacy-docs-wrapper.boostlook div.toc > p {
+  padding-top: 0 !important;
+}
+
+.boostlook dl.toc > dt {
+  font-weight: bold;
+}
+
+.boostlook dl.toc dd {
+  padding-left: .6rem;
+}
+
+.boostlook dl.toc dd dl {
+  margin-bottom: .6rem;
+}
+
+.boostlook .copyright-footer {
+  padding: 1rem;
+}
+
+body > .section,
+body > .chapter,
+#boost-legacy-docs-wrapper.boostlook > .section,
+#boost-legacy-docs-wrapper.boostlook > .chapter,
+#boost-legacy-docs-wrapper.boostlook > .document,
+#boost-legacy-docs-wrapper.boostlook > .refentry,
+#boost-legacy-docs-wrapper.boostlook > .book {
+  margin: 0rem 1rem;
+  padding: 1rem;
+  background-color: var(--card-color);
+  border-radius: 0.5rem;
+}
+
+/* qbk spirit nav hack */
+.boostlook:not(:has(.doc)) .spirit-nav a img {
+  display: none;
+}
+
+.boostlook:not(:has(.doc)) .spirit-nav a,
+#boost-legacy-docs-wrapper.boostlook:not(:has(.doc)) .spirit-nav a {
+  font-family: 'Material Symbols Outlined';
+  font-size: 18px;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  color: var(--bl-nav-link-color);
+}
+
+.boostlook:not(:has(.doc)) .spirit-nav a[accesskey='p']::after {
+  content: "arrow_back";
+}
+.boostlook:not(:has(.doc)) .spirit-nav a[accesskey='u']::after {
+  content: "arrow_upward";
+}
+.boostlook:not(:has(.doc)) .spirit-nav a[accesskey='h']::after {
+  content: "home";
+}
+.boostlook:not(:has(.doc)) .spirit-nav a[accesskey='n']::after {
+  content: "arrow_forward";
+}
+
+@media screen and (max-width: 768px) {
+  .boostlook:not(:has(.doc)) .spirit-nav {
+    right: 2rem;
+    top: 0.2rem;
+  }
+}
