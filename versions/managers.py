@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Func, Value
+from django.db.models import Func, Value, Count
 from django.db.models.functions import Replace
 from django.contrib.postgres.fields import ArrayField
 
@@ -78,14 +78,32 @@ class VersionManager(models.Manager):
         """
         return self.get_queryset().with_version_split().filter(patch=0)
 
-    def version_dropdown(self, exclude_branches=True):
-        """Return the versions that should show in the version drop-down"""
+    def get_dropdown_versions(
+        self,
+        *,
+        flag_versions_without_library: "Library" = None,  # noqa: F821
+        order_by: str = "-name",
+    ):
+        """
+        Returns the versions to be shown in the drop-down, basics:
+        * does not include the development branches
+        * includes the most recent beta if it is newer than the most recent full release
+        * doesn't return versions where full_release=False and beta=False
+
+        Args:
+            order_by (str): the field to order by
+            flag_versions_without_library (Library): flag the version when it doesn't
+                have the matching library - e.g. used for library detail page
+        """
         all_versions = self.active().filter(beta=False)
-        most_recent = self.most_recent()
         most_recent_beta = self.most_recent_beta()
 
-        def should_show_beta(most_recent, most_recent_beta):
-            """Returns bool for whether to show beta version in dropdown"""
+        def should_show_beta(most_recent_beta):
+            """
+            Returns bool for whether to show beta version in dropdown. Returns True only
+            when the most recent beta version is newer than the most recent full release
+            """
+            most_recent = self.most_recent()
             if not most_recent_beta or most_recent is None:
                 return False
 
@@ -94,27 +112,31 @@ class VersionManager(models.Manager):
                 > most_recent.cleaned_version_parts
             )
 
-        include_beta = should_show_beta(most_recent, most_recent_beta)
-
+        queryset = all_versions
+        include_beta = should_show_beta(most_recent_beta)
         if include_beta:
             beta_queryset = self.active().filter(models.Q(name=most_recent_beta.name))
-            queryset = all_versions | beta_queryset
-        else:
-            queryset = all_versions
+            queryset = queryset | beta_queryset
 
-        if exclude_branches:
-            queryset = queryset.exclude(name__in=["develop", "master", "head"])
+        queryset = (
+            queryset.exclude(name__in=["develop", "master", "head"])
+            .exclude(full_release=False, beta=False)
+            .defer("data")
+        )
 
-        return queryset.order_by("-name").defer("data")
+        if flag_versions_without_library:
+            # Annotate each version with a flag `has_library` indicating if it has the
+            # provided library version or not
+            queryset = queryset.annotate(
+                has_library=Count(
+                    "library_version",
+                    filter=models.Q(
+                        library_version__library=flag_versions_without_library
+                    ),
+                )
+            )
 
-    def version_dropdown_strict(self, *, exclude_branches=True):
-        """Returns the versions to be shown in the drop-down, but does not include
-        the development branches"""
-        versions = self.version_dropdown(exclude_branches=exclude_branches)
-        # exclude if full_release is False and beta is False
-        versions = versions.exclude(full_release=False, beta=False)
-
-        return versions
+        return queryset.order_by(order_by)
 
 
 class VersionFileQuerySet(models.QuerySet):

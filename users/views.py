@@ -225,9 +225,9 @@ class ClaimExistingAccountMixin:
                     form = ResetPasswordForm({"email": email})
                     if form.is_valid():
                         form.save(request=self.request)
-                        self.request.session[
-                            "contributor_account_redirect_message"
-                        ] = message
+                        self.request.session["contributor_account_redirect_message"] = (
+                            message
+                        )
                         return HttpResponseRedirect(reverse_lazy("account_login"))
 
         return None
@@ -286,9 +286,9 @@ class CustomLoginView(LoginView):
 class CustomEmailVerificationSentView(EmailVerificationSentView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context[
-            "EMAIL_CONFIRMATION_EXPIRE_DAYS"
-        ] = app_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS
+        context["EMAIL_CONFIRMATION_EXPIRE_DAYS"] = (
+            app_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS
+        )
         return context
 
 
@@ -325,9 +325,9 @@ class DeleteUserView(LoginRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context[
-            "ACCOUNT_DELETION_GRACE_PERIOD_DAYS"
-        ] = settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS
+        context["ACCOUNT_DELETION_GRACE_PERIOD_DAYS"] = (
+            settings.ACCOUNT_DELETION_GRACE_PERIOD_DAYS
+        )
         return context
 
 

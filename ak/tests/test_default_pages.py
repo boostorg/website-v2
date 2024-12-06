@@ -18,24 +18,6 @@ def test_homepage(library, version, tp):
     assert "featured_library" in response.context
 
 
-def test_homepage_beta(db, tp):
-    """Ensure we can hit the beta homepage"""
-    url = tp.reverse("home-beta")
-    tp.get_check_200(url)
-
-
-def test_homepage_beta_context(db, tp):
-    """Ensure have the expected context data on the homepage"""
-    # Use any page that is named 'home' otherwise use /
-    url = tp.reverse("home-beta")
-    response = tp.get_check_200(url)
-
-    # Check that "entries" is in the context
-    assert "entries" in response.context
-    response = tp.get(url)
-    tp.response_200(response)
-
-
 def test_200_page(db, tp):
     """Test a 200 OK page"""
 

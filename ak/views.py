@@ -1,4 +1,3 @@
-import requests
 import structlog
 from django.conf import settings
 from django.core.cache import cache
@@ -8,10 +7,9 @@ from django.shortcuts import render
 from django.views import View
 from django.views.generic import TemplateView
 
-from config.settings import JDOODLE_API_CLIENT_ID, JDOODLE_API_CLIENT_SECRET
 from core.calendar import extract_calendar_events, events_by_month, get_calendar
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
-from libraries.models import Category, Library
+from libraries.models import Library
 from news.models import Entry
 from versions.models import Version
 
@@ -78,82 +76,6 @@ class HomepageView(TemplateView):
             )
 
         return library
-
-
-class HomepageBetaView(TemplateView):
-    """
-    Boost homepage
-    """
-
-    template_name = "homepage_beta.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        libraries, categories = [], []
-        if "category" in self.request.GET and self.request.GET["category"] != "":
-            context["category"] = Category.objects.get(
-                slug=self.request.GET["category"]
-            )
-            libraries = Library.objects.filter(categories=context["category"]).order_by(
-                "name"
-            )
-        else:
-            context["category"] = None
-            libraries = Library.objects.all().order_by("name")
-            categories = Category.objects.all().order_by("name")
-        if "version" in self.request.GET:
-            context["version"] = Version.objects.filter(
-                slug=self.request.GET["version"]
-            ).first()
-        else:
-            context["version"] = Version.objects.most_recent()
-        if "library" in self.request.GET:
-            context["library"] = Library.objects.filter(
-                slug=self.request.GET["library"]
-            ).first()
-            categories = context["library"].categories.order_by("name")
-            if "category" in self.request.GET and self.request.GET["category"] != "":
-                context["category"] = categories.filter(
-                    slug=self.request.GET["category"]
-                ).first()
-                libraries = (
-                    Library.objects.filter(categories__in=categories)
-                    .order_by("name")
-                    .all()
-                )
-        else:
-            context["library"] = (
-                libraries[0] if libraries else Library.objects.order_by("name").first()
-            )
-            if "category" in self.request.GET and self.request.GET["category"] != "":
-                context["category"] = categories.filter(
-                    slug=self.request.GET["category"]
-                ).first()
-
-        context["versions"] = Version.objects.active().order_by("-release_date")
-        context["libraries"] = libraries
-        context["categories"] = categories
-
-        context["entries"] = Entry.objects.published().order_by("-publish_at")[:2]
-        return context
-
-    def post(self, request, *args, **kwargs):
-        code = request.POST.get("code", "")
-        if not code:
-            return render(request, self.template_name)
-        api_url = "https://api.jdoodle.com/v1/execute"
-        data = {
-            "clientId": JDOODLE_API_CLIENT_ID,
-            "clientSecret": JDOODLE_API_CLIENT_SECRET,
-            "script": code,
-            "language": "cpp",
-            "versionIndex": "3",
-        }
-        response = requests.post(api_url, json=data)
-        result = response.json()
-        output = result.get("output", "")
-        error = result.get("error", "")
-        return render(request, self.template_name, {"output": output, "error": error})
 
 
 class ForbiddenView(View):

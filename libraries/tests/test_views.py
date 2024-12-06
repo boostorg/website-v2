@@ -24,10 +24,6 @@ def test_library_list(library_version, tp, url_name="libraries", request_kwargs=
     )
     baker.make("libraries.LibraryVersion", library=lib2, version=v2)
 
-    # Create a version with no libraries
-    v_no_libraries = baker.make(
-        "versions.Version", name="boost-1.0.0", release_date=last_year, beta=False
-    )
     url = tp.reverse(url_name, **request_kwargs)
     res = tp.get(url, **request_kwargs)
 
@@ -38,7 +34,6 @@ def test_library_list(library_version, tp, url_name="libraries", request_kwargs=
     assert "object_list" in res.context
     assert library_version in res.context["object_list"]
     assert lib2 not in res.context["object_list"]
-    assert v_no_libraries not in res.context["versions"]
 
 
 def test_library_root_redirect_to_grid(tp):
@@ -167,17 +162,22 @@ def test_library_detail(library_version, tp):
     tp.response_200(response)
 
 
-def test_library_detail_404(library, tp):
-    """GET /libraries/latest/{bad_library_slug}/"""
+def test_library_detail_404(library, old_version, tp):
+    """GET /library/latest/{bad_library_slug}/"""
     # 404 due to bad slug
     url = tp.reverse("library-detail", "latest", "bananas")
     response = tp.get(url)
     tp.response_404(response)
 
-    # 404 due to no existing version
-    url = tp.reverse("library-detail", "latest", library.slug)
+
+def test_library_detail_missing_version(library, old_version, tp):
+    # custom error due to no existing version
+    url = tp.reverse("library-detail", old_version.display_name, library.slug)
     response = tp.get(url)
-    tp.response_404(response)
+    assert (
+        "There was no version of the Boost.MultiArray library in the 1.70.0 version of "
+        "Boost." in response.content.decode("utf-8")
+    )
 
 
 def test_library_docs_redirect(tp, library, library_version):
