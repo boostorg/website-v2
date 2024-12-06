@@ -33,6 +33,12 @@ def setup_periodic_tasks(sender, **kwargs):
         app.signature("libraries.tasks.update_libraries"),
     )
 
+    # Update libraryversion dependencies. Executes daily at 8:05 AM
+    sender.add_periodic_task(
+        crontab(hour=8, minute=5),
+        app.signature("libraries.tasks.update_library_version_dependencies"),
+    )
+
     # Clear the static content database cache. Executes daily at 4:05 AM.
     sender.add_periodic_task(
         crontab(hour=4, minute=5),

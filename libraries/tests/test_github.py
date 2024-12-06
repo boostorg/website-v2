@@ -6,7 +6,7 @@ from model_bakery import baker
 
 from libraries.github import LibraryUpdater
 from core.githubhelper import GithubAPIClient
-from libraries.models import Category, Issue, Library, PullRequest
+from libraries.models import Category, Issue, Library, LibraryVersion, PullRequest
 
 
 @pytest.fixture
@@ -326,3 +326,63 @@ def test_update_prs_existing(
     # Test that the existing PR updated
     pull.refresh_from_db()
     assert pull.title == existing_pr_data.title
+
+
+def test_parse_boostdep_artifact(
+    github_action_boostdep_output_artifact, library_updater
+):
+    """Test that the GH artifact format can be parsed and dependencies are created."""
+    baker.make(
+        "libraries.LibraryVersion",
+        library__key="algorithm",
+        version__name="boost-1.35.0",
+    )
+    baker.make(
+        "libraries.LibraryVersion",
+        library__key="callable_traits",
+        version__name="boost-1.85.0",
+    )
+    baker.make(
+        "libraries.LibraryVersion",
+        library__key="algorithm",
+        version__name="boost-1.85.0",
+    )
+    baker.make(
+        "libraries.LibraryVersion",
+        library__key="numeric/conversion",
+        version__name="boost-1.85.0",
+    )
+    deps = [
+        "concept_check",
+        "config",
+        "detail",
+        "array",
+        "assert",
+        "bind",
+        "core",
+        "logic/tribool",
+        "numeric/conversion",
+    ]
+    for key in deps:
+        baker.make("libraries.Library", key=key)
+    library_updater.fetch_most_recent_boost_dep_artifact_content = MagicMock(
+        return_value=github_action_boostdep_output_artifact
+    )
+    library_updater.update_library_version_dependencies()
+    lv = LibraryVersion.objects.get(
+        library__key="algorithm", version__name="boost-1.35.0"
+    )
+    assert lv.dependencies.all().count() == 5
+    lv = LibraryVersion.objects.get(
+        library__key="algorithm", version__name="boost-1.85.0"
+    )
+    assert lv.dependencies.all().count() == 6
+    # callable traits is in the file but has no dependencies
+    lv = LibraryVersion.objects.get(
+        library__key="callable_traits", version__name="boost-1.85.0"
+    )
+    assert lv.dependencies.all().count() == 0
+    lv = LibraryVersion.objects.get(
+        library__key="numeric/conversion", version__name="boost-1.85.0"
+    )
+    assert lv.dependencies.all().count() == 1

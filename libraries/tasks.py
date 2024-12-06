@@ -227,3 +227,11 @@ def generate_library_report(params):
     """Generate a library report asynchronously and save it in RenderedContent."""
     form = CreateReportFullForm(params)
     form.cache_html()
+
+
+@app.task
+def update_library_version_dependencies(token=None):
+    command = ["update_library_version_dependencies"]
+    if token:
+        command.extend(["--token", token])
+    call_command(*command)
