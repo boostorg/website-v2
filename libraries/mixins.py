@@ -1,5 +1,3 @@
-from functools import partial
-
 import structlog
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -51,26 +49,14 @@ class BoostVersionMixin:
                 Version, slug=self.extra_context["version_str"]
             )
 
-        version_path_kwargs = {
-            "release-detail": {},
-            "libraries-list": {
-                "filter_out_has_no_libraries": True,
-                "force_version_inclusion": self.extra_context["current_version"],
-            },
-            "library-detail": {
-                "flag_versions_without_library": partial(
-                    get_object_or_404, Library, slug=self.kwargs.get("library_slug")
-                )
-            },
-        }.get(self.request.resolver_match.view_name, {})
-        # we need this step to process any partials
-        processed_version_path_kwargs = {
-            key: (value() if callable(value) else value)
-            for key, value in version_path_kwargs.items()
-        }
+        version_path_kwargs = {}
+        if self.request.resolver_match.view_name == "library-detail":
+            version_path_kwargs["flag_versions_without_library"] = get_object_or_404(
+                Library, slug=self.kwargs.get("library_slug")
+            )
 
         self.extra_context["versions"] = Version.objects.get_dropdown_versions(
-            **processed_version_path_kwargs
+            **version_path_kwargs
         )
         # here we hack extra_context into the request so we can access for cookie checks
         request.extra_context = self.extra_context

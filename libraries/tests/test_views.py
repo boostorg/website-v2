@@ -24,10 +24,6 @@ def test_library_list(library_version, tp, url_name="libraries", request_kwargs=
     )
     baker.make("libraries.LibraryVersion", library=lib2, version=v2)
 
-    # Create a version with no libraries
-    v_no_libraries = baker.make(
-        "versions.Version", name="boost-1.0.0", release_date=last_year, beta=False
-    )
     url = tp.reverse(url_name, **request_kwargs)
     res = tp.get(url, **request_kwargs)
 
@@ -38,7 +34,6 @@ def test_library_list(library_version, tp, url_name="libraries", request_kwargs=
     assert "object_list" in res.context
     assert library_version in res.context["object_list"]
     assert lib2 not in res.context["object_list"]
-    assert v_no_libraries not in res.context["versions"]
 
 
 def test_library_root_redirect_to_grid(tp):

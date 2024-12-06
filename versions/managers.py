@@ -2,10 +2,6 @@ from django.db import models
 from django.db.models import Func, Value, Count
 from django.db.models.functions import Replace
 from django.contrib.postgres.fields import ArrayField
-from typing import ForwardRef
-
-Library = ForwardRef("Library")
-Version = ForwardRef("Version")
 
 
 class VersionQuerySet(models.QuerySet):
@@ -85,9 +81,7 @@ class VersionManager(models.Manager):
     def get_dropdown_versions(
         self,
         *,
-        filter_out_has_no_libraries: bool = False,
-        flag_versions_without_library: Library = None,
-        force_version_inclusion: Version = None,
+        flag_versions_without_library: "Library" = None,  # noqa: F821
         order_by: str = "-name",
     ):
         """
@@ -98,11 +92,8 @@ class VersionManager(models.Manager):
 
         Args:
             order_by (str): the field to order by
-            filter_out_has_no_libraries (bool): when True only return versions w/
-                libraries
             flag_versions_without_library (Library): flag the version when it doesn't
                 have the matching library - e.g. used for library detail page
-            force_version_inclusion (Version): force the inclusion of a specific version
         """
         all_versions = self.active().filter(beta=False)
         most_recent_beta = self.most_recent_beta()
@@ -132,20 +123,6 @@ class VersionManager(models.Manager):
             .exclude(full_release=False, beta=False)
             .defer("data")
         )
-
-        if filter_out_has_no_libraries:
-            # Annotate each version with the number of libraries it has and filter out
-            # versions with no libraries
-            queryset = queryset.annotate(
-                library_count=Count("library_version", distinct=True)
-            ).filter(library_count__gt=0)
-
-        if force_version_inclusion and force_version_inclusion not in queryset:
-            # Ensure the provided version is in the queryset, even with no libraries
-            # related to it
-            queryset = queryset | self.model.objects.filter(
-                pk=force_version_inclusion.pk
-            )
 
         if flag_versions_without_library:
             # Annotate each version with a flag `has_library` indicating if it has the
