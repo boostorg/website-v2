@@ -22,6 +22,7 @@ DEBUG = env.bool("DJANGO_DEBUG", default=False)
 
 # Whether or not we're in local development mode
 LOCAL_DEVELOPMENT = env.bool("LOCAL_DEVELOPMENT", default=False)
+DEBUG_TOOLBAR = env.bool("DEBUG_TOOLBAR", default=False)
 CI = env.bool("CI", default=False)
 
 if DEBUG:
@@ -567,3 +568,12 @@ X_FRAME_OPTIONS = "SAMEORIGIN"
 SLACK_BOT_TOKEN = env("SLACK_BOT_TOKEN", default="")
 
 ACCOUNT_DELETION_GRACE_PERIOD_DAYS = 10
+
+if DEBUG_TOOLBAR:
+    INSTALLED_APPS += ["debug_toolbar"]
+    INTERNAL_IPS = ["127.0.0.1", "localhost"]
+    DEBUG_TOOLBAR_CONFIG = {
+        "SHOW_TOOLBAR_CALLBACK": lambda x: True,
+        "ROOT_TAG_EXTRA_ATTRS": "hx-preserve",
+    }
+    MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
