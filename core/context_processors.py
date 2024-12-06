@@ -10,19 +10,19 @@ def current_version(request):
 
 def active_nav_item(request):
     """Custom context processor that adds the active nav item to the context"""
-    path = request.path
     default_nav_item = "home"
     path_map = {
-        "/news/": "news",
+        "/doc/libs/": "libraries",  # special case - handle first
         "/doc/": "learn",
         "/docs/": "learn",
+        "/news/": "news",
         "/community/": "community",
         "/library/": "libraries",
         "/libraries/": "libraries",
         "/releases/": "releases",
     }
     for prefix, item in path_map.items():
-        if path.startswith(prefix):
+        if request.path.startswith(prefix):
             return {"active_nav_item": item}
     return {"active_nav_item": default_nav_item}
 
