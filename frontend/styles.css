@@ -111,9 +111,6 @@
   #libraryReadMe h1 {
     @apply text-3xl font-semibold border-b border-gray-300 dark:border-slate;
   }
-  #libraryReadMe h1 a {
-    @apply float-right inline-block mx-2;
-  }
   #libraryReadMe h2 {
     @apply mt-3 text-2xl font-semibold border-b border-gray-300 dark:border-slate;
   }
