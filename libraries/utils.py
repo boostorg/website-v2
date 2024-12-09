@@ -213,6 +213,21 @@ def legacy_path_transform(content_path):
 
 
 def parse_boostdep_artifact(content: str):
+    """Parse and return a generator which yields libraries and their dependencies.
+
+    - `content` is a string of the artifact content given by the dependency_report
+        GH action.
+    - Iterate through the file and yield a tuple of
+        (library_version: LibraryVersion, dependencies: list[Library])
+    - Some library keys in the output do not match the names in our database exactly,
+        so transform names when necessary
+    - The boost database may not contain every library version found in this file,
+        if we find a definition of dependencies for a library version we are not
+        tracking, ignore it and continue to the next line.
+    - example content can be found in
+        libraries/tests/fixtures.py -> github_action_boostdep_output_artifact
+
+    """
     from libraries.models import Library, LibraryVersion
 
     libraries = {x.key: x for x in Library.objects.all()}

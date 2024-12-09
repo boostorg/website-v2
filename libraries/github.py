@@ -587,22 +587,24 @@ class LibraryUpdater:
                     author.github_profile_url = gh_author["html_url"]
                 author.save(update_fields=["avatar_url", "github_profile_url"])
 
-    def fetch_most_recent_boost_dep_artifact_content(self, owner=None):
+    def fetch_most_recent_boost_dep_artifact_content(self, owner=""):
+        # get artifacts with the name "boost-dep-artifact"
         artifacts = self.client.get_artifacts(
             owner=owner,
-            repo="website-v2",
+            repo_slug="website-v2",
             name="boost-dep-artifact",
         )
         if not artifacts or not artifacts.get("artifacts", None):
             logger.warning("No artifacts found.")
             return
+        # get the most recent artifact
         artifact = artifacts["artifacts"][0]
         if artifact["expired"]:
             logger.error("The most recent boost-dep-artifact is expired.")
             return
         return self.client.get_artifact_content(artifact["archive_download_url"])
 
-    def update_library_version_dependencies(self, owner=None, clean=False):
+    def update_library_version_dependencies(self, owner="", clean=False):
         """Update LibraryVersion dependencies M2M via a github action artifact.
 
         owner: The repo owner. Defaults to `boostorg` in self.client.
@@ -616,9 +618,9 @@ class LibraryUpdater:
         if not content:
             return
         for library_version, dependencies in parse_boostdep_artifact(content):
-            with transaction.atomic():
-                if clean:
-                    library_version.dependencies.clear()
+            if clean:
+                library_version.dependencies.set(dependencies, clear=True)
+            else:
                 library_version.dependencies.add(*dependencies)
             saved_library_versions += 1
             saved_dependencies += len(dependencies)

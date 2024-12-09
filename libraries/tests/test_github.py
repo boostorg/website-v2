@@ -372,17 +372,17 @@ def test_parse_boostdep_artifact(
     lv = LibraryVersion.objects.get(
         library__key="algorithm", version__name="boost-1.35.0"
     )
-    assert lv.dependencies.all().count() == 5
+    assert lv.dependencies.count() == 5
     lv = LibraryVersion.objects.get(
         library__key="algorithm", version__name="boost-1.85.0"
     )
-    assert lv.dependencies.all().count() == 6
+    assert lv.dependencies.count() == 6
     # callable traits is in the file but has no dependencies
     lv = LibraryVersion.objects.get(
         library__key="callable_traits", version__name="boost-1.85.0"
     )
-    assert lv.dependencies.all().count() == 0
+    assert lv.dependencies.count() == 0
     lv = LibraryVersion.objects.get(
         library__key="numeric/conversion", version__name="boost-1.85.0"
     )
-    assert lv.dependencies.all().count() == 1
+    assert lv.dependencies.count() == 1

@@ -379,7 +379,7 @@ class LibraryVersion(models.Model):
     files_changed = models.IntegerField(default=0)
     cpp_standard_minimum = models.CharField(max_length=50, blank=True, null=True)
     dependencies = models.ManyToManyField(
-        "Library",
+        "libraries.Library",
         symmetrical=False,
         related_name="dependents",
         blank=True,

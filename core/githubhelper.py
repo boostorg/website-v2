@@ -492,14 +492,14 @@ class GithubAPIClient:
         """Return the response from GitHub's /users/{username}/"""
         return self.api.users.get_by_username(username=username)
 
-    def get_artifacts(self, owner=None, repo=None, name=None):
+    def get_artifacts(self, owner="", repo_slug="", name=None):
         """Return a list of artifacts from the GH api.
 
         Filter results by the name of the artifact by supplying name.
         """
         owner = owner or self.owner
-        repo = repo or self.repo_slug
-        url = f"https://api.github.com/repos/{owner}/{repo}/actions/artifacts"
+        repo_slug = repo_slug or self.repo_slug
+        url = f"https://api.github.com/repos/{owner}/{repo_slug}/actions/artifacts"
         params = {}
         if name:
             params["name"] = name
