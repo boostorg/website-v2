@@ -1,0 +1,46 @@
+:root {
+    --site-light-bg-color: rgb(229, 231, 235);
+    --site-dark-bg-color: rgb(5, 26, 38);
+    --site-light-card-color: #fff;
+    --site-dark-card-color: rgb(23, 42, 52);
+    --site-light-border-color: #d1d1d1;
+    --site-dark-border-color: #07405f;
+    --site-light-text-color: rgb(49, 74, 87);
+    --site-dark-text-color: #ccc;
+    --site-dark-heading-text-color: #fff;
+    --site-light-heading-text-color: rgb(49, 74, 87);
+    --site-primary-orange: rgb(255, 159, 0);
+    --site-light-secondary-blue: rgb(2, 132, 199);
+    --site-dark-secondary-blue: rgb(125, 211, 252);
+    --site-light-teritary-green: rgb(14, 174, 96);
+    --site-dark-teritary-green: rgb(90, 213, 153);
+    --site-light-shadow-color: rgba(0,0,0,0.3);
+    --site-dark-shadow-color: transparent;
+    /* specific use colors */
+     /* header height var for docs positioning */
+    --header-height: 2.5rem;
+}
+html {
+    --bg-color: var(--site-light-bg-color);
+    --card-color: var(--site-light-card-color);
+    --border-color: var(--site-light-border-color);
+    --text-color: var(--site-light-text-color);
+    --header-color: var(--site-light-heading-text-color);
+    --primary-color: var(--site-primary-orange);
+    --secondary-color: var(--site-light-secondary-blue);
+    --teritary-color: var(--site-light-teritary-green);
+    --shadow-color: var(--site-light-shadow-color);
+    /* specific use colors */
+}
+html.dark {
+    --bg-color: var(--site-dark-bg-color);
+    --card-color: var(--site-dark-card-color);
+    --border-color: var(--site-dark-border-color);
+    --text-color: var(--site-dark-text-color);
+    --header-color: var(--site-dark-heading-text-color);
+    --primary-color: var(--site-primary-orange);
+    --secondary-color: var(--site-dark-secondary-blue);
+    --teritary-color: var(--site-dark-teritary-green);
+    --shadow-color: var(--site-dark-shadow-color);
+    /* specific use colors */
+}
