@@ -1,19 +1,31 @@
 {% extends "admin/library_report_base.html" %}
 {% load humanize avatar_tags %}
 {% load static %}
+{% block css %}
+{{ block.super }}
+<style>
+{% include "includes/_css_variables.css" %}
+.link-icons a:hover {
+  color: var(--primary-color);
+}
+</style>
+{% endblock css %}
 {% block content %}
   {% with bg_color='' %}
     <div>
       <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
-        <div class="flex flex-col h-full">
-          <div class="mb-auto flex flex-col gap-y-2">
-            <h1 class="flex">
+        <div class="flex flex-col h-full gap-y-6">
+          <div class="flex flex-col gap-y-2">
+            <h1 class="flex mb-0">
               <img
                 class="mt-[3px]"
                 style="width:3.3rem; margin-right:.5rem;" src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
               >
               Boost
             </h1>
+            <div class="flex gap-x-12 link-icons my-4">
+              {% include "includes/_social_icon_links.html" %}
+            </div>
             <div>{{ commit_count|intcomma }} commit{{ commit_count|pluralize }} up through {{ version.display_name }}</div>
             <div>{{ lines_added|intcomma }} line{{ lines_added|pluralize }} added, {{ lines_removed|intcomma }} line{{ lines_removed|pluralize }} removed</div>
             <div>{{ version_commit_count|intcomma }} new commit{{ version_commit_count|pluralize }} in all library repositories</div>
@@ -27,7 +39,6 @@
             {% if removed_library_count %}
               <div>{{ removed_library_count }} librar{{ removed_library_count|pluralize:"y,ies" }} removed</div>
             {% endif %}
-            <div></div>
           </div>
           {% if downloads %}
           <table class="p-0 m-0 w-full text-sm text-left border-0 border-separate table-auto border-spacing-0 text-slate">
