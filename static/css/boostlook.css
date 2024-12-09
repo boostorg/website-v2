@@ -226,6 +226,17 @@ html.dark {
        url("https://cppalliance.org/fonts/NotoSansMono.ttf") format('truetype');
 }
 
+@font-face {
+  font-family: "Noto Sans Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: ultra-condensed;
+  font-display: block;
+  src: url("/_/boostlook/NotoSansMono.ttf") format("truetype"),
+       url("../../../../tools/boostlook/NotoSansMono.ttf") format("truetype"),
+       url("https://cppalliance.org/fonts/NotoSansMono.ttf") format('truetype');
+}
+
 /*----------------- Font-Face Declarations end -----------------*/
 
 /*----------------- CSS Reset start -----------------*/
@@ -260,7 +271,7 @@ p, h1, h2, h3, h4, h5, h6 {
 
 .boostlook {
   font-family: "Noto Sans Display" !important;
-  font-stretch: condensed;
+  font-stretch: 90%;
 }
 
 .boostlook h1,
@@ -336,7 +347,8 @@ p, h1, h2, h3, h4, h5, h6 {
   text-decoration: none;
 }
 
-.boostlook code {
+.boostlook code,
+.boostlook pre code {
   font-family: "Noto Sans Mono", monospace;
   margin-bottom: 1.25rem;
 }
@@ -373,6 +385,7 @@ p, h1, h2, h3, h4, h5, h6 {
   background: none;
   padding: 0;
   font-weight: 400;
+  font-stretch: 90%;
   color: var(--bl-code-text-color) !important;
 }
 
@@ -404,6 +417,10 @@ p, h1, h2, h3, h4, h5, h6 {
 .boostlook .doc table a:hover code,
 .boostlook .doc .colist > table a:hover code {
   color: var(--bl-link-hover-color) !important;
+}
+
+.boostlook td code {
+  margin-bottom: 10px;
 }
 
 .boostlook .quoteblock,
@@ -909,12 +926,16 @@ p, h1, h2, h3, h4, h5, h6 {
   margin-bottom: 1.5rem;
 }
 .boostlook .doc table.tableblock tr th {
-  background-color: transparent;
+  background-color: var(--bl-table-head-background);
   font-size: 1rem;
 }
 
 .dark .doc table.stripes-even>tbody>tr:nth-of-type(2n) {
   background-color: var(--bl-table-stripe-color);
+}
+
+.boostlook .doc p.tableblock + p.tableblock {
+  margin-top: .25rem;
 }
 
 /* Toolbar */
