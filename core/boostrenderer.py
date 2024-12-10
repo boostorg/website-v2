@@ -1,18 +1,21 @@
+import html
 import json
 import os
 import re
+from textwrap import dedent
+
 import boto3
 import structlog
 from botocore.exceptions import ClientError
 from bs4 import BeautifulSoup, Tag
 from django.conf import settings
-from mistletoe import HTMLRenderer
+from mistletoe import HtmlRenderer
 from mistletoe.span_token import SpanToken
 from pygments import highlight
-from pygments.formatters.html import HtmlFormatter
+from pygments.formatter import Formatter
 from pygments.lexers import get_lexer_by_name as get_lexer
 from pygments.lexers import guess_lexer
-from pygments.styles import get_style_by_name as get_style
+from pygments.util import get_bool_opt
 
 logger = structlog.get_logger()
 
@@ -254,18 +257,37 @@ class Youtube(SpanToken):
         self.target = match.group(2)
 
 
-class PygmentsRenderer(HTMLRenderer):
-    formatter = HtmlFormatter()
-    formatter.noclasses = True
+class NoStyleHtmlFormatter(Formatter):
+    """
+    Custom formatter that avoids inline styles and classes.
+    Outputs raw HTML without additional decorations.
+    Useful in combination with highlight.js
+    """
 
-    def __init__(self, *extras, style="solarized-dark"):
-        super().__init__(*extras)
-        self.formatter.style = get_style(style)
+    def __init__(self, **options):
+        super().__init__(**options)
+        self.nowrap = get_bool_opt(options, "nowrap", False)
+
+    def format(self, tokensource, outfile):
+        for ttype, value in tokensource:
+            # Escape HTML special characters to avoid issues
+            outfile.write(html.escape(value))
+
+
+class PygmentsRenderer(HtmlRenderer):
+    formatter = NoStyleHtmlFormatter(nowrap=True)
 
     def render_block_code(self, token):
         code = token.children[0].content
         lexer = get_lexer(token.language) if token.language else guess_lexer(code)
-        return highlight(code, lexer, self.formatter)
+        return dedent(
+            f"""\
+            <pre class="highlightjs highlight">
+              <code class="language-{token.language} hljs">
+                {highlight(code, lexer, self.formatter)}
+              </code>
+            </pre>"""
+        )
 
 
 class BoostRenderer(PygmentsRenderer):
