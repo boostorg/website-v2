@@ -233,9 +233,9 @@ class CreateReportForm(CreateReportFullForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields[
-            "library_1"
-        ].help_text = "If none are selected, all libraries will be selected."
+        self.fields["library_1"].help_text = (
+            "If none are selected, all libraries will be selected."
+        )
 
     @property
     def cache_key(self):

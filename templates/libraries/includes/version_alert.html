@@ -7,8 +7,8 @@
       {% else %}
         {% if selected_version.beta %}
           This is a beta version of Boost.
-        {% elif version.full_release %}
-          This is an older version and was released in {{ selected_version.release_date|date:"Y"}}.
+        {% elif selected_version.full_release %}
+          This is an older version of Boost and was released in {{ selected_version.release_date|date:"Y"}}.
         {% else %}
           This version of Boost is under active development.
         {% endif %}

@@ -98,9 +98,6 @@ class LibraryListBase(BoostVersionMixin, VersionAlertMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**self.kwargs)
         context["categories"] = self.get_categories(context["selected_version"])
-        context["versions"] = self.get_versions(
-            current_version=context["current_version"]
-        )
         # todo: add tests for sort order
         if self.kwargs.get("category_slug"):
             context["category"] = Category.objects.get(
@@ -115,27 +112,6 @@ class LibraryListBase(BoostVersionMixin, VersionAlertMixin, ListView):
             .distinct()
             .order_by("name")
         )
-
-    def get_versions(self, current_version):
-        """
-        Return a queryset of all versions to display in the version dropdown.
-        """
-        versions = Version.objects.version_dropdown_strict()
-
-        # Annotate each version with the number of libraries it has
-        versions = versions.annotate(
-            library_count=Count("library_version", distinct=True)
-        )
-
-        # Filter out versions with no libraries
-        versions = versions.filter(library_count__gt=0)
-
-        # Confirm the most recent v is in the queryset, even if it has no libraries
-        if current_version and current_version not in versions:
-            versions = versions | Version.objects.filter(pk=current_version.pk)
-
-        versions.prefetch_related("library_version")
-        return versions
 
     def dispatch(self, request, *args, **kwargs):
         """Set the selected version in the cookies."""
@@ -238,21 +214,23 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, DetailView):
     model = Library
     template_name = "libraries/detail.html"
     redirect_to_docs = False
+    slug_url_kwarg = "library_slug"
 
     def get_context_data(self, **kwargs):
         """Set the form action to the main libraries page"""
         context = super().get_context_data(**kwargs)
-        # Get fields related to Boost versions
-        context["versions"] = (
-            Version.objects.version_dropdown_strict()
-            .filter(library_version__library=self.object)
-            .distinct()
-        )
+        context["library_view_str"] = get_prioritized_library_view(self.request)
+        # Get versions, flag when the current library isn't in each version
         context["LATEST_RELEASE_URL_PATH_NAME"] = LATEST_RELEASE_URL_PATH_STR
-        # Get general data and version-sensitive data
-        library_version = LibraryVersion.objects.get(
-            library=self.get_object(), version=context["selected_version"]
-        )
+        if not self.object:
+            raise Http404("No library found matching the query")
+        try:
+            library_version = LibraryVersion.objects.get(
+                library=self.object, version=context["selected_version"]
+            )
+        except LibraryVersion.DoesNotExist:
+            return context
+
         context["library_version"] = library_version
         context["documentation_url"] = get_documentation_url(
             library_version, context["version_str"] == LATEST_RELEASE_URL_PATH_STR
@@ -305,7 +283,6 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, DetailView):
             self.object.get_description(client, tag=context["selected_version"].name)
             or README_MISSING
         )
-        context["library_view_str"] = get_prioritized_library_view(self.request)
         return context
 
     def get_commit_data_by_release(self):
@@ -324,24 +301,6 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, DetailView):
             }
             for x in reversed(list(qs))
         ]
-
-    def get_object(self):
-        """Get the current library object from the slug in the URL.
-        If present, use the version_slug to get the right LibraryVersion of the library.
-        Otherwise, default to the most recent version."""
-        library_slug = self.kwargs.get("library_slug")
-        version = self.get_version()
-
-        if not LibraryVersion.objects.filter(
-            version=version, library__slug__iexact=library_slug
-        ).exists():
-            raise Http404("No library found matching the query")
-
-        try:
-            obj = self.get_queryset().get(slug__iexact=library_slug)
-        except self.model.DoesNotExist:
-            raise Http404("No library found matching the query")
-        return obj
 
     def get_author_tag(self):
         """Format the authors for the author meta tag in the template."""
