@@ -8,6 +8,20 @@
 .link-icons a:hover {
   color: var(--primary-color);
 }
+
+.sponsor-message ul > li {
+  list-style: circle;
+  margin-left: 2rem;
+
+}
+.sponsor-message a {
+  color: rgb(2, 132, 199);
+}
+
+.sponsor-message a:hover {
+  color: rgb(255, 159, 0);
+}
+
 </style>
 {% endblock css %}
 {% block content %}
@@ -128,8 +142,8 @@
         <div class="pdf-page !p-16 {{ bg_color }}">
           {% include "admin/_release_report_top_left_logo.html" %}
           <h2>From the Fiscal Sponsorship Committee</h2>
-          <div class="w-full h-[80%] dynamic-text">
-            {{ version.sponsor_message|linebreaksbr }}
+          <div class="w-full h-[80%] dynamic-text sponsor-message">
+            {{ version.sponsor_message|safe }}
           </div>
         </div>
       {% endif %}
