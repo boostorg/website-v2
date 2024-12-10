@@ -2,7 +2,6 @@ import html
 import json
 import os
 import re
-from textwrap import dedent
 
 import boto3
 import structlog
@@ -280,14 +279,8 @@ class PygmentsRenderer(HtmlRenderer):
     def render_block_code(self, token):
         code = token.children[0].content
         lexer = get_lexer(token.language) if token.language else guess_lexer(code)
-        return dedent(
-            f"""\
-            <pre class="highlightjs highlight">
-              <code class="language-{token.language} hljs">
-                {highlight(code, lexer, self.formatter)}
-              </code>
-            </pre>"""
-        )
+        tokenized_code = highlight(code, lexer, self.formatter)
+        return f'<pre class="highlightjs highlight"><code class="language-{token.language} hljs">{tokenized_code}</code></pre>'  # noqa E501
 
 
 class BoostRenderer(PygmentsRenderer):
