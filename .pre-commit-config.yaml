@@ -5,7 +5,7 @@ exclude: .*migrations\/.*|static\/img\/.*|static\/animations\/.*|static\/js\/boo
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v5.0.0
     hooks:
       - id: check-case-conflict
       - id: check-merge-conflict
@@ -15,16 +15,16 @@ repos:
       - id: trailing-whitespace
         exclude: ^core/tests/content/boost_release[a-zA-Z_]+.html
   - repo: https://github.com/ambv/black
-    rev: 23.3.0
+    rev: 24.10.0
     hooks:
       - id: black
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.272
+    rev: v0.8.2
     hooks:
       - id: ruff
         args: [--fix]
   - repo: https://github.com/rtts/djhtml
-    rev: 3.0.6
+    rev: 3.0.7
     hooks:
       - id: djhtml
         entry: djhtml --tabwidth 2

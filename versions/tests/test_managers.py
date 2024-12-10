@@ -62,7 +62,7 @@ def test_version_dropdown(
     else:
         most_recent_beta = None
 
-    queryset = Version.objects.version_dropdown()
+    queryset = Version.objects.get_dropdown_versions()
 
     if should_show_beta:
         beta_queryset = Version.objects.active().filter(Q(name=most_recent_beta.name))
@@ -126,7 +126,7 @@ def test_version_dropdown_strict(
         beta_version.full_release = False
         beta_version.save()
 
-    queryset = Version.objects.version_dropdown_strict()
+    queryset = Version.objects.get_dropdown_versions()
     assert (version in queryset) == should_be_included
 
 
