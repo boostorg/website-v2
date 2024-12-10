@@ -206,6 +206,17 @@ html.dark {
 
 @font-face {
   font-family: "Noto Sans Display";
+  font-style: normal;
+  font-weight: 550;
+  font-stretch: semi-condensed;
+  font-display: block;
+  src: url('/_/fonts/NotoSansDisplay.ttf') format('truetype'),
+       url('../../../../tools/boostlook/NotoSansDisplay.ttf') format('truetype'),
+       url("https://cppalliance.org/fonts/NotoSansDisplay.ttf") format('truetype');
+}
+
+@font-face {
+  font-family: "Noto Sans Display";
   font-style: italic;
   font-weight: normal;
   font-stretch: semi-condensed;
@@ -636,12 +647,27 @@ p, h1, h2, h3, h4, h5, h6 {
   overflow-x: auto;
 }
 
-#boost-legacy-docs-wrapper h2.title,
-#boost-legacy-docs-wrapper h3.title,
-.boostlook .title {
-  font-weight: bolder;
-  margin-bottom: 0.5rem;
+#boost-legacy-docs-wrapper h2.title {
   margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+#boost-legacy-docs-wrapper h3.title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-feature-settings: normal;
+}
+
+.boostlook h2 a code {
+  color: var(---bl-nav-link-color);
+  font-size: 2rem;
+}
+
+.boostlook h3 a code,
+.boostlook h3 a:hover code {
+  color: var(---bl-nav-link-color) !important;
+  font-size: 1.5rem;
 }
 
 .boostlook pre.rouge .o {
@@ -965,6 +991,21 @@ p, h1, h2, h3, h4, h5, h6 {
 
 
 /*---------- Quickbook docs styling fixes -----------*/
+
+#boost-legacy-docs-wrapper.boostlook h2 {
+  font-size: 2rem;
+  border-bottom: 1px solid #eaf0f3;
+  border-bottom: 1px solid var(--bl-table-border-color);
+}
+
+#boost-legacy-docs-wrapper.boostlook h3 {
+  font-size: 1.5rem;
+}
+
+#boost-legacy-docs-wrapper.boostlook h4 {
+  font-size: 1.35rem;
+}
+
 #boost-legacy-docs-wrapper.boostlook p {
   margin-bottom: 0;
   font-size: 16px;
@@ -1056,7 +1097,8 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 .boostlook dl.toc > dt {
-  font-weight: bold;
+  font-weight: 550;
+  font-feature-settings: normal;
 }
 
 .boostlook dl.toc dd {
@@ -1065,6 +1107,11 @@ p, h1, h2, h3, h4, h5, h6 {
 
 .boostlook dl.toc dd dl {
   margin-bottom: .6rem;
+}
+
+.boostlook dl.toc code {
+  font-size: 80%;
+  line-height: 1.15;
 }
 
 .boostlook .copyright-footer {
