@@ -532,6 +532,16 @@ p, h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
 }
 
+html:has(.boostlook) {
+  overflow: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html:has(.boostlook)::-webkit-scrollbar {
+  display: none;
+}
+
 /*----------------- Global Styles for .boostlook end -----------------*/
 
 /*----------------- Styles specific to AsciiDoctor content start -----------------*/
