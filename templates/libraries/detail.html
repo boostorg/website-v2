@@ -138,13 +138,17 @@
     {% endif %}
 
   </main>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <link rel="stylesheet" href="{% static 'css/highlight-js.min.css' %}">
+  <script src="{% static 'js/highlight.js' %}"></script>
 
 {% endblock %}
 {% block footer_js %}
 
-  <script>hljs.highlightAll();</script>
+  <script>
+    window.addEventListener('load', function() {
+      hljs.highlightAll();
+    });
+  </script>
   <script>
     var options = {
       series: [{
