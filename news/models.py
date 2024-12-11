@@ -7,7 +7,12 @@ from django.utils.text import slugify
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
-from core.validators import image_validator, max_file_size_validator
+from core.validators import (
+    image_validator,
+    max_file_size_validator,
+    large_file_max_size_validator,
+    pdf_validator,
+)
 
 from . import acl
 
@@ -183,6 +188,12 @@ class Entry(models.Model):
 
 class News(Entry):
     news_type = "news"
+    pdf_attachment = models.FileField(
+        upload_to="news/files/%Y/%m/",
+        null=True,
+        blank=True,
+        validators=[large_file_max_size_validator, pdf_validator],
+    )
 
     class Meta:
         verbose_name = "News"
