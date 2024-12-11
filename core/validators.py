@@ -21,7 +21,10 @@ class FileTypeValidator:
             )
 
 
-image_validator = FileTypeValidator(extensions=[".jpg", ".jpeg", ".png"])
+IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png"]
+
+image_validator = FileTypeValidator(extensions=IMAGE_EXTENSIONS)
+attachment_validator = FileTypeValidator(extensions=IMAGE_EXTENSIONS + [".pdf"])
 
 
 @deconstructible
@@ -42,3 +45,6 @@ class MaxFileSizeValidator:
 
 # 1 MB max file size
 max_file_size_validator = MaxFileSizeValidator(max_size=1 * 1024 * 1024)
+
+# 50 MB allowed for certain large files - to be used on staff-only fields
+large_file_max_size_validator = MaxFileSizeValidator(max_size=50 * 1024 * 1024)

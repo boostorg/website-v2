@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Case, Value, When
@@ -7,7 +9,12 @@ from django.utils.text import slugify
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
-from core.validators import image_validator, max_file_size_validator
+from core.validators import (
+    attachment_validator,
+    image_validator,
+    max_file_size_validator,
+    large_file_max_size_validator,
+)
 
 from . import acl
 
@@ -183,6 +190,16 @@ class Entry(models.Model):
 
 class News(Entry):
     news_type = "news"
+    attachment = models.FileField(
+        upload_to="news/files/%Y/%m/",
+        null=True,
+        blank=True,
+        validators=[large_file_max_size_validator, attachment_validator],
+    )
+
+    @property
+    def attachment_filename(self):
+        return Path(self.attachment.name).name
 
     class Meta:
         verbose_name = "News"
