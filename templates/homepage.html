@@ -93,7 +93,7 @@
                 <div x-show="activeSlide === {{ forloop.counter }}" x-cloak
                     class="flex items-center py-0 px-12 h-full rounded-lg">
                   <div class="w-full">
-                    <h3 class="pb-2 mb-2 text-sm md:text-lg lg:text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">{{ month_year }}</h3>
+                    <h3 class="pb-2 mb-2 text-sm md:text-lg lg:text-lg capitalize border-b border-gray-400 text-orange dark:border-slate">{{ month_year }}</h3>
                     {% for event in month_events %}
                     <span class="pb-1 mx-auto w-full text-sm md:text-base align-left">
                       <strong>{{ event.start.date }}:</strong> {{ event.name }}
@@ -139,11 +139,11 @@
           </div>
           <div class="absolute top-6 right-8 p-2 group">
             <a href="{% url 'libraries' %}"
-               class="text-sm font-medium md:text-base lg:text-base  text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange">
+               class="text-sm font-medium md:text-base text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange">
               All Libraries&nbsp;<i class="fas fa-chevron-right  text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange"></i>
             </a>
           </div>
-          <h3 class="pb-2 mb-4 text-lg md:text-2xl lg:text-3xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'library-detail' library_slug=featured_library.slug version_slug=LATEST_RELEASE_URL_PATH_STR %}" class="link-header">{{ featured_library.name }}</a></h3>
+          <h3 class="pb-2 mb-4 text-lg md:text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'library-detail' library_slug=featured_library.slug version_slug=LATEST_RELEASE_URL_PATH_STR %}" class="link-header">{{ featured_library.name }}</a></h3>
           <span class="pb-1 mx-auto w-full text-sm md:text-base align-left">
             {{ featured_library.description }}
           </span>
@@ -197,7 +197,7 @@
         <div class="flex flex-col justify-center items-center h-full pb-4">
           <div class="mx-auto">
             <div class="flex items-center justify-center h-full py-4 rounded-lg">
-              <a href="https://www.youtube.com/watch?v=Z1imC1HcJUA" target="_blank" rel="noopener noreferrer" class="text-sm md:text-lg lg:text-2xl text-center text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
+              <a href="https://www.youtube.com/watch?v=Z1imC1HcJUA" target="_blank" rel="noopener noreferrer" class="text-sm md:text-lg text-center text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
                 C++ Tutorial: Using Boost.MP11 C++ Library - Jody Hagins - CppNow 2023
               </a>
             </div>
@@ -213,14 +213,14 @@
         </div>
         <div class="absolute top-6 right-8 p-2 group">
           <a href="{% url 'news' %}"
-            class="text-sm font-medium md:text-base lg:text-base text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange">
+            class="text-sm font-medium md:text-base text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange">
             All News&nbsp;<i class="fas fa-chevron-right text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange"></i>
           </a>
         </div>
         <div class="space-y-4">
           {% for entry in entries %}
             <div class="pt-0">
-              <h2 class="flex items-center pb-2 mb-3 text-lg md:text-2xl lg:text-3xl font-semibold mr-4 border-b border-gray-400 dark:border-slate">
+              <h2 class="flex items-center pb-2 mb-3 text-lg md:text-2xl lg:text-2xl font-semibold mr-4 border-b border-gray-400 dark:border-slate">
                 {% if entry.author.image %}
                   <span class="flex flex-shrink-0 items-center h-[36px] w-[36px] overflow-hidden rounded-lg border border-gray-400 dark:border-gray-500">
                     <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
