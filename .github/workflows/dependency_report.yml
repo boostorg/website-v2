@@ -1,0 +1,49 @@
+name: Dependency-Report-Artifact
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  create-boost-dep-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: fetch get_deps script
+        run: |
+          echo "fetching get_deps.sh with curl"
+          curl -L https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_SHA}/.github/workflows/scripts/get_deps.sh?raw=true -o ./get_deps.sh
+          echo "allow execution"
+          chmod +x ./get_deps.sh
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # fetch all history for all branches and tags
+          repository: boostorg/boost
+          path: boost
+          submodules: true
+          fetch-tags: true
+
+      - name: build boostdep
+        run: |
+          cd "$GITHUB_WORKSPACE/boost"
+          echo "updating submodules"
+          git submodule update --init --force
+          echo "running bootstrap.sh"
+          ./bootstrap.sh
+          echo "running build"
+          ./b2 tools/boostdep/build
+
+      - name: get_deps
+        run: |
+          cd "$GITHUB_WORKSPACE/boost"
+          echo "Running $GITHUB_WORKSPACE/get_deps.sh from $PWD"
+          $GITHUB_WORKSPACE/get_deps.sh "$GITHUB_WORKSPACE/output.txt"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: boost-dep-artifact
+          path: output.txt
+          retention-days: 90

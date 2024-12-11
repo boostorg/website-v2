@@ -213,3 +213,77 @@ def legacy_path_transform(content_path):
     if content_path and content_path.startswith(LEGACY_LATEST_RELEASE_URL_PATH_STR):
         content_path = re.sub(r"([a-zA-Z0-9\.]+)/(\S+)", r"latest/\2", content_path)
     return content_path
+
+
+def parse_boostdep_artifact(content: str):
+    """Parse and return a generator which yields libraries and their dependencies.
+
+    - `content` is a string of the artifact content given by the dependency_report
+        GH action.
+    - Iterate through the file and yield a tuple of
+        (library_version: LibraryVersion, dependencies: list[Library])
+    - Some library keys in the output do not match the names in our database exactly,
+        so transform names when necessary
+    - The boost database may not contain every library version found in this file,
+        if we find a definition of dependencies for a library version we are not
+        tracking, ignore it and continue to the next line.
+    - example content can be found in
+        libraries/tests/fixtures.py -> github_action_boostdep_output_artifact
+
+    """
+    from libraries.models import Library, LibraryVersion
+
+    libraries = {x.key: x for x in Library.objects.all()}
+    # these libraries do not exist in the DB, ignore them.
+    ignore_libraries = ["disjoint_sets", "tr1"]
+
+    def fix_library_key(name):
+        """Transforms library key in boostdep report to match our library keys"""
+        if name == "logic":
+            return "logic/tribool"
+        return name.replace("~", "/")
+
+    def parse_line(line: str):
+        parts = line.split("->")
+        if len(parts) == 2:
+            library_key, dependencies_string = [x.strip() for x in parts]
+            library_key = fix_library_key(library_key)
+            dependency_names = [fix_library_key(x) for x in dependencies_string.split()]
+            dependencies = [
+                libraries[x] for x in dependency_names if x not in ignore_libraries
+            ]
+        else:
+            library_key = fix_library_key(parts[0].strip())
+            dependencies = []
+        return library_key, dependencies
+
+    library_versions = {}
+    version_name = ""
+    skipped_library_versions = 0
+    for line in content.splitlines():
+        # each section is headed with 'Dependencies for version boost-x.x.0'
+        if line.startswith("Dependencies for version"):
+            version_name = line.split()[-1]
+            library_versions = {
+                x.library.key: x
+                for x in LibraryVersion.objects.filter(
+                    version__name=version_name
+                ).select_related("library")
+            }
+        else:
+            library_key, dependencies = parse_line(line)
+            if library_key in ignore_libraries:
+                continue
+            library_version = library_versions.get(library_key, None)
+            if not library_version:
+                skipped_library_versions += 1
+                logger.info(
+                    f"LibraryVersion with {library_key=} {version_name=} not found."
+                )
+                continue
+            yield library_version, dependencies
+    if skipped_library_versions:
+        logger.info(
+            "Some library versions were skipped during artifact parsing.",
+            skipped_library_versions=skipped_library_versions,
+        )
