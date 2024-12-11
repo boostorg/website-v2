@@ -2,6 +2,8 @@
 
 FROM python:3.11-slim AS builder-py
 
+ARG LOCAL_DEVELOPMENT
+
 RUN apt update && apt install -y build-essential gcc python-dev-is-python3 libpq-dev postgresql-client ruby ruby-dev && rm -rf /var/lib/apt/lists/*
 
 # Install ruby's asciidoctor.
@@ -13,6 +15,8 @@ RUN pip install --upgrade pip
 # Boostrap uv.
 RUN pip install 'uv>=0.2.27,<0.3'
 COPY ./requirements.txt ./code/requirements.txt
+COPY ./requirements-dev.txt ./code/requirements-dev.txt
+
 
 # Create the virtualenv.
 RUN uv venv venv
@@ -21,6 +25,11 @@ RUN uv venv venv
 RUN --mount=type=cache,target=/root/.cache \
     . /venv/bin/activate && \
     uv pip install -r /code/requirements.txt
+
+RUN --mount=type=cache,target=/root/.cache if [ "${LOCAL_DEVELOPMENT}" = "true" ]; then \
+      . /venv/bin/activate && \
+      uv pip install -r /code/requirements-dev.txt; \
+    fi
 
 
 # Builder step for JS.

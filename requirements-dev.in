@@ -1,0 +1,3 @@
+-c requirements.txt
+django-debug-toolbar
+pydevd-pycharm==242.23726.102  # pinned to appropriate version for current pycharm
