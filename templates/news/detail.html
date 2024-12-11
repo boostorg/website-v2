@@ -71,10 +71,9 @@
         <div class="break-words">
         {{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaks }}
         </div>
-        {% if entry.news.pdf_attachment %}
-          <a href="{{ entry.news.pdf_attachment.url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
-            {# Currently this field is only used for release reports. If that changes in the future, this text should be made dynamic. #}
-            Release Report
+        {% if entry.news.attachment %}
+          <a href="{{ entry.news.attachment.url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
+            {{ entry.news.attachment_filename }}
           </a>
         {% endif %}
       </div>

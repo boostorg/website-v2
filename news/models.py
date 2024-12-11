@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Case, Value, When
@@ -188,12 +190,16 @@ class Entry(models.Model):
 
 class News(Entry):
     news_type = "news"
-    pdf_attachment = models.FileField(
+    attachment = models.FileField(
         upload_to="news/files/%Y/%m/",
         null=True,
         blank=True,
         validators=[large_file_max_size_validator, pdf_validator],
     )
+
+    @property
+    def attachment_filename(self):
+        return Path(self.attachment.name).name
 
     class Meta:
         verbose_name = "News"
