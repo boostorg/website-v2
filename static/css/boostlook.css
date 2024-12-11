@@ -720,10 +720,6 @@ html:has(.boostlook)::-webkit-scrollbar {
     margin-left: 18rem;
   }
 
-  .boostlook#libraryReadMe {
-     margin-left: 0;
-  }
-
   .boostlook #toggle-toc {
     position: fixed;
     top: 2rem;
@@ -990,15 +986,43 @@ html:has(.boostlook)::-webkit-scrollbar {
 }
 
 /*----------------- Styles specific to Antora Templates end -----------------*/
+
 /*----------------- Styles specific to website-v2 start -----------------*/
 
 /* Library/Releases Readmes */
-#libraryReadMe li p {
+.boostlook#libraryReadMe li p {
   display: inline;
 }
 
-/*----------------- Styles specific to website-v2 end -----------------*/
+.boostlook#libraryReadMe {
+  margin-left: 0;
+}
 
+.boostlook#libraryReadMe pre {
+  padding: 0;
+}
+
+.boostlook#libraryReadMe pre code {
+  background-color: var(--bl-code-background);
+  border: 1px solid var(--bl-code-border-color);
+  border-radius: 8px;
+  margin-bottom: 0;
+}
+
+.boostlook .doc .content pre code {
+  border-color: var(--bl-code-border-color);
+  color: var(--bl-code-text-color);
+  border-radius: 8px;
+  padding: 1.2em .8em;
+}
+
+/* Temporary fix for undetected code from highlight.js */
+.boostlook#libraryReadMe .language- span {
+  color: inherit;
+  font-weight: initial;
+}
+
+/*----------------- Styles specific to website-v2 end -----------------*/
 
 /*---------- Quickbook docs styling fixes -----------*/
 
