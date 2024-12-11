@@ -21,8 +21,10 @@ class FileTypeValidator:
             )
 
 
-image_validator = FileTypeValidator(extensions=[".jpg", ".jpeg", ".png"])
-pdf_validator = FileTypeValidator(extensions=[".pdf"])
+IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png"]
+
+image_validator = FileTypeValidator(extensions=IMAGE_EXTENSIONS)
+attachment_validator = FileTypeValidator(extensions=IMAGE_EXTENSIONS + [".pdf"])
 
 
 @deconstructible

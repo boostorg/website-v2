@@ -10,10 +10,10 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from core.validators import (
+    attachment_validator,
     image_validator,
     max_file_size_validator,
     large_file_max_size_validator,
-    pdf_validator,
 )
 
 from . import acl
@@ -194,7 +194,7 @@ class News(Entry):
         upload_to="news/files/%Y/%m/",
         null=True,
         blank=True,
-        validators=[large_file_max_size_validator, pdf_validator],
+        validators=[large_file_max_size_validator, attachment_validator],
     )
 
     @property
