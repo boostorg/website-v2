@@ -147,12 +147,6 @@
   #libraryReadMe table {
     @apply table-auto w-full;
   }
-  #libraryReadMe code,
-  #libraryReadMe kbd,
-  #libraryReadMe samp,
-  #libraryReadMe pre {
-    @apply bg-transparent;
-  }
   #libraryReadMe a {
     @apply text-sky-600 dark:text-sky-400;
   }

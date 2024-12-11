@@ -157,8 +157,17 @@
     {% endif %}
 
   </main>
+  <link rel="stylesheet" href="{% static 'css/highlight-js.min.css' %}">
+  <script src="{% static 'js/highlight.js' %}"></script>
+
 {% endblock %}
 {% block footer_js %}
+
+  <script>
+    window.addEventListener('load', function() {
+      hljs.highlightAll();
+    });
+  </script>
   <script>
     var options = {
       series: [{
