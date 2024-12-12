@@ -140,13 +140,18 @@ def fill_channel_gap(gap: ChannelUpdateGap, debug: bool):
                 if message.get("thread_ts"):
                     # Track this thread in the db to be able to check for
                     # updates later.
-                    Thread.objects.create(
+                    # Thread replies that are broadcast back to the channel have
+                    # the same thread_ts as the parent message thread_ts.
+                    # get_or_create must be used since the thread may have already been
+                    # created.
+                    Thread.objects.get_or_create(
                         channel=gap.channel,
                         thread_ts=message["thread_ts"],
                         # None indicates that this thread still must be updated
                         # even if it's old.
-                        last_update_ts=None,
+                        defaults={"last_update_ts": None},
                     )
+
             gap.save()
             logger.debug(
                 "Channel %r retrieved up to %s (%s)",
@@ -188,6 +193,11 @@ def do_thread(thread: Thread, debug: bool):
                 # We never need to look at this message again. Oldest messages
                 # come first unlike for channels.
                 thread.last_update_ts = message["ts"]
+
+                if message.get("subtype") == "thread_broadcast":
+                    # This message was broadcast to the channel, if we count it here
+                    # we will be double counting it.
+                    continue
 
                 if not should_track_message(message):
                     continue
@@ -247,6 +257,18 @@ def command(channels, debug):
 
     This is resumable -- it can be interrupted and restarted without losing
     progress.
+
+    A thread does not exist until a user replies to an existing message.
+    It is therefore, possible that thread messages are missed.
+        1. Message "M" is sent.
+        2. Import is run.
+        3. Reply "R" to "M" is sent. "M" is now the parent of a thread.
+        4. "R" will never be imported because the thread was not created
+            and there is no way for us to know that it was created, aside
+            from looking back at all historical messages.
+    Note: If a user replies to a message and selects "also send in channel",
+    then this import will find that thread and the thread messages will be
+    accounted for.
 
     Do not run multiple instances of this command in parallel.
     """
