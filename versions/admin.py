@@ -4,6 +4,8 @@ from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import path
 
+from libraries.tasks import post_release_tasks
+
 from . import models
 from .tasks import (
     import_versions,
@@ -38,8 +40,21 @@ class VersionAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.import_new_releases),
                 name="import_new_releases",
             ),
+            path(
+                "post_release_tasks/",
+                self.admin_site.admin_view(self.post_release_tasks),
+                name="post_release_tasks",
+            ),
         ]
         return my_urls + urls
+
+    def post_release_tasks(self, request):
+        post_release_tasks.delay(user_id=request.user.id)
+        self.message_user(
+            request,
+            "The post_release_task has started, you will receive an email when the task finishes.",  # noqa: E501
+        )
+        return HttpResponseRedirect("../")
 
     def import_new_releases(self, request):
         import_versions.delay(new_versions_only=True)
