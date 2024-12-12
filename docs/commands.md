@@ -15,6 +15,7 @@
   - [`import_beta_release`](#import_beta_release)
   - [`sync_mailinglist_stats`](#sync_mailinglist_stats)
   - [`update_library_version_dependencies`](#update_library_version_dependencies)
+  - [`post_release_tasks`](#post_release_tasks)
 
 ## `boost_setup`
 
@@ -300,3 +301,20 @@ If both the `--release` and the `--library-name` are passed, the command will lo
 | `--token`  | string  | Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`. |
 | `--clean`  | bool    | If passed, existing dependencies in the M2M will be cleared before reinserting them. |
 | `--owner`  | string  | The repo owner. Defaults to "boostorg", which is correct in most cases but can be useful to specify for testing. |
+
+
+## `post_release_tasks`
+
+**Purpose**: Execute a chain of commands which are necessary to run after a release.
+
+**Example**
+
+```bash
+./manage.py post_release_tasks
+```
+
+**Options**
+
+| Options              | Format | Description                                                  |
+|----------------------|--------|--------------------------------------------------------------|
+| `--user_id`  | int  | If passed, the user with this ID will receive email notifications when this task is started and finished, or if the task raises and exception. |
