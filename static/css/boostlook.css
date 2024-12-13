@@ -998,6 +998,10 @@ html:has(.boostlook)::-webkit-scrollbar {
   margin-left: 0;
 }
 
+.boostlook#libraryReadMe ul {
+  margin-bottom: 1.5rem;
+}
+
 .boostlook#libraryReadMe pre {
   padding: 0;
 }
@@ -1026,17 +1030,26 @@ html:has(.boostlook)::-webkit-scrollbar {
 
 /*---------- Quickbook docs styling fixes -----------*/
 
-#boost-legacy-docs-wrapper.boostlook h2 {
+#boost-legacy-docs-wrapper.boostlook h1,
+#libraryReadMe.boostlook h1 {
+  font-size: 2rem;
+}
+
+#boost-legacy-docs-wrapper.boostlook h2,
+#libraryReadMe.boostlook h2 {
   font-size: 2rem;
   border-bottom: 1px solid #eaf0f3;
   border-bottom: 1px solid var(--bl-table-border-color);
+  font-weight: 500;
 }
 
-#boost-legacy-docs-wrapper.boostlook h3 {
+#boost-legacy-docs-wrapper.boostlook h3,
+#libraryReadMe.boostlook h3 {
   font-size: 1.5rem;
 }
 
-#boost-legacy-docs-wrapper.boostlook h4 {
+#boost-legacy-docs-wrapper.boostlook h4,
+#libraryReadMe.boostlook h4 {
   font-size: 1.35rem;
 }
 
