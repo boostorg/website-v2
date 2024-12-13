@@ -106,7 +106,8 @@
   }
 
   /* STYLES FOR THE LIBRARY README
-  These can't easily be handled in the template so doing globally.
+  These can't easily be handled in the template so doing globally...
+
    */
   #libraryReadMe h1 {
     @apply text-3xl font-semibold border-b border-gray-300 dark:border-slate;
