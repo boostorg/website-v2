@@ -90,6 +90,9 @@
   --light-bl-table-stripe-color: rgb(248, 248, 248);
   --light-bl-tabpanel-background: rgb(255, 255, 255);
   --light-bl-text-color: rgb(51, 65, 85);
+  --light-bl-scrollbar-track-color: rgb(234, 240, 243);
+  --light-bl-scrollbar-thumb-color: rgb(193, 193, 193);
+  --light-bl-scrollbar_hover-thumb-color: rgb(193, 193, 193);
 
   /* Dark Theme Variables */
   --dark-bl-border-color: rgb(209, 228, 242);
@@ -120,6 +123,9 @@
   --dark-bl-table-stripe-color: rgb(49,74,87);
   --dark-bl-tabpanel-background: rgb(49 74 87);
   --dark-bl-text-color: rgb(255, 255, 255);
+  --dark-bl-scrollbar-track-color: rgb(46, 58, 66);
+  --dark-bl-scrollbar-thumb-color: rgb(109, 124, 133);
+  --dark-bl-scrollbar_hover-thumb-color: rgb(147, 161, 170);
 }
 
 /*----------------- Root Variables - End -----------------*/
@@ -155,6 +161,9 @@ html {
   --bl-table-stripe-color: var(--light-bl-table-stripe-color);
   --bl-tabpanel-background: var(--light-bl-tabpanel-background);
   --bl-text-color: var(--light-bl-text-color);
+  --bl-scrollbar-track-color: var(--light-bl-scrollbar-track-color);
+  --bl-scrollbar-thumb-color: var(--light-bl-scrollbar-thumb-color);
+  --bl-scrollbar_hover-thumb-color: var(--light-bl-scrollbar_hover-thumb-color);
 }
 
 html.dark {
@@ -187,6 +196,9 @@ html.dark {
   --bl-table-stripe-color: var(--dark-bl-table-stripe-color);
   --bl-tabpanel-background: var(--dark-bl-tabpanel-background);
   --bl-text-color: var(--dark-bl-text-color);
+  --bl-scrollbar-track-color: var(--dark-bl-scrollbar-track-color);
+  --bl-scrollbar-thumb-color: var(--dark-bl-scrollbar-thumb-color);
+  --bl-scrollbar_hover-thumb-color: var(--dark-bl-scrollbar_hover-thumb-color);
 }
 
 /*----------------- HTML Variables - End -----------------*/
@@ -196,7 +208,8 @@ html.dark {
 @font-face {
   font-family: "Noto Sans Display";
   font-style: normal;
-  font-weight: normal;
+  font-weight: 100 900;
+  font-variation-settings: "wght" 400;
   font-stretch: semi-condensed;
   font-display: block;
   src: url('/_/fonts/NotoSansDisplay.ttf') format('truetype'),
@@ -207,7 +220,7 @@ html.dark {
 @font-face {
   font-family: "Noto Sans Display";
   font-style: normal;
-  font-weight: 550;
+  font-weight: 100 900;
   font-stretch: semi-condensed;
   font-display: block;
   src: url('/_/fonts/NotoSansDisplay.ttf') format('truetype'),
@@ -218,7 +231,8 @@ html.dark {
 @font-face {
   font-family: "Noto Sans Display";
   font-style: italic;
-  font-weight: normal;
+  font-weight: 100 900;
+  font-variation-settings: "wght" 400;
   font-stretch: semi-condensed;
   font-display: block;
   src: url("/font/NotoSansDisplay-Italic.ttf") format("truetype"),
@@ -229,7 +243,8 @@ html.dark {
 @font-face {
   font-family: "Noto Sans Mono";
   font-style: normal;
-  font-weight: normal;
+  font-weight: 100 900;
+  font-variation-settings: "wght" 400;
   font-stretch: semi-condensed;
   font-display: block;
   src: url("/_/boostlook/NotoSansMono.ttf") format("truetype"),
@@ -532,14 +547,48 @@ p, h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
 }
 
-html:has(.boostlook) {
-  overflow: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* Base scrollbar styles */
+html::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-html:has(.boostlook)::-webkit-scrollbar {
-  display: none;
+html::-webkit-scrollbar-track {
+  background: var(--bl-scrollbar-track-color);
+}
+
+html::-webkit-scrollbar-thumb {
+  background-color: var(--bl-scrollbar-thumb-color);
+  border-radius: 4px;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background-color: var(--bl-scrollbar_hover-thumb-color);
+}
+
+/* Firefox support */
+@supports (scrollbar-width: thin) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--bl-scrollbar-thumb-color) var(--bl-scrollbar-track-color);
+  }
+
+  html:hover {
+    scrollbar-color: var(--bl-scrollbar_hover-thumb-color) var(--bl-scrollbar-track-color);
+  }
+
+  html:not(:has(.boostlook)) {
+    overflow: hidden;
+  }
+
+  html:not(:has(.boostlook)):hover {
+    overflow: auto;
+  }
+
+  html:has(.boostlook) .nav {
+    scrollbar-width: thin;
+    scrollbar-color: var(--bl-scrollbar-thumb-color) var(--bl-scrollbar-track-color);
+  }
 }
 
 /*----------------- Global Styles for .boostlook end -----------------*/
@@ -1144,8 +1193,7 @@ html:has(.boostlook)::-webkit-scrollbar {
 }
 
 .boostlook dl.toc > dt {
-  font-weight: 550;
-  font-feature-settings: normal;
+  font-variation-settings: "wght" 550;
 }
 
 .boostlook dl.toc dd {
