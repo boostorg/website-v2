@@ -6,6 +6,8 @@ from datetime import datetime
 from socket import gaierror
 import time
 from urllib.error import URLError
+from io import BytesIO
+from zipfile import ZipFile
 
 import requests
 import structlog
@@ -36,7 +38,8 @@ class GithubAPIClient:
         :param ref: str, the Git reference
         :param repo_slug: str, the repository slug
         """
-        self.api = self.initialize_api(token=token)
+        self.token = token or os.environ.get("GITHUB_TOKEN", None)
+        self.api = self.initialize_api()
         self.owner = owner
         self.ref = ref
         self.repo_slug = repo_slug
@@ -60,15 +63,13 @@ class GithubAPIClient:
             "more",
         ]
 
-    def initialize_api(self, token=None) -> GhApi:
+    def initialize_api(self) -> GhApi:
         """
         Initialize the GitHub API with the token from the environment variable.
 
         :return: GhApi, the GitHub API
         """
-        if token is None:
-            token = os.environ.get("GITHUB_TOKEN", None)
-        return GhApi(token=token)
+        return GhApi(token=self.token)
 
     def with_retry(self, fn, retry_count=5):
         count = 0
@@ -490,6 +491,44 @@ class GithubAPIClient:
     def get_user_by_username(self, username: str) -> dict:
         """Return the response from GitHub's /users/{username}/"""
         return self.api.users.get_by_username(username=username)
+
+    def get_artifacts(self, owner="", repo_slug="", name=None):
+        """Return a list of artifacts from the GH api.
+
+        Filter results by the name of the artifact by supplying name.
+        """
+        owner = owner or self.owner
+        repo_slug = repo_slug or self.repo_slug
+        url = f"https://api.github.com/repos/{owner}/{repo_slug}/actions/artifacts"
+        params = {}
+        if name:
+            params["name"] = name
+        headers = {"accept": "application/vnd.github+json"}
+        response = requests.get(url, params=params, headers=headers)
+        if response.status_code != 200:
+            logger.error(
+                "Error while fetching artifacts.", status_code=response.status_code
+            )
+            return
+        data = response.json()
+        return data
+
+    def get_artifact_content(self, url):
+        resp = requests.get(
+            url,
+            headers={
+                "Authorization": f"Bearer {self.token}",
+                "accept": "application/vnd.github+json",
+            },
+        )
+        if resp.status_code != 200:
+            logger.error(
+                "Error while fetching artifact file.", status_code=resp.status_code
+            )
+            return ""
+        myzip = ZipFile(BytesIO(resp.content))
+        with myzip.open(myzip.filelist[0]) as f:
+            return f.read().decode()
 
 
 class GithubDataParser:

@@ -13,6 +13,8 @@
   - [`import_commits`](#import_commits)
   - [`update_issues`](#update_issues)
   - [`import_beta_release`](#import_beta_release)
+  - [`sync_mailinglist_stats`](#sync_mailinglist_stats)
+  - [`update_library_version_dependencies`](#update_library_version_dependencies)
 
 ## `boost_setup`
 
@@ -279,3 +281,22 @@ If both the `--release` and the `--library-name` are passed, the command will lo
 | Options              | Format | Description                                                  |
 |----------------------|--------|--------------------------------------------------------------|
 | `--clean`  | bool  | If passed, all existing beta EmailData records will be deleted before running the sync. |
+
+
+## `update_library_version_dependencies`
+
+**Purpose**: Read a boostdep report text file uploaded as an artifact from a github action and update dependencies for LibraryVersion models.
+
+**Example**
+
+```bash
+./manage.py update_library_version_dependencies
+```
+
+**Options**
+
+| Options              | Format | Description                                                  |
+|----------------------|--------|--------------------------------------------------------------|
+| `--token`  | string  | Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`. |
+| `--clean`  | bool    | If passed, existing dependencies in the M2M will be cleared before reinserting them. |
+| `--owner`  | string  | The repo owner. Defaults to "boostorg", which is correct in most cases but can be useful to specify for testing. |
