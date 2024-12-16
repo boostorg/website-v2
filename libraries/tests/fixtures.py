@@ -1,6 +1,7 @@
 import pytest
 from fastcore.xtras import dict2obj
 from model_bakery import baker
+from textwrap import dedent
 
 
 @pytest.fixture
@@ -226,3 +227,22 @@ def github_library():
         "maintainers": ["Tester Testerson <tester -at- example.com>"],
         "cxxstd": "03",
     }
+
+
+@pytest.fixture
+def github_action_boostdep_output_artifact():
+    """
+    A shortened example of the content in the artifact output by the
+    dependency_report.yaml action
+    """
+    return dedent(
+        """\
+        Dependencies for version boost-1.33.0
+        Dependencies for version boost-1.34.0
+        Dependencies for version boost-1.35.0
+        algorithm -> concept_check config detail logic numeric~conversion
+        Dependencies for version boost-1.85.0
+        algorithm -> array assert bind concept_check config core
+        numeric~conversion -> array
+        callable_traits ->"""
+    )

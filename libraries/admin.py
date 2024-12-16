@@ -337,7 +337,7 @@ class LibraryVersionAdmin(admin.ModelAdmin):
     ordering = ["library__name", "-version__name"]
     search_fields = ["library__name", "version__name"]
     change_list_template = "admin/libraryversion_change_list.html"
-    autocomplete_fields = ["authors", "maintainers"]
+    autocomplete_fields = ["authors", "maintainers", "dependencies"]
 
     def get_urls(self):
         urls = super().get_urls()
