@@ -363,6 +363,7 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
         "AUTH_PARAMS": {
             "access_type": "online",
+            "prompt": "select_account",
         },
         "OAUTH_PKCE_ENABLED": True,
     },
@@ -387,14 +388,12 @@ if LOCAL_DEVELOPMENT:
     if not google_oauth_client_id or not google_oauth_secret:
         logging.warning("Google OAuth credentials not set")
     else:
-        SOCIALACCOUNT_PROVIDERS["google"] = {
-            "APPS": [
-                {
-                    "client_id": google_oauth_client_id,
-                    "secret": google_oauth_secret,
-                }
-            ]
-        }
+        SOCIALACCOUNT_PROVIDERS["google"]["APPS"] = [
+            {
+                "client_id": google_oauth_client_id,
+                "secret": google_oauth_secret,
+            },
+        ]
 
 
 # Allow Allauth to use HTTPS when deployed but HTTP for local dev
