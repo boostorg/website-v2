@@ -67,7 +67,7 @@
   --light-bl-breadcrumbs-svg-color: rgb(0, 0, 0);
   --light-bl-caret-svg: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20height='24px'%20viewBox='0%20-960%20960%20960'%20width='24px'%20fill='%23000000'%3E%3Cpath%20d='M320-200v-560l440%20280-440%20280Z'/%3E%3C/svg%3E");
   --light-bl-card-background-color: rgb(255, 255, 255);
-  --light-bl-code-background: rgb(255, 255, 255);
+  --light-bl-code-background: rgb(248, 248, 248);
   --light-bl-code-border-color: rgb(220, 220, 220);
   --light-bl-code-text-color: rgb(0, 0, 0);
   --light-bl-link-color: rgb(2, 132, 199);
@@ -99,7 +99,7 @@
   --dark-bl-breadcrumbs-svg-color: rgb(255, 255, 255);
   --dark-bl-caret-svg: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20height='24px'%20viewBox='0%20-960%20960%20960'%20width='24px'%20fill='%23ccc'%3E%3Cpath%20d='M320-200v-560l440%20280-440%20280Z'/%3E%3C/svg%3E");
   --dark-bl-card-background-color: rgb(23, 42, 52);
-  --dark-bl-code-background: rgb(20, 20, 20);
+  --dark-bl-code-background: rgb(5, 26, 38);
   --dark-bl-code-border-color: transparent;
   --dark-bl-code-text-color: rgb(255, 255, 255);
   --dark-bl-link-color: rgb(125 211 252);
@@ -313,8 +313,8 @@ p, h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
 }
 
-.boostlook h1 { font-size: 2.5rem; }
-.boostlook h2 { font-size: 2rem; }
+.boostlook h1 { font-size: 1.8rem; }
+.boostlook h2 { font-size: 1,65rem; }
 .boostlook h3 { font-size: 1.5rem; }
 .boostlook h4 { font-size: 1.35rem; }
 .boostlook h5 { font-size: 1.25rem; }
@@ -367,10 +367,12 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 .boostlook a:hover,
-.boostlook .doc a:hover {
+.boostlook .doc a:hover,
+#libraryReadMe a:hover,
+#boost-legacy-docs-wrapper a:hover {
   color: var(--bl-link-hover-color);
   cursor: pointer;
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 .boostlook code,
@@ -610,12 +612,7 @@ html::-webkit-scrollbar-thumb:hover {
   margin-bottom: 1.25rem;
   padding: 1rem;
   overflow-x: auto;
-  border-radius: 8px;
   border-color: var(--bl-code-border-color);
-}
-
-.boostlook:not(:has(.doc)) div.highlight {
-  border-radius: 8px;
 }
 
 .boostlook:not(:has(.doc)) table {
@@ -646,7 +643,7 @@ html::-webkit-scrollbar-thumb:hover {
 .boostlook #toc ul {
   margin: 0;
   padding: 0 0 0 0.8rem;
-  line-height: 1.725;
+  line-height: 1.5;
   font-size: 1rem;
   list-style: none;
 }
@@ -712,15 +709,17 @@ html::-webkit-scrollbar-thumb:hover {
   font-weight: 500;
 }
 
-#boost-legacy-docs-wrapper h3.title {
-  font-weight: 600;
+#boost-legacy-docs-wrapper h3.title,
+#boost-legacy-docs-wrapper.boostlook h3,
+#libraryReadMe.boostlook h3 {
+  font-weight: 550;
   margin-bottom: 0.5rem;
   font-feature-settings: normal;
 }
 
 .boostlook h2 a code {
   color: var(---bl-nav-link-color);
-  font-size: 2rem;
+  font-size: 1.65rem;
 }
 
 .boostlook h3 a code,
@@ -949,7 +948,6 @@ html::-webkit-scrollbar-thumb:hover {
   background-color: var(--bl-code-background);
   border-color: var(--bl-code-border-color);
   color: var(--bl-code-text-color);
-  border-radius: 8px;
   padding: 1.2em .8em
 }
 
@@ -1058,14 +1056,12 @@ html::-webkit-scrollbar-thumb:hover {
 .boostlook#libraryReadMe pre code {
   background-color: var(--bl-code-background);
   border: 1px solid var(--bl-code-border-color);
-  border-radius: 8px;
   margin-bottom: 0;
 }
 
 .boostlook .doc .content pre code {
   border-color: var(--bl-code-border-color);
   color: var(--bl-code-text-color);
-  border-radius: 8px;
   padding: 1.2em .8em;
 }
 
@@ -1081,12 +1077,12 @@ html::-webkit-scrollbar-thumb:hover {
 
 #boost-legacy-docs-wrapper.boostlook h1,
 #libraryReadMe.boostlook h1 {
-  font-size: 2rem;
+  font-size: 1.8rem;
 }
 
 #boost-legacy-docs-wrapper.boostlook h2,
 #libraryReadMe.boostlook h2 {
-  font-size: 2rem;
+  font-size: 1.65rem;
   border-bottom: 1px solid #eaf0f3;
   border-bottom: 1px solid var(--bl-table-border-color);
   font-weight: 500;
@@ -1164,7 +1160,6 @@ html::-webkit-scrollbar-thumb:hover {
 
 .boostlook:not(:has(.doc)) td pre {
   padding: 5px;
-  border-radius: 0;
 }
 
 .boostlook .programlisting {
@@ -1198,10 +1193,6 @@ html::-webkit-scrollbar-thumb:hover {
 
 .boostlook dl.toc dd {
   padding-left: .6rem;
-}
-
-.boostlook dl.toc dd dl {
-  margin-bottom: .6rem;
 }
 
 .boostlook dl.toc code {
@@ -1239,6 +1230,13 @@ body > .chapter,
   width: 24px;
   height: 24px;
   color: var(--bl-nav-link-color);
+}
+
+.boostlook:not(:has(.doc)) .spirit-nav a:hover,
+#boost-legacy-docs-wrapper.boostlook:not(:has(.doc)) .spirit-nav a:hover,
+.toolbar a:hover .material-symbols-outlined {
+  color: var(--bl-primary-color);
+  text-decoration: none;
 }
 
 .boostlook:not(:has(.doc)) .spirit-nav a[accesskey='p']::after {
