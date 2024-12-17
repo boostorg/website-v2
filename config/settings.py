@@ -20,10 +20,6 @@ if READ_DOT_ENV_FILE:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DJANGO_DEBUG", default=False)
 
-# Whether or not we're in local development mode
-LOCAL_DEVELOPMENT = env.bool("LOCAL_DEVELOPMENT", default=False)
-CI = env.bool("CI", default=False)
-
 if DEBUG:
     root = logging.getLogger()
     root.setLevel(logging.INFO)
@@ -32,6 +28,15 @@ if DEBUG:
     root.addHandler(lh)
 
     env.log_level("LOG_LEVEL", default="DEBUG")
+
+# Whether or not we're in local development mode
+LOCAL_DEVELOPMENT = env.bool("LOCAL_DEVELOPMENT", default=False)
+CI = env.bool("CI", default=False)
+
+if CI or LOCAL_DEVELOPMENT:
+    # This is the default value for the development environment.
+    # This enables the tests to run.
+    SITE_ID = 1
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = Path(__file__).parent.parent
@@ -342,11 +347,8 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
 ACCOUNT_UNIQUE_EMAIL = True
-
-if CI or LOCAL_DEVELOPMENT:
-    # This is the default value for the development environment.
-    # This enables the tests to run.
-    SITE_ID = 1
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
 # Allow us to override some of allauth's forms
 ACCOUNT_FORMS = {
