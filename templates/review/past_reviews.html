@@ -48,7 +48,11 @@
                 {% for result in review.results.all %}
                   <p class="p-1">
                     {% if not result.is_most_recent %}<s>{% endif %}
-                      <a href="{{ result.announcement_link }}" class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ result.short_description }}</a>
+                      {% if result.announcement_link %}
+                        <a href="{{ result.announcement_link }}" class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ result.short_description }}</a>
+                      {% else %}
+                        <span class="block items-center py-1 px-2">{{ result.short_description }}</span>
+                      {% endif %}
                     {% if not result.is_most_recent %}</s>{% endif %}
                   </p>
                 {% endfor %}
