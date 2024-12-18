@@ -18,7 +18,9 @@ User = get_user_model()
 def command(clean):
     """Import Boost library reviews from boost.org table data"""
     if clean:
-        click.secho(f"Deleted {Review.objects.all().delete()}\n", fg="yellow")
+        delete_output = Review.objects.all().delete()
+
+        click.secho(f"Deleted {delete_output}\n", fg="yellow")
 
     click.secho("Starting review import from boost.org\n", fg="green")
 
