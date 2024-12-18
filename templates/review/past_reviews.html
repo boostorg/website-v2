@@ -28,7 +28,7 @@
               <td class="p-3 border border-r-0 {% if not forloop.last %}border-b-0 {% endif %}border-gray-400 dark:border-slate">
                 <span class="font-bold md:hidden">Submitter:</span>
                 {% for submitter in review.submitters.all %}
-                  {% avatar user=submitter avatar_type="with_name" %}{% if not forloop.last %}<br/>{% endif %}
+                  {% avatar commitauthor=submitter avatar_type="with_name" %}{% if not forloop.last %}<br/>{% endif %}
                 {% empty %}
                   {{ review.submitter_raw|default:"-" }}
                 {% endfor %}
@@ -36,7 +36,7 @@
               <td class="p-3 border border-r-0 {% if not forloop.last %}border-b-0 {% endif %}border-gray-400 dark:border-slate">
                 <span class="font-bold md:hidden">Review Manager:</span>
                 {% if review.review_manager %}
-                  {% avatar user=review.review_manager avatar_type="with_name" %}
+                  {% avatar commitauthor=review.review_manager avatar_type="with_name" %}
                 {% else %}
                   {{ review.review_manager_raw|default:"-" }}
                 {% endif %}
