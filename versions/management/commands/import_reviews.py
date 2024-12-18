@@ -4,9 +4,8 @@ import requests
 
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.db.models import Q
 
-from libraries.utils import generate_fake_email
+from libraries.models import CommitAuthor
 from versions.models import Review, ReviewResult
 
 User = get_user_model()
@@ -14,14 +13,16 @@ User = get_user_model()
 
 @click.command()
 @click.option(
-    "--dry-run", is_flag=True, help="Parse the data but don't save to database"
+    "--clean", is_flag=True, help="Start by deleting all previously imported reviews"
 )
-@click.option(
-    "--dry-run-users", is_flag=True, help="Save reviews, but don't link users"
-)
-def command(dry_run, dry_run_users):
+def command(clean):
     """Import Boost library reviews from boost.org table data"""
-    click.echo("Starting review import from boost.org")
+    if clean:
+        delete_output = Review.objects.all().delete()
+
+        click.secho(f"Deleted {delete_output}\n", fg="yellow")
+
+    click.secho("Starting review import from boost.org\n", fg="green")
 
     url = "https://www.boost.org/community/review_schedule.html"
     response = requests.get(url)
@@ -43,29 +44,33 @@ def command(dry_run, dry_run_users):
         f"Found {len(upcoming_reviews)} upcoming and {len(past_reviews)} past reviews"
     )
 
-    if dry_run:
-        click.echo("Dry run - no changes made")
-        return
-
     reviews_created = results_created = 0
     # Import everything in a transaction
     with transaction.atomic():
         # Create or update past reviews
         for review_data, results in past_reviews:
-            review = Review.objects.create(**review_data)
-            reviews_created += 1
-            for result in results:
-                ReviewResult.objects.create(review=review, **result)
-                results_created += 1
-
-        # Create or update upcoming reviews
-        for review_data, _ in upcoming_reviews:
-            Review.objects.update_or_create(
+            review, created = Review.objects.update_or_create(
                 submission=review_data["submission"],
                 submitter_raw=review_data["submitter_raw"],
                 defaults=review_data,
             )
-            reviews_created += 1
+            reviews_created += int(created)
+            for result in results:
+                _, created = ReviewResult.objects.update_or_create(
+                    review=review,
+                    short_description=result["short_description"],
+                    defaults=result,
+                )
+                results_created += int(created)
+
+        # Create or update upcoming reviews
+        for review_data, _ in upcoming_reviews:
+            _, created = Review.objects.update_or_create(
+                submission=review_data["submission"],
+                submitter_raw=review_data["submitter_raw"],
+                defaults=review_data,
+            )
+            reviews_created += int(created)
 
     click.secho("\nFinished importing reviews", fg="green")
     click.secho(
@@ -80,19 +85,13 @@ def command(dry_run, dry_run_users):
     with transaction.atomic():
         for review in Review.objects.all():
             # Handle submitters
-            submitter_names = _parse_users_from_raw_names(review.submitter_raw)
-            for first_name, last_name in submitter_names:
-                if dry_run_users:
-                    click.echo(
-                        "Would link submitter: "
-                        f"{first_name} {last_name} to {review.submission}"
-                    )
-                else:
-                    user = _get_user_from_name(first_name, last_name)
-                    if user:
-                        review.submitters.add(user)
-                        users_linked += 1
-                        click.echo(f"Linked submitter {user} to {review.submission}")
+            submitter_names = _parse_raw_names(review.submitter_raw)
+            for name in submitter_names:
+                submitter = CommitAuthor.objects.filter(name=name).first()
+                if submitter:
+                    review.submitters.add(submitter)
+                    users_linked += 1
+                    click.echo(f"Linked submitter {submitter} to {review.submission}")
 
             # Handle review manager
             if (
@@ -100,21 +99,15 @@ def command(dry_run, dry_run_users):
                 and review.review_manager_raw
                 != Review._meta.get_field("review_manager_raw").default
             ):
-                manager_names = _parse_users_from_raw_names(review.review_manager_raw)
+                manager_names = _parse_raw_names(review.review_manager_raw)
                 if manager_names:
-                    first_name, last_name = manager_names[0]
-                    if dry_run_users:
-                        click.echo(
-                            "Would set manager: "
-                            f"{first_name} {last_name} for {review.submission}"
-                        )
-                    else:
-                        user = _get_user_from_name(first_name, last_name)
-                        if user:
-                            review.review_manager = user
-                            review.save()
-                            managers_linked += 1
-                            click.echo(f"Linked manager {user} to {review.submission}")
+                    name = manager_names[0]
+                    manager = CommitAuthor.objects.filter(name=name).first()
+                    if manager:
+                        review.review_manager = manager
+                        review.save()
+                        managers_linked += 1
+                        click.echo(f"Linked manager {manager} to {review.submission}")
 
         click.secho(
             f"\nLinked {users_linked} submitters and {managers_linked} managers",
@@ -187,9 +180,9 @@ def _parse_table(table, past_results=False):
     return reviews
 
 
-def _parse_users_from_raw_names(raw_name_string: str) -> list[tuple[str, str]]:
+def _parse_raw_names(raw_name_string: str) -> list[str]:
     """
-    Parse a raw name string into a list of (first_name, last_name) tuples.
+    Parse a raw name string into a list of individual names.
 
     Marked as private since this is a fairly narrow, clunky solution optimized for
     the names seen in the actual boost.org table.
@@ -202,9 +195,10 @@ def _parse_users_from_raw_names(raw_name_string: str) -> list[tuple[str, str]]:
         "John Doe, Jane Smith, Joaquin M López Muñoz"
 
     Returns a list like:
-        [("John", "Doe"), ("Jane", "Smith"), ("Joaquin M López", "Muñoz")]
+        ["John Doe", "Jane Smith", "Joaquin M López Muñoz"]
     """
-    # Clean up the string - normalize whitespace and separators
+    # Clean up the string - normalize whitespace and separators,
+    # and strip known weird characters and strings
     cleaned = (
         raw_name_string.replace("\n", " & ")
         .replace("\t", " ")
@@ -222,48 +216,4 @@ def _parse_users_from_raw_names(raw_name_string: str) -> list[tuple[str, str]]:
     cleaned = " ".join(cleaned.split())
 
     # Split on & and clean up each name
-    names = [name.strip() for name in cleaned.split("&")]
-    parsed_names = []
-
-    for name in names:
-        if not name:
-            continue
-
-        # Try to split into first and last name
-        parts = name.split()
-        if len(parts) == 1:
-            # Just one name, treat as first name
-            parsed_names.append((parts[0], ""))
-        else:
-            # Assume last word is last name, rest is first name
-            parsed_names.append((" ".join(parts[:-1]), parts[-1]))
-
-    return parsed_names
-
-
-def _get_user_from_name(first_name, last_name):
-    matching_users = User.objects.filter(
-        Q(first_name__iexact=first_name, last_name__iexact=last_name)
-        | Q(
-            first_name__unaccent__iexact=first_name,
-            last_name__unaccent__iexact=last_name,
-        )
-        | Q(display_name__unaccent__iexact=f"{first_name} {last_name}")
-        | Q(display_name__iexact=f"{first_name} {last_name}")
-    )
-    if count := matching_users.count() == 1:
-        return matching_users.first()
-    elif count:
-        click.secho(
-            f"Found multiple users with the same name: {first_name} {last_name}",
-            fg="red",
-        )
-        return None
-
-    # No existing user by this name; create a fake "stub" user
-    fake_email = generate_fake_email(f"{first_name} {last_name}")
-    if user := User.objects.filter(email=fake_email).first():
-        return user
-    return User.objects.create_stub_user(
-        fake_email.lower(), first_name=first_name, last_name=last_name
-    )
+    return [name.strip() for name in cleaned.split("&") if name.strip()]

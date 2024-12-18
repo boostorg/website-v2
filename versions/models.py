@@ -173,9 +173,11 @@ class Review(models.Model):
     # TODO: drop raw fields once users have been linked
     submitter_raw = models.CharField()
     review_manager_raw = models.CharField(blank=True, default="Needed!")
-    submitters = models.ManyToManyField(User, related_name="submitted_reviews")
+    submitters = models.ManyToManyField(
+        "libraries.CommitAuthor", related_name="submitted_reviews"
+    )
     review_manager = models.ForeignKey(
-        User,
+        "libraries.CommitAuthor",
         related_name="managed_reviews",
         null=True,
         default=None,

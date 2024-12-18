@@ -7,6 +7,7 @@
 {% block content %}
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
     <h1 class="text-xl md:text-3xl">Past Review Results and Milestones</h1>
+    <a href="{% url 'review-upcoming' %}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Go to upcoming reviews</a>
     <section class="content my-4 !whitespace-normal">
       <table class="p-0 m-0 max-w-full text-sm text-left border-0 border-separate table-auto dark:text-white border-spacing-0 text-slate dark:bg-charcoal">
         <thead>
@@ -27,7 +28,7 @@
               <td class="p-3 border border-r-0 {% if not forloop.last %}border-b-0 {% endif %}border-gray-400 dark:border-slate">
                 <span class="font-bold md:hidden">Submitter:</span>
                 {% for submitter in review.submitters.all %}
-                  {% avatar user=submitter avatar_type="with_name" %}{% if not forloop.last %}<br/>{% endif %}
+                  {% avatar commitauthor=submitter avatar_type="with_name" %}{% if not forloop.last %}<br/>{% endif %}
                 {% empty %}
                   {{ review.submitter_raw|default:"-" }}
                 {% endfor %}
@@ -35,7 +36,7 @@
               <td class="p-3 border border-r-0 {% if not forloop.last %}border-b-0 {% endif %}border-gray-400 dark:border-slate">
                 <span class="font-bold md:hidden">Review Manager:</span>
                 {% if review.review_manager %}
-                  {% avatar user=review.review_manager avatar_type="with_name" %}
+                  {% avatar commitauthor=review.review_manager avatar_type="with_name" %}
                 {% else %}
                   {{ review.review_manager_raw|default:"-" }}
                 {% endif %}
@@ -48,7 +49,11 @@
                 {% for result in review.results.all %}
                   <p class="p-1">
                     {% if not result.is_most_recent %}<s>{% endif %}
-                      <a href="{{ result.announcement_link }}" class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ result.short_description }}</a>
+                      {% if result.announcement_link %}
+                        <a href="{{ result.announcement_link }}" class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ result.short_description }}</a>
+                      {% else %}
+                        <span class="block items-center py-1 px-2">{{ result.short_description }}</span>
+                      {% endif %}
                     {% if not result.is_most_recent %}</s>{% endif %}
                   </p>
                 {% endfor %}
