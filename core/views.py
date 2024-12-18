@@ -560,11 +560,7 @@ class BaseRedirectView(View):
     @staticmethod
     def get_latest_library_version():
         """Return the latest version for a given library."""
-        most_recent_version = Version.objects.most_recent()
-        if most_recent_version is None:
-            # No versions imported - new dev setup or test
-            return "1.87.0"
-        return most_recent_version.stripped_boost_url_slug
+        return Version.objects.most_recent().stripped_boost_url_slug
 
 
 class RedirectToDocsView(BaseRedirectView):
