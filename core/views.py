@@ -2,6 +2,7 @@ import os
 import re
 
 import structlog
+from bs4 import BeautifulSoup
 from dateutil.parser import parse
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -19,6 +20,7 @@ from django.views import View
 from django.views.generic import TemplateView
 from requests.compat import chardet
 
+from config.settings import STATIC_URL
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.utils import legacy_path_transform
 from versions.models import Version
@@ -461,15 +463,20 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
             else {"data-modernizer": "boost-legacy-docs-extra-head"}
         )
 
+        context["hide_footer"] = True
         context["skip_use_boostbook_v2"] = "/antora/" in self.kwargs.get("content_path")
         if source_content_type == SourceDocType.ASCIIDOC:
-            context["content"] = content.decode(chardet.detect(content)["encoding"])
+            extracted_content = content.decode(chardet.detect(content)["encoding"])
+            soup = BeautifulSoup(extracted_content, "html.parser")
+            soup.find("head").append(
+                soup.new_tag("script", src=f"{STATIC_URL}js/theme_handling.js")
+            )
+            context["content"] = soup.prettify()
         else:
             # potentially pass version if needed for HTML modification
             base_html = render_to_string(
                 "docs_libs_placeholder.html", context, request=self.request
             )
-            context["hide_footer"] = True
             context["content"] = modernize_legacy_page(
                 content,
                 base_html,
