@@ -100,7 +100,7 @@ def command(user_id=None):
     progress = ["___Progress Messages___"]
     handled_commits = {}
     try:
-        run_commands(progress)
+        handled_commits = run_commands(progress)
         end = timezone.now()
         progress.append(progress_message(f"All done! Completed in {end - start}"))
     except Exception:
