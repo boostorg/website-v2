@@ -242,14 +242,14 @@ def update_library_version_dependencies(token=None):
 
 
 @app.task
-def post_release_tasks(user_id=None):
-    """Call the post_release_tasks management command.
+def release_tasks(user_id=None):
+    """Call the release_tasks management command.
 
     If a user_id is given, that user will receive an email at the beginning
     and at the end of the task.
 
     """
-    command = ["post_release_tasks"]
+    command = ["release_tasks"]
     if user_id:
         command.extend(["--user_id", user_id])
     call_command(*command)

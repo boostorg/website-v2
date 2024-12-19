@@ -18,7 +18,7 @@ User = get_user_model()
 def send_notification(user, message):
     if user.email:
         send_mail(
-            "Task Started: post_release_tasks",
+            "Task Started: release_tasks",
             message,
             settings.DEFAULT_FROM_EMAIL,
             [user.email],
@@ -96,9 +96,7 @@ def command(user_id=None):
         user = User.objects.filter(id=user_id).first()
 
     if user:
-        send_notification(
-            user, f"Your task `post_release_tasks` was started at: {start}"
-        )
+        send_notification(user, f"Your task `release_tasks` was started at: {start}")
     progress = ["___Progress Messages___"]
     handled_commits = {}
     try:
@@ -108,7 +106,7 @@ def command(user_id=None):
     except Exception:
         error = traceback.format_exc()
         message = [
-            f"ERROR: There was an error while running post_release_tasks.\n\n{error}",
+            f"ERROR: There was an error while running release_tasks.\n\n{error}",
             "\n".join(progress),
         ]
         if user:
@@ -122,7 +120,7 @@ def command(user_id=None):
             (key, val) for key, val in handled_commits.items() if val == 0
         ]
         message = [
-            f"The task `post_release_tasks` was completed. Task took: {end - start}",
+            f"The task `release_tasks` was completed. Task took: {end - start}",
             "\n".join(progress),
         ]
         if zero_commit_libraries:
