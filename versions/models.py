@@ -115,8 +115,12 @@ class Version(models.Model):
                     "library_id": current_lv.library_id,
                     "added": list(current_dependencies - old_dependencies),
                     "removed": list(old_dependencies - current_dependencies),
-                    "previous_dependencies": prev_dep_objects,
-                    "current_dependencies": current_dep_objects,
+                    "previous_dependencies": sorted(
+                        prev_dep_objects, key=lambda x: x.name.lower()
+                    ),
+                    "current_dependencies": sorted(
+                        current_dep_objects, key=lambda x: x.name.lower()
+                    ),
                     "both": sorted(
                         list(set(prev_dep_objects) | set(current_dep_objects)),
                         key=lambda x: x.name.lower(),

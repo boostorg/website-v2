@@ -350,7 +350,7 @@
                 {% endwith %}
                 <div>
                   There {{ item.issues.opened|pluralize:"was,were" }} {{ item.issues.opened }} issue{{ item.issues.opened|pluralize }} opened
-                  There {{ item.issues.closed|pluralize:"was,were" }} {{ item.issues.closed }} issue{{ item.issues.closed|pluralize }} closed
+                  and {{ item.issues.closed|pluralize:"was,were" }} {{ item.issues.closed }} issue{{ item.issues.closed|pluralize }} closed
                 </div>
                 {% if item.deps.added or item.deps.removed %}
                   <div>
