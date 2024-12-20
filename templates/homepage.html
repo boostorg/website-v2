@@ -7,16 +7,6 @@
   {# homepage hero #}
   <main class="px-0 md:px-4 my-4 mx-auto sm:mt-4">
     <div class="md:flex mb-16 md:mb-5">
-<style>
-  .toon {
-    {#background-image: url('{% static 'img/boost-toon.png' %}');#}
-    background-image: url('{% static 'img/boost-toon.jpg' %}');
-    background-size: cover;
-    width: 100%;
-    min-height: 19rem;
-  }
-</style>
-
       <div class="mt-6 w-full text-center md:mt-3 flex flex-col-reverse md:flex-row justify-between">
         <div class="flex md:flex-col items-center justify-top">
           <div class="hidden md:block toon w-max h-max mx-auto my-3 rounded-lg"></div>
@@ -98,7 +88,7 @@
                     <span class="pb-1 mx-auto w-full text-sm md:text-base align-left">
                       <strong>{{ event.start.date }}:</strong> {{ event.name }}
                       <br />
-                      <div class="pt-1 pl-4 font-light">{{ event.description }}</div>
+                      <span class="pt-1 pl-4 font-light">{{ event.description }}</span>
                       <br />
                     </span>
                     {% endfor %}
@@ -283,6 +273,18 @@
   </main>
   <!-- End Homepage Hero Section -->
 
+{% endblock %}
+
+{% block css %}
+  <style>
+    .toon {
+      {#background-image: url('{% static 'img/boost-toon.png' %}');#}
+      background-image: url('{% static 'img/boost-toon.jpg' %}');
+      background-size: cover;
+      width: 100%;
+      min-height: 19rem;
+    }
+  </style>
 {% endblock %}
 
 {% block footer_js %}
