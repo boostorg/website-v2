@@ -1,3 +1,4 @@
+from django.db import transaction
 import requests
 import structlog
 
@@ -62,10 +63,11 @@ def import_versions(
         logger.info("import_versions_importing_version", version_name=name)
         import_version_task_group.append(import_version.s(name, tag=tag, token=token))
 
-    task_group = group(*import_version_task_group)
-    if purge_after:
-        task_group.link(purge_fastly_release_cache.s())
-    task_group()
+    if import_version_task_group:
+        task_group = group(*import_version_task_group)
+        if purge_after:
+            task_group.link(purge_fastly_release_cache.s())
+        task_group()
     import_release_notes.delay()
 
 
@@ -185,23 +187,24 @@ def import_most_recent_beta_release(token=None, delete_old=False):
         delete_old (bool): If True, deletes all existing beta Version instances
             before importing.
     """
-    if delete_old:
-        Version.objects.filter(beta=True).delete()
-        logger.info("import_most_recent_beta_release_deleted_all_versions")
-
     most_recent_version = Version.objects.most_recent()
     # Get all Boost tags from Github
     client = GithubAPIClient(token=token)
     tags = client.get_tags()
 
-    for tag in tags:
-        name = tag["name"]
-        # Get the most recent beta version that is at least as recent as
-        # the most recent stable version
-        if "beta" in name and name >= most_recent_version.name:
-            logger.info("import_most_recent_beta_release", version_name=name)
-            import_version.delay(name, tag, token=token, beta=True, full_release=False)
-            return
+    with transaction.atomic():
+        if delete_old:
+            Version.objects.filter(beta=True).delete()
+            logger.info("import_most_recent_beta_release_deleted_all_versions")
+
+        for tag in tags:
+            name = tag["name"]
+            # Get the most recent beta version that is at least as recent as
+            # the most recent stable version
+            if "beta" in name and name >= most_recent_version.name:
+                logger.info("import_most_recent_beta_release", version_name=name)
+                import_version(name, tag, token=token, beta=True, full_release=False)
+                return
 
 
 LIBRARY_KEY_EXCEPTIONS = {
