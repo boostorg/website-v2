@@ -665,6 +665,15 @@ class CreateReportForm(CreateReportFullForm):
             "new_user_count": new_user_count,
         }
 
+    def _get_dependency_data(self, library_order, version):
+        diffs_by_id = {
+            x["library_id"]: x for x in version.get_dependency_diffs().values()
+        }
+        diffs = []
+        for lib_id in library_order:
+            diffs.append(diffs_by_id.get(lib_id, {}))
+        return diffs
+
     def get_stats(self):
         version = self.cleaned_data["version"]
 
@@ -705,15 +714,16 @@ class CreateReportForm(CreateReportFullForm):
         )
         library_data = [
             {
-                "library": a,
-                "full_count": b,
-                "version_count": c,
-                "top_contributors_release": d,
-                "new_contributors_count": e,
-                "issues": f,
-                "library_version": g,
+                "library": item[0],
+                "full_count": item[1],
+                "version_count": item[2],
+                "top_contributors_release": item[3],
+                "new_contributors_count": item[4],
+                "issues": item[5],
+                "library_version": item[6],
+                "deps": item[7],
             }
-            for a, b, c, d, e, f, g in zip(
+            for item in zip(
                 sorted(list(libraries), key=lambda x: library_order.index(x.id)),
                 self._get_library_full_counts(libraries, library_order),
                 self._get_library_version_counts(libraries, library_order),
@@ -721,6 +731,7 @@ class CreateReportForm(CreateReportFullForm):
                 self._count_new_contributors(libraries, library_order),
                 self._count_issues(libraries, library_order, version),
                 self._get_library_versions(library_order, version),
+                self._get_dependency_data(library_order, version),
             )
         ]
         library_data = [

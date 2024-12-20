@@ -276,6 +276,7 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, DetailView):
         )
         # Populate the commit graphs
         context["commit_data_by_release"] = self.get_commit_data_by_release()
+        context["dependency_diff"] = self.get_dependency_diff(library_version)
 
         # Populate the library description
         client = GithubAPIClient(repo_slug=self.object.github_repo)
@@ -284,6 +285,12 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, DetailView):
             or README_MISSING
         )
         return context
+
+    def get_dependency_diff(self, library_version):
+        diffs = library_version.version.get_dependency_diffs(
+            library=library_version.library
+        )
+        return diffs.get(library_version.library.name, {})
 
     def get_commit_data_by_release(self):
         qs = (
