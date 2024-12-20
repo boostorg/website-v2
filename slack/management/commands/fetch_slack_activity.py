@@ -212,29 +212,32 @@ def do_thread(thread: Thread, debug: bool):
             thread.save()
 
 
-def locked(fn):
+def locked(lock_id):
     """
     Runs the decorated function while holding a lock to prevent multiple
     concurrent instances.
     """
 
-    @functools.wraps(fn)
-    def inner(*args, **kwargs):
-        cur = connection.cursor()
-        ID = 1028307  # random number to identify this command
-        cur.execute("SELECT pg_try_advisory_lock(%s);", [ID])
-        (got_lock,) = cur.fetchone()
-        if not got_lock:
-            raise CommandError(
-                "Could not obtain lock: "
-                "another instance of this command must be running."
-            )
-        try:
-            return fn(*args, **kwargs)
-        finally:
-            cur.execute("SELECT pg_advisory_unlock(%s);", [ID])
+    def decorator_factory(fn):
+        @functools.wraps(fn)
+        def inner(*args, **kwargs):
+            cur = connection.cursor()
+            ID = lock_id  # random number to identify this command
+            cur.execute("SELECT pg_try_advisory_lock(%s);", [ID])
+            (got_lock,) = cur.fetchone()
+            if not got_lock:
+                raise CommandError(
+                    "Could not obtain lock: "
+                    "another instance of this command must be running."
+                )
+            try:
+                return fn(*args, **kwargs)
+            finally:
+                cur.execute("SELECT pg_advisory_unlock(%s);", [ID])
 
-    return inner
+        return inner
+
+    return decorator_factory
 
 
 @click.command()
@@ -247,7 +250,7 @@ def locked(fn):
         "detect bugs (uses lots of database space)."
     ),
 )
-@locked
+@locked(1028307)
 def command(channels, debug):
     """
     Download slack activity from channels the bot is a member of.

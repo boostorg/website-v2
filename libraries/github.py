@@ -508,9 +508,11 @@ class LibraryUpdater:
             lv.files_changed = diff.files_changed
             return lv
 
+        commits_handled = 0
         for item in get_commit_data_for_repo_versions(obj.key):
             match item:
                 case ParsedCommit():
+                    commits_handled += 1
                     commits.append(handle_commit(item))
                 case VersionDiffStat():
                     library_version_updates.append(handle_version_diff_stat(item))
@@ -530,6 +532,7 @@ class LibraryUpdater:
                 library_version_updates,
                 ["insertions", "deletions", "files_changed"],
             )
+        return commits_handled
 
     def update_commit_author_github_data(self, obj=None, email=None, overwrite=False):
         """Update CommitAuthor data by parsing data on their most recent commit."""

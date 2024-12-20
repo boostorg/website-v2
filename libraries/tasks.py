@@ -194,10 +194,14 @@ def update_authors_and_maintainers():
 
 @app.task
 def update_commits(token=None, clean=False):
+    # dictionary of library_key: int
+    commits_handled: dict[str, int] = {}
     updater = LibraryUpdater(token=token)
     for library in Library.objects.all():
-        updater.update_commits(obj=library, clean=clean)
+        logger.info("Importing commits for library.", library=library)
+        commits_handled[library.key] = updater.update_commits(obj=library, clean=clean)
     logger.info("update_commits finished.")
+    return commits_handled
 
 
 @app.task
@@ -234,4 +238,18 @@ def update_library_version_dependencies(token=None):
     command = ["update_library_version_dependencies"]
     if token:
         command.extend(["--token", token])
+    call_command(*command)
+
+
+@app.task
+def release_tasks(user_id=None):
+    """Call the release_tasks management command.
+
+    If a user_id is given, that user will receive an email at the beginning
+    and at the end of the task.
+
+    """
+    command = ["release_tasks"]
+    if user_id:
+        command.extend(["--user_id", user_id])
     call_command(*command)
