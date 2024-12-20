@@ -27,6 +27,7 @@ from core.views import (
     RedirectToToolsView,
     StaticContentTemplateView,
     UserGuideTemplateView,
+    BoostDevelopmentView,
 )
 from libraries.api import LibrarySearchView
 from libraries.views import (
@@ -148,6 +149,11 @@ urlpatterns = (
         ),
         # Boost community calendar
         path("calendar/", CalendarView.as_view(), name="calendar"),
+        path(
+            "boost-development/",
+            BoostDevelopmentView.as_view(),
+            name="boost-development",
+        ),
         # Boost versions views
         path("releases/", VersionDetail.as_view(), name="releases-most-recent"),
         path(
