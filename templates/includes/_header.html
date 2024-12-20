@@ -27,7 +27,7 @@
     </div>
     <div class="right-menubar" x-data="{ 'searchOpen': false }">
         <span style="position: relative;" x-ref="desktopSearchArea">
-         <i id="gecko-search-button" data-current-boost-version="latest" data-theme-mode="light" data-font-family="sans-serif" class="fas fa-search icon-link"></i>
+         <i id="gecko-search-button" data-current-boost-version="{{ current_version.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="sans-serif" class="fas fa-search icon-link"></i>
         </span>
         <span x-data="{ 'guideOpen': false }" style="position:relative;">
             <i class="icon-link fas fa-question-circle" @click="guideOpen = !guideOpen"></i>
