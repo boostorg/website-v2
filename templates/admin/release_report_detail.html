@@ -349,9 +349,16 @@
                   {% endif %}
                 {% endwith %}
                 <div>
-                  There {{ item.issues.opened|pluralize:"was,were" }} {{ item.issues.opened }} issue{{ item.issues.opened|pluralize }} opened.
-                  There {{ item.issues.closed|pluralize:"was,were" }} {{ item.issues.closed }} issue{{ item.issues.closed|pluralize }} closed.
+                  There {{ item.issues.opened|pluralize:"was,were" }} {{ item.issues.opened }} issue{{ item.issues.opened|pluralize }} opened
+                  and {{ item.issues.closed|pluralize:"was,were" }} {{ item.issues.closed }} issue{{ item.issues.closed|pluralize }} closed
                 </div>
+                {% if item.deps.added or item.deps.removed %}
+                  <div>
+                    There {{ item.deps.added|length|pluralize:"was,were" }} {{ item.deps.added|length }} dependenc{{ item.deps.added|length|pluralize:"y,ies" }} added
+                    and
+                    {{ item.deps.removed|length }} dependenc{{ item.deps.removed|length|pluralize:"y,ies" }} removed
+                  </div>
+                {% endif %}
               </div>
             </div>
           </div>
