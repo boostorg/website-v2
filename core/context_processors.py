@@ -25,7 +25,7 @@ def active_nav_item(request):
         "/doc/libs/": NavItem.LIBRARIES,  # special case - handle first
         "/doc/": NavItem.LEARN,
         "/docs/": NavItem.LEARN,
-        "boost-development/": NavItem.LEARN,
+        "/boost-development/": NavItem.LEARN,
         "/news/": NavItem.NEWS,
         "/community/": NavItem.COMMUNITY,
         "/library/": NavItem.LIBRARIES,
