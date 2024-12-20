@@ -59,12 +59,24 @@ class VersionDetail(BoostVersionMixin, VersionAlertMixin, DetailView):
         context["top_contributors_release"] = self.get_top_contributors_release(obj)
 
         context["documentation_url"] = obj.documentation_url
+        context["deps"] = self.get_library_version_dependencies(obj)
         if context["version_str"] == LATEST_RELEASE_URL_PATH_STR:
             context["documentation_url"] = library_doc_latest_transform(
                 obj.documentation_url
             )
             context["version_alert"] = False
         return context
+
+    def get_library_version_dependencies(self, version: Version):
+        diffs = version.get_dependency_diffs()
+        added = [len(x["added"]) for x in diffs.values() if x["added"]]
+        removed = [len(x["removed"]) for x in diffs.values() if x["removed"]]
+        return {
+            "added": sum(added),
+            "removed": sum(removed),
+            "increased_dep_lib_count": len(added),
+            "decreased_dep_lib_count": len(removed),
+        }
 
     def get_top_contributors_release(self, version: Version):
         version_commits = Commit.objects.filter(library_version__version=version)

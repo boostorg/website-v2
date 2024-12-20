@@ -67,6 +67,63 @@ class Version(models.Model):
         name = self.name.replace(".", " ").replace("boost_", "")
         return slugify(name)[:50]
 
+    def get_dependency_diffs(self, library=None):
+        """Computes added, removed and unchanged dependencies.
+
+        - Computed for all LibraryVersion models, between this Version and the
+          previous Version.
+        - Only boost-x.x.0 versions are considered, as given by
+          Version.objects.minor_versions()
+
+        If library is given, the query is constrained to only one library.
+
+        """
+        from libraries.models import LibraryVersion
+
+        current_library_versions = (
+            LibraryVersion.objects.filter(version=self)
+            .select_related("library")
+            .prefetch_related("dependencies")
+        )
+        previous_library_versions = (
+            LibraryVersion.objects.filter(
+                version__in=self.__class__.objects.minor_versions()
+                .filter(version_array__lt=self.cleaned_version_parts_int)
+                .order_by("-version_array")[:1],
+            )
+            .select_related("library")
+            .prefetch_related("dependencies")
+        )
+        if library:
+            current_library_versions = current_library_versions.filter(library=library)
+            previous_library_versions = previous_library_versions.filter(
+                library=library
+            )
+        diffs = {}
+        if previous_library_versions and current_library_versions:
+            prev = {x.library.name: x for x in previous_library_versions}
+            current = {x.library.name: x for x in current_library_versions}
+            for key, current_lv in current.items():
+                prev_lv = prev.get(key)
+                if not prev_lv:
+                    continue
+                prev_dep_objects = prev_lv.dependencies.all()
+                current_dep_objects = current_lv.dependencies.all()
+                old_dependencies = {x.name for x in prev_dep_objects}
+                current_dependencies = {x.name for x in current_dep_objects}
+                diffs[key] = {
+                    "library_id": current_lv.library_id,
+                    "added": list(current_dependencies - old_dependencies),
+                    "removed": list(old_dependencies - current_dependencies),
+                    "previous_dependencies": prev_dep_objects,
+                    "current_dependencies": current_dep_objects,
+                    "both": sorted(
+                        list(set(prev_dep_objects) | set(current_dep_objects)),
+                        key=lambda x: x.name.lower(),
+                    ),
+                }
+        return diffs
+
     @cached_property
     def display_name(self):
         return self.name.replace("boost-", "")
