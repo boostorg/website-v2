@@ -124,11 +124,10 @@ def command(user_id=None):
             "\n".join(progress),
         ]
         if zero_commit_libraries:
-            zero_commit_message = []
-            zero_commit_message.append(
-                "The import_commits task did not find commits for these libraries."
-            )
-            zero_commit_message.append("The task may need to re-run.")
+            zero_commit_message = [
+                "The import_commits task did not find commits for these libraries.",
+                "The task may need to re-run.",
+            ]
             for lib, _ in zero_commit_libraries:
                 zero_commit_message.append(lib)
             message.append("\n".join(zero_commit_message))
