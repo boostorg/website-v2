@@ -440,9 +440,19 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 .boostlook code,
-.boostlook pre code {
+.boostlook pre code,
+.boostlook .doc .content pre code {
   font-family: "Noto Sans Mono", monospace;
   margin-bottom: 1.25rem;
+  overflow-x: auto !important;
+  scrollbar-width: none !important;
+}
+
+.boostlook code::-webkit-scrollbar,
+.boostlook pre code::-webkit-scrollbar,
+.boostlook .doc .content pre code::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .boostlook em,
@@ -607,6 +617,7 @@ p, h1, h2, h3, h4, h5, h6 {
 
 .boostlook #content {
   padding-top: 1.25rem;
+  padding-bottom: .50rem;
 }
 
 .boostlook #footer {
@@ -618,49 +629,77 @@ p, h1, h2, h3, h4, h5, h6 {
 .boostlook h2:first-of-type {
   margin-top: 0;
 }
-
-/* Base scrollbar styles */
-html::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* Scrollbar styling */
+/* Antora template - Hide root scrollbars */
+html:has(.article > .boostlook) {
+  height: 100vh;
+  overflow: hidden;
 }
 
-html::-webkit-scrollbar-track {
-  background: var(--bl-scrollbar-track-color);
+/* Hide scrollbars for iframe container but keep content scrollable */
+html:has(#docsiframe) {
+  overflow-y: hidden;
+  scrollbar-width: thin;
 }
 
-html::-webkit-scrollbar-thumb {
+/* Chrome/Edge scrollbar for iframe container */
+html:has(#docsiframe)::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Firefox scrollbar hiding for iframe */
+html:has(#docsiframe) {
+  scrollbar-width: none;
+}
+
+/* Navigation/Table Of Contents scrollbar */
+.boostlook .nav {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bl-scrollbar-thumb-color) var(--bl-scrollbar-track-color);
+}
+
+/* Chrome/Edge - Navigation scrollbar */
+.boostlook .nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.boostlook .nav::-webkit-scrollbar-thumb {
   background-color: var(--bl-scrollbar-thumb-color);
-  border-radius: 4px;
+  border-radius: 10px;
 }
 
-html::-webkit-scrollbar-thumb:hover {
-  background-color: var(--bl-scrollbar_hover-thumb-color);
+.boostlook .nav::-webkit-scrollbar-track {
+  background-color: var(--bl-scrollbar-track-color);
 }
 
-/* Firefox support */
-@supports (scrollbar-width: thin) {
-  html {
-    scrollbar-width: thin;
-    scrollbar-color: var(--bl-scrollbar-thumb-color) var(--bl-scrollbar-track-color);
-  }
+/* Antora template - Scrollable content area with styled scrollbar */
+.boostlook #content:has(> .doc) {
+  overflow-y: auto;
+  height: 100vh;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bl-scrollbar-thumb-color) var(--bl-scrollbar-track-color);
+}
 
-  html:hover {
-    scrollbar-color: var(--bl-scrollbar_hover-thumb-color) var(--bl-scrollbar-track-color);
-  }
+/* Chrome/Edge - Content scrollbar */
+.boostlook #content::-webkit-scrollbar {
+  width: 6px;
+}
 
-  html:not(:has(.boostlook)) {
-    overflow: hidden;
-  }
+.boostlook #content::-webkit-scrollbar-thumb {
+  background-color: var(--bl-scrollbar-thumb-color);
+  border-radius: 10px;
+}
 
-  html:not(:has(.boostlook)):hover {
-    overflow: auto;
-  }
+.boostlook #content::-webkit-scrollbar-track {
+  background-color: var(--bl-scrollbar-track-color);
+}
 
-  html:has(.boostlook) .nav {
-    scrollbar-width: thin;
-    scrollbar-color: var(--bl-scrollbar-thumb-color) var(--bl-scrollbar-track-color);
-  }
+/* Asciidoc template - Content fits height and allows overflow */
+.boostlook:has(#content > .sect1) {
+  scrollbar-width: thin;
+  overflow-y: auto;
+  height: 100vh;
 }
 
 /*----------------- Global Styles for .boostlook end -----------------*/
@@ -682,6 +721,7 @@ html::-webkit-scrollbar-thumb:hover {
   margin-bottom: 1.25rem;
   padding: 1rem;
   overflow-x: auto;
+  scrollbar-width: none;
   border-color: var(--bl-code-border-color);
 }
 
@@ -911,6 +951,7 @@ html::-webkit-scrollbar-thumb:hover {
 /* Typography */
 .boostlook .doc {
   line-height: 1.5rem;
+  padding-bottom: 1.5rem;
 }
 
 .boostlook .doc,
