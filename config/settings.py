@@ -300,25 +300,16 @@ if HYPERKITTY_DATABASE_NAME:
 else:
     HYPERKITTY_DATABASE_URL = ""
 
-# Mailman API credentials
-MAILMAN_REST_API_URL = env("MAILMAN_REST_API_URL", default="http://localhost:8001")
-MAILMAN_REST_API_USER = env("MAILMAN_REST_API_USER", default="restadmin")
-MAILMAN_REST_API_PASS = env("MAILMAN_REST_API_PASS", default="restpass")
-MAILMAN_ARCHIVER_KEY = env("MAILMAN_ARCHIVER_KEY", default="password")
-MAILMAN_ELASTIC_INDEX = env("MAILMAN_ELASTIC_INDEX", default="haystack")
-MAILMAN_HAYSTACK_URL = env("MAILMAN_HAYSTACK_URL", default="http://127.0.0.1:9200/")
+MAILMAN_CORE_DATABASE = env("MAILMAN_CORE_DATABASE", default="unknown")
 
 # Fastly API credentials
 FASTLY_SERVICE = env("FASTLY_SERVICE", default="empty")
 FASTLY_SERVICE2 = env("FASTLY_SERVICE2", default="empty")
 FASTLY_API_TOKEN = env("FASTLY_API_TOKEN", default="empty")
 
-# Must still be configured:
 HAYSTACK_CONNECTIONS = {
     "default": {
-        "ENGINE": "haystack.backends.elasticsearch7_backend.Elasticsearch7SearchEngine",
-        "URL": MAILMAN_HAYSTACK_URL,
-        "INDEX_NAME": MAILMAN_ELASTIC_INDEX,
+        "ENGINE": "haystack.backends.simple_backend.SimpleEngine",
     },
 }
 
