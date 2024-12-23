@@ -7,16 +7,6 @@
   {# homepage hero #}
   <main class="px-0 md:px-4 my-4 mx-auto sm:mt-4">
     <div class="md:flex mb-16 md:mb-5">
-<style>
-  .toon {
-    {#background-image: url('{% static 'img/boost-toon.png' %}');#}
-    background-image: url('{% static 'img/boost-toon.jpg' %}');
-    background-size: cover;
-    width: 100%;
-    min-height: 19rem;
-  }
-</style>
-
       <div class="mt-6 w-full text-center md:mt-3 flex flex-col-reverse md:flex-row justify-between">
         <div class="flex md:flex-col items-center justify-top">
           <div class="hidden md:block toon w-max h-max mx-auto my-3 rounded-lg"></div>
@@ -52,12 +42,12 @@
         <div class="flex lg:mr-4 my-auto pt-8 lg:w-1/2 justify-center">
           <div class="grid grid-cols-2 w-full justify-items-center">
             <div class="items-center text-center px-4">
-              <img class="mx-auto mb-2" src="{% static 'img/icons/icon-download-grn.svg' %}" alt="Downloads" />
+              <img class="mx-auto mb-2" src="{% static 'img/icons/icon-download-grn.svg' %}" alt="Downloads">
               <h4 class="mb-3 text-5xl">10M+</h4>
               Total Downloads
             </div>
             <div class="items-center text-center px-4">
-              <img class="mx-auto mb-2" src="{% static 'img/icons/icon-library-grn.svg' %}" alt="Libraries" />
+              <img class="mx-auto mb-2" src="{% static 'img/icons/icon-library-grn.svg' %}" alt="Libraries">
               <h4 class="mb-3 text-5xl">165+</h4>
               Individual Libraries
             </div>
@@ -98,7 +88,7 @@
                     <span class="pb-1 mx-auto w-full text-sm md:text-base align-left">
                       <strong>{{ event.start.date }}:</strong> {{ event.name }}
                       <br />
-                      <div class="pt-1 pl-4 font-light">{{ event.description }}</div>
+                      <span class="pt-1 pl-4 font-light">{{ event.description }}</span>
                       <br />
                     </span>
                     {% endfor %}
@@ -223,7 +213,7 @@
               <h2 class="flex items-center pb-2 mb-3 text-lg md:text-2xl lg:text-2xl font-semibold mr-4 border-b border-gray-400 dark:border-slate">
                 {% if entry.author.image %}
                   <span class="flex flex-shrink-0 items-center h-[36px] w-[36px] overflow-hidden rounded-lg border border-gray-400 dark:border-gray-500">
-                    <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
+                    <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover">
                   </span>
                 {% else %}
                   <span class="flex items-center justify-center h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
@@ -283,6 +273,18 @@
   </main>
   <!-- End Homepage Hero Section -->
 
+{% endblock %}
+
+{% block css %}
+  <style>
+    .toon {
+      {#background-image: url('{% static 'img/boost-toon.png' %}');#}
+      background-image: url('{% static 'img/boost-toon.jpg' %}');
+      background-size: cover;
+      width: 100%;
+      min-height: 19rem;
+    }
+  </style>
 {% endblock %}
 
 {% block footer_js %}
