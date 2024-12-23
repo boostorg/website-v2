@@ -108,7 +108,7 @@ data:
       location = /community/requests.html { return 301 /community/; }
       location = /community/reviews.html { return 301 /review/; }
       location = /community/review_schedule.html { return 301 /review/past/; }
-      location = /development/index.html { return 301 /doc/contributor-guide/index.html; }
+      location = /development/index.html { return 301 /boost-development/; }
       location = /development/submissions.html { return 301 /review/; }
       location = /development/bugs.html { return 301 /doc/user-guide/reporting-issues.html; }
       location = /development/pull_requests.php { return 301 $scheme://$host; }
