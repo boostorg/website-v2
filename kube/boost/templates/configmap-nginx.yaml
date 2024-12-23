@@ -87,9 +87,9 @@ data:
       location = /more/getting_started/index.html { return 301 /doc/user-guide/getting-started.html; }
       location = /map.html { return 301 /docs/; }
       location = /users/ { return 301 /doc/user-guide/index.html; }
-      location = /users/download/ { return 301 /releases; }
+      location = /users/download/ { return 301 /releases/; }
       location = /users/news/ { return 301 /news/; }
-      location = /users/history/ { return 301 /releases; }
+      location = /users/history/ { return 301 /releases/; }
       location = /users/license.html { return 301 /doc/user-guide/bsl.html; }
       location = /users/memoriam.html { return 301 /doc/user-guide/in-memoriam-beman-dawes.html; }
       location = /users/memoriam/beman_dawes.html { return 301 /doc/user-guide/in-memoriam-beman-dawes.html; }
@@ -123,9 +123,9 @@ data:
       location = /development/header.html { return 301 /doc/contributor-guide/design-guide/headers.html; }
       location = /development/separate_compilation.html { return 301 /doc/contributor-guide/design-guide/separate-compilation.html; }
       location = /development/library_metadata.html { return 301 /doc/contributor-guide/requirements/library-metadata.html; }
-      location = /doc/ { return 301 /libraries; }
-      location = /doc/libs/ { return 301 /libraries; }
-      location = /build/ { return 301 /tools/build; }
+      location = /doc/ { return 301 /libraries/; }
+      location = /doc/libs/ { return 301 /libraries/; }
+      location = /build/ { return 301 /tools/build/; }
       location = /more/lib_guide.htm { return 301 /doc/contributor-guide/index.html; }
 
       include /etc/nginx/mime.types;
