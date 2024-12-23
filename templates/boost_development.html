@@ -3,11 +3,11 @@
 {% block title %}Boost Development{% endblock %}
 
 {% block content_wrapper %}
-<div class="container px-4 mb-8 mx-auto">
+<div class="px-4 mb-8 w-full">
   <div class="flex justify-start items-center my-4">
       <h1 class="text-3xl">Development</h1>
   </div>
-  <div class="mb-6 p-6 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+  <div class="mb-6 p-6 w-full bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
     <p class="py-2">Boost sources are on <a href="https://github.com/boostorg" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">GitHub</a>.</p>
     <p class="py-2">
       Boost developers constitute a wide array of people throughout much of the world.
@@ -20,9 +20,9 @@
       <a href="http://www.openhub.net/" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Black Duck Open Hub</a>
       provide a peek into what goes into Boost:
     </p>
-    <div class="flex justify-around items-center my-4">
-      <div><iframe src="https://openhub.net/p/boost/widgets/project_languages" style="height: 193px; width: 350px; border: none;" scrolling="no"></iframe></div>
-      <div><iframe src="https://openhub.net/p/boost/widgets/project_cocomo" style="height: 190px; width: 350px; border: none;" scrolling="no"></iframe></div>
+    <div class="flex-row md:flex justify-around items-center my-4">
+      <div><iframe class="mx-auto" src="https://openhub.net/p/boost/widgets/project_languages" style="height: 193px; width: 350px; border: none;" scrolling="no"></iframe></div>
+      <div><iframe class="mx-auto" src="https://openhub.net/p/boost/widgets/project_cocomo" style="height: 190px; width: 350px; border: none;" scrolling="no"></iframe></div>
     </div>
   </div>
   <div class="p-6 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
