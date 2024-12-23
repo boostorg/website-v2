@@ -66,6 +66,10 @@ class CalendarView(TemplateView):
         return self.render_to_response(context)
 
 
+class BoostDevelopmentView(CalendarView):
+    template_name = "boost_development.html"
+
+
 class ClearCacheView(UserPassesTestMixin, View):
     http_method_names = ["get"]
     login_url = "/login/"
