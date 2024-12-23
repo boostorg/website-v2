@@ -116,7 +116,7 @@
           <div class="hidden pt-2 mt-4 text-xs text-left md:block min-w-[70px] relative group">
             {% if entry.author.image %}
               <span class="inline-block h-[36px] w-[36px] overflow-hidden rounded-lg bg-white dark:bg-slate">
-                <img src="{{ entry.author.image_thumbnail.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
+                <img src="{{ entry.author.image_thumbnail.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover">
               </span>
             {% else %}
               <span class="inline-block h-[36px] w-[36px] bg-white rounded-lg dark:text-white dark:bg-slate">
@@ -190,7 +190,7 @@
               <div class="pt-2 mt-4 w-1/3 text-xs text-right">
                 {% if entry.author.image %}
                   <span class="inline-block h-[36px] w-[36px] overflow-hidden rounded-lg  ">
-                    <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover" />
+                    <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover">
                   </span>
                 {% else %}
                   <span class="inline-block h-[36px] w-[36px] bg-white rounded-lg dark:text-white dark:bg-slate border">
