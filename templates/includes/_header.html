@@ -384,46 +384,6 @@
       nav[0].classList.add('hidenav');
     }
 
-    // *********** manage theming *************
-    function setColorElements(colorMode) {
-      let iconchange = document.getElementById("light-dark")
-      if (!iconchange) {
-        return;
-      }
-      if (colorMode == "dark") {
-        iconchange.classList.remove('fa-moon');
-        iconchange.classList.add('fa-sun');
-        document.documentElement.classList.remove("light");
-      } else {
-        iconchange.classList.remove('fa-sun');
-        iconchange.classList.add('fa-moon');
-        document.documentElement.classList.remove("dark");
-      }
-      document.documentElement.classList.add(colorMode);
-    }
-
-    function getBrowserColorMode(win) {
-      // win is the appropriate window object
-      const prefersDark = win.matchMedia('(prefers-color-scheme: dark)').matches;
-      return prefersDark ? "dark" : "light";
-    }
-
-    function checkmedia() {
-      const relevantWindow = window.parent || window;
-      let browserColorMode = null;
-      const userColorMode = localStorage.getItem("colorMode");
-      if (!relevantWindow.matchMedia) {
-        browserColorMode = getBrowserColorMode(relevantWindow);
-        //  transparently removed on next load if matches browser setting
-        if (userColorMode === browserColorMode) {
-          localStorage.removeItem("colorMode");
-        }
-      }
-      setColorElements(userColorMode || browserColorMode || "light");
-    }
-
-    checkmedia();
-
       // ************ Mobile Navigation **************
       let containingElement = document.getElementById("pageselector");
       document.body.addEventListener('click', function( event ){
