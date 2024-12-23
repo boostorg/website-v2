@@ -1,42 +1,40 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Create News" %}{% endblock %}
+{% block title %}
+  {% trans 'Create News' %}
+{% endblock %}
 
 {% block content %}
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
     <div class="md:w-full">
-      <h1 class="text-4xl text-center capitalize">{% translate "Create news" %}</h1>
-      <p class="mt-0 text-center">
-        Select the kind of news you would like to submit.
-      </p>
+      <h1 class="text-3xl text-center capitalize">{% translate 'Create news' %}</h1>
+      <p class="mt-0 text-center">Select the kind of news you would like to submit.</p>
 
       <div class="divide-y divide-gray-300">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 py-5 w-[70%] mx-auto">
           {% for item in items %}
-
             {# Hide polls for now #}
-            {% if item.model_name != "Poll" %}
-            <a href="{% url item.add_url_name %}" class="p-5 font-semibold text-center bg-white rounded-lg dark:text-white dark:bg-slate hover:bg-white/60">
-              {% if item.model_name == "BlogPost" %}
-              <i class="mr-3 fas fa-newspaper"></i> Blog Post
-              {% elif item.model_name == "Poll" %}
-              <i class="mr-3 fas fa-poll"></i> Poll
-              {% elif item.model_name == "Video" %}
-              <i class="mr-3 fas fa-video"></i> Video
-              {% elif item.model_name == "Link" %}
-              <i class="mr-3 fas fa-link"></i> Link
-              {% elif item.model_name == "News" %}
-              <i class="mr-3 fas fa-bell"></i> News
-              {% else %}
-              {{ item.model_name }}
-              {% endif %}
-            </a>
+            {% if item.model_name != 'Poll' %}
+              <a href="{% url item.add_url_name %}" class="p-5 font-semibold text-center bg-white rounded-lg dark:text-white dark:bg-slate hover:bg-white/60">
+                {% if item.model_name == 'BlogPost' %}
+                  <i class="mr-3 fas fa-newspaper"></i> Blog Post
+                {% elif item.model_name == 'Poll' %}
+                  <i class="mr-3 fas fa-poll"></i> Poll
+                {% elif item.model_name == 'Video' %}
+                  <i class="mr-3 fas fa-video"></i> Video
+                {% elif item.model_name == 'Link' %}
+                  <i class="mr-3 fas fa-link"></i> Link
+                {% elif item.model_name == 'News' %}
+                  <i class="mr-3 fas fa-bell"></i> News
+                {% else %}
+                  {{ item.model_name }}
+                {% endif %}
+              </a>
             {% endif %}
           {% endfor %}
         </div>
       </div>
     </div>
   </div>
-
 {% endblock %}

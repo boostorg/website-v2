@@ -31,7 +31,7 @@
   }
   h2 {
     @apply text-slate dark:text-white;
-    @apply text-4xl;
+    @apply text-3xl;
     @apply my-5;
   }
   h3 {
