@@ -1,20 +1,18 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
 
-{% block title %}{% trans "Community" %}{% endblock %}
+{% block title %}
+  {% trans 'Community' %}
+{% endblock %}
 
 {% block content %}
   <div class="py-0 px-0 md:py-6 md:px-3">
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-
       <div class="p-6 text-white bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
         <h5 class="text-2xl leading-tight text-orange">Mailing Lists</h5>
-        <p class="py-1 my-2 border-b pb-4 border-gray-700 text-slate dark:text-white">
-          Discover the Boost library community with options tailored to developers, casual users, and enthusiasts.
-        </p>
+        <p class="py-1 my-2 border-b pb-4 border-gray-700 text-slate dark:text-white">Discover the Boost library community with options tailored to developers, casual users, and enthusiasts.</p>
         <div class="grid grid-cols-3">
-
           <a href="https://lists.boost.org/mailman/listinfo.cgi/boost" class="p-3 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
             <h6 class="pb-1 text-sm md:text-base">Developers</h6>
             <i class="fa fa-helmet-safety"></i>
@@ -29,61 +27,65 @@
             <h6 class="pb-1 text-sm md:text-base">Announcements</h6>
             <i class="fa fa-bullhorn"></i>
           </a>
-
         </div>
         <div>
           <p class="text-center mx-auto pt-3">
-          Please, read our <a href="/doc/user-guide/discussion-policy.html" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange whitespace-nowrap">Discussion Policy</a> before posting.
+            Please, read our <a href="/doc/user-guide/discussion-policy.html" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange whitespace-nowrap">Discussion Policy</a> before posting.
           </p>
         </div>
       </div>
 
       <div class="p-6 text-white bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
         <h5 class="text-2xl leading-tight text-orange">Discussion Forums</h5>
-        <p class="py-1 my-2 border-b pb-4 border-gray-700 text-slate dark:text-white">
-          Coming soon, exploring the topics and decisions being made by the community will be available via a more modern interface.
-        </p>
+        <p class="py-1 my-2 border-b pb-4 border-gray-700 text-slate dark:text-white">Coming soon, exploring the topics and decisions being made by the community will be available via a more modern interface.</p>
 
-        <div class="text-center mx-auto pt-3">In the meantime, please enjoy our<br /><a href="https://lists.boost.org/Archives/boost/" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange whitespace-nowrap">Mailing List Archives</a></div>
+        <div class="text-center mx-auto pt-3">
+          In the meantime, please enjoy our<br /><a href="https://lists.boost.org/Archives/boost/" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange whitespace-nowrap">Mailing List Archives</a>
+        </div>
       </div>
 
       <div class="p-6 text-white bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
         <h5 class="text-2xl leading-tight text-orange">Cpplang Slack Workspace</h5>
 
-        <p class="py-1 my-2 border-b pb-4 border-gray-700">A vibrant hub for real-time discussions with Boost authors, maintainers, and contributors. Dive into one of the largest searchable databases for Boost/C++ insights and history. Join now.</p>
+        <p class="py-1 my-2 border-b pb-4 border-gray-700 text-slate">A vibrant hub for real-time discussions with Boost authors, maintainers, and contributors. Dive into one of the largest searchable databases for Boost/C++ insights and history. Join now.</p>
 
         <div class="flex flex-col">
           <a href="https://cppalliance.org/slack/" class="flex p-3 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Join Cpplang Slack</a>
           <a href="https://cpplang.slack.com/" class="flex p-3 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Visit the Workspace</a>
-          </div>
+        </div>
       </div>
 
       {% comment %}
       <div class="p-6 text-white bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-        <h5
-            class="text-2xl font-bold leading-tight text-orange">
-            Users
-          </h5>
-          <p class="py-1 my-2 border-b border-gray-700">See everyone involved with Boost.</p>
-          <ul class="flex flex-wrap mt-2 pt-2 space-y-2">
-            <li class="w-1/2 text-center"><a href="https://www.boost.org/users/people.html" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Authors</a></li>
-            <li class="w-1/2 text-center"><a href="https://www.boost.org/community/moderators.html" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Moderators</a></li>
-            {#<li class="w-1/2 text-center"><a href="https://sites.google.com/a/boost.org/steering/" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Boost Foundation</a></li>#}
-            <li class="w-1/2 text-center"><a href="https://www.boost.org/users/memoriam/beman_dawes.html" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">In Memoriam: Beman Dawes</a></li>
-          </ul>
+        <h5 class="text-2xl font-bold leading-tight text-orange">Users</h5>
+        <p class="py-1 my-2 border-b border-gray-700">See everyone involved with Boost.</p>
+        <ul class="flex flex-wrap mt-2 pt-2 space-y-2">
+          <li class="w-1/2 text-center">
+            <a href="https://www.boost.org/users/people.html" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Authors</a>
+          </li>
+          <li class="w-1/2 text-center">
+            <a href="https://www.boost.org/community/moderators.html" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Moderators</a>
+          </li>
+          {# <li class="w-1/2 text-center"><a href="https://sites.google.com/a/boost.org/steering/" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Boost Foundation</a></li> #}
+          <li class="w-1/2 text-center">
+            <a href="https://www.boost.org/users/memoriam/beman_dawes.html" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">In Memoriam: Beman Dawes</a>
+          </li>
+        </ul>
       </div>
       {% endcomment %}
 
       <div class="p-6 text-white bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
         <h5 class="text-2xl leading-tight text-orange">ISO C++</h5>
         <p class="py-1 my-2 border-b pb-4 border-gray-700 text-slate dark:text-white">News, Status & Discussion about Standard C++</p>
-        <p class="pt-3 text-slate dark:text-white"><a href="https://isocpp.org/" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange whitespace-nowrap">The Standard C++ Foundation</a> is a Washington 501(c)(6) not-for-profit organization supporting the C++ community and promotes the use of modern Standard C++.</p>
+        <p class="pt-3 text-slate dark:text-white">
+          <a href="https://isocpp.org/" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange whitespace-nowrap">The Standard C++ Foundation</a> is a Washington 501(c)(6) not-for-profit organization supporting the C++ community and promotes the use of modern Standard C++.
+        </p>
       </div>
 
       <div class="p-6 text-white bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
         <h5 class="text-2xl leading-tight text-orange">Across the Web</h5>
         <p class="py-1 my-2 border-b pb-4 border-gray-700 text-slate dark:text-white">Follow us, like, and share our announcements.</p>
-        <div class="grid grid-cols-2 justify-items-center w-fit mx-auto">
+        <div class="grid grid-cols-2 md:grid-cols-3 justify-items-center w-fit mx-auto">
           <a href="https://github.com/boostorg" class="block p-3 w-28 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"><span class="text-xs">On GitHub</span> <br /><i class="fa-brands fa-github fa-3x"></i></a>
           <a href="https://x.com/boost_libraries" class="block p-3 w-28 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"><span class="text-xs">On X (Twitter)</span> <br /><i class="fa-brands fa-x-twitter fa-3x"></i></a>
           <a href="https://bsky.app/profile/boostlibs.bsky.social" target="_blank" title="Bluesky" class="block p-3 w-28 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"><span class="text-xs">On Bluesky</span> <br /><i class="fa-brands fa-bluesky fa-3x"></i></a>
@@ -91,7 +93,6 @@
           <a href="https://www.reddit.com/user/boostlibs/" target="_blank" title="Reddit" class="block p-3 w-28 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"><span class="text-xs">On Reddit</span> <br /><i class="fa-brands fa-reddit fa-3x"></i></a>
         </div>
       </div>
-
     </div>
   </div>
 {% endblock %}
