@@ -1,34 +1,42 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% load static %}
 
-{% block title %}{{ frontmatter.title }}{% endblock %}
-{% block description %}{{ frontmatter.description }}{% endblock %}
-{% block keywords %}{{ frontmatter.keywords }}{% endblock %}
-{% block author %}{{ frontmatter.author }}{% endblock %}
+{% block title %}
+  {{ frontmatter.title }}
+{% endblock %}
+{% block description %}
+  {{ frontmatter.description }}
+{% endblock %}
+{% block keywords %}
+  {{ frontmatter.keywords }}
+{% endblock %}
+{% block author %}
+  {{ frontmatter.author }}
+{% endblock %}
 
 {% block content %}
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
-
-    <div class="mb-6 md:mb-0">
-      {{ content|safe }}
-    </div>
-
+    <div class="mb-6 p-6 w-full bg-white rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">{{ content|safe }}</div>
   </div>
 {% endblock %}
 
 {% block css %}
-<style>
-  p {
-    padding-top: 0 !important;
-    padding-bottom: 1.0rem !important;
-  }
+  <style>
+    p {
+      padding-top: 0 !important;
+      padding-bottom: 1rem !important;
+    }
 
-  ul {
-    list-style-type: disc !important;
-    margin-left: 1rem !important;
-    padding-left: 1rem !important;
-    padding-bottom: 1rem !important;
-  }
-</style>
-{% endblock css %}
+    ul {
+      list-style-type: disc !important;
+      margin-left: 1rem !important;
+      padding-left: 1rem !important;
+      padding-bottom: 1rem !important;
+    }
+
+    h1 {
+      font-size: 1.875rem;
+    }
+  </style>
+{% endblock %}
