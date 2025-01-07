@@ -7,7 +7,7 @@
   <head>
     <script defer
             data-domain="preview.boost.org"
-            src="https://plausible.io/js/script.js"></script>
+            src="https://plausible.io/js/script.manual.js"></script>
     <title>{% block title %}Boost{% endblock %}</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -547,12 +547,21 @@
         }
       }
 
+      const manualPlausibleTrigger = async () => {
+        window.plausible = window.plausible || function() {
+          (window.plausible.q = window.plausible.q || []).push(arguments)
+        }
+        let loc = window.parent.location.href || window.location.href;
+        plausible("pageview", { u: loc + window.location.search });
+      };
+
       window.addEventListener('DOMContentLoaded', () => {
         // resets the form on back button press
         document.getElementById("id_category")?.closest('form').reset();
         document.getElementById("id_version")?.closest('form').reset();
         document.getElementById("id_category")?.addEventListener("change", changeVersionAndCategory);
         document.getElementById("id_version")?.addEventListener("change", changeVersionAndCategory);
+        manualPlausibleTrigger();
       });
       (async () => {
         await trackLoginUpdateCheck();
