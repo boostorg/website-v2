@@ -477,9 +477,13 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
             )
             context["content"] = soup.prettify()
         else:
-            # potentially pass version if needed for HTML modification
+            # Potentially pass version if needed for HTML modification.
+            # We disable plausible to prevent redundant 'about:srcdoc' tracking,
+            # tracking is covered by docsiframe.html
             base_html = render_to_string(
-                "docs_libs_placeholder.html", context, request=self.request
+                "docs_libs_placeholder.html",
+                {**context, **{"disable_plausible": True}},
+                request=self.request,
             )
             context["content"] = modernize_legacy_page(
                 content,

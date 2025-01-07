@@ -5,9 +5,11 @@
 <html lang="{{ LANGUAGE_CODE }}">
 
   <head>
-    <script defer
+    {% if not disable_plausible %}
+      <script defer
             data-domain="preview.boost.org"
             src="https://plausible.io/js/script.manual.js"></script>
+   {% endif %}
     <title>{% block title %}Boost{% endblock %}</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
