@@ -2,12 +2,16 @@ from libraries.constants import (
     LATEST_RELEASE_URL_PATH_STR,
     LEGACY_LATEST_RELEASE_URL_PATH_STR,
     VERSION_SLUG_PREFIX,
+    DEVELOP_RELEASE_URL_PATH_STR,
+    MASTER_RELEASE_URL_PATH_STR,
 )
 
 
 def to_python(value):
     if value in (LATEST_RELEASE_URL_PATH_STR, LEGACY_LATEST_RELEASE_URL_PATH_STR):
         return LATEST_RELEASE_URL_PATH_STR
+    if value in (DEVELOP_RELEASE_URL_PATH_STR, MASTER_RELEASE_URL_PATH_STR):
+        return value
     return f"{VERSION_SLUG_PREFIX}{value.replace('.', '-')}"
 
 
