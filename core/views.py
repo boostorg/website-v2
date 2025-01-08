@@ -34,7 +34,7 @@ from .boostrenderer import (
     get_s3_client,
 )
 from .constants import SourceDocType
-from .htmlhelper import modernize_legacy_page
+from .htmlhelper import modernize_legacy_page, convert_name_to_id
 from .markdown import process_md
 from .models import RenderedContent
 from .tasks import (
@@ -472,6 +472,7 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         if source_content_type == SourceDocType.ASCIIDOC:
             extracted_content = content.decode(chardet.detect(content)["encoding"])
             soup = BeautifulSoup(extracted_content, "html.parser")
+            soup = convert_name_to_id(soup)
             soup.find("head").append(
                 soup.new_tag("script", src=f"{STATIC_URL}js/theme_handling.js")
             )
