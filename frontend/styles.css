@@ -105,57 +105,6 @@
     @apply bg-red-400 py-2 px-3 rounded text-white;
   }
 
-  /* STYLES FOR THE LIBRARY README
-  These can't easily be handled in the template so doing globally...
-
-   */
-  #libraryReadMe h1 {
-    @apply text-3xl font-semibold border-b border-gray-300 dark:border-slate;
-  }
-  #libraryReadMe h2 {
-    @apply mt-3 text-2xl font-semibold border-b border-gray-300 dark:border-slate;
-  }
-  #libraryReadMe h3 {
-    @apply mt-3 text-xl font-semibold;
-  }
-  #libraryReadMe p {
-    @apply text-base pb-1 font-light;
-  }
-  #libraryReadMe ul {
-    @apply list-disc list-inside pl-4;
-  }
-  #libraryReadMe ul li {
-    @apply text-base py-1 font-light;
-  }
-  #libraryReadMe > h3 + ul {
-    @apply list-none;
-  }
-  #libraryReadMe > h3 + ul > li > a {
-    @apply font-semibold;
-  }
-  #libraryReadMe ul > li > ul > li {
-    @apply list-disc;
-  }
-  #libraryReadMe ul > li > ul > li > a {
-    @apply font-normal;
-  }
-  #libraryReadMe h3 + p + ul {
-    @apply list-none;
-  }
-  #libraryReadMe h3 + p + ul > li {
-    @apply font-semibold;
-  }
-  #libraryReadMe table {
-    @apply table-auto w-full;
-  }
-  #libraryReadMe a {
-    @apply text-sky-600 dark:text-sky-400;
-  }
-
-  #libraryReadMe a img {
-    @apply inline;
-  }
-
   code,
   tt,
   kbd,
