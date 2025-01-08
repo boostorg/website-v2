@@ -17,6 +17,8 @@ from libraries.constants import (
     SELECTED_LIBRARY_VIEW_COOKIE_NAME,
     LATEST_RELEASE_URL_PATH_STR,
     LEGACY_LATEST_RELEASE_URL_PATH_STR,
+    DEVELOP_RELEASE_URL_PATH_STR,
+    MASTER_RELEASE_URL_PATH_STR,
 )
 from versions.models import Version
 
@@ -144,20 +146,27 @@ def get_category(request):
 
 def determine_selected_boost_version(request_value, request):
     # use the versions in the request if they are available otherwise fall back to DB
-    valid_versions = getattr(request, "extra_context", {}).get(
-        "versions", Version.objects.get_dropdown_versions()
-    )
     version_slug = request_value or get_version_from_cookie(request)
+    version_args = {}
+    if version_slug in (DEVELOP_RELEASE_URL_PATH_STR, MASTER_RELEASE_URL_PATH_STR):
+        version_args = {f"allow_{version_slug}": True}
+
+    valid_versions = getattr(request, "extra_context", {}).get(
+        "versions", Version.objects.get_dropdown_versions(**version_args)
+    )
     if version_slug in [v.slug for v in valid_versions] + [LATEST_RELEASE_URL_PATH_STR]:
         return version_slug
-    else:
-        logger.warning(f"Invalid version slug in cookies: {version_slug}")
-        return None
+    logger.warning(f"Invalid version slug in cookies: {version_slug}")
+    return None
 
 
 def set_selected_boost_version(version_slug: str, response) -> None:
     """Update the selected version in the cookies."""
-    valid_versions = Version.objects.get_dropdown_versions()
+    versions_kwargs = {}
+    if version_slug in [MASTER_RELEASE_URL_PATH_STR, DEVELOP_RELEASE_URL_PATH_STR]:
+        versions_kwargs[f"allow_{version_slug}"] = True
+
+    valid_versions = Version.objects.get_dropdown_versions(**versions_kwargs)
     if version_slug in [v.slug for v in valid_versions]:
         response.set_cookie(SELECTED_BOOST_VERSION_COOKIE_NAME, version_slug)
     elif version_slug == LATEST_RELEASE_URL_PATH_STR:

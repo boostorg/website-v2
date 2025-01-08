@@ -1,7 +1,12 @@
 from django.db import models
-from django.db.models import Func, Value, Count
+from django.db.models import Func, Value, Count, Q
 from django.db.models.functions import Replace
 from django.contrib.postgres.fields import ArrayField
+
+from libraries.constants import (
+    MASTER_RELEASE_URL_PATH_STR,
+    DEVELOP_RELEASE_URL_PATH_STR,
+)
 
 
 class VersionQuerySet(models.QuerySet):
@@ -81,6 +86,8 @@ class VersionManager(models.Manager):
     def get_dropdown_versions(
         self,
         *,
+        allow_develop: bool = False,
+        allow_master: bool = False,
         flag_versions_without_library: "Library" = None,  # noqa: F821
         order_by: str = "-name",
     ):
@@ -91,6 +98,8 @@ class VersionManager(models.Manager):
         * doesn't return versions where full_release=False and beta=False
 
         Args:
+            allow_develop (bool): allow the develop branch version to show in result
+            allow_master (bool): allow the master branch version to show in the result
             order_by (str): the field to order by
             flag_versions_without_library (Library): flag the version when it doesn't
                 have the matching library - e.g. used for library detail page
@@ -118,9 +127,24 @@ class VersionManager(models.Manager):
             beta_queryset = self.active().filter(models.Q(name=most_recent_beta.name))
             queryset = queryset | beta_queryset
 
+        # beta=False here is not redundant, it only applies to the exclusion while a
+        # beta is allowed for most_recent_beta
+        flag_exclusions = Q(full_release=False, beta=False)
+        name_exclusions = [
+            "head",
+            MASTER_RELEASE_URL_PATH_STR,
+            DEVELOP_RELEASE_URL_PATH_STR,
+        ]
+        if allow_master:
+            flag_exclusions = flag_exclusions & ~Q(name="master")
+            name_exclusions.remove(MASTER_RELEASE_URL_PATH_STR)
+        if allow_develop:
+            flag_exclusions = flag_exclusions & ~Q(name="develop")
+            name_exclusions.remove(DEVELOP_RELEASE_URL_PATH_STR)
+
         queryset = (
-            queryset.exclude(name__in=["develop", "master", "head"])
-            .exclude(full_release=False, beta=False)
+            queryset.exclude(name__in=name_exclusions)
+            .exclude(flag_exclusions)
             .defer("data")
         )
 

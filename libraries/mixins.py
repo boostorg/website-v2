@@ -2,7 +2,11 @@ import structlog
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
-from libraries.constants import LATEST_RELEASE_URL_PATH_STR
+from libraries.constants import (
+    LATEST_RELEASE_URL_PATH_STR,
+    MASTER_RELEASE_URL_PATH_STR,
+    DEVELOP_RELEASE_URL_PATH_STR,
+)
 from libraries.models import Library
 from versions.models import Version
 
@@ -50,6 +54,13 @@ class BoostVersionMixin:
             )
 
         version_path_kwargs = {}
+        # Only when the user uses master or develop do those versions to appear
+        if self.extra_context["version_str"] in [
+            MASTER_RELEASE_URL_PATH_STR,
+            DEVELOP_RELEASE_URL_PATH_STR,
+        ]:
+            version_path_kwargs[f"allow_{self.extra_context['version_str']}"] = True
+
         if self.request.resolver_match.view_name == "library-detail":
             version_path_kwargs["flag_versions_without_library"] = get_object_or_404(
                 Library, slug=self.kwargs.get("library_slug")

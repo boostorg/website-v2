@@ -14,7 +14,7 @@
                 {% if version_str == v.slug %}selected="selected"{% endif %}
                 {% if v.has_library == 0 %}disabled="disabled"{% endif %}
             >
-                {{ v.display_name }}
+                {{ v.display_name|title }}
             </option>
         {% endfor %}
     </select>
