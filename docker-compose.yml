@@ -25,6 +25,8 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+      args:
+        LOCAL_DEVELOPMENT: "true"
     command: [ "/bin/bash", "/code/docker/compose-start.sh" ]
     depends_on:
       - db
@@ -96,6 +98,8 @@ services:
         /code/docker/wait-for-it.sh -h web -p 8000 -t 20 -- celery -A config worker --concurrency=10 -P gevent --loglevel=debug
     networks:
       - backend
+    environment:
+      DEBUG_TOOLBAR: "false"
     env_file:
       - .env
     depends_on:
@@ -109,6 +113,8 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     command: [ "celery", "-A", "config", "beat", "--loglevel=debug" ]
+    environment:
+      DEBUG_TOOLBAR: "false"
     env_file:
       - .env
     depends_on:

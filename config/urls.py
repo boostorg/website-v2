@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -12,6 +14,7 @@ from ak.views import (
     NotFoundView,
     OKView,
 )
+from config.settings import DEBUG_TOOLBAR
 from core.views import (
     BSLView,
     CalendarView,
@@ -77,6 +80,17 @@ from versions.views import (
     ScheduledReviewListView,
     VersionDetail,
 )
+
+djdt_urls = []
+try:
+    if DEBUG_TOOLBAR:
+        from debug_toolbar.toolbar import debug_toolbar_urls
+
+        djdt_urls = debug_toolbar_urls()
+except ModuleNotFoundError:
+    logging.error(
+        "DEBUG_TOOLBAR enabled but Django Debug Toolbar not installed. Run `just build`"
+    )
 
 register_converter(BoostVersionSlugConverter, "boostversionslug")
 
@@ -362,11 +376,12 @@ urlpatterns = (
         ),
         # Static content
         re_path(
-            r"^(?P<content_path>.+)/?",
+            r"^(?!__debug__)(?P<content_path>.+)/?",
             StaticContentTemplateView.as_view(),
             name="static-content-page",
         ),
     ]
+    + djdt_urls
 )
 
 handler404 = "ak.views.custom_404_view"
