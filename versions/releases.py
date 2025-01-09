@@ -9,7 +9,7 @@ from jsoncomment import JsonComment
 from django.conf import settings
 
 from core.asciidoc import convert_adoc_to_html
-from core.boostrenderer import get_file_data, get_s3_client
+from core.boostrenderer import get_file_data, get_s3_client, does_s3_key_exist
 from core.htmlhelper import modernize_release_notes
 from core.models import RenderedContent
 
@@ -188,15 +188,16 @@ def get_release_notes_for_version_s3(version_pk):
     bucket_name = settings.STATIC_CONTENT_BUCKET_NAME
 
     primary_key = f"release-notes/master/{filename}.adoc"
-    response = get_file_data(s3_client, bucket_name, primary_key)
-    if not response:
-        # Some beta release notes end in _x.html instead of _0.html; try that.
-        fallback_filename = filename.rsplit("_", 1)[0] + "_x"
-        fallback_key = f"release-notes/master/{fallback_filename}.adoc"
+    fallback_key = f"release-notes/master/{filename.rsplit('_', 1)[0] + '_x'}.adoc"
+
+    response = None
+    if does_s3_key_exist(s3_client, bucket_name, primary_key):
+        response = get_file_data(s3_client, bucket_name, primary_key)
+    elif does_s3_key_exist(s3_client, bucket_name, fallback_key):
         response = get_file_data(s3_client, bucket_name, fallback_key)
-    if response:
-        return response["content"].decode()
-    return ""
+    else:
+        logger.info(f"no release notes found for {filename=}")
+    return response["content"].decode() if response else ""
 
 
 def get_release_notes_for_version_github(version_pk):
