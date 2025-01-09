@@ -176,6 +176,8 @@ def modernize_legacy_page(
         for tag in result.find_all(tag_name, tag_attrs):
             tag.attrs.pop("class")
 
+    result = convert_name_to_id(result)
+
     # Use the base HTML to later extract the <head> and (part of) the <body>
     placeholder = BeautifulSoup(base_html, "html.parser")
     if isinstance(head_selector, str):
@@ -276,6 +278,15 @@ def convert_h1_to_h2(soup):
     """Convert all h1 tags to h2 tags."""
     for h1 in soup.find_all("h1"):
         h1.name = "h2"  # change h1 to h2
+
+    return soup
+
+
+def convert_name_to_id(soup):
+    """Convert all (deprecated) name attributes to id attributes."""
+    for tag in soup.find_all(attrs={"name": True}):
+        tag["id"] = tag["name"]
+        del tag["name"]
 
     return soup
 
