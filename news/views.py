@@ -129,7 +129,8 @@ class EntryDetailView(DetailView):
     template_name = "news/detail.html"
 
     def get_object(self, *args, **kwargs):
-        # Published news are available to anyone, otherwise to authors only
+        # Published news are available to anyone,
+        # otherwise to authors and moderators only
         result = super().get_object(*args, **kwargs)
         if not result.can_view(self.request.user):
             raise Http404()
@@ -146,6 +147,9 @@ class EntryDetailView(DetailView):
         context["user_can_edit"] = self.object.can_edit(self.request.user)
         context["user_can_delete"] = self.object.can_delete(self.request.user)
         return context
+
+
+class EntryModerationDetailView(LoginRequiredMixin, EntryDetailView): ...
 
 
 class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
