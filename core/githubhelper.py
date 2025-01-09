@@ -311,9 +311,7 @@ class GithubAPIClient:
         # This usually happens because the library does not have a `meta/libraries.json`
         # in the requested tag. More likely to happen with older versions of libraries.
         except requests.exceptions.HTTPError:
-            self.logger.exception(
-                "get_library_metadata_failed", repo=repo_slug, url=url
-            )
+            self.logger.warning(f"get_library_metadata_failed {repo_slug=}, {url=}")
             return None
         else:
             return response.json()
