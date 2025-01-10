@@ -262,10 +262,12 @@ def import_library_versions(version_name, token=None, version_type="tag"):
     # Get the gitmodules file for the version, which contains library data
     # The master and develop branches are not tags, so we retrieve their data
     # from the heads/ namespace instead of tags/
-    if version_type == "tag":
-        ref = client.get_ref(ref=f"tags/{version_name}")
-    else:
-        ref = client.get_ref(ref=f"heads/{version_name}")
+    ref_s = f"tags/{version_name}" if version_type == "tag" else f"heads/{version_name}"
+    try:
+        ref = client.get_ref(ref=ref_s)
+    except ValueError:
+        logger.info(f"import_library_versions_invalid_ref {ref_s=}")
+        return
 
     raw_gitmodules = client.get_gitmodules(ref=ref)
     if not raw_gitmodules:

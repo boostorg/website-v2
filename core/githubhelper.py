@@ -357,7 +357,14 @@ class GithubAPIClient:
             repo_slug = self.repo_slug
         if not ref:
             ref = self.ref
-        return self.api.git.get_ref(owner=self.owner, repo=repo_slug, ref=ref)
+        try:
+            ref_response = self.api.git.get_ref(
+                owner=self.owner, repo=repo_slug, ref=ref
+            )
+        except OSError as e:
+            logger.warning("get_ref_failed", repo=repo_slug, ref=ref, exc_msg=str(e))
+            raise ValueError(f"Could not get ref for {repo_slug} and {ref}")
+        return ref_response
 
     def get_repo(self, repo_slug: str = None) -> dict:
         """
