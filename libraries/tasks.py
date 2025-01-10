@@ -74,9 +74,8 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
             library_version.save()
         except LibraryVersion.DoesNotExist:
             logger.info(
-                "get_library_version_documentation_urls_version_does_not_exist",
-                library_name=library_name,
-                version_slug=version.slug,
+                f"get_library_version_documentation_urls_version_does_not_exist"
+                f"{library_name=} {version.slug=}",
             )
             continue
         except LibraryVersion.MultipleObjectsReturned:

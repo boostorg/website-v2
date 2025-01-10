@@ -160,6 +160,15 @@ def get_s3_client():
     )
 
 
+def does_s3_key_exist(client, bucket_name, s3_key):
+    try:
+        client.head_object(Bucket=bucket_name, Key=s3_key.lstrip("/"))
+        return True
+    except ClientError:
+        logger.debug(f"{s3_key} does not exist in {bucket_name}")
+        return False
+
+
 def get_s3_keys(content_path, config_filename=None):
     """
     Get the S3 key for a given content path

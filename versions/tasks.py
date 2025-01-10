@@ -75,7 +75,7 @@ def import_versions(
 def import_release_notes():
     """Imports release notes from the existing rendered
     release notes in the repository."""
-    for version in Version.objects.active():
+    for version in Version.objects.exclude(name__in=["master", "develop"]).active():
         store_release_notes_task.delay(str(version.pk))
     store_release_notes_in_progress_task.delay()
 
@@ -262,10 +262,12 @@ def import_library_versions(version_name, token=None, version_type="tag"):
     # Get the gitmodules file for the version, which contains library data
     # The master and develop branches are not tags, so we retrieve their data
     # from the heads/ namespace instead of tags/
-    if version_type == "tag":
-        ref = client.get_ref(ref=f"tags/{version_name}")
-    else:
-        ref = client.get_ref(ref=f"heads/{version_name}")
+    ref_s = f"tags/{version_name}" if version_type == "tag" else f"heads/{version_name}"
+    try:
+        ref = client.get_ref(ref=ref_s)
+    except ValueError:
+        logger.info(f"import_library_versions_invalid_ref {ref_s=}")
+        return
 
     raw_gitmodules = client.get_gitmodules(ref=ref)
     if not raw_gitmodules:
