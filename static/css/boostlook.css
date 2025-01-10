@@ -1342,6 +1342,15 @@ html:has(#docsiframe) {
   color: var(--bl-text-color);
 }
 
+@media screen and (max-width: 768px) {
+  .boostlook .toolbar {
+    width: calc(100% - 2.5rem);
+    position: fixed;
+    top: 0;
+    padding-top: 10px;
+  }
+}
+
 /* Responsive Design */
 @media screen and (min-width: 768px) {
   .boostlook #content:has(> article.doc) {
@@ -1538,11 +1547,13 @@ body > .chapter,
 
 /* Spirit Navigation */
 .boostlook:not(:has(.doc)) .spirit-nav {
-  position: absolute;
+  position: relative;
+  float: right;
   top: 0.2rem;
-  right: calc(((100% - 75rem) / 2));
+  right: 28px;
   text-align: right;
   margin: 0.75rem;
+  padding-left: 10px;
   max-width: 80rem;
   display: flex;
 }
@@ -1573,6 +1584,11 @@ body > .chapter,
 .dark .boostlook:not(:has(.doc)) .spirit-nav img {
   -webkit-filter: invert(100%);
   filter: invert(100%);
+}
+
+/* hide footer spirit nav since it wasn't visible before */
+.boostlook:not(:has(.doc)) div:nth-of-type(4).spirit-nav {
+  display: none !important;
 }
 
 /* Spirit Navigation Icons */
