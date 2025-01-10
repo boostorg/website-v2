@@ -352,6 +352,11 @@ README_MISSING = (
     "consider contributing one."
 )
 
+LIBRARY_GITHUB_URL_OVERRIDES = {
+    # library.slug: url
+    "outcome": "https://github.com/ned14/outcome/issues",
+}
+
 DEFAULT_LIBRARIES_LANDING_VIEW = "grid"
 SELECTED_BOOST_VERSION_COOKIE_NAME = "boost_version"
 SELECTED_LIBRARY_VIEW_COOKIE_NAME = "library_view"
