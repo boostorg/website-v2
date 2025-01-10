@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load static %}
 {% load news_tags %}
+{% load avatar_tags %}
 {% load text_helpers %}
 
 {% block title %}{% trans "News" %}{% endblock %}
@@ -114,15 +115,7 @@
             {% endif %}
           </div>
           <div class="hidden pt-2 mt-4 text-xs text-left md:block min-w-[70px] relative group">
-            {% if entry.author.image %}
-              <span class="inline-block h-[36px] w-[36px] overflow-hidden rounded-lg bg-white dark:bg-slate">
-                <img src="{{ entry.author.image_thumbnail.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover">
-              </span>
-            {% else %}
-              <span class="inline-block h-[36px] w-[36px] bg-white rounded-lg dark:text-white dark:bg-slate">
-                <i class="text-2xl fas fa-user ml-1" title="{{ entry.author.get_full_name }}"></i>
-              </span>
-            {% endif %}
+            {% avatar user=entry.author %}
             <span class="group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">{{ entry.author.first_name}}&nbsp;{{ entry.author.last_name }}</span>
           </div>
           <div class="block p-6 mb-3 md:mb-10 w-full bg-white md:rounded-lg md:shadow-lg md:ml-6 dark:bg-charcoal overflow-hidden">

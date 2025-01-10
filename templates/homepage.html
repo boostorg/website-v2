@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% load static %}
-{% load text_helpers %}
+{% load text_helpers avatar_tags %}
 
 {% block content %}
   {# homepage hero #}
@@ -224,21 +224,7 @@
                     <i class="fas fa-video"></i>
                   {% endif %}
                 </span>
-                {% if entry.author.image %}
-                  {% if entry.author.github_profile_url %}
-                    <a href="{{ entry.author.github_profile_url }}">
-                  {% endif %}
-                  <span class="flex flex-shrink-0 items-center h-[36px] w-[36px] overflow-hidden rounded-lg border border-gray-400 dark:border-gray-500">
-                    <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover">
-                  </span>
-                  {% if entry.author.github_profile_url %}
-                    </a>
-                  {% endif %}
-                {% else %}
-                  <span class="flex items-center justify-center h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
-                    <i class="text-2xl fas fa-user" title="{{ entry.author.get_full_name }}"></i>
-                  </span>
-                {% endif %}
+                {% avatar user=entry.author %}
                 <a class="link-header ml-4" {% if entry.external_url %}target="_blank"{% endif %} href="{% if entry.external_url %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
                   {{ entry.title }} {% if entry.external_url %}<i class="fa fa-external-link text-sm ml-1"></i>{% endif %}
                 </a>
