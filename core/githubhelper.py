@@ -62,6 +62,8 @@ class GithubAPIClient:
             "cmake",
             "more",
         ]
+        if not self.token:
+            raise ValueError("No GitHub token provided or set in environment.")
 
     def initialize_api(self) -> GhApi:
         """
@@ -311,9 +313,7 @@ class GithubAPIClient:
         # This usually happens because the library does not have a `meta/libraries.json`
         # in the requested tag. More likely to happen with older versions of libraries.
         except requests.exceptions.HTTPError:
-            self.logger.exception(
-                "get_library_metadata_failed", repo=repo_slug, url=url
-            )
+            self.logger.warning(f"get_library_metadata_failed {repo_slug=}, {url=}")
             return None
         else:
             return response.json()
@@ -357,7 +357,14 @@ class GithubAPIClient:
             repo_slug = self.repo_slug
         if not ref:
             ref = self.ref
-        return self.api.git.get_ref(owner=self.owner, repo=repo_slug, ref=ref)
+        try:
+            ref_response = self.api.git.get_ref(
+                owner=self.owner, repo=repo_slug, ref=ref
+            )
+        except OSError as e:
+            logger.warning("get_ref_failed", repo=repo_slug, ref=ref, exc_msg=str(e))
+            raise ValueError(f"Could not get ref for {repo_slug} and {ref}")
+        return ref_response
 
     def get_repo(self, repo_slug: str = None) -> dict:
         """

@@ -1,3 +1,5 @@
+import os
+
 import pytest
 import tempfile
 from PIL import Image
@@ -41,3 +43,16 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         if "asciidoctor" in item.keywords:
             item.add_marker(skip_asciidoctor)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def ensure_github_token_env_variable():
+    # I wanted to use pytest_env but skip_if_set=true only applies if the env var
+    # is not set at all, not if the env var is empty, so this is needed anyway.
+    VAR_NAME = "GITHUB_TOKEN"  # Replace with your actual variable name
+    VAR_DEFAULT_VALUE = "top-secret"
+    current_value = os.getenv(VAR_NAME)
+
+    if not current_value:
+        os.environ[VAR_NAME] = VAR_DEFAULT_VALUE
+        print(f"Env variable '{VAR_NAME}' not set. Forced to {VAR_DEFAULT_VALUE=}.")

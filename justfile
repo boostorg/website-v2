@@ -126,3 +126,6 @@ alias shell := console
 
 @pip-compile-upgrade:  ## Upgrade existing Python dependencies to their latest versions
     just pip-compile --upgrade
+
+@manage args:
+    docker compose run --rm web python manage.py {{ args }}
