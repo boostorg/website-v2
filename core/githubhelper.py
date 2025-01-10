@@ -62,6 +62,8 @@ class GithubAPIClient:
             "cmake",
             "more",
         ]
+        if not self.token:
+            raise ValueError("No GitHub token provided or set in environment.")
 
     def initialize_api(self) -> GhApi:
         """
