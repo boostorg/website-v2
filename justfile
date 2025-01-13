@@ -13,13 +13,43 @@ DJANGO_VERSION := "5.2"
 # ----
 
 @bootstrap:  ## installs/updates all dependencies
-    #!/usr/bin/env bash
-    set -euo pipefail
-    if [ ! -f "{{ENV_FILE}}" ]; then
-        echo "{{ENV_FILE}} created"
-        cp env.template {{ENV_FILE}}
+    command -v direnv >/dev/null 2>&1 || { echo >&2 "Direnv is required but not installed. see: https://direnv.net/docs/installation.html - Aborting."; exit 1; }
+    command -v nix >/dev/null 2>&1 || { echo >&2 "Nix is required but not installed. see: https://nixos.org/download.html - Aborting."; exit 1; }
+    command -v just >/dev/null 2>&1 || { echo >&2 "Just is required but not installed. see: https://just.systems/man/en/packages.html - Aborting."; exit 1; }
+    command -v docker >/dev/null 2>&1 || { echo >&2 "Docker is required but not installed. see: docs for links - Aborting."; exit 1; }
+
+    shell_name=$(basename "$SHELL") && \
+    echo $shell_name && \
+    if [ "$shell_name" = "zsh" ] && command -v zsh >/dev/null; then \
+      zsh -i -c 'echo ${precmd_functions} | grep -q _direnv_hook' || { echo "❌ direnv hook is NOT installed in Zsh"; exit 1; }; \
+    elif ([ "$shell_name" = "pwsh" ] || [ "$shell_name" = "powershell" ]) && command -v "$shell_name" >/dev/null; then \
+      "$shell_name" -NoProfile -Command '$function:prompt.ToString() | grep -q direnv' || { echo "❌ direnv hook is NOT installed in PowerShell"; exit 1; }; \
+    else \
+      echo "ℹ️ Unsupported shell for checking direnv hook: $shell_name. Ensure you have the direnv shell hook eval set up correctly if there are problems."; \
     fi
-    docker compose --file {{COMPOSE_FILE}} build --force-rm
+
+    if [ ! -d $HOME/.config/direnv/direnv.toml ]; then \
+        mkdir -p $HOME/.config/direnv; \
+        printf "[global]\nhide_env_diff = true\nload_dotenv = true\n" > $HOME/.config/direnv/direnv.toml; \
+    fi
+    if [ ! -d $HOME/.config/nix ]; then \
+        mkdir -p $HOME/.config/nix; \
+        printf "experimental-features = nix-command flakes\n" > $HOME/.config/nix/nix.conf; \
+    fi
+    # check if the docker group exists, create if not
+    if [ ! $(getent group docker) ]; then \
+        echo "ℹ️ Adding docker group..."; \
+        sudo groupadd docker; \
+    fi
+
+    # check if user is in docker group, add if not
+    if [ $(id -Gn | grep -c docker) -eq 0 ]; then \
+        echo "ℹ️ Adding docker group"; \
+        sudo usermod -aG docker $USER; \
+        echo "ℹ️ Added docker user. Please close the shell and open a new one."; \
+    fi
+    echo "Bootstrapping complete, update your .env and run 'just setup'"
+    echo "If you have issues with docker permissions running just setup try restarting your machine."
 
 @rebuild:  ## rebuilds containers
     docker compose kill
@@ -32,7 +62,7 @@ DJANGO_VERSION := "5.2"
 
 @build:  ## builds containers
     docker compose pull
-    DOCKER_BUILDKIT=1 docker compose build
+    docker compose build
 
 @cibuild:  ## invoked by continuous integration servers to run tests
     python -m pytest
@@ -50,6 +80,8 @@ alias shell := console
 @setup:  ## sets up a project to be used for the first time
     docker compose --file {{COMPOSE_FILE}} build --force-rm
     docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
+    npm install
+    npm run build
 
 @test_pytest *args:  ## runs pytest (optional: test file/pattern, -v for verbose, -vv for very verbose)
     -docker compose run --rm -e DEBUG_TOOLBAR="False" web pytest -s --create-db {{ args }}
