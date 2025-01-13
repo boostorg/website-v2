@@ -14,6 +14,7 @@ from core.models import RenderedContent
 from core.asciidoc import convert_adoc_to_html
 from libraries.managers import IssueManager
 from mailing_list.models import EmailData
+from .constants import LIBRARY_GITHUB_URL_OVERRIDES
 
 from .utils import generate_random_string, write_content_to_tempfile
 
@@ -339,7 +340,10 @@ class Library(models.Model):
         if not self.github_owner or not self.github_repo:
             raise ValueError("Invalid GitHub owner or repository")
 
-        return f"https://github.com/{self.github_owner}/{self.github_repo}/issues"
+        return LIBRARY_GITHUB_URL_OVERRIDES.get(
+            self.slug,
+            f"https://github.com/{self.github_owner}/{self.github_repo}/issues",
+        )
 
 
 class LibraryVersion(models.Model):

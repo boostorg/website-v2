@@ -36,6 +36,17 @@ def test_get_issues_link(library):
     assert expected == result
 
 
+def test_get_issues_link_override():
+    outcome_library = baker.make(
+        "libraries.Library",
+        name="Outcome",
+        slug="outcome",
+        github_url="https://github.com/boostorg/outcome",
+    )
+    expected = "https://github.com/ned14/outcome/issues"
+    assert outcome_library.github_issues_url == expected
+
+
 def test_category_creation(category):
     assert category.name is not None
 
