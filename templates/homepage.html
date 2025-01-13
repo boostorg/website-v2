@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% load static %}
-{% load text_helpers %}
+{% load text_helpers avatar_tags %}
 
 {% block content %}
   {# homepage hero #}
@@ -211,17 +211,22 @@
           {% for entry in entries %}
             <div class="pt-0">
               <h2 class="flex items-center pb-2 mb-3 text-lg md:text-2xl lg:text-2xl font-semibold mr-4 border-b border-gray-400 dark:border-slate">
-                {% if entry.author.image %}
-                  <span class="flex flex-shrink-0 items-center h-[36px] w-[36px] overflow-hidden rounded-lg border border-gray-400 dark:border-gray-500">
-                    <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover">
-                  </span>
-                {% else %}
-                  <span class="flex items-center justify-center h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
-                    <i class="text-2xl fas fa-user" title="{{ entry.author.get_full_name }}"></i>
-                  </span>
-                {% endif %}
-                <a class="link-header ml-4" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
-                  {{ entry.title }}
+                {% avatar user=entry.author %}
+                <span class="text-sm ml-4 bg-white rounded-full dark:text-gray-300 w-[36px] dark:bg-slate">
+                  {% if entry.tag == "link" %}
+                    <i class="fas fa-link"></i>
+                  {% elif entry.tag == "news" %}
+                    <i class="fas fa-newspaper"></i>
+                  {% elif entry.tag == "blogpost" %}
+                    <i class="fas fa-comment"></i>
+                  {% elif entry.tag == "poll" %}
+                    <i class="fas fa-poll"></i>
+                  {% elif entry.tag == "video" %}
+                    <i class="fas fa-video"></i>
+                  {% endif %}
+                </span>
+                <a class="link-header" {% if entry.external_url %}target="_blank"{% endif %} href="{% if entry.external_url %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+                  {{ entry.title }} {% if entry.external_url %}<i class="fa fa-external-link text-sm ml-1"></i>{% endif %}
                 </a>
               </h2>
 
