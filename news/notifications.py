@@ -1,5 +1,6 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.mail import EmailMessage, get_connection, send_mail
+from django.core.mail import EmailMessage, get_connection, send_mail, send_mass_mail
 from django.template import Template, Context
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -72,12 +73,12 @@ def send_email_news_needs_moderation(request, entry):
     )
 
     subject = "Boost.org: News entry needs moderation"
-    return send_mail(
-        subject=subject,
-        message=body,
-        from_email=None,
-        recipient_list=recipient_list,
-    )
+    from_address = settings.DEFAULT_FROM_EMAIL
+    # Send each recipient their own email
+    emails = [
+        (subject, body, from_address, [recipient]) for recipient in recipient_list
+    ]
+    return send_mass_mail(emails)
 
 
 def send_email_news_posted(request, entry):
