@@ -211,7 +211,8 @@
           {% for entry in entries %}
             <div class="pt-0">
               <h2 class="flex items-center pb-2 mb-3 text-lg md:text-2xl lg:text-2xl font-semibold mr-4 border-b border-gray-400 dark:border-slate">
-                <span class="mr-4 bg-white rounded-full dark:text-gray-300 w-[36px] dark:bg-slate">
+                {% avatar user=entry.author %}
+                <span class="text-sm ml-4 bg-white rounded-full dark:text-gray-300 w-[36px] dark:bg-slate">
                   {% if entry.tag == "link" %}
                     <i class="fas fa-link"></i>
                   {% elif entry.tag == "news" %}
@@ -224,8 +225,7 @@
                     <i class="fas fa-video"></i>
                   {% endif %}
                 </span>
-                {% avatar user=entry.author %}
-                <a class="link-header ml-4" {% if entry.external_url %}target="_blank"{% endif %} href="{% if entry.external_url %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+                <a class="link-header" {% if entry.external_url %}target="_blank"{% endif %} href="{% if entry.external_url %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
                   {{ entry.title }} {% if entry.external_url %}<i class="fa fa-external-link text-sm ml-1"></i>{% endif %}
                 </a>
               </h2>
