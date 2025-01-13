@@ -49,11 +49,12 @@ source .env
 
 download_media_file() {
     # download all files from the PROD_MEDIA_CONTENT bucket and copy to Docker container
-    [ -z "$PROD_MEDIA_CONTENT_AWS_ACCESS_KEY_ID" ] && {
+    # todo: remove the changeme check and remove 'changeme' as the default, use nothing instead
+    [[ -z "$PROD_MEDIA_CONTENT_AWS_ACCESS_KEY_ID" || "$PROD_MEDIA_CONTENT_AWS_ACCESS_KEY_ID" == "changeme" ]] && {
       echo "Error: PROD_MEDIA_CONTENT_AWS_ACCESS_KEY_ID not set in .env";
       return 1;
     }
-    [ -z "$PROD_MEDIA_CONTENT_AWS_SECRET_ACCESS_KEY" ] && {
+    [[ -z "$PROD_MEDIA_CONTENT_AWS_SECRET_ACCESS_KEY" || "$PROD_MEDIA_CONTENT_AWS_SECRET_ACCESS_KEY" = "changeme" ]] && {
       echo "Error: PROD_MEDIA_CONTENT_AWS_SECRET_ACCESS_KEY not set in .env";
       return 1;
     }
