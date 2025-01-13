@@ -188,6 +188,8 @@ interrogate==1.7.0
     # via -r ./requirements.in
 ipython==8.28.0
     # via -r ./requirements.in
+itsdangerous==2.2.0
+    # via -r ./requirements.in
 jedi==0.19.1
     # via ipython
 jmespath==1.0.1

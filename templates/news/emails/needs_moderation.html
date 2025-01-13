@@ -1,0 +1,20 @@
+<p>Hello! You are receiving this email because you are a Boost news moderator.</p>
+<p>
+  The user {{ entry.author.get_display_name|default:entry.author.email }} has submitted a
+  new {{ entry.tag }} that requires moderation:
+</p>
+
+<hr>
+<h4>{{ entry.title }}</h4>
+{{ entry.content|linebreaks }}
+<hr>
+
+<p>You can click the button below to instantly approve this news item (this link is valid for 1 hour):</p>
+
+<a href="{{ approval_magic_link }}">
+  <span style="background-color:orange;padding:12px;color:white;border-radius:4px;">Approve Now</span>
+</a>
+
+<p>You can also view, approve or delete this item at: {{ detail_url }}</p>
+<p>The complete list of news pending moderation can be found at: {{ moderate_url }}</p>
+<p>Thank you, the Boost moderator team.</p>

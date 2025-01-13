@@ -1,11 +1,13 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.humanize.templatetags import humanize
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import redirect
+from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
+from django.shortcuts import redirect, get_object_or_404
 from django.template.defaultfilters import date as datefilter
 from django.urls import reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -21,6 +23,7 @@ from django.views.generic import (
     View,
 )
 from django.views.generic.detail import SingleObjectMixin
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
 
 from .acl import can_approve
 from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
@@ -29,7 +32,10 @@ from .notifications import (
     send_email_news_approved,
     send_email_news_needs_moderation,
     send_email_news_posted,
+    NEWS_APPROVAL_SALT,
 )
+
+User = get_user_model()
 
 
 def get_published_or_none(sibling_getter):
@@ -150,6 +156,36 @@ class EntryDetailView(DetailView):
 
 
 class EntryModerationDetailView(LoginRequiredMixin, EntryDetailView): ...
+
+
+class EntryModerationMagicApproveView(View):
+    """Approve a news entry without requiring moderator login."""
+
+    def get(self, request, token, *args, **kwargs):
+        serializer = URLSafeTimedSerializer(settings.SECRET_KEY)
+        try:
+            data = serializer.loads(token, salt=NEWS_APPROVAL_SALT, max_age=3600)  # 1h
+            entry_slug = data["entry_slug"]
+            moderator_id = data["moderator_id"]
+            moderator = User.objects.get(id=moderator_id)
+        except SignatureExpired:
+            message = _("This link has expired.")
+            if not request.user.is_authenticated():
+                message += _(" Please login to continue.")
+            messages.warning(request, message)
+            return redirect(reverse_lazy("news-moderate"), permanent=True)
+        except (BadData, User.DoesNotExist):
+            return HttpResponseForbidden("Invalid magic link.")
+
+        entry = get_object_or_404(Entry, slug=entry_slug)
+
+        try:
+            entry.approve(moderator)
+            messages.success(request, _("This entry has been approved."))
+        except Entry.AlreadyApprovedError:
+            messages.warning(request, _("This entry has already been approved."))
+
+        return redirect(entry, permanent=True)
 
 
 class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
