@@ -89,6 +89,7 @@ def send_email_news_needs_moderation(request, entry):
         msg.attach_alternative(html_body, "text/html")
         messages.append(msg)
     get_connection().send_messages(messages)
+    return len(messages)
 
 
 def send_email_news_posted(request, entry):

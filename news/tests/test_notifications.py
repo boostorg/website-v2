@@ -97,8 +97,8 @@ def test_send_email_news_needs_moderation(
     with tp.assertNumQueriesLessThan(2, verbose=True):
         result = send_email_news_needs_moderation(request, entry)
 
-    assert result == 1
-    assert len(mail.outbox) == 1
+    assert result == 4
+    assert len(mail.outbox) == 4
     msg = mail.outbox[0]
     assert "news entry needs moderation" in msg.subject.lower()
     assert entry.title in msg.body
@@ -107,9 +107,15 @@ def test_send_email_news_needs_moderation(
     assert entry.author.email in msg.body
     assert request.build_absolute_uri(entry.get_absolute_url()) in msg.body
     assert request.build_absolute_uri(reverse("news-moderate")) in msg.body
-    assert msg.recipients() == sorted(
-        [other_moderator.email, moderator_user.email, superuser.email, forth.email]
-    )
+    recipients = []
+    for msg in mail.outbox:
+        recipients.extend(msg.recipients())
+    assert set(recipients) == {
+        other_moderator.email,
+        moderator_user.email,
+        superuser.email,
+        forth.email,
+    }
 
 
 @pytest.mark.parametrize("model_class", NEWS_MODELS)
