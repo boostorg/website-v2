@@ -1,15 +1,19 @@
 from datetime import date
 
 import pytest
+from django.conf import settings
 from django.core import mail
 from django.utils.html import escape
 from django.urls import reverse
+from itsdangerous import URLSafeTimedSerializer
 
 from ..models import NEWS_MODELS
 from ..notifications import (
     send_email_news_approved,
     send_email_news_needs_moderation,
     send_email_news_posted,
+    generate_magic_approval_link,
+    NEWS_APPROVAL_SALT,
 )
 from users.models import Preferences
 
@@ -116,6 +120,28 @@ def test_send_email_news_needs_moderation(
         superuser.email,
         forth.email,
     }
+
+
+def test_generate_magic_approval_link(make_entry, make_user):
+    entry = make_entry()
+    # entry = make_entry(NEWS_MODELS[0])
+    moderator = make_user(groups={"moderator": ["news.*"]}, email="mod@x.com")
+    url = generate_magic_approval_link(entry.slug, moderator.id)
+
+    dummy_token = "dummy-token"
+    expected_base_url = (
+        reverse("news-magic-approve", kwargs={"token": dummy_token})
+        .replace(dummy_token, "")
+        .rstrip("/")
+    )
+    assert url.startswith(expected_base_url)
+
+    token = url.split(expected_base_url)[-1].strip("/")
+    serializer = URLSafeTimedSerializer(settings.SECRET_KEY)
+    data = serializer.loads(token, salt=NEWS_APPROVAL_SALT)
+
+    assert data["entry_slug"] == entry.slug
+    assert data["moderator_id"] == moderator.id
 
 
 @pytest.mark.parametrize("model_class", NEWS_MODELS)
