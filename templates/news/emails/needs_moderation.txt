@@ -1,0 +1,24 @@
+{% load humanize %}
+
+Hello! You are receiving this email because you are a Boost news moderator.
+
+The user {{ entry.author.get_display_name|default:entry.author.email }} has submitted a new {{ entry.tag }} that requires moderation:
+
+---
+{% autoescape off %}
+{{ entry.title }}
+
+{{ entry.content }}
+{% endautoescape %}
+---
+
+You can instantly approve this entry without logging in by using the link below.
+This link will expire in {{ expiration_hours }} hour{{ expiration_hours|pluralize }}.
+
+{{ approval_magic_link }}
+
+You can also view, approve or delete this item at: {{ detail_url }}
+
+The complete list of news pending moderation can be found at: {{ moderate_url }}
+
+Thank you, the Boost moderator team.

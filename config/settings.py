@@ -490,7 +490,7 @@ SERVER_EMAIL = "errors@cppalliance.org"
 
 # Deployed email configuration
 if LOCAL_DEVELOPMENT:
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 else:
     EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
     ANYMAIL = {
