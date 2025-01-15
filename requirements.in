@@ -20,6 +20,7 @@ psycogreen
 gevent==24.2.1
 gunicorn
 interrogate
+itsdangerous
 psycopg2-binary
 whitenoise
 django-click

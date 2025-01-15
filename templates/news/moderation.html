@@ -19,7 +19,7 @@
             </div>
             <div class="w-5/6 text-xl">
               <p>
-                <a class="text-orange hover:text-info-600 focus:text-info-600 active:text-info-700" href="{{ entry.get_absolute_url }}?next={{ request.path|urlencode }}">{{ entry.tag|capfirst }}: {{ entry.title }}</a>
+                <a class="text-orange hover:text-info-600 focus:text-info-600 active:text-info-700" href="{% url 'news-moderate-detail' slug=entry.slug %}?next={{ request.path|urlencode }}">{{ entry.tag|capfirst }}: {{ entry.title }}</a>
                 {% blocktrans with author_email=entry.author.email %}by {{ author_email }}
                 {% endblocktrans %}
               </p>
