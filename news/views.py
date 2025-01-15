@@ -33,6 +33,7 @@ from .notifications import (
     send_email_news_needs_moderation,
     send_email_news_posted,
     NEWS_APPROVAL_SALT,
+    MAGIC_LINK_EXPIRATION,
 )
 
 User = get_user_model()
@@ -164,7 +165,9 @@ class EntryModerationMagicApproveView(View):
     def get(self, request, token, *args, **kwargs):
         serializer = URLSafeTimedSerializer(settings.SECRET_KEY)
         try:
-            data = serializer.loads(token, salt=NEWS_APPROVAL_SALT, max_age=3600)  # 1h
+            data = serializer.loads(
+                token, salt=NEWS_APPROVAL_SALT, max_age=MAGIC_LINK_EXPIRATION
+            )
             entry_slug = data["entry_slug"]
             moderator_id = data["moderator_id"]
             moderator = User.objects.get(id=moderator_id)

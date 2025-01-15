@@ -1,3 +1,5 @@
+{% load humanize %}
+
 Hello! You are receiving this email because you are a Boost news moderator.
 
 The user {{ entry.author.get_display_name|default:entry.author.email }} has submitted a new {{ entry.tag }} that requires moderation:
@@ -10,7 +12,8 @@ The user {{ entry.author.get_display_name|default:entry.author.email }} has subm
 {% endautoescape %}
 ---
 
-You can use the link below to instantly approve this news item (this link is valid for 1 hour):
+You can instantly approve this entry without logging in by using the link below.
+This link will expire in {{ expiration_hours }} hour{{ expiration_hours|pluralize }}.
 
 {{ approval_magic_link }}
 

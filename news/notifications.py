@@ -16,6 +16,7 @@ from .acl import moderators
 
 User = get_user_model()
 NEWS_APPROVAL_SALT = "news-approval"
+MAGIC_LINK_EXPIRATION = 3600 * 24  # 24h
 
 
 def send_email_news_approved(request, entry):
@@ -70,6 +71,7 @@ def send_email_news_needs_moderation(request, entry):
         "entry": entry,
         "detail_url": request.build_absolute_uri(entry.get_absolute_url()),
         "moderate_url": request.build_absolute_uri(reverse("news-moderate")),
+        "expiration_hours": int(MAGIC_LINK_EXPIRATION / 3600),
     }
 
     subject = "Boost.org: News entry needs moderation"
