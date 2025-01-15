@@ -1,0 +1,2 @@
+NEWS_APPROVAL_SALT = "news-approval"
+MAGIC_LINK_EXPIRATION = 3600 * 24  # 24h

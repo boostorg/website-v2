@@ -7,13 +7,13 @@ from django.utils.html import escape
 from django.urls import reverse
 from itsdangerous import URLSafeTimedSerializer
 
+from ..constants import NEWS_APPROVAL_SALT
 from ..models import NEWS_MODELS
 from ..notifications import (
     send_email_news_approved,
     send_email_news_needs_moderation,
     send_email_news_posted,
     generate_magic_approval_link,
-    NEWS_APPROVAL_SALT,
 )
 from users.models import Preferences
 
@@ -124,7 +124,6 @@ def test_send_email_news_needs_moderation(
 
 def test_generate_magic_approval_link(make_entry, make_user):
     entry = make_entry()
-    # entry = make_entry(NEWS_MODELS[0])
     moderator = make_user(groups={"moderator": ["news.*"]}, email="mod@x.com")
     url = generate_magic_approval_link(entry.slug, moderator.id)
 

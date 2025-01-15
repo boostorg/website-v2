@@ -26,14 +26,13 @@ from django.views.generic.detail import SingleObjectMixin
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
 
 from .acl import can_approve
+from .constants import NEWS_APPROVAL_SALT, MAGIC_LINK_EXPIRATION
 from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
 from .models import BlogPost, Entry, Link, News, Poll, Video
 from .notifications import (
     send_email_news_approved,
     send_email_news_needs_moderation,
     send_email_news_posted,
-    NEWS_APPROVAL_SALT,
-    MAGIC_LINK_EXPIRATION,
 )
 
 User = get_user_model()

@@ -13,10 +13,9 @@ from django.utils.safestring import mark_safe
 from itsdangerous.url_safe import URLSafeTimedSerializer
 
 from .acl import moderators
+from .constants import NEWS_APPROVAL_SALT, MAGIC_LINK_EXPIRATION
 
 User = get_user_model()
-NEWS_APPROVAL_SALT = "news-approval"
-MAGIC_LINK_EXPIRATION = 3600 * 24  # 24h
 
 
 def send_email_news_approved(request, entry):
