@@ -41,7 +41,8 @@
           </select>
         </div>
         {# Select a version #}
-        <div class="flex grow justify-end">
+        <div class="flex flex-row lib_pref grow justify-end">
+          {% include "libraries/includes/dev_master_links.html"  %}
             {% version_select %}
         </div>
       </div>

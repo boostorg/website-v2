@@ -1,0 +1,58 @@
+{% load branch_url_tag %}
+<div class="devmast_container">
+  <div class="mast_container" title="Master Branch">
+    <div class="minicircle mastercolor">M</div>
+    <a href="{% branch_url_tag request.resolver_match.view_name branch='master' kwargs=request.resolver_match.kwargs %}" class="giticon"><i class="fa-brands fa-git-alt fa-2xl"></i></a>
+  </div>
+  <div class="dev_container" title="Develop Branch">
+    <div class="minicircle developcolor">D</div>
+    <a href="{% branch_url_tag request.resolver_match.view_name branch='develop' kwargs=request.resolver_match.kwargs %}" class="giticon"><i class="fa-brands fa-git-alt fa-2xl"></i></a>
+  </div>
+</div>
+<style>
+  .devmast_container {
+    display: inline-flex;
+    width: 5rem;
+    justify-content: space-around;
+  }
+  .mast_container {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  .dev_container {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  .lib_pref .mast_container,
+  .lib_pref .dev_container {
+    align-items: flex-start;
+    margin-top: 6px;
+  }
+  .minicircle {
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.6rem;
+    border-radius: 30px;
+    width: 0.8rem;
+    height: 0.8rem;
+    position: absolute;
+    left: -0.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mastercolor {
+    background-color: rgb(255 159 0);
+  }
+  .developcolor {
+    background-color: rgb(14 174 96);
+  }
+  .mast_container .fa-git-alt:hover {
+    color: rgb(255 159 0) !important;
+  }
+  .dev_container .fa-git-alt:hover {
+    color: rgb(14 174 96) !important;
+  }
+</style>
