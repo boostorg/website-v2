@@ -1,11 +1,12 @@
+{% load branch_url_tag %}
 <div class="devmast_container">
   <div class="mast_container" title="Master Branch">
     <div class="minicircle mastercolor">M</div>
-    <a href="" class="giticon"><i class="fa-brands fa-git-alt fa-2xl"></i></a>
+    <a href="{% branch_url_tag request.resolver_match.view_name branch='master' kwargs=request.resolver_match.kwargs %}" class="giticon"><i class="fa-brands fa-git-alt fa-2xl"></i></a>
   </div>
   <div class="dev_container" title="Develop Branch">
     <div class="minicircle developcolor">D</div>
-    <a href="" class="giticon"><i class="fa-brands fa-git-alt fa-2xl"></i></a>
+    <a href="{% branch_url_tag request.resolver_match.view_name branch='develop' kwargs=request.resolver_match.kwargs %}" class="giticon"><i class="fa-brands fa-git-alt fa-2xl"></i></a>
   </div>
 </div>
 <style>
