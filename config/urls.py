@@ -46,7 +46,9 @@ from news.views import (
     EntryDeleteView,
     EntryDetailView,
     EntryListView,
+    EntryModerationDetailView,
     EntryModerationListView,
+    EntryModerationMagicApproveView,
     EntryUpdateView,
     LinkCreateView,
     LinkListView,
@@ -229,6 +231,16 @@ urlpatterns = (
         path("news/add/poll/", PollCreateView.as_view(), name="news-poll-create"),
         path("news/add/video/", VideoCreateView.as_view(), name="news-video-create"),
         path("news/moderate/", EntryModerationListView.as_view(), name="news-moderate"),
+        path(
+            "news/moderate/<slug:slug>/",
+            EntryModerationDetailView.as_view(),
+            name="news-moderate-detail",
+        ),
+        path(
+            "news/moderate/magic/<str:token>/",
+            EntryModerationMagicApproveView.as_view(),
+            name="news-magic-approve",
+        ),
         path("news/entry/<slug:slug>/", EntryDetailView.as_view(), name="news-detail"),
         path(
             "news/entry/<slug:slug>/approve/",
