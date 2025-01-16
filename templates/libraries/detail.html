@@ -21,7 +21,8 @@
           <span class="mx-3 text-xl md:text-3xl text-orange">{{ object.display_name }}</span>
         </div>
       </div>
-      <div class="flex-shrink mr-3 md:mr-0">
+      <div class="flex flex-row mr-3 md:mr-0">
+        {% include "libraries/includes/dev_master_links.html"  %}
         {% version_select %}
       </div>
     </div>
