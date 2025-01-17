@@ -13,22 +13,26 @@
  * 3. Font-Face Declarations
  * 4. CSS Reset
  * 5. Global Styles for .boostlook
- * 6. AsciiDoctor-specific Styles
- * 7. Antora Templates Styles
- * 8. Website-v2 Styles
+ * 6. Styling for Scrollbar Display
+ * 7. AsciiDoctor-specific Styles
+ * 8. Antora Templates Styles
  * 9. Quickbook Documentation Styles
+ * 10. Library README Styles
  */
 
 /**
  * Template Structure:
- * The framework supports two main documentation templates:
+ * The framework supports these main documentation templates:
  *
  * 1. AsciiDoctor Template:
+ * example: https://www.boost.io/doc/libs/1_87_0/libs/charconv/doc/html/charconv.html
  * <div class="boostlook">
  *   <div class="header">
  *     <h1>Title</h1>
- *     <button id="toggle-toc">Show Table of Contents</button>
- *     <div id="toc" class="toc2"></div>
+ *     <div id="toc" class="toc2">
+ *         <button id="toggle-toc">Show Table of Contents</button>
+ *         <ul class="sectlevel1">TOC Links</ul>
+ *     </div>
  *   </div>
  *   <div id="content">
  *     <div class="sect1">Content Sections</div>
@@ -37,18 +41,36 @@
  * </div>
  *
  * 2. Antora Template:
+ * example: https://www.boost.io/doc/libs/1_87_0/doc/antora/url/index.html
  * <div class="boostlook">
- *   <div class="header">
- *     <div class="nav-container toc2">Navigation</div>
+ *   <div id="header">
+ *     <div id="toc" class="nav-container toc2">Navigation</div>
  *   </div>
  *   <div id="content">
  *     <article class="doc max-width-reset">
+ *       <div class="toolbar">Breadcrumbs and Spirit Nav</div>
  *       <h1>Title</h1>
  *       <div class="sect1">Content Sections</div>
  *     </article>
  *   </div>
  *   <div id="footer">Footer Content</div>
  * </div>
+ *
+ * 3. Quickbook Template:
+ * example: https://www.boost.io/doc/libs/1_87_0/doc/html/accumulators.html
+ * <div class="boostlook">
+ *    <div class="spirit-nav">Navigation</div>
+ *    <div class="chapter">  <!-- might also be .section, .refentry, .document, or .book -->
+ *        <div class="titlepage">Title and information</div>
+ *        <div class="toc">Table of Contents</div>
+ *        <div class="section>Content</div>
+ *        <div class="copyright-footer">Footer</div>
+ *    </div>
+ * </div>
+ *
+ * 4. README Template:
+ * example: https://www.boost.io/library/1.87.0/beast/
+ * <section id="libraryReadMe" class="boostlook">ReadMe Content</section>
  */
 
 /**
@@ -571,6 +593,13 @@ p, h1, h2, h3, h4, h5, h6 {
   text-decoration: underline;
 }
 
+/* Link States */
+.boostlook p a:visited,
+.boostlook table a,
+.boostlook .pagination a {
+  color: var(--bl-link-color);
+}
+
 /* Code Block Styling */
 .boostlook code,
 .boostlook pre code,
@@ -601,21 +630,6 @@ p, h1, h2, h3, h4, h5, h6 {
 #boost-legacy-docs-wrapper .ulist ul {
   padding: 0 0 0 15px;
   margin: 0;
-}
-
-/* Inline Code Elements */
-.boostlook p code,
-.boostlook table code,
-.boostlook p tt,
-.boostlook p kbd,
-.boostlook p samp,
-.boostlook p pre {
-  overflow-x: hidden;
-}
-
-/* Table Container */
-.boostlook .content div:has(> table) {
-  overflow-x: auto;
 }
 
 /* Code Styling */
@@ -726,30 +740,9 @@ p, h1, h2, h3, h4, h5, h6 {
   color: var(--bl-hljs-attribute-color);
 }
 
-/* Link States */
-.boostlook p a:visited,
-.boostlook table a,
-.boostlook .pagination a {
-  color: var(--bl-link-color);
-}
-
 /* Pagination */
 .boostlook nav.pagination span::before {
   color: var(--bl-pagination-color);
-}
-
-/* Table of Contents Links */
-.boostlook #toc a {
-  color: var(--bl-nav-link-color);
-}
-
-.boostlook #toc a:hover,
-.boostlook #toc a:focus {
-  color: var(--bl-nav-link-hover-color);
-}
-
-.boostlook #toc.toc2 {
-  padding-bottom: 1.5rem;
 }
 
 /* Text Emphasis */
@@ -865,6 +858,21 @@ html:has(#docsiframe) {
   background-color: var(--bl-scrollbar-track-color);
 }
 
+/* Inline Code Elements */
+.boostlook p code,
+.boostlook table code,
+.boostlook p tt,
+.boostlook p kbd,
+.boostlook p samp,
+.boostlook p pre {
+  overflow-x: hidden;
+}
+
+/* Table Container */
+.boostlook .content div:has(> table) {
+  overflow-x: auto;
+}
+
 /* Asciidoc template - Content overflow handling */
 .boostlook:has(#content > .sect1) {
   scrollbar-width: thin;
@@ -947,6 +955,20 @@ html:has(#docsiframe) {
   line-height: 1.5;
   font-size: 1rem;
   list-style: none;
+}
+
+/* Table of Contents Links */
+.boostlook #toc a {
+  color: var(--bl-nav-link-color);
+}
+
+.boostlook #toc a:hover,
+.boostlook #toc a:focus {
+  color: var(--bl-nav-link-hover-color);
+}
+
+.boostlook #toc.toc2 {
+  padding-bottom: 1.5rem;
 }
 
 .boostlook #toc .sectlevel1 > li > a {
@@ -1088,10 +1110,7 @@ html:has(#docsiframe) {
     text-indent: -9999px;
     z-index: 1001;
   }
-}
 
-/* TOC States */
-@media screen and (min-width: 768px) {
   /* Hidden TOC */
   html.toc-hidden .boostlook {
     margin-left: 0;
@@ -1503,10 +1522,24 @@ html:has(#docsiframe) {
 }
 
 /* Table of Contents */
-.boostlook div.toc {
+.boostlook:not(:has(.doc)) div.toc {
   border-radius: 8px;
   padding: 1rem;
   margin: 1rem 0;
+  font-size: 80%;
+  line-height: 1.15;
+  color: var(--text-color);
+  border: 1px solid var(--bl-border-color);
+  background-color: var(--bl-pre-background);
+}
+
+.boostlook:not(:has(.doc)) div.toc dl.toc {
+  background-color: transparent;
+}
+
+.boostlook:not(:has(.doc)) #toc ul {
+  list-style: none !important;
+  margin: 0.5rem 0 !important;
 }
 
 #boost-legacy-docs-wrapper.boostlook div.toc > p {
@@ -1519,11 +1552,6 @@ html:has(#docsiframe) {
 
 .boostlook dl.toc dd {
   padding-left: .6rem;
-}
-
-.boostlook dl.toc code {
-  font-size: 80%;
-  line-height: 1.15;
 }
 
 /* Copyright Footer */
@@ -1686,34 +1714,6 @@ body[bgcolor="white"]:has(.boostlook):not(:has(.doc)) {
 .boostlook:not(:has(.doc)) div.informaltable table tr th,
 .boostlook:not(:has(.doc)) div.table table tr th {
   border: 1px solid var(--bl-border-color);
-}
-
-/* Table of Contents */
-.boostlook:not(:has(.doc)) div.toc {
-  font-size: 80%;
-  line-height: 1.15;
-  color: var(--text-color);
-  border: 1px solid var(--bl-border-color);
-  background-color: var(--bl-pre-background);
-}
-
-.boostlook:not(:has(.doc)) div.toc dl.toc {
-  background-color: transparent;
-}
-
-.boostlook:not(:has(.doc)) #toc ul {
-  list-style: none !important;
-  margin: 0.5rem 0 !important;
-}
-
-.boostlook:not(:has(.doc)) .boost-toc {
-  float: right;
-  padding: 0.5pc;
-}
-
-/* Code in TOC */
-.boostlook:not(:has(.doc)) .toc .computeroutput {
-  font-size: 120%
 }
 
 /* Copyright Footer */
