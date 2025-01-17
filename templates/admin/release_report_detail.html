@@ -30,14 +30,14 @@
       <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
         <div class="flex flex-col h-full gap-y-6">
           <div class="flex flex-col gap-y-2">
-            <h1 class="flex mb-0">
+            <h1 class="flex mb-0 font-bold">
               <img
                 class="mt-[3px]"
                 style="width:3.3rem; margin-right:.5rem;" src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
               >
               Boost
             </h1>
-            <div class="flex gap-x-12 link-icons my-4">
+            <div class="flex gap-x-12 link-icons my-4 text-2xl justify-between">
               {% include "includes/_social_icon_links.html" %}
             </div>
             <div>{{ commit_count|intcomma }} commit{{ commit_count|pluralize }} up through {{ version.display_name }}</div>
@@ -59,12 +59,9 @@
             <tbody>
               <tr>
                 <th scope="col"
-                    class="p-3 h-8 text-base border border-r-0 border-b-0 border-gray-400 text-center">
-                  Platform
-                </th>
-                <th scope="col"
-                    class="p-3 text-base border border-b-0 border-gray-400">
-                  File
+                    colspan="2"
+                    class="p-3 h-8 text-base border border-b-0 border-gray-400 text-center">
+                  Download Now!
                 </th>
               </tr>
                 {% for os, download_files in downloads.items %}
@@ -158,6 +155,7 @@
             >
             Boost {{ version.display_name }}
           </h1>
+          <h2>Git activity for this release</h2>
           <div class="mx-auto mb-4">{{ version_commit_count|intcomma }} Commit{{ version_commit_count|pluralize }} Across {{ library_count }} Repositories</div>
         </div>
 
