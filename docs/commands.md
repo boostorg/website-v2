@@ -307,6 +307,8 @@ If both the `--release` and the `--library-name` are passed, the command will lo
 
 **Purpose**: Execute a chain of commands which are necessary to run during a release. Imports new versions, beta versions, slack messages, github issues, commits, authors, maintainers, etc... Inspect the management command to see exactly which commands are being run.
 
+For this to work `SLACK_BOT_API` must be set in the `.env` file.
+
 **Example**
 
 ```bash

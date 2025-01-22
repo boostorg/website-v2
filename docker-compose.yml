@@ -99,6 +99,7 @@ services:
     networks:
       - backend
     environment:
+      LOCAL_DEVELOPMENT: "true"
       DEBUG_TOOLBAR: "false"
     env_file:
       - .env
