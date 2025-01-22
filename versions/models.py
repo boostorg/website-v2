@@ -47,7 +47,11 @@ class Version(models.Model):
         blank=True,
         help_text='Message to show in release reports on the "Fiscal Sponsorship Committee" page.',  # noqa: E501
     )
-
+    financial_committee_members = models.ManyToManyField(
+        User,
+        blank=True,
+        help_text="Financial Committee members who are responsible for this release.",
+    )
     objects = VersionManager()
 
     def __str__(self):

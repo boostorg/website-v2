@@ -139,8 +139,20 @@
         <div class="pdf-page !p-16 {{ bg_color }}">
           {% include "admin/_release_report_top_left_logo.html" %}
           <h2>From the Fiscal Sponsorship Committee</h2>
-          <div class="w-full h-[80%] dynamic-text sponsor-message">
-            {{ version.sponsor_message|safe }}
+          <div class="flex flex-col w-full h-[80%] dynamic-text sponsor-message justify-between">
+            <div class="">{{ version.sponsor_message|safe }}</div>
+            <div class="committee_members border-t-1 flex flex-wrap mt-2 text-sm text-center">
+              {% for user in committee_members|dictsort:"first_name" %}
+                <figure class="w-32 m-2">
+                  {% if user.hq_image %}
+                    <img src="{{ user.hq_image_render.url }}" alt="{{ user.first_name }} {{ user.last_name }}" />
+                  {% else %}
+                    <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="" />
+                  {% endif %}
+                  <figcaption class="p-1">{{user.first_name}} {{user.last_name}}</figcaption>
+                </figure>
+              {% endfor %}
+             </div>
           </div>
         </div>
       {% endif %}
