@@ -1,0 +1,99 @@
+{% extends "admin/change_list.html" %}
+{% block extrahead %}
+  {{ block.super }}
+  <script>
+    // if you change this, change delete_selected_confirmation.html too to match
+    const storageKey = `selected_admin_ids-${window.location.pathname.toString().slice(1, -1).replace(/\//g,"_")}`;
+
+    const getSelectedIds = () => {
+      const stored = localStorage.getItem(storageKey);
+      return stored ? JSON.parse(stored) : [];
+    }
+
+    const setSelectedIds = (ids) => {
+      localStorage.setItem(storageKey, JSON.stringify(ids));
+    }
+
+    const addId = (id) => {
+      let selected = getSelectedIds();
+      if (!selected.includes(id)) {
+        selected.push(id);
+        setSelectedIds(selected);
+      }
+    }
+
+    const removeId = (id) => {
+      const selected = getSelectedIds();
+      setSelectedIds(selected.filter(item => item !== id));
+    }
+
+    const clearIds = () => {
+      const action_selects = document.querySelectorAll("input[name=_selected_action]:checked");
+      for (let i = 0; i < action_selects.length; i++) {
+        action_selects[i].checked = false;
+      }
+      setSelectedIds([]);
+      setTimeout(updateActionCounter, 1);
+    }
+
+    const updateActionCounter = () => {
+      const selectedIds = getSelectedIds();
+      const checkedCheckboxes = document.querySelectorAll("input[name=_selected_action]:checked");
+      const counter = document.querySelector(".action-counter");
+
+      if (counter) {
+        let actionCounterContent = "Selected - Page: 0, Total: 0";
+        if (checkedCheckboxes.length && selectedIds.length) {
+          actionCounterContent = counter.textContent.replace(
+            /([\W\w]+) selected([\W\w]?)/,
+            `Selected - Page: ${checkedCheckboxes.length || 0}, Total: ${selectedIds.length || 0} ❌`
+          );
+        }
+        counter.textContent = actionCounterContent;
+        counter.title = "Click to clear all";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const checkboxes = document.querySelectorAll("input.action-select");
+      const selectedIds = getSelectedIds();
+      setTimeout(updateActionCounter, 1);
+      const counter = document.querySelector(".action-counter");
+      counter.addEventListener("click", () => {
+         if (window.confirm("Are you sure you want to clear all selected items across all pages for this form?")) {
+          clearIds();
+         }
+      });
+
+      checkboxes.forEach((checkbox) => {
+        if (selectedIds.includes(checkbox.value)) {
+          checkbox.checked = true;
+        }
+
+        checkbox.addEventListener("change", () => {
+          if (checkbox.checked) {
+            addId(checkbox.value);
+          } else {
+            removeId(checkbox.value);
+          }
+          setTimeout(updateActionCounter, 1);
+        });
+      });
+
+      const form = document.querySelector("form#changelist-form");
+      if (form) {
+        form.addEventListener("submit", (event) => {
+          const selected = getSelectedIds();
+          selected.forEach((id) => {
+            const hiddenInput = document.createElement("input");
+            hiddenInput.type = "hidden";
+            hiddenInput.name = "_selected_action";
+            hiddenInput.value = id;
+            form.appendChild(hiddenInput);
+          });
+        });
+      }
+    });
+
+  </script>
+{% endblock %}

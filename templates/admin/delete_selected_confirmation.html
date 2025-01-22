@@ -1,0 +1,17 @@
+{% extends "admin/delete_selected_confirmation.html" %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // if you change this, change change_list.html too to match
+      const storageKey = `selected_admin_ids-${window.location.pathname.toString().slice(1, -1).replace(/\//g,"_")}`;
+      const form = document.querySelector("form");
+      if (form) {
+        form.addEventListener("submit", () => {
+           localStorage.removeItem(storageKey);
+        });
+      }
+    });
+  </script>
+{% endblock %}
