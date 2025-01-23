@@ -609,8 +609,6 @@ p, h1, h2, h3, h4, h5, h6 {
   padding: 1.2em .8em;
   font-family: "Noto Sans Mono", monospace;
   margin-bottom: 1.25rem;
-  overflow-x: auto !important;
-  scrollbar-width: none !important;
 }
 
 /* Emphasis within code */
@@ -858,19 +856,54 @@ html:has(#docsiframe) {
   background-color: var(--bl-scrollbar-track-color);
 }
 
-/* Inline Code Elements */
+/* Code Elements */
+
+.boostlook .doc pre,
 .boostlook p code,
 .boostlook table code,
 .boostlook p tt,
 .boostlook p kbd,
 .boostlook p samp,
-.boostlook p pre {
-  overflow-x: hidden;
+.boostlook p pre,
+.boostlook:not(:has(.doc)) pre,
+.boostlook code,
+.boostlook pre code,
+.boostlook .doc .content pre code,
+.boostlook#libraryReadMe pre code {
+  overflow-x: auto;
+  scrollbar-color: var(--bl-pre-background) var(--bl-pre-background);
+  scrollbar-width: thin;
+}
+
+.boostlook .doc pre:hover,
+.boostlook p code:hover,
+.boostlook table code:hover,
+.boostlook p tt:hover,
+.boostlook p kbd:hover,
+.boostlook p samp:hover,
+.boostlook p pre:hover,
+.boostlook p pre:hover code,
+.boostlook code:hover,
+.boostlook pre code:hover,
+.boostlook .doc .content pre code:hover,
+.boostlook:not(:has(.doc)) pre:hover,
+.boostlook#libraryReadMe pre code:hover {
+  scrollbar-color: var(--bl-scrollbar-thumb-color) var(--bl-pre-background);
 }
 
 /* Table Container */
-.boostlook .content div:has(> table) {
-  overflow-x: auto;
+.boostlook .content div:has(> table),
+.boostlook .doc table.tableblock,
+.boostlook #content .sect3:has(.tableblock) {
+  overflow-x: auto !important;
+  scrollbar-color: var(--bl-background) var(--bl-background);
+  scrollbar-width: thin;
+}
+
+.boostlook .content div:has(> table):hover,
+.boostlook .doc table.tableblock:hover,
+.boostlook #content .sect3:has(.tableblock):hover {
+  scrollbar-color: var(--bl-scrollbar-thumb-color) var(--bl-scrollbar-track-color);
 }
 
 /* Asciidoc template - Content overflow handling */
@@ -878,14 +911,6 @@ html:has(#docsiframe) {
   scrollbar-width: thin;
   overflow-y: auto;
   height: 100vh;
-}
-
-/* Hide scrollbars but keep functionality */
-.boostlook code::-webkit-scrollbar,
-.boostlook pre code::-webkit-scrollbar,
-.boostlook .doc .content pre code::-webkit-scrollbar {
-  width: 0;
-  height: 0;
 }
 
 /*----------------- Styles specific to AsciiDoctor content start -----------------*/
@@ -916,8 +941,6 @@ html:has(#docsiframe) {
   background-color: var(--bl-pre-background);
   margin-bottom: 1.25rem;
   padding: 1rem;
-  overflow-x: auto;
-  scrollbar-width: none;
   border-color: var(--bl-code-border-color);
 }
 
@@ -1028,11 +1051,6 @@ html:has(#docsiframe) {
 .boostlook .nav-menu .title {
   border-bottom: 1px solid var(--bl-table-border-color);
   margin-bottom: 16px;
-}
-
-/* Table Container */
-.boostlook #content .sect3:has(.tableblock) {
-  overflow-x: auto;
 }
 
 /* Legacy Documentation Titles */
@@ -1289,7 +1307,6 @@ html:has(#docsiframe) {
 
 .boostlook .doc pre {
   padding: initial;
-  overflow-x: hidden;
 }
 
 /* Layout */
@@ -1337,7 +1354,6 @@ html:has(#docsiframe) {
 /* Tables */
 .boostlook .doc table.tableblock {
   display: block;
-  overflow-x: auto;
   margin-bottom: 1.5rem;
   margin-top: 1rem;
 }
