@@ -779,7 +779,9 @@ class CreateReportForm(CreateReportFullForm):
         ).aggregate(lines=Sum("deletions"))["lines"]
         # we want 2 channels per pdf page, use batched to get groups of 2
         slack_stats = batched(self._get_slack_stats(prior_version, version), 2)
+        committee_members = version.financial_committee_members.all()
         return {
+            "committee_members": committee_members,
             "lines_added": lines_added,
             "lines_removed": lines_removed,
             "wordcloud_base64": self._generate_hyperkitty_word_cloud(version),

@@ -32,6 +32,8 @@ def progress_message(message: str):
 
 @locked(1138692)
 def run_commands(progress: list[str]):
+    if not settings.SLACK_BOT_TOKEN:
+        raise ValueError("SLACK_BOT_TOKEN is not set.")
     handled_commits = {}
     progress.append(progress_message("Importing versions..."))
     call_command("import_versions", "--new")

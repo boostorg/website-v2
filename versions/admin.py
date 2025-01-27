@@ -30,6 +30,7 @@ class VersionAdmin(admin.ModelAdmin):
     search_fields = ["name", "description"]
     date_hierarchy = "release_date"
     inlines = [VersionFileInline]
+    filter_horizontal = ["financial_committee_members"]
     change_list_template = "admin/version_change_list.html"
 
     def get_urls(self):
