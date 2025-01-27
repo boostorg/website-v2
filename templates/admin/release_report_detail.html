@@ -40,18 +40,18 @@
             <div class="flex gap-x-12 link-icons my-4 text-2xl justify-between">
               {% include "includes/_social_icon_links.html" %}
             </div>
-            <div>{{ commit_count|intcomma }} commit{{ commit_count|pluralize }} up through {{ version.display_name }}</div>
-            <div>{{ lines_added|intcomma }} line{{ lines_added|pluralize }} added, {{ lines_removed|intcomma }} line{{ lines_removed|pluralize }} removed</div>
-            <div>{{ version_commit_count|intcomma }} new commit{{ version_commit_count|pluralize }} in all library repositories</div>
-            <div>{{ commit_contributors_release_count }} commit contributors, {{ commit_contributors_new_count }} new</div>
-            <div>{{ opened_issues_count|intcomma }} issues opened, {{ closed_issues_count|intcomma }} closed</div>
-            <div>{{ mailinglist_total|intcomma }} posts to the developer's mailing list</div>
-            <div>{{ mailinglist_contributor_release_count }} unique mailing list users, {{ mailinglist_contributor_new_count }} new</div>
+            <div><span class="font-bold">{{ commit_count|intcomma }}</span> commit{{ commit_count|pluralize }} up through {{ version.display_name }}</div>
+            <div><span class="font-bold">{{ lines_added|intcomma }}</span> line{{ lines_added|pluralize }} added, <span class="font-bold">{{ lines_removed|intcomma }}</span> line{{ lines_removed|pluralize }} removed</div>
+            <div><span class="font-bold">{{ version_commit_count|intcomma }}</span> new commit{{ version_commit_count|pluralize }} in all library repositories</div>
+            <div><span class="font-bold">{{ commit_contributors_release_count }}</span> commit contributors, <span class="font-bold">{{ commit_contributors_new_count }}</span> new</div>
+            <div><span class="font-bold">{{ opened_issues_count|intcomma }}</span> issues opened, <span class="font-bold">{{ closed_issues_count|intcomma }}</span> closed</div>
+            <div><span class="font-bold">{{ mailinglist_total|intcomma }}</span> posts to the developer's mailing list</div>
+            <div><span class="font-bold">{{ mailinglist_contributor_release_count }}</span> unique mailing list users, <span class="font-bold">{{ mailinglist_contributor_new_count }}</span> new</div>
             {% if added_library_count %}
-              <div>{{ added_library_count }} librar{{ added_library_count|pluralize:"y,ies" }} added</div>
+              <div><span class="font-bold">{{ added_library_count }}</span> librar{{ added_library_count|pluralize:"y,ies" }} added</div>
             {% endif %}
             {% if removed_library_count %}
-              <div>{{ removed_library_count }} librar{{ removed_library_count|pluralize:"y,ies" }} removed</div>
+              <div><span class="font-bold">{{ removed_library_count }}</span> librar{{ removed_library_count|pluralize:"y,ies" }} removed</div>
             {% endif %}
           </div>
           {% if downloads %}
@@ -122,12 +122,12 @@
                 {% endfor %}
               </div>
               <div class="flex gap-x-1 text-sm mx-auto">
-                <div class="mr-1">0 commits</div>
+                <div class="mr-1"><span class="font-bold">0</span> commits</div>
                 {% for color in contribution_box_graph.colors %}
                   <div class="h-4 w-4 rounded-sm" style="background-color: {{ color }}">
                   </div>
                 {% endfor %}
-                <div class="ml-1">{{ contribution_box_graph.max }} commits</div>
+                <div class="ml-1"><span class="font-bold">{{ contribution_box_graph.max }}</span> commits</div>
               </div>
             </div>
           {% endif %}
@@ -137,7 +137,6 @@
 
       {% if version.sponsor_message %}
         <div class="pdf-page !p-16 {{ bg_color }}">
-          {% include "admin/_release_report_top_left_logo.html" %}
           <h2>From the Fiscal Sponsorship Committee</h2>
           <div class="flex flex-col w-full h-[80%] dynamic-text sponsor-message justify-between">
             <div class="">{{ version.sponsor_message|safe }}</div>
@@ -154,6 +153,7 @@
               {% endfor %}
              </div>
           </div>
+          {% include "admin/_release_report_page_footer.html" %}
         </div>
       {% endif %}
 
@@ -168,7 +168,7 @@
             Boost {{ version.display_name }}
           </h1>
           <h2>Git activity for this release</h2>
-          <div class="mx-auto mb-4">{{ version_commit_count|intcomma }} Commit{{ version_commit_count|pluralize }} Across {{ library_count }} Repositories</div>
+          <div class="mx-auto mb-4"><span class="font-bold">{{ version_commit_count|intcomma }}</span> Commit{{ version_commit_count|pluralize }} Across <span class="font-bold">{{ library_count }}</span> Repositories</div>
         </div>
 
         <div class="flex gap-x-8 justify-around w-full">
@@ -182,7 +182,7 @@
                   <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
                     {{ author.name }}
                   </div>
-                  <div class="text-[0.7rem]">{{ author.commit_count }} commit{{ author.commit_count|pluralize }}</div>
+                  <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
                 </div>
               </div>
             {% endfor %}
@@ -198,8 +198,6 @@
 
       <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
 
-        {% include "admin/_release_report_top_left_logo.html" %}
-
         <div class="flex gap-x-8 justify-around w-full">
           <div class="px-4">
             <div class="mx-auto mb-6">Top Contributors</div>
@@ -211,7 +209,7 @@
                   <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
                     {{ item.name }}
                   </div>
-                  <div class="text-[0.7rem]">{{ item.total_count }} post{{ item.total_count|pluralize }}</div>
+                  <div class="text-[0.7rem]"><span class="font-bold">{{ item.total_count }}</span> post{{ item.total_count|pluralize }}</div>
                 </div>
               </div>
             {% endfor %}
@@ -223,7 +221,7 @@
             <div class="mx-auto mb-4">
               There were
               {% if mailinglist_total %}
-                {{ mailinglist_total|intcomma }}
+                <span class="font-bold">{{ mailinglist_total|intcomma }}</span>
               {% else %}
                 no
               {% endif %}
@@ -232,30 +230,30 @@
             <div class="mx-auto mb-4">
               There
               {{ mailinglist_contributor_release_count|pluralize:"was,were" }}
-              {{ mailinglist_contributor_release_count }}
+              <span class="font-bold">{{ mailinglist_contributor_release_count }}</span>
               poster{{ mailinglist_contributor_release_count|pluralize }}
-              in this version. ({{ mailinglist_contributor_new_count }} New)
+              in this version. (<span class="font-bold">{{ mailinglist_contributor_new_count }}</span> New)
             </div>
           </div>
         </div>
+        {% include "admin/_release_report_page_footer.html" %}
       </div>
       {% if wordcloud_base64 %}
         <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
-
-          {% include "admin/_release_report_top_left_logo.html" %}
-
           <div class="flex flex-col mx-auto">
             <h2 class="mx-auto">Mailing List Word Cloud</h2>
             <div class="flex mx-auto">
               <img src="data:image/png;base64,{{ wordcloud_base64 }}" alt="Mailing List Word Cloud" class="w-full">
             </div>
           </div>
+
+          {% include "admin/_release_report_page_footer.html" %}
+
         </div>
       {% endif %}
       {% if slack %}
         {% for slack_group in slack %}
           <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
-            {% include "admin/_release_report_top_left_logo.html" %}
             <div class="flex flex-col mx-auto">
               <h2 class="mx-auto">Slack Activity</h2>
               <div class="flex gap-x-[6rem]">
@@ -274,7 +272,7 @@
                                 <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
                                   {{ item.real_name }}
                                 </div>
-                                <div class="text-[0.7rem]">{{ item.total }} message{{ item.total|pluralize }}</div>
+                                <div class="text-[0.7rem]"><span class="font-bold">{{ item.total }}</span> message{{ item.total|pluralize }}</div>
                               </div>
                             </div>
                           {% endfor %}
@@ -283,24 +281,24 @@
                     </div>
                     <div>
                       <div class="mx-auto">
-                        {{ slack_item.total|intcomma }}
+                        <span class="font-bold">{{ slack_item.total|intcomma }}</span>
                         slack message{{ slack_item.total|pluralize }} in #{{ slack_item.channel.name }}
                       </div>
                       <div class="mx-auto">
-                        {{ slack_item.user_count }}
+                        <span class="font-bold">{{ slack_item.user_count }}</span>
                         {{ slack_item.user_count|pluralize:"person,people" }}
-                        conversing in this release. ({{ slack_item.new_user_count }} New)
+                        conversing in this release. (<span class="font-bold">{{ slack_item.new_user_count }}</span> New)
                       </div>
                     </div>
                   </div>
                 {% endfor %}
               </div>
             </div>
+            {% include "admin/_release_report_page_footer.html" %}
           </div>
         {% endfor %}
       {% endif %}
       <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
-        {% include "admin/_release_report_top_left_logo.html" %}
         <div class="flex flex-col h-full mx-auto w-full">
           <h2 class="mx-auto">Library Index</h2>
           <div class="flex flex-col flex-wrap gap-x-4 gap-y-1 text-xs h-5/6">
@@ -311,10 +309,10 @@
             {% endfor %}
           </div>
         </div>
+        {% include "admin/_release_report_page_footer.html" %}
       </div>
       {% for item in library_data %}
         <div class="pdf-page flex flex-col items-center justify-center {{ bg_color }}">
-          {% include "admin/_release_report_top_left_logo.html" %}
           <div class="grid grid-cols-3 gap-x-8 w-full p-4">
             <div class="px-4">
               <div class="mx-auto mb-6">Top Contributors</div>
@@ -326,7 +324,7 @@
                     <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
                       {{ author.name }}
                     </div>
-                    <div class="text-[0.7rem]">{{ author.commit_count }} commit{{ author.commit_count|pluralize }}</div>
+                    <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
                   </div>
                 </div>
               {% endfor %}
@@ -342,36 +340,37 @@
                 <div>
                   There
                   {{ item.version_count.commit_count|pluralize:"was,were" }}
-                  {{ item.version_count.commit_count }}
+                  <span class="font-bold">{{ item.version_count.commit_count }}</span>
                   commit{{ item.version_count.commit_count|pluralize }}
                   in release {{ version.display_name }}
                 </div>
                 {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
                   <div>
-                    {{ insertions|intcomma }} line{{ insertions|pluralize }} added, {{ deletions|intcomma }} line{{ deletions|pluralize }} removed
+                    <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added, <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
                   </div>
                 {% endwith %}
                 {% with count=item.new_contributors_count.count %}
                   {% if count >= 1 %}
                     <div>
-                      There {{ count|pluralize:"was,were" }} {{ count }} new contributor{{ count|pluralize }} this release!
+                      There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} this release!
                     </div>
                   {% endif %}
                 {% endwith %}
                 <div>
-                  There {{ item.issues.opened|pluralize:"was,were" }} {{ item.issues.opened }} issue{{ item.issues.opened|pluralize }} opened
-                  and {{ item.issues.closed|pluralize:"was,were" }} {{ item.issues.closed }} issue{{ item.issues.closed|pluralize }} closed
+                  There {{ item.issues.opened|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.opened }}</span> issue{{ item.issues.opened|pluralize }} opened
+                  and {{ item.issues.closed|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.closed }}</span> issue{{ item.issues.closed|pluralize }} closed
                 </div>
                 {% if item.deps.added or item.deps.removed %}
                   <div>
-                    There {{ item.deps.added|length|pluralize:"was,were" }} {{ item.deps.added|length }} dependenc{{ item.deps.added|length|pluralize:"y,ies" }} added
+                    There {{ item.deps.added|length|pluralize:"was,were" }} <span class="font-bold">{{ item.deps.added|length }}</span> dependenc{{ item.deps.added|length|pluralize:"y,ies" }} added
                     and
-                    {{ item.deps.removed|length }} dependenc{{ item.deps.removed|length|pluralize:"y,ies" }} removed
+                    <span class="font-bold">{{ item.deps.removed|length }}</span> dependenc{{ item.deps.removed|length|pluralize:"y,ies" }} removed
                   </div>
                 {% endif %}
               </div>
             </div>
           </div>
+          {% include "admin/_release_report_page_footer.html" %}
         </div>
       {% endfor %}
     </div>
