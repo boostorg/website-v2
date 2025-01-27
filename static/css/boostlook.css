@@ -784,13 +784,39 @@ p, h1, h2, h3, h4, h5, h6 {
 
 /**
  * Scrollbar Styling
+ * "Hide" scrollbar, and display on hover
  * Comprehensive scrollbar customization for different contexts:
- * 1. Root level scrollbars
- * 2. Navigation/TOC scrollbars
- * 3. Content area scrollbars
- * 4. Template-specific adjustments
- * 5. Code block scrollbars
+ * 1. Global Scrollbar Styles
+ * 2. Template-specific adjustments
+ * 3. Code Elements
+ * 4. Table Containers
  */
+
+/* Global Scrollbar Styles */
+.boostlook * {
+  scrollbar-color: initial !important;
+  scrollbar-width: initial !important;
+}
+.boostlook:not(:has(.doc)) ::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+}
+
+.boostlook ::-webkit-scrollbar-track {
+  border-radius: 1px;
+  background-color: var(--bl-background);
+}
+
+.boostlook ::-webkit-scrollbar-thumb {
+  background-color: var(--bl-background); /* blend into background */
+}
+
+.boostlook *:hover::-webkit-scrollbar-thumb {
+  background-color: var(--bl-scrollbar-thumb-color);
+  color: var(--bl-scrollbar-thumb-color);
+}
+
+/* Template-specific Adjustments */
 
 /* Hide root scrollbars for Antora template */
 html:has(.article > .boostlook) {
@@ -801,7 +827,6 @@ html:has(.article > .boostlook) {
 /* Iframe container scrollbar handling */
 html:has(#docsiframe) {
   overflow-y: hidden;
-  scrollbar-width: thin;
 }
 
 /* Chrome/Edge scrollbar for iframe container */
@@ -810,54 +835,38 @@ html:has(#docsiframe)::-webkit-scrollbar {
   height: 0;
 }
 
-/* Firefox scrollbar hiding for iframe */
-html:has(#docsiframe) {
-  scrollbar-width: none;
-}
-
-/* Navigation/Table Of Contents scrollbar */
-.boostlook .nav {
-  scrollbar-width: thin;
-  scrollbar-color: var(--bl-scrollbar-thumb-color) var(--bl-scrollbar-track-color);
-}
-
-/* Chrome/Edge - Navigation scrollbar */
-.boostlook .nav::-webkit-scrollbar {
-  width: 6px;
-}
-
-.boostlook .nav::-webkit-scrollbar-thumb {
-  background-color: var(--bl-scrollbar-thumb-color);
-  border-radius: 10px;
-}
-
-.boostlook .nav::-webkit-scrollbar-track {
-  background-color: var(--bl-scrollbar-track-color);
-}
-
 /* Antora template - Scrollable content area */
 .boostlook #content:has(> .doc) {
   overflow-y: auto;
   height: 100vh;
-  scrollbar-width: thin;
-  scrollbar-color: var(--bl-scrollbar-thumb-color) var(--bl-scrollbar-track-color);
 }
 
-/* Chrome/Edge - Content scrollbar */
-.boostlook #content::-webkit-scrollbar {
-  width: 6px;
+.boostlook #content:has(> .doc)::-webkit-scrollbar-track {
+  border-radius: 0 8px 0 0;
 }
 
-.boostlook #content::-webkit-scrollbar-thumb {
-  background-color: var(--bl-scrollbar-thumb-color);
-  border-radius: 10px;
-}
-
-.boostlook #content::-webkit-scrollbar-track {
-  background-color: var(--bl-scrollbar-track-color);
+/* Asciidoc template - Content overflow handling */
+.boostlook:has(#content > .sect1) {
+  overflow-y: auto;
+  height: 100vh;
 }
 
 /* Code Elements */
+.boostlook pre::-webkit-scrollbar-track,
+.boostlook code::-webkit-scrollbar-track {
+  background-color: var(--bl-pre-background);
+  border: 1px solid var(--bl-pre-background);
+}
+
+.boostlook pre::-webkit-scrollbar-thumb,
+.boostlook code::-webkit-scrollbar-thumb {
+  background-color: var(--bl-pre-background);
+}
+
+.boostlook pre:hover::-webkit-scrollbar-thumb,
+.boostlook code:hover::-webkit-scrollbar-thumb {
+  background-color: var(--bl-scrollbar-thumb-color);
+}
 
 .boostlook .doc pre,
 .boostlook p code,
@@ -872,24 +881,8 @@ html:has(#docsiframe) {
 .boostlook .doc .content pre code,
 .boostlook#libraryReadMe pre code {
   overflow-x: auto;
-  scrollbar-color: var(--bl-pre-background) var(--bl-pre-background);
-  scrollbar-width: thin;
-}
-
-.boostlook .doc pre:hover,
-.boostlook p code:hover,
-.boostlook table code:hover,
-.boostlook p tt:hover,
-.boostlook p kbd:hover,
-.boostlook p samp:hover,
-.boostlook p pre:hover,
-.boostlook p pre:hover code,
-.boostlook code:hover,
-.boostlook pre code:hover,
-.boostlook .doc .content pre code:hover,
-.boostlook:not(:has(.doc)) pre:hover,
-.boostlook#libraryReadMe pre code:hover {
-  scrollbar-color: var(--bl-scrollbar-thumb-color) var(--bl-pre-background);
+  scrollbar-color: initial;
+  scrollbar-width: initial;
 }
 
 /* Table Container */
@@ -897,21 +890,6 @@ html:has(#docsiframe) {
 .boostlook .doc table.tableblock,
 .boostlook #content .sect3:has(.tableblock) {
   overflow-x: auto !important;
-  scrollbar-color: var(--bl-background) var(--bl-background);
-  scrollbar-width: thin;
-}
-
-.boostlook .content div:has(> table):hover,
-.boostlook .doc table.tableblock:hover,
-.boostlook #content .sect3:has(.tableblock):hover {
-  scrollbar-color: var(--bl-scrollbar-thumb-color) var(--bl-scrollbar-track-color);
-}
-
-/* Asciidoc template - Content overflow handling */
-.boostlook:has(#content > .sect1) {
-  scrollbar-width: thin;
-  overflow-y: auto;
-  height: 100vh;
 }
 
 /*----------------- Styles specific to AsciiDoctor content start -----------------*/
