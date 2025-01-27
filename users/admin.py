@@ -43,6 +43,10 @@ class EmailUserAdmin(UserAdmin):
                 )
             },
         ),
+        (
+            _("High Quality Image"),
+            {"fields": ("hq_image",)},
+        ),
     )
     add_fieldsets = (
         (None, {"classes": ("wide",), "fields": ("email", "password1", "password2")}),

@@ -79,3 +79,6 @@ This project uses environment variables to configure certain aspects of the appl
 ### `MAX_CELERY_CONNECTIONS`
 
 - If set, will set the maximum number of connections to the Celery in `settings.py`. Defaults to 60.
+
+### `SLACK_BOT_TOKEN`
+- Used to authenticate with the Slack API for pulling data for release reports.

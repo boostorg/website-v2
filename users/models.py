@@ -20,7 +20,11 @@ from django.utils.translation import gettext_lazy as _
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
 
-from core.validators import image_validator, max_file_size_validator
+from core.validators import (
+    image_validator,
+    max_file_size_validator,
+    large_file_max_size_validator,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -221,6 +225,20 @@ class User(BaseUser):
         format="JPEG",
         options={"quality": 90},
     )
+    hq_image = models.FileField(
+        upload_to="hiqh-quality-user-images",
+        help_text="A high-quality image of the user - used in profiles/reports.",
+        null=True,
+        blank=True,
+        validators=[image_validator, large_file_max_size_validator],
+        verbose_name="High Quality Image",
+    )
+    hq_image_render = ImageSpecField(
+        source="hq_image",
+        processors=[ResizeToFill(4096, 4096)],
+        format="JPEG",
+        options={"quality": 90},
+    )
     claimed = models.BooleanField(
         _("claimed"),
         default=True,
@@ -317,6 +335,9 @@ class User(BaseUser):
         self.image_thumbnail = None
         self.delete_permanently_at = None
         self.save()
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} <{self.email}>"
 
 
 class LastSeen(models.Model):
