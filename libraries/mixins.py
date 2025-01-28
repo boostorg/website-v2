@@ -32,12 +32,14 @@ class VersionAlertMixin:
 
 class BoostVersionMixin:
     def dispatch(self, request, *args, **kwargs):
+        self.set_extra_context(request)
+        return super().dispatch(request, *args, **kwargs)
+
+    def set_extra_context(self, request):
         if not self.extra_context:
             self.extra_context = {}
-
         if not self.extra_context.get("current_version"):
             self.extra_context["current_version"] = Version.objects.most_recent()
-
         self.extra_context.update(
             {
                 "version_str": self.kwargs.get("version_slug"),
@@ -52,7 +54,6 @@ class BoostVersionMixin:
             self.extra_context["selected_version"] = get_object_or_404(
                 Version, slug=self.extra_context["version_str"]
             )
-
         version_path_kwargs = {}
         # Only when the user uses master or develop do those versions to appear
         if self.extra_context["version_str"] in [
@@ -60,15 +61,12 @@ class BoostVersionMixin:
             DEVELOP_RELEASE_URL_PATH_STR,
         ]:
             version_path_kwargs[f"allow_{self.extra_context['version_str']}"] = True
-
         if self.request.resolver_match.view_name == "library-detail":
             version_path_kwargs["flag_versions_without_library"] = get_object_or_404(
                 Library, slug=self.kwargs.get("library_slug")
             )
-
         self.extra_context["versions"] = Version.objects.get_dropdown_versions(
             **version_path_kwargs
         )
         # here we hack extra_context into the request so we can access for cookie checks
         request.extra_context = self.extra_context
-        return super().dispatch(request, *args, **kwargs)

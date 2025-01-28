@@ -1,8 +1,11 @@
+from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models.query import QuerySet
 from itertools import groupby
 from operator import attrgetter
 
 from django.db.models import Q, Count
+from django.http import HttpResponse
+from django.views import View
 from django.views.generic import DetailView, TemplateView, ListView
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
@@ -175,3 +178,20 @@ class ScheduledReviewListView(ListView):
     def get_queryset(self) -> QuerySet[Review]:
         qs = super().get_queryset()
         return qs.exclude(results__isnull=False).distinct()
+
+
+@method_decorator(staff_member_required, name="get")
+class ReportPreviewView(View):
+    def get(self, request, *args, **kwargs):
+        version_slug = kwargs["version_slug"]
+        if version_slug == LATEST_RELEASE_URL_PATH_STR:
+            version_name = Version.objects.most_recent().name
+        else:
+            version = Version.objects.get(slug=version_slug)
+            version_name = version.name
+        # TODO: this is a bit silly. There's probably a more elegant solution
+        cache_key = f"release-report-,,,,,,,-{version_name}"
+        # TODO: it might be better to show a friendly "report not yet generated"
+        #  message instead of 404ing.
+        content = get_object_or_404(RenderedContent, cache_key=cache_key)
+        return HttpResponse(content.content_html)
