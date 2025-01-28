@@ -24,9 +24,10 @@ def debug_task(self):
     print(f"Request: {self.request!r}")
 
 
-# Schedule Celery tasks
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
+    """Schedule Celery tasks via CeleryBeat."""
+
     # Update library data from GitHub. Executes daily at 7:05 AM
     sender.add_periodic_task(
         crontab(hour=7, minute=5),
@@ -55,4 +56,10 @@ def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(
         datetime.timedelta(minutes=61),
         app.signature("users.tasks.do_scheduled_user_deletions"),
+    )
+
+    # Update data required for release report. Executes Saturday evenings.
+    sender.add_periodic_task(
+        crontab(day_of_week="sat", hour=20, minute=3),
+        app.signature("libraries.tasks.release_tasks", generate_report=True),
     )
