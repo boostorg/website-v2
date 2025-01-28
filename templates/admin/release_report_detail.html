@@ -30,12 +30,12 @@
       <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
         <div class="flex flex-col h-full gap-y-6">
           <div class="flex flex-col gap-y-2">
-            <h1 class="flex mb-0 font-bold">
+            <h1 class="flex mb-0">
               <img
                 class="mt-[3px]"
                 style="width:3.3rem; margin-right:.5rem;" src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
               >
-              Boost
+              <span class="font-bold">Boost</span>&nbsp;<span class="text-[2.75rem] self-end mb-[2px]">{{ version.display_name }}</span>
             </h1>
             <div class="flex gap-x-12 link-icons my-4 text-2xl justify-between">
               {% include "includes/_social_icon_links.html" %}
@@ -160,14 +160,7 @@
       <div class="flex flex-col pdf-page items-center justify-items-center {{ bg_color }}">
 
         <div class="flex flex-col">
-          <h1 class="flex">
-            <img
-              class="mt-[3px]"
-              style="width:3.3rem; margin-right:.5rem;" src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
-            >
-            Boost {{ version.display_name }}
-          </h1>
-          <h2>Git activity for this release</h2>
+          <h2 class="mx-auto my-1">Git activity for this release</h2>
           <div class="mx-auto mb-4"><span class="font-bold">{{ version_commit_count|intcomma }}</span> Commit{{ version_commit_count|pluralize }} Across <span class="font-bold">{{ library_count }}</span> Repositories</div>
         </div>
 
@@ -194,6 +187,8 @@
             <div id="top-committed-libraries-chart" class="w-full text-center"></div>
           </div>
         </div>
+        {% include "admin/_release_report_page_footer.html" %}
+
       </div>
 
       <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
