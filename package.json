@@ -13,6 +13,7 @@
     "builduserguide": "NODE_ENV=production tailwindcss -c ./userguidetailwind.config.js -i frontend/userguidestyles.css -o static/css/userguidestyles.css --minify"
   },
   "dependencies": {
+    "@svgdotjs/svg.js": "^3.2.4",
     "@tailwindcss/forms": "0.5.3",
     "alpinejs": "^3.10.2",
     "autoprefixer": "^10.4.12",
