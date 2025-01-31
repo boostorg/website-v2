@@ -66,7 +66,7 @@ class VersionDiffStat:
     deletions: int
 
 
-def get_commit_data_for_repo_versions(key):
+def get_commit_data_for_repo_versions(key, min_version=""):
     """Fetch commit data between minor versions (ignore patches).
 
     Get commits from one x.x.0 release to the next x.x.0 release. Commits
@@ -118,6 +118,9 @@ def get_commit_data_for_repo_versions(key):
             .values_list("name", flat=True)
         )
         for a, b in zip(versions, versions[1:]):
+            if a < min_version and b < min_version:
+                # Don't bother comparing two versions we don't care about
+                continue
             shortstat = subprocess.run(
                 ["git", "--git-dir", str(git_dir), "diff", f"{a}..{b}", "--shortstat"],
                 capture_output=True,
@@ -348,23 +351,22 @@ class LibraryUpdater:
             )
 
             if not user:
-                email = person_data.pop("email")
-                if not email:
-                    email = generate_fake_email(
-                        f"{person_data['first_name']} {person_data['last_name']}"
-                    )
-                user = User.objects.create_stub_user(email.lower(), **person_data)
-                self.logger.info(f"User {user.email} created.")
+                email = person_data.pop("email") or generate_fake_email(
+                    f"{person_data['first_name']} {person_data['last_name']}"
+                )
+                if not (user := User.objects.filter(email=email).first()):
+                    user = User.objects.create_stub_user(email.lower(), **person_data)
+                    self.logger.info(f"User {user.email} created.")
 
             obj.maintainers.add(user)
             self.logger.info(f"User {user.email} added as a maintainer of {obj}")
 
-    def update_issues(self, obj):
+    def update_issues(self, library):
         """Import GitHub issues for the library and update the database"""
         self.logger.info("updating_repo_issues")
 
         issues_data = self.client.get_repo_issues(
-            self.client.owner, obj.github_repo, state="all", issues_only=True
+            self.client.owner, library.github_repo, state="all", issues_only=True
         )
         for issue_dict in issues_data:
             # Get the date information
@@ -384,7 +386,7 @@ class LibraryUpdater:
             # Create or update the Issue object
             try:
                 issue, created = Issue.objects.update_or_create(
-                    library=obj,
+                    library=library,
                     github_id=issue_dict["id"],
                     defaults={
                         "title": issue_dict["title"][:255],
@@ -410,11 +412,11 @@ class LibraryUpdater:
                 )
                 continue
 
-    def update_prs(self, obj):
+    def update_prs(self, library: Library):
         """Update all PRs for a library"""
         self.logger.info("updating_repo_prs")
 
-        prs_data = self.client.get_repo_prs(obj.github_repo, state="all")
+        prs_data = self.client.get_repo_prs(library.github_repo, state="all")
 
         for pr_dict in prs_data:
             # Get the date information
@@ -437,7 +439,7 @@ class LibraryUpdater:
 
             try:
                 pull_request, created = PullRequest.objects.update_or_create(
-                    library=obj,
+                    library=library,
                     github_id=pr_dict["id"],
                     defaults={
                         "title": pr_dict["title"][:255],
@@ -463,15 +465,15 @@ class LibraryUpdater:
                     exc_msg=str(e),
                 )
 
-    def update_commits(self, obj: Library, clean=False):
+    def update_commits(self, library: Library, clean=False, min_version=""):
         """Import a record of all commits between LibraryVersions."""
         authors = {}
         commits = []
         library_versions = {
             x.version.name: x
-            for x in LibraryVersion.objects.filter(library=obj).select_related(
-                "version"
-            )
+            for x in LibraryVersion.objects.filter(
+                library=library, version__name__gte=min_version
+            ).select_related("version")
         }
         library_version_updates = []
 
@@ -509,7 +511,7 @@ class LibraryUpdater:
             return lv
 
         commits_handled = 0
-        for item in get_commit_data_for_repo_versions(obj.key):
+        for item in get_commit_data_for_repo_versions(library.key, min_version):
             match item:
                 case ParsedCommit():
                     commits_handled += 1
@@ -521,7 +523,7 @@ class LibraryUpdater:
 
         with transaction.atomic():
             if clean:
-                Commit.objects.filter(library_version__library=obj).delete()
+                Commit.objects.filter(library_version__library=library).delete()
             Commit.objects.bulk_create(
                 commits,
                 update_conflicts=True,

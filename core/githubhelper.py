@@ -1,5 +1,4 @@
 import base64
-import os
 import re
 from collections import defaultdict
 from datetime import datetime
@@ -12,9 +11,14 @@ from zipfile import ZipFile
 import requests
 import structlog
 from dateutil.parser import parse
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from fastcore.net import HTTP404NotFoundError, HTTP422UnprocessableEntityError
+from fastcore.net import (
+    HTTP401UnauthorizedError,
+    HTTP404NotFoundError,
+    HTTP422UnprocessableEntityError,
+)
 from fastcore.xtras import obj2dict
 from ghapi.all import GhApi, paged
 
@@ -38,7 +42,7 @@ class GithubAPIClient:
         :param ref: str, the Git reference
         :param repo_slug: str, the repository slug
         """
-        self.token = token or os.environ.get("GITHUB_TOKEN", None)
+        self.token = token or settings.GITHUB_TOKEN
         self.api = self.initialize_api()
         self.owner = owner
         self.ref = ref
@@ -72,6 +76,15 @@ class GithubAPIClient:
         :return: GhApi, the GitHub API
         """
         return GhApi(token=self.token)
+
+    def is_authenticated(self) -> bool:
+        if not self.api:
+            return False
+        try:
+            user = self.api.users.get_authenticated()
+            return bool(user)
+        except HTTP401UnauthorizedError:
+            return False
 
     def with_retry(self, fn, retry_count=5):
         count = 0
