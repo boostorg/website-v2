@@ -5,6 +5,10 @@
 {{ block.super }}
 <style>
 {% include "includes/_css_variables.css" %}
+body {
+  -webkit-print-color-adjust:exact !important;
+  print-color-adjust:exact !important;
+}
 .link-icons a:hover {
   color: var(--primary-color);
 }
@@ -30,12 +34,12 @@
       <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
         <div class="flex flex-col h-full gap-y-6">
           <div class="flex flex-col gap-y-2">
-            <h1 class="flex mb-0 font-bold">
+            <h1 class="flex mb-0">
               <img
                 class="mt-[3px]"
                 style="width:3.3rem; margin-right:.5rem;" src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
               >
-              Boost
+              <span class="font-bold">Boost</span>&nbsp;<span class="text-[2.75rem] self-end mb-[2px]">{{ version.display_name }}</span>
             </h1>
             <div class="flex gap-x-12 link-icons my-4 text-2xl justify-between">
               {% include "includes/_social_icon_links.html" %}
@@ -131,27 +135,41 @@
               </div>
             </div>
           {% endif %}
-
         </div>
       </div>
 
       {% if version.sponsor_message %}
-        <div class="pdf-page !p-16 {{ bg_color }}">
-          <h2>From the Fiscal Sponsorship Committee</h2>
-          <div class="flex flex-col w-full h-[80%] dynamic-text sponsor-message justify-between">
-            <div class="">{{ version.sponsor_message|safe }}</div>
-            <div class="committee_members border-t-1 flex flex-wrap mt-2 text-sm text-center">
-              {% for user in committee_members|dictsort:"first_name" %}
-                <figure class="w-32 m-2">
-                  {% if user.hq_image %}
-                    <img src="{{ user.hq_image_render.url }}" alt="{{ user.first_name }} {{ user.last_name }}" />
-                  {% else %}
-                    <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="" />
-                  {% endif %}
-                  <figcaption class="p-1">{{user.first_name}} {{user.last_name}}</figcaption>
-                </figure>
-              {% endfor %}
-             </div>
+        <div id="fiscal_committee_page" class="pdf-page !p-8 {{ bg_color }} bg-gray-200 relative">
+          <h2 class="mt-0">From the Fiscal Sponsorship Committee</h2>
+          <div class="flex flex-col w-full h-[85%] sponsor-message relative">
+          <svg
+            class="absolute overflow-visible pointer-events-none z-10"
+            viewBox="0 0 500 207"
+            version="1.1"
+            id="bubble_background"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:svg="http://www.w3.org/2000/svg"
+          >
+            <path
+               id="bubble"
+               style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.896533"
+               d="M 28.068153,0 H 471.93339 c 17.18711,0 28.0676,10.634092 28.06739,26.129029 L 500,82.778709 c 0,16.63468 -9.60039,26.129071 -28.06739,26.129071 H 142.14368 l -32.32545,18.09217 2.33657,-18.09217 H 26.700742 C 11.318336,108.90778 -2.1127437e-4,98.110589 0,82.778709 L 7.8066433e-4,26.129029 C 9.6358644e-4,12.855004 12.649959,0 28.068153,0 Z"
+               sodipodi:nodetypes="ssscscccssss"
+            />
+          </svg>
+          <div class="sponsor_message_copy dynamic-text p-[30px] mr-16 absolute z-20 max-h-[340px]">{{ version.sponsor_message|safe }}</div>
+          <div class="committee_members flex flex-wrap mt-2 text-sm text-center absolute" style="">
+            {% for user in committee_members|dictsort:"first_name" %}
+              <figure class="w-32 m-2">
+                {% if user.hq_image %}
+                  <img src="{{ user.hq_image_render.url }}" alt="{{ user.first_name }} {{ user.last_name }}" />
+                {% else %}
+                  <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="" />
+                {% endif %}
+                <figcaption class="p-1">{{user.first_name}} {{user.last_name}}</figcaption>
+              </figure>
+            {% endfor %}
+           </div>
           </div>
           {% include "admin/_release_report_page_footer.html" %}
         </div>
@@ -160,14 +178,7 @@
       <div class="flex flex-col pdf-page items-center justify-items-center {{ bg_color }}">
 
         <div class="flex flex-col">
-          <h1 class="flex">
-            <img
-              class="mt-[3px]"
-              style="width:3.3rem; margin-right:.5rem;" src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
-            >
-            Boost {{ version.display_name }}
-          </h1>
-          <h2>Git activity for this release</h2>
+          <h2 class="mx-auto my-1">Git activity for this release</h2>
           <div class="mx-auto mb-4"><span class="font-bold">{{ version_commit_count|intcomma }}</span> Commit{{ version_commit_count|pluralize }} Across <span class="font-bold">{{ library_count }}</span> Repositories</div>
         </div>
 
@@ -194,6 +205,8 @@
             <div id="top-committed-libraries-chart" class="w-full text-center"></div>
           </div>
         </div>
+        {% include "admin/_release_report_page_footer.html" %}
+
       </div>
 
       <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
@@ -436,27 +449,69 @@
     <script>
       // Use fitText to resize text to fit its container.
       // Starts at MAX_FONT_SIZE and tries smaller sizes until it fits or hits MIN_FONT_SIZE.
-      function fitText() {
+      const fitText = async () => {
         for (const text of document.querySelectorAll('.dynamic-text')) {
-          const MAX_FONT_SIZE = 24;
+          const MAX_FONT_SIZE = 23;
           const MIN_FONT_SIZE = 10;
           // Start with a large font size
           let fontSize = MAX_FONT_SIZE;
           text.style.fontSize = fontSize + 'px';
-
+          var computedStyle = window.getComputedStyle(text);
+          const intRegex = /(\d+)/;
+          const paddingY = parseInt(
+            computedStyle.getPropertyValue('padding-top').match(intRegex)
+          ) + parseInt(
+            computedStyle.getPropertyValue('padding-right').match(intRegex)
+          );
+          const paddingX = parseInt(
+            computedStyle.getPropertyValue('padding-bottom')
+          ) + parseInt(
+            computedStyle.getPropertyValue('padding-left')
+          );
+          const usableHeight = text.clientHeight - paddingY;
+          const textHeight = text.scrollHeight - paddingY;
           // Reduce font size until text fits container
-          while (
-            (text.scrollHeight > text.clientHeight ||
-            text.scrollWidth > text.clientWidth) &&
-            fontSize > MIN_FONT_SIZE
-          ) {
+          while (textHeight > usableHeight && fontSize > MIN_FONT_SIZE) {
             fontSize--;
             text.style.fontSize = fontSize + 'px';
           }
         }
       }
 
-      window.addEventListener('DOMContentLoaded', fitText);
+      const drawBubble = async () => {
+        const blockGap = 35;
+        /*
+        bubbleScalingAdjustment accounts for scaling of bubble with longer content, with
+         the bubble and the copy being different heights
+        */
+        const bubbleScalingAdjustment = 1.15;
+        const bubbleCommitteeSpacing = 10;
+        const copyTextAdjustment = -2;
+
+        const cmtePage = document.querySelector(".sponsor-message");
+        const usableHeight = cmtePage.offsetHeight;
+
+        const sponsorMessage = document.querySelector('.sponsor_message_copy');
+        const committeeMembers = document.querySelector('.committee_members');
+        const bubbleSVG = document.querySelector('#bubble_background');
+
+        const msgHeight = sponsorMessage.offsetHeight;
+        const msgWidth = sponsorMessage.offsetWidth;
+
+        const bubble_svg = SVG(bubbleSVG).size(`${msgWidth}`, `${msgHeight}`);
+        bubble_svg.viewbox(0, 0, msgWidth, msgHeight);
+        const bubble_ele = bubble_svg.find('#bubble');
+        bubble_ele.size(msgWidth, msgHeight * bubbleScalingAdjustment);
+        const datum = (usableHeight - (sponsorMessage.offsetHeight + committeeMembers.offsetHeight)) / 2;
+        sponsorMessage.style.top = `${datum + copyTextAdjustment}px`;
+        bubbleSVG.style.top = `${datum}px`;
+        committeeMembers.style.top = `${datum + blockGap + sponsorMessage.offsetHeight}px`;
+      };
+
+      window.addEventListener('DOMContentLoaded', async () => {
+        await fitText();
+        await drawBubble();
+      });
     </script>
   {% endwith %}
 {% endblock content %}
