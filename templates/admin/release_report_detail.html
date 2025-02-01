@@ -171,7 +171,6 @@ body {
             {% endfor %}
            </div>
           </div>
-          {% include "admin/_release_report_page_footer.html" %}
         </div>
       {% endif %}
 
@@ -205,7 +204,6 @@ body {
             <div id="top-committed-libraries-chart" class="w-full text-center"></div>
           </div>
         </div>
-        {% include "admin/_release_report_page_footer.html" %}
 
       </div>
 
@@ -249,7 +247,6 @@ body {
             </div>
           </div>
         </div>
-        {% include "admin/_release_report_page_footer.html" %}
       </div>
       {% if wordcloud_base64 %}
         <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
@@ -260,7 +257,6 @@ body {
             </div>
           </div>
 
-          {% include "admin/_release_report_page_footer.html" %}
 
         </div>
       {% endif %}
@@ -317,7 +313,6 @@ body {
                 {% endfor %}
               </div>
             </div>
-            {% include "admin/_release_report_page_footer.html" %}
           </div>
         {% endfor %}
       {% endif %}
@@ -332,7 +327,6 @@ body {
             {% endfor %}
           </div>
         </div>
-        {% include "admin/_release_report_page_footer.html" %}
       </div>
       {% for item in library_data %}
         <div class="pdf-page flex flex-col items-center justify-center {{ bg_color }}">
@@ -393,7 +387,6 @@ body {
               </div>
             </div>
           </div>
-          {% include "admin/_release_report_page_footer.html" %}
         </div>
       {% endfor %}
     </div>
