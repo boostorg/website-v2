@@ -265,6 +265,16 @@ body {
         </div>
       {% endif %}
       {% if slack %}
+        <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
+          <div class="flex flex-col mx-auto">
+            <h2 class="mx-auto">Slack Channels</h2>
+            <ul>
+            {% for channel in slack_channels %}
+              <li><strong>#{{channel.name}}</strong>{% if channel.purpose %} - {{channel.purpose}}{% endif %}</li>
+            {% endfor %}
+            </ul>
+          </div>
+        </div>
         {% for slack_group in slack %}
           <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
             <div class="flex flex-col mx-auto">
