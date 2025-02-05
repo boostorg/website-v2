@@ -261,29 +261,44 @@ body {
         </div>
       {% endif %}
       {% if slack %}
-        <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
-          <div class="flex flex-col mx-auto">
+        <div class="pdf-page flex items-center justify-items-center  {{ bg_color }}">
+          <div class="flex flex-col h-full mx-auto w-full">
             <h2 class="mx-auto">Slack Channels</h2>
-            <ul>
-            {% for channel in slack_channels %}
-              <li><strong>#{{channel.name}}</strong>{% if channel.purpose %} - {{channel.purpose}}{% endif %}</li>
-            {% endfor %}
-            </ul>
+            <ul class="flex flex-col flex-wrap content-center items-center gap-x-4 gap-y-1 text-xs h-5/6">
+              {% for channel in slack_channels %}
+                <li class="max-w-[10rem]"><strong>#{{channel.name}}</strong></li>
+              {% endfor %}
+              </ul>
+            </div>
           </div>
         </div>
         {% for slack_group in slack %}
-          <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
+          <div class="pdf-page flex justify-items-center {{ bg_color }}">
             <div class="flex flex-col mx-auto">
-              <h2 class="mx-auto">Slack Activity</h2>
               <div class="flex gap-x-[6rem]">
                 {% for slack_item in slack_group %}
                   <div class="flex flex-col mx-auto gap-y-2">
-                    <div class="font-bold">
-                      Top Contributors in #{{slack_item.channel.name}}
+                    <h2>#{{slack_item.channel.name}}</h2>
+                    <div>
+                      {% if channel.purpose %}
+                        <div class="mx-auto">{{channel.purpose}}</div>
+                      {% endif %}
+                      <div class="mx-auto">
+                        <span class="font-bold">{{ slack_item.total|intcomma }}</span>
+                        slack message{{ slack_item.total|pluralize }} in #{{ slack_item.channel.name }}
+                      </div>
+                      <div class="mx-auto">
+                        <span class="font-bold">{{ slack_item.user_count }}</span>
+                        {{ slack_item.user_count|pluralize:"person,people" }}
+                        were active in the conversation for this release. (<span class="font-bold">{{ slack_item.new_user_count }}</span> New)
+                      </div>
                     </div>
                     <div class="flex gap-x-2">
                       <div>
-                        <div class="m-auto grid grid-cols-1 gap-2">
+                        <div class="font-bold">
+                          Top Contributors
+                        </div>
+                        <div class="m-auto grid grid-cols-1 gap-2 mt-4">
                           {% for item in slack_item.users %}
                             <div class="flex flex-row gap-y-2 w-40 items-center">
                               {% base_avatar image_url=item.image_48 name=item.real_name href=None %}
@@ -296,17 +311,6 @@ body {
                             </div>
                           {% endfor %}
                         </div>
-                      </div>
-                    </div>
-                    <div>
-                      <div class="mx-auto">
-                        <span class="font-bold">{{ slack_item.total|intcomma }}</span>
-                        slack message{{ slack_item.total|pluralize }} in #{{ slack_item.channel.name }}
-                      </div>
-                      <div class="mx-auto">
-                        <span class="font-bold">{{ slack_item.user_count }}</span>
-                        {{ slack_item.user_count|pluralize:"person,people" }}
-                        conversing in this release. (<span class="font-bold">{{ slack_item.new_user_count }}</span> New)
                       </div>
                     </div>
                   </div>
