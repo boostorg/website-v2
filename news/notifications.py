@@ -71,6 +71,8 @@ def send_email_news_needs_moderation(request, entry):
         "detail_url": request.build_absolute_uri(entry.get_absolute_url()),
         "moderate_url": request.build_absolute_uri(reverse("news-moderate")),
         "expiration_hours": int(MAGIC_LINK_EXPIRATION / 3600),
+        "scheme": request.scheme,
+        "host": request.get_host(),
     }
 
     subject = "Boost.org: News entry needs moderation"
