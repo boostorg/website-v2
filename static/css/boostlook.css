@@ -116,14 +116,14 @@
   /* Text Colors */
   --light-bl-code-text-color: rgb(0, 0, 0);
   --light-bl-header-color: rgb(49, 74, 87);
-  --light-bl-nav-link-color: rgb(0, 0, 0);
+  --light-bl-nav-link-color: rgb(51, 65, 85);
   --light-bl-paragraph-color: rgb(0, 0, 0);
   --light-bl-text-color: rgb(51, 65, 85);
 
   /* Interactive Elements */
   --light-bl-link-color: rgb(2, 132, 199);
   --light-bl-link-hover-color: rgba(255, 159, 0);
-  --light-bl-nav-link-hover-color: rgba(0, 0, 0, 0.6);
+  --light-bl-nav-link-hover-color: rgb(2, 132, 199);
 
   /* Syntax Highlighting */
   --light-bl-hljs-attribute-color: rgb(70, 130, 180);
@@ -176,9 +176,9 @@
   --dark-bl-text-color: rgb(255, 255, 255);
 
   /* Interactive Elements */
-  --dark-bl-link-color: rgb(125 211 252);
+  --dark-bl-link-color: rgb(125, 211, 252);
   --dark-bl-link-hover-color: rgb(255, 159, 0);
-  --dark-bl-nav-link-hover-color: rgba(255, 255, 255, 0.6);
+  --dark-bl-nav-link-hover-color: rgb(2, 132, 199);
 
   /* Syntax Highlighting */
   --dark-bl-hljs-attribute-color: rgb(70, 130, 180);
@@ -974,7 +974,7 @@ html:has(#docsiframe)::-webkit-scrollbar {
 }
 
 .boostlook #toc .sectlevel1 > li > a {
-  font-variation-settings: "wght" 750;
+  font-variation-settings: "wght" 550;
 }
 
 .boostlook #toc #toctitle {
@@ -1207,7 +1207,7 @@ html:has(#docsiframe)::-webkit-scrollbar {
 }
 
 .boostlook .nav-menu > .nav-list > .nav-list > li {
-  font-variation-settings: "wght" 750;
+  font-variation-settings: "wght" 550;
 }
 
 /* Navigation Links */
@@ -1220,11 +1220,11 @@ html:has(#docsiframe)::-webkit-scrollbar {
 
 .boostlook .nav-link:hover,
 .boostlook .nav-menu a:hover {
-  color: var(--bl-link-hover-color);
+  color: var(--bl-nav-link-hover-color);
 }
 
 .boostlook .nav-text {
-  color: #828282;
+  color: var(--bl-nav-link-color);
 }
 
 /* TOC Container */
