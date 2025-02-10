@@ -99,7 +99,7 @@ def run_commands(progress: list[str], generate_report: bool = False):
     return handled_commits
 
 
-def check_credentials() -> list[str]:
+def bad_credentials() -> list[str]:
     """This management command requires access to Slack and GitHub APIs.
     Checks that credentials are available and valid.
 
@@ -108,20 +108,20 @@ def check_credentials() -> list[str]:
     Good return: []
     Bad return: ["GITHUB_TOKEN", "SLACK_BOT_TOKEN"]
     """
-    bad_credentials = ["GITHUB_TOKEN", "SLACK_BOT_TOKEN"]
+    possibly_bad_credentials = ["GITHUB_TOKEN", "SLACK_BOT_TOKEN"]
     if settings.GITHUB_TOKEN:
         client = GithubAPIClient(settings.GITHUB_TOKEN)
         if client.is_authenticated():
             # If this is true, the GitHub token is good
-            bad_credentials.remove("GITHUB_TOKEN")
+            possibly_bad_credentials.remove("GITHUB_TOKEN")
 
     if settings.SLACK_BOT_TOKEN:
         with suppress(SlackApiError):  # just breaks on this error
             next(get_my_channels())
             # If we get this far, the Slack token is good
-            bad_credentials.remove("SLACK_BOT_TOKEN")
+            possibly_bad_credentials.remove("SLACK_BOT_TOKEN")
 
-    return bad_credentials
+    return possibly_bad_credentials
 
 
 @click.command()
@@ -146,7 +146,7 @@ def command(user_id=None, generate_report=False):
         user = User.objects.filter(id=user_id).first()
 
     progress = ["___Progress Messages___"]
-    if missing_creds := check_credentials():
+    if missing_creds := bad_credentials():
         progress.append(
             progress_message(f"Missing credentials {', '.join(missing_creds)}")
         )
