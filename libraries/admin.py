@@ -21,6 +21,7 @@ from .models import (
     Library,
     LibraryVersion,
     PullRequest,
+    WordcloudMergeWord,
 )
 from .tasks import (
     generate_library_report,
@@ -408,4 +409,20 @@ class PullRequestAdmin(admin.ModelAdmin):
         "created",
         "modified",
         "closed",
+    ]
+
+
+@admin.register(WordcloudMergeWord)
+class WordcloudMergeWordAdmin(admin.ModelAdmin):
+    search_fields = ["from_word", "to_word"]
+    fieldsets = [
+        (
+            "Word Cloud Merging",
+            {
+                "fields": ("from_word", "to_word"),
+                "description": "Words that should be merged together in the release report."
+                ' e.g. "Boost" and "boost" to "Boost Foundation" or vice versa. Use in '
+                'combination with "Wordcloud ignore" under SiteSettings.',
+            },
+        ),
     ]
