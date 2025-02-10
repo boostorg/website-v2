@@ -181,14 +181,11 @@ class ScheduledReviewListView(ListView):
 
 
 @method_decorator(staff_member_required, name="get")
-class ReportPreviewView(View):
+class ReportPreviewView(BoostVersionMixin, View):
+    extra_context = {}
+
     def get(self, request, *args, **kwargs):
-        version_slug = kwargs["version_slug"]
-        if version_slug == LATEST_RELEASE_URL_PATH_STR:
-            version_name = Version.objects.most_recent().name
-        else:
-            version = Version.objects.get(slug=version_slug)
-            version_name = version.name
+        version_name = self.extra_context["selected_version"].name
         # TODO: this is a bit silly. There's probably a more elegant solution
         cache_key = f"release-report-,,,,,,,-{version_name}"
         # TODO: it might be better to show a friendly "report not yet generated"
