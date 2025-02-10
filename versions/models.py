@@ -205,7 +205,7 @@ class Version(models.Model):
 
     @cached_property
     def release_notes_cache_key(self):
-        """Returns the cahe key used to access the release notes in the
+        """Returns the cache key used to access the release notes in the
         RenderedContent model."""
         version = "-".join(self.cleaned_version_parts)
         return f"release_notes_boost-{version}"
