@@ -141,6 +141,29 @@ Then as a superuser log into the admin interface, go to "Versions" and click on 
 
 ---
 
+## Setting up Mailman/Hyperkitty locally
+``shell
+sudo apt-get install sassc
+git clone git@gitlab.com:mailman/hyperkitty.git
+cd hyperkitty
+cp example_project/settings.py example_project/settings_local.py
+pip install -e '.[dev]'
+pip install psycopg2-binary
+``
+change settings.py to use postgres database:
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+Update database values in settings to use the same host, user, password, and the database name as in the .env file value for `HYPERKITTY_DATABASE_NAME`.
+
+run `django-admin migrate --pythonpath example_project --settings settings`
+
+Give your ssh key to Sam so he can add it to the boost.cpp.al server, and then download the mailman db archive and cp the sql to the docker container
+```shell
+scp {user}@staging-db1.boost.cpp.al:/tmp/lists_stage_web.staging-db1-2.2025-02-06-08-00-01.sql.gz .
+docker cp lists_stage_web.staging-db1-2.2025-02-06-08-00-01.sql website-v2-web-1:/lists_stage_web.staging-db1-2.2025-02-06-08-00-01.sql
+docker exec -it website-v2-web-1 /bin/bash
+psql -U postgres -W hyperkitty_db < /lists_stage_web.staging-db1-2.2025-02-06-08-00-01.sql
+```
+
 ## Syncing EmailData Locally
 
 To work with mailinglist data locally, the django application expects to be

@@ -296,3 +296,21 @@ def parse_boostdep_artifact(content: str):
             "Some library versions were skipped during artifact parsing.",
             skipped_library_versions=skipped_library_versions,
         )
+
+
+def boost_normalize_words(frequencies, word_map):
+    # from word, to word
+    for o, n in word_map.items():
+        from_count = frequencies.get(o, 0)
+        if not from_count:
+            continue
+        to_count = frequencies.get(n, 0)
+        frequencies[n] = from_count + to_count
+        del frequencies[o]
+    return frequencies
+
+
+def grey_color_func(
+    word, font_size, position, orientation, random_state=None, **kwargs
+):
+    return "hsl(0, 0%%, %d%%)" % random.randint(10, 80)
