@@ -8,10 +8,11 @@ from django.db.models import Sum
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.db.models.functions import Upper
-
+from core.custom_model_fields import NullableFileField
 from core.markdown import process_md
 from core.models import RenderedContent
 from core.asciidoc import convert_adoc_to_html
+from core.validators import image_validator, max_file_size_validator
 from libraries.managers import IssueManager
 from mailing_list.models import EmailData
 from .constants import LIBRARY_GITHUB_URL_OVERRIDES
@@ -151,6 +152,19 @@ class Library(models.Model):
     description = models.TextField(
         blank=True, null=True, help_text="The description of the library."
     )  # holds the most recent version's description
+    graphic = NullableFileField(
+        upload_to="library_graphics",
+        blank=True,
+        null=True,
+        default=None,
+        validators=[image_validator, max_file_size_validator],
+        verbose_name="Library Graphic",
+    )
+    is_good = models.BooleanField(
+        default=False,
+        verbose_name="Good Library",
+        help_text="Is this library considered 'good' by the Boost community?",
+    )
     github_url = models.URLField(
         max_length=500,
         blank=True,
@@ -215,6 +229,15 @@ class Library(models.Model):
                 processed_segments.append("".join(capitalized_words))
 
         return "".join(processed_segments)
+
+    @cached_property
+    def group(self):
+        if self.graphic:
+            return "great"
+        elif self.is_good:
+            return "good"
+        else:
+            return "standard"
 
     def __str__(self):
         return self.name
