@@ -846,5 +846,8 @@ class CreateReportForm(CreateReportFullForm):
             "removed_library_count": removed_library_count,
             "downloads": downloads,
             "contribution_box_graph": self._get_git_graph_data(prior_version, version),
+            "slack_channels": Channel.objects.filter(
+                name__istartswith="boost"
+            ).order_by("name"),
             "slack": slack_stats,
         }
