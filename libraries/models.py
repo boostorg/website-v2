@@ -489,3 +489,11 @@ class PullRequest(models.Model):
 
     def __str__(self):
         return f"({self.number}) - {self.title}"
+
+
+class WordcloudMergeWord(models.Model):
+    from_word = models.CharField(max_length=255)
+    to_word = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.from_word}->{self.to_word}"

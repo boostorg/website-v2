@@ -16,10 +16,17 @@ from django.forms import Form, ModelChoiceField, ModelForm, BooleanField
 from django.conf import settings
 
 from core.models import RenderedContent, SiteSettings
-from libraries.utils import batched
+from libraries.utils import batched, boost_normalize_words, grey_color_func
 from slack.models import Channel, SlackActivityBucket, SlackUser
 from versions.models import Version
-from .models import Commit, CommitAuthor, Issue, Library, LibraryVersion
+from .models import (
+    Commit,
+    CommitAuthor,
+    Issue,
+    Library,
+    LibraryVersion,
+    WordcloudMergeWord,
+)
 from libraries.constants import SUB_LIBRARIES
 from mailing_list.models import EmailData
 
@@ -440,23 +447,32 @@ class CreateReportForm(CreateReportFullForm):
     def _generate_hyperkitty_word_cloud(self, version):
         """Generates a wordcloud png and returns it as a base64 string."""
         wc = WordCloud(
+            background_color="white",
             width=1400,
             height=700,
             stopwords=STOPWORDS | SiteSettings.load().wordcloud_ignore_set,
             font_path=settings.BASE_DIR / "static" / "font" / "notosans_mono.woff",
         )
-        image_bytes = io.BytesIO()
-        frequencies = {}
+        word_frequencies = {}
         for content in self._get_mail_content(version):
             for key, val in wc.process_text(content).items():
-                if key not in frequencies:
-                    frequencies[key] = 0
-                frequencies[key] += val
-        if not frequencies:
-            return
-        wc.generate_from_frequencies(frequencies)
+                if key not in word_frequencies:
+                    word_frequencies[key] = 0
+                word_frequencies[key] += val
+        if not word_frequencies:
+            return None, {}
+
+        word_frequencies = boost_normalize_words(
+            word_frequencies,
+            {x.from_word: x.to_word for x in WordcloudMergeWord.objects.all()},
+        )
+
+        wc.generate_from_frequencies(word_frequencies)
         plt.figure(figsize=(14, 7))
-        plt.imshow(wc, interpolation="bilinear")
+        plt.imshow(
+            wc.recolor(color_func=grey_color_func, random_state=3),
+            interpolation="bilinear",
+        )
         plt.axis("off")
         image_bytes = io.BytesIO()
         plt.savefig(
@@ -467,7 +483,7 @@ class CreateReportForm(CreateReportFullForm):
             pad_inches=0,
         )
         image_bytes.seek(0)
-        return base64.b64encode(image_bytes.read()).decode()
+        return base64.b64encode(image_bytes.read()).decode(), word_frequencies
 
     def _count_mailinglist_contributors(self, version):
         version_lt = list(
@@ -780,11 +796,26 @@ class CreateReportForm(CreateReportFullForm):
         # we want 2 channels per pdf page, use batched to get groups of 2
         slack_stats = batched(self._get_slack_stats(prior_version, version), 2)
         committee_members = version.financial_committee_members.all()
+        wordcloud_base64, word_frequencies = self._generate_hyperkitty_word_cloud(
+            version
+        )
+        # first sort by number, then sort the top 200 alphabetically
+        word_frequencies = {
+            key: val
+            for key, val in sorted(
+                word_frequencies.items(),
+                key=lambda x: x[1],
+                reverse=True,
+            )
+            if len(key) > 1
+        }
+        wordcloud_top_words = sorted(list(word_frequencies.keys())[:200])
         return {
             "committee_members": committee_members,
             "lines_added": lines_added,
             "lines_removed": lines_removed,
-            "wordcloud_base64": self._generate_hyperkitty_word_cloud(version),
+            "wordcloud_base64": wordcloud_base64,
+            "wordcloud_frequencies": wordcloud_top_words,
             "version": version,
             "prior_version": prior_version,
             "opened_issues_count": Issue.objects.filter(
