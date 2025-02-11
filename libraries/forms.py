@@ -1,7 +1,7 @@
 import io
 import base64
 from functools import cached_property
-from itertools import groupby
+from itertools import groupby, chain
 from operator import attrgetter
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -271,14 +271,18 @@ class CreateReportForm(CreateReportFullForm):
         )
 
     def _get_top_libraries_for_version(self):
-        return (
-            self.library_queryset.filter(
-                library_version=LibraryVersion.objects.filter(
-                    library=OuterRef("id"), version=self.cleaned_data["version"]
-                )[:1],
+        base_queryset = self.library_queryset.filter(
+            library_version=LibraryVersion.objects.filter(
+                library=OuterRef("id"), version=self.cleaned_data["version"]
+            )[:1],
+        ).order_by("name")
+        # returns "great", "good", and "standard" libraries in that order
+        return list(
+            chain(
+                base_queryset.filter(graphic__isnull=False),
+                base_queryset.filter(graphic__isnull=True, is_good=True),
+                base_queryset.filter(graphic__isnull=True, is_good=False),
             )
-            .annotate(commit_count=Count("library_version__commit"))
-            .order_by("-commit_count")
         )
 
     def _get_library_version_counts(self, libraries, library_order):
@@ -703,15 +707,11 @@ class CreateReportForm(CreateReportFullForm):
         top_libraries_for_version = self._get_top_libraries_for_version()
         library_order = self._get_library_order(top_libraries_for_version)
         libraries = Library.objects.filter(id__in=library_order)
-        library_names = (
-            LibraryVersion.objects.filter(
-                version=version,
-                library__in=self.library_queryset,
-            )
-            .annotate(name=F("library__name"))
-            .order_by("name")
-            .values_list("name", flat=True)
-        )
+        all_libraries = Library.objects.filter(
+            library_version__version=version,
+            library_version__library__in=self.library_queryset,
+        ).order_by("name")
+
         library_data = [
             {
                 "library": item[0],
@@ -810,7 +810,7 @@ class CreateReportForm(CreateReportFullForm):
             "top_libraries_for_version": top_libraries_for_version,
             "library_count": library_count,
             "library_count_prior": library_count_prior,
-            "library_names": library_names,
+            "all_libraries": all_libraries,
             "added_library_count": added_library_count,
             "removed_library_count": removed_library_count,
             "downloads": downloads,
