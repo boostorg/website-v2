@@ -11,7 +11,7 @@ from wordcloud import WordCloud, STOPWORDS
 from matplotlib import pyplot as plt
 
 from django.template.loader import render_to_string
-from django.db.models import F, Q, Count, OuterRef, Sum
+from django.db.models import F, Q, Count, OuterRef, Sum, When, Value, Case
 from django.forms import Form, ModelChoiceField, ModelForm, BooleanField
 from django.conf import settings
 
@@ -278,12 +278,30 @@ class CreateReportForm(CreateReportFullForm):
         )
 
     def _get_top_libraries_for_version(self):
-        base_queryset = self.library_queryset.filter(
+        return (
+            self.library_queryset.filter(
+                library_version=LibraryVersion.objects.filter(
+                    library=OuterRef("id"), version=self.cleaned_data["version"]
+                )[:1],
+            )
+            .annotate(commit_count=Count("library_version__commit"))
+            .order_by("-commit_count")
+        )
+
+    def _get_libraries_by_name(self):
+        return self.library_queryset.filter(
             library_version=LibraryVersion.objects.filter(
                 library=OuterRef("id"), version=self.cleaned_data["version"]
             )[:1],
         ).order_by("name")
+
+    def _get_libraries_by_quality(self):
         # returns "great", "good", and "standard" libraries in that order
+        base_queryset = self.library_queryset.filter(
+            library_version=LibraryVersion.objects.filter(
+                library=OuterRef("id"), version=self.cleaned_data["version"]
+            )[:1],
+        )
         return list(
             chain(
                 base_queryset.filter(graphic__isnull=False),
@@ -456,9 +474,12 @@ class CreateReportForm(CreateReportFullForm):
         word_frequencies = {}
         for content in self._get_mail_content(version):
             for key, val in wc.process_text(content).items():
-                if key not in word_frequencies:
-                    word_frequencies[key] = 0
-                word_frequencies[key] += val
+                if len(key) < 2:
+                    continue
+                keyl = key.lower()
+                if keyl not in word_frequencies:
+                    word_frequencies[keyl] = 0
+                word_frequencies[keyl] += val
         if not word_frequencies:
             return None, {}
 
@@ -720,13 +741,13 @@ class CreateReportForm(CreateReportFullForm):
             library_version__library__in=self.library_queryset,
         ).count()
 
-        top_libraries_for_version = self._get_top_libraries_for_version()
+        top_libraries_for_version = self._get_libraries_by_name()
         library_order = self._get_library_order(top_libraries_for_version)
-        libraries = Library.objects.filter(id__in=library_order)
-        all_libraries = Library.objects.filter(
-            library_version__version=version,
-            library_version__library__in=self.library_queryset,
-        ).order_by("name")
+        libraries = Library.objects.filter(id__in=library_order).order_by(
+            Case(
+                *[When(id=pk, then=Value(pos)) for pos, pk in enumerate(library_order)]
+            )
+        )
 
         library_data = [
             {
@@ -740,7 +761,7 @@ class CreateReportForm(CreateReportFullForm):
                 "deps": item[7],
             }
             for item in zip(
-                sorted(list(libraries), key=lambda x: library_order.index(x.id)),
+                libraries,
                 self._get_library_full_counts(libraries, library_order),
                 self._get_library_version_counts(libraries, library_order),
                 self._get_top_contributors_for_library_version(library_order),
@@ -795,6 +816,9 @@ class CreateReportForm(CreateReportFullForm):
         ).aggregate(lines=Sum("deletions"))["lines"]
         # we want 2 channels per pdf page, use batched to get groups of 2
         slack_stats = batched(self._get_slack_stats(prior_version, version), 2)
+        slack_channels = batched(
+            Channel.objects.filter(name__istartswith="boost").order_by("name"), 10
+        )
         committee_members = version.financial_committee_members.all()
         wordcloud_base64, word_frequencies = self._generate_hyperkitty_word_cloud(
             version
@@ -807,9 +831,17 @@ class CreateReportForm(CreateReportFullForm):
                 key=lambda x: x[1],
                 reverse=True,
             )
-            if len(key) > 1
         }
         wordcloud_top_words = sorted(list(word_frequencies.keys())[:200])
+        library_index_library_data = []
+        for library in self._get_libraries_by_quality():
+            library_index_library_data.append(
+                (
+                    library,
+                    library in [lib["library"] for lib in library_data],
+                )
+            )
+
         return {
             "committee_members": committee_members,
             "lines_added": lines_added,
@@ -841,13 +873,11 @@ class CreateReportForm(CreateReportFullForm):
             "top_libraries_for_version": top_libraries_for_version,
             "library_count": library_count,
             "library_count_prior": library_count_prior,
-            "all_libraries": all_libraries,
+            "library_index_libraries": library_index_library_data,
             "added_library_count": added_library_count,
             "removed_library_count": removed_library_count,
             "downloads": downloads,
             "contribution_box_graph": self._get_git_graph_data(prior_version, version),
-            "slack_channels": Channel.objects.filter(
-                name__istartswith="boost"
-            ).order_by("name"),
+            "slack_channels": slack_channels,
             "slack": slack_stats,
         }
