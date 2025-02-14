@@ -15,6 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from core.models import RenderedContent
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
+from libraries.forms import CreateReportForm
 from libraries.mixins import VersionAlertMixin, BoostVersionMixin
 from libraries.models import Commit, CommitAuthor
 from libraries.utils import (
@@ -192,3 +193,24 @@ class ReportPreviewView(BoostVersionMixin, View):
         #  message instead of 404ing.
         content = get_object_or_404(RenderedContent, cache_key=cache_key)
         return HttpResponse(content.content_html)
+
+
+@method_decorator(staff_member_required, name="get")
+class ReportPreviewGenerateView(BoostVersionMixin, View):
+    """
+    Regenerate a report without importing all data.
+    This is much faster - useful for when importing is not needed.
+    """
+
+    extra_context = {}
+
+    def get(self, request, *args, **kwargs):
+        version = self.extra_context["selected_version"]
+        version_name = version.name
+        cache_key = f"release-report-,,,,,,,-{version_name}"
+        RenderedContent.objects.filter(cache_key=cache_key).delete()
+        # TODO: it's very silly that all the business logic for
+        #  generating reports lives in a form; refactor
+        form = CreateReportForm({"version": version.id})
+        form.cache_html()
+        return redirect("release-report-preview", version_slug=version_name)
