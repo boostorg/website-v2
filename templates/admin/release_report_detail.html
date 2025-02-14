@@ -1,5 +1,5 @@
 {% extends "admin/library_report_base.html" %}
-{% load humanize avatar_tags %}
+{% load humanize avatar_tags text_helpers %}
 {% load static %}
 {% block css %}
 {{ block.super }}
@@ -93,7 +93,7 @@ body {
           {% if version.release_report_cover_image and version.release_report_cover_image.url %}
             <img
               class="max-h-[60%]"
-              src="{{ version.release_report_cover_image.url }}"
+              src="{{ version.release_report_cover_image.url|strip_query_string }}"
               alt="release report cover image"
             >
           {% endif %}
