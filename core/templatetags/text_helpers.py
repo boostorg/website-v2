@@ -1,3 +1,5 @@
+from urllib.parse import urlparse, urlunparse
+
 from django import template
 from django.template.defaultfilters import stringfilter
 import re
@@ -73,3 +75,13 @@ def url_target_blank(value, arg):
     Use after urlize to add target="_blank" and add classes.
     """
     return value.replace("<a ", f'<a target="_blank" class="{arg}" ')
+
+
+@register.filter
+def strip_query_string(url):
+    """Remove query string from URL while preserving the path and other components."""
+    if not url:
+        return url
+    parsed = urlparse(url)
+    clean = parsed._replace(query="", fragment="")
+    return urlunparse(clean)
