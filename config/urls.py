@@ -82,6 +82,7 @@ from versions.views import (
     ScheduledReviewListView,
     VersionDetail,
     ReportPreviewView,
+    ReportPreviewGenerateView,
 )
 
 djdt_urls = []
@@ -187,6 +188,11 @@ urlpatterns = (
             "releases/<boostversionslug:version_slug>/report",
             ReportPreviewView.as_view(),
             name="release-report-preview",
+        ),
+        path(
+            "releases/<boostversionslug:version_slug>/report/generate",
+            ReportPreviewGenerateView.as_view(),
+            name="release-report-generate",
         ),
         path(
             "donate/",
