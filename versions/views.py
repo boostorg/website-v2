@@ -15,9 +15,9 @@ from django.views.decorators.csrf import csrf_exempt
 
 from core.models import RenderedContent
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
-from libraries.forms import CreateReportForm
 from libraries.mixins import VersionAlertMixin, BoostVersionMixin
 from libraries.models import Commit, CommitAuthor
+from libraries.tasks import generate_release_report
 from libraries.utils import (
     set_selected_boost_version,
     determine_selected_boost_version,
@@ -209,8 +209,6 @@ class ReportPreviewGenerateView(BoostVersionMixin, View):
         version_name = version.name
         cache_key = f"release-report-,,,,,,,-{version_name}"
         RenderedContent.objects.filter(cache_key=cache_key).delete()
-        # TODO: it's very silly that all the business logic for
-        #  generating reports lives in a form; refactor
-        form = CreateReportForm({"version": version.id})
-        form.cache_html()
+        generate_release_report.delay({"version": version.id})
+        messages.success(request, "Report generation queued.")
         return redirect("release-report-preview", version_slug=version_name)
