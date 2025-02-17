@@ -803,17 +803,12 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 .boostlook ::-webkit-scrollbar-track {
-  border-radius: 1px;
-  background-color: var(--bl-background);
+  border-radius: 8px;
+  background-color: var( --bl-scrollbar-track-color);
 }
 
 .boostlook ::-webkit-scrollbar-thumb {
-  background-color: var(--bl-background); /* blend into background */
-}
-
-.boostlook *:hover::-webkit-scrollbar-thumb {
-  background-color: var(--bl-scrollbar-thumb-color);
-  color: var(--bl-scrollbar-thumb-color);
+  background-color: var( --bl-scrollbar-thumb-color); /* blend into background */
 }
 
 /* Template-specific Adjustments */
@@ -841,9 +836,16 @@ html:has(#docsiframe)::-webkit-scrollbar {
   height: 100vh;
 }
 
-.boostlook #content:has(> .doc)::-webkit-scrollbar-track {
-  border-radius: 0 8px 0 0;
+.boostlook #content:has(> .doc)::-webkit-scrollbar,
+.boostlook .nav::-webkit-scrollbar {
+  width: 10px;
 }
+
+.boostlook #content:has(> .doc)::-webkit-scrollbar-thumb,
+.boostlook .nav::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+}
+
 
 /* Asciidoc template - Content overflow handling */
 .boostlook:has(#content > .sect1) {
@@ -890,6 +892,26 @@ html:has(#docsiframe)::-webkit-scrollbar {
 .boostlook .doc table.tableblock,
 .boostlook #content .sect3:has(.tableblock) {
   overflow-x: auto !important;
+}
+
+.boostlook .content div:has(> table)::-webkit-scrollbar-track,
+.boostlook .doc table.tableblock::-webkit-scrollbar-track,
+.boostlook #content .sect3:has(.tableblock)::-webkit-scrollbar-track {
+  border-radius: 1px;
+  background-color: var(--bl-background);
+}
+
+.boostlook .content div:has(> table)::-webkit-scrollbar-thumb,
+.boostlook .doc table.tableblock::-webkit-scrollbar-thumb,
+.boostlook #content .sect3:has(.tableblock)::-webkit-scrollbar-thumb {
+  background-color: var(--bl-background); /* blend into background */
+}
+
+.boostlook .content div:has(> table):hover::-webkit-scrollbar-thumb,
+.boostlook .doc table.tableblock:hover::-webkit-scrollbar-thumb,
+.boostlook #content .sect3:has(.tableblock):hover::-webkit-scrollbar-thumb {
+  background-color: var(--bl-scrollbar-thumb-color);
+  color: var(--bl-scrollbar-thumb-color);
 }
 
 /*----------------- Styles specific to AsciiDoctor content start -----------------*/
