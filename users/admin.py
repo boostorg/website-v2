@@ -12,8 +12,7 @@ class EmailUserAdmin(UserAdmin):
             _("Personal info"),
             {
                 "fields": (
-                    "first_name",
-                    "last_name",
+                    "display_name",
                     "github_username",
                     "valid_email",
                     "claimed",
@@ -54,13 +53,12 @@ class EmailUserAdmin(UserAdmin):
     ordering = ("email",)
     list_display = (
         "email",
-        "first_name",
-        "last_name",
+        "display_name",
         "is_staff",
         "valid_email",
         "claimed",
     )
-    search_fields = ("email", "first_name", "last_name")
+    search_fields = ("email", "display_name")
 
 
 admin.site.register(User, EmailUserAdmin)

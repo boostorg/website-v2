@@ -88,7 +88,13 @@ class PreferencesForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name", "indicate_last_login_method"]
+        fields = ["email", "display_name", "indicate_last_login_method"]
+        labels = {
+            "display_name": "Username",
+        }
+        help_texts = {
+            "display_name": "Your name as it will be displayed across the site.",
+        }
 
 
 class CustomClearableFileInput(forms.ClearableFileInput):

@@ -58,14 +58,14 @@ def avatar(
         image_url = user.get_thumbnail_url() or commitauthor.avatar_url
         href = user.github_profile_url or commitauthor.github_profile_url
         return base_avatar(
-            user.get_full_name(),
+            user.display_name,
             image_url,
             href,
             **kwargs,
         )
     elif user:
         return base_avatar(
-            user.get_full_name(),
+            user.display_name,
             user.get_thumbnail_url(),
             user.github_profile_url,
             **kwargs,

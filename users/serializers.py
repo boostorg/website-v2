@@ -13,13 +13,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             "id",
-            "first_name",
-            "last_name",
+            "display_name",
         )
         read_only_fields = (
             "id",
-            "first_name",
-            "last_name",
+            "display_name",
         )
 
 
@@ -33,8 +31,7 @@ class CurrentUserSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "email",
-            "first_name",
-            "last_name",
+            "display_name",
             "image",
             "date_joined",
             "data",
@@ -53,8 +50,7 @@ class FullUserSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "email",
-            "first_name",
-            "last_name",
+            "display_name",
             "is_staff",
             "is_active",
             "is_superuser",

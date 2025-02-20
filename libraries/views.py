@@ -312,7 +312,7 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, DetailView):
     def get_author_tag(self):
         """Format the authors for the author meta tag in the template."""
         authors = self.object.authors.all()
-        author_names = [author.get_full_name() for author in authors]
+        author_names = [author.display_name for author in authors]
         if len(author_names) > 1:
             final_output = ", ".join(author_names[:-1]) + " and " + author_names[-1]
         else:

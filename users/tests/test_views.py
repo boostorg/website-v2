@@ -96,16 +96,14 @@ def test_current_user_profile_view_update_name(user, tp):
             tp.reverse("profile-account"),
             data={
                 "email": user.email,
-                "first_name": new_first_name,
-                "last_name": new_last_name,
+                "display_name": f"{new_first_name} {new_last_name}",
                 "update_profile": "",
             },
             follow=True,
         )
         assert response.status_code == 200
         user.refresh_from_db()
-        assert user.first_name == new_first_name
-        assert user.last_name == new_last_name
+        assert user.display_name == f"{new_first_name} {new_last_name}"
 
 
 @pytest.mark.django_db
