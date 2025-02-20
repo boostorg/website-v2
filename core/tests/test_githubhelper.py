@@ -187,30 +187,18 @@ def test_parse_tag():
     assert result == expected
 
 
-def test_extract_names():
-    sample = "Tester Testerson <tester -at- gmail.com>"
-    expected = ["Tester", "Testerson"]
-    result = GithubDataParser().extract_names(sample)
-    assert expected == result
-
-    sample = "Tester Testerson"
-    expected = ["Tester", "Testerson"]
-    result = GithubDataParser().extract_names(sample)
-    assert expected == result
-
-    sample = "Tester de Testerson <tester -at- gmail.com>"
-    expected = ["Tester de", "Testerson"]
-    result = GithubDataParser().extract_names(sample)
-    assert expected == result
-
-    sample = "Tester de Testerson"
-    expected = ["Tester de", "Testerson"]
-    result = GithubDataParser().extract_names(sample)
-    assert expected == result
-
-    sample = "Various"
-    expected = ["Various", ""]
-    result = GithubDataParser().extract_names(sample)
+@pytest.mark.parametrize(
+    "sample, expected",
+    [
+        ("Tester Testerson <tester -at- gmail.com>", "Tester Testerson"),
+        ("Tester Testerson", "Tester Testerson"),
+        ("Tester de Testerson <tester -at- gmail.com>", "Tester de Testerson"),
+        ("Tester de Testerson", "Tester de Testerson"),
+        ("Various", "Various"),
+    ],
+)
+def test_extract_name(sample, expected):
+    result = GithubDataParser().extract_name(sample)
     assert expected == result
 
 
@@ -255,8 +243,7 @@ def test_extract_contributor_data():
     expected = {
         "valid_email": True,
         "email": "tester@gmail.com",
-        "first_name": "Tester",
-        "last_name": "Testerson",
+        "display_name": "Tester Testerson",
     }
     result = GithubDataParser().extract_contributor_data(sample)
     assert expected == result
@@ -264,11 +251,9 @@ def test_extract_contributor_data():
     sample = "Tester Testerson"
     expected = {
         "valid_email": False,
-        "first_name": "Tester",
-        "last_name": "Testerson",
+        "display_name": "Tester Testerson",
     }
     result = GithubDataParser().extract_contributor_data(sample)
     assert expected["valid_email"] is False
-    assert expected["first_name"] == result["first_name"]
-    assert expected["last_name"] == result["last_name"]
+    assert expected["display_name"] == result["display_name"]
     assert "email" in result

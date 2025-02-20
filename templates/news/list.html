@@ -116,7 +116,7 @@
           </div>
           <div class="hidden pt-2 mt-4 text-xs text-left md:block min-w-[70px] relative group">
             {% avatar user=entry.author %}
-            <span class="group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">{{ entry.author.first_name}}&nbsp;{{ entry.author.last_name }}</span>
+            <span class="group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">{{ entry.author.display_name }}</span>
           </div>
           <div class="block p-6 mb-3 md:mb-10 w-full bg-white md:rounded-lg md:shadow-lg md:ml-6 dark:bg-charcoal overflow-hidden">
             {% can_edit news_item=entry as editable %}
@@ -134,7 +134,7 @@
               </h2>
             </div>
               <div class="md:block text-xs hidden ml-auto text-right w-[150px]">
-                {{ entry.author.get_full_name }}<br />
+                {{ entry.author.display_name }}<br />
                 <span class="text-xs">{{ entry.publish_at|date:"M jS, Y" }}</span>
               </div>
             </div>
@@ -147,7 +147,7 @@
             <!-- footer of cards only for mobile devices -->
             <div class="flex border-t mt-4 border-gray-300 md:hidden">
               <div class="mt-6 w-1/3 text-xs text-left capitalize">
-                {{ entry.author.get_full_name }}<br />
+                {{ entry.author.display_name }}<br />
                 {{ entry.display_publish_at }}
               </div>
               <div class="pt-6 w-1/3 text-center md:border-l-2 border-white dark:border-slate">
@@ -183,11 +183,11 @@
               <div class="pt-2 mt-4 w-1/3 text-xs text-right">
                 {% if entry.author.image %}
                   <span class="inline-block h-[36px] w-[36px] overflow-hidden rounded-lg  ">
-                    <img src="{{ entry.author.image.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover">
+                    <img src="{{ entry.author.image.url }}" alt="{{ entry.author.display_name }}" class="h-full w-full object-cover">
                   </span>
                 {% else %}
                   <span class="inline-block h-[36px] w-[36px] bg-white rounded-lg dark:text-white dark:bg-slate border">
-                    <i class="text-2xl fas fa-user mr-1" title="{{ entry.author.get_full_name }}"></i>
+                    <i class="text-2xl fas fa-user mr-1" title="{{ entry.author.display_name }}"></i>
                   </span>
                 {% endif %}
               </div>

@@ -2,7 +2,7 @@
 
 Hello! You are receiving this email because you are a Boost news moderator.
 
-The user {{ entry.author.get_display_name|default:entry.author.email }} has submitted a new {{ entry.tag }} that requires moderation:
+The user {{ entry.author.display_name|default:entry.author.email }} has submitted a new {{ entry.tag }} that requires moderation:
 
 ---
 {% autoescape off %}

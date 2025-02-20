@@ -44,8 +44,7 @@ def test_create_stub_user(db):
     u = User.objects.create_stub_user(
         "t4@example.com",
         None,
-        first_name="Tester",
-        last_name="Testerson",
+        display_name="Tester Testerson",
         valid_email=False,
     )
     assert u.claimed is False
@@ -53,5 +52,4 @@ def test_create_stub_user(db):
     assert u.is_active is True
     assert u.is_staff is False
     assert u.is_superuser is False
-    assert u.first_name == "Tester"
-    assert u.last_name == "Testerson"
+    assert u.display_name == "Tester Testerson"
