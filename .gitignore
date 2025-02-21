@@ -147,7 +147,7 @@ media
 python.log
 
 # direnv
-.envrc
+.direnv
 .local_env
 
 .DS_Store
