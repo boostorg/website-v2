@@ -7,6 +7,7 @@ from allauth.socialaccount.models import SocialAccount
 from users.constants import LOGIN_METHOD_SESSION_FIELD_NAME
 
 GITHUB = "github"
+GOOGLE = "google"
 
 
 @receiver(post_save, sender=SocialAccount)
@@ -16,19 +17,25 @@ def import_social_profile_data(sender, instance, created, **kwargs):
     user's profile
     """
     if not created:
+        # for display name to save this needs to be resaved after the redirect.
+        instance.user.save()
         return
 
-    if instance.provider != GITHUB:
+    if instance.provider not in [GITHUB, GOOGLE]:
         return
 
-    github_username = instance.extra_data.get("login")
-    avatar_url = instance.extra_data.get("avatar_url")
-    if github_username:
-        instance.user.github_username = github_username
-        instance.save()
+    avatar_url = None
+    if instance.provider == GITHUB:
+        instance.user.github_username = instance.extra_data.get("login")
+        avatar_url = instance.extra_data.get("avatar_url")
+    elif instance.provider == GOOGLE:
+        avatar_url = instance.extra_data.get("picture")
 
     if avatar_url:
-        instance.user.save_image_from_github(avatar_url)
+        instance.user.save_image_from_provider(avatar_url)
+
+    instance.user.display_name = instance.extra_data.get("name")
+    instance.save()
 
 
 @receiver(user_logged_in)
