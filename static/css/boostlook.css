@@ -1078,6 +1078,12 @@ html:has(#docsiframe)::-webkit-scrollbar {
 }
 
 /* Responsive Design */
+@media screen and (min-width: 1024px) {
+  html {
+    font-size: .83333rem;
+  }
+}
+
 @media screen and (min-width: 768px) {
   .boostlook #toggle-toc {
     visibility: visible;
@@ -1601,6 +1607,7 @@ body > .chapter,
   padding-left: 10px;
   max-width: 80rem;
   display: flex;
+  z-index: 5;
 }
 
 .boostlook:not(:has(.doc)) .spirit-nav a,
