@@ -646,8 +646,7 @@ class GithubDataParser:
             data["email"] = None
             data["valid_email"] = False
 
-        first_name, last_name = self.extract_names(contributor)
-        data["first_name"], data["last_name"] = first_name[:30], last_name[:30]
+        data["display_name"] = self.extract_name(contributor)
 
         return data
 
@@ -680,6 +679,13 @@ class GithubDataParser:
                 logger.info("Could not extract valid email", value=val, exc_msg=str(e))
                 return
             return email
+
+    def extract_name(self, val: str) -> str:
+        email = re.search("<.+>", val)
+        if email:
+            val = val.replace(email.group(), "")
+
+        return val.strip()
 
     def extract_names(self, val: str) -> list:
         """

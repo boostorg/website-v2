@@ -8,7 +8,7 @@ onclick="window.location='{% url 'library-detail' library_slug=library_version.l
       <a class="link-header" href="{% url 'library-detail' library_slug=library_version.library.slug version_slug=version_str %}">{{ library_version.library.name }}</a>
       {% for author in library.authors.all %}
         {% if author.image %}
-          <img src="{{ author.image.url }}" class="inline float-right rounded w-[30px] ml-1" alt="{{ author.get_display_name }}" />
+          <img src="{{ author.image.url }}" class="inline float-right rounded w-[30px] ml-1" alt="{{ author.display_name }}" />
         {% endif %}
       {% endfor %}
     </h3>

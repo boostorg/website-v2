@@ -360,18 +360,16 @@ def test_news_create_multiplexer(tp, user_type, request):
 
 
 @pytest.mark.parametrize(
-    "has_image, has_first_name, has_last_name, should_redirect",
+    "has_image, has_display_name, should_redirect",
     [
-        (True, True, False, False),  # Has image and first name
-        (True, False, True, False),  # Has image and last name
-        (True, True, True, False),  # Has image, first name, and last name
-        (False, True, True, True),  # Missing image
-        (True, False, False, True),  # Missing names
-        (False, False, False, True),  # Missing everything
+        (True, True, False),  # Has image, display name
+        (False, True, True),  # Missing image
+        (True, False, True),  # Missing names
+        (False, False, True),  # Missing everything
     ],
 )
 def test_news_create_requirements(
-    tp, user, has_image, has_first_name, has_last_name, should_redirect
+    tp, user, has_image, has_display_name, should_redirect
 ):
     """Users must have a profile photo and at least one of the names: first or last."""
     url_name = "news-create"
@@ -389,8 +387,7 @@ def test_news_create_requirements(
     else:
         user.image = None
 
-    user.first_name = "Test" if has_first_name else ""
-    user.last_name = "User" if has_last_name else ""
+    user.display_name = "Test User" if has_display_name else ""
     user.save()
 
     with tp.login(user):

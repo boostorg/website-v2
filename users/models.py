@@ -73,7 +73,7 @@ class UserManager(BaseUserManager):
         logger.info("Creating stub user with email='%s'", email)
         return self._create_user(email, password, claimed=claimed, **extra_fields)
 
-    def find_contributor(self, email=None, first_name=None, last_name=None):
+    def find_contributor(self, email=None, display_name=None):
         """
         Lazily finds a matching User record by email, or first name and last name.
 
@@ -88,8 +88,7 @@ class UserManager(BaseUserManager):
             email (str, optional): The email address of the user to search for.
                 Assumes the email address is legitimate, and is not one we generated as
                 a placeholder.
-            first_name (str, optional): The first name of the user to search for.
-            last_name (str, optional): The last name of the user to search for.
+            display_name (str, optional): The display name of the user to search for.
 
         Returns:
             User object or None: If a user is found based on the provided criteria, the
@@ -104,10 +103,8 @@ class UserManager(BaseUserManager):
             except self.model.DoesNotExist:
                 pass
 
-        if not user and first_name and last_name:
-            users = self.filter(
-                first_name__iexact=first_name, last_name__iexact=last_name
-            )
+        if not user and display_name:
+            users = self.filter(display_name__iexact=display_name)
             authors_or_maintainers = users.filter(
                 models.Q(authors__isnull=False) | models.Q(maintainers__isnull=False)
             ).distinct()
@@ -144,6 +141,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     Our email for username user model
     """
 
+    # todo: remove first_name, last_name after May 2025
     first_name = models.CharField(_("first name"), max_length=30, blank=True)
     last_name = models.CharField(_("last name"), max_length=30, blank=True)
     email = models.EmailField(_("email address"), unique=True, db_index=True)
@@ -174,17 +172,6 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _("users")
         swappable = "AUTH_USER_MODEL"
         abstract = True
-
-    def get_full_name(self):
-        """
-        Returns the first_name plus the last_name, with a space in between.
-        """
-        full_name = "%s %s" % (self.first_name, self.last_name)
-        return full_name.strip()
-
-    def get_short_name(self):
-        """Returns the short name for the user."""
-        return self.first_name
 
     def email_user(self, subject, message, from_email=None, **kwargs):
         """
@@ -287,16 +274,6 @@ class User(BaseUser):
         Does not include the file extension."""
         return f"profile-{self.pk}"
 
-    @property
-    def get_display_name(self):
-        """Returns the display name for the user."""
-        if self.display_name:
-            return self.display_name
-        elif self.first_name and self.last_name:
-            return f"{self.first_name} {self.last_name}"
-        else:
-            return self.first_name or self.last_name
-
     def claim(self):
         """Claim the user"""
         if not self.claimed:
@@ -328,6 +305,7 @@ class User(BaseUser):
         self.display_name = "John Doe"
         self.first_name = "John"
         self.last_name = "Doe"
+        self.display_name = "John Doe"
         self.email = "deleted-{}@example.com".format(uuid.uuid4())
         image = self.image
         transaction.on_commit(lambda: image.delete())
@@ -337,7 +315,7 @@ class User(BaseUser):
         self.save()
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} <{self.email}>"
+        return f"{self.display_name} <{self.email}>"
 
 
 class LastSeen(models.Model):

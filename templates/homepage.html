@@ -146,14 +146,14 @@
                   <div class="bg-gray-300 dark:bg-slate rounded-lg w-[36px] h-[36px]">
                   {% if author.image %}
                     <img src="{{ author.image.url }}"
-                      title="{{ author.get_full_name }}"
-                      alt="{{ author.get_full_name }}"
+                      title="{{ author.display_name }}"
+                      alt="{{ author.display_name }}"
                       class="rounded-lg w-[36px] h-[36px]" />
                   {% else %}
-                    <i class="text-3xl fas fa-user text-white dark:text-white/60" title="{{ author.get_full_name }}"></i>
+                    <i class="text-3xl fas fa-user text-white dark:text-white/60" title="{{ author.display_name }}"></i>
                   {% endif %}
                   </div>
-                  <span class="text-xs">{{ author.get_full_name }}</span>
+                  <span class="text-xs">{{ author.display_name }}</span>
                 </div>
               {% endfor %}
               </div>
@@ -230,7 +230,7 @@
                 </a>
               </h2>
 
-              <p class="pt-0 pb-4 mx-auto w-full text-xs md:text-sm align-left">Posted on {{ entry.publish_at|date:"M jS, Y" }} by {{ entry.author.get_full_name }}</p>
+              <p class="pt-0 pb-4 mx-auto w-full text-xs md:text-sm align-left">Posted on {{ entry.publish_at|date:"M jS, Y" }} by {{ entry.author.display_name }}</p>
               {% if entry.content %}
               <div class="md:ml-[40px]">
                 <span class="text-sm md:text-base text-gray-500 dark:text-white/70">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|multi_truncate_middle:30|truncatechars_html:500 }}</span>
