@@ -16,13 +16,12 @@ body {
 .sponsor-message ul > li {
   list-style: circle;
   margin-left: 2rem;
-
 }
-.sponsor-message a {
+.sponsor-message a, #library_index li a {
   color: rgb(2, 132, 199);
 }
 
-.sponsor-message a:hover {
+.sponsor-message a:hover, #library_index li a:hover {
   color: rgb(255, 159, 0);
 }
 
@@ -153,19 +152,19 @@ body {
             <path
                id="bubble"
                style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.896533"
-               d="M 28.068153,0 H 471.93339 c 17.18711,0 28.0676,10.634092 28.06739,26.129029 L 500,82.778709 c 0,16.63468 -9.60039,26.129071 -28.06739,26.129071 H 142.14368 l -32.32545,18.09217 2.33657,-18.09217 H 26.700742 C 11.318336,108.90778 -2.1127437e-4,98.110589 0,82.778709 L 7.8066433e-4,26.129029 C 9.6358644e-4,12.855004 12.649959,0 28.068153,0 Z"
-               sodipodi:nodetypes="ssscscccssss"
+               d="M 28.068153,0 H 471.93339 c 17.18711,0 28.0676,10.63409 28.0674,26.12903 l -8e-4,56.64968 c 0,16.63468 -9.6004,26.12907 -28.0674,26.12907 -144.5008,3.63566 -356.11545,0.75984 -445.23187,0 -15.3824,0 -26.70095,-10.79719 -26.70074,-26.12907 l 7.8e-4,-56.64968 c 1.8e-4,-13.27403 12.64918,-26.12903 28.06737,-26.12903 z"
             />
           </svg>
           <div class="sponsor_message_copy dynamic-text p-[30px] mr-16 absolute z-20 max-h-[340px]">{{ version.sponsor_message|safe }}</div>
           <div class="committee_members flex flex-wrap mt-2 text-sm text-center absolute" style="">
             {% for user in committee_members|dictsort:"first_name" %}
               <figure class="w-32 m-2">
-                {% if user.hq_image %}
-                  <img src="{{ user.hq_image_render.url }}" alt="{{ user.first_name }} {{ user.last_name }}" />
-                {% else %}
-                  <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="" />
-                {% endif %}
+<!--                 {% if user.hq_image %} -->
+<!--                   <img src="{{ user.hq_image_render.url }}" alt="{{ user.first_name }} {{ user.last_name }}" /> -->
+<!--                 {% else %} -->
+<!--                   <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="" /> -->
+<!--                 {% endif %} -->
+                {% avatar user=user is_link=False image_size="w-32 h-32" icon_size="text-8xl" %}
                 <figcaption class="p-1">{{user.first_name}} {{user.last_name}}</figcaption>
               </figure>
             {% endfor %}
@@ -262,7 +261,7 @@ body {
       {% endif %}
       <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
         <div class="flex flex-col h-full mx-auto w-full">
-          <h2 class="mx-auto mb-10">Top 200 Most Frequently Used Words in Slack</h2>
+          <h2 class="mx-auto mb-10">Mailing List Top 200 Most Frequently Used Words</h2>
           <div class="flex flex-col flex-wrap gap-x-4 gap-y-1 text-xs h-5/6">
             {% for word in wordcloud_frequencies %}
               <div class="max-w-[10rem]">
@@ -271,32 +270,37 @@ body {
             {% endfor %}
           </div>
         </div>
-        {% include "admin/_release_report_page_footer.html" %}
       </div>
 
       {% if slack %}
-        <div class="pdf-page flex items-center justify-items-center  {{ bg_color }}">
+       {% for slack_channel_group in slack_channels %}
+        <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
           <div class="flex flex-col h-full mx-auto w-full">
-            <h2 class="mx-auto">Slack Channels</h2>
-            <ul class="flex flex-col flex-wrap content-center items-center gap-x-4 gap-y-1 text-xs h-5/6">
-              {% for channel in slack_channels %}
-                <li class="max-w-[10rem]"><strong>#{{channel.name}}</strong></li>
+            {% if forloop.first %}
+              <h2 class="mx-auto">Slack Channels</h2>
+            {% endif %}
+            <ul class="flex flex-row flex-wrap mx-auto w-full flex-wrap text-sm">
+              {% for channel in slack_channel_group %}
+                <li class="w-1/2 p-2">
+                  <strong>#{{channel.name}}</strong>
+                  {% if channel.purpose %}
+                    <div class="mx-auto">{{channel.purpose}}</div>
+                  {% endif %}
+                </li>
               {% endfor %}
               </ul>
             </div>
           </div>
         </div>
+        {% endfor %}
         {% for slack_group in slack %}
           <div class="pdf-page flex justify-items-center {{ bg_color }}">
             <div class="flex flex-col mx-auto">
               <div class="flex gap-x-[6rem]">
                 {% for slack_item in slack_group %}
-                  <div class="flex flex-col mx-auto gap-y-2">
-                    <h2>#{{slack_item.channel.name}}</h2>
+                  <div class="flex flex-col mx-auto gap-y-2 w-96">
+                    <h2 class="my-2">#{{slack_item.channel.name}}</h2>
                     <div>
-                      {% if channel.purpose %}
-                        <div class="mx-auto">{{channel.purpose}}</div>
-                      {% endif %}
                       <div class="mx-auto">
                         <span class="font-bold">{{ slack_item.total|intcomma }}</span>
                         slack message{{ slack_item.total|pluralize }} in #{{ slack_item.channel.name }}
@@ -304,7 +308,7 @@ body {
                       <div class="mx-auto">
                         <span class="font-bold">{{ slack_item.user_count }}</span>
                         {{ slack_item.user_count|pluralize:"person,people" }}
-                        were active in the conversation for this release. (<span class="font-bold">{{ slack_item.new_user_count }}</span> New)
+                        were active for this release. (<span class="font-bold">{{ slack_item.new_user_count }}</span> New)
                       </div>
                     </div>
                     <div class="flex gap-x-2">
@@ -337,60 +341,72 @@ body {
       <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
         <div class="flex flex-col h-full mx-auto w-full">
           <h2 class="mx-auto">Library Index</h2>
-          <div class="flex flex-col flex-wrap gap-x-4 gap-y-1 text-xs h-5/6">
-            {% for library in all_libraries %}
-              <div class="max-w-[10rem]">
-                {{ library.name }}
+          <ul id="library_index" class="flex flex-col flex-wrap gap-x-4 gap-y-2 text-xs h-5/6">
+            {% for library, in_version_library_data in library_index_libraries %}
+              <li class="max-w-[10rem] flex gap-x-1 items-center">
                 {% if library.group == "great" %}
                   <i class="text-orange fa-solid fa-star"></i>
                 {% elif library.group == "good" %}
                   <i class="text-orange fa-regular fa-star"></i>
+                {% else %}
+                  <i class="text-orange fa-regular fa-fw"></i>
                 {% endif %}
-              </div>
+                {% if in_version_library_data %}
+                  <a href="#library-{{library.display_name}}" class="font-semibold">{{ library.name }}</a>
+                {% else %}
+                  <span>{{ library.name }}</span>
+                {% endif %}
+              </li>
             {% endfor %}
-          </div>
+          </ul>
         </div>
       </div>
       {% for item in library_data %}
-        <div class="pdf-page flex flex-col {{ bg_color }}">
+        <div class="pdf-page flex flex-col {{ bg_color }}" id="library-{{item.library.display_name}}">
           <div class="grid grid-cols-3 gap-x-8 w-full p-4">
             <div class="col-span-2 flex flex-col gap-y-4">
               <div class="flex flex-col gap-y-4">
                 <h2 class="text-orange mb-1 mt-0">{{ item.library.display_name }}</h2>
                 <div>{{ item.library.description }}</div>
-                {% if item.library.graphic %}<div><img src="{{ item.library.graphic.url }}" alt="" /></div>{% endif %}
               </div>
-              <div class="flex flex-col gap-y-1">
-                <div>
-                  There
-                  {{ item.version_count.commit_count|pluralize:"was,were" }}
-                  <span class="font-bold">{{ item.version_count.commit_count }}</span>
-                  commit{{ item.version_count.commit_count|pluralize }}
-                  in release {{ version.display_name }}
-                </div>
-                {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
-                  <div>
-                    <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added, <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
-                  </div>
-                {% endwith %}
-                {% with count=item.new_contributors_count.count %}
-                  {% if count >= 1 %}
-                    <div>
-                      There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} this release!
-                    </div>
-                  {% endif %}
-                {% endwith %}
-                <div>
-                  There {{ item.issues.opened|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.opened }}</span> issue{{ item.issues.opened|pluralize }} opened
-                  and {{ item.issues.closed|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.closed }}</span> issue{{ item.issues.closed|pluralize }} closed
-                </div>
-                {% if item.deps.added or item.deps.removed %}
-                  <div>
-                    There {{ item.deps.added|length|pluralize:"was,were" }} <span class="font-bold">{{ item.deps.added|length }}</span> dependenc{{ item.deps.added|length|pluralize:"y,ies" }} added
-                    and
-                    <span class="font-bold">{{ item.deps.removed|length }}</span> dependenc{{ item.deps.removed|length|pluralize:"y,ies" }} removed
+              <div class="flex gap-x-8 items-center">
+                {% if item.library.graphic %}
+                  <div class="max-w-[10rem]">
+                    <img src="{{ item.library.graphic.url }}" alt="" />
                   </div>
                 {% endif %}
+                <div class="flex flex-col gap-y-1">
+                  <div>
+                    There
+                    {{ item.version_count.commit_count|pluralize:"was,were" }}
+                    <span class="font-bold">{{ item.version_count.commit_count }}</span>
+                    commit{{ item.version_count.commit_count|pluralize }}
+                    in release {{ version.display_name }}
+                  </div>
+                  {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
+                    <div>
+                      <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added, <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
+                    </div>
+                  {% endwith %}
+                  {% with count=item.new_contributors_count.count %}
+                    {% if count >= 1 %}
+                      <div>
+                        There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} this release!
+                      </div>
+                    {% endif %}
+                  {% endwith %}
+                  <div>
+                    There {{ item.issues.opened|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.opened }}</span> issue{{ item.issues.opened|pluralize }} opened
+                    and {{ item.issues.closed|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.closed }}</span> issue{{ item.issues.closed|pluralize }} closed
+                  </div>
+                  {% if item.deps.added or item.deps.removed %}
+                    <div>
+                      There {{ item.deps.added|length|pluralize:"was,were" }} <span class="font-bold">{{ item.deps.added|length }}</span> dependenc{{ item.deps.added|length|pluralize:"y,ies" }} added
+                      and
+                      <span class="font-bold">{{ item.deps.removed|length }}</span> dependenc{{ item.deps.removed|length|pluralize:"y,ies" }} removed
+                    </div>
+                  {% endif %}
+                </div>
               </div>
             </div>
             <div class="px-4">
@@ -510,7 +526,7 @@ body {
         bubbleScalingAdjustment accounts for scaling of bubble with longer content, with
          the bubble and the copy being different heights
         */
-        const bubbleScalingAdjustment = 1.15;
+        const bubbleScalingAdjustment = 1; // 1.15 when point path in use
         const bubbleCommitteeSpacing = 10;
         const copyTextAdjustment = -2;
 
