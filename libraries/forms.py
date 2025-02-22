@@ -277,36 +277,31 @@ class CreateReportForm(CreateReportFullForm):
             .order_by("-commit_count")[:10]
         )
 
-    def _get_top_libraries_for_version(self):
-        return (
-            self.library_queryset.filter(
-                library_version=LibraryVersion.objects.filter(
-                    library=OuterRef("id"), version=self.cleaned_data["version"]
-                )[:1],
-            )
-            .annotate(commit_count=Count("library_version__commit"))
-            .order_by("-commit_count")
-        )
-
-    def _get_libraries_by_name(self):
+    def _get_library_queryset_by_version(self, version: Version):
         return self.library_queryset.filter(
             library_version=LibraryVersion.objects.filter(
-                library=OuterRef("id"), version=self.cleaned_data["version"]
+                library=OuterRef("id"), version=version
             )[:1],
-        ).order_by("name")
+        )
+
+    def _get_top_libraries_for_version(self):
+        library_qs = self._get_library_queryset_by_version(self.cleaned_data["version"])
+        return library_qs.annotate(
+            commit_count=Count("library_version__commit")
+        ).order_by("-commit_count")
+
+    def _get_libraries_by_name(self):
+        library_qs = self._get_library_queryset_by_version(self.cleaned_data["version"])
+        return library_qs.order_by("name")
 
     def _get_libraries_by_quality(self):
         # returns "great", "good", and "standard" libraries in that order
-        base_queryset = self.library_queryset.filter(
-            library_version=LibraryVersion.objects.filter(
-                library=OuterRef("id"), version=self.cleaned_data["version"]
-            )[:1],
-        )
+        library_qs = self._get_library_queryset_by_version(self.cleaned_data["version"])
         return list(
             chain(
-                base_queryset.filter(graphic__isnull=False),
-                base_queryset.filter(graphic__isnull=True, is_good=True),
-                base_queryset.filter(graphic__isnull=True, is_good=False),
+                library_qs.filter(graphic__isnull=False),
+                library_qs.filter(graphic__isnull=True, is_good=True),
+                library_qs.filter(graphic__isnull=True, is_good=False),
             )
         )
 
@@ -476,10 +471,10 @@ class CreateReportForm(CreateReportFullForm):
             for key, val in wc.process_text(content).items():
                 if len(key) < 2:
                     continue
-                keyl = key.lower()
-                if keyl not in word_frequencies:
-                    word_frequencies[keyl] = 0
-                word_frequencies[keyl] += val
+                key_lower = key.lower()
+                if key_lower not in word_frequencies:
+                    word_frequencies[key_lower] = 0
+                word_frequencies[key_lower] += val
         if not word_frequencies:
             return None, {}
 
