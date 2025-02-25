@@ -199,6 +199,7 @@ class User(BaseUser):
     """
 
     badges = models.ManyToManyField(Badge)
+    # todo: consider making this unique=True after checking user data for duplicates
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
     image = models.FileField(
         upload_to="profile-images",
@@ -290,6 +291,13 @@ class User(BaseUser):
         if not self.github_username:
             return None
         return f"https://github.com/{self.github_username}"
+
+    @staticmethod
+    def get_user_by_github_url(url: str):
+        if not url:
+            return None
+        github_user = url.rstrip("/").split("/")[-1]
+        return User.objects.filter(github_username=github_user).first()
 
     @transaction.atomic
     def delete_account(self):

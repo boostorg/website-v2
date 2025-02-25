@@ -45,6 +45,14 @@ def avatar(
     contributor_label=None,
     avatar_type=None,
 ):
+    def get_commit_author_attribute(commitauthor, attribute):
+        if isinstance(commitauthor, dict):
+            return commitauthor.get(attribute)
+        try:
+            return getattr(commitauthor, attribute, None)
+        except AttributeError:
+            return None
+
     kwargs = {
         "is_link": is_link,
         "alt": alt,
@@ -54,11 +62,16 @@ def avatar(
         "contributor_label": contributor_label,
         "avatar_type": avatar_type,
     }
+
     if user and commitauthor:
-        image_url = user.get_thumbnail_url() or commitauthor.avatar_url
-        href = user.github_profile_url or commitauthor.github_profile_url
+        image_url = user.get_thumbnail_url() or get_commit_author_attribute(
+            commitauthor, "avatar_url"
+        )
+        href = user.github_profile_url or get_commit_author_attribute(
+            commitauthor, "github_profile_url"
+        )
         return base_avatar(
-            user.display_name,
+            commitauthor.display_name,
             image_url,
             href,
             **kwargs,
@@ -71,16 +84,13 @@ def avatar(
             **kwargs,
         )
     elif commitauthor:
-        if isinstance(commitauthor, dict):
-            name = commitauthor["name"]
-            avatar_url = commitauthor["avatar_url"]
-            github_profile_url = commitauthor["github_profile_url"]
-        else:
-            name = commitauthor.name
-            avatar_url = commitauthor.avatar_url
-            github_profile_url = commitauthor.github_profile_url
+        display_name = get_commit_author_attribute(commitauthor, "display_name")
+        avatar_url = get_commit_author_attribute(commitauthor, "avatar_url")
+        github_profile_url = get_commit_author_attribute(
+            commitauthor, "github_profile_url"
+        )
         return base_avatar(
-            name,
+            display_name,
             avatar_url,
             github_profile_url,
             **kwargs,

@@ -273,7 +273,6 @@ class CreateReportForm(CreateReportFullForm):
                     ),
                 )
             )
-            .values("name", "avatar_url", "commit_count", "github_profile_url")
             .order_by("-commit_count")[:10]
         )
 
