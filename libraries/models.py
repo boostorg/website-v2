@@ -51,9 +51,18 @@ class CommitAuthor(models.Model):
 
     @property
     def display_name(self):
+        if (
+            self.user
+            and self.user.is_commit_author_name_overridden
+            and self.user.display_name
+        ):
+            return self.user.display_name
+        return self.name
+
+    @property
+    def user(self):
         User = get_user_model()
-        u = User.get_user_by_github_url(self.github_profile_url)
-        return getattr(u, "display_name", self.name)
+        return User.get_user_by_github_url(self.github_profile_url)
 
     def __str__(self):
         return self.name
