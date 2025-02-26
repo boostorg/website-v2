@@ -1,22 +1,16 @@
-import io
-import base64
 from functools import cached_property
 from itertools import groupby, chain
 from operator import attrgetter
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 
-import psycopg2
-from wordcloud import WordCloud, STOPWORDS
-from matplotlib import pyplot as plt
 
 from django.template.loader import render_to_string
 from django.db.models import F, Q, Count, OuterRef, Sum, When, Value, Case
 from django.forms import Form, ModelChoiceField, ModelForm, BooleanField
-from django.conf import settings
 
-from core.models import RenderedContent, SiteSettings
-from libraries.utils import batched, boost_normalize_words, grey_color_func
+from core.models import RenderedContent
+from reports.generation import ReportVisualization
 from slack.models import Channel, SlackActivityBucket, SlackUser
 from versions.models import Version
 from .models import (
@@ -25,10 +19,10 @@ from .models import (
     Issue,
     Library,
     LibraryVersion,
-    WordcloudMergeWord,
 )
 from libraries.constants import SUB_LIBRARIES
 from mailing_list.models import EmailData
+from .utils import batched
 
 
 class LibraryForm(ModelForm):
@@ -448,72 +442,9 @@ class CreateReportForm(CreateReportFullForm):
             )
         return top_contributors_release
 
-    def _get_mail_content(self, version):
-        prior_version = (
-            Version.objects.minor_versions()
-            .filter(version_array__lt=version.cleaned_version_parts_int)
-            .order_by("-release_date")
-            .first()
-        )
-        if not prior_version or not settings.HYPERKITTY_DATABASE_NAME:
-            return []
-        conn = psycopg2.connect(settings.HYPERKITTY_DATABASE_URL)
-        with conn.cursor(name="fetch-mail-content") as cursor:
-            cursor.execute(
-                """
-                    SELECT content FROM hyperkitty_email
-                    WHERE date >= %(start)s AND date < %(end)s;
-                """,
-                {"start": prior_version.release_date, "end": version.release_date},
-            )
-            for [content] in cursor:
-                yield content
-
     def _generate_hyperkitty_word_cloud(self, version):
         """Generates a wordcloud png and returns it as a base64 string."""
-        wc = WordCloud(
-            mode="RGBA",
-            background_color=None,
-            width=1400,
-            height=700,
-            stopwords=STOPWORDS | SiteSettings.load().wordcloud_ignore_set,
-            font_path=settings.BASE_DIR / "static" / "font" / "notosans_mono.woff",
-        )
-        word_frequencies = {}
-        for content in self._get_mail_content(version):
-            for key, val in wc.process_text(content).items():
-                if len(key) < 2:
-                    continue
-                key_lower = key.lower()
-                if key_lower not in word_frequencies:
-                    word_frequencies[key_lower] = 0
-                word_frequencies[key_lower] += val
-        if not word_frequencies:
-            return None, {}
-
-        word_frequencies = boost_normalize_words(
-            word_frequencies,
-            {x.from_word: x.to_word for x in WordcloudMergeWord.objects.all()},
-        )
-
-        wc.generate_from_frequencies(word_frequencies)
-        plt.figure(figsize=(14, 7), facecolor=None)
-        plt.imshow(
-            wc.recolor(color_func=grey_color_func, random_state=3),
-            interpolation="bilinear",
-        )
-        plt.axis("off")
-        image_bytes = io.BytesIO()
-        plt.savefig(
-            image_bytes,
-            format="png",
-            dpi=100,
-            bbox_inches="tight",
-            pad_inches=0,
-            transparent=True,
-        )
-        image_bytes.seek(0)
-        return base64.b64encode(image_bytes.read()).decode(), word_frequencies
+        return ReportVisualization.generate_wordcloud(version)
 
     def _count_mailinglist_contributors(self, version):
         version_lt = list(
