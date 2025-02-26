@@ -96,6 +96,7 @@ INSTALLED_APPS += [
     "libraries",
     "mailing_list",
     "news",
+    "reports",
     "core",
     "slack",
 ]
