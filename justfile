@@ -127,5 +127,16 @@ alias shell := console
 @pip-compile-upgrade:  ## Upgrade existing Python dependencies to their latest versions
     just pip-compile --upgrade
 
+@load_production_data:  ## downloads and loads the latest production database dump
+    bash scripts/load_production_data.sh
+
+@dump_database:  ## dumps the current database to a .dump file in the project root
+    #!/usr/bin/env bash
+    DUMP_FILENAME="database_dump_$(date +"%Y-%m-%d-%H-%M-%S").dump"
+    echo "Dumping database to ${DUMP_FILENAME}..."
+    docker compose exec -T db pg_dump -U "$(grep PGDATABASE .env | cut -d= -f2)" -d "$(grep PGUSER .env | cut -d= -f2)" -F c -f "/tmp/${DUMP_FILENAME}"
+    docker compose cp "db:/tmp/${DUMP_FILENAME}" "./${DUMP_FILENAME}"
+    echo "Database dumped successfully to ${DUMP_FILENAME}"
+
 @manage args:
     docker compose run --rm web python manage.py {{ args }}
