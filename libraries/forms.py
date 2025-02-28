@@ -445,7 +445,8 @@ class CreateReportForm(CreateReportFullForm):
     def _generate_hyperkitty_word_cloud(self, version):
         """Generates a wordcloud png and returns it as a base64 string."""
         wc = WordCloud(
-            background_color="white",
+            mode="RGBA",
+            background_color=None,
             width=1400,
             height=700,
             stopwords=STOPWORDS | SiteSettings.load().wordcloud_ignore_set,
@@ -469,7 +470,7 @@ class CreateReportForm(CreateReportFullForm):
         )
 
         wc.generate_from_frequencies(word_frequencies)
-        plt.figure(figsize=(14, 7))
+        plt.figure(figsize=(14, 7), facecolor=None)
         plt.imshow(
             wc.recolor(color_func=grey_color_func, random_state=3),
             interpolation="bilinear",
@@ -482,6 +483,7 @@ class CreateReportForm(CreateReportFullForm):
             dpi=100,
             bbox_inches="tight",
             pad_inches=0,
+            transparent=True,
         )
         image_bytes.seek(0)
         return base64.b64encode(image_bytes.read()).decode(), word_frequencies

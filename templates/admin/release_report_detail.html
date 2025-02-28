@@ -1,5 +1,7 @@
 {% extends "admin/library_report_base.html" %}
 {% load humanize avatar_tags text_helpers %}
+{% load random_image_tag %}
+
 {% load static %}
 {% block css %}
 {{ block.super }}
@@ -30,7 +32,7 @@ body {
 {% block content %}
   {% with bg_color='' %}
     <div>
-      <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}">
+      <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg1.png' %}')">
         <div class="flex flex-col h-full gap-y-6">
           <div class="flex flex-col gap-y-2">
             <h1 class="flex mb-0">
@@ -173,7 +175,7 @@ body {
         </div>
       {% endif %}
 
-      <div class="flex flex-col pdf-page items-center justify-items-center {{ bg_color }}">
+      <div class="flex flex-col pdf-page items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg4.png' %}')">
 
         <div class="flex flex-col">
           <h2 class="mx-auto my-1">Git activity for this release</h2>
@@ -206,7 +208,7 @@ body {
 
       </div>
 
-      <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
+      <div class="pdf-page flex items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}');">
 
         <div class="flex gap-x-8 justify-around w-full">
           <div class="px-4">
@@ -248,7 +250,7 @@ body {
         </div>
       </div>
       {% if wordcloud_base64 %}
-        <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
+        <div class="pdf-page flex items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}');">
           <div class="flex flex-col mx-auto">
             <h2 class="mx-auto mb-10">Mailing List Word Cloud</h2>
             <div class="flex mx-auto">
@@ -259,7 +261,7 @@ body {
 
         </div>
       {% endif %}
-      <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
+      <div class="pdf-page flex items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg5.png' %}');">
         <div class="flex flex-col h-full mx-auto w-full">
           <h2 class="mx-auto mb-10">Mailing List Top 200 Most Frequently Used Words</h2>
           <div class="flex flex-col flex-wrap gap-x-4 gap-y-1 text-xs h-5/6">
@@ -274,7 +276,7 @@ body {
 
       {% if slack %}
        {% for slack_channel_group in slack_channels %}
-        <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
+        <div class="pdf-page flex items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg2.png' %}'); background-position-y: -200px;">
           <div class="flex flex-col h-full mx-auto w-full">
             {% if forloop.first %}
               <h2 class="mx-auto">Slack Channels</h2>
@@ -294,7 +296,7 @@ body {
         </div>
         {% endfor %}
         {% for slack_group in slack %}
-          <div class="pdf-page flex justify-items-center {{ bg_color }}">
+          <div class="pdf-page flex justify-items-center {{ bg_color }}"  style="background-image: url('{% static 'img/release_report/bg3.png' %}');">
             <div class="flex flex-col mx-auto">
               <div class="flex gap-x-[6rem]">
                 {% for slack_item in slack_group %}
@@ -338,7 +340,7 @@ body {
           </div>
         {% endfor %}
       {% endif %}
-      <div class="pdf-page flex items-center justify-items-center {{ bg_color }}">
+      <div class="pdf-page flex items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg2.png' %}');">
         <div class="flex flex-col h-full mx-auto w-full">
           <h2 class="mx-auto">Library Index</h2>
           <ul id="library_index" class="flex flex-col flex-wrap gap-x-4 gap-y-2 text-xs h-5/6">
@@ -361,73 +363,76 @@ body {
           </ul>
         </div>
       </div>
-      {% for item in library_data %}
-        <div class="pdf-page flex flex-col {{ bg_color }}" id="library-{{item.library.display_name}}">
-          <div class="grid grid-cols-3 gap-x-8 w-full p-4">
-            <div class="col-span-2 flex flex-col gap-y-4">
-              <div class="flex flex-col gap-y-4">
-                <h2 class="text-orange mb-1 mt-0">{{ item.library.display_name }}</h2>
-                <div>{{ item.library.description }}</div>
-              </div>
-              <div class="flex gap-x-8 items-center">
-                {% if item.library.graphic %}
-                  <div class="max-w-[10rem]">
-                    <img src="{{ item.library.graphic.url }}" alt="" />
-                  </div>
-                {% endif %}
-                <div class="flex flex-col gap-y-1">
-                  <div>
-                    There
-                    {{ item.version_count.commit_count|pluralize:"was,were" }}
-                    <span class="font-bold">{{ item.version_count.commit_count }}</span>
-                    commit{{ item.version_count.commit_count|pluralize }}
-                    in release {{ version.display_name }}
-                  </div>
-                  {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
-                    <div>
-                      <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added, <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
-                    </div>
-                  {% endwith %}
-                  {% with count=item.new_contributors_count.count %}
-                    {% if count >= 1 %}
-                      <div>
-                        There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} this release!
-                      </div>
-                    {% endif %}
-                  {% endwith %}
-                  <div>
-                    There {{ item.issues.opened|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.opened }}</span> issue{{ item.issues.opened|pluralize }} opened
-                    and {{ item.issues.closed|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.closed }}</span> issue{{ item.issues.closed|pluralize }} closed
-                  </div>
-                  {% if item.deps.added or item.deps.removed %}
-                    <div>
-                      There {{ item.deps.added|length|pluralize:"was,were" }} <span class="font-bold">{{ item.deps.added|length }}</span> dependenc{{ item.deps.added|length|pluralize:"y,ies" }} added
-                      and
-                      <span class="font-bold">{{ item.deps.removed|length }}</span> dependenc{{ item.deps.removed|length|pluralize:"y,ies" }} removed
+      {% with "img/release_report/bg1.png,img/release_report/bg4.png,img/release_report/bg6.png" as bg_list %}
+        {% for item in library_data %}
+          {% random_image_tag bg_list as random_bg %}
+          <div class="pdf-page flex flex-col {{ bg_color }}" id="library-{{item.library.display_name}}" style="background-image: url('{% static random_bg %}')">
+            <div class="grid grid-cols-3 gap-x-8 w-full p-4">
+              <div class="col-span-2 flex flex-col gap-y-4">
+                <div class="flex flex-col gap-y-4">
+                  <h2 class="text-orange mb-1 mt-0">{{ item.library.display_name }}</h2>
+                  <div>{{ item.library.description }}</div>
+                </div>
+                <div class="flex gap-x-8 items-center">
+                  {% if item.library.graphic %}
+                    <div class="max-w-[10rem]">
+                      <img src="{{ item.library.graphic.url }}" alt="" />
                     </div>
                   {% endif %}
-                </div>
-              </div>
-            </div>
-            <div class="px-4">
-              <div class="mx-auto mb-6">Top Contributors</div>
-              <div class="m-auto grid grid-cols-1 gap-2">
-              {% for author in item.top_contributors_release %}
-                <div class="flex flex-row gap-y-2 w-40 items-center">
-                  {% avatar commitauthor=author %}
-                  <div class="w-full flex flex-col ml-2">
-                    <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
-                      {{ author.display_name }}
+                  <div class="flex flex-col gap-y-1">
+                    <div>
+                      There
+                      {{ item.version_count.commit_count|pluralize:"was,were" }}
+                      <span class="font-bold">{{ item.version_count.commit_count }}</span>
+                      commit{{ item.version_count.commit_count|pluralize }}
+                      in release {{ version.display_name }}
                     </div>
-                    <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
+                    {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
+                      <div>
+                        <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added, <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
+                      </div>
+                    {% endwith %}
+                    {% with count=item.new_contributors_count.count %}
+                      {% if count >= 1 %}
+                        <div>
+                          There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} this release!
+                        </div>
+                      {% endif %}
+                    {% endwith %}
+                    <div>
+                      There {{ item.issues.opened|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.opened }}</span> issue{{ item.issues.opened|pluralize }} opened
+                      and {{ item.issues.closed|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.closed }}</span> issue{{ item.issues.closed|pluralize }} closed
+                    </div>
+                    {% if item.deps.added or item.deps.removed %}
+                      <div>
+                        There {{ item.deps.added|length|pluralize:"was,were" }} <span class="font-bold">{{ item.deps.added|length }}</span> dependenc{{ item.deps.added|length|pluralize:"y,ies" }} added
+                        and
+                        <span class="font-bold">{{ item.deps.removed|length }}</span> dependenc{{ item.deps.removed|length|pluralize:"y,ies" }} removed
+                      </div>
+                    {% endif %}
                   </div>
                 </div>
-              {% endfor %}
+              </div>
+              <div class="px-4">
+                <div class="mx-auto mb-6">Top Contributors</div>
+                <div class="m-auto grid grid-cols-1 gap-2">
+                {% for author in item.top_contributors_release %}
+                  <div class="flex flex-row gap-y-2 w-40 items-center">
+                    {% avatar commitauthor=author %}
+                    <div class="w-full flex flex-col ml-2">
+                      <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
+                        {{ author.display_name }}
+                      </div>
+                      <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
+                    </div>
+                  </div>
+                {% endfor %}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      {% endfor %}
+        {% endfor %}
+      {% endwith %}
     </div>
     <script>
       var options = {
