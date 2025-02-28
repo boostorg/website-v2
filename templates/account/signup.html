@@ -26,7 +26,15 @@
       border: 1px solid transparent !important;
       pointer-events: none;
       background-color: rgb(5 26 38 / var(--tw-bg-opacity)) !important;
-      color: rgb(23 42 52 / var(--tw-bg-opacity)) !important;
+      color: rgb(105, 115, 121) !important;
+    }
+
+    .dark input[type="checkbox"] {
+      border-color: rgb(105, 115, 121);
+    }
+
+    .required {
+      color: red;
     }
   </style>
 
@@ -44,7 +52,7 @@
             <label for="readTOS">
               I have read and accepted the
               <a href="terms-of-use" target="_blank" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange mx-1" onclick="displayModal('70vh','70vw', '../../terms-of-use/?=noheader')">Terms of Use</a>
-              for this service.
+              for this service. <span class="required" title="required">*</span>
             </label>
           </p>
         </div>
