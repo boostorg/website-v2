@@ -57,7 +57,7 @@
 
       <div class="block px-6 py-4 my-6 w-full bg-white rounded-lg dark:bg-charcoal">
         {% if entry.external_url %}
-          <p>{{ entry.external_url|escape|urlize }}</p>
+          <p>{{ entry.external_url|escape|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange' }}</p>
         {% endif %}
 
         {% if entry.image %}
