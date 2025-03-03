@@ -2,7 +2,7 @@
 {% with request.resolver_match.view_name as view_name %}
   <div class="pt-3 px-0 mb-2 text-right md:mb-2 mx-3 md:mx-0">
     <form action="{{request.path}}" method="get">
-      <div class="flex relative space-x-3 justify-start">
+      <div class="flex flex-wrap relative space-x-3 justify-start">
         {# Search #}
 
         {% comment %}
@@ -11,7 +11,7 @@
         {% endcomment %}
 
         {# Display options #}
-        <div class="flex space-x-3">
+        <div class="flex space-x-3 pb-3">
           <div class="relative group">
             <a title="Name View" href="{% if category_slug %}{% url 'libraries-list' library_view_str='list' version_slug=version_str category_slug=category_slug %}{%  else %}{% url 'libraries-list' library_view_str='list' version_slug=version_str %}{% endif %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-list p-[10px] {% if library_view_str == 'list' %}bg-gray-100 dark:bg-slate{% else %}hover:bg-gray-100 dark:hover:bg-slate{% endif %}"></i></a>
             <span class="z-50 group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">List&nbsp;View</span>
