@@ -154,13 +154,6 @@ class CreateReportFullForm(Form):
                     commit__library_version__library_id=library_id
                 )
                 .annotate(commit_count=Count("commit"))
-                .values(
-                    "name",
-                    "avatar_url",
-                    "github_profile_url",
-                    "commit_count",
-                    "commit__library_version__library_id",
-                )
                 .order_by("-commit_count")[:10]
             )
         return top_contributors_library
@@ -273,7 +266,6 @@ class CreateReportForm(CreateReportFullForm):
                     ),
                 )
             )
-            .values("name", "avatar_url", "commit_count", "github_profile_url")
             .order_by("-commit_count")[:10]
         )
 
@@ -425,13 +417,6 @@ class CreateReportForm(CreateReportFullForm):
                     )
                 )
                 .annotate(commit_count=Count("commit"))
-                .values(
-                    "name",
-                    "avatar_url",
-                    "github_profile_url",
-                    "commit_count",
-                    "commit__library_version__library_id",
-                )
                 .order_by("-commit_count")[:10]
             )
         return top_contributors_release

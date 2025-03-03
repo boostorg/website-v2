@@ -15,6 +15,7 @@ def user(db):
         email="user@example.com",
         display_name="Regular User",
         indicate_last_login_method=False,
+        is_commit_author_name_overridden=False,
         last_login=timezone.now(),
         image=None,
     )

@@ -130,6 +130,7 @@ def regular_user(db, make_user):
 def superuser(db, make_user):
     return make_user(
         email="superuser@example.com",
+        display_name="Regular User",
         is_superuser=True,
         password="admin",
         groups={},

@@ -2,6 +2,7 @@ import re
 from typing import Self
 from urllib.parse import urlparse
 
+from django.contrib.auth import get_user_model
 from django.core.cache import caches
 from django.db import models, transaction
 from django.db.models import Sum
@@ -47,6 +48,21 @@ class CommitAuthor(models.Model):
     name = models.CharField(max_length=100)
     avatar_url = models.URLField(null=True, max_length=100)
     github_profile_url = models.URLField(null=True, max_length=100)
+
+    @property
+    def display_name(self):
+        if (
+            self.user
+            and self.user.is_commit_author_name_overridden
+            and self.user.display_name
+        ):
+            return self.user.display_name
+        return self.name
+
+    @property
+    def user(self):
+        User = get_user_model()
+        return User.get_user_by_github_url(self.github_profile_url)
 
     def __str__(self):
         return self.name
