@@ -394,7 +394,7 @@ body {
                         {% with count=item.new_contributors_count.count %}
                           {% if count >= 1 %}
                             <div>
-                              There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} this release!
+                              There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} for this release!
                             </div>
                           {% endif %}
                         {% endwith %}
