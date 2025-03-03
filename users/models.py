@@ -201,6 +201,9 @@ class User(BaseUser):
     badges = models.ManyToManyField(Badge)
     # todo: consider making this unique=True after checking user data for duplicates
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
+    is_commit_author_name_overridden = models.BooleanField(
+        default=False, help_text="Select to override the commit author with Username"
+    )
     image = models.FileField(
         upload_to="profile-images",
         null=True,
