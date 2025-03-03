@@ -160,11 +160,13 @@ def test_user_profile_form(user):
         "display_name",
         "email",
         "indicate_last_login_method",
+        "is_commit_author_name_overridden",
     }
     assert form.initial == {
         "display_name": user.display_name,
         "email": user.email,
         "indicate_last_login_method": user.indicate_last_login_method,
+        "is_commit_author_name_overridden": user.is_commit_author_name_overridden,
     }
     form = UserProfileForm(instance=user, data={"email": "test@example.com"})
     assert form.is_valid()

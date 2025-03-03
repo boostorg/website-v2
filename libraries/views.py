@@ -374,6 +374,7 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, DetailView):
                 user.commitauthor = SimpleNamespace(
                     github_profile_url="",
                     avatar_url="",
+                    display_name="",
                 )
         return qs
 
