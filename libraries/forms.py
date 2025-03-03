@@ -269,21 +269,28 @@ class CreateReportForm(CreateReportFullForm):
             .order_by("-commit_count")[:10]
         )
 
-    def _get_library_queryset_by_version(self, version: Version):
-        return self.library_queryset.filter(
+    def _get_library_queryset_by_version(
+        self, version: Version, annotate_commit_count=False
+    ):
+        qs = self.library_queryset.filter(
             library_version=LibraryVersion.objects.filter(
                 library=OuterRef("id"), version=version
             )[:1],
         )
+        if annotate_commit_count:
+            qs = qs.annotate(commit_count=Count("library_version__commit"))
+        return qs
 
     def _get_top_libraries_for_version(self):
-        library_qs = self._get_library_queryset_by_version(self.cleaned_data["version"])
-        return library_qs.annotate(
-            commit_count=Count("library_version__commit")
-        ).order_by("-commit_count")
+        library_qs = self._get_library_queryset_by_version(
+            self.cleaned_data["version"], annotate_commit_count=True
+        )
+        return library_qs.order_by("-commit_count")
 
     def _get_libraries_by_name(self):
-        library_qs = self._get_library_queryset_by_version(self.cleaned_data["version"])
+        library_qs = self._get_library_queryset_by_version(
+            self.cleaned_data["version"], annotate_commit_count=True
+        )
         return library_qs.order_by("name")
 
     def _get_libraries_by_quality(self):
@@ -298,16 +305,11 @@ class CreateReportForm(CreateReportFullForm):
         )
 
     def _get_library_version_counts(self, libraries, library_order):
+        library_qs = self._get_library_queryset_by_version(
+            self.cleaned_data["version"], annotate_commit_count=True
+        )
         return sorted(
-            list(
-                libraries.filter(
-                    library_version=LibraryVersion.objects.filter(
-                        library=OuterRef("id"), version=self.cleaned_data["version"]
-                    )[:1]
-                )
-                .annotate(commit_count=Count("library_version__commit"))
-                .values("commit_count", "id")
-            ),
+            list(library_qs.values("commit_count", "id")),
             key=lambda x: library_order.index(x["id"]),
         )
 
@@ -563,6 +565,14 @@ class CreateReportForm(CreateReportFullForm):
             )
 
             @cached_property
+            def graph_start(self):
+                return start.strftime("%B '%y")
+
+            @cached_property
+            def graph_end(self):
+                return end.strftime("%B '%y")
+
+            @cached_property
             def max(self):
                 """The max number of commits in all weeks."""
                 return max(x.max for x in self.weeks)
@@ -723,8 +733,9 @@ class CreateReportForm(CreateReportFullForm):
             library_version__library__in=self.library_queryset,
         ).count()
 
-        top_libraries_for_version = self._get_libraries_by_name()
-        library_order = self._get_library_order(top_libraries_for_version)
+        top_libraries_for_version = self._get_top_libraries_for_version()
+        top_libraries_by_name = self._get_libraries_by_name()
+        library_order = self._get_library_order(top_libraries_by_name)
         libraries = Library.objects.filter(id__in=library_order).order_by(
             Case(
                 *[When(id=pk, then=Value(pos)) for pos, pk in enumerate(library_order)]
