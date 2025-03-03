@@ -88,7 +88,24 @@ class PreferencesForm(forms.ModelForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name", "indicate_last_login_method"]
+        fields = [
+            "email",
+            "display_name",
+            "indicate_last_login_method",
+            "is_commit_author_name_overridden",
+        ]
+        labels = {
+            "display_name": "Username",
+            "is_commit_author_name_overridden": "Override commit author name",
+        }
+        override_msg = (
+            "Globally replaces your git commit author name with Username "
+            "value set above."
+        )
+        help_texts = {
+            "display_name": "Your name as it will be displayed across the site.",
+            "is_commit_author_name_overridden": override_msg,
+        }
 
 
 class CustomClearableFileInput(forms.ClearableFileInput):

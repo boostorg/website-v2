@@ -36,8 +36,7 @@ class LibrarySearchView(viewsets.ModelViewSet):
             Q(name__icontains=value)
             | Q(description__icontains=value)
             | Q(categories__name__icontains=value)
-            | Q(authors__first_name__icontains=value)
-            | Q(authors__last_name__icontains=value)
+            | Q(authors__display_name__icontains=value)
         )
         return Library.objects.filter(f).distinct()[:5]
 

@@ -157,16 +157,16 @@ def test_preferences_form_model_modifies_instance_empty_list_user_moderator(
 def test_user_profile_form(user):
     form = UserProfileForm(instance=user)
     assert set(form.fields.keys()) == {
-        "first_name",
-        "last_name",
+        "display_name",
         "email",
         "indicate_last_login_method",
+        "is_commit_author_name_overridden",
     }
     assert form.initial == {
-        "first_name": user.first_name,
-        "last_name": user.last_name,
+        "display_name": user.display_name,
         "email": user.email,
         "indicate_last_login_method": user.indicate_last_login_method,
+        "is_commit_author_name_overridden": user.is_commit_author_name_overridden,
     }
     form = UserProfileForm(instance=user, data={"email": "test@example.com"})
     assert form.is_valid()

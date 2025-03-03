@@ -107,7 +107,8 @@ def test_send_email_news_needs_moderation(
     assert "news entry needs moderation" in msg.subject.lower()
     assert entry.title in msg.body
     assert escape(entry.title) not in msg.body
-    assert entry.author.get_display_name in msg.body
+    if entry.author.display_name:
+        assert entry.author.display_name in msg.body
     assert entry.author.email in msg.body
     assert request.build_absolute_uri(entry.get_absolute_url()) in msg.body
     assert request.build_absolute_uri(reverse("news-moderate")) in msg.body
