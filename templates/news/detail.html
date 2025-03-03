@@ -36,7 +36,21 @@
         {% endif %}
       </div>
       <!-- End Actions -->
-      <h1 class="text-3xl">{{ entry.title }}</h1>
+      <h1 class="text-3xl">
+        <span class="inline-block align-middle text-white text-base pr-1">
+          {% if entry.tag == "link" %}
+            <i class="fas fa-link" title="Link"></i>
+          {% elif entry.tag == "news" %}
+            <i class="fas fa-newspaper" title="News"></i>
+          {% elif entry.tag == "blogpost" %}
+            <i class="fas fa-comment" title="Blog"></i>
+          {% elif entry.tag == "poll" %}
+            <i class="fas fa-poll" title="Poll"></i>
+          {% elif entry.tag == "video" %}
+            <i class="fas fa-video" title="Video"></i>
+          {% endif %}
+        </span>
+        {{ entry.title }}</h1>
       <div class="space-x-3 mt-3 flex items-center">
         {% if entry.author.image %}
           <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
@@ -57,7 +71,7 @@
 
       <div class="block px-6 py-4 my-6 w-full bg-white rounded-lg dark:bg-charcoal">
         {% if entry.external_url %}
-          <p>{{ entry.external_url|escape|urlize }}</p>
+          <p>{{ entry.external_url|escape|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange' }}</p>
         {% endif %}
 
         {% if entry.image %}
@@ -74,12 +88,12 @@
       <div class="flex my-4 md:mx-auto md:w-3/4">
         <div class="w-1/2 text-left">
           {% if next %}
-            <a href="{{ next.get_absolute_url }}" class="py-1 px-2 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75">Newer Entries</a>
+            <a href="{{ next.get_absolute_url }}" class="py-1 px-2 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75 dark:hover:text-orange">Newer Entries</a>
           {% endif %}
         </div>
         <div class="w-1/2 text-right">
           {% if prev %}
-            <a href="{{ prev.get_absolute_url }}" class="py-1 px-2 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75">Older Entries</a>
+            <a href="{{ prev.get_absolute_url }}" class="py-1 px-2 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75 dark:hover:text-orange">Older Entries</a>
           {% endif %}
         </div>
       </div>
