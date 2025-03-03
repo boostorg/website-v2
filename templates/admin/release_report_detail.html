@@ -160,12 +160,12 @@ body {
             {% for user in committee_members|dictsort:"display_name" %}
               <figure class="w-32 m-2">
 <!--                 {% if user.hq_image %} -->
-<!--                   <img src="{{ user.hq_image_render.url }}" alt="{{ user.first_name }} {{ user.last_name }}" /> -->
+<!--                   <img src="{{ user.hq_image_render.url }}" alt="{{ user.display_name }}" /> -->
 <!--                 {% else %} -->
 <!--                   <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="" /> -->
 <!--                 {% endif %} -->
                 {% avatar user=user is_link=False image_size="w-32 h-32" icon_size="text-8xl" %}
-                <figcaption class="p-1">{{user.first_name}} {{user.last_name}}</figcaption>
+                <figcaption class="p-1">{{user.display_name}}</figcaption>
               </figure>
             {% endfor %}
            </div>

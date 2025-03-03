@@ -260,7 +260,7 @@ class User(BaseUser):
     # elapsed.
     delete_permanently_at = models.DateTimeField(null=True, editable=False)
 
-    def save_image_from_github(self, avatar_url):
+    def save_image_from_provider(self, avatar_url):
         response = requests.get(avatar_url)
         filename = f"{self.profile_image_filename_root}.png"
         os.path.join(settings.MEDIA_ROOT, "media", "profile-images", filename)
