@@ -646,8 +646,7 @@ class GithubDataParser:
             data["email"] = None
             data["valid_email"] = False
 
-        first_name, last_name = self.extract_names(contributor)
-        data["first_name"], data["last_name"] = first_name[:30], last_name[:30]
+        data["display_name"] = self.extract_name(contributor)
 
         return data
 
@@ -681,22 +680,9 @@ class GithubDataParser:
                 return
             return email
 
-    def extract_names(self, val: str) -> list:
-        """
-        Returns a list of first, last names for the val argument.
-
-        NOTE: This is an overly simplistic solution to importing names.
-        Names that don't conform neatly to "First Last" formats will need
-        to be cleaned up manually.
-        """
-        # Strip the email, if present
+    def extract_name(self, val: str) -> str:
         email = re.search("<.+>", val)
         if email:
             val = val.replace(email.group(), "")
 
-        names = val.strip().rsplit(" ", 1)
-
-        if len(names) == 1:
-            names.append("")
-
-        return names
+        return val.strip()

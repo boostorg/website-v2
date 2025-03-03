@@ -157,7 +157,7 @@ body {
           </svg>
           <div class="sponsor_message_copy dynamic-text p-[30px] mr-16 absolute z-20 max-h-[340px]">{{ version.sponsor_message|safe }}</div>
           <div class="committee_members flex flex-wrap mt-2 text-sm text-center absolute" style="">
-            {% for user in committee_members|dictsort:"first_name" %}
+            {% for user in committee_members|dictsort:"display_name" %}
               <figure class="w-32 m-2">
 <!--                 {% if user.hq_image %} -->
 <!--                   <img src="{{ user.hq_image_render.url }}" alt="{{ user.first_name }} {{ user.last_name }}" /> -->

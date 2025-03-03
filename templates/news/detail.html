@@ -54,16 +54,16 @@
       <div class="space-x-3 mt-3 flex items-center">
         {% if entry.author.image %}
           <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
-            <img src="{{ entry.author.image_thumbnail.url }}" alt="{{ entry.author.get_full_name }}" class="h-full w-full object-cover">
+            <img src="{{ entry.author.image_thumbnail.url }}" alt="{{ entry.author.display_name }}" class="h-full w-full object-cover">
           </span>
         {% else %}
           <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
-            <i class="text-2xl fas fa-user ml-1" title="{{ entry.author.get_full_name }}"></i>
+            <i class="text-2xl fas fa-user ml-1" title="{{ entry.author.display_name }}"></i>
           </span>
         {% endif %}
-        {% if entry.author.get_full_name %}
+        {% if entry.author.display_name %}
           <div class="inline-block p-0 m-0">
-            {{ entry.author.get_full_name }}<br />
+            {{ entry.author.display_name }}<br />
             <span class="block py-0 text-xs">{{ entry.publish_at|date:'M jS, Y' }}</span>
           </div>
         {% endif %}

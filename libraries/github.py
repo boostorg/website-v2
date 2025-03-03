@@ -303,22 +303,18 @@ class LibraryUpdater:
 
         if isinstance(authors, str):
             authors = [authors]
-
         for author in authors:
             person_data = self.parser.extract_contributor_data(author)
             email = person_data["email"]
             user = User.objects.find_contributor(
                 email=person_data["email"],
-                first_name=person_data["first_name"],
-                last_name=person_data["last_name"],
+                display_name=person_data["display_name"],
             )
 
             if not user:
                 email = person_data.pop("email")
                 if not email:
-                    email = generate_fake_email(
-                        f"{person_data['first_name']} {person_data['last_name']}"
-                    )
+                    email = generate_fake_email(person_data["display_name"])
                     # With a new email, we may have a user record
                     user = User.objects.find_contributor(email=email)
 
@@ -346,13 +342,12 @@ class LibraryUpdater:
             person_data = self.parser.extract_contributor_data(maintainer)
             user = User.objects.find_contributor(
                 email=person_data["email"],
-                first_name=person_data["first_name"],
-                last_name=person_data["last_name"],
+                display_name=person_data["display_name"],
             )
 
             if not user:
                 email = person_data.pop("email") or generate_fake_email(
-                    f"{person_data['first_name']} {person_data['last_name']}"
+                    person_data["display_name"]
                 )
                 if not (user := User.objects.filter(email=email).first()):
                     user = User.objects.create_stub_user(email.lower(), **person_data)
