@@ -268,7 +268,7 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
         if request.user.is_authenticated:
             missing_data = []
 
-            if not request.user.first_name and not request.user.last_name:
+            if not request.user.display_name:
                 missing_data.append("your name")
 
             if not request.user.image:

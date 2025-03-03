@@ -28,30 +28,6 @@ def test_super_user(super_user):
     assert super_user.is_superuser is True
 
 
-def test_get_display_name(user):
-    # Test case 1: Display name is set
-    user.display_name = "Display Name"
-    user.save()
-    assert user.get_display_name == "Display Name"
-
-    # Test case 2: First and last name are set, no display name
-    user.display_name = ""
-    user.save()
-    assert user.get_display_name == f"{user.first_name} {user.last_name}"
-
-    # Test case 3: Only first name is set, no display name
-    user.first_name = "First"
-    user.last_name = ""
-    user.save()
-    assert user.get_display_name == "First"
-
-    # Test case 4: Only last name is set, no display name
-    user.first_name = ""
-    user.last_name = "Last"
-    user.save()
-    assert user.get_display_name == "Last"
-
-
 def test_profile_image_filename_root(user):
     assert user.profile_image_filename_root == f"profile-{user.id}"
 
@@ -122,29 +98,21 @@ def test_find_contributor_by_email_not_found():
 
 
 def test_find_contributor_not_author_or_maintainer(user: User):
-    found_user = User.objects.find_contributor(
-        first_name=user.first_name, last_name=user.last_name
-    )
+    found_user = User.objects.find_contributor(display_name=user.display_name)
     assert found_user is None
 
 
-def test_find_contributor_by_first_and_last_name_not_found():
-    non_existent_first_name = "Nonexistent"
-    non_existent_last_name = "User"
-    found_user = User.objects.find_contributor(
-        first_name=non_existent_first_name, last_name=non_existent_last_name
-    )
+def test_find_contributor_by_display_name_not_found():
+    non_existent_name = "Nonexistent User"
+    found_user = User.objects.find_contributor(display_name=non_existent_name)
     assert found_user is None
 
 
-def test_find_contributor_by_first_and_last_name_multiple_results(user, staff_user):
-    staff_user.first_name = user.first_name
-    staff_user.last_name = user.last_name
+def test_find_contributor_by_display_name_multiple_results(user, staff_user):
+    staff_user.display_name = user.display_name
     staff_user.save()
 
-    found_user = User.objects.find_contributor(
-        first_name=user.first_name, last_name=user.last_name
-    )
+    found_user = User.objects.find_contributor(display_name=user.display_name)
     assert found_user is None
 
 
@@ -157,9 +125,7 @@ def test_find_contributor_is_author(user, library):
     library.authors.add(user)
     library.save()
 
-    found_user = User.objects.find_contributor(
-        first_name=user.first_name, last_name=user.last_name
-    )
+    found_user = User.objects.find_contributor(display_name=user.display_name)
     assert found_user == user
 
 
@@ -167,9 +133,7 @@ def test_find_contributor_is_maintainer(user, library_version):
     library_version.maintainers.add(user)
     library_version.save()
 
-    found_user = User.objects.find_contributor(
-        first_name=user.first_name, last_name=user.last_name
-    )
+    found_user = User.objects.find_contributor(display_name=user.display_name)
     assert found_user == user
 
 

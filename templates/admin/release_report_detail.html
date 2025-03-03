@@ -157,15 +157,15 @@ body {
           </svg>
           <div class="sponsor_message_copy dynamic-text p-[30px] mr-16 absolute z-20 max-h-[340px]">{{ version.sponsor_message|safe }}</div>
           <div class="committee_members flex flex-wrap mt-2 text-sm text-center absolute" style="">
-            {% for user in committee_members|dictsort:"first_name" %}
+            {% for user in committee_members|dictsort:"display_name" %}
               <figure class="w-32 m-2">
 <!--                 {% if user.hq_image %} -->
-<!--                   <img src="{{ user.hq_image_render.url }}" alt="{{ user.first_name }} {{ user.last_name }}" /> -->
+<!--                   <img src="{{ user.hq_image_render.url }}" alt="{{ user.display_name }}" /> -->
 <!--                 {% else %} -->
 <!--                   <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="" /> -->
 <!--                 {% endif %} -->
                 {% avatar user=user is_link=False image_size="w-32 h-32" icon_size="text-8xl" %}
-                <figcaption class="p-1">{{user.first_name}} {{user.last_name}}</figcaption>
+                <figcaption class="p-1">{{user.display_name}}</figcaption>
               </figure>
             {% endfor %}
            </div>
@@ -189,7 +189,7 @@ body {
                 {% avatar commitauthor=author %}
                 <div class="w-full flex flex-col ml-2">
                   <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
-                    {{ author.name }}
+                    {{ author.display_name }}
                   </div>
                   <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
                 </div>
@@ -217,7 +217,7 @@ body {
                 {% avatar commitauthor=item %}
                 <div class="w-full flex flex-col ml-2">
                   <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
-                    {{ item.name }}
+                    {{ item.display_name }}
                   </div>
                   <div class="text-[0.7rem]"><span class="font-bold">{{ item.total_count }}</span> post{{ item.total_count|pluralize }}</div>
                 </div>
@@ -417,7 +417,7 @@ body {
                   {% avatar commitauthor=author %}
                   <div class="w-full flex flex-col ml-2">
                     <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
-                      {{ author.name }}
+                      {{ author.display_name }}
                     </div>
                     <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
                   </div>

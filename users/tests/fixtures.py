@@ -13,9 +13,9 @@ def user(db):
     user = baker.make(
         "users.User",
         email="user@example.com",
-        first_name="Regular",
-        last_name="User",
+        display_name="Regular User",
         indicate_last_login_method=False,
+        is_commit_author_name_overridden=False,
         last_login=timezone.now(),
         image=None,
     )
@@ -39,8 +39,7 @@ def staff_user(db):
     user = baker.make(
         "users.User",
         email="staff@example.com",
-        first_name="Staff",
-        last_name="User",
+        display_name="Staff User",
         last_login=timezone.now(),
         is_staff=True,
         image=None,
@@ -65,8 +64,7 @@ def super_user(db):
     user = baker.make(
         "users.User",
         email="super@example.com",
-        first_name="Super",
-        last_name="User",
+        display_name="Super User",
         last_login=timezone.now(),
         is_staff=True,
         is_superuser=True,

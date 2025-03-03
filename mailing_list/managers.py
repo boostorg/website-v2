@@ -5,14 +5,11 @@ from django.db.models import Sum, F
 class EmailDataQuerySet(models.QuerySet):
     def with_total_counts(self):
         """Annotate total post count per author."""
-        return (
-            self.annotate(
-                name=F("author__name"),
-                avatar_url=F("author__avatar_url"),
-                github_profile_url=F("author__avatar_url"),
-            )
-            .values("name", "avatar_url", "github_profile_url", "author_id")
-            .annotate(total_count=Sum("count"))
+        return self.annotate(
+            name=F("author__name"),
+            avatar_url=F("author__avatar_url"),
+            github_profile_url=F("author__avatar_url"),
+            total_count=Sum("count"),
         )
 
 
