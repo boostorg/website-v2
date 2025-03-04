@@ -9,60 +9,69 @@ from wordcloud import WordCloud, STOPWORDS
 
 from core.models import SiteSettings
 from libraries.models import WordcloudMergeWord  # TODO: move model to this app
+from reports.constants import WORDCLOUD_FONT
 from versions.models import Version
 
 
-class ReportVisualization:
-    @staticmethod
-    def generate_wordcloud(version: Version) -> tuple[str | None, dict]:
-        """Generates a wordcloud png and returns it as a base64 string and word frequencies.
+def generate_wordcloud(version: Version) -> tuple[str | None, list]:
+    """Generates a wordcloud png and returns it as a base64 string and word frequencies.
 
-        Returns:
-            Tuple of (base64_encoded_png_string, word_frequencies_dict)
-        """
-        wc = WordCloud(
-            mode="RGBA",
-            background_color=None,
-            width=1400,
-            height=700,
-            stopwords=STOPWORDS | SiteSettings.load().wordcloud_ignore_set,
-            font_path=settings.BASE_DIR / "static" / "font" / "notosans_mono.woff",
-        )
-        word_frequencies = {}
-        for content in get_mail_content(version):
-            for key, val in wc.process_text(content).items():
-                if len(key) < 2:
-                    continue
-                key_lower = key.lower()
-                if key_lower not in word_frequencies:
-                    word_frequencies[key_lower] = 0
-                word_frequencies[key_lower] += val
-        if not word_frequencies:
-            return None, {}
+    Returns:
+        Tuple of (base64_encoded_png_string, wordcloud_top_words)
+    """
+    wc = WordCloud(
+        mode="RGBA",
+        background_color=None,
+        width=1400,
+        height=700,
+        stopwords=STOPWORDS | SiteSettings.load().wordcloud_ignore_set,
+        font_path=settings.STATIC_ROOT / "font" / WORDCLOUD_FONT,
+    )
+    word_frequencies = {}
+    for content in get_mail_content(version):
+        for key, val in wc.process_text(content).items():
+            if len(key) < 2:
+                continue
+            key_lower = key.lower()
+            if key_lower not in word_frequencies:
+                word_frequencies[key_lower] = 0
+            word_frequencies[key_lower] += val
+    if not word_frequencies:
+        return None, []
 
-        word_frequencies = boost_normalize_words(
-            word_frequencies,
-            {x.from_word: x.to_word for x in WordcloudMergeWord.objects.all()},
+    word_frequencies = boost_normalize_words(
+        word_frequencies,
+        {x.from_word: x.to_word for x in WordcloudMergeWord.objects.all()},
+    )
+    # first sort by number, then sort the top 200 alphabetically
+    word_frequencies = {
+        key: val
+        for key, val in sorted(
+            word_frequencies.items(),
+            key=lambda x: x[1],
+            reverse=True,
         )
+    }
+    wordcloud_top_words = sorted(list(word_frequencies.keys())[:200])
 
-        wc.generate_from_frequencies(word_frequencies)
-        plt.figure(figsize=(14, 7), facecolor=None)
-        plt.imshow(
-            wc.recolor(color_func=grey_color_func, random_state=3),
-            interpolation="bilinear",
-        )
-        plt.axis("off")
-        image_bytes = io.BytesIO()
-        plt.savefig(
-            image_bytes,
-            format="png",
-            dpi=100,
-            bbox_inches="tight",
-            pad_inches=0,
-            transparent=True,
-        )
-        image_bytes.seek(0)
-        return base64.b64encode(image_bytes.read()).decode(), word_frequencies
+    wc.generate_from_frequencies(word_frequencies)
+    plt.figure(figsize=(14, 7), facecolor=None)
+    plt.imshow(
+        wc.recolor(color_func=grey_color_func, random_state=3),
+        interpolation="bilinear",
+    )
+    plt.axis("off")
+    image_bytes = io.BytesIO()
+    plt.savefig(
+        image_bytes,
+        format="png",
+        dpi=100,
+        bbox_inches="tight",
+        pad_inches=0,
+        transparent=True,
+    )
+    image_bytes.seek(0)
+    return base64.b64encode(image_bytes.read()).decode(), wordcloud_top_words
 
 
 def boost_normalize_words(frequencies, word_map):

@@ -6,6 +6,7 @@ from django.db import models
 from django.db.backends.postgresql.psycopg_any import DateRange
 from django_extensions.db.models import TimeStampedModel
 
+from reports.constants import WEB_ANALYTICS_API_URL
 from versions.models import Version
 
 INCLUSIVE = "[]"
@@ -39,11 +40,7 @@ class WebsiteStatReport(TimeStampedModel):
 
     @property
     def analytics_api_url(self) -> str:
-        domain = "preview.boost.org"  # this could change
-        return (
-            f"https://plausible.io/api/stats/{domain}/top-stats/?period=custom"
-            f"&from={self.period.lower:%Y-%m-%d}&to={self.period.upper:%Y-%m-%d}"
-        )
+        return WEB_ANALYTICS_API_URL.format(self.period.lower, self.period.upper)
 
     def populate_from_api(self):
         """Fetch stats from API and generate child WebsiteStatItem instances."""

@@ -10,7 +10,7 @@ from django.db.models import F, Q, Count, OuterRef, Sum, When, Value, Case
 from django.forms import Form, ModelChoiceField, ModelForm, BooleanField
 
 from core.models import RenderedContent
-from reports.generation import ReportVisualization
+from reports.generation import generate_wordcloud
 from slack.models import Channel, SlackActivityBucket, SlackUser
 from versions.models import Version
 from .models import (
@@ -442,10 +442,6 @@ class CreateReportForm(CreateReportFullForm):
             )
         return top_contributors_release
 
-    def _generate_hyperkitty_word_cloud(self, version):
-        """Generates a wordcloud png and returns it as a base64 string."""
-        return ReportVisualization.generate_wordcloud(version)
-
     def _count_mailinglist_contributors(self, version):
         version_lt = list(
             Version.objects.minor_versions()
@@ -769,19 +765,6 @@ class CreateReportForm(CreateReportFullForm):
             Channel.objects.filter(name__istartswith="boost").order_by("name"), 10
         )
         committee_members = version.financial_committee_members.all()
-        wordcloud_base64, word_frequencies = self._generate_hyperkitty_word_cloud(
-            version
-        )
-        # first sort by number, then sort the top 200 alphabetically
-        word_frequencies = {
-            key: val
-            for key, val in sorted(
-                word_frequencies.items(),
-                key=lambda x: x[1],
-                reverse=True,
-            )
-        }
-        wordcloud_top_words = sorted(list(word_frequencies.keys())[:200])
         library_index_library_data = []
         for library in self._get_libraries_by_quality():
             library_index_library_data.append(
@@ -790,6 +773,7 @@ class CreateReportForm(CreateReportFullForm):
                     library in [lib["library"] for lib in library_data],
                 )
             )
+        wordcloud_base64, wordcloud_top_words = generate_wordcloud(version)
 
         return {
             "committee_members": committee_members,
