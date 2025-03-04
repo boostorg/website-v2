@@ -313,6 +313,31 @@ class CreateReportForm(CreateReportFullForm):
             key=lambda x: library_order.index(x["id"]),
         )
 
+    def _global_new_contributors(self, library_version):
+        version = self.cleaned_data["version"]
+        version_lt = list(
+            Version.objects.minor_versions()
+            .filter(version_array__lt=version.cleaned_version_parts_int)
+            .order_by("id")
+            .values_list("id", flat=True)
+        )
+
+        prior_version_author_ids = (
+            CommitAuthor.objects.filter(commit__library_version__version__in=version_lt)
+            .distinct()
+            .values_list("id", flat=True)
+        )
+
+        version_author_ids = (
+            CommitAuthor.objects.filter(
+                commit__library_version__version__in=version_lt + [version.id]
+            )
+            .distinct()
+            .values_list("id", flat=True)
+        )
+
+        return set(version_author_ids) - set(prior_version_author_ids)
+
     def _count_new_contributors(self, libraries, library_order):
         version = self.cleaned_data["version"]
         version_lt = list(
@@ -859,6 +884,9 @@ class CreateReportForm(CreateReportFullForm):
             "mailinglist_contributor_new_count": mailinglist_contributor_new_count,
             "commit_contributors_release_count": commit_contributors_release_count,
             "commit_contributors_new_count": commit_contributors_new_count,
+            "global_contributors_new_count": len(
+                self._global_new_contributors(version)
+            ),
             "commit_count": commit_count,
             "version_commit_count": version_commit_count,
             "top_contributors_release_overall": top_contributors,

@@ -179,9 +179,12 @@ body {
 
       <div class="flex flex-col pdf-page items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg3.png' %}')">
 
-        <div class="flex flex-col">
+        <div class="flex flex-col mb-4">
           <h2 class="mx-auto my-1">Git activity for this release</h2>
-          <div class="mx-auto mb-4"><span class="font-bold">{{ version_commit_count|intcomma }}</span> Commit{{ version_commit_count|pluralize }} Across <span class="font-bold">{{ library_count }}</span> Repositories</div>
+          <div class="mx-auto"><span class="font-bold">{{ version_commit_count|intcomma }}</span> Commit{{ version_commit_count|pluralize }} Across <span class="font-bold">{{ library_count }}</span> Repositories</div>
+          {% if global_contributors_new_count %}
+            <div class="mx-auto"><span class="font-bold">{{ global_contributors_new_count|intcomma }}</span> Brand New Contributor{{ global_contributors_new_count|pluralize }}</div>
+          {% endif %}
         </div>
 
         <div class="flex gap-x-8 justify-around w-full">
