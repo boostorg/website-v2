@@ -18,6 +18,9 @@ class WebsiteStatReport(TimeStampedModel):
     period = DateRangeField()
     # comparison = DateRangeField()
 
+    def __str__(self):
+        return f"Stat report for {self.version}"
+
     def save(self, **kwargs):
         """Allow creation of reports while omitting period and/or version"""
         if self.version_id is None:
@@ -78,6 +81,9 @@ class WebsiteStatItem(TimeStampedModel):
     code_name = models.CharField()
     value = models.FloatField()
     # comparison_value = models.FloatField()
+
+    def __str__(self):
+        return f"{self.report.version} {self.name}"
 
     @property
     def formatted_value(self) -> str:
