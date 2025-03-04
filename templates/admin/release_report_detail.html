@@ -183,7 +183,7 @@ body {
           <h2 class="mx-auto my-1">Git activity for this release</h2>
           <div class="mx-auto"><span class="font-bold">{{ version_commit_count|intcomma }}</span> Commit{{ version_commit_count|pluralize }} Across <span class="font-bold">{{ library_count }}</span> Repositories</div>
           {% if global_contributors_new_count %}
-            <div class="mx-auto"><span class="font-bold">{{ global_contributors_new_count|intcomma }}</span> Brand New Contributor{{ global_contributors_new_count|pluralize }}</div>
+            <div class="mx-auto"><span class="font-bold">{{ global_contributors_new_count|intcomma }}</span> First-time Contributor{{ global_contributors_new_count|pluralize }}</div>
           {% endif %}
         </div>
 
