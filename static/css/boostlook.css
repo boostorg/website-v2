@@ -1078,12 +1078,6 @@ html:has(#docsiframe)::-webkit-scrollbar {
 }
 
 /* Responsive Design */
-@media screen and (min-width: 1024px) {
-  html {
-    font-size: .83333rem;
-  }
-}
-
 @media screen and (min-width: 768px) {
   .boostlook #toggle-toc {
     visibility: visible;
@@ -1139,6 +1133,7 @@ html:has(#docsiframe)::-webkit-scrollbar {
   /* Hidden TOC */
   html.toc-hidden .boostlook {
     margin-left: 0;
+    transition: margin-left 0.15s ease;
   }
 
   html.toc-hidden .boostlook #toggle-toc {
@@ -1153,6 +1148,7 @@ html:has(#docsiframe)::-webkit-scrollbar {
 
   html.toc-visible .boostlook {
     margin-left: 0;
+    transition: margin-left 0.15s ease;
   }
 
   html.toc-hidden .boostlook #toc.toc2 {
@@ -1178,6 +1174,18 @@ html:has(#docsiframe)::-webkit-scrollbar {
 
   html.toc-visible.toc-pinned .boostlook {
     margin-left: 17rem;
+    transition: margin-left 0.15s ease;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  html {
+    font-size: .83333rem;
+  }
+
+  html.toc-visible.toc-pinned .boostlook {
+    margin-left: 20rem;
+    transition: margin-left 0.15s ease;
   }
 }
 
