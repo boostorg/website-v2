@@ -1,11 +1,10 @@
 from django.db import migrations
 from django.utils.text import slugify
 
-from libraries.models import Library
-
 
 def migrate_to_key_slug(apps, schema_editor):
     """Migrate the key to the slug field."""
+    Library = apps.get_model('libraries', 'Library')
 
     for library in Library.objects.all():
         library.slug = slugify(library.key)
