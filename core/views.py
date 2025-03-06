@@ -34,7 +34,11 @@ from .boostrenderer import (
     get_s3_client,
 )
 from .constants import SourceDocType
-from .htmlhelper import modernize_legacy_page, convert_name_to_id
+from .htmlhelper import (
+    modernize_legacy_page,
+    convert_name_to_id,
+    remove_library_boostlook,
+)
 from .markdown import process_md
 from .models import RenderedContent
 from .tasks import (
@@ -473,6 +477,7 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
             extracted_content = content.decode(chardet.detect(content)["encoding"])
             soup = BeautifulSoup(extracted_content, "html.parser")
             soup = convert_name_to_id(soup)
+            soup = remove_library_boostlook(soup)
             soup.find("head").append(
                 soup.new_tag("script", src=f"{STATIC_URL}js/theme_handling.js")
             )
