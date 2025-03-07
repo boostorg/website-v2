@@ -472,7 +472,7 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         )
 
         context["hide_footer"] = True
-        context["skip_use_boostbook_v2"] = "/antora/" in self.kwargs.get("content_path")
+        context["skip_use_boostlook"] = "/antora/" in self.kwargs.get("content_path")
         if source_content_type == SourceDocType.ASCIIDOC:
             extracted_content = content.decode(chardet.detect(content)["encoding"])
             soup = BeautifulSoup(extracted_content, "html.parser")
@@ -497,6 +497,7 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
                 insert_body=insert_body,
                 head_selector=head_selector,
                 original_docs_type=SourceDocType.ANTORA,
+                skip_replace_boostlook=context["skip_use_boostlook"],
                 show_footer=False,
                 show_navbar=False,
             )
