@@ -34,7 +34,11 @@ from .boostrenderer import (
     get_s3_client,
 )
 from .constants import SourceDocType
-from .htmlhelper import modernize_legacy_page, convert_name_to_id
+from .htmlhelper import (
+    modernize_legacy_page,
+    convert_name_to_id,
+    remove_library_boostlook,
+)
 from .markdown import process_md
 from .models import RenderedContent
 from .tasks import (
@@ -468,11 +472,12 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         )
 
         context["hide_footer"] = True
-        context["skip_use_boostbook_v2"] = "/antora/" in self.kwargs.get("content_path")
+        context["skip_use_boostlook"] = "/antora/" in self.kwargs.get("content_path")
         if source_content_type == SourceDocType.ASCIIDOC:
             extracted_content = content.decode(chardet.detect(content)["encoding"])
             soup = BeautifulSoup(extracted_content, "html.parser")
             soup = convert_name_to_id(soup)
+            soup = remove_library_boostlook(soup)
             soup.find("head").append(
                 soup.new_tag("script", src=f"{STATIC_URL}js/theme_handling.js")
             )
@@ -492,6 +497,7 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
                 insert_body=insert_body,
                 head_selector=head_selector,
                 original_docs_type=SourceDocType.ANTORA,
+                skip_replace_boostlook=context["skip_use_boostlook"],
                 show_footer=False,
                 show_navbar=False,
             )

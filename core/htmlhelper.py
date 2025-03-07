@@ -148,6 +148,7 @@ def modernize_legacy_page(
     head_selector="head",
     insert_body=True,
     original_docs_type=None,
+    skip_replace_boostlook=False,
     show_footer=True,
     show_navbar=True,
 ):
@@ -177,6 +178,8 @@ def modernize_legacy_page(
             tag.attrs.pop("class")
 
     result = convert_name_to_id(result)
+    if not skip_replace_boostlook:
+        result = remove_library_boostlook(result)
 
     # Use the base HTML to later extract the <head> and (part of) the <body>
     placeholder = BeautifulSoup(base_html, "html.parser")
@@ -287,6 +290,17 @@ def convert_name_to_id(soup):
     for tag in soup.find_all(attrs={"name": True}):
         tag["id"] = tag["name"]
         del tag["name"]
+
+    return soup
+
+
+def remove_library_boostlook(soup):
+    for tag in soup.find_all("link"):
+        if (
+            tag.get("href").endswith("boostlook.css")
+            and tag.get("href") != "/static/css/boostlook.css"
+        ):
+            tag.decompose()
 
     return soup
 
