@@ -12,13 +12,20 @@ ENV_FILE := ".env"
 # ----
 
 @bootstrap:  ## installs/updates all dependencies
-    #!/usr/bin/env bash
-    set -euo pipefail
-    if [ ! -f "{{ENV_FILE}}" ]; then
-        echo "{{ENV_FILE}} created"
-        cp env.template {{ENV_FILE}}
+    command -v direnv >/dev/null 2>&1 || { echo >&2 "Direnv is required but not installed. see: https://direnv.net/docs/installation.html - Aborting."; exit 1; }
+    command -v nix >/dev/null 2>&1 || { echo >&2 "Nix is required but not installed. see: https://nixos.org/download.html - Aborting."; exit 1; }
+    command -v just >/dev/null 2>&1 || { echo >&2 "Just is required but not installed. see: https://just.systems/man/en/packages.html - Aborting."; exit 1; }
+    command -v docker >/dev/null 2>&1 || { echo >&2 "Docker is required but not installed. see: docs for links - Aborting."; exit 1; }
+    if [ ! -d $HOME/.config/direnv/direnv.toml ]; then \
+        mkdir -p $HOME/.config/direnv; \
+        printf "[global]\nhide_env_diff = true\nload_dotenv = true\n" > $HOME/.config/direnv/direnv.toml; \
     fi
-    docker compose --file {{COMPOSE_FILE}} build --force-rm
+    if [ ! -d $HOME/.config/nix ]; then \
+        mkdir -p $HOME/.config/nix; \
+        printf "experimental-features = nix-command flakes\n" > $HOME/.config/nix/nix.conf; \
+    fi
+    echo "Bootstrapping complete, update your .env and run 'just setup'"
+
 
 @rebuild:  ## rebuilds containers
     docker compose kill
@@ -31,7 +38,7 @@ ENV_FILE := ".env"
 
 @build:  ## builds containers
     docker compose pull
-    DOCKER_BUILDKIT=1 docker compose build
+    docker compose build
 
 @cibuild:  ## invoked by continuous integration servers to run tests
     python -m pytest
@@ -49,6 +56,7 @@ alias shell := console
 @setup:  ## sets up a project to be used for the first time
     docker compose --file {{COMPOSE_FILE}} build --force-rm
     docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
+    npm run build
 
 @test_pytest:  ## runs pytest
     -docker compose run --rm -e DEBUG_TOOLBAR="False" web pytest -s --create-db
