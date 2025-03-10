@@ -46,12 +46,12 @@
             </div>
 
             <div>
-              <div class="pt-1 text-sm">
-                <span class="font-bold">Categories:</span>
+              <div class="pt-1 text-sm flex flex-wrap">
+                <span class="font-bold">Categories: &nbsp;</span>
                 {% for category in object.categories.all %}
                   <a class="inline text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
                   href="{% url 'libraries-list' category_slug=category.slug library_view_str=library_view_str version_slug=version_str %}">{{ category.name }}</a>
-                  {% if not forloop.last %}, {% endif %}
+                  {% if not forloop.last %},&nbsp;{% endif %}
                 {% endfor %}
               </div>
 
