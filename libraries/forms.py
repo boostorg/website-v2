@@ -195,7 +195,14 @@ class CreateReportFullForm(Form):
         # ensure we have "cleaned_data"
         if not self.is_valid():
             return ""
-        html = render_to_string(self.html_template_name, self.get_stats())
+        try:
+            html = render_to_string(self.html_template_name, self.get_stats())
+        except FileNotFoundError as e:
+            html = (
+                f"An error occurred generating the report: {e}. To see the image "
+                f"which is broken copy the error and run the report again. This "
+                f"error isn't shown on subsequent runs."
+            )
         self.cache_set(html)
         return html
 
