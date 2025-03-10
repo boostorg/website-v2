@@ -58,7 +58,7 @@ class EmailUserAdmin(UserAdmin):
         "valid_email",
         "claimed",
     )
-    search_fields = ("email", "display_name")
+    search_fields = ("email", "display_name__unaccent")
 
 
 admin.site.register(User, EmailUserAdmin)
