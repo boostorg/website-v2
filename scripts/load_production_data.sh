@@ -23,7 +23,7 @@ download_media_file() {
     }
 
     local media_temp_dir=$(mktemp -d)
-    trap 'rm -rf "$media_temp_dir"' EXIT
+    trap 'rm -rf "$media_temp_dir"' RETURN
 
     echo "Downloading all media files from bucket: $PROD_MEDIA_CONTENT_BUCKET_NAME to: $media_temp_dir"
 
@@ -63,34 +63,34 @@ download_latest_db_dump() {
       return 1;
     }
 
-    local temp_dir=$(mktemp -d)
-    trap 'rm -rf "$temp_dir"' RETURN
+    local db_temp_dir=$(mktemp -d)
+    trap 'rm -rf "$db_temp_dir"' RETURN
     local dump_file_path=""
 
     echo "Finding latest database dump..."
     # Get a list of all dump files
-    gcloud storage ls "$PROD_DB_DUMP_URL$PROD_DB_DUMP_FILE_WILDCARD" > "$temp_dir/all_files.txt" || {
+    gcloud storage ls "$PROD_DB_DUMP_URL$PROD_DB_DUMP_FILE_WILDCARD" > "$db_temp_dir/all_files.txt" || {
         echo "Failed to list files at $PROD_DB_DUMP_URL";
         return 1;
     }
 
-    [ -s "$temp_dir/all_files.txt" ] || {
+    [ -s "$db_temp_dir/all_files.txt" ] || {
         echo "No files found at $PROD_DB_DUMP_URL";
         return 1;
     }
 
-    grep "\.dump$" "$temp_dir/all_files.txt" | sort -r > "$temp_dir/dump_files.txt"
-    [ -s "$temp_dir/dump_files.txt" ] || {
+    grep "\.dump$" "$db_temp_dir/all_files.txt" | sort -r > "$db_temp_dir/dump_files.txt"
+    [ -s "$db_temp_dir/dump_files.txt" ] || {
         echo "No .dump files found at $PROD_DB_DUMP_URL";
         return 1;
     }
 
-    LATEST_DUMP=$(head -n 1 "$temp_dir/dump_files.txt")
+    LATEST_DUMP=$(head -n 1 "$db_temp_dir/dump_files.txt")
     echo "Latest dump file: $LATEST_DUMP"
     DUMP_FILENAME=$(basename "$LATEST_DUMP")
     echo "Downloading $DUMP_FILENAME..."
 
-    gcloud storage cp --project=boostorg-project1 "$LATEST_DUMP" "$temp_dir/$DUMP_FILENAME" || {
+    gcloud storage cp --project=boostorg-project1 "$LATEST_DUMP" "$db_temp_dir/$DUMP_FILENAME" || {
         echo "Failed to download $LATEST_DUMP";
         return 1;
     }
@@ -105,7 +105,7 @@ download_latest_db_dump() {
     echo "Stopping all services..."
     docker compose down
     echo "Starting database service..."
-    docker compose up -d db
+    docker compose up -d db web
     echo "Waiting for database to be ready..."
     sleep 5
 
@@ -116,11 +116,14 @@ download_latest_db_dump() {
     docker compose exec db bash -c "psql -U $DB_USER -d template1 -c \"DROP DATABASE IF EXISTS $DB_NAME;\""
     docker compose exec db bash -c "psql -U $DB_USER -d template1 -c \"CREATE DATABASE $DB_NAME;\""
     echo "Restoring database from dump..."
-    docker compose cp "$temp_dir/$DUMP_FILENAME" "db:/tmp/$DUMP_FILENAME"
+    docker compose cp "$db_temp_dir/$DUMP_FILENAME" "db:/tmp/$DUMP_FILENAME"
     docker compose exec db bash -c "pg_restore -U $DB_USER -d $DB_NAME -v --no-owner --no-privileges /tmp/$DUMP_FILENAME" || true
-    docker compose down
+    # update the database to delete all rows from socialaccount_social app, which need to be configured differently locally
+    echo "Deleting all rows from socialaccount_socialapp table and setting fake passwords..."
+    docker compose exec web bash -c "./manage.py shell -c 'from allauth.socialaccount.models import SocialApp; SocialApp.objects.all().delete()'"
+    just manage "set_fake_passwords --password=test"
+    docker compose exec web bash -c "DJANGO_SUPERUSER_USERNAME=superadmin DJANGO_SUPERUSER_EMAIL=superadmin@boost.org DJANGO_SUPERUSER_PASSWORD=foobarone ./manage.py createsuperuser --noinput" || true
     echo "Database restored successfully from $DUMP_FILENAME"
-    echo "Run: 'docker compose up -d' to restart your services"
 
     return 0
 }
@@ -136,4 +139,6 @@ download_media_file || {
 }
 npm install
 npm run build
+echo "Run: 'docker compose up -d' to restart your services"
 echo "If you get an error related to profile images when loading the site, clear all cookies and try again"
+echo "You should now able to log into the admin interface with username: 'superadmin' and password: 'foobarone'"
