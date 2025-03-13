@@ -69,18 +69,22 @@
         {% endif %}
       </div>
 
-      <div class="block px-6 py-4 my-6 w-full bg-white rounded-lg dark:bg-charcoal">
-        {% if entry.external_url %}
-          <p>{{ entry.external_url|escape|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange' }}</p>
-        {% endif %}
+      <div class="block px-6 py-4 my-6 w-full bg-white rounded-lg dark:bg-charcoal md:flex justify-between">
+        <div class="flex-1 break-words">
+          {% if entry.external_url %}
+            <p>{{ entry.external_url|escape|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange' }}</p>
+          {% endif %}
+
+          {% if entry.news.attachment %}
+            <a href="{{ entry.news.attachment.url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ entry.news.attachment_filename }}</a>
+          {% endif %}
+
+          {{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaks }}
+        </div>
 
         {% if entry.image %}
-          <img src="{{ entry.image.url }}" class="mb-2 w-full md:w-[300px] md:float-right md:ml-5 md:mt-1 border border-black" />
+          <img src="{{ entry.image.url }}" class="block mb-2 w-full md:w-[300px] md:ml-5 md:mt-1 border border-black flex-shrink-0" />
         {% endif %}
-        {% if entry.news.attachment %}
-          <a href="{{ entry.news.attachment.url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ entry.news.attachment_filename }}</a>
-        {% endif %}
-        <div class="break-words">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaks }}</div>
       </div>
     </div>
 
