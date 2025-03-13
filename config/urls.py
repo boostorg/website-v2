@@ -3,8 +3,9 @@ import logging
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path, re_path, register_converter
+from django.urls import include, path, re_path, register_converter, reverse_lazy
 from django.views.generic import TemplateView
+from django.views.generic.base import RedirectView
 from rest_framework import routers
 
 from ak.views import (
@@ -328,7 +329,12 @@ urlpatterns = (
         ),
         path(
             "review/",
-            TemplateView.as_view(template_name="review/review_process.html"),
+            RedirectView.as_view(
+                url=reverse_lazy(
+                    "docs-user-guide", content_path="formal-reviews/submissions.html"
+                ),
+                permanent=True,
+            ),
             name="review-process",
         ),
         path(
