@@ -92,7 +92,7 @@
  * 3. Dark Theme Variables
  */
 
-:root {
+ :root {
   /* General Variables - Core design tokens for all themes */
   --bl-primary-color: rgb(255, 159, 0);  /* Boost's signature orange color */
   --bl-header-height: 2.5rem;            /* Standard header height */
