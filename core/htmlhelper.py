@@ -1,3 +1,5 @@
+import re
+
 from bs4 import BeautifulSoup, Comment
 from django.template.loader import render_to_string
 
@@ -124,7 +126,7 @@ def wrap_main_body_elements(result, original_docs_type=None):
 
     start_index = None
     elements_to_wrap = []
-    wrapper_div = result.new_tag("div", id="boost-legacy-docs-wrapper")
+    wrapper_div = result.new_tag("div", id="todo-remove-boost-legacy-docs-wrapper")
     if original_docs_type:
         # add a class based on the original docs type
         wrapper_div["class"] = f"source-docs-{original_docs_type.value} boostlook"
@@ -180,6 +182,7 @@ def modernize_legacy_page(
     result = convert_name_to_id(result)
     if not skip_replace_boostlook:
         result = remove_library_boostlook(result)
+    result = remove_embedded_boostlook(result)
 
     # Use the base HTML to later extract the <head> and (part of) the <body>
     placeholder = BeautifulSoup(base_html, "html.parser")
@@ -476,6 +479,12 @@ def remove_tables(soup, class_name):
     for table in soup.find_all("table", class_=class_name):
         table.decompose()
 
+    return soup
+
+
+def remove_embedded_boostlook(soup):
+    for style in soup.find_all("style", text=re.compile(r"\.boostlook")):
+        style.decompose()
     return soup
 
 
