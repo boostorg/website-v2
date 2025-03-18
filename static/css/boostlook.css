@@ -1144,9 +1144,8 @@ body :not(pre):not([class^="L"]) > code {
 }
 
 /* Link States */
-.boostlook p a:visited,
-.boostlook table a:visited,
-.boostlook .pagination a:visited {
+.boostlook p a:visited:not(:hover),
+.boostlook table a:visited:not(:hover) {
   color: var(--text-main-text-body-tetriary, #62676b);
 }
 
@@ -1281,7 +1280,8 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook .listingblock:has(> .content > pre.highlight),
 .boostlook:not(:has(.doc)) pre.programlisting,
 .boostlook#libraryReadMe > pre,
-.boostlook#libraryReadMe .literalblock:has(pre) {
+.boostlook#libraryReadMe .literalblock:has(pre),
+.boostlook#libraryReadMe div.highlight:has(>pre) {
   margin: 0;
   margin-top: var(--padding-padding-3xs, 0.25rem);
 }
@@ -1761,10 +1761,6 @@ body :not(pre):not([class^="L"]) > code {
   content: "Next";
 }
 
-.boostlook nav.pagination > span a:hover {
-  color: inherit;
-}
-
 .boostlook nav.pagination > span a::after {
   --_arrow-size: calc((var(--spacing-size-3xs, 0.25rem) * 2) + var(--icons-24));
   position: absolute;
@@ -2028,6 +2024,7 @@ body :not(pre):not([class^="L"]) > code {
   padding: var(--leftbar-paddings-leftbar-padding-0, 0rem) var(--padding-padding-2xs, 0.5rem);
   border-radius: var(--spacing-size-3xs, 0.25rem);
   border: 1px solid var(--border-border-secondary, #d5d7d9);
+  border-bottom-left-radius: unset;
   background: var(--surface-background-main-surface-primary, #f5f6f8);
   color: var(--text-code-neutral, #0d0e0f);
   font-size: var(--typography-font-size-xs, 0.875rem);
@@ -2058,6 +2055,7 @@ body :not(pre):not([class^="L"]) > code {
   padding: var(--padding-padding-2xs, 0.5rem) var(--padding-padding-sm, 1rem);
   border-radius: var(--padding-padding-2xs, 0.5rem);
   border: 1px solid var(--border-border-primary, #e4e7ea);
+  border-top-left-radius: unset;
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-xs, 0.875rem);
   line-height: var(--typography-line-height-lg, 1.5rem);
@@ -2119,7 +2117,7 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook .doc .ulist .dlist,
 .boostlook .doc .ulist .olist,
 .boostlook .doc .ulist .ulist,
-.boostlook .doc .ulist li + li,
+.boostlook .doc .ulist:not(.tablist) li + li,
 .boostlook:not(:has(.doc)) div.orderedlist li + li {
   margin-top: var(--padding-padding-3xs, 0.25rem);
 }
@@ -2318,6 +2316,7 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook .colist.arabic > table {
   width: 100%;
   border-collapse: collapse;
+  color: var(--text-main-text-body-primary);
 }
 
 .boostlook .colist.arabic > table > tbody > tr td,
@@ -2360,18 +2359,30 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook:not(:has(.doc)) table.table caption,
 .boostlook:not(:has(.doc)) table.table colgroup,
 .boostlook:not(:has(.doc)) table.table col,
-.boostlook:not(:has(.doc)) table.table {
+.boostlook:not(:has(.doc)) table.table,
+.boostlook#libraryReadMe > table,
+.boostlook#libraryReadMe > table tr,
+.boostlook#libraryReadMe > table td,
+.boostlook#libraryReadMe > table th,
+.boostlook#libraryReadMe > table thead,
+.boostlook#libraryReadMe > table tbody,
+.boostlook#libraryReadMe > table tfoot,
+.boostlook#libraryReadMe > table caption,
+.boostlook#libraryReadMe > table colgroup,
+.boostlook#libraryReadMe > table col {
   all: unset;
   display: revert;
 }
 
 .boostlook #content table.tableblock:not(:first-child),
-.boostlook:not(:has(.doc)) .table:not(:first-child) {
+.boostlook:not(:has(.doc)) .table:not(:first-child),
+.boostlook#libraryReadMe > table:not(:first-child) {
   margin-top: var(--padding-padding-xs, 0.75rem);
 }
 
 .boostlook #content table.tableblock.stretch,
-.boostlook:not(:has(.doc)) table.table {
+.boostlook:not(:has(.doc)) table.table,
+.boostlook#libraryReadMe > table.stretch {
   min-width: 100%;
 }
 
@@ -2399,7 +2410,9 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook #content table.tableblock th,
 .boostlook #content table.tableblock td,
 .boostlook:not(:has(.doc)) table.table th,
-.boostlook:not(:has(.doc)) table.table td {
+.boostlook:not(:has(.doc)) table.table td,
+.boostlook#libraryReadMe > table th,
+.boostlook#libraryReadMe > table td {
   padding: var(--padding-padding-sm, 1rem) var(--spacing-size-sm, 1rem);
   text-align: left;
   border-top: 1px solid var(--border-border-primary, #e4e7ea);
@@ -2409,43 +2422,54 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook #content table.tableblock th:last-child,
 .boostlook #content table.tableblock td:last-child,
 .boostlook:not(:has(.doc)) table.table th:last-child,
-.boostlook:not(:has(.doc)) table.table td:last-child {
+.boostlook:not(:has(.doc)) table.table td:last-child,
+.boostlook#libraryReadMe > table th:last-child,
+.boostlook#libraryReadMe > table td:last-child {
   border-right: 1px solid var(--border-border-primary, #e4e7ea);
 }
 
 .boostlook #content table.tableblock tr:last-child td,
-.boostlook:not(:has(.doc)) table.table tr:last-child td {
+.boostlook:not(:has(.doc)) table.table tr:last-child td,
+.boostlook#libraryReadMe > table tr:last-child td {
   border-bottom: 1px solid var(--border-border-primary, #e4e7ea);
 }
 
 .boostlook #content table.tableblock:has(thead) th:first-child,
 .boostlook #content table.tableblock:not(:has(thead)) tr:first-child td:first-child,
 .boostlook:not(:has(.doc)) table.table:has(thead) th:first-child,
-.boostlook:not(:has(.doc)) table.table:not(:has(thead)) tr:first-child td:first-child {
+.boostlook:not(:has(.doc)) table.table:not(:has(thead)) tr:first-child td:first-child,
+.boostlook#libraryReadMe > table:has(thead) th:first-child,
+.boostlook#libraryReadMe > table:not(:has(thead)) tr:first-child td:first-child {
   border-top-left-radius: var(--spacing-size-xs, 0.75rem);
 }
 
 .boostlook #content table.tableblock:has(thead) th:last-child,
 .boostlook #content table.tableblock:not(:has(thead)) tr:first-child td:last-child,
 .boostlook:not(:has(.doc)) table.table:has(thead) th:last-child,
-.boostlook:not(:has(.doc)) table.table:not(:has(thead)) tr:first-child td:last-child {
+.boostlook:not(:has(.doc)) table.table:not(:has(thead)) tr:first-child td:last-child,
+.boostlook#libraryReadMe > table:has(thead) th:last-child,
+.boostlook#libraryReadMe > table:not(:has(thead)) tr:first-child td:last-child {
   border-top-right-radius: var(--spacing-size-xs, 0.75rem);
 }
 
 .boostlook #content table.tableblock tr:last-child td:first-child,
-.boostlook:not(:has(.doc)) table.table tr:last-child td:first-child {
+.boostlook:not(:has(.doc)) table.table tr:last-child td:first-child,
+.boostlook#libraryReadMe > table tr:last-child td:first-child {
   border-bottom-left-radius: var(--spacing-size-xs, 0.75rem);
 }
 
 .boostlook #content table.tableblock tr:last-child td:last-child,
-.boostlook:not(:has(.doc)) table.table tr:last-child td:last-child {
+.boostlook:not(:has(.doc)) table.table tr:last-child td:last-child,
+.boostlook#libraryReadMe > table tr:last-child td:last-child {
   border-bottom-right-radius: var(--spacing-size-xs, 0.75rem);
 }
 
 .boostlook #content table.tableblock th,
 .boostlook #content table.tableblock th strong,
 .boostlook:not(:has(.doc)) table.table th,
-.boostlook:not(:has(.doc)) table.table th strong {
+.boostlook:not(:has(.doc)) table.table th strong,
+.boostlook#libraryReadMe > table th,
+.boostlook#libraryReadMe > table th strong {
   background: var(--surface-background-main-surface-primary, #f5f6f8);
   color: var(--text-main-text-body-tetriary, #62676b);
   font-size: var(--typography-font-size-xs, 0.875rem);
@@ -2455,7 +2479,8 @@ body :not(pre):not([class^="L"]) > code {
 }
 
 .boostlook #content table.tableblock td,
-.boostlook:not(:has(.doc)) table.table td {
+.boostlook:not(:has(.doc)) table.table td,
+.boostlook#libraryReadMe > table td {
   color: var(--text-main-text-body-primary, #2a2c30);
   font-size: var(--typography-font-size-xs, 0.875rem);
   font-style: normal;
@@ -2464,47 +2489,60 @@ body :not(pre):not([class^="L"]) > code {
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
 
+.boostlook#libraryReadMe > table td {
+  vertical-align: middle;
+}
+
 .boostlook #content table.tableblock td.valign-top,
-.boostlook:not(:has(.doc)) table.table td.valign-top {
+.boostlook:not(:has(.doc)) table.table td.valign-top,
+.boostlook#libraryReadMe > table td.valign-top {
   vertical-align: top;
 }
 
 .boostlook #content table.tableblock td.valign-bottom,
-.boostlook:not(:has(.doc)) table.table td.valign-bottom {
+.boostlook:not(:has(.doc)) table.table td.valign-bottom,
+.boostlook#libraryReadMe > table td.valign-bottom {
   vertical-align: bottom;
 }
 
 .boostlook #content table.tableblock td.valign-center,
-.boostlook:not(:has(.doc)) table.table td.valign-center {
+.boostlook:not(:has(.doc)) table.table td.valign-center,
+.boostlook#libraryReadMe > table td.valign-center {
   vertical-align: middle;
 }
 
 .boostlook #content table.tableblock td.halign-left,
-.boostlook:not(:has(.doc)) table.table td.halign-left {
+.boostlook:not(:has(.doc)) table.table td.halign-left,
+.boostlook#libraryReadMe > table td.halign-left {
   text-align: left;
 }
 
 .boostlook #content table.tableblock td.halign-center,
-.boostlook:not(:has(.doc)) table.table td.halign-center {
+.boostlook:not(:has(.doc)) table.table td.halign-center,
+.boostlook#libraryReadMe > table td.halign-center {
   text-align: center;
 }
 
 .boostlook #content table.tableblock th p,
 .boostlook #content table.tableblock td p,
 .boostlook:not(:has(.doc)) table.table th p,
-.boostlook:not(:has(.doc)) table.table td p {
+.boostlook:not(:has(.doc)) table.table td p,
+.boostlook#libraryReadMe > table th p,
+.boostlook#libraryReadMe > table td p {
   font: inherit;
   color: inherit;
 }
 
 .boostlook #content table.tableblock td strong,
-.boostlook:not(:has(.doc)) table.table td strong {
+.boostlook:not(:has(.doc)) table.table td strong,
+.boostlook#libraryReadMe > table td strong {
   font-weight: 600;
   font-variation-settings: "wght" 600;
 }
 
 .boostlook #content table.tableblock td code,
-.boostlook:not(:has(.doc)) table.table td code {
+.boostlook:not(:has(.doc)) table.table td code,
+.boostlook#libraryReadMe > table td code {
   background: transparent !important;
   padding: 0;
   border: none;
@@ -2525,7 +2563,7 @@ body :not(pre):not([class^="L"]) > code {
   align-items: center;
 }
 
-.boostlook .image:has(> img),
+.boostlook:not(#libraryReadMe) .image:has(> img),
 .boostlook .content:has(> img),
 .boostlook .mediaobject:has(> embed) {
   display: flex;
@@ -3430,7 +3468,8 @@ html.is-clipped--nav:has(.boostlook) div#content {
   color: inherit;
 }
 
-.boostlook .tablist > ul .tab.is-selected {
+.boostlook .tablist > ul .tab.is-selected,
+.boostlook .tablist > ul .tab:hover {
   color: var(--text-main-text-primary, #18191b);
 }
 
@@ -3914,6 +3953,10 @@ html.is-clipped--nav:has(.boostlook) div#content {
 
 .boostlook#libraryReadMe > h1:first-child {
   margin-top: 0;
+}
+
+.boostlook#libraryReadMe div.highlight:has(>pre) {
+  background: transparent !important;
 }
 
 /*----------------- Library README Styles end -----------------*/
