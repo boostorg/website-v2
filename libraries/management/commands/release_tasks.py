@@ -15,6 +15,7 @@ from slack_sdk.errors import SlackApiError
 from core.githubhelper import GithubAPIClient
 from libraries.forms import CreateReportForm
 from libraries.tasks import update_commits
+from reports.models import WebsiteStatReport
 from slack.management.commands.fetch_slack_activity import get_my_channels, locked
 from versions.models import Version
 
@@ -80,6 +81,7 @@ class ReleaseTasksManager:
             ReleaseTask("Syncing mailinglist statistics", ["sync_mailinglist_stats"]),
             ReleaseTask("Updating github issues", ["update_issues"]),
             ReleaseTask("Updating slack activity buckets", ["fetch_slack_activity"]),
+            ReleaseTask("Updating website statistics", self.update_website_statistics),
             ReleaseTask("Generating report", self.generate_report),
         ]
 
@@ -102,6 +104,10 @@ class ReleaseTasksManager:
 
     def handle_commits(self):
         self.handled_commits = update_commits(min_version=self.latest_version.name)
+
+    def update_website_statistics(self):
+        report, _ = WebsiteStatReport.objects.get_or_create(version=self.latest_version)
+        report.populate_from_api()
 
     def generate_report(self):
         if not self.should_generate_report:

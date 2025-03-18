@@ -11,13 +11,10 @@ from versions.models import Version
 
 INCLUSIVE = "[]"
 
-# TODO: keeping things simple for now, but should add comparison metrics
-
 
 class WebsiteStatReport(TimeStampedModel):
     version = models.OneToOneField(Version, on_delete=models.CASCADE)
     period = DateRangeField()
-    # comparison = DateRangeField()
 
     def __str__(self):
         return f"Stat report for {self.version}"
@@ -77,7 +74,6 @@ class WebsiteStatItem(TimeStampedModel):
     name = models.CharField()
     code_name = models.CharField()
     value = models.FloatField()
-    # comparison_value = models.FloatField()
 
     def __str__(self):
         return f"{self.report.version} {self.name}"
