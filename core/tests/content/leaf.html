@@ -455,7 +455,7 @@ html.dark {
 <div @click.away="guideOpen = false" class="guide-modal boost-drop-shadow hidden" id="guideMenu" x-cloak="" x-show="guideOpen">
 <a href="/doc/user-guide/index.html">User Guide</a>
 <a href="/doc/contributor-guide/index.html">Contributor Guide</a>
-<a href="/review/">Formal Reviews</a>
+<a href="{% url 'review-process' %}">Formal Reviews</a>
 </div>
 </span>
 <i class="fas fa-sun icon-link" id="light-dark" onclick="changeTheme()"></i>
