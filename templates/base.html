@@ -249,43 +249,6 @@
     }
 
     /* asciidoc layout base */
-      #boost-legacy-docs-wrapper {
-        margin: auto;
-        max-width: 80rem;
-        overflow: hidden;
-        position: relative;
-        margin-top: 1rem;
-      }
-
-     #boost-legacy-docs-wrapper:not(:has(article.doc)) #toc.toc2 {
-        position: fixed !important;
-        top: 3.5rem;
-        border-top-width: 0 !important;
-        border-bottom-width: 0 !important;
-        z-index: 1000;
-        padding: 1.25em 1em;
-        max-height: calc(100vh - 4rem);
-        height: fit-content;
-        overflow: auto;
-        position: absolute;
-        left: 1rem;
-        -webkit-transform: translateZ(0);
-
-     }
-
-    #boost-legacy-docs-wrapper #header>h1:first-child {
-      margin-top: .5rem !important;
-      color: var(--header-color) !important;
-    }
-
-    #boost-legacy-docs-wrapper > #header,
-    #boost-legacy-docs-wrapper > #content,
-    #boost-legacy-docs-wrapper > #footer,
-    #boost-legacy-docs-wrapper > #footnotes {
-      width: auto;
-      max-width: 62rem;
-     margin-left: 15rem;
-    }
 
     .main-footer {
       max-width: 80rem !important;
@@ -310,52 +273,13 @@
       }
     }
 
-    @media screen and (min-width: 1280px) {
-      #boost-legacy-docs-wrapper:not(:has(article.doc)) #toc.toc2 {
-        position: fixed !important;
-        width: 20em;
-        left: calc((100% - 79rem) / 2) !important;
-        -webkit-transform: translateZ(0);
-      }
-
-      #boost-legacy-docs-wrapper > #header,
-        #boost-legacy-docs-wrapper > #content,
-        #boost-legacy-docs-wrapper > #footer,
-        #boost-legacy-docs-wrapper > #footnotes {
-          margin-left: 20rem;
-          max-width: 59rem !important;
-        }
-
-
-    }
 
     @media screen and (max-width: 769px) {
-      #boost-legacy-docs-wrapper:not(:has(article.doc))#toc.toc2 {
-            width: 100%;
-            left: 0;
-            top: 0;
-            margin-top: 4rem;
-            -webkit-transform: none;
-            padding: 0;
-            padding-left: 1rem;
-      }
 
       .source-docs-asciidoc #header  #toc.toc2 {
          position: relative !important;
          height: auto;
       }
-
-      #boost-legacy-docs-wrapper {
-        margin-top:0;
-      }
-
-      #boost-legacy-docs-wrapper > #header,
-        #boost-legacy-docs-wrapper > #content,
-        #boost-legacy-docs-wrapper > #footer,
-        #boost-legacy-docs-wrapper > #footnotes {
-          margin-left: 0rem;
-          max-width: 100% !important;
-        }
 
         .main-footer {
           margin-left: 0 !important;
