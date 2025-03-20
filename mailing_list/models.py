@@ -35,3 +35,25 @@ class EmailData(models.Model):
 
     def __str__(self):
         return self.author.name
+
+
+class PostingData(models.Model):
+    name = models.CharField(max_length=255)
+    post_time = models.DateTimeField()
+
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} {self.post_time}"
+
+
+class SubscriptionData(models.Model):
+    subscription_dt = models.DateTimeField()
+    email = models.EmailField(max_length=255)
+    entry_type = models.CharField(max_length=24)
+    list = models.CharField(max_length=24)
+
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ["subscription_dt", "email", "list"]

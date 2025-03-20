@@ -31,6 +31,7 @@ wheel
 cryptography
 boto3
 jsoncomment
+unidecode
 wordcloud
 
 # Logging

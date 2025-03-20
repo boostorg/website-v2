@@ -38,6 +38,7 @@ The `boost_setup` command will run all of the processes listed here:
 
 # Get the most recent beta release, and delete old beta releases
 ./manage.py import_beta_release --delete-versions
+./manage.py import_ml_counts
 ```
 
 Read more aboout these [management commands](./commands.md).

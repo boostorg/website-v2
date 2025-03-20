@@ -30,6 +30,14 @@ body {
 .committee_members img {
   filter: grayscale(1);
 }
+#top-committed-libraries-chart .apexcharts-xaxis-label:nth-child(odd) {
+  transform: translateY(-8px);
+}
+
+#top-committed-libraries-chart .apexcharts-xaxis-label:nth-child(even) {
+  transform: translateY(8px);
+}
+
 </style>
 {% endblock css %}
 {% block content %}
@@ -219,7 +227,7 @@ body {
 
         <div class="flex gap-x-8 w-full">
           <div class="px-4">
-            <div class="mx-auto mb-6 mt-5">Top Contributors</div>
+            <div class="mx-auto mb-6 mt-[4.75rem]">Top Contributors</div>
             <div class="m-auto grid grid-cols-1 gap-2">
             {% for item in mailinglist_counts %}
               <div class="flex flex-row gap-y-2 w-40 items-center">
@@ -249,21 +257,22 @@ body {
               poster{{ mailinglist_contributor_release_count|pluralize }}
               in this version. (<span class="font-bold">{{ mailinglist_contributor_new_count }}</span> New)
             </div>
+          <div class="text-center my-2">Weekly mailing list posts from {{prior_version.release_date}} to {{version.release_date}} on the Boost Developers mailing list.</div>
+          <div id="release_post_stats"></div>
           </div>
         </div>
       </div>
-      {% if wordcloud_base64 %}
-        <div class="pdf-page flex {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}');">
-          <div class="flex flex-col mx-auto">
-            <h2 class="mx-auto mb-10">Mailing List Word Cloud</h2>
-            <div class="flex mx-auto">
-              <img src="data:image/png;base64,{{ wordcloud_base64 }}" alt="Mailing List Word Cloud" class="w-full">
-            </div>
-          </div>
 
+      <div class="pdf-page flex {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}');">
+        <div class="flex flex-col h-full mx-auto w-full">
+          <h2 class="mx-auto mb-10">Mailing List New Subscribers</h2>
+          <div class="text-center my-2">Mailing list new subscribers from from {{prior_version.release_date}} to {{version.release_date}} on the Boost Developers mailing list.</div>
 
+          <div id="subscriptions_stats"></div>
         </div>
-      {% endif %}
+      </div>
+
+
       <div class="pdf-page flex {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}');">
         <div class="flex flex-col h-full mx-auto w-full">
           <h2 class="mx-auto mb-10">Mailing List Top 200 Most Frequently Used Words</h2>
@@ -276,6 +285,16 @@ body {
           </div>
         </div>
       </div>
+      {% if wordcloud_base64 %}
+        <div class="pdf-page flex {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}');">
+          <div class="flex flex-col mx-auto">
+            <h2 class="mx-auto mb-10">Mailing List Word Cloud</h2>
+            <div class="flex mx-auto">
+              <img src="data:image/png;base64,{{ wordcloud_base64 }}" alt="Mailing List Word Cloud" class="w-full">
+            </div>
+          </div>
+        </div>
+      {% endif %}
 
       {% if slack %}
        {% for slack_channel_group in slack_channels %}
@@ -441,11 +460,7 @@ body {
       {% endwith %}
     </div>
     <script>
-      var options = {
-        series: [{
-          name: 'Commits',
-          data: [{% for library in top_libraries_for_version|slice:":5" %}{{library.commit_count}}, {% endfor %}]
-        }],
+      const generalGraphOptions = {
         chart: {
           height: 400,
           type: 'bar',
@@ -453,6 +468,9 @@ body {
           background: '#ffffff00',
           toolbar: {
             show: false,
+          },
+          zoom: {
+            enabled: false
           },
         },
         plotOptions: {
@@ -472,7 +490,6 @@ body {
           }
         },
         xaxis: {
-          categories: [{% for library in top_libraries_for_version|slice:":5" %} "{{ library.name }}", {% endfor %}],
           position: 'bottom',
           axisBorder: {
             show: false
@@ -496,10 +513,81 @@ body {
           }
         },
       };
-      const chart = new ApexCharts(document.querySelector("#top-committed-libraries-chart"), options);
-      chart.render();
-    </script>
-    <script>
+      var committedLibrariesOptions = {
+        ...generalGraphOptions,
+        series: [{
+          name: 'Commits',
+          data: [{% for library in top_libraries_for_version|slice:":5" %}{{library.commit_count}}, {% endfor %}]
+        }],
+        xaxis: {
+          type: "category",
+          categories: [{% for library in top_libraries_for_version|slice:":5" %} "{{ library.name }}", {% endfor %}],
+          labels: {
+            rotate: 0,
+            hideOverlappingLabels: false
+          }
+        },
+      };
+      const libraryCommitsChart = new ApexCharts(document.querySelector("#top-committed-libraries-chart"), committedLibrariesOptions);
+      libraryCommitsChart.render();
+
+      var mailingListPostsOptions = {
+        ...generalGraphOptions,
+        series: [{
+          name: 'Posts',
+          data: {{mailinglist_post_stats|safe}}
+        }],
+        axisTicks: {
+          show: true,
+        },
+        xaxis: {
+          type: "numeric",
+          title: {
+            text: "Calendar Week"
+          },
+          labels: {
+            formatter: (value) => { return `${value}`; },
+          }
+        },
+        yaxis: {
+          title: {
+            text: "Posts"
+          }
+        },
+      };
+      const mailingListPostsChart = new ApexCharts(document.querySelector("#release_post_stats"), mailingListPostsOptions);
+      mailingListPostsChart.render();
+
+      const newEntries = {{mailinglist_new_subscribers_stats|safe}};
+      var subscriptionsOptions = {
+        ...generalGraphOptions,
+        series: [{
+          name: 'New Subscribers',
+          data: newEntries
+        }],
+        axisTicks: {
+          show: true,
+        },
+        xaxis: {
+          type: "numeric",
+          title: {
+            text: "Calendar Week"
+          },
+          labels: {
+            formatter: (value) => { return `${value}`; }
+          }
+        },
+        yaxis: {
+          title: {
+            text: "New Subscribers"
+          }
+        },
+      };
+
+      const subscriptionsChart = new ApexCharts(document.querySelector("#subscriptions_stats"), subscriptionsOptions);
+      subscriptionsChart.render();
+
+
       // Use fitText to resize text to fit its container.
       // Starts at MAX_FONT_SIZE and tries smaller sizes until it fits or hits MIN_FONT_SIZE.
       const fitText = async () => {

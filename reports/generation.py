@@ -1,16 +1,23 @@
 import base64
 import io
+import logging
 import random
+from datetime import datetime
 
 import psycopg2
 from django.conf import settings
+from django.db.models import Count
+from django.db.models.functions import ExtractWeek, ExtractIsoYear
 from matplotlib import pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 
 from core.models import SiteSettings
 from libraries.models import WordcloudMergeWord  # TODO: move model to this app
+from mailing_list.models import PostingData, SubscriptionData
 from reports.constants import WORDCLOUD_FONT
 from versions.models import Version
+
+logger = logging.getLogger(__name__)
 
 
 def generate_wordcloud(version: Version) -> tuple[str | None, list]:
@@ -25,7 +32,7 @@ def generate_wordcloud(version: Version) -> tuple[str | None, list]:
         width=1400,
         height=700,
         stopwords=STOPWORDS | SiteSettings.load().wordcloud_ignore_set,
-        font_path=settings.STATIC_ROOT / "font" / WORDCLOUD_FONT,
+        font_path=f"{settings.STATIC_ROOT}/font/{WORDCLOUD_FONT}",
     )
     word_frequencies = {}
     for content in get_mail_content(version):
@@ -110,3 +117,40 @@ def get_mail_content(version: Version):
         )
         for [content] in cursor:
             yield content
+
+
+def get_mailing_list_post_stats(start_date: datetime, end_date: datetime):
+    logger.info(f"from {start_date} to {end_date}")
+    data = (
+        PostingData.objects.filter(post_time__gt=start_date, post_time__lte=end_date)
+        .annotate(week=ExtractWeek("post_time"), iso_year=ExtractIsoYear("post_time"))
+        .values("week")
+        .annotate(count=Count("id"))
+        .order_by("iso_year", "week")
+    )
+    return [{"y": s.get("count"), "x": s.get("week")} for s in data]
+
+
+def get_new_subscribers_stats(start_date: datetime, end_date: datetime):
+    data = (
+        SubscriptionData.objects.filter(
+            subscription_dt__gte=start_date,
+            subscription_dt__lte=end_date,
+            list="boost",
+        )
+        .annotate(
+            week=ExtractWeek("subscription_dt"),
+            iso_year=ExtractIsoYear("subscription_dt"),
+        )
+        .values("week", "list")
+        .annotate(count=Count("id"))
+        .order_by("iso_year", "week")
+    )
+
+    formatted_data = [{"x": s.get("week"), "y": s.get("count")} for s in data]
+    referenced_weeks = [x.get("week") for x in data]
+    # account for weeks that no data is retrieved
+    for w in range(start_date.isocalendar().week, end_date.isocalendar().week + 1):
+        if w not in referenced_weeks:
+            formatted_data.append({"x": w, "y": 0})
+    return formatted_data
