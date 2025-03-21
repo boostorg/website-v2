@@ -331,7 +331,8 @@ urlpatterns = (
             "review/",
             RedirectView.as_view(
                 url=reverse_lazy(
-                    "docs-user-guide", content_path="formal-reviews/submissions.html"
+                    "docs-user-guide",
+                    kwargs={"content_path": "formal-reviews/submissions.html"},
                 ),
                 permanent=True,
             ),
