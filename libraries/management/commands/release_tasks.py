@@ -1,5 +1,7 @@
 import traceback
 from contextlib import suppress
+from dataclasses import dataclass
+from typing import Callable
 
 import djclick as click
 
@@ -13,6 +15,7 @@ from slack_sdk.errors import SlackApiError
 from core.githubhelper import GithubAPIClient
 from libraries.forms import CreateReportForm
 from libraries.tasks import update_commits
+from reports.models import WebsiteStatReport
 from slack.management.commands.fetch_slack_activity import get_my_channels, locked
 from versions.models import Version
 
@@ -34,67 +37,94 @@ def progress_message(message: str):
     return f"{timezone.now()}: {message}"
 
 
+@dataclass
+class ReleaseTask:
+    """
+    A distinct task to be completed.
+
+    Action can be a callable or a list of string arguments to pass to `call_command`
+    """
+
+    description: str
+    action: Callable | list[str]
+
+    def run(self):
+        if isinstance(self.action, Callable):
+            self.action()
+        else:
+            call_command(*self.action)
+
+
+class ReleaseTasksManager:
+    latest_version: Version | None = None
+    progress_messages: list[str] = []
+    handled_commits: dict[str, int] = {}
+
+    def __init__(self, should_generate_report: bool = False):
+        self.should_generate_report = should_generate_report
+        self.tasks = [
+            ReleaseTask("Importing versions", self.import_versions),
+            ReleaseTask(
+                "Importing most recent beta version",
+                ["import_beta_release", "--delete-versions"],
+            ),
+            ReleaseTask("Importing libraries", ["update_libraries"]),
+            ReleaseTask(
+                "Saving library-version relationships", self.import_library_versions
+            ),
+            ReleaseTask("Adding library maintainers", ["update_maintainers"]),
+            ReleaseTask("Adding library authors", ["update_authors"]),
+            ReleaseTask(
+                "Adding library version authors", ["update_library_version_authors"]
+            ),
+            ReleaseTask("Importing git commits", self.handle_commits),
+            ReleaseTask("Syncing mailinglist statistics", ["sync_mailinglist_stats"]),
+            ReleaseTask("Updating github issues", ["update_issues"]),
+            ReleaseTask("Updating slack activity buckets", ["fetch_slack_activity"]),
+            ReleaseTask("Updating website statistics", self.update_website_statistics),
+            ReleaseTask("Generating report", self.generate_report),
+        ]
+
+    def update_release_data(self) -> dict[str:int]:
+        for task in self.tasks:
+            self.progress_messages.append(progress_message(f"{task.description}..."))
+            task.run()
+            self.progress_messages.append(
+                progress_message(f"Finished {task.description.lower()}")
+            )
+        return self.handled_commits
+
+    def import_versions(self):
+        call_command("import_versions", "--new")
+        self.latest_version = Version.objects.most_recent()
+
+    def import_library_versions(self):
+        latest_version_number = self.latest_version.name.lstrip("boost-")
+        call_command("import_library_versions", min_release=latest_version_number)
+
+    def handle_commits(self):
+        self.handled_commits = update_commits(min_version=self.latest_version.name)
+
+    def update_website_statistics(self):
+        report, _ = WebsiteStatReport.objects.get_or_create(version=self.latest_version)
+        report.populate_from_api()
+
+    def generate_report(self):
+        if not self.should_generate_report:
+            self.progress_messages.append(
+                progress_message("Skipped - report generation not requested")
+            )
+            return
+        form = CreateReportForm({"version": self.latest_version.id})
+        form.cache_html()
+
+
 @locked(1138692)
 def run_commands(progress: list[str], generate_report: bool = False):
-    if not settings.SLACK_BOT_TOKEN:
-        raise ValueError("SLACK_BOT_TOKEN is not set.")
-    handled_commits = {}
-    progress.append(progress_message("Importing versions..."))
-    call_command("import_versions", "--new")
-    progress.append(progress_message("Finished importing versions."))
-    latest_version: Version = Version.objects.most_recent()
-    latest_version_name = latest_version.name
+    manager = ReleaseTasksManager(should_generate_report=generate_report)
+    handled_commits = manager.update_release_data()
 
-    progress.append(progress_message("Importing most recent beta version..."))
-    call_command("import_beta_release", "--delete-versions")
-    progress.append(progress_message("Finished importing most recent beta version."))
-
-    progress.append(progress_message("Importing libraries..."))
-    call_command("update_libraries")
-    progress.append(progress_message("Finished importing libraries."))
-
-    progress.append(progress_message("Saving library-version relationships..."))
-    latest_version_number = latest_version_name.lstrip("boost-")
-    call_command("import_library_versions", min_release=latest_version_number)
-    progress.append(progress_message("Finished saving library-version relationships."))
-
-    progress.append(progress_message("Adding library maintainers..."))
-    call_command("update_maintainers")
-    progress.append(progress_message("Finished adding library maintainers."))
-
-    progress.append(progress_message("Adding library authors..."))
-    call_command("update_authors")
-    progress.append(progress_message("Finished adding library authors."))
-
-    progress.append(progress_message("Adding library version authors..."))
-    call_command("update_library_version_authors")
-    progress.append(progress_message("Finished adding library version authors."))
-
-    progress.append(progress_message("Importing git commits..."))
-    handled_commits = update_commits(min_version=latest_version_name)
-    progress.append(progress_message("Finished importing commits."))
-
-    progress.append(progress_message("Syncing mailinglist statistics..."))
-    call_command("sync_mailinglist_stats")
-    progress.append(progress_message("Finished syncing mailinglist statistics."))
-
-    progress.append(progress_message("Updating github issues..."))
-    call_command("update_issues")
-    progress.append(progress_message("Finished updating github issues..."))
-
-    progress.append(progress_message("Updating slack activity buckets..."))
-    call_command("fetch_slack_activity")
-    progress.append(progress_message("Finished updating slack activity buckets."))
-
-    if generate_report:
-        progress.append(
-            progress_message(f"Generating report for {latest_version_name}...")
-        )
-        form = CreateReportForm({"version": latest_version.id})
-        form.cache_html()
-        progress.append(
-            progress_message(f"Finished generating report for {latest_version_name}.")
-        )
+    progress.extend(manager.progress_messages)
 
     return handled_commits
 
@@ -196,4 +226,5 @@ def command(user_id=None, generate_report=False):
         send_notification(
             user,
             "\n\n".join(message),
+            subject="Task Complete: release_tasks",
         )
