@@ -2,13 +2,14 @@ import re
 from typing import Self
 from urllib.parse import urlparse
 
-from django.contrib.auth import get_user_model
 from django.core.cache import caches
 from django.db import models, transaction
 from django.db.models import Sum
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.db.models.functions import Upper
+
+from config import settings
 from core.custom_model_fields import NullableFileField
 from core.markdown import process_md
 from core.models import RenderedContent
@@ -48,6 +49,9 @@ class CommitAuthor(models.Model):
     name = models.CharField(max_length=100)
     avatar_url = models.URLField(null=True, max_length=100)
     github_profile_url = models.URLField(null=True, max_length=100)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True
+    )
 
     @property
     def display_name(self):
@@ -58,11 +62,6 @@ class CommitAuthor(models.Model):
         ):
             return self.user.display_name
         return self.name
-
-    @property
-    def user(self):
-        User = get_user_model()
-        return User.get_user_by_github_url(self.github_profile_url)
 
     def __str__(self):
         return self.name

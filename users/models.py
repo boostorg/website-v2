@@ -302,6 +302,10 @@ class User(BaseUser):
         github_user = url.rstrip("/").split("/")[-1]
         return User.objects.filter(github_username=github_user).first()
 
+    @staticmethod
+    def get_user_by_email(email: str):
+        return User.objects.filter(email=email).first()
+
     @transaction.atomic
     def delete_account(self):
         from . import tasks

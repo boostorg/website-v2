@@ -39,7 +39,7 @@ from .tasks import (
 class CommitAdmin(admin.ModelAdmin):
     list_display = ["library_version", "sha", "author"]
     autocomplete_fields = ["author", "library_version"]
-    list_filter = ["library_version__library"]
+    list_filter = ["library_version__library", "library_version__version"]
     search_fields = ["sha", "author__name"]
     change_list_template = "admin/commit_change_list.html"
 
