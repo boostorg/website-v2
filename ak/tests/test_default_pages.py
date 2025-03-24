@@ -4,7 +4,7 @@ import pytest
 from django.test.utils import override_settings
 
 
-def test_homepage(library, version, tp):
+def test_homepage(library, library_version, version, tp):
     """Ensure we can hit the homepage"""
     # Use any page that is named 'home' otherwise use /
     url = tp.reverse("home")
