@@ -6,6 +6,7 @@
     {% block object-tools-items %}
         {{ block.super }}
         <li><a href="{% url 'admin:commit_author_update_github_data' %}" class="addlink">{% trans "Update Github Avatar and URL" %}</a></li>
+        <li><a href="{% url 'admin:synchronize_ca_user_data' %}" class="addlink">{% trans "Synchronize Data" %}</a></li>
     {% endblock %}
 </ul>
 {% endblock %}

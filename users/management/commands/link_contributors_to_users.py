@@ -1,6 +1,6 @@
 import djclick as click
 
-from users.tasks import update_users_githubs, update_commit_authors_users
+from libraries.tasks import synchronize_commit_author_user_data
 
 
 @click.command()
@@ -13,6 +13,5 @@ def command():
     CommitAuthor instance to the User model so we set that value.
     """
     click.secho("Linking contributors to users", fg="blue")
-    update_users_githubs()
-    update_commit_authors_users()
+    synchronize_commit_author_user_data.delay()
     click.secho("Finished linking contributors to users.", fg="green")

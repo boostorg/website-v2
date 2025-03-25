@@ -81,7 +81,7 @@ class CommitAuthor(models.Model):
             self.avatar_url = other.avatar_url
         if not self.github_profile_url:
             self.github_profile_url = other.github_profile_url
-        self.save(update_fields=["avatar_url", "github_profile_url"])
+        self.save(update_fields=["avatar_url", "github_profile_url", "user_id"])
         other.delete()
 
     @transaction.atomic
