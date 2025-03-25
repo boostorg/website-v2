@@ -1,3 +1,4 @@
 -c requirements.txt
+debugpy # for vscode debugging
 django-debug-toolbar
-pydevd-pycharm==243.22562.180  # pinned to appropriate version for current pycharm
+pydevd-pycharm==243.26053.29  # pinned to appropriate version for current pycharm
