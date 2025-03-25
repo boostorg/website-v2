@@ -92,7 +92,10 @@
  *    - Applies to all documentation formats
  *    - Used for common components and layouts
  *
- * 2. .boostlook:not(:has(.doc)), .boostlook#boost-legacy-docs-wrapper
+ * 2. .boostlook:not(:has(.doc)),
+ *    .boostlook#boost-legacy-docs-wrapper - (DEPRECATED),
+ *    .boostlook#antora-template-wrapper,
+ *    div.source-docs-antora.boostlook:not(:has(>.boostlook)) - (Fallback)
  *    - Specific to legacy Quickbook templates
  *    - Maintains backward compatibility
  *    - Handles specialized Quickbook formatting
@@ -116,7 +119,7 @@
  * 6. Responsive Design - Mobile-first breakpoint variables
  */
 
- :root {
+:root {
   /* General Variables - Core design tokens for all themes */
   --bl-primary-color: rgb(255, 159, 0); /* Boost's signature orange color */
 
@@ -1048,7 +1051,9 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook div.blockquote blockquote p + p,
 .boostlook#libraryReadMe > p:not(:first-child) + p,
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > p + p {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > p + p,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content > p + p,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content > p + p {
   margin-top: var(--padding-padding-3xs, 0.25rem);
 }
 
@@ -1084,7 +1089,9 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook#libraryReadMe > ul + p,
 .boostlook#libraryReadMe .literalblock + .paragraph,
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > ul:not([class]) + p {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > ul:not([class]) + p,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content > ul:not([class]) + p,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content > ul:not([class]) + p {
   margin-top: var(--padding-padding-xs, 0.75rem);
 }
 
@@ -1281,7 +1288,7 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook:not(:has(.doc)) pre.programlisting,
 .boostlook#libraryReadMe > pre,
 .boostlook#libraryReadMe .literalblock:has(pre),
-.boostlook#libraryReadMe div.highlight:has(>pre) {
+.boostlook#libraryReadMe div.highlight:has(> pre) {
   margin: 0;
   margin-top: var(--padding-padding-3xs, 0.25rem);
 }
@@ -1861,7 +1868,7 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook:not(:has(.doc)) div.warning > table tr:first-child th,
 .boostlook:not(:has(.doc)) div.blurb > table tr:first-child th,
 .boostlook:not(:has(.doc)) p.blurb > table tr:first-child th,
-.boostlook:not(:has(.doc)) .notices.heading {
+.boostlook:not(:has(.doc)) .notices .heading {
   display: flex;
   padding: var(--spacing-size-3xs, 0.25rem) var(--spacing-size-2xs, 0.5rem);
   align-items: center;
@@ -1870,7 +1877,7 @@ body :not(pre):not([class^="L"]) > code {
   background-color: var(--colors-neutral-500, #18191b);
 }
 
-.boostlook:not(:has(.doc)) .notices.heading {
+.boostlook:not(:has(.doc)) .notices .heading {
   margin: 0;
 }
 
@@ -1889,7 +1896,7 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook:not(:has(.doc)) div.blurb > table tr:first-child th > *,
 .boostlook:not(:has(.doc)) p.blurb > table tr:first-child th > *,
 .boostlook #content .admonitionblock > table tr td.icon > *,
-.boostlook:not(:has(.doc)) .notices.heading {
+.boostlook:not(:has(.doc)) .notices .heading {
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-2xs, 0.75rem);
   font-weight: 500;
@@ -1919,7 +1926,7 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook:not(:has(.doc)) p.blurb > table tr:not(:first-child) td p,
 /* Antora Template Correction*/
 .boostlook #content .admonitionblock > table tr td.content p,
-.boostlook:not(:has(.doc)) .notices.message p {
+.boostlook:not(:has(.doc)) .notices .message p {
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-xs, 0.875rem);
   font-weight: 500;
@@ -1927,7 +1934,7 @@ body :not(pre):not([class^="L"]) > code {
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
 
-.boostlook:not(:has(.doc)) .notices.message {
+.boostlook:not(:has(.doc)) .notices .message {
   margin: 0;
 }
 
@@ -1944,62 +1951,72 @@ body :not(pre):not([class^="L"]) > code {
 }
 
 .boostlook #content .admonitionblock.note,
-.boostlook:not(:has(.doc)) div.note {
+.boostlook:not(:has(.doc)) div.note,
+.boostlook:not(:has(.doc)) .notices.note {
   border-color: var(--border-border-blue, #92cbe9);
 }
 .boostlook #content .admonitionblock.note > table tr td.icon,
 .boostlook:not(:has(.doc)) div.note > table tr:first-child th,
-.boostlook:not(:has(.doc)) .notices.heading {
+.boostlook:not(:has(.doc)) .notices.note .heading {
   background: var(--surface-background-states-surface-additional-tetriary, #92cbe9);
 }
 .boostlook #content .admonitionblock.note > table tr td.icon > *,
 .boostlook:not(:has(.doc)) div.note > table tr:first-child th,
-.boostlook:not(:has(.doc)) .notices.heading {
+.boostlook:not(:has(.doc)) .notices.note .heading {
   color: var(--text-states-text-additional-tetriary, #026a9f);
 }
 
 .boostlook #content .admonitionblock.tip,
-.boostlook:not(:has(.doc)) div.tip {
+.boostlook:not(:has(.doc)) div.tip,
+.boostlook:not(:has(.doc)) .notices.tip {
   border-color: var(--border-border-positive, #bdeed6);
 }
 .boostlook #content .admonitionblock.tip > table tr td.icon,
-.boostlook:not(:has(.doc)) div.tip > table tr:first-child th {
+.boostlook:not(:has(.doc)) div.tip > table tr:first-child th,
+.boostlook:not(:has(.doc)) .notices.tip .heading {
   background: var(--border-border-positive, #bdeed6);
 }
 .boostlook #content .admonitionblock.tip > table tr td.icon > *,
-.boostlook:not(:has(.doc)) div.tip > table tr:first-child th {
+.boostlook:not(:has(.doc)) div.tip > table tr:first-child th,
+.boostlook:not(:has(.doc)) .notices.tip .heading {
   color: var(--text-states-text-positive-tetriary, #48ac7b);
 }
 
 .boostlook #content .admonitionblock.important,
 .boostlook #content .admonitionblock.caution,
 .boostlook:not(:has(.doc)) div.important,
-.boostlook:not(:has(.doc)) div.caution {
+.boostlook:not(:has(.doc)) div.caution,
+.boostlook:not(:has(.doc)) .notices.important {
   border-color: var(--border-border-warning, #ffd4b3);
 }
 .boostlook #content .admonitionblock.important > table tr td.icon,
 .boostlook #content .admonitionblock.caution > table tr td.icon,
 .boostlook:not(:has(.doc)) div.important > table tr:first-child th,
-.boostlook:not(:has(.doc)) div.caution > table tr:first-child th {
+.boostlook:not(:has(.doc)) div.caution > table tr:first-child th,
+.boostlook:not(:has(.doc)) .notices.important {
   background: var(--surface-background-states-surface-warning-tetriary, #ffd4b3);
 }
 .boostlook #content .admonitionblock.important > table tr td.icon > *,
 .boostlook #content .admonitionblock.caution > table tr td.icon > *,
 .boostlook:not(:has(.doc)) div.important > table tr:first-child th,
-.boostlook:not(:has(.doc)) div.caution > table tr:first-child th {
+.boostlook:not(:has(.doc)) div.caution > table tr:first-child th,
+.boostlook:not(:has(.doc)) .notices.important {
   color: var(--text-states-text-warning-tetriary, #c25909);
 }
 
 .boostlook #content .admonitionblock.warning,
-.boostlook:not(:has(.doc)) div.warning {
+.boostlook:not(:has(.doc)) div.warning,
+.boostlook:not(:has(.doc)) .notices.warning {
   border-color: var(--border-border-negative, #ffcad2);
 }
 .boostlook #content .admonitionblock.warning > table tr td.icon,
-.boostlook:not(:has(.doc)) div.warning > table tr:first-child th {
+.boostlook:not(:has(.doc)) div.warning > table tr:first-child th,
+.boostlook:not(:has(.doc)) .notices.warning .heading {
   background: var(--surface-background-states-surface-negative-tetriary, #ffcad2);
 }
 .boostlook #content .admonitionblock.warning > table tr td.icon > *,
-.boostlook:not(:has(.doc)) div.warning > table tr:first-child th {
+.boostlook:not(:has(.doc)) div.warning > table tr:first-child th,
+.boostlook:not(:has(.doc)) .notices.warning .heading {
   color: var(--text-states-text-negative-tetriary, #bc233c);
 }
 
@@ -2145,7 +2162,9 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook .ulist:not(:first-child).disc,
 .boostlook#libraryReadMe ul:not(:first-child),
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > ul:not([class]) {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > ul:not([class]),
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content > ul:not([class]),
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content > ul:not([class]) {
   margin-top: var(--padding-padding-xs, 0.75rem);
 }
 
@@ -2154,7 +2173,9 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook .ulist.disc > ul,
 .boostlook#libraryReadMe ul,
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > ul:not([class]) {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > ul:not([class]),
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content > ul:not([class]),
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content > ul:not([class]) {
   list-style: none;
   padding: 0;
 }
@@ -2168,7 +2189,9 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook .ulist.disc > ul > li,
 .boostlook#libraryReadMe ul > li,
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > ul:not([class]) > li {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > ul:not([class]) > li,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content > ul:not([class])> li,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content > ul:not([class])> li {
   position: relative;
   padding-left: 2rem;
 }
@@ -2176,7 +2199,11 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook ul.itemizedlist > li,
 /* Outcome 2.2 Weird Template fix */
 .boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content ul:not([class]) li,
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content ol:not([class]) li {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content ol:not([class]) li,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content ul:not([class]) li,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content ol:not([class]) li,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content ul:not([class]) li,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content ol:not([class]) li {
   font: inherit;
 }
 
@@ -2185,7 +2212,9 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook .ulist.disc > ul > li + li,
 .boostlook#libraryReadMe ul > li + li,
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > ul:not([class]) > li + li {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > ul:not([class]) > li + li,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content > ul:not([class]) > li + li,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content > ul:not([class]) > li + li {
   margin-top: var(--padding-padding-3xs, 0.25rem);
 }
 
@@ -2194,7 +2223,9 @@ body :not(pre):not([class^="L"]) > code {
 .boostlook .ulist.disc > ul > li::before,
 .boostlook#libraryReadMe ul > li::before,
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > ul:not([class]) > li::before {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > ul:not([class]) > li::before,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content > ul:not([class]) > li::before,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content > ul:not([class]) > li::before {
   content: "•";
   position: absolute;
   left: 0;
@@ -2770,7 +2801,9 @@ html:has(#docsiframe)::-webkit-scrollbar {
 }
 /* TOC Positioning */
 .boostlook #toc.toc2,
-#boost-legacy-docs-wrapper:not(:has(article.doc)) #toc.toc2.is-active {
+#boost-legacy-docs-wrapper:not(:has(article.doc)) #toc.toc2.is-active,
+#antora-template-wrapper:not(:has(article.doc)) #toc.toc2.is-active,
+div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(>.boostlook)) #toc.toc2.is-active {
   position: static;
 }
 
@@ -2957,7 +2990,7 @@ html.is-clipped--nav:has(.boostlook) div#content {
     padding: 1rem 1.5rem;
   }
 
-  .boostlook {
+  .toc2 .boostlook {
     margin-left: var(--main-max-width-leftbar);
   }
 
@@ -3495,8 +3528,17 @@ html.is-clipped--nav:has(.boostlook) div#content {
  * 5. Code and syntax highlighting
  */
 
+#boost-legacy-docs-wrapper:has(> .boostlook),
+#antora-template-wrapper:has(> .boostlook),
+div.source-docs-antora.boostlook:has(> .boostlook) {
+  /* CharConv template fix */
+  margin: auto;
+}
+
 /* Legacy boostlook container */
-.boostlook#boost-legacy-docs-wrapper {
+.boostlook#boost-legacy-docs-wrapper,
+.boostlook#antora-template-wrapper,
+div.source-docs-antora.boostlook {
   margin-top: 0;
   max-width: unset;
   overflow: hidden;
@@ -3507,14 +3549,26 @@ html.is-clipped--nav:has(.boostlook) div#content {
 .boostlook#boost-legacy-docs-wrapper > #header,
 .boostlook#boost-legacy-docs-wrapper > #content,
 .boostlook#boost-legacy-docs-wrapper > #footer,
-.boostlook#boost-legacy-docs-wrapper > #footnotes {
-  width: auto;
+.boostlook#boost-legacy-docs-wrapper > #footnotes,
+.boostlook#antora-template-wrapper > #header,
+.boostlook#antora-template-wrapper > #content,
+.boostlook#antora-template-wrapper > #footer,
+.boostlook#antora-template-wrapper > #footnotes,
+div.source-docs-antora.boostlook > #header,
+div.source-docs-antora.boostlook > #content,
+div.source-docs-antora.boostlook > #footer,
+div.source-docs-antora.boostlook > #footnotes {
+  /* width: auto;
   max-width: unset;
-  margin-left: auto;
+  margin-left: auto; */
+  padding-left: unset;
+  padding-right: unset;
 }
 
 /* Add Side margin for legacy boostlook container */
-#boost-legacy-docs-wrapper:not(:has(.doc)) {
+#boost-legacy-docs-wrapper:not(:has(.doc)):not(:has(> .boostlook)),
+#antora-template-wrapper:not(:has(.doc)):not(:has(> .boostlook)),
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) {
   padding: 0 var(--main-margin, 3rem);
 }
 
@@ -3552,7 +3606,9 @@ html.is-clipped--nav:has(.boostlook) div#content {
 .boostlook:not(:has(.doc)) > .book > .titlepage:first-of-type .author,
 .boostlook:not(:has(.doc)) > .article > .titlepage:first-of-type .author,
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content .author {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content .author,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content .author,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content .author {
   margin: 0;
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-lg, 1.25rem);
@@ -3570,7 +3626,9 @@ html.is-clipped--nav:has(.boostlook) div#content {
 .boostlook:not(:has(.doc)) > .book > .titlepage:first-of-type div.author,
 .boostlook:not(:has(.doc)) > .article > .titlepage:first-of-type div.author,
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content div.author {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content div.author,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content div.author,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content div.author {
   margin-top: var(--padding-padding-md, 1.125rem);
 }
 
@@ -3602,7 +3660,9 @@ html.is-clipped--nav:has(.boostlook) div#content {
 .boostlook:not(:has(.doc)) > .book > .titlepage:first-of-type .copyright,
 .boostlook:not(:has(.doc)) > .article > .titlepage:first-of-type .copyright,
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content .copyright {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content .copyright,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content .copyright,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content .copyright {
   color: var(--text-main-text-body-secondary, #494d50);
   font-size: var(--typography-font-size-xs, 0.875rem);
   font-style: normal;
@@ -3629,7 +3689,9 @@ html.is-clipped--nav:has(.boostlook) div#content {
 .boostlook:not(:has(.doc)) > .book > .titlepage:first-of-type .legalnotice,
 .boostlook:not(:has(.doc)) > .article > .titlepage:first-of-type .legalnotice,
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content .legalnotice {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content .legalnotice,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content .legalnotice,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content .legalnotice {
   color: var(--text-main-text-body-primary, #2a2c30);
   font-size: var(--typography-font-size-sm, 1rem);
   font-style: normal;
@@ -3639,7 +3701,9 @@ html.is-clipped--nav:has(.boostlook) div#content {
 }
 
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content .legalnotice {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content .legalnotice,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content .legalnotice,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content .legalnotice {
   margin-bottom: var(--padding-padding-md, 1.125rem);
 }
 
@@ -3690,15 +3754,20 @@ html.is-clipped--nav:has(.boostlook) div#content {
 }
 
 /* Section Layout */
-.boostlook#boost-legacy-docs-wrapper:not(:has(.doc)) > * {
+.boostlook#boost-legacy-docs-wrapper:not(:has(.doc)):not(:has(> .boostlook)) > *,
+.boostlook#antora-template-wrapper:not(:has(.doc)):not(:has(> .boostlook)) > *,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) > * {
   max-width: var(--main-content-width);
-  margin-left: inherit;
-  margin-right: inherit;
+  /* margin-left: inherit;
+  margin-right: inherit; */
+  margin: 0 auto;
 }
 
 /* hide footer spirit nav since it wasn't visible before */
 .boostlook:not(:has(.doc)) div:nth-of-type(4).spirit-nav,
-.boostlook#boost-legacy-docs-wrapper div.spirit-nav:last-child {
+.boostlook#boost-legacy-docs-wrapper div.spirit-nav:last-child,
+.boostlook#antora-template-wrapper div.spirit-nav:last-child,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) div.spirit-nav:last-child {
   display: none !important;
 }
 
@@ -3875,53 +3944,75 @@ html.is-clipped--nav:has(.boostlook) div#content {
 }
 
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content hr {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content hr,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content hr,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content hr {
   display: none;
 }
 
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content div.code-snippet {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content div.code-snippet,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content div.code-snippet,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content div.code-snippet {
   position: relative;
 }
 
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content div.highlight:has(> pre) {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content div.highlight:has(> pre),
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content div.highlight:has(> pre),
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content div.highlight:has(> pre) {
   margin: 0;
   border: none;
   padding: 0;
 }
 
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content div.highlight:has(> pre) pre {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content div.highlight:has(> pre) pre,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content div.highlight:has(> pre) pre,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content div.highlight:has(> pre) pre {
   padding: var(--spacing-size-xs, 0.75rem) var(--spacing-size-sm, 1rem);
   margin-top: var(--padding-padding-3xs, 0.25rem);
 }
 
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > pre:not([class]) {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > pre:not([class]),
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content > pre:not([class]),
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content > pre:not([class]) {
   margin-left: 0;
   margin-right: 0;
 }
 
 /* Outcome 2.2 Weird Template fix */
 .boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content div.code-snippet:has(pre):not(:last-child) pre:not([class]),
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content div.code-snippet:has(pre):not(:last-child) pre:not([class]),
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content div.code-snippet:has(pre):not(:last-child) pre:not([class]),
 .boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > pre:not([class]):not(:last-child),
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content div.code-snippet:not(:last-child) pre {
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content > pre:not([class]):not(:last-child),
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content > pre:not([class]):not(:last-child),
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content div.code-snippet:not(:last-child) pre,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content div.code-snippet:not(:last-child) pre,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content div.code-snippet:not(:last-child) pre {
   margin-bottom: var(--padding-padding-xs, 0.75rem);
 }
 
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content + p:has(> small) {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content + p:has(> small),
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content + p:has(> small),
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content + p:has(> small) {
   padding: var(--padding-padding-lg) 0 !important;
 }
 
 /* Outcome 2.2 Weird Template fix */
-.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content .footnotes {
+.boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content .footnotes,
+.boostlook:not(:has(.doc))#antora-template-wrapper > #content .footnotes,
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content .footnotes {
   padding-top: var(--padding-padding-xs, 0.75rem);
 }
 
 @media screen and (min-width: 768px) {
-  body.article:has(.boostlook#boost-legacy-docs-wrapper) {
+  body.article:has(.boostlook#boost-legacy-docs-wrapper),
+  body.article:has(.boostlook#antora-template-wrapper),
+  body.article:has(div.source-docs-antora.boostlook) {
     /* !important ovverides website own styles !important
     * Adjust this to "padding: 0 1rem 0 1rem"
     * when website container width will be used as in new look design
@@ -3929,7 +4020,9 @@ html.is-clipped--nav:has(.boostlook) div#content {
     padding: 0 !important;
   }
 
-  #boost-legacy-docs-wrapper .boostlook #toc.toc2 {
+  #boost-legacy-docs-wrapper .boostlook #toc.toc2,
+  #antora-template-wrapper .boostlook #toc.toc2,
+  div.source-docs-antora.boostlook:has(>.boostlook) .boostlook #toc.toc2 {
     /* Adjust this to "max(1rem, 50% - 45rem)"
     * when website container width will be used as in new look design
     */
@@ -3955,7 +4048,7 @@ html.is-clipped--nav:has(.boostlook) div#content {
   margin-top: 0;
 }
 
-.boostlook#libraryReadMe div.highlight:has(>pre) {
+.boostlook#libraryReadMe div.highlight:has(> pre) {
   background: transparent !important;
 }
 
