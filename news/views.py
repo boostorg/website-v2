@@ -1,4 +1,5 @@
 from datetime import timedelta
+from functools import partial
 
 from django.conf import settings
 from django.contrib import messages
@@ -149,6 +150,13 @@ class EntryDetailView(DetailView):
             context["next_url"] = next_url
         context["next"] = get_published_or_none(self.object.get_next_by_publish_at)
         context["prev"] = get_published_or_none(self.object.get_previous_by_publish_at)
+        category_kwarg = {f"{self.object.tag}__isnull": False}
+        context["next_in_category"] = get_published_or_none(
+            partial(self.object.get_next_by_publish_at, **category_kwarg)
+        )
+        context["prev_in_category"] = get_published_or_none(
+            partial(self.object.get_previous_by_publish_at, **category_kwarg)
+        )
         context["user_can_approve"] = self.object.can_approve(self.request.user)
         context["user_can_edit"] = self.object.can_edit(self.request.user)
         context["user_can_delete"] = self.object.can_delete(self.request.user)
