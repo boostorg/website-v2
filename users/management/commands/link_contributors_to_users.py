@@ -14,4 +14,4 @@ def command():
     """
     click.secho("Linking contributors to users", fg="blue")
     synchronize_commit_author_user_data.delay()
-    click.secho("Finished linking contributors to users.", fg="green")
+    click.secho("Linking contributors to users has been queued.", fg="green")
