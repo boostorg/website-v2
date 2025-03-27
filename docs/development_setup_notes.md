@@ -313,9 +313,9 @@ https://docs.allauth.org/en/latest/socialaccount/providers/google.html
    1. `TF_VAR_google_cloud_email` (the email address of your Google Cloud account)
    2. `TF_VAR_google_organization_domain` (usually the domain of your Google Cloud account, e.g. "boost.org" if you will be using an @boost.org email address)
    3. `TF_VAR_google_cloud_project_name` (optional, default: localboostdev) - needs to change if destroyed and a setup is needed within 30 days
-2. Run `make development-tofu-init` to initialize tofu.
-3. Run `make development-tofu-plan` to confirm the planned changes.
-4. Run `make development-tofu-apply` to apply the changes.
+2. Run `just development-tofu-init` to initialize tofu.
+3. Run `just development-tofu-plan` to confirm the planned changes.
+4. Run `just development-tofu-apply` to apply the changes.
 5. Go to https://console.developers.google.com/
    1. Search for the newly created project, named "Boost Development" (ID: localboostdev by default).
    2. Type "credentials" in the search input at the top of the page.
@@ -352,6 +352,7 @@ In your env:
 
 #### Set Up Pycharm
 You can set up your IDE with a new "Python Debug Server" configuration as:
+
 <img src="images/pycharm_debugger_settings.png" alt="PyCharm Debugger Settings" width="400">
 
 #### Common Usage

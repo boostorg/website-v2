@@ -82,6 +82,7 @@ class ReleaseTasksManager:
             ReleaseTask("Updating github issues", ["update_issues"]),
             ReleaseTask("Updating slack activity buckets", ["fetch_slack_activity"]),
             ReleaseTask("Updating website statistics", self.update_website_statistics),
+            ReleaseTask("Importing mailing list counts", ["import_ml_counts"]),
             ReleaseTask("Generating report", self.generate_report),
         ]
 

@@ -1,0 +1,15 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% block content %}
+  {{ block.super }}
+  <div class='container mx-auto'>
+    <h1>Upload Subscribe File</h1>
+    <div>
+      <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input name="submit" value="Submit" class="default" type="submit" />
+      </form>
+    </div>
+  </div>
+{% endblock content %}

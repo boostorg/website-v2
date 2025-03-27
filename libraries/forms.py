@@ -10,7 +10,11 @@ from django.db.models import F, Q, Count, OuterRef, Sum, When, Value, Case
 from django.forms import Form, ModelChoiceField, ModelForm, BooleanField
 
 from core.models import RenderedContent
-from reports.generation import generate_wordcloud
+from reports.generation import (
+    generate_wordcloud,
+    get_mailing_list_post_stats,
+    get_new_subscribers_stats,
+)
 from slack.models import Channel, SlackActivityBucket, SlackUser
 from versions.models import Version
 from .models import (
@@ -772,6 +776,12 @@ class CreateReportForm(CreateReportFullForm):
             Channel.objects.filter(name__istartswith="boost").order_by("name"), 10
         )
         committee_members = version.financial_committee_members.all()
+        mailinglist_post_stats = get_mailing_list_post_stats(
+            prior_version.release_date, version.release_date
+        )
+        new_subscribers_stats = get_new_subscribers_stats(
+            prior_version.release_date, version.release_date
+        )
         library_index_library_data = []
         for library in self._get_libraries_by_quality():
             library_index_library_data.append(
@@ -804,6 +814,8 @@ class CreateReportForm(CreateReportFullForm):
             "mailinglist_total": total_mailinglist_count or 0,
             "mailinglist_contributor_release_count": mailinglist_contributor_release_count,  # noqa: E501
             "mailinglist_contributor_new_count": mailinglist_contributor_new_count,
+            "mailinglist_post_stats": mailinglist_post_stats,
+            "mailinglist_new_subscribers_stats": new_subscribers_stats,
             "commit_contributors_release_count": commit_contributors_release_count,
             "commit_contributors_new_count": commit_contributors_new_count,
             "global_contributors_new_count": len(

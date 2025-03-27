@@ -320,3 +320,19 @@ For this to work `SLACK_BOT_API` must be set in the `.env` file.
 | Options              | Format | Description                                                  |
 |----------------------|--------|--------------------------------------------------------------|
 | `--user_id`  | int  | If passed, the user with this ID will receive email notifications when this task is started and finished, or if the task raises and exception. |
+
+
+## `import_ml_counts`
+
+**Purpose**: Import mailing list counts from the mailman archives.
+
+```bash
+./manage.py import_ml_counts
+```
+
+**Options**
+
+| Options        | Format | Description                                                                                                          |
+|----------------|--------|----------------------------------------------------------------------------------------------------------------------|
+| `--start_date` | date   | If passed, retrieves data from the start date supplied, d-m-y, default 20-11-1998 (the start of the data in mailman) |
+| `--end_date`   | date   | If passed, If passed, retrieves data until the start date supplied, d-m-y, default today                             |
