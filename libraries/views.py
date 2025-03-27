@@ -231,7 +231,6 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, DetailView):
         except LibraryVersion.DoesNotExist:
             return context
 
-        context["library_version"] = library_version
         context["documentation_url"] = get_documentation_url(
             library_version, context["version_str"] == LATEST_RELEASE_URL_PATH_STR
         )
