@@ -23,6 +23,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("versions", "0014_version_sponsor_message"),
+        ("users", "0015_user_delete_permanently_at"),
     ]
 
     operations = [
