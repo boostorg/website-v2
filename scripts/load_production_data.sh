@@ -118,6 +118,8 @@ download_latest_db_dump() {
     echo "Restoring database from dump..."
     docker compose cp "$db_temp_dir/$DUMP_FILENAME" "db:/tmp/$DUMP_FILENAME"
     docker compose exec db bash -c "pg_restore -U $DB_USER -d $DB_NAME -v --no-owner --no-privileges /tmp/$DUMP_FILENAME" || true
+    # apply any migrations newer than our dumped database
+    docker compose exec web bash -c "./manage.py migrate"
     # update the database to delete all rows from socialaccount_social app, which need to be configured differently locally
     echo "Deleting all rows from socialaccount_socialapp table and setting fake passwords..."
     docker compose exec web bash -c "./manage.py shell -c 'from allauth.socialaccount.models import SocialApp; SocialApp.objects.all().delete()'"
