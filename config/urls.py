@@ -79,8 +79,6 @@ from versions.converters import BoostVersionSlugConverter
 from versions.feeds import AtomVersionFeed, RSSVersionFeed
 from versions.views import (
     InProgressReleaseNotesView,
-    PastReviewListView,
-    ScheduledReviewListView,
     VersionDetail,
     ReportPreviewView,
     ReportPreviewGenerateView,
@@ -309,7 +307,13 @@ urlpatterns = (
         ),
         path(
             "review/past/",
-            PastReviewListView.as_view(),
+            RedirectView.as_view(
+                url=reverse_lazy(
+                    "docs-user-guide",
+                    kwargs={"content_path": "formal-reviews/review-results.html"},
+                ),
+                permanent=True,
+            ),
             name="review-past",
         ),
         path(
@@ -319,7 +323,13 @@ urlpatterns = (
         ),
         path(
             "review/upcoming/",
-            ScheduledReviewListView.as_view(),
+            RedirectView.as_view(
+                url=reverse_lazy(
+                    "docs-user-guide",
+                    kwargs={"content_path": "formal-reviews/review-results.html"},
+                ),
+                permanent=True,
+            ),
             name="review-upcoming",
         ),
         path(
