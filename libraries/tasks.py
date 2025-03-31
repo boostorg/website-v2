@@ -1,14 +1,16 @@
+from celery import shared_task, chain
 from django.core.management import call_command
 import structlog
 
 from config.celery import app
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Count
 from core.boostrenderer import get_content_from_s3
 from core.htmlhelper import get_library_documentation_urls
 from libraries.forms import CreateReportForm, CreateReportFullForm
 from libraries.github import LibraryUpdater
-from libraries.models import Library, LibraryVersion
+from libraries.models import Library, LibraryVersion, CommitAuthorEmail, CommitAuthor
+from users.tasks import User
 from versions.models import Version
 from .constants import (
     LIBRARY_DOCS_EXCEPTIONS,
@@ -256,3 +258,101 @@ def release_tasks(user_id=None, generate_report=False):
     if generate_report:
         command.append("--generate_report")
     call_command(*command)
+
+
+@app.task
+def synchronize_commit_author_user_data():
+    logger.info("Starting synchronize_commit_author_user_data")
+    chain(
+        merge_commit_authors_by_github_url.si(),
+        update_users_githubs.si(),
+        update_commit_authors_users.si(),
+    )()
+    logger.info("synchronize_commit_author_user_data finished.")
+
+
+@shared_task
+def merge_commit_authors_by_github_url():
+    # select all commit authors with duplicated github_profile_url, order the ones with a user id at the top, and if there's more than one with a userid, order by last_login
+    logger.info("merging commit authors by github url")
+    duplicated_author_urls = (
+        CommitAuthor.objects.values("github_profile_url")
+        .annotate(count=Count("id"))
+        .filter(github_profile_url__isnull=False, count__gt=1)
+    )
+    logger.info(f"Found {duplicated_author_urls.count()} {duplicated_author_urls=}")
+    for d in duplicated_author_urls:
+        # this prioritizes a record which has a user associated, if there is one, and
+        #  then the one with the most recent login if there are any. This is still
+        #  more prioritization than when we merge manually
+        duplicate_authors = CommitAuthor.objects.filter(
+            github_profile_url=d["github_profile_url"]
+        ).order_by("user_id", "-user__last_login")
+        logger.debug(f"{duplicate_authors=}")
+        primary = duplicate_authors.first()
+        for da in duplicate_authors[1:]:
+            logger.debug(f"{primary.id} {primary=} will have {da=} merged into it")
+            primary.merge_author(da)
+            logger.info(f"{primary.id} {primary=} has had {da.id=} merged into it")
+    logger.info("merged commit authors by github url")
+
+
+@shared_task
+def update_users_githubs():
+    logger.info("Linking contributors to users")
+    for user in User.objects.filter(github_username=""):
+        logger.info(f"Linking attempt: {user.email}")
+        update_user_github_username(user.pk)
+
+
+@shared_task
+def update_user_github_username(user_id: int):
+    logger.debug(f"Updating user github_username for {user_id=}")
+    user = User.objects.get(pk=user_id)
+    try:
+        email = CommitAuthorEmail.objects.prefetch_related("author").get(
+            email=user.email
+        )
+    except CommitAuthorEmail.DoesNotExist:
+        logger.info(f"No commit author email found for {user.pk=} {user.email=}")
+        return
+    commit_author = email.author
+    logger.debug(f"Found {user.pk=} for {commit_author=}")
+    if not commit_author.github_profile_url:
+        logger.info(f"No github username found on {commit_author.pk=}")
+        return
+    github_username = commit_author.github_profile_url.rstrip("/").split("/")[-1]
+    logger.debug(f"Updating {user.pk=} from {email.author.pk=}, {github_username=}")
+    user.github_username = github_username
+    user.save()
+    logger.info(f"Linked {user.pk=} to {commit_author.pk=} by github_username")
+
+
+@shared_task
+def update_commit_authors_users():
+    logger.info("Linking commit authors to users")
+    for commit_author in CommitAuthor.objects.filter(user__isnull=True):
+        logger.info(f"Linking attempt: {commit_author=}")
+        update_commit_author_user(commit_author.pk)
+    logger.info("Finished linking commit authors to users.")
+
+
+@shared_task
+def update_commit_author_user(author_id: int):
+    logger.info(f"{author_id=}")
+    commit_author_emails = CommitAuthorEmail.objects.prefetch_related("author").filter(
+        author_id=author_id
+    )
+
+    if not commit_author_emails:
+        logger.info(f"No emails found for {author_id=}")
+        return
+
+    for email in commit_author_emails:
+        user = User.objects.filter(email=email.email).first()
+        if not user:
+            logger.info(f"No user found for {email.pk=} {email.email=}")
+            continue
+        email.author.user = user
+        email.author.save()
+        logger.info(f"Linked {user=} {user.pk=} to {email=} {email.author.pk=}")

@@ -128,6 +128,19 @@
           </div>
         {% endif %}
         <div class="rounded bg-white dark:bg-charcoal p-4">
+          <h3>{% trans 'Commit Email Addresses' %}</h3>
+          <div>This is a list of email addresses associated with your profile that have been used in commits.</div>
+          <ul class="mt-4 list-disc">
+            {% for email in commit_email_addresses %}
+              <li class="ml-4">{{ email }}</li>
+            {% endfor %}
+          </ul>
+          <div class="mt-4">
+            <a href=""><button class="py-2 px-3 text-sm text-white rounded bg-orange">{% trans 'Add Commit Email Address' %}</button></a>
+          </div>
+        </div>
+
+        <div class="rounded bg-white dark:bg-charcoal p-4">
           <h3>{% trans 'Delete Account' %}</h3>
           {% if user.delete_permanently_at %}
             <p>

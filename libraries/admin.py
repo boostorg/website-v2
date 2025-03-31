@@ -32,6 +32,7 @@ from .tasks import (
     update_libraries,
     update_library_version_documentation_urls_all_versions,
     generate_release_report,
+    synchronize_commit_author_user_data,
 )
 
 
@@ -39,7 +40,7 @@ from .tasks import (
 class CommitAdmin(admin.ModelAdmin):
     list_display = ["library_version", "sha", "author"]
     autocomplete_fields = ["author", "library_version"]
-    list_filter = ["library_version__library"]
+    list_filter = ["library_version__library", "library_version__version"]
     search_fields = ["sha", "author__name"]
     change_list_template = "admin/commit_change_list.html"
 
@@ -92,6 +93,11 @@ class CommitAuthorAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.update_github_data),
                 name="commit_author_update_github_data",
             ),
+            path(
+                "synchronize_ca_user_data/",
+                self.admin_site.admin_view(self.synchronize_ca_user_data),
+                name="synchronize_ca_user_data",
+            ),
         ]
         return my_urls + urls
 
@@ -102,6 +108,14 @@ class CommitAuthorAdmin(admin.ModelAdmin):
             """
             Updating CommitAuthor Github data.
             """,
+        )
+        return HttpResponseRedirect("../")
+
+    def synchronize_ca_user_data(self, request):
+        synchronize_commit_author_user_data.delay()
+        self.message_user(
+            request,
+            "Synchronizing CommitAuthor and User data",
         )
         return HttpResponseRedirect("../")
 

@@ -336,3 +336,14 @@ For this to work `SLACK_BOT_API` must be set in the `.env` file.
 |----------------|--------|----------------------------------------------------------------------------------------------------------------------|
 | `--start_date` | date   | If passed, retrieves data from the start date supplied, d-m-y, default 20-11-1998 (the start of the data in mailman) |
 | `--end_date`   | date   | If passed, If passed, retrieves data until the start date supplied, d-m-y, default today                             |
+
+## `link_contributors_to_users`
+
+**Purpose**: Links commit authors to users in the database by setting `user.github_username` for users where no `github_username` value has been set, by matching the commit author email address against a user's account email address.
+
+
+**Example**
+
+```bash
+./manage.py link_contributors_to_users
+```

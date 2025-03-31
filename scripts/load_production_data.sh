@@ -143,4 +143,4 @@ npm install
 npm run build
 echo "Run: 'docker compose up -d' to restart your services"
 echo "If you get an error related to profile images when loading the site, clear all cookies and try again"
-echo "You should now able to log into the admin interface with username: 'superadmin' and password: 'foobarone'"
+echo "You should now able to log into the admin interface with username: 'superadmin@boost.org' and password: 'foobarone'"
