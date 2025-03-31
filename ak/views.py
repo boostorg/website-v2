@@ -9,18 +9,16 @@ from django.views.generic import TemplateView
 
 from core.calendar import extract_calendar_events, events_by_month, get_calendar
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
-from libraries.models import Library
+from libraries.mixins import ContributorMixin
 from news.models import Entry
-from versions.models import Version
 
 
 logger = structlog.get_logger()
 
 
-class HomepageView(TemplateView):
+class HomepageView(ContributorMixin, TemplateView):
     """
-    Our default homepage for temp-site.  We expect you to not use this view
-    after you start working on your project.
+    Define all the pieces that will be displayed on the home page
     """
 
     template_name = "homepage.html"
@@ -28,9 +26,6 @@ class HomepageView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["entries"] = Entry.objects.published().order_by("-publish_at")[:3]
-        latest_version = Version.objects.most_recent()
-        context["latest_version"] = latest_version
-        context["featured_library"] = self.get_featured_library(latest_version)
         context["events"] = self.get_events()
         if context["events"]:
             context["num_months"] = len(context["events"])
@@ -63,19 +58,6 @@ class HomepageView(TemplateView):
         )
 
         return dict(sorted_events)
-
-    def get_featured_library(self, latest_version):
-        library = Library.objects.filter(featured=True).first()
-
-        # If we don't have a featured library, return a random library
-        if not library:
-            library = (
-                Library.objects.filter(library_version__version=latest_version)
-                .order_by("?")
-                .first()
-            )
-
-        return library
 
 
 class ForbiddenView(View):
