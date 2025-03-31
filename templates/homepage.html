@@ -100,17 +100,17 @@
                   <div class="flex justify-start items-center w-1/2">
                     <button
                       x-show="activeSlide !== 1"
-                      class="-ml-6 w-12 h-12 font-bold text-white bg-gray-400 rounded-full"
+                      class="-ml-6 w-12 h-12 font-bold text-white hover:text-orange bg-gray-400 rounded-full"
                       x-on:click="activeSlide = activeSlide === 1 ? slides.length : activeSlide - 1">
-                      &#8592;
+                      <i class="fas fa-chevron-left"></i>
                     </button>
                   </div>
                   <div class="flex justify-end items-center w-1/2">
                     <button
                       x-show="activeSlide !== slides.length"
-                      class="-mr-6 w-12 h-12 font-bold text-white bg-gray-400 rounded-full"
+                      class="-mr-6 w-12 h-12 font-bold text-white hover:text-orange bg-gray-400 rounded-full"
                       x-on:click="activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1">
-                      &#8594;
+                      <i class="fas fa-chevron-right"></i>
                     </button>
                   </div>
                 </div>
@@ -119,7 +119,6 @@
           </div>
         </div>
     {% endif %}
-
 
     {% if featured_library %}
     <div class="my-12 mb-3 md:mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-4 lg:space-y-0 lg:space-x-4 md:shadow-lg">
