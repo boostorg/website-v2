@@ -1,12 +1,12 @@
 #!/bin/bash
 
+#
 # Copyright 2024 Sam Darwin
 #
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://boost.org/LICENSE_1_0.txt)
 
 set -e
-# set -x
 
 scriptname="dev-bootstrap-linux.sh"
 
@@ -14,18 +14,23 @@ scriptname="dev-bootstrap-linux.sh"
 prereqsoption="yes"
 # docker_mode either "native" or "desktop" (Docker Desktop). Only support "native" currently.
 docker_mode="native"
-docker_explanation="On Linux, there are two ways to run Docker. Either the standard native docker installation, or Docker Desktop, which runs inside a virtual machine. The most common installation is standard docker, so that is what is supported by this script currently. In the future, Docker Desktop support could be added.  Each method has pros and cons.  It's important that the user inside the Django containers is the same as the user on the host machine outside the containers, so that file ownership matches up.  Since the user is 'root' inside the containers, it should be 'root' on the host machine.  Therefore, after getting set up with this script, any development work should be done as 'root'.  That means, run 'sudo su -' before using docker-compose.  Docker Desktop would be an alternative to that requirement, and allow running as a regular user account. But with some downside, that it is not a typical Docker installation, as found on a server."
+# the 'just' install can't be run as root. Switch to 'standard_user' for that:
+standard_user="ubuntu"
+
+# On Linux, there are two ways to run Docker. Either the standard native docker installation, or Docker Desktop, which runs inside a virtual machine. The most common installation is standard docker, so that is what is supported by this script currently. In the future, Docker Desktop support could be added. Each method has pros and cons. It's important that the user inside the Django containers is the same as the user on the host machine outside the containers, so that file ownership matches up.  Since the user is 'root' inside the containers, it should be 'root' on the host machine.  Therefore, any development work should be done as 'root'.  That means, run 'sudo su -' before using docker-compose.  Docker Desktop would be an alternative to that requirement, and allow running as a regular user account. But with some downside, that it is not a typical linux Docker installation as found on servers.
 
 if [[ ${docker_mode} == "native" ]]; then
     repo_path_base="/opt/github"
-    completion_message_1="When doing development work, switch to the root user 'sudo su -', cd to that directory location, and run 'docker compose up -d'. While this script works as a normal user, you should be 'root' when running docker compose."
-    possible_sudo="sudo"
+    if [ "$USER" != "root" ]; then
+        echo "Running in 'native' mode instead of Docker Desktop mode (not yet supported). Permissions should match in the container, where the user is 'root'. Therefore, please run this script as 'root'. Exiting."
+        exit 1
+    fi
+    completion_message_1="When doing development work, always switch to the root user, cd to that directory location, and run 'docker compose up -d'. You should be root when running docker compose."
     shell_initialization_file=/root/.bashrc
 fi
 if [[ ${docker_mode} == "desktop" ]]; then
     repo_path_base="${HOME}/github"
     completion_message_1="When doing development work, cd to that directory location, and run 'docker compose up -d'"
-    possible_sudo=""
     shell_initialization_file=~/.bashrc
 fi
 
@@ -46,7 +51,7 @@ Install all required packages (this is the default action), launch docker-compos
 optional arguments:
   -h, --help            Show this help message and exit
   --repo REPO           Name of repository to set up. Example: https://github.com/boostorg/website-v2. You should specify your own fork.
-  --launch              Run docker-compose. No packages.
+  --launch              Run docker-compose. No packages. (In development.)
   --all			Both packages and launch.
 """
 
@@ -81,27 +86,17 @@ detected_repo_path=$(git rev-parse --show-toplevel 2> /dev/null || echo "nofolde
 detected_repo_path_base=$(dirname "${detected_repo_path}")
 
 if [[ -n "${detected_repo_path}" && "${detected_repo_path}" != "nofolder" ]]; then
-    detected_repo_user=$(stat -c "%U" "${detected_repo_path}")
+    true
+    # The variable detected_repo_user is not used currently.
+    # detected_repo_user=$(stat -c "%U" "${detected_repo_path}")
 fi
 
 if [[ -n "${detected_repo_url}" && "${detected_repo_url}" != "empty" && -n "${repooption}" ]]; then
-    echo "You have specified a repo, but you are also running this script from within a repo."
+    echo "You have specified a repo on the command line, but you are also running this script from within a repo."
     echo "This is indeterminate. Choose one or the other. Exiting."
     exit 1
 elif [[ -n "${detected_repo_url}" && "${detected_repo_url}" != "empty" ]]; then
     # existing repo
-    if [[ "${docker_mode}" == "native" && "${detected_repo_user}" != "root" ]]; then
-        echo ""
-        echo "${docker_explanation}"
-        echo ""
-        echo "The script is currently running in 'native' mode, however a non-root user owns the repository folder."
-        echo "The choices are:"
-        echo "1. cd outside the current repo folder, and re-run the script, so that it can set things up as 'root'"
-        echo "2. Install 'Docker Desktop', and switch the mode of this script to 'Docker Desktop' mode. (Not yet supported)."
-        echo ""
-        echo "Exiting"
-        exit 1
-    fi
     repo_url=${detected_repo_url}
     repo_name=${detected_repo_name}
     repo_path=${detected_repo_path}
@@ -125,14 +120,14 @@ else
     repo_path_base="${repo_path_base}/${repo_org}"
     repo_path="${repo_path_base}/${repo_name}"
     echo "The path will be ${repo_path}"
-    ${possible_sudo} mkdir -p "${repo_path_base}"
+    mkdir -p "${repo_path_base}"
     cd "${repo_path_base}"
     if [ ! -d "${repo_name}" ]; then
-        ${possible_sudo} git clone "${repo_url}"
+        git clone "${repo_url}"
     fi
     cd "${repo_name}"
     if [ ! -f .env ]; then
-        ${possible_sudo} cp env.template .env
+        cp env.template .env
     fi
 fi
 
@@ -169,6 +164,11 @@ if [[ "$prereqsoption" == "yes" ]]; then
     then
         echo "Installing makdeb"
         MAKEDEB_RELEASE=makedeb bash -ci "$(wget -qO - 'https://shlink.makedeb.org/install')"
+        # Or, an alternate method:
+        # wget -qO - 'https://proget.makedeb.org/debian-feeds/makedeb.pub' | gpg --dearmor | sudo tee /usr/share/keyrings/makedeb-archive-keyring.gpg 1> /dev/null
+        # echo 'deb [signed-by=/usr/share/keyrings/makedeb-archive-keyring.gpg arch=all] https://proget.makedeb.org/ makedeb main' | sudo tee /etc/apt/sources.list.d/makedeb.list
+        # sudo apt update
+        # sudo apt-get install -y makedeb
     fi
     if ! command -v git &> /dev/null
     then
@@ -184,15 +184,12 @@ if [[ "$prereqsoption" == "yes" ]]; then
     if ! command -v just &> /dev/null
     then
         echo "Installing just"
+        # Note: the makedeb command below will fail if run by 'root'. This is the one command that requires a standard user.
         startdir=$(pwd)
         sudo mkdir -p /opt/justinstall
-        CURRENTUSER=$(whoami)
-        sudo chown "$CURRENTUSER" /opt/justinstall
+        sudo chown "${standard_user}" /opt/justinstall
         chmod 777 /opt/justinstall
-        cd /opt/justinstall
-        git clone 'https://mpr.makedeb.org/just'
-        cd just
-        makedeb -si
+        su - "${standard_user}" -c "cd /opt/justinstall && git clone https://mpr.makedeb.org/just && cd just && makedeb --no-confirm -si"
         cd "$startdir"
     fi
 
@@ -209,7 +206,7 @@ if [[ "$prereqsoption" == "yes" ]]; then
         then
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
             # shellcheck source=/dev/null
-            . ${shell_initialization_file}
+            . "${shell_initialization_file}"
             nvm install 20
             nvm use 20
             echo "Run . ${shell_initialization_file} to enable nvm"
@@ -270,29 +267,33 @@ if [[ "$launchoption" == "yes" ]]; then
         if ! command -v nvm &> /dev/null
         then
             # shellcheck source=/dev/null
-            . ${shell_initialization_file}
+            . "${shell_initialization_file}"
         fi
     fi
 
     cd "${repo_path}"
-    echo "Launching docker compose"
-    echo "Let's wait for that to run. Sleeping 60 seconds."
-    ${possible_sudo} docker compose up -d
-    sleep 60
-    echo "Creating superuser"
-    ${possible_sudo} docker compose run --rm web python manage.py makemigrations
-    echo "running database migrations"
-    ${possible_sudo} docker compose run --rm web python manage.py migrate
-    echo "Creating superuser"
-    ${possible_sudo} docker compose run --rm web python manage.py createsuperuser
-    echo "Running yarn"
-    if [[ "${possible_sudo}" == "sudo" ]]; then
-        sudo bash -i -c 'yarn; yarn build; cp static/css/styles.css static_deploy/css/styles.css'
+    echo "bootstrap script: launching docker compose"
+    docker compose up -d
+    read -r -p "(Wait until docker compose launch has finished.) Do you want to continue?" -n 1 -r
+    echo    # (optional) move to a new line
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+        echo "we are continuing"
     else
-        yarn
-        yarn build
-        cp static/css/styles.css static_deploy/css/styles.css
+        echo "did not receive a Yy. Exiting."
+        exit 1
     fi
+    echo "bootstrap script: makemigrations"
+    docker compose run --rm web python manage.py makemigrations
+    echo "bootstrap script: running database migrations"
+    docker compose run --rm web python manage.py migrate
+    echo "bootstrap script: creating superuser"
+    docker compose run --rm web python manage.py createsuperuser
+    echo "bootstrap script: running yarn"
+    yarn
+    yarn build
+    cp static/css/styles.css static_deploy/css/styles.css
+
     echo "In your browser, visit http://localhost:8000"
     echo "Later, to shut down: docker compose down"
 fi

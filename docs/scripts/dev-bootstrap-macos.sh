@@ -26,13 +26,11 @@ if [[ ${docker_mode} == "native" ]]; then
     # Not supported on macos currently, or ever.
     repo_path_base="/opt/github"
     completion_message_1="When doing development work, switch to the root user 'sudo su -', cd to that directory location, and run 'docker compose up -d'"
-    possible_sudo="sudo"
     shell_initialization_file=/Users/root/.zprofile
 fi
 if [[ ${docker_mode} == "desktop" ]]; then
     repo_path_base="${HOME}/github"
     completion_message_1="When doing development work, cd to that directory location, and run 'docker compose up -d'"
-    possible_sudo=""
     shell_initialization_file=~/.zprofile
 fi
 
@@ -90,7 +88,7 @@ Install all required packages (this is the default action), launch docker-compos
 optional arguments:
   -h, --help            Show this help message and exit
   --repo REPO           Name of repository to set up. Example: https://github.com/boostorg/website-v2. You should specify your own fork.
-  --launch              Run docker-compose. No packages.
+  --launch              Run docker-compose. No packages. (In development.)
   --all			Both packages and launch.
 """
 
@@ -125,7 +123,7 @@ detected_repo_path=$(git rev-parse --show-toplevel 2> /dev/null || echo "nofolde
 detected_repo_path_base=$(dirname "${detected_repo_path}")
 
 if [[ -n "${detected_repo_url}" && "${detected_repo_url}" != "empty" && -n "${repooption}" ]]; then
-    echo "You have specified a repo, but you are also running this script from within a repo."
+    echo "You have specified a repo on the command line, but you are also running this script from within a repo."
     echo "This is indeterminate. Choose one or the other. Exiting."
     exit 1
 elif [[ -n "${detected_repo_url}" && "${detected_repo_url}" != "empty" ]]; then
@@ -153,14 +151,14 @@ else
     repo_path_base="${repo_path_base}/${repo_org}"
     repo_path="${repo_path_base}/${repo_name}"
     echo "The path will be ${repo_path}"
-    ${possible_sudo} mkdir -p "${repo_path_base}"
+    mkdir -p "${repo_path_base}"
     cd "${repo_path_base}"
     if [ ! -d "${repo_name}" ]; then
-        ${possible_sudo} git clone "${repo_url}"
+        git clone "${repo_url}"
     fi
     cd "${repo_name}"
     if [ ! -f .env ]; then
-        ${possible_sudo} cp env.template .env
+        cp env.template .env
     fi
 fi
 

@@ -124,7 +124,7 @@ Method 1:
 
 The script dev-bootstrap-linux.sh will automatically install prerequisites, and with the --all or --launch flag will also run docker-compose.
 
-While the dev-bootstrap-linux.sh script should be run as a standard user, after it has been all set up, later you will generally run "docker compose" as root. This is to assure that the permissions match inside the container where the user is also root. Another option is to eventually add a Docker Desktop method for linux to the script.
+Theoretically Docker on Linux can either be "Docker Desktop" or native standard Docker. The latter is much more common on Linux, and currently the script only supports standard Docker. In that context, it's helpful for the user account outside of the containers to match the user account inside the containers, and that can be achieved by running docker-compose and all scripts as 'root'. Switch to root before using dev-bootstrap-linux.sh or docker-compose to assure that the permissions match inside the container where the user is also root userid (0). Another option is to eventually add a "Docker Desktop" method for Linux in the script if there is any interest in that, however most developers seem to be using macOS.
 
 ```
 curl -o dev-bootstrap-linux.sh https://raw.githubusercontent.com/boostorg/website-v2/develop/docs/scripts/dev-bootstrap-linux.sh
@@ -199,9 +199,6 @@ cp env.template .env
 Edit the .env, adding AWS keys.
 
 Continue (as the root user) to the instructions in the top-level README.md file. Or if using WSL, review the last few steps in that section again.
-
-On Linux, the advantage of running `docker compose` as root is the userid (0) will match the containers and the shared files. Another option is
-to install Docker Desktop, which would allow you to stay as a regular user.
 
 ## macOS
 

@@ -55,7 +55,7 @@ Builds library documentation.
 optional arguments:
   -help                 Show this help message and exit
   -repo REPO            Name of repository to set up. Example: https://github.com/boostorg/website-v2. You should specify your own fork.
-  -launch               Run docker-compose. No packages.
+  -launch               Run docker-compose. No packages. (In development.)
   -all                  Both packages and launch.
 "
 
@@ -146,7 +146,7 @@ if (Test-Path ${cached_url_file})
 
 if ( ${detected_repo_url} -and -not (${detected_repo_url} -eq "empty") -and ${repooption} )
 {
-    Write-Output "You have specified a repo, but you are also running this script from within a repo."
+    Write-Output "You have specified a repo on the command line, but you are also running this script from within a repo."
     Write-Output "This is indeterminate. Choose one or the other. Exiting."
     exit 1
 }
