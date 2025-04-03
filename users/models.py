@@ -286,7 +286,11 @@ class User(BaseUser):
 
     def get_thumbnail_url(self):
         # convenience method for templates
-        if self.image and self.image_thumbnail:
+        if (
+            self.image
+            and self.image.storage.exists(self.image.name)
+            and self.image_thumbnail
+        ):
             return getattr(self.image_thumbnail, "url", None)
 
     @property
