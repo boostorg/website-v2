@@ -63,7 +63,12 @@ data:
 
       location @django2 {
           if ($uri !~* /$ ) {
-              rewrite  ^(.*)$  $1/ redirect;
+              # "basic" redirect, adding a slash:
+              # rewrite  ^(.*)$  $1/ redirect;
+              #
+              # instead, redirect everything to https
+              # (since nginx is only seeing http at the pod)
+              rewrite  ^(.*)$  https://$host$1/ redirect;
           }
           proxy_pass http://unix:/run/gunicorn.sock;
       }
