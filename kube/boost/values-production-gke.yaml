@@ -191,6 +191,11 @@ Env:
     value: redis://redis:6379/0
   - name: CELERY_BACKEND
     value: redis://redis:6379/0
+  # SSL header settings
+  - name: SECURE_PROXY_SSL_HEADER_NAME
+    value: "HTTP_X_FORWARDED_PROTO"
+  - name: SECURE_PROXY_SSL_HEADER_VALUE
+    value: "https"
 
 # Volumes
 Volumes:
