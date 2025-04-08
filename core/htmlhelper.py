@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup, Comment
 from django.template.loader import render_to_string
 
 from core.boostrenderer import get_body_from_html
-
+from core.constants import SourceDocType
 
 # List HTML elements (with relevant attributes) to remove the FIRST occurrence
 REMOVE_TAGS = [
@@ -118,15 +118,18 @@ def _replace_body(result, original_body, base_body):
         result.body.body.unwrap()
 
 
-def wrap_main_body_elements(result, original_docs_type=None):
-    def is_end_comment(element):
+def wrap_main_body_elements(
+    result: BeautifulSoup, original_docs_type: SourceDocType | None = None
+):
+    def is_end_comment(html_element):
         return (
-            isinstance(element, Comment) and element == " END Manually appending items "
+            isinstance(html_element, Comment)
+            and html_element == " END Manually appending items "
         )
 
     start_index = None
     elements_to_wrap = []
-    wrapper_div = result.new_tag("div", id="todo-remove-boost-legacy-docs-wrapper")
+    wrapper_div = result.new_tag("div")
     if original_docs_type:
         # add a class based on the original docs type
         wrapper_div["class"] = f"source-docs-{original_docs_type.value} boostlook"
@@ -149,7 +152,7 @@ def modernize_legacy_page(
     base_html,
     head_selector="head",
     insert_body=True,
-    original_docs_type=None,
+    original_docs_type: SourceDocType | None = None,
     skip_replace_boostlook=False,
     show_footer=True,
     show_navbar=True,
