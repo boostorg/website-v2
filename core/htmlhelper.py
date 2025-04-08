@@ -131,8 +131,12 @@ def wrap_main_body_elements(
     elements_to_wrap = []
     wrapper_div = result.new_tag("div")
     if original_docs_type:
-        # add a class based on the original docs type
-        wrapper_div["class"] = f"source-docs-{original_docs_type.value} boostlook"
+        # add classes based on the original docs type
+        class_list = [f"source-docs-{original_docs_type.value}"]
+        if original_docs_type != SourceDocType.ANTORA:
+            # Antora docs have a boostlook class already; others need it.
+            class_list.append("boostlook")
+        wrapper_div["class"] = " ".join(class_list)
     for index, element in enumerate(result.find("body").children):
         if is_end_comment(element):
             start_index = index
