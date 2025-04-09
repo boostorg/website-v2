@@ -496,7 +496,7 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
                 base_html,
                 insert_body=insert_body,
                 head_selector=head_selector,
-                original_docs_type=SourceDocType.ANTORA,
+                original_docs_type=source_content_type,
                 skip_replace_boostlook=context["skip_use_boostlook"],
                 show_footer=False,
                 show_navbar=False,
