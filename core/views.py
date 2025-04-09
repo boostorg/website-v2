@@ -448,6 +448,12 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         """Replace page header with the local one."""
         content_type = self.content_dict.get("content_type")
         source_content_type = self.content_dict.get("source_content_type")
+        if (
+            source_content_type is None
+            and SourceDocType.ANTORA.value in self.request.path
+        ):
+            # hacky, but solves an edge case
+            source_content_type = SourceDocType.ANTORA
         # Is the request coming from an iframe? If so, let's disable the modernization.
         sec_fetch_destination = self.request.headers.get("Sec-Fetch-Dest", "")
         is_iframe_destination = sec_fetch_destination in ["iframe", "frame"]
