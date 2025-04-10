@@ -153,6 +153,7 @@
   --colors-brand-orange-950: #1e1200;
 
   /* Colors Negative Shades */
+  --colors-negative-50: #fdf1f3ff;
   --colors-negative-100: #ffe6ea;
   --colors-negative-200: #ffcad2;
   --colors-negative-300: #fe9aab;
@@ -165,6 +166,7 @@
   --colors-negative-950: #1d0408;
 
   /* Colors Positive Shades */
+  --colors-positive-50: #f0fef7ff;
   --colors-positive-100: #def7eb;
   --colors-positive-200: #bdeed6;
   --colors-positive-300: #9ce6c2;
@@ -178,6 +180,7 @@
   --colors-positive-950: #0a1b13;
 
   /* Colors Warning Shades */
+  --colors-warning-50: #fff8f3ff;
   --colors-warning-100: #ffefe2;
   --colors-warning-200: #ffd4b3;
   --colors-warning-300: #feb780;
@@ -190,6 +193,7 @@
   --colors-warning-950: #1f0e01;
 
   /* Colors Blue Shades */
+  --colors-blue-25: #ebf4f9;
   --colors-blue-50: #daeef9;
   --colors-blue-100: #c2e2f4;
   --colors-blue-200: #92cbe9;
@@ -224,8 +228,8 @@
   /* Colors Other */
   --colors-neutral-150: #d5d7d9;
   --colors-neutral-850: #2a2c30;
-  --colors-overlay-overlay-white-40: rgba(255 255 255 / 0.40);
-  --colors-overlay-overlay-black-40: rgba(13 14 15 / 0.40);
+  --colors-overlay-overlay-white-40: rgba(255 255 255 / 0.4);
+  --colors-overlay-overlay-black-40: rgba(13 14 15 / 0.4);
   --colors-overlay-overlay-white-64: rgba(255 255 255 / 0.64);
   --colors-overlay-overlay-black-64: rgba(13 14 15 / 0.64);
   --colors-overlay-overlay-white-88: rgba(255 255 255 / 0.88);
@@ -246,6 +250,7 @@
   --main-container: 90rem;
 
   /* New Look Typography */
+  --font-family-body: "Noto Sans Display";
   --font-family-code: "Noto Sans Mono";
   --font-size-3xs: 0.625rem;
   --font-size-2xs: 0.75rem;
@@ -471,6 +476,7 @@ html {
   --surface-background-main-surface-primary: var(--colors-neutral-50);
   --surface-background-main-surface-secondary: var(--colors-neutral-100);
   --surface-background-main-surface-tetriary: var(--colors-neutral-150);
+  --surface-background-main-surface-blue-primary: var(--colors-blue-25);
   --surface-background-main-surface-blue-secondary: var(--colors-blue-50);
   --surface-background-main-surface-blue-tetriary: var(--colors-blue-100);
   --surface-background-main-surface-blue-quaternary: var(--colors-blue-200);
@@ -478,12 +484,15 @@ html {
   --surface-background-main-surface-transparent-inverse: var(--colors-overlay-overlay-black-40);
   --surface-background-main-surface-transparent-secondary: var(--colors-overlay-overlay-white-88);
 
+  --surface-background-states-surface-warning-primary: var(--colors-warning-50);
   --surface-background-states-surface-warning-secondary: var(--colors-warning-100);
   --surface-background-states-surface-warning-tetriary: var(--colors-warning-200);
   --surface-background-states-surface-warning-quaternary: var(--colors-warning-300);
+  --surface-background-states-surface-positive-primary: var(--colors-positive-50);
   --surface-background-states-surface-positive-secondary: var(--colors-positive-100);
   --surface-background-states-surface-positive-tetriary: var(--colors-positive-200);
   --surface-background-states-surface-positive-quaternary: var(--colors-positive-300);
+  --surface-background-states-surface-negative-primary: var(--colors-negative-50);
   --surface-background-states-surface-negative-secondary: var(--colors-negative-100);
   --surface-background-states-surface-negative-tetriary: var(--colors-negative-200);
   --surface-background-states-surface-negative-quaternary: var(--colors-negative-300);
@@ -517,6 +526,7 @@ html {
   --border-border-positive: var(--colors-positive-200);
   --border-border-negative: var(--colors-negative-200);
   --border-border-blue: var(--colors-blue-200);
+  --border-border-blue-primary: var(--colors-blue-100);
   --border-border-blue-hover: var(--colors-blue-400);
 
   /*----------------- New Look Variables End -----------------*/
@@ -582,6 +592,7 @@ html.dark {
   --surface-background-main-surface-primary: var(--colors-neutral-900);
   --surface-background-main-surface-secondary: var(--colors-neutral-850);
   --surface-background-main-surface-tetriary: var(--colors-neutral-800);
+  --surface-background-main-surface-blue-primary: var(--colors-blue-900);
   --surface-background-main-surface-blue-secondary: var(--colors-blue-900);
   --surface-background-main-surface-blue-tetriary: var(--colors-blue-850);
   --surface-background-main-surface-blue-quaternary: var(--colors-blue-800);
@@ -589,12 +600,15 @@ html.dark {
   --surface-background-main-surface-transparent-inverse: var(--colors-overlay-overlay-white-40);
   --surface-background-main-surface-transparent-secondary: var(--colors-overlay-overlay-black-88);
 
+  --surface-background-states-surface-warning-primary: var(--colors-warning-950);
   --surface-background-states-surface-warning-secondary: var(--colors-warning-950);
   --surface-background-states-surface-warning-tetriary: var(--colors-warning-800);
   --surface-background-states-surface-warning-quaternary: var(--colors-warning-700);
+  --surface-background-states-surface-positive-primary: var(--colors-positive-950);
   --surface-background-states-surface-positive-secondary: var(--colors-positive-950);
   --surface-background-states-surface-positive-tetriary: var(--colors-positive-800);
   --surface-background-states-surface-positive-quaternary: var(--colors-positive-700);
+  --surface-background-states-surface-negative-primary: var(--colors-negative-950);
   --surface-background-states-surface-negative-secondary: var(--colors-negative-950);
   --surface-background-states-surface-negative-tetriary: var(--colors-negative-800);
   --surface-background-states-surface-negative-quaternary: var(--colors-negative-700);
@@ -627,6 +641,7 @@ html.dark {
   --border-border-positive: var(--colors-positive-800);
   --border-border-negative: var(--colors-negative-800);
   --border-border-blue: var(--colors-blue-700);
+  --border-border-blue-primary: var(--colors-blue-850);
   --border-border-blue-hover: var(--colors-blue-500);
 
   /*----------------- New Look Variables Dark Mode Start -----------------*/
@@ -667,7 +682,8 @@ html:has(.boostlook) {
   font-stretch: semi-condensed;
   font-display: block;
   /* Prevents FOIT */
-  src: url("/_/fonts/NotoSansDisplay.ttf") format("truetype"), url("../../../../tools/boostlook/NotoSansDisplay.ttf") format("truetype"),
+  src: url("/static/font/notosans.woff2") format("woff2"),
+  url("../../../../tools/boostlook/NotoSansDisplay.ttf") format("truetype"),
     url("https://cppalliance.org/fonts/NotoSansDisplay.ttf") format("truetype");
 }
 
@@ -681,8 +697,9 @@ html:has(.boostlook) {
   font-stretch: semi-condensed;
   font-display: block;
   /* Prevents FOIT */
-  src: url("/font/NotoSansDisplay-Italic.ttf") format("truetype"), url("../../../../tools/boostlook/NotoSansDisplay-Italic.ttf") format("truetype"),
-    url("https://cppalliance.org/fonts/NotoSansDisplay-Italic.ttf") format("truetype");
+  src: url("/static/font/notosans_mono_ext.woff") format("woff"),
+  url("../../../../tools/boostlook/NotoSansMono.ttf") format("truetype"),
+    url("https://cppalliance.org/fonts/NotoSansMono.ttf") format("truetype");
 }
 
 /* Noto Sans Mono - Variable Weight */
@@ -695,7 +712,8 @@ html:has(.boostlook) {
   font-stretch: semi-condensed;
   font-display: block;
   /* Prevents FOIT */
-  src: url("/_/boostlook/NotoSansMono.ttf") format("truetype"), url("../../../../tools/boostlook/NotoSansMono.ttf") format("truetype"),
+  src: url("/static/font/notosans_mono.woff") format("woff"),
+  url("../../../../tools/boostlook/NotoSansMono.ttf") format("truetype"),
     url("https://cppalliance.org/fonts/NotoSansMono.ttf") format("truetype");
 }
 
@@ -1340,13 +1358,13 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   margin-top: var(--padding-padding-2xs, 0.5rem);
 }
 
-/* Apply left margin only if code block not in definition block */
-.boostlook .listingblock:has(> .content > pre):not(:is(dd pre)),
-.boostlook .listingblock:has(> .content > pre.highlight):not(:is(dd pre)),
-.boostlook:not(:has(.doc)) pre.programlisting:not(:is(dd pre)),
-.boostlook#libraryReadMe > pre:not(:is(dd pre)),
-.boostlook#libraryReadMe .literalblock:has(pre):not(:is(dd pre)),
-.boostlook#libraryReadMe div.highlight:has(> pre):not(:is(dd pre)) {
+/* Apply left margin only if code block not in definition block or in table */
+.boostlook .listingblock:has(> .content > pre):not(:is(dd pre, td pre)),
+.boostlook .listingblock:has(> .content > pre.highlight):not(:is(dd pre, td pre)),
+.boostlook:not(:has(.doc)) pre.programlisting:not(:is(dd pre, td pre)),
+.boostlook#libraryReadMe > pre:not(:is(dd pre, td pre)),
+.boostlook#libraryReadMe .literalblock:has(pre):not(:is(dd pre, td pre)),
+.boostlook#libraryReadMe div.highlight:has(> pre):not(:is(dd pre, td pre)) {
   margin-left: var(--spacing-size-xl);
 }
 
@@ -1873,7 +1891,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook:not(:has(.doc)) div.blurb,
 .boostlook:not(:has(.doc)) p.blurb {
   padding: var(--padding-padding-xs, 0.75rem) var(--padding-padding-md, 1.125rem);
-  border-radius: var(--spacing-size-xs, 0.75rem);
+  border-radius: var(--spacing-size-2xs, 0.5rem);
   border: 1px solid transparent;
   margin: revert;
   background: transparent;
@@ -1928,11 +1946,10 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook:not(:has(.doc)) p.blurb > table tr:first-child th,
 .boostlook:not(:has(.doc)) .notices .heading {
   display: flex;
-  padding: var(--spacing-size-3xs, 0.25rem) var(--spacing-size-2xs, 0.5rem);
   align-items: center;
   gap: var(--spacing-size-2xs, 0.5rem);
-  border-radius: 1.25rem;
-  background-color: var(--colors-neutral-500, #18191b);
+  /* Removes legacy icon */
+  background: transparent;
 }
 
 .boostlook:not(:has(.doc)) .notices .heading {
@@ -1956,14 +1973,19 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook #content .admonitionblock > table tr td.icon > *,
 .boostlook:not(:has(.doc)) .notices .heading {
   color: var(--text-main-text-primary, #18191b);
-  font-size: var(--typography-font-size-2xs, 0.75rem);
-  font-weight: 500;
-  line-height: var(--typography-line-height-sm, 1rem); /* 133.333% */
+  font-size: var(--typography-font-size-sm, 1rem);
+  font-weight: 600;
+  line-height: var(--typography-line-height-lg, 1.5rem);
   letter-spacing: var(--spacing-size-size-0, 0rem);
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
 }
 .boostlook #content .admonitionblock > table tr td.icon > * {
   padding: 0;
+  font-family: var(--font-family-body, "Noto Sans Display");
+}
+
+.boostlook #content .admonitionblock > table tr td.icon i.fa::after {
+  content: attr(title);
 }
 
 .boostlook #content .admonitionblock > table tr td.content,
@@ -2008,74 +2030,82 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   padding: 0;
 }
 
+/* Note */
 .boostlook #content .admonitionblock.note,
 .boostlook:not(:has(.doc)) div.note,
 .boostlook:not(:has(.doc)) .notices.note {
-  border-color: var(--border-border-blue, #92cbe9);
+  border-color: var(--border-border-blue-primary, #c2e2f4);
+  background-color: var(--surface-background-main-surface-blue-primary, #ebf4f9);
 }
-.boostlook #content .admonitionblock.note > table tr td.icon,
+/* .boostlook #content .admonitionblock.note > table tr td.icon,
 .boostlook:not(:has(.doc)) div.note > table tr:first-child th,
 .boostlook:not(:has(.doc)) .notices.note .heading {
   background: var(--surface-background-states-surface-additional-tetriary, #92cbe9);
-}
+} */
 .boostlook #content .admonitionblock.note > table tr td.icon > *,
 .boostlook:not(:has(.doc)) div.note > table tr:first-child th,
 .boostlook:not(:has(.doc)) .notices.note .heading {
-  color: var(--text-states-text-additional-tetriary, #026a9f);
+  color: var(--text-main-text-primary, #18191b);
 }
 
+/* Tip */
 .boostlook #content .admonitionblock.tip,
 .boostlook:not(:has(.doc)) div.tip,
 .boostlook:not(:has(.doc)) .notices.tip {
   border-color: var(--border-border-positive, #bdeed6);
+  background-color: var(--surface-background-states-surface-positive-primary, #f0fef7);
 }
-.boostlook #content .admonitionblock.tip > table tr td.icon,
+/* .boostlook #content .admonitionblock.tip > table tr td.icon,
 .boostlook:not(:has(.doc)) div.tip > table tr:first-child th,
 .boostlook:not(:has(.doc)) .notices.tip .heading {
   background: var(--border-border-positive, #bdeed6);
-}
+} */
 .boostlook #content .admonitionblock.tip > table tr td.icon > *,
 .boostlook:not(:has(.doc)) div.tip > table tr:first-child th,
 .boostlook:not(:has(.doc)) .notices.tip .heading {
-  color: var(--text-states-text-positive-tetriary, #48ac7b);
+  color: var(--text-main-text-primary, #18191b);
 }
 
+/* Important */
 .boostlook #content .admonitionblock.important,
 .boostlook #content .admonitionblock.caution,
 .boostlook:not(:has(.doc)) div.important,
 .boostlook:not(:has(.doc)) div.caution,
 .boostlook:not(:has(.doc)) .notices.important {
-  border-color: var(--border-border-warning, #ffd4b3);
+  border-color: var(--border-border-brand-orange, #ffd897);
+  background-color: var(--surface-background-states-surface-warning-primary, #fff8f3);
 }
-.boostlook #content .admonitionblock.important > table tr td.icon,
+/* .boostlook #content .admonitionblock.important > table tr td.icon,
 .boostlook #content .admonitionblock.caution > table tr td.icon,
 .boostlook:not(:has(.doc)) div.important > table tr:first-child th,
 .boostlook:not(:has(.doc)) div.caution > table tr:first-child th,
 .boostlook:not(:has(.doc)) .notices.important {
   background: var(--surface-background-states-surface-warning-tetriary, #ffd4b3);
-}
+} */
 .boostlook #content .admonitionblock.important > table tr td.icon > *,
 .boostlook #content .admonitionblock.caution > table tr td.icon > *,
 .boostlook:not(:has(.doc)) div.important > table tr:first-child th,
 .boostlook:not(:has(.doc)) div.caution > table tr:first-child th,
 .boostlook:not(:has(.doc)) .notices.important {
-  color: var(--text-states-text-warning-tetriary, #c25909);
+  color: var(--text-main-text-primary, #18191b);
 }
 
+/* Warning */
 .boostlook #content .admonitionblock.warning,
 .boostlook:not(:has(.doc)) div.warning,
 .boostlook:not(:has(.doc)) .notices.warning {
   border-color: var(--border-border-negative, #ffcad2);
+  background-color: var(--surface-background-states-surface-negative-primary, #fdf1f3);
 }
-.boostlook #content .admonitionblock.warning > table tr td.icon,
+/* .boostlook #content .admonitionblock.warning > table tr td.icon,
 .boostlook:not(:has(.doc)) div.warning > table tr:first-child th,
 .boostlook:not(:has(.doc)) .notices.warning .heading {
   background: var(--surface-background-states-surface-negative-tetriary, #ffcad2);
-}
+} */
 .boostlook #content .admonitionblock.warning > table tr td.icon > *,
 .boostlook:not(:has(.doc)) div.warning > table tr:first-child th,
 .boostlook:not(:has(.doc)) .notices.warning .heading {
-  color: var(--text-states-text-negative-tetriary, #bc233c);
+  color: var(--text-main-text-primary, #18191b);
 }
 
 /* Dlist  */
@@ -2819,7 +2849,6 @@ html:has(#docsiframe)::-webkit-scrollbar {
 /* Antora template - Scrollable content area */
 .boostlook #content:has(> .doc) {
   overflow-y: auto;
-  height: 100vh;
 }
 
 /* Asciidoc template - Content overflow handling */
@@ -3310,6 +3339,7 @@ html.is-clipped--nav:has(.boostlook) div#content {
 
 .boostlook #footer:has(> script):not(:has(> div)) {
   padding-top: 0;
+  padding-bottom: 0;
 }
 
 /* Toolbar */
