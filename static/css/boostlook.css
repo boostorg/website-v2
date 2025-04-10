@@ -225,6 +225,30 @@
   --colors-code-colors-navy: #5469f7;
   --colors-code-colors-navy-contrast: #162ec6;
 
+  /* Atom One Dark Theme Colors */
+  --atom-one-dark-bg: #282c34;
+  --atom-one-dark-text: #abb2bf;
+  --atom-one-dark-comment: #5c6370;
+  --atom-one-dark-keyword: #c678dd;
+  --atom-one-dark-operator: #e06c75;
+  --atom-one-dark-function: #61aeee;
+  --atom-one-dark-string: #98c379;
+  --atom-one-dark-variable: #d19a66;
+  --atom-one-dark-constant: #56b6c2;
+  --atom-one-dark-class: #e6c07b;
+
+  /* Atom One Light Theme Colors */
+  --atom-one-light-bg: #fafafa;
+  --atom-one-light-text: #383a42;
+  --atom-one-light-comment: #a0a1a7;
+  --atom-one-light-keyword: #a626a4;
+  --atom-one-light-operator: #e45649;
+  --atom-one-light-function: #4078f2;
+  --atom-one-light-string: #50a14f;
+  --atom-one-light-variable: #986801;
+  --atom-one-light-constant: #0184bb;
+  --atom-one-light-class: #c18401;
+
   /* Colors Other */
   --colors-neutral-150: #d5d7d9;
   --colors-neutral-850: #2a2c30;
@@ -454,14 +478,14 @@ html {
   --text-states-text-additional-secondary: var(--colors-blue-500);
   --text-states-text-additional-tetriary: var(--colors-blue-600);
 
-  --text-code-red: var(--colors-code-colors-red-contrast);
-  --text-code-green: var(--colors-code-colors-green-contrast);
-  --text-code-blue: var(--colors-code-colors-blue-contrast);
-  --text-code-yellow: var(--colors-code-colors-yellow-contrast);
-  --text-code-purple: var(--colors-code-colors-purple-contrast);
-  --text-code-turquoise: var(--colors-code-colors-turquoise-contrast);
-  --text-code-neutral: var(--colors-code-colors-black);
-  --text-code-navy: var(--colors-code-colors-navy-contrast);
+  --text-code-red: var(--atom-one-light-operator);
+  --text-code-green: var(--atom-one-light-string);
+  --text-code-blue: var(--atom-one-light-function);
+  --text-code-yellow: var(--atom-one-light-variable);
+  --text-code-purple: var(--atom-one-light-keyword);
+  --text-code-turquoise: var(--atom-one-light-constant);
+  --text-code-neutral: var(--atom-one-light-text);
+  --text-code-navy: var(--atom-one-light-class);
 
   --surface-button-button-bg-secondary-ta-default: var(--colors-brand-orange-400);
   --surface-button-button-bg-primary-default: var(--colors-blue-700);
@@ -570,14 +594,14 @@ html.dark {
   --text-states-text-additional-secondary: var(--colors-blue-500);
   --text-states-text-additional-tetriary: var(--colors-blue-400);
 
-  --text-code-red: var(--colors-code-colors-red);
-  --text-code-green: var(--colors-code-colors-green);
-  --text-code-blue: var(--colors-code-colors-blue);
-  --text-code-yellow: var(--colors-code-colors-yellow);
-  --text-code-purple: var(--colors-code-colors-purple);
-  --text-code-turquoise: var(--colors-code-colors-turquoise);
-  --text-code-neutral: var(--colors-code-colors-white);
-  --text-code-navy: var(--colors-code-colors-navy);
+  --text-code-red: var(--atom-one-dark-operator);
+  --text-code-green: var(--atom-one-dark-string);
+  --text-code-blue: var(--atom-one-dark-function);
+  --text-code-yellow: var(--atom-one-dark-variable);
+  --text-code-purple: var(--atom-one-dark-keyword);
+  --text-code-turquoise: var(--atom-one-dark-constant);
+  --text-code-neutral: var(--atom-one-dark-text);
+  --text-code-navy: var(--atom-one-dark-class);
 
   --surface-button-button-bg-secondary-ta-default: var(--colors-brand-orange-500);
   --surface-button-button-bg-primary-default: var(--colors-blue-800);
@@ -1275,9 +1299,19 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook .doc .listingblock pre:not(.highlight),
 .boostlook .doc .literalblock pre {
   padding: var(--spacing-size-xs, 0.75rem) var(--spacing-size-sm, 1rem);
-  background: var(--surface-background-main-surface-primary, #f5f6f8);
+  background: var(--atom-one-light-bg, #fafafa);
   border-radius: var(--spacing-size-2xs);
   border: unset;
+}
+
+/* Dark theme code block background */
+html.dark .boostlook pre,
+html.dark .boostlook pre.rouge,
+html.dark .boostlook .doc .content pre,
+html.dark .boostlook .doc pre.highlight,
+html.dark .boostlook .doc .listingblock pre:not(.highlight),
+html.dark .boostlook .doc .literalblock pre {
+  background: var(--atom-one-dark-bg, #282c34);
 }
 
 .boostlook .doc pre {
@@ -1650,7 +1684,28 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook .hljs-built_in,
 .boostlook .hljs-bullet,
 .boostlook .hljs-code {
-  color: var(--text-code-green, #48ac7b);
+  color: var(--atom-one-light-comment, #a0a1a7);
+  font-style: italic;
+}
+
+/* Dark theme comment color */
+html.dark .boostlook pre span.c,
+html.dark .boostlook pre span.ch,
+html.dark .boostlook pre span.cm,
+html.dark .boostlook pre span.cp,
+html.dark .boostlook pre span.cpf,
+html.dark .boostlook pre span.c1,
+html.dark .boostlook pre span.cs,
+html.dark .boostlook pre span.sd,
+html.dark .boostlook pre span.sh,
+html.dark .boostlook pre span.comment,
+html.dark .boostlook .hljs-comment,
+html.dark .boostlook .hljs-quote,
+html.dark .boostlook .hljs-addition,
+html.dark .boostlook .hljs-built_in,
+html.dark .boostlook .hljs-bullet,
+html.dark .boostlook .hljs-code {
+  color: var(--atom-one-dark-comment, #5c6370);
 }
 
 .boostlook pre span.s,
@@ -3182,6 +3237,70 @@ html.is-clipped--nav:has(.boostlook) div#content {
 }
 
 /* Rouge Syntax Highlighting */
+/* Light theme Rouge syntax highlighting */
+.boostlook pre.rouge .k { /* Keywords like const, auto */
+  color: var(--atom-one-light-keyword, #a626a4);
+}
+.boostlook pre.rouge .kt { /* Types like char, int */
+  color: var(--atom-one-light-keyword, #a626a4);
+}
+.boostlook pre.rouge .n,
+.boostlook pre.rouge .nf { /* Names, identifiers, functions */
+  color: var(--atom-one-light-text, #383a42);
+}
+.boostlook pre.rouge .o { /* Operators */
+  color: var(--atom-one-light-operator, #e45649);
+}
+.boostlook pre.rouge .s,
+.boostlook pre.rouge .s1,
+.boostlook pre.rouge .s2 { /* Strings */
+  color: var(--atom-one-light-string, #50a14f);
+}
+.boostlook pre.rouge .mi,
+.boostlook pre.rouge .mf { /* Numbers */
+  color: var(--atom-one-light-variable, #986801);
+}
+.boostlook pre.rouge .p { /* Punctuation */
+  color: var(--atom-one-light-text, #383a42);
+}
+.boostlook pre.rouge .c,
+.boostlook pre.rouge .c1,
+.boostlook pre.rouge .cm { /* Comments */
+  color: var(--atom-one-light-comment, #a0a1a7);
+  font-style: italic;
+}
+
+/* Dark theme Rouge syntax highlighting */
+html.dark .boostlook pre.rouge .k,
+html.dark .boostlook pre.rouge .kt {
+  color: var(--atom-one-dark-keyword, #c678dd);
+}
+html.dark .boostlook pre.rouge .n,
+html.dark .boostlook pre.rouge .nf {
+  color: var(--atom-one-dark-text, #abb2bf);
+}
+html.dark .boostlook pre.rouge .o {
+  color: var(--atom-one-dark-operator, #e06c75);
+}
+html.dark .boostlook pre.rouge .s,
+html.dark .boostlook pre.rouge .s1,
+html.dark .boostlook pre.rouge .s2 {
+  color: var(--atom-one-dark-string, #98c379);
+}
+html.dark .boostlook pre.rouge .mi,
+html.dark .boostlook pre.rouge .mf {
+  color: var(--atom-one-dark-variable, #d19a66);
+}
+html.dark .boostlook pre.rouge .p {
+  color: var(--atom-one-dark-text, #abb2bf);
+}
+html.dark .boostlook pre.rouge .c,
+html.dark .boostlook pre.rouge .c1,
+html.dark .boostlook pre.rouge .cm {
+  color: var(--atom-one-dark-comment, #5c6370);
+  font-style: italic;
+}
+
 .boostlook pre.rouge .o {
   font-weight: 400;
 }
