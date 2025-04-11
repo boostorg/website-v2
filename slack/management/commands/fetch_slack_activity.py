@@ -1,6 +1,7 @@
 import logging
 import datetime
 import functools
+import time
 
 from slack_sdk import WebClient
 from slack_sdk.http_retry.builtin_handlers import RateLimitErrorRetryHandler
@@ -103,11 +104,8 @@ def fill_channel_gap(gap: ChannelUpdateGap, debug: bool):
     the (possibly unbounded) range specified by `gap`.
     """
     logger.info(
-        "Fetching channel history for %r (%r) in range (%s,%s)",
-        gap.channel.name,
-        gap.channel.id,
-        gap.oldest_message_ts,
-        gap.newest_message_ts,
+        f"Fetching channel history for {gap.channel.name} ({gap.channel.id}) "
+        f"in range ({gap.oldest_message_ts}, {gap.newest_message_ts})"
     )
     pages = channel_messages_in_range(
         channel=gap.channel.id,
@@ -347,5 +345,13 @@ def command(channels, debug):
         | Q(last_update_as_datetime__gte=Now() - datetime.timedelta(days=30)),
         channel_id__in={c["id"] for c in selected_channels},
     )
-    for thread in threads:
+    time.sleep(5)  # cool off overall rate limit before importing threads
+    total_threads = threads.count()
+    for idx, thread in enumerate(threads, start=1):
+        # Throttle - we're only allowed 20 requests per minute
+        time.sleep(1.5)
+        logger.info(
+            f"Importing thread {idx:,} of {total_threads:,} "
+            f"({idx/total_threads:.2%}) from #{thread.channel.name}"
+        )
         do_thread(thread, debug)
