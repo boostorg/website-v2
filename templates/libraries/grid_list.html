@@ -13,7 +13,7 @@
     {% include "libraries/includes/version_alert.html" %}
 
     {# Libraries list #}
-    <div class="grid grid-cols-1 gap-4 mb-5 md:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-4 mb-5 md:grid-cols-2 lg:grid-cols-3">
       {% for library_version in object_list %}
         {% include "libraries/_library_grid_list_item.html" %}
       {% endfor %}
