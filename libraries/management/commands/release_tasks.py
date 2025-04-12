@@ -1,6 +1,7 @@
 import traceback
 from contextlib import suppress
 from dataclasses import dataclass
+from datetime import timedelta
 from typing import Callable
 
 import djclick as click
@@ -82,13 +83,16 @@ class ReleaseTasksManager:
             ReleaseTask("Updating github issues", ["update_issues"]),
             ReleaseTask("Updating slack activity buckets", ["fetch_slack_activity"]),
             ReleaseTask("Updating website statistics", self.update_website_statistics),
-            ReleaseTask("Importing mailing list counts", ["import_ml_counts"]),
+            ReleaseTask("Importing mailing list counts", self.import_ml_counts),
             ReleaseTask("Generating report", self.generate_report),
         ]
 
     def update_release_data(self) -> dict[str:int]:
         for task in self.tasks:
-            self.progress_messages.append(progress_message(f"{task.description}..."))
+            # "Release Task: " prefix for easy log parsing
+            self.progress_messages.append(
+                progress_message(f"Release Task: {task.description}...")
+            )
             task.run()
             self.progress_messages.append(
                 progress_message(f"Finished {task.description.lower()}")
@@ -109,6 +113,15 @@ class ReleaseTasksManager:
     def update_website_statistics(self):
         report, _ = WebsiteStatReport.objects.get_or_create(version=self.latest_version)
         report.populate_from_api()
+
+    def import_ml_counts(self):
+        """Import counts for the last four months. Should be more than enough,
+        and saves lots of time vs importing all.
+        """
+        start_date = timezone.now() - timedelta(days=120)
+        date_string = start_date.strftime("%Y-%m-%d")
+        print(f"{date_string = }")
+        call_command("import_ml_counts", start_date=date_string)
 
     def generate_report(self):
         if not self.should_generate_report:
