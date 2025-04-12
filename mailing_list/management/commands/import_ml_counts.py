@@ -43,39 +43,36 @@ def decode_broken_html(str):
         )
 
 
-def parse_start_datetime(date_str):
+def parse_datetime(date_str: str, is_start: bool) -> datetime:
+    """
+    Parse a date string (YYYY, YYYY-MM, YYYY-MM-DD) into a datetime object.
+
+    If is_start=True, returns the earliest time possible for the data given.
+    If is_start=False, returns the latest time possible for the data given.
+    """
     m = arg_date_pattern.match(date_str)
     if not m:
-        raise ValueError("wrong date format")
-    logger.info(f"{m=} {m.group(1)=} {m.group(2)=} {m.group(3)=}")
-    return datetime(
-        int(m.group(3)) if m.group(3) else 1,
-        int(m.group(2)) if m.group(2) else 1,
-        int(m.group(1)),
-        0,
-        0,
-        0,
-    )
+        raise ValueError(f"Invalid date format: {date_str!r}")
 
+    year_text, month_text, day_text = m.groups()
+    year = int(year_text)
+    month = int(month_text) if month_text is not None else (1 if is_start else 12)
+    day = int(day_text) if day_text is not None else 1
 
-def parse_end_datetime(date_str):
-    m = arg_date_pattern.match(date_str)
-    if not m:
-        raise ValueError("wrong date format")
-    logger.info(f"{m=} {m.group(1)=} {m.group(2)=} {m.group(3)=}")
-    if m.group(2):
-        if m.group(3):
-            return datetime(
-                int(m.group(3)), int(m.group(2)), int(m.group(1)), 23, 59, 59
-            )
-        else:
-            return (
-                datetime(int(m.group(1)), int(m.group(2)), 1) + timedelta(days=31),
-                23,
-                59,
-                59,
-            ).replace(day=1) - timedelta(days=1)
-    return datetime(int(m.group(1)), 12, 31, 23, 59, 59)
+    if is_start:
+        # Start date - return start of day
+        return datetime(year, month, day, 0, 0, 0)
+
+    # End date - return latest datetime possible from given criteria
+    if day_text is None:
+        # No day provided: find the last day of the month
+        first_of_next_month = (datetime(year, month, 1) + timedelta(days=31)).replace(
+            day=1
+        )
+        last_day_of_month = first_of_next_month - timedelta(days=1)
+        day = last_day_of_month.day
+
+    return datetime(year, month, day, 23, 59, 59)
 
 
 def retrieve_authors_from_ml(url, start_date, end_date):
@@ -103,7 +100,7 @@ def retrieve_authors_from_ml(url, start_date, end_date):
 
 
 def retrieve_authors(start_date, end_date):
-    logger.info(f"retrieve_authors from {start_date=} to {end_date=}")
+    logger.info(f"Retrieve_authors from {start_date:%Y-%m-%d} to {end_date:%Y-%m-%d}")
     start_month = datetime(start_date.year, start_date.month, 1)
     end_month = datetime(end_date.year, end_date.month, 1)
     authors = []
@@ -125,9 +122,11 @@ def retrieve_authors(start_date, end_date):
 def command(start_date, end_date):
     logger.info(f"Starting import_ml_counts {start_date=} {end_date=}")
     start_date = (
-        parse_start_datetime(start_date) if start_date else datetime(1998, 11, 11)
+        parse_datetime(start_date, is_start=True)
+        if start_date
+        else datetime(1998, 11, 11)
     )
-    logger.info(f"{start_date=}")
-    end_date = parse_end_datetime(end_date) if end_date else datetime.now()
-    logger.info(f"{end_date=}")
+    logger.info(f"{start_date = }")
+    end_date = parse_datetime(end_date, is_start=False) if end_date else datetime.now()
+    logger.info(f"{end_date = }")
     retrieve_authors(start_date, end_date)
