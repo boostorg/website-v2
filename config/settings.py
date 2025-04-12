@@ -217,8 +217,7 @@ STATICFILES_DIRS = [
     BASE_DIR.joinpath("static"),
 ]
 
-# This is the directory where all of the collected static files are put
-# after running collectstatic
+# Directory where collectstatic puts static files
 STATIC_ROOT = str(BASE_DIR.joinpath("static_deploy"))
 
 # Directory where uploaded media is saved.

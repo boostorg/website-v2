@@ -198,8 +198,10 @@ def update_commits(token=None, clean=False, min_version=""):
     # dictionary of library_key: int
     commits_handled: dict[str, int] = {}
     updater = LibraryUpdater(token=token)
-    for library in Library.objects.all():
-        logger.info("Importing commits for library.", library=library)
+    all_libs = Library.objects.all()
+    lib_count = len(all_libs)
+    for idx, library in enumerate(all_libs):
+        logger.info(f"Importing commits for library {library} ({idx}/{lib_count}).")
         commits_handled[library.key] = updater.update_commits(
             library=library, clean=clean, min_version=min_version
         )

@@ -6,6 +6,7 @@ from datetime import datetime
 
 import psycopg2
 from django.conf import settings
+from django.contrib.staticfiles import finders
 from django.db.models import Count
 from django.db.models.functions import ExtractWeek, ExtractIsoYear
 from matplotlib import pyplot as plt
@@ -26,13 +27,19 @@ def generate_wordcloud(version: Version) -> tuple[str | None, list]:
     Returns:
         Tuple of (base64_encoded_png_string, wordcloud_top_words)
     """
+    font_relative_path = f"font/{WORDCLOUD_FONT}"
+    font_full_path = finders.find(font_relative_path)
+
+    if not font_full_path:
+        raise FileNotFoundError(f"Could not find font at {font_relative_path}")
+
     wc = WordCloud(
         mode="RGBA",
         background_color=None,
         width=1400,
         height=700,
         stopwords=STOPWORDS | SiteSettings.load().wordcloud_ignore_set,
-        font_path=f"{settings.STATIC_ROOT}/font/{WORDCLOUD_FONT}",
+        font_path=font_full_path,
     )
     word_frequencies = {}
     for content in get_mail_content(version):
