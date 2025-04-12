@@ -95,7 +95,7 @@ class ReleaseTasksManager:
             )
             task.run()
             self.progress_messages.append(
-                progress_message(f"Finished {task.description.lower()}")
+                progress_message(f"Release Task: Finished {task.description.lower()}")
             )
         return self.handled_commits
 

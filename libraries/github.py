@@ -393,7 +393,7 @@ class LibraryUpdater:
                         "data": obj2dict(issue_dict),
                     },
                 )
-                self.logger.info(
+                self.logger.debug(
                     "issue_updated_successfully",
                     issue_id=issue.id,
                     created_issue=created,
