@@ -61,49 +61,6 @@
 
     {% if events %}
         <div class="my-12 mb-3 md:mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-4 lg:space-y-0 lg:space-x-4 md:shadow-lg">
-          <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
-            <div class="mb-6">
-              <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">recent news</span>
-            </div>
-            <div class="absolute top-6 right-8 p-2 group">
-              <a href="{% url 'news' %}"
-                class="text-sm font-medium md:text-base text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange">
-                All News&nbsp;<i class="fas fa-chevron-right text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange"></i>
-              </a>
-            </div>
-            <div class="space-y-4">
-              {% for entry in entries %}
-                <div class="pt-0">
-                  <h2 class="flex items-center pb-2 mb-3 text-lg md:text-2xl lg:text-2xl font-semibold mr-4 border-b border-gray-400 dark:border-slate">
-                    {% avatar user=entry.author %}
-                    <span class="text-sm ml-5 bg-white rounded-full dark:text-gray-300 w-[30px] dark:bg-charcoal">
-                      {% if entry.tag == "link" %}
-                        <i class="fas fa-link"></i>
-                      {% elif entry.tag == "news" %}
-                        <i class="fas fa-newspaper"></i>
-                      {% elif entry.tag == "blogpost" %}
-                        <i class="fas fa-comment"></i>
-                      {% elif entry.tag == "poll" %}
-                        <i class="fas fa-poll"></i>
-                      {% elif entry.tag == "video" %}
-                        <i class="fas fa-video"></i>
-                      {% endif %}
-                    </span>
-                    <a class="link-header" {% if entry.external_url %}target="_blank"{% endif %} href="{% if entry.external_url %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
-                      {{ entry.title }} {% if entry.external_url %}<i class="fa fa-external-link text-sm ml-1"></i>{% endif %}
-                    </a>
-                  </h2>
-
-                  <p class="pt-0 pb-4 mx-auto w-full text-xs md:text-sm align-left">Posted on {{ entry.publish_at|date:"M jS, Y" }} by {{ entry.author.display_name }}</p>
-                  {% if entry.content %}
-                  <div class="md:ml-[40px]">
-                    <span class="text-sm md:text-base text-gray-500 dark:text-white/70">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|multi_truncate_middle:30|truncatechars_html:500 }}</span>
-                    </div>
-                  {% endif %}
-                </div>
-              {% endfor %}
-            </div>
-          </div>
       <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
             <div class="w-full">
               <div class="mb-6">
@@ -211,24 +168,71 @@
           {% endcomment %}
 
       </div>
-      <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
-        <div>
-        <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">featured video</span>
-      </div>
-      <div class="flex flex-col justify-center items-center h-full pb-4">
-        <div class="mx-auto">
-          <div class="flex items-center justify-center h-full py-4 rounded-lg">
-            <a href="https://www.youtube.com/watch?v=Z1imC1HcJUA" target="_blank" rel="noopener noreferrer" class="text-sm md:text-lg text-center text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
-              C++ Tutorial: Using Boost.MP11 C++ Library - Jody Hagins - CppNow 2023
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
     </div>
     {% endif %}
 
     <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:space-y-0 lg:space-x-4 md:shadow-lg">
+      <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
+          <div>
+          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">featured video</span>
+        </div>
+        <div class="flex flex-col justify-center items-center h-full pb-4">
+          <div class="mx-auto">
+            <div class="flex items-center justify-center h-full py-4 rounded-lg">
+              <a href="https://www.youtube.com/watch?v=Z1imC1HcJUA" target="_blank" rel="noopener noreferrer" class="text-sm md:text-lg text-center text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
+                C++ Tutorial: Using Boost.MP11 C++ Library - Jody Hagins - CppNow 2023
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:space-y-0 lg:space-x-4 md:shadow-lg">
+      <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
+        <div class="mb-6">
+          <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">recent news</span>
+        </div>
+        <div class="absolute top-6 right-8 p-2 group">
+          <a href="{% url 'news' %}"
+            class="text-sm font-medium md:text-base text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange">
+            All News&nbsp;<i class="fas fa-chevron-right text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange"></i>
+          </a>
+        </div>
+        <div class="space-y-4">
+          {% for entry in entries %}
+            <div class="pt-0">
+              <h2 class="flex items-center pb-2 mb-3 text-lg md:text-2xl lg:text-2xl font-semibold mr-4 border-b border-gray-400 dark:border-slate">
+                {% avatar user=entry.author %}
+                <span class="text-sm ml-5 bg-white rounded-full dark:text-gray-300 w-[30px] dark:bg-charcoal">
+                  {% if entry.tag == "link" %}
+                    <i class="fas fa-link"></i>
+                  {% elif entry.tag == "news" %}
+                    <i class="fas fa-newspaper"></i>
+                  {% elif entry.tag == "blogpost" %}
+                    <i class="fas fa-comment"></i>
+                  {% elif entry.tag == "poll" %}
+                    <i class="fas fa-poll"></i>
+                  {% elif entry.tag == "video" %}
+                    <i class="fas fa-video"></i>
+                  {% endif %}
+                </span>
+                <a class="link-header" {% if entry.external_url %}target="_blank"{% endif %} href="{% if entry.external_url %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+                  {{ entry.title }} {% if entry.external_url %}<i class="fa fa-external-link text-sm ml-1"></i>{% endif %}
+                </a>
+              </h2>
+
+              <p class="pt-0 pb-4 mx-auto w-full text-xs md:text-sm align-left">Posted on {{ entry.publish_at|date:"M jS, Y" }} by {{ entry.author.display_name }}</p>
+              {% if entry.content %}
+              <div class="md:ml-[40px]">
+                <span class="text-sm md:text-base text-gray-500 dark:text-white/70">{{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|multi_truncate_middle:30|truncatechars_html:500 }}</span>
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
     </div>
 
     {% comment %}
