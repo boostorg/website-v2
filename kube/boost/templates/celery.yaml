@@ -33,13 +33,13 @@ spec:
           command: ["celery", "-A", "config", "worker", "--concurrency=5", "--loglevel=debug"]
           resources:
             limits:
-              cpu: 250m
+              cpu: 500m
               ephemeral-storage: 1Gi
-              memory: 1Gi
+              memory: 2Gi
             requests:
-              cpu: 250m
+              cpu: 500m
               ephemeral-storage: 1Gi
-              memory: 1Gi
+              memory: 2Gi
           env:
 {{ toYaml .Values.Env | indent 12 }}
 
