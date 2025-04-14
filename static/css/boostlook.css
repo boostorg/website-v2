@@ -1325,7 +1325,10 @@ html.dark .boostlook .doc .literalblock pre {
   background: var(--surface-background-main-surface-secondary, #e4e7ea);
 }
 
-.boostlook pre.programlisting {
+.boostlook pre.programlisting,
+.boostlook pre.synopsis,
+.boostlook pre.literallayout,
+.boostlook#libraryReadMe > pre {
   border: 1px solid var(--border-border-secondary, #d5d7d9);
 }
 
@@ -1385,6 +1388,7 @@ html.dark .boostlook .doc .literalblock pre {
 .boostlook .listingblock:has(> .content > pre),
 .boostlook .listingblock:has(> .content > pre.highlight),
 .boostlook:not(:has(.doc)) pre.programlisting,
+.boostlook:not(:has(.doc)) pre.synopsis,
 .boostlook#libraryReadMe > pre,
 .boostlook#libraryReadMe .literalblock:has(pre),
 .boostlook#libraryReadMe div.highlight:has(> pre) {
@@ -1396,6 +1400,7 @@ html.dark .boostlook .doc .literalblock pre {
 .boostlook .listingblock:has(> .content > pre):not(:is(dd pre, td pre)),
 .boostlook .listingblock:has(> .content > pre.highlight):not(:is(dd pre, td pre)),
 .boostlook:not(:has(.doc)) pre.programlisting:not(:is(dd pre, td pre)),
+.boostlook:not(:has(.doc)) pre.synopsis:not(:is(dd pre, td pre)),
 .boostlook#libraryReadMe > pre:not(:is(dd pre, td pre)),
 .boostlook#libraryReadMe .literalblock:has(pre):not(:is(dd pre, td pre)),
 .boostlook#libraryReadMe div.highlight:has(> pre):not(:is(dd pre, td pre)) {
@@ -1405,6 +1410,7 @@ html.dark .boostlook .doc .literalblock pre {
 .boostlook .listingblock:has(> .content > pre):not(:last-child),
 .boostlook .listingblock:has(> .content > pre.highlight):not(:last-child),
 .boostlook:not(:has(.doc)) pre.programlisting:not(:last-child),
+.boostlook:not(:has(.doc)) pre.synopsis:not(:last-child),
 .boostlook#libraryReadMe > pre:not(:last-child) {
   margin-bottom: var(--padding-padding-xs, 0.75rem);
 }
@@ -1779,6 +1785,20 @@ html.dark .boostlook .hljs-code {
   font-size: var(--typography-font-size-sm, 1rem);
   font-weight: 400;
   line-height: var(--typography-line-height-lg, 1.5rem);
+}
+
+/* Add intendation */
+.boostlook .sectionbody .quoteblock,
+.boostlook .sectionbody .doc .quoteblock,
+.boostlook .sectionbody .verseblock,
+.boostlook .sectionbody .doc .verseblock,
+.boostlook .sectionbody div.blockquote,
+.boostlook .section .quoteblock,
+.boostlook .section .doc .quoteblock,
+.boostlook .section .verseblock,
+.boostlook .section .doc .verseblock,
+.boostlook .section div.blockquote {
+  margin-left: var(--spacing-size-xl, 2rem);
 }
 
 .boostlook .quoteblock:not(:first-child),
@@ -2164,10 +2184,11 @@ html.dark .boostlook .hljs-code {
 }
 
 /* Dlist  */
-.boostlook #content .dlist:not(:first-child),
-.boostlook .dlist dl dt:not(:first-child),
-.boostlook:not(:has(.doc)) .variablelist:not(:first-child),
-.boostlook:not(:has(.doc)) .variablelist dl dt:not(:first-child) {
+/* Apply top margin only for root list */
+.boostlook #content .dlist:not(:first-child):not(.dlist .dlist),
+.boostlook .dlist dl dt:not(:first-child):not(.dlist .dlist),
+.boostlook:not(:has(.doc)) .variablelist:not(:first-child):not(.variablelist .variablelist),
+.boostlook:not(:has(.doc)) .variablelist dl dt:not(:first-child):not(.variablelist .variablelist) {
   margin-top: var(--padding-padding-2xs, 0.5rem);
 }
 
@@ -2175,24 +2196,31 @@ html.dark .boostlook .hljs-code {
 .boostlook:not(:has(.doc)) .variablelist dl {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-size-2xs, 0.5rem);
 }
 
 .boostlook .dlist dl dt,
 .boostlook:not(:has(.doc)) .variablelist dl dt {
   display: block;
   width: fit-content;
-  padding: var(--leftbar-paddings-leftbar-padding-0, 0rem) var(--padding-padding-2xs, 0.5rem);
-  border-radius: var(--spacing-size-3xs, 0.25rem);
-  border: 1px solid var(--border-border-secondary, #d5d7d9);
-  border-bottom-left-radius: unset;
-  background: var(--surface-background-main-surface-primary, #f5f6f8);
+  padding: initial;
+  border-radius: initial;
+  border: initial;
+  /* border-bottom-left-radius: unset; */
+  background: initial;
   color: var(--text-code-neutral, #0d0e0f);
   font-size: var(--typography-font-size-xs, 0.875rem);
   font-style: normal;
-  font-weight: 400;
+  font-weight: 500;
   line-height: var(--typography-line-height-lg, 1.5rem); /* 171.429% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
   margin-bottom: 0;
+}
+
+/* styles for nested list */
+.boostlook .dlist:is(.dlist .dlist) dl dt,
+.boostlook:not(:has(.doc)) .variablelist:is(.variablelist .variablelist) dl dt {
+  font-size: var(--typography-font-size-sm, 1rem);
 }
 
 .boostlook .dlist dl dt code,
@@ -2208,6 +2236,12 @@ html.dark .boostlook .hljs-code {
   font-weight: inherit;
 }
 
+.boostlook .dlist dl dt code,
+.boostlook:not(:has(.doc)) .variablelist dl dt code {
+  font-weight: bold;
+  font-family: var(--font-family-code, 'Noto Sans Mono');
+}
+
 .boostlook .dlist dl dd,
 .boostlook:not(:has(.doc)) .variablelist dl dd {
   margin: unset;
@@ -2215,16 +2249,41 @@ html.dark .boostlook .hljs-code {
   padding: var(--padding-padding-2xs, 0.5rem) var(--padding-padding-sm, 1rem);
   border-radius: var(--padding-padding-2xs, 0.5rem);
   border: 1px solid var(--border-border-primary, #e4e7ea);
-  border-top-left-radius: unset;
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-xs, 0.875rem);
   line-height: var(--typography-line-height-lg, 1.5rem);
+}
+
+/* styles for nested list */
+.boostlook .dlist:is(.dlist .dlist) dl dd,
+.boostlook:not(:has(.doc)) .variablelist:is(.variablelist .variablelist) dl dd {
+  border: none;
+  padding: initial;
+  font-weight: 400;
+}
+
+/* styles for block if it has nested list */
+.boostlook .dlist dl dd:has(>.dlist),
+.boostlook:not(:has(.doc)) .variablelist dl dd:has(>.variablelist) {
+  padding: var(--padding-padding-sm, 1rem);
+}
+
+/* apply margin only for top level list */
+.boostlook .dlist dl > dd:not(:is(dl dl dd)),
+.boostlook:not(:has(.doc)) .variablelist dl > dd:not(:is(dl dl dd)) {
+  margin-left: var(--spacing-size-xl);
 }
 
 .boostlook .dlist dl dd p,
 .boostlook:not(:has(.doc)) .variablelist dl dd p {
   font: inherit;
   margin: 0;
+}
+
+.boostlook .dlist dl dd em,
+.boostlook:not(:has(.doc)) .variablelist dl dd em {
+  font: inherit;
+  font-weight: 500;
 }
 
 /* Edit Page Link */
@@ -2300,7 +2359,8 @@ html.dark .boostlook .hljs-code {
 }
 
 /* Default List */
-.boostlook ul.itemizedlist,
+.boostlook div.itemizedlist:has(> ul.itemizedlist):not(:first-child),
+.boostlook :not(div.itemizedlist) > ul.itemizedlist,
 .boostlook .ulist:not(:first-child):not(.tablist),
 .boostlook .ulist:not(:first-child).disc,
 .boostlook#libraryReadMe ul:not(:first-child),
@@ -2546,6 +2606,17 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook#libraryReadMe > table col {
   all: unset;
   display: revert;
+}
+
+/* Add intendation */
+.boostlook #content .sectionbody > table.tableblock,
+.boostlook #content .section > table.tableblock,
+.boostlook .sectionbody > div.informaltable:not(:is(.informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))))),
+.boostlook .section > div.informaltable:not(:is(.informaltable:has(> table:nth-of-type(2)):not(:has(> *:not(table))))),
+.boostlook:not(:has(.doc)) .sectionbody > div.table .table-contents,
+.boostlook:not(:has(.doc)) .section > div.table .table-contents,
+.boostlook#libraryReadMe > table {
+  margin-left: var(--spacing-size-xl, 2rem);
 }
 
 .boostlook #content table.tableblock:not(:first-child),
