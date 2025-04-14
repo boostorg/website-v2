@@ -7,6 +7,7 @@
         id="docsiframe"
     ></iframe>
     <script>
+      debugger;
       function iframeCustomizations(iframe) {
         let iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
         {#resizeIframe(iframe);#}
@@ -24,7 +25,17 @@
       function scrollToAnchor(iframeDoc, hash) {
         const targetElement = iframeDoc.getElementById(hash);
         if (targetElement) {
-          targetElement.scrollIntoView({behavior: 'smooth'});
+          // Add space above the target element - more space on mobile
+          const isMobile = window.innerWidth < 768;
+          const topMargin = isMobile ? 50 : 14;
+
+          const y = targetElement.getBoundingClientRect().top +
+                    iframeDoc.defaultView.pageYOffset - topMargin;
+
+          iframeDoc.defaultView.scrollTo({
+            top: y,
+            behavior: 'smooth'
+          });
         }
       }
 
