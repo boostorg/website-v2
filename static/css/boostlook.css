@@ -1544,10 +1544,10 @@ html.dark .boostlook .doc .literalblock pre {
   color: var(--text-code-neutral, #0d0e0f);
   font-size: 0.96em;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 500;
   line-height: var(--typography-line-height-md);
   letter-spacing: var(--spacing-size-size-0, 0rem);
-  font-stretch: 90%;
+  font-stretch: 80%;
 }
 
 .boostlook p:not(:is(table p)) code:not(:has(> code)),
@@ -1969,6 +1969,7 @@ html.dark .boostlook .hljs-code {
   border-radius: var(--spacing-size-2xs, 0.5rem);
   border: 1px solid transparent;
   margin: revert;
+  margin-left: var(--spacing-size-xl);
   background: transparent;
 }
 
@@ -2247,7 +2248,7 @@ html.dark .boostlook .hljs-code {
   margin: unset;
   margin-top: -1px;
   padding: var(--padding-padding-2xs, 0.5rem) var(--padding-padding-sm, 1rem);
-  border-radius: var(--padding-padding-2xs, 0.5rem);
+  border-radius: var(--padding-padding-3xs, 0.5rem);
   border: 1px solid var(--border-border-primary, #e4e7ea);
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-xs, 0.875rem);
@@ -2717,7 +2718,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook#libraryReadMe > table th,
 .boostlook#libraryReadMe > table th strong {
   background: var(--surface-background-main-surface-primary, #f5f6f8);
-  color: var(--text-main-text-body-tetriary, #62676b);
+  color: var(--text-main-text-primary, #000000);
   font-size: var(--typography-font-size-xs, 0.875rem);
   font-weight: 500;
   font-variation-settings: "wght" 500;
@@ -2730,7 +2731,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   color: var(--text-main-text-body-primary, #2a2c30);
   font-size: var(--typography-font-size-xs, 0.875rem);
   font-style: normal;
-  font-weight: 500;
+  font-weight: 400;
   line-height: var(--typography-line-height-lg, 1.5rem); /* 171.429% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
