@@ -44,7 +44,7 @@ body {
   {% with bg_color='' %}
     <div>
       <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}')">
-        <div class="flex flex-col h-full gap-y-6">
+        <div class="flex flex-col h-full justify-between">
           <div class="flex flex-col gap-y-2">
             <h1 class="flex mb-0">
               <img
@@ -173,11 +173,6 @@ body {
           <div class="committee_members flex flex-wrap mt-2 text-sm text-center absolute" style="">
             {% for user in committee_members|dictsort:"display_name" %}
               <figure class="w-32 m-2">
-<!--                 {% if user.hq_image %} -->
-<!--                   <img src="{{ user.hq_image_render.url }}" alt="{{ user.display_name }}" /> -->
-<!--                 {% else %} -->
-<!--                   <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="" /> -->
-<!--                 {% endif %} -->
                 {% avatar user=user is_link=False image_size="w-32 h-32" icon_size="text-8xl" %}
                 <figcaption class="p-1">{{user.display_name}}</figcaption>
               </figure>
