@@ -776,7 +776,7 @@ class CreateReportForm(CreateReportFullForm):
             Channel.objects.filter(name__istartswith="boost").order_by("name"), 10
         )
         committee_members = version.financial_committee_members.all()
-        mailinglist_post_stats = get_mailing_list_post_stats(
+        mailinglist_post_stats, start_year = get_mailing_list_post_stats(
             prior_version.release_date, version.release_date
         )
         new_subscribers_stats = get_new_subscribers_stats(
@@ -815,6 +815,7 @@ class CreateReportForm(CreateReportFullForm):
             "mailinglist_contributor_release_count": mailinglist_contributor_release_count,  # noqa: E501
             "mailinglist_contributor_new_count": mailinglist_contributor_new_count,
             "mailinglist_post_stats": mailinglist_post_stats,
+            "mailinglist_post_start_year": start_year,
             "mailinglist_new_subscribers_stats": new_subscribers_stats,
             "commit_contributors_release_count": commit_contributors_release_count,
             "commit_contributors_new_count": commit_contributors_new_count,

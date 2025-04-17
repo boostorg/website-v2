@@ -530,18 +530,28 @@ body {
         ...generalGraphOptions,
         series: [{
           name: 'Posts',
-          data: {{mailinglist_post_stats|safe}}
+          data: {{ mailinglist_post_stats|safe }}
         }],
         axisTicks: {
           show: true,
         },
         xaxis: {
-          type: "numeric",
+          type: "category",
           title: {
-            text: "Calendar Week"
+            text: "Calendar Week {{ mailinglist_post_start_year }}"
           },
           labels: {
-            formatter: (value) => { return `${value}`; },
+            rotate: 0,
+            formatter: function (value) {
+              // Format is: "WEEK (YEAR)", e.g. "51 (24)"
+              const match = value.match(/^(\d+)\s+\((\d{2})\)$/);
+              if (match) {
+                const week = parseInt(match[1]);
+                const year = match[2];
+                return week === 1 ? `1 ('${year})` : `${week}`;
+              }
+              return value; // fallback if pattern doesn't match
+            }
           }
         },
         yaxis: {

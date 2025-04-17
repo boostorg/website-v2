@@ -127,15 +127,24 @@ def get_mail_content(version: Version):
 
 
 def get_mailing_list_post_stats(start_date: datetime, end_date: datetime):
-    logger.info(f"from {start_date} to {end_date}")
     data = (
         PostingData.objects.filter(post_time__gt=start_date, post_time__lte=end_date)
         .annotate(week=ExtractWeek("post_time"), iso_year=ExtractIsoYear("post_time"))
-        .values("week")
+        .values("iso_year", "week")
         .annotate(count=Count("id"))
         .order_by("iso_year", "week")
     )
-    return [{"y": s.get("count"), "x": s.get("week")} for s in data]
+
+    chart_data = []
+
+    for row in data:
+        week_number = row["week"]
+        year_number = str(row["iso_year"])[2:]  # e.g. 25
+        x = f"{week_number} ({year_number})"  # e.g., "51 (24)", "1 (25)"
+        y = row["count"]
+        chart_data.append({"x": x, "y": y})
+
+    return chart_data, start_date.year
 
 
 def get_new_subscribers_stats(start_date: datetime, end_date: datetime):
