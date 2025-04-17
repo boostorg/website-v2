@@ -6,7 +6,7 @@
 }
 
 body {
-  @apply font-sans break-normal max-w-7xl mx-auto md:pt-11 md:px-6 my-0 h-screen;
+  @apply font-sans break-normal max-w-[120rem] mx-auto md:pt-11 md:px-6 my-0 h-screen;
 }
 
 /*  Fixes the logo's pixel shift for non-framed and framed docs, respectively. */
@@ -34,7 +34,7 @@ div.copyright-footer:first-of-type,
 div.chapter:first-of-type,
 div.refentry:first-of-type,
 div.book:first-of-type {
-  @apply max-w-7xl px-3 md:px-6 mx-auto;
+  @apply max-w-[120rem] px-3 md:px-6 mx-auto;
 }
 
 #avatar>div,

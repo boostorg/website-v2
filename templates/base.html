@@ -54,7 +54,7 @@
         justify-content: space-between;
         box-shadow: 0px 1px 0px #d1d1d1;
         border-bottom: 1px solid #f6f6f6;
-        max-width: 80rem;
+        max-width: 120rem;
         margin: 0 auto;
         color: var(--text-color);
         font-family: "Noto Sans" !important;
@@ -213,7 +213,7 @@
     body .body {
       margin: 0px 1rem;
       padding: 1.5rem 0rem 0;
-      max-width: 80rem;
+      max-width: 120rem;
     }
     body.article  #headblock {
       padding: 0.25rem 1rem !important;
@@ -224,7 +224,7 @@
     }
     @media (min-width: 769px) {
       body.article {
-        max-width: 80rem !important;
+        max-width: 120rem !important;
         margin: auto;
         padding: 0px 2.25rem;
         border-radius: .5rem;
@@ -251,7 +251,7 @@
     /* asciidoc layout base */
 
     .main-footer {
-      max-width: 80rem !important;
+      max-width: 120rem !important;
     }
 
     .link-icons {
@@ -335,7 +335,7 @@
         }"
         class="h-screen bg-gray-200 dark:bg-black{% if DEBUG %} DEBUG{% endif %}" {% block body_id %}{% endblock %}>
          <div class="modal-overlay" id="modalOverlay"><div class="modal-content"><iframe id="modalFrame" class="w-full h-full rounded-xl m-0 p-0"></iframe><div class="modal-close" id="modalClose" onclick="closeModal()"><i class="fa-solid fa-xmark fa-lg"></i></div></div></div>
-    <div class="max-w-7xl md:px-3 mx-auto transition-all">
+    <div class="max-w-[120rem] md:px-3 mx-auto transition-all">
       {% block content_header %}
         {% include "includes/_header.html" %}
       {% endblock %}
