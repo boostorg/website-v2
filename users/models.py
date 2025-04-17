@@ -1,6 +1,7 @@
 import uuid
 import logging
 import os
+from contextlib import suppress
 
 import requests
 from django.conf import settings
@@ -17,6 +18,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from imagekit.exceptions import MissingSource
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
 
@@ -286,12 +288,9 @@ class User(BaseUser):
 
     def get_thumbnail_url(self):
         # convenience method for templates
-        if (
-            self.image
-            and self.image.storage.exists(self.image.name)
-            and self.image_thumbnail
-        ):
-            return getattr(self.image_thumbnail, "url", None)
+        if self.image and self.image_thumbnail:
+            with suppress(AttributeError, MissingSource):
+                return getattr(self.image_thumbnail, "url", None)
 
     @property
     def github_profile_url(self):
