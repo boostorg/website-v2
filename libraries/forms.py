@@ -816,6 +816,7 @@ class CreateReportForm(CreateReportFullForm):
             "mailinglist_contributor_new_count": mailinglist_contributor_new_count,
             "mailinglist_post_stats": mailinglist_post_stats,
             "mailinglist_new_subscribers_stats": new_subscribers_stats,
+            "mailinglist_charts_start_year": prior_version.release_date.year,
             "commit_contributors_release_count": commit_contributors_release_count,
             "commit_contributors_new_count": commit_contributors_new_count,
             "global_contributors_new_count": len(

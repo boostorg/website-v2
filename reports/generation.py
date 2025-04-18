@@ -2,7 +2,7 @@ import base64
 import io
 import logging
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import psycopg2
 from django.conf import settings
@@ -127,15 +127,24 @@ def get_mail_content(version: Version):
 
 
 def get_mailing_list_post_stats(start_date: datetime, end_date: datetime):
-    logger.info(f"from {start_date} to {end_date}")
     data = (
         PostingData.objects.filter(post_time__gt=start_date, post_time__lte=end_date)
         .annotate(week=ExtractWeek("post_time"), iso_year=ExtractIsoYear("post_time"))
-        .values("week")
+        .values("iso_year", "week")
         .annotate(count=Count("id"))
         .order_by("iso_year", "week")
     )
-    return [{"y": s.get("count"), "x": s.get("week")} for s in data]
+
+    chart_data = []
+
+    for row in data:
+        week_number = row["week"]
+        year_number = str(row["iso_year"])[2:]  # e.g. 25
+        x = f"{week_number} ({year_number})"  # e.g., "51 (24)", "1 (25)"
+        y = row["count"]
+        chart_data.append({"x": x, "y": y})
+
+    return chart_data
 
 
 def get_new_subscribers_stats(start_date: datetime, end_date: datetime):
@@ -149,15 +158,27 @@ def get_new_subscribers_stats(start_date: datetime, end_date: datetime):
             week=ExtractWeek("subscription_dt"),
             iso_year=ExtractIsoYear("subscription_dt"),
         )
-        .values("week", "list")
+        .values("iso_year", "week")
         .annotate(count=Count("id"))
         .order_by("iso_year", "week")
     )
 
-    formatted_data = [{"x": s.get("week"), "y": s.get("count")} for s in data]
-    referenced_weeks = [x.get("week") for x in data]
-    # account for weeks that no data is retrieved
-    for w in range(start_date.isocalendar().week, end_date.isocalendar().week + 1):
-        if w not in referenced_weeks:
-            formatted_data.append({"x": w, "y": 0})
-    return formatted_data
+    # Convert data into a dict for easy lookup
+    counts_by_week = {(row["iso_year"], row["week"]): row["count"] for row in data}
+
+    # Iterate through every ISO week in the date range
+    current = start_date
+    seen = set()
+    chart_data = []
+    while current <= end_date:
+        iso_year, iso_week, _ = current.isocalendar()
+        key = (iso_year, iso_week)
+        if key not in seen:  # skip duplicate weeks in the same loop
+            seen.add(key)
+            year_suffix = str(iso_year)[2:]
+            label = f"{iso_week} ({year_suffix})"
+            count = counts_by_week.get(key, 0)
+            chart_data.append({"x": label, "y": count})
+        current += timedelta(days=7)  # hop by weeks
+
+    return chart_data
