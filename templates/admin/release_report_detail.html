@@ -538,7 +538,7 @@ body {
         xaxis: {
           type: "category",
           title: {
-            text: "Calendar Week {{ mailinglist_post_start_year }}"
+            text: "Calendar Week {{ mailinglist_charts_start_year }}"
           },
           labels: {
             rotate: 0,
@@ -576,17 +576,30 @@ body {
         xaxis: {
           type: "numeric",
           title: {
-            text: "Calendar Week"
+            text: "Calendar Week {{ mailinglist_charts_start_year }}"
           },
           labels: {
-            formatter: (value) => { return `${value}`; }
+            rotate: 0,
+            formatter: function (value) {
+              // Format is: "WEEK (YEAR)", e.g. "51 (24)"
+              const match = value.match(/^(\d+)\s+\((\d{2})\)$/);
+              if (match) {
+                const week = parseInt(match[1]);
+                const year = match[2];
+                return week === 1 ? `1 (20${year})` : `${week}`;
+              }
+              return value; // fallback if pattern doesn't match
+            }
           }
         },
         yaxis: {
           title: {
             text: "New Subscribers"
-          }
+          },
         },
+        dataLabels: {
+          enabled: false
+        }
       };
 
       const subscriptionsChart = new ApexCharts(document.querySelector("#subscriptions_stats"), subscriptionsOptions);
