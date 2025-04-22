@@ -702,12 +702,12 @@ html:has(.boostlook) {
   font-style: normal;
   font-weight: 100 900;
   /* Variable font weight range */
-  font-variation-settings: "wght" 400;
+  font-variation-settings: "wght" 400, "wdth" 90;
   font-stretch: semi-condensed;
   font-display: block;
   /* Prevents FOIT */
   src: url("/static/font/notosans.woff2") format("woff2"),
-  url("../../../../tools/boostlook/NotoSansDisplay.ttf") format("truetype"),
+  url("../../../../tools/boostlook/notosans.woff2") format("truetype"),
     url("https://cppalliance.org/fonts/NotoSansDisplay.ttf") format("truetype");
 }
 
@@ -717,12 +717,12 @@ html:has(.boostlook) {
   font-style: italic;
   font-weight: 100 900;
   /* Variable font weight range */
-  font-variation-settings: "wght" 400;
+  font-variation-settings: "wght" 400, "wdth" 90;
   font-stretch: semi-condensed;
   font-display: block;
   /* Prevents FOIT */
   src: url("/static/font/notosans_mono_ext.woff") format("woff"),
-  url("../../../../tools/boostlook/NotoSansMono.ttf") format("truetype"),
+  url("../../../../tools/boostlook/notosans_mono_ext.woff") format("truetype"),
     url("https://cppalliance.org/fonts/NotoSansMono.ttf") format("truetype");
 }
 
@@ -732,12 +732,12 @@ html:has(.boostlook) {
   font-style: normal;
   font-weight: 100 900;
   /* Variable font weight range */
-  font-variation-settings: "wght" 400;
+  font-variation-settings: "wght" 400, "wdth" 90;
   font-stretch: semi-condensed;
   font-display: block;
   /* Prevents FOIT */
   src: url("/static/font/notosans_mono.woff") format("woff"),
-  url("../../../../tools/boostlook/NotoSansMono.ttf") format("truetype"),
+  url("../../../../tools/boostlook/notosans_mono.woff") format("truetype"),
     url("https://cppalliance.org/fonts/NotoSansMono.ttf") format("truetype");
 }
 
@@ -750,7 +750,7 @@ html:has(.boostlook) {
   font-stretch: ultra-condensed;
   font-display: block;
   /* Prevents FOIT */
-  src: url("/_/boostlook/NotoSansMono.ttf") format("truetype"), url("../../../../tools/boostlook/NotoSansMono.ttf") format("truetype"),
+  src: url("/_/boostlook/notosans_mono.woff") format("truetype"), url("../../../../tools/boostlook/notosans_mono.woff") format("truetype"),
     url("https://cppalliance.org/fonts/NotoSansMono.ttf") format("truetype");
 }
 
