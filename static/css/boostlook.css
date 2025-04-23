@@ -707,8 +707,8 @@ html:has(.boostlook) {
   font-display: block;
   /* Prevents FOIT */
   src: url("/static/font/notosans.woff2") format("woff2"),
-  url("../../../../tools/boostlook/notosans.woff2") format("truetype"),
-    url("https://cppalliance.org/fonts/NotoSansDisplay.ttf") format("truetype");
+       url("../../../../tools/boostlook/notosans.woff2") format("woff2"),
+       url("https://cppalliance.org/fonts/NotoSansDisplay.ttf") format("truetype");
 }
 
 /* Noto Sans Display - Italic */
@@ -722,8 +722,8 @@ html:has(.boostlook) {
   font-display: block;
   /* Prevents FOIT */
   src: url("/static/font/notosans_mono_ext.woff") format("woff"),
-  url("../../../../tools/boostlook/notosans_mono_ext.woff") format("truetype"),
-    url("https://cppalliance.org/fonts/NotoSansMono.ttf") format("truetype");
+       url("../../../../tools/boostlook/notosans_mono_ext.woff") format("woff"),
+       url("https://cppalliance.org/fonts/NotoSansMono.ttf") format("truetype");
 }
 
 /* Noto Sans Mono - Variable Weight */
@@ -737,8 +737,8 @@ html:has(.boostlook) {
   font-display: block;
   /* Prevents FOIT */
   src: url("/static/font/notosans_mono.woff") format("woff"),
-  url("../../../../tools/boostlook/notosans_mono.woff") format("truetype"),
-    url("https://cppalliance.org/fonts/NotoSansMono.ttf") format("truetype");
+       url("../../../../tools/boostlook/notosans_mono.woff") format("woff"),
+       url("https://cppalliance.org/fonts/NotoSansMono.ttf") format("truetype");
 }
 
 /* Noto Sans Mono - Fixed Weight */
@@ -750,8 +750,9 @@ html:has(.boostlook) {
   font-stretch: ultra-condensed;
   font-display: block;
   /* Prevents FOIT */
-  src: url("/_/boostlook/notosans_mono.woff") format("truetype"), url("../../../../tools/boostlook/notosans_mono.woff") format("truetype"),
-    url("https://cppalliance.org/fonts/NotoSansMono.ttf") format("truetype");
+  src: url("/static/font/notosans_mono.woff") format("woff"),
+       url("../../../../tools/boostlook/notosans_mono.woff") format("woff"),
+       url("https://cppalliance.org/fonts/NotoSansMono.ttf") format("truetype");
 }
 
 /*----------------- Font-Face Declarations end -----------------*/
