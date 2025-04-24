@@ -434,6 +434,9 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
     # is_iframe_view = False
 
     def get_from_s3(self, content_path):
+        # Fix special case
+        if content_path == "1_88_0/doc/html/process.html":
+            content_path = "1_88_0/libs/process/doc/html/index.html"
         # perform URL matching/mapping, perhaps extract the version from content_path
         matches = self.boost_lib_path_re.match(content_path)
         if matches:
