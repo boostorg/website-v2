@@ -132,8 +132,6 @@ data:
       location = /doc/libs/ { return 301 /libraries/; }
       location = /build/ { return 301 /tools/build/; }
       location = /more/lib_guide.htm { return 301 /doc/contributor-guide/index.html; }
-      # process docs did not make it into 1.88; redirect to 1.87 version
-      location = /doc/libs/1_88_0/doc/html/process.html { return 301 /doc/libs/1_87_0/doc/html/process.html; }
 
       include /etc/nginx/mime.types;
     }
