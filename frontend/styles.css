@@ -110,7 +110,6 @@
   kbd,
   samp,
   pre {
-    font-family: 'Noto Mono', monospace;
     /* 1 */
     @apply text-sm text-sky-800 dark:text-sky-200 overflow-x-scroll;
     /* 2 */

@@ -42,15 +42,15 @@ module.exports = {
           900: '#151E37',
         }
       },
-      fontFamily: {
-        'sans': [
-          '"Noto Sans"',
-          process.env.ENVIRONMENT_NAME == 'Development Environment' ?
-            'serif'
-          :
-            'sans-serif',
-        ],
-      }
+      // fontFamily: {
+      //   'sans': [
+      //     '"Noto Sans"',
+      //     process.env.ENVIRONMENT_NAME == 'Development Environment' ?
+      //       'serif'
+      //     :
+      //       'sans-serif',
+      //   ],
+      // }
     },
   },
   variants: {

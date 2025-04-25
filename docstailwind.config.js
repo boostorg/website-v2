@@ -28,15 +28,15 @@ module.exports = {
       silver: '#B5C9D3',
     },
     extend: {
-      fontFamily: {
-        'sans': [
-          '"Noto Sans"',
-          process.env.ENVIRONMENT_NAME == 'Development Environment' ?
-            'serif'
-          :
-            'sans-serif',
-        ]
-      }
+      // fontFamily: {
+      //   'sans': [
+      //     '"Noto Sans"',
+      //     process.env.ENVIRONMENT_NAME == 'Development Environment' ?
+      //       'serif'
+      //     :
+      //       'sans-serif',
+      //   ]
+      // }
     }
   },
   variants: {
