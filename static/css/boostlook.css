@@ -274,7 +274,7 @@
   --main-container: 90rem;
 
   /* New Look Typography */
-  --font-family-body: "Noto Sans Display";
+  --font-family-body: "Noto Sans";
   --font-family-code: "Noto Sans Mono";
   --font-size-3xs: 0.625rem;
   --font-size-2xs: 0.75rem;
@@ -698,7 +698,7 @@ html:has(.boostlook) {
 
 /* Noto Sans Display - Regular */
 @font-face {
-  font-family: "Noto Sans Display";
+  font-family: "Noto Sans";
   font-style: normal;
   font-weight: 100 900;
   font-stretch: 62.5% 100%;
@@ -713,7 +713,7 @@ html:has(.boostlook) {
 
 /* Noto Sans Display - Italic */
 @font-face {
-  font-family: "Noto Sans Display";
+  font-family: "Noto Sans";
   font-style: italic;
   font-weight: 100 900;
   font-stretch: 62.5% 100%;
@@ -878,7 +878,7 @@ body :not(pre):not([class^="L"]) > code {
 
 /* Base Container */
 .boostlook {
-  font-family: "Noto Sans Display" !important;
+  font-family: var(--font-family-body, "Noto Sans") !important;
   font-variation-settings: "wght" 400, "wdth" 80;
   background: var(--surface-background-main-base-primary, #fff);
 }
@@ -1239,7 +1239,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 /* Emphasis within code */
 .boostlook em,
 .boostlook code em {
-  font-family: "Noto Sans Display";
+  font-family: "Noto Sans Mono";
   font-size: inherit;
 }
 
@@ -1370,7 +1370,7 @@ html.dark .boostlook .doc .literalblock pre {
   align-items: center;
   gap: var(--spacing-size-2xs, 0.5rem);
   color: var(--text-main-text-body-tetriary, #62676b);
-  font-family: "Noto Sans Display";
+  font-family: "Noto Sans";
   font-size: var(--typography-font-size-2xs, 0.75rem);
   font-style: normal;
   font-weight: 400;
@@ -1444,7 +1444,7 @@ html.dark .boostlook .doc .literalblock pre {
 .boostlook .content:has(> pre):has(> .source-toolbox) .source-lang {
   color: var(--text-main-text-body-quaternary, #949a9e);
   text-align: right;
-  font-family: "Noto Sans Display";
+  font-family: "Noto Sans";
   font-size: var(--typography-font-size-2xs, 0.75rem);
   font-style: normal;
   font-weight: 500;
@@ -2058,7 +2058,7 @@ html.dark .boostlook .hljs-code {
 }
 .boostlook #content .admonitionblock > table tr td.icon > * {
   padding: 0;
-  font-family: var(--font-family-body, "Noto Sans Display");
+  font-family: var(--font-family-body, "Noto Sans");
 }
 
 .boostlook #content .admonitionblock > table tr td.icon i.fa::after {
@@ -2522,7 +2522,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: "Noto Sans Display";
+  font-family: "Noto Sans";
   font-style: normal;
   font-weight: 500;
   line-height: var(--typography-line-height-sm, 1rem);
