@@ -38,13 +38,13 @@
     {% block extra_head %}
       <link href="{% static 'css/styles.css' %}" rel="stylesheet">
       <link href="{% static 'css/components.css' %}" rel="stylesheet">
-      <link rel="preload" as="style" href="{% static 'css/fonts.css' %}" rel="stylesheet">
+      {% comment %} <link rel="preload" as="style" href="{% static 'css/fonts.css' %}" rel="stylesheet"> {% endcomment %}
       <link href="{% static 'css/boostlook.css' %}" rel="stylesheet">
     {% endblock %}
 
     {% block css %}{% endblock css %}
     <style>
-    @import url({% static 'css/fonts.css' %});
+    {% comment %} @import url({% static 'css/fonts.css' %}); {% endcomment %}
     {% include "includes/_css_variables.css" %}
     .header-menu-bar {
         padding: 0 1rem;
@@ -324,6 +324,10 @@
         color: #f00;
       }
     </style>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wdth,wght@62.5..100,100..900&family=Noto+Sans:ital,wdth,wght@0,62.5..100,100..900;1,62.5..100,100..900&display=swap" rel="stylesheet">
   </head>
 
   <body x-init="() => {const m = localStorage.getItem('colorMode');

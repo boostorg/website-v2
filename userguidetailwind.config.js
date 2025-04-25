@@ -29,15 +29,15 @@ module.exports = {
       active: '#1565c0',
     },
     extend: {
-      fontFamily: {
-        'sans': [
-          '"Noto Sans"',
-          process.env.ENVIRONMENT_NAME == 'Development Environment' ?
-            'serif'
-          :
-            'sans-serif',
-        ]
-      }
+      // fontFamily: {
+      //   'sans': [
+      //     '"Noto Sans"',
+      //     process.env.ENVIRONMENT_NAME == 'Development Environment' ?
+      //       'serif'
+      //     :
+      //       'sans-serif',
+      //   ]
+      // }
     },
   },
   variants: {

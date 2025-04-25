@@ -3,7 +3,7 @@
 
 {% block extra_head %}
   <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
-  <link rel="preload" data-modernizer="boost-legacy-docs-extra-head" href="{% static 'css/fonts.css' %}" rel="stylesheet" />
+  {% comment %} <link rel="preload" data-modernizer="boost-legacy-docs-extra-head" href="{% static 'css/fonts.css' %}" rel="stylesheet" /> {% endcomment %}
   {% if not skip_use_boostlook %}
     <link rel="preload" data-modernizer="boost-legacy-docs-extra-head" href="{% static 'css/boostlook.css' %}" rel="stylesheet" />
   {% endif %}
