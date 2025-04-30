@@ -32,6 +32,7 @@ from core.views import (
     StaticContentTemplateView,
     UserGuideTemplateView,
     BoostDevelopmentView,
+    ModernizedDocsView,
 )
 from libraries.api import LibrarySearchView
 from libraries.views import (
@@ -345,6 +346,11 @@ urlpatterns = (
         ),
         # Internal functions
         path("internal/clear-cache/", ClearCacheView.as_view(), name="clear-cache"),
+        path(
+            "internal/modernized-docs/<path:content_path>",
+            ModernizedDocsView.as_view(),
+            name="modernized_docs",
+        ),
     ]
     + [
         # Redirects for old boost.org urls.

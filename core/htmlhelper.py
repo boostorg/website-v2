@@ -1,7 +1,8 @@
 import re
 
-from bs4 import BeautifulSoup, Comment
+from bs4 import BeautifulSoup, Comment, Tag
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 
 from core.boostrenderer import get_body_from_html
 from core.constants import SourceDocType
@@ -323,6 +324,71 @@ def remove_library_boostlook(soup):
             tag.decompose()
 
     return soup
+
+
+def modernize_preprocessor_docs(soup: BeautifulSoup) -> tuple[BeautifulSoup, bool]:
+    """Special case handling for Boost.Preprocessor docs.
+
+    Returns a two-tuple:
+        0. BeautifulSoup object
+        1. Boolean indicating whether framesets were present (and modified).
+    """
+    # Only transform if <frameset> is present
+    if not soup.find("frameset"):
+        return soup, False
+
+    # Create a new empty soup document
+    new_soup = BeautifulSoup("", "html.parser")
+    html = new_soup.new_tag("html", lang="en")
+    head = new_soup.new_tag("head")
+    body = new_soup.new_tag("body")
+    html.append(head)
+    html.append(body)
+    new_soup.append(html)
+
+    page_title = soup.title.string if soup.title else "Boost"
+    head.append(new_soup.new_tag("meta", charset="utf-8"))
+    title_tag = new_soup.new_tag("title")
+    title_tag.string = page_title
+    head.append(title_tag)
+    css_link = BeautifulSoup(
+        f'<link rel="stylesheet" href={static("css/preprocessing_fixes.css")} type="text/css">'
+    )
+    head.append(css_link)
+
+    # Add HTMX
+    htmx_script = new_soup.new_tag("script", src="https://unpkg.com/htmx.org@1.9.2")
+    head.append(htmx_script)
+
+    def _add_htmx_loading_div(_soup: BeautifulSoup, html_id: str, filename: str) -> Tag:
+        div = _soup.new_tag(
+            "div",
+            id=html_id,
+            **{
+                "hx-get": filename,
+                "hx-trigger": "load",
+                "hx-select": "body > *",
+                "hx-swap": "innerHTML",
+                "hx-boost": "true",
+            },
+        )
+        div.string = "Loading..."
+        return div
+
+    header = _add_htmx_loading_div(new_soup, "header", "top.html")
+    body.append(header)
+
+    # Wrapper for sidebar + main
+    wrapper = new_soup.new_tag("div", attrs={"class": "content-wrapper"})
+    sidebar = _add_htmx_loading_div(new_soup, "sidebar", "contents.html")
+    wrapper.append(sidebar)
+
+    main = _add_htmx_loading_div(new_soup, "main", "title.html")
+    wrapper.append(main)
+
+    body.append(wrapper)
+
+    return new_soup, True
 
 
 def format_nested_lists(soup):

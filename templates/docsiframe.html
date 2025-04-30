@@ -2,8 +2,13 @@
 
 {% block content %}
     <iframe
-        srcdoc="{{ content }}"
-        onload="iframeCustomizations(this)"
+        {% if iframe_url %}
+          src="{{ iframe_url }}"
+          style="display: block; width: 100%; min-height: 600px; border: none;"
+        {% else %}
+          srcdoc="{{ content }}"
+          onload="iframeCustomizations(this)"
+        {% endif %}
         id="docsiframe"
     ></iframe>
     <script>
