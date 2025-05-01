@@ -52,6 +52,11 @@ $ docker compose run --rm web python manage.py createsuperuser
 This will create the Docker image, install dependencies, start the services
 defined in `docker-compose.yml`, and start the webserver.
 
+Then run:
+```
+$ just load_production_data
+```
+
 styles.css is still missing in a local docker-compose environment. Steps to add it:
 
 ```
