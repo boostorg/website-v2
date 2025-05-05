@@ -503,7 +503,11 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
             soup.find("head").append(
                 soup.new_tag("script", src=f"{STATIC_URL}js/theme_handling.js")
             )
-            soup, should_use_modernized_iframe = modernize_preprocessor_docs(soup)
+            if "libs/preprocessor" in self.request.path:
+                # Temporarily only run this on the preprocessor docs
+                soup, should_use_modernized_iframe = modernize_preprocessor_docs(soup)
+            else:
+                should_use_modernized_iframe = False
             context["content"] = soup.prettify()
             if should_use_modernized_iframe:
                 modernized_url = reverse(
@@ -585,10 +589,6 @@ class ModernizedDocsView(View):
     """Special case view for handling sub-pages of the Boost.Preprocessor docs."""
 
     def get(self, request, content_path):
-        # Temporary log
-        logger.info(f"{request.is_secure() = }")
-        logger.info(f"{request.META.get('HTTP_X_FORWARDED_PROTO') = }")
-
         soup, response = self._load_and_transform_html(content_path, request)
         if response:
             return response  # Early return for non-HTML content
