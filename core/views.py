@@ -435,6 +435,11 @@ BOOST_LIB_PATH_RE = re.compile(r"^(boost_){0,1}([0-9_]*[0-9]+[^/]*)/(.*)")
 
 
 def normalize_boost_doc_path(content_path: str) -> str:
+    if content_path.startswith(LATEST_RELEASE_URL_PATH_STR):
+        version = Version.objects.most_recent()
+        content_path = content_path.replace(
+            f"{LATEST_RELEASE_URL_PATH_STR}/", f"{version.stripped_boost_url_slug}/"
+        )
     # Special case for Boost.Process
     if content_path == "1_88_0/doc/html/process.html":
         content_path = "1_88_0/libs/process/doc/html/index.html"
