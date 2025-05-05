@@ -1,5 +1,6 @@
 import os
 import re
+from urllib.parse import urljoin
 
 import structlog
 from bs4 import BeautifulSoup
@@ -38,6 +39,7 @@ from .htmlhelper import (
     modernize_legacy_page,
     convert_name_to_id,
     remove_library_boostlook,
+    modernize_preprocessor_docs,
 )
 from .markdown import process_md
 from .models import RenderedContent
@@ -428,23 +430,35 @@ class StaticContentTemplateView(BaseStaticContentTemplateView):
         return content
 
 
+# possible library versions are: boost_1_53_0_beta1, 1_82_0, 1_55_0b1
+BOOST_LIB_PATH_RE = re.compile(r"^(boost_){0,1}([0-9_]*[0-9]+[^/]*)/(.*)")
+
+
+def normalize_boost_doc_path(content_path: str) -> str:
+    if content_path.startswith(LATEST_RELEASE_URL_PATH_STR):
+        version = Version.objects.most_recent()
+        content_path = content_path.replace(
+            f"{LATEST_RELEASE_URL_PATH_STR}/", f"{version.stripped_boost_url_slug}/"
+        )
+    # Special case for Boost.Process
+    if content_path == "1_88_0/doc/html/process.html":
+        content_path = "1_88_0/libs/process/doc/html/index.html"
+
+    # Match versioned library paths
+    matches = BOOST_LIB_PATH_RE.match(content_path)
+    if matches:
+        groups = matches.groups()
+        if groups and not groups[0]:
+            content_path = f"boost_{content_path}"
+
+    return f"/archives/{content_path}"
+
+
 class DocLibsTemplateView(BaseStaticContentTemplateView):
-    # possible library versions are: boost_1_53_0_beta1, 1_82_0, 1_55_0b1
-    boost_lib_path_re = re.compile(r"^(boost_){0,1}([0-9_]*[0-9]+[^/]*)/(.*)")
     # is_iframe_view = False
 
     def get_from_s3(self, content_path):
-        # Fix special case
-        if content_path == "1_88_0/doc/html/process.html":
-            content_path = "1_88_0/libs/process/doc/html/index.html"
-        # perform URL matching/mapping, perhaps extract the version from content_path
-        matches = self.boost_lib_path_re.match(content_path)
-        if matches:
-            groups = matches.groups()
-            if groups and not groups[0]:
-                content_path = f"boost_{content_path}"
-
-        legacy_url = f"/archives/{content_path}"
+        legacy_url = normalize_boost_doc_path(content_path)
         return super().get_from_s3(legacy_url)
 
     def process_content(self, content):
@@ -489,7 +503,18 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
             soup.find("head").append(
                 soup.new_tag("script", src=f"{STATIC_URL}js/theme_handling.js")
             )
+            soup, should_use_modernized_iframe = modernize_preprocessor_docs(soup)
             context["content"] = soup.prettify()
+            if should_use_modernized_iframe:
+                modernized_url = reverse(
+                    "modernized_docs",
+                    kwargs={"content_path": self.kwargs["content_path"]},
+                )
+                return render_to_string(
+                    "docsiframe.html",
+                    {"iframe_url": modernized_url},
+                    request=self.request,
+                )
         else:
             # Potentially pass version if needed for HTML modification.
             # We disable plausible to prevent redundant 'about:srcdoc' tracking,
@@ -554,6 +579,109 @@ class UserGuideTemplateView(BaseStaticContentTemplateView):
             show_navbar=False,
         )
         return render_to_string("docsiframe.html", context, request=self.request)
+
+
+class ModernizedDocsView(View):
+    """Special case view for handling sub-pages of the Boost.Preprocessor docs."""
+
+    def get(self, request, content_path):
+        soup, response = self._load_and_transform_html(content_path, request)
+        if response:
+            return response  # Early return for non-HTML content
+
+        self._inject_base_tag(soup, request)
+        self._rewrite_links(soup, content_path)
+        self._inject_script(soup)
+
+        html = str(soup)
+        print(f"Returning {len(html)} bytes of transformed HTML")
+        return HttpResponse(html, content_type="text/html")
+
+    def _load_and_transform_html(self, content_path, request):
+        legacy_url = normalize_boost_doc_path(content_path)
+        try:
+            result = get_content_from_s3(key=legacy_url)
+        except ContentNotFoundException:
+            raise Http404("Not found")
+
+        content = result.get("content")
+        content_type = result.get("content_type", "")
+
+        if not content:
+            return None, HttpResponse(
+                content or "", content_type=content_type or "text/plain"
+            )
+
+        html = content.decode(chardet.detect(content)["encoding"])
+
+        if content_type.startswith("text/x-c"):
+            soup = self._process_cpp_code(html)
+            return None, HttpResponse(soup, content_type="text/plain")
+
+        soup = BeautifulSoup(html, "html.parser")
+        soup = convert_name_to_id(soup)
+        soup, _ = modernize_preprocessor_docs(soup)
+        return soup, None
+
+    def _process_cpp_code(self, html):
+        lines = html.strip().splitlines()
+        code_block = "\n".join(lines)
+        soup = BeautifulSoup("", "html.parser")
+        html = soup.new_tag("html")
+        head = soup.new_tag("head")
+        body = soup.new_tag("body")
+        code = soup.new_tag("code", **{"class": "language-cpp"})
+        code.string = code_block
+        pre = soup.new_tag("pre")
+        pre.append(code)
+        body.append(pre)
+        html.append(head)
+        html.append(body)
+        soup.append(html)
+        return soup
+
+    def _inject_base_tag(self, soup, request):
+        if soup.head and not soup.head.find("base"):
+            base_path = request.path.rsplit("/", 1)[0] + "/"
+            base_href = urljoin(request.build_absolute_uri("/"), base_path.lstrip("/"))
+            base_tag = soup.new_tag("base", href=base_href)
+            soup.head.insert(0, base_tag)
+
+    def _inject_script(self, soup):
+        script_tag = soup.new_tag(
+            "script", src=f"{settings.STATIC_URL}js/theme_handling.js"
+        )
+        if soup.head:
+            soup.head.append(script_tag)
+
+    def _rewrite_links(self, soup, content_path):
+        """Turn anchor tags meant to use framesets into htmx-driven links"""
+
+        def _set_htmx_attrs(tag, _target):
+            tag["hx-target"] = _target
+            tag["hx-swap"] = "innerHTML show:none"
+
+        base_content_path = content_path.rsplit("/", 1)[0] + "/"
+        for a in soup.find_all("a"):
+            target = a.get("target")
+            href = a.get("href", "")
+
+            if target in ("_top", "_parent"):
+                new_path = urljoin(base_content_path, href)
+                a["href"] = reverse("docs-libs-page", kwargs={"content_path": new_path})
+                a["target"] = "_parent"
+            elif target == "index":
+                _set_htmx_attrs(a, "#sidebar")
+            elif target == "desc":
+                _set_htmx_attrs(a, "#main")
+            elif not target:
+                if content_path.endswith("contents.html"):
+                    _set_htmx_attrs(a, "#sidebar")
+                else:
+                    _set_htmx_attrs(a, "#main")
+
+            if target and a["target"] != "_parent":
+                del a["target"]
 
 
 class ImageView(View):
