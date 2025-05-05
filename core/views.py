@@ -585,6 +585,10 @@ class ModernizedDocsView(View):
     """Special case view for handling sub-pages of the Boost.Preprocessor docs."""
 
     def get(self, request, content_path):
+        # Temporary log
+        logger.info(f"{request.is_secure() = }")
+        logger.info(f"{request.META.get('HTTP_X_FORWARDED_PROTO') = }")
+
         soup, response = self._load_and_transform_html(content_path, request)
         if response:
             return response  # Early return for non-HTML content
@@ -594,7 +598,6 @@ class ModernizedDocsView(View):
         self._inject_script(soup)
 
         html = str(soup)
-        print(f"Returning {len(html)} bytes of transformed HTML")
         return HttpResponse(html, content_type="text/html")
 
     def _load_and_transform_html(self, content_path, request):
