@@ -647,6 +647,9 @@ class ModernizedDocsView(View):
         if soup.head and not soup.head.find("base"):
             base_path = request.path.rsplit("/", 1)[0] + "/"
             base_href = urljoin(request.build_absolute_uri("/"), base_path.lstrip("/"))
+            if not settings.LOCAL_DEVELOPMENT:
+                # Slightly hacky, but it's tricky to get this right inside the iframe
+                base_href = base_href.replace("http://", "https://")
             base_tag = soup.new_tag("base", href=base_href)
             soup.head.insert(0, base_tag)
 
