@@ -129,6 +129,7 @@ data:
       location = /development/separate_compilation.html { return 301 /doc/contributor-guide/design-guide/separate-compilation.html; }
       location = /development/library_metadata.html { return 301 /doc/contributor-guide/requirements/library-metadata.html; }
       location = /doc/ { return 301 /libraries/; }
+      location = /libs/ { return 301 /libraries/; }
       location = /doc/libs/ { return 301 /libraries/; }
       location = /build/ { return 301 /tools/build/; }
       location = /more/lib_guide.htm { return 301 /doc/contributor-guide/index.html; }
