@@ -4,13 +4,15 @@ asgiref==3.8.1
     # via
     #   -c ./requirements.txt
     #   django
+debugpy==1.8.13
+    # via -r ./requirements-dev.in
 django==4.2.16
     # via
     #   -c ./requirements.txt
     #   django-debug-toolbar
 django-debug-toolbar==4.4.6
     # via -r ./requirements-dev.in
-pydevd-pycharm==243.22562.180
+pydevd-pycharm==243.26053.29
     # via -r ./requirements-dev.in
 sqlparse==0.5.1
     # via
