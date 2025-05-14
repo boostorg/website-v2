@@ -117,6 +117,6 @@
 }
 
 #docsiframe {
-  @apply w-full mx-0 my-auto overflow-hidden p-0 max-w-[80rem] mt-[1px];
+  @apply w-full mx-0 my-auto overflow-hidden p-0 mt-[1px];
   height: calc(100vh - 2.6rem)
 }
