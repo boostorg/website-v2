@@ -5,7 +5,12 @@
 onclick="window.location='{% url 'library-detail' library_slug=library_version.library.slug version_slug=version_str %}'">
   <div class="">
     <h3 class="pb-2 text-xl md:text-2xl capitalize border-b border-gray-700">
+    <div class="flex justify-between">
       <a class="link-header" href="{% url 'library-detail' library_slug=library_version.library.slug version_slug=version_str %}">{{ library_version.library.name }}</a>
+      <a class="text-sky-600 dark:text-sky-300 text-base" href="{{ library_version.documentation_url }}" title="Documentation">
+        <i class="fa fa-book icon-link"></i>
+      </a>
+    </div>
       {% for author in library.authors.all %}
         {% if author.image %}
           <img src="{{ author.image.url }}" class="inline float-right rounded w-[30px] ml-1" alt="{{ author.display_name }}" />
