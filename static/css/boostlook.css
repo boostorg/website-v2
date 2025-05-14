@@ -1298,7 +1298,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook .doc .literalblock pre {
   padding: var(--spacing-size-xs, 0.75rem) var(--spacing-size-sm, 1rem);
   background: var(--atom-one-light-bg, #fafafa);
-  border-radius: var(--spacing-size-2xs);
+  border-radius: 0;
   border: unset;
 }
 
@@ -1318,7 +1318,7 @@ html.dark .boostlook .doc .literalblock pre {
 
 .boostlook .content:has(> pre),
 .boostlook .content:has(> pre.highlight) {
-  border-radius: var(--spacing-size-2xs, 0.5rem);
+  border-radius: 0;
   border: 1px solid var(--border-border-secondary, #d5d7d9);
   background: var(--surface-background-main-surface-secondary, #e4e7ea);
 }
@@ -1390,7 +1390,9 @@ html.dark .boostlook .doc .literalblock pre {
 .boostlook#libraryReadMe .literalblock:has(pre),
 .boostlook#libraryReadMe div.highlight:has(> pre) {
   margin: 0;
-  margin-top: var(--padding-padding-2xs, 0.5rem);
+  border: none;
+    background-color: transparent;
+    padding:0;
 }
 
 /* Apply left margin only if code block not in definition block or in table */
@@ -1402,6 +1404,9 @@ html.dark .boostlook .doc .literalblock pre {
 .boostlook#libraryReadMe .literalblock:has(pre):not(:is(dd pre, td pre)),
 .boostlook#libraryReadMe div.highlight:has(> pre):not(:is(dd pre, td pre)) {
   margin-left: var(--spacing-size-xl);
+  border: 1px solid var(--border-border-secondary, #d5d7d9);
+  background: var(--atom-one-light-bg, #fafafa);
+  margin-top: var(--padding-padding-xs, 0.75rem);
 }
 
 .boostlook .listingblock:has(> .content > pre):not(:last-child),
@@ -1774,7 +1779,7 @@ html.dark .boostlook .hljs-code {
 .boostlook .doc .verseblock,
 .boostlook div.blockquote {
   padding: var(--padding-padding-md, 1.125rem) var(--padding-padding-lg, 1.5rem);
-  border-radius: var(--spacing-size-size-0, 0rem) var(--spacing-size-2xs, 0.5rem) var(--spacing-size-2xs, 0.5rem) var(--spacing-size-size-0, 0rem);
+  border-radius: var(--spacing-size-size-0, 0rem);
   border-left: 2px solid var(--border-border-active, #18191b);
   background: var(--surface-background-main-surface-primary, #f5f6f8);
   color: var(--text-main-text-primary, #18191b);
@@ -1961,7 +1966,7 @@ html.dark .boostlook .hljs-code {
 .boostlook:not(:has(.doc)) div.blurb,
 .boostlook:not(:has(.doc)) p.blurb {
   padding: var(--padding-padding-xs, 0.75rem) var(--padding-padding-md, 1.125rem);
-  border-radius: var(--spacing-size-2xs, 0.5rem);
+  border-radius: var(--spacing-size-size-0, 0rem);
   border: 1px solid transparent;
   margin: revert;
   margin-left: var(--spacing-size-xl);
@@ -2080,7 +2085,7 @@ html.dark .boostlook .hljs-code {
 .boostlook:not(:has(.doc)) .notices .message p {
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-xs, 0.875rem);
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 400, "wdth" 80;
   line-height: var(--typography-line-height-lg, 1.5rem); /* 171.429% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
@@ -2244,7 +2249,7 @@ html.dark .boostlook .hljs-code {
   margin: unset;
   margin-top: -1px;
   padding: var(--padding-padding-2xs, 0.5rem) var(--padding-padding-sm, 1rem);
-  border-radius: var(--padding-padding-3xs, 0.5rem);
+  border-radius: var(--spacing-size-size-0, 0rem)
   border: 1px solid var(--border-border-primary, #e4e7ea);
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-xs, 0.875rem);
@@ -2444,6 +2449,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   list-style: none;
   counter-reset: list-counter;
   padding-left: 0;
+  padding-bottom: 1rem;
 }
 
 /* Arabic Ordered List */
@@ -3069,7 +3075,7 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
   color: var(--text-main-text-body-secondary, #494d50);
   font-size: var(--typography-font-size-xs, 0.875rem);
   font-style: normal;
-  line-height: var(--typography-line-height-md, 1.25rem); /* 142.857% */
+  line-height: var(--typography-line-height-sm, 1rem) /* 142.857% */
   text-decoration: none;
 }
 
@@ -3082,12 +3088,13 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
   color: var(--text-main-text-link-blue-secondary, #0284c7);
   text-decoration: none;
 }
-
+/*
 .boostlook #toc .nav-link:visited:not(:hover),
 .boostlook #toc .sectlevel1 li:not(:has(> ul)) a:visited:not(:hover),
 .boostlook:not(:has(.doc)) div.toc a:visited:not(:hover) {
   color: var(--text-main-text-link-viewed, #62b3dd);
 }
+*/
 
 .boostlook .nav-list li[data-depth]:not([data-depth="1"]),
 .boostlook #toc > ul.sectlevel1 ul[class*="sectlevel"] > li,
@@ -4005,8 +4012,8 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) > #cont
 .boostlook#boost-legacy-docs-wrapper:not(:has(.doc)):not(:has(> .boostlook)) > *,
 .boostlook#antora-template-wrapper:not(:has(.doc)):not(:has(> .boostlook)) > *,
 div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) > * {
-  max-width: var(--main-content-width);
-  /* margin-left: inherit;
+  /* max-width: var(--main-content-width);
+  margin-left: inherit;
   margin-right: inherit; */
   margin: 0 auto;
 }
@@ -4298,6 +4305,17 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) > #cont
 
 .boostlook#libraryReadMe div.highlight:has(> pre) {
   background: transparent !important;
+}
+
+.boostlook#libraryReadMe p:has(> a img ) {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.boostlook#libraryReadMe p a:has(> img ) {
+  margin-left:.5rem;
 }
 
 /*----------------- Library README Styles end -----------------*/
