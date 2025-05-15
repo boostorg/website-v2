@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% block main_content_wrapper %}<div class="md:px-3 mx-auto transition-all">{% endblock %}
 {% block content %}
     <iframe
         {% if iframe_url %}
@@ -20,6 +20,9 @@
         if (window.location.hash) {
            scrollToAnchor(iframeDoc, window.location.hash.slice(1));
         }
+        // Try targeting different containers for AsciiDoc
+        const scrollContainer = iframeDoc.querySelector('.sect1, #content, body') || iframeDoc.documentElement;
+        scrollContainer.style.scrollBehavior = 'smooth';
       }
 
       function resizeIframe(obj) {
@@ -28,33 +31,75 @@
 
       function scrollToAnchor(iframeDoc, hash) {
         const targetElement = iframeDoc.getElementById(hash);
-        if (targetElement) {
+        if (!targetElement) return;
+
           // Add space above the target element - more space on mobile
           const isMobile = window.innerWidth < 768;
           const topMargin = isMobile ? 50 : 14;
 
-          const y = targetElement.getBoundingClientRect().top +
-                    iframeDoc.defaultView.pageYOffset - topMargin;
+        // Detect document type
+        const isAntora = !!iframeDoc.querySelector('.doc, .source-docs-antora');
 
+        // First try method 1: scrollIntoView
+        targetElement.scrollIntoView({block: "start", behavior: "auto"});
+
+        // Then apply adjustments based on document type
+        setTimeout(() => {
+          try {
+            // Method 2: Calculate position and use multiple scroll APIs
+            const rect = targetElement.getBoundingClientRect();
+            const scrollY = iframeDoc.defaultView.pageYOffset || iframeDoc.documentElement.scrollTop;
+            const targetY = rect.top + scrollY - topMargin;
+
+            // Use both direct property setting and scrollTo API
+            iframeDoc.documentElement.scrollTop = targetY;
+            iframeDoc.body.scrollTop = targetY; // For Safari
+
+            if (isAntora) {
+              // For Antora, use the defaultView scroll methods
           iframeDoc.defaultView.scrollTo({
-            top: y,
+                top: targetY,
+                behavior: 'smooth'
+              });
+            } else {
+              // For AsciiDoc, use all available scroll targets
+              iframeDoc.documentElement.scrollTo({
+                top: targetY,
             behavior: 'smooth'
           });
-        }
+
+              // Special handling for AsciiDoc documents with scrollable content areas
+              const scrollableContent = iframeDoc.querySelector('#content, .content');
+              if (scrollableContent) {
+                scrollableContent.scrollTop = targetElement.offsetTop - topMargin;
+              }
+            }
+          } catch (e) {
+            console.error('Scroll adjustment error:', e);
+          }
+        }, 10);
       }
 
       function addClickInterception(iframeDoc) {
         let anchorLinks = iframeDoc.querySelectorAll('a[href*="#"]');
         anchorLinks.forEach(function (anchor) {
           anchor.addEventListener('click', function (event) {
+            event.preventDefault();
+
             const href = this.getAttribute('href');
             const hrefSplit = href.split('#');
-            event.preventDefault();
-            {# here we account for anchors on different pages #}
-            if (!window.location.href.endsWith(hrefSplit[0])) {
-              window.location.href = href;
+            const pageUrl = hrefSplit[0] || '';
+            const anchorId = hrefSplit[1] || '';
+
+            if (!anchorId) return;
+
+            // Same page anchor - handle internally
+            if (!pageUrl || window.location.href.includes(pageUrl)) {
+              scrollToAnchor(iframeDoc, anchorId);
+            } else {
+              // Different page with anchor - use parent navigation
+              parent.window.location.href = href;
             }
-            scrollToAnchor(iframeDoc, hrefSplit[1]);
           });
         });
       }
