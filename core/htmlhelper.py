@@ -249,6 +249,29 @@ def modernize_legacy_page(
     return content
 
 
+def slightly_modernize_legacy_library_doc_page(content):
+    """Modernize a legacy Boost library documentation page, but only minimally."""
+    result = BeautifulSoup(content, "html.parser")
+    if result.html is None:
+        # Not an HTML file we care about
+        return content
+    # Remove the first occurrence of legacy header(s) and other stuff
+    for tag_name, tag_attrs in REMOVE_TAGS:
+        tag = result.find(tag_name, tag_attrs)
+        if tag:
+            tag.decompose()
+
+    first_hr = result.find("hr")
+    first_hr.decompose()
+
+    content = str(result)
+
+    # Replace all links to boost.org with a local link
+    content = content.replace("https://www.boost.org/doc/libs/", "/doc/libs/")
+
+    return content
+
+
 def get_library_documentation_urls(content, name="Alphabetically", parent="h2"):
     """
     Takes HTML content and returns a list of tuples containing library

@@ -1,0 +1,223 @@
+{% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+  <head>
+    <title></title>
+    <link href="{% static 'css/header.css' %}">
+    <script defer data-domain="preview.boost.org" src="https://plausible.io/js/script.manual.js"></script>
+    <script src="{% static 'js/boost-gecko/main.eb9cabc5.js' %}" defer></script>
+  </head>
+  <style>
+    /*
+    Copyright 2005-2006 Redshift Software, Inc.
+    Distributed under the Boost Software License, Version 1.0.
+    (See accompanying file LICENSE_1_0.txt or https://www.boost.org/LICENSE_1_0.txt)
+    */
+
+    /* Heading, title and logo. */
+    #heading,
+    #boost-common-heading-doc {
+      background: #4F744D url({% static 'img/original_docs/header-bg.png' %}) repeat-x top left;
+    }
+    #heading *,
+    #boost-common-heading-doc * {
+      color: #FFFFFF;
+    }
+    #heading .heading-inner,
+    #boost-common-heading-doc .heading-inner {
+      background: url({% static 'img/original_docs/header-fg.png' %}) no-repeat top left;
+      border: none;
+      border-bottom: #000000 solid 1px;
+    }
+    #boost-common-heading-doc .heading-logo,
+    #heading .heading-logo {
+      width: 236px;
+      height: 55px;
+      margin: 18px 0px 0px 24px;
+    }
+
+    /* Links in the header. */
+    #boost-common-heading-doc .heading-quote a,
+    #heading .heading-quote a {
+      border-bottom: 1px solid #BBBBBB;
+    }
+    #boost-common-heading-doc .heading-quote a:hover,
+    #heading .heading-quote a:hover {
+      border-bottom: 1px solid #FFFFFF;
+    }
+    #boost-common-heading-doc .heading-quote a:visited,
+    #heading .heading-quote a:visited {
+      border-bottom: 1px dotted #BBBBBB;
+    }
+    #boost-common-heading-doc .heading-quote a:visited:hover,
+    #heading .heading-quote a:visited:hover {
+      border-bottom: 1px dotted #FFFFFF;
+    }
+
+    /*
+    Copyright 2005-2008 Redshift Software, Inc.
+    Distributed under the Boost Software License, Version 1.0.
+    (See accompanying file LICENSE_1_0.txt or https://www.boost.org/LICENSE_1_0.txt)
+    */
+    /* Heading, title and logo. */
+
+    /* Position the common heading. This appears on pages which have their own
+     * markup. Since the body might have a margin this has to be absolutely
+     * positioned. The spacer then pushes the page content down so that it
+     * doesn't fall underneath the heading. */
+    #boost-common-heading-doc {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+    body.boost-asciidoctor #boost-common-heading-doc {
+        position: static;
+    }
+
+    #boost-common-heading-doc-spacer {
+      height: 100px;
+    }
+    body.boost-asciidoctor #boost-common-heading-doc-spacer {
+      display: none;
+    }
+
+    #boost-common-heading-doc,
+    #heading {
+      margin: 0em;
+      border-bottom: #000000 solid 1px;
+      width: 100%;
+      font-family: sans-serif;
+      font-size: 9.5pt;
+    }
+    #boost-common-heading-doc .heading-inner,
+    #heading .heading-inner {
+      height: 100px;
+      overflow: hidden;
+    }
+
+    #boost-common-heading-doc *,
+    #heading * {
+      font-size: 100%;
+      font-weight: normal;
+      margin: 0;
+      padding: 0;
+      text-decoration: none;
+    }
+    #boost-common-heading-doc .heading-placard,
+    #heading .heading-placard {
+      display: none;
+    }
+    #boost-common-heading-doc .heading-title .heading-boost,
+    #boost-common-heading-doc .heading-title .heading-cpplibraries,
+    #heading .heading-title .heading-boost,
+    #heading .heading-title .heading-cpplibraries {
+      display: none;
+    }
+    #boost-common-heading-doc .heading-title,
+    #heading .heading-title {
+      float: left;
+    }
+    #boost-common-heading-doc .heading-title a,
+    #heading .heading-title a {
+    }
+    #boost-common-heading-doc .heading-logo,
+    #heading .heading-logo {
+      width: 270px;
+      height: 90px;
+      border: none;
+      vertical-align: bottom;
+      margin: 0px 0px 0px 1.5em;
+    }
+    #boost-common-heading-doc .heading-quote,
+    #heading .heading-quote {
+      text-align: right;
+      padding: 25px 1.5em 10px 0em;
+    }
+    #boost-common-heading-doc .heading-quote q,
+    #heading .heading-quote q {
+      font-size: 90%;
+      display: block;
+    }
+    #boost-common-heading-doc .heading-quote .heading-attribution,
+    #heading .heading-quote .heading-attribution {
+      font-size: 85%;
+      display: block;
+    }
+    @media (max-device-width: 480px) {
+      .heading-quote {
+        display: none;
+      }
+    }
+    #boost-common-heading-doc .heading-sections,
+    #heading .heading-sections {
+      display: none;
+    }
+    #boost-common-heading-doc .heading-search,
+    #heading .heading-search {
+      text-align: right;
+      padding: 0em 1.5em 0em 0em;
+    }
+    @media (max-device-width: 480px) {
+      #boost-common-heading-doc .heading-search,
+      #heading .heading-search {
+        padding: 1.5em;
+      }
+    }
+    #boost-common-heading-doc .heading-search button,
+    #heading .heading-search button {
+      cursor: pointer;
+      line-height: 1.75;
+      border-radius: 0.25em;
+      padding: 0 1em;
+      border: 1px solid #1976d280;
+      background-color: #FFF;
+      color: #1976d2;
+    }
+    #boost-common-heading-doc .heading-search button svg,
+    #heading .heading-search button svg {
+      vertical-align: middle;
+      height: 1em;
+      width: 1em;
+      fill: #1976d2;
+    }
+    .boost-common-header-notice {
+        font-family: sans-serif;
+        font-size: 13px;
+        border: 1px solid #aa5;
+        background: #ffc;
+        color: #000;
+    }
+
+    a.boost-common-header-inner,
+    span.boost-common-header-inner,
+    div.boost-common-header-inner {
+        display: block;
+        padding: 10px 13px;
+        text-decoration: none;
+        color: #000;
+    }
+
+    a.boost-common-header-inner:hover {
+        text-decoration: underline;
+    }
+
+    @media all and (min-width: 550px) {
+        .boost-common-header-notice {
+            position: absolute;
+            top: 10px;
+            max-width: 400px;
+            max-height: 80px;
+            overflow: hidden;
+            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+            margin-left: 300px;
+        }
+    }
+  </style>
+
+  <body>
+    {% include "includes/_legacy_docs_header.html" %}
+    {{ content|safe }}
+  </body>
+</html>

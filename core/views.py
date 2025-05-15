@@ -21,7 +21,6 @@ from django.views import View
 from django.views.generic import TemplateView
 from requests.compat import chardet
 
-from config.settings import STATIC_URL
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.utils import legacy_path_transform
 from versions.models import Version
@@ -38,8 +37,8 @@ from .constants import SourceDocType
 from .htmlhelper import (
     modernize_legacy_page,
     convert_name_to_id,
-    remove_library_boostlook,
     modernize_preprocessor_docs,
+    slightly_modernize_legacy_library_doc_page,
 )
 from .markdown import process_md
 from .models import RenderedContent
@@ -455,7 +454,7 @@ def normalize_boost_doc_path(content_path: str) -> str:
 
 
 class DocLibsTemplateView(BaseStaticContentTemplateView):
-    # is_iframe_view = False
+    template_name = "original_docs.html"
 
     def get_from_s3(self, content_path):
         legacy_url = normalize_boost_doc_path(content_path)
@@ -464,80 +463,19 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
     def process_content(self, content):
         """Replace page header with the local one."""
         content_type = self.content_dict.get("content_type")
-        source_content_type = self.content_dict.get("source_content_type")
-        if (
-            source_content_type is None
-            and SourceDocType.ANTORA.value in self.request.path
-        ):
-            # hacky, but solves an edge case
-            source_content_type = SourceDocType.ANTORA
-        # Is the request coming from an iframe? If so, let's disable the modernization.
-        sec_fetch_destination = self.request.headers.get("Sec-Fetch-Dest", "")
-        is_iframe_destination = sec_fetch_destination in ["iframe", "frame"]
-
         modernize = self.request.GET.get("modernize", "med").lower()
-
         if (
-            ("text/html" or "text/html; charset=utf-8") not in content_type
-            or modernize not in ("max", "med", "min")
-            or is_iframe_destination
-        ):
+            "text/html" or "text/html; charset=utf-8"
+        ) not in content_type or modernize not in ("max", "med", "min"):
             # eventually check for more things, for example ensure this HTML
             # was not generate from Antora builders.
             return content
 
-        context = {"disable_theme_switcher": False}
-        insert_body = modernize == "max"
-        head_selector = (
-            "head"
-            if modernize in ("max", "med")
-            else {"data-modernizer": "boost-legacy-docs-extra-head"}
-        )
+        new_content = slightly_modernize_legacy_library_doc_page(content)
 
-        context["hide_footer"] = True
-        if source_content_type == SourceDocType.ASCIIDOC:
-            extracted_content = content.decode(chardet.detect(content)["encoding"])
-            soup = BeautifulSoup(extracted_content, "html.parser")
-            soup = convert_name_to_id(soup)
-            soup = remove_library_boostlook(soup)
-            soup.find("head").append(
-                soup.new_tag("script", src=f"{STATIC_URL}js/theme_handling.js")
-            )
-            if "libs/preprocessor" in self.request.path:
-                # Temporarily only run this on the preprocessor docs
-                soup, should_use_modernized_iframe = modernize_preprocessor_docs(soup)
-            else:
-                should_use_modernized_iframe = False
-            context["content"] = soup.prettify()
-            if should_use_modernized_iframe:
-                modernized_url = reverse(
-                    "modernized_docs",
-                    kwargs={"content_path": self.kwargs["content_path"]},
-                )
-                return render_to_string(
-                    "docsiframe.html",
-                    {"iframe_url": modernized_url},
-                    request=self.request,
-                )
-        else:
-            # Potentially pass version if needed for HTML modification.
-            # We disable plausible to prevent redundant 'about:srcdoc' tracking,
-            # tracking is covered by docsiframe.html
-            base_html = render_to_string(
-                "docs_libs_placeholder.html",
-                {**context, **{"disable_plausible": True}},
-                request=self.request,
-            )
-            context["content"] = modernize_legacy_page(
-                content,
-                base_html,
-                insert_body=insert_body,
-                head_selector=head_selector,
-                original_docs_type=source_content_type,
-                show_footer=False,
-                show_navbar=False,
-            )
-        return render_to_string("docsiframe.html", context, request=self.request)
+        return render_to_string(
+            "original_docs.html", {"content": new_content}, request=self.request
+        )
 
 
 class UserGuideTemplateView(BaseStaticContentTemplateView):
