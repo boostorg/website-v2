@@ -450,7 +450,8 @@ STATIC_CONTENT_BUCKET_NAME = env("STATIC_CONTENT_BUCKET_NAME", default="changeme
 STATIC_CONTENT_REGION = env("STATIC_CONTENT_REGION", default="us-east-2")
 
 STATIC_CONTENT_AWS_S3_ENDPOINT_URL = env(
-    "STATIC_CONTENT_AWS_S3_ENDPOINT_URL", default="https://s3.us-east-2.amazonaws.com"
+    "STATIC_CONTENT_AWS_S3_ENDPOINT_URL",
+    default="https://s3.dualstack.us-east-2.amazonaws.com",
 )
 
 # LinkPreview API Key
