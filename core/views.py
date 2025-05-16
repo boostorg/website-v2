@@ -469,14 +469,32 @@ NO_PROCESS_LIBS = [
 
 NO_WRAPPER_LIBS = [
     # Add a header to these, but no wrapper.
+    "libs/array",
+    "libs/assert",
     "libs/charconv",
+    "libs/cobalt",
     "libs/compat",
+    "libs/container_hash",
+    "libs/describe",
+    "libs/endian",
     "libs/exception",
+    "libs/hash2",
+    "libs/io",
+    "libs/lambda2",
+    "libs/leaf",
+    "libs/mp11",
+    "libs/predef",
     "libs/process",
     "doc/html/process",
     "libs/property_map_parallel",
+    "libs/qvm",
     "libs/redis",
+    "libs/smart_ptr",
+    "libs/system",
+    "libs/throw_exception",
     "libs/unordered",
+    "libs/uuid",
+    "libs/variant2",
 ]
 
 
