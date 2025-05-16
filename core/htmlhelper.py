@@ -14,7 +14,6 @@ REMOVE_TAGS = [
     (
         "table",
         {
-            # "bgcolor": "#D7EEFF",
             "border": "0",
             "bordercolor": "#111111",
             "cellpadding": "5",
@@ -35,22 +34,8 @@ REMOVE_TAGS = [
     ("table", {"bgcolor": "#007F7F", "border": "1", "cellpadding": "2"}),
     # /docs/libs/1_82_0/libs/multi_array/doc/index.html (lowercase)
     ("table", {"bgcolor": "#007f7f", "border": "1", "cellpadding": "2"}),
-    # /docs/libs/1_82_0/libs/gil/doc/html/index.html
-    # (
-    #     "table",
-    #     {
-    #         "summary": "header",
-    #         "width": "100%",
-    #         "cellspacing": "0",
-    #         "cellpadding": "7",
-    #         "border": "0",
-    #     },
-    # ),
-    # /docs/libs/1_82_0/libs/statechart/doc/index.html
+    # /docs/libs/1_88_0/libs/statechart/doc/index.html
     ("td", {"valign": "top", "width": "300"}),
-    # very prominent header
-    # /docs/libs/1_82_0/libs/locale/doc/html/index.html
-    # ("div", {"id": "top"}),
     # almost every other page has this as a header
     ("table", {"cellpadding": "2", "width": "100%"}),
     # Remove the first hr from the page

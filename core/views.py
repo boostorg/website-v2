@@ -434,6 +434,7 @@ BOOST_LIB_PATH_RE = re.compile(r"^(boost_){0,1}([0-9_]*[0-9]+[^/]*)/(.*)")
 
 
 def normalize_boost_doc_path(content_path: str) -> str:
+    content_path = content_path.lstrip("boost_")
     if content_path.startswith(LATEST_RELEASE_URL_PATH_STR):
         version = Version.objects.most_recent()
         content_path = content_path.replace(
@@ -454,6 +455,7 @@ def normalize_boost_doc_path(content_path: str) -> str:
 
 
 NO_PROCESS_LIBS = [
+    # Do nothing with these - just render contents directly
     "libs/filesystem",
     "libs/gil",
     "libs/hana",
@@ -463,13 +465,22 @@ NO_PROCESS_LIBS = [
     "libs/serialization",
     "doc/antora/url",
     "libs/wave",
-    # "libs/charconv",
+]
+
+NO_WRAPPER_LIBS = [
+    # Add a header to these, but no wrapper.
+    "libs/charconv",
+    "libs/compat",
+    "libs/exception",
+    "libs/process",
+    "doc/html/process",
+    "libs/property_map_parallel",
+    "libs/redis",
+    "libs/unordered",
 ]
 
 
 class DocLibsTemplateView(BaseStaticContentTemplateView):
-    # template_name = "original_docs.html"
-
     def get_from_s3(self, content_path):
         legacy_url = normalize_boost_doc_path(content_path)
         return super().get_from_s3(legacy_url)
@@ -477,7 +488,7 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
     def process_content(self, content):
         """Replace page header with the local one."""
 
-        if any(f"{lib_slug}" in self.request.path for lib_slug in NO_PROCESS_LIBS):
+        if any(lib_slug in self.request.path for lib_slug in NO_PROCESS_LIBS):
             # Just render raw HTML for some pages
             return content
 
@@ -492,9 +503,11 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
 
         new_content = slightly_modernize_legacy_library_doc_page(content)
 
-        return render_to_string(
-            "original_docs.html", {"content": new_content}, request=self.request
-        )
+        context = {"content": new_content}
+        if any(lib_slug in self.request.path for lib_slug in NO_WRAPPER_LIBS):
+            context["no_wrapper"] = True
+
+        return render_to_string("original_docs.html", context, request=self.request)
 
 
 class UserGuideTemplateView(BaseStaticContentTemplateView):
