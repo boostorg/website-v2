@@ -14,12 +14,12 @@ REMOVE_TAGS = [
     (
         "table",
         {
-            "bgcolor": "#D7EEFF",
             "border": "0",
             "bordercolor": "#111111",
             "cellpadding": "5",
             "cellspacing": "0",
             "style": "border-collapse: collapse",
+            "width": "750",
         },
     ),
     # /doc/libs/1_82_0/libs/functional/index.html
@@ -34,22 +34,12 @@ REMOVE_TAGS = [
     ("table", {"bgcolor": "#007F7F", "border": "1", "cellpadding": "2"}),
     # /docs/libs/1_82_0/libs/multi_array/doc/index.html (lowercase)
     ("table", {"bgcolor": "#007f7f", "border": "1", "cellpadding": "2"}),
-    # /docs/libs/1_82_0/libs/gil/doc/html/index.html
-    (
-        "table",
-        {
-            "summary": "header",
-            "width": "100%",
-            "cellspacing": "0",
-            "cellpadding": "7",
-            "border": "0",
-        },
-    ),
-    # very prominent header
-    # /docs/libs/1_82_0/libs/locale/doc/html/index.html
-    ("div", {"id": "top"}),
+    # /docs/libs/1_88_0/libs/statechart/doc/index.html
+    ("td", {"valign": "top", "width": "300"}),
     # almost every other page has this as a header
     ("table", {"cellpadding": "2", "width": "100%"}),
+    # Remove the first hr from the page
+    ("hr", {}),
 ]
 
 # these tags are only removed on the release page, update REMOVE_TAGS for all pages
@@ -240,6 +230,30 @@ def modernize_legacy_page(
 
     # Remove tags from the base template
     result = hide_tags(result, HIDE_TAGS_BASE)
+
+    content = str(result)
+
+    # Replace all links to boost.org with a local link
+    content = content.replace("https://www.boost.org/doc/libs/", "/doc/libs/")
+
+    return content
+
+
+def slightly_modernize_legacy_library_doc_page(content):
+    """Modernize a legacy Boost library documentation page, but only minimally."""
+    result = BeautifulSoup(content, "html.parser")
+    if result.html is None:
+        # Not an HTML file we care about
+        return content
+    # Remove the first occurrence of legacy header(s) and other stuff
+    for tag_name, tag_attrs in REMOVE_TAGS:
+        tag = result.find(tag_name, tag_attrs)
+        if tag:
+            tag.decompose()
+
+    for tag_name, tag_attrs in REMOVE_ALL:
+        for tag in result.find_all(tag_name, tag_attrs):
+            tag.decompose()
 
     content = str(result)
 

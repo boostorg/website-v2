@@ -61,12 +61,17 @@ LEGACY_BODY = """
 
 
 def _build_tag(tag_name, tag_attrs, inner="Something"):
-    return (
-        f"<{tag_name}"
-        + (" " if tag_attrs else "")
-        + " ".join(f'{k}="{v}"' for k, v in tag_attrs.items())
-        + (f">{inner}</{tag_name}>" if tag_name != "img" else "/>")
-    )
+    tag = f"<{tag_name}"
+    if tag_attrs:
+        tag += " " + " ".join(f'{k}="{v}"' for k, v in tag_attrs.items())
+    if tag_name == "img":
+        tag += "/>"
+    elif tag_name == "hr":
+        tag += ">"
+    else:
+        tag += f">{inner}</{tag_name}>"
+
+    return tag
 
 
 def _build_expected_body(expected_body):

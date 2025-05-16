@@ -214,6 +214,7 @@ def test_docs_libs_gateway_200_non_html(tp, mock_get_file_data):
     assert response.content == s3_content
 
 
+@pytest.mark.skip(reason="Currently not using iframes for libs docs.")
 def test_docs_libs_gateway_200_lib_number_iframe(
     tp, mock_get_file_data, mock_get_leaf_data
 ):
