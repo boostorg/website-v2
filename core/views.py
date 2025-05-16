@@ -453,8 +453,22 @@ def normalize_boost_doc_path(content_path: str) -> str:
     return f"/archives/{content_path}"
 
 
+NO_PROCESS_LIBS = [
+    "libs/filesystem",
+    "libs/gil",
+    "libs/hana",
+    "libs/locale",
+    "libs/iostreams",
+    "libs/preprocessor",
+    "libs/serialization",
+    "doc/antora/url",
+    "libs/wave",
+    # "libs/charconv",
+]
+
+
 class DocLibsTemplateView(BaseStaticContentTemplateView):
-    template_name = "original_docs.html"
+    # template_name = "original_docs.html"
 
     def get_from_s3(self, content_path):
         legacy_url = normalize_boost_doc_path(content_path)
@@ -462,6 +476,11 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
 
     def process_content(self, content):
         """Replace page header with the local one."""
+
+        if any(f"{lib_slug}" in self.request.path for lib_slug in NO_PROCESS_LIBS):
+            # Just render raw HTML for some pages
+            return content
+
         content_type = self.content_dict.get("content_type")
         modernize = self.request.GET.get("modernize", "med").lower()
         if (

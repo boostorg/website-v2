@@ -216,8 +216,10 @@
     }
   </style>
 
-  <body>
+  <body style="margin: 0; padding: 0; max-width: unset;">
     {% include "includes/_legacy_docs_header.html" %}
-    {{ content|safe }}
+    <div style="margin: 1em;">
+      {{ content|safe }}
+    </div>
   </body>
 </html>

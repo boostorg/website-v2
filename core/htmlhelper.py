@@ -14,12 +14,13 @@ REMOVE_TAGS = [
     (
         "table",
         {
-            "bgcolor": "#D7EEFF",
+            # "bgcolor": "#D7EEFF",
             "border": "0",
             "bordercolor": "#111111",
             "cellpadding": "5",
             "cellspacing": "0",
             "style": "border-collapse: collapse",
+            "width": "750",
         },
     ),
     # /doc/libs/1_82_0/libs/functional/index.html
@@ -35,21 +36,25 @@ REMOVE_TAGS = [
     # /docs/libs/1_82_0/libs/multi_array/doc/index.html (lowercase)
     ("table", {"bgcolor": "#007f7f", "border": "1", "cellpadding": "2"}),
     # /docs/libs/1_82_0/libs/gil/doc/html/index.html
-    (
-        "table",
-        {
-            "summary": "header",
-            "width": "100%",
-            "cellspacing": "0",
-            "cellpadding": "7",
-            "border": "0",
-        },
-    ),
+    # (
+    #     "table",
+    #     {
+    #         "summary": "header",
+    #         "width": "100%",
+    #         "cellspacing": "0",
+    #         "cellpadding": "7",
+    #         "border": "0",
+    #     },
+    # ),
+    # /docs/libs/1_82_0/libs/statechart/doc/index.html
+    ("td", {"valign": "top", "width": "300"}),
     # very prominent header
     # /docs/libs/1_82_0/libs/locale/doc/html/index.html
-    ("div", {"id": "top"}),
+    # ("div", {"id": "top"}),
     # almost every other page has this as a header
     ("table", {"cellpadding": "2", "width": "100%"}),
+    # Remove the first hr from the page
+    ("hr", {}),
 ]
 
 # these tags are only removed on the release page, update REMOVE_TAGS for all pages
@@ -261,8 +266,9 @@ def slightly_modernize_legacy_library_doc_page(content):
         if tag:
             tag.decompose()
 
-    first_hr = result.find("hr")
-    first_hr.decompose()
+    for tag_name, tag_attrs in REMOVE_ALL:
+        for tag in result.find_all(tag_name, tag_attrs):
+            tag.decompose()
 
     content = str(result)
 
