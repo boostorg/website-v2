@@ -501,8 +501,9 @@ NO_WRAPPER_LIBS = [
 FULLY_MODERNIZED_LIB_VERSIONS = [
     # FIXME: we should have a way to opt-in via a flag on the library/lib-version.
     #  Hard-coding these here as a quick fix for now.
-    "boost_1_87_0/libs/charconv",
-    "boost_1_88_0/libs/charconv",
+    "1_87_0/libs/charconv",
+    "1_88_0/libs/charconv",
+    "latest/libs/charconv",
 ]
 
 
