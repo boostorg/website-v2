@@ -39,6 +39,7 @@ from .htmlhelper import (
     convert_name_to_id,
     modernize_preprocessor_docs,
     slightly_modernize_legacy_library_doc_page,
+    remove_library_boostlook,
 )
 from .markdown import process_md
 from .models import RenderedContent
@@ -497,6 +498,11 @@ NO_WRAPPER_LIBS = [
     "libs/variant2",
 ]
 
+FULLY_MODERNIZED_LIB_VERSIONS = [
+    "boost_1_87_0/libs/charconv",
+    "boost_1_88_0/libs/charconv",
+]
+
 
 class DocLibsTemplateView(BaseStaticContentTemplateView):
     def get_from_s3(self, content_path):
@@ -505,6 +511,12 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
 
     def process_content(self, content):
         """Replace page header with the local one."""
+
+        if any(
+            lib_slug in self.request.path for lib_slug in FULLY_MODERNIZED_LIB_VERSIONS
+        ):
+            # Return a fully modernized version in an iframe
+            return self._fully_modernize_content(content)
 
         if any(lib_slug in self.request.path for lib_slug in NO_PROCESS_LIBS):
             # Just render raw HTML for some pages
@@ -526,6 +538,69 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
             context["no_wrapper"] = True
 
         return render_to_string("original_docs.html", context, request=self.request)
+
+    def _fully_modernize_content(self, content):
+        """For libraries that have opted in to boostlook modernization"""
+        content_type = self.content_dict.get("content_type")
+        source_content_type = self.content_dict.get("source_content_type")
+        if (
+            source_content_type is None
+            and SourceDocType.ANTORA.value in self.request.path
+        ):
+            # hacky, but solves an edge case
+            source_content_type = SourceDocType.ANTORA
+        # Is the request coming from an iframe? If so, let's disable the modernization.
+        sec_fetch_destination = self.request.headers.get("Sec-Fetch-Dest", "")
+        is_iframe_destination = sec_fetch_destination in ["iframe", "frame"]
+
+        modernize = self.request.GET.get("modernize", "med").lower()
+
+        if (
+            ("text/html" or "text/html; charset=utf-8") not in content_type
+            or modernize not in ("max", "med", "min")
+            or is_iframe_destination
+        ):
+            # eventually check for more things, for example ensure this HTML
+            # was not generate from Antora builders.
+            return content
+
+        context = {"disable_theme_switcher": False}
+        insert_body = modernize == "max"
+        head_selector = (
+            "head"
+            if modernize in ("max", "med")
+            else {"data-modernizer": "boost-legacy-docs-extra-head"}
+        )
+
+        context["hide_footer"] = True
+        if source_content_type == SourceDocType.ASCIIDOC:
+            extracted_content = content.decode(chardet.detect(content)["encoding"])
+            soup = BeautifulSoup(extracted_content, "html.parser")
+            soup = convert_name_to_id(soup)
+            soup = remove_library_boostlook(soup)
+            soup.find("head").append(
+                soup.new_tag("script", src=f"{settings.STATIC_URL}js/theme_handling.js")
+            )
+            context["content"] = soup.prettify()
+        else:
+            # Potentially pass version if needed for HTML modification.
+            # We disable plausible to prevent redundant 'about:srcdoc' tracking,
+            # tracking is covered by docsiframe.html
+            base_html = render_to_string(
+                "docs_libs_placeholder.html",
+                {**context, **{"disable_plausible": True}},
+                request=self.request,
+            )
+            context["content"] = modernize_legacy_page(
+                content,
+                base_html,
+                insert_body=insert_body,
+                head_selector=head_selector,
+                original_docs_type=source_content_type,
+                show_footer=False,
+                show_navbar=False,
+            )
+        return render_to_string("docsiframe.html", context, request=self.request)
 
 
 class UserGuideTemplateView(BaseStaticContentTemplateView):
