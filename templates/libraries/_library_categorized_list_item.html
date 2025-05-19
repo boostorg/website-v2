@@ -13,10 +13,8 @@ onclick="window.location='{% url 'library-detail' library_slug=library_version.l
           {% if library_version.cpp_standard_minimum and library_version.cpp_standard_minimum != 'None' %}{{ library_version.cpp_standard_minimum }}{% else %}03{% endif %}
     </span>
   </td>
-  <td class="py-3 pr-2 align-top">
-    <a class="text-sky-600 dark:text-sky-300 text-base" href="{{ library_version.documentation_url }}" title="Documentation">
-      <i class="fa fa-book icon-link"></i>
-    </a>
+  <td class="align-top">
+    {% include "libraries/includes/_documentation_link_icon.html" %}
   </td>
   <td class="hidden md:block py-2 pl-3 align-top">{{ library_version.description|default:"No description provide for this version." }}</td>
 </tr>
