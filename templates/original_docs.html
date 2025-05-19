@@ -218,7 +218,9 @@
   </style>
 
   {% if no_wrapper %}
+    <div id="injected-header">
     {% include "includes/_legacy_docs_header.html" %}
+    </div>
     {{ content|safe }}
   {% else %}
     <body style="margin: 0; padding: 0; max-width: unset;">
