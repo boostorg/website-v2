@@ -8,6 +8,7 @@ from config.celery import app
 from django.conf import settings
 from django.core.management import call_command
 from fastcore.xtras import obj2dict
+
 from core.githubhelper import GithubAPIClient, GithubDataParser
 from libraries.constants import SKIP_LIBRARY_VERSIONS
 from libraries.github import LibraryUpdater
@@ -160,10 +161,9 @@ def import_version(
 @app.task
 def import_development_versions():
     """Imports the `master` and `develop` branches as Versions"""
-    branches = ["master", "develop"]
     base_url = "https://github.com/boostorg/boost/tree/"
 
-    for branch in branches:
+    for branch in settings.BOOST_BRANCHES:
         import_version.delay(
             branch,
             branch,

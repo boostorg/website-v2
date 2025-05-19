@@ -562,3 +562,5 @@ if DEBUG_TOOLBAR:
         "ROOT_TAG_EXTRA_ATTRS": "hx-preserve",
     }
     MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
+
+BOOST_BRANCHES = ["master", "develop"]

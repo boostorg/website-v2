@@ -42,7 +42,10 @@ def command(min_release: str, release: str, token: str):
         )
 
     for version in versions.order_by("-name"):
+        version_type = "branch" if version.slug in settings.BOOST_BRANCHES else "tag"
         click.secho(f"Saving libraries for version {version.name}", fg="green")
-        import_library_versions.delay(version.name, token=token)
+        import_library_versions.delay(
+            version.name, token=token, version_type=version_type
+        )
 
     click.secho("Finished saving library-version relationships.", fg="green")
