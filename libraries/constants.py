@@ -22,7 +22,7 @@ from .constants_utils import (
     generate_library_docs_url_utility_anchor,
 )
 
-# Mapping for exeptions to loading URLs for older docs.
+# Mapping for exceptions to loading URLs for older docs.
 # key: Taken from Library.slug
 # value: List of dictionaries with instructions for how to format docs URLs for
 # those library-versions
