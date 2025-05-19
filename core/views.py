@@ -504,6 +504,8 @@ FULLY_MODERNIZED_LIB_VERSIONS = [
     "1_87_0/libs/charconv",
     "1_88_0/libs/charconv",
     "latest/libs/charconv",
+    "develop/libs/charconv",
+    "master/libs/charconv",
 ]
 
 
