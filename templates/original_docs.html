@@ -9,12 +9,6 @@
     <script src="{% static 'js/boost-gecko/main.eb9cabc5.js' %}" defer></script>
   </head>
   <style>
-    /*
-    Copyright 2005-2006 Redshift Software, Inc.
-    Distributed under the Boost Software License, Version 1.0.
-    (See accompanying file LICENSE_1_0.txt or https://www.boost.org/LICENSE_1_0.txt)
-    */
-
     body {
       margin-top: 0;
     }
@@ -41,6 +35,10 @@
       margin: 18px 0px 0px 24px;
     }
 
+
+    #injected-header * {
+      color: #000;
+    }
     /* Links in the header. */
     #boost-common-heading-doc .heading-quote a,
     #heading .heading-quote a {
@@ -224,7 +222,9 @@
     {{ content|safe }}
   {% else %}
     <body style="margin: 0; padding: 0; max-width: unset;">
+      <div id="injected-header">
       {% include "includes/_legacy_docs_header.html" %}
+      </div>
       <div style="margin: 1em;">
         {{ content|safe }}
       </div>
