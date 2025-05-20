@@ -464,7 +464,6 @@ NO_PROCESS_LIBS = [
     "libs/iostreams",
     "libs/preprocessor",
     "libs/serialization",
-    "doc/antora/url",
     "libs/wave",
 ]
 
@@ -506,6 +505,7 @@ FULLY_MODERNIZED_LIB_VERSIONS = [
     "latest/libs/charconv",
     "develop/libs/charconv",
     "master/libs/charconv",
+    "doc/antora/url",
 ]
 
 
