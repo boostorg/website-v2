@@ -89,6 +89,7 @@ data:
         # expires 1d;
       }
 
+      location ~ ^/sgi/stl/(.*)$ { return 301 https://stl.boost.org/$1; }
       location = /more/getting_started/index.html { return 301 /doc/user-guide/getting-started.html; }
       location = /map.html { return 301 /docs/; }
       location = /users/ { return 301 /doc/user-guide/index.html; }
