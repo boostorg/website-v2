@@ -2249,7 +2249,7 @@ html.dark .boostlook .hljs-code {
   margin: unset;
   margin-top: -1px;
   padding: var(--padding-padding-2xs, 0.5rem) var(--padding-padding-sm, 1rem);
-  border-radius: var(--spacing-size-size-0, 0rem)
+  border-radius: var(--spacing-size-size-0, 0rem);
   border: 1px solid var(--border-border-primary, #e4e7ea);
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-xs, 0.875rem);
@@ -3076,7 +3076,7 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
   color: var(--text-main-text-body-secondary, #494d50);
   font-size: var(--typography-font-size-xs, 0.875rem);
   font-style: normal;
-  line-height: var(--typography-line-height-sm, 1rem) /* 142.857% */
+  line-height: var(--typography-line-height-sm, 1rem); /* 142.857% */
   text-decoration: none;
 }
 
