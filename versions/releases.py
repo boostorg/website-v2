@@ -20,23 +20,17 @@ logger = structlog.get_logger(__name__)
 session = requests.Session()
 
 
-def get_archives_download_uris_for_release(release: str = "1.81.0") -> list:
-    """Get the download information for a Boost release from the Boost Archives.
+def get_download_uris_for_release(
+    release: str,
+    subdir: str,
+    file_extensions: list[str],
+    file_name_excludes: list[str] = None,
+) -> list[str]:
+    """Get the download URIs for a Boost release from the Boost Archives."""
+    file_name_excludes = file_name_excludes or []
 
-    Args:
-        release (str): The Boost release to get download information for. Defaults to
-            "1.81.0".
-
-    Returns:
-        list: A list of URLs to download the release data from.
-    """
-    file_extensions = [".tar.bz2", ".tar.gz", ".7z", ".zip"]
-    file_name_excludes = ["_rc"]
-
-    if "beta" in release:
-        release_path = f"{settings.ARCHIVES_URL}beta/{release}/source/"
-    else:
-        release_path = f"{settings.ARCHIVES_URL}release/{release}/source/"
+    release_type = "beta" if "beta" in release else "release"
+    release_path = f"{settings.ARCHIVES_URL}{release_type}/{release}/{subdir}/"
 
     try:
         resp = session.get(release_path)
@@ -47,18 +41,32 @@ def get_archives_download_uris_for_release(release: str = "1.81.0") -> list:
         )
         raise
 
-    # Get the list of archives downloads for this release
     soup = BeautifulSoup(resp.text, "html.parser")
-    uris = []
-    for a in soup.find_all("a"):
-        uri = a.get("href")
-        # Only include the download links with valid file extensions.
-        if any(uri.endswith(ext) for ext in file_extensions):
-            # Exclude release candidates
-            if not any(exclude in uri for exclude in file_name_excludes):
-                uris.append(f"{release_path}{uri}")
+    return [
+        f"{release_path}{a.get('href')}"
+        for a in soup.find_all("a")
+        if a.get("href")
+        and any(a.get("href").endswith(ext) for ext in file_extensions)
+        and not any(exclude in a.get("href") for exclude in file_name_excludes)
+    ]
 
-    return uris
+
+def get_archives_download_uris_for_release(release: str = "1.81.0") -> list[str]:
+    return get_download_uris_for_release(
+        release=release,
+        subdir="source",
+        file_extensions=[".tar.bz2", ".tar.gz", ".7z", ".zip"],
+        file_name_excludes=["_rc"],
+    )
+
+
+def get_binary_download_uris_for_release(release: str) -> list[str]:
+    return get_download_uris_for_release(
+        release=release,
+        subdir="binaries",
+        file_extensions=[".exe", ".7z"],
+        file_name_excludes=["_rc"],
+    )
 
 
 def get_artifactory_download_uris_for_release(release: str = "1.81.0") -> list:
@@ -143,6 +151,33 @@ def get_archives_download_data(url):
         "checksum": resp_json["sha256"],
         "display_name": url.split("/")[-1],
     }
+
+
+def get_binaries_download_data(url: str, checksums: dict) -> dict:
+    filename = url.split("/")[-1]
+    return {
+        "url": url,
+        "operating_system": "Windows (Bin)",
+        "checksum": checksums[filename],
+        "display_name": filename,
+    }
+
+
+def get_binary_checksums(url: str) -> dict:
+    binaries_url = "/".join(url.split("/")[:-1])
+    checksum_url = binaries_url + "/SHA256SUMS"
+    try:
+        resp = session.get(checksum_url)
+        resp.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        logger.error("get_binary_checksums", exc_msg=str(e), url=checksum_url)
+        raise
+
+    checksums = {}
+    for line in resp.text.strip().splitlines():
+        checksum, filename = line.split(maxsplit=1)
+        checksums[filename] = checksum
+    return checksums
 
 
 def get_artifactory_download_data(url):

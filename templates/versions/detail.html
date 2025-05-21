@@ -7,7 +7,7 @@
 {% block title %}{% blocktrans with version_name=version.display_name %}Boost {{ version_name }}{% endblocktrans %}{% endblock %}
 {% block description %}{% blocktrans with version_name=version.display_name %}Discover what's new in Boost {{ version_name }}{% endblocktrans %}{% endblock %}
 {% block content %}
-  <main class="content">
+  <main>
     {% if selected_version %}
     <div class="py-3 px-3 md:mt-3 md:px-0 mb-0 w-full flex flex-row flex-nowrap items-center"
             x-data="{'showSearch': false}"
@@ -29,26 +29,61 @@
 
     <section class="content">
       <div class="pb-2 w-full h-auto md:pb-0 md:w-auto">
-        <div class="flex flex-col">
+        <div class="flex flex-col h-full max-w-md">
           <div class="h-8">
             <span class="block pb-1 text-xs md:text-base font-bold">{{ version.release_date|date:"F j, Y" }}</span>
           </div>
           <div class="-ml-2 h-3"></div>
-          <div class="-ml-2 h-14">
-            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-               href="{{ documentation_url }}">
-              <span class="dark:text-white text-slate">Documentation</span>
-              <span class="block text-xs">{{ request.scheme }}://{{ request.get_host }}{{ documentation_url }}</span>
-            </a>
-          </div>
-          <div class="-ml-2 h-14">
-            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-               href="{{ version.github_url }}">
-              <i class="float-right mt-1 fab fa-github"></i>
-              <span class="dark:text-white text-slate">Source Code</span>
-              <span class="block text-xs">{{ version.github_url|cut:"https://" }}</span>
-            </a>
-          </div>
+          <div class="flex flex-col h-full justify-between">
+            <div>
+              <div class="-ml-2 h-14">
+                <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
+                   href="{{ documentation_url }}">
+                  <span class="dark:text-white text-slate">Documentation</span>
+                  <span class="block text-xs">{{ request.scheme }}://{{ request.get_host }}{{ documentation_url }}</span>
+                </a>
+              </div>
+              <div class="-ml-2 h-14">
+                <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
+                   href="{{ version.github_url }}">
+                  <i class="float-right mt-1 fab fa-github"></i>
+                  <span class="dark:text-white text-slate">Source Code</span>
+                  <span class="block text-xs">{{ version.github_url|cut:"https://" }}</span>
+                </a>
+              </div>
+            </div>
+            {% if not version.beta %}
+              {% if deps.added or deps.removed %}
+              <div class="-ml-2">
+                <div class="block items-center py-1 px-2">
+                  <span class="dark:text-white text-slate font-semibold">Dependencies</span>
+                  <div class="text-base whitespace-normal">
+                    {% if deps.added %}
+                      There {{ deps.added|pluralize:"was,were" }}
+                      <span class="text-red-700">
+                        {{ deps.added }} dependenc{{ deps.added|pluralize:"y,ies"}} added
+                      </span>
+                      (in {{ deps.increased_dep_lib_count }} librar{{ deps.increased_dep_lib_count|pluralize:"y,ies" }})
+                    {% endif %}
+                    {% if deps.added and deps.removed %}
+                      and
+                    {% endif %}
+                    {% if deps.removed %}
+                      {% if not deps.added %}
+                        There {{ deps.removed|pluralize:"was,were" }}
+                      {% endif %}
+                      <span class="text-[rgb(14,174,96)] dark:text-green">
+                        {{ deps.removed }} dependenc{{ deps.removed|pluralize:"y,ies"}} removed
+                      </span>
+                      (in {{ deps.decreased_dep_lib_count }} librar{{ deps.decreased_dep_lib_count|pluralize:"y,ies" }})
+                    {% endif %}
+                    this release.
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        {% endif %}
 
         </div>
       </div>
@@ -80,7 +115,7 @@
                       {% if forloop.first %}
                         <th scope="row"
                             rowspan="{{ download_files|length }}"
-                            class="p-2 h-14 whitespace-nowrap border border-r-0 {% if not forloop.parentloop.last %}border-b-0 {% endif %}border-gray-400 dark:border-slate dark:bg-charcoal text-center">
+                            class="p-2 h-14 whitespace-normal border border-r-0 {% if not forloop.parentloop.last %}border-b-0 {% endif %}border-gray-400 dark:border-slate dark:bg-charcoal text-center">
                           <i class="fab fa-{% if os == 'Unix' %}linux{% else %}windows{% endif %}"></i> {{ os }}
                         </th>
                       {% endif %}
@@ -96,7 +131,7 @@
                           </svg>
                         </button>
                       </td>
-                      <td class="border pr-2 {% if not forloop.last or not forloop.parentloop.last %}border-b-0 {% endif %}border-l-0 border-gray-400 dark:border-slate truncCell dark:bg-charcoal"
+                      <td class="border pr-2 text-xs {% if not forloop.last or not forloop.parentloop.last %}border-b-0 {% endif %}border-l-0 border-gray-400 dark:border-slate truncCell dark:bg-charcoal"
                           title="{{ download.checksum }}">
                         <span class="hidden xl:block">{{ download.checksum }}</span>
                         <span class="hidden md:block xl:hidden">{{ download.checksum|truncate_middle:20 }}</span>
@@ -118,41 +153,6 @@
         class="boostlook p-6 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
         {{ release_notes|safe }}
       </section>
-    {% endif %}
-
-    {% if not version.beta %}
-      {% if deps.added or deps.removed %}
-        <section id="dependencyChanges"
-          class="p-6 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-          <h2 class="text-2xl mt-0">Dependencies</h2>
-          <div>
-            {% if deps.added %}
-              There {{ deps.added|pluralize:"was,were" }}
-              <span class="text-red-700">
-                {{ deps.added }} dependenc{{ deps.added|pluralize:"y,ies"}} added
-              </span>
-              <span>
-                (in {{ deps.increased_dep_lib_count }} librar{{ deps.increased_dep_lib_count|pluralize:"y,ies" }})
-              </span>
-            {% endif %}
-            {% if deps.added and deps.removed %}
-              and
-            {% endif %}
-            {% if deps.removed %}
-              {% if not deps.added %}
-                There {{ deps.removed|pluralize:"was,were" }}
-              {% endif %}
-              <span class="text-[rgb(14,174,96)] dark:text-green">
-                {{ deps.removed }} dependenc{{ deps.removed|pluralize:"y,ies"}} removed
-              </span>
-              <span>
-                (in {{ deps.decreased_dep_lib_count }} librar{{ deps.decreased_dep_lib_count|pluralize:"y,ies" }})
-              </span>
-            {% endif %}
-            this release.
-          </div>
-        </section>
-      {% endif %}
     {% endif %}
 
     {% if top_contributors_release %}

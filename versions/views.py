@@ -51,7 +51,10 @@ class VersionDetail(BoostVersionMixin, VersionAlertMixin, DetailView):
             context["is_current_release"] = False
             return context
 
-        downloads = obj.downloads.all().order_by("operating_system")
+        downloads = obj.downloads.all().order_by("operating_system", "display_name")
+        for dl in downloads:
+            dl.operating_system = dl.operating_system.replace("Bin", "Binary")
+
         context["downloads"] = {
             k: list(v)
             for k, v in groupby(downloads, key=attrgetter("operating_system"))
