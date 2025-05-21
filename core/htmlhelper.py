@@ -3,6 +3,7 @@ import re
 from bs4 import BeautifulSoup, Comment, Tag
 from django.template.loader import render_to_string
 from django.templatetags.static import static
+from lxml import html
 
 from core.boostrenderer import get_body_from_html
 from core.constants import SourceDocType
@@ -241,26 +242,30 @@ def modernize_legacy_page(
 
 def slightly_modernize_legacy_library_doc_page(content):
     """Modernize a legacy Boost library documentation page, but only minimally."""
-    result = BeautifulSoup(content, "html.parser")
-    if result.html is None:
-        # Not an HTML file we care about
-        return content
-    # Remove the first occurrence of legacy header(s) and other stuff
-    for tag_name, tag_attrs in REMOVE_TAGS:
-        tag = result.find(tag_name, tag_attrs)
-        if tag:
-            tag.decompose()
+    try:
+        root = html.fromstring(content)
+    except Exception:
+        return content  # Not valid HTML
 
-    for tag_name, tag_attrs in REMOVE_ALL:
-        for tag in result.find_all(tag_name, tag_attrs):
-            tag.decompose()
+    for tag_name, attrs in REMOVE_TAGS:
+        xpath = build_xpath(tag_name, attrs)
+        elements = root.xpath(xpath)
+        if elements:
+            elements[0].getparent().remove(elements[0])  # Remove only first
 
-    content = str(result)
+    for tag_name, attrs in REMOVE_ALL:
+        xpath = build_xpath(tag_name, attrs)
+        for el in root.xpath(xpath):
+            el.getparent().remove(el)
 
-    # Replace all links to boost.org with a local link
-    content = content.replace("https://www.boost.org/doc/libs/", "/doc/libs/")
+    content = html.tostring(root, encoding="unicode", method="html")
+    return content.replace("https://www.boost.org/doc/libs/", "/doc/libs/")
 
-    return content
+
+def build_xpath(tag, attrs):
+    parts = [f"@{key}='{val}'" for key, val in attrs.items()]
+    condition = " and ".join(parts)
+    return f".//{tag}[{condition}]" if condition else f".//{tag}"
 
 
 def get_library_documentation_urls(content, name="Alphabetically", parent="h2"):

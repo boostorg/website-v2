@@ -206,6 +206,8 @@ kiwisolver==1.4.7
     # via matplotlib
 kombu==5.4.2
     # via celery
+lxml==5.4.0
+    # via -r ./requirements.in
 marshmallow==3.22.0
     # via environs
 matplotlib==3.9.2
