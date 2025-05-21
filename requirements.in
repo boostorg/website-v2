@@ -33,6 +33,7 @@ boto3
 jsoncomment
 unidecode
 wordcloud
+lxml
 
 # Logging
 django-tracer
