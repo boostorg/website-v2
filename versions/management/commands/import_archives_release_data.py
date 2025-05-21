@@ -9,6 +9,9 @@ from versions.releases import (
     get_archives_download_data,
     get_archives_download_uris_for_release,
     store_release_downloads_for_version,
+    get_binaries_download_data,
+    get_binary_checksums,
+    get_binary_download_uris_for_release,
 )
 
 
@@ -32,18 +35,26 @@ def command(release):
     for v in versions:
         version_num = v.name.replace("boost-", "")
         try:
-            archives_data = get_archives_download_uris_for_release(version_num)
+            archives_urls = get_archives_download_uris_for_release(version_num)
+            binaries_urls = get_binary_download_uris_for_release(version_num)
+            file_urls = archives_urls + binaries_urls
         except requests.exceptions.HTTPError:
             print(f"Skipping {version_num}, error retrieving release data")
             continue
 
         download_data = []
-        for d in archives_data:
+        checksums = dict()
+        for url in file_urls:
             try:
-                data = get_archives_download_data(d)
+                if "/binaries/" in url:
+                    if not checksums:
+                        checksums = get_binary_checksums(url)
+                    data = get_binaries_download_data(url, checksums)
+                else:
+                    data = get_archives_download_data(url)
                 download_data.append(data)
             except (requests.exceptions.HTTPError, ValueError):
-                print(f"Skipping {d}, error retrieving download data")
+                print(f"Skipping {url}; error retrieving download data")
                 continue
 
             store_release_downloads_for_version(v, download_data)
