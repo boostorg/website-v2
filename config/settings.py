@@ -6,7 +6,6 @@ from pathlib import Path
 
 import environs
 import structlog
-from botocore.config import Config
 from corsheaders.defaults import default_headers
 from django.core.exceptions import ImproperlyConfigured
 from pythonjsonlogger import jsonlogger
@@ -431,7 +430,6 @@ if not LOCAL_DEVELOPMENT:
         "AWS_S3_ENDPOINT_URL", default="https://sfo2.digitaloceanspaces.com"
     )
     AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="sfo2")
-    AWS_S3_CLIENT_CONFIG = {"config": Config(connect_timeout=10, read_timeout=120)}
     STORAGES = {
         "default": {"BACKEND": "core.storages.MediaStorage"},
         "staticfiles": {
