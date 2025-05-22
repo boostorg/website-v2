@@ -19,6 +19,10 @@ spec:
   addresses:
     - type: NamedAddress
       value: {{ .Values.gatewayStaticIp }}
+{{- if .Values.gatewayStaticIpv6 }}
+    - type: NamedAddress
+      value: {{ .Values.gatewayStaticIpv6 }}
+{{- end }}
 
 ---
 kind: HTTPRoute
