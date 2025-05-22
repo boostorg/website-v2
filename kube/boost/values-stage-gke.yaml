@@ -238,5 +238,6 @@ managedCertName: managed-cert-boost-stage,managed-cert-boost-stage2
 secretCertName: boostorgcert
 ingressStaticIp: boost-stage-ingress1
 gatewayStaticIp: boost-stage-ingress1
+gatewayStaticIpv6: stage-gateway-ipv6
 redisInstall: false
 celeryInstall: true
