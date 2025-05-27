@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+
+{% if full_width %}
+{% block main_content_wrapper %}<div>{% endblock %}
+{% endif %}
+
 {% block content %}
     <iframe
         {% if iframe_url %}
