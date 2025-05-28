@@ -1,4 +1,14 @@
 {% extends "base.html" %}
+
+{% block main_content_wrapper %}
+{% if full_width %}
+  <div>
+{% else %}
+  <div class="max-w-7xl md:px-3 mx-auto transition-all">
+{% endif %}
+
+{% endblock %}
+
 {% block content %}
     <iframe
         {% if iframe_url %}

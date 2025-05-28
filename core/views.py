@@ -605,6 +605,7 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
                 show_footer=False,
                 show_navbar=False,
             )
+        context["full_width"] = True
         return render_to_string("docsiframe.html", context, request=self.request)
 
 
