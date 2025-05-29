@@ -47,9 +47,13 @@ def get_meta_redirect_from_html(html_string: str) -> str | None:
 
     redirect_url = None
     if meta_tag:
-        meta_tag_content = meta_tag.get("content").lower()
+        meta_tag_content = meta_tag.get("content")
         if meta_tag_content:
-            redirect_url = meta_tag_content.split("url=")[1]
+            if "URL=" in meta_tag_content:
+                split_on = "URL="
+            else:
+                split_on = "url="
+            redirect_url = meta_tag_content.split(split_on)[1]
 
     return redirect_url
 
