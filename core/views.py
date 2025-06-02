@@ -351,6 +351,7 @@ class BaseStaticContentTemplateView(TemplateView):
             #  release notes
             if content_type == "text/asciidoc":
                 result["content"] = self.convert_adoc_to_html(content)
+                result["source_content_type"] = SourceDocType.ASCIIDOC
 
             # Check if the content is an HTML file. If so, check for a meta redirect.
             if content_type.startswith("text/html"):
