@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Index Page Not Found{% endblock %}
+
+{% block content_wrapper %}
+<div class="py-2 px-3 my-3 text-center rounded-sm bg-yellow-200/70 ">
+    <i class="fas fa-exclamation-circle"></i> Index page doesn't exist. Contact Maintainer.
+</div>
+<div class="container px-4 my-8 mx-auto">
+  <h2 class="my-10">Directory Index:</h2>
+	{% for item in directory_index %}
+		<div class="my-2">
+			<a href="{% url 'docs-libs-page' item.path %}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ item.name }}</a>
+		</div>
+	{% endfor %}
+</div>
+{% endblock %}
