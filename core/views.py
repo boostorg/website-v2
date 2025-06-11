@@ -642,6 +642,7 @@ class UserGuideTemplateView(BaseStaticContentTemplateView):
             "docs_libs_placeholder.html", context, request=self.request
         )
         context["hide_footer"] = True
+        context["full_width"] = True
         context["content"] = modernize_legacy_page(
             content,
             base_html,
