@@ -224,6 +224,23 @@ def legacy_path_transform(content_path):
     return content_path
 
 
+def s3_path_to_web_url_transform(content_path, use_latest=False):
+    """
+    converts a content_path like:
+    archives/boost_1_88_0/libs/beast/example/websocket/server/chat-multi/beast.hpp to
+    latest/libs/beast/example/websocket/server/chat-multi/beast.hpp or
+    1_85_0/libs/beast/example/websocket/server/chat-multi/beast.hpp or
+    """
+    match = re.match(
+        r"archives/boost_(?P<release>[0-9_]+)/(?P<path>[\w\W]+)",
+        content_path,
+    )
+    groups = match.groupdict() if match else {}
+    if use_latest:
+        groups["release"] = "latest"
+    return f"{groups['release']}/{groups['path']}"
+
+
 def parse_boostdep_artifact(content: str):
     """Parse and return a generator which yields libraries and their dependencies.
 

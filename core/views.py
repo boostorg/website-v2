@@ -14,7 +14,7 @@ from django.http import (
     HttpResponseNotFound,
     HttpResponseRedirect,
 )
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views import View
@@ -22,7 +22,7 @@ from django.views.generic import TemplateView
 from requests.compat import chardet
 
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
-from libraries.utils import legacy_path_transform
+from libraries.utils import legacy_path_transform, s3_path_to_web_url_transform
 from versions.models import Version
 
 from .asciidoc import convert_adoc_to_html
@@ -32,6 +32,7 @@ from .boostrenderer import (
     get_content_from_s3,
     get_meta_redirect_from_html,
     get_s3_client,
+    get_content_path_sub_keys,
 )
 from .constants import SourceDocType
 from .htmlhelper import (
@@ -251,15 +252,46 @@ class BaseStaticContentTemplateView(TemplateView):
             # If the content is an HTML file with a meta redirect, redirect the user.
             if self.content_dict.get("redirect"):
                 return redirect(self.content_dict.get("redirect"))
-
         except ContentNotFoundException:
             logger.info(
                 "get_content_from_s3_view_not_in_cache",
                 content_path=content_path,
                 status_code=404,
             )
-            raise Http404("Content not found")
+            return self.handle_content_not_found(content_path, request, **kwargs)
+
         return super().get(request, *args, **kwargs)
+
+    def handle_content_not_found(self, request_content_path: str, request, **kwargs):
+        directory_index = self.discover_index_contents(
+            request_content_path, use_latest="/latest/" in request.path
+        )
+
+        if directory_index:
+            self.content_dict = {}
+            context = self.get_context_data(**kwargs)
+            context["directory_index"] = [
+                {
+                    "name": path.split("/", -1)[-1],
+                    "path": path,
+                }
+                for path in directory_index
+            ]
+            return render(request, "s3_directory_index.html", context=context)
+
+        raise Http404("Content not found")
+
+    def discover_index_contents(self, content_path: str, use_latest: bool):
+        """Get the directory index from s3 based on the content path."""
+        release, file_path = content_path.split("/", 1)
+        keys = []
+        if not file_path.startswith("libs/"):
+            return keys
+        keys = get_content_path_sub_keys(
+            f"archives/boost_{release}/{file_path}/",
+            settings.STATIC_CONTENT_BUCKET_NAME,
+        )
+        return [s3_path_to_web_url_transform(k, use_latest) for k in keys]
 
     def get_library_content_path(self, content_path):
         # here we handle the translation from "release/..." to /$version_x_y_z/...

@@ -16,6 +16,7 @@ from pygments.lexers import get_lexer_by_name as get_lexer
 from pygments.lexers import guess_lexer
 from pygments.util import get_bool_opt
 
+
 logger = structlog.get_logger()
 
 
@@ -117,6 +118,23 @@ def get_content_from_s3(key=None, bucket_name=None):
         function_name="get_content_from_s3",
     )
     return {}
+
+
+def get_content_path_sub_keys(s3_key, bucket):
+    """
+    Get the sub-keys for a given S3 key. This is useful for getting the keys
+    for a directory in S3, which will be used to retrieve the files in that directory.
+    """
+    client = get_s3_client()
+    paginator = client.get_paginator("list_objects_v2")
+    sub_keys = []
+    logger.info(f"Getting sub-keys for {s3_key} in bucket {bucket}")
+    for page in paginator.paginate(Bucket=bucket, Prefix=s3_key):
+        for obj in page.get("Contents", []):
+            sub_keys.append(obj["Key"])
+
+    logger.debug(f"Found {len(sub_keys)} sub-keys for {s3_key} in bucket {bucket}")
+    return sub_keys
 
 
 def get_content_type(s3_key, content_type):
