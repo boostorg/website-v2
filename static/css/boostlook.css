@@ -1139,7 +1139,7 @@ body :not(pre):not([class^="L"]) > code {
 /* Outcome 2.2 Weird Template fix */
 .boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > p + p,
 .boostlook:not(:has(.doc))#antora-template-wrapper > #content > p + p,
-div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content > p + p {
+div.source-docs-antora.boostlook:not(:has(>.boostlook)) > #content > p + p {
   margin-top: var(--padding-padding-3xs, 0.25rem);
 }
 
@@ -2991,10 +2991,8 @@ html:has(#docsiframe)::-webkit-scrollbar {
 /* Article Layout */
 .article.toc2.toc-left {
   min-height: 100vh;
-  /* with padding compensation */
-  max-width: calc(var(--main-container) + 2rem);
-  margin-left: auto;
-  margin-right: auto;
+  /* Simplified: always use offset behavior, never center */
+  margin-left: var(--main-max-width-leftbar);
   background: var(--surface-background-main-base-primary, #fff);
   position: relative;
   overflow-y: auto;
@@ -3016,7 +3014,7 @@ html:has(#docsiframe)::-webkit-scrollbar {
 .boostlook #toc.toc2,
 #boost-legacy-docs-wrapper:not(:has(article.doc)) #toc.toc2.is-active,
 #antora-template-wrapper:not(:has(article.doc)) #toc.toc2.is-active,
-div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) #toc.toc2.is-active {
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) #toc.toc2.is-active {
   position: static;
 }
 
@@ -3154,7 +3152,7 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
 .boostlook #header > *,
 .boostlook #footer > * {
   max-width: var(--main-content-width);
-  margin: 0 auto;
+  margin-left: 0;
 }
 
 .boostlook #preamble + .sect1,
@@ -3187,7 +3185,7 @@ html.is-clipped--nav:has(.boostlook) div#content {
   .boostlook #toc.toc2 {
     position: fixed;
     width: var(--main-max-width-leftbar);
-    left: max(1rem, 50% - 45rem);
+    left: 0;
     top: 0;
     z-index: 1000;
     height: 100vh;
@@ -3215,7 +3213,7 @@ html.is-clipped--nav:has(.boostlook) div#content {
   .boostlook #toggle-toc {
     position: fixed;
     top: 2rem;
-    left: max(1rem, 50% - 39rem - 1rem);
+    left: 1rem;
     background-color: var(--surface-background-main-base-primary);
     box-shadow: 0 0px 3px var(--surface-background-main-surface-transparent-inverse);
     border: 0;
@@ -3237,12 +3235,12 @@ html.is-clipped--nav:has(.boostlook) div#content {
   }
 
   html.toc-hidden .boostlook #toggle-toc {
-    left: max(2px, 50% - 45rem - 1rem);
+    left: 2px;
   }
 
   /* Visible TOC */
   html.toc-visible .boostlook #toggle-toc {
-    left: max(2px, 50% - 45rem - 1rem);
+    left: 2px;
     background-color: var(--surface-background-main-base-primary);
   }
 
@@ -3257,8 +3255,6 @@ html.is-clipped--nav:has(.boostlook) div#content {
   html.toc-visible #toc.toc2 {
     opacity: 1;
     visibility: visible;
-    /* width: 250px;
-    padding-left: 1.5rem; */
   }
 
   /* TOC Shadow States */
@@ -3270,10 +3266,6 @@ html.is-clipped--nav:has(.boostlook) div#content {
   html.toc-visible.toc-pinned #toggle-toc {
     background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2224px%22%20viewBox%3D%220%20-960%20960%20960%22%20width%3D%2224px%22%20fill%3D%22%235f6368%22%3E%3Cpath%20d%3D%22M560-240%20320-480l240-240%2056%2056-184%20184%20184%20184-56%2056Z%22%2F%3E%3C%2Fsvg%3E");
   }
-
-  /* html.toc-visible.toc-pinned .boostlook {
-    margin-left: var(--main-max-width-leftbar);
-  } */
 }
 /* TOC Common End */
 
@@ -4322,22 +4314,69 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) > #cont
 
 /*----------------- Library README Styles end -----------------*/
 
-/*----------------- AsciiDoc Specfic Documentation Layout -----------------*/
+/*----------------- AsciiDoctor-Specific Responsive TOC Layout start -----------------*/
 
-.article.toc2.toc-left:has(div.source-docs-antora.boostlook) {
-  margin-right: 0 !important;
-}
-
-.article.toc2.toc-left:has(div.source-docs-antora.boostlook) {
-  margin-right: 0 !important;
-}
-
-div.source-docs-antora.boostlook .boostlook {
-  margin-left: var(--main-max-width-leftbar);
-}
-
-@media (min-width: 1470px) {
-  div.source-docs-antora.boostlook .boostlook {
-    margin-left: 0;
+/* Prevent header/content/footer padding from jumping at 990px breakpoint */
+@media (min-width: 990px) {
+  :root {
+    --main-max-width-leftbar: 18.25rem;
+    --main-margin: var(--spacing-size-xl);
   }
 }
+
+/* === Tablet/Desktop: TOC Sidebar Layout (768px+) === */
+@media screen and (min-width: 768px) {
+  .boostlook #toc.toc2 {
+    position: fixed !important;
+    left: 0 !important;
+    width: var(--main-max-width-leftbar) !important;
+    top: 0 !important;
+    height: 100vh !important;
+  }
+
+  .boostlook #toggle-toc {
+    position: fixed !important;
+    left: 1rem !important;
+    top: 2rem !important;
+  }
+
+  .toc2 .boostlook {
+    margin-left: var(--main-max-width-leftbar) !important;
+  }
+
+  html.toc-visible .boostlook {
+    margin-left: 0 !important;
+  }
+}
+
+/* === Large Screens: Maintain Offset Layout (1280px+) === */
+@media screen and (min-width: 1280px) {
+  .article.toc2.toc-left {
+    margin-left: var(--main-max-width-leftbar) !important;
+    max-width: none !important;
+  }
+}
+
+/* === Wide Screens: Expanded Content Width (1536px+) === */
+@media screen and (min-width: 1536px) {
+  :root {
+    --main-content-width: 1100px;
+    --main-content-left-spacing: 2rem;
+  }
+}
+
+/* === Ultra-Wide Screens: Maximum content width (1920px+) === */
+@media screen and (min-width: 1920px) {
+  :root {
+    --main-content-width: 1300px;
+    --main-content-left-spacing: 4rem;
+  }
+
+  .boostlook #content,
+  .boostlook #header > h1,
+  .boostlook #header .author {
+    margin-left: var(--main-content-left-spacing);
+  }
+}
+
+/*----------------- AsciiDoctor-Specific Responsive TOC Layout end -----------------*/
