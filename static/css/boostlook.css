@@ -280,6 +280,7 @@
   --font-size-2xs: 0.75rem;
   --font-size-xs: 0.875rem;
   --font-size-sm: 1rem;
+  --font-size-2sm: 1.2rem;
   --font-size-md: 1.125rem;
   --font-size-lg: 1.25rem;
   --font-size-xl: 1.5rem;
@@ -357,6 +358,7 @@
   --typography-font-size-xs: var(--font-size-xs);
   --typography-font-size-sm: var(--font-size-xs);
   --typography-font-size-md: var(--font-size-sm);
+  --typography-font-size-2md: var(--font-size-2sm);
   --typography-font-size-lg: var(--font-size-md);
   --typography-font-size-xl: var(--font-size-lg);
   --typography-font-size-2xl: var(--font-size-xl);
@@ -925,22 +927,22 @@ body :not(pre):not([class^="L"]) > code {
 /* Section headings */
 .boostlook h3,
 .boostlook .doc h3 {
-  font-size: var(--typography-font-size-md, 1.125rem);
-  line-height: var(--typography-line-height-xl, 1.75rem); /* 155.556% */
+  font-size: var(--typography-font-size-md, 1.2rem);
+  line-height: var(--typography-line-height-xl, 1.85rem); /* 155.556% */
 }
 
 /* Subsection headings */
 .boostlook h4,
 .boostlook .doc h4 {
-  font-size: var(--font-size-sm, 1rem);
-  line-height: var(--font-line-height-lg, 1.5rem);
+  font-size: var(--typography-font-size-md, 1.125rem);
+  line-height: var(--typography-line-height-xl, 1.75rem); /* 155.556% */
 }
 
 /* Topic headings */
 .boostlook h5,
 .boostlook .doc h5 {
-  font-size: var(--font-size-xs, 0.875rem);
-  line-height: var(--font-line-height-md, 1.25rem);
+  font-size: var(--font-size-sm, 1rem);
+  line-height: var(--font-line-height-lg, 1.5rem);
 }
 
 /* Subtopic headings */
@@ -1139,7 +1141,7 @@ body :not(pre):not([class^="L"]) > code {
 /* Outcome 2.2 Weird Template fix */
 .boostlook:not(:has(.doc))#boost-legacy-docs-wrapper > #content > p + p,
 .boostlook:not(:has(.doc))#antora-template-wrapper > #content > p + p,
-div.source-docs-antora.boostlook:not(:has(>.boostlook)) > #content > p + p {
+div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content > p + p {
   margin-top: var(--padding-padding-3xs, 0.25rem);
 }
 
@@ -1409,6 +1411,11 @@ html.dark .boostlook .doc .literalblock pre {
   margin-top: var(--padding-padding-xs, 0.75rem);
 }
 
+.boostlook .listingblock:has(> .content > pre):not(:is(dd pre, td pre)):has(.title) {
+  border: none;
+  background: none;
+}
+
 .boostlook .listingblock:has(> .content > pre):not(:last-child),
 .boostlook .listingblock:has(> .content > pre.highlight):not(:last-child),
 .boostlook:not(:has(.doc)) pre.programlisting:not(:last-child),
@@ -1425,7 +1432,7 @@ html.dark .boostlook .doc .literalblock pre {
 
 .boostlook .content:has(> pre):has(> .source-toolbox) pre {
   border-top: 1px solid var(--border-border-secondary, #d5d7d9);
-  border-radius: var(--spacing-size-2xs, 0.5rem);
+  /*border-radius: var(--spacing-size-2xs, 0.5rem);*/
 }
 
 .boostlook .content:has(> pre):has(> .source-toolbox) .source-toolbox {
@@ -1442,6 +1449,15 @@ html.dark .boostlook .doc .literalblock pre {
   min-height: 2rem;
 }
 
+.boostlook .content:has(> pre):has(> .source-toolbox):not(:has(.source-lang)) .source-toolbox  {
+  min-height: 0;
+  height: 0;
+  padding: 0 !important;
+  margin-bottom: -1px;
+}
+.boostlook .content:has(> pre):has(> .source-toolbox):not(:has(.source-lang)) .source-toolbox .copy-button {
+  top: 0.25rem;
+}
 .boostlook .content:has(> pre):has(> .source-toolbox) .source-lang {
   color: var(--text-main-text-body-quaternary, #949a9e);
   text-align: right;
@@ -2193,6 +2209,40 @@ html.dark .boostlook .hljs-code {
   margin-top: var(--padding-padding-2xs, 0.5rem);
 }
 
+.boostlook #content .dlist:not(:first-child):not(.dlist .dlist):has(.hdlist1) {
+  background-color: var(--surface-background-main-surface-blue-primary, #ebf4f9);
+  border: 1px solid var(--border-border-blue-primary, #c2e2f4);
+  padding: var(--padding-padding-xs, 0.75rem) var(--padding-padding-md, 1.125rem);
+}
+.boostlook #content .dlist:not(:first-child):not(.dlist .dlist):has(.hdlist1) .hdlist1 {
+  font-size: var(--typography-font-size-sm, 1rem);
+  font-variation-settings: "wght" 600, "wdth" 62.5;
+  line-height: var(--typography-line-height-lg, 1.5rem);
+  letter-spacing: var(--spacing-size-size-0, 0rem);
+  font-weight: 600;
+  color: #000 !important;
+  /*margin-bottom: var(--spacing-size-2xs, 0.5rem);*/
+}
+.boostlook #content .dlist:not(:first-child):not(.dlist .dlist):has(.hdlist1) dd  a:hover {
+  color: var(--text-states-text-warning, #FF9442);
+  cursor: pointer;
+}
+.boostlook #content .dlist:not(:first-child):not(.dlist .dlist):has(.hdlist1) dd  a {
+  color: var(--text-main-text-link-blue, #026a9f);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.boostlook #content .dlist:not(:first-child):not(.dlist .dlist):has(.hdlist1) dd {
+  margin: 0;
+  padding: 0;
+  border: none;
+  color: var(--text-main-text-primary, #18191b);
+  font-size: var(--typography-font-size-xs, 0.875rem);
+  font-variation-settings: "wght" 400, "wdth" 80;
+  line-height: var(--typography-line-height-lg, 1.5rem);
+  letter-spacing: var(--spacing-size-size-0, 0rem);
+}
+
 .boostlook .dlist dl,
 .boostlook:not(:has(.doc)) .variablelist dl {
   display: flex;
@@ -2462,7 +2512,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 
 .boostlook .olist.arabic > ol > li::before,
 .boostlook:not(:has(.doc)) .orderedlist > ol > li::before {
-  content: counter(list-counter, decimal-leading-zero);
+  content: counter(list-counter);
   position: absolute;
   left: 0;
   top: -4px;
@@ -2484,9 +2534,9 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   top: 0px;
   width: 30px;
   height: 24px;
-  border: 1px solid var(--border-border-tetriary);
+  /*border: 1px solid var(--border-border-tetriary);*/
   /* Mask to make square brackets for marker to make it look like [ 01 ] */
-  clip-path: polygon(0 0, 3px 0, 3px 3px, 27px 3px, 27px 0, 30px 0, 30px 24px, 27px 24px, 27px 21px, 3px 21px, 3px 24px, 0 24px);
+  /*clip-path: polygon(0 0, 3px 0, 3px 3px, 27px 3px, 27px 0, 30px 0, 30px 24px, 27px 24px, 27px 21px, 3px 21px, 3px 24px, 0 24px);*/
 }
 
 /* LowerAlfa Ordered List */
@@ -2527,13 +2577,18 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   line-height: var(--typography-line-height-sm, 1rem);
   font-size: var(--typography-font-size-2xs, 0.75rem);
   text-align: center;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   letter-spacing: var(--spacing-size-size-0, 0rem);
   text-indent: unset;
   color: var(--text-main-text-primary, #18191b);
   text-align: center;
+  /*background: var(--surface-background-main-surface-secondary, #e4e7ea);*/
+}
+.boostlook .doc code .conum[data-value] {
   background: var(--surface-background-main-surface-secondary, #e4e7ea);
+  width: 24px;
+  height: 24px;
 }
 
 .boostlook .doc .conum[data-value]::after {
@@ -2687,7 +2742,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook:not(:has(.doc)) table.table:not(:has(thead)) tr:first-child td:first-child,
 .boostlook#libraryReadMe > table:has(thead) th:first-child,
 .boostlook#libraryReadMe > table:not(:has(thead)) tr:first-child td:first-child {
-  border-top-left-radius: var(--spacing-size-2xs, 0.5rem);
+  /*border-top-left-radius: var(--spacing-size-2xs, 0.5rem);*/
 }
 
 .boostlook #content table.tableblock:has(thead) th:last-child,
@@ -2696,19 +2751,19 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook:not(:has(.doc)) table.table:not(:has(thead)) tr:first-child td:last-child,
 .boostlook#libraryReadMe > table:has(thead) th:last-child,
 .boostlook#libraryReadMe > table:not(:has(thead)) tr:first-child td:last-child {
-  border-top-right-radius: var(--spacing-size-2xs, 0.5rem);
+  /*border-top-right-radius: var(--spacing-size-2xs, 0.5rem);*/
 }
 
 .boostlook #content table.tableblock tr:last-child td:first-child,
 .boostlook:not(:has(.doc)) table.table tr:last-child td:first-child,
 .boostlook#libraryReadMe > table tr:last-child td:first-child {
-  border-bottom-left-radius: var(--spacing-size-2xs, 0.5rem);
+  /*border-bottom-left-radius: var(--spacing-size-2xs, 0.5rem);*/
 }
 
 .boostlook #content table.tableblock tr:last-child td:last-child,
 .boostlook:not(:has(.doc)) table.table tr:last-child td:last-child,
 .boostlook#libraryReadMe > table tr:last-child td:last-child {
-  border-bottom-right-radius: var(--spacing-size-2xs, 0.5rem);
+  /*border-bottom-right-radius: var(--spacing-size-2xs, 0.5rem);*/
 }
 
 .boostlook #content table.tableblock th,
@@ -2991,8 +3046,10 @@ html:has(#docsiframe)::-webkit-scrollbar {
 /* Article Layout */
 .article.toc2.toc-left {
   min-height: 100vh;
-  /* Simplified: always use offset behavior, never center */
-  margin-left: var(--main-max-width-leftbar);
+  /* with padding compensation */
+  max-width: calc(var(--main-container) + 2rem);
+  margin-left: auto;
+  margin-right: auto;
   background: var(--surface-background-main-base-primary, #fff);
   position: relative;
   overflow-y: auto;
@@ -3014,7 +3071,7 @@ html:has(#docsiframe)::-webkit-scrollbar {
 .boostlook #toc.toc2,
 #boost-legacy-docs-wrapper:not(:has(article.doc)) #toc.toc2.is-active,
 #antora-template-wrapper:not(:has(article.doc)) #toc.toc2.is-active,
-div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) #toc.toc2.is-active {
+div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) #toc.toc2.is-active {
   position: static;
 }
 
@@ -3152,7 +3209,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) #toc.to
 .boostlook #header > *,
 .boostlook #footer > * {
   max-width: var(--main-content-width);
-  margin-left: 0;
+  margin: 0 auto;
 }
 
 .boostlook #preamble + .sect1,
@@ -3185,7 +3242,7 @@ html.is-clipped--nav:has(.boostlook) div#content {
   .boostlook #toc.toc2 {
     position: fixed;
     width: var(--main-max-width-leftbar);
-    left: 0;
+    left: max(1rem, 50% - 45rem);
     top: 0;
     z-index: 1000;
     height: 100vh;
@@ -3213,7 +3270,7 @@ html.is-clipped--nav:has(.boostlook) div#content {
   .boostlook #toggle-toc {
     position: fixed;
     top: 2rem;
-    left: 1rem;
+    left: max(1rem, 50% - 39rem - 1rem);
     background-color: var(--surface-background-main-base-primary);
     box-shadow: 0 0px 3px var(--surface-background-main-surface-transparent-inverse);
     border: 0;
@@ -3235,12 +3292,12 @@ html.is-clipped--nav:has(.boostlook) div#content {
   }
 
   html.toc-hidden .boostlook #toggle-toc {
-    left: 2px;
+    left: max(2px, 50% - 45rem - 1rem);
   }
 
   /* Visible TOC */
   html.toc-visible .boostlook #toggle-toc {
-    left: 2px;
+    left: max(2px, 50% - 45rem - 1rem);
     background-color: var(--surface-background-main-base-primary);
   }
 
@@ -3255,6 +3312,8 @@ html.is-clipped--nav:has(.boostlook) div#content {
   html.toc-visible #toc.toc2 {
     opacity: 1;
     visibility: visible;
+    /* width: 250px;
+    padding-left: 1.5rem; */
   }
 
   /* TOC Shadow States */
@@ -3266,6 +3325,10 @@ html.is-clipped--nav:has(.boostlook) div#content {
   html.toc-visible.toc-pinned #toggle-toc {
     background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20height%3D%2224px%22%20viewBox%3D%220%20-960%20960%20960%22%20width%3D%2224px%22%20fill%3D%22%235f6368%22%3E%3Cpath%20d%3D%22M560-240%20320-480l240-240%2056%2056-184%20184%20184%20184-56%2056Z%22%2F%3E%3C%2Fsvg%3E");
   }
+
+  /* html.toc-visible.toc-pinned .boostlook {
+    margin-left: var(--main-max-width-leftbar);
+  } */
 }
 /* TOC Common End */
 
