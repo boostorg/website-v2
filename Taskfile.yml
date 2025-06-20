@@ -1,0 +1,154 @@
+version: '3'
+
+vars:
+  VERSION_FILTER: "1.30.0-1.88.0"
+  # below shouldn't need to be changed much, if at all
+  PYTHON: .venv/bin/python
+  JUST_MANAGE: "just manage"
+  JUST_MANAGE_FILTERING: " 2>/dev/null | sed -n '/^\\[/,/^\\]/p'"
+  DJANGO_SETTINGS_MODULE: config.settings
+  BZ2_PATH: "https://archives.boost.io/release"
+  LIVE_DOCS_PATH: "https://boost.org"
+  TARBALLS_DIR: "tarballs"
+  WEBSITE_V2_PROCESSING_DIR: "../website-v2-processing"
+  NGINX_REDIRECTS_DATA: "{{.WEBSITE_V2_PROCESSING_DIR}}/nginx_redirects_data"
+  VERIFIED_PATHS_DIR: "{{.NGINX_REDIRECTS_DATA}}/verified_paths"
+  NGINX_REDIRECT_WORKSPACE: "nginx_redirects_workspace"
+  RESULTS_DIR: "{{.NGINX_REDIRECT_WORKSPACE}}/results"
+  TARBALLS_JSON: "{{.NGINX_REDIRECT_WORKSPACE}}/stage_1_tarballs.json"
+  DOCS_JSON: "{{.NGINX_REDIRECT_WORKSPACE}}/stage_2_docs_files.json"
+  STATUS_404_CSV: "{{.RESULTS_DIR}}/404_urls.csv"
+  KNOWN_REDIRECTS_JSON: "{{.NGINX_REDIRECTS_DATA}}/known_redirects.json"
+  REDIRECT_CONFIG: "{{.RESULTS_DIR}}/nginx_redirects.conf"
+env:
+  DJANGO_SETTINGS_MODULE: "{{.DJANGO_SETTINGS_MODULE}}"
+
+tasks:
+  list-tarballs-json:
+    desc: "List tarball filenames in JSON format with version info"
+    cmds:
+      - "{{.JUST_MANAGE}} 'list_tarballs --version-filter=\"{{.VERSION_FILTER}}\"'"
+
+  generate-tarballs-json:
+    desc: "Generate 1_tarballs.json file with tarball filenames and version info"
+    preconditions:
+      - "test -d {{.TARBALLS_DIR}} || mkdir -p {{.TARBALLS_DIR}}"
+      - "test -d {{.NGINX_REDIRECT_WORKSPACE}} || mkdir -p {{.NGINX_REDIRECT_WORKSPACE}}"
+    cmds:
+      - "{{.JUST_MANAGE}} 'list_tarballs --version-filter=\"{{.VERSION_FILTER}}\"' {{.JUST_MANAGE_FILTERING}} > {{.TARBALLS_JSON}}"
+
+  determine-docs-files:
+    desc: "Determine documentation URLs for tarballs"
+    preconditions:
+        - "test -f {{.TARBALLS_JSON}}"
+    cmds:
+      - "{{.JUST_MANAGE}} 'determine_version_docs_files --json-file={{.TARBALLS_JSON}} --base-dir={{.TARBALLS_DIR}}' {{.JUST_MANAGE_FILTERING}} > {{.DOCS_JSON}}"
+
+  analyze-docs-urls:
+    desc: "Analyze documentation URLs and verify directory contents for tarballs"
+    preconditions:
+        - "test -f {{.DOCS_JSON}}"
+    cmds:
+      - |
+        if [ ! -d "{{.WEBSITE_V2_PROCESSING_DIR}}" ]; then
+          echo "Cloning website-v2-processing repository..."
+          git clone https://github.com/cppalliance/website-v2-processing "{{.WEBSITE_V2_PROCESSING_DIR}}"
+        else
+          echo "Updating website-v2-processing repository..."
+          cd "{{.WEBSITE_V2_PROCESSING_DIR}}" && git pull
+        fi
+      - |
+        current_branch=$(git branch --show-current)
+        echo "Checking out branch '$current_branch' in website-v2-processing..."
+        cd "{{.WEBSITE_V2_PROCESSING_DIR}} && git checkout -B "$current_branch"
+      - "mkdir -p {{.VERIFIED_PATHS_DIR}}"
+      - "{{.JUST_MANAGE}} 'analyze_docs_urls --json-file={{.DOCS_JSON}} --output-dir={{.VERIFIED_PATHS_DIR}}'"
+
+  generate-path-data:
+    desc: "Generate path data for tarballs for use in ..."
+    cmds:
+      - task: generate-tarballs-json
+      - |
+        files_to_download=""
+        for tarball_path in $(jq -r '.[] | .tarball_filename' {{.TARBALLS_JSON}}); do
+          tarball_file=$(basename "$tarball_path")
+          version_slug=$(echo "$tarball_file" | sed 's/boost_//' | sed 's/.tar.bz2//' | sed 's/_/\./g')
+          paths_file="{{.VERIFIED_PATHS_DIR}}/${version_slug}_paths.json"
+          if [ -f "$paths_file" ]; then
+            echo "Skipping download of $tarball_path - verified paths file exists"
+          else
+            files_to_download="$files_to_download --filename $tarball_path"
+          fi
+        done
+        if [ -n "$files_to_download" ]; then
+          {{.JUST_MANAGE}} "download_tarballs --base-url=\"{{.BZ2_PATH}}\" $files_to_download"
+        else
+          echo "All verified paths files exist, skipping downloads"
+        fi
+      - |
+        jq -r '.[] | .tarball_filename' {{.TARBALLS_JSON}} | while read tarball_path; do \
+          tarball_file=$(basename "$tarball_path"); \
+          dir_name=$(basename "$tarball_file" .tar.bz2); \
+          version_slug=$(echo "$dir_name" | sed 's/boost_//' | sed 's/_/\./g'); \
+          paths_file="{{.VERIFIED_PATHS_DIR}}/${version_slug}_paths.json"; \
+          echo "Processing: $tarball_file -> $dir_name"; \
+          if [ -f "$paths_file" ]; then \
+            echo "Verified paths file $paths_file exists, skipping"; \
+          elif [ -d "{{.TARBALLS_DIR}}/$dir_name" ]; then \
+            echo "Directory $dir_name exists, skipping"; \
+          elif [ -f "{{.TARBALLS_DIR}}/$tarball_file" ]; then \
+            echo "Extracting $tarball_file"; \
+            tar -xjf "{{.TARBALLS_DIR}}/$tarball_file" -C {{.TARBALLS_DIR}} && echo "Success" || echo "Failed"; \
+          else \
+            echo "File $tarball_file not found"; \
+          fi; \
+        done
+      - task: determine-docs-files
+      - task: analyze-docs-urls
+
+  generate-404-list:
+    desc: "Generate a list of 404 URLs from tarballs"
+    preconditions:
+        - "test -d {{.VERIFIED_PATHS_DIR}}"
+    cmds:
+      - |
+        mkdir -p {{.TARBALLS_DIR}}/{{.RESULTS_DIR}}
+      - |
+        echo "Version,Source File,Href,Merged Path"  > {{.STATUS_404_CSV}}
+        for file in {{.VERIFIED_PATHS_DIR}}/*_paths.json; do
+          jq -r '
+          .[] as $version_data |
+          $version_data.paths |
+          to_entries[] |
+          select(
+            (.value.is_directory == false) or
+            (.value.is_directory == true and .value.has_index == false)
+          ) |
+          .value.references[] as $ref |
+          [$version_data.version, $ref.referencing_file, $ref.original_url, .key] |
+          @csv
+          ' "$file" >> {{.STATUS_404_CSV}}
+        done
+
+  generate-nginx-redirect-list:
+    desc: "Generate nginx redirect configuration for 404 URLs"
+    preconditions:
+        - "test -d {{.VERIFIED_PATHS_DIR}}"
+    cmds:
+      - |
+        mkdir -p {{.RESULTS_DIR}}
+      - "{{.JUST_MANAGE}} 'generate_redirect_list --input-dir={{.VERIFIED_PATHS_DIR}} --known-redirects={{.KNOWN_REDIRECTS_JSON}} --output-file={{.REDIRECT_CONFIG}}'"
+
+  check-redirect-urls:
+    desc: "Check if destination URLs in known_redirects.json return status 200"
+    preconditions:
+        - "test -f {{.KNOWN_REDIRECTS_JSON}}"
+    cmds:
+      - "{{.PYTHON}} versions/check_redirects.py $(realpath {{.KNOWN_REDIRECTS_JSON}})"
+
+  cleanup-total:
+    desc: "Clean up temporary files and directories"
+    cmds:
+      - echo "Cleaning up temporary files..."
+      - rm -rf {{.TARBALLS_DIR}}
+      - rm -rf {{.NGINX_REDIRECT_WORKSPACE}}
