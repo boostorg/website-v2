@@ -1,0 +1,292 @@
+[
+  {
+    "version": "boost-1.45.0",
+    "directory_exists": true,
+    "version_directory": "boost_1_45_0",
+    "total_doc_files": 9720,
+    "files_processed": 9720,
+    "paths": {
+      "libs/regex": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "doc/html/xpressive.html",
+            "original_url": "../../libs/regex"
+          },
+          {
+            "referencing_file": "doc/html/xpressive/appendices.html",
+            "original_url": "../../../libs/regex"
+          },
+          {
+            "referencing_file": "doc/html/xpressive/user_s_guide.html",
+            "original_url": "../../../libs/regex"
+          }
+        ]
+      },
+      "libs/bimap/example": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/bimap/doc/html/boost_bimap/examples.html",
+            "original_url": "../../../example"
+          }
+        ]
+      },
+      "libs/thread/doc": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/circular_buffer/doc/circular_buffer.html",
+            "original_url": "../../thread/doc/"
+          }
+        ]
+      },
+      "libs/smart_ptr": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/circular_buffer/doc/circular_buffer.html",
+            "original_url": "../../smart_ptr/"
+          }
+        ]
+      },
+      "boost/compatibility/cpp_c_headers": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/compatibility/index.html",
+            "original_url": "../../boost/compatibility/cpp_c_headers/"
+          }
+        ]
+      },
+      "libs/config/tools/configure.in": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/config/doc/html/boost_config/guidelines_for_boost_authors.html",
+            "original_url": "../../../tools/configure.in"
+          }
+        ]
+      },
+      "libs/filesystem/v2/example": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/filesystem/v2/doc/index.htm",
+            "original_url": "../example"
+          }
+        ]
+      },
+      "libs/filesystem/v2/src": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/filesystem/v2/doc/index.htm",
+            "original_url": "../src"
+          }
+        ]
+      },
+      "libs/filesystem/v3/src": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/filesystem/v3/doc/index.htm",
+            "original_url": "../src"
+          }
+        ]
+      },
+      "libs/python/example/quickstart/boost-build.jam": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/python/doc/building.html",
+            "original_url": "../example/quickstart/boost-build.jam"
+          }
+        ]
+      },
+      "libs/python/example/quickstart/Jamroot": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/python/doc/building.html",
+            "original_url": "../example/quickstart/Jamroot"
+          }
+        ]
+      },
+      "libs/python/example/tutorial/Jamroot": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/python/doc/tutorial/doc/html/python/hello.html",
+            "original_url": "../../../../../example/tutorial/Jamroot"
+          }
+        ]
+      },
+      "libs/math": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/rational/rational.html",
+            "original_url": "../math/"
+          }
+        ]
+      },
+      "boost/archive/detail": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/serialization/doc/headers.html",
+            "original_url": "../../../boost/archive/detail"
+          }
+        ]
+      },
+      "libs/serialization/src": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/serialization/doc/headers.html",
+            "original_url": "../../../libs/serialization/src"
+          }
+        ]
+      },
+      "boost/archive/impl": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/serialization/doc/headers.html",
+            "original_url": "../../../boost/archive/impl"
+          }
+        ]
+      },
+      "boost/archive/iterators": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/serialization/doc/headers.html",
+            "original_url": "../../../boost/archive/iterators"
+          }
+        ]
+      },
+      "libs/smart_ptr/smarttest.zip": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/smart_ptr/smarttests.htm",
+            "original_url": "smarttest.zip"
+          }
+        ]
+      },
+      "libs/spirit/example/qi/mini_xml_samples": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/spirit/doc/html/spirit/qi/tutorials/mini_xml___error_handling.html",
+            "original_url": "../../../../../example/qi/mini_xml_samples"
+          }
+        ]
+      },
+      "tools/build/v2/engine/src/boehm_gc/doc/papers/pldi93.ps.Z": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "tools/build/v2/engine/src/boehm_gc/doc/gcdescr.html",
+            "original_url": "papers/pldi93.ps.Z"
+          }
+        ]
+      },
+      "tools/regression/build/Jamroot.jam": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "tools/regression/doc/index.html",
+            "original_url": "../build/Jamroot.jam"
+          }
+        ]
+      }
+    }
+  }
+]
