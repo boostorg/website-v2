@@ -3046,10 +3046,8 @@ html:has(#docsiframe)::-webkit-scrollbar {
 /* Article Layout */
 .article.toc2.toc-left {
   min-height: 100vh;
-  /* with padding compensation */
-  max-width: calc(var(--main-container) + 2rem);
-  margin-left: auto;
-  margin-right: auto;
+  /* Simplified: always use offset behavior, never center */
+  margin-left: var(--main-max-width-leftbar);
   background: var(--surface-background-main-base-primary, #fff);
   position: relative;
   overflow-y: auto;
@@ -3209,7 +3207,7 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
 .boostlook #header > *,
 .boostlook #footer > * {
   max-width: var(--main-content-width);
-  margin: 0 auto;
+  margin-left: 0;
 }
 
 .boostlook #preamble + .sect1,
@@ -3242,7 +3240,7 @@ html.is-clipped--nav:has(.boostlook) div#content {
   .boostlook #toc.toc2 {
     position: fixed;
     width: var(--main-max-width-leftbar);
-    left: max(1rem, 50% - 45rem);
+    left: 0;
     top: 0;
     z-index: 1000;
     height: 100vh;
@@ -3270,7 +3268,7 @@ html.is-clipped--nav:has(.boostlook) div#content {
   .boostlook #toggle-toc {
     position: fixed;
     top: 2rem;
-    left: max(1rem, 50% - 39rem - 1rem);
+    left: 1rem;
     background-color: var(--surface-background-main-base-primary);
     box-shadow: 0 0px 3px var(--surface-background-main-surface-transparent-inverse);
     border: 0;
@@ -3292,12 +3290,12 @@ html.is-clipped--nav:has(.boostlook) div#content {
   }
 
   html.toc-hidden .boostlook #toggle-toc {
-    left: max(2px, 50% - 45rem - 1rem);
+    left: 2px;
   }
 
   /* Visible TOC */
   html.toc-visible .boostlook #toggle-toc {
-    left: max(2px, 50% - 45rem - 1rem);
+    left: 2px;
     background-color: var(--surface-background-main-base-primary);
   }
 
@@ -4403,8 +4401,8 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) > #cont
     top: 2rem !important;
   }
 
-  .toc2 .boostlook {
-    margin-left: var(--main-max-width-leftbar) !important;
+  .toc2 .boostlook:has(> #content .doc) {
+    margin-left: 0;
   }
 
   html.toc-visible .boostlook {
