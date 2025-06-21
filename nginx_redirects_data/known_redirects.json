@@ -1,0 +1,2550 @@
+{
+  "/doc/libs/1.30.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.30.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.30.0/libs/python/build/VisualStudio": {
+    "destination": "https://github.com/boostorg/python/tree/boost-1.30.0/build/VisualStudio",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.30.0/libs/python/test": {
+    "destination": "https://github.com/boostorg/python/tree/boost-1.30.0/test",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.31.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.31.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.31.0/libs/python/build/VisualStudio": {
+    "destination": "https://github.com/boostorg/python/tree/boost-1.31.0/build/VisualStudio",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.31.0/libs/python/example": {
+    "destination": "https://github.com/boostorg/python/tree/boost-1.31.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.31.0/libs/python/test": {
+    "destination": "https://github.com/boostorg/python/tree/boost-1.31.0/test",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.31.0/tools/boostbook": {
+    "destination": "https://github.com/boostorg/boostbook/tree/boost-1.31.0",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.31.0/tools/build/v2/example/customization": {
+    "destination": "https://github.com/boostorg/build/tree/boost-1.31.0/v2/example/customization",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.32.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.32.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.32.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.32.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.32.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.32.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.32.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.32.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.32.0/libs/python/build/VisualStudio": {
+    "destination": "https://github.com/boostorg/python/tree/boost-1.32.0/build/VisualStudio",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.32.0/libs/python/example": {
+    "destination": "https://github.com/boostorg/python/tree/boost-1.32.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.32.0/libs/python/test": {
+    "destination": "https://github.com/boostorg/python/tree/boost-1.32.0/test",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.32.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.32.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.32.0/tools/boostbook": {
+    "destination": "https://github.com/boostorg/boostbook/tree/boost-1.32.0",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.32.0/tools/build/v2/example/customization": {
+    "destination": "https://github.com/boostorg/build/tree/boost-1.32.0/v2/example/customization",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.33.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.33.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.33.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.33.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/libs/iostreams/build": {
+    "destination": "https://github.com/boostorg/iostreams/tree/boost-1.33.0/build",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/libs/python/build/VisualStudio": {
+    "destination": "https://github.com/boostorg/python/tree/boost-1.33.0/build/VisualStudio",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/libs/python/example": {
+    "destination": "https://github.com/boostorg/python/tree/boost-1.33.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/libs/python/test": {
+    "destination": "https://github.com/boostorg/python/tree/boost-1.33.0/test",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/libs/regex/test/captures": {
+    "destination": "https://github.com/boostorg/regex/tree/boost-1.33.0/test/captures",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/libs/regex/test/concepts": {
+    "destination": "https://github.com/boostorg/regex/tree/boost-1.33.0/test/concepts",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/libs/regex/test/pathology": {
+    "destination": "https://github.com/boostorg/regex/tree/boost-1.33.0/test/pathology",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/libs/regex/test/regress": {
+    "destination": "https://github.com/boostorg/regex/tree/boost-1.33.0/test/regress",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.33.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/libs/spirit/example": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.33.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/tools/boostbook": {
+    "destination": "https://github.com/boostorg/boostbook/tree/boost-1.33.0",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.33.0/tools/build/v2/example/customization": {
+    "destination": "https://github.com/boostorg/build/tree/boost-1.33.0/v2/example/customization",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.34.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.34.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.34.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.34.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.34.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.34.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.34.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.34.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.34.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.34.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.34.0/libs/iostreams/build": {
+    "destination": "https://github.com/boostorg/iostreams/tree/boost-1.34.0/build",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.34.0/libs/regex/test/captures": {
+    "destination": "https://github.com/boostorg/regex/tree/boost-1.34.0/test/captures",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.34.0/libs/regex/test/concepts": {
+    "destination": "https://github.com/boostorg/regex/tree/boost-1.34.0/test/concepts",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.34.0/libs/regex/test/pathology": {
+    "destination": "https://github.com/boostorg/regex/tree/boost-1.34.0/test/pathology",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.34.0/libs/regex/test/regress": {
+    "destination": "https://github.com/boostorg/regex/tree/boost-1.34.0/test/regress",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.34.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.34.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.35.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.35.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.35.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.35.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.35.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.35.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.35.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.35.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.35.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.35.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.35.0/libs/filesystem/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.35.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.35.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.35.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.35.0/libs/regex/test/captures": {
+    "destination": "https://github.com/boostorg/regex/tree/boost-1.35.0/test/captures",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.35.0/libs/regex/test/concepts": {
+    "destination": "https://github.com/boostorg/regex/tree/boost-1.35.0/test/concepts",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.35.0/libs/regex/test/pathology": {
+    "destination": "https://github.com/boostorg/regex/tree/boost-1.35.0/test/pathology",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.35.0/libs/regex/test/regress": {
+    "destination": "https://github.com/boostorg/regex/tree/boost-1.35.0/test/regress",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.35.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.35.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.36.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.36.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.36.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.36.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.36.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.36.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.36.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.36.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.36.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.36.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.36.0/libs/filesystem/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.36.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.36.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.36.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.36.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.36.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.36.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.36.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.37.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.37.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.37.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.37.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.37.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.37.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.37.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.37.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.37.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.37.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.37.0/libs/filesystem/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.37.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.37.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.37.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.37.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.37.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.37.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.37.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.38.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.38.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.38.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.38.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.38.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.38.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.38.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.38.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.38.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.38.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.38.0/libs/filesystem/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.38.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.38.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.38.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.38.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.38.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.38.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.38.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.39.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.39.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.39.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.39.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.39.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.39.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.39.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.39.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.39.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.39.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.39.0/libs/filesystem/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.39.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.39.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.39.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.39.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.39.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.39.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.39.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.40.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.40.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.40.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.40.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.40.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.40.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.40.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.40.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.40.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.40.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.40.0/libs/filesystem/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.40.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.40.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.40.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.40.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.40.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.40.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.40.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.41.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.41.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.41.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.41.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.41.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.41.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.41.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.41.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.41.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.41.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.41.0/libs/filesystem/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.41.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.41.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.41.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.41.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.41.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.41.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.41.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.42.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.42.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.42.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.42.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.42.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.42.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.42.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.42.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.42.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.42.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.42.0/libs/filesystem/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.42.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.42.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.42.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.42.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.42.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.42.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.42.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.43.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.43.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.43.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.43.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.43.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.43.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.43.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.43.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.43.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.43.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.43.0/libs/filesystem/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.43.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.43.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.43.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.43.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.43.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.43.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.43.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.44.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.44.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.44.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.44.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.44.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.44.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.44.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.44.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.44.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.44.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.44.0/libs/filesystem/v2/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.44.0/v2/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.44.0/libs/filesystem/v2/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.44.0/v2/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.44.0/libs/filesystem/v3/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.44.0/v3/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.44.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.44.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.44.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.44.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.45.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.45.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.45.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.45.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.45.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.45.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.45.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.45.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.45.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.45.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.45.0/libs/filesystem/v2/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.45.0/v2/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.45.0/libs/filesystem/v2/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.45.0/v2/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.45.0/libs/filesystem/v3/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.45.0/v3/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.45.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.45.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.45.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.45.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.46.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.46.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.46.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.46.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.46.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.46.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.46.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.46.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.46.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.46.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.46.0/libs/filesystem/v2/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.46.0/v2/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.46.0/libs/filesystem/v2/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.46.0/v2/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.46.0/libs/filesystem/v3/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.46.0/v3/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.46.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.46.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.46.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.46.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.47.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.47.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.47.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.47.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.47.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.47.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.47.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.47.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.47.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.47.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.47.0/libs/filesystem/v2/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.47.0/v2/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.47.0/libs/filesystem/v2/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.47.0/v2/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.47.0/libs/filesystem/v3/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.47.0/v3/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.47.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.47.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.47.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.47.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.47.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.47.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.48.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.48.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.48.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.48.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.48.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.48.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.48.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.48.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.48.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.48.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.48.0/libs/filesystem/v2/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.48.0/v2/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.48.0/libs/filesystem/v2/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.48.0/v2/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.48.0/libs/filesystem/v3/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.48.0/v3/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.48.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.48.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.48.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.48.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.48.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.48.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.49.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.49.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.49.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.49.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.49.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.49.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.49.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.49.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.49.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.49.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.49.0/libs/filesystem/v2/example": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.49.0/v2/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.49.0/libs/filesystem/v2/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.49.0/v2/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.49.0/libs/filesystem/v3/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.49.0/v3/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.49.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.49.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.49.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.49.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.49.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.49.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.50.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.50.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.50.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.50.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.50.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.50.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.50.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.50.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.50.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.50.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.50.0/libs/filesystem/doc/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.50.0/doc/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.50.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.50.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.50.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.50.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.50.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.50.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.51.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.51.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.51.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.51.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.51.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.51.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.51.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.51.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.51.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.51.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.51.0/libs/filesystem/doc/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.51.0/doc/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.51.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.51.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.51.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.51.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.51.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.51.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.52.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.52.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.52.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.52.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.52.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.52.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.52.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.52.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.52.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.52.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.52.0/libs/filesystem/doc/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.52.0/doc/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.52.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.52.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.52.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.52.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.52.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.52.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.53.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.53.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.53.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.53.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.53.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.53.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.53.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.53.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.53.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.53.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.53.0/libs/filesystem/doc/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.53.0/doc/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.53.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.53.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.53.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.53.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.53.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.53.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.54.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.54.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.54.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.54.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.54.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.54.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.54.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.54.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.54.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.54.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.54.0/libs/filesystem/doc/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.54.0/doc/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.54.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.54.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.54.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.54.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.54.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.54.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.55.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.55.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.55.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.55.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.55.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.55.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.55.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.55.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.55.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.55.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.55.0/libs/filesystem/doc/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.55.0/doc/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.55.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.55.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.55.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.55.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.55.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.55.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.56.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.56.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.56.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.56.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.56.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.56.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.56.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.56.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.56.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.56.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.56.0/libs/filesystem/doc/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.56.0/doc/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.56.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.56.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.56.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.56.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.56.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.56.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.57.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.57.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.57.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.57.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.57.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.57.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.57.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.57.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.57.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.57.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.57.0/libs/filesystem/doc/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.57.0/doc/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.57.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.57.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.57.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.57.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.57.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.57.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.58.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.58.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.58.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.58.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.58.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.58.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.58.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.58.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.58.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.58.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.58.0/libs/filesystem/doc/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.58.0/doc/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.58.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.58.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.58.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.58.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.58.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.58.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.58.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.58.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.59.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.59.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.59.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.59.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.59.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.59.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.59.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.59.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.59.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.59.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.59.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.59.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.59.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.59.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.59.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.59.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.59.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.59.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.60.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.60.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.60.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.60.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.60.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.60.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.60.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.60.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.60.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.60.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.60.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.60.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.60.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.60.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.60.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.60.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.60.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.60.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.60.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.60.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.61.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.61.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.61.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.61.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.61.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.61.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.61.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.61.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.61.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.61.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.61.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.61.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.61.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.61.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.61.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.61.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.61.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.61.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.61.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.61.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.62.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.62.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.62.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.62.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.62.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.62.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.62.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.62.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.62.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.62.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.62.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.62.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.62.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.62.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.62.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.62.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.62.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.62.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.62.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.62.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.63.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.63.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.63.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.63.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.63.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.63.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.63.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.63.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.63.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.63.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.63.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.63.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.63.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.63.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.63.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.63.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.63.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.63.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.63.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.63.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.64.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.64.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.64.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.64.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.64.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.64.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.64.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.64.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.64.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.64.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.64.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.64.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.64.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.64.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.64.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.64.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.64.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.64.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.64.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.64.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.65.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.65.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.65.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.65.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.65.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.65.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.65.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.65.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.65.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.65.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.65.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.65.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.65.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.65.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.65.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.65.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.65.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.65.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.65.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.65.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.66.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.66.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.66.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.66.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.66.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.66.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.66.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.66.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.66.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.66.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.66.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.66.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.66.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.66.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.66.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.66.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.66.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.66.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.66.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.66.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.66.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.66.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.67.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.67.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.67.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.67.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.67.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.67.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.67.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.67.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.67.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.67.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.67.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.67.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.67.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.67.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.67.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.67.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.67.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.67.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.67.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.67.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.67.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.67.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.67.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.67.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.68.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.68.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.68.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.68.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.68.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.68.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.68.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.68.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.68.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.68.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.68.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.68.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.68.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.68.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.68.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.68.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.68.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.68.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.68.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.68.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.68.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.68.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.68.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.68.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.69.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.69.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.69.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.69.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.69.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.69.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.69.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.69.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.69.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.69.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.69.0/libs/beast/example/cppcon2018": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.69.0/example/cppcon2018",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.69.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.69.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.69.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.69.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.69.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.69.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.69.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.69.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.69.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.69.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.69.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.69.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.69.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.69.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.70.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.70.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.70.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.70.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.70.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.70.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.70.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.70.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.70.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.70.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.70.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.70.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.70.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.70.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.70.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.70.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.70.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.70.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.70.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.70.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.70.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.70.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.70.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.70.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.70.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.70.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.71.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.71.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.71.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.71.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.71.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.71.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.71.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.71.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.71.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.71.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.71.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.71.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.71.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.71.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.71.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.71.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.71.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.71.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.71.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.71.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.71.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.71.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.71.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.71.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.71.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.71.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.72.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.72.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.72.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.72.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.72.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.72.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.72.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.72.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.72.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.72.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.72.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.72.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.72.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.72.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.72.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.72.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.72.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.72.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.72.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.72.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.72.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.72.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.72.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.72.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.72.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.72.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.73.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.73.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.73.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.73.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.73.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.73.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.73.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.73.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.73.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.73.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.73.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.73.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.73.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.73.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.73.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.73.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.73.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.73.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.73.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.73.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.73.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.73.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.73.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.73.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.73.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.73.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.74.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.74.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.74.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.74.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.74.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.74.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.74.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.74.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.74.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.74.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.74.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.74.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.74.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.74.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.74.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.74.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.74.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.74.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.74.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.74.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.74.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.74.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.74.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.74.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.74.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.74.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.75.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.75.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.75.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.75.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.75.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.75.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.75.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.75.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.75.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.75.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.75.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.75.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.75.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.75.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.75.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.75.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.75.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.75.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.75.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.75.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.75.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.75.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.75.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.75.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.75.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.75.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.76.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.76.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.76.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.76.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.76.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.76.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.76.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.76.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.76.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.76.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.76.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.76.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.76.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.76.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.76.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.76.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.76.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.76.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.76.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.76.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.76.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.76.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.76.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.76.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.76.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.76.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.77.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.77.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.77.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.77.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.77.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.77.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.77.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.77.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.77.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.77.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.77.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.77.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.77.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.77.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.77.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.77.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.77.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.77.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.77.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.77.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.77.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.77.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.77.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.77.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.77.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.77.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.78.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.78.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.78.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.78.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.78.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.78.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.78.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.78.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.78.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.78.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.78.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.78.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.78.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.78.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.78.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.78.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.78.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.78.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.78.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.78.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.78.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.78.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.78.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.78.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.78.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.78.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.79.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.79.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.79.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.79.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.79.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.79.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.79.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.79.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.79.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.79.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.79.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.79.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.79.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.79.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.79.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.79.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.79.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.79.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.79.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.79.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.79.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.79.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.79.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.79.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.79.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.79.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.80.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.80.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.80.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.80.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.80.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.80.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.80.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.80.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.80.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.80.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.80.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.80.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.80.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.80.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.80.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.80.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.80.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.80.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.80.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.80.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.80.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.80.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.80.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.80.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.80.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.80.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.81.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.81.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.81.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.81.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.81.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.81.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.81.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.81.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.81.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.81.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.81.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.81.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.81.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.81.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.81.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.81.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.81.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.81.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.81.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.81.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.81.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.81.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.81.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.81.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.81.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.81.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.82.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.82.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.82.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.82.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.82.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.82.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.82.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.82.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.82.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.82.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.82.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.82.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.82.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.82.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.82.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.82.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.82.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.82.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.82.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.82.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.82.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.82.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.82.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.82.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.82.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.82.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.83.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.83.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.83.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.83.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.83.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.83.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.83.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.83.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.83.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.83.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.83.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.83.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.83.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.83.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.83.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.83.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.83.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.83.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.83.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.83.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.83.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.83.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.83.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.83.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.83.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.83.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.84.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.84.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.84.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.84.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.84.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.84.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.84.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.84.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.84.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.84.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.84.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.84.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.84.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.84.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.84.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.84.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.84.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.84.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.84.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.84.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.84.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.84.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.84.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.84.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.84.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.84.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.85.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.85.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.85.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.85.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.85.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.85.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.85.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.85.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.85.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.85.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.85.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.85.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.85.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.85.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.85.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.85.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.85.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.85.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.85.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.85.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.85.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.85.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.85.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.85.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.85.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.85.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.86.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.86.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.86.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.86.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.86.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.86.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.86.0/boost/compatibility/cpp_c_headers": {
+    "destination": "https://github.com/boostorg/compatibility/tree/boost-1.86.0/include/boost/compatibility/cpp_c_headers",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.86.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.86.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.86.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.86.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.86.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.86.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.86.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.86.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.86.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.86.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.86.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.86.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.86.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.86.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.86.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.86.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.86.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.86.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.87.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.87.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.87.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.87.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.87.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.87.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.87.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.87.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.87.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.87.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.87.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.87.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.87.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.87.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.87.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.87.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.87.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.87.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.87.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.87.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.87.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.87.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.87.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.87.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.88.0/boost/archive/detail": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.88.0/include/boost/archive/detail",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.88.0/boost/archive/impl": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.88.0/include/boost/archive/impl",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.88.0/boost/archive/iterators": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.88.0/include/boost/archive/iterators",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.88.0/libs/beast/example": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.88.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.88.0/libs/beast/example/websocket/server/chat-multi": {
+    "destination": "https://github.com/boostorg/beast/tree/boost-1.88.0/example/websocket/server/chat-multi",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.88.0/libs/bimap/example": {
+    "destination": "https://github.com/boostorg/bimap/tree/boost-1.88.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.88.0/libs/filesystem/src": {
+    "destination": "https://github.com/boostorg/filesystem/tree/boost-1.88.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.88.0/libs/serialization/src": {
+    "destination": "https://github.com/boostorg/serialization/tree/boost-1.88.0/src",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.88.0/libs/sort/example": {
+    "destination": "https://github.com/boostorg/sort/tree/boost-1.88.0/example",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.88.0/libs/spirit/example/qi/mini_xml_samples": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.88.0/example/qi/mini_xml_samples",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.88.0/libs/spirit/example/support/utree": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.88.0/example/support/utree",
+    "redirect_format": "BoostRedirectFormat"
+  },
+  "/doc/libs/1.88.0/libs/spirit/example/x3/rexpr/rexpr_full": {
+    "destination": "https://github.com/boostorg/spirit/tree/boost-1.88.0/example/x3/rexpr/rexpr_full",
+    "redirect_format": "BoostRedirectFormat"
+  }
+}

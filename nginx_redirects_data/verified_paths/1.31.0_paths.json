@@ -1,0 +1,521 @@
+[
+  {
+    "version": "boost-1.31.0",
+    "directory_exists": true,
+    "version_directory": "boost_1_31_0",
+    "total_doc_files": 1687,
+    "files_processed": 1687,
+    "paths": {
+      "libs/lambda": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/bind/bind.html",
+            "original_url": "../lambda/"
+          },
+          {
+            "referencing_file": "people/jaakko_jarvi.htm",
+            "original_url": "../libs/lambda"
+          }
+        ]
+      },
+      "boost/compatibility/cpp_c_headers": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/compatibility/index.html",
+            "original_url": "../../boost/compatibility/cpp_c_headers/"
+          }
+        ]
+      },
+      "libs/config/tools/configure.in": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/config/config.htm",
+            "original_url": "tools/configure.in"
+          }
+        ]
+      },
+      "libs/filesystem/build/Jamfile": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/filesystem/doc/index.htm",
+            "original_url": "../build/Jamfile"
+          }
+        ]
+      },
+      "libs/graph/doc/001-11101-0_cylinder_head.stp": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/graph/doc/sloan_ordering.htm",
+            "original_url": "001-11101-0_cylinder_head.stp"
+          }
+        ]
+      },
+      "libs/python/build/python_v1.zip": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/python/doc/building.html",
+            "original_url": "../build/python_v1.zip"
+          }
+        ]
+      },
+      "libs/python/example": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/python/doc/building.html",
+            "original_url": "../example"
+          }
+        ]
+      },
+      "libs/python/example/boost-build.jam": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/python/doc/building.html",
+            "original_url": "../example/boost-build.jam"
+          }
+        ]
+      },
+      "libs/python/example/Jamrules": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/python/doc/building.html",
+            "original_url": "../example/Jamrules"
+          }
+        ]
+      },
+      "libs/python/build/VisualStudio": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/python/doc/building.html",
+            "original_url": "../build/VisualStudio"
+          }
+        ]
+      },
+      "libs/python/test": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/python/doc/v2/pickle.html",
+            "original_url": "../../test/"
+          }
+        ]
+      },
+      "libs/regex/build/generic.mak": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/regex/doc/install.html",
+            "original_url": "../build/generic.mak"
+          }
+        ]
+      },
+      "libs/smart_ptr/smarttest.zip": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/smart_ptr/smarttests.htm",
+            "original_url": "smarttest.zip"
+          }
+        ]
+      },
+      "libs/test/example/unit_test_example5.input": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/test/doc/examples/unit_test_example5.html",
+            "original_url": "../../example/unit_test_example5.input"
+          }
+        ]
+      },
+      "libs/test/test/errors_handling_test.pattern": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/test/doc/tests/errors_handling_test.html",
+            "original_url": "../../test/errors_handling_test.pattern"
+          }
+        ]
+      },
+      "libs/test/test/result_report_test.pattern": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/test/doc/tests/result_report_test.html",
+            "original_url": "../../test/result_report_test.pattern"
+          }
+        ]
+      },
+      "Jamfile": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "more/getting_started.html",
+            "original_url": "../Jamfile"
+          }
+        ]
+      },
+      "tools/build": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "more/mailing_lists.htm",
+            "original_url": "../tools/build"
+          }
+        ]
+      },
+      "libs/python": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "more/mailing_lists.htm",
+            "original_url": "../libs/python"
+          }
+        ]
+      },
+      "tools/boostbook": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "more/mailing_lists.htm",
+            "original_url": "../tools/boostbook"
+          }
+        ]
+      },
+      "tools/regression/run_tests.sh": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "more/regression.html",
+            "original_url": "../tools/regression/run_tests.sh"
+          },
+          {
+            "referencing_file": "tools/regression/index.htm",
+            "original_url": "run_tests.sh"
+          }
+        ]
+      },
+      "status/Jamfile": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "tools/build/v1/build_system.htm",
+            "original_url": "../../../status/Jamfile"
+          },
+          {
+            "referencing_file": "more/regression.html",
+            "original_url": "../status/Jamfile"
+          }
+        ]
+      },
+      "libs/filesystem/test/Jamfile": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "more/regression.html",
+            "original_url": "../libs/filesystem/test/Jamfile"
+          }
+        ]
+      },
+      "people/news:comp.lang.c++.moderated": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "people/dietmar_kuehl.htm",
+            "original_url": "news:comp.lang.c++.moderated"
+          },
+          {
+            "referencing_file": "people/aleksey_gurtovoy.htm",
+            "original_url": "news:comp.lang.c++.moderated"
+          }
+        ]
+      },
+      "people/news:comp.std.c++": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "people/aleksey_gurtovoy.htm",
+            "original_url": "news:comp.std.c++"
+          }
+        ]
+      },
+      "libs/variant": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "people/eric_friedman.htm",
+            "original_url": "../libs/variant"
+          }
+        ]
+      },
+      "libs/tuple": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "people/jaakko_jarvi.htm",
+            "original_url": "../libs/tuple"
+          }
+        ]
+      },
+      "tools/build/jam_src/Porting": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "tools/build/jam_src/index.html",
+            "original_url": "Porting"
+          }
+        ]
+      },
+      "tools/build/jam_src/www.cygwin.com": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "tools/build/jam_src/index.html",
+            "original_url": "www.cygwin.com"
+          }
+        ]
+      },
+      "Jamrules": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "tools/build/v1/build_system.htm",
+            "original_url": "../../../Jamrules"
+          }
+        ]
+      },
+      "libs/python/build/Jamfile": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "tools/build/v1/build_system.htm",
+            "original_url": "../../../libs/python/build/Jamfile"
+          }
+        ]
+      },
+      "tools/build/v1/allyourbase.jam": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "tools/build/v1/build_system.htm",
+            "original_url": "allyourbase.jam"
+          }
+        ]
+      },
+      "tools/build/v1/python.jam": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "tools/build/v1/build_system.htm",
+            "original_url": "python.jam"
+          }
+        ]
+      },
+      "libs/regex/build/Jamfile": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "tools/build/v1/build_system.htm",
+            "original_url": "../../../libs/regex/build/Jamfile"
+          }
+        ]
+      },
+      "tools/build/v1/features.jam": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "tools/build/v1/build_system.htm",
+            "original_url": "features.jam"
+          }
+        ]
+      },
+      "tools/build/v2/example/customization": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "tools/build/v2/doc/extending.html",
+            "original_url": "../example/customization"
+          }
+        ]
+      },
+      "tools/inspect/build/Jamfile": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "tools/inspect/index.html",
+            "original_url": "build/Jamfile"
+          }
+        ]
+      },
+      "tools/regression/build/Jamfile": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "tools/regression/index.htm",
+            "original_url": "build/Jamfile"
+          }
+        ]
+      }
+    }
+  }
+]

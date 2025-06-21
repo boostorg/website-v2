@@ -1,0 +1,634 @@
+[
+  {
+    "version": "boost-1.82.0",
+    "directory_exists": true,
+    "version_directory": "boost_1_82_0",
+    "total_doc_files": 23644,
+    "files_processed": 23644,
+    "paths": {
+      "doc/html/boost/yap/operator/.html": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "doc/html/yap/reference.html",
+            "original_url": "../boost/yap/operator/.html"
+          },
+          {
+            "referencing_file": "doc/html/boost/yap/operator%.html",
+            "original_url": "operator/.html"
+          },
+          {
+            "referencing_file": "doc/html/boost/yap/operat_1_3_46_8_2_5_1_1_15.html",
+            "original_url": "operator/.html"
+          }
+        ]
+      },
+      "doc/html/www.boost.org": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "doc/html/boost_process/tutorial.html",
+            "original_url": "../www.boost.org"
+          }
+        ]
+      },
+      "doc/libs/release/libs/lexical_cast": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "doc/html/conversion.html",
+            "original_url": "../../doc/libs/release/libs/lexical_cast/"
+          }
+        ]
+      },
+      "doc/html/date_time/eg:%20120259.123%20is%2012%20hours,%202%20min,%2059%20seconds,%20123000%20microseconds": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "doc/html/date_time/doxy.html",
+            "original_url": "eg:%20120259.123%20is%2012%20hours,%202%20min,%2059%20seconds,%20123000%20microseconds"
+          }
+        ]
+      },
+      "doc/html/int_html": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "doc/html/metaparse/getting_started_with_boost_metap.html",
+            "original_url": "../int_html"
+          }
+        ]
+      },
+      "libs/serialization/doc": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "doc/html/mpi.html",
+            "original_url": "../../libs/serialization/doc"
+          },
+          {
+            "referencing_file": "doc/html/mpi/tutorial.html",
+            "original_url": "../../../libs/serialization/doc"
+          },
+          {
+            "referencing_file": "doc/html/mpi/c_mapping.html",
+            "original_url": "../../../libs/serialization/doc"
+          }
+        ]
+      },
+      "libs/type_erasure": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "doc/html/poly_collection/reference.html",
+            "original_url": "../../../libs/type_erasure"
+          },
+          {
+            "referencing_file": "doc/html/poly_collection.html",
+            "original_url": "../../libs/type_erasure"
+          },
+          {
+            "referencing_file": "doc/html/poly_collection/an_efficient_polymorphic_data_st.html",
+            "original_url": "../../../libs/type_erasure"
+          },
+          {
+            "referencing_file": "doc/html/poly_collection/acknowledgments.html",
+            "original_url": "../../../libs/type_erasure"
+          },
+          {
+            "referencing_file": "doc/html/poly_collection/tutorial.html",
+            "original_url": "../../../libs/type_erasure"
+          }
+        ]
+      },
+      "libs/ptr_container": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "doc/html/poly_collection/an_efficient_polymorphic_data_st.html",
+            "original_url": "../../../libs/ptr_container/"
+          }
+        ]
+      },
+      "libs/type_index": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "doc/html/poly_collection/future_work.html",
+            "original_url": "../../../libs/type_index"
+          }
+        ]
+      },
+      "libs/regex": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "doc/html/xpressive.html",
+            "original_url": "../../libs/regex"
+          },
+          {
+            "referencing_file": "doc/html/xpressive/appendices.html",
+            "original_url": "../../../libs/regex"
+          },
+          {
+            "referencing_file": "doc/html/xpressive/user_s_guide.html",
+            "original_url": "../../../libs/regex"
+          }
+        ]
+      },
+      "libs/beast/example": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/beast/doc/html/beast/examples.html",
+            "original_url": "../../../example"
+          },
+          {
+            "referencing_file": "libs/beast/doc/html/beast/quick_start.html",
+            "original_url": "../../../example"
+          }
+        ]
+      },
+      "libs/bimap/example": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/bimap/doc/html/boost_bimap/examples.html",
+            "original_url": "../../../example"
+          }
+        ]
+      },
+      "libs/beast/example/websocket/server/chat-multi": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/beast/doc/html/beast/examples.html",
+            "original_url": "../../../example/websocket/server/chat-multi"
+          },
+          {
+            "referencing_file": "libs/beast/doc/html/beast/release_notes.html",
+            "original_url": "../../../example/websocket/server/chat-multi"
+          }
+        ]
+      },
+      "boost/compatibility/cpp_c_headers": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/compatibility/index.html",
+            "original_url": "../../boost/compatibility/cpp_c_headers/"
+          }
+        ]
+      },
+      "libs/config/tools/configure.in": {
+        "is_file": true,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/config/doc/html/boost_config/guidelines_for_boost_authors.html",
+            "original_url": "../../../tools/configure.in"
+          }
+        ]
+      },
+      "libs/exception/doc/error_info::value_type": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/exception/doc/boost_exception_get_error_info_hpp.html",
+            "original_url": "error_info::value_type"
+          },
+          {
+            "referencing_file": "libs/exception/doc/get_error_info.html",
+            "original_url": "error_info::value_type"
+          }
+        ]
+      },
+      "libs/exception/doc/get_error_info": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/exception/doc/boost_exception_get_error_info_hpp.html",
+            "original_url": "get_error_info"
+          },
+          {
+            "referencing_file": "libs/exception/doc/get_error_info.html",
+            "original_url": "get_error_info"
+          }
+        ]
+      },
+      "libs/filesystem/src": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/filesystem/doc/index.htm",
+            "original_url": "../src"
+          }
+        ]
+      },
+      "libs/filesystem/doc/path-filename": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/filesystem/doc/reference.html",
+            "original_url": "path-filename"
+          }
+        ]
+      },
+      "libs/hof/doc/_templates/doc": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/hof/doc/_templates/redirect.html",
+            "original_url": "doc/"
+          }
+        ]
+      },
+      "libs/hof/doc/html/doc": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/hof/doc/html/index.html",
+            "original_url": "doc/"
+          }
+        ]
+      },
+      "libs/mpl": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/mp11/doc/html/mp11.html",
+            "original_url": "../../../../libs/mpl"
+          }
+        ]
+      },
+      "libs/assert": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/multi_index/doc/tutorial/debug.html",
+            "original_url": "../../../../libs/assert"
+          }
+        ]
+      },
+      "libs/outcome/doc/html/(/experimental/differences.html)": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/outcome/doc/html/faq.html",
+            "original_url": "(/experimental/differences.html)"
+          }
+        ]
+      },
+      "libs/outcome/doc/html/recipes/asio-integration": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/outcome/doc/html/recipes/asio-integration-1-70.html",
+            "original_url": "asio-integration"
+          }
+        ]
+      },
+      "libs/outcome/doc/html/recipes/asio-integration-1-70": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/outcome/doc/html/recipes/asio-integration.html",
+            "original_url": "asio-integration-1-70"
+          }
+        ]
+      },
+      "libs/outcome/doc/html/tutorial/payload": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/outcome/doc/html/tutorial/advanced/interop/problem.html",
+            "original_url": "../../payload"
+          },
+          {
+            "referencing_file": "libs/outcome/doc/html/tutorial/advanced/hooks/keeping_state.html",
+            "original_url": "../../payload"
+          }
+        ]
+      },
+      "libs/outcome/doc/html/tutorial/advanced/value-or-error": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/outcome/doc/html/tutorial/advanced/interop/app-map-httplib2.html",
+            "original_url": "../value-or-error"
+          }
+        ]
+      },
+      "libs/outcome/doc/html/tutorial/payload/copy_file2": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/outcome/doc/html/tutorial/advanced/interop/filelib.html",
+            "original_url": "../../payload/copy_file2"
+          }
+        ]
+      },
+      "libs/outcome/doc/html/tutorial/payload/copy_file3": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/outcome/doc/html/tutorial/advanced/interop/problem.html",
+            "original_url": "../../payload/copy_file3"
+          }
+        ]
+      },
+      "libs/outcome/doc/html/tutorial/default-actions": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/outcome/doc/html/tutorial/advanced/payload/copy_file3.html",
+            "original_url": "../../default-actions/"
+          }
+        ]
+      },
+      "{{": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": true,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/outcome/doc/src/themes/boostdoc/layouts/partials/navigation.html",
+            "original_url": "{{"
+          },
+          {
+            "referencing_file": "libs/outcome/doc/src/layouts/shortcodes/boost-copyright.html",
+            "original_url": "{{"
+          }
+        ]
+      },
+      "libs/example/tutorial/Jamroot": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/python/doc/html/tutorial/tutorial/hello.html",
+            "original_url": "../../../../../example/tutorial/Jamroot"
+          }
+        ]
+      },
+      "libs/integer": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": true,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/rational/rational.html",
+            "original_url": "../integer/"
+          }
+        ]
+      },
+      "libs/serialization/doc/www.codefarms.com": {
+        "is_file": false,
+        "is_directory": false,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": false,
+        "references": [
+          {
+            "referencing_file": "libs/serialization/doc/bibliography.html",
+            "original_url": "www.codefarms.com"
+          }
+        ]
+      },
+      "boost/archive/detail": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/serialization/doc/headers.html",
+            "original_url": "../../../boost/archive/detail"
+          }
+        ]
+      },
+      "libs/serialization/src": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/serialization/doc/headers.html",
+            "original_url": "../../../libs/serialization/src"
+          }
+        ]
+      },
+      "boost/archive/impl": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/serialization/doc/headers.html",
+            "original_url": "../../../boost/archive/impl"
+          }
+        ]
+      },
+      "boost/archive/iterators": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/serialization/doc/headers.html",
+            "original_url": "../../../boost/archive/iterators"
+          }
+        ]
+      },
+      "libs/sort/example": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/sort/doc/html/sort/single_thread/spreadsort/sort_hpp.html",
+            "original_url": "../../../../../example/"
+          }
+        ]
+      },
+      "libs/spirit/example/qi/mini_xml_samples": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/spirit/doc/html/spirit/qi/tutorials/mini_xml___error_handling.html",
+            "original_url": "../../../../../example/qi/mini_xml_samples"
+          }
+        ]
+      },
+      "libs/spirit/example/support/utree": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/spirit/doc/html/spirit/support/utree.html",
+            "original_url": "../../../../example/support/utree"
+          }
+        ]
+      },
+      "libs/spirit/example/x3/rexpr/rexpr_full": {
+        "is_file": false,
+        "is_directory": true,
+        "is_server_url": false,
+        "has_index": false,
+        "has_files": true,
+        "references": [
+          {
+            "referencing_file": "libs/spirit/doc/x3/html/spirit_x3/tutorials/rexpr.html",
+            "original_url": "../../../../../example/x3/rexpr/rexpr_full/"
+          }
+        ]
+      }
+    }
+  }
+]
