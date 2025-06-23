@@ -149,3 +149,6 @@ static_deploy
 Makefile
 README.md
 venv/
+
+# used for the nginx redirect generation
+tarballs/
