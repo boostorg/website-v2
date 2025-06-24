@@ -26,6 +26,7 @@ from .utils import (
     determine_selected_boost_version,
     set_selected_boost_version,
     get_documentation_url,
+    get_version_from_cookie,
 )
 from .constants import LATEST_RELEASE_URL_PATH_STR
 
@@ -301,6 +302,8 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, ContributorMixin, Deta
         version_slug = self.kwargs.get("version_slug")
         # here we need to check for not version_slug because of redirect_to_docs
         # where it's not necessarily set by the source request
+        if not version_slug:
+            version_slug = get_version_from_cookie(self.request)
         if not version_slug or version_slug == LATEST_RELEASE_URL_PATH_STR:
             return Version.objects.most_recent()
         return get_object_or_404(Version, slug=version_slug)
@@ -314,7 +317,7 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, ContributorMixin, Deta
                         library__slug=self.kwargs.get("library_slug"),
                         version=self.get_version(),
                     ),
-                    latest=True,
+                    latest=False,
                 )
             )
         response = super().dispatch(request, *args, **kwargs)
