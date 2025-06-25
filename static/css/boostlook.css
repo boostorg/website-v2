@@ -283,6 +283,7 @@
   --font-size-2sm: 1.2rem;
   --font-size-md: 1.125rem;
   --font-size-lg: 1.25rem;
+  --font-size-2md: 1.3rem;
   --font-size-xl: 1.5rem;
   --font-size-2xl: 1.75rem;
   --font-size-3xl: 2rem;
@@ -405,6 +406,7 @@
     --typography-font-size-xs: var(--font-size-xs);
     --typography-font-size-sm: var(--font-size-sm);
     --typography-font-size-md: var(--font-size-md);
+    --typography-font-size-2md: var(--font-size-2md);
     --typography-font-size-lg: var(--font-size-lg);
     --typography-font-size-xl: var(--font-size-xl);
     --typography-font-size-2xl: var(--font-size-2xl);
@@ -418,6 +420,15 @@
     --typography-line-height-2xl: var(--font-line-height-2xl);
     --typography-line-height-3xl: var(--font-line-height-3xl);
     --typography-line-height-4xl: var(--font-line-height-4xl);
+
+    /* Heading */
+    --typography-font-size-h1: var(--font-size-2xl);
+    --typography-font-size-h2: var(--font-size-xl);
+    --typography-font-size-h3: var(--font-size-2md);
+    --typography-font-size-h4: var(--font-size-md);
+
+    /*
+*/
   }
 }
 
@@ -914,27 +925,27 @@ body :not(pre):not([class^="L"]) > code {
 /* Heading Sizes */
 .boostlook h1,
 .boostlook .doc h1 {
-  font-size: var(--typography-font-size-2xl, 1.75rem);
+  font-size: var(--typography-font-size-h1, 1.75rem);
   line-height: var(--typography-line-height-3xl, 2.5rem); /* 142.857% */
 }
 
 /* Primary headings */
 .boostlook h2,
 .boostlook .doc h2 {
-  font-size: var(--typography-font-size-lg, 1.25rem);
+  font-size: var(--typography-font-size-h2, 1.5rem);
 }
 
 /* Section headings */
 .boostlook h3,
 .boostlook .doc h3 {
-  font-size: var(--typography-font-size-md, 1.2rem);
+  font-size: var(--typography-font-size-h3, 1.3rem);
   line-height: var(--typography-line-height-xl, 1.85rem); /* 155.556% */
 }
 
 /* Subsection headings */
 .boostlook h4,
 .boostlook .doc h4 {
-  font-size: var(--typography-font-size-md, 1.125rem);
+  font-size: var(--typography-font-size-h4, 1.125rem);
   line-height: var(--typography-line-height-xl, 1.75rem); /* 155.556% */
 }
 
@@ -1438,7 +1449,8 @@ html.dark .boostlook .doc .literalblock pre {
   flex-direction: column-reverse;
 }
 
-.boostlook .content:has(> pre):has(> .source-toolbox) pre.highlight {
+.boostlook .highlight pre,
+.boostlook .content:has(> pre) pre.highlight {
   border: 1px solid var(--border-border-secondary, #d5d7d9);
 }
 .boostlook .content:has(> pre):has(> .source-toolbox) pre {
@@ -2002,7 +2014,7 @@ html.dark .boostlook .hljs-code {
   border-radius: var(--spacing-size-size-0, 0rem);
   border: 1px solid transparent;
   margin: revert;
-  margin-left: var(--spacing-size-xl);
+  /*margin-left: var(--spacing-size-xl);*/
   background: transparent;
 }
 
@@ -2146,11 +2158,7 @@ html.dark .boostlook .hljs-code {
   border-color: var(--border-border-blue-primary, #c2e2f4);
   background-color: var(--surface-background-main-surface-blue-primary, #ebf4f9);
 }
-/* .boostlook #content .admonitionblock.note > table tr td.icon,
-.boostlook:not(:has(.doc)) div.note > table tr:first-child th,
-.boostlook:not(:has(.doc)) .notices.note .heading {
-  background: var(--surface-background-states-surface-additional-tetriary, #92cbe9);
-} */
+
 .boostlook #content .admonitionblock.note > table tr td.icon > *,
 .boostlook:not(:has(.doc)) div.note > table tr:first-child th,
 .boostlook:not(:has(.doc)) .notices.note .heading {
@@ -4190,7 +4198,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) div.spi
   padding: 0 0 var(--padding-padding-xs, 0.75rem) 0;
   background: none;
   color: var(--text-main-text-primary, #18191b);
-  font-size: var(--Typography-font-size-md, 1.125rem);
+  font-size: var(--typography-font-size-md, 1.125rem);
   font-style: normal;
   font-variation-settings: "wght" 500, "wdth" 80;
   line-height: var(--typography-line-height-xl, 1.75rem); /* 155.556% */
