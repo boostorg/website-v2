@@ -4,7 +4,7 @@ import json
 import requests
 from dataclasses import dataclass, asdict
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any
 from bs4 import BeautifulSoup
 from versions.utils.common import load_json_list, has_index_files
 
@@ -79,7 +79,7 @@ def href_pass(url: str) -> bool:
     return not has_index_files(Path(url))
 
 
-def extract_href_urls_from_content(content: str) -> List[str]:
+def extract_href_urls_from_content(content: str) -> list[str]:
     """Extract and filter href URLs from HTML content using BeautifulSoup."""
     try:
         soup = BeautifulSoup(content, "html.parser")
@@ -92,7 +92,7 @@ def extract_href_urls_from_content(content: str) -> List[str]:
         return []
 
 
-def process_single_file(file_path: Path, relative_path: str) -> Dict[str, List[str]]:
+def process_single_file(file_path: Path, relative_path: str) -> dict[str, list[str]]:
     """Process a single HTML file and return dict of URLs -> [files that reference them]."""
     content = file_path.read_text(encoding="utf-8", errors="ignore")
     filtered_urls = extract_href_urls_from_content(content)
@@ -100,8 +100,8 @@ def process_single_file(file_path: Path, relative_path: str) -> Dict[str, List[s
 
 
 def process_version_files(
-    version_dir: Path, doc_files: List[str]
-) -> tuple[Dict[str, List[str]], int]:
+    version_dir: Path, doc_files: list[str]
+) -> tuple[dict[str, list[str]], int]:
     """Process all doc files for a version and return dict of URLs -> referencing files."""
     url_references = {}
     files_processed = 0
@@ -159,7 +159,7 @@ def check_directory_contents(target_dir: Path) -> tuple[bool, bool]:
 class PathData:
     """Standardized path data with consistent structure."""
 
-    references: List[Dict[str, str]]
+    references: list[dict[str, str]]
     is_file: bool = False
     is_directory: bool = False
     is_server_url: bool = False
@@ -167,7 +167,7 @@ class PathData:
     has_files: bool = False
 
 
-def create_path_data(relative_target: Path, version_dir: Path) -> Dict[str, Any]:
+def create_path_data(relative_target: Path, version_dir: Path) -> dict[str, Any]:
     """Create path data with existence flags and directory metadata."""
     is_file, is_directory = check_path_exists(version_dir, str(relative_target))
 
@@ -191,7 +191,7 @@ def create_path_data(relative_target: Path, version_dir: Path) -> Dict[str, Any]
 
 
 def add_reference_to_path(
-    existing_path_data: Dict[str, Any], ref_file: str, url: str
+    existing_path_data: dict[str, Any], ref_file: str, url: str
 ) -> None:
     """Add a reference to path data in place."""
     if "reference_set" not in existing_path_data:
@@ -202,10 +202,10 @@ def add_reference_to_path(
 
 def check_filesystem(
     url: str,
-    referencing_files: List[str],
+    referencing_files: list[str],
     version_dir: Path,
-    existing_paths: Dict[str, Any],
-) -> Dict[str, Any]:
+    existing_paths: dict[str, Any],
+) -> dict[str, Any]:
     """Check filesystem for URL references and return updated paths."""
     updated_paths = existing_paths.copy()
 
@@ -240,11 +240,11 @@ def check_url_status(url: str) -> bool:
 
 def check_server(
     url: str,
-    referencing_files: List[str],
+    referencing_files: list[str],
     version_dir: Path,
-    existing_paths: Dict[str, Any],
+    existing_paths: dict[str, Any],
     version_slug: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Check server for URL references by fetching HTML from server and checking URLs."""
     updated_paths = existing_paths.copy()
 
@@ -290,11 +290,11 @@ def is_django_template_url(url: str) -> bool:
 
 def process_url_reference(
     url: str,
-    referencing_files: List[str],
+    referencing_files: list[str],
     version_dir: Path,
-    existing_paths: Dict[str, Any],
+    existing_paths: dict[str, Any],
     version_slug: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Process a single URL and its referencing files, returning updated paths."""
     if is_django_template_url(url):
         return check_server(
@@ -304,7 +304,7 @@ def process_url_reference(
         return check_filesystem(url, referencing_files, version_dir, existing_paths)
 
 
-def analyze_version_urls(version_data: Dict[str, Any], base_dir: str) -> Dict[str, Any]:
+def analyze_version_urls(version_data: dict[str, Any], base_dir: str) -> dict[str, Any]:
     """Analyze all documentation files for a version, extract URLs, and verify paths."""
     version_name = version_data.get("version")
     slug = version_data.get("slug")

@@ -58,3 +58,13 @@ def get_version_directory_from_tarball(
     tarball_file = os.path.basename(version_data.get("tarball_filename", ""))
     dir_name = os.path.splitext(os.path.splitext(tarball_file)[0])[0]  # Remove .tar.bz2
     return Path(base_dir) / dir_name
+
+
+def version_sort_key(version: str) -> List[int]:
+    """Extract version parts for sorting (e.g., 'boost-1.79.0' -> [1, 79, 0])."""
+    return [int(x) for x in version.replace("boost-", "").replace("-", ".").split(".")]
+
+
+def version_to_slug(version: str) -> str:
+    """Convert version to URL slug format (e.g., 'boost-1.79.0' -> '1_79_0')."""
+    return version.replace("boost-", "").replace("-", "_")

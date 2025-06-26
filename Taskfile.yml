@@ -19,6 +19,7 @@ vars:
   DOCS_JSON: "{{.NGINX_REDIRECT_WORKSPACE}}/stage_2_docs_files.json"
   STATUS_404_CSV: "{{.RESULTS_DIR}}/404_urls.csv"
   KNOWN_REDIRECTS_JSON: "{{.NGINX_REDIRECTS_DATA}}/known_redirects.json"
+  EXCLUDE_REDIRECTS_JSON: "{{.NGINX_REDIRECTS_DATA}}/exclude_list.json"
   REDIRECT_CONFIG: "{{.RESULTS_DIR}}/nginx_redirects.conf"
 env:
   DJANGO_SETTINGS_MODULE: "{{.DJANGO_SETTINGS_MODULE}}"
@@ -55,12 +56,14 @@ tasks:
           git clone https://github.com/cppalliance/website-v2-processing "{{.WEBSITE_V2_PROCESSING_DIR}}"
         else
           echo "Updating website-v2-processing repository..."
-          cd "{{.WEBSITE_V2_PROCESSING_DIR}}" && git pull
+          cd "{{.WEBSITE_V2_PROCESSING_DIR}}"
+          git checkout master
+          git pull origin master
         fi
       - |
         current_branch=$(git branch --show-current)
         echo "Checking out branch '$current_branch' in website-v2-processing..."
-        cd "{{.WEBSITE_V2_PROCESSING_DIR}} && git checkout -B "$current_branch"
+        cd "{{.WEBSITE_V2_PROCESSING_DIR}}" && git checkout -B "$current_branch"
       - "mkdir -p {{.VERIFIED_PATHS_DIR}}"
       - "{{.JUST_MANAGE}} 'analyze_docs_urls --json-file={{.DOCS_JSON}} --output-dir={{.VERIFIED_PATHS_DIR}}'"
 
@@ -131,13 +134,35 @@ tasks:
         done
 
   generate-nginx-redirect-list:
-    desc: "Generate nginx redirect configuration for 404 URLs"
+    desc: "Generate nginx redirect configuration for 404 URLs and update configmap"
     preconditions:
         - "test -d {{.VERIFIED_PATHS_DIR}}"
     cmds:
       - |
         mkdir -p {{.RESULTS_DIR}}
-      - "{{.JUST_MANAGE}} 'generate_redirect_list --input-dir={{.VERIFIED_PATHS_DIR}} --known-redirects={{.KNOWN_REDIRECTS_JSON}} --output-file={{.REDIRECT_CONFIG}}'"
+      - "{{.JUST_MANAGE}} 'generate_redirect_list --input-dir={{.VERIFIED_PATHS_DIR}} --known-redirects={{.KNOWN_REDIRECTS_JSON}} --exclude-list={{.EXCLUDE_REDIRECTS_JSON}} --output-file={{.REDIRECT_CONFIG}}'"
+      - |
+        # Update the nginx configmap with generated redirects
+        TARGET_FILE="kube/boost/templates/configmap-nginx.yaml"
+        START_MARKER="# GENERATED - DO NOT MANUALLY EDIT BLOCK, START #"
+        END_MARKER="# GENERATED - DO NOT MANUALLY EDIT BLOCK, END #"
+
+        # Create temp file with content before start marker
+        awk "/$START_MARKER/{exit} 1" "$TARGET_FILE" > "$TARGET_FILE.tmp"
+
+        # Add start marker
+        echo "        $START_MARKER" >> "$TARGET_FILE.tmp"
+
+        # Add generated redirects with proper indentation
+        sed 's/^/        /' "{{.REDIRECT_CONFIG}}" >> "$TARGET_FILE.tmp"
+
+        # Add end marker and content after end marker
+        echo "        $END_MARKER" >> "$TARGET_FILE.tmp"
+        awk "/$END_MARKER/{found=1; next} found" "$TARGET_FILE" >> "$TARGET_FILE.tmp"
+
+        # Replace original file
+        mv "$TARGET_FILE.tmp" "$TARGET_FILE"
+        echo "Updated $TARGET_FILE with generated redirects"
 
   check-redirect-urls:
     desc: "Check if destination URLs in known_redirects.json return status 200"
