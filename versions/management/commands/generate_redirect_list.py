@@ -1,185 +1,306 @@
 import djclick as click
 import json
 import re
+from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Tuple, Union
-from versions.utils.common import load_json_dict
+from typing import Dict, List, Tuple, Union, Optional
+from versions.utils.common import (
+    load_json_dict,
+    load_json_list,
+    version_sort_key,
+    version_to_slug,
+)
 
-DEFAULT_REDIRECT_FORMAT = "BoostRedirectFormat"
-REDIRECT_REGEX = r"location [=~] \^?(.+?)\$? \{ return 301 (.+?); \}"
-
-
-class RedirectFormat:
-    """Base class for handling redirect URL formatting."""
-
-    def extract_source_pattern(self, source_url: str) -> str:
-        """Extract the path pattern from source URL for grouping."""
-        raise NotImplementedError
-
-    def normalize_destination(self, destination: str) -> str:
-        """Normalize destination for grouping purposes."""
-        raise NotImplementedError
-
-    def create_regex_source(self, source_url: str) -> str:
-        """Convert source URL to regex pattern with version capture group."""
-        raise NotImplementedError
-
-    def create_regex_destination(self, destination: str) -> str:
-        """Convert destination to use regex backreference."""
-        raise NotImplementedError
-
-    def can_merge_destinations(self, destinations: List[str]) -> bool:
-        """Check if destinations can be merged."""
-        raise NotImplementedError
-
-
-class BoostRedirectFormat(RedirectFormat):
-    """Handles Boost-specific redirect URL formatting."""
-
-    def extract_source_pattern(self, source_url: str) -> str:
-        """Extract path after version: /doc/libs/VERSION/path -> path"""
-        match = re.search(r"/doc/libs/[^/]+/(.+?)(?:\$|$)", source_url)
-        return match.group(1) if match else source_url
-
-    def normalize_destination(self, destination: str) -> str:
-        """Normalize destination by replacing version-specific parts."""
-        return re.sub(r"boost-[\d\.]+", "boost-VERSION", destination)
-
-    def create_regex_source(self, source_url: str) -> str:
-        """Convert /doc/libs/VERSION/path to /doc/libs/([^/]+)/path"""
-        return re.sub(r"/doc/libs/[^/]+/", "/doc/libs/([^/]+)/", source_url)
-
-    def create_regex_destination(self, destination: str) -> str:
-        """Convert boost-1.79.0 to boost-$1 in destination."""
-        return re.sub(r"boost-[\d\.]+", "boost-$1", destination)
-
-    def can_merge_destinations(self, destinations: List[str]) -> bool:
-        """Check if destinations can be merged (only differ by version)."""
-        if len(destinations) <= 1:
-            return True
-
-        # Normalize destinations by replacing versions
-        normalized = [self.normalize_destination(dest) for dest in destinations]
-
-        # All normalized destinations should be the same
-        return len(set(normalized)) == 1
+LOCATION_PATTERN = r"location [=~] \^?(.+?)\$? \{"  # Nginx location pattern for parsing
 
 
 @dataclass
-class ParsedRedirect:
-    """Parsed redirect with extracted components."""
+class RedirectData:
+    """Represents a single redirect entry."""
 
-    original: str
+    path: str
     source_url: str
     destination: str
-    formatter_type: str
-    formatter: RedirectFormat
-    path_pattern: str
-    normalized_dest: str
+
+    def extract_source_pattern(self) -> str:
+        """Extract path after version: /doc/libs/VERSION/path -> path"""
+        match = re.search(r"/doc/libs/[^/]+/(.+?)(?:\$|$)", self.source_url)
+        return match.group(1) if match else self.source_url
+
+    def get_version(self) -> Optional[str]:
+        """Extract version from source URL."""
+        match = re.search(r"/doc/libs/([^/]+)/", self.source_url)
+        return match.group(1) if match else None
+
+    def create_regex_source(self) -> str:
+        """Convert /doc/libs/VERSION/path to /doc/libs/([^/]+)/path"""
+        return re.sub(r"/doc/libs/[^/]+/", "/doc/libs/([^/]+)/", self.source_url)
+
+    def create_regex_destination(self) -> str:
+        """Convert boost-1.79.0 to boost-$1 in destination."""
+        return re.sub(r"boost-[\d\.]+", "boost-$1", self.destination)
+
+    def normalize_destination(self) -> str:
+        """Normalize destination by replacing version-specific parts."""
+        return re.sub(r"boost-[\d\.]+", "boost-VERSION", self.destination)
 
 
-def parse_redirects(
-    redirects: List[str], known_redirect_map: Dict[str, Dict[str, str]]
-) -> List[ParsedRedirect]:
-    """Parse redirects once and extract all needed data."""
-    parsed = []
+def destinations_differ_only_by_version(destinations: List[str]) -> bool:
+    """Check if destinations can be merged (only differ by version)."""
+    if len(destinations) <= 1:
+        return True
+    # Normalize destinations by replacing versions
+    normalized = [
+        re.sub(r"boost-[\d\.]+", "boost-VERSION", dest) for dest in destinations
+    ]
+    # All normalized destinations should be the same
+    return len(set(normalized)) == 1
 
-    for redirect in redirects:
-        source_match = re.search(REDIRECT_REGEX, redirect)
-        if not source_match:
+
+def create_path_alternation(suffixes: List[str]) -> str:
+    """Create regex alternation pattern from suffixes."""
+    return "(" + "|".join(sorted(set(suffixes))) + ")"
+
+
+def create_version_alternation(versions: List[str]) -> str:
+    """Create version pattern using alternation."""
+    # versions are in slug format (e.g., "1_79_0")
+    # Convert back to dot format for nginx patterns (e.g., "1.79.0")
+    dot_versions = [v.replace("_", ".") for v in versions]
+    return "(" + "|".join(sorted(dot_versions)) + ")"
+
+
+def is_broken_through_latest_version(
+    versions_with_path: List[str], all_versions: List[str]
+) -> bool:
+    """Check if path is broken through the latest version."""
+    return versions_with_path and max(all_versions, key=version_sort_key) == max(
+        versions_with_path, key=version_sort_key
+    )
+
+
+def determine_redirect_strategy(
+    verified_data: List[Dict], exclude_set: set = None
+) -> Dict[str, str]:
+    """Determine version-specific vs consolidated redirect strategy for each path."""
+    all_versions = [v.get("version", "") for v in verified_data]
+    path_versions = defaultdict(list)
+
+    # group paths by pattern and determine strategy in one pass
+    for version_data in verified_data:
+        version = version_data.get("version", "")
+        for path, path_info in version_data.get("paths", {}).items():
+            if should_create_redirect(path_info):
+                source_url = create_source_url(version, path)
+                if not (exclude_set and source_url in exclude_set):
+                    path_versions[path].append(version)
+
+    # determine strategy for each path
+    return {
+        path: (
+            "consolidated"
+            if any(
+                [
+                    not versions_with_path,
+                    len(versions_with_path) == len(all_versions),
+                    is_broken_through_latest_version(versions_with_path, all_versions),
+                ]
+            )
+            else "version_specific"
+        )
+        for path, versions_with_path in path_versions.items()
+    }
+
+
+def group_redirects_for_backreference_consolidation(
+    redirect_data: List[RedirectData],
+) -> Dict[str, List[Tuple[str, str, RedirectData]]]:
+    """Find redirects that share common base paths so we have efficient patterns.
+
+    For example, these separate redirects:
+      /doc/libs/1.79.0/libs/filesystem/v2/example
+      /doc/libs/1.79.0/libs/filesystem/v2/src
+      /doc/libs/1.80.0/libs/filesystem/v2/example
+      /doc/libs/1.80.0/libs/filesystem/v2/src
+
+    Can be grouped by base path 'libs/filesystem/v2' and consolidated into:
+      /doc/libs/([^/]+)/libs/filesystem/v2/(example|src)
+    """
+    base_path_groups = defaultdict(list)
+
+    for redirect in redirect_data:
+        path_pattern = redirect.extract_source_pattern()
+
+        path_parts = path_pattern.split("/")
+        if len(path_parts) >= 2:
+            base_path = "/".join(path_parts[:-1])
+            suffix = path_parts[-1]
+
+            version = redirect.get_version()
+            if version:
+                base_path_groups[base_path].append((suffix, version, redirect))
+
+    return base_path_groups
+
+
+def can_safely_create_backreference_pattern(
+    entries: List[Tuple[str, str, RedirectData]]
+) -> bool:
+    """Check if entries can be consolidated into a backreference pattern."""
+    suffixes = {entry[0] for entry in entries}
+    if len(suffixes) < 2:
+        return False
+
+    # Check if destinations follow suffix pattern
+    for suffix, version, redirect in entries:
+        if suffix not in redirect.destination:
+            return False
+
+    # check if all version/suffix combinations exist, only create backreference if every
+    # version has every suffix
+    versions = {entry[1] for entry in entries}
+    version_suffix_combinations = {(entry[1], entry[0]) for entry in entries}
+
+    # calculate expected combinations: every version should have every suffix
+    expected_combinations = {
+        (version, suffix) for version in versions for suffix in suffixes
+    }
+
+    # only allow backreference if all combinations exist
+    return version_suffix_combinations == expected_combinations
+
+
+def build_backreference_nginx_location(
+    entries: List[Tuple[str, str, RedirectData]], base_path: str, strategy: str
+) -> str:
+    """Build nginx location block with backreference pattern from grouped entries."""
+    suffixes = sorted({entry[0] for entry in entries})
+    suffix_pattern = create_path_alternation(suffixes)
+
+    # Create destination with $2 backreference
+    sample_suffix, sample_version, sample_redirect = entries[0]
+    regex_destination = sample_redirect.create_regex_destination()
+    regex_destination = regex_destination.replace(sample_suffix, "$2")
+
+    if strategy == "version_specific":
+        version_groups = defaultdict(list)
+        for suffix, version, redirect in entries:
+            version_groups[version].append((suffix, redirect.destination))
+
+        versions = [ver.replace("_", ".") for ver in version_groups.keys()]
+        version_pattern = create_version_alternation(versions)
+        return f"location ~ ^/doc/libs/{version_pattern}/{base_path}/{suffix_pattern}$ {{ return 301 {regex_destination}; }}"
+    else:
+        return f"location ~ ^/doc/libs/([^/]+)/{base_path}/{suffix_pattern}$ {{ return 301 {regex_destination}; }}"
+
+
+def generate_backreference_nginx_locations(
+    base_path_groups: Dict, path_strategy: Dict[str, str]
+) -> Tuple[List[str], set]:
+    """Transform grouped redirects into efficient nginx location blocks with backreferences.
+
+    Takes groups like:
+      'libs/filesystem/v2' -> [('example', '1.79.0', redirect1), ('src', '1.79.0', redirect2), ...]
+
+    And creates nginx location blocks like:
+      location ~ ^/doc/libs/([^/]+)/libs/filesystem/v2/(example|src)$ {
+        return 301 https://github.com/boostorg/filesystem/tree/boost-$1/v2/$2;
+      }
+
+    $1 is the version, $2 is specific path suffix.
+    Only creates these patterns when it's safe (all version/suffix combinations exist).
+    """
+    result = []
+    processed_patterns = set()
+
+    for base_path, entries in base_path_groups.items():
+        if can_safely_create_backreference_pattern(entries):
+            strategy = path_strategy.get(base_path, "consolidated")
+
+            redirect = build_backreference_nginx_location(entries, base_path, strategy)
+            result.append(redirect)
+
+            # Mark patterns as processed
+            for suffix, version, redirect_data in entries:
+                processed_patterns.add(redirect_data.extract_source_pattern())
+
+    return result, processed_patterns
+
+
+def generate_standard_nginx_locations(
+    redirect_data: List[RedirectData],
+    processed_patterns: set,
+    path_strategy: Dict[str, str],
+) -> List[str]:
+    """Generate nginx location blocks for patterns not using backreferences."""
+    # Group remaining redirects by path pattern
+    remaining_groups = defaultdict(list)
+    for redirect in redirect_data:
+        path_pattern = redirect.extract_source_pattern()
+        if path_pattern not in processed_patterns:
+            version = redirect.get_version()
+            if version:
+                remaining_groups[path_pattern].append((version, redirect))
+
+    result = []
+    for path_pattern, entries in remaining_groups.items():
+        # Single redirect - create exact location match
+        if len(entries) == 1:
+            _, redirect = entries[0]
+            result.append(
+                create_redirect_line(redirect.source_url, redirect.destination)
+            )
             continue
 
-        source_url, destination = source_match.groups()
-
-        # Get formatter type and instance
-        formatter_type = known_redirect_map.get(source_url, {}).get(
-            "redirect_format", DEFAULT_REDIRECT_FORMAT
-        )
-        formatter = get_formatter(formatter_type)
-
-        # Extract pattern data
-        path_pattern = formatter.extract_source_pattern(source_url)
-        normalized_dest = formatter.normalize_destination(destination)
-
-        parsed.append(
-            ParsedRedirect(
-                original=redirect,
-                source_url=source_url,
-                destination=destination,
-                formatter_type=formatter_type,
-                formatter=formatter,
-                path_pattern=path_pattern,
-                normalized_dest=normalized_dest,
+        # Multiple redirects - check if they can be consolidated
+        destinations = [redirect.destination for _, redirect in entries]
+        if not destinations_differ_only_by_version(destinations):
+            # Different destinations - create individual redirects
+            result.extend(
+                create_redirect_line(redirect.source_url, redirect.destination)
+                for _, redirect in entries
             )
+            continue
+
+        # Same destinations (differ only by version) - create consolidated pattern
+        sample_redirect = entries[0][1]
+        regex_source = sample_redirect.create_regex_source()
+        regex_destination = sample_redirect.create_regex_destination()
+
+        # Apply version-specific logic if needed
+        strategy = path_strategy.get(path_pattern, "consolidated")
+        if strategy == "version_specific":
+            versions = [ver.replace("_", ".") for ver, _ in entries]
+            version_pattern = create_version_alternation(versions)
+            regex_source = re.sub(r"\(\[\^/\]\+\)", version_pattern, regex_source)
+
+        result.append(
+            f"location ~ ^{regex_source}$ {{ return 301 {regex_destination}; }}"
         )
 
-    return parsed
+    return result
 
 
-def group_parsed_redirects(
-    parsed_redirects: List[ParsedRedirect],
-) -> Dict[str, Dict[str, List[ParsedRedirect]]]:
-    """Group parsed redirects by formatter type and then by pattern."""
-    groups = {}
-
-    for parsed in parsed_redirects:
-        if parsed.formatter_type not in groups:
-            groups[parsed.formatter_type] = {}
-
-        group_key = f"{parsed.path_pattern}::{parsed.normalized_dest}"
-        if group_key not in groups[parsed.formatter_type]:
-            groups[parsed.formatter_type][group_key] = []
-
-        groups[parsed.formatter_type][group_key].append(parsed)
-
-    return groups
-
-
-def merge_redirect_group(group: List[ParsedRedirect]) -> List[str]:
-    """Merge a group of parsed redirects or keep them separate."""
-    if len(group) == 1:
-        return [group[0].original]
-
-    destinations = [parsed.destination for parsed in group]
-    formatter = group[0].formatter
-
-    if not formatter.can_merge_destinations(destinations):
-        return [parsed.original for parsed in group]
-
-    first = group[0]
-    regex_source = formatter.create_regex_source(first.source_url)
-    regex_destination = formatter.create_regex_destination(first.destination)
-    merged = f"location ~ ^{regex_source}$ {{ return 301 {regex_destination}; }}"
-    return [merged]
-
-
-def merge_version_patterns_optimized(
-    redirects: List[str], known_redirect_map: Dict[str, Dict[str, str]]
+def generate_consolidated_nginx_redirects(
+    redirect_data: List[RedirectData],
+    all_versions_data: List[Dict],
+    exclude_set: set = None,
 ) -> List[str]:
-    """Optimized merge that parses redirects once and processes by formatter type."""
-    parsed_redirects = parse_redirects(redirects, known_redirect_map)
-    groups = group_parsed_redirects(parsed_redirects)
-    merged = []
-    for formatter_type, pattern_groups in groups.items():
-        for group_key, group in pattern_groups.items():
-            merged.extend(merge_redirect_group(group))
+    """Unified consolidation working directly with structured data."""
+    path_strategy = determine_redirect_strategy(all_versions_data, exclude_set)
 
-    return merged
-
-
-def create_default_redirect_config() -> Dict[str, str]:
-    """Create default redirect configuration object."""
-    return {"destination": "", "redirect_format": DEFAULT_REDIRECT_FORMAT}
-
-
-def get_formatter(format_type: str) -> RedirectFormat:
-    """Get formatter instance based on format type."""
-    if format_type == "BoostRedirectFormat":
-        return BoostRedirectFormat()
-    else:
-        # Default to BoostRedirectFormat for unknown types
-        return BoostRedirectFormat()
+    # group redirects by base path for backreference detection
+    base_path_groups = group_redirects_for_backreference_consolidation(redirect_data)
+    # process backreference groups
+    backreference_redirects, processed_patterns = (
+        generate_backreference_nginx_locations(base_path_groups, path_strategy)
+    )
+    # process remaining patterns
+    remaining_redirects = generate_standard_nginx_locations(
+        redirect_data, processed_patterns, path_strategy
+    )
+    return backreference_redirects + remaining_redirects
 
 
 def should_create_redirect(path_info: Dict[str, Union[str, bool]]) -> bool:
@@ -189,8 +310,7 @@ def should_create_redirect(path_info: Dict[str, Union[str, bool]]) -> bool:
 
 def create_source_url(version: str, path: str) -> str:
     """Create source URL from version and path."""
-    version_path = version.replace("boost-", "").replace("-", "_")
-    return f"/doc/libs/{version_path}/{path}"
+    return f"/doc/libs/{version_to_slug(version)}/{path}"
 
 
 def create_redirect_line(source_url: str, destination: str) -> str:
@@ -199,10 +319,15 @@ def create_redirect_line(source_url: str, destination: str) -> str:
 
 
 def create_redirects_and_update_map(
-    verified_data: List[Dict], known_redirect_map: Dict[str, Dict[str, str]]
-) -> Tuple[List[str], Dict[str, Dict[str, str]]]:
-    """Generate redirect lines from verified data and update redirect map."""
-    redirects = []
+    verified_data: List[Dict],
+    known_redirect_map: Dict[str, str],
+    exclude_set: set = None,
+) -> Tuple[List[RedirectData], Dict[str, str]]:
+    """Generate redirect data from verified data and update known_redirects map.
+
+    Returns list of RedirectData objects.
+    """
+    redirect_data = []
     updated_redirect_map = known_redirect_map.copy()
 
     for version_data in verified_data:
@@ -213,19 +338,21 @@ def create_redirects_and_update_map(
             if not should_create_redirect(path_info):
                 continue
             source_url = create_source_url(version, path)
-            destination = known_redirect_map.get(source_url, {}).get("destination", "")
-            # Update redirect map data if not already present
-            if source_url not in updated_redirect_map:
-                updated_redirect_map[source_url] = create_default_redirect_config()
+            if exclude_set and source_url in exclude_set:
+                continue
 
-            redirect_line = create_redirect_line(source_url, destination)
-            redirects.append(redirect_line)
+            destination = known_redirect_map.get(source_url, "")
 
-    return redirects, updated_redirect_map
+            if destination:  # Only include if we have a destination
+                redirect_data.append(RedirectData(path, source_url, destination))
+                # Add to updated map only when we have a destination
+                updated_redirect_map[source_url] = destination
+
+    return redirect_data, updated_redirect_map
 
 
 def save_updated_redirects(
-    known_redirects_file: str, updated_redirect_map: Dict[str, Dict[str, str]]
+    known_redirects_file: str, updated_redirect_map: Dict[str, str]
 ) -> None:
     """Save updated redirect map to file if changes were made."""
     try:
@@ -260,7 +387,11 @@ def output_nginx_configuration(merged_redirects: List[str], output_file: str) ->
 @click.option(
     "--output-file", required=True, help="Output file for nginx redirect configuration"
 )
-def command(input_dir: str, known_redirects: str, output_file: str):
+@click.option(
+    "--exclude-list",
+    help="JSON file containing list of source URLs to exclude from redirects",
+)
+def command(input_dir: str, known_redirects: str, output_file: str, exclude_list: str):
     """Generate nginx redirect configuration from verified paths data.
 
     Extracts paths that need redirects (directories without index files or non-existent files)
@@ -268,6 +399,7 @@ def command(input_dir: str, known_redirects: str, output_file: str):
 
     Examples:
         python manage.py generate_redirect_list --input-dir=nginx_redirects_data --known-redirects=known_redirects.json --output-file=nginx_redirects.conf
+        python manage.py generate_redirect_list --input-dir=nginx_redirects_data --known-redirects=known_redirects.json --exclude-list=exclude.json --output-file=nginx_redirects.conf
     """
     verified_data = []
     input_path = Path(input_dir)
@@ -290,12 +422,22 @@ def command(input_dir: str, known_redirects: str, output_file: str):
         return
 
     known_redirect_map = load_json_dict(known_redirects)
+
+    # Load exclude list if provided
+    exclude_set = set()
+    if exclude_list:
+        exclude_data = load_json_list(exclude_list)
+        exclude_set = set(exclude_data)
+        click.echo(f"Loaded {len(exclude_set)} URLs to exclude")
+
     redirects, updated_redirect_map = create_redirects_and_update_map(
-        verified_data, known_redirect_map
+        verified_data, known_redirect_map, exclude_set
     )
 
     if updated_redirect_map != known_redirect_map:
         save_updated_redirects(known_redirects, updated_redirect_map)
 
-    merged_redirects = merge_version_patterns_optimized(redirects, known_redirect_map)
+    merged_redirects = generate_consolidated_nginx_redirects(
+        redirects, verified_data, exclude_set
+    )
     output_nginx_configuration(merged_redirects, output_file)

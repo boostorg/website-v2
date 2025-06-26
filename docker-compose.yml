@@ -46,7 +46,7 @@ services:
       - "8000:8000"
     volumes:
       - .:/code
-      - ../website2022/:/website
+      - ../website-v2-processing:/website-v2-processing
     stop_signal: SIGKILL
 
   # mailman-core:

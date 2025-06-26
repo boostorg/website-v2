@@ -10,16 +10,11 @@
 format:
 ```json
 {
-  "/doc/libs/1.34.0/boost/archive/impl": {
-    "destination": "https://github.com/boostorg/serialization/tree/boost-1.34.0/include/boost/archive/impl",
-    "redirect_format": "BoostRedirectFormat"
-  }
+  "/doc/libs/1.34.0/boost/archive/impl": "https://github.com/boostorg/serialization/tree/boost-1.34.0/include/boost/archive/impl"
 }
 ```
-The key `/doc/libs/1.34.0/boost/archive/impl` is the path as it will appear in the url.
-
-The `destination` value is the URL to which a visiting user will be 301 redirected.
-the `redirect_format` is the format used to generate the redirect in Nginx. For now we only support `BoostRedirectFormat`, more could be added in the future if needed if the format was to change. This is optional really as BoostRedirectFormat is the default, but was added to be explicit about it, for the sake of developer clarity for the future.
+* The key `/doc/libs/1.34.0/boost/archive/impl` is the path as it will appear in the url.
+* The value is the URL to which a visiting user will be 301 redirected.
 
 Note: The generated output will merge redirects where they all match.
 
@@ -35,8 +30,7 @@ In the root of the repository:
      1. You should update `website-v2-processing/nginx_redirects_data/known_redirects.json` with any new 404 directory paths found in the docs for the version which need a redirect. (LLMs are useful for this if there are many)
      1. Optional: you may run `task check-redirect-urls` from this project to verify all the destination urls in `known_redirects.json` return a 200 status.
 1. For nginx redicts:
-   1. Run `task generate-nginx-redirect-list` which will create the redirects in `nginx_redirects_workspace/results/nginx_redirects.conf`
-   1. Use that content to replace the block of locations in `kube/boost/templates/configmap-nginx.yml`.
+   1. Run `task generate-nginx-redirect-list` which will update the block of locations in `kube/boost/templates/configmap-nginx.yml`.
    1. Commit the changes and create a PR.
 1. For 404 data: Run `task generate-404-list` which will create the 404 data in `nginx_redirects_workspace/results/404_urls.csv`.
 1. To save the analysis for future use a new branch has been created with the same name as the current one in this project, so you should:
