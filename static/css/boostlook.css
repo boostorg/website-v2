@@ -1251,8 +1251,9 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 /* Emphasis within code */
 .boostlook em,
 .boostlook code em {
-  font-family: "Noto Sans Mono";
+  font-family: inherit;
   font-size: inherit;
+  font-style: italic;
 }
 
 /* Text Emphasis */
@@ -1312,7 +1313,6 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   padding: var(--spacing-size-xs, 0.75rem) var(--spacing-size-sm, 1rem);
   background: var(--atom-one-light-bg, #fafafa);
   border-radius: 0;
-  border: unset;
 }
 
 /* Dark theme code block background */
@@ -1421,6 +1421,11 @@ html.dark .boostlook .doc .literalblock pre {
   /*border: 1px solid var(--border-border-secondary, #d5d7d9);*/
   background: var(--atom-one-light-bg, #fafafa);
   margin-top: var(--padding-padding-xs, 0.75rem);
+}
+
+.boostlook#libraryReadMe .literalblock:has(pre):not(:is(dd pre, td pre)) {
+  margin-left: var(--spacing-size-xl);
+  border: 1px solid var(--border-border-secondary, #d5d7d9);
 }
 .boostlook .olist.arabic > ol > li .listingblock:has(> .content > pre):not(:is(dd pre, td pre)),
 .boostlook:not(:has(.doc)) .orderedlist > ol > li .listingblock:has(> .content > pre.highlight):not(:is(dd pre, td pre)) {
@@ -2014,8 +2019,19 @@ html.dark .boostlook .hljs-code {
   border-radius: var(--spacing-size-size-0, 0rem);
   border: 1px solid transparent;
   margin: revert;
-  /*margin-left: var(--spacing-size-xl);*/
+  margin-left: var(--spacing-size-xl);
   background: transparent;
+}
+
+.boostlook #content li .admonitionblock,
+.boostlook:not(:has(.doc)) li div.note,
+.boostlook:not(:has(.doc)) li div.tip,
+.boostlook:not(:has(.doc)) li div.important,
+.boostlook:not(:has(.doc)) li div.caution,
+.boostlook:not(:has(.doc)) li div.warning,
+.boostlook:not(:has(.doc)) li div.blurb,
+.boostlook:not(:has(.doc)) li p.blurb {
+  margin-left: 0;
 }
 
 /* Readme Template Admonitionblock */
@@ -2238,6 +2254,7 @@ html.dark .boostlook .hljs-code {
   background-color: var(--surface-background-main-surface-blue-primary, #ebf4f9);
   border: 1px solid var(--border-border-blue-primary, #c2e2f4);
   padding: var(--padding-padding-xs, 0.75rem) var(--padding-padding-md, 1.125rem);
+  margin-left: var(--spacing-size-xl);
 }
 .boostlook #content .dlist:not(:first-child):not(.dlist .dlist):has(.hdlist1) .hdlist1 {
   font-size: var(--typography-font-size-sm, 1rem);
@@ -2254,7 +2271,7 @@ html.dark .boostlook .hljs-code {
 }
 .boostlook #content .olist.arabic > ol > li table.tableblock:not(:first-child),
 .boostlook #content  .olist.arabic > ol > li .dlist:not(:first-child):not(.dlist .dlist) {
-  /*margin-left: var(--spacing-size-xl);*/
+  margin-left: 0;
 }
 .boostlook #content .dlist:not(:first-child):not(.dlist .dlist):has(.hdlist1) dd  a {
   color: var(--text-main-text-link-blue, #026a9f);
@@ -2541,7 +2558,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 
 .boostlook .olist.arabic > ol > li::before,
 .boostlook:not(:has(.doc)) .orderedlist > ol > li::before {
-  content: counter(list-counter);
+  content: counter(list-counter)".";
   position: absolute;
   left: 0;
   top: -4px;
@@ -2551,7 +2568,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   align-items: center;
   justify-content: center;
   color: var(--text-main-text-primary, #18191b);
-  font-size: var(--typography-font-size-2xs, 0.75rem);
+  font-size: var(--typography-font-size-sm, 1rem);
   line-height: var(--typography-line-height-sm, 1rem); /* 133.333% */
 }
 
@@ -2604,7 +2621,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   font-style: normal;
   font-variation-settings: "wght" 500, "wdth" 80;
   line-height: var(--typography-line-height-sm, 1rem);
-  font-size: var(--typography-font-size-2xs, 0.75rem);
+  font-size: var(--typography-font-size-sm, 1rem);
   text-align: center;
   width: 32px;
   height: 32px;
@@ -2622,7 +2639,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 }
 
 .boostlook .doc .conum[data-value]::after {
-  content: attr(data-value);
+  content: attr(data-value)".";
   font: inherit;
 }
 .boostlook .doc .conum[data-value] + b {
@@ -2715,6 +2732,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook:not(:has(.doc)) table.table,
 .boostlook#libraryReadMe > table.stretch {
   min-width: 100%;
+  margin-left: var(--spacing-size-xl, 2rem);
 }
 
 .boostlook #content table.tableblock caption,
@@ -2914,6 +2932,12 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 
 .doc ul.checklist p>i.fa-check-square-o:first-child, .doc ul.checklist p>i.fa-square-o:first-child {
   display: none;
+}
+
+.boostlook .doc .imageblock .content:has(img) {
+  background-color: transparent;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 /*----------------- Global Styles for .boostlook end -----------------*/
@@ -4402,6 +4426,11 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) > #cont
 
 .boostlook#libraryReadMe p a:has(> img ) {
   margin-left:.5rem;
+}
+
+.boostlook#libraryReadMe > pre:not(:is(dd pre, td pre)) {
+  padding: var(--spacing-size-xs, 0.75rem) var(--spacing-size-sm, 1rem);
+  border: 1px solid var(--border-border-secondary, #d5d7d9);
 }
 
 /*----------------- Library README Styles end -----------------*/
