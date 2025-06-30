@@ -21,6 +21,7 @@ from django.views import View
 from django.views.generic import TemplateView
 from requests.compat import chardet
 
+from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.utils import legacy_path_transform
 from versions.models import Version
@@ -216,6 +217,7 @@ class ContentNotFoundException(Exception):
 
 class BaseStaticContentTemplateView(TemplateView):
     template_name = "adoc_content.html"
+    allowed_db_save_types = {"text/asciidoc"}
 
     def get(self, request, *args, **kwargs):
         """Return static content that originates in S3.
@@ -380,11 +382,9 @@ class BaseStaticContentTemplateView(TemplateView):
         return HttpResponse(content, content_type=context["content_type"])
 
     def save_to_database(self, cache_key, result):
-        """Saves the rendered asciidoc content to the database via celery."""
+        """Saves the rendered asciidoc content to the database."""
         content_type = result.get("content_type")
-        last_updated_at_raw = result.get("last_updated_at")
-
-        if content_type == "text/asciidoc":
+        if content_type in self.allowed_db_save_types:
             last_updated_at_raw = result.get("last_updated_at")
             last_updated_at = (
                 parse(last_updated_at_raw) if last_updated_at_raw else None
@@ -510,6 +510,13 @@ FULLY_MODERNIZED_LIB_VERSIONS = [
 
 
 class DocLibsTemplateView(BaseStaticContentTemplateView):
+    allowed_db_save_types = {
+        "text/asciidoc",
+        "text/html",
+        "text/html; charset=utf-8",
+        "text/css; charset=utf-8",
+    }
+
     def get_from_s3(self, content_path):
         legacy_url = normalize_boost_doc_path(content_path)
         return super().get_from_s3(legacy_url)
@@ -543,6 +550,30 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
             context["no_wrapper"] = True
 
         return render_to_string("original_docs.html", context, request=self.request)
+
+    def get_content(self, content_path):
+        """Return content from database (cache) or S3."""
+        # For now at least we're only going to cache docs this way, user guides and
+        #  will continue to be cached as they were
+
+        if not ENABLE_DB_CACHE:
+            return self.get_from_s3(content_path)
+
+        cache_key = f"static_content_{content_path}"
+        # check to see if in db, if not retrieve from s3 and save to db
+        result = self.get_from_database(cache_key)
+        if not result and (result := self.get_from_s3(content_path)):
+            self.save_to_database(cache_key, result)
+
+        if result is None:
+            logger.info(
+                "get_content_from_s3_view_no_valid_object",
+                key=content_path,
+                status_code=404,
+            )
+            raise ContentNotFoundException("Content not found")
+
+        return result
 
     def _fully_modernize_content(self, content):
         """For libraries that have opted in to boostlook modernization"""

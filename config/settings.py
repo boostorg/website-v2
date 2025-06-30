@@ -285,6 +285,8 @@ CACHES = {
     },
 }
 
+ENABLE_DB_CACHE = env.bool("ENABLE_DB_CACHE", default=False)
+
 # Default interval by which to clear the static content cache
 CLEAR_STATIC_CONTENT_CACHE_DAYS = 7
 

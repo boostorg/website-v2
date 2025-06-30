@@ -167,6 +167,9 @@ Env:
   # Static content cache timeout
   - name: STATIC_CACHE_TIMEOUT
     value: "60"
+  # postgres caching of s3 text file content
+  - name: ENABLE_DB_CACHE
+    value: "true"
 
 # Volumes
 Volumes:
