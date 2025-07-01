@@ -84,4 +84,3 @@ def save_rendered_content(cache_key, content_type, content_html, last_updated_at
         obj_id=obj.id,
         obj_created=created,
     )
-    return obj

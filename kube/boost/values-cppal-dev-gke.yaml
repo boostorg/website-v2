@@ -191,6 +191,9 @@ Env:
     value: redis://redis:6379/0
   - name: CELERY_BACKEND
     value: redis://redis:6379/0
+  # postgres caching of s3 text file content
+  - name: ENABLE_DB_CACHE
+    value: "true"
 
 # Volumes
 Volumes:
