@@ -1297,6 +1297,13 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   border: none;
 }
 
+.boostlook pre code .conum[data-value]::after,
+.boostlook pre code.hljs .conum[data-value]::after,
+.boostlook .doc .content pre code .conum[data-value]::after,
+.boostlook .doc pre.highlight code .conum[data-value]::after {
+  content: "("attr(data-value)")";
+}
+
 .boostlook pre:not(:has(> code)),
 .boostlook pre:not(:has(> code)):has(p, span) {
   font-size: var(--typography-font-size-xs, 0.875rem);
@@ -2256,6 +2263,11 @@ html.dark .boostlook .hljs-code {
   padding: var(--padding-padding-xs, 0.75rem) var(--padding-padding-md, 1.125rem);
   margin-left: var(--spacing-size-xl);
 }
+
+.boostlook #content .colist.arabic > table > tbody > tr td .dlist:not(:first-child):not(.dlist .dlist):has(.hdlist1) {
+  margin-left: 0;
+}
+
 .boostlook #content .dlist:not(:first-child):not(.dlist .dlist):has(.hdlist1) .hdlist1 {
   font-size: var(--typography-font-size-sm, 1rem);
   font-variation-settings: "wght" 600, "wdth" 62.5;
@@ -2633,15 +2645,19 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 }
 .boostlook .doc code .conum[data-value] {
   background: transparent;
-  width: 24px;
-  height: 24px;
-  float: left;
+  width: auto;
+  height: auto;
+  font-size: inherit;
+  font-family: inherit;
+  line-height: inherit;
+  color: var(--text-main-text-primary, #18191b);
 }
 
 .boostlook .doc .conum[data-value]::after {
   content: attr(data-value)".";
   font: inherit;
 }
+
 .boostlook .doc .conum[data-value] + b {
   display: none;
 }
@@ -2673,6 +2689,11 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   /* to make first column fit its content  */
   width: 1%;
   white-space: nowrap;
+}
+
+.boostlook .colist.arabic > table > tbody > tr > :first-child:has(.conum),
+.boostlook .colist.arabic > table > tr > :first-child:has(.conum) {
+  padding-top: 0;
 }
 
 /* Tables */
@@ -2922,6 +2943,11 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   background: var(--surface-background-main-surface-primary, #f5f6f8);
   width: 100%;
   margin-top: var(--padding-padding-xs, 0.75rem);
+}
+
+.boostlook:not(#libraryReadMe) .image:has(> img),
+.boostlook .content:has(> img) {
+  background-color: transparent;
 }
 
 .boostlook:not(:has(.doc)) .inlinemediaobject:has(> img, > object) {
