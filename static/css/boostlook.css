@@ -3789,6 +3789,13 @@ html.dark .boostlook pre.rouge .cm {
   gap: 0.125rem;
 }
 
+.boostlook .toolbar .spirit-nav .disabled,
+.boostlook:not(:has(.doc)) .spirit-nav .disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .boostlook:not(:has(.doc)) .spirit-nav {
   padding-top: var(--padding-padding-md, 1.125rem);
   justify-content: flex-end;
