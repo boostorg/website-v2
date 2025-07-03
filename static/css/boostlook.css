@@ -130,6 +130,7 @@
   --colors-neutral-50: #f5f6f8;
   --colors-neutral-100: #e4e7ea;
   --colors-neutral-200: #c7cccf;
+  --colors-neutral-250: #f9f9f9;
   --colors-neutral-300: #afb3b6;
   --colors-neutral-400: #949a9e;
   --colors-neutral-500: #798086;
@@ -166,6 +167,7 @@
   --colors-negative-950: #1d0408;
 
   /* Colors Positive Shades */
+  --colors-positive-0: #f8fefb;
   --colors-positive-50: #f0fef7ff;
   --colors-positive-100: #def7eb;
   --colors-positive-200: #bdeed6;
@@ -180,6 +182,7 @@
   --colors-positive-950: #0a1b13;
 
   /* Colors Warning Shades */
+  --colors-warning-0: rgba(255, 248, 243, 0.5);
   --colors-warning-50: #fff8f3ff;
   --colors-warning-100: #ffefe2;
   --colors-warning-200: #ffd4b3;
@@ -193,6 +196,7 @@
   --colors-warning-950: #1f0e01;
 
   /* Colors Blue Shades */
+  --colors-blue-0: #f6fafd;
   --colors-blue-25: #ebf4f9;
   --colors-blue-50: #daeef9;
   --colors-blue-100: #c2e2f4;
@@ -252,6 +256,7 @@
   /* Colors Other */
   --colors-neutral-150: #d5d7d9;
   --colors-neutral-850: #2a2c30;
+  --colors-neutral-750: #1c1c1c;
   --colors-overlay-overlay-white-40: rgba(255 255 255 / 0.4);
   --colors-overlay-overlay-black-40: rgba(13 14 15 / 0.4);
   --colors-overlay-overlay-white-64: rgba(255 255 255 / 0.64);
@@ -267,6 +272,7 @@
   --spacing-size-xs: 0.75rem;
   --spacing-size-sm: 1rem;
   --spacing-size-md: 1.125rem;
+  --spacing-size-2md: 1.3rem;
   --spacing-size-lg: 1.5rem;
   --spacing-size-xl: 2rem;
   --spacing-size-2xl: 2.5rem;
@@ -338,9 +344,11 @@
   --leftbar-paddings-leftbar-padding-lg: var(--spacing-size-lg);
   --padding-padding-lg: var(--spacing-size-md);
   --padding-padding-sm: var(--spacing-size-xs);
+  --padding-padding-2sm: var(--spacing-size-2md);
   --padding-padding-xs: var(--spacing-size-xs);
   --padding-padding-2xs: var(--spacing-size-2xs);
   --padding-padding-3xs: var(--spacing-size-3xs);
+  --padding-padding-xl: var(--spacing-size-xl);
   --leftbar-paddings-leftbar-padding-4xs: var(--spacing-size-4xs);
   --leftbar-paddings-leftbar-padding-2xs: var(--spacing-size-2xs);
   --leftbar-paddings-leftbar-padding-3xs: var(--spacing-size-3xs);
@@ -513,7 +521,7 @@ html {
   --surface-background-main-surface-primary: var(--colors-neutral-50);
   --surface-background-main-surface-secondary: var(--colors-neutral-100);
   --surface-background-main-surface-tetriary: var(--colors-neutral-150);
-  --surface-background-main-surface-blue-primary: var(--colors-blue-25);
+  --surface-background-main-surface-blue-primary: var(--colors-blue-0);
   --surface-background-main-surface-blue-secondary: var(--colors-blue-50);
   --surface-background-main-surface-blue-tetriary: var(--colors-blue-100);
   --surface-background-main-surface-blue-quaternary: var(--colors-blue-200);
@@ -521,7 +529,7 @@ html {
   --surface-background-main-surface-transparent-inverse: var(--colors-overlay-overlay-black-40);
   --surface-background-main-surface-transparent-secondary: var(--colors-overlay-overlay-white-88);
 
-  --surface-background-states-surface-warning-primary: var(--colors-warning-50);
+  --surface-background-states-surface-warning-primary: var(--colors-warning-0);
   --surface-background-states-surface-warning-secondary: var(--colors-warning-100);
   --surface-background-states-surface-warning-tetriary: var(--colors-warning-200);
   --surface-background-states-surface-warning-quaternary: var(--colors-warning-300);
@@ -892,7 +900,7 @@ body :not(pre):not([class^="L"]) > code {
 /* Base Container */
 .boostlook {
   font-family: var(--font-family-body, "Noto Sans") !important;
-  font-variation-settings: "wght" 400, "wdth" 80;
+  font-variation-settings: "wght" 350, "wdth" 80;
   background: var(--surface-background-main-base-primary, #fff);
 }
 
@@ -915,7 +923,7 @@ body :not(pre):not([class^="L"]) > code {
   color: var(--text-main-text-primary, #18191b);
   display: block;
   line-height: var(--typography-line-height-xl, 1.75rem);
-  margin-top: var(--padding-padding-md, 1.125rem);
+  margin-top: var(--padding-padding-xl, 2rem);
   letter-spacing: var(--spacing-size-size-0, 0rem);
   margin-bottom: 0.5rem;
   font-variation-settings: "wght" 500, "wdth" 80;
@@ -1144,7 +1152,10 @@ body :not(pre):not([class^="L"]) > code {
 }
 
 /* Components margins */
-.boostlook .paragraph + .paragraph,
+.boostlook .paragraph + .paragraph {
+  margin-top: var(--padding-padding-md, 1rem);
+}
+
 .boostlook:not(:has(.doc)) .section > p + p,
 .boostlook:not(:has(.doc)) .chapter > p + p,
 .boostlook div.blockquote blockquote p + p,
@@ -1155,12 +1166,14 @@ body :not(pre):not([class^="L"]) > code {
 div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content > p + p {
   margin-top: var(--padding-padding-3xs, 0.25rem);
 }
+.boostlook #content .admonitionblock + .tabs,
+.boostlook .paragraph + .tabs {
+  margin-top: var(--spacing-size-2md, 1.3rem);
+}
 
-.boostlook .paragraph + .tabs,
 .boostlook #content .paragraph + .admonitionblock,
 .boostlook #content .tabs + .paragraph,
 .boostlook #content .colist + .paragraph,
-.boostlook #content .admonitionblock + .tabs,
 .boostlook #content .admonitionblock + .admonitionblock,
 .boostlook #content .olist + .admonitionblock,
 .boostlook #content .olist + .paragraph,
@@ -1210,7 +1223,10 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook h5 + .tabs,
 .boostlook .doc h5 + .tabs,
 .boostlook h5 + .tabs,
-.boostlook .doc h6 + .tabs,
+.boostlook .doc h6 + .tabs {
+  margin-top: var(--padding-padding-sm, 0.75rem);
+}
+
 .boostlook #content .sectionbody .olist:first-child,
 .boostlook:not(:has(.doc)) .section div.orderedlist:first-child {
   margin-top: var(--padding-padding-3xs, 0.25rem);
@@ -2178,8 +2194,8 @@ html.dark .boostlook .hljs-code {
 .boostlook #content .admonitionblock.note,
 .boostlook:not(:has(.doc)) div.note,
 .boostlook:not(:has(.doc)) .notices.note {
-  border-color: var(--border-border-blue-primary, #c2e2f4);
-  background-color: var(--surface-background-main-surface-blue-primary, #ebf4f9);
+  border-color: var(--border-border-blue-primary, #c2e2f4); /* var(--border-border-blue-primary, #c2e2f4) */
+  background-color: var(--surface-background-main-surface-blue-primary, #f6fafd);
 }
 
 .boostlook #content .admonitionblock.note > table tr td.icon > *,
@@ -2192,8 +2208,8 @@ html.dark .boostlook .hljs-code {
 .boostlook #content .admonitionblock.tip,
 .boostlook:not(:has(.doc)) div.tip,
 .boostlook:not(:has(.doc)) .notices.tip {
-  border-color: var(--border-border-positive, #bdeed6);
-  background-color: var(--surface-background-states-surface-positive-primary, #f0fef7);
+  border-color: var(--border-border-positive, #f8fefb);
+  background-color: var(--colors-positive-0, rgba(240, 254, 247, 0.5));
 }
 /* .boostlook #content .admonitionblock.tip > table tr td.icon,
 .boostlook:not(:has(.doc)) div.tip > table tr:first-child th,
@@ -2213,7 +2229,7 @@ html.dark .boostlook .hljs-code {
 .boostlook:not(:has(.doc)) div.caution,
 .boostlook:not(:has(.doc)) .notices.important {
   border-color: var(--border-border-brand-orange, #ffd897);
-  background-color: var(--surface-background-states-surface-warning-primary, #fff8f3);
+  background-color: var(--surface-background-states-surface-warning-primary, #fefcf9);
 }
 /* .boostlook #content .admonitionblock.important > table tr td.icon,
 .boostlook #content .admonitionblock.caution > table tr td.icon,
@@ -2259,7 +2275,7 @@ html.dark .boostlook .hljs-code {
 
 .boostlook #content .dlist:not(:first-child):not(.dlist .dlist):has(.hdlist1) {
   background-color: var(--surface-background-main-surface-blue-primary, #ebf4f9);
-  border: 1px solid var(--border-border-blue-primary, #c2e2f4);
+  border: 1px solid transparent; /* var(--border-border-blue-primary, #c2e2f4) */
   padding: var(--padding-padding-xs, 0.75rem) var(--padding-padding-md, 1.125rem);
   margin-left: var(--spacing-size-xl);
 }
@@ -3865,6 +3881,12 @@ html.dark .boostlook pre.rouge .cm {
   border-bottom: 1px solid var(--border-border-primary, #e4e7ea);
 }
 
+.boostlook .tablist > ul[role="tablist"] {
+  background-color: var(--colors-neutral-250, #f9f9f9);
+}
+.dark .boostlook .tablist > ul[role="tablist"] {
+  background-color: var(--colors-neutral-750, #1c1c1c);
+}
 .boostlook .tablist > ul .tab {
   position: relative;
   display: flex;
