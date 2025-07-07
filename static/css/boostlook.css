@@ -2647,7 +2647,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   justify-content: center;
   font-family: "Noto Sans";
   font-style: normal;
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 350, "wdth" 80;
   line-height: var(--typography-line-height-sm, 1rem);
   font-size: var(--typography-font-size-sm, 1rem);
   text-align: center;
