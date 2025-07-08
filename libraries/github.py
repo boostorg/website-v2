@@ -111,11 +111,15 @@ def get_commit_data_for_repo_versions(key, min_version=""):
         if not is_clone_successful:
             logger.error(f"Clone failed for {library.key}. {message=} {error=}")
             return
-        versions = [""] + list(
-            Version.objects.minor_versions()
-            .filter(library_version__library__key=library.key)
-            .order_by("version_array")
-            .values_list("name", flat=True)
+        versions = (
+            [""]
+            + list(
+                Version.objects.minor_versions()
+                .filter(library_version__library__key=library.key)
+                .order_by("version_array")
+                .values_list("name", flat=True)
+            )
+            + ["master"]
         )
         for a, b in zip(versions, versions[1:]):
             if a < min_version and b < min_version:
@@ -489,17 +493,29 @@ class LibraryUpdater:
                     )
                     CommitAuthorEmail.objects.create(email=commit.email, author=author)
                 authors[commit.email] = author
-            return Commit(
-                author=author,
-                library_version=library_versions[commit.version],
-                sha=commit.sha,
-                message=commit.message,
-                committed_at=commit.committed_at,
-                is_merge=commit.is_merge,
-            )
+
+            try:
+                library_version = library_versions[commit.version]
+                return Commit(
+                    author=author,
+                    library_version=library_version,
+                    sha=commit.sha,
+                    message=commit.message,
+                    committed_at=commit.committed_at,
+                    is_merge=commit.is_merge,
+                )
+
+            except KeyError:
+                logger.error(f"KeyError {commit.version=}")
+                return None
 
         def handle_version_diff_stat(diff: VersionDiffStat):
-            lv = library_versions[diff.version]
+            try:
+                lv = library_versions[diff.version]
+            except KeyError:
+                # we iterate over all library versions, but for libraries that
+                #  haven't had updates in a release one may not exist for master/develop
+                return None
             lv.insertions = diff.insertions
             lv.deletions = diff.deletions
             lv.files_changed = diff.files_changed
@@ -509,10 +525,14 @@ class LibraryUpdater:
         for item in get_commit_data_for_repo_versions(library.key, min_version):
             match item:
                 case ParsedCommit():
-                    commits_handled += 1
-                    commits.append(handle_commit(item))
+                    commit_item = handle_commit(item)
+                    if commit_item:
+                        commits.append(commit_item)
+                        commits_handled += 1
                 case VersionDiffStat():
-                    library_version_updates.append(handle_version_diff_stat(item))
+                    lv_update = handle_version_diff_stat(item)
+                    if lv_update:
+                        library_version_updates.append(lv_update)
                 case _:
                     assert_never()
 

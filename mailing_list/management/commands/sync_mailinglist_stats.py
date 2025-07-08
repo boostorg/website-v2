@@ -1,3 +1,4 @@
+from datetime import date
 from itertools import pairwise
 import djclick as click
 import psycopg2
@@ -57,9 +58,10 @@ def create_emaildata(conn: Connection):
 
     versions = Version.objects.minor_versions().order_by("version_array")
     columns = ["email", "name", "count"]
+    versions = list(versions) + [Version.objects.get(name="master")]
     for a, b in pairwise(versions):
         start = a.release_date
-        end = b.release_date
+        end = b.release_date or date.today()
         if not (start and end):
             raise ValueError("All x.x.0 versions must have a release date.")
         with conn.cursor(name=f"emaildata_sync_{b.name}") as cursor:

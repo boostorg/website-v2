@@ -282,3 +282,40 @@ class ReviewResult(models.Model):
             )
             sibling_results.update(is_most_recent=False)
         super().save(*args, **kwargs)
+
+
+class ReportConfiguration(models.Model):
+    """
+    Configuration for release reports. Used so these can be set in advance of a version
+     being generated and then used by that version's release report.
+    """
+
+    version = models.CharField(
+        max_length=256,
+        null=False,
+        blank=False,
+        help_text="The version name for this report configuration. e.g. boost-1.75.0",
+        unique=True,
+    )
+    release_report_cover_image = models.ImageField(
+        null=True,
+        blank=True,
+        upload_to="release_report_cover/",
+    )
+    sponsor_message = models.TextField(
+        default="",
+        blank=True,
+        help_text='Message to show in release reports on the "Fiscal Sponsorship Committee" page.',  # noqa: E501
+    )
+    financial_committee_members = models.ManyToManyField(
+        User,
+        blank=True,
+        help_text="Financial Committee members who are responsible for this release.",
+    )
+
+    @cached_property
+    def display_name(self):
+        return self.version.replace("boost-", "")
+
+    def __str__(self):
+        return self.version

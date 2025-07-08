@@ -334,7 +334,7 @@ For this to work `SLACK_BOT_API` must be set in the `.env` file.
 
 | Options        | Format | Description                                                                                                          |
 |----------------|--------|----------------------------------------------------------------------------------------------------------------------|
-| `--start_date` | date   | If passed, retrieves data from the start date supplied, d-m-y, default 20-11-1998 (the start of the data in mailman) |
+| `--start_date` | date   | If passed, retrieves data from the start date supplied, d-m-y, default 1998-11-20 (the start of the data in mailman) |
 | `--end_date`   | date   | If passed, If passed, retrieves data until the start date supplied, d-m-y, default today                             |
 
 ## `link_contributors_to_users`

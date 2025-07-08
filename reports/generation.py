@@ -2,7 +2,7 @@ import base64
 import io
 import logging
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 import psycopg2
 from django.conf import settings
@@ -21,7 +21,9 @@ from versions.models import Version
 logger = logging.getLogger(__name__)
 
 
-def generate_wordcloud(version: Version) -> tuple[str | None, list]:
+def generate_wordcloud(
+    version: Version, prior_version: Version
+) -> tuple[str | None, list]:
     """Generates a wordcloud png and returns it as a base64 string and word frequencies.
 
     Returns:
@@ -42,7 +44,7 @@ def generate_wordcloud(version: Version) -> tuple[str | None, list]:
         font_path=font_full_path,
     )
     word_frequencies = {}
-    for content in get_mail_content(version):
+    for content in get_mail_content(version, prior_version):
         for key, val in wc.process_text(content).items():
             if len(key) < 2:
                 continue
@@ -104,13 +106,7 @@ def grey_color_func(*args, **kwargs):
     return "hsl(0, 0%%, %d%%)" % random.randint(10, 80)
 
 
-def get_mail_content(version: Version):
-    prior_version = (
-        Version.objects.minor_versions()
-        .filter(version_array__lt=version.cleaned_version_parts_int)
-        .order_by("-release_date")
-        .first()
-    )
+def get_mail_content(version: Version, prior_version: Version):
     if not prior_version or not settings.HYPERKITTY_DATABASE_NAME:
         return []
     conn = psycopg2.connect(settings.HYPERKITTY_DATABASE_URL)
@@ -120,7 +116,10 @@ def get_mail_content(version: Version):
                 SELECT content FROM hyperkitty_email
                 WHERE date >= %(start)s AND date < %(end)s;
             """,
-            {"start": prior_version.release_date, "end": version.release_date},
+            {
+                "start": prior_version.release_date,
+                "end": version.release_date or date.today(),
+            },
         )
         for [content] in cursor:
             yield content
