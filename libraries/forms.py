@@ -16,7 +16,7 @@ from reports.generation import (
     get_new_subscribers_stats,
 )
 from slack.models import Channel, SlackActivityBucket, SlackUser
-from versions.models import Version
+from versions.models import Version, ReportConfiguration
 from .models import (
     Commit,
     CommitAuthor,
@@ -232,8 +232,8 @@ class CreateReportForm(CreateReportFullForm):
 
     html_template_name = "admin/release_report_detail.html"
 
-    version = ModelChoiceField(
-        queryset=Version.objects.minor_versions().order_by("-version_array")
+    report_configuration = ModelChoiceField(
+        queryset=ReportConfiguration.objects.order_by("-version")
     )
 
     def __init__(self, *args, **kwargs):
@@ -255,14 +255,12 @@ class CreateReportForm(CreateReportFullForm):
             self.cleaned_data["library_8"],
         ]
         lib_string = ",".join(str(x.id) if x else "" for x in chosen_libraries)
-        version = self.cleaned_data["version"]
-        return f"release-report-{lib_string}-{version.name}"
+        report_configuration = self.cleaned_data["report_configuration"]
+        return f"release-report-{lib_string}-{report_configuration.version}"
 
-    def _get_top_contributors_for_version(self):
+    def _get_top_contributors_for_version(self, version):
         return (
-            CommitAuthor.objects.filter(
-                commit__library_version__version=self.cleaned_data["version"]
-            )
+            CommitAuthor.objects.filter(commit__library_version__version=version)
             .annotate(
                 commit_count=Count(
                     "commit",
@@ -277,30 +275,32 @@ class CreateReportForm(CreateReportFullForm):
     def _get_library_queryset_by_version(
         self, version: Version, annotate_commit_count=False
     ):
-        qs = self.library_queryset.filter(
-            library_version=LibraryVersion.objects.filter(
-                library=OuterRef("id"), version=version
-            )[:1],
-        )
+        qs = self.library_queryset.none()
+        if version:
+            qs = self.library_queryset.filter(
+                library_version=LibraryVersion.objects.filter(
+                    library=OuterRef("id"), version=version
+                )[:1],
+            )
         if annotate_commit_count:
             qs = qs.annotate(commit_count=Count("library_version__commit"))
         return qs
 
-    def _get_top_libraries_for_version(self):
+    def _get_top_libraries_for_version(self, version):
         library_qs = self._get_library_queryset_by_version(
-            self.cleaned_data["version"], annotate_commit_count=True
+            version, annotate_commit_count=True
         )
         return library_qs.order_by("-commit_count")
 
-    def _get_libraries_by_name(self):
+    def _get_libraries_by_name(self, version):
         library_qs = self._get_library_queryset_by_version(
-            self.cleaned_data["version"], annotate_commit_count=True
+            version, annotate_commit_count=True
         )
         return library_qs.order_by("name")
 
-    def _get_libraries_by_quality(self):
+    def _get_libraries_by_quality(self, version):
         # returns "great", "good", and "standard" libraries in that order
-        library_qs = self._get_library_queryset_by_version(self.cleaned_data["version"])
+        library_qs = self._get_library_queryset_by_version(version)
         return list(
             chain(
                 library_qs.filter(graphic__isnull=False),
@@ -309,17 +309,16 @@ class CreateReportForm(CreateReportFullForm):
             )
         )
 
-    def _get_library_version_counts(self, libraries, library_order):
+    def _get_library_version_counts(self, library_order, version):
         library_qs = self._get_library_queryset_by_version(
-            self.cleaned_data["version"], annotate_commit_count=True
+            version, annotate_commit_count=True
         )
         return sorted(
             list(library_qs.values("commit_count", "id")),
             key=lambda x: library_order.index(x["id"]),
         )
 
-    def _global_new_contributors(self, library_version):
-        version = self.cleaned_data["version"]
+    def _global_new_contributors(self, version):
         version_lt = list(
             Version.objects.minor_versions()
             .filter(version_array__lt=version.cleaned_version_parts_int)
@@ -343,8 +342,7 @@ class CreateReportForm(CreateReportFullForm):
 
         return set(version_author_ids) - set(prior_version_author_ids)
 
-    def _count_new_contributors(self, libraries, library_order):
-        version = self.cleaned_data["version"]
+    def _count_new_contributors(self, libraries, library_order, version):
         version_lt = list(
             Version.objects.minor_versions()
             .filter(version_array__lt=version.cleaned_version_parts_int)
@@ -382,12 +380,12 @@ class CreateReportForm(CreateReportFullForm):
             key=lambda x: library_order.index(x["id"]),
         )
 
-    def _count_issues(self, libraries, library_order, version):
+    def _count_issues(self, libraries, library_order, version, prior_version):
         data = {
             x["library_id"]: x
-            for x in Issue.objects.count_opened_closed_during_release(version).filter(
-                library_id__in=[x.id for x in libraries]
-            )
+            for x in Issue.objects.count_opened_closed_during_release(
+                version, prior_version
+            ).filter(library_id__in=[x.id for x in libraries])
         }
         ret = []
         for lib_id in library_order:
@@ -397,14 +395,14 @@ class CreateReportForm(CreateReportFullForm):
                 ret.append({"opened": 0, "closed": 0, "library_id": lib_id})
         return ret
 
-    def _count_commit_contributors_totals(self, version):
+    def _count_commit_contributors_totals(self, version, prior_version):
         """Get a count of contributors for this release, and a count of
         new contributors.
 
         """
         version_lt = list(
             Version.objects.minor_versions()
-            .filter(version_array__lt=version.cleaned_version_parts_int)
+            .filter(version_array__lte=prior_version.cleaned_version_parts_int)
             .values_list("id", flat=True)
         )
         version_lte = version_lt + [version.id]
@@ -439,13 +437,13 @@ class CreateReportForm(CreateReportFullForm):
         this_release_count = qs["this_release_count"]
         return this_release_count, new_count
 
-    def _get_top_contributors_for_library_version(self, library_order):
+    def _get_top_contributors_for_library_version(self, library_order, version):
         top_contributors_release = []
         for library_id in library_order:
             top_contributors_release.append(
                 CommitAuthor.objects.filter(
                     commit__library_version=LibraryVersion.objects.get(
-                        version=self.cleaned_data["version"], library_id=library_id
+                        version=version, library_id=library_id
                     )
                 )
                 .annotate(commit_count=Count("commit"))
@@ -453,10 +451,10 @@ class CreateReportForm(CreateReportFullForm):
             )
         return top_contributors_release
 
-    def _count_mailinglist_contributors(self, version):
+    def _count_mailinglist_contributors(self, version, prior_version):
         version_lt = list(
             Version.objects.minor_versions()
-            .filter(version_array__lt=version.cleaned_version_parts_int)
+            .filter(version_array__lte=prior_version.cleaned_version_parts_int)
             .values_list("id", flat=True)
         )
         version_lte = version_lt + [version.id]
@@ -620,7 +618,9 @@ class CreateReportForm(CreateReportFullForm):
     ):
         """Get slack stats for specific channels, or all channels."""
         start = prior_version.release_date
-        end = version.release_date - timedelta(days=1)
+        end = date.today()
+        if version.release_date:
+            end = version.release_date - timedelta(days=1)
         # count of all messages in the date range
         q = Q(day__range=[start, end])
         if channels:
@@ -671,7 +671,15 @@ class CreateReportForm(CreateReportFullForm):
         return diffs
 
     def get_stats(self):
-        version = self.cleaned_data["version"]
+        report_configuration = self.cleaned_data["report_configuration"]
+        version = Version.objects.filter(name=report_configuration.version).first()
+
+        prior_version = None
+        if not version:
+            # if the version is not set then the user has chosen a report configuration
+            #  that's not matching a live version, so we use the most recent version
+            version = Version.objects.filter(name="master").first()
+            prior_version = Version.objects.most_recent()
 
         downloads = {
             k: list(v)
@@ -680,12 +688,14 @@ class CreateReportForm(CreateReportFullForm):
                 key=attrgetter("operating_system"),
             )
         }
-        prior_version = (
-            Version.objects.minor_versions()
-            .filter(version_array__lt=version.cleaned_version_parts_int)
-            .order_by("-version_array")
-            .first()
-        )
+
+        if not prior_version:
+            prior_version = (
+                Version.objects.minor_versions()
+                .filter(version_array__lt=version.cleaned_version_parts_int)
+                .order_by("-version_array")
+                .first()
+            )
 
         commit_count = Commit.objects.filter(
             library_version__version__name__lte=version.name,
@@ -696,8 +706,8 @@ class CreateReportForm(CreateReportFullForm):
             library_version__library__in=self.library_queryset,
         ).count()
 
-        top_libraries_for_version = self._get_top_libraries_for_version()
-        top_libraries_by_name = self._get_libraries_by_name()
+        top_libraries_for_version = self._get_top_libraries_for_version(version)
+        top_libraries_by_name = self._get_libraries_by_name(version)
         library_order = self._get_library_order(top_libraries_by_name)
         libraries = Library.objects.filter(id__in=library_order).order_by(
             Case(
@@ -719,10 +729,10 @@ class CreateReportForm(CreateReportFullForm):
             for item in zip(
                 libraries,
                 self._get_library_full_counts(libraries, library_order),
-                self._get_library_version_counts(libraries, library_order),
-                self._get_top_contributors_for_library_version(library_order),
-                self._count_new_contributors(libraries, library_order),
-                self._count_issues(libraries, library_order, version),
+                self._get_library_version_counts(library_order, version),
+                self._get_top_contributors_for_library_version(library_order, version),
+                self._count_new_contributors(libraries, library_order, version),
+                self._count_issues(libraries, library_order, version, prior_version),
                 self._get_library_versions(library_order, version),
                 self._get_dependency_data(library_order, version),
             )
@@ -730,7 +740,7 @@ class CreateReportForm(CreateReportFullForm):
         library_data = [
             x for x in library_data if x["version_count"]["commit_count"] > 0
         ]
-        top_contributors = self._get_top_contributors_for_version()
+        top_contributors = self._get_top_contributors_for_version(version)
         # total messages sent during this release (version)
         total_mailinglist_count = EmailData.objects.filter(version=version).aggregate(
             total=Sum("count")
@@ -743,11 +753,11 @@ class CreateReportForm(CreateReportFullForm):
         (
             mailinglist_contributor_release_count,
             mailinglist_contributor_new_count,
-        ) = self._count_mailinglist_contributors(version)
+        ) = self._count_mailinglist_contributors(version, prior_version)
         (
             commit_contributors_release_count,
             commit_contributors_new_count,
-        ) = self._count_commit_contributors_totals(version)
+        ) = self._count_commit_contributors_totals(version, prior_version)
         library_count = LibraryVersion.objects.filter(
             version=version,
             library__in=self.library_queryset,
@@ -775,22 +785,35 @@ class CreateReportForm(CreateReportFullForm):
         slack_channels = batched(
             Channel.objects.filter(name__istartswith="boost").order_by("name"), 10
         )
-        committee_members = version.financial_committee_members.all()
+        committee_members = report_configuration.financial_committee_members.all()
         mailinglist_post_stats = get_mailing_list_post_stats(
-            prior_version.release_date, version.release_date
+            prior_version.release_date, version.release_date or date.today()
         )
         new_subscribers_stats = get_new_subscribers_stats(
-            prior_version.release_date, version.release_date
+            prior_version.release_date, version.release_date or date.today()
         )
         library_index_library_data = []
-        for library in self._get_libraries_by_quality():
+        for library in self._get_libraries_by_quality(version):
             library_index_library_data.append(
                 (
                     library,
                     library in [lib["library"] for lib in library_data],
                 )
             )
-        wordcloud_base64, wordcloud_top_words = generate_wordcloud(version)
+        wordcloud_base64, wordcloud_top_words = generate_wordcloud(
+            version, prior_version
+        )
+
+        opened_issues_count = (
+            Issue.objects.filter(library__in=self.library_queryset)
+            .opened_during_release(version, prior_version)
+            .count()
+        )
+        closed_issues_count = (
+            Issue.objects.filter(library__in=self.library_queryset)
+            .closed_during_release(version, prior_version)
+            .count()
+        )
 
         return {
             "committee_members": committee_members,
@@ -799,17 +822,10 @@ class CreateReportForm(CreateReportFullForm):
             "wordcloud_base64": wordcloud_base64,
             "wordcloud_frequencies": wordcloud_top_words,
             "version": version,
+            "report_configuration": report_configuration,
             "prior_version": prior_version,
-            "opened_issues_count": Issue.objects.filter(
-                library__in=self.library_queryset
-            )
-            .opened_during_release(version)
-            .count(),
-            "closed_issues_count": Issue.objects.filter(
-                library__in=self.library_queryset
-            )
-            .closed_during_release(version)
-            .count(),
+            "opened_issues_count": opened_issues_count,
+            "closed_issues_count": closed_issues_count,
             "mailinglist_counts": mailinglist_counts,
             "mailinglist_total": total_mailinglist_count or 0,
             "mailinglist_contributor_release_count": mailinglist_contributor_release_count,  # noqa: E501

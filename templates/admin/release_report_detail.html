@@ -41,6 +41,7 @@ body {
 </style>
 {% endblock css %}
 {% block content %}
+  {% now "F j, Y" as today %}
   {% with bg_color='' %}
     <div>
       <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}')">
@@ -51,12 +52,13 @@ body {
                 class="mt-[3px]"
                 style="width:3.3rem; margin-right:.5rem;" src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
               >
-              <span class="font-bold">Boost</span>&nbsp;<span class="text-[2.75rem] self-end mb-[2px]">{{ version.display_name }}</span>
+              <span class="font-bold">Boost</span>&nbsp;<span class="text-[2.75rem] self-end mb-[2px]">{{ report_configuration.display_name }}</span>
             </h1>
             <div class="flex gap-x-12 link-icons my-4 text-2xl justify-between">
               {% include "includes/_social_icon_links.html" %}
             </div>
-            <div><span class="font-bold">{{ commit_count|intcomma }}</span> commit{{ commit_count|pluralize }} up through {{ version.display_name }}</div>
+            <div class="mb-2" class="font-bold">{% firstof version.release_date today %}</div>
+            <div><span class="font-bold">{{ commit_count|intcomma }}</span> commit{{ commit_count|pluralize }} up through {{ report_configuration.display_name }}</div>
             <div><span class="font-bold">{{ lines_added|intcomma }}</span> line{{ lines_added|pluralize }} added, <span class="font-bold">{{ lines_removed|intcomma }}</span> line{{ lines_removed|pluralize }} removed</div>
             <div><span class="font-bold">{{ version_commit_count|intcomma }}</span> new commit{{ version_commit_count|pluralize }} in all library repositories</div>
             <div><span class="font-bold">{{ commit_contributors_release_count }}</span> commit contributors, <span class="font-bold">{{ commit_contributors_new_count }}</span> new</div>
@@ -102,10 +104,10 @@ body {
         </div>
         <div class="flex flex-col h-full justify-between">
 
-          {% if version.release_report_cover_image and version.release_report_cover_image.url %}
+          {% if report_configuration.release_report_cover_image and report_configuration.release_report_cover_image.url %}
             <img
               class="max-h-[60%]"
-              src="{{ version.release_report_cover_image.url|strip_query_string }}"
+              src="{{ report_configuration.release_report_cover_image.url|strip_query_string }}"
               alt="release report cover image"
             >
           {% endif %}
@@ -151,7 +153,7 @@ body {
         </div>
       </div>
 
-      {% if version.sponsor_message %}
+      {% if report_configuration.sponsor_message %}
         <div id="fiscal_committee_page" class="pdf-page !p-8 {{ bg_color }} bg-gray-200 relative">
           <h2 class="mt-0">From the Fiscal Sponsorship Committee</h2>
           <div class="flex flex-col w-full h-[85%] sponsor-message relative">
@@ -169,7 +171,7 @@ body {
                d="M 28.068153,0 H 471.93339 c 17.18711,0 28.0676,10.63409 28.0674,26.12903 l -8e-4,56.64968 c 0,16.63468 -9.6004,26.12907 -28.0674,26.12907 -144.5008,3.63566 -356.11545,0.75984 -445.23187,0 -15.3824,0 -26.70095,-10.79719 -26.70074,-26.12907 l 7.8e-4,-56.64968 c 1.8e-4,-13.27403 12.64918,-26.12903 28.06737,-26.12903 z"
             />
           </svg>
-          <div class="sponsor_message_copy dynamic-text p-[30px] mr-16 absolute z-20 max-h-[340px]">{{ version.sponsor_message|safe }}</div>
+          <div class="sponsor_message_copy dynamic-text p-[30px] mr-16 absolute z-20 max-h-[340px]">{{ report_configuration.sponsor_message|safe }}</div>
           <div class="committee_members flex flex-wrap mt-2 text-sm text-center absolute" style="">
             {% for user in committee_members|dictsort:"display_name" %}
               <figure class="w-32 m-2">
@@ -247,12 +249,12 @@ body {
               {% else %}
                 no
               {% endif %}
-              mailing list post{{ mailinglist_total|pluralize }} in version&nbsp;{{ version.display_name }} and
+              mailing list post{{ mailinglist_total|pluralize }} in version&nbsp;{{ report_configuration.display_name }} and
               <span class="font-bold">{{ mailinglist_contributor_release_count }}</span>
               poster{{ mailinglist_contributor_release_count|pluralize }}
               in this version. (<span class="font-bold">{{ mailinglist_contributor_new_count }}</span> New)
             </div>
-          <div class="text-center my-2">Weekly mailing list posts from {{prior_version.release_date}} to {{version.release_date}} on the Boost Developers mailing list.</div>
+          <div class="text-center my-2">Weekly mailing list posts from {{prior_version.release_date}} to {% firstof version.release_date today %} on the Boost Developers mailing list.</div>
           <div id="release_post_stats"></div>
           </div>
         </div>
@@ -261,7 +263,7 @@ body {
       <div class="pdf-page flex {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}');">
         <div class="flex flex-col h-full mx-auto w-full">
           <h2 class="mx-auto mb-10">Mailing List New Subscribers</h2>
-          <div class="text-center my-2">Mailing list new subscribers from from {{prior_version.release_date}} to {{version.release_date}} on the Boost Developers mailing list.</div>
+          <div class="text-center my-2">Mailing list new subscribers from from {{prior_version.release_date}} to {% firstof version.release_date today %} on the Boost Developers mailing list.</div>
 
           <div id="subscriptions_stats"></div>
         </div>
@@ -403,7 +405,7 @@ body {
                           {{ item.version_count.commit_count|pluralize:"was,were" }}
                           <span class="font-bold">{{ item.version_count.commit_count }}</span>
                           commit{{ item.version_count.commit_count|pluralize }}
-                          in release {{ version.display_name }}
+                          in release {{ report_configuration.display_name }}
                         </div>
                         {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
                           <div>
