@@ -502,9 +502,13 @@ FULLY_MODERNIZED_LIB_VERSIONS = [
     #  Hard-coding these here as a quick fix for now.
     "1_87_0/libs/charconv",
     "1_88_0/libs/charconv",
+    "1_89_0/libs/charconv",
     "latest/libs/charconv",
     "develop/libs/charconv",
     "master/libs/charconv",
+    "1_89_0/libs/redis",
+    "develop/libs/redis",
+    "master/libs/redis",
     "doc/antora/url",
 ]
 
