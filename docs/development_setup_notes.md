@@ -22,10 +22,10 @@ Open a Powershell terminal (Admin mode).
 
 Enable Powershell scripts with `Set-ExecutionPolicy Bypass`.
 
-Clone your fork of the repo, and run the script `.\docs\scripts\dev-bootstrap-win.ps1`, or just download a copy of the script by itself, and run it.
+Clone your fork of the repo, and run the script `.\scripts\dev-bootstrap-win.ps1`, or just download a copy of the script by itself, and run it.
 
 ```
-curl -o dev-bootstrap-win.ps1 https://raw.githubusercontent.com/boostorg/website-v2/develop/docs/scripts/dev-bootstrap-win.ps1
+curl -o dev-bootstrap-win.ps1 https://raw.githubusercontent.com/boostorg/website-v2/develop/scripts/dev-bootstrap-win.ps1
 .\dev-bootstrap-win.ps1
 ```
 
@@ -127,7 +127,7 @@ The script dev-bootstrap-linux.sh will automatically install prerequisites, and 
 Theoretically Docker on Linux can either be "Docker Desktop" or native standard Docker. The latter is much more common on Linux, and currently the script only supports standard Docker. In that context, it's helpful for the user account outside of the containers to match the user account inside the containers, and that can be achieved by running docker-compose and all scripts as 'root'. Switch to root before using dev-bootstrap-linux.sh or docker-compose to assure that the permissions match inside the container where the user is also root userid (0). Another option is to eventually add a "Docker Desktop" method for Linux in the script if there is any interest in that, however most developers seem to be using macOS.
 
 ```
-curl -o dev-bootstrap-linux.sh https://raw.githubusercontent.com/boostorg/website-v2/develop/docs/scripts/dev-bootstrap-linux.sh
+curl -o dev-bootstrap-linux.sh https://raw.githubusercontent.com/boostorg/website-v2/develop/scripts/dev-bootstrap-linux.sh
 chmod 755 dev-bootstrap-linux.sh
 ./dev-bootstrap-linux.sh
 ```
@@ -206,10 +206,10 @@ Method 1:
 
 The script dev-bootstrap-macos.sh will automatically install prerequisites, and with the --all or --launch flag will also run docker-compose.
 
-As a standard user account, clone your fork of the repo, and run the script `docs/scripts/dev-bootstrap-macos.ps1`, or just download a copy of the script by itself, and run it.
+As a standard user account, clone your fork of the repo, and run the script `scripts/dev-bootstrap-macos.ps1`, or just download a copy of the script by itself, and run it.
 
 ```
-curl -o dev-bootstrap-macos.sh https://raw.githubusercontent.com/boostorg/website-v2/develop/docs/scripts/dev-bootstrap-macos.sh
+curl -o dev-bootstrap-macos.sh https://raw.githubusercontent.com/boostorg/website-v2/develop/scripts/dev-bootstrap-macos.sh
 chmod 755 dev-bootstrap-macos.sh
 ./dev-bootstrap-macos.sh
 ```
