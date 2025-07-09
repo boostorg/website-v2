@@ -15,9 +15,9 @@ prereqsoption="yes"
 # docker_mode either "native" or "desktop" (Docker Desktop). Only support "native" currently.
 docker_mode="native"
 # the 'just' install can't be run as root. Switch to 'standard_user' for that:
-standard_user="ubuntu"
+standard_user="${SHELL_USER:-ubuntu}"
 
-# On Linux, there are two ways to run Docker. Either the standard native docker installation, or Docker Desktop, which runs inside a virtual machine. The most common installation is standard docker, so that is what is supported by this script currently. In the future, Docker Desktop support could be added. Each method has pros and cons. It's important that the user inside the Django containers is the same as the user on the host machine outside the containers, so that file ownership matches up.  Since the user is 'root' inside the containers, it should be 'root' on the host machine.  Therefore, any development work should be done as 'root'.  That means, run 'sudo su -' before using docker-compose.  Docker Desktop would be an alternative to that requirement, and allow running as a regular user account. But with some downside, that it is not a typical linux Docker installation as found on servers.
+# On Linux, there are two ways to run Docker. Either the standard native docker installation, or Docker Desktop, which runs inside a virtual machine. The most common installation is standard docker, so that is what is supported by this script currently. In the future, Docker Desktop support could be added. Each method has pros and cons. It's important that the user inside the Django containers is the same as the user on the host machine outside the containers, so that file ownership matches up.  Since the user is 'root' inside the containers, it should be 'root' on the host machine. Therefore, any development work should be done as 'root'. That means, run 'sudo su -' before using docker-compose. Docker Desktop would be an alternative to that requirement, and allow running as a regular user account. But with some downside, that it is not a typical linux Docker installation as found on servers.
 
 if [[ ${docker_mode} == "native" ]]; then
     repo_path_base="/opt/github"
@@ -27,6 +27,12 @@ if [[ ${docker_mode} == "native" ]]; then
     fi
     completion_message_1="When doing development work, always switch to the root user, cd to that directory location, and run 'docker compose up -d'. You should be root when running docker compose."
     shell_initialization_file=/root/.bashrc
+    if id "$standard_user" >/dev/null 2>&1; then
+        true
+    else
+        echo "The script needs to be informed about a standard non-root user for certain commands. Those can be discovered by listing 'ls -al /home'. Then please run 'export SHELL_USER=__'.  Exiting."
+        exit 1
+    fi
 fi
 if [[ ${docker_mode} == "desktop" ]]; then
     repo_path_base="${HOME}/github"
@@ -156,14 +162,22 @@ fi
 
 if [[ "$prereqsoption" == "yes" ]]; then
 
-    # sudo apt-get update
+    sudo apt-get update
+
+     if ! cargo --version  &> /dev/null
+     then
+         echo "Installing cargo"
+         sudo apt-get install -y cargo
+     fi
+
     x="\$nrconf{restart} = 'a';"
+    mkdir -p /etc/needrestart/conf.d
     echo "$x" | sudo tee /etc/needrestart/conf.d/90-autorestart.conf 1>/dev/null
 
     if ! command -v makedeb &> /dev/null
     then
         echo "Installing makdeb"
-        MAKEDEB_RELEASE=makedeb bash -ci "$(wget -qO - 'https://shlink.makedeb.org/install')"
+        su - "${standard_user}" -c "export MAKEDEB_RELEASE=makedeb && bash -ci $(wget -qO - 'https://shlink.makedeb.org/install')"
         # Or, an alternate method:
         # wget -qO - 'https://proget.makedeb.org/debian-feeds/makedeb.pub' | gpg --dearmor | sudo tee /usr/share/keyrings/makedeb-archive-keyring.gpg 1> /dev/null
         # echo 'deb [signed-by=/usr/share/keyrings/makedeb-archive-keyring.gpg arch=all] https://proget.makedeb.org/ makedeb main' | sudo tee /etc/apt/sources.list.d/makedeb.list
@@ -174,6 +188,19 @@ if [[ "$prereqsoption" == "yes" ]]; then
     then
         echo "Installing git"
         sudo apt-get install -y git
+    fi
+
+    if ! command -v psql &> /dev/null
+    then
+        apt install -y postgresql-client-16
+    fi
+
+    if ! command -v gcloud &> /dev/null
+    then
+        echo "Installing gcloud"
+        curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+        echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+        apt-get update && apt-get install -y google-cloud-cli
     fi
 
     if ! command -v python3 &> /dev/null
