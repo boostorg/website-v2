@@ -489,8 +489,6 @@ class CreateReportForm(CreateReportFullForm):
         """
         if prior_version is None:
             return None
-        if prior_version.release_date is None or version.release_date is None:
-            return None
 
         @dataclass
         class Day:
@@ -581,7 +579,7 @@ class CreateReportForm(CreateReportFullForm):
         # The start date is the release date of the previous version
         # The end date is one day before the release date of the current version
         start: date = prior_version.release_date
-        end: date = version.release_date - timedelta(days=1)
+        end: date = (version.release_date or date.today()) - timedelta(days=1)
 
         # if the release started on a Thursday, we want to add Sun -> Wed to the data
         # with empty counts, even if they aren't part of the release.
