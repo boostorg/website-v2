@@ -510,6 +510,7 @@ FULLY_MODERNIZED_LIB_VERSIONS = [
     "develop/libs/redis",
     "master/libs/redis",
     "doc/antora/url",
+    "libs/bloom/",
 ]
 
 
