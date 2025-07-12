@@ -7,6 +7,7 @@ from django.utils.text import slugify
 
 from .converters import to_url
 from .managers import VersionManager, VersionFileManager
+from .utils.model_validators import validate_version_name_format
 
 User = get_user_model()
 
@@ -37,21 +38,7 @@ class Version(models.Model):
         "beta release or a development version",
     )
     data = models.JSONField(default=dict)
-    release_report_cover_image = models.ImageField(
-        null=True,
-        blank=True,
-        upload_to="release_report_cover/",
-    )
-    sponsor_message = models.TextField(
-        default="",
-        blank=True,
-        help_text='Message to show in release reports on the "Fiscal Sponsorship Committee" page.',  # noqa: E501
-    )
-    financial_committee_members = models.ManyToManyField(
-        User,
-        blank=True,
-        help_text="Financial Committee members who are responsible for this release.",
-    )
+
     objects = VersionManager()
 
     def __str__(self):
@@ -296,6 +283,7 @@ class ReportConfiguration(models.Model):
         blank=False,
         help_text="The version name for this report configuration. e.g. boost-1.75.0",
         unique=True,
+        validators=[validate_version_name_format],
     )
     release_report_cover_image = models.ImageField(
         null=True,
