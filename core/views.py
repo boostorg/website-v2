@@ -471,6 +471,7 @@ NO_WRAPPER_LIBS = [
     # Add a header to these, but no wrapper.
     "libs/array",
     "libs/assert",
+    "libs/bloom",
     "libs/charconv",
     "libs/cobalt",
     "libs/compat",
@@ -510,7 +511,6 @@ FULLY_MODERNIZED_LIB_VERSIONS = [
     "develop/libs/redis",
     "master/libs/redis",
     "doc/antora/url",
-    "libs/bloom/",
 ]
 
 
