@@ -1,5 +1,4 @@
 import re
-from html import unescape
 
 from bs4 import BeautifulSoup, Comment, Tag
 from django.template.loader import render_to_string
@@ -260,7 +259,6 @@ def slightly_modernize_legacy_library_doc_page(content):
             el.getparent().remove(el)
 
     content = html.tostring(root, encoding="unicode", method="html")
-    content = unescape(content)  # avoid escaping special characters like ń
     return content.replace("https://www.boost.org/doc/libs/", "/doc/libs/")
 
 

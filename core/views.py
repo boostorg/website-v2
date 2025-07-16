@@ -471,6 +471,7 @@ NO_WRAPPER_LIBS = [
     # Add a header to these, but no wrapper.
     "libs/array",
     "libs/assert",
+    "libs/bloom",
     "libs/charconv",
     "libs/cobalt",
     "libs/compat",
