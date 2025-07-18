@@ -1344,8 +1344,10 @@ html.dark .boostlook pre.rouge,
 html.dark .boostlook .doc .content pre,
 html.dark .boostlook .doc pre.highlight,
 html.dark .boostlook .doc .listingblock pre:not(.highlight),
-html.dark .boostlook .doc .literalblock pre {
-  background: var(--atom-one-dark-bg, #282c34);
+html.dark .boostlook .doc .literalblock pre,
+html.dark .boostlook#libraryReadMe > pre:not(:last-child),
+html.dark .boostlook#libraryReadMe div.highlight:has(> pre):not(:is(dd pre, td pre)) {
+  background: var(--atom-one-dark-bg, #282c34) !important;
 }
 
 .boostlook .doc pre {
