@@ -501,6 +501,7 @@ NO_WRAPPER_LIBS = [
 FULLY_MODERNIZED_LIB_VERSIONS = [
     # FIXME: we should have a way to opt-in via a flag on the library/lib-version.
     #  Hard-coding these here as a quick fix for now.
+    "tools/",  # Not a library version, but tools are somewhat analogous
     "1_87_0/libs/charconv",
     "1_88_0/libs/charconv",
     "1_89_0/libs/charconv",
