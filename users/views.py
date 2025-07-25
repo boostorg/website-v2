@@ -100,7 +100,9 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
             instance=self.request.user.preferences
         )
         context["social_accounts"] = self.get_social_accounts()
-        context["commit_email_addresses"] = self.get_commit_author_email_addresses()
+        context["commit_email_addresses"] = CommitAuthorEmail.objects.filter(
+            author__user=self.request.user
+        )
         return context
 
     def get_social_accounts(self):
@@ -115,11 +117,6 @@ class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateVi
                 }
             )
         return account_data
-
-    def get_commit_author_email_addresses(self):
-        return CommitAuthorEmail.objects.filter(
-            author__user=self.request.user
-        ).values_list("email", flat=True)
 
     def post(self, request, *args, **kwargs):
         """
