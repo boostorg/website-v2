@@ -1,0 +1,41 @@
+<div class="flex justify-center">
+  <div class="fixed inset-0 bg-slate-950/50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300 ease-out z-[9999]" id="target_modal" aria-hidden="true">
+    <div class="bg-white dark:bg-black rounded-xl shadow-2xl shadow-slate-950/5 border border-slate-200 w-1/3 scale-95">
+      <div class="p-2 flex justify-between items-center">
+        <button type="button" id="modal_target_close" aria-label="Close" class="inline-grid place-items-center border align-middle select-none font-sans font-medium text-center transition-all duration-300 ease-in disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none data-[shape=circular]:rounded-full text-sm min-w-[34px] min-h-[34px] rounded-md bg-transparent border-transparent text-slate-200-foreground hover:bg-slate-200/10 hover:border-slate-200/10 shadow-none hover:shadow-none outline-none absolute right-2 top-2">
+          <svg width="1.5em" height="1.5em" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="currentColor" class="h-5 w-5"><path d="M6.75827 17.2426L12.0009 12M17.2435 6.75736L12.0009 12M12.0009 12L6.75827 6.75736M12.0009 12L17.2435 17.2426" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </button>
+      </div>
+			<div id="modal_content_target" hx-on::after-swap="setVisibility('target_modal', 'show')"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+	 document.querySelector('#modal_target_close').addEventListener('click', function() {
+		const modal = document.getElementById('target_modal');
+		modal.classList.remove('opacity-100', 'pointer-events-auto');
+		modal.classList.add('opacity-0', 'pointer-events-none');
+	});
+
+	document.addEventListener('htmx:responseError', e => {
+	  if (e.detail.xhr.status === 422) {
+	    const target = document.querySelector('#modal_content_target');
+	    target.innerHTML = e.detail.xhr.responseText;
+	    htmx.process(target);
+	  }
+	});
+
+	const setVisibility = (modalId, visibility) => {
+		const modal = document.getElementById(modalId);
+		if (modal) {
+			if (visibility === 'show') {
+				modal.classList.remove('opacity-0', 'pointer-events-none');
+				modal.classList.add('opacity-100', 'pointer-events-auto');
+			} else {
+				modal.classList.remove('opacity-100', 'pointer-events-auto');
+				modal.classList.add('opacity-0', 'pointer-events-none');
+			}
+		}
+	};
+</script>

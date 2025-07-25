@@ -1,0 +1,24 @@
+{% load static %}
+
+<form method="post" class="space-y-3 p-4">
+	{% csrf_token %}
+	<h2 class="text-2xl">Add Commit Email Address</h2>
+	<div>You must have access to the email address you enter here, as a verification email will be sent to it.</div>
+ 	{% for field in form.visible_fields %}
+		<div>
+			{% include 'includes/_form_input.html' with form=form field=field %}
+		</div>
+	{% endfor %}
+
+	<div class="mt-4">
+	  <button
+	    class="py-2 px-3 text-sm text-white rounded bg-orange"
+	    type="submit"
+	    hx-post="{% url 'commit-author-email-create' %}"
+	    hx-target="#commit_email_addresses"
+	    hx-swap="outerHTML"
+	  >Add New Commit Author Email Address</button>
+	</div>
+
+
+</form>

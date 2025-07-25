@@ -3,23 +3,27 @@ import structlog
 
 from django.contrib import messages
 from django.db.models import F, Count, Prefetch
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, FormView, TemplateView
 
 from core.githubhelper import GithubAPIClient
 from versions.exceptions import BoostImportedDataException
 from versions.models import Version
 
 from .constants import README_MISSING
+from .forms import CommitAuthorEmailForm
 from .mixins import VersionAlertMixin, BoostVersionMixin, ContributorMixin
 from .models import (
     Category,
     Library,
     LibraryVersion,
+    CommitAuthorEmail,
 )
 from .utils import (
     get_view_from_cookie,
@@ -334,3 +338,80 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, ContributorMixin, Deta
             self.kwargs.get("version_slug", LATEST_RELEASE_URL_PATH_STR), response
         )
         return response
+
+
+class CommitAuthorEmailCreateView(FormView):
+    template_name = "libraries/profile_commit_email_address_form.html"
+    form_class = CommitAuthorEmailForm
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if not form.is_valid():
+            return self.form_invalid(form)
+
+        email = form.cleaned_data["email"]
+        commit_author_email = get_object_or_404(CommitAuthorEmail, email=email)
+        commit_email_addresses = commit_author_email.trigger_verification_email(request)
+
+        return TemplateResponse(
+            request,
+            "libraries/profile_commit_email_addresses.html",
+            {"commit_email_addresses": commit_email_addresses},
+        )
+
+    def form_invalid(self, form):
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context, status=422)
+
+
+class VerifyCommitEmailView(TemplateView):
+    """
+    View to verify commit email addresses.
+    This is used to ensure that commit authors have verified their email addresses.
+    """
+
+    template_name = "libraries/profile_confirm_email_address.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        token = self.kwargs.get("token")
+        commit_author_email = (
+            CommitAuthorEmail.objects.filter(
+                claim_hash=token,
+                claim_hash_expiration__gt=timezone.now(),
+                claim_verified=False,
+            )
+            .prefetch_related("author")
+            .first()
+        )
+        if not commit_author_email:
+            context["reason_failed"] = (
+                "No valid commit author found or the token has expired. Please request "
+                "a new verification email."
+            )
+        else:
+            commit_author_email.claim_hash_expiration = timezone.now()
+            commit_author_email.claim_verified = True
+            commit_author_email.author.user = self.request.user
+            commit_author_email.author.save()
+            commit_author_email.save()
+            context["commit_email"] = commit_author_email.email
+            context["confirmed"] = True
+
+        return context
+
+
+class CommitEmailResendView(TemplateView):
+    def post(self, request, *args, **kwargs):
+        commit_author_email = (
+            CommitAuthorEmail.objects.filter(
+                claim_hash=self.kwargs.get("claim_hash"),
+                claim_verified=False,
+                author__user=self.request.user,
+            )
+            .prefetch_related("author")
+            .first()
+        )
+        commit_author_email.trigger_verification_email(request)
+
+        return HttpResponse('<i class="fa-solid fa-envelope-circle-check"></i>')
