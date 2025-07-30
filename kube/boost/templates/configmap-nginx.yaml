@@ -136,5 +136,41 @@ data:
       location = /build/ { return 301 /tools/build/; }
       location = /more/lib_guide.htm { return 301 /doc/contributor-guide/index.html; }
 
+      # the following block of locations are from the nginx redirect configuration script and 
+      #  should be replaced with the newly generated block as a whole
+
+      location = /doc/libs/1.33.0/libs/spirit/example { return 301 https://github.com/boostorg/spirit/tree/boost-1.33.0/example; }
+      location = /doc/libs/1.69.0/libs/beast/example/cppcon2018 { return 301 https://github.com/boostorg/beast/tree/boost-1.69.0/example/cppcon2018; }
+      location ~ ^/doc/libs/([^/]+)/boost/archive/detail$ { return 301 https://github.com/boostorg/serialization/tree/boost-$1/include/boost/archive/detail; }
+      location ~ ^/doc/libs/([^/]+)/boost/archive/impl$ { return 301 https://github.com/boostorg/serialization/tree/boost-$1/include/boost/archive/impl; }
+      location ~ ^/doc/libs/([^/]+)/boost/archive/iterators$ { return 301 https://github.com/boostorg/serialization/tree/boost-$1/include/boost/archive/iterators; }
+      location ~ ^/doc/libs/([^/]+)/boost/compatibility/cpp_c_headers$ { return 301 https://github.com/boostorg/compatibility/tree/boost-$1/include/boost/compatibility/cpp_c_headers; }
+      location ~ ^/doc/libs/([^/]+)/libs/beast/example$ { return 301 https://github.com/boostorg/beast/tree/boost-$1/example; }
+      location ~ ^/doc/libs/([^/]+)/libs/beast/example/websocket/server/chat-multi$ { return 301 https://github.com/boostorg/beast/tree/boost-$1/example/websocket/server/chat-multi; }
+      location ~ ^/doc/libs/([^/]+)/libs/bimap/example$ { return 301 https://github.com/boostorg/bimap/tree/boost-$1/example; }
+      location ~ ^/doc/libs/([^/]+)/libs/filesystem/doc/src$ { return 301 https://github.com/boostorg/filesystem/tree/boost-$1/doc/src; }
+      location ~ ^/doc/libs/([^/]+)/libs/filesystem/example$ { return 301 https://github.com/boostorg/filesystem/tree/boost-$1/example; }
+      location ~ ^/doc/libs/([^/]+)/libs/filesystem/src$ { return 301 https://github.com/boostorg/filesystem/tree/boost-$1/src; }
+      location ~ ^/doc/libs/([^/]+)/libs/filesystem/v2/example$ { return 301 https://github.com/boostorg/filesystem/tree/boost-$1/v2/example; }
+      location ~ ^/doc/libs/([^/]+)/libs/filesystem/v2/src$ { return 301 https://github.com/boostorg/filesystem/tree/boost-$1/v2/src; }
+      location ~ ^/doc/libs/([^/]+)/libs/filesystem/v3/src$ { return 301 https://github.com/boostorg/filesystem/tree/boost-$1/v3/src; }
+      location ~ ^/doc/libs/([^/]+)/libs/iostreams/build$ { return 301 https://github.com/boostorg/iostreams/tree/boost-$1/build; }
+      location ~ ^/doc/libs/([^/]+)/libs/python/build/VisualStudio$ { return 301 https://github.com/boostorg/python/tree/boost-$1/build/VisualStudio; }
+      location ~ ^/doc/libs/([^/]+)/libs/python/example$ { return 301 https://github.com/boostorg/python/tree/boost-$1/example; }
+      location ~ ^/doc/libs/([^/]+)/libs/python/test$ { return 301 https://github.com/boostorg/python/tree/boost-$1/test; }
+      location ~ ^/doc/libs/([^/]+)/libs/regex/test/captures$ { return 301 https://github.com/boostorg/regex/tree/boost-$1/test/captures; }
+      location ~ ^/doc/libs/([^/]+)/libs/regex/test/concepts$ { return 301 https://github.com/boostorg/regex/tree/boost-$1/test/concepts; }
+      location ~ ^/doc/libs/([^/]+)/libs/regex/test/pathology$ { return 301 https://github.com/boostorg/regex/tree/boost-$1/test/pathology; }
+      location ~ ^/doc/libs/([^/]+)/libs/regex/test/regress$ { return 301 https://github.com/boostorg/regex/tree/boost-$1/test/regress; }
+      location ~ ^/doc/libs/([^/]+)/libs/serialization/src$ { return 301 https://github.com/boostorg/serialization/tree/boost-$1/src; }
+      location ~ ^/doc/libs/([^/]+)/libs/sort/example$ { return 301 https://github.com/boostorg/sort/tree/boost-$1/example; }
+      location ~ ^/doc/libs/([^/]+)/libs/spirit/example/qi/mini_xml_samples$ { return 301 https://github.com/boostorg/spirit/tree/boost-$1/example/qi/mini_xml_samples; }
+      location ~ ^/doc/libs/([^/]+)/libs/spirit/example/support/utree$ { return 301 https://github.com/boostorg/spirit/tree/boost-$1/example/support/utree; }
+      location ~ ^/doc/libs/([^/]+)/libs/spirit/example/x3/rexpr/rexpr_full$ { return 301 https://github.com/boostorg/spirit/tree/boost-$1/example/x3/rexpr/rexpr_full; }
+      location ~ ^/doc/libs/([^/]+)/tools/boostbook$ { return 301 https://github.com/boostorg/boostbook/tree/boost-$1; }
+      location ~ ^/doc/libs/([^/]+)/tools/build/v2/example/customization$ { return 301 https://github.com/boostorg/build/tree/boost-$1/v2/example/customization; }
+      
+      # block end
+
       include /etc/nginx/mime.types;
     }
