@@ -15,8 +15,8 @@ onclick="window.location='{% url 'library-detail' library_slug=library_version.l
   <td class="align-top">
     {% include "libraries/includes/_documentation_link_icon.html" %}
   </td>
-  <td class="hidden md:block py-2 pl-3 align-top">{{ library_version.description|default:"No description provide for this version." }}</td>
+  <td class="hidden md:block py-2 pl-3 align-top">{{ library_version.description|default:"No description provided for this version." }}</td>
 </tr>
 <tr class="block md:hidden pl-1">
-  <td>{{ library_version.description|default:"No description provide for this version." }}</td>
+  <td>{{ library_version.description|default:"No description provided for this version." }}</td>
 </tr>
