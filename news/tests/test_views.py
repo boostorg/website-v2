@@ -5,11 +5,16 @@ from io import BytesIO
 
 from PIL import Image
 import pytest
+from django.conf import settings
+from django.contrib.messages import get_messages
 from django.core import mail
+from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.timezone import now
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 from model_bakery import baker
 
+from ..constants import NEWS_APPROVAL_SALT
 from ..forms import BlogPostForm, LinkForm, NewsForm, PollForm, VideoForm
 from ..models import NEWS_MODELS, BlogPost, Entry, Link, News, Poll, Video
 from ..notifications import (
@@ -847,3 +852,95 @@ def test_news_delete(tp, make_entry, moderator_user, model_class):
     tp.response_200(response)
     tp.assertRedirects(response, tp.reverse("news"))
     assert Entry.objects.filter(pk=entry.pk).count() == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "already_approved, expected_message_substring",
+    [
+        (False, "approved"),
+        (True, "already been approved"),
+    ],
+)
+def test_magic_link_valid_token(
+    tp, make_entry, moderator_user, already_approved, expected_message_substring
+):
+    """Valid magic link approves unapproved entries or warns if already approved."""
+
+    entry = make_entry(approved=already_approved)
+    serializer = URLSafeTimedSerializer(settings.SECRET_KEY)
+    token = serializer.dumps(
+        {"entry_slug": entry.slug, "moderator_id": moderator_user.id},
+        salt=NEWS_APPROVAL_SALT,
+    )
+
+    url = f"/news/moderate/magic/{token}/"
+    response = tp.get(url)
+    entry.refresh_from_db()
+
+    if already_approved:
+        assert entry.is_approved
+        assert entry.moderator != moderator_user
+    else:
+        assert entry.is_approved
+        assert entry.moderator == moderator_user
+
+    tp.assertRedirects(response, entry.get_absolute_url())
+
+    msgs = [(m.level_tag, m.message) for m in get_messages(response.wsgi_request)]
+    assert any(expected_message_substring in message for _, message in msgs)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "authenticated, expected_redirect",
+    [
+        (
+            False,
+            lambda tp: f"{reverse('account_login')}?next={reverse('news-moderate')}",
+        ),
+        (
+            True,
+            lambda tp: reverse("news-moderate"),
+        ),
+    ],
+)
+def test_magic_link_expired_token(
+    tp, make_entry, moderator_user, monkeypatch, authenticated, expected_redirect
+):
+    """Expired magic link redirects appropriately for authenticated vs. anonymous users."""
+
+    entry = make_entry(approved=False)
+    serializer = URLSafeTimedSerializer(settings.SECRET_KEY)
+    token = serializer.dumps(
+        {"entry_slug": entry.slug, "moderator_id": moderator_user.id},
+        salt=NEWS_APPROVAL_SALT,
+    )
+
+    monkeypatch.setattr(
+        "news.views.URLSafeTimedSerializer.loads",
+        lambda *a, **k: (_ for _ in ()).throw(SignatureExpired("expired")),
+    )
+
+    url = f"/news/moderate/magic/{token}/"
+    if authenticated:
+        with tp.login(moderator_user):
+            response = tp.get(url, follow=True)
+    else:
+        response = tp.get(url, follow=True)
+
+    tp.assertRedirects(response, expected_redirect(tp))
+    msgs = [(m.level_tag, m.message) for m in get_messages(response.wsgi_request)]
+    assert any("expired" in message.lower() for _, message in msgs)
+
+
+@pytest.mark.django_db
+def test_magic_link_invalid_token_returns_403(tp):
+    """Invalid magic link returns HTTP 403 Forbidden with an error message."""
+
+    invalid_token = "not-a-valid-token"
+    url = reverse("news-magic-approve", args=[invalid_token])
+    response = tp.get(url, follow=False)
+
+    tp.response_403(response)
+    assert "Invalid magic link" in response.content.decode()
