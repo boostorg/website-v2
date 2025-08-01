@@ -150,7 +150,10 @@ class EntryDetailView(DetailView):
             context["next_url"] = next_url
         context["next"] = get_published_or_none(self.object.get_next_by_publish_at)
         context["prev"] = get_published_or_none(self.object.get_previous_by_publish_at)
-        category_kwarg = {f"{self.object.tag}__isnull": False}
+        if self.object.tag:
+            category_kwarg = {f"{self.object.tag}__isnull": False}
+        else:
+            category_kwarg = {}
         context["next_in_category"] = get_published_or_none(
             partial(self.object.get_next_by_publish_at, **category_kwarg)
         )
@@ -180,10 +183,10 @@ class EntryModerationMagicApproveView(View):
             moderator = User.objects.get(id=moderator_id)
         except SignatureExpired:
             message = _("This link has expired.")
-            if not request.user.is_authenticated():
+            if not request.user.is_authenticated:
                 message += _(" Please login to continue.")
             messages.warning(request, message)
-            return redirect(reverse_lazy("news-moderate"), permanent=True)
+            return redirect(reverse_lazy("news-moderate"))
         except (BadData, User.DoesNotExist):
             return HttpResponseForbidden("Invalid magic link.")
 
@@ -195,7 +198,7 @@ class EntryModerationMagicApproveView(View):
         except Entry.AlreadyApprovedError:
             messages.warning(request, _("This entry has already been approved."))
 
-        return redirect(entry, permanent=True)
+        return redirect(entry)
 
 
 class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):

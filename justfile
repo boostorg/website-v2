@@ -53,6 +53,9 @@ alias shell := console
 @test_pytest:  ## runs pytest
     -docker compose run --rm -e DEBUG_TOOLBAR="False" web pytest -s --create-db
 
+@test_pytest_lf:  ## runs last failed pytest tests
+    -docker compose run --rm -e DEBUG_TOOLBAR="False" web pytest -s --create-db --lf
+
 @test_pytest_asciidoctor:  ## runs asciidoctor tests
     -docker compose run --rm -e DEBUG_TOOLBAR="False" web pytest -m asciidoctor -s --create-db
 
