@@ -1,3 +1,5 @@
+from time import sleep
+
 import structlog
 
 from django.contrib.auth import get_user_model
@@ -34,9 +36,33 @@ def update_user_github_photo(user_pk):
 
     client = GithubAPIClient()
     response = client.get_user_by_username(user.github_username)
+    # response can be None if the user does not exist on GitHub
+    if not response:
+        return
     avatar_url = response["avatar_url"]
-    user.save_image_from_github(avatar_url)
+    user.save_image_from_provider(avatar_url)
     logger.info("users_tasks_update_gh_photo_finished", user_pk=user_pk)
+
+
+@app.task
+def refresh_users_github_photos():
+    """
+    Refreshes the GitHub photos for all users who have a GitHub username.
+    This is intended to be run periodically to ensure user photos are up-to-date.
+    """
+    users = User.objects.exclude(github_username="")
+    for user in users:
+        try:
+            logger.info(f"updating {user.pk=}")
+            update_user_github_photo.delay(user.pk)
+            # not strictly necessary, but helps to avoid hammering the GitHub API
+            sleep(0.5)
+        except UserMissingGithubUsername:
+            logger.warning(
+                "users_tasks_refresh_gh_photos_no_github_username",
+                user_pk=user.pk,
+                github_username=user.github_username,
+            )
 
 
 # OAuth2 Tasks

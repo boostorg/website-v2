@@ -63,3 +63,9 @@ def setup_periodic_tasks(sender, **kwargs):
         crontab(day_of_week="sat", hour=20, minute=3),
         app.signature("libraries.tasks.release_tasks", generate_report=True),
     )
+
+    # Update users' profile photos from GitHub. Executes daily at 3:30 AM.
+    sender.add_periodic_task(
+        crontab(hour=3, minute=30),
+        app.signature("users.tasks.refresh_users_github_photos"),
+    )

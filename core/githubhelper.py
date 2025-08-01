@@ -510,7 +510,11 @@ class GithubAPIClient:
 
     def get_user_by_username(self, username: str) -> dict:
         """Return the response from GitHub's /users/{username}/"""
-        return self.api.users.get_by_username(username=username)
+        try:
+            return self.api.users.get_by_username(username=username)
+        except HTTP404NotFoundError:
+            logger.warning(f"{username=} not found on GitHub.")
+        return None
 
     def get_artifacts(self, owner="", repo_slug="", name=None):
         """Return a list of artifacts from the GH api.
