@@ -20,11 +20,17 @@ body {
   list-style: circle;
   margin-left: 2rem;
 }
-.sponsor-message a, #library_index li a, ul.slack-channels li div a {
+.sponsor-message a,
+#library_index li a,
+ul.slack-channels li div a,
+.new-libraries a {
   color: rgb(2, 132, 199);
 }
 
-.sponsor-message a:hover, #library_index li a:hover {
+.sponsor-message a:hover,
+#library_index li a:hover,
+ul.slack-channels li div a:hover,
+.new-libraries a:hover {
   color: rgb(255, 159, 0);
 }
 .committee_members img {
@@ -388,6 +394,46 @@ body {
           </ul>
         </div>
       </div>
+      {% if new_libraries %}
+          <div class="pdf-page flex items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg3.png' %}');">
+            <div class="flex flex-col h-full mx-auto w-full">
+              <h2 class="mx-auto">New Libraries</h2>
+              {% for library in new_libraries %}
+                <div class="flex flex-row gap-x-4 mb-4 gap-y-2 new-libraries">
+                  {% if library.graphic %}
+                    <div class="max-w-[16rem]">
+                      <img src="{{ library.graphic.url }}" alt="" />
+                    </div>
+                  {% endif %}
+                  <div class="flex flex-col gap-y-2">
+                    <div class="font-semibold text-lg">
+                      {{ library.name }}
+                    </div>
+                    <div class="text-sm">
+                      {{ library.description }}
+                    </div>
+                    <div class="text-sm">
+                      <a href="{{ library.github_url }}">{{ library.github_url }}</a>
+                    </div>
+                    <div class="text-sm font-semibold">Contributors:</div>
+                    <div class="flex flex-row flex-wrap gap-x-4 gap-y-2">
+                      {% for author in library.authors.all %}
+                        <div class="flex flex-row gap-y-2 w-30 items-center">
+                          {% avatar user=author %}
+                          <div class="w-full flex flex-col pl-2">
+                            <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
+                              {{ author.display_name }}
+                            </div>
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+      {% endif %}
       {% with "img/release_report/bg1.png,img/release_report/bg4-rev.png,img/release_report/bg3-rev.png,img/release_report/bg1-rev.png,img/release_report/bg2.png,img/release_report/bg6-rev.png,img/release_report/bg3.png,img/release_report/bg4.png,img/release_report/bg5.png,img/release_report/bg6.png,img/release_report/bg2-rev.png" as bg_list_str %}
         {% with bg_list=bg_list_str|split:"," %}
           {% for batch in batched_library_data %}
