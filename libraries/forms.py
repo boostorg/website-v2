@@ -748,6 +748,9 @@ class CreateReportForm(CreateReportFullForm):
             lambda x: x.get("top_contributors_release").count()
             <= AUTHORS_PER_PAGE_THRESHOLD,
         )
+        new_libraries = libraries.exclude(
+            library_version__version__release_date__lte=prior_version.release_date
+        ).prefetch_related("authors")
         top_contributors = self._get_top_contributors_for_version(version)
         # total messages sent during this release (version)
         total_mailinglist_count = EmailData.objects.filter(version=version).aggregate(
@@ -850,6 +853,7 @@ class CreateReportForm(CreateReportFullForm):
             "version_commit_count": version_commit_count,
             "top_contributors_release_overall": top_contributors,
             "library_data": library_data,
+            "new_libraries": new_libraries,
             "batched_library_data": batched_library_data,
             "top_libraries_for_version": top_libraries_for_version,
             "library_count": library_count,
