@@ -4,6 +4,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from libraries.utils import (
+    conditional_batched,
     decode_content,
     generate_fake_email,
     get_first_last_day_last_month,
@@ -232,3 +233,52 @@ def test_write_content_to_tempfile():
         file_content = f.read()
     assert file_content == content
     os.remove(temp_file.name)
+
+
+def test_conditional_batched():
+    # test basic functionality: batch consecutive items that pass condition
+    items = [1, 2, 4, 3, 6, 8, 5, 10, 12, 7]
+    # even numbers should be batched
+    result = list(conditional_batched(items, 2, lambda x: x % 2 == 0))
+
+    # consecutive even numbers get batched, odd numbers are individual, order preserved
+    assert result == [(1,), (2, 4), (3,), (6, 8), (5,), (10, 12), (7,)]
+
+
+def test_conditional_batched_all_pass():
+    # test when all items pass the condition
+    items = [2, 4, 6, 8, 10]
+    result = list(conditional_batched(items, 2, lambda x: x % 2 == 0))
+
+    assert result == [(2, 4), (6, 8), (10,)]
+
+
+def test_conditional_batched_all_fail():
+    # test when all items fail the condition
+    items = [1, 3, 5, 7, 9]
+    result = list(conditional_batched(items, 2, lambda x: x % 2 == 0))
+
+    assert result == [(1,), (3,), (5,), (7,), (9,)]
+
+
+def test_conditional_batched_strict_mode():
+    # test strict mode with incomplete batch
+    items = [2, 4, 6]
+    with pytest.raises(ValueError, match="conditional_batched\\(\\): incomplete batch"):
+        list(conditional_batched(items, 2, lambda x: x % 2 == 0, strict=True))
+
+
+def test_conditional_batched_strict_mode_complete():
+    # test strict mode with complete batches
+    items = [2, 4, 6, 8]
+    result = list(conditional_batched(items, 2, lambda x: x % 2 == 0, strict=True))
+
+    assert result == [(2, 4), (6, 8)]
+
+
+def test_conditional_batched_invalid_n():
+    # test invalid batch size
+    items = [1, 2, 3]
+
+    with pytest.raises(ValueError, match="n must be at least one"):
+        list(conditional_batched(items, 0, lambda x: True))

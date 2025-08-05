@@ -218,6 +218,46 @@ def batched(iterable, n, *, strict=False):
         yield batch
 
 
+def conditional_batched(iterable, n: int, condition: callable, *, strict=False):
+    """
+    Batch items that pass a condition together, return items that fail individually.
+
+    Args:
+        iterable: Items to process
+        n: Batch size for items that pass the condition
+        condition: Function that returns True if item should be batched
+        strict: If True, raise error for incomplete final batch
+
+    Yields:
+        Tuples of batched items or single-item tuples for items that fail condition
+    """
+    if n < 1:
+        raise ValueError("n must be at least one")
+
+    batch = []
+
+    for item in iterable:
+        if condition(item):
+            # item passes condition - add to batch
+            batch.append(item)
+            if len(batch) == n:
+                # batch is full - yield it and start new batch
+                yield tuple(batch)
+                batch = []
+        else:
+            # item fails condition - yield any pending batch first, then item alone
+            if batch:
+                yield tuple(batch)
+                batch = []
+            yield (item,)
+
+    # handle any remaining items in batch
+    if strict and batch and len(batch) != n:
+        raise ValueError("conditional_batched(): incomplete batch")
+    if batch:
+        yield tuple(batch)
+
+
 def legacy_path_transform(content_path):
     if content_path and content_path.startswith(LEGACY_LATEST_RELEASE_URL_PATH_STR):
         content_path = re.sub(r"([a-zA-Z0-9\.]+)/(\S+)", r"latest/\2", content_path)

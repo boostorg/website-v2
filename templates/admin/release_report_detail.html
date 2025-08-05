@@ -20,7 +20,7 @@ body {
   list-style: circle;
   margin-left: 2rem;
 }
-.sponsor-message a, #library_index li a {
+.sponsor-message a, #library_index li a, ul.slack-channels li div a {
   color: rgb(2, 132, 199);
 }
 
@@ -36,6 +36,13 @@ body {
 
 #top-committed-libraries-chart .apexcharts-xaxis-label:nth-child(even) {
   transform: translateY(8px);
+}
+.sponsor_message_copy p {
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+.sponsor_message_copy p:first-child {
+  padding-top: 0;
 }
 
 </style>
@@ -159,7 +166,6 @@ body {
           <div class="flex flex-col w-full h-[85%] sponsor-message relative">
           <svg
             class="absolute overflow-visible pointer-events-none z-10"
-            viewBox="0 0 500 207"
             version="1.1"
             id="bubble_background"
             xmlns="http://www.w3.org/2000/svg"
@@ -171,7 +177,7 @@ body {
                d="M 28.068153,0 H 471.93339 c 17.18711,0 28.0676,10.63409 28.0674,26.12903 l -8e-4,56.64968 c 0,16.63468 -9.6004,26.12907 -28.0674,26.12907 -144.5008,3.63566 -356.11545,0.75984 -445.23187,0 -15.3824,0 -26.70095,-10.79719 -26.70074,-26.12907 l 7.8e-4,-56.64968 c 1.8e-4,-13.27403 12.64918,-26.12903 28.06737,-26.12903 z"
             />
           </svg>
-          <div class="sponsor_message_copy dynamic-text p-[30px] mr-16 absolute z-20 max-h-[340px]">{{ report_configuration.sponsor_message|safe }}</div>
+          <div class="sponsor_message_copy dynamic-text p-[30px] mr-24 absolute z-20 max-h-[400px]">{{ report_configuration.sponsor_message|safe|linebreaks }}</div>
           <div class="committee_members flex flex-wrap mt-2 text-sm text-center absolute" style="">
             {% for user in committee_members|dictsort:"display_name" %}
               <figure class="w-32 m-2">
@@ -255,7 +261,7 @@ body {
               in this version. (<span class="font-bold">{{ mailinglist_contributor_new_count }}</span> New)
             </div>
           <div class="text-center my-2">Weekly mailing list posts from {{prior_version.release_date}} to {% firstof version.release_date today %} on the Boost Developers mailing list.</div>
-          <div id="release_post_stats"></div>
+          <div id="release_post_stats" class="mt-10 mx-4"></div>
           </div>
         </div>
       </div>
@@ -300,12 +306,12 @@ body {
             {% if forloop.first %}
               <h2 class="mx-auto">Slack Channels</h2>
             {% endif %}
-            <ul class="flex flex-row flex-wrap mx-auto w-full flex-wrap text-sm">
+            <ul class="flex flex-row flex-wrap mx-auto w-full flex-wrap text-sm slack-channels">
               {% for channel in slack_channel_group %}
                 <li class="w-1/2 p-2">
                   <strong>#{{channel.name}}</strong>
                   {% if channel.purpose %}
-                    <div class="mx-auto">{{channel.purpose}}</div>
+                    <div class="mx-auto">{{channel.purpose|safe}}</div>
                   {% endif %}
                 </li>
               {% endfor %}
@@ -384,72 +390,74 @@ body {
       </div>
       {% with "img/release_report/bg1.png,img/release_report/bg4-rev.png,img/release_report/bg3-rev.png,img/release_report/bg1-rev.png,img/release_report/bg2.png,img/release_report/bg6-rev.png,img/release_report/bg3.png,img/release_report/bg4.png,img/release_report/bg5.png,img/release_report/bg6.png,img/release_report/bg2-rev.png" as bg_list_str %}
         {% with bg_list=bg_list_str|split:"," %}
-          {% for item in library_data %}
+          {% for batch in batched_library_data %}
             {% with current_bg=bg_list|get_modulo_item:forloop.counter0 %}
               <div class="pdf-page flex flex-col {{ bg_color }}" id="library-{{item.library.display_name}}" style="background-image: url('{% static current_bg %}')">
-                <div class="grid grid-cols-3 gap-x-8 w-full p-4">
-                  <div class="col-span-2 flex flex-col gap-y-4">
-                    <div class="flex flex-col gap-y-4">
-                      <h2 class="text-orange mb-1 mt-0">{{ item.library.display_name }}</h2>
-                      <div>{{ item.library.description }}</div>
-                    </div>
-                    <div class="flex gap-x-8 items-center">
-                      {% if item.library.graphic %}
-                        <div class="max-w-[10rem]">
-                          <img src="{{ item.library.graphic.url }}" alt="" />
-                        </div>
-                      {% endif %}
-                      <div class="flex flex-col gap-y-1">
-                        <div>
-                          There
-                          {{ item.version_count.commit_count|pluralize:"was,were" }}
-                          <span class="font-bold">{{ item.version_count.commit_count }}</span>
-                          commit{{ item.version_count.commit_count|pluralize }}
-                          in release {{ report_configuration.display_name }}
-                        </div>
-                        {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
-                          <div>
-                            <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added, <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
-                          </div>
-                        {% endwith %}
-                        {% with count=item.new_contributors_count.count %}
-                          {% if count >= 1 %}
-                            <div>
-                              There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} for this release!
-                            </div>
-                          {% endif %}
-                        {% endwith %}
-                        <div>
-                          There {{ item.issues.opened|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.opened }}</span> issue{{ item.issues.opened|pluralize }} opened
-                          and {{ item.issues.closed|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.closed }}</span> issue{{ item.issues.closed|pluralize }} closed
-                        </div>
-                        {% if item.deps.added or item.deps.removed %}
-                          <div>
-                            There {{ item.deps.added|length|pluralize:"was,were" }} <span class="font-bold">{{ item.deps.added|length }}</span> dependenc{{ item.deps.added|length|pluralize:"y,ies" }} added
-                            and
-                            <span class="font-bold">{{ item.deps.removed|length }}</span> dependenc{{ item.deps.removed|length|pluralize:"y,ies" }} removed
+                {% for item in batch %}
+                  <div class="grid grid-cols-3 gap-x-8 w-full p-4 h-1/2">
+                    <div class="col-span-2 flex flex-col gap-y-4">
+                      <div class="flex flex-col gap-y-4">
+                        <h2 class="text-orange mb-1 mt-0">{{ item.library.display_name }}</h2>
+                        <div>{{ item.library.description }}</div>
+                      </div>
+                      <div class="flex gap-x-8 items-center">
+                        {% if item.library.graphic %}
+                          <div class="max-w-[10rem]">
+                            <img src="{{ item.library.graphic.url }}" alt="" />
                           </div>
                         {% endif %}
-                      </div>
-                    </div>
-                  </div>
-                  <div class="px-4">
-                    <div class="mx-auto mb-6">Top Contributors</div>
-                    <div class="m-auto grid grid-cols-1 gap-2">
-                    {% for author in item.top_contributors_release %}
-                      <div class="flex flex-row gap-y-2 w-40 items-center">
-                        {% avatar commitauthor=author %}
-                        <div class="w-full flex flex-col ml-2">
-                          <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
-                            {{ author.display_name }}
+                        <div class="flex flex-col gap-y-1">
+                          <div>
+                            There
+                            {{ item.version_count.commit_count|pluralize:"was,were" }}
+                            <span class="font-bold">{{ item.version_count.commit_count }}</span>
+                            commit{{ item.version_count.commit_count|pluralize }}
+                            in release {{ report_configuration.display_name }}
                           </div>
-                          <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
+                          {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
+                            <div>
+                              <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added, <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
+                            </div>
+                          {% endwith %}
+                          {% with count=item.new_contributors_count.count %}
+                            {% if count >= 1 %}
+                              <div>
+                                There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} for this release!
+                              </div>
+                            {% endif %}
+                          {% endwith %}
+                          <div>
+                            There {{ item.issues.opened|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.opened }}</span> issue{{ item.issues.opened|pluralize }} opened
+                            and {{ item.issues.closed|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.closed }}</span> issue{{ item.issues.closed|pluralize }} closed
+                          </div>
+                          {% if item.deps.added or item.deps.removed %}
+                            <div>
+                              There {{ item.deps.added|length|pluralize:"was,were" }} <span class="font-bold">{{ item.deps.added|length }}</span> dependenc{{ item.deps.added|length|pluralize:"y,ies" }} added
+                              and
+                              <span class="font-bold">{{ item.deps.removed|length }}</span> dependenc{{ item.deps.removed|length|pluralize:"y,ies" }} removed
+                            </div>
+                          {% endif %}
                         </div>
                       </div>
-                    {% endfor %}
+                    </div>
+                    <div class="px-4">
+                      <div class="mx-auto mb-6">Top Contributors</div>
+                      <div class="m-auto grid grid-cols-1 gap-2">
+                      {% for author in item.top_contributors_release %}
+                        <div class="flex flex-row gap-y-2 w-40 items-center">
+                          {% avatar commitauthor=author %}
+                          <div class="w-full flex flex-col ml-2">
+                            <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
+                              {{ author.display_name }}
+                            </div>
+                            <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
+                          </div>
+                        </div>
+                      {% endfor %}
+                      </div>
                     </div>
                   </div>
-                </div>
+              {% endfor %}
               </div>
             {% endwith %}
           {% endfor %}
@@ -613,7 +621,7 @@ body {
       const fitText = async () => {
         for (const text of document.querySelectorAll('.dynamic-text')) {
           const MAX_FONT_SIZE = 23;
-          const MIN_FONT_SIZE = 10;
+          const MIN_FONT_SIZE = 16;
           // Start with a large font size
           let fontSize = MAX_FONT_SIZE;
           text.style.fontSize = fontSize + 'px';
@@ -639,7 +647,34 @@ body {
         }
       }
 
+      const adjustBubbleSize = (width, height, radius) => {
+        const bubbleSVG = document.querySelector('#bubble_background');
+        if (!bubbleSVG) return;
+
+        const bubblePath = document.querySelector('#bubble');
+        if (!bubblePath) return;
+
+        // Set SVG size and viewBox
+        const attrs = { width, height, viewBox: `0 0 ${width} ${height}` };
+        Object.entries(attrs).forEach(
+          ([key, value]) => bubbleSVG.setAttribute(key, value)
+        );
+        bubblePath.setAttribute(
+          'd',
+          `M ${radius},0
+            H ${width - radius}
+            Q ${width},0 ${width},${radius}
+            V ${height - radius}
+            Q ${width},${height} ${width - radius},${height}
+            H ${radius}
+            Q 0,${height} 0,${height - radius}
+            V ${radius}
+            Q 0,0 ${radius},0 Z`
+        );
+      };
+
       const drawBubble = async () => {
+        // determines the gap between the text and the sponsor avatars
         const blockGap = 35;
         /*
         bubbleScalingAdjustment accounts for scaling of bubble with longer content, with
@@ -648,6 +683,7 @@ body {
         const bubbleScalingAdjustment = 1; // 1.15 when point path in use
         const bubbleCommitteeSpacing = 10;
         const copyTextAdjustment = -2;
+        const bubbleRadius = 25;
 
         const cmtePage = document.querySelector(".sponsor-message");
         const usableHeight = cmtePage.offsetHeight;
@@ -659,14 +695,11 @@ body {
         const msgHeight = sponsorMessage.offsetHeight;
         const msgWidth = sponsorMessage.offsetWidth;
 
-        const bubble_svg = SVG(bubbleSVG).size(`${msgWidth}`, `${msgHeight}`);
-        bubble_svg.viewbox(0, 0, msgWidth, msgHeight);
-        const bubble_ele = bubble_svg.find('#bubble');
-        bubble_ele.size(msgWidth, msgHeight * bubbleScalingAdjustment);
         const datum = (usableHeight - (sponsorMessage.offsetHeight + committeeMembers.offsetHeight)) / 2;
         sponsorMessage.style.top = `${datum + copyTextAdjustment}px`;
         bubbleSVG.style.top = `${datum}px`;
         committeeMembers.style.top = `${datum + blockGap + sponsorMessage.offsetHeight}px`;
+        adjustBubbleSize(msgWidth, msgHeight * bubbleScalingAdjustment, bubbleRadius);
       };
 
       window.addEventListener('DOMContentLoaded', async () => {

@@ -26,7 +26,7 @@ from .models import (
 )
 from libraries.constants import SUB_LIBRARIES
 from mailing_list.models import EmailData
-from .utils import batched
+from .utils import batched, conditional_batched
 
 
 class LibraryForm(ModelForm):
@@ -668,6 +668,31 @@ class CreateReportForm(CreateReportFullForm):
             diffs.append(diffs_by_id.get(lib_id, {}))
         return diffs
 
+    def get_library_data(self, libraries, library_order, prior_version, version):
+        library_data = [
+            {
+                "library": item[0],
+                "full_count": item[1],
+                "version_count": item[2],
+                "top_contributors_release": item[3],
+                "new_contributors_count": item[4],
+                "issues": item[5],
+                "library_version": item[6],
+                "deps": item[7],
+            }
+            for item in zip(
+                libraries,
+                self._get_library_full_counts(libraries, library_order),
+                self._get_library_version_counts(library_order, version),
+                self._get_top_contributors_for_library_version(library_order, version),
+                self._count_new_contributors(libraries, library_order, version),
+                self._count_issues(libraries, library_order, version, prior_version),
+                self._get_library_versions(library_order, version),
+                self._get_dependency_data(library_order, version),
+            )
+        ]
+        return [x for x in library_data if x["version_count"]["commit_count"] > 0]
+
     def get_stats(self):
         report_configuration = self.cleaned_data["report_configuration"]
         version = Version.objects.filter(name=report_configuration.version).first()
@@ -713,31 +738,16 @@ class CreateReportForm(CreateReportFullForm):
             )
         )
 
-        library_data = [
-            {
-                "library": item[0],
-                "full_count": item[1],
-                "version_count": item[2],
-                "top_contributors_release": item[3],
-                "new_contributors_count": item[4],
-                "issues": item[5],
-                "library_version": item[6],
-                "deps": item[7],
-            }
-            for item in zip(
-                libraries,
-                self._get_library_full_counts(libraries, library_order),
-                self._get_library_version_counts(library_order, version),
-                self._get_top_contributors_for_library_version(library_order, version),
-                self._count_new_contributors(libraries, library_order, version),
-                self._count_issues(libraries, library_order, version, prior_version),
-                self._get_library_versions(library_order, version),
-                self._get_dependency_data(library_order, version),
-            )
-        ]
-        library_data = [
-            x for x in library_data if x["version_count"]["commit_count"] > 0
-        ]
+        library_data = self.get_library_data(
+            libraries, library_order, prior_version, version
+        )
+        AUTHORS_PER_PAGE_THRESHOLD = 6
+        batched_library_data = conditional_batched(
+            library_data,
+            2,
+            lambda x: x.get("top_contributors_release").count()
+            <= AUTHORS_PER_PAGE_THRESHOLD,
+        )
         top_contributors = self._get_top_contributors_for_version(version)
         # total messages sent during this release (version)
         total_mailinglist_count = EmailData.objects.filter(version=version).aggregate(
@@ -840,6 +850,7 @@ class CreateReportForm(CreateReportFullForm):
             "version_commit_count": version_commit_count,
             "top_contributors_release_overall": top_contributors,
             "library_data": library_data,
+            "batched_library_data": batched_library_data,
             "top_libraries_for_version": top_libraries_for_version,
             "library_count": library_count,
             "library_count_prior": library_count_prior,
