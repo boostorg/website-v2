@@ -2,6 +2,7 @@ import logging
 import datetime
 import functools
 import time
+import re
 
 from slack_sdk import WebClient
 from slack_sdk.http_retry.builtin_handlers import RateLimitErrorRetryHandler
@@ -12,6 +13,7 @@ from django.db.models import Q, FloatField
 from django.conf import settings
 from django.core.management import CommandError
 
+from core.constants import SLACK_URL
 from slack.models import (
     SlackUser,
     SlackActivityBucket,
@@ -289,14 +291,97 @@ def command(channels, debug):
         # materialize this generator so we can iterate multiple times
         selected_channels.extend(get_my_channels())
 
+    def interpolate_text_usernames(text):
+        user_mentions = re.findall(r"<@([A-Z0-9]+)>", text)
+        for user_id in user_mentions:
+            try:
+                slack_user = SlackUser.objects.get(id=user_id)
+                profile_url = f"{SLACK_URL}/team/{user_id}"
+                text = text.replace(
+                    f"<@{user_id}>", f'<a href="{profile_url}">@{slack_user.name}</a>'
+                )
+            except SlackUser.DoesNotExist:
+                logger.warning(f"SlackUser {user_id} not found in database")
+                continue
+
+        return text
+
+    def interpolate_text_slack_channels(text):
+        # match both <#CHANNELID> and <#CHANNELID|optional_text>
+        channel_mentions = re.findall(r"<#([A-Z0-9]+)(?:\|[^>]*)?>", text)
+        for channel_id in channel_mentions:
+            try:
+                channel = Channel.objects.get(id=channel_id)
+                channel_name = channel.name
+            except Channel.DoesNotExist:
+                try:
+                    # fetch channel info from Slack API
+                    channel_data = client.conversations_info(channel=channel_id)
+                    channel_name = channel_data.data["channel"]["name"]
+                    logger.info(
+                        f"Fetched channel name {channel_name} for {channel_id} from API"
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to get channel info for {channel_id}: {e}")
+                    continue
+
+            # replace the full match including any pipe content
+            pattern = f"<#{channel_id}(?:\\|[^>]*)?>"
+            text = re.sub(pattern, f"#{channel_name}", text)
+
+        return text
+
+    def interpolate_text_subteams(text):
+        # returns early because we don't have usergroups:read permission added and
+        # the only channel that really needs this data parsed at the moment is
+        # #general which doesn't appear in the release report. If we need it in
+        # the future, Sam says we'd need to create a new bot with that permission.
+        return text
+
+        # match <!subteam^SUBTEAMID> patterns
+        subteam_mentions = re.findall(r"<!subteam\^([A-Z0-9]+)>", text)
+        for subteam_id in subteam_mentions:
+            try:
+                usergroups_data = client.usergroups_list()
+                for usergroup in usergroups_data.data["usergroups"]:
+                    if usergroup["id"] == subteam_id:
+                        subteam_name = usergroup["handle"]
+                        text = text.replace(
+                            f"<!subteam^{subteam_id}>", f"@{subteam_name}"
+                        )
+                        break
+                else:
+                    logger.warning(f"Subteam {subteam_id} not found in usergroups list")
+            except Exception as e:
+                logger.warning(f"Failed to get subteam info for {subteam_id}: {e}")
+                continue
+
+        return text
+
+    def interpolate_text_urls_with_jinja_links(text):
+        return re.sub(r"<(https?://[^>]+)>", r'<a href="\1">\1</a>', text)
+
     for channel_data in selected_channels:
         with transaction.atomic():
+            topic = channel_data["topic"]["value"]
+            if topic:
+                topic = interpolate_text_usernames(topic)
+                topic = interpolate_text_slack_channels(topic)
+                topic = interpolate_text_subteams(topic)
+                topic = interpolate_text_urls_with_jinja_links(topic)
+            purpose = channel_data["purpose"]["value"]
+            if purpose:
+                purpose = interpolate_text_usernames(purpose)
+                purpose = interpolate_text_slack_channels(purpose)
+                purpose = interpolate_text_subteams(purpose)
+                purpose = interpolate_text_urls_with_jinja_links(purpose)
+
             channel, created = Channel.objects.update_or_create(
                 id=channel_data["id"],
                 defaults={
                     "name": channel_data["name"],
-                    "topic": channel_data["topic"]["value"],
-                    "purpose": channel_data["purpose"]["value"],
+                    "topic": topic,
+                    "purpose": purpose,
                 },
             )
             if created:
