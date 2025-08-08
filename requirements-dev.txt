@@ -4,6 +4,8 @@ asgiref==3.8.1
     # via
     #   -c ./requirements.txt
     #   django
+debugpy==1.8.13
+    # via -r ./requirements-dev.in
 django==4.2.16
     # via
     #   -c ./requirements.txt
