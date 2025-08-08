@@ -751,6 +751,10 @@ class CreateReportForm(CreateReportFullForm):
         new_libraries = libraries.exclude(
             library_version__version__release_date__lte=prior_version.release_date
         ).prefetch_related("authors")
+        # TODO: we may in future need to find a way to show the removed libraries, for
+        #  now it's not needed. In that case the distinction between running this on a
+        #  ReportConfiguration with a real 'version' entry vs one that instead uses 'master'
+        #  will need to be considered
         top_contributors = self._get_top_contributors_for_version(version)
         # total messages sent during this release (version)
         total_mailinglist_count = EmailData.objects.filter(version=version).aggregate(
@@ -769,24 +773,16 @@ class CreateReportForm(CreateReportFullForm):
             commit_contributors_release_count,
             commit_contributors_new_count,
         ) = self._count_commit_contributors_totals(version, prior_version)
-        library_count = LibraryVersion.objects.filter(
-            version=version,
-            library__in=self.library_queryset,
-        ).count()
-        if prior_version:
-            library_count_prior = LibraryVersion.objects.filter(
-                version=prior_version,
-                library__in=self.library_queryset,
-            ).count()
-        else:
-            library_count_prior = 0
 
-        added_library_count = max(0, library_count - library_count_prior)
-        removed_library_count = max(0, library_count_prior - library_count)
+        added_library_count = new_libraries.count()
+        # TODO: connected to above todo, add removed_libraries.count()
+        removed_library_count = 0
+
         lines_added = LibraryVersion.objects.filter(
             version=version,
             library__in=self.library_queryset,
         ).aggregate(lines=Sum("insertions"))["lines"]
+
         lines_removed = LibraryVersion.objects.filter(
             version=version,
             library__in=self.library_queryset,
@@ -856,8 +852,7 @@ class CreateReportForm(CreateReportFullForm):
             "new_libraries": new_libraries,
             "batched_library_data": batched_library_data,
             "top_libraries_for_version": top_libraries_for_version,
-            "library_count": library_count,
-            "library_count_prior": library_count_prior,
+            "library_count": libraries.count(),
             "library_index_libraries": library_index_library_data,
             "added_library_count": added_library_count,
             "removed_library_count": removed_library_count,

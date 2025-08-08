@@ -245,6 +245,19 @@ def skip_library_version(library_slug, version_slug):
 
 
 @app.task
+def gc_removed_submodules(library_keys: list[str], branch: str) -> None:
+    """Remove libraries that are not in the library_keys from the
+    library_versions list for the current version."""
+    library_version_keys = LibraryVersion.objects.filter(
+        version__name=branch
+    ).values_list("library__key", flat=True)
+    for k in library_version_keys:
+        if k not in library_keys:
+            LibraryVersion.objects.filter(version__name=branch, library__key=k).delete()
+            logger.info(f"{k=} library_version link to {branch=} garbage collected.")
+
+
+@app.task
 def import_library_versions(version_name, token=None, version_type="tag"):
     """For a specific version, imports all LibraryVersions using GitHub data"""
     # todo: this needs to be refactored and tests added
@@ -280,6 +293,7 @@ def import_library_versions(version_name, token=None, version_type="tag"):
 
     # For each gitmodule, gets its libraries.json file and save the libraries
     # to the version
+    library_keys = []
     for gitmodule in gitmodules:
         library_name = gitmodule["module"]
         if library_name in updater.skip_modules:
@@ -336,6 +350,9 @@ def import_library_versions(version_name, token=None, version_type="tag"):
         for lib_data in parsed_libraries:
             if lib_data["key"] in updater.skip_libraries:
                 continue
+            # tracking this 'key' because the gitmodule name doesn't directly match,
+            # e.g. interval in gitmodule, numericinterval in db/here
+            library_keys.append(lib_data["key"])
 
             # Handle exceptions based on version and library key
             exceptions = LIBRARY_KEY_EXCEPTIONS.get(lib_data["key"], [])
@@ -370,6 +387,12 @@ def import_library_versions(version_name, token=None, version_type="tag"):
                 github_data = client.get_repo(repo_slug=library_name)
                 library.github_url = github_data.get("html_url", "")
                 library.save()
+
+    # For any libraries no longer in gitmodules we want to remove master and develop
+    #  references from the library_versions list.
+    if version_name in ["master", "develop"]:
+        logger.info("Triggering  removed submodules garbage collection")
+        gc_removed_submodules.delay(library_keys, version_name)
 
     # Retrieve and store the docs url for each library-version in this release
     get_and_store_library_version_documentation_urls_for_version.delay(version.pk)

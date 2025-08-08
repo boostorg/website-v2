@@ -204,7 +204,7 @@ class LibraryUpdater:
         # of other modules. Identified by the key used in the libraries.json file.
         self.skip_libraries = ["chrono/stopwatch"]
 
-    def get_library_list(self, gitmodules=None):
+    def get_library_list(self, gitmodules):
         """
         Retrieve the full list of library data for Boost libraries from their Github
         repos.
