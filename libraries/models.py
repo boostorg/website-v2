@@ -192,7 +192,6 @@ class Library(models.Model):
     cpp_standard_minimum = models.CharField(
         max_length=50, blank=True, null=True
     )  # deprecated for LibraryVersion.cpp_standard_minimum
-    active_development = models.BooleanField(default=True, db_index=True)
     categories = models.ManyToManyField(Category, related_name="libraries")
 
     authors = models.ManyToManyField("users.User", related_name="authors")

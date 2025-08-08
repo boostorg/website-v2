@@ -751,10 +751,10 @@ class CreateReportForm(CreateReportFullForm):
         new_libraries = libraries.exclude(
             library_version__version__release_date__lte=prior_version.release_date
         ).prefetch_related("authors")
-        # TODO: we need to find a way to get the removed libraries
-        #  master vs tagged branches needs to be considered.
-        #  library active_development is not considered here, nor its state change from
-        #  active to inactive from one release to the next
+        # TODO: we may in future need to find a way to show the removed libraries, for
+        #  now it's not needed. In that case the distinction between running this on a
+        #  ReportConfiguration with a real 'version' entry vs one that instead uses 'master'
+        #  will need to be considered
         top_contributors = self._get_top_contributors_for_version(version)
         # total messages sent during this release (version)
         total_mailinglist_count = EmailData.objects.filter(version=version).aggregate(
@@ -781,11 +781,8 @@ class CreateReportForm(CreateReportFullForm):
         lines_added = LibraryVersion.objects.filter(
             version=version,
             library__in=self.library_queryset,
-            library__active_development=True,
         ).aggregate(lines=Sum("insertions"))["lines"]
 
-        # TODO:connected to above, this is probably not going to be correct for
-        #  libraries that have been removed.
         lines_removed = LibraryVersion.objects.filter(
             version=version,
             library__in=self.library_queryset,
