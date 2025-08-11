@@ -1,0 +1,34 @@
+{% load i18n %}
+
+<div id="commit_email_addresses" class="rounded bg-white dark:bg-charcoal p-4" hx-on::after-settle="setVisibility('target_modal', 'hide')">
+  <h3 class="mb-3">{% trans 'Commit Author Email Addresses' %}</h3>
+  {% if commit_email_addresses %}
+    <div>Email addresses used in library commits which are associated with your profile:</div>
+    <ul class="mt-4 list-disc">
+      {% for cea in commit_email_addresses %}
+        <li class="ml-4">
+          {{ cea.email }}
+          {% if cea.claim_verified == False %}
+            {% if cea.is_verification_email_expired %}
+            - <i class="fa-solid fa-envelope" style="opacity: 0.25" title="Verification email sent, now expired"></i>
+            {% else %}
+            - <i class="fa-solid fa-envelope" title="Verification email sent - check your email at that address"></i>
+            {% endif %}
+            - <i class="fa-solid fa-rotate-right cursor-pointer" title="Resend verification email" hx-post="{% url 'commit-author-email-verify-resend' claim_hash=cea.claim_hash %}" hx-swap="outerHTML"  title="Verification email re-sent - check your email at that address"></i>
+          {% endif %}
+          </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div>There are currently no commit author email addresses associated with your profile. Click the button below to add one.</div>
+  {% endif %}
+  <div class="mt-4">
+    <button
+      hx-get="{% url 'commit-author-email-create' %}"
+      hx-target="#modal_content_target"
+      hx-trigger="click"
+      hx-swap="innerHTML"
+      class="py-2 px-3 text-sm text-white rounded bg-orange"
+     >{% trans 'Add New Commit Author Email Address' %}</button>
+  </div>
+</div>

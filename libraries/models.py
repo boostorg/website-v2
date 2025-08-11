@@ -1,10 +1,14 @@
 import re
+import uuid
+from datetime import timedelta
 from typing import Self
 from urllib.parse import urlparse
 
 from django.core.cache import caches
 from django.db import models, transaction
 from django.db.models import Sum
+from django.urls import reverse
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.db.models.functions import Upper
@@ -111,6 +115,32 @@ class CommitAuthor(models.Model):
 class CommitAuthorEmail(models.Model):
     author = models.ForeignKey(CommitAuthor, on_delete=models.CASCADE)
     email = models.CharField(unique=True)
+    claim_hash = models.UUIDField(null=True, blank=True)
+    claim_hash_expiration = models.DateTimeField(default=timezone.now)
+    claim_verified = models.BooleanField(default=False)
+
+    def is_verification_email_expired(self):
+        return timezone.now() > self.claim_hash_expiration
+
+    def trigger_verification_email(self, request):
+        self.author.user = request.user
+        self.author.save(update_fields=["user"])
+        self.claim_hash = uuid.uuid4()
+        self.claim_hash_expiration = timezone.now() + timedelta(days=1)
+        self.save()
+
+        url = request.build_absolute_uri(
+            reverse(
+                "commit-author-email-verify",
+                kwargs={"token": self.claim_hash},
+            )
+        )
+        # here to avoid circular import
+        from .tasks import send_commit_author_email_verify_mail
+
+        send_commit_author_email_verify_mail.delay(self.email, url)
+
+        return CommitAuthorEmail.objects.filter(author__user=self.author.user)
 
     def __str__(self):
         return f"{self.author.name}: {self.email}"
