@@ -81,8 +81,12 @@
                   </div>
                 </div>
               </div>
+              {% elif dependencies_not_calculated %}
+                <div class="text-base whitespace-normal text-sm">
+                  Library dependency calculations will be generated soon, please check back later.
+                </div>
+              {% endif %}
             </div>
-          {% endif %}
         {% endif %}
 
         </div>

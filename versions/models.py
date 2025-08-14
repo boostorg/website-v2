@@ -6,6 +6,7 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 from .converters import to_url
+from .exceptions import BoostImportedDataException
 from .managers import VersionManager, VersionFileManager
 from .utils.model_validators import validate_version_name_format
 
@@ -91,6 +92,7 @@ class Version(models.Model):
                 library=library
             )
         diffs = {}
+        dependencies_count = 0
         if previous_library_versions and current_library_versions:
             prev = {x.library.name: x for x in previous_library_versions}
             current = {x.library.name: x for x in current_library_versions}
@@ -102,6 +104,7 @@ class Version(models.Model):
                 current_dep_objects = current_lv.dependencies.all()
                 old_dependencies = {x.name for x in prev_dep_objects}
                 current_dependencies = {x.name for x in current_dep_objects}
+                dependencies_count += len(current_dependencies)
                 diffs[key] = {
                     "library_id": current_lv.library_id,
                     "added": list(current_dependencies - old_dependencies),
@@ -117,6 +120,9 @@ class Version(models.Model):
                         key=lambda x: x.name.lower(),
                     ),
                 }
+        if dependencies_count == 0:
+            msg = "No dependencies found for libraries in this version."
+            raise BoostImportedDataException(msg)
         return diffs
 
     @cached_property
