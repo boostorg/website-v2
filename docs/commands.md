@@ -4,7 +4,6 @@
   - [`boost_setup`](#boost_setup)
   - [`import_versions`](#import_versions)
   - [`import_archives_release_data`](#import_archives_release_data)
-  - [`import_artifactory_release_data`](#import_artifactory_release_data)
   - [`update_libraries`](#update_libraries)
   - [`import_library_versions`](#import_library_versions)
   - [`import_library_version_docs_urls`](#import_library_version_docs_urls)
@@ -49,16 +48,16 @@ Imports `Version` objects from GitHub.
 
 **Options**
 
-| Options              | Format | Description                                                  |
-|----------------------|--------|--------------------------------------------------------------|
-| `--delete-versions`  | bool   | If passed, will delete all Version objects before importing Versions. |
-| `--new`  | bool   | If passed, will import only new Version objects. |
-| `--token`            | string | GitHub API Token. If passed, will use this value. If not passed, will use the value in settings. |
+| Options              | Format | Description                                                                                             |
+|----------------------|--------|---------------------------------------------------------------------------------------------------------|
+| `--delete-versions`  | bool   | If passed, will delete all Version objects before importing Versions.                                   |
+| `--new`              | bool   | Default: 'true'. If 'true', will import only new Version objects. Set to 'false' to import all versions |
+| `--token`            | string | GitHub API Token. If passed, will use this value. If not passed, will use the value in settings.        |
 
 **Process**
 
 - Retrieves the tags for the GitHub repo in `BASE_GITHUB_URL`
-- Loops through all tags, and discards any that do not match our inclusion logic
+- Loops through all tags, and discards any that do not match our inclusion logic, by default only versions that haven't already been imported.
 - For each successful tag, import it as a `Version` object
 - Then, run the command to the release downloads from Artifactory as `VersionFile` objects
 
@@ -76,39 +75,15 @@ Import `VersionFile` objects from Artifactory.
 
 **Options**
 
-| Options              | Format | Description                                                  |
-|----------------------|--------|--------------------------------------------------------------|
-| `--release`  | string   | Format: `boost-1.63.0`. If passed, will import Archive urls for only that version. |
+| Options    | Format | Description                                                                                                                  |
+|------------|--------|------------------------------------------------------------------------------------------------------------------------------|
+| `--new`    | bool   | Default: 'true'. If 'true', will import only the newest release data. Set to 'false' to import archive data for all releases |
+| `--release` | string   | Format: `boost-1.63.0`. If passed, will import Archive urls for only that release. Overrides --new                        |
 
 **More Information**
 
-- Loops through `Version` objects and calls the task that retrieves the Archives data with the version information
+- Loops through `Version` objects, by default only the most recent one, and calls the task that retrieves the Archives data with the version information
 - Saves the Archives JSON data as `VersionFile` objects
-
-
-## `import_artifactory_release_data`
-
-*This process was run automatically as part of `import_versions`, but has been replaced by `import_archives_release_data`.*
-
-Import `VersionFile` objects from Artifactory.
-
-**Example**
-
-```bash
-./manage.py import_artifactory_release_data
-```
-
-**Options**
-
-| Options              | Format | Description                                                  |
-|----------------------|--------|--------------------------------------------------------------|
-| `--release`  | string   | Format: `boost-1.63.0`. If passed, will import Artifactory urls for only that version. |
-
-**More Information**
-
-- Loops through `Version` objects and calls the task that retrieves the Artifactory data with the version information
-- Saves the Artifactory data as `VersionFile` objects
-
 
 ## `update_libraries`
 
@@ -138,14 +113,15 @@ Import `VersionFile` objects from Artifactory.
 
 **Options**
 
-| Options              | Format | Description                                                  |
-|----------------------|--------|--------------------------------------------------------------|
-| `--token`            | string | GitHub API Token. If passed, will use this value. If not passed, will use the value in settings. |
+| Options              | Format | Description                                                                                                                                                                            |
+|----------------------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `--token`            | string | GitHub API Token. If passed, will use this value. If not passed, will use the value in settings.                                                                                       |
 | `--release`  | string   | Format: `boost-1.63.0`. If passed, will import Artifactory urls for only that version. Partial versions are accepted (so "1.7" will import libraries for version 1.70.0, 1.71.0, etc.) |
+| `--new`    | bool   | Default: 'true'. If 'true', will import data for the newest release. Set to 'false' to import library version data for all releases                                                    |
 
 **Process**
 
-- Loops through `Version` objects based on passed-in options
+- Loops through `Version` objects based on passed-in options, by default just the most recent one.
 - For each `Version`, gets the libraries in that release from the `.gitmodules` file using the GitHub API
 - For each library listed in the `.gitmodules` file, get the complete list of libraries from the library's `meta/libraries.json` file (in its GitHub repo) using the GitHub API. (A single library repo might contain information for multiple libraries. Example: Functional also hosts Functional/Factory).
 - Save the `LibraryVersion` objects

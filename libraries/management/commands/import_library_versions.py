@@ -10,11 +10,19 @@ from versions.tasks import import_library_versions
 @click.option("--token", help="Github API token")
 @click.option("--release", help="Boost version number (example: 1.81.0)")
 @click.option(
+    "--new",
+    default=True,
+    type=click.BOOL,
+    help="Update only the library versions for the most recent version (default: True)."
+    " False processes library versions for all versions greater than or equal to"
+    " min-release.",
+)
+@click.option(
     "--min-release",
     default=settings.MINIMUM_BOOST_VERSION,
     help="Minimum Boost version to process (default: 1.31.0)",
 )
-def command(min_release: str, release: str, token: str):
+def command(min_release: str, release: str, new: bool, token: str):
     """Cycles through all Versions in the database, and for each version gets the
     corresponding tag's .gitmodules.
 
@@ -30,18 +38,22 @@ def command(min_release: str, release: str, token: str):
             number is provided, the command process all versions that contain the
             partial version number (example: "--version="1.7" would process 1.7.0,
             1.7.1, 1.7.2, etc.)
+        new (bool): If True (default), only imports library versions for the most recent
+        version, if False it processes all versions greater than or equal to min_release
+        Overridden by --release if provided.
     """
     click.secho("Saving library-version relationships...", fg="green")
 
     min_release = f"boost-{min_release}"
-    if release is None:
-        versions = Version.objects.active().filter(name__gte=min_release)
+    versions_qs = Version.objects.active().filter(name__gte=min_release)
+    if release:
+        versions = versions_qs.filter(name__icontains=release).order_by("-name")
+    elif new:
+        versions = [Version.objects.most_recent()]
     else:
-        versions = Version.objects.filter(
-            name__icontains=release, name__gte=min_release
-        )
+        versions = versions_qs.order_by("-name")
 
-    for version in versions.order_by("-name"):
+    for version in versions:
         version_type = "branch" if version.slug in settings.BOOST_BRANCHES else "tag"
         click.secho(f"Saving libraries for version {version.name}", fg="green")
         import_library_versions.delay(

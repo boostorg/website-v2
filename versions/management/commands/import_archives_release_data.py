@@ -13,26 +13,40 @@ from versions.releases import (
     get_binary_checksums,
     get_binary_download_uris_for_release,
 )
+from structlog import get_logger
+
+logger = get_logger(__name__)
 
 
 @click.command()
 @click.option("--release", is_flag=False, help="Release name")
-def command(release):
+@click.option(
+    "--new",
+    default=True,
+    type=click.BOOL,
+    help="Choose the newest version only from the db. false downloads all",
+)
+def command(release: str, new: bool):
     """
     Import release data from the Boost artifactory.
 
     This command will import the release data from the Boost artifactory for the
     specified release. If no release is specified, it will import the release data
-    for all releases included in Artifactory.
+    for the most recent release included in Artifactory. If --new is set to False,
+    it will import the release data for all releases that are greater than or equal to
+    the minimum release defined in settings.MIN_ARCHIVES_RELEASE.
     """
     last_release = settings.MIN_ARCHIVES_RELEASE
 
     if release:
         versions = Version.objects.filter(name__icontains=release)
+    elif new:
+        versions = [Version.objects.most_recent()]
     else:
         versions = Version.objects.filter(name__gte=last_release)
 
     for v in versions:
+        logger.info(f"Processing release {v.name}")
         version_num = v.name.replace("boost-", "")
         try:
             archives_urls = get_archives_download_uris_for_release(version_num)
