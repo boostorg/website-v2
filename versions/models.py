@@ -39,7 +39,10 @@ class Version(models.Model):
         "beta release or a development version",
     )
     data = models.JSONField(default=dict)
-
+    fully_imported = models.BooleanField(
+        default=False,
+        help_text="Whether this version has been fully imported and is ready for use.",
+    )
     objects = VersionManager()
 
     def __str__(self):
