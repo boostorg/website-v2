@@ -50,6 +50,9 @@ def import_versions(
         Version.objects.all().delete()
         logger.info("import_versions_deleted_all_versions")
 
+    # delete any versions that were only partially imported so they are re-imported
+    Version.objects.filter(fully_imported=False).delete()
+
     # Get all Boost tags from Github
     client = GithubAPIClient(token=token)
     tags = client.get_tags()
@@ -61,22 +64,27 @@ def import_versions(
         if skip_tag(name, new_versions_only):
             continue
 
-        logger.info("import_versions_importing_version", version_name=name)
+        logger.info(f"import_versions importing version {name=}")
         import_version_task_group.append(import_version.s(name, tag=tag, token=token))
 
     if import_version_task_group:
         task_group = group(*import_version_task_group)
         if purge_after:
             task_group.link(purge_fastly_release_cache.s())
+        task_group.link(mark_fully_completed.s())
         task_group()
     import_release_notes.delay()
 
 
 @app.task
-def import_release_notes():
+def import_release_notes(new_versions_only=True):
     """Imports release notes from the existing rendered
     release notes in the repository."""
-    for version in Version.objects.exclude(name__in=["master", "develop"]).active():
+    versions = [Version.objects.most_recent()]
+    if not new_versions_only:
+        versions = Version.objects.exclude(name__in=["master", "develop"]).active()
+
+    for version in versions:
         store_release_notes_task.delay(str(version.pk))
     store_release_notes_in_progress_task.delay()
 
@@ -477,6 +485,13 @@ def purge_fastly_release_cache():
         url = f"https://api.fastly.com/service/{service}/purge/release"
         requests.post(url, headers=headers)
         logger.info(f"Sent fastly purge request for {service=}.")
+
+
+@app.task
+def mark_fully_completed():
+    """Marks all versions as fully imported"""
+    Version.objects.filter(fully_imported=False).update(fully_imported=True)
+    logger.info("Marked all versions as fully imported.")
 
 
 # Helper functions
