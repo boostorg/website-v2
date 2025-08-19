@@ -292,6 +292,12 @@ class User(BaseUser):
             with suppress(AttributeError, MissingSource):
                 return getattr(self.image_thumbnail, "url", None)
 
+    def get_hq_image_url(self):
+        # convenience method for templates
+        if self.hq_image and self.hq_image_render:
+            with suppress(AttributeError, MissingSource):
+                return getattr(self.hq_image_render, "url", None)
+
     @property
     def github_profile_url(self):
         if not self.github_username:
