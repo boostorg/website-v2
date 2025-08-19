@@ -44,6 +44,7 @@ def avatar(
     icon_size=None,
     contributor_label=None,
     avatar_type=None,
+    use_user_hq_image=False,
 ):
     def get_commit_author_attribute(commitauthor, attribute):
         if isinstance(commitauthor, dict):
@@ -64,22 +65,27 @@ def avatar(
     }
 
     if user and commitauthor:
-        image_url = user.get_thumbnail_url() or get_commit_author_attribute(
+        std_image = user.get_thumbnail_url() or get_commit_author_attribute(
             commitauthor, "avatar_url"
         )
+        hq_image = user.get_hq_image_url()
+        use_hq_image = use_user_hq_image and hq_image
         href = user.github_profile_url or get_commit_author_attribute(
             commitauthor, "github_profile_url"
         )
         return base_avatar(
             commitauthor.display_name,
-            image_url,
+            hq_image if use_hq_image else std_image,
             href,
             **kwargs,
         )
     elif user:
+        std_image = user.get_thumbnail_url()
+        hq_image = user.get_hq_image_url()
+        use_hq_image = use_user_hq_image and hq_image
         return base_avatar(
             user.display_name,
-            user.get_thumbnail_url(),
+            hq_image if use_hq_image else std_image,
             user.github_profile_url,
             **kwargs,
         )

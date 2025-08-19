@@ -187,7 +187,7 @@ ul.slack-channels li div a:hover,
           <div class="committee_members flex flex-wrap mt-2 text-sm text-center absolute" style="">
             {% for user in committee_members|dictsort:"display_name" %}
               <figure class="w-32 m-2">
-                {% avatar user=user is_link=False image_size="w-32 h-32" icon_size="text-8xl" %}
+                {% avatar user=user is_link=False image_size="w-32 h-32" icon_size="text-8xl" use_user_hq_image=True %}
                 <figcaption class="p-1">{{user.display_name}}</figcaption>
               </figure>
             {% endfor %}
