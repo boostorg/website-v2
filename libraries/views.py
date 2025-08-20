@@ -1,4 +1,5 @@
 import datetime
+import structlog
 
 from django.contrib import messages
 from django.db.models import F, Count, Prefetch
@@ -10,6 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView
 
 from core.githubhelper import GithubAPIClient
+from versions.exceptions import BoostImportedDataException
 from versions.models import Version
 
 from .constants import README_MISSING
@@ -29,6 +31,8 @@ from .utils import (
     get_version_from_cookie,
 )
 from .constants import LATEST_RELEASE_URL_PATH_STR
+
+logger = structlog.get_logger()
 
 
 class LibraryListDispatcher(View):
@@ -239,7 +243,12 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, ContributorMixin, Deta
 
         # Populate the commit graphs
         context["commit_data_by_release"] = self.get_commit_data_by_release()
-        context["dependency_diff"] = self.get_dependency_diff(library_version)
+        try:
+            context["dependency_diff"] = self.get_dependency_diff(library_version)
+        except BoostImportedDataException:
+            logger.warning("Library version dependencies not set, need importing.")
+            context["dependency_diff"] = {}
+            context["dependencies_not_calculated"] = True
 
         # Populate the library description
         client = GithubAPIClient(repo_slug=self.object.github_repo)

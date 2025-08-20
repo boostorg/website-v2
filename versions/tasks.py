@@ -66,7 +66,9 @@ def import_versions(
 
     if import_version_task_group:
         task_group = group(*import_version_task_group)
+        logger.info(f"{purge_after=}")
         if purge_after:
+            logger.info("linking fastly purge")
             task_group.link(purge_fastly_release_cache.s())
         task_group()
     import_release_notes.delay()
@@ -461,6 +463,7 @@ def get_release_date_for_version(version_pk, commit_sha, token=None):
 
 @app.task
 def purge_fastly_release_cache():
+    logger.info("Purging Fastly cache for release pages.")
     if not settings.FASTLY_API_TOKEN or settings.FASTLY_API_TOKEN == "empty":
         logger.warning("FASTLY_API_TOKEN not found. Not purging cache.")
         return
@@ -470,11 +473,15 @@ def purge_fastly_release_cache():
         "Fastly-Soft-Purge": "1",
         "Accept": "application/json",
     }
-
-    for service in [settings.FASTLY_SERVICE, settings.FASTLY_SERVICE2]:
+    fastly_services = [settings.FASTLY_SERVICE, settings.FASTLY_SERVICE2]
+    logger.info(f"{fastly_services=}")
+    for service in fastly_services:
+        logger.info(f"Purging Fastly cache for release pages against {service=}")
         if not service or service == "empty":
+            logger.warning(f"Fastly {service=} not found. Not purging cache.")
             continue
         url = f"https://api.fastly.com/service/{service}/purge/release"
+        logger.info(f"Purging Fastly cache for {service=} at {url=}")
         requests.post(url, headers=headers)
         logger.info(f"Sent fastly purge request for {service=}.")
 

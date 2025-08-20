@@ -1,3 +1,4 @@
+import structlog
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models.query import QuerySet
 from itertools import groupby
@@ -23,7 +24,10 @@ from libraries.utils import (
     determine_selected_boost_version,
     library_doc_latest_transform,
 )
+from versions.exceptions import BoostImportedDataException
 from versions.models import Review, Version
+
+logger = structlog.get_logger()
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -66,7 +70,12 @@ class VersionDetail(BoostVersionMixin, VersionAlertMixin, DetailView):
         context["top_contributors_release"] = self.get_top_contributors_release(obj)
 
         context["documentation_url"] = obj.documentation_url
-        context["deps"] = self.get_library_version_dependencies(obj)
+        try:
+            context["deps"] = self.get_library_version_dependencies(obj)
+        except BoostImportedDataException:
+            logger.warning("Library version dependencies not set, need importing.")
+            context["deps"] = None
+            context["dependencies_not_calculated"] = True
         if context["version_str"] == LATEST_RELEASE_URL_PATH_STR:
             context["documentation_url"] = library_doc_latest_transform(
                 obj.documentation_url
