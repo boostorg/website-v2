@@ -338,9 +338,7 @@ def store_release_notes_for_version(version_pk):
         },
     )
     logger.info(
-        "store_release_notes_for_version_success",
-        rendered_content_pk=rendered_content.id,
-        version_pk=version_pk,
+        f"store_release_notes_for_version_success {rendered_content.id=} {version.name=}"
     )
     return rendered_content
 
@@ -360,10 +358,7 @@ def store_release_notes_for_in_progress():
             "content_html": stripped_content,
         },
     )
-    logger.info(
-        "store_release_notes_in_progress_success",
-        rendered_content_pk=rendered_content.id,
-    )
+    logger.info(f"store_release_notes_in_progress_success {rendered_content.id=}")
     return rendered_content
 
 
