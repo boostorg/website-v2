@@ -137,41 +137,45 @@
     </section>
     {% endif %}
 
-    {% if dependency_diff.previous_dependencies and dependency_diff.current_dependencies %}
     <section class="p-6 pt-1 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
       <h2 class="text-2xl">Dependencies</h2>
-      <div class="flex gap-x-4 gap-y-2 flex-wrap">
-        {% for dep in dependency_diff.current_dependencies %}
-          <div>
-            {{ dep.name }}
-          </div>
-        {% endfor %}
-      </div>
-
-      {% if dependency_diff.added %}
-        <h4 class="mt-3">Added</h4>
-        <div class="flex gap-x-4 flex-wrap">
+      {% if dependency_diff.previous_dependencies and dependency_diff.current_dependencies %}
+        <div class="flex gap-x-4 gap-y-2 flex-wrap">
           {% for dep in dependency_diff.current_dependencies %}
-            {% if dep.name in dependency_diff.added %}
-              <div>{{ dep.name }}</div>
-            {% endif %}
+            <div>
+              {{ dep.name }}
+            </div>
           {% endfor %}
         </div>
-      {% endif %}
 
-      {% if dependency_diff.removed %}
-        <h4 class="mt-3">Removed</h4>
-        <div class="flex gap-x-4 flex-wrap">
-          {% for dep in dependency_diff.previous_dependencies %}
-            {% if dep.name in dependency_diff.removed %}
-              <div>{{ dep.name }}</div>
-            {% endif %}
-          {% endfor %}
+        {% if dependency_diff.added %}
+          <h4 class="mt-3">Added</h4>
+          <div class="flex gap-x-4 flex-wrap">
+            {% for dep in dependency_diff.current_dependencies %}
+              {% if dep.name in dependency_diff.added %}
+                <div>{{ dep.name }}</div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if dependency_diff.removed %}
+          <h4 class="mt-3">Removed</h4>
+          <div class="flex gap-x-4 flex-wrap">
+            {% for dep in dependency_diff.previous_dependencies %}
+              {% if dep.name in dependency_diff.removed %}
+                <div>{{ dep.name }}</div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% elif dependencies_not_calculated %}
+        <div class="text-sm">
+          Library dependencies will be generated soon, please check back later.
         </div>
       {% endif %}
 
     </section>
-    {% endif %}
 
     {% if description %}
       <section id="libraryReadMe"
