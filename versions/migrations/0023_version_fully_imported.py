@@ -3,6 +3,10 @@
 from django.db import migrations, models
 
 
+def update_fully_imported(apps, schema_editor):
+    Version = apps.get_model("versions", "Version")
+    Version.objects.all().update(fully_imported=True)
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -18,4 +22,5 @@ class Migration(migrations.Migration):
                 help_text="Whether this version has been fully imported and is ready for use.",
             ),
         ),
+        migrations.RunPython(update_fully_imported, migrations.RunPython.noop),
     ]
