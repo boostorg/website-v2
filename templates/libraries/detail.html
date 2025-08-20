@@ -143,7 +143,7 @@
         <div class="flex gap-x-4 gap-y-2 flex-wrap">
           {% for dep in dependency_diff.current_dependencies %}
             <div>
-              {{ dep.name }}
+              <a href="{% url 'library-detail' version_slug=version_str library_slug=dep.slug %}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ dep.name }}</a>
             </div>
           {% endfor %}
         </div>
@@ -153,7 +153,7 @@
           <div class="flex gap-x-4 flex-wrap">
             {% for dep in dependency_diff.current_dependencies %}
               {% if dep.name in dependency_diff.added %}
-                <div>{{ dep.name }}</div>
+                <a href="{% url 'library-detail' version_slug=version_str library_slug=dep.slug %}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ dep.name }}</a>
               {% endif %}
             {% endfor %}
           </div>
@@ -164,7 +164,7 @@
           <div class="flex gap-x-4 flex-wrap">
             {% for dep in dependency_diff.previous_dependencies %}
               {% if dep.name in dependency_diff.removed %}
-                <div>{{ dep.name }}</div>
+                <a href="{% url 'library-detail' version_slug=version_str library_slug=dep.slug %}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ dep.name }}</a>
               {% endif %}
             {% endfor %}
           </div>
