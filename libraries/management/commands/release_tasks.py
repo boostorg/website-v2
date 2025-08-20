@@ -100,7 +100,7 @@ class ReleaseTasksManager:
         return self.handled_commits
 
     def import_versions(self):
-        call_command("import_versions", "--new")
+        call_command("import_versions")
         self.latest_version = Version.objects.most_recent()
 
     def import_library_versions(self):
