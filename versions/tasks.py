@@ -87,6 +87,7 @@ def import_release_notes(new_versions_only=True):
         versions = Version.objects.exclude(name__in=["master", "develop"]).active()
 
     for version in versions:
+        logger.info(f"retrieving release notes for {version.name=}")
         store_release_notes_task.delay(str(version.pk))
     store_release_notes_in_progress_task.delay()
 
@@ -97,9 +98,7 @@ def store_release_notes_task(version_pk):
     try:
         Version.objects.get(pk=version_pk)
     except Version.DoesNotExist:
-        logger.error(
-            "store_release_notes_task_version_does_not_exist", version_pk=version_pk
-        )
+        logger.error(f"store_release_notes_task_version_does_not_exist {version_pk=}")
         return
     store_release_notes_for_version(version_pk)
 
@@ -201,8 +200,11 @@ def import_most_recent_beta_release(token=None, delete_old=False):
             # Get the most recent beta version that is at least as recent as
             # the most recent stable version
             if "beta" in name and name >= most_recent_version.name:
-                logger.info("import_most_recent_beta_release", version_name=name)
+                logger.info(f"calling import_version with {name=} {tag=}")
                 import_version(name, tag, token=token, beta=True, full_release=False)
+                logger.info(f"completed import_version with {name=} {tag=}")
+                # new_versions_only='False' otherwise will only be full releases
+                import_release_notes(new_versions_only=False)
                 return
 
 
