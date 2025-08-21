@@ -7,7 +7,7 @@ A Django based website that will power a new Boost website. See the [documentati
 Links:
 
 - https://www.stage.boost.cppalliance.org/ - staging
-- https://www.boost.io/ - production
+- https://www.boost.org/ - production
 
 ---
 

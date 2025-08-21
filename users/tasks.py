@@ -84,8 +84,8 @@ def do_scheduled_user_deletions():
 @shared_task
 def send_account_deleted_email(email):
     send_mail(
-        "Your boost.io account has been deleted",
-        "Your account on boost.io has been deleted.",
+        "Your boost.org account has been deleted",
+        "Your account on boost.org has been deleted.",
         settings.DEFAULT_FROM_EMAIL,
         [email],
     )
