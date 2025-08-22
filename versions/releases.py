@@ -380,6 +380,7 @@ def store_release_downloads_for_version(version, release_data):
             - display_name (str): The name of the release file.
     """
     for data in release_data:
+        logger.info(f"Storing download data for {version.name}: {data=}")
         VersionFile.objects.update_or_create(
             version=version,
             checksum=data["checksum"],
