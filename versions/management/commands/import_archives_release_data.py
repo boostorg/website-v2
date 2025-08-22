@@ -36,6 +36,7 @@ def command(release: str, new: bool):
     it will import the release data for all releases that are greater than or equal to
     the minimum release defined in settings.MIN_ARCHIVES_RELEASE.
     """
+    logger.info(f"import_archive_release_data {release=} {new=}")
     last_release = settings.MIN_ARCHIVES_RELEASE
 
     if release:
@@ -44,21 +45,23 @@ def command(release: str, new: bool):
         versions = [Version.objects.most_recent()]
     else:
         versions = Version.objects.filter(name__gte=last_release)
+    logger.info(f"import_archive_release_data {versions=}")
 
     for v in versions:
-        logger.info(f"Processing release {v.name}")
+        logger.info(f"Processing release {v.name=}")
         version_num = v.name.replace("boost-", "")
         try:
             archives_urls = get_archives_download_uris_for_release(version_num)
             binaries_urls = get_binary_download_uris_for_release(version_num)
             file_urls = archives_urls + binaries_urls
         except requests.exceptions.HTTPError:
-            print(f"Skipping {version_num}, error retrieving release data")
+            logger.info(f"Skipping {version_num}, error retrieving release data")
             continue
 
         download_data = []
         checksums = dict()
         for url in file_urls:
+            logger.info(f"Processing {v.name=} {url=}")
             try:
                 if "/binaries/" in url:
                     if not checksums:
@@ -70,6 +73,6 @@ def command(release: str, new: bool):
             except (requests.exceptions.HTTPError, ValueError):
                 print(f"Skipping {url}; error retrieving download data")
                 continue
-
+            logger.info(f"Data for {v.name=} at {url=}: {download_data=}")
             store_release_downloads_for_version(v, download_data)
-            print(f"Stored download data for {v.name}")
+            logger.info(f"Stored download data from {url=} for {v.name}")
