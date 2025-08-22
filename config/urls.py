@@ -33,6 +33,7 @@ from core.views import (
     UserGuideTemplateView,
     BoostDevelopmentView,
     ModernizedDocsView,
+    QRCodeView,
 )
 from libraries.api import LibrarySearchView
 from libraries.views import (
@@ -116,6 +117,14 @@ urlpatterns = (
         path("feed/news.rss", RSSNewsFeed(), name="news_feed_rss"),
         path("feed/news.atom", AtomNewsFeed(), name="news_feed_atom"),
         path("LICENSE_1_0.txt", BSLView, name="license"),
+        path(
+            "qrc/<str:campaign_identifier>/", QRCodeView.as_view(), name="qr_code_root"
+        ),  # just in case
+        path(
+            "qrc/<str:campaign_identifier>/<path:main_path>",
+            QRCodeView.as_view(),
+            name="qr_code",
+        ),
         path(
             "accounts/social/signup/",
             CustomSocialSignupViewView.as_view(),
