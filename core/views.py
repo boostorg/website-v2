@@ -916,7 +916,7 @@ class QRCodeView(View):
     """
 
     def get(self, request: HttpRequest, campaign_identifier: str, main_path: str = ""):
-        absolute_url = f"{request.scheme}://{request.get_host()}{request.path}"
+        absolute_url = request.build_absolute_uri(request.path)
         referrer = request.META.get("HTTP_REFERER", "")
         user_agent = request.META.get("HTTP_USER_AGENT", "")
 
