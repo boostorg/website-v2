@@ -148,7 +148,7 @@ def import_version(
     # Get the release date for the version
     if get_release_date and not version.release_date:
         commit_sha = tag["commit"]["sha"]
-        get_release_date_for_version.delay(version.pk, commit_sha, token=token)
+        get_release_date_for_version(version.pk, commit_sha, token=token)
 
     # Load release downloads
     import_release_downloads(version.pk)
@@ -388,7 +388,7 @@ def import_library_versions(version_name, token=None, version_type="tag"):
         gc_removed_submodules.delay(library_keys, version_name)
 
     # Retrieve and store the docs url for each library-version in this release
-    get_and_store_library_version_documentation_urls_for_version.delay(version.pk)
+    get_and_store_library_version_documentation_urls_for_version(version.pk)
 
     # Load maintainers for library-versions
     call_command("update_maintainers", "--release", version.name)
