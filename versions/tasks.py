@@ -50,6 +50,9 @@ def import_versions(
         Version.objects.all().delete()
         logger.info("import_versions_deleted_all_versions")
 
+    # delete any versions that were only partially imported so they are re-imported
+    Version.objects.filter(fully_imported=False).delete()
+
     # Get all Boost tags from Github
     client = GithubAPIClient(token=token)
     tags = client.get_tags()
@@ -61,7 +64,7 @@ def import_versions(
         if skip_tag(name, new_versions_only):
             continue
 
-        logger.info("import_versions_importing_version", version_name=name)
+        logger.info(f"import_versions importing version {name=}")
         import_version_task_group.append(import_version.s(name, tag=tag, token=token))
 
     if import_version_task_group:
@@ -70,15 +73,20 @@ def import_versions(
         if purge_after:
             logger.info("linking fastly purge")
             task_group.link(purge_fastly_release_cache.s())
+        task_group.link(mark_fully_completed.s())
         task_group()
     import_release_notes.delay()
 
 
 @app.task
-def import_release_notes():
+def import_release_notes(new_versions_only=True):
     """Imports release notes from the existing rendered
     release notes in the repository."""
-    for version in Version.objects.exclude(name__in=["master", "develop"]).active():
+    versions = [Version.objects.most_recent()]
+    if not new_versions_only:
+        versions = Version.objects.exclude(name__in=["master", "develop"]).active()
+
+    for version in versions:
         store_release_notes_task.delay(str(version.pk))
     store_release_notes_in_progress_task.delay()
 
@@ -135,23 +143,12 @@ def import_version(
         },
     )
 
-    if created:
-        logger.info(
-            "import_versions_created_version",
-            version_name=name,
-            version_id=version.pk,
-        )
-    else:
-        logger.info(
-            "import_versions_updated_version",
-            version_name=name,
-            version_id=version.pk,
-        )
+    logger.info(f"import_versions_version {created=} {name=} {version.pk} ")
 
     # Get the release date for the version
     if get_release_date and not version.release_date:
         commit_sha = tag["commit"]["sha"]
-        get_release_date_for_version.delay(version.pk, commit_sha, token=token)
+        get_release_date_for_version(version.pk, commit_sha, token=token)
 
     # Load release downloads
     import_release_downloads(version.pk)
@@ -317,18 +314,12 @@ def import_library_versions(version_name, token=None, version_type="tag"):
             library_version = save_library_version_by_library_key(
                 library_name, version, gitmodule
             )
-            if library_version:
-                logger.info(
-                    "import_library_versions_by_library_key",
-                    version_name=version_name,
-                    library_name=library_name,
-                )
-            else:
-                logger.info(
-                    "import_library_versions_skipped_library",
-                    version_name=version_name,
-                    library_name=library_name,
-                )
+
+            logger.info(
+                f"import_library_versions_by_library {version_name=} "
+                f"{library_name=} {library_version=} "
+            )
+
             continue
 
         if not libraries_json:
@@ -337,11 +328,11 @@ def import_library_versions(version_name, token=None, version_type="tag"):
             library_version = save_library_version_by_library_key(
                 library_name, version, gitmodule
             )
+
             if not library_version:
                 logger.info(
-                    "import_library_versions_skipped_library",
-                    version_name=version_name,
-                    library_name=library_name,
+                    f"import_library_versions_skipped_library "
+                    f"{version_name=} {library_name=}"
                 )
             continue
 
@@ -393,11 +384,11 @@ def import_library_versions(version_name, token=None, version_type="tag"):
     # For any libraries no longer in gitmodules we want to remove master and develop
     #  references from the library_versions list.
     if version_name in ["master", "develop"]:
-        logger.info("Triggering  removed submodules garbage collection")
+        logger.info("Triggering removed submodules garbage collection")
         gc_removed_submodules.delay(library_keys, version_name)
 
     # Retrieve and store the docs url for each library-version in this release
-    get_and_store_library_version_documentation_urls_for_version.delay(version.pk)
+    get_and_store_library_version_documentation_urls_for_version(version.pk)
 
     # Load maintainers for library-versions
     call_command("update_maintainers", "--release", version.name)
@@ -405,16 +396,17 @@ def import_library_versions(version_name, token=None, version_type="tag"):
 
 @app.task
 def import_release_downloads(version_pk):
+    logger.info(f"import_release_downloads w/ {version_pk=}")
     version = Version.objects.get(pk=version_pk)
     version_num = version.name.replace("boost-", "")
     if version_num < "1.63.0":
         # Downloads are in Sourceforge for older versions, and that has
         # not been implemented yet
-        logger.info("import_release_downloads_skipped", version_name=version.name)
+        logger.info(f"import_release_downloads_skipped {version.name=}")
         return
-
+    logger.info(f"import_release_downloads starting {version.name=}")
     call_command("import_archives_release_data", release=version_num)
-    logger.info("import_release_downloads_complete", version_name=version.name)
+    logger.info(f"import_release_downloads_complete {version.name=}")
 
 
 @app.task
@@ -484,6 +476,13 @@ def purge_fastly_release_cache():
         logger.info(f"Purging Fastly cache for {service=} at {url=}")
         requests.post(url, headers=headers)
         logger.info(f"Sent fastly purge request for {service=}.")
+
+
+@app.task
+def mark_fully_completed():
+    """Marks all versions as fully imported"""
+    Version.objects.filter(fully_imported=False).update(fully_imported=True)
+    logger.info("Marked all versions as fully imported.")
 
 
 # Helper functions

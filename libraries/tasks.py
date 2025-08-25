@@ -48,6 +48,7 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
     try:
         version = Version.objects.get(pk=version_pk)
     except Version.DoesNotExist:
+        logger.error(f"Version does not exist for {version_pk=}")
         raise
 
     if version_missing_docs(version):

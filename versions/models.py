@@ -39,7 +39,10 @@ class Version(models.Model):
         "beta release or a development version",
     )
     data = models.JSONField(default=dict)
-
+    fully_imported = models.BooleanField(
+        default=False,
+        help_text="Whether this version has been fully imported and is ready for use.",
+    )
     objects = VersionManager()
 
     def __str__(self):
@@ -218,11 +221,14 @@ class VersionFile(models.Model):
     operating_system = models.CharField(
         choices=OPERATING_SYSTEM_CHOICES, max_length=15, default=Unix
     )
-    checksum = models.CharField(max_length=64, unique=True, default=None)
+    checksum = models.CharField(max_length=64, default=None)
     url = models.URLField()
     display_name = models.CharField(max_length=256, blank=True, null=True)
 
     objects = VersionFileManager()
+
+    class Meta:
+        unique_together = [["version", "checksum"]]
 
 
 # TODO: should this go in a new `reviews` app?

@@ -5,7 +5,7 @@ from versions.tasks import import_versions
 
 @click.command()
 @click.option("--delete-versions", is_flag=True, help="Delete all existing versions")
-@click.option("--new", is_flag=True, help="Only import new versions")
+@click.option("--new", default=True, help="Only import new versions")
 @click.option("--token", is_flag=False, help="Github API token")
 def command(
     delete_versions,
