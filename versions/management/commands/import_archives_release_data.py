@@ -3,6 +3,7 @@ import djclick as click
 import requests
 
 from django.conf import settings
+import structlog
 
 from versions.models import Version
 from versions.releases import (
@@ -16,6 +17,8 @@ from versions.releases import (
 from structlog import get_logger
 
 logger = get_logger(__name__)
+
+logger = structlog.get_logger()
 
 
 @click.command()
@@ -71,7 +74,7 @@ def command(release: str, new: bool):
                     data = get_archives_download_data(url)
                 download_data.append(data)
             except (requests.exceptions.HTTPError, ValueError):
-                print(f"Skipping {url}; error retrieving download data")
+                logger.warning(f"Skipping {url}; error retrieving download data")
                 continue
             logger.info(f"Data for {v.name=} at {url=}: {download_data=}")
             store_release_downloads_for_version(v, download_data)

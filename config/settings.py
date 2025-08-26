@@ -251,7 +251,19 @@ root.setLevel(logging.INFO)
 
 
 handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(jsonlogger.JsonFormatter())
+handler.setFormatter(
+    jsonlogger.JsonFormatter(
+        "%(name)s %(levelname)s %(filename)s:%(lineno)d %(message)s"
+    )
+)
+
+if LOCAL_DEVELOPMENT:
+    handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+    )
 
 root.addHandler(handler)
 
