@@ -105,6 +105,24 @@ jobs:
               echo "FASTLY_SERVICE_ID_2=${{ secrets.FASTLY_SERVICE_ID_CPPAL_DEV_2 }}" >> "$GITHUB_ENV"
           fi
 
+      - name: Determine boost latest release
+        shell: bash
+        run: |
+            set -o pipefail
+            BOOST_REPOSITORY=https://github.com/boostorg/boost
+            BOOST_LATEST_RELEASE="master"
+            # https://stackoverflow.com/questions/10649814/get-last-git-tag-from-a-remote-repo-without-cloning
+            if multiple_tags=$(git -c 'versionsort.suffix=-' ls-remote --tags --sort='-v:refname' $BOOST_REPOSITORY | cut --delimiter='/' --fields=3 ); then
+                for item in ${multiple_tags}; do
+                    if [[ ${item} =~ boost ]] && [[ ! ${item} =~ beta ]] && [[ ! ${item} =~ rc ]]; then
+                        BOOST_LATEST_RELEASE=${item}
+                        break
+                    fi
+                done
+            fi
+            echo "Discovered BOOST_LATEST_RELEASE is ${BOOST_LATEST_RELEASE}"
+            echo "BOOST_LATEST_RELEASE=${BOOST_LATEST_RELEASE}" >> "$GITHUB_ENV"
+
       - name: Git - Get Sources
         uses: actions/checkout@v4
         with:
@@ -190,7 +208,7 @@ jobs:
           set -xe
           TAG=${{ env.SHORT_SHA }}
           cd kube/boost
-          helm upgrade --install --create-namespace -n ${{ env.K8S_NAMESPACE }} -f values-${{ env.K8S_NAMESPACE }}-gke.yaml --timeout=3600s --set=Image=${DOCKER_IMAGE} --set-string ImageTag="${TAG}" ${{ env.HELM_RELEASE_NAME }} .
+          helm upgrade --install --create-namespace -n ${{ env.K8S_NAMESPACE }} -f values-${{ env.K8S_NAMESPACE }}-gke.yaml --timeout=3600s --set=Image=${DOCKER_IMAGE} --set-string boostLatestRelease=${{ env.BOOST_LATEST_RELEASE }} --set-string ImageTag="${TAG}" ${{ env.HELM_RELEASE_NAME }} .
           kubectl rollout status deployment/$DEPLOYMENT_NAME -n ${{ env.K8S_NAMESPACE }}
           kubectl get services -o wide -n ${{ env.K8S_NAMESPACE }}
 
