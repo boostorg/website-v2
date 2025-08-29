@@ -1,8 +1,11 @@
 import os
 import datetime
+from logging.config import dictConfig
 
 from celery import Celery
 from celery.schedules import crontab
+from celery.signals import setup_logging
+from pythonjsonlogger import jsonlogger
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
@@ -17,6 +20,40 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 
 # Load task modules from all registered Django apps.
 app.autodiscover_tasks()
+
+
+@setup_logging.connect
+def config_loggers(*args, **kwags):
+    """Configure Celery logging with JSON default, readable for local development."""
+    from django.conf import settings
+
+    # production
+    json_formatter = {
+        "()": jsonlogger.JsonFormatter,
+        "format": "%(name)s %(levelname)s %(filename)s:%(lineno)d %(message)s",
+    }
+    # local development
+    text_formatter = {
+        "format": "%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d - %(message)s",
+        "datefmt": "%Y-%m-%d %H:%M:%S",
+    }
+    dictConfig(
+        {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {"json": json_formatter, "text": text_formatter},
+            "handlers": {
+                "console": {
+                    "class": "logging.StreamHandler",
+                    "formatter": "text" if settings.LOCAL_DEVELOPMENT else "json",
+                },
+            },
+            "root": {
+                "level": "INFO",
+                "handlers": ["console"],
+            },
+        }
+    )
 
 
 @app.task(bind=True)
