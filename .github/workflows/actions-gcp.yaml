@@ -71,6 +71,7 @@ jobs:
           SECRET_KEY: "for-testing-only"
           REDIS_HOST: "localhost"
           CI: "true"
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           python -m pytest
 

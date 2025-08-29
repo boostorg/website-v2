@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from structlog import get_logger
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Case, Value, When
@@ -17,8 +18,11 @@ from core.validators import (
 )
 
 from . import acl
+from .constants import CONTENT_SUMMARIZATION_THRESHOLD
+from .tasks import summary_dispatcher
 
 User = get_user_model()
+logger = get_logger(__name__)
 
 
 class EntryManager(models.Manager):
@@ -86,6 +90,9 @@ class Entry(models.Model):
     approved_at = models.DateTimeField(null=True, blank=True)
     modified_at = models.DateTimeField(auto_now=True)
     publish_at = models.DateTimeField(default=now)
+    summary = models.TextField(
+        blank=True, default="", help_text="AI generated summary. Delete to regenerate."
+    )
 
     objects = EntryManager()
 
@@ -154,6 +161,21 @@ class Entry(models.Model):
             result = False
         return result
 
+    @cached_property
+    def determined_news_type(self):
+        if self.is_blogpost:
+            return "blogpost"
+        elif self.is_link:
+            return "link"
+        elif self.is_news:
+            return "news"
+        elif self.is_poll:
+            return "poll"
+        elif self.is_video:
+            return "video"
+        else:
+            return None
+
     def approve(self, user, commit=True):
         """Mark this entry as approved by the given `user`."""
         if self.is_approved:
@@ -163,10 +185,28 @@ class Entry(models.Model):
         if commit:
             self.save(update_fields=["moderator", "approved_at", "modified_at"])
 
+    @cached_property
+    def use_summary(self):
+        return self.summary and (
+            not self.content or len(self.content) > CONTENT_SUMMARIZATION_THRESHOLD
+        )
+
+    @cached_property
+    def visible_content(self):
+        if self.use_summary:
+            return self.summary
+        return self.content
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
-        return super().save(*args, **kwargs)
+        result = super().save(*args, **kwargs)
+
+        if not self.summary:
+            logger.info(f"Passing {self.pk=} to dispatcher")
+            summary_dispatcher.delay(self.pk)
+
+        return result
 
     def get_absolute_url(self):
         return reverse("news-detail", args=[self.slug])

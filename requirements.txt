@@ -2,6 +2,12 @@
 #    uv pip compile ./requirements.in --no-strip-extras --output-file ./requirements.txt
 amqp==5.3.1
     # via kombu
+annotated-types==0.7.0
+    # via pydantic
+anyio==4.10.0
+    # via
+    #   httpx
+    #   openai
 appdirs==1.4.4
     # via fs
 argon2-cffi==25.1.0
@@ -40,6 +46,8 @@ celery==5.5.3
 certifi==2025.8.3
     # via
     #   elasticsearch
+    #   httpcore
+    #   httpx
     #   minio
     #   requests
 cffi==1.17.1
@@ -82,7 +90,9 @@ decorator==5.2.1
     # via ipython
 distlib==0.4.0
     # via virtualenv
-dj-database-url==3.0.1
+distro==1.9.0
+    # via openai
+dj-database-url==2.2.0
     # via environs
 dj-email-url==1.0.6
     # via environs
@@ -179,11 +189,20 @@ greenlet==3.2.4
     #   gevent
 gunicorn==23.0.0
     # via -r ./requirements.in
-identify==2.6.13
+h11==0.16.0
+    # via httpcore
+httpcore==1.0.9
+    # via httpx
+httpx==0.28.1
+    # via openai
+identify==2.6.1
     # via pre-commit
 idna==3.10
-    # via requests
-iniconfig==2.1.0
+    # via
+    #   anyio
+    #   httpx
+    #   requests
+iniconfig==2.0.0
     # via pytest
 interrogate==1.7.0
     # via -r ./requirements.in
@@ -195,6 +214,8 @@ itsdangerous==2.2.0
     # via -r ./requirements.in
 jedi==0.19.2
     # via ipython
+jiter==0.10.0
+    # via openai
 jmespath==1.0.1
     # via
     #   boto3
@@ -236,7 +257,9 @@ oauthlib==3.3.1
     # via
     #   django-allauth
     #   django-oauth-toolkit
-packaging==25.0
+openai==1.102.0
+    # via -r ./requirements.in
+packaging==24.1
     # via
     #   black
     #   django-haystack
@@ -288,16 +311,20 @@ pycparser==2.22
     # via cffi
 pycryptodome==3.23.0
     # via minio
-pygments==2.19.2
+pydantic==2.11.7
+    # via openai
+pydantic-core==2.33.2
+    # via pydantic
+pygments==2.18.0
     # via
     #   ipython
     #   ipython-pygments-lexers
     #   pytest
-pyjwt[crypto]==2.10.1
+pyjwt[crypto]==2.9.0
     # via
     #   django-allauth
     #   redis
-pyparsing==3.2.3
+pyparsing==3.2.0
     # via matplotlib
 pytest==8.4.2
     # via
@@ -353,7 +380,11 @@ six==1.17.0
     #   python-dateutil
 slack-sdk==3.36.0
     # via -r ./requirements.in
-soupsieve==2.8
+sniffio==1.3.1
+    # via
+    #   anyio
+    #   openai
+soupsieve==2.6
     # via beautifulsoup4
 sqlparse==0.5.3
     # via django
@@ -363,16 +394,26 @@ structlog==25.4.0
     # via -r ./requirements.in
 tabulate==0.9.0
     # via interrogate
+tqdm==4.67.1
+    # via openai
 traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
 typing-extensions==4.15.0
     # via
+    #   anyio
     #   beautifulsoup4
+    #   dj-database-url
     #   ipython
     #   jwcrypto
     #   minio
+    #   openai
+    #   pydantic
+    #   pydantic-core
+    #   typing-inspection
+typing-inspection==0.4.1
+    # via pydantic
 tzdata==2025.2
     # via
     #   faker

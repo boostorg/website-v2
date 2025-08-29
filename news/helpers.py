@@ -1,18 +1,13 @@
-# import requests
-#
-# from django.conf import settings
-#
-#
-# def get_link_preview_data(link):
-#     """gets the link preview json response from LinkPreview api"""
-#     api_url = "https://api.linkpreview.net"
-#     api_key = settings.LINK_PREVIEW_API_KEY
-#     target = link
-#
-#     # TODO: Add additional field `image_size` to help validate image https://docs.linkpreview.net/#image-processing-and-validation
-#     response = requests.get(
-#         api_url,
-#         headers={'X-Linkpreview-Api-Key': api_key},
-#         params={'q': target},
-#     )
-#     return response.json()
+from bs4 import BeautifulSoup
+
+
+def extract_content(html: str) -> str:
+    soup = BeautifulSoup(html, "html.parser")
+    non_visible_tags = ["style", "script", "head", "meta", "[document]"]
+    for script_or_style in soup(non_visible_tags):
+        script_or_style.decompose()
+    text = soup.get_text(separator="\n")
+    lines = (line.strip() for line in text.splitlines())
+    # drop blank lines
+    minimized = [line for line in lines if line]
+    return "\n".join(minimized)

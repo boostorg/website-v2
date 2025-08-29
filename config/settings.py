@@ -581,3 +581,5 @@ if DEBUG_TOOLBAR:
     MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
 
 BOOST_BRANCHES = ["master", "develop"]
+OPENROUTER_URL = "https://openrouter.ai/api/v1"
+OPENROUTER_API_KEY = env("OPENROUTER_API_KEY")
