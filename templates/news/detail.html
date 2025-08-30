@@ -78,8 +78,11 @@
           {% if entry.news.attachment %}
             <a href="{{ entry.news.attachment.url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ entry.news.attachment_filename }}</a>
           {% endif %}
-
-          {{ entry.content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaks }}
+          {% with content_to_display=entry.content|default:entry.visible_content %}
+            {% if content_to_display %}
+              {{ content_to_display|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaks }}
+            {% endif %}
+          {% endwith %}
         </div>
 
         {% if entry.image %}
