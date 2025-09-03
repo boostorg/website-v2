@@ -282,6 +282,8 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
 }
 CELERY_RESULT_BACKEND_THREAD_SAFE = True
 CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER", False)
+# Reduce large amount of logging in redis. Usually 1 day.
+CELERY_TASK_RESULT_EXPIRES = 3600
 
 CACHES = {
     "default": {
@@ -300,7 +302,9 @@ CACHES = {
 ENABLE_DB_CACHE = env.bool("ENABLE_DB_CACHE", default=False)
 
 # Default interval by which to clear the static content cache
-CLEAR_STATIC_CONTENT_CACHE_DAYS = 7
+# New method: "never" clear, just overwrite, so that the id
+# field doesn't expand without bounds.
+CLEAR_STATIC_CONTENT_CACHE_DAYS = 7000
 
 # Hyperkitty
 HYPERKITTY_DATABASE_NAME = env("HYPERKITTY_DATABASE_NAME", default="")
