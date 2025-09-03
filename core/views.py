@@ -1,5 +1,7 @@
 import os
 import re
+from django.utils import timezone
+
 from urllib.parse import urljoin
 
 import requests
@@ -335,8 +337,17 @@ class BaseStaticContentTemplateView(TemplateView):
         return cached_result if cached_result else None
 
     def get_from_database(self, cache_key):
+        rendered_content_cache_time = 2628288
+        dev_docs = ["static_content_develop/", "static_content_master/"]
+        for substring in dev_docs:
+            if substring in cache_key:
+                rendered_content_cache_time = 3600
+        now = timezone.now()
+        start_time = now - timezone.timedelta(seconds=rendered_content_cache_time)
         try:
-            content_obj = RenderedContent.objects.get(cache_key=cache_key)
+            content_obj = RenderedContent.objects.filter(modified__gte=start_time).get(
+                cache_key=cache_key
+            )
             return {
                 "content": content_obj.content_html,
                 "content_type": content_obj.content_type,
