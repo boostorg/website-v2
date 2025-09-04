@@ -5,6 +5,7 @@ django-allauth
 django-allauth[socialaccount]
 django-anymail[mailgun]
 django-cors-headers
+django-countries
 django-db-geventpool
 django-extensions
 django-health-check
@@ -34,6 +35,7 @@ jsoncomment
 unidecode
 wordcloud
 lxml
+algoliasearch
 openai
 
 # Logging

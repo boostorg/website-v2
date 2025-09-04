@@ -75,6 +75,7 @@ INSTALLED_APPS += [
     "health_check.db",
     "health_check.contrib.celery",
     "imagekit",
+    "django_countries",
     # Allows authentication for Mailman
     "oauth2_provider",
     # Allauth dependencies:
@@ -584,3 +585,9 @@ if DEBUG_TOOLBAR:
 BOOST_BRANCHES = ["master", "develop"]
 OPENROUTER_URL = "https://openrouter.ai/api/v1"
 OPENROUTER_API_KEY = env("OPENROUTER_API_KEY")
+
+ALGOLIA = {
+    "app_id": env("ALGOLIA_APP_ID", None),
+    "api_key": env("ALGOLIA_API_KEY", None),
+    "region": env("ALGOLIA_APP_REGION", "us"),
+}
