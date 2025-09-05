@@ -39,6 +39,9 @@ from libraries.api import LibrarySearchView
 from libraries.views import (
     LibraryDetail,
     LibraryListDispatcher,
+    CommitAuthorEmailCreateView,
+    VerifyCommitEmailView,
+    CommitEmailResendView,
 )
 from news.feeds import AtomNewsFeed, RSSNewsFeed
 from news.views import (
@@ -230,6 +233,21 @@ urlpatterns = (
             "library/<boostversionslug:version_slug>/<slug:library_slug>/",
             LibraryDetail.as_view(),
             name="library-detail",
+        ),
+        path(
+            "libraries/commit_author_email_create/",
+            CommitAuthorEmailCreateView.as_view(),
+            name="commit-author-email-create",
+        ),
+        path(
+            "libraries/commit_author_email_verify/<str:token>/",
+            VerifyCommitEmailView.as_view(),
+            name="commit-author-email-verify",
+        ),
+        path(
+            "libraries/resend_author_email_verify/<uuid:claim_hash>/",
+            CommitEmailResendView.as_view(),
+            name="commit-author-email-verify-resend",
         ),
         # Redirect for '/libs/' legacy boost.org urls.
         re_path(

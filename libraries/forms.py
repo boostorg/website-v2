@@ -4,7 +4,7 @@ from operator import attrgetter
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 
-
+from django import forms
 from django.template.loader import render_to_string
 from django.db.models import F, Q, Count, OuterRef, Sum, When, Value, Case
 from django.forms import Form, ModelChoiceField, ModelForm, BooleanField
@@ -23,6 +23,7 @@ from .models import (
     Issue,
     Library,
     LibraryVersion,
+    CommitAuthorEmail,
 )
 from libraries.constants import SUB_LIBRARIES
 from mailing_list.models import EmailData
@@ -861,3 +862,41 @@ class CreateReportForm(CreateReportFullForm):
             "slack_channels": slack_channels,
             "slack": slack_stats,
         }
+
+
+class CommitAuthorEmailForm(Form):
+    """
+    This model is used to allow developers to claim a commit author
+    by email address.
+    """
+
+    email = forms.EmailField()
+
+    class Meta:
+        fields = ["email"]
+
+    def clean_email(self):
+        """Emails should have been created by the commit import process, so we need to
+        ensure the email exists."""
+        email = self.cleaned_data.get("email")
+        commit_author_email = CommitAuthorEmail.objects.filter(
+            email_iexact=email
+        ).first()
+        msg = None
+
+        if not commit_author_email:
+            msg = "Email address is not associated with any commits."
+        elif commit_author_email.author.user is not None:
+            msg = (
+                "This email address is already associated with a user. Report an "
+                "issue if this is incorrect."
+            )
+        elif commit_author_email.claim_verified:
+            msg = (
+                "This email address has already been claimed and verified. Report an"
+                " issue if this is incorrect."
+            )
+        if msg:
+            raise forms.ValidationError(msg)
+
+        return email

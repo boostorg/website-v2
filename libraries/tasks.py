@@ -1,4 +1,5 @@
 from celery import shared_task, chain
+from django.core.mail import EmailMultiAlternatives
 from django.core.management import call_command
 import structlog
 
@@ -359,3 +360,29 @@ def update_commit_author_user(author_id: int):
         email.author.user = user
         email.author.save()
         logger.info(f"Linked {user=} {user.pk=} to {email=} {email.author.pk=}")
+
+
+@shared_task
+def send_commit_author_email_verify_mail(commit_author_email, url):
+    logger.info(f"Sending verification email to {commit_author_email} with {url=}")
+
+    text_content = (
+        "Please verify your email address by clicking the following link: \n"
+        f"\n\n {url}\n\n If you did not request a commit author verification "
+        "you can safely ignore this email.\n"
+    )
+    html_content = (
+        "<p>Please verify your email address at the following link:</p>"
+        f"<p><a href='{url}'>Verify Email</a></p>"
+        "<p>If you did not request a commit author verification you can safely ignore "
+        "this email.</p>"
+    )
+    msg = EmailMultiAlternatives(
+        subject="Please verify your email address",
+        body=text_content,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[commit_author_email],
+    )
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
+    logger.info(f"Verification email to {commit_author_email} sent")

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<h1 class="text-3xl my-2">Commit Author Email Address Confirmation</h1>
+{% if confirmed %}
+  <div class="py-2">Your email address has been successfully confirmed, and your account is now associated with {{commit_email}}</div>
+{% else %}
+   <div class="py-2">Your email address could not be confirmed. {{ reason_failed }}</div>
+{% endif %}
+{% endblock %}
+{% block footer_js %}
+{% endblock %}
