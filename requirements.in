@@ -13,18 +13,18 @@ django-oauth-toolkit
 django-redis
 django-rest-auth
 django-widget-tweaks
-djangorestframework>=3.14
+djangorestframework
 environs[django]
-greenlet==3.0.3
+greenlet
 psycogreen
-gevent==24.2.1
+gevent
 gunicorn
 interrogate
 itsdangerous
 psycopg2-binary
 whitenoise
 django-click
-Pillow==10.2.0
+Pillow
 python-dateutil
 django-storages
 wheel
@@ -41,8 +41,8 @@ python-json-logger
 structlog
 
 # Celery
-celery==5.4.0
-redis==5.0.8
+celery
+redis>=5,<6
 
 # Testing
 Faker
@@ -59,16 +59,18 @@ pytest-django
 responses
 
 # Packaging
-uv>=0.2.27,<0.3
+uv
 
 # Parsing content from external sources (like S3)
 mistletoe
 python-frontmatter
 beautifulsoup4
 
-django-haystack>=3.2
+# used in old mailinglist migrations, squash them and this can probably be removed
 django-mptt==0.14
-elasticsearch==7.17.9
+# used by mailman/hyperkitty
+django-haystack
+elasticsearch>7,<8
 
 # Github
 ghapi
