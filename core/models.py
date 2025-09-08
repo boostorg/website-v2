@@ -72,7 +72,7 @@ class SiteSettings(models.Model):
             # check constraint to only allow id=1 to exist
             models.CheckConstraint(
                 name="%(app_label)s_%(class)s_single_instance",
-                check=models.Q(id=1),
+                condition=models.Q(id=1),
             ),
         ]
         verbose_name_plural = "Site Settings"

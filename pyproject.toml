@@ -6,7 +6,7 @@ whitelist-regex = ["test_.*"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py311"
+target-version = "py313"
 
 [tool.black]
 line-length = 88

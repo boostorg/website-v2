@@ -1,5 +1,5 @@
 default_language_version:
-  python: python3.11
+  python: python3.13
 
 exclude: .*migrations\/.*|static\/img\/.*|static\/animations\/.*|static\/js\/boost-gecko\/.*|kube\/boost\/templates\/.*\.yaml
 
@@ -8,7 +8,7 @@ repos:
     rev: "1.27.0"
     hooks:
       - id: django-upgrade
-        args: [--target-version, "4.2"]   # Replace with Django version
+        args: [--target-version, "5.2"]   # Replace with Django version
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:

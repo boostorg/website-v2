@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="sitesettings",
             constraint=models.CheckConstraint(
-                check=models.Q(("id", 1)), name="core_sitesettings_single_instance"
+                condition=models.Q(("id", 1)), name="core_sitesettings_single_instance"
             ),
         ),
         migrations.AlterModelOptions(
