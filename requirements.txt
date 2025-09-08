@@ -98,7 +98,7 @@ dj-database-url==2.2.0
     # via environs
 dj-email-url==1.0.6
     # via environs
-django==4.2.24
+django==5.2.6
     # via
     #   -r ./requirements.in
     #   dj-database-url
@@ -113,7 +113,6 @@ django==4.2.24
     #   django-js-asset
     #   django-oauth-toolkit
     #   django-redis
-    #   django-rest-auth
     #   django-storages
     #   djangorestframework
     #   model-bakery
@@ -151,20 +150,18 @@ django-oauth-toolkit==3.0.1
     # via -r ./requirements.in
 django-redis==6.0.0
     # via -r ./requirements.in
-django-rest-auth==0.9.5
-    # via -r ./requirements.in
 django-storages==1.14.6
     # via -r ./requirements.in
 django-test-plus==2.3.0
     # via -r ./requirements.in
 django-tracer==0.9.3
     # via -r ./requirements.in
+django-upgrade==1.28.0
+    # via -r ./requirements.in
 django-widget-tweaks==1.5.0
     # via -r ./requirements.in
 djangorestframework==3.16.1
-    # via
-    #   -r ./requirements.in
-    #   django-rest-auth
+    # via -r ./requirements.in
 elasticsearch==7.17.12
     # via -r ./requirements.in
 environs[django]==14.3.0
@@ -377,7 +374,6 @@ setuptools==80.9.0
 six==1.17.0
     # via
     #   django-bakery
-    #   django-rest-auth
     #   fs
     #   python-dateutil
 slack-sdk==3.36.0
@@ -396,6 +392,8 @@ structlog==25.4.0
     # via -r ./requirements.in
 tabulate==0.9.0
     # via interrogate
+tokenize-rt==6.2.0
+    # via django-upgrade
 tqdm==4.67.1
     # via openai
 traitlets==5.14.3

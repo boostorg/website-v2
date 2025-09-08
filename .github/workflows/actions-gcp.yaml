@@ -25,7 +25,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:12
+        image: postgres:16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -44,10 +44,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: 3.13
 
       - uses: actions/cache@v4
         with:
@@ -133,10 +133,10 @@ jobs:
         run: |
           git fetch --depth=1 origin +refs/tags/*:refs/tags/* || true
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: 3.13
 
       - name: Install Python dependencies
         run: |
