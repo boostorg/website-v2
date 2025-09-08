@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from django.contrib.syndication.views import Feed
 from django.utils.feedgenerator import Atom1Feed
-from django.utils.timezone import make_aware, utc
+from django.utils.timezone import make_aware
 from django.utils.html import urlize, linebreaks
 
 from .models import Entry
@@ -22,7 +22,7 @@ class RSSNewsFeed(Feed):
         publish_date = item.publish_at
         if publish_date:
             datetime_obj = datetime.combine(publish_date, datetime.min.time())
-            aware_datetime_obj = make_aware(datetime_obj, timezone=utc)
+            aware_datetime_obj = make_aware(datetime_obj, timezone=timezone.utc)
             return aware_datetime_obj
 
     def item_description(self, item):

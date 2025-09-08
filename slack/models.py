@@ -61,7 +61,7 @@ class ChannelUpdateGap(models.Model):
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=models.lookups.GreaterThan(
+                condition=models.lookups.GreaterThan(
                     models.functions.Cast(
                         "newest_message_ts", output_field=models.FloatField()
                     ),
@@ -110,7 +110,7 @@ class Thread(models.Model):
         unique_together = [("channel", "thread_ts")]
         constraints = [
             models.CheckConstraint(
-                check=models.lookups.GreaterThanOrEqual(
+                condition=models.lookups.GreaterThanOrEqual(
                     models.functions.Cast(
                         "last_update_ts", output_field=models.FloatField()
                     ),

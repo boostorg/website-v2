@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:experimental
 
-FROM python:3.11-slim AS builder-py
+FROM python:3.13-slim AS builder-py
 
 ARG LOCAL_DEVELOPMENT
 
@@ -42,7 +42,7 @@ RUN yarn build
 
 
 # Final image.
-FROM python:3.11-slim AS release
+FROM python:3.13-slim AS release
 
 RUN apt update && apt install -y git libpq-dev ruby ruby-dev && rm -rf /var/lib/apt/lists/*
 

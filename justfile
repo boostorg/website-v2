@@ -1,6 +1,7 @@
 set dotenv-load := false
 COMPOSE_FILE := "docker-compose.yml"
 ENV_FILE := ".env"
+DJANGO_VERSION := "5.2"
 
 @_default:
     just --list
@@ -121,6 +122,10 @@ alias shell := console
         gcloud auth application-default login; \
     fi
     @cd development-tofu; direnv allow && tofu destroy
+
+@run-django-upgrade:
+    [ -n "${VIRTUAL_ENV-}" ] || { echo "❌ Activate your venv first."; exit 1; }
+    -git ls-files -z -- '*.py' | xargs -0r django-upgrade --target {{DJANGO_VERSION}}
 
 # Dependency management
 @pip-compile ARGS='':  ## rebuilds our pip requirements

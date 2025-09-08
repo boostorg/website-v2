@@ -20,10 +20,8 @@ def get_calendar(min_time=None, single_events=True, order_by="startTime"):
     https://developers.google.com/calendar/api/v3/reference/events/list
     """
     if not min_time:
-        min_time = (
-            datetime.datetime.utcnow().isoformat() + "Z"
-        )  # 'Z' indicates UTC time
-
+        # 'Z' indicates UTC time
+        min_time = datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z"
     url = f"https://www.googleapis.com/calendar/v3/calendars/{settings.BOOST_CALENDAR}/events?key={settings.CALENDAR_API_KEY}&timeMin={min_time}&singleEvents={single_events}&orderBy={order_by}"
 
     headers = {"Accept": "application/json"}
