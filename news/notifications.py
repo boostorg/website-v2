@@ -60,7 +60,7 @@ def generate_magic_approval_link(entry_slug: str, moderator_id: int):
 def send_email_news_needs_moderation(request, entry):
     recipient_list = [
         u
-        for u in moderators().select_related("preferences").only("email")
+        for u in moderators().select_related("preferences").only("email", "preferences")
         if entry.tag in u.preferences.allow_notification_others_news_needs_moderation
     ]
     if not recipient_list:

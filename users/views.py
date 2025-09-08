@@ -330,7 +330,7 @@ class UserAvatar(TemplateView):
         ):
             # check if user is on pages that require CSRF but don't require login
             # (auth pages where anonymous users submit forms)
-            referer = self.request.META.get("HTTP_REFERER", "")
+            referer = self.request.headers.get("referer", "")
             current_path = self.request.path
 
             # paths that anonymous users can access and have forms
