@@ -348,10 +348,16 @@ class BaseStaticContentTemplateView(TemplateView):
             content_obj = RenderedContent.objects.filter(modified__gte=start_time).get(
                 cache_key=cache_key
             )
-            return {
+            result = {
                 "content": content_obj.content_html,
                 "content_type": content_obj.content_type,
             }
+            if content_obj.content_type.startswith("text/html"):
+                result["redirect"] = get_meta_redirect_from_html(
+                    content_obj.content_html
+                )
+
+            return result
         except RenderedContent.DoesNotExist:
             return None
 
