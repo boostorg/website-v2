@@ -25,7 +25,7 @@
  * The framework supports these main documentation templates:
  *
  * 1. AsciiDoctor Template:
- * example: https://www.boost.org/doc/libs/1_87_0/libs/charconv/doc/html/charconv.html
+ * example: https://www.boost.io/doc/libs/1_87_0/libs/charconv/doc/html/charconv.html
  * <div class="boostlook">
  *   <div class="header">
  *     <h1>Title</h1>
@@ -41,7 +41,7 @@
  * </div>
  *
  * 2. Antora Template:
- * example: https://www.boost.org/doc/libs/1_87_0/doc/antora/url/index.html
+ * example: https://www.boost.io/doc/libs/1_87_0/doc/antora/url/index.html
  * <div class="boostlook">
  *   <div id="header">
  *     <div id="toc" class="nav-container toc2">Navigation</div>
@@ -57,7 +57,7 @@
  * </div>
  *
  * 3. Quickbook Template:
- * example: https://www.boost.org/doc/libs/1_87_0/doc/html/accumulators.html
+ * example: https://www.boost.io/doc/libs/1_87_0/doc/html/accumulators.html
  * <div class="boostlook">
  *    <div class="spirit-nav">Navigation</div>
  *    <div class="chapter">  <!-- might also be .section, .refentry, .document, or .book -->
@@ -69,7 +69,7 @@
  * </div>
  *
  * 4. README Template:
- * example: https://www.boost.org/library/1.87.0/beast/
+ * example: https://www.boost.io/library/1.87.0/beast/
  * <section id="libraryReadMe" class="boostlook">ReadMe Content</section>
  */
 
@@ -742,9 +742,9 @@ html:has(.boostlook) {
   font-variation-settings: "wght" 400, "wdth" 62.5;
   font-display: block;
   /* Prevents FOIT */
-  src: url("/static/font/notosans_mono_ext.woff") format("woff"),
-  url("../../../../tools/boostlook/notosans_mono_ext.woff") format("woff"),
-  url("https://cppalliance.org/fonts/NotoSansMono.ttf") format("truetype");
+  src: url("/static/font/notosans_ext.woff2") format("woff2"),
+  url("../../../../tools/boostlook/notosans_ext.woff2") format("woff2"),
+  url("https://cppalliance.org/fonts/NotoSansDisplay-Italic.ttf") format("truetype");
 }
 
 /* Noto Sans Mono - Variable Weight */
