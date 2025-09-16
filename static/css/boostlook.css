@@ -1258,12 +1258,6 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   cursor: pointer;
 }
 
-/* Link States */
-.boostlook p a:visited:not(:hover),
-.boostlook table a:visited:not(:hover) {
-  color: var(--text-main-text-body-tetriary, #62676b);
-}
-
 /* Emphasis within code */
 .boostlook em,
 .boostlook code em {
