@@ -380,8 +380,8 @@ class BaseStaticContentTemplateView(TemplateView):
 
         # Check if the content is an HTML file. If so, check for a meta redirect.
         if content_type.startswith("text/html"):
-            result["redirect"] = get_meta_redirect_from_html(content)
-            if not result.get("redirect") and "spirit-nav".encode() not in content:
+            has_redirect = get_meta_redirect_from_html(content)
+            if not has_redirect and "spirit-nav".encode() not in content:
                 # Yes, this is a little gross, but it's the best we could think of.
                 # The 'assert', 'url' libraries (1.89) are examples that set this,
                 # is essentially everything that's not an antoradoc. Perfect is the
@@ -554,6 +554,8 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         result = self.get_from_database(cache_key)
         if not result and (result := self.get_from_s3(content_path)):
             self.save_to_database(cache_key, result)
+
+        result["redirect"] = get_meta_redirect_from_html(result["content"])
 
         if result is None:
             logger.info(
