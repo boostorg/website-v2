@@ -16,21 +16,27 @@
 
 set -e
 
-# Set this:
-base_folder=/opt/github
+base_folder=$HOME/github-automation
+github_organization="boostorg"
+list_of_repos="${github_organization}/boostlook ${github_organization}/website-v2-docs ${github_organization}/website-v2"
 
-list_of_repos="boostorg/boostlook boostorg/website-v2-docs boostorg/website-v2"
+mkdir -p ${base_folder}/${github_organization}
+cd ${base_folder}/${github_organization}
+echo "It's recommended to not modify anything in this directory." > README.md
+echo "It will be reserved for automation scripts." >> README.md
+echo "During day to day work use any other directories such as $HOME/github, /opt/, $HOME/opt/ etc." >> README.md
 
 for repo in ${list_of_repos}; do
+    echo ""
+    echo "====================================="
+    echo "REPOSITORY: ${repo}"
+    echo "====================================="
+    echo ""
+    cd ${base_folder}/${github_organization}
     repo_dir="${base_folder}/${repo}"
     if [ ! -d "${repo_dir}" ]; then
-        echo "The directory of ${repo} does not exist at ${repo_dir}."
-        echo "This script assumes you have already checked out the codebase locally."
-        echo "Check if you have configured the variable base_folder correctly."
-        echo "Exiting."
-        exit 1
+        git clone -b develop https://github.com/$repo
     fi
-
     cd "${repo_dir}"
 
     echo "checking 'git diff'"
@@ -86,7 +92,7 @@ for repo in ${list_of_repos}; do
     echo "Running 'git push' from the master branch"
     git push
 
-    if [ "$repo" = "boostorg/boostlook" ]; then
+    if [ "$repo" = "${github_organization}/boostlook" ]; then
         echo "Deployed boostlook. Waiting 5 minutes before proceeding, since that triggers github actions on other repos."
         echo "This step may be adjusted later."
         sleep 300
