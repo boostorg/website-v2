@@ -15,6 +15,7 @@ from pygments.formatter import Formatter
 from pygments.lexers import get_lexer_by_name as get_lexer
 from pygments.lexers import guess_lexer
 from pygments.util import get_bool_opt
+from requests.compat import chardet
 
 logger = structlog.get_logger()
 
@@ -23,6 +24,10 @@ def extract_file_data(response, s3_key):
     """Extracts the file content, content type, and last modified date from an S3
     response object."""
     file_content = response["Body"].read()
+    detected_encoding = chardet.detect(file_content)["encoding"] or "utf-8"
+    # decoding here stops django debug toolbar erroring on non-utf-8, e.g. preprocessor
+    if detected_encoding != "utf-8":
+        file_content = file_content.decode(detected_encoding).encode("utf-8")
     content_type = get_content_type(s3_key, response["ContentType"])
     last_modified = response["LastModified"]
     return {
