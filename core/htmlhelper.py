@@ -1,12 +1,20 @@
 import re
 
 from bs4 import BeautifulSoup, Comment, Tag
+from django.http import HttpHeaders
 from django.template.loader import render_to_string
 from django.templatetags.static import static
-from lxml import html
+from structlog import get_logger
 
 from core.boostrenderer import get_body_from_html
-from core.constants import SourceDocType
+from core.constants import (
+    SourceDocType,
+    NO_PROCESS_LIBS,
+    NO_WRAPPER_LIBS,
+    FULLY_MODERNIZED_LIB_VERSIONS,
+)
+
+logger = get_logger()
 
 # List HTML elements (with relevant attributes) to remove the FIRST occurrence
 REMOVE_TAGS = [
@@ -154,44 +162,33 @@ def wrap_main_body_elements(
 
 
 def modernize_legacy_page(
-    content,
-    base_html,
-    head_selector="head",
-    insert_body=True,
+    soup: BeautifulSoup,
+    base_html: str,
+    head_selector: str | dict[str, str] = "head",
+    insert_body: bool = True,
     original_docs_type: SourceDocType | None = None,
-    skip_replace_boostlook=False,
-    show_footer=True,
-    show_navbar=True,
-):
+    skip_replace_boostlook: bool = False,
+    show_footer: bool = True,
+    show_navbar: bool = True,
+) -> str:
     """Modernize a legacy Boost documentation page."""
     HIDE_TAGS_BASE = []
     if not show_navbar:
         HIDE_TAGS_BASE.append(("div", {"class": "header-menu-bar topnavbar"})),
 
-    result = BeautifulSoup(content, "html.parser")
-    if result.html is None:
+    if soup.html is None:
         # Not an HTML file we care about
-        return content
-    # Remove the first occurrence of legacy header(s) and other stuff
-    for tag_name, tag_attrs in REMOVE_TAGS:
-        tag = result.find(tag_name, tag_attrs)
-        if tag:
-            tag.decompose()
-
-    # Remove all navbar-like divs, if any
-    for tag_name, tag_attrs in REMOVE_ALL:
-        for tag in result.find_all(tag_name, tag_attrs):
-            tag.decompose()
+        return soup.prettify(formatter="html")
 
     # Remove CSS classes that produce visual harm
     for tag_name, tag_attrs in REMOVE_CSS_CLASSES:
-        for tag in result.find_all(tag_name, tag_attrs):
+        for tag in soup.find_all(tag_name, tag_attrs):
             tag.attrs.pop("class")
 
-    result = convert_name_to_id(result)
+    soup = convert_name_to_id(soup)
     if not skip_replace_boostlook:
-        result = remove_library_boostlook(result)
-    result = remove_embedded_boostlook(result)
+        soup = remove_library_boostlook(soup)
+    soup = remove_embedded_boostlook(soup)
 
     # Use the base HTML to later extract the <head> and (part of) the <body>
     placeholder = BeautifulSoup(base_html, "html.parser")
@@ -204,9 +201,9 @@ def modernize_legacy_page(
 
     if target_head:
         # Append the <head> taken from the base HTML to the existing (legacy) head
-        _insert_head(result, target_head)
+        _insert_head(soup, target_head)
 
-    original_body = result.body
+    original_body = soup.body
     if original_body is None:
         pass
     elif placeholder.body is not None:
@@ -214,52 +211,46 @@ def modernize_legacy_page(
             # Beautify the legacy body with structure and classes from the
             # modern one, and embed the original body into a:
             # <div id="boost-legacy-docs-body"></div> block
-            _replace_body(result, original_body, base_body=placeholder.body)
+            _replace_body(soup, original_body, base_body=placeholder.body)
         else:
             _insert_in_doc(
-                result.body,
+                soup.body,
                 placeholder.find("div", {"id": "boost-legacy-docs-header"}),
                 append=False,
             )
-            wrap_main_body_elements(result, original_docs_type)
+            wrap_main_body_elements(soup, original_docs_type)
             if show_footer:
                 rendered_template = render_to_string("includes/_footer.html", {})
                 rendered_template_as_dom = BeautifulSoup(
                     rendered_template, "html.parser"
                 )
-                result.append(rendered_template_as_dom)
+                soup.append(rendered_template_as_dom)
 
     # Remove tags from the base template
-    result = hide_tags(result, HIDE_TAGS_BASE)
+    soup = hide_tags(soup, HIDE_TAGS_BASE)
 
-    content = str(result)
+    return soup.prettify(formatter="html")
 
+
+def minimize_uris(content: str) -> str:
     # Replace all links to boost.org with a local link
     content = content.replace("https://www.boost.org/doc/libs/", "/doc/libs/")
-
     return content
 
 
-def slightly_modernize_legacy_library_doc_page(content):
-    """Modernize a legacy Boost library documentation page, but only minimally."""
-    try:
-        root = html.fromstring(content)
-    except Exception:
-        return content  # Not valid HTML
+def remove_unwanted(content: BeautifulSoup) -> BeautifulSoup:
+    # Remove the first occurrence of legacy header(s) and other stuff
+    for tag_name, tag_attrs in REMOVE_TAGS:
+        tag = content.find(tag_name, tag_attrs)
+        if tag:
+            tag.decompose()
 
-    for tag_name, attrs in REMOVE_TAGS:
-        xpath = build_xpath(tag_name, attrs)
-        elements = root.xpath(xpath)
-        if elements:
-            elements[0].getparent().remove(elements[0])  # Remove only first
+    # Remove all navbar-like divs, if any
+    for tag_name, tag_attrs in REMOVE_ALL:
+        for tag in content.find_all(tag_name, tag_attrs):
+            tag.decompose()
 
-    for tag_name, attrs in REMOVE_ALL:
-        xpath = build_xpath(tag_name, attrs)
-        for el in root.xpath(xpath):
-            el.getparent().remove(el)
-
-    content = html.tostring(root, encoding="unicode", method="html")
-    return content.replace("https://www.boost.org/doc/libs/", "/doc/libs/")
+    return content
 
 
 def build_xpath(tag, attrs):
@@ -746,3 +737,36 @@ def modernize_release_notes(html_content):
     # Replace all links to boost.org with a local link
     content = result.replace("https://www.boost.org/doc/libs/", "/docs/libs/")
     return get_body_from_html(content)
+
+
+def is_in_no_process_libs(path: str) -> bool:
+    return any(lib_slug in path for lib_slug in NO_PROCESS_LIBS)
+
+
+def is_in_fully_modernized_libs(path: str) -> bool:
+    return any(lib_slug in path for lib_slug in FULLY_MODERNIZED_LIB_VERSIONS)
+
+
+def is_in_no_wrapper_libs(path: str) -> bool:
+    return any(lib_slug in path for lib_slug in NO_WRAPPER_LIBS)
+
+
+def is_managed_content_type(content_type: str) -> bool:
+    passthrough_types = [
+        "text/html",
+        "text/html; charset=utf-8",
+    ]
+    for t in passthrough_types:
+        if t in content_type:
+            return True
+    return False
+    # return ("text/html" or "text/html; charset=utf-8") not in content_type
+
+
+def is_valid_modernize_value(modernize: str) -> bool:
+    return modernize in ("max", "med", "min")
+
+
+def get_is_iframe_destination(headers: HttpHeaders) -> bool:
+    # Is the request coming from an iframe? If so, let's disable the modernization.
+    return headers.get("Sec-Fetch-Dest", "") in ["iframe", "frame"]
