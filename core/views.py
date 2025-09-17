@@ -28,7 +28,7 @@ from requests.compat import chardet
 
 from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
-from libraries.utils import legacy_path_transform
+from libraries.utils import legacy_path_transform, generate_canonical_library_uri
 from versions.models import Version
 
 from .asciidoc import convert_adoc_to_html
@@ -53,6 +53,7 @@ from .htmlhelper import (
     get_is_iframe_destination,
     remove_unwanted,
     minimize_uris,
+    add_canonical_link,
 )
 from .markdown import process_md
 from .models import RenderedContent
@@ -497,6 +498,8 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         ):
             return content
         # everything from this point should be html
+        req_uri = self.request.build_absolute_uri()
+        canonical_uri = generate_canonical_library_uri(req_uri)
 
         # this decode is needed for some libraries, e.g. assert
         content = content.decode(chardet.detect(content)["encoding"])
@@ -504,13 +507,14 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
 
         # handle libraries that expect no processing
         if is_in_no_process_libs(self.request.path):
-            soup = self._required_content_changes(soup)
+            soup = self._required_content_changes(soup, canonical_uri=canonical_uri)
             return str(soup)
 
         soup = self._required_modernization_changes(soup)
 
         context = {
             "content": str(soup.prettify()),
+            "canonical_uri": canonical_uri if canonical_uri != req_uri else None,
         }
         template_name = "original_docs.html"
 
@@ -562,10 +566,14 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         return result
 
     @staticmethod
-    def _required_content_changes(content: BeautifulSoup) -> BeautifulSoup:
+    def _required_content_changes(
+        content: BeautifulSoup, canonical_uri: str = None
+    ) -> BeautifulSoup:
         """
         Processing for all html content, things that apply no matter the source
         """
+        if canonical_uri:
+            content = add_canonical_link(content, canonical_uri)
 
         return content
 

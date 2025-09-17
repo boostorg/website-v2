@@ -8,6 +8,7 @@
     <link href="{% static 'css/header.css' %}">
     <script defer data-domain="boost.org" src="https://plausible.io/js/script.manual.js"></script>
     <script src="{% static 'js/boost-gecko/main.C3hPHS6-.js' %}" defer></script>
+    {% if canonical_uri %}<link rel="canonical" href="{{ canonical_uri }}">{% endif %}
   </head>
   <style>
     body {

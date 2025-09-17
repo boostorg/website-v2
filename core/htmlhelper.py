@@ -49,6 +49,8 @@ REMOVE_TAGS = [
     ("table", {"cellpadding": "2", "width": "100%"}),
     # Remove the first hr from the page
     ("hr", {}),
+    # remove canonical tags
+    ("link", {"rel": "canonical"}),
 ]
 
 # these tags are only removed on the release page, update REMOVE_TAGS for all pages
@@ -333,6 +335,14 @@ def remove_library_boostlook(soup):
         ):
             tag.decompose()
 
+    return soup
+
+
+def add_canonical_link(soup, canonical_uri):
+    """Add a canonical link to the head of the document."""
+    if canonical_uri and soup.head:
+        canonical_link = soup.new_tag("link", rel="canonical", href=canonical_uri)
+        soup.head.append(canonical_link)
     return soup
 
 

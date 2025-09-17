@@ -65,7 +65,7 @@ def _build_tag(tag_name, tag_attrs, inner="Something"):
     tag = f"<{tag_name}"
     if tag_attrs:
         tag += " " + " ".join(f'{k}="{v}"' for k, v in tag_attrs.items())
-    if tag_name == "img":
+    if tag_name in ["img", "link"]:
         tag += "/>"
     elif tag_name == "hr":
         tag += ">"
