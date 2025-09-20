@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 import requests
 import structlog
 from bs4 import BeautifulSoup
+import chardet
 from dateutil.parser import parse
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -24,7 +25,6 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
-from requests.compat import chardet
 
 from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR

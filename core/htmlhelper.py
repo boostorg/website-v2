@@ -770,7 +770,6 @@ def is_managed_content_type(content_type: str) -> bool:
         if t in content_type:
             return True
     return False
-    # return ("text/html" or "text/html; charset=utf-8") not in content_type
 
 
 def is_valid_modernize_value(modernize: str) -> bool:

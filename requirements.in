@@ -76,3 +76,4 @@ elasticsearch>7,<8
 ghapi
 requests
 slack_sdk
+chardet

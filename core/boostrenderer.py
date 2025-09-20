@@ -7,6 +7,7 @@ import boto3
 import structlog
 from botocore.exceptions import ClientError
 from bs4 import BeautifulSoup, Tag
+import chardet
 from django.conf import settings
 from mistletoe import HtmlRenderer
 from mistletoe.span_token import SpanToken
@@ -15,7 +16,6 @@ from pygments.formatter import Formatter
 from pygments.lexers import get_lexer_by_name as get_lexer
 from pygments.lexers import guess_lexer
 from pygments.util import get_bool_opt
-from requests.compat import chardet
 
 logger = structlog.get_logger()
 
