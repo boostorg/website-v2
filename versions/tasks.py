@@ -375,6 +375,7 @@ def import_library_versions(version_name, token=None, version_type="tag"):
                 defaults={
                     "data": lib_data,
                     "cpp_standard_minimum": lib_data.get("cxxstd"),
+                    "cpp20_module_support": lib_data.get("cpp20_module_support"),
                     "description": lib_data.get("description"),
                 },
             )

@@ -21,12 +21,17 @@ onclick="window.location='{% url 'library-detail' library_slug=library_version.l
     <p class="mb-3 text-gray-700 dark:text-gray-300">{{ library_version.description|default:"No description provided for this version." }}</p>
   </div>
   <div class="text-sm flex py-3 bottom-3 absolute w-4/5 md:w-11/12">
-    <div>
+    <div class="flex">
       <span class="flex justify-center py-0 px-2 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40 tabular-nums"
         title="C++ Version {% if library_version.cpp_standard_minimum and library_version.cpp_standard_minimum != 'None' %}{{ library_version.cpp_standard_minimum }}{% else %}03{% endif %} or Later">
         <span class="text-white dark:text-gray-800 tracking-wide scale-x-75 origin-left w-6 text-nowrap whitespace-nowrap">C++</span>
         {% if library_version.cpp_standard_minimum and library_version.cpp_standard_minimum != 'None' %}{{ library_version.cpp_standard_minimum }}{% else %}03{% endif %}
       </span>
+      {% if library_version.cpp20_module_support %}
+      <span
+        class="ml-3 mt-[1px] text-sm font-bold text-gray-600"
+        title="Supports usage via C++ 20 modules (import)"><i class="fa-solid fa-puzzle-piece"></i></span>
+      {% endif %}
     </div>
 {#  <div class="w-1/6 tracking-wider text-charcoal dark:text-white/60">{% if library_version.library.first_boost_version %}{{ library_version.library.first_boost_version.release_date|years_since }} yrs{% endif %}</div>#}
     <div class="w-auto md:w-5/6 pl-2 text-right mr-2 font-bold capitalize  text-sky-600 dark:text-sky-300">

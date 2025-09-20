@@ -1,22 +1,28 @@
 <tr class="border-0 md:border border-gray-200/10 border-dotted md:border-t-0 md:border-r-0 md:border-l-0 md:border-b-1  hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out cursor-pointer"
 onclick="window.location='{% url 'library-detail' library_slug=library_version.library.slug version_slug=version_str %}'">
-  <td class="py-2 align-top md:w-1/5">
+  <td class="align-top md:w-1/5 pt-3">
     <a class="mr-1 pl-1 font-bold capitalize text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
        href="{% url 'library-detail' library_slug=library_version.library.slug version_slug=version_str %}">{{ library_version.library.name }}</a>
   </td>
-
-  <td class="py-2 px-2 align-top w-12">
-    <span class="flex justify-center py-0 px-2 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40 tabular-nums"
+  <td class="align-top w-12 pt-3 pr-2">
+    <span class="flex justify-center px-2 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40 tabular-nums"
           title="{% if library_version.cpp_standard_minimum and library_version.cpp_standard_minimum != 'None' %}C++ Version {{ library_version.cpp_standard_minimum }} or Later{% else %}C++ Version 03 or Later{% endif %}">
           <span class="text-white dark:text-gray-800 tracking-wide scale-x-75 origin-left w-6 text-nowrap  whitespace-nowrap">C++</span>
           {% if library_version.cpp_standard_minimum and library_version.cpp_standard_minimum != 'None' %}{{ library_version.cpp_standard_minimum }}{% else %}03{% endif %}
     </span>
   </td>
-  <td class="align-top">
+  <td class="w-8 text-center align-top pt-3">
+    {% if library_version.cpp20_module_support %}
+    <span
+      class="align-top text-sm font-bold text-gray-600 m-auto"
+      title="Supports usage via C++ 20 modules (import)"><i class="fa-solid fa-puzzle-piece"></i></span>
+    {% endif %}
+  </td>
+  <td class="w-8 align-top">
     {% include "libraries/includes/_documentation_link_icon.html" %}
   </td>
-  <td class="hidden md:block py-2 pl-3 align-top">{{ library_version.description|default:"No description provided for this version." }}</td>
+  <td class="align-top hidden md:block mt-2 pl-3 md:h-20 md:items-center h-full">{{ library_version.description|default:"No description provided for this version." }}</td>
 </tr>
-<tr class="block md:hidden pl-1">
+<tr class="block md:hidden pl-1 align-top">
   <td>{{ library_version.description|default:"No description provided for this version." }}</td>
 </tr>

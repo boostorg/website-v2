@@ -71,6 +71,7 @@ def test_get_library_list(library_updater):
             "category": ["Test"],
             "authors": ["John Doe"],
             "maintainers": ["Jane Doe"],
+            "cpp20_module_support": False,
         }
     ]
     result = library_updater.get_library_list(gitmodules=gitmodules)
