@@ -99,6 +99,7 @@ INSTALLED_APPS += [
     "reports",
     "core",
     "slack",
+    "asciidoctor_sandbox",
 ]
 
 AUTH_USER_MODEL = "users.User"

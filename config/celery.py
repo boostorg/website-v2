@@ -106,3 +106,9 @@ def setup_periodic_tasks(sender, **kwargs):
         crontab(hour=3, minute=30),
         app.signature("users.tasks.refresh_users_github_photos"),
     )
+
+    # Clean up old sandbox documents. Executes weekly on Sundays at 2:00 AM.
+    sender.add_periodic_task(
+        crontab(day_of_week="sun", hour=2, minute=0),
+        app.signature("asciidoctor_sandbox.tasks.cleanup_old_sandbox_documents"),
+    )

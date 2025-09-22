@@ -1,0 +1,138 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+.split-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    width: 100%;
+}
+.content-editor {
+    flex: 1;
+    max-width: 50%;
+}
+.content-preview {
+    flex: 1;
+    border: 1px solid #ddd;
+    min-height: 400px;
+    overflow-y: auto;
+}
+.preview-header {
+    background: #e9e9e9;
+    color: #333;
+    padding: 10px 15px;
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.preview-content {
+    padding: 15px;
+    min-height: 350px;
+}
+#id_asciidoc_content {
+    min-height: 400px;
+    font-family: monospace;
+}
+.preview-loading {
+    color: #666;
+    font-style: italic;
+}
+.preview-btn {
+    background: #417690;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+.preview-btn:hover {
+    background: #205067;
+}
+.preview-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+.saving_optional {
+    font-weight: normal;
+    font-size: 10px;
+    color: #666;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="split-container">
+    <div class="content-editor">
+        {{ block.super }}
+    </div>
+    <div class="content-preview">
+        <div class="preview-header">
+          Live Preview <span class="saving_optional">(Saving is optional)</span>
+            <button type="button" class="preview-btn" id="preview-btn">Preview</button>
+        </div>
+        <div class="preview-content" id="preview-content">
+            <div class="preview-loading">Click "Preview" to see rendered content...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const textArea = document.getElementById('id_asciidoc_content');
+    const previewDiv = document.getElementById('preview-content');
+    const previewBtn = document.getElementById('preview-btn');
+
+    function updatePreview() {
+        const content = textArea.value;
+
+        if (!content.trim()) {
+            previewDiv.innerHTML = '<div class="preview-loading">No content to preview...</div>';
+            return;
+        }
+
+        previewBtn.disabled = true;
+        previewBtn.textContent = 'Loading...';
+        previewDiv.innerHTML = '<div class="preview-loading">Generating preview...</div>';
+
+        fetch('{% url "asciidoctor_sandbox:admin_preview" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: JSON.stringify({
+                content: content
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                previewDiv.innerHTML = data.html;
+            } else {
+                previewDiv.innerHTML = `<div style="color: red;">Error: ${data.error}</div>`;
+            }
+        })
+        .catch(error => {
+            previewDiv.innerHTML = `<div style="color: red;">Network error: ${error.message}</div>`;
+        })
+        .finally(() => {
+            previewBtn.disabled = false;
+            previewBtn.textContent = 'Preview';
+        });
+    }
+
+    if (previewBtn && textArea) {
+        previewBtn.addEventListener('click', updatePreview);
+       if (textArea.value.trim()) {
+            updatePreview();
+        }
+    }
+});
+</script>
+{% endblock %}
