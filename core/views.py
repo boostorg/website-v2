@@ -39,7 +39,11 @@ from .boostrenderer import (
     get_meta_redirect_from_html,
     get_s3_client,
 )
-from .constants import SourceDocType, BOOST_LIB_PATH_RE
+from .constants import (
+    SourceDocType,
+    BOOST_LIB_PATH_RE,
+    STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES,
+)
 from .htmlhelper import (
     modernize_legacy_page,
     convert_name_to_id,
@@ -245,6 +249,13 @@ class BaseStaticContentTemplateView(TemplateView):
         See the *_static_config.json files for URL mappings to specific S3 keys.
         """
         content_path = self.kwargs.get("content_path")
+
+        # Exit early for paths we know we don't want to handle here. We know that these
+        #  paths should have been resolved earlier by the URL router, and if we return
+        #  a 404 here redirecting will be handled by the webserver configuration.
+        if content_path.startswith(STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES):
+            raise Http404("Content not found")
+
         updated_legacy_path = legacy_path_transform(content_path)
         if updated_legacy_path != content_path:
             return redirect(
