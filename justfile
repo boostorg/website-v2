@@ -12,7 +12,7 @@ DJANGO_VERSION := "5.2"
 # - https://github.blog/2015-06-30-scripts-to-rule-them-all/
 # ----
 
-@bootstrap:  ## installs/updates all dependencies
+@bootstrap-nix:  ## installs/updates all dependencies
     command -v direnv >/dev/null 2>&1 || { echo >&2 "Direnv is required but not installed. see: https://direnv.net/docs/installation.html - Aborting."; exit 1; }
     command -v nix >/dev/null 2>&1 || { echo >&2 "Nix is required but not installed. see: https://nixos.org/download.html - Aborting."; exit 1; }
     command -v just >/dev/null 2>&1 || { echo >&2 "Just is required but not installed. see: https://just.systems/man/en/packages.html - Aborting."; exit 1; }
