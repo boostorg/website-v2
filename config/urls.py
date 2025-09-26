@@ -173,6 +173,7 @@ urlpatterns = (
             name="docs",
         ),
         path("health/", include("health_check.urls")),
+        path("asciidoctor_sandbox/", include("asciidoctor_sandbox.urls")),
         # temp page for community until mailman is done.
         path(
             "community/",
