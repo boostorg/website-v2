@@ -28,7 +28,11 @@ from django.views.generic import TemplateView
 
 from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
-from libraries.utils import legacy_path_transform, generate_canonical_library_uri
+from libraries.utils import (
+    legacy_path_transform,
+    get_prioritized_library_view,
+    generate_canonical_library_uri,
+)
 from versions.models import Version
 
 from .asciidoc import convert_adoc_to_html
@@ -896,7 +900,8 @@ class RedirectToLibraryView(BaseRedirectView):
 
         # Handle the special case for "release" versions to redirect to the
         # most recent Boost release
-        new_path = f"/libraries/?version=boost-{ requested_version }"
+        view = get_prioritized_library_view(request)
+        new_path = f"/libraries/{requested_version}/{view}/"
         if requested_version == "release":
             new_path = "/libraries/"
         return HttpResponseRedirect(new_path)
