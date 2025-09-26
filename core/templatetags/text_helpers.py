@@ -34,8 +34,6 @@ def multi_truncate_middle(value, arg):
         else:
             word = word_or_link
 
-        print(word_or_link)
-
         if link_inner_match:
             if len(word) > ln + 10:
                 start = word[: ((ln + 10) // 2)]
