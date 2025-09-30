@@ -1,5 +1,4 @@
 import os
-import re
 from django.utils import timezone
 
 from urllib.parse import urljoin
@@ -7,6 +6,7 @@ from urllib.parse import urljoin
 import requests
 import structlog
 from bs4 import BeautifulSoup
+import chardet
 from dateutil.parser import parse
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -25,11 +25,10 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
-from requests.compat import chardet
 
 from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
-from libraries.utils import legacy_path_transform
+from libraries.utils import legacy_path_transform, generate_canonical_library_uri
 from versions.models import Version
 
 from .asciidoc import convert_adoc_to_html
@@ -40,13 +39,21 @@ from .boostrenderer import (
     get_meta_redirect_from_html,
     get_s3_client,
 )
-from .constants import SourceDocType
+from .constants import SourceDocType, BOOST_LIB_PATH_RE
 from .htmlhelper import (
     modernize_legacy_page,
     convert_name_to_id,
     modernize_preprocessor_docs,
-    slightly_modernize_legacy_library_doc_page,
     remove_library_boostlook,
+    is_in_no_process_libs,
+    is_in_fully_modernized_libs,
+    is_in_no_wrapper_libs,
+    is_managed_content_type,
+    is_valid_modernize_value,
+    get_is_iframe_destination,
+    remove_unwanted,
+    minimize_uris,
+    add_canonical_link,
 )
 from .markdown import process_md
 from .models import RenderedContent
@@ -336,7 +343,7 @@ class BaseStaticContentTemplateView(TemplateView):
         cached_result = static_content_cache.get(cache_key)
         return cached_result if cached_result else None
 
-    def get_from_database(self, cache_key):
+    def get_from_database(self, cache_key) -> dict[str, str | bytes] | None:
         rendered_content_cache_time = 2628288
         dev_docs = ["static_content_develop/", "static_content_master/"]
         for substring in dev_docs:
@@ -349,7 +356,7 @@ class BaseStaticContentTemplateView(TemplateView):
                 cache_key=cache_key
             )
             return {
-                "content": content_obj.content_html,
+                "content": content_obj.content_html.encode("utf-8"),
                 "content_type": content_obj.content_type,
             }
         except RenderedContent.DoesNotExist:
@@ -357,29 +364,31 @@ class BaseStaticContentTemplateView(TemplateView):
 
     def get_from_s3(self, content_path):
         result = get_content_from_s3(key=content_path)
-        if result and result.get("content"):
-            content = result.get("content")
-            content_type = result.get("content_type")
-            result["source_content_type"] = None
+        if not result:
+            return None
 
-            # Check if the content is an asciidoc file. If so, convert it to HTML.
-            # todo: confirm necessary: not clear where this is still needed, as the
-            #  content type for library docs is set to text/html, maybe descriptions and
-            #  release notes
-            if content_type == "text/asciidoc":
-                result["content"] = self.convert_adoc_to_html(content)
+        content = result.get("content")
+        content_type = result.get("content_type")
+        result["source_content_type"] = None
 
-            # Check if the content is an HTML file. If so, check for a meta redirect.
-            if content_type.startswith("text/html"):
-                result["redirect"] = get_meta_redirect_from_html(content)
-            if content_type.startswith("text/html") and not result.get("redirect"):
-                # yes, this is a little gross, but it's the best we could think of
-                if "spirit-nav".encode() not in content:
-                    # this is not strictly accurate, this is essentially everything
-                    #  that's not an antoradoc. Perfect is the enemy of good enough.
-                    result["source_content_type"] = SourceDocType.ASCIIDOC
+        # Check if the content is an asciidoc file. If so, convert it to HTML.
+        # todo: confirm necessary: not clear where this is still needed, as the
+        #  content type for library docs is set to text/html, maybe descriptions and
+        #  release notes
+        if content_type == "text/asciidoc":
+            result["content"] = self.convert_adoc_to_html(content)
 
-            return result
+        # Check if the content is an HTML file. If so, check for a meta redirect.
+        if content_type.startswith("text/html"):
+            has_redirect = get_meta_redirect_from_html(content)
+            if not has_redirect and "spirit-nav".encode() not in content:
+                # Yes, this is a little gross, but it's the best we could think of.
+                # The 'assert', 'url' libraries (1.89) are examples that set this,
+                # is essentially everything that's not an antoradoc. Perfect is the
+                # enemy of good enough.
+                result["source_content_type"] = SourceDocType.ASCIIDOC
+
+        return result
 
     def get_template_names(self):
         content_type = self.content_dict.get("content_type")
@@ -445,10 +454,6 @@ class StaticContentTemplateView(BaseStaticContentTemplateView):
         return content
 
 
-# possible library versions are: boost_1_53_0_beta1, 1_82_0, 1_55_0b1
-BOOST_LIB_PATH_RE = re.compile(r"^(boost_){0,1}([0-9_]*[0-9]+[^/]*)/(.*)")
-
-
 def normalize_boost_doc_path(content_path: str) -> str:
     content_path = content_path.lstrip("boost_")
     if content_path.startswith(LATEST_RELEASE_URL_PATH_STR):
@@ -470,66 +475,6 @@ def normalize_boost_doc_path(content_path: str) -> str:
     return f"/archives/{content_path}"
 
 
-NO_PROCESS_LIBS = [
-    # Do nothing with these - just render contents directly
-    "libs/filesystem",
-    "libs/gil",
-    "libs/hana",
-    "libs/locale",
-    "libs/iostreams",
-    "libs/preprocessor",
-    "libs/serialization",
-    "libs/wave",
-]
-
-NO_WRAPPER_LIBS = [
-    # Add a header to these, but no wrapper.
-    "libs/array",
-    "libs/assert",
-    "libs/bloom",
-    "libs/charconv",
-    "libs/cobalt",
-    "libs/compat",
-    "libs/container_hash",
-    "libs/describe",
-    "libs/endian",
-    "libs/exception",
-    "libs/hash2",
-    "libs/io",
-    "libs/lambda2",
-    "libs/leaf",
-    "libs/mp11",
-    "libs/predef",
-    "libs/process",
-    "doc/html/process",
-    "libs/property_map_parallel",
-    "libs/qvm",
-    "libs/redis",
-    "libs/smart_ptr",
-    "libs/system",
-    "libs/throw_exception",
-    "libs/unordered",
-    "libs/uuid",
-    "libs/variant2",
-]
-
-FULLY_MODERNIZED_LIB_VERSIONS = [
-    # FIXME: we should have a way to opt-in via a flag on the library/lib-version.
-    #  Hard-coding these here as a quick fix for now.
-    "tools/",  # Not a library version, but tools are somewhat analogous
-    "1_87_0/libs/charconv",
-    "1_88_0/libs/charconv",
-    "1_89_0/libs/charconv",
-    "latest/libs/charconv",
-    "develop/libs/charconv",
-    "master/libs/charconv",
-    "1_89_0/libs/redis",
-    "develop/libs/redis",
-    "master/libs/redis",
-    "doc/antora/url",
-]
-
-
 class DocLibsTemplateView(BaseStaticContentTemplateView):
     allowed_db_save_types = {
         "text/asciidoc",
@@ -542,35 +487,59 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         legacy_url = normalize_boost_doc_path(content_path)
         return super().get_from_s3(legacy_url)
 
-    def process_content(self, content):
+    def process_content(self, content: bytes):
         """Replace page header with the local one."""
-
-        if any(
-            lib_slug in self.request.path for lib_slug in FULLY_MODERNIZED_LIB_VERSIONS
-        ):
-            # Return a fully modernized version in an iframe
-            return self._fully_modernize_content(content)
-
-        if any(lib_slug in self.request.path for lib_slug in NO_PROCESS_LIBS):
-            # Just render raw HTML for some pages
-            return content
-
         content_type = self.content_dict.get("content_type")
         modernize = self.request.GET.get("modernize", "med").lower()
         if (
-            "text/html" or "text/html; charset=utf-8"
-        ) not in content_type or modernize not in ("max", "med", "min"):
-            # eventually check for more things, for example ensure this HTML
-            # was not generate from Antora builders.
+            not is_managed_content_type(content_type)
+            or not is_valid_modernize_value(modernize)
+            or get_is_iframe_destination(self.request.headers)
+        ):
             return content
+        # everything from this point should be html
+        req_uri = self.request.build_absolute_uri()
+        canonical_uri = generate_canonical_library_uri(req_uri)
 
-        new_content = slightly_modernize_legacy_library_doc_page(content)
+        # this decode is needed for some libraries, e.g. assert
+        content = content.decode(chardet.detect(content)["encoding"])
+        soup = BeautifulSoup(content, "html.parser")
 
-        context = {"content": new_content}
-        if any(lib_slug in self.request.path for lib_slug in NO_WRAPPER_LIBS):
+        # handle libraries that expect no processing
+        if is_in_no_process_libs(self.request.path):
+            soup = self._required_content_changes(soup, canonical_uri=canonical_uri)
+            return str(soup)
+
+        soup = self._required_modernization_changes(soup)
+
+        context = {
+            "content": str(soup.prettify()),
+            "canonical_uri": canonical_uri if canonical_uri != req_uri else None,
+        }
+        template_name = "original_docs.html"
+
+        if is_in_fully_modernized_libs(self.request.path):
+            # prepare a fully modernized version in an iframe
+            logger.info(f"fully modernized lib {self.request.path=}")
+            context_update = self._fully_modernize_content(
+                soup, self.establish_source_content_type(self.request.path)
+            )
+            context.update(context_update)
+            template_name = "docsiframe.html"
+
+        if is_in_no_wrapper_libs(self.request.path):
             context["no_wrapper"] = True
 
-        return render_to_string("original_docs.html", context, request=self.request)
+        context["content"] = self._required_content_string_changes(context["content"])
+
+        return render_to_string(template_name, context, request=self.request)
+
+    def establish_source_content_type(self, path: str) -> SourceDocType:
+        source_content_type = self.content_dict.get("source_content_type")
+        if source_content_type is None and SourceDocType.ANTORA.value in path:
+            # hacky, but solves an edge case
+            source_content_type = SourceDocType.ANTORA
+        return source_content_type
 
     def get_content(self, content_path):
         """Return content from database (cache) or S3."""
@@ -586,6 +555,8 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         if not result and (result := self.get_from_s3(content_path)):
             self.save_to_database(cache_key, result)
 
+        result["redirect"] = get_meta_redirect_from_html(result["content"])
+
         if result is None:
             logger.info(
                 "get_content_from_s3_view_no_valid_object",
@@ -596,43 +567,49 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
 
         return result
 
-    def _fully_modernize_content(self, content):
+    @staticmethod
+    def _required_content_changes(
+        content: BeautifulSoup, canonical_uri: str = None
+    ) -> BeautifulSoup:
+        """
+        Processing for all html content, things that apply no matter the source
+        """
+        if canonical_uri:
+            content = add_canonical_link(content, canonical_uri)
+
+        return content
+
+    @staticmethod
+    def _required_content_string_changes(content: str) -> str:
+        """
+        String-based processing for all html content, things that apply no matter the source
+        """
+        content = minimize_uris(content)
+        return content
+
+    @staticmethod
+    def _required_modernization_changes(content: BeautifulSoup):
+        """
+        Absolute base processing for libraries that have opted in to boostlook
+        modernization
+        """
+        content = remove_unwanted(content)
+
+        return content
+
+    def _fully_modernize_content(
+        self,
+        soup: BeautifulSoup,
+        source_content_type: SourceDocType,
+        modernize: str = "med",
+    ):
         """For libraries that have opted in to boostlook modernization"""
-        content_type = self.content_dict.get("content_type")
-        source_content_type = self.content_dict.get("source_content_type")
-        if (
-            source_content_type is None
-            and SourceDocType.ANTORA.value in self.request.path
-        ):
-            # hacky, but solves an edge case
-            source_content_type = SourceDocType.ANTORA
-        # Is the request coming from an iframe? If so, let's disable the modernization.
-        sec_fetch_destination = self.request.headers.get("Sec-Fetch-Dest", "")
-        is_iframe_destination = sec_fetch_destination in ["iframe", "frame"]
-
-        modernize = self.request.GET.get("modernize", "med").lower()
-
-        if (
-            ("text/html" or "text/html; charset=utf-8") not in content_type
-            or modernize not in ("max", "med", "min")
-            or is_iframe_destination
-        ):
-            # eventually check for more things, for example ensure this HTML
-            # was not generate from Antora builders.
-            return content
-
-        context = {"disable_theme_switcher": False}
-        insert_body = modernize == "max"
-        head_selector = (
-            "head"
-            if modernize in ("max", "med")
-            else {"data-modernizer": "boost-legacy-docs-extra-head"}
-        )
-
-        context["hide_footer"] = True
+        context = {"disable_theme_switcher": False, "hide_footer": True}
         if source_content_type == SourceDocType.ASCIIDOC:
-            extracted_content = content.decode(chardet.detect(content)["encoding"])
-            soup = BeautifulSoup(extracted_content, "html.parser")
+            # This was used but then changed to make docs look like the original files.
+            # No libraries currently run this path, but keeping it because there's a
+            #  possibility this changes back. There was a different parsing used, see
+            #  git history.
             soup = convert_name_to_id(soup)
             soup = remove_library_boostlook(soup)
             soup.find("head").append(
@@ -648,8 +625,14 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
                 {**context, **{"disable_plausible": True}},
                 request=self.request,
             )
+            insert_body: bool = modernize == "max"
+            head_selector = (
+                "head"
+                if modernize in ("max", "med")
+                else {"data-modernizer": "boost-legacy-docs-extra-head"}
+            )
             context["content"] = modernize_legacy_page(
-                content,
+                soup,
                 base_html,
                 insert_body=insert_body,
                 head_selector=head_selector,
@@ -657,8 +640,9 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
                 show_footer=False,
                 show_navbar=False,
             )
+
         context["full_width"] = True
-        return render_to_string("docsiframe.html", context, request=self.request)
+        return context
 
 
 class UserGuideTemplateView(BaseStaticContentTemplateView):
@@ -671,14 +655,16 @@ class UserGuideTemplateView(BaseStaticContentTemplateView):
         content_type = self.content_dict.get("content_type")
         modernize = self.request.GET.get("modernize", "med").lower()
 
-        if (
-            "text/html" or "text/html; charset=utf-8"
-        ) not in content_type or modernize not in ("max", "med", "min"):
+        if not is_managed_content_type(content_type) or not is_valid_modernize_value(
+            modernize
+        ):
             # eventually check for more things, for example ensure this HTML
             # was not generate from Antora builders.
             return content
 
         context = {"disable_theme_switcher": False}
+        # TODO: investigate if this base_html + template can be removed completely,
+        #  seems unused
         base_html = render_to_string(
             "userguide_placeholder.html", context, request=self.request
         )
@@ -695,8 +681,9 @@ class UserGuideTemplateView(BaseStaticContentTemplateView):
         )
         context["hide_footer"] = True
         context["full_width"] = True
+        soup = BeautifulSoup(content, "html.parser")
         context["content"] = modernize_legacy_page(
-            content,
+            soup,
             base_html,
             insert_body=insert_body,
             head_selector=head_selector,

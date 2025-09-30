@@ -50,8 +50,8 @@ alias shell := console
     docker compose --file {{COMPOSE_FILE}} build --force-rm
     docker compose --file docker-compose.yml run --rm web python manage.py migrate --noinput
 
-@test_pytest:  ## runs pytest
-    -docker compose run --rm -e DEBUG_TOOLBAR="False" web pytest -s --create-db
+@test_pytest *args:  ## runs pytest (optional: test file/pattern, -v for verbose, -vv for very verbose)
+    -docker compose run --rm -e DEBUG_TOOLBAR="False" web pytest -s --create-db {{ args }}
 
 @test_pytest_lf:  ## runs last failed pytest tests
     -docker compose run --rm -e DEBUG_TOOLBAR="False" web pytest -s --create-db --lf

@@ -7,6 +7,7 @@ import boto3
 import structlog
 from botocore.exceptions import ClientError
 from bs4 import BeautifulSoup, Tag
+import chardet
 from django.conf import settings
 from mistletoe import HtmlRenderer
 from mistletoe.span_token import SpanToken
@@ -23,6 +24,10 @@ def extract_file_data(response, s3_key):
     """Extracts the file content, content type, and last modified date from an S3
     response object."""
     file_content = response["Body"].read()
+    detected_encoding = chardet.detect(file_content)["encoding"] or "utf-8"
+    # decoding here stops django debug toolbar erroring on non-utf-8, e.g. preprocessor
+    if detected_encoding != "utf-8":
+        file_content = file_content.decode(detected_encoding).encode("utf-8")
     content_type = get_content_type(s3_key, response["ContentType"])
     last_modified = response["LastModified"]
     return {

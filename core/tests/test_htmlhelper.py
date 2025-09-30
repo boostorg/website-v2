@@ -16,6 +16,7 @@ from core.htmlhelper import (
     remove_release_classes,
     remove_tables,
     remove_tags,
+    remove_unwanted,
     style_links,
     modernize_release_notes,
 )
@@ -64,7 +65,7 @@ def _build_tag(tag_name, tag_attrs, inner="Something"):
     tag = f"<{tag_name}"
     if tag_attrs:
         tag += " " + " ".join(f'{k}="{v}"' for k, v in tag_attrs.items())
-    if tag_name == "img":
+    if tag_name in ["img", "link"]:
         tag += "/>"
     elif tag_name == "hr":
         tag += ">"
@@ -86,9 +87,8 @@ def _build_expected_body(expected_body):
 
 def test_modernize_legacy_page_unchanged_empty():
     original = """Something else"""
-
-    result = modernize_legacy_page(original, base_html=BASE_HTML)
-
+    soup = BeautifulSoup(original, "html.parser")
+    result = modernize_legacy_page(soup, base_html=BASE_HTML)
     assertHTMLEqual(result, original)
 
 
@@ -97,8 +97,8 @@ def test_modernize_legacy_page_unchanged_simple():
     <html>
     </html>
     """
-
-    result = modernize_legacy_page(original, base_html="")
+    soup = BeautifulSoup(original, "html.parser")
+    result = modernize_legacy_page(soup, base_html="")
 
     assertHTMLEqual(result, original)
 
@@ -112,7 +112,8 @@ def test_modernize_legacy_page_unchanged_no_head():
     </html>
     """
 
-    result = modernize_legacy_page(original, base_html="")
+    soup = BeautifulSoup(original, "html.parser")
+    result = modernize_legacy_page(soup, base_html="")
 
     assertHTMLEqual(result, original)
 
@@ -126,7 +127,8 @@ def test_modernize_legacy_page_unchanged_no_body():
     </html>
     """
 
-    result = modernize_legacy_page(original, base_html="")
+    soup = BeautifulSoup(original, "html.parser")
+    result = modernize_legacy_page(soup, base_html="")
 
     assertHTMLEqual(result, original)
 
@@ -137,7 +139,8 @@ def test_modernize_legacy_page_adds_head_if_missing():
     </html>
     """
 
-    result = modernize_legacy_page(original, base_html=BASE_HTML)
+    soup = BeautifulSoup(original, "html.parser")
+    result = modernize_legacy_page(soup, base_html=BASE_HTML)
 
     expected = f"""<!DOCTYPE html>
     <html>
@@ -160,7 +163,8 @@ def test_modernize_legacy_page_appends_head_if_existing():
     </html>
     """
 
-    result = modernize_legacy_page(original, base_html=BASE_HTML)
+    soup = BeautifulSoup(original, "html.parser")
+    result = modernize_legacy_page(soup, base_html=BASE_HTML)
 
     expected = f"""<!DOCTYPE html>
     <html>
@@ -184,7 +188,8 @@ def test_modernize_legacy_page_mangles_body():
     </html>
     """
 
-    result = modernize_legacy_page(original, base_html=BASE_HTML)
+    soup = BeautifulSoup(original, "html.parser")
+    result = modernize_legacy_page(soup, base_html=BASE_HTML)
 
     expected = f"""<!DOCTYPE html>
     <html>
@@ -216,7 +221,11 @@ def test_modernize_legacy_page_remove_first_tag_found(tag_name, tag_attrs):
     </html>
     """
 
-    result = modernize_legacy_page(original, base_html=BASE_HTML)
+    soup = BeautifulSoup(original, "html.parser")
+    soup = remove_unwanted(soup)
+    result = modernize_legacy_page(
+        soup, base_html=BASE_HTML, skip_replace_boostlook=True
+    )
 
     body = _build_expected_body(LEGACY_BODY + tag)
     expected = f"""<!DOCTYPE html>
@@ -250,7 +259,9 @@ def test_modernize_legacy_page_remove_all_tags_found(tag_name, tag_attrs):
     </html>
     """
 
-    result = modernize_legacy_page(original, base_html=BASE_HTML)
+    soup = BeautifulSoup(original, "html.parser")
+    soup = remove_unwanted(soup)
+    result = modernize_legacy_page(soup, base_html=BASE_HTML)
 
     expected = f"""<!DOCTYPE html>
     <html>
@@ -287,7 +298,9 @@ def test_modernize_legacy_page_remove_only_css_class(tag_name, tag_attrs):
     </html>
     """
 
-    result = modernize_legacy_page(original, base_html=BASE_HTML)
+    soup = BeautifulSoup(original, "html.parser")
+    soup = remove_unwanted(soup)
+    result = modernize_legacy_page(soup, base_html=BASE_HTML)
 
     # Build expected result
     tag_attrs.pop("class")

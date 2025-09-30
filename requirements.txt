@@ -56,6 +56,8 @@ cffi==1.17.1
     #   cryptography
 cfgv==3.4.0
     # via pre-commit
+chardet==5.2.0
+    # via -r ./requirements.in
 charset-normalizer==3.4.3
     # via requests
 click==8.2.1
