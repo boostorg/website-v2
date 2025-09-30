@@ -215,6 +215,16 @@ def test_docs_libs_gateway_200_non_html(tp, mock_get_file_data):
     assert response.content == s3_content
 
 
+def test_doc_libs_version_redirect(tp):
+    response = tp.get("redirect-to-library-page", requested_version="1.82.0")
+    tp.response_302(response)
+    assert response["Location"] == "/libraries/1.82.0/grid/"
+
+    response = tp.get("redirect-to-library-page", requested_version="release")
+    tp.response_302(response)
+    assert response["Location"] == "/libraries/"
+
+
 @pytest.mark.skip(reason="Currently not using iframes for libs docs.")
 def test_docs_libs_gateway_200_lib_number_iframe(
     tp, mock_get_file_data, mock_get_leaf_data
