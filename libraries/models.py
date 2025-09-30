@@ -449,6 +449,7 @@ class LibraryVersion(models.Model):
     deletions = models.IntegerField(default=0)
     files_changed = models.IntegerField(default=0)
     cpp_standard_minimum = models.CharField(max_length=50, blank=True, null=True)
+    cpp20_module_support = models.BooleanField(default=False)
     dependencies = models.ManyToManyField(
         "libraries.Library",
         symmetrical=False,

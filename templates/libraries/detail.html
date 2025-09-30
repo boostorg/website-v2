@@ -37,10 +37,17 @@
             <div class="pb-4 pt-1">
               <span
                 class="py-0 px-2 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40"
-                title="C++ Version {% if library_version.cpp_standard_minimum %}{{ library_version.cpp_standard_minimum }}{% else %}03{% endif %} or Later">
-                <span class="scale-x-75 text-white dark:text-gray-800 tracking-wide origin-left w-6 inline-block whitespace-nowrap">C++</span>
-                  {% if library_version.cpp_standard_minimum %}{{ library_version.cpp_standard_minimum }}{% else %}03{% endif %}
-              </span>
+                title="C++ Version {% if library_version.cpp_standard_minimum %}{{ library_version.cpp_standard_minimum }}{% else %}03{% endif %} or Later"
+              ><span
+                class="scale-x-75 text-white dark:text-gray-800 tracking-wide origin-left w-6 inline-block whitespace-nowrap"
+              >C++</span> {% if library_version.cpp_standard_minimum %}{{ library_version.cpp_standard_minimum }}{% else %}03{% endif %}</span>
+
+              {% if library_version.cpp20_module_support %}
+              <span
+                class="ml-2 text-sm font-bold text-gray-600 dark:text-gray-300"
+                title="Supports usage via C++ 20 modules (import)"><i class="fa-solid fa-puzzle-piece"></i></span>
+              {% endif %}
+
               <span class="float-right">{% if object.first_boost_version %}Added in Boost
                 {{ object.first_boost_version.display_name }}{% endif %}</span>
             </div>

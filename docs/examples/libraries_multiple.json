@@ -71,6 +71,7 @@
         "category": [
             "Function-objects"
         ],
-        "cxxstd": "03"
+        "cxxstd": "03",
+        "modules": true
     }
 ]
