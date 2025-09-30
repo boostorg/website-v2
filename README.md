@@ -13,7 +13,7 @@ Links:
 
 ## Local Development Setup
 
-This project will use Python 3.11, Docker, and Docker Compose.
+This project will use Python 3.13, Docker, and Docker Compose.
 
 Instructions to install those packages are included in [development_setup_notes.md](docs/development_setup_notes.md).
 

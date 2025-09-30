@@ -931,8 +931,8 @@ class QRCodeView(View):
 
     def get(self, request: HttpRequest, campaign_identifier: str, main_path: str = ""):
         absolute_url = request.build_absolute_uri(request.path)
-        referrer = request.META.get("HTTP_REFERER", "")
-        user_agent = request.META.get("HTTP_USER_AGENT", "")
+        referrer = request.headers.get("referer", "")
+        user_agent = request.headers.get("user-agent", "")
 
         plausible_payload = {
             "name": "pageview",
@@ -943,7 +943,7 @@ class QRCodeView(View):
 
         headers = {"Content-Type": "application/json", "User-Agent": user_agent}
 
-        client_ip = request.META.get("HTTP_X_FORWARDED_FOR", "").split(",")[0].strip()
+        client_ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
         client_ip = client_ip or request.META.get("REMOTE_ADDR")
 
         if client_ip:
