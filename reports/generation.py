@@ -1,5 +1,6 @@
 import base64
 import io
+import json
 import logging
 import random
 from datetime import datetime, timedelta, date
@@ -11,8 +12,10 @@ from django.db.models import Count
 from django.db.models.functions import ExtractWeek, ExtractIsoYear
 from matplotlib import pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
+from algoliasearch.analytics.client import AnalyticsClientSync
 
 from core.models import SiteSettings
+from libraries.constants import RELEASE_REPORT_SEARCH_TOP_COUNTRIES_LIMIT
 from libraries.models import WordcloudMergeWord  # TODO: move model to this app
 from mailing_list.models import PostingData, SubscriptionData
 from reports.constants import WORDCLOUD_FONT
@@ -21,14 +24,45 @@ from versions.models import Version
 logger = logging.getLogger(__name__)
 
 
+def generate_mailinglist_words(
+    prior_version: Version, version: Version
+) -> dict[str, int]:
+    """Generates word frequencies from mailing list content between two versions."""
+    word_frequencies = {}
+    for content in get_mail_content(version, prior_version):
+        for key, val in WordCloud().process_text(content).items():
+            if len(key) < 2:
+                continue
+            key_lower = key.lower()
+            if key_lower not in word_frequencies:
+                word_frequencies[key_lower] = 0
+            word_frequencies[key_lower] += val
+
+    return word_frequencies
+
+
+def generate_algolia_words(
+    client: AnalyticsClientSync, version: Version
+) -> dict[str, int]:
+    args = {
+        "index": version.stripped_boost_url_slug,
+        "limit": 100,
+    }
+    search_results = client.get_top_searches(**args).to_json()
+    search_data = json.loads(search_results)
+    return {r["search"]: r["count"] for r in search_data["searches"] if r["count"] > 1}
+
+
 def generate_wordcloud(
-    version: Version, prior_version: Version
+    word_frequencies: dict[str, int], width: int, height: int
 ) -> tuple[str | None, list]:
     """Generates a wordcloud png and returns it as a base64 string and word frequencies.
 
     Returns:
         Tuple of (base64_encoded_png_string, wordcloud_top_words)
     """
+    if not word_frequencies:
+        return None, []
     font_relative_path = f"font/{WORDCLOUD_FONT}"
     font_full_path = finders.find(font_relative_path)
 
@@ -38,23 +72,11 @@ def generate_wordcloud(
     wc = WordCloud(
         mode="RGBA",
         background_color=None,
-        width=1400,
-        height=700,
+        width=width,
+        height=height,
         stopwords=STOPWORDS | SiteSettings.load().wordcloud_ignore_set,
         font_path=font_full_path,
     )
-    word_frequencies = {}
-    for content in get_mail_content(version, prior_version):
-        for key, val in wc.process_text(content).items():
-            if len(key) < 2:
-                continue
-            key_lower = key.lower()
-            if key_lower not in word_frequencies:
-                word_frequencies[key_lower] = 0
-            word_frequencies[key_lower] += val
-    if not word_frequencies:
-        return None, []
-
     word_frequencies = boost_normalize_words(
         word_frequencies,
         {x.from_word: x.to_word for x in WordcloudMergeWord.objects.all()},
@@ -181,3 +203,21 @@ def get_new_subscribers_stats(start_date: datetime, end_date: datetime):
         current += timedelta(days=7)  # hop by weeks
 
     return chart_data
+
+
+def get_algolia_search_stats(client: AnalyticsClientSync, version: Version) -> dict:
+    default_args = {"index": version.stripped_boost_url_slug}
+    # search data
+    search_response = client.get_searches_count(**default_args).to_json()
+    search_data = json.loads(search_response)
+    # country data
+    country_results = client.get_top_countries(**default_args, limit=100).to_json()
+    country_data = json.loads(country_results)
+    country_stats = {r["country"]: r["count"] for r in country_data["countries"]}
+    return {
+        "total_searches": search_data.get("count"),
+        "country_stats": country_stats,
+        "top_countries": list(country_stats.items())[
+            :RELEASE_REPORT_SEARCH_TOP_COUNTRIES_LIMIT
+        ],
+    }
