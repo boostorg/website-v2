@@ -1,12 +1,9 @@
 import traceback
 from contextlib import suppress
-from dataclasses import dataclass
 from datetime import timedelta
-from typing import Callable
 
 import djclick as click
 
-from django.core.mail import send_mail
 from django.utils import timezone
 from django.core.management import call_command
 from django.contrib.auth import get_user_model
@@ -14,6 +11,12 @@ from django.conf import settings
 from slack_sdk.errors import SlackApiError
 
 from core.githubhelper import GithubAPIClient
+from core.management.actions import (
+    progress_message,
+    Action,
+    ActionsManager,
+    send_notification,
+)
 from libraries.forms import CreateReportForm
 from libraries.tasks import update_commits
 from reports.models import WebsiteStatReport
@@ -23,81 +26,38 @@ from versions.models import Version
 User = get_user_model()
 
 
-def send_notification(user, message, subject="Task Started: release_tasks"):
-    if user.email:
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [user.email],
-        )
-
-
-def progress_message(message: str):
-    click.secho(message, fg="green")
-    return f"{timezone.now()}: {message}"
-
-
-@dataclass
-class ReleaseTask:
-    """
-    A distinct task to be completed.
-
-    Action can be a callable or a list of string arguments to pass to `call_command`
-    """
-
-    description: str
-    action: Callable | list[str]
-
-    def run(self):
-        if isinstance(self.action, Callable):
-            self.action()
-        else:
-            call_command(*self.action)
-
-
-class ReleaseTasksManager:
+class ReleaseTasksManager(ActionsManager):
     latest_version: Version | None = None
-    progress_messages: list[str] = []
     handled_commits: dict[str, int] = {}
 
     def __init__(self, should_generate_report: bool = False):
         self.should_generate_report = should_generate_report
+        super().__init__()
+
+    def set_tasks(self):
         self.tasks = [
-            ReleaseTask("Importing versions", self.import_versions),
-            ReleaseTask(
+            Action("Importing versions", self.import_versions),
+            Action(
                 "Importing most recent beta version",
                 ["import_beta_release", "--delete-versions"],
             ),
-            ReleaseTask("Importing libraries", ["update_libraries"]),
-            ReleaseTask(
+            Action("Importing libraries", ["update_libraries"]),
+            Action(
                 "Saving library-version relationships", self.import_library_versions
             ),
-            ReleaseTask("Adding library maintainers", ["update_maintainers"]),
-            ReleaseTask("Adding library authors", ["update_authors"]),
-            ReleaseTask(
+            Action("Adding library maintainers", ["update_maintainers"]),
+            Action("Adding library authors", ["update_authors"]),
+            Action(
                 "Adding library version authors", ["update_library_version_authors"]
             ),
-            ReleaseTask("Importing git commits", self.handle_commits),
-            ReleaseTask("Syncing mailinglist statistics", ["sync_mailinglist_stats"]),
-            ReleaseTask("Updating github issues", ["update_issues"]),
-            ReleaseTask("Updating slack activity buckets", ["fetch_slack_activity"]),
-            ReleaseTask("Updating website statistics", self.update_website_statistics),
-            ReleaseTask("Importing mailing list counts", self.import_ml_counts),
-            ReleaseTask("Generating report", self.generate_report),
+            Action("Importing git commits", self.import_commits),
+            Action("Syncing mailinglist statistics", ["sync_mailinglist_stats"]),
+            Action("Updating github issues", ["update_issues"]),
+            Action("Updating slack activity buckets", ["fetch_slack_activity"]),
+            Action("Updating website statistics", self.update_website_statistics),
+            Action("Importing mailing list counts", self.import_ml_counts),
+            Action("Generating report", self.generate_report),
         ]
-
-    def update_release_data(self) -> dict[str:int]:
-        for task in self.tasks:
-            # "Release Task: " prefix for easy log parsing
-            self.progress_messages.append(
-                progress_message(f"Release Task: {task.description}...")
-            )
-            task.run()
-            self.progress_messages.append(
-                progress_message(f"Release Task: Finished {task.description.lower()}")
-            )
-        return self.handled_commits
 
     def import_versions(self):
         call_command("import_versions")
@@ -107,7 +67,7 @@ class ReleaseTasksManager:
         latest_version_number = self.latest_version.name.lstrip("boost-")
         call_command("import_library_versions", min_release=latest_version_number)
 
-    def handle_commits(self):
+    def import_commits(self):
         self.handled_commits = update_commits(min_version=self.latest_version.name)
 
     def update_website_statistics(self):
@@ -125,9 +85,7 @@ class ReleaseTasksManager:
 
     def generate_report(self):
         if not self.should_generate_report:
-            self.progress_messages.append(
-                progress_message("Skipped - report generation not requested")
-            )
+            self.add_progress_message("Skipped - report generation not requested")
             return
         form = CreateReportForm({"version": self.latest_version.id})
         form.cache_html()
@@ -136,11 +94,9 @@ class ReleaseTasksManager:
 @locked(1138692)
 def run_commands(progress: list[str], generate_report: bool = False):
     manager = ReleaseTasksManager(should_generate_report=generate_report)
-    handled_commits = manager.update_release_data()
-
+    manager.run_tasks()
     progress.extend(manager.progress_messages)
-
-    return handled_commits
+    return manager.handled_commits
 
 
 def bad_credentials() -> list[str]:
@@ -185,40 +141,38 @@ def command(user_id=None, generate_report=False):
     """A long running chain of tasks to import and update library data."""
     start = timezone.now()
 
-    user = None
-    if user_id:
-        user = User.objects.filter(id=user_id).first()
+    user = User.objects.filter(id=user_id).first() if user_id else None
 
     progress = ["___Progress Messages___"]
     if missing_creds := bad_credentials():
         progress.append(
             progress_message(f"Missing credentials {', '.join(missing_creds)}")
         )
-        if user:
-            send_notification(
-                user,
-                message="Your task `release_tasks` failed.",
-                subject="Task Failed: release_tasks",
-            )
+        send_notification(
+            user,
+            message="Your task `release_tasks` failed.",
+            subject="Task Failed: release_tasks",
+        )
         return
-    if user:
-        send_notification(user, f"Your task `release_tasks` was started at: {start}")
+
+    send_notification(
+        user,
+        f"Your task `release_tasks` was started at: {start}",
+        subject="Task Started: release_tasks",
+    )
 
     try:
         handled_commits = run_commands(progress, generate_report)
         end = timezone.now()
-        progress.append(progress_message(f"All done! Completed in {end - start}"))
     except Exception:
         error = traceback.format_exc()
         message = [
             f"ERROR: There was an error while running release_tasks.\n\n{error}",
             "\n".join(progress),
         ]
-        if user:
-            send_notification(
-                user,
-                "\n\n".join(message),
-            )
+        send_notification(
+            user, "\n\n".join(message), subject="Task Failed: release_tasks"
+        )
         raise
 
     zero_commit_libraries = [
@@ -236,9 +190,8 @@ def command(user_id=None, generate_report=False):
         for lib, _ in zero_commit_libraries:
             zero_commit_message.append(lib)
         message.append("\n".join(zero_commit_message))
-    if user:
-        send_notification(
-            user,
-            "\n\n".join(message),
-            subject="Task Complete: release_tasks",
-        )
+    send_notification(
+        user,
+        "\n\n".join(message),
+        subject="Task Complete: release_tasks",
+    )
