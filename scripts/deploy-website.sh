@@ -5,9 +5,10 @@
 #
 # Instructions:
 #
-# Adjust the variable base_folder to match your local machine's folder layout.
-#
 # Make sure the script is executable. chmod 755 deploy-website.sh
+#
+# Locally, don't modify the results of the script. Use another
+# directory for your own copies of repositories.
 #
 # Run the script -
 #
