@@ -570,8 +570,6 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         if not result and (result := self.get_from_s3(content_path)):
             self.save_to_database(cache_key, result)
 
-        result["redirect"] = get_meta_redirect_from_html(result["content"])
-
         if result is None:
             logger.info(
                 "get_content_from_s3_view_no_valid_object",
@@ -579,6 +577,8 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
                 status_code=404,
             )
             raise ContentNotFoundException("Content not found")
+
+        result["redirect"] = get_meta_redirect_from_html(result["content"])
 
         return result
 
