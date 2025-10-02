@@ -902,7 +902,7 @@ class RedirectToReleaseView(BaseRedirectView):
         return HttpResponseRedirect(new_path)
 
 
-class RedirectToLibraryView(BaseRedirectView):
+class RedirectToLibrariesView(BaseRedirectView):
     """View to redirect to a versioned libraries page."""
 
     def get(self, request, requested_version):

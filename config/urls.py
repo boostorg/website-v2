@@ -26,7 +26,7 @@ from core.views import (
     RedirectToDocsView,
     RedirectToHTMLDocsView,
     RedirectToHTMLToolsView,
-    RedirectToLibraryView,
+    RedirectToLibrariesView,
     RedirectToReleaseView,
     RedirectToToolsView,
     StaticContentTemplateView,
@@ -404,7 +404,7 @@ urlpatterns = (
         ),
         re_path(
             r"^doc/libs/(?P<requested_version>[^/]+)/?$",
-            RedirectToLibraryView.as_view(),
+            RedirectToLibrariesView.as_view(),
             name="redirect-to-library-page",
         ),
         re_path(
