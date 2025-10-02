@@ -39,6 +39,7 @@ from libraries.api import LibrarySearchView
 from libraries.views import (
     LibraryDetail,
     LibraryListDispatcher,
+    LibraryMissingVersionView,
     CommitAuthorEmailCreateView,
     VerifyCommitEmailView,
     CommitEmailResendView,
@@ -234,6 +235,11 @@ urlpatterns = (
             "library/<boostversionslug:version_slug>/<slug:library_slug>/",
             LibraryDetail.as_view(),
             name="library-detail",
+        ),
+        path(
+            "library/<boostversionslug:version_slug>/<slug:library_slug>/missing/",
+            LibraryMissingVersionView.as_view(),
+            name="library-detail-version-missing",
         ),
         path(
             "libraries/commit_author_email_create/",
