@@ -34,6 +34,7 @@ from core.views import (
     BoostDevelopmentView,
     ModernizedDocsView,
     QRCodeView,
+    RedirectToLibraryDetailView,
 )
 from libraries.api import LibrarySearchView
 from libraries.views import (
@@ -381,6 +382,11 @@ urlpatterns = (
         ),
     ]
     + [
+        re_path(
+            r"^lib/(?P<library_slug>[^/]+)/?$",
+            RedirectToLibraryDetailView.as_view(),
+            name="redirect-to-library-view",
+        ),
         # Redirects for old boost.org urls.
         re_path(
             r"^libs/(?P<libname>[^/]+)/(?P<path>.*)/?$",
