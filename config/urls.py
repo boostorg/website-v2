@@ -26,7 +26,7 @@ from core.views import (
     RedirectToDocsView,
     RedirectToHTMLDocsView,
     RedirectToHTMLToolsView,
-    RedirectToLibraryView,
+    RedirectToLibrariesView,
     RedirectToReleaseView,
     RedirectToToolsView,
     StaticContentTemplateView,
@@ -39,6 +39,7 @@ from libraries.api import LibrarySearchView
 from libraries.views import (
     LibraryDetail,
     LibraryListDispatcher,
+    LibraryMissingVersionView,
     CommitAuthorEmailCreateView,
     VerifyCommitEmailView,
     CommitEmailResendView,
@@ -236,6 +237,11 @@ urlpatterns = (
             name="library-detail",
         ),
         path(
+            "library/<boostversionslug:version_slug>/<slug:library_slug>/missing/",
+            LibraryMissingVersionView.as_view(),
+            name="library-detail-version-missing",
+        ),
+        path(
             "libraries/commit_author_email_create/",
             CommitAuthorEmailCreateView.as_view(),
             name="commit-author-email-create",
@@ -404,7 +410,7 @@ urlpatterns = (
         ),
         re_path(
             r"^doc/libs/(?P<requested_version>[^/]+)/?$",
-            RedirectToLibraryView.as_view(),
+            RedirectToLibrariesView.as_view(),
             name="redirect-to-library-page",
         ),
         re_path(
