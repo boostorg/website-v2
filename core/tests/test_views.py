@@ -149,6 +149,84 @@ def test_markdown_view_trailing_slash(tp):
     tp.response_200(res)
 
 
+def test_doc_libs_get_content_with_db_cache(request_factory):
+    """Test DocLibsTemplateView.get_content with database caching enabled."""
+    from core.views import DocLibsTemplateView
+
+    # Mock S3 returning content
+    mock_s3_result = {
+        "content": b"<html>Test content</html>",
+        "content_type": "text/html",
+    }
+
+    with patch("core.views.ENABLE_DB_CACHE", True), patch(
+        "core.views.DocLibsTemplateView.get_from_database", return_value=None
+    ) as mock_get_from_db, patch(
+        "core.views.DocLibsTemplateView.get_from_s3", return_value=mock_s3_result
+    ) as mock_get_from_s3, patch(
+        "core.views.DocLibsTemplateView.save_to_database"
+    ) as mock_save_to_db:
+
+        view = DocLibsTemplateView()
+        view.request = request_factory.get("/doc/libs/test/")
+        result = view.get_content("test/path")
+
+        # verify database was checked first
+        mock_get_from_db.assert_called_once_with("static_content_test/path")
+        # verify S3 was called after cache miss
+        mock_get_from_s3.assert_called_once_with("test/path")
+        # verify content was saved to database
+        mock_save_to_db.assert_called_once_with(
+            "static_content_test/path", mock_s3_result
+        )
+
+        assert result["content"] == mock_s3_result["content"]
+        assert result["content_type"] == mock_s3_result["content_type"]
+        assert "redirect" in result
+
+
+def test_doc_libs_get_content_without_db_cache(request_factory):
+    """Test DocLibsTemplateView.get_content with database caching disabled."""
+    from core.views import DocLibsTemplateView
+
+    # Mock S3 returning content
+    mock_s3_result = {
+        "content": b"<html>Test content</html>",
+        "content_type": "text/html",
+    }
+
+    with patch("core.views.ENABLE_DB_CACHE", False), patch(
+        "core.views.DocLibsTemplateView.get_from_s3", return_value=mock_s3_result
+    ) as mock_get_from_s3:
+
+        view = DocLibsTemplateView()
+        view.request = request_factory.get("/doc/libs/test/")
+        result = view.get_content("test/path")
+
+        # verify S3 was called directly
+        mock_get_from_s3.assert_called_once_with("test/path")
+
+        assert result["content"] == mock_s3_result["content"]
+        assert result["content_type"] == mock_s3_result["content_type"]
+        assert "redirect" in result
+
+
+@patch("core.views.DocLibsTemplateView.get_from_s3")
+def test_doc_libs_get_content_not_found(mock_get_from_s3, request_factory):
+    """Test DocLibsTemplateView.get_content when content is not found."""
+    from core.views import DocLibsTemplateView, ContentNotFoundException
+
+    # mock S3 returning None (content not found)
+    mock_get_from_s3.return_value = None
+
+    request = request_factory.get("/doc/libs/test/")
+    view = DocLibsTemplateView()
+    view.request = request
+
+    with pytest.raises(ContentNotFoundException, match="Content not found"):
+        view.get_content("nonexistent/path")
+
+
 def test_markdown_view_top_level_includes_extension(tp):
     res = tp.get("/markdown/foo.html")
     tp.response_200(res)

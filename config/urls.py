@@ -26,7 +26,7 @@ from core.views import (
     RedirectToDocsView,
     RedirectToHTMLDocsView,
     RedirectToHTMLToolsView,
-    RedirectToLibraryView,
+    RedirectToLibrariesView,
     RedirectToReleaseView,
     RedirectToToolsView,
     StaticContentTemplateView,
@@ -381,6 +381,11 @@ urlpatterns = (
         ),
     ]
     + [
+        path(
+            "libraries/<str:requested_version>/",
+            RedirectToLibrariesView.as_view(),
+            name="redirect-to-library-list-view",
+        ),
         # Redirects for old boost.org urls.
         re_path(
             r"^libs/(?P<libname>[^/]+)/(?P<path>.*)/?$",
@@ -404,7 +409,7 @@ urlpatterns = (
         ),
         re_path(
             r"^doc/libs/(?P<requested_version>[^/]+)/?$",
-            RedirectToLibraryView.as_view(),
+            RedirectToLibrariesView.as_view(),
             name="redirect-to-library-page",
         ),
         re_path(
