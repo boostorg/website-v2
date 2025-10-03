@@ -329,3 +329,18 @@ def test_qrc_logs_plausible_error_but_still_redirects(tp, caplog):
     tp.response_302(res)
     assert res["Location"] == "/library/"
     assert any("Plausible event post failed" in r.message for r in caplog.records)
+
+
+def test_redirect_to_library_detail_view(tp):
+    """Test that /lib/<library_slug>/ redirects to library detail page with prioritized version."""
+    response = tp.get("redirect-to-library-view", library_slug="algorithm")
+    tp.response_302(response)
+    assert response["Location"] == "/library/latest/algorithm/"
+
+
+def test_redirect_to_library_detail_view_with_cookie(tp):
+    """Test that /lib/<library_slug>/ redirects using version from cookie."""
+    tp.client.cookies["boost_version"] = "boost-1-86-0"
+    response = tp.get("redirect-to-library-view", library_slug="algorithm")
+    tp.response_302(response)
+    assert response["Location"] == "/library/1.86.0/algorithm/"

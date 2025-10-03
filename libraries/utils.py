@@ -124,7 +124,7 @@ def get_prioritized_version(request):
     """
     url_version = get_version_from_url(request)
     cookie_version = get_version_from_cookie(request)
-    default_version = None
+    default_version = LATEST_RELEASE_URL_PATH_STR
     return url_version or cookie_version or default_version
 
 
