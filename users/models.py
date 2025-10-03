@@ -1,6 +1,5 @@
 import uuid
 import logging
-import os
 from contextlib import suppress
 
 import requests
@@ -10,7 +9,6 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin,
 )
-from django.core.files import File
 from django.core.mail import send_mail
 from django.db import models, transaction
 from django.db.models.signals import post_save
@@ -263,16 +261,11 @@ class User(BaseUser):
     delete_permanently_at = models.DateTimeField(null=True, editable=False)
 
     def save_image_from_provider(self, avatar_url):
+        from django.core.files.base import ContentFile
+
         response = requests.get(avatar_url)
         filename = f"{self.profile_image_filename_root}.png"
-        os.path.join(settings.MEDIA_ROOT, "media", "profile-images", filename)
-
-        with open(filename, "wb") as f:
-            f.write(response.content)
-
-        reopen = open(filename, "rb")
-        django_file = File(reopen)
-        self.image.save(filename, django_file, save=True)
+        self.image.save(filename, ContentFile(response.content), save=True)
 
     @cached_property
     def profile_image_filename_root(self):
