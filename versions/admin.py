@@ -4,14 +4,9 @@ from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import path
 
-from libraries.tasks import release_tasks
+from libraries.tasks import release_tasks, import_new_versions_tasks
 
 from . import models
-from .tasks import (
-    import_versions,
-    import_most_recent_beta_release,
-    import_development_versions,
-)
 
 
 class VersionFileInline(admin.StackedInline):
@@ -57,17 +52,9 @@ class VersionAdmin(admin.ModelAdmin):
         return HttpResponseRedirect("../")
 
     def import_new_releases(self, request):
-        import_versions.delay(new_versions_only=True)
-        import_most_recent_beta_release.delay(delete_old=True)
-        # Import the master and develop branches
-        import_development_versions.delay()
-        self.message_user(
-            request,
-            """
-            New releases are being imported. If you don't see any new releases,
-            please refresh this page or check the logs.
-        """,
-        )
+        import_new_versions_tasks.delay(user_id=request.user.id)
+        msg = "New releases are being imported. You will receive an email when the task finishes."  # noqa: E501
+        self.message_user(request, msg)
         return HttpResponseRedirect("../")
 
 
