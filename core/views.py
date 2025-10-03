@@ -561,21 +561,22 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         # For now at least we're only going to cache docs this way, user guides and
         #  will continue to be cached as they were
 
-        if not ENABLE_DB_CACHE:
-            return self.get_from_s3(content_path)
-
-        cache_key = f"static_content_{content_path}"
-        # check to see if in db, if not retrieve from s3 and save to db
-        result = self.get_from_database(cache_key)
-        if not result and (result := self.get_from_s3(content_path)):
-            self.save_to_database(cache_key, result)
+        result = None
+        if ENABLE_DB_CACHE:
+            cache_key = f"static_content_{content_path}"
+            # check to see if in db, if not retrieve from s3 and save to db
+            result = self.get_from_database(cache_key)
+            if not result and (result := self.get_from_s3(content_path)):
+                self.save_to_database(cache_key, result)
+        elif content_data := self.get_from_s3(content_path):
+            # structure is to allow for redirect/return to be handled in a unified way
+            result = {
+                "content": content_data.get("content"),
+                "content_type": content_data.get("content_type"),
+            }
 
         if result is None:
-            logger.info(
-                "get_content_from_s3_view_no_valid_object",
-                key=content_path,
-                status_code=404,
-            )
+            logger.info(f"get_content_from_s3_view_no_valid_object {content_path=}")
             raise ContentNotFoundException("Content not found")
 
         result["redirect"] = get_meta_redirect_from_html(result["content"])
