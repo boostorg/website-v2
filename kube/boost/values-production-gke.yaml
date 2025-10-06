@@ -13,13 +13,13 @@ replicaCount: "2"
 
 wsgiResources:
   limits:
-    cpu: "3500m"
+    cpu: "2500m"
     ephemeral-storage: 1Gi
-    memory: 4Gi
+    memory: 2500Mi
   requests:
-    cpu: "3500m"
+    cpu: "2500m"
     ephemeral-storage: 1Gi
-    memory: 4Gi
+    memory: 2500Mi
 
 ## NOTE ##
 # set publcFqdn to the target domain. `www` will be prepended to the domain
