@@ -24,10 +24,18 @@ def extract_file_data(response, s3_key):
     """Extracts the file content, content type, and last modified date from an S3
     response object."""
     file_content = response["Body"].read()
-    detected_encoding = chardet.detect(file_content)["encoding"] or "utf-8"
-    # decoding here stops django debug toolbar erroring on non-utf-8, e.g. preprocessor
-    if detected_encoding != "utf-8":
-        file_content = file_content.decode(detected_encoding).encode("utf-8")
+    # Try UTF-8 first, falling back to chardet detection if that fails. This prevents
+    # double-encoding issues where UTF-8 content is misdetected as Windows-1252
+    try:
+        file_content.decode("utf-8")
+        # Content is valid UTF-8, use as-is
+    except UnicodeDecodeError:
+        # Content is not UTF-8, detect encoding and re-encode
+        # decoding here stops django debug toolbar erroring on non-utf-8, e.g.
+        #  the preprocessor library
+        if detected_encoding := chardet.detect(file_content)["encoding"]:
+            file_content = file_content.decode(detected_encoding).encode("utf-8")
+
     content_type = get_content_type(s3_key, response["ContentType"])
     last_modified = response["LastModified"]
     return {

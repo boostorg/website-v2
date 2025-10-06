@@ -516,8 +516,6 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         req_uri = self.request.build_absolute_uri()
         canonical_uri = generate_canonical_library_uri(req_uri)
 
-        # this decode is needed for some libraries, e.g. assert
-        content = content.decode(chardet.detect(content)["encoding"])
         soup = BeautifulSoup(content, "html.parser")
 
         # handle libraries that expect no processing
