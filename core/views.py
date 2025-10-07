@@ -528,7 +528,7 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         soup = self._required_modernization_changes(soup)
 
         context = {
-            "content": str(soup.prettify()),
+            "content": str(soup),
             "canonical_uri": canonical_uri if canonical_uri != req_uri else None,
         }
         template_name = "original_docs.html"
