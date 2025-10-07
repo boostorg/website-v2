@@ -1,3 +1,4 @@
+from structlog import get_logger
 from functools import cached_property
 from itertools import groupby, chain
 from operator import attrgetter
@@ -9,13 +10,20 @@ from django.template.loader import render_to_string
 from django.db.models import F, Q, Count, OuterRef, Sum, When, Value, Case
 from django.forms import Form, ModelChoiceField, ModelForm, BooleanField
 
+from algoliasearch.analytics.client import AnalyticsClientSync
+
+from config import settings
 from core.models import RenderedContent
 from reports.generation import (
     generate_wordcloud,
     get_mailing_list_post_stats,
     get_new_subscribers_stats,
+    generate_mailinglist_words,
+    generate_algolia_words,
+    get_algolia_search_stats,
 )
 from slack.models import Channel, SlackActivityBucket, SlackUser
+from versions.exceptions import BoostImportedDataException
 from versions.models import Version, ReportConfiguration
 from .models import (
     Commit,
@@ -28,6 +36,8 @@ from .models import (
 from libraries.constants import SUB_LIBRARIES
 from mailing_list.models import EmailData
 from .utils import batched, conditional_batched
+
+logger = get_logger(__name__)
 
 
 class LibraryForm(ModelForm):
@@ -661,9 +671,13 @@ class CreateReportForm(CreateReportFullForm):
         }
 
     def _get_dependency_data(self, library_order, version):
-        diffs_by_id = {
-            x["library_id"]: x for x in version.get_dependency_diffs().values()
-        }
+        try:
+            dependency_diff_values = version.get_dependency_diffs().values()
+        except BoostImportedDataException as e:
+            logger.warning(f"Could not get dependency diffs for version {version}: {e}")
+            dependency_diff_values = {}
+
+        diffs_by_id = {x["library_id"]: x for x in dependency_diff_values}
         diffs = []
         for lib_id in library_order:
             diffs.append(diffs_by_id.get(lib_id, {}))
@@ -697,9 +711,13 @@ class CreateReportForm(CreateReportFullForm):
     def get_stats(self):
         report_configuration = self.cleaned_data["report_configuration"]
         version = Version.objects.filter(name=report_configuration.version).first()
+        # NOTE TO FUTURE DEVS: remember to account for the fact that a report
+        #  configuration may not match with a real version in frequent cases where
+        #  reports are generated before the release version has been created.
+        report_before_release = False if version else True
 
         prior_version = None
-        if not version:
+        if report_before_release:
             # if the version is not set then the user has chosen a report configuration
             #  that's not matching a live version, so we use the most recent version
             version = Version.objects.filter(name="master").first()
@@ -808,9 +826,24 @@ class CreateReportForm(CreateReportFullForm):
                     library in [lib["library"] for lib in library_data],
                 )
             )
-        wordcloud_base64, wordcloud_top_words = generate_wordcloud(
-            version, prior_version
+        # mailinglist word cloud generation
+        mailinglist_words = generate_mailinglist_words(prior_version, version)
+        mailinglist_wordcloud_base64, mailinglist_wordcloud_top_words = (
+            generate_wordcloud(mailinglist_words, width=1400, height=700)
         )
+
+        # algolia search word cloud generation
+        client = AnalyticsClientSync(**settings.ALGOLIA)
+        # if the report is based on a live version, look for stats for that
+        # version, otherwise use the stats for the prior (live) version
+        search_version = prior_version if report_before_release else version
+        search_list_words = generate_algolia_words(client, search_version)
+        search_wordcloud_base64, search_wordcloud_top_words = generate_wordcloud(
+            search_list_words, width=800, height=250
+        )
+
+        search_stats = get_algolia_search_stats(client, search_version)
+        logger.info(f"{search_stats=}")
 
         opened_issues_count = (
             Issue.objects.filter(library__in=self.library_queryset)
@@ -827,13 +860,13 @@ class CreateReportForm(CreateReportFullForm):
             "committee_members": committee_members,
             "lines_added": lines_added,
             "lines_removed": lines_removed,
-            "wordcloud_base64": wordcloud_base64,
-            "wordcloud_frequencies": wordcloud_top_words,
             "version": version,
             "report_configuration": report_configuration,
             "prior_version": prior_version,
             "opened_issues_count": opened_issues_count,
             "closed_issues_count": closed_issues_count,
+            "mailinglist_wordcloud_base64": mailinglist_wordcloud_base64,
+            "mailinglist_wordcloud_frequencies": mailinglist_wordcloud_top_words,
             "mailinglist_counts": mailinglist_counts,
             "mailinglist_total": total_mailinglist_count or 0,
             "mailinglist_contributor_release_count": mailinglist_contributor_release_count,  # noqa: E501
@@ -841,6 +874,9 @@ class CreateReportForm(CreateReportFullForm):
             "mailinglist_post_stats": mailinglist_post_stats,
             "mailinglist_new_subscribers_stats": new_subscribers_stats,
             "mailinglist_charts_start_year": prior_version.release_date.year,
+            "search_wordcloud_base64": search_wordcloud_base64,
+            "search_wordcloud_frequencies": search_wordcloud_top_words,
+            "search_stats": search_stats,
             "commit_contributors_release_count": commit_contributors_release_count,
             "commit_contributors_new_count": commit_contributors_new_count,
             "global_contributors_new_count": len(
