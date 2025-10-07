@@ -919,10 +919,13 @@ class RedirectToLibraryView(BaseRedirectView):
 
 
 @method_decorator(never_cache, name="dispatch")
-class QRCodeView(View):
-    """Handles QR code urls, sending them to Plausible, then redirecting to the desired url.
+class PlausibleRedirectView(View):
+    """Handles QR code and social media urls, sending them to Plausible, then redirecting to the desired url.
 
     QR code urls are formatted /qrc/<campaign_identifier>/desired/path/to/content/, and will
+    result in a redirect to /desired/path/to/content/.
+
+    Social media urls are formatted /bsm/<campaign_identifier>/desired/path/to/content/, and will
     result in a redirect to /desired/path/to/content/.
 
     E.g. https://www.boost.org/qrc/pv-01/library/latest/beast/ will send this full url to Plausible,

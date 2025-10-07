@@ -281,10 +281,11 @@ def test_calendar(rf, tp):
     tp.response_200(response)
 
 
-def test_qrc_redirect_and_plausible_payload(tp):
+@pytest.mark.parametrize("url_stem", ["qrc", "bsm"])
+def test_plausible_redirect_and_plausible_payload(tp, url_stem):
     """XFF present; querystring preserved; payload/headers correct."""
     with patch("core.views.requests.post", return_value=None) as post_mock:
-        url = "/qrc/pv-01/library/latest/beast/?x=1&y=2"
+        url = f"/{url_stem}/pv-01/library/latest/beast/?x=1&y=2"
         res = tp.get(url)
 
     tp.response_302(res)
@@ -298,7 +299,7 @@ def test_qrc_redirect_and_plausible_payload(tp):
     assert kwargs["json"] == {
         "name": "pageview",
         "domain": "qrc.boost.org",
-        "url": "http://testserver/qrc/pv-01/library/latest/beast/",
+        "url": f"http://testserver/{url_stem}/pv-01/library/latest/beast/",
         "referrer": "",  # matches view behavior with no forwarded referer
     }
 
