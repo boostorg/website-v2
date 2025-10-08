@@ -387,6 +387,11 @@ urlpatterns = (
         ),
     ]
     + [
+        path(
+            "libraries/<str:requested_version>/",
+            RedirectToLibrariesView.as_view(),
+            name="redirect-to-library-list-view",
+        ),
         # Redirects for old boost.org urls.
         re_path(
             r"^libs/(?P<libname>[^/]+)/(?P<path>.*)/?$",
