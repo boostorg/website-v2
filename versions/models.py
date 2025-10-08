@@ -319,3 +319,12 @@ class ReportConfiguration(models.Model):
 
     def __str__(self):
         return self.version
+
+
+def docs_path_to_boost_name(content_path):
+    """
+    Convert a documentation content path to the Boost version name.
+    e.g. "1_79_0/doc/html/accumulators.html" to "boost-1.79.0"
+    """
+    result = re.sub(r"^([_0-9]+)(/\S+)", r"boost-\1", content_path)
+    return result.replace("_", ".")
