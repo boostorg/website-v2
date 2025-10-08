@@ -1,3 +1,5 @@
+import re
+
 import structlog
 from types import SimpleNamespace
 
@@ -32,11 +34,27 @@ class VersionAlertMixin:
         if url_name in {"libraries", "releases-most-recent"}:
             return context
         current_version_kwargs = self.kwargs.copy()
-        current_version_kwargs.update({"version_slug": LATEST_RELEASE_URL_PATH_STR})
+
+        if url_name == "docs-libs-page":
+            alert_visible = not current_version_kwargs.get("content_path").startswith(
+                LATEST_RELEASE_URL_PATH_STR
+            )
+            current_version_kwargs.update(
+                {
+                    "content_path": re.sub(
+                        r"([_0-9]+)/(\S+)",
+                        rf"{LATEST_RELEASE_URL_PATH_STR}/\2",
+                        current_version_kwargs.get("content_path"),
+                    )
+                }
+            )
+        else:
+            current_version_kwargs.update({"version_slug": LATEST_RELEASE_URL_PATH_STR})
+            alert_visible = (
+                self.kwargs.get("version_slug") != LATEST_RELEASE_URL_PATH_STR
+            )
         context["version_alert_url"] = reverse(url_name, kwargs=current_version_kwargs)
-        context["version_alert"] = (
-            self.kwargs.get("version_slug") != LATEST_RELEASE_URL_PATH_STR
-        )
+        context["version_alert"] = alert_visible
         return context
 
 
