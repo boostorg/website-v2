@@ -40,6 +40,54 @@ def test_extract_file_data():
     assert result == expected_result
 
 
+def test_extract_file_data_utf8_not_double_encoded():
+    """Test that UTF-8 content with non-breaking spaces is not double-encoded.
+
+    This test ensures that content containing UTF-8 bytes like \xc2\xa0 (non-breaking
+    space) is not misdetected as Windows-1252 and incorrectly re-encoded, which would
+    cause double-encoding (\xc2\xa0 -> \xc3\x82\xc2\xa0).
+    """
+    # HTML content with UTF-8 encoded non-breaking space (\xc2\xa0)
+    utf8_content = b"<html><title>Chapter\xc2\xa01.\xc2\xa0Boost.Beast</title></html>"
+
+    response = {
+        "Body": BytesIO(utf8_content),
+        "ContentType": "text/html; charset=UTF-8",
+        "LastModified": datetime.datetime(2023, 6, 8, 12, 0, 0),
+    }
+    s3_key = "example.html"
+
+    result = extract_file_data(response, s3_key)
+
+    # Content should remain as UTF-8, not be double-encoded
+    assert result["content"] == utf8_content
+    # Should NOT contain double-encoded sequence \xc3\x82\xc2\xa0
+    assert b"\xc3\x82\xc2\xa0" not in result["content"]
+    # Should contain the original UTF-8 non-breaking space \xc2\xa0
+    assert b"\xc2\xa0" in result["content"]
+
+
+def test_extract_file_data_non_utf8_reencoded():
+    """Test that genuinely non-UTF-8 content is detected and re-encoded to UTF-8."""
+    # Latin-1 content with a character not valid in UTF-8
+    latin1_content = b"<html><title>Test\xe9</title></html>"  # \xe9 is 'é' in Latin-1
+
+    response = {
+        "Body": BytesIO(latin1_content),
+        "ContentType": "text/html",
+        "LastModified": datetime.datetime(2023, 6, 8, 12, 0, 0),
+    }
+    s3_key = "example.html"
+
+    result = extract_file_data(response, s3_key)
+
+    # Content should be re-encoded to UTF-8
+    # 'é' in UTF-8 is \xc3\xa9
+    assert b"\xc3\xa9" in result["content"]
+    # Original Latin-1 byte should not be present
+    assert result["content"] != latin1_content
+
+
 def test_get_body_from_html():
     html_string = (
         "<html><head><title>Test</title></head><body><h1>Test</h1></body></html>"
