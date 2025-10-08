@@ -180,7 +180,7 @@ def modernize_legacy_page(
 
     if soup.html is None:
         # Not an HTML file we care about
-        return soup.prettify(formatter="html")
+        return str(soup)
 
     # Remove CSS classes that produce visual harm
     for tag_name, tag_attrs in REMOVE_CSS_CLASSES:
@@ -231,7 +231,7 @@ def modernize_legacy_page(
     # Remove tags from the base template
     soup = hide_tags(soup, HIDE_TAGS_BASE)
 
-    return soup.prettify(formatter="html")
+    return str(soup)
 
 
 def minimize_uris(content: str) -> str:
