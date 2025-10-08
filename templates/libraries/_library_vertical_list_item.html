@@ -21,7 +21,7 @@ onclick="window.location='{% url 'library-detail' library_slug=library_version.l
   <td class="w-8 align-top">
     {% include "libraries/includes/_documentation_link_icon.html" %}
   </td>
-  <td class="align-top hidden md:block mt-2 pl-3 md:h-20 md:items-center h-full">{{ library_version.description|default:"No description provided for this version." }}</td>
+  <td class="align-top hidden md:block mt-2 pl-3 md:items-center h-full">{{ library_version.description|default:"No description provided for this version." }}</td>
 </tr>
 <tr class="block md:hidden pl-1 align-top">
   <td>{{ library_version.description|default:"No description provided for this version." }}</td>

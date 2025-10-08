@@ -34,6 +34,7 @@ from libraries.utils import (
     legacy_path_transform,
     get_prioritized_library_view,
     generate_canonical_library_uri,
+    set_selected_boost_version,
 )
 from versions.models import Version, docs_path_to_boost_name
 
@@ -515,6 +516,13 @@ class DocLibsTemplateView(VersionAlertMixin, BaseStaticContentTemplateView):
         "text/html; charset=utf-8",
         "text/css; charset=utf-8",
     }
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        set_selected_boost_version(
+            self.kwargs.get("content_path").split("/", 1)[0], response
+        )
+        return response
 
     def get_from_s3(self, content_path):
         legacy_url = normalize_boost_doc_path(content_path)
