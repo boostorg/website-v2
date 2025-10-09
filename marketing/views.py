@@ -78,7 +78,9 @@ class WhitePaperView(SuccessMessageMixin, CreateView):
     success_message = "Thanks! We'll be in touch."
 
     def get_template_names(self):
-        return [f"marketing/whitepapers/{self.kwargs.get('slug')}.html"]
+        category = self.kwargs.get("category")
+        slug = self.kwargs.get("slug")
+        return [f"marketing/whitepapers/{category}/{slug}.html"]
 
     def form_valid(self, form):
         form.instance.page_slug = self.kwargs["slug"]

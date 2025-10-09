@@ -141,7 +141,7 @@ urlpatterns = (
             name="bsm",
         ),
         path(
-            "info/<slug:slug>",
+            "outreach/<slug:category>/<slug:slug>",
             WhitePaperView.as_view(),
             name="whitepaper",
         ),
