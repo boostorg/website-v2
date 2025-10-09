@@ -310,6 +310,45 @@ class UserAvatar(TemplateView):
         context["mobile"] = self.request.GET.get("ui")
         return context
 
+    def render_to_response(self, context, **response_kwargs):
+        """
+        Override to delete CSRF cookie when session cookie is not present.
+        This cleans up CSRF cookies for anonymous users.
+        TODO: december 2025 - remove this override, cookies should have been cleared
+        """
+        response = super().render_to_response(context, **response_kwargs)
+
+        session_cookie_name = settings.SESSION_COOKIE_NAME
+        has_session = session_cookie_name in self.request.COOKIES
+        has_csrf_cookie = "csrftoken" in self.request.COOKIES
+
+        # only delete CSRF cookie if user was previously logged in but session expired
+        if (
+            has_csrf_cookie
+            and not has_session
+            and self.request.session.session_key is None
+        ):
+            # check if user is on pages that require CSRF but don't require login
+            # (auth pages where anonymous users submit forms)
+            referer = self.request.META.get("HTTP_REFERER", "")
+            current_path = self.request.path
+
+            # paths that anonymous users can access and have forms
+            anonymous_form_paths = [
+                "/accounts/",  # login, signup, password reset, email confirm, etc.
+                "/socialaccount/",  # social auth pages
+            ]
+
+            # don't delete if user is on or coming from anonymous form pages
+            is_anonymous_form = any(
+                path in referer for path in anonymous_form_paths
+            ) or any(path in current_path for path in anonymous_form_paths)
+
+            if not is_anonymous_form:
+                response.delete_cookie("csrftoken", path="/")
+
+        return response
+
 
 class DeleteUserView(LoginRequiredMixin, FormView):
     template_name = "users/delete.html"

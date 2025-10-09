@@ -152,4 +152,19 @@
   </div>
 
   {% include "modal.html" %}
+
+  <script>
+    document.body.addEventListener('htmx:configRequest', function(event) {
+      /* only set CSRF token if config-sessionid cookie exists.
+      we don't really need this check while this functionality is limited to this
+      page, but I'm adding it anyway in case we move this in the future so we don't
+      overlook it. */
+      const hasSessionId = document.cookie.split(';').some(function(cookie) {
+        return cookie.trim().startsWith('config-sessionid=');
+      });
+      if (hasSessionId) {
+        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+      }
+    });
+  </script>
 {% endblock %}
