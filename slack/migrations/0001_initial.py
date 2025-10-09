@@ -146,7 +146,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="thread",
             constraint=models.CheckConstraint(
-                check=django.db.models.lookups.GreaterThanOrEqual(
+                condition=django.db.models.lookups.GreaterThanOrEqual(
                     django.db.models.functions.comparison.Cast(
                         "last_update_ts", output_field=models.FloatField()
                     ),
@@ -172,7 +172,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="channelupdategap",
             constraint=models.CheckConstraint(
-                check=django.db.models.lookups.GreaterThan(
+                condition=django.db.models.lookups.GreaterThan(
                     django.db.models.functions.comparison.Cast(
                         "newest_message_ts", output_field=models.FloatField()
                     ),
