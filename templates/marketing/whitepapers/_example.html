@@ -1,0 +1,44 @@
+{# Copy-paste this into a file in the whitepapers directory. The file name must match the url slug #}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>White Paper Example</title>
+  <style>
+    {# TODO: Rob to populate this #}
+  </style>
+</head>
+
+<body>
+<h1>Drop your work email below to get engineering updates. Then scroll down for the Unordered tech overview & links.</h1>
+
+{% if messages %}
+  {# Expect a success message from submitting the form #}
+  <div class="messages">
+    {% for message in messages %}
+    <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+    {% endfor %}
+  </div>
+{% else %}
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ form.email.errors }}
+    {{ form.email }}
+    <button type="submit">Get C++ Updates</button>
+  </form>
+  <p>
+    Privacy: no spam, one step unsubscribe. We'll only send high-signal dev content re Unordered and other Boost libraries.
+  </p>
+{% endif %}
+
+<div class="separator"></div>
+
+<div class="content">
+
+  <p>CONTENT GOES HERE</p>
+
+</div>
+
+</body>
+</html>

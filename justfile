@@ -141,5 +141,5 @@ alias shell := console
     docker compose cp "db:/tmp/${DUMP_FILENAME}" "./${DUMP_FILENAME}"
     echo "Database dumped successfully to ${DUMP_FILENAME}"
 
-@manage args:
+@manage +args:
     docker compose run --rm web python manage.py {{ args }}

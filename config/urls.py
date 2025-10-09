@@ -33,8 +33,8 @@ from core.views import (
     UserGuideTemplateView,
     BoostDevelopmentView,
     ModernizedDocsView,
-    PlausibleRedirectView,
 )
+from marketing.views import PlausibleRedirectView, WhitePaperView
 from libraries.api import LibrarySearchView
 from libraries.views import (
     LibraryDetail,
@@ -139,6 +139,11 @@ urlpatterns = (
             "bsm/<str:campaign_identifier>/<path:main_path>",
             PlausibleRedirectView.as_view(),
             name="bsm",
+        ),
+        path(
+            "info/<slug:slug>",
+            WhitePaperView.as_view(),
+            name="whitepaper",
         ),
         path(
             "accounts/social/signup/",

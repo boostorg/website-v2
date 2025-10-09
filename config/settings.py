@@ -96,6 +96,7 @@ INSTALLED_APPS += [
     "versions",
     "libraries",
     "mailing_list",
+    "marketing",
     "news",
     "reports",
     "core",
