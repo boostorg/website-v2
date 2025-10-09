@@ -284,7 +284,7 @@ def test_calendar(rf, tp):
 @pytest.mark.parametrize("url_stem", ["qrc", "bsm"])
 def test_plausible_redirect_and_plausible_payload(tp, url_stem):
     """XFF present; querystring preserved; payload/headers correct."""
-    with patch("core.views.requests.post", return_value=None) as post_mock:
+    with patch("marketing.views.requests.post", return_value=None) as post_mock:
         url = f"/{url_stem}/pv-01/library/latest/beast/?x=1&y=2"
         res = tp.get(url)
 
@@ -310,7 +310,7 @@ def test_plausible_redirect_and_plausible_payload(tp, url_stem):
 
 def test_qrc_falls_back_to_remote_addr_when_no_xff(tp):
     """No XFF provided -> uses REMOTE_ADDR (127.0.0.1 in Django test client)."""
-    with patch("core.views.requests.post", return_value=None) as post_mock:
+    with patch("marketing.views.requests.post", return_value=None) as post_mock:
         res = tp.get("/qrc/camp/library/latest/algorithm/")
 
     tp.response_302(res)
@@ -323,7 +323,7 @@ def test_qrc_falls_back_to_remote_addr_when_no_xff(tp):
 
 def test_qrc_logs_plausible_error_but_still_redirects(tp, caplog):
     """Plausible post raises -> error logged; redirect not interrupted."""
-    with patch("core.views.requests.post", side_effect=RuntimeError("boom")):
+    with patch("marketing.views.requests.post", side_effect=RuntimeError("boom")):
         with caplog.at_level(logging.ERROR, logger="core.views"):
             res = tp.get("/qrc/c1/library/", HTTP_USER_AGENT="ua")
 
