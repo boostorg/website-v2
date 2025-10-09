@@ -184,12 +184,12 @@ def library_doc_latest_transform(url):
 
 def generate_canonical_library_uri(uri):
     matches = re.match(
-        r"(?P<domainpath>https?://[^/]+(?:/[^/]+){2}/?)(?P<version>[^/]+)(?P<docpath>/[\S]+)",
+        r"https?://(?P<domainpath>[^/]+(?:/[^/]+){2}/?)(?P<version>[^/]+)(?P<docpath>/[\S]+)",
         uri,
     )
     if matches.group("version") == LATEST_RELEASE_URL_PATH_STR:
         return uri
-    return f"{matches.group('domainpath')}{LATEST_RELEASE_URL_PATH_STR}{matches.group('docpath')}"
+    return f"https://{matches.group('domainpath')}{LATEST_RELEASE_URL_PATH_STR}{matches.group('docpath')}"
 
 
 def get_documentation_url(library_version, latest):
