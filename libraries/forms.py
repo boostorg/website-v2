@@ -916,7 +916,7 @@ class CommitAuthorEmailForm(Form):
         ensure the email exists."""
         email = self.cleaned_data.get("email")
         commit_author_email = CommitAuthorEmail.objects.filter(
-            email_iexact=email
+            email__iexact=email
         ).first()
         msg = None
 
