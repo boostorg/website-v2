@@ -1,15 +1,32 @@
 {% load static %}
 <html>
-    <head>
-        <link rel="stylesheet" href="{% static 'css/landing-style.css' %}" />
-    </head>
-    <body>
-    <h1>Drop your email below to get engineering updates. Then scroll down for the Unordered tech overview & links.</h1>
-<div class="email-block">
-<input placeholder="your@email.com" id="email"><button class="email-button">Get C++ Updates</button>
-</div>
+  <head>
+      <link rel="stylesheet" href="{% static 'css/landing-style.css' %}" />
+  </head>
+  <body>
+  <h1>Drop your email below to get engineering updates. Then scroll down for the Unordered tech overview & links.</h1>
 
-<p>Privacy: no spam, one step unsubscribe. We'll only send high-signal dev content re Unordered and other Boost libraries.</p>
+{% if messages %}
+  {# Expect a success message from submitting the form #}
+  <div class="email-block">
+    <div class="messages">
+      {% for message in messages %}
+      <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+      {% endfor %}
+    </div>
+  </div>
+{% else %}
+  <div class="email-block">
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {{ form.email.errors }}
+      {{ form.email }}
+      <button class="email-button" type="submit">Get C++ Updates</button>
+    </form>
+  </div>
+  <p>Privacy: no spam, one step unsubscribe. We'll only send high-signal dev content re Unordered and other Boost libraries.</p>
+{% endif %}
 
 <hr/>
 

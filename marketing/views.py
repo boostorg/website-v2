@@ -8,6 +8,7 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import CreateView
 
 from core.views import logger
+from marketing.forms import CapturedEmailForm
 from marketing.models import CapturedEmail
 
 
@@ -74,7 +75,7 @@ class WhitePaperView(SuccessMessageMixin, CreateView):
     """Email capture and whitepaper view."""
 
     model = CapturedEmail
-    fields = ["email"]
+    form_class = CapturedEmailForm
     success_message = "Thanks! We'll be in touch."
 
     def get_template_names(self):
