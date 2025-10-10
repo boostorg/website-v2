@@ -34,7 +34,7 @@
 <h1 class="flex"><div class="logo"></div>Boost.Unordered: High-Performance Hash Containers for C++</h1>
 <h3>Understanding the Container Options</h3>
 <p>Boost.Unordered gives you 12 different hash container types to choose from, organized into three main families. Think of these as tools in your performance toolbox—each one is optimized for different situations.</p>
-<p><b>I. Closed-addressing containers</b> (like <code>boost::unordered_map</code> and <code>boost::unordered_set</code>) work exactly like <code>std::unordered</code> containers. You can drop them into existing code as faster replacements. They support C++11 and newer standards.</p>
+<p><b>I. Closed-addressing containers</b> (like <code>boost::unordered_map</code> and <code>boost::unordered_set</code>) work exactly like <code>std</code> unordered containers. You can drop them into existing code as faster replacements. They support C++11 and newer standards.</p>
 <p><b>II. Open-addressing containers are the speed champions. </b><code>boost::unordered_flat_map</code> and <code>boost::unordered_flat_set</code> store elements directly in the bucket array for maximum performance. If you need pointer stability (addresses that don't change), use <code>boost::unordered_node_map</code> and <code>boost::unordered_node_set</code> instead—they're slightly slower but still very fast.</p>
 <p><b>III. Concurrent containers</b> like <code>boost::concurrent_flat_map</code> and <code>boost::concurrent_flat_set</code> are designed for multithreaded programs where multiple threads need to access the same container safely.
 <h3>I. Closed-Addressing Containers: How boost::unordered_map Got So Fast</h3>
