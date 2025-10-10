@@ -29,7 +29,6 @@ class PlausibleRedirectView(View):
     def get(self, request: HttpRequest, campaign_identifier: str, main_path: str = ""):
         absolute_url = request.build_absolute_uri(request.path)
         referrer = request.META.get("HTTP_REFERER", "")
-        print(f"\n\n{referrer = }\n")
         user_agent = request.META.get("HTTP_USER_AGENT", "")
 
         plausible_payload = {
@@ -78,16 +77,16 @@ class WhitePaperView(SuccessMessageMixin, CreateView):
     model = CapturedEmail
     form_class = CapturedEmailForm
     success_message = "Thanks! We'll be in touch."
-    referrer = ""
+    referrer: str
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         """Store self.referrer for use in form submission."""
         # If this view originated from PlausibleRedirectView, we should have original_referrer in the session
-        if original_referrer := self.request.session.pop("original_referrer", ""):
+        if original_referrer := self.request.session.get("original_referrer", ""):
             self.referrer = original_referrer
         else:
             self.referrer = self.request.META.get("HTTP_REFERER", "")
-        return super().get(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_template_names(self):
         category = self.kwargs["category"]
