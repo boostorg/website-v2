@@ -79,12 +79,12 @@ class WhitePaperView(SuccessMessageMixin, CreateView):
     success_message = "Thanks! We'll be in touch."
 
     def get_template_names(self):
-        category = self.kwargs.get("category")
-        slug = self.kwargs.get("slug")
+        category = self.kwargs["category"]
+        slug = self.kwargs["slug"]
         return [f"marketing/whitepapers/{category}/{slug}.html"]
 
     def form_valid(self, form):
-        form.instance.page_slug = self.kwargs["slug"]
+        form.instance.page_slug = f"{self.kwargs['category']}/{self.kwargs['slug']}"
         # If this view originated from PlausibleRedirectView, we should have original_referrer in the session
         if original_referrer := self.request.session.pop("original_referrer", ""):
             form.instance.referrer = original_referrer
