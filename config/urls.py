@@ -33,8 +33,8 @@ from core.views import (
     UserGuideTemplateView,
     BoostDevelopmentView,
     ModernizedDocsView,
-    QRCodeView,
 )
+from marketing.views import PlausibleRedirectView, WhitePaperView
 from libraries.api import LibrarySearchView
 from libraries.views import (
     LibraryDetail,
@@ -122,12 +122,29 @@ urlpatterns = (
         path("feed/news.atom", AtomNewsFeed(), name="news_feed_atom"),
         path("LICENSE_1_0.txt", BSLView, name="license"),
         path(
-            "qrc/<str:campaign_identifier>/", QRCodeView.as_view(), name="qr_code_root"
+            "qrc/<str:campaign_identifier>/",
+            PlausibleRedirectView.as_view(),
+            name="qr_code_root",
         ),  # just in case
         path(
             "qrc/<str:campaign_identifier>/<path:main_path>",
-            QRCodeView.as_view(),
+            PlausibleRedirectView.as_view(),
             name="qr_code",
+        ),
+        path(
+            "bsm/<str:campaign_identifier>/",
+            PlausibleRedirectView.as_view(),
+            name="bsm_root",
+        ),
+        path(
+            "bsm/<str:campaign_identifier>/<path:main_path>",
+            PlausibleRedirectView.as_view(),
+            name="bsm",
+        ),
+        path(
+            "outreach/<slug:category>/<slug:slug>",
+            WhitePaperView.as_view(),
+            name="whitepaper",
         ),
         path(
             "accounts/social/signup/",
