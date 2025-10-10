@@ -29,6 +29,7 @@ class PlausibleRedirectView(View):
     def get(self, request: HttpRequest, campaign_identifier: str, main_path: str = ""):
         absolute_url = request.build_absolute_uri(request.path)
         referrer = request.META.get("HTTP_REFERER", "")
+        print(f"\n\n{referrer = }\n")
         user_agent = request.META.get("HTTP_USER_AGENT", "")
 
         plausible_payload = {
@@ -77,6 +78,16 @@ class WhitePaperView(SuccessMessageMixin, CreateView):
     model = CapturedEmail
     form_class = CapturedEmailForm
     success_message = "Thanks! We'll be in touch."
+    referrer = ""
+
+    def get(self, request, *args, **kwargs):
+        """Store self.referrer for use in form submission."""
+        # If this view originated from PlausibleRedirectView, we should have original_referrer in the session
+        if original_referrer := self.request.session.pop("original_referrer", ""):
+            self.referrer = original_referrer
+        else:
+            self.referrer = self.request.META.get("HTTP_REFERER", "")
+        return super().get(request, *args, **kwargs)
 
     def get_template_names(self):
         category = self.kwargs["category"]
@@ -84,12 +95,8 @@ class WhitePaperView(SuccessMessageMixin, CreateView):
         return [f"marketing/whitepapers/{category}/{slug}.html"]
 
     def form_valid(self, form):
+        form.instance.referrer = self.referrer
         form.instance.page_slug = f"{self.kwargs['category']}/{self.kwargs['slug']}"
-        # If this view originated from PlausibleRedirectView, we should have original_referrer in the session
-        if original_referrer := self.request.session.pop("original_referrer", ""):
-            form.instance.referrer = original_referrer
-        else:
-            form.instance.referrer = self.request.META.get("HTTP_REFERER", "")
         return super().form_valid(form)
 
     def get_success_url(self):
