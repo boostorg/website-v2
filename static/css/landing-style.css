@@ -31,7 +31,13 @@ ul {}
 ul > li {padding-top:0.5rem;}
 ol {}
 ol > li {padding-top:0.5rem;}
-code,pre {font-family:'Courier New', Courier, monospace; font-size: 0.88rem; display:inline; color:green;}
+code, pre {
+    font-family: monospace;
+    font-size: 0.88rem;
+    display: inline;
+    font-weight: 500;
+    color: #187645;
+}
 
 .section {}
 .inset {padding-left:50px}
