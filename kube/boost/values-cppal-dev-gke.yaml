@@ -36,6 +36,7 @@ publicFqdn: &fqdn cppal-dev.boost.cppalliance.org
 publicFqdn2: &fqdn2 cppal-dev.boost.org
 publicFqdn3: &fqdn3 cppal-dev2.boost.cppalliance.org
 publicFqdn4: &fqdn4 boost.org
+mainFqdn: www.cppal-dev.boost.org
 
 Env:
   - name: DJANGO_SETTINGS_MODULE
