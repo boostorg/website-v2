@@ -36,6 +36,7 @@ publicFqdn: &fqdn boost.cppalliance.org
 publicFqdn2: &fqdn2 boost.org
 publicFqdn3: &fqdn3 preview.boost.org
 publicFqdn4: &fqdn4 boost.io
+mainFqdn: www.boost.org
 
 Env:
   - name: DJANGO_SETTINGS_MODULE

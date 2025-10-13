@@ -8,25 +8,29 @@ data:
     server {
       listen 80;
       server_name {{.Values.publicFqdn}};
-      return 301 $scheme://www.{{.Values.publicFqdn}}$request_uri;
+      # return 301 $scheme://www.{{.Values.publicFqdn}}$request_uri;
+      return 301 https://www.{{.Values.publicFqdn}}$request_uri;
     }
 
     server {
       listen 80;
       server_name {{.Values.publicFqdn2}};
-      return 301 $scheme://www.{{.Values.publicFqdn2}}$request_uri;
+      # return 301 $scheme://www.{{.Values.publicFqdn2}}$request_uri;
+      return 301 https://www.{{.Values.publicFqdn2}}$request_uri;
     }
 
     server {
       listen 80;
       server_name {{.Values.publicFqdn3}};
-      return 301 $scheme://www.{{.Values.publicFqdn3}}$request_uri;
+      # return 301 $scheme://www.{{.Values.publicFqdn3}}$request_uri;
+      return 301 https://www.{{.Values.publicFqdn3}}$request_uri;
     }
 
     server {
       listen 80;
       server_name {{.Values.publicFqdn4}};
-      return 301 $scheme://www.{{.Values.publicFqdn4}}$request_uri;
+      # return 301 $scheme://www.{{.Values.publicFqdn4}}$request_uri;
+      return 301 https://www.{{.Values.publicFqdn4}}$request_uri;
     }
 
     server {
