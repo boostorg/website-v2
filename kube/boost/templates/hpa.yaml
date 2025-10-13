@@ -3,7 +3,7 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: boost
 spec:
-  minReplicas: 3
+  minReplicas: {{.Values.hpaMinReplicas}}
   maxReplicas: 12
   metrics:
   - resource:
