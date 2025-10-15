@@ -235,6 +235,7 @@ class ContentNotFoundException(Exception):
 class BaseStaticContentTemplateView(TemplateView):
     template_name = "adoc_content.html"
     allowed_db_save_types = {"text/asciidoc"}
+    html_content_types = {"text/html", "text/html; charset=utf-8"}
 
     def get(self, request, *args, **kwargs):
         """Return static content that originates in S3.
@@ -573,7 +574,8 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
             logger.info(f"get_content_from_s3_view_no_valid_object {content_path=}")
             raise ContentNotFoundException("Content not found")
 
-        result["redirect"] = get_meta_redirect_from_html(result["content"])
+        if result["content_type"] in self.html_content_types:
+            result["redirect"] = get_meta_redirect_from_html(result["content"])
 
         return result
 
