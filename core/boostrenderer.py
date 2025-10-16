@@ -157,14 +157,10 @@ def get_file_data(client, bucket_name, s3_key):
         response = client.get_object(Bucket=bucket_name, Key=s3_key.lstrip("/"))
         return extract_file_data(response, s3_key)
     except ClientError as e:
-        # Log the exception but ignore it otherwise, since it's not necessarily an error
-        logger.exception(
-            "get_content_from_s3_error",
-            s3_key=s3_key,
-            error=str(e),
-            function_name="get_content_from_s3",
-        )
-    return
+        if e.response["Error"]["Code"] == "NoSuchKey":
+            logger.warning(f"NoSuchKey {s3_key=}")
+        else:
+            logger.exception(f"get_content_from_s3_client_error {s3_key=}, {str(e)=}")
 
 
 def get_s3_client():
