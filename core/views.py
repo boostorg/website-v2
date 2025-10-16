@@ -1,5 +1,6 @@
 import os
 
+import requests
 from django.utils import timezone
 
 from urllib.parse import urljoin
@@ -16,11 +17,14 @@ from django.http import (
     HttpResponse,
     HttpResponseNotFound,
     HttpResponseRedirect,
+    HttpRequest,
 )
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 
 from config.settings import ENABLE_DB_CACHE
