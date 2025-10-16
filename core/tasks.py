@@ -7,6 +7,7 @@ from django.core.cache import caches
 
 from core.asciidoc import convert_adoc_to_html
 from .boostrenderer import get_content_from_s3
+from .constants import RENDERED_CONTENT_BATCH_DELETE_SIZE
 from .models import RenderedContent
 
 logger = structlog.get_logger()
@@ -84,3 +85,33 @@ def save_rendered_content(cache_key, content_type, content_html, last_updated_at
         obj_id=obj.id,
         obj_created=created,
     )
+
+
+@shared_task
+def delete_all_rendered_content():
+    """
+    Deletes all RenderedContent objects, in batches to avoid locking the entire table.
+    """
+    from django.db import connection
+
+    deleted_count = 0
+
+    while True:
+        pks = RenderedContent.objects.values_list("pk", flat=True)[
+            :RENDERED_CONTENT_BATCH_DELETE_SIZE
+        ]
+        if not pks:
+            break
+        batch_size, _ = RenderedContent.objects.filter(pk__in=pks).delete()
+
+        deleted_count += batch_size
+        logger.info(f"batch deleted {batch_size=} {deleted_count=}")
+
+    # Reset auto-increment sequence to 1
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"ALTER SEQUENCE {RenderedContent._meta.db_table}_id_seq RESTART WITH 1"
+        )
+
+    logger.info("all_rendered_content_deleted", total_count=deleted_count)
+    return deleted_count
