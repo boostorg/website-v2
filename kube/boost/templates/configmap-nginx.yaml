@@ -138,13 +138,16 @@ data:
       location = /build/ { return 301 /tools/build/; }
       location = /more/lib_guide.htm { return 301 /doc/contributor-guide/index.html; }
 
-      # Generalized rules for simple libs patterns, 
-      # TODO: needs matching development if combining is to be worked back into redirect generation branch or 
+      # redirect from docs urls where the version is prefixed with 'boost_'
+      location ~ ^(/doc/libs/)boost_([0-9_]+)(/\\S+) { return 301 $1$2$3; }
+
+      # Generalized rules for simple libs patterns,
+      # TODO: needs matching development if combining is to be worked back into redirect generation branch or
       #  adding to the exclusion list if kept here as an unreplaced block
       location ~ ^/doc/libs/(\\d+)_(\\d+)_(\\d+)/libs/([^/]+)/(example|src|test)$ { return 301 https://github.com/boostorg/$4/tree/boost-$1.$2.$3/$5; }
       location ~ ^/doc/libs/([^/]+)/libs/([^/]+)/(example|src|test)$ { return 301 https://github.com/boostorg/$2/tree/{{.Values.boostLatestRelease}}/$3; }
 
-      # the following block of locations are from the nginx redirect configuration script and 
+      # the following block of locations are from the nginx redirect configuration script and
       #  should be replaced with the newly generated block as a whole
       # TODO: the version/unversioned pairing needs matching development if worked back into redirect generation branch
 
@@ -190,7 +193,7 @@ data:
       location ~ ^/doc/libs/([^/]+)/tools/boostbook$ { return 301 https://github.com/boostorg/boostbook/tree/{{.Values.boostLatestRelease}}; }
       location ~ ^/doc/libs/(\d+)_(\d+)_(\d+)/tools/build/v2/example/customization$ { return 301 https://github.com/boostorg/build/tree/boost-$1.$2.$3/v2/example/customization; }
       location ~ ^/doc/libs/([^/]+)/tools/build/v2/example/customization$ { return 301 https://github.com/boostorg/build/tree/{{.Values.boostLatestRelease}}/v2/example/customization; }
-      
+
       # block end
 
       include /etc/nginx/mime.types;
