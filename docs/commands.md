@@ -137,7 +137,7 @@ Import `VersionFile` objects from Artifactory.
 **Example**
 
 ```bash
-./manage.py get_library_version_documentation_urls --version=1.81.0
+./manage.py import_library_version_docs_urls --version=1.81.0
 ```
 
 **Options**
