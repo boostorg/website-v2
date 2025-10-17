@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta
-from django.utils.timezone import make_aware, now, utc
+from datetime import datetime, timedelta, timezone
+from django.utils.timezone import make_aware, now
 from model_bakery import baker
 from ..feeds import RSSNewsFeed, AtomNewsFeed
 
@@ -22,7 +22,8 @@ def test_item_pubdate(make_entry):
     feed = RSSNewsFeed()
     published_entry = make_entry(moderator=baker.make("users.User"), approved_at=now())
     expected_datetime = make_aware(
-        datetime.combine(published_entry.publish_at, datetime.min.time()), timezone=utc
+        datetime.combine(published_entry.publish_at, datetime.min.time()),
+        timezone=timezone.utc,
     )
     assert feed.item_pubdate(published_entry) == expected_datetime
 
@@ -51,6 +52,7 @@ def test_item_pubdate_atom(make_entry):
     feed = AtomNewsFeed()
     published_entry = make_entry(moderator=baker.make("users.User"), approved_at=now())
     expected_datetime = make_aware(
-        datetime.combine(published_entry.publish_at, datetime.min.time()), timezone=utc
+        datetime.combine(published_entry.publish_at, datetime.min.time()),
+        timezone=timezone.utc,
     )
     assert feed.item_pubdate(published_entry) == expected_datetime
