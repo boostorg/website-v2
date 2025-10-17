@@ -193,6 +193,13 @@ def generate_canonical_library_uri(uri):
 
 
 def get_documentation_url(library_version, latest):
+    url = library_version.documentation_url
+    if url and latest:
+        url = library_doc_latest_transform(url)
+    return url
+
+
+def get_documentation_url_redirect(library_version, latest):
     """Get the documentation URL for the current library."""
 
     def find_documentation_url(library_version):

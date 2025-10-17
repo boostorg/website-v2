@@ -42,9 +42,10 @@ def test_get_and_store_library_version_documentation_urls_for_version(
     # Refresh the library_version object from the database
     library_version.refresh_from_db()
     # Assert that the docs_path was updated as expected
+    slug = version.boost_url_slug.replace("boost_", "")
     assert (
         library_version.documentation_url
-        == f"/doc/libs/{version.boost_url_slug}/libs/{library_name}/index.html"
+        == f"/doc/libs/{slug}/libs/{library_name}/index.html"
     )
 
 

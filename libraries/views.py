@@ -32,6 +32,7 @@ from .utils import (
     determine_selected_boost_version,
     set_selected_boost_version,
     get_documentation_url,
+    get_documentation_url_redirect,
     get_prioritized_version,
     get_version_from_cookie,
 )
@@ -337,7 +338,9 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, ContributorMixin, Deta
                     library_slug=self.kwargs.get("library_slug"),
                     version_slug=get_prioritized_version(request),
                 )
-            return redirect(get_documentation_url(library_version, latest=False))
+            return redirect(
+                get_documentation_url_redirect(library_version, latest=False)
+            )
         response = super().dispatch(request, *args, **kwargs)
         set_selected_boost_version(
             self.kwargs.get("version_slug", LATEST_RELEASE_URL_PATH_STR), response
