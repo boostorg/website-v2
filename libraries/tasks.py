@@ -60,6 +60,7 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
         return
 
     base_path = f"doc/libs/{version.boost_url_slug}/libs/"
+    boost_stripped_base_path = base_path.replace("doc/libs/boost_", "doc/libs/")
     key = f"{base_path}libraries.htm"
     result = get_content_from_s3(key)
 
@@ -74,7 +75,7 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
         try:
             # In most cases, the name matches close enough to get the correct object
             library_version = library_versions.get(library__name__iexact=library_name)
-            library_version.documentation_url = f"/{base_path}{url_path}"
+            library_version.documentation_url = f"/{boost_stripped_base_path}{url_path}"
             library_version.save()
         except LibraryVersion.DoesNotExist:
             logger.info(
@@ -131,7 +132,9 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
             content = get_content_from_s3(key[0])
 
             if content:
-                library_version.documentation_url = documentation_url
+                library_version.documentation_url = documentation_url.replace(
+                    "doc/libs/boost_", "doc/libs/"
+                )
                 library_version.save()
             else:
                 logger.info(f"No valid docs in S3 for key {documentation_url}")
