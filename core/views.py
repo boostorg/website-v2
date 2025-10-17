@@ -1,4 +1,5 @@
 import os
+
 from django.utils import timezone
 
 from urllib.parse import urljoin
@@ -24,12 +25,14 @@ from django.views.generic import TemplateView
 
 from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
+from libraries.mixins import VersionAlertMixin
 from libraries.utils import (
     legacy_path_transform,
     get_prioritized_library_view,
     generate_canonical_library_uri,
+    set_selected_boost_version,
 )
-from versions.models import Version
+from versions.models import Version, docs_path_to_boost_name
 
 from .asciidoc import convert_adoc_to_html
 from .boostrenderer import (
@@ -343,13 +346,29 @@ class BaseStaticContentTemplateView(TemplateView):
         if content_type == "text/asciidoc":
             content_type = "text/html"
 
-        context.update({"content": content, "content_type": content_type})
-
+        context.update(
+            {
+                "content": content,
+                "content_type": content_type,
+                "selected_version": self.get_selected_version(),
+            }
+        )
         logger.info(
             "get_content_from_s3_view_success", key=self.kwargs.get("content_path")
         )
 
         return context
+
+    def get_selected_version(self) -> Version | None:
+        content_path = self.kwargs.get("content_path")
+        boost_name = docs_path_to_boost_name(content_path)
+        if not boost_name:
+            return None
+        try:
+            version = Version.objects.get(name=boost_name)
+        except Version.DoesNotExist:
+            version = None
+        return version
 
     def get_from_cache(self, static_content_cache, cache_key):
         cached_result = static_content_cache.get(cache_key)
@@ -487,7 +506,7 @@ def normalize_boost_doc_path(content_path: str) -> str:
     return f"/archives/{content_path}"
 
 
-class DocLibsTemplateView(BaseStaticContentTemplateView):
+class DocLibsTemplateView(VersionAlertMixin, BaseStaticContentTemplateView):
     allowed_db_save_types = {
         "text/asciidoc",
         "text/html",
@@ -495,12 +514,20 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         "text/css; charset=utf-8",
     }
 
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        set_selected_boost_version(
+            self.kwargs.get("content_path").split("/", 1)[0], response
+        )
+        return response
+
     def get_from_s3(self, content_path):
         legacy_url = normalize_boost_doc_path(content_path)
         return super().get_from_s3(legacy_url)
 
     def process_content(self, content: bytes):
         """Replace page header with the local one."""
+        context = super().get_context_data()
         content_type = self.content_dict.get("content_type")
         modernize = self.request.GET.get("modernize", "med").lower()
         if (
@@ -522,10 +549,12 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
 
         soup = self._required_modernization_changes(soup)
 
-        context = {
-            "content": str(soup),
-            "canonical_uri": canonical_uri if canonical_uri != req_uri else None,
-        }
+        context.update(
+            {
+                "content": str(soup),
+                "canonical_uri": canonical_uri if canonical_uri != req_uri else None,
+            }
+        )
         template_name = "original_docs.html"
 
         if is_in_fully_modernized_libs(self.request.path):

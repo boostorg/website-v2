@@ -117,6 +117,16 @@
 }
 
 #docsiframe {
-  @apply w-full mx-0 my-auto overflow-hidden p-0 mt-[1px];
+  @apply w-full mx-0 my-auto overflow-hidden p-0;
   height: calc(100vh - 2.6rem)
+}
+
+.version_alert {
+  @apply py-2 px-3 mt-2 mb-3 text-center rounded-sm bg-yellow-200/70
+}
+.version_alert p {
+  @apply p-0 m-0 text-center;
+}
+.version_alert a {
+  @apply font-semibold underline dark:text-white text-charcoal
 }

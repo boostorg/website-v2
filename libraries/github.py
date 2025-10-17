@@ -506,7 +506,7 @@ class LibraryUpdater:
                 )
 
             except KeyError:
-                logger.error(f"KeyError {commit.version=}")
+                logger.warning(f"KeyError {commit.version=}")
                 return None
 
         def handle_version_diff_stat(diff: VersionDiffStat):
