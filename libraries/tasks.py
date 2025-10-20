@@ -268,6 +268,19 @@ def release_tasks(user_id=None, generate_report=False):
 
 
 @app.task
+def import_new_versions_tasks(user_id=None):
+    """Call the import_new_versions management command.
+
+    If a user_id is given, that user will receive an email at the beginning
+    and at the end of the task.
+    """
+    command = ["import_new_versions"]
+    if user_id:
+        command.extend(["--user_id", user_id])
+    call_command(*command)
+
+
+@app.task
 def synchronize_commit_author_user_data():
     logger.info("Starting synchronize_commit_author_user_data")
     chain(
