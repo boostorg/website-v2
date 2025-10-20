@@ -69,3 +69,4 @@ FULLY_MODERNIZED_LIB_VERSIONS = [
     "master/libs/redis",
     "doc/antora/url",
 ]
+RENDERED_CONTENT_BATCH_DELETE_SIZE = 10000
