@@ -10,7 +10,7 @@
         {% elif selected_version.full_release %}
           This is an older version of Boost and was released in {{ selected_version.release_date|date:"Y"}}.
         {% else %}
-          This version of Boost is under active development.
+          This version of Boost is under active development. You are currently in the {{ selected_version.display_name }} branch.
         {% endif %}
       The <a href="{{ version_alert_url }}">current version</a> is {{ current_version.display_name }}.
       {% endif %}
