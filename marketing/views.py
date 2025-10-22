@@ -28,8 +28,8 @@ class PlausibleRedirectView(View):
 
     def get(self, request: HttpRequest, campaign_identifier: str, main_path: str = ""):
         absolute_url = request.build_absolute_uri(request.path)
-        referrer = request.META.get("HTTP_REFERER", "")
-        user_agent = request.META.get("HTTP_USER_AGENT", "")
+        referrer = request.headers.get("referer", "")
+        user_agent = request.headers.get("user-agent", "")
 
         plausible_payload = {
             "name": "pageview",
@@ -40,7 +40,7 @@ class PlausibleRedirectView(View):
 
         headers = {"Content-Type": "application/json", "User-Agent": user_agent}
 
-        client_ip = request.META.get("HTTP_X_FORWARDED_FOR", "").split(",")[0].strip()
+        client_ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
         client_ip = client_ip or request.META.get("REMOTE_ADDR")
 
         if client_ip:
@@ -85,7 +85,7 @@ class WhitePaperView(SuccessMessageMixin, CreateView):
         if original_referrer := self.request.session.get("original_referrer", ""):
             self.referrer = original_referrer
         else:
-            self.referrer = self.request.META.get("HTTP_REFERER", "")
+            self.referrer = self.request.headers.get("referer", "")
         return super().dispatch(request, *args, **kwargs)
 
     def get_template_names(self):

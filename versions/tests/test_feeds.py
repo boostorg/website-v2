@@ -1,5 +1,5 @@
-from datetime import datetime
-from django.utils.timezone import make_aware, utc
+from datetime import datetime, timezone
+from django.utils.timezone import make_aware
 from ..feeds import RSSVersionFeed, AtomVersionFeed
 
 
@@ -16,7 +16,8 @@ def test_items(version, old_version):
 def test_item_pubdate(version):
     feed = RSSVersionFeed()
     expected_datetime = make_aware(
-        datetime.combine(version.release_date, datetime.min.time()), timezone=utc
+        datetime.combine(version.release_date, datetime.min.time()),
+        timezone=timezone.utc,
     )
     assert feed.item_pubdate(version) == expected_datetime
 
@@ -51,6 +52,7 @@ def test_items_atom(version, old_version):
 def test_item_pubdate_atom(version):
     feed = AtomVersionFeed()
     expected_datetime = make_aware(
-        datetime.combine(version.release_date, datetime.min.time()), timezone=utc
+        datetime.combine(version.release_date, datetime.min.time()),
+        timezone=timezone.utc,
     )
     assert feed.item_pubdate(version) == expected_datetime
