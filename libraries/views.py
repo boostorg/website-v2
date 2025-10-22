@@ -339,7 +339,10 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, ContributorMixin, Deta
                     version_slug=get_prioritized_version(request),
                 )
             return redirect(
-                get_documentation_url_redirect(library_version, latest=False)
+                get_documentation_url_redirect(
+                    library_version,
+                    latest=self.get_version() == Version.objects.most_recent(),
+                )
             )
         response = super().dispatch(request, *args, **kwargs)
         set_selected_boost_version(
