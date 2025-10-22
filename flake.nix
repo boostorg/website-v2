@@ -62,10 +62,10 @@
             asciidoctor
             asciidoctorBoostGem
             pre-commit
-            python311 # matches Dockerfile, due for upgrade?
-            python311.pkgs.black
-            python311.pkgs.isort
-            python311.pkgs.pip-tools
+            python313 # matches Dockerfile, due for upgrade?
+            python313.pkgs.black
+            python313.pkgs.isort
+            python313.pkgs.pip-tools
           ];
           # Host system installation workflow goes into the bootstrap justfile target.
           # Project specific installation and execution workflow should go here.
@@ -74,7 +74,7 @@
               pre-commit install
             fi
             if [ ! -d .venv ]; then
-              python3.11 -m venv .venv
+              python3.13 -m venv .venv
               . .venv/bin/activate
               pip install -r requirements.txt -r requirements-dev.txt
             else
