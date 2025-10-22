@@ -2,7 +2,7 @@
 {% load date_filters %}
 
 <div class="relative content-between p-3 bg-white md:rounded-lg md:shadow-lg md:p-5 dark:bg-charcoal hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out cursor-pointer"
-onclick="window.location='{% url 'library-detail' library_slug=library_version.library.slug version_slug=version_str %}'">
+onclick="handleCardClick(event, '{% url 'library-detail' library_slug=library_version.library.slug version_slug=version_str %}')">
   <div class="">
     <h3 class="pb-2 text-xl md:text-2xl capitalize border-b border-gray-700">
     <div class="flex justify-between">
