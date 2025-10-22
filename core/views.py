@@ -1,5 +1,6 @@
 import os
 
+import requests
 from django.utils import timezone
 
 from urllib.parse import urljoin
@@ -16,11 +17,14 @@ from django.http import (
     HttpResponse,
     HttpResponseNotFound,
     HttpResponseRedirect,
+    HttpRequest,
 )
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 
 from config.settings import ENABLE_DB_CACHE
@@ -942,3 +946,57 @@ class RedirectToLibrariesView(BaseRedirectView):
         if requested_version == "release":
             new_path = "/libraries/"
         return HttpResponseRedirect(new_path)
+
+
+@method_decorator(never_cache, name="dispatch")
+class QRCodeView(View):
+    """Handles QR code urls, sending them to Plausible, then redirecting to the desired url.
+
+    QR code urls are formatted /qrc/<campaign_identifier>/desired/path/to/content/, and will
+    result in a redirect to /desired/path/to/content/.
+
+    E.g. https://www.boost.org/qrc/pv-01/library/latest/beast/ will send this full url to Plausible,
+    then redirect to https://www.boost.org/library/latest/beast/
+    """
+
+    def get(self, request: HttpRequest, campaign_identifier: str, main_path: str = ""):
+        absolute_url = request.build_absolute_uri(request.path)
+        referrer = request.headers.get("referer", "")
+        user_agent = request.headers.get("user-agent", "")
+
+        plausible_payload = {
+            "name": "pageview",
+            "domain": "qrc.boost.org",
+            "url": absolute_url,
+            "referrer": referrer,
+        }
+
+        headers = {"Content-Type": "application/json", "User-Agent": user_agent}
+
+        client_ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+        client_ip = client_ip or request.META.get("REMOTE_ADDR")
+
+        if client_ip:
+            headers["X-Forwarded-For"] = client_ip
+
+        try:
+            requests.post(
+                "https://plausible.io/api/event",
+                json=plausible_payload,
+                headers=headers,
+                timeout=2.0,
+            )
+        except Exception as e:
+            # Don’t interrupt the redirect - just log it
+            logger.error(f"Plausible event post failed: {e}")
+
+        # Now that we've sent the request url to plausible, we can redirect to the main_path
+        # Preserve the original querystring, if any.
+        # Example: /qrc/3/library/latest/algorithm/?x=1  ->  /library/latest/algorithm/?x=1
+        # `main_path` is everything after qrc/<campaign>/ thanks to <path:main_path>.
+        redirect_path = "/" + main_path if main_path else "/"
+        qs = request.META.get("QUERY_STRING")
+        if qs:
+            redirect_path = f"{redirect_path}?{qs}"
+
+        return HttpResponseRedirect(redirect_path)

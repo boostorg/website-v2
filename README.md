@@ -13,7 +13,7 @@ Links:
 
 ## Local Development Setup
 
-This project will use Python 3.11, Docker, and Docker Compose.
+This project will use Python 3.13, Docker, and Docker Compose.
 
 There are two options for development setups, nix and native. The native setup doesn't require nix to be installed. The nix-based setup works in a similar way to a python venv, with everything encapsulated for the project. Note: it is not a vm. It handles installation of all of the application and development environment's dependencies automatically:
 
