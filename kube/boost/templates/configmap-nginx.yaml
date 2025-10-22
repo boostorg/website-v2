@@ -107,6 +107,7 @@ data:
       location = /users/faq.html { return 301 /doc/user-guide/faq.html; }
       location = /users/proposal.pdf { return 301 /doc/user-guide/boost-history.html; }
       location ~ ^/users/history/version_(\d+)_(\d+)_(\d+)\.html$ { return 301 /releases/$1.$2.$3/; }
+      location ~ ^/users/news/version_(\d+).(\d+).(\d+)/?$ { return 301 /releases/$1.$2.$3/; }
       location = /community/groups.html { return 301 /community/; }
       location = /community/policy.html { return 301 /doc/user-guide/discussion-policy.html; }
       location = /community/cpp.html { return 301 /doc/user-guide/faq.html#isocommitteemeetings; }
