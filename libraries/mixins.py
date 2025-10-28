@@ -42,7 +42,7 @@ class VersionAlertMixin:
             current_version_kwargs.update(
                 {
                     "content_path": re.sub(
-                        r"([_0-9]+)/(\S+)",
+                        r"([_0-9]+|master|develop)/(\S+)",
                         rf"{LATEST_RELEASE_URL_PATH_STR}/\2",
                         current_version_kwargs.get("content_path"),
                     )
