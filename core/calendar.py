@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timezone
 from django.conf import settings
 import requests
 from collections import defaultdict
@@ -21,7 +21,9 @@ def get_calendar(min_time=None, single_events=True, order_by="startTime"):
     """
     if not min_time:
         # 'Z' indicates UTC time
-        min_time = datetime.datetime.now(datetime.timezone.utc).isoformat() + "Z"
+        # we replace +00:00 with Z because google no longer seems to be fully rfc3339
+        # compliant for this parameter, even with a valid format ending with +00:00
+        min_time = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     url = f"https://www.googleapis.com/calendar/v3/calendars/{settings.BOOST_CALENDAR}/events?key={settings.CALENDAR_API_KEY}&timeMin={min_time}&singleEvents={single_events}&orderBy={order_by}"
 
     headers = {"Accept": "application/json"}
