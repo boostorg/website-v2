@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.core.files.storage import default_storage
 from django.db import transaction
 from django.db.models import F, Count, OuterRef, Window
 from django.db.models.functions import RowNumber
@@ -8,10 +9,13 @@ from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
+from django import forms
 
+from core.admin_filters import StaffUserCreatedByFilter
 from libraries.forms import CreateReportForm, CreateReportFullForm
 from versions.models import Version
 from versions.tasks import import_all_library_versions
+from .filters import ReportConfigurationFilter
 from .models import (
     Category,
     Commit,
@@ -21,6 +25,7 @@ from .models import (
     Library,
     LibraryVersion,
     PullRequest,
+    ReleaseReport,
     WordcloudMergeWord,
 )
 from .tasks import (
@@ -34,6 +39,7 @@ from .tasks import (
     generate_release_report,
     synchronize_commit_author_user_data,
 )
+from .utils import generate_release_report_filename
 
 
 @admin.register(Commit)
@@ -177,7 +183,9 @@ class ReleaseReportView(TemplateView):
         return context
 
     def generate_report(self):
-        generate_release_report.delay(self.request.GET)
+        generate_release_report.delay(
+            user_id=self.request.user.id, params=self.request.GET
+        )
 
     def get(self, request, *args, **kwargs):
         form = self.get_form()
@@ -440,3 +448,43 @@ class WordcloudMergeWordAdmin(admin.ModelAdmin):
             },
         ),
     ]
+
+
+class ReleaseReportAdminForm(forms.ModelForm):
+    class Meta:
+        model = ReleaseReport
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.pk and not self.instance.published:
+            file_name = generate_release_report_filename(
+                self.instance.report_configuration.get_slug()
+            )
+            published_filename = f"{ReleaseReport.upload_dir}{file_name}"
+            if default_storage.exists(published_filename):
+                # we require users to intentionally manually delete existing reports
+                self.fields["published"].disabled = True
+                self.fields["published"].help_text = (
+                    f"⚠️ A published '{file_name}' already exists. To prevent accidents "
+                    "you must manually delete that file before publishing this report."
+                )
+
+
+@admin.register(ReleaseReport)
+class ReleaseReportAdmin(admin.ModelAdmin):
+    form = ReleaseReportAdminForm
+    list_display = ["__str__", "created_at", "published", "published_at"]
+    list_filter = ["published", ReportConfigurationFilter, StaffUserCreatedByFilter]
+    search_fields = ["file"]
+    readonly_fields = ["created_at", "created_by"]
+    ordering = ["-created_at"]
+
+    def has_add_permission(self, request):
+        return False
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)

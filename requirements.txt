@@ -205,6 +205,7 @@ greenlet==3.2.4
     # via
     #   -r ./requirements.in
     #   gevent
+    #   playwright
 gunicorn==23.0.0
     # via -r ./requirements.in
 h11==0.16.0
@@ -310,6 +311,8 @@ platformdirs==4.5.0
     # via
     #   black
     #   virtualenv
+playwright==1.55.0
+    # via -r ./requirements.in
 pluggy==1.6.0
     # via
     #   pytest
@@ -344,6 +347,8 @@ pydantic==2.12.3
     #   openai
 pydantic-core==2.41.4
     # via pydantic
+pyee==13.0.0
+    # via playwright
 pygments==2.19.2
     # via
     #   ipython
@@ -435,16 +440,14 @@ traitlets==5.14.3
     #   matplotlib-inline
 typing-extensions==4.15.0
     # via
-    #   aiosignal
-    #   anyio
     #   beautifulsoup4
     #   django-countries
-    #   ipython
     #   jwcrypto
     #   minio
     #   openai
     #   pydantic
     #   pydantic-core
+    #   pyee
     #   typing-inspection
 typing-inspection==0.4.2
     # via pydantic

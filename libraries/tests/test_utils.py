@@ -7,8 +7,10 @@ from libraries.utils import (
     conditional_batched,
     decode_content,
     generate_fake_email,
+    generate_release_report_filename,
     get_first_last_day_last_month,
     parse_date,
+    update_base_tag,
     version_within_range,
     write_content_to_tempfile,
 )
@@ -282,3 +284,117 @@ def test_conditional_batched_invalid_n():
 
     with pytest.raises(ValueError, match="n must be at least one"):
         list(conditional_batched(items, 0, lambda x: True))
+
+
+@pytest.mark.parametrize(
+    "html, base_uri, expected",
+    [
+        # Test basic base tag replacement
+        (
+            '<html><head><base href="/old/path/"></head><body>content</body></html>',
+            "/new/path/",
+            '<html><head><base href="/new/path/"></head><body>content</body></html>',
+        ),
+        # Test with different base tag format (no trailing slash)
+        (
+            '<base href="https://example.com/docs">',
+            "https://newsite.com/documentation",
+            '<base href="https://newsite.com/documentation">',
+        ),
+        # Test multiple base tags (should replace all occurrences)
+        (
+            '<base href="/old1/"><base href="/old2/">',
+            "/new/",
+            '<base href="/new/"><base href="/new/">',
+        ),
+        # Test with empty base URI
+        (
+            '<base href="/docs/">',
+            "",
+            '<base href="">',
+        ),
+        # Test with complex HTML structure
+        (
+            """<!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <base href="/doc/libs/1_84_0/">
+                    <title>Test</title>
+                </head>
+                <body>content</body>
+                </html>""",
+            "/doc/libs/latest/",
+            """<!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <base href="/doc/libs/latest/">
+                    <title>Test</title>
+                </head>
+                <body>content</body>
+                </html>""",
+        ),
+    ],
+)
+def test_update_base_tag(html, base_uri, expected):
+    """Test update_base_tag replaces base tag href correctly."""
+    result = update_base_tag(html, base_uri)
+    assert result == expected
+
+
+def test_update_base_tag_no_base_tag():
+    """Test update_base_tag when there is no base tag in the HTML."""
+    html = "<html><head><title>Test</title></head><body>content</body></html>"
+    base_uri = "/new/path/"
+    result = update_base_tag(html, base_uri)
+    # Should return the original HTML unchanged since there's no base tag to replace
+    assert result == html
+
+
+@pytest.mark.parametrize(
+    "version_slug, published_format, expected_prefix, should_have_timestamp",
+    [
+        # Published format (no timestamp)
+        ("boost-1-84-0", True, "release-report-boost-1-84-0.pdf", False),
+        ("boost-1-85-0", True, "release-report-boost-1-85-0.pdf", False),
+        # Draft format (with timestamp)
+        ("boost-1-84-0", False, "release-report-boost-1-84-0-", True),
+        ("boost-1-85-0", False, "release-report-boost-1-85-0-", True),
+    ],
+)
+def test_generate_release_report_filename(
+    version_slug, published_format, expected_prefix, should_have_timestamp
+):
+    """Test generate_release_report_filename generates correct filenames."""
+    result = generate_release_report_filename(version_slug, published_format)
+    assert result.startswith(expected_prefix)
+    assert result.endswith(".pdf")
+
+    if should_have_timestamp:
+        # timestamp should be in ISO format (contains 'T' and timezone info)
+        assert "T" in result
+        # should have the pattern: release-report-{slug}-{timestamp}.pdf
+        assert len(result.split("-")) >= 4  # release, report, slug, timestamp
+    else:
+        # published format should not have a timestamp
+        assert "T" not in result
+        # should be release-report-{slug}.pdf
+        assert result == expected_prefix
+
+
+def test_generate_release_report_filename_timestamp_format():
+    """Test that the timestamp in the filename is a valid ISO format."""
+    version_slug = "boost-1-84-0"
+    result = generate_release_report_filename(version_slug, published_format=False)
+
+    # extract the timestamp portion (between last dash and .pdf)
+    # format: release-report-boost-1-84-0-{timestamp}.pdf
+    timestamp_part = result.replace("release-report-boost-1-84-0-", "").replace(
+        ".pdf", ""
+    )
+    # parse it as an ISO format datetime to ensure it's valid
+    try:
+        datetime.fromisoformat(timestamp_part)
+    except ValueError:
+        pytest.fail(f"Timestamp '{timestamp_part}' is not a valid ISO format")

@@ -37,6 +37,7 @@ wordcloud
 lxml
 algoliasearch
 openai
+playwright
 
 # Logging
 django-tracer

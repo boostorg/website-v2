@@ -91,6 +91,8 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+      args:
+        LOCAL_DEVELOPMENT: "true"
     command:
       - /bin/bash
       - -c
@@ -113,8 +115,11 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+      args:
+        LOCAL_DEVELOPMENT: "true"
     command: [ "celery", "-A", "config", "beat", "--loglevel=debug" ]
     environment:
+      LOCAL_DEVELOPMENT: "true"
       DEBUG_TOOLBAR: "false"
     env_file:
       - .env

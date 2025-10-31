@@ -317,6 +317,11 @@ class ReportConfiguration(models.Model):
     def display_name(self):
         return self.version.replace("boost-", "")
 
+    def get_slug(self):
+        # this output should always match the Version slug format
+        name = self.version.replace(".", " ").replace("boost_", "")
+        return slugify(name)[:50]
+
     def __str__(self):
         return self.version
 

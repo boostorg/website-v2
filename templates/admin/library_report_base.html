@@ -2,6 +2,9 @@
 <!DOCTYPE html>
 <html>
   <head>
+    {% if base_uri %}
+    <base href="{{ base_uri }}">
+    {% endif  %}
     <title>
       {% block title %}Boost{% endblock %}
     </title>
