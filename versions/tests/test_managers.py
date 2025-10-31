@@ -110,7 +110,7 @@ def test_version_dropdown_strict(
 
     # Additional setup for most recent non-beta version
     most_recent_version = Version.objects.create(
-        name=most_recent_name, beta=False, full_release=True
+        name=most_recent_name, beta=False, full_release=True, fully_imported=True
     )
     most_recent_version.save()
 
@@ -118,12 +118,14 @@ def test_version_dropdown_strict(
     version.name = version_name
     version.beta = beta
     version.full_release = full_release
+    version.fully_imported = True
     version.save()
 
     if most_recent_beta_name:
         beta_version.name = most_recent_beta_name
         beta_version.beta = True
         beta_version.full_release = False
+        beta_version.fully_imported = True
         beta_version.save()
 
     queryset = Version.objects.get_dropdown_versions()

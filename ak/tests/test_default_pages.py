@@ -18,6 +18,23 @@ def test_homepage(library, library_version, version, tp):
     assert "featured_library" in response.context
 
 
+def test_homepage_not_fully_imported(
+    library, library_version, version, not_imported_version, tp
+):
+    """Ensure homepage excludes versions that are not fully imported"""
+    # Verify the version is indeed not fully imported
+    assert not_imported_version.fully_imported is False
+
+    url = tp.reverse("home")
+    if not url:
+        url = "/"
+
+    response = tp.get_check_200(url)
+    assert "entries" in response.context
+    assert "latest_version" in response.context
+    assert response.context["latest_version"] is not not_imported_version
+
+
 def test_200_page(db, tp):
     """Test a 200 OK page"""
 

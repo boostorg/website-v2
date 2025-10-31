@@ -45,6 +45,11 @@ class Version(models.Model):
     )
     objects = VersionManager()
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["active", "fully_imported"]),
+        ]
+
     def __str__(self):
         return self.name
 
