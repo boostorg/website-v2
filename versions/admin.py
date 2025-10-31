@@ -44,7 +44,11 @@ class VersionAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def release_tasks(self, request):
-        release_tasks.delay(user_id=request.user.id, generate_report=True)
+        release_tasks.delay(
+            base_uri=f"https://{request.get_host()}",
+            user_id=request.user.id,
+            generate_report=True,
+        )
         self.message_user(
             request,
             "release_tasks has started, you will receive an email when the task finishes.",  # noqa: E501

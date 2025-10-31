@@ -7,6 +7,8 @@ from urllib.parse import urlparse
 from django.core.cache import caches
 from django.db import models, transaction
 from django.db.models import Sum
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -21,9 +23,14 @@ from core.asciidoc import convert_adoc_to_html
 from core.validators import image_validator, max_file_size_validator
 from libraries.managers import IssueManager
 from mailing_list.models import EmailData
+from versions.models import ReportConfiguration
 from .constants import LIBRARY_GITHUB_URL_OVERRIDES
 
-from .utils import generate_random_string, write_content_to_tempfile
+from .utils import (
+    generate_random_string,
+    write_content_to_tempfile,
+    generate_release_report_filename,
+)
 
 
 class Category(models.Model):
@@ -542,3 +549,62 @@ class WordcloudMergeWord(models.Model):
 
     def __str__(self):
         return f"{self.from_word}->{self.to_word}"
+
+
+class ReleaseReport(models.Model):
+    upload_dir = "release-reports/"
+    file = models.FileField(upload_to=upload_dir, blank=True, null=True)
+    report_configuration = models.ForeignKey(
+        ReportConfiguration, on_delete=models.CASCADE
+    )
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.file.name.replace(self.upload_dir, "")}"
+
+    def rename_file_to(self, filename: str, allow_overwrite: bool = False):
+        """Rename the file to use the version slug from report_configuration."""
+        from django.core.files.storage import default_storage
+
+        current_name = self.file.name
+        final_filename = f"{self._meta.get_field("file").upload_to}{filename}"
+        if current_name == final_filename:
+            return
+
+        if default_storage.exists(final_filename):
+            if not allow_overwrite:
+                raise ValueError(f"{final_filename} already exists")
+            default_storage.delete(final_filename)
+
+        with default_storage.open(current_name, "rb") as source:
+            default_storage.save(final_filename, source)
+        # delete the old file and update the reference
+        default_storage.delete(current_name)
+        self.file.name = final_filename
+
+    def save(self, allow_overwrite=False, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        is_being_published = self.published and not self.published_at
+        if is_being_published and self.file:
+            new_filename = generate_release_report_filename(
+                self.report_configuration.get_slug(), self.published
+            )
+            self.rename_file_to(new_filename, allow_overwrite)
+            self.published_at = timezone.now()
+            super().save(update_fields=["published_at", "file"])
+
+
+# Signal handler to delete files when ReleaseReport is deleted
+@receiver(pre_delete, sender=ReleaseReport)
+def delete_release_report_files(sender, instance, **kwargs):
+    """Delete file from storage when ReleaseReport is deleted."""
+    if instance.file:
+        instance.file.delete(save=False)

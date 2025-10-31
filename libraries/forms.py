@@ -90,6 +90,11 @@ class CreateReportFullForm(Form):
         initial=False,
         help_text="Force the page to be regenerated, do not use cache.",
     )
+    publish = BooleanField(
+        required=False,
+        initial=False,
+        help_text="Warning: overwrites existing published report, not reversible.",
+    )
 
     @property
     def cache_key(self):
@@ -205,13 +210,16 @@ class CreateReportFullForm(Form):
             "library_count": self.library_queryset.count(),
         }
 
-    def cache_html(self):
+    def cache_html(self, base_uri=None):
         """Render and cache the html for this report."""
         # ensure we have "cleaned_data"
         if not self.is_valid():
             return ""
         try:
-            html = render_to_string(self.html_template_name, self.get_stats())
+            context = self.get_stats()
+            if base_uri:
+                context["base_uri"] = base_uri
+            html = render_to_string(self.html_template_name, context)
         except FileNotFoundError as e:
             html = (
                 f"An error occurred generating the report: {e}. To see the image "

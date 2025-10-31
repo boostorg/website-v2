@@ -17,11 +17,10 @@ from core.management.actions import (
     ActionsManager,
     send_notification,
 )
-from libraries.forms import CreateReportForm
-from libraries.tasks import update_commits
+from libraries.tasks import update_commits, generate_release_report
 from reports.models import WebsiteStatReport
 from slack.management.commands.fetch_slack_activity import get_my_channels, locked
-from versions.models import Version
+from versions.models import Version, ReportConfiguration
 
 User = get_user_model()
 
@@ -30,8 +29,12 @@ class ReleaseTasksManager(ActionsManager):
     latest_version: Version | None = None
     handled_commits: dict[str, int] = {}
 
-    def __init__(self, should_generate_report: bool = False):
+    def __init__(
+        self, base_uri: str, user_id: int, should_generate_report: bool = False
+    ):
+        self.base_uri = base_uri
         self.should_generate_report = should_generate_report
+        self.user_id = user_id
         super().__init__()
 
     def set_tasks(self):
@@ -80,20 +83,32 @@ class ReleaseTasksManager(ActionsManager):
         """
         start_date = timezone.now() - timedelta(days=120)
         date_string = start_date.strftime("%Y-%m-%d")
-        print(f"{date_string = }")
         call_command("import_ml_counts", start_date=date_string)
 
     def generate_report(self):
         if not self.should_generate_report:
             self.add_progress_message("Skipped - report generation not requested")
             return
-        form = CreateReportForm({"version": self.latest_version.id})
-        form.cache_html()
+
+        report_configuration = ReportConfiguration.objects.get(
+            version=self.latest_version.name
+        )
+        generate_release_report.delay(
+            user_id=self.user_id,
+            params={"report_configuration": report_configuration.id, "publish": True},
+            base_uri=self.base_uri,
+        )
 
 
 @locked(1138692)
-def run_commands(progress: list[str], generate_report: bool = False):
-    manager = ReleaseTasksManager(should_generate_report=generate_report)
+def run_commands(
+    progress: list[str], base_uri: str, user_id: int, generate_report: bool = False
+):
+    manager = ReleaseTasksManager(
+        base_uri=base_uri,
+        should_generate_report=generate_report,
+        user_id=user_id,
+    )
     manager.run_tasks()
     progress.extend(manager.progress_messages)
     return manager.handled_commits
@@ -126,10 +141,15 @@ def bad_credentials() -> list[str]:
 
 @click.command()
 @click.option(
+    "--base_uri",
+    is_flag=False,
+    help="The URI to which paths should be relative",
+    default=None,
+)
+@click.option(
     "--user_id",
     is_flag=False,
     help="The ID of the user that started this task (For notification purposes)",
-    default=None,
 )
 @click.option(
     "--generate_report",
@@ -137,11 +157,11 @@ def bad_credentials() -> list[str]:
     help="Generate a report at the end of the command",
     default=False,
 )
-def command(user_id=None, generate_report=False):
+def command(user_id, base_uri=None, generate_report=False):
     """A long running chain of tasks to import and update library data."""
     start = timezone.now()
 
-    user = User.objects.filter(id=user_id).first() if user_id else None
+    user = User.objects.filter(id=user_id).first()
 
     progress = ["___Progress Messages___"]
     if missing_creds := bad_credentials():
@@ -162,7 +182,7 @@ def command(user_id=None, generate_report=False):
     )
 
     try:
-        handled_commits = run_commands(progress, generate_report)
+        handled_commits = run_commands(progress, base_uri, generate_report, user_id)
         end = timezone.now()
     except Exception:
         error = traceback.format_exc()
