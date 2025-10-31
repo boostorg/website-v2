@@ -1,9 +1,16 @@
 # Populating the Database for the First Time
 
+- [Development Environments](#development-environments)
 - [Deployed Environments](#deployed-environments)
 - [Further Reading](#further-reading)
 
 This document contains information about importing Boost Versions (also called Releases), Libraries, and the data associated with those objects. It is concerned with importing data in **deployed environments**, but at the bottom of the page there is a section on importing data for **local development**.
+
+## Development Environments
+
+```bash
+just load_production_data
+````
 
 ## Deployed Environments
 
