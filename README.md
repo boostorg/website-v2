@@ -157,10 +157,14 @@ Update database values in settings to use the same host, user, password, and the
 run `django-admin migrate --pythonpath example_project --settings settings`
 
 Give your ssh key to Sam so he can add it to the boost.cpp.al server, and then download the mailman db archive and cp the sql to the docker container
+
+Create a database in your postgres instance called `hyperkitty_db`, then:
+
 ```shell
 scp {user}@staging-db1.boost.cpp.al:/tmp/lists_stage_web.staging-db1-2.2025-02-06-08-00-01.sql.gz .
 docker cp lists_stage_web.staging-db1-2.2025-02-06-08-00-01.sql website-v2-web-1:/lists_stage_web.staging-db1-2.2025-02-06-08-00-01.sql
 docker exec -it website-v2-web-1 /bin/bash
+apt update && apt -y install postgresql
 psql -U postgres -W hyperkitty_db < /lists_stage_web.staging-db1-2.2025-02-06-08-00-01.sql
 ```
 
