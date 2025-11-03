@@ -11,7 +11,7 @@ set -eu
 #
 
 # READ IN COMMAND-LINE OPTIONS
-TEMP=$(getopt -o h:: --long help::,lists::,only-lists:: -- "$@")
+TEMP=$(getopt -o h:: --long help::,no-web::,no-lists:: -- "$@")
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -19,14 +19,14 @@ while true ; do
     case "$1" in
         -h|--help)
             helpmessage="""
-usage: load_production_data.sh [-h] [--lists] [--only-lists]
+usage: load_production_data.sh [-h] [--no-web] [--no-lists]
 
-Load production data. By default this will import the main website database.
+Load production data. By default this will import both the main website database and mailing list databases.
 
 optional arguments:
   -h, --help            Show this help message and exit
-  --lists               Import mailing list dbs also.
-  --only-lists		Import mailing list database and not the main web database.
+  --no-web              Skip importing the main website database.
+  --no-lists            Skip importing mailing list databases.
 """
 
             echo ""
@@ -34,10 +34,10 @@ optional arguments:
             echo ""
             exit 0
             ;;
-        --lists)
-            lists_option="yes" ; shift 2 ;;
-        --only-lists)
-            lists_option="yes" ; skip_web_option="yes" ; shift 2 ;;
+        --no-web)
+            skip_web_option="yes" ; shift 2 ;;
+        --no-lists)
+            skip_lists_option="yes" ; shift 2 ;;
         --) shift ; break ;;
         *) echo "Internal error!" ; exit 1 ;;
     esac
@@ -201,7 +201,7 @@ if [ "${skip_web_option:-}" != "yes" ]; then
     }
 fi
 
-if [ "${lists_option:-}" = "yes" ]; then
+if [ "${skip_lists_option:-}" != "yes" ]; then
     download_latest_db_dump lists_web_db || {
         echo "Failed to download and restore latest lists_web_db dump";
         exit 1;

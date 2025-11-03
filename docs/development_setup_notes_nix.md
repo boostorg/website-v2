@@ -36,7 +36,7 @@ For a basic rundown on Nix, this video could be useful https://www.youtube.com/w
    * STATIC_CONTENT_AWS_ACCESS_KEY_ID - ask for this
    * STATIC_CONTENT_AWS_SECRET_ACCESS_KEY - ask for this
 5. Run `just setup` to build services, and build the JS and CSS assets. If docker fails with permissions errors, reboot your machine.
-6. Run `just load_production_data` to download live data from the backup server.
+6. Run `just load_production_data` to download live data from the backup server for the website and mailman/hyperkitty. That script can be run regularly to update data from the live servers. You will lose all local data.
 7. Run `docker compose up` to start the server.
 
 
