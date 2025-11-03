@@ -1,9 +1,19 @@
 # Populating the Database for the First Time
 
+- [Development Environments](#development-environments)
 - [Deployed Environments](#deployed-environments)
 - [Further Reading](#further-reading)
 
 This document contains information about importing Boost Versions (also called Releases), Libraries, and the data associated with those objects. It is concerned with importing data in **deployed environments**, but at the bottom of the page there is a section on importing data for **local development**.
+
+## Development Environments
+
+Download the production data for the website and mailman/hyperkitty.
+```bash
+just load_production_data
+````
+
+That script can be run regularly to update data from the live servers. You will lose all local data.
 
 ## Deployed Environments
 
