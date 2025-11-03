@@ -8,9 +8,12 @@ This document contains information about importing Boost Versions (also called R
 
 ## Development Environments
 
+Download the production data for the website and mailman/hyperkitty.
 ```bash
 just load_production_data
 ````
+
+That script can be run regularly to update data from the live servers. You will lose all local data.
 
 ## Deployed Environments
 
