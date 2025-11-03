@@ -230,6 +230,10 @@ class User(BaseUser):
         format="JPEG",
         options={"quality": 90},
     )
+    image_uploaded = models.BooleanField(
+        default=False,
+        help_text="Indicates if the user manually uploaded an image, prevents import overwrites",
+    )
     claimed = models.BooleanField(
         _("claimed"),
         default=True,

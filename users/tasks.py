@@ -4,6 +4,7 @@ import structlog
 
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.db.models import Q
 from django.utils import timezone
 from django.conf import settings
 
@@ -47,10 +48,11 @@ def update_user_github_photo(user_pk):
 @app.task
 def refresh_users_github_photos():
     """
-    Refreshes the GitHub photos for all users who have a GitHub username.
+    Refreshes the GitHub photos for all users who have a GitHub username and haven't
+     uploaded an image manually.
     This is intended to be run periodically to ensure user photos are up-to-date.
     """
-    users = User.objects.exclude(github_username="")
+    users = User.objects.exclude(Q(github_username="") | Q(image_uploaded=True))
     for user in users:
         try:
             logger.info(f"updating {user.pk=}")

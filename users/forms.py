@@ -140,11 +140,12 @@ class UserProfilePhotoForm(forms.ModelForm):
         old_image = self.instance.image
         # Save the new image
         user = super().save(commit=False)
-
-        if old_image:
+        if not old_image:
+            # reset image on image delete checked
+            user.image_uploaded = False
+        elif self.cleaned_data["image"] != old_image:
             # Delete the old image file if there's a new image being uploaded
-            if self.cleaned_data["image"] != old_image:
-                old_image.delete(save=False)
+            old_image.delete(save=False)
 
         if self.cleaned_data.get("image"):
             new_image = self.cleaned_data["image"]
@@ -155,6 +156,7 @@ class UserProfilePhotoForm(forms.ModelForm):
 
             new_image.name = f"{user.profile_image_filename_root}.{file_extension}"
             user.image = new_image
+            user.image_uploaded = True
 
         if commit:
             user.save()

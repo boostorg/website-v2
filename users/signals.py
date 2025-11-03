@@ -31,7 +31,7 @@ def import_social_profile_data(sender, instance, created, **kwargs):
     elif instance.provider == GOOGLE:
         avatar_url = instance.extra_data.get("picture")
 
-    if avatar_url:
+    if avatar_url and not instance.user.image_uploaded:
         instance.user.save_image_from_provider(avatar_url)
 
     instance.user.display_name = instance.extra_data.get("name")
