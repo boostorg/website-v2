@@ -15,6 +15,7 @@
   - [`sync_mailinglist_stats`](#sync_mailinglist_stats)
   - [`update_library_version_dependencies`](#update_library_version_dependencies)
   - [`release_tasks`](#release_tasks)
+  - [`refresh_users_github_photos`](#refresh_users_github_photos)
 
 ## `boost_setup`
 
@@ -323,3 +324,35 @@ For this to work `SLACK_BOT_API` must be set in the `.env` file.
 ```bash
 ./manage.py link_contributors_to_users
 ```
+
+## `refresh_users_github_photos`
+
+**Purpose**: Refresh GitHub profile photos for all users who have a GitHub username. This command fetches the latest profile photo from GitHub for each user and updates their local profile image. This is useful for local dev/testing, isn't used for production where a periodic celery task is used.
+
+**Example**
+
+```bash
+./manage.py refresh_users_github_photos
+```
+
+**Options**
+
+| Options      | Format | Description                                                                                  |
+|--------------|--------|----------------------------------------------------------------------------------------------|
+| `--dry-run`  | bool   | Show which users would be updated without actually updating them. Useful for testing.        |
+
+**Usage Examples**
+
+Refresh photos for all users with GitHub usernames:
+```bash
+./manage.py refresh_users_github_photos
+```
+
+Preview which users would be updated:
+```bash
+./manage.py refresh_users_github_photos --dry-run
+```
+**Process**
+
+- Calls the `refresh_users_github_photos()` Celery task which queues photo updates for all users with GitHub usernames
+- With `--dry-run`, displays information about which users would be updated without making any changes
