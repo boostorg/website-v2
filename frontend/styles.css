@@ -116,17 +116,60 @@
   }
 }
 
+:root {
+  --header-height: 41px;
+  --version-alert-height: 0px;
+}
+
+html:has(#docsiframe):has(.version_alert) {
+  overflow-y: auto;
+}
+
+html:has(#docsiframe) .header-menu-bar.topnavbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+html:has(#docsiframe) .bg-white:has(.version_alert),
+html:has(#docsiframe) .version_alert {
+  position: fixed;
+  top: var(--header-height, 41px);
+  left: 0;
+  right: 0;
+  z-index: 999;
+  width: 100%;
+}
+
+html:has(#docsiframe):has(.version_alert) {
+  --version-alert-height: 32px;
+}
+
+html:has(#docsiframe) body {
+  padding-top: calc(var(--header-height, 41px) + var(--version-alert-height, 0px));
+}
+
 #docsiframe {
-  @apply w-full mx-0 my-auto overflow-hidden p-0;
-  height: calc(100vh - 2.6rem)
+  @apply w-full mx-0 my-auto overflow-hidden p-0 mt-[1px];
+  height: calc(100vh - var(--header-height, 41px) - var(--version-alert-height, 0px)); /* Fallback for older browsers*/
+  height: calc(100svh - var(--header-height, 41px) - var(--version-alert-height, 0px));
+  max-height: calc(100svh - var(--header-height, 41px) - var(--version-alert-height, 0px));
 }
 
 .version_alert {
-  @apply py-2 px-3 mt-2 mb-3 text-center rounded-sm bg-yellow-200/70
+  @apply py-2 px-3 mt-2 mb-3 text-center rounded-sm bg-yellow-200/70;
 }
+
+html:has(#docsiframe) .version_alert {
+  @apply py-1 px-3 mt-0 text-center rounded-sm bg-yellow-200/70;
+}
+
 .version_alert p {
   @apply p-0 m-0 text-center;
 }
+
 .version_alert a {
-  @apply font-semibold underline dark:text-white text-charcoal
+  @apply font-semibold underline dark:text-white text-charcoal;
 }
