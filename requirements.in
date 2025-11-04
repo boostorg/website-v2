@@ -10,6 +10,7 @@ django-db-geventpool
 django-extensions
 django-health-check
 django-imagekit
+django-import-export
 django-oauth-toolkit
 django-redis
 django-upgrade

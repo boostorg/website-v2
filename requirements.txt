@@ -109,6 +109,8 @@ cycler==0.12.1
     # via matplotlib
 decorator==5.2.1
     # via ipython
+diff-match-patch==20241021
+    # via django-import-export
 defusedxml==0.7.1
     # via willow
 distlib==0.4.0
@@ -132,6 +134,7 @@ django==5.2.8
     #   django-filter
     #   django-haystack
     #   django-health-check
+    #   django-import-export
     #   django-js-asset
     #   django-modelcluster
     #   django-oauth-toolkit
@@ -176,6 +179,8 @@ django-haystack==3.3.0
 django-health-check==3.20.0
     # via -r ./requirements.in
 django-imagekit==6.0.0
+    # via -r ./requirements.in
+django-import-export==4.3.13
     # via -r ./requirements.in
 django-js-asset==3.1.2
     # via django-mptt
@@ -483,6 +488,8 @@ stack-data==0.6.3
     # via ipython
 structlog==25.5.0
     # via -r ./requirements.in
+tablib==3.9.0
+    # via django-import-export
 tabulate==0.9.0
     # via interrogate
 telepath==0.3.1
