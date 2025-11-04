@@ -5,7 +5,7 @@ from itertools import islice
 
 import structlog
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from dateutil.relativedelta import relativedelta
 
 from dateutil.parser import ParserError, parse
@@ -353,3 +353,21 @@ def parse_boostdep_artifact(content: str):
             "Some library versions were skipped during artifact parsing.",
             skipped_library_versions=skipped_library_versions,
         )
+
+
+def update_base_tag(html: str, base_uri: str):
+    """
+    Replace the base tag href with the new base_uri
+    """
+    pattern = r'<base\s+href="[^"]*">'
+    replacement = f'<base href="{base_uri}">'
+    return re.sub(pattern, replacement, html)
+
+
+def generate_release_report_filename(version_slug: str, published_format: bool = False):
+    filename_data = ["release-report", version_slug]
+    if not published_format:
+        filename_data.append(datetime.now(timezone.utc).isoformat())
+
+    filename = f"{"-".join(filename_data)}.pdf"
+    return filename

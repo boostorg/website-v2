@@ -10,15 +10,26 @@ from core.boostrenderer import get_content_from_s3
 from core.htmlhelper import get_library_documentation_urls
 from libraries.forms import CreateReportForm, CreateReportFullForm
 from libraries.github import LibraryUpdater
-from libraries.models import Library, LibraryVersion, CommitAuthorEmail, CommitAuthor
+from libraries.models import (
+    Library,
+    LibraryVersion,
+    CommitAuthorEmail,
+    CommitAuthor,
+    ReleaseReport,
+)
 from users.tasks import User
 from versions.models import Version
 from .constants import (
     LIBRARY_DOCS_EXCEPTIONS,
     LIBRARY_DOCS_MISSING,
     VERSION_DOCS_MISSING,
+    DOCKER_CONTAINER_URL_WEB,
 )
-from .utils import version_within_range
+from .utils import (
+    version_within_range,
+    update_base_tag,
+    generate_release_report_filename,
+)
 
 logger = structlog.getLogger(__name__)
 
@@ -230,10 +241,75 @@ def update_issues(clean=False):
 
 
 @app.task
-def generate_release_report(params):
+def generate_release_report(user_id: int, params: dict, base_uri: str = None):
     """Generate a release report asynchronously and save it in RenderedContent."""
     form = CreateReportForm(params)
-    form.cache_html()
+    html = form.cache_html(base_uri=base_uri)
+    # override the base uri to reference the internal container for local dev
+    if settings.LOCAL_DEVELOPMENT:
+        html = update_base_tag(html, DOCKER_CONTAINER_URL_WEB)
+
+    release_report = ReleaseReport(
+        created_by_id=user_id,
+        report_configuration_id=params.get("report_configuration"),
+    )
+    release_report.save()
+    generate_release_report_pdf.delay(
+        release_report.pk, html=html, publish=params.get("publish")
+    )
+
+
+@app.task(bind=True, time_limit=300, soft_time_limit=240)
+def generate_release_report_pdf(
+    self, release_report_id: int, html: str, publish: bool = False
+):
+    """Generate a release report asynchronously and save it in PDF using Playwright."""
+    from playwright.sync_api import sync_playwright
+    from django.core.files.base import ContentFile
+
+    release_report = ReleaseReport.objects.get(pk=release_report_id)
+
+    logger.info(f"{release_report_id=}, task id: {self.request.id}")
+
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(
+                headless=True, executable_path="/usr/bin/chromium"
+            )
+            page = browser.new_page()
+            page.set_content(html, wait_until="networkidle")
+            # wait for fonts to be ready
+            page.evaluate("document.fonts.ready")
+            logger.info("Generating PDF")
+            page.emulate_media(media="print")
+            pdf_bytes = page.pdf(
+                format="Letter",
+                print_background=True,
+                prefer_css_page_size=True,
+                margin={
+                    "top": "0.5in",
+                    "right": "0.5in",
+                    "bottom": "0.5in",
+                    "left": "0.5in",
+                },
+            )
+            browser.close()
+
+        logger.info(f"PDF generated successfully, size: {len(pdf_bytes)} bytes")
+        # to start, we have the draft file, so it can be moved later into the
+        # final location by the ReleaseReport.save() process
+        filename = generate_release_report_filename(
+            release_report.report_configuration.get_slug(), published_format=False
+        )
+        release_report.file.save(filename, ContentFile(pdf_bytes), save=True)
+        if publish:
+            release_report.published = True
+            release_report.save(allow_overwrite=True)
+        logger.info(f"{release_report_id=} updated with PDF {filename=}")
+
+    except Exception as e:
+        logger.error(f"Failed to generate PDF: {e}", exc_info=True)
+        raise
 
 
 @app.task
@@ -252,14 +328,15 @@ def update_library_version_dependencies(token=None):
 
 
 @app.task
-def release_tasks(user_id=None, generate_report=False):
+def release_tasks(base_uri, user_id=None, generate_report=False):
     """Call the release_tasks management command.
 
+    @param base_uri should be in the format https://domain.tld
     If a user_id is given, that user will receive an email at the beginning
     and at the end of the task.
 
     """
-    command = ["release_tasks"]
+    command = ["release_tasks", "--base_uri", base_uri]
     if user_id:
         command.extend(["--user_id", user_id])
     if generate_report:

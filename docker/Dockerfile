@@ -44,7 +44,18 @@ RUN yarn build
 # Final image.
 FROM python:3.13-slim AS release
 
-RUN apt update && apt install -y git libpq-dev ruby ruby-dev && rm -rf /var/lib/apt/lists/*
+# Install system dependencies including Chromium
+RUN apt update && apt install -y \
+    git \
+    libpq-dev \
+    ruby \
+    ruby-dev \
+    fonts-liberation \
+    fonts-noto \
+    fonts-noto-mono \
+    fonts-noto-color-emoji \
+    chromium \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Asciidoctor
 RUN gem install asciidoctor asciidoctor-boost
@@ -66,6 +77,9 @@ COPY . /code/
 COPY --from=builder-js /code/static/css/styles.css /code/static/css/styles.css
 
 WORKDIR /code
+
+# Set environment variable for Playwright to use system Chromium
+ENV PLAYWRIGHT_BROWSERS_PATH=/usr/bin
 
 CMD ["gunicorn", "-c", "/code/gunicorn.conf.py", "config.wsgi"]
 
