@@ -75,6 +75,7 @@ INSTALLED_APPS += [
     "health_check.db",
     "health_check.contrib.celery",
     "imagekit",
+    "import_export",
     "django_countries",
     # Allows authentication for Mailman
     "oauth2_provider",
