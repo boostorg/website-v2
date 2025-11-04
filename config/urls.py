@@ -73,7 +73,6 @@ from users.views import (
     CustomLoginView,
     CustomSignupView,
     CustomSocialSignupViewView,
-    ProfileView,
     UserViewSet,
     UserAvatar,
     DeleteUserView,
@@ -171,7 +170,8 @@ urlpatterns = (
             DeleteImmediatelyView.as_view(),
             name="profile-delete-immediately",
         ),
-        path("users/<int:pk>/", ProfileView.as_view(), name="profile-user"),
+        # Return a 404 for now. Profile view is not ready.
+        # path("users/<int:pk>/", ProfileView.as_view(), name="profile-user"),
         path("users/avatar/", UserAvatar.as_view(), name="user-avatar"),
         path("api/v1/users/me/", CurrentUserAPIView.as_view(), name="current-user"),
         path(
