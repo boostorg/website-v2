@@ -22,9 +22,8 @@ class CapturedEmailResource(resources.ModelResource):
 
     class Meta:
         model = CapturedEmail
-        import_id_fields = (
-            "email",
-        )  # Use email as the natural key so re-imports update instead of duplicating
+        # Use email as the natural key so re-imports update instead of duplicating
+        import_id_fields = "email"
         skip_unchanged = True
         report_skipped = True
         fields = (
