@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from django.core.files.storage import default_storage
 from django.db import transaction
@@ -183,10 +184,11 @@ class ReleaseReportView(TemplateView):
         return context
 
     def generate_report(self):
+        base_scheme = "http" if settings.LOCAL_DEVELOPMENT else "https"
         generate_release_report.delay(
             user_id=self.request.user.id,
             params=self.request.GET,
-            base_uri=f"https://{self.request.get_host()}",
+            base_uri=f"{base_scheme}://{self.request.get_host()}",
         )
 
     def get(self, request, *args, **kwargs):
