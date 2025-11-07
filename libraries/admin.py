@@ -184,7 +184,9 @@ class ReleaseReportView(TemplateView):
 
     def generate_report(self):
         generate_release_report.delay(
-            user_id=self.request.user.id, params=self.request.GET
+            user_id=self.request.user.id,
+            params=self.request.GET,
+            base_uri=f"https://{self.request.get_host()}",
         )
 
     def get(self, request, *args, **kwargs):
