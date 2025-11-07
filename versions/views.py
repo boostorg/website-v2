@@ -221,10 +221,11 @@ class ReportPreviewGenerateView(BoostVersionMixin, View):
         version_name = version.name
         cache_key = f"release-report-,,,,,,,-{version_name}"
         RenderedContent.objects.filter(cache_key=cache_key).delete()
+        scheme = "http" if settings.LOCAL_DEVELOPMENT else "https"
         generate_release_report.delay(
             user_id=request.user.id,
             params={"version": version.id},
-            base_uri=f"https://{request.get_host()}",
+            base_uri=f"{scheme}://{request.get_host()}",
         )
         messages.success(request, "Report generation queued.")
         return redirect("release-report-preview", version_slug=version_name)
