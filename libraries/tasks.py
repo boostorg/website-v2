@@ -1,14 +1,16 @@
+from datetime import date, timedelta
+
 from celery import shared_task, chain
 from django.core.mail import EmailMultiAlternatives
 from django.core.management import call_command
 import structlog
+from django.db.models.functions import ExtractWeek, ExtractIsoYear
 
 from config.celery import app
 from django.conf import settings
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum, OuterRef
 from core.boostrenderer import get_content_from_s3
 from core.htmlhelper import get_library_documentation_urls
-from libraries.forms import CreateReportForm, CreateReportFullForm
 from libraries.github import LibraryUpdater
 from libraries.models import (
     Library,
@@ -16,6 +18,14 @@ from libraries.models import (
     CommitAuthorEmail,
     CommitAuthor,
     ReleaseReport,
+)
+from mailing_list.models import EmailData, PostingData, SubscriptionData
+from reports.generation import (
+    generate_algolia_words,
+    generate_wordcloud,
+    get_algolia_search_stats,
+    generate_mailinglist_words,
+    global_new_contributors,
 )
 from users.tasks import User
 from versions.models import Version
@@ -243,6 +253,8 @@ def update_issues(clean=False):
 @app.task
 def generate_release_report(user_id: int, params: dict, base_uri: str = None):
     """Generate a release report asynchronously and save it in RenderedContent."""
+    from libraries.forms import CreateReportForm
+
     form = CreateReportForm(params)
     html = form.cache_html(base_uri=base_uri)
     # override the base uri to reference the internal container for local dev
@@ -315,6 +327,8 @@ def generate_release_report_pdf(
 @app.task
 def generate_library_report(params):
     """Generate a library report asynchronously and save it in RenderedContent."""
+    from libraries.forms import CreateReportFullForm
+
     form = CreateReportFullForm(params)
     form.cache_html()
 
@@ -479,3 +493,182 @@ def send_commit_author_email_verify_mail(commit_author_email, url):
     msg.attach_alternative(html_content, "text/html")
     msg.send()
     logger.info(f"Verification email to {commit_author_email} sent")
+
+
+@shared_task
+def count_mailinglist_contributors(prior_version_id: int, version_id: int):
+    version = Version.objects.get(id=version_id)
+    prior_version = Version.objects.get(id=prior_version_id)
+
+    version_lt = list(
+        Version.objects.minor_versions()
+        .filter(version_array__lte=prior_version.cleaned_version_parts_int)
+        .values_list("id", flat=True)
+    )
+    version_lte = version_lt + [version.id]
+    current = (
+        EmailData.objects.filter(version__in=version_lte).distinct("author_id").count()
+    )
+    prior = (
+        EmailData.objects.filter(version__in=version_lt).distinct("author_id").count()
+    )
+    release = EmailData.objects.filter(version=version).count()
+    return release, current - prior
+
+
+@shared_task
+def generate_mailinglist_cloud(prior_version_id: int, version_id: int):
+    prior_version = Version.objects.get(id=prior_version_id)
+    version = Version.objects.get(id=version_id)
+
+    mailinglist_words = generate_mailinglist_words(prior_version, version)
+    mailinglist_wordcloud_base64, mailinglist_wordcloud_top_words = generate_wordcloud(
+        mailinglist_words, width=1400, height=700
+    )
+    return (
+        mailinglist_words,
+        mailinglist_wordcloud_base64,
+        mailinglist_wordcloud_top_words,
+    )
+
+
+@shared_task
+def generate_search_cloud(search_version_id: int):
+    """
+    Algolia search word cloud generation
+    """
+    search_version = Version.objects.get(id=search_version_id)
+    from algoliasearch.analytics.client import AnalyticsClientSync
+
+    client = AnalyticsClientSync(**settings.ALGOLIA)
+    # if the report is based on a live version, look for stats for that
+    # version, otherwise use the stats for the prior (live) version
+    search_list_words = generate_algolia_words(client, search_version)
+    search_wordcloud_base64, search_wordcloud_top_words = generate_wordcloud(
+        search_list_words, width=800, height=250
+    )
+    search_stats = get_algolia_search_stats(client, search_version)
+
+    return search_wordcloud_base64, search_wordcloud_top_words, search_stats
+
+
+@shared_task
+def get_mailing_list_stats(prior_version_id: int, version_id: int):
+    version = Version.objects.get(id=version_id)
+    prior_version = Version.objects.get(id=prior_version_id)
+
+    start_date: date = prior_version.release_date
+    end_date: date = version.release_date or date.today()
+    data = (
+        PostingData.objects.filter(post_time__gt=start_date, post_time__lte=end_date)
+        .annotate(week=ExtractWeek("post_time"), iso_year=ExtractIsoYear("post_time"))
+        .values("iso_year", "week")
+        .annotate(count=Count("id"))
+        .order_by("iso_year", "week")
+    )
+
+    chart_data = []
+
+    for row in data:
+        week_number = row["week"]
+        year_number = str(row["iso_year"])[2:]  # e.g. 25
+        x = f"{week_number} ({year_number})"  # e.g., "51 (24)", "1 (25)"
+        y = row["count"]
+        chart_data.append({"x": x, "y": y})
+
+    total_mailinglist_count = EmailData.objects.filter(version=version).aggregate(
+        total=Sum("count")
+    )["total"]
+    return chart_data, total_mailinglist_count
+
+
+@shared_task
+def get_new_subscribers_stats(start_date: date, end_date: date):
+    data = (
+        SubscriptionData.objects.filter(
+            subscription_dt__gte=start_date,
+            subscription_dt__lte=end_date,
+            list="boost",
+        )
+        .annotate(
+            week=ExtractWeek("subscription_dt"),
+            iso_year=ExtractIsoYear("subscription_dt"),
+        )
+        .values("iso_year", "week")
+        .annotate(count=Count("id"))
+        .order_by("iso_year", "week")
+    )
+
+    # Convert data into a dict for easy lookup
+    counts_by_week = {(row["iso_year"], row["week"]): row["count"] for row in data}
+
+    # Iterate through every ISO week in the date range
+    current = start_date
+    seen = set()
+    chart_data = []
+    while current <= end_date:
+        iso_year, iso_week, _ = current.isocalendar()
+        key = (iso_year, iso_week)
+        if key not in seen:  # skip duplicate weeks in the same loop
+            seen.add(key)
+            year_suffix = str(iso_year)[2:]
+            label = f"{iso_week} ({year_suffix})"
+            count = counts_by_week.get(key, 0)
+            chart_data.append({"x": label, "y": count})
+        current += timedelta(days=7)  # hop by weeks
+
+    return chart_data
+
+
+@shared_task
+def count_commit_contributors_totals(version_id: int, prior_version_id: int):
+    """Get a count of contributors for this release, and a count of
+    new contributors.
+
+    """
+    from libraries.forms import CreateReportFullForm
+
+    prior_version = Version.objects.get(id=prior_version_id)
+    version = Version.objects.get(id=version_id)
+
+    version_lt = list(
+        Version.objects.minor_versions()
+        .filter(version_array__lte=prior_version.cleaned_version_parts_int)
+        .values_list("id", flat=True)
+    )
+    version_lte = version_lt + [version.id]
+    lt_subquery = LibraryVersion.objects.filter(
+        version__in=version_lt,
+        library=OuterRef("id"),
+    ).values("id")
+    lte_subquery = LibraryVersion.objects.filter(
+        version__in=version_lte,
+        library=OuterRef("id"),
+    ).values("id")
+    qs = CreateReportFullForm.library_queryset.aggregate(
+        this_release_count=Count(
+            "library_version__commit__author",
+            filter=Q(library_version__version=version),
+            distinct=True,
+        ),
+        authors_before_release_count=Count(
+            "library_version__commit__author",
+            filter=Q(library_version__in=lt_subquery),
+            distinct=True,
+        ),
+        authors_through_release_count=Count(
+            "library_version__commit__author",
+            filter=Q(library_version__in=lte_subquery),
+            distinct=True,
+        ),
+    )
+    new_count = qs["authors_through_release_count"] - qs["authors_before_release_count"]
+    this_release_count = qs["this_release_count"]
+    return this_release_count, new_count
+
+
+@shared_task
+def get_new_contributors_count(version_id: int):
+    """Get a count of contributors for this release"""
+    version = Version.objects.get(id=version_id)
+    return len(global_new_contributors(version))
