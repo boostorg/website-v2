@@ -89,6 +89,24 @@ INSTALLED_APPS += [
     "widget_tweaks",
 ]
 
+# Wagtail Apps
+INSTALLED_APPS += [
+    "wagtail.contrib.forms",
+    "wagtail.contrib.redirects",
+    "wagtail.embeds",
+    "wagtail.sites",
+    "wagtail.users",
+    "wagtail.snippets",
+    "wagtail.documents",
+    "wagtail.images",
+    "wagtail.search",
+    "wagtail.admin",
+    "wagtail",
+    "wagtailmarkdown",
+    "modelcluster",
+    "taggit",
+]
+
 # Our Apps
 INSTALLED_APPS += [
     "ak",
@@ -124,6 +142,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "oauth2_provider.middleware.OAuth2TokenMiddleware",
+    "wagtail.contrib.redirects.middleware.RedirectMiddleware",
 ]
 
 if DEBUG:
@@ -591,4 +610,32 @@ ALGOLIA = {
     "app_id": env("ALGOLIA_APP_ID", None),
     "api_key": env("ALGOLIA_API_KEY", None),
     "region": env("ALGOLIA_APP_REGION", "us"),
+}
+
+# Required by Wagtail
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10_000
+WAGTAIL_SITE_NAME = "Boost.org"
+WAGTAILADMIN_BASE_URL = env("WAGTAILADMIN_BASE_URL", default="https://boost.org/")
+WAGTAILDOCS_EXTENSIONS = [
+    "csv",
+    "docx",
+    "key",
+    "odt",
+    "pdf",
+    "pptx",
+    "rtf",
+    "txt",
+    "xlsx",
+    "zip",
+]
+WAGTAILMARKDOWN = {
+    "autodownload_fontawesome": True,
+    "allowed_tags": [],  # optional. a list of HTML tags. e.g. ['div', 'p', 'a']
+    "allowed_styles": [],  # optional. a list of styles
+    "allowed_attributes": {},  # optional. a dict with HTML tag as key and a list of attributes as value
+    "allowed_settings_mode": "extend",  # optional. Possible values: "extend" or "override". Defaults to "extend".
+    "extensions": [],  # optional. a list of python-markdown supported extensions
+    "extension_configs": {},  # optional. a dictionary with the extension name as key, and its configuration as value
+    "extensions_settings_mode": "extend",  # optional. Possible values: "extend" or "override". Defaults to "extend".
+    "tab_length": 4,  # optional. Sets the length of tabs used by python-markdown to render the output. This is the number of spaces used to replace with a tab character. Defaults to 4.
 }

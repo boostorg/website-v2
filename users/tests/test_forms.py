@@ -189,10 +189,10 @@ def test_user_profile_photo_form_save(user):
         return file
 
     old_image = ImageFile(create_test_image_file(filename="initial_image.png"))
-    user.image.save("initial_image.png", old_image)
+    user.profile_image.save("initial_image.png", old_image)
 
     # Make sure the initial image was saved
-    initial_path = user.image.path
+    initial_path = user.profile_image.path
     assert initial_path is not None
 
     # Create new image for upload
@@ -206,4 +206,4 @@ def test_user_profile_photo_form_save(user):
     assert form.is_valid()
     updated_user = form.save()
     updated_user.refresh_from_db()
-    assert str(user.pk) in updated_user.image.path
+    assert str(user.pk) in updated_user.profile_image.path

@@ -204,14 +204,14 @@ class User(BaseUser):
     is_commit_author_name_overridden = models.BooleanField(
         default=False, help_text="Select to override the commit author with Username"
     )
-    image = models.FileField(
+    profile_image = models.FileField(
         upload_to="profile-images",
         null=True,
         blank=True,
         validators=[image_validator, max_file_size_validator],
     )
     image_thumbnail = ImageSpecField(
-        source="image",
+        source="profile_image",
         processors=[ResizeToFill(100, 100)],
         format="JPEG",
         options={"quality": 90},
@@ -269,7 +269,7 @@ class User(BaseUser):
 
         response = requests.get(avatar_url)
         filename = f"{self.profile_image_filename_root}.png"
-        self.image.save(filename, ContentFile(response.content), save=True)
+        self.profile_image.save(filename, ContentFile(response.content), save=True)
 
     @cached_property
     def profile_image_filename_root(self):
@@ -285,7 +285,7 @@ class User(BaseUser):
 
     def get_thumbnail_url(self):
         # convenience method for templates
-        if self.image and self.image_thumbnail:
+        if self.profile_image and self.image_thumbnail:
             with suppress(AttributeError, MissingSource):
                 return getattr(self.image_thumbnail, "url", None)
 
@@ -324,9 +324,9 @@ class User(BaseUser):
         self.last_name = "Doe"
         self.display_name = "John Doe"
         self.email = "deleted-{}@example.com".format(uuid.uuid4())
-        image = self.image
+        image = self.profile_image
         transaction.on_commit(lambda: image.delete())
-        self.image = None
+        self.profile_image = None
         self.image_thumbnail = None
         self.delete_permanently_at = None
         self.save()

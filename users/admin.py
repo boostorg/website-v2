@@ -39,7 +39,7 @@ class EmailUserAdmin(UserAdmin):
             {
                 "fields": (
                     "can_update_image",
-                    "image",
+                    "profile_image",
                 )
             },
         ),

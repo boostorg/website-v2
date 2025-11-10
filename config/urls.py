@@ -7,6 +7,9 @@ from django.urls import include, path, re_path, register_converter, reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from rest_framework import routers
+from wagtail import urls as wagtail_urls
+from wagtail.admin import urls as wagtailadmin_urls
+from wagtail.documents import urls as wagtaildocs_urls
 
 from ak.views import (
     ForbiddenView,
@@ -402,6 +405,10 @@ urlpatterns = (
             ModernizedDocsView.as_view(),
             name="modernized_docs",
         ),
+        # Wagtail stuff
+        path("cms/", include(wagtailadmin_urls)),
+        path("documents/", include(wagtaildocs_urls)),
+        path("outreach/", include(wagtail_urls)),
     ]
     + [
         path(

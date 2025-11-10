@@ -18,11 +18,11 @@ class Command(BaseCommand):
         see your photo in the admin for whoever your first user is.
         """
         user = User.objects.first()
-        user.image = None
+        user.profile_image = None
         user.github_username = "testing"
         user.save()
         user.refresh_from_db()
-        assert bool(user.image) is False
+        assert bool(user.profile_image) is False
         user.save_image_from_github()
         user.refresh_from_db()
-        assert bool(user.image) is True
+        assert bool(user.profile_image) is True
