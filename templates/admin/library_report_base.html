@@ -15,9 +15,12 @@
     <meta name="keywords" content="{% block keywords %}{% endblock %}" />
     <meta name="author"
           content="{% block author %}Boost C++ Libraries{% endblock %}" />
-    <link rel="shortcut icon"
-          href="{% static 'img/Boost_Symbol_Transparent.svg' %}"
-          type="image/x-icon" />
+    <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" sizes="any">
+    <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png" sizes="48x48">
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
+    <link rel="manifest" href="{% static 'img/site.webmanifest' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
