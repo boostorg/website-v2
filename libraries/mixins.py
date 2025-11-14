@@ -48,6 +48,8 @@ class VersionAlertMixin:
             path_slug = current_version_kwargs.get("content_path").split("/")[0]
             if path_slug == LATEST_RELEASE_URL_PATH_STR:
                 context["selected_version"] = Version.objects.most_recent()
+            elif path_slug in ("master", "develop"):
+                context["selected_version"] = Version.objects.get(slug=path_slug)
             else:
                 version_slug = f"boost-{path_slug.replace('_', '-')}"
                 context["selected_version"] = Version.objects.get(slug=version_slug)
