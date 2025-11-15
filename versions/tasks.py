@@ -22,7 +22,7 @@ from versions.releases import (
 )
 
 
-logger = structlog.getLogger(__name__)
+logger = structlog.get_logger()
 
 
 @app.task
@@ -87,7 +87,7 @@ def import_release_notes(new_versions_only=True):
         versions = Version.objects.exclude(name__in=["master", "develop"]).active()
 
     for version in versions:
-        logger.info(f"retrieving release notes for {version.name=}")
+        logger.info(f"retrieving release notes for {version.name=} {version.pk=}")
         store_release_notes_task.delay(str(version.pk))
     store_release_notes_in_progress_task.delay()
 
@@ -203,6 +203,7 @@ def import_most_recent_beta_release(token=None, delete_old=False):
                 logger.info(f"calling import_version with {name=} {tag=}")
                 import_version(name, tag, token=token, beta=True, full_release=False)
                 logger.info(f"completed import_version with {name=} {tag=}")
+                mark_fully_completed()
                 # new_versions_only='False' otherwise will only be full releases
                 import_release_notes(new_versions_only=False)
                 return
