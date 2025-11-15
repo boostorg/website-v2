@@ -317,13 +317,11 @@ def process_release_notes(content):
 def store_release_notes_for_version(version_pk):
     """Check S3 and then github for release notes and store them in RenderedContent."""
     # Get the version
+    # todo: convert to task, remove the task that calls this, is redundant
     try:
         version = Version.objects.get(pk=version_pk)
     except Version.DoesNotExist:
-        logger.info(
-            "store_release_notes_for_version_error_version_not_found",
-            version_pk=version_pk,
-        )
+        logger.info(f"store_release_notes version_not_found {version_pk=}")
         raise Version.DoesNotExist
 
     content, processed_content, content_type = get_release_notes_for_version(version_pk)
