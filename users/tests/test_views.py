@@ -130,7 +130,7 @@ def test_current_user_profile_view_post_valid_photo(user, tp):
         )
         assert response.status_code == 200
         user.refresh_from_db()
-        assert user.image
+        assert user.profile_image
         # confirm that password was not changed, as these are on the same screen
         assert user.check_password("password")
 

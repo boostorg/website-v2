@@ -40,7 +40,7 @@ def test_user_model_image_validator(user):
     valid_image = SimpleUploadedFile(
         "test.jpg", b"file_content", content_type="image/jpeg"
     )
-    user.image = valid_image
+    user.profile_image = valid_image
     # This should not raise any errors
     user.full_clean()
 
@@ -48,7 +48,7 @@ def test_user_model_image_validator(user):
     invalid_image = SimpleUploadedFile(
         "test.pdf", b"file_content", content_type="application/pdf"
     )
-    user.image = invalid_image
+    user.profile_image = invalid_image
     # This should raise a ValidationError
     with pytest.raises(ValidationError):
         user.full_clean()
@@ -61,7 +61,7 @@ def test_user_model_image_file_size(user):
     valid_image = SimpleUploadedFile(
         "test.jpg", b"a" * (1 * 1024 * 1024 - 1), content_type="image/jpeg"
     )
-    user.image = valid_image
+    user.profile_image = valid_image
     # This should not raise any errors
     user.full_clean()
 
@@ -69,7 +69,7 @@ def test_user_model_image_file_size(user):
     invalid_image = SimpleUploadedFile(
         "too_large.jpg", b"a" * (1 * 1024 * 1024 + 1), content_type="image/jpeg"
     )
-    user.image = invalid_image
+    user.profile_image = invalid_image
     # This should raise a ValidationError for file size
     with pytest.raises(ValidationError):
         user.full_clean()

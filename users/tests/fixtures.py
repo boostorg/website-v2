@@ -25,7 +25,7 @@ def user(db):
     image = Image.new("RGBA", size=(100, 100), color=(155, 0, 0))
     image.save(file, "png")
     file.seek(0)
-    user.image.save(filename, file)
+    user.profile_image.save(filename, file)
 
     user.set_password("password")
     user.save()
@@ -50,7 +50,7 @@ def staff_user(db):
     image = Image.new("RGBA", size=(100, 100), color=(155, 0, 0))
     image.save(file, "png")
     file.seek(0)
-    user.image.save(filename, file)
+    user.profile_image.save(filename, file)
 
     user.set_password("password")
     user.save()
@@ -76,7 +76,7 @@ def super_user(db):
     image = Image.new("RGBA", size=(100, 100), color=(155, 0, 0))
     image.save(file, "png")
     file.seek(0)
-    user.image.save(filename, file)
+    user.profile_image.save(filename, file)
     user.set_password("password")
     user.save()
 

@@ -107,7 +107,7 @@ def moderator_user(db, make_user):
     image = Image.new("RGBA", size=(100, 100), color=(155, 0, 0))
     image.save(file, "png")
     file.seek(0)
-    user.image.save(filename, file)
+    user.profile_image.save(filename, file)
     user.save()
     return user
 
@@ -121,7 +121,7 @@ def regular_user(db, make_user):
     image = Image.new("RGBA", size=(100, 100), color=(155, 0, 0))
     image.save(file, "png")
     file.seek(0)
-    user.image.save(filename, file)
+    user.profile_image.save(filename, file)
     user.save()
     return user
 

@@ -8,8 +8,7 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import CreateView
 
 from core.views import logger
-from marketing.forms import CapturedEmailForm
-from marketing.models import CapturedEmail
+from marketing.models import CapturedEmail, CapturedEmailForm
 
 
 @method_decorator(never_cache, name="dispatch")
