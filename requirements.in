@@ -38,6 +38,8 @@ lxml
 algoliasearch
 openai
 playwright
+wagtail
+wagtail-markdown
 
 # Logging
 django-tracer
