@@ -202,7 +202,7 @@ Env:
   - name: ENABLE_DB_CACHE
     value: "true"
   - name: WAGTAILADMIN_BASE_URL
-    value: https://stage.boost.org/
+    value: https://www.stage.boost.org/
 
 # Volumes
 Volumes:
