@@ -119,7 +119,7 @@ class CustomClearableFileInput(forms.ClearableFileInput):
 
 
 class UserProfilePhotoForm(forms.ModelForm):
-    image = forms.FileField(widget=CustomClearableFileInput, required=False)
+    profile_image = forms.FileField(widget=CustomClearableFileInput, required=False)
 
     class Meta:
         model = User
@@ -137,7 +137,7 @@ class UserProfilePhotoForm(forms.ModelForm):
 
     def save(self, commit=True):
         # Temporarily store the old image
-        old_image = self.instance.image
+        old_image = self.instance.profile_image
         # Save the new image
         user = super().save(commit=False)
         if not old_image:
@@ -147,8 +147,7 @@ class UserProfilePhotoForm(forms.ModelForm):
             # Delete the old image file if there's a new image being uploaded
             old_image.delete(save=False)
 
-        if self.cleaned_data.get("image"):
-            new_image = self.cleaned_data["profile_image"]
+        if new_image := self.cleaned_data.get("profile_image"):
             _, file_extension = os.path.splitext(new_image.name)
 
             # Strip the leading period from the file extension.

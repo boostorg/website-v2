@@ -202,7 +202,7 @@ def test_user_profile_photo_form_save(user):
         content_type="image/jpeg",
     )
 
-    form = UserProfilePhotoForm({"image": new_image}, instance=user)
+    form = UserProfilePhotoForm({"profile_image": new_image}, instance=user)
     assert form.is_valid()
     updated_user = form.save()
     updated_user.refresh_from_db()
