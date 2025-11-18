@@ -201,6 +201,8 @@ Env:
   # postgres caching of s3 text file content
   - name: ENABLE_DB_CACHE
     value: "true"
+  - name: WAGTAILADMIN_BASE_URL
+    value: https://stage.boost.org/
 
 # Volumes
 Volumes:
