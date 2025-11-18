@@ -316,9 +316,9 @@ def generate_release_report_pdf(
         release_report.file.save(filename, ContentFile(pdf_bytes), save=True)
         if publish:
             release_report.published = True
-            release_report.save(allow_overwrite=True)
-        logger.info(f"{release_report_id=} updated with PDF {filename=}")
-
+            release_report.save(allow_published_overwrite=True)
+    except ValueError as e:
+        logger.error(f"Failed to publish release: {e}")
     except Exception as e:
         logger.error(f"Failed to generate PDF: {e}", exc_info=True)
         raise

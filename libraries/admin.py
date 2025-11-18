@@ -1,6 +1,7 @@
+import structlog
 from django.conf import settings
-from django.contrib import admin
-from django.core.files.storage import default_storage
+from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import F, Count, OuterRef, Window
 from django.db.models.functions import RowNumber
@@ -41,6 +42,9 @@ from .tasks import (
     synchronize_commit_author_user_data,
 )
 from .utils import generate_release_report_filename
+
+
+logger = structlog.get_logger()
 
 
 @admin.register(Commit)
@@ -191,9 +195,32 @@ class ReleaseReportView(TemplateView):
             base_uri=f"{base_scheme}://{self.request.get_host()}",
         )
 
+    def locked_publish_check(self):
+        form = self.get_form()
+        form.is_valid()
+        publish = form.cleaned_data["publish"]
+        report_configuration = form.cleaned_data["report_configuration"]
+        if publish and ReleaseReport.latest_published_locked(report_configuration):
+            msg = (
+                f"A release report already exists with locked status for "
+                f"{report_configuration.display_name}. Delete or unlock the most "
+                f"recent report."
+            )
+            raise ValueError(msg)
+
     def get(self, request, *args, **kwargs):
         form = self.get_form()
         if form.is_valid():
+            try:
+                self.locked_publish_check()
+            except ValueError as e:
+                messages.error(request, str(e))
+                return TemplateResponse(
+                    request,
+                    self.form_template,
+                    self.get_context_data(),
+                )
+
             if form.cleaned_data["no_cache"]:
                 params = request.GET.copy()
                 form.cache_clear()
@@ -462,28 +489,93 @@ class ReleaseReportAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if self.instance.pk and not self.instance.published:
-            file_name = generate_release_report_filename(
-                self.instance.report_configuration.get_slug()
+        if not self.is_publish_editable():
+            # we require users to intentionally manually delete existing reports
+            self.fields["published"].disabled = True
+            self.fields["published"].help_text = (
+                "⚠️ A published PDF already exists for this Report Configuration. See "
+                '"Publishing" notes at the top of this page.'
             )
-            published_filename = f"{ReleaseReport.upload_dir}{file_name}"
-            if default_storage.exists(published_filename):
-                # we require users to intentionally manually delete existing reports
-                self.fields["published"].disabled = True
-                self.fields["published"].help_text = (
-                    f"⚠️ A published '{file_name}' already exists. To prevent accidents "
-                    "you must manually delete that file before publishing this report."
+
+    def is_publish_editable(self) -> bool:
+        # in play here are currently published and previously published rows because of
+        # filename collision risk.
+        if self.instance.published:
+            return True
+
+        published_filename = generate_release_report_filename(
+            version_slug=self.instance.report_configuration.get_slug(),
+            published_format=True,
+        )
+        reports = ReleaseReport.objects.filter(
+            report_configuration=self.instance.report_configuration,
+            file=f"{ReleaseReport.upload_dir}{published_filename}",
+        )
+
+        if reports.count() == 0 or reports.latest("created_at") == self.instance:
+            return True
+
+        return False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not self.is_publish_editable():
+            raise ValidationError("This file is not publishable.")
+        if cleaned_data.get("published"):
+            report_configuration = cleaned_data.get("report_configuration")
+            if ReleaseReport.latest_published_locked(
+                report_configuration, self.instance
+            ):
+                raise ValidationError(
+                    f"A release report already exists with locked status for "
+                    f"{report_configuration.display_name}. Delete or unlock the most "
+                    f"recent report."
                 )
+
+        return cleaned_data
 
 
 @admin.register(ReleaseReport)
 class ReleaseReportAdmin(admin.ModelAdmin):
     form = ReleaseReportAdminForm
-    list_display = ["__str__", "created_at", "published", "published_at"]
-    list_filter = ["published", ReportConfigurationFilter, StaffUserCreatedByFilter]
+    list_display = ["__str__", "created_at", "published", "published_at", "locked"]
+    list_filter = [
+        "published",
+        "locked",
+        ReportConfigurationFilter,
+        StaffUserCreatedByFilter,
+    ]
     search_fields = ["file"]
     readonly_fields = ["created_at", "created_by"]
     ordering = ["-created_at"]
+    change_list_template = "admin/releasereport_change_list.html"
+    change_form_template = "admin/releasereport_change_form.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path(
+                "release_tasks/",
+                self.admin_site.admin_view(self.release_tasks),
+                name="release_tasks",
+            ),
+        ]
+        return my_urls + urls
+
+    def release_tasks(self, request):
+        from libraries.tasks import release_tasks
+
+        scheme = "http" if settings.LOCAL_DEVELOPMENT else "https"
+        release_tasks.delay(
+            base_uri=f"{scheme}://{request.get_host()}",
+            user_id=request.user.id,
+            generate_report=False,
+        )
+        self.message_user(
+            request,
+            "release_tasks has started, you will receive an email when the task finishes.",  # noqa: E501
+        )
+        return HttpResponseRedirect("../")
 
     def has_add_permission(self, request):
         return False
@@ -492,3 +584,25 @@ class ReleaseReportAdmin(admin.ModelAdmin):
         if not change:
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
+
+    @staticmethod
+    def clear_other_report_files(release_report: ReleaseReport):
+        if release_report.file:
+            other_reports = ReleaseReport.objects.filter(
+                file=release_report.file.name
+            ).exclude(pk=release_report.pk)
+
+            if other_reports.exists():
+                release_report.file = None
+                release_report.save()
+
+    def delete_model(self, request, obj):
+        # check if another report uses the same file
+        self.clear_other_report_files(obj)
+        super().delete_model(request, obj)
+
+    def delete_queryset(self, request, queryset):
+        # clear file reference, prevents deletion of the file if it's linked elsewhere
+        for obj in queryset:
+            self.clear_other_report_files(obj)
+        super().delete_queryset(request, queryset)

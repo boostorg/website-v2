@@ -244,13 +244,25 @@ class CreateReportForm(CreateReportFullForm):
     """Form for creating a report for a specific release."""
 
     html_template_name = "admin/release_report_detail.html"
-
-    report_configuration = ModelChoiceField(
-        queryset=ReportConfiguration.objects.order_by("-version")
-    )
+    # queryset will be set in __init__
+    report_configuration = ModelChoiceField(queryset=ReportConfiguration.objects.none())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # we want to allow master, develop, the latest release, the latest beta, along
+        # with any report configuration matching no Version, exclude all others.
+        exclusion_versions = []
+        if betas := Version.objects.filter(beta=True).order_by("-release_date")[1:]:
+            exclusion_versions += betas
+        if older_releases := Version.objects.filter(
+            active=True, full_release=True
+        ).order_by("-release_date")[1:]:
+            exclusion_versions += older_releases
+        qs = ReportConfiguration.objects.exclude(
+            version__in=[v.name for v in exclusion_versions]
+        ).order_by("-version")
+
+        self.fields["report_configuration"].queryset = qs
         self.fields["library_1"].help_text = (
             "If none are selected, all libraries will be selected."
         )
