@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("marketing", "0001_initial"),
+        ("marketing", "0002_detailpage_outreachhomepage_programpage_and_more"),
     ]
 
     operations = [
