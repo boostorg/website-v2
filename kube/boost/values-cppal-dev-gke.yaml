@@ -202,7 +202,7 @@ Env:
   - name: ENABLE_DB_CACHE
     value: "true"
   - name: WAGTAILADMIN_BASE_URL
-    value: https://www.cppal-dev.boost.org/
+    value: https://www.cppal-dev.boost.org
 
 # Volumes
 Volumes:
