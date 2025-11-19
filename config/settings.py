@@ -615,7 +615,8 @@ ALGOLIA = {
 # Required by Wagtail
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10_000
 WAGTAIL_SITE_NAME = "Boost.org"
-WAGTAILADMIN_BASE_URL = env("WAGTAILADMIN_BASE_URL", default="https://www.boost.org/")
+WAGTAILADMIN_BASE_URL = env("WAGTAILADMIN_BASE_URL", default="https://www.boost.org")
+WAGTAILADMIN_NOTIFICATION_INCLUDE_SUPERUSERS = False
 WAGTAILDOCS_EXTENSIONS = [
     "csv",
     "docx",
