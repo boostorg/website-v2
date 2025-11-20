@@ -61,9 +61,13 @@ def generate_algolia_words(
         "index": version.stripped_boost_url_slug,
         "limit": 100,
     }
-    search_results = client.get_top_searches(**args).to_json()
-    search_data = json.loads(search_results)
-    return {r["search"]: r["count"] for r in search_data["searches"] if r["count"] > 1}
+    try:
+        search_results = client.get_top_searches(**args).to_json()
+        search_data = json.loads(search_results)
+        searches = search_data.get("searches") or []
+        return {r["search"]: r["count"] for r in searches if r["count"] > 1}
+    except ValueError:
+        return {}
 
 
 def generate_wordcloud(
@@ -173,10 +177,14 @@ def get_algolia_search_stats(client: AnalyticsClientSync, version: Version) -> d
     # search data
     search_response = client.get_searches_count(**default_args).to_json()
     search_data = json.loads(search_response)
-    # country data
-    country_results = client.get_top_countries(**default_args, limit=100).to_json()
-    country_data = json.loads(country_results)
-    country_stats = {r["country"]: r["count"] for r in country_data["countries"]}
+    try:
+        # country data
+        country_results = client.get_top_countries(**default_args, limit=100).to_json()
+        country_data = json.loads(country_results)
+        countries = country_data.get("countries") or []
+        country_stats = {r["country"]: r["count"] for r in countries}
+    except ValueError:
+        country_stats = {}
     return {
         "total_searches": search_data.get("count"),
         "country_stats": country_stats,
