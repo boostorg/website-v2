@@ -1,3 +1,4 @@
+import os
 import re
 import uuid
 from datetime import timedelta
@@ -592,6 +593,14 @@ class ReleaseReport(models.Model):
         # delete the old file and update the reference
         default_storage.delete(current_name)
         self.file.name = final_filename
+
+    def get_media_file(self):
+        return os.sep.join(
+            [
+                settings.MEDIA_URL.rstrip("/"),
+                self.file.name,
+            ]
+        )
 
     @staticmethod
     def latest_published_locked(
