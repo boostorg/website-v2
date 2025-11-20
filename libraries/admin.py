@@ -188,11 +188,11 @@ class ReleaseReportView(TemplateView):
         return context
 
     def generate_report(self):
-        base_scheme = "http" if settings.LOCAL_DEVELOPMENT else "https"
+        uri = f"{settings.ACCOUNT_DEFAULT_HTTP_PROTOCOL}://{self.request.get_host()}"
         generate_release_report.delay(
             user_id=self.request.user.id,
             params=self.request.GET,
-            base_uri=f"{base_scheme}://{self.request.get_host()}",
+            base_uri=uri,
         )
 
     def locked_publish_check(self):
@@ -565,9 +565,8 @@ class ReleaseReportAdmin(admin.ModelAdmin):
     def release_tasks(self, request):
         from libraries.tasks import release_tasks
 
-        scheme = "http" if settings.LOCAL_DEVELOPMENT else "https"
         release_tasks.delay(
-            base_uri=f"{scheme}://{request.get_host()}",
+            base_uri=f"{settings.ACCOUNT_DEFAULT_HTTP_PROTOCOL}://{request.get_host()}",
             user_id=request.user.id,
             generate_report=False,
         )
