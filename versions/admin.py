@@ -4,7 +4,7 @@ from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import path
 
-from libraries.tasks import release_tasks, import_new_versions_tasks
+from libraries.tasks import import_new_versions_tasks
 
 from . import models
 
@@ -35,25 +35,8 @@ class VersionAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.import_new_releases),
                 name="import_new_releases",
             ),
-            path(
-                "release_tasks/",
-                self.admin_site.admin_view(self.release_tasks),
-                name="release_tasks",
-            ),
         ]
         return my_urls + urls
-
-    def release_tasks(self, request):
-        release_tasks.delay(
-            base_uri=f"https://{request.get_host()}",
-            user_id=request.user.id,
-            generate_report=True,
-        )
-        self.message_user(
-            request,
-            "release_tasks has started, you will receive an email when the task finishes.",  # noqa: E501
-        )
-        return HttpResponseRedirect("../")
 
     def import_new_releases(self, request):
         import_new_versions_tasks.delay(user_id=request.user.id)

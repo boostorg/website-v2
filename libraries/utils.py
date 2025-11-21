@@ -368,6 +368,5 @@ def generate_release_report_filename(version_slug: str, published_format: bool =
     filename_data = ["release-report", version_slug]
     if not published_format:
         filename_data.append(datetime.now(timezone.utc).isoformat())
-
-    filename = f"{"-".join(filename_data)}.pdf"
+    filename = f"{'-'.join(filename_data)}.pdf"
     return filename

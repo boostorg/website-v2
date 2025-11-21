@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from core.models import RenderedContent
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import VersionAlertMixin, BoostVersionMixin
-from libraries.models import Commit, CommitAuthor
+from libraries.models import Commit, CommitAuthor, ReleaseReport
 from libraries.tasks import generate_release_report
 from libraries.utils import (
     set_selected_boost_version,
@@ -70,6 +70,10 @@ class VersionDetail(BoostVersionMixin, VersionAlertMixin, DetailView):
         context["top_contributors_release"] = self.get_top_contributors_release(obj)
 
         context["documentation_url"] = obj.documentation_url
+        report_file_info = self.get_release_report_info()
+        if report_file_info:
+            context["release_report_file_name"] = report_file_info["file_name"]
+            context["release_report_url"] = report_file_info["file_path"]
         try:
             context["deps"] = self.get_library_version_dependencies(obj)
         except BoostImportedDataException:
@@ -82,6 +86,18 @@ class VersionDetail(BoostVersionMixin, VersionAlertMixin, DetailView):
             )
             context["version_alert"] = False
         return context
+
+    def get_release_report_info(self) -> dict | None:
+        try:
+            if report := ReleaseReport.objects.get(
+                report_configuration__version=self.object.name, published=True
+            ):
+                return {
+                    "file_name": report.file.name.replace(ReleaseReport.upload_dir, ""),
+                    "file_path": report.get_media_file(),
+                }
+        except ReleaseReport.DoesNotExist:
+            return {}
 
     def get_library_version_dependencies(self, version: Version):
         diffs = version.get_dependency_diffs()
@@ -224,7 +240,7 @@ class ReportPreviewGenerateView(BoostVersionMixin, View):
         generate_release_report.delay(
             user_id=request.user.id,
             params={"version": version.id},
-            base_uri=f"https://{request.get_host()}",
+            base_uri=f"{settings.ACCOUNT_DEFAULT_HTTP_PROTOCOL}://{request.get_host()}",
         )
         messages.success(request, "Report generation queued.")
         return redirect("release-report-preview", version_slug=version_name)
