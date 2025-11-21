@@ -1,0 +1,43 @@
+#result_list td, #result_list th {
+    vertical-align: middle !important;
+}
+
+/* default: Show light mode badge, hide dark mode badge */
+.badge-light-mode {
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+.badge-dark-mode {
+    display: none !important;
+    vertical-align: middle !important;
+}
+
+/* django admin dark mode (data-theme attribute on html element) */
+html[data-theme="dark"] .badge-light-mode {
+    display: none !important;
+}
+
+html[data-theme="dark"] .badge-dark-mode {
+    display: inline-block !important;
+}
+
+/* system preference dark mode (as fallback) */
+@media (prefers-color-scheme: dark) {
+    html:not([data-theme="light"]) .badge-light-mode {
+        display: none !important;
+    }
+
+    html:not([data-theme="light"]) .badge-dark-mode {
+        display: inline-block !important;
+    }
+}
+
+/* explicitly handle light mode when set */
+html[data-theme="light"] .badge-light-mode {
+    display: inline-block !important;
+}
+
+html[data-theme="light"] .badge-dark-mode {
+    display: none !important;
+}
