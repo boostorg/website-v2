@@ -17,20 +17,18 @@ font-size: 0.88rem;
 }
 input {display:inline-block;padding:5px;border:1px solid #ccc;}
 hr {margin:2rem auto; width: 150px;}
-p {font-size: 0.88rem; padding-top:0.7rem;}
+p {font-size: 0.88rem;}
 a {color:#0284c7;}
 a:hover, a:active {color:darkblue}
 a:visited {color:#0284c7;}
-h1 {font-size: 1.44rem; font-weight:700; padding-top:1rem; padding-bottom:0.3rem}
-h2 {font-size: 1rem; font-weight:600; text-transform: uppercase; padding-top:1rem; padding-bottom:0.6rem}
-h3 {font-size: 1.1rem; font-weight:700; padding-top:0.6rem;}
-h4 {font-size: 0.95rem; font-weight:700;padding-top:0.6rem;}
-h5 {font-size: 0.69; font-weight:700;}
+h1 {font-size: 1.44rem; font-weight:700;}
+h2 {font-size: 1rem; font-weight:600; text-transform: uppercase;}
+h3 {font-size: 1.1rem; font-weight:700;}
+h4 {font-size: 0.95rem; font-weight:700;}
+h5 {font-size: 0.69rem; font-weight:700;}
 h6 {}
 ul {}
-ul > li {padding-top:0.5rem;}
 ol {}
-ol > li {padding-top:0.5rem;}
 code, pre {
     font-family: monospace;
     font-size: 0.88rem;
