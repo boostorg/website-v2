@@ -186,7 +186,7 @@ TDB
 
 ## Pre-commit Hooks
 
-We use [pre-commit hooks](https://pre-commit.com/) to check code for style, syntax, and other issues. They help to maintain consistent code quality and style across the project, and prevent issues from being introduced into the codebase.
+We use [pre-commit hooks](https://pre-commit.com/) to check code for style, syntax, and other issues. They help to maintain consistent code quality and style across the project, and prevent issues from being introduced into the codebase..
 
 | Pre-commit Hook | Description |
 | --------------- | ----------- |
