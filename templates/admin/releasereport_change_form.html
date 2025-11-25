@@ -1,0 +1,16 @@
+{% extends "admin/change_form.html" %}
+
+{% block content %}
+<div class="warning">
+  Publishing:
+  <ul>
+    <li>Report PDFs are not archived or versioned. Publishing an older version
+      is not possible after a newer one has been published.</li>
+    <li>For any Report Configuration it's only possible to republish the most
+      recently published report, or a new draft.</li>
+    <li>To publish a draft, for safety, all existing entries for that Report
+      Configuration must be manually deleted first.</li>
+  </ul>
+</div>
+{{ block.super }}
+{% endblock %}

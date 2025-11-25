@@ -6,9 +6,9 @@
    1. Ask Sam for a copy of the "subscribe" data.
    2. In the Django admin interface go to "Subscription datas" under "MAILING_LIST".
    3. At the top of the page click on the "IMPORT 'SUBSCRIBE' DATA" button.
-2. To update the mailing list counts, if you haven't already run the "DO IT ALL" button:
-   1. Go to "Versions" under "VERSIONS" in the admin interface
-   2. At the top of the page click on the "DO IT ALL" button.
+2. To update the mailing list counts, if you haven't already run the "GET RELEASE REPORT DATA" button:
+   1. Go to "Release Reports" under "VERSIONS" in the admin interface
+   2. At the top of the page click on the "GET RELEASE REPORT DATA" button.
 
 ## Report Creation
 

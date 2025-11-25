@@ -51,6 +51,15 @@
                   <span class="block text-xs">{{ version.github_url|cut:"https://" }}</span>
                 </a>
               </div>
+              {% if release_report_url %}
+                <div class="-ml-2 h-14">
+                  <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
+                     href="{{ release_report_url }}">
+                    <span class="dark:text-white text-slate">Release Report</span>
+                    <span class="block text-xs">{{ release_report_file_name }}</span>
+                  </a>
+                </div>
+              {% endif %}
             </div>
             {% if not version.beta %}
               {% if deps.added or deps.removed %}
