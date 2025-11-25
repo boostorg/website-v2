@@ -108,6 +108,12 @@ def setup_periodic_tasks(sender, **kwargs):
         app.signature("users.tasks.refresh_users_github_photos"),
     )
 
+    # Remove unverified users. Executes daily at 2:15 AM.
+    sender.add_periodic_task(
+        crontab(hour=2, minute=15),
+        app.signature("users.tasks.remove_unverified_users"),
+    )
+
     # Clean up old sandbox documents. Executes weekly on Sundays at 2:00 AM.
     sender.add_periodic_task(
         crontab(day_of_week="sun", hour=2, minute=0),
