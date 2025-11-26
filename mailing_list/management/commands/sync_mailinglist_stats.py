@@ -58,12 +58,16 @@ def create_emaildata(conn: Connection):
 
     versions = Version.objects.minor_versions().order_by("version_array")
     columns = ["email", "name", "count"]
-    versions = list(versions) + [Version.objects.get(name="master")]
+    versions = list(versions) + [Version.objects.with_partials().get(name="master")]
     for a, b in pairwise(versions):
         start = a.release_date
         end = b.release_date or date.today()
         if not (start and end):
-            raise ValueError("All x.x.0 versions must have a release date.")
+            msg = (
+                "All x.x.0 versions must have a release date."
+                f" {a=} {b=} {a.release_date=} {b.release_date=}"
+            )
+            raise ValueError(msg)
         with conn.cursor(name=f"emaildata_sync_{b.name}") as cursor:
             cursor.execute(
                 """
