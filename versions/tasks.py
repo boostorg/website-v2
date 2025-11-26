@@ -166,17 +166,29 @@ def import_development_versions():
     """Imports the `master` and `develop` branches as Versions"""
     base_url = "https://github.com/boostorg/boost/tree/"
 
+    import_version_tasks = []
+    import_library_version_tasks = []
     for branch in settings.BOOST_BRANCHES:
-        import_version.delay(
-            branch,
-            branch,
-            beta=False,
-            full_release=False,
-            get_release_date=False,
-            base_url=base_url,
+        import_version_tasks.append(
+            import_version.s(
+                branch,
+                branch,
+                beta=False,
+                full_release=False,
+                get_release_date=False,
+                base_url=base_url,
+            )
         )
 
-        import_library_versions.delay(branch, version_type="branch")
+        import_library_version_tasks.append(
+            import_library_versions.s(branch, version_type="branch")
+        )
+    # download all versions before library version data, only then mark fully completed
+    version_group = group(*import_version_tasks)
+    library_group = group(*import_library_version_tasks)
+    version_group.link(library_group)
+    library_group.link(mark_fully_completed.s())
+    version_group()
 
 
 @app.task
