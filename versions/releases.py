@@ -36,9 +36,7 @@ def get_download_uris_for_release(
         resp = session.get(release_path)
         resp.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        logger.error(
-            "get_archives_releases_list_error", exc_msg=str(e), url=release_path
-        )
+        logger.error(f"get_archives_releases_list_error {str(e)=}, {release_path=}")
         raise
 
     soup = BeautifulSoup(resp.text, "html.parser")
