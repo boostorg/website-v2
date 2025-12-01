@@ -47,7 +47,7 @@ logger = structlog.getLogger(__name__)
 @app.task
 def update_library_version_documentation_urls_all_versions():
     """Run the task to update all documentation URLs for all versions"""
-    for version in Version.objects.all().order_by("-name"):
+    for version in Version.objects.with_partials().all().order_by("-name"):
         get_and_store_library_version_documentation_urls_for_version(version.pk)
 
 
@@ -68,7 +68,7 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
     database.
     """
     try:
-        version = Version.objects.get(pk=version_pk)
+        version = Version.objects.with_partials().get(pk=version_pk)
     except Version.DoesNotExist:
         logger.error(f"Version does not exist for {version_pk=}")
         raise

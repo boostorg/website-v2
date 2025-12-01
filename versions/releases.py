@@ -205,7 +205,7 @@ def get_release_notes_for_version_s3(version_pk):
     #  and are not extensible if we encounter additional filename patterns in the
     #  future; we should refactor.
     try:
-        version = Version.objects.get(pk=version_pk)
+        version = Version.objects.with_partials().get(pk=version_pk)
     except Version.DoesNotExist:
         logger.info(
             "get_release_notes_for_version_s3_error_version_not_found",
@@ -242,7 +242,7 @@ def get_release_notes_for_version_github(version_pk):
     #  and are not extensible if we encounter additional filename patterns in the
     #  future; we should refactor.
     try:
-        version = Version.objects.get(pk=version_pk)
+        version = Version.objects.with_partials().get(pk=version_pk)
     except Version.DoesNotExist:
         logger.info(
             "get_release_notes_for_version_error_version_not_found",
@@ -324,7 +324,7 @@ def store_release_notes_for_version(version_pk):
     # Get the version
     # todo: convert to task, remove the task that calls this, is redundant
     try:
-        version = Version.objects.get(pk=version_pk)
+        version = Version.objects.with_partials().get(pk=version_pk)
     except Version.DoesNotExist:
         logger.info(f"store_release_notes version_not_found {version_pk=}")
         raise Version.DoesNotExist
