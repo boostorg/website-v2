@@ -6,12 +6,6 @@
     {% block object-tools-items %}
         {{ block.super }}
         <li><a href="{% url 'admin:import_new_releases' %}" class="addlink">{% trans "Import New Releases" %}</a></li>
-        <li>
-            <a
-                title='{% trans "Run all required tasks after a new release. Expect this to take up to a few hours." %}'
-                href="{% url 'admin:release_tasks' %}" class="addlink">{% trans "Do it all" %}
-            </a>
-        </li>
     {% endblock %}
 </ul>
 {% endblock %}

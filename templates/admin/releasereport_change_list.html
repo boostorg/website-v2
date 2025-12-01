@@ -1,0 +1,17 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools %}
+<ul class="object-tools">
+    {% block object-tools-items %}
+        {{ block.super }}
+        <li>
+            <a
+                title='{% trans "Run all required tasks after a new release. Expect this to take up to a few hours." %}'
+                href="{% url 'admin:release_tasks' %}" class="addlink">{% trans "Get Release Report Data" %}
+            </a>
+        </li>
+        <li><a href="{% url 'admin:release_report' %}" class="addlink">{% trans "Create Release Report" %}</a></li>
+    {% endblock %}
+</ul>
+{% endblock %}

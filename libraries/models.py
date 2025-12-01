@@ -1,3 +1,4 @@
+import os
 import re
 import uuid
 from datetime import timedelta
@@ -565,6 +566,10 @@ class ReleaseReport(models.Model):
 
     published = models.BooleanField(default=False)
     published_at = models.DateTimeField(blank=True, null=True)
+    locked = models.BooleanField(
+        default=False,
+        help_text="Can't be overwritten during release report publish. Blocks task-based publishing.",
+    )
 
     def __str__(self):
         return f"{self.file.name.replace(self.upload_dir, "")}"
@@ -589,17 +594,69 @@ class ReleaseReport(models.Model):
         default_storage.delete(current_name)
         self.file.name = final_filename
 
-    def save(self, allow_overwrite=False, *args, **kwargs):
-        super().save(*args, **kwargs)
+    def get_media_file(self):
+        return os.sep.join(
+            [
+                settings.MEDIA_URL.rstrip("/"),
+                self.file.name,
+            ]
+        )
 
+    @staticmethod
+    def latest_published_locked(
+        report_configuration: ReportConfiguration,
+        release_report_exclusion=None,
+    ) -> bool:
+        release_reports_qs = ReleaseReport.objects.filter(
+            report_configuration__version=report_configuration.version,
+            published=True,
+        )
+        if release_report_exclusion:
+            release_reports_qs = release_reports_qs.exclude(
+                pk=release_report_exclusion.id
+            )
+        if release_reports_qs:
+            return release_reports_qs.first().locked
+        return False
+
+    def unpublish_previous_reports(self):
+        for r in ReleaseReport.objects.filter(
+            report_configuration__version=self.report_configuration.version,
+            published=True,
+        ).exclude(pk=self.id):
+            r.published = False
+            r.save()
+
+    def save(self, allow_published_overwrite=False, *args, **kwargs):
+        """
+        Args:
+            allow_published_overwrite (bool): If True, allows overwriting of published
+                reports (locked checks still apply)
+            *args: Additional positional arguments passed to the superclass save method
+            **kwargs: Additional keyword arguments passed to the superclass save method
+
+        Raises:
+            ValueError: Raised if there is an existing locked release report for the configuration, preventing publication
+                        of another one without resolving the conflict.
+        """
         is_being_published = self.published and not self.published_at
+        if not is_being_published:
+            super().save(*args, **kwargs)
         if is_being_published and self.file:
+            if ReleaseReport.latest_published_locked(self.report_configuration, self):
+                msg = (
+                    f"A release report already exists with locked status for "
+                    f"{self.report_configuration.display_name}. Delete or unlock the "
+                    f"most recent report."
+                )
+                raise ValueError(msg)
+            self.unpublish_previous_reports()
             new_filename = generate_release_report_filename(
                 self.report_configuration.get_slug(), self.published
             )
-            self.rename_file_to(new_filename, allow_overwrite)
+            self.rename_file_to(new_filename, allow_published_overwrite)
             self.published_at = timezone.now()
-            super().save(update_fields=["published_at", "file"])
+            super().save()
 
 
 # Signal handler to delete files when ReleaseReport is deleted
