@@ -1,4 +1,5 @@
 import os
+import re
 
 import requests
 from django.utils import timezone
@@ -49,6 +50,7 @@ from .boostrenderer import (
 from .constants import (
     SourceDocType,
     BOOST_LIB_PATH_RE,
+    BOOST_VERSION_REGEX,
     STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES,
 )
 from .htmlhelper import (
@@ -287,11 +289,7 @@ class BaseStaticContentTemplateView(TemplateView):
                 return redirect(self.content_dict.get("redirect"))
 
         except ContentNotFoundException:
-            logger.info(
-                "get_content_from_s3_view_not_in_cache",
-                content_path=content_path,
-                status_code=404,
-            )
+            logger.info(f"get_content_from_s3_view_not_in_cache {content_path} 404")
             raise Http404("Content not found")
         return super().get(request, *args, **kwargs)
 
@@ -465,6 +463,17 @@ class BaseStaticContentTemplateView(TemplateView):
 
 
 class StaticContentTemplateView(BaseStaticContentTemplateView):
+    def get(self, request, content_path, *args, **kwargs):
+        # filter out direct access to the doc paths
+        path_regexes = [
+            re.compile(rf"^{BOOST_VERSION_REGEX}/doc/html/.+$"),
+            re.compile(rf"^{BOOST_VERSION_REGEX}/libs/.+$"),
+        ]
+        path_match = any(regex.match(content_path) for regex in path_regexes)
+        if path_match:
+            raise Http404("Content not found")
+        return super().get(request, *args, **kwargs)
+
     def process_content(self, content):
         """Process the content we receive from S3"""
         content_html = self.content_dict.get("content")
