@@ -47,12 +47,15 @@ def command(release: str, new: bool, min_version: str):
             processed.
     """
     click.secho("Saving links to version-specific library docs...", fg="green")
-    min_version = f"boost-{min_version}"
-    version_qs = Version.objects.active().filter(name__gte=min_version)
+    version_qs = (
+        Version.objects.with_partials()
+        .active()
+        .filter(name__gte=f"boost-{min_version}")
+    )
     if release:
-        versions = Version.objects.filter(name__icontains=release).order_by("-name")
+        versions = version_qs.filter(name__icontains=release).order_by("-name")
     elif new:
-        versions = [Version.objects.most_recent()]
+        versions = [version_qs.most_recent()]
     else:
         versions = version_qs.order_by("-name")
 

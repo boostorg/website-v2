@@ -43,13 +43,15 @@ def command(min_release: str, release: str, new: bool, token: str):
         Overridden by --release if provided.
     """
     click.secho("Saving library-version relationships...", fg="green")
-
-    min_release = f"boost-{min_release}"
-    versions_qs = Version.objects.active().filter(name__gte=min_release)
+    versions_qs = (
+        Version.objects.with_partials()
+        .active()
+        .filter(name__gte=f"boost-{min_release}")
+    )
     if release:
         versions = versions_qs.filter(name__icontains=release).order_by("-name")
     elif new:
-        versions = [Version.objects.most_recent()]
+        versions = [versions_qs.most_recent()]
     else:
         versions = versions_qs.order_by("-name")
 
