@@ -356,3 +356,169 @@ def test_docs_libs_gateway_200_html_transformed(rf, tp, mock_get_file_data):
 def test_calendar(rf, tp):
     response = tp.get("calendar")
     tp.response_200(response)
+
+
+@pytest.mark.django_db
+@override_settings(
+    CACHES=TEST_CACHES,
+)
+def test_static_content_blocks_direct_doc_paths(request_factory):
+    """Test that direct access to doc paths and library paths is blocked with 404."""
+
+    # Test cases for paths that should be blocked (return 404)
+    blocked_paths = [
+        # Original doc/html paths that should be blocked
+        "boost_1_53_0_beta1/doc/html/index.html",
+        "1_82_0/doc/html/tutorial.html",
+        "1_55_0b1/doc/html/reference/api.html",
+        "boost_1_86_0/doc/html/deep/nested/path.html",
+        "1_75_0/doc/html/simple.html",
+        # Edge cases with different boost version formats
+        "boost_1_53_0_beta1/doc/html/",  # trailing slash
+        "1_82_0/doc/html/a",  # single character file
+        # NEW: Library paths that should now be blocked
+        "boost_1_53_0_beta1/libs/algorithm/doc/index.html",
+        "1_82_0/libs/filesystem/doc/index.html",
+        "boost_1_86_0/libs/test/doc/reference.html",
+        "1_75_0/libs/wave/doc/tutorial.html",
+        "boost_1_82_0/libs/any_library/any_file.html",
+        "1_55_0b1/libs/serialization/index.html",
+        # Edge cases for libs paths
+        "boost_1_53_0_beta1/libs/",  # just libs with trailing slash
+        "1_82_0/libs/a",  # single character lib name
+    ]
+
+    for content_path in blocked_paths:
+        request = request_factory.get(f"/{content_path}")
+        view = StaticContentTemplateView.as_view()
+
+        # Should raise Http404 without even trying to fetch from S3
+        with pytest.raises(Http404):
+            view(request, content_path=content_path)
+
+
+@pytest.mark.django_db
+@override_settings(
+    CACHES=TEST_CACHES,
+)
+def test_static_content_allows_non_direct_doc_paths(request_factory):
+    """Test that non-direct doc paths are allowed and processed normally."""
+
+    # Test cases for paths that should NOT be blocked (normal processing)
+    allowed_paths = [
+        # Tools paths - should still be allowed (not libs)
+        "1_82_0/tools/build/doc/index.html",
+        "boost_1_82_0/tools/cmake/doc/reference.html",
+        # Paths with non-boost-version prefixes - should be allowed
+        "develop/libs/filesystem/doc/index.html",  # develop prefix, not version
+        "master/libs/test/doc/reference.html",  # master prefix, not version
+        # Paths without version prefixes
+        "doc/html/index.html",  # No boost version prefix
+        "some/other/doc/html/file.html",  # Different structure
+        "libs/algorithm/doc/index.html",  # No version prefix
+        # Paths that don't match the exact patterns
+        "boost_1_82_0/doc/other/file.html",  # not /doc/html/
+        "1_82_0/doc/htmls/file.html",  # not exact /doc/html/
+        "1_82_0/documentation/html/file.html",  # not /doc/html/
+        "boost_1_82_0/libraries/algorithm/doc/index.html",  # libraries not libs
+        "some_other_prefix/libs/algorithm/doc/index.html",  # no boost version
+    ]
+
+    for content_path in allowed_paths:
+        # Mock S3 to return content so we can test the path isn't blocked
+        with patch(
+            "core.views.get_content_from_s3",
+            return_value={"content": b"test content", "content_type": "text/plain"},
+        ):
+            response = call_view(request_factory, content_path)
+            # Should get 200 response, not 404 - the main thing is it's not blocked
+            assert (
+                response.status_code == 200
+            ), f"Path should be allowed but got {response.status_code}: {content_path}"
+
+
+def test_boost_version_regex_doc_html_pattern():
+    """Test the BOOST_VERSION_REGEX doc/html pattern matches expected version formats."""
+    import re
+    from core.constants import BOOST_VERSION_REGEX
+
+    # Test the doc/html blocking pattern used in the view
+    doc_html_pattern = rf"^{BOOST_VERSION_REGEX}/doc/html/.+$"
+
+    # Test cases that should match the doc/html pattern
+    matching_cases = [
+        "boost_1_53_0_beta1/doc/html/index.html",
+        "1_82_0/doc/html/tutorial.html",
+        "1_55_0b1/doc/html/reference/api.html",
+        "boost_1_86_0/doc/html/test.html",
+        "1_75_0/doc/html/simple.html",
+    ]
+
+    for test_path in matching_cases:
+        match = re.match(doc_html_pattern, test_path)
+        assert match is not None, f"Doc/html pattern should match: {test_path}"
+        # The captured groups should match the expected version parts
+        version_match = re.match(BOOST_VERSION_REGEX, test_path)
+        assert version_match is not None, f"Version pattern should match: {test_path}"
+
+    # Test cases that should NOT match the doc/html pattern
+    non_matching_cases = [
+        "1_82_0/tools/build/doc/index.html",  # tools path
+        "develop/doc/html/index.html",  # develop prefix, not version
+        "doc/html/index.html",  # no version prefix
+        "boost_1_82_0/doc/other/file.html",  # not /doc/html/
+        "1_82_0/doc/htmls/file.html",  # not exact /doc/html/
+        "some/other/doc/html/file.html",  # no boost version
+        "boost_1_82_0/doc/html/",  # no file after /doc/html/
+        "1_82_0/doc/html",  # no trailing slash or file
+        "boost_1_53_0_beta1/libs/algorithm/doc/index.html",  # libs path
+    ]
+
+    for test_path in non_matching_cases:
+        match = re.match(doc_html_pattern, test_path)
+        assert match is None, f"Doc/html pattern should NOT match: {test_path}"
+
+
+def test_boost_version_regex_libs_pattern():
+    """Test the BOOST_VERSION_REGEX libs pattern matches expected version formats."""
+    import re
+    from core.constants import BOOST_VERSION_REGEX
+
+    # Test the libs blocking pattern used in the view
+    libs_pattern = rf"^{BOOST_VERSION_REGEX}/libs/.+$"
+
+    # Test cases that should match the libs pattern
+    matching_cases = [
+        "boost_1_53_0_beta1/libs/algorithm/doc/index.html",
+        "1_82_0/libs/filesystem/doc/index.html",
+        "boost_1_86_0/libs/test/doc/reference.html",
+        "1_75_0/libs/wave/doc/tutorial.html",
+        "boost_1_82_0/libs/any_library/any_file.html",
+        "1_55_0b1/libs/serialization/index.html",
+        "1_82_0/libs/a",  # single character lib name
+        "boost_1_53_0_beta1/libs/algorithm",  # no trailing file extension
+    ]
+
+    for test_path in matching_cases:
+        match = re.match(libs_pattern, test_path)
+        assert match is not None, f"Libs pattern should match: {test_path}"
+        # The captured groups should match the expected version parts
+        version_match = re.match(BOOST_VERSION_REGEX, test_path)
+        assert version_match is not None, f"Version pattern should match: {test_path}"
+
+    # Test cases that should NOT match the libs pattern
+    non_matching_cases = [
+        "1_82_0/tools/build/doc/index.html",  # tools path
+        "develop/libs/filesystem/doc/index.html",  # develop prefix, not version
+        "latest/libs/algorithm/doc/index.html",  # latest prefix, not version
+        "libs/algorithm/doc/index.html",  # no version prefix
+        "boost_1_82_0/libraries/algorithm/doc/index.html",  # libraries not libs
+        "some/other/libs/algorithm/file.html",  # no boost version
+        "boost_1_82_0/libs",  # no trailing slash or file
+        "boost_1_53_0_beta1/libs/",  # just libs with trailing slash (no content after)
+        "1_82_0/doc/html/index.html",  # doc/html path
+    ]
+
+    for test_path in non_matching_cases:
+        match = re.match(libs_pattern, test_path)
+        assert match is None, f"Libs pattern should NOT match: {test_path}"
