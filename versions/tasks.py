@@ -86,9 +86,10 @@ def import_release_notes(new_versions_only=True):
     if not new_versions_only:
         versions = Version.objects.exclude(name__in=["master", "develop"]).active()
 
+    logger.info(f"import_release_notes {[(v.pk,v.name) for v in versions]}")
     for version in versions:
         logger.info(f"retrieving release notes for {version.name=} {version.pk=}")
-        store_release_notes_task.delay(str(version.pk))
+        store_release_notes_task(version.pk)
     store_release_notes_in_progress_task.delay()
 
 
