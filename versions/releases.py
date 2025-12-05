@@ -289,9 +289,16 @@ def get_release_notes_for_version(version_pk):
         processed_content = convert_adoc_to_html(content)
         content_type = "text/asciidoc"
     else:
-        content = get_release_notes_for_version_github(version_pk)
-        processed_content = process_release_notes(content)
-        content_type = "text/html"
+        try:
+            content = get_release_notes_for_version_github(version_pk)
+            processed_content = process_release_notes(content)
+            content_type = "text/html"
+        except requests.exceptions.HTTPError as e:
+            content = None
+            processed_content = None
+            content_type = None
+            logger.error(f"get_release_notes_for_version_http_error {e=}")
+
     return content, processed_content, content_type
 
 
@@ -325,6 +332,8 @@ def store_release_notes_for_version(version_pk):
         raise Version.DoesNotExist
 
     content, processed_content, content_type = get_release_notes_for_version(version_pk)
+    if not content:
+        return
 
     # Save the result to the rendered content model with the version cache key
     rendered_content, _ = RenderedContent.objects.update_or_create(
