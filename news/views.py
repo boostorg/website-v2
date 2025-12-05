@@ -83,7 +83,12 @@ class EntryListView(ListView):
     context_object_name = "entry_list"  # Ensure children use the same name
 
     def get_queryset(self):
-        result = super().get_queryset().select_related("author").filter(published=True)
+        result = (
+            super()
+            .get_queryset()
+            .select_related("author")
+            .filter(published=True, deleted_at__isnull=True)
+        )
         right_now = now()
         for entry in result:
             entry.display_publish_at = display_publish_at(entry.publish_at, right_now)
@@ -125,7 +130,12 @@ class EntryModerationListView(LoginRequiredMixin, UserPassesTestMixin, ListView)
     paginate_by = None
 
     def get_queryset(self):
-        return super().get_queryset().select_related("author").filter(approved=False)
+        return (
+            super()
+            .get_queryset()
+            .select_related("author")
+            .filter(approved=False, deleted_at__isnull=True)
+        )
 
     def test_func(self):
         return can_approve(self.request.user)
@@ -372,6 +382,12 @@ class EntryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Entry
     template_name = "news/confirm_delete.html"
     success_url = reverse_lazy("news")
+
+    def form_valid(self, form):
+        self.object.deleted_at = now()
+        self.object.deleted_by = self.request.user
+        self.object.save(update_fields=["deleted_at", "deleted_by"])
+        return HttpResponseRedirect(self.get_success_url())
 
     def test_func(self):
         entry = self.get_object()
