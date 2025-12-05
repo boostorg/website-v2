@@ -25,7 +25,7 @@ def moderators():
 
 def can_view(user, entry):
     return (
-        entry.is_published
+        (entry.is_published and entry.deleted_at is None)
         or user == entry.author
         or (user is not None and user.has_perm("news.view_entry"))
     )
