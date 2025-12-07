@@ -29,13 +29,13 @@ h5 {font-size: 0.69rem; font-weight:700;}
 h6 {}
 ul {}
 ol {}
-code, pre {
-    font-family: monospace;
-    font-size: 0.88rem;
-    display: inline;
-    font-weight: 500;
-    color: #187645;
-}
+
+table  {font-size:.8rem; width:100%;border:2px solid #f1f1f1; border-collapse: collapse;
+  border-spacing: 0;}
+table th, table td {padding:.3rem; text-align: left; border:2px solid #f1f1f1;}
+table th {background-color:f1f1f1}
+
+.codehilite { padding: 1rem; }
 
 .section {}
 .inset {padding-left:50px}
