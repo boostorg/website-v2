@@ -281,7 +281,7 @@
 
   /* New Look Typography */
   --font-family-body: "Noto Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  --font-family-code: "Noto Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-family-code: "Monaspace Neon", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --font-size-3xs: 0.625rem;
   --font-size-2xs: 0.75rem;
   --font-size-xs: 0.875rem;
@@ -709,7 +709,7 @@ html:has(.boostlook) {
  * Typography Configuration
  * The framework uses Noto Sans family as its primary font system:
  * 1. Noto Sans Display: Main text font with variable weight support
- * 2. Noto Sans Mono: Monospace font for code blocks
+ * 2. Monaspace Neon: Monospace font for code blocks
  *
  * Font Loading Strategy:
  * - Multiple source paths for resilient loading
@@ -757,38 +757,16 @@ html:has(.boostlook) {
   line-gap-override: 0%;
 }
 
-/* Noto Sans Mono - Variable Weight */
+/* Monaspace Neon - Regular */
 @font-face {
-  font-family: "Noto Sans Mono";
-  font-style: normal;
-  font-weight: 100 900;
-  font-stretch: 62.5% 100%;
-  /* Variable font weight range */
-  font-variation-settings: "wght" 400, "wdth" 62.5;
-  font-display: block;
-  src: url("../font/NotoSansMono.ttf") format("truetype"),
-  url("/static/font/notosans_mono.woff") format("woff"),
-  url("../../../../tools/boostlook/notosans_mono.woff") format("woff"),
-  url("https://cppalliance.org/fonts/NotoSansMono.ttf") format("truetype");
-  /* Metric overrides to reduce CLS on swap */
-  size-adjust: 100%;
-  ascent-override: 92%;
-  descent-override: 22%;
-  line-gap-override: 0%;
-}
-
-/* Noto Sans Mono - Fixed Weight */
-@font-face {
-  font-family: "Noto Sans Mono";
+  font-family: "Monaspace Neon";
   font-style: normal;
   font-weight: 400;
-  /* Fixed weight for specific use cases */
-  font-stretch: 62.5% 100%;
   font-display: block;
-  src: url("../font/NotoSansMono.ttf") format("truetype"),
-  url("/static/font/notosans_mono.woff") format("woff"),
-  url("../../../../tools/boostlook/notosans_mono.woff") format("woff"),
-  url("https://cppalliance.org/fonts/NotoSansMono.ttf") format("truetype");
+  src: url("../font/MonaspaceNeonFrozen-Regular.ttf") format("truetype"),
+  url("/static/font/MonaspaceNeon-Regular.woff2") format("woff2"),
+  url("../../../../tools/boostlook/MonaspaceNeon-Regular.woff2") format("woff2"),
+  url("https://cppalliance.org/fonts/MonaspaceNeon-Regular.woff2") format("woff2");
   /* Metric overrides to reduce CLS on swap */
   size-adjust: 100%;
   ascent-override: 92%;
@@ -1308,7 +1286,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 }
 
 .boostlook code {
-  font-family: var(--font-family-code, "Noto Sans Mono"), monospace;
+  font-family: var(--font-family-code, "Monaspace Neon"), monospace;
 }
 
 .boostlook table thead code {
@@ -2381,7 +2359,7 @@ html.dark .boostlook .hljs-code {
 .boostlook .dlist dl dt code,
 .boostlook:not(:has(.doc)) .variablelist dl dt code {
   font-variation-settings: "wght" 600, "wdth" 80;
-  font-family: var(--font-family-code, 'Noto Sans Mono');
+  font-family: var(--font-family-code, 'Monaspace Neon');
 }
 
 .boostlook .dlist dl dd,
