@@ -1278,21 +1278,8 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook code i,
 .boostlook pre em,
 .boostlook pre i {
-  font-family: "Monaspace Radon", monospace;
+  font-family: "Monaspace Xenon", monospace;
   font-size: inherit;
-  font-style: italic;
-}
-
-/* Comments within code (inline and blocks) */
-.boostlook code span.c,
-.boostlook code span.ch,
-.boostlook code span.cm,
-.boostlook code span.cp,
-.boostlook code span.cpf,
-.boostlook code span.c1,
-.boostlook code span.cs,
-.boostlook code span.comment {
-  font-family: "Monaspace Radon", monospace;
   font-style: italic;
 }
 
@@ -1306,6 +1293,19 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook b,
 .boostlook strong {
   font-variation-settings: "wght" 600, "wdth" 80;
+}
+
+/* Comments within code (inline and blocks) */
+.boostlook code span.c,
+.boostlook code span.ch,
+.boostlook code span.cm,
+.boostlook code span.cp,
+.boostlook code span.cpf,
+.boostlook code span.c1,
+.boostlook code span.cs,
+.boostlook code span.comment {
+  font-family: "Monaspace Xenon", monospace;
+  font-style: italic;
 }
 
 /* Code Block Styling */
@@ -1797,7 +1797,7 @@ html.dark .boostlook#libraryReadMe div.highlight:has(> pre):not(:is(dd pre, td p
 .boostlook .hljs-bullet,
 .boostlook .hljs-code {
   color: var(--atom-one-light-comment, #a0a1a7);
-  font-family: "Monaspace Radon", monospace;
+  font-family: "Monaspace Xenon", monospace;
   font-style: italic;
 }
 
@@ -1819,7 +1819,7 @@ html.dark .boostlook .hljs-built_in,
 html.dark .boostlook .hljs-bullet,
 html.dark .boostlook .hljs-code {
   color: var(--atom-one-dark-comment, #5c6370);
-  font-family: "Monaspace Radon", monospace;
+  font-family: "Monaspace Xenon", monospace;
   font-style: italic;
 }
 
@@ -3521,7 +3521,7 @@ html.is-clipped--nav:has(.boostlook) div#content {
 .boostlook pre.rouge .c1,
 .boostlook pre.rouge .cm { /* Comments */
   color: var(--atom-one-light-comment, #a0a1a7);
-  font-family: "Monaspace Radon", monospace;
+  font-family: "Monaspace Xenon", monospace;
   font-style: italic;
 }
 
@@ -3553,7 +3553,7 @@ html.dark .boostlook pre.rouge .c,
 html.dark .boostlook pre.rouge .c1,
 html.dark .boostlook pre.rouge .cm {
   color: var(--atom-one-dark-comment, #5c6370);
-  font-family: "Monaspace Radon", monospace;
+  font-family: "Monaspace Xenon", monospace;
   font-style: italic;
 }
 
