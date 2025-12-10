@@ -774,6 +774,23 @@ html:has(.boostlook) {
   line-gap-override: 0%;
 }
 
+/* Monaspace Radon - Italic */
+@font-face {
+  font-family: "Monaspace Radon";
+  font-style: italic;
+  font-weight: 400;
+  font-display: block;
+  src: url("../font/MonaspaceRadonFrozen-Italic.ttf") format("truetype"),
+  url("/static/font/MonaspaceRadon-Italic.woff2") format("woff2"),
+  url("../../../../tools/boostlook/MonaspaceRadon-Italic.woff2") format("woff2"),
+  url("https://cppalliance.org/fonts/MonaspaceRadon-Italic.woff2") format("woff2");
+  /* Metric overrides to reduce CLS on swap */
+  size-adjust: 100%;
+  ascent-override: 92%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+
 /*----------------- Font-Face Declarations end -----------------*/
 
 /*----------------- CSS Reset start -----------------*/
@@ -1257,8 +1274,16 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 }
 
 /* Emphasis within code */
-.boostlook em,
-.boostlook code em {
+.boostlook code em,
+.boostlook code i,
+.boostlook pre em,
+.boostlook pre i {
+  font-family: "Monaspace Radon", monospace;
+  font-size: inherit;
+  font-style: italic;
+}
+
+.boostlook em {
   font-family: inherit;
   font-size: inherit;
   font-style: italic;
