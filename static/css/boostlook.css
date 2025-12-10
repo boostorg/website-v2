@@ -774,16 +774,16 @@ html:has(.boostlook) {
   line-gap-override: 0%;
 }
 
-/* Monaspace Radon - Italic */
+/* Monaspace Xenon - Italic */
 @font-face {
-  font-family: "Monaspace Radon";
+  font-family: "Monaspace Xenon";
   font-style: italic;
   font-weight: 400;
   font-display: block;
-  src: url("../font/MonaspaceRadonFrozen-Italic.ttf") format("truetype"),
-  url("/static/font/MonaspaceRadon-Italic.woff2") format("woff2"),
-  url("../../../../tools/boostlook/MonaspaceRadon-Italic.woff2") format("woff2"),
-  url("https://cppalliance.org/fonts/MonaspaceRadon-Italic.woff2") format("woff2");
+  src: url("../font/MonaspaceXenonFrozen-Italic.ttf") format("truetype"),
+  url("/static/font/MonaspaceXenon-Italic.woff2") format("woff2"),
+  url("../../../../tools/boostlook/MonaspaceXenon-Italic.woff2") format("woff2"),
+  url("https://cppalliance.org/fonts/MonaspaceXenon-Italic.woff2") format("woff2");
   /* Metric overrides to reduce CLS on swap */
   size-adjust: 100%;
   ascent-override: 92%;
