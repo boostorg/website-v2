@@ -191,6 +191,17 @@ Env:
       secretKeyRef:
         name: slack
         key: slack_bot_token
+  - name: ALGOLIA_APP_ID
+    valueFrom:
+      secretKeyRef:
+        name: algolia
+        key: algolia_app_id
+  - name: ALGOLIA_ANALYTICS_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: algolia
+        key: algolia_analytics_api_key
+
   # Static content cache timeout
   - name: STATIC_CACHE_TIMEOUT
     value: "60"

@@ -540,7 +540,11 @@ def generate_search_cloud(search_version_id: int):
     search_version = Version.objects.get(id=search_version_id)
     from algoliasearch.analytics.client import AnalyticsClientSync
 
-    client = AnalyticsClientSync(**settings.ALGOLIA)
+    client = AnalyticsClientSync(
+        settings.ALGOLIA.get("app_id"),
+        settings.ALGOLIA.get("analytics_api_key"),
+        settings.ALGOLIA.get("region"),
+    )
     # if the report is based on a live version, look for stats for that
     # version, otherwise use the stats for the prior (live) version
     search_list_words = generate_algolia_words(client, search_version)

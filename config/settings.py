@@ -610,7 +610,7 @@ OPENROUTER_API_KEY = env("OPENROUTER_API_KEY")
 
 ALGOLIA = {
     "app_id": env("ALGOLIA_APP_ID", None),
-    "api_key": env("ALGOLIA_API_KEY", None),
+    "analytics_api_key": env("ALGOLIA_ANALYTICS_API_KEY", None),
     "region": env("ALGOLIA_APP_REGION", "us"),
 }
 
