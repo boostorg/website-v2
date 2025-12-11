@@ -764,9 +764,9 @@ html:has(.boostlook) {
   font-weight: 400;
   font-display: block;
   src: url("../font/MonaspaceNeonFrozen-Regular.ttf") format("truetype"),
-  url("/static/font/MonaspaceNeon-Regular.woff2") format("woff2"),
-  url("../../../../tools/boostlook/MonaspaceNeon-Regular.woff2") format("woff2"),
-  url("https://cppalliance.org/fonts/MonaspaceNeon-Regular.woff2") format("woff2");
+  url("/static/font/MonaspaceNeon-Var.woff2") format("woff2"),
+  url("../../../../tools/boostlook/MonaspaceNeon-Var.woff2") format("woff2"),
+  url("https://cppalliance.org/fonts/MonaspaceNeon-Var.woff2") format("woff2");
   /* Metric overrides to reduce CLS on swap */
   size-adjust: 100%;
   ascent-override: 92%;
@@ -781,9 +781,9 @@ html:has(.boostlook) {
   font-weight: 400;
   font-display: block;
   src: url("../font/MonaspaceXenonFrozen-Italic.ttf") format("truetype"),
-  url("/static/font/MonaspaceXenon-Italic.woff2") format("woff2"),
-  url("../../../../tools/boostlook/MonaspaceXenon-Italic.woff2") format("woff2"),
-  url("https://cppalliance.org/fonts/MonaspaceXenon-Italic.woff2") format("woff2");
+  url("/static/font/MonaspaceXenon-Var.woff2") format("woff2"),
+  url("../../../../tools/boostlook/MonaspaceXenon-Var.woff2") format("woff2"),
+  url("https://cppalliance.org/fonts/MonaspaceXenon-Var.woff2") format("woff2");
   /* Metric overrides to reduce CLS on swap */
   size-adjust: 100%;
   ascent-override: 92%;
