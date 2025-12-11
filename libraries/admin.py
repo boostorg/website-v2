@@ -189,6 +189,7 @@ class ReleaseReportView(TemplateView):
 
     def generate_report(self):
         uri = f"{settings.ACCOUNT_DEFAULT_HTTP_PROTOCOL}://{self.request.get_host()}"
+        logger.info("Queuing release report")
         generate_release_report.delay(
             user_id=self.request.user.id,
             params=self.request.GET,

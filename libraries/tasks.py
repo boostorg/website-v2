@@ -253,6 +253,7 @@ def update_issues(clean=False):
 @app.task
 def generate_release_report(user_id: int, params: dict, base_uri: str = None):
     """Generate a release report asynchronously and save it in RenderedContent."""
+    logger.info(f"Starting generate_release_report task, {settings.LOCAL_DEVELOPMENT=}")
     from libraries.forms import CreateReportForm
 
     form = CreateReportForm(params)
@@ -265,7 +266,9 @@ def generate_release_report(user_id: int, params: dict, base_uri: str = None):
         created_by_id=user_id,
         report_configuration_id=params.get("report_configuration"),
     )
+    logger.info(f"Saving release_report {params.get('report_configuration')=}")
     release_report.save()
+    logger.info(f"generate release report pdf {release_report.pk=}")
     generate_release_report_pdf.delay(
         release_report.pk, html=html, publish=params.get("publish")
     )
