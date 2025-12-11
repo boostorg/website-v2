@@ -94,12 +94,12 @@ ul.slack-channels li div a:hover,
             {% endif %}
           </div>
           {% if downloads %}
-          <table class="p-0 m-0 w-full text-sm text-left border-0 border-separate table-auto border-spacing-0 text-slate">
+          <table class="p-0 m-0 mt-1 w-full text-xs text-left border-0 border-separate table-auto border-spacing-0 text-slate">
             <tbody>
               <tr>
                 <th scope="col"
                     colspan="2"
-                    class="p-3 h-8 text-base border border-b-0 border-gray-400 text-center">
+                    class="p-1 text-sm border border-b-0 border-gray-400 text-center">
                   Download Now!
                 </th>
               </tr>
@@ -113,7 +113,7 @@ ul.slack-channels li div a:hover,
                           <i class="fab fa-{% if os == 'Unix' %}linux{% else %}windows{% endif %}"></i> {{ os }}
                         </th>
                       {% endif %}
-                      <td class="p-2 border {% if not forloop.last or not forloop.parentloop.last %}border-b-0 {% endif %}border-gray-400">
+                      <td class="p-[.33rem] border {% if not forloop.last or not forloop.parentloop.last %}border-b-0 {% endif %}border-gray-400">
                         <a href="{{ download.url }}" class="text-sky-600 hover:text-orange">{{ download.display_name }}</a>
                       </td>
                     </tr>

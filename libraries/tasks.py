@@ -19,7 +19,7 @@ from libraries.models import (
     CommitAuthor,
     ReleaseReport,
 )
-from mailing_list.models import EmailData, PostingData, SubscriptionData
+from mailing_list.models import EmailData, PostingData
 from reports.generation import (
     generate_algolia_words,
     generate_wordcloud,
@@ -591,40 +591,52 @@ def get_mailing_list_stats(prior_version_id: int, version_id: int):
 
 @shared_task
 def get_new_subscribers_stats(start_date: date, end_date: date):
-    data = (
-        SubscriptionData.objects.filter(
-            subscription_dt__gte=start_date,
-            subscription_dt__lte=end_date,
-            list="boost",
-        )
-        .annotate(
-            week=ExtractWeek("subscription_dt"),
-            iso_year=ExtractIsoYear("subscription_dt"),
-        )
-        .values("iso_year", "week")
-        .annotate(count=Count("id"))
-        .order_by("iso_year", "week")
-    )
+    """Get new subscribers statistics for HyperKitty mailing list using raw SQL."""
+    import psycopg2
+    from django.conf import settings
 
-    # Convert data into a dict for easy lookup
-    counts_by_week = {(row["iso_year"], row["week"]): row["count"] for row in data}
+    conn = psycopg2.connect(settings.HYPERKITTY_DATABASE_URL)
 
-    # Iterate through every ISO week in the date range
-    current = start_date
-    seen = set()
-    chart_data = []
-    while current <= end_date:
-        iso_year, iso_week, _ = current.isocalendar()
-        key = (iso_year, iso_week)
-        if key not in seen:  # skip duplicate weeks in the same loop
-            seen.add(key)
-            year_suffix = str(iso_year)[2:]
-            label = f"{iso_week} ({year_suffix})"
-            count = counts_by_week.get(key, 0)
-            chart_data.append({"x": label, "y": count})
-        current += timedelta(days=7)  # hop by weeks
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    EXTRACT(ISOYEAR FROM date_joined) as iso_year,
+                    EXTRACT(WEEK FROM date_joined) as iso_week,
+                    COUNT(*) as count
+                FROM auth_user
+                WHERE date_joined::date >= %s
+                    AND date_joined::date <= %s
+                GROUP BY iso_year, iso_week
+                ORDER BY iso_year, iso_week
+            """,
+                [start_date, end_date],
+            )
 
-    return chart_data
+            data = cursor.fetchall()
+
+        # Convert data into a dict for easy lookup
+        counts_by_week = {(int(row[0]), int(row[1])): row[2] for row in data}
+
+        # Iterate through every ISO week in the date range
+        current = start_date
+        seen = set()
+        chart_data = []
+        while current <= end_date:
+            iso_year, iso_week, _ = current.isocalendar()
+            key = (iso_year, iso_week)
+            if key not in seen:  # skip duplicate weeks in the same loop
+                seen.add(key)
+                year_suffix = str(iso_year)[2:]
+                label = f"{iso_week} ({year_suffix})"
+                count = counts_by_week.get(key, 0)
+                chart_data.append({"x": label, "y": count})
+            current += timedelta(days=7)  # hop by weeks
+
+        return chart_data
+    finally:
+        conn.close()
 
 
 @shared_task
