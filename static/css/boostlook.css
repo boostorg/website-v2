@@ -1336,7 +1336,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook .doc .content pre code,
 .boostlook .doc pre.highlight code {
   font-size: var(--typography-font-size-xs, 0.875rem);
-  font-feature-settings: "calt" 1, "liga" 1, "ss01" 1, "ss02" 1, "ss03" 1, "ss04" 1, "ss05" 1, "ss06" 1, "ss07" 1, "ss08" 1, "ss09" 1, "ss10" 1;
+  font-feature-settings: "calt" 1, "liga" 1, "ss01" 0, "ss02" 1, "ss03" 1, "ss04" 1, "ss05" 1, "ss06" 1, "ss07" 1, "ss08" 1, "ss09" 1, "ss10" 1;
   line-height: var(--typography-line-height-lg, 1.5rem); /* 171.429% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
   color: var(--text-main-text-primary, #18191b);
