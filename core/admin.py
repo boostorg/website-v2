@@ -8,8 +8,15 @@ from .tasks import delete_all_rendered_content
 
 @admin.register(RenderedContent)
 class RenderedContentAdmin(admin.ModelAdmin):
-    list_display = ("cache_key", "content_type", "modified")
+    list_display = (
+        "cache_key",
+        "content_type",
+        "modified",
+        "latest_path_matched_indicator",
+        "latest_path_match_class",
+    )
     search_fields = ("cache_key",)
+    readonly_fields = ("latest_path_match_class",)
 
     def get_urls(self):
         urls = super().get_urls()
