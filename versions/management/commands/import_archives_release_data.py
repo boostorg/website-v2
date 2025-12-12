@@ -43,7 +43,8 @@ def command(release: str, new: bool):
     last_release = settings.MIN_ARCHIVES_RELEASE
 
     if release:
-        versions = Version.objects.filter(name__icontains=release)
+        name = f"boost-{release}" if release not in ["master", "develop"] else release
+        versions = [Version.objects.get(name=name)]
     elif new:
         versions = [Version.objects.most_recent()]
     else:
