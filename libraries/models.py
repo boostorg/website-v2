@@ -34,6 +34,10 @@ from .utils import (
 )
 
 
+class PathType(models.TextChoices):
+    LIB_IN_PATH = "LIP"
+
+
 class Category(models.Model):
     """
     Library categories such as:
