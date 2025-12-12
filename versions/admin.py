@@ -7,6 +7,7 @@ from django.urls import path
 from libraries.tasks import import_new_versions_tasks
 
 from . import models
+from .models import Version
 
 
 class VersionFileInline(admin.StackedInline):
@@ -23,9 +24,9 @@ class VersionAdmin(admin.ModelAdmin):
         "name",
         "release_date",
         "active",
-        "full_release",
         "beta",
         "fully_imported",
+        "full_release",
     ]
     list_filter = ["active", "full_release", "beta"]
     ordering = ["-release_date", "-name"]
@@ -33,6 +34,10 @@ class VersionAdmin(admin.ModelAdmin):
     date_hierarchy = "release_date"
     inlines = [VersionFileInline]
     change_list_template = "admin/version_change_list.html"
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet:
+        # we want all versions here, including not fully_imported
+        return Version.objects.with_partials()
 
     def get_urls(self):
         urls = super().get_urls()

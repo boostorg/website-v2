@@ -12,7 +12,7 @@ from libraries.constants import (
 class VersionQuerySet(models.QuerySet):
     def active(self):
         """Return active versions"""
-        return self.filter(active=True, fully_imported=True)
+        return self.filter(active=True)
 
     def most_recent(self):
         """Return most recent active non-beta version"""
@@ -61,6 +61,10 @@ class VersionQuerySet(models.QuerySet):
 
 class VersionManager(models.Manager):
     def get_queryset(self):
+        return VersionQuerySet(self.model, using=self._db).filter(fully_imported=True)
+
+    def with_partials(self):
+        """Return all objects regardless of fully_imported status"""
         return VersionQuerySet(self.model, using=self._db)
 
     def active(self):
