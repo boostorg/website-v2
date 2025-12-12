@@ -251,13 +251,35 @@ def update_issues(clean=False):
 
 
 @app.task
-def generate_release_report(user_id: int, params: dict, base_uri: str = None):
-    """Generate a release report asynchronously and save it in RenderedContent."""
-    logger.info(f"Starting generate_release_report task, {settings.LOCAL_DEVELOPMENT=}")
+def generate_release_report_with_stats(stats_results, user_id, params, base_uri=None):
+    """Wrapper task that reorders arguments for workflow mode."""
+    return generate_release_report(user_id, params, base_uri, stats_results)
+
+
+@app.task
+def generate_release_report(user_id, params, base_uri=None, stats_results=None):
+    """Generate a release report asynchronously and save to RenderedContent/PDF
+
+    Args:
+        user_id: ID of the user creating the report
+        params: Form parameters for report configuration
+        base_uri: Base URI for the report (optional)
+        stats_results: Pre-collected stats from workflow (optional)
+    """
+    logger.info(f"Starting generate_release_report {settings.LOCAL_DEVELOPMENT=}")
+
     from libraries.forms import CreateReportForm
 
     form = CreateReportForm(params)
-    html = form.cache_html(base_uri=base_uri)
+    if not form.is_valid():
+        logger.error(f"Form validation failed, {form.errors}")
+        return None
+
+    if stats_results:
+        html = form.render_with_stats(stats_results, base_uri=base_uri)
+    else:
+        html = form.cache_html(base_uri=base_uri)
+
     # override the base uri to reference the internal container for local dev
     if settings.LOCAL_DEVELOPMENT:
         html = update_base_tag(html, DOCKER_CONTAINER_URL_WEB)
@@ -333,7 +355,7 @@ def generate_library_report(params):
     from libraries.forms import CreateReportFullForm
 
     form = CreateReportFullForm(params)
-    form.cache_html()
+    return form.cache_html()
 
 
 @app.task
