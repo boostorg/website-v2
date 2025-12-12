@@ -29,7 +29,7 @@ def command(library_name, release):
         library_versions = library_versions.filter(library__name__iexact=library_name)
 
     if release is not None:
-        library_versions = library_versions.filter(version__name__icontains=release)
+        library_versions = library_versions.filter(version__name=release)
 
     for library_version in library_versions.order_by(
         "-version__name", "-library__name"
