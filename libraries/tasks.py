@@ -19,7 +19,7 @@ from libraries.models import (
     CommitAuthor,
     ReleaseReport,
 )
-from mailing_list.models import EmailData, PostingData, SubscriptionData
+from mailing_list.models import EmailData, PostingData
 from reports.generation import (
     generate_algolia_words,
     generate_wordcloud,
@@ -251,12 +251,35 @@ def update_issues(clean=False):
 
 
 @app.task
-def generate_release_report(user_id: int, params: dict, base_uri: str = None):
-    """Generate a release report asynchronously and save it in RenderedContent."""
+def generate_release_report_with_stats(stats_results, user_id, params, base_uri=None):
+    """Wrapper task that reorders arguments for workflow mode."""
+    return generate_release_report(user_id, params, base_uri, stats_results)
+
+
+@app.task
+def generate_release_report(user_id, params, base_uri=None, stats_results=None):
+    """Generate a release report asynchronously and save to RenderedContent/PDF
+
+    Args:
+        user_id: ID of the user creating the report
+        params: Form parameters for report configuration
+        base_uri: Base URI for the report (optional)
+        stats_results: Pre-collected stats from workflow (optional)
+    """
+    logger.info(f"Starting generate_release_report {settings.LOCAL_DEVELOPMENT=}")
+
     from libraries.forms import CreateReportForm
 
     form = CreateReportForm(params)
-    html = form.cache_html(base_uri=base_uri)
+    if not form.is_valid():
+        logger.error(f"Form validation failed, {form.errors}")
+        return None
+
+    if stats_results:
+        html = form.render_with_stats(stats_results, base_uri=base_uri)
+    else:
+        html = form.cache_html(base_uri=base_uri)
+
     # override the base uri to reference the internal container for local dev
     if settings.LOCAL_DEVELOPMENT:
         html = update_base_tag(html, DOCKER_CONTAINER_URL_WEB)
@@ -265,7 +288,9 @@ def generate_release_report(user_id: int, params: dict, base_uri: str = None):
         created_by_id=user_id,
         report_configuration_id=params.get("report_configuration"),
     )
+    logger.info(f"Saving release_report {params.get('report_configuration')=}")
     release_report.save()
+    logger.info(f"generate release report pdf {release_report.pk=}")
     generate_release_report_pdf.delay(
         release_report.pk, html=html, publish=params.get("publish")
     )
@@ -330,7 +355,7 @@ def generate_library_report(params):
     from libraries.forms import CreateReportFullForm
 
     form = CreateReportFullForm(params)
-    form.cache_html()
+    return form.cache_html()
 
 
 @app.task
@@ -588,40 +613,52 @@ def get_mailing_list_stats(prior_version_id: int, version_id: int):
 
 @shared_task
 def get_new_subscribers_stats(start_date: date, end_date: date):
-    data = (
-        SubscriptionData.objects.filter(
-            subscription_dt__gte=start_date,
-            subscription_dt__lte=end_date,
-            list="boost",
-        )
-        .annotate(
-            week=ExtractWeek("subscription_dt"),
-            iso_year=ExtractIsoYear("subscription_dt"),
-        )
-        .values("iso_year", "week")
-        .annotate(count=Count("id"))
-        .order_by("iso_year", "week")
-    )
+    """Get new subscribers statistics for HyperKitty mailing list using raw SQL."""
+    import psycopg2
+    from django.conf import settings
 
-    # Convert data into a dict for easy lookup
-    counts_by_week = {(row["iso_year"], row["week"]): row["count"] for row in data}
+    conn = psycopg2.connect(settings.HYPERKITTY_DATABASE_URL)
 
-    # Iterate through every ISO week in the date range
-    current = start_date
-    seen = set()
-    chart_data = []
-    while current <= end_date:
-        iso_year, iso_week, _ = current.isocalendar()
-        key = (iso_year, iso_week)
-        if key not in seen:  # skip duplicate weeks in the same loop
-            seen.add(key)
-            year_suffix = str(iso_year)[2:]
-            label = f"{iso_week} ({year_suffix})"
-            count = counts_by_week.get(key, 0)
-            chart_data.append({"x": label, "y": count})
-        current += timedelta(days=7)  # hop by weeks
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    EXTRACT(ISOYEAR FROM date_joined) as iso_year,
+                    EXTRACT(WEEK FROM date_joined) as iso_week,
+                    COUNT(*) as count
+                FROM auth_user
+                WHERE date_joined::date >= %s
+                    AND date_joined::date <= %s
+                GROUP BY iso_year, iso_week
+                ORDER BY iso_year, iso_week
+            """,
+                [start_date, end_date],
+            )
 
-    return chart_data
+            data = cursor.fetchall()
+
+        # Convert data into a dict for easy lookup
+        counts_by_week = {(int(row[0]), int(row[1])): row[2] for row in data}
+
+        # Iterate through every ISO week in the date range
+        current = start_date
+        seen = set()
+        chart_data = []
+        while current <= end_date:
+            iso_year, iso_week, _ = current.isocalendar()
+            key = (iso_year, iso_week)
+            if key not in seen:  # skip duplicate weeks in the same loop
+                seen.add(key)
+                year_suffix = str(iso_year)[2:]
+                label = f"{iso_week} ({year_suffix})"
+                count = counts_by_week.get(key, 0)
+                chart_data.append({"x": label, "y": count})
+            current += timedelta(days=7)  # hop by weeks
+
+        return chart_data
+    finally:
+        conn.close()
 
 
 @shared_task

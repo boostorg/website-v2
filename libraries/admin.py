@@ -1,4 +1,5 @@
 import structlog
+from datetime import date
 from django.conf import settings
 from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
@@ -12,9 +13,11 @@ from django.utils.safestring import mark_safe
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
 from django import forms
+from celery import chain, group
 
 from core.admin_filters import StaffUserCreatedByFilter
 from libraries.forms import CreateReportForm, CreateReportFullForm
+from reports.generation import determine_versions
 from versions.models import Version
 from versions.tasks import import_all_library_versions
 from .filters import ReportConfigurationFilter
@@ -31,15 +34,22 @@ from .models import (
     WordcloudMergeWord,
 )
 from .tasks import (
+    count_mailinglist_contributors,
+    count_commit_contributors_totals,
     generate_library_report,
+    generate_mailinglist_cloud,
+    generate_release_report_with_stats,
+    generate_search_cloud,
+    get_mailing_list_stats,
+    get_new_contributors_count,
+    get_new_subscribers_stats,
+    synchronize_commit_author_user_data,
     update_authors_and_maintainers,
     update_commit_author_github_data,
     update_commits,
     update_issues,
     update_libraries,
     update_library_version_documentation_urls_all_versions,
-    generate_release_report,
-    synchronize_commit_author_user_data,
 )
 from .utils import generate_release_report_filename
 
@@ -189,11 +199,52 @@ class ReleaseReportView(TemplateView):
 
     def generate_report(self):
         uri = f"{settings.ACCOUNT_DEFAULT_HTTP_PROTOCOL}://{self.request.get_host()}"
-        generate_release_report.delay(
-            user_id=self.request.user.id,
-            params=self.request.GET,
-            base_uri=uri,
+        logger.info("Queuing release report workflow")
+
+        # Get the report configuration to determine version parameters
+        form = self.get_form()
+        if not form.is_valid():
+            return
+
+        report_configuration = form.cleaned_data["report_configuration"]
+
+        # NOTE TO FUTURE DEVS: remember to account for the fact that a report
+        #  configuration may not match with a real version in frequent cases where
+        #  reports are generated before the release version has been created.
+        (report_before_release, prior_version, version) = determine_versions(
+            report_configuration.version
         )
+
+        # trigger stats tasks first to run in parallel using group, then chain the final
+        #  report generation task
+        stats_tasks = group(
+            [
+                count_mailinglist_contributors.s(prior_version.pk, version.pk),
+                get_mailing_list_stats.s(prior_version.pk, version.pk),
+                count_commit_contributors_totals.s(version.pk, prior_version.pk),
+                get_new_subscribers_stats.s(
+                    prior_version.release_date, version.release_date or date.today()
+                ),
+                generate_mailinglist_cloud.s(prior_version.pk, version.pk),
+                # if the report is based on a live version, look for stats for that
+                # version, otherwise use the stats for the prior (live) version
+                generate_search_cloud.s(
+                    prior_version.pk if report_before_release else version.pk
+                ),
+                get_new_contributors_count.s(version.pk),
+            ]
+        )
+
+        # chain stats collection with final report generation
+        workflow = chain(
+            stats_tasks,
+            generate_release_report_with_stats.s(
+                self.request.user.id,
+                self.request.GET,
+                uri,
+            ),
+        )
+        workflow.apply_async()
 
     def locked_publish_check(self):
         form = self.get_form()
@@ -245,6 +296,8 @@ class LibraryReportView(ReleaseReportView):
     report_type = "library report"
 
     def generate_report(self):
+        # For library reports, we don't need a complex stats workflow since
+        #  CreateReportFullForm doesn't use the same async stats pattern
         generate_library_report.delay(self.request.GET)
 
 

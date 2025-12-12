@@ -44,7 +44,10 @@ def generate_mailinglist_words(
     word_frequencies = {}
     for content in get_mail_content(version, prior_version):
         for key, val in WordCloud().process_text(content).items():
+            key = key.strip()
             if len(key) < 2:
+                continue
+            if key in SiteSettings.load().wordcloud_ignore_set:
                 continue
             key_lower = key.lower()
             if key_lower not in word_frequencies:
@@ -91,7 +94,7 @@ def generate_wordcloud(
         background_color=None,
         width=width,
         height=height,
-        stopwords=STOPWORDS | SiteSettings.load().wordcloud_ignore_set,
+        stopwords=STOPWORDS,
         font_path=font_full_path,
     )
     word_frequencies = boost_normalize_words(

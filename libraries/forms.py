@@ -411,6 +411,120 @@ class CreateReportForm(CreateReportFullForm):
             "slack": slack_stats,
         }
 
+    def generate_context(
+        self, report_configuration: ReportConfiguration, stats_results: dict
+    ):
+        committee_members = report_configuration.financial_committee_members.all()
+
+        # NOTE TO FUTURE DEVS: remember to account for the fact that a report
+        #  configuration may not match with a real version in frequent cases where
+        #  reports are generated before the release version has been created.
+        (report_before_release, prior_version, version) = determine_versions(
+            report_configuration.version
+        )
+
+        # Unpack stats_results in the same order as tasks were defined in the workflow
+        (
+            (mailinglist_contributor_release_count, mailinglist_contributor_new_count),
+            (mailinglist_post_stats, total_mailinglist_count),
+            (commit_contributors_release_count, commit_contributors_new_count),
+            mailinglist_new_subscribers_stats,
+            (
+                mailinglist_words,
+                mailinglist_wordcloud_base64,
+                mailinglist_wordcloud_top_words,
+            ),
+            (search_wordcloud_base64, search_wordcloud_top_words, search_stats),
+            global_contributors_new_count,
+        ) = stats_results
+
+        # Compute the synchronous stats that don't require async tasks
+        commit_count, version_commit_count = get_commit_counts(version)
+        top_libraries_for_version = get_top_libraries_for_version(version)
+        top_libraries_by_name = get_libraries_by_name(version)
+        library_order = self._get_library_order(top_libraries_by_name)
+        # TODO: we may in future need to find a way to show the removed libraries, for
+        #  now it's not needed. In that case the distinction between running this on a
+        #  ReportConfiguration with a real 'version' entry vs one that instead uses 'master'
+        #  will need to be considered
+        libraries = get_libraries(library_order)
+        new_libraries = libraries.exclude(
+            library_version__version__release_date__lte=prior_version.release_date
+        ).prefetch_related("authors")
+        top_contributors = get_top_contributors_for_version(version)
+        mailinglist_counts = get_mailinglist_counts(version)
+        lines_added, lines_removed = lines_changes_count(version)
+        opened_issues_count, closed_issues_count = get_issues_counts(
+            prior_version, version
+        )
+        # TODO: connected to above todo, add removed_libraries.count()
+        removed_library_count = 0
+
+        library_data = get_library_data(library_order, prior_version.pk, version.pk)
+        slack_stats = get_slack_stats(prior_version, version)
+
+        library_index_library_data = get_libraries_for_index(library_data, version)
+        batched_library_data = conditional_batched(
+            library_data,
+            2,
+            lambda x: x.get("top_contributors_release").count()
+            <= RELEASE_REPORT_AUTHORS_PER_PAGE_THRESHOLD,
+        )
+        git_graph_data = get_git_graph_data(prior_version, version)
+        download = get_download_links(version)
+
+        return {
+            "committee_members": committee_members,
+            "lines_added": lines_added,
+            "lines_removed": lines_removed,
+            "version": version,
+            "report_configuration": report_configuration,
+            "prior_version": prior_version,
+            "opened_issues_count": opened_issues_count,
+            "closed_issues_count": closed_issues_count,
+            "mailinglist_wordcloud_base64": mailinglist_wordcloud_base64,
+            "mailinglist_wordcloud_frequencies": mailinglist_wordcloud_top_words,
+            "mailinglist_counts": mailinglist_counts,
+            "mailinglist_total": total_mailinglist_count or 0,
+            "mailinglist_contributor_release_count": mailinglist_contributor_release_count,  # noqa: E501
+            "mailinglist_contributor_new_count": mailinglist_contributor_new_count,
+            "mailinglist_post_stats": mailinglist_post_stats,
+            "mailinglist_new_subscribers_stats": mailinglist_new_subscribers_stats,
+            "mailinglist_charts_start_year": prior_version.release_date.year,
+            "search_wordcloud_base64": search_wordcloud_base64,
+            "search_wordcloud_frequencies": search_wordcloud_top_words,
+            "search_stats": search_stats,
+            "commit_contributors_release_count": commit_contributors_release_count,
+            "commit_contributors_new_count": commit_contributors_new_count,
+            "global_contributors_new_count": global_contributors_new_count,
+            "commit_count": commit_count,
+            "version_commit_count": version_commit_count,
+            "top_contributors_release_overall": top_contributors,
+            "library_data": library_data,
+            "new_libraries": new_libraries,
+            "batched_library_data": batched_library_data,
+            "top_libraries_for_version": top_libraries_for_version,
+            "library_count": libraries.count(),
+            "library_index_libraries": library_index_library_data,
+            "added_library_count": new_libraries.count(),
+            "removed_library_count": removed_library_count,
+            "downloads": download,
+            "contribution_box_graph": git_graph_data,
+            "slack_channels": get_slack_channels(),
+            "slack": slack_stats,
+        }
+
+    def render_with_stats(self, stats_results, base_uri=None):
+        """Render HTML with pre-computed stats results"""
+        context = self.generate_context(
+            self.cleaned_data["report_configuration"], stats_results
+        )
+        if base_uri:
+            context["base_uri"] = base_uri
+        html = render_to_string(self.html_template_name, context)
+        self.cache_set(html)
+        return html
+
 
 class CommitAuthorEmailForm(Form):
     """

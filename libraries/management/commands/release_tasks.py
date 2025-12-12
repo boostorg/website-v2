@@ -59,7 +59,7 @@ class ReleaseTasksManager(ActionsManager):
             Action("Updating slack activity buckets", ["fetch_slack_activity"]),
             Action("Updating website statistics", self.update_website_statistics),
             Action("Importing mailing list counts", self.import_ml_counts),
-            Action("Generating report", self.generate_report),
+            # Action("Generating report", self.generate_report),
         ]
 
     def import_versions(self):
