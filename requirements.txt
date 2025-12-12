@@ -42,17 +42,17 @@ beautifulsoup4==4.14.2
     # via
     #   -r ./requirements.in
     #   wagtail
-billiard==4.2.2
+billiard==4.2.4
     # via celery
 black==25.11.0
     # via -r ./requirements.in
 bleach==4.1.0
     # via wagtail-markdown
-boto3==1.40.74
+boto3==1.42.0
     # via
     #   -r ./requirements.in
     #   django-bakery
-botocore==1.40.74
+botocore==1.41.6
     # via
     #   boto3
     #   s3transfer
@@ -98,7 +98,7 @@ colorama==0.4.6
     # via interrogate
 contourpy==1.3.3
     # via matplotlib
-coverage[toml]==7.11.3
+coverage[toml]==7.12.0
     # via pytest-cov
 cryptography==46.0.3
     # via
@@ -109,10 +109,10 @@ cycler==0.12.1
     # via matplotlib
 decorator==5.2.1
     # via ipython
-diff-match-patch==20241021
-    # via django-import-export
 defusedxml==0.7.1
     # via willow
+diff-match-patch==20241021
+    # via django-import-export
 distlib==0.4.0
     # via virtualenv
 distro==1.9.0
@@ -152,7 +152,7 @@ django==5.2.8
     #   wagtail
 django-admin-env-notice==1.0.1
     # via -r ./requirements.in
-django-allauth[socialaccount]==65.13.0
+django-allauth[socialaccount]==65.13.1
     # via -r ./requirements.in
 django-anymail[mailgun]==13.1
     # via -r ./requirements.in
@@ -180,7 +180,7 @@ django-health-check==3.20.0
     # via -r ./requirements.in
 django-imagekit==6.0.0
     # via -r ./requirements.in
-django-import-export==4.3.13
+django-import-export==4.3.14
     # via -r ./requirements.in
 django-js-asset==3.1.2
     # via django-mptt
@@ -228,7 +228,7 @@ et-xmlfile==2.0.0
     # via openpyxl
 executing==2.2.1
     # via stack-data
-faker==38.0.0
+faker==38.2.0
     # via -r ./requirements.in
 fastcore==1.8.16
     # via ghapi
@@ -334,7 +334,7 @@ oauthlib==3.3.1
     # via
     #   django-allauth
     #   django-oauth-toolkit
-openai==2.8.0
+openai==2.8.1
     # via -r ./requirements.in
 openpyxl==3.1.5
     # via wagtail
@@ -401,7 +401,7 @@ pycparser==2.23
     # via cffi
 pycryptodome==3.23.0
     # via minio
-pydantic==2.12.4
+pydantic==2.12.5
     # via
     #   algoliasearch
     #   openai
@@ -464,7 +464,7 @@ requests==2.32.5
     #   wagtail
 responses==0.25.8
     # via -r ./requirements.in
-s3transfer==0.14.0
+s3transfer==0.16.0
     # via boto3
 setuptools==80.9.0
     # via fs
@@ -474,7 +474,7 @@ six==1.17.0
     #   django-bakery
     #   fs
     #   python-dateutil
-slack-sdk==3.38.0
+slack-sdk==3.39.0
     # via -r ./requirements.in
 sniffio==1.3.1
     # via
@@ -532,7 +532,7 @@ urllib3==2.5.0
     #   minio
     #   requests
     #   responses
-uv==0.9.9
+uv==0.9.14
     # via -r ./requirements.in
 vine==5.1.0
     # via
@@ -541,7 +541,7 @@ vine==5.1.0
     #   kombu
 virtualenv==20.35.4
     # via pre-commit
-wagtail==7.2
+wagtail==7.2.1
     # via
     #   -r ./requirements.in
     #   wagtail-markdown
@@ -563,5 +563,5 @@ yarl==1.22.0
     # via aiohttp
 zope-event==6.1
     # via gevent
-zope-interface==8.1
+zope-interface==8.1.1
     # via gevent

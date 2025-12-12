@@ -1,6 +1,6 @@
 # Production/Staging Server setup for allauth
 
-For development see [development_setup_notes.md](development_setup_notes.md).
+For development see [development_setup_notes_native.md](development_setup_notes_native.md).
 
 For this setup adjustments will need to be made to the values as applicable for each server and service.
 
