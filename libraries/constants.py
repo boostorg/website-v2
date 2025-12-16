@@ -369,3 +369,47 @@ RELEASE_REPORT_SEARCH_TOP_COUNTRIES_LIMIT = 5
 DOCKER_CONTAINER_URL_WEB = "http://web:8000"
 
 RELEASE_REPORT_AUTHORS_PER_PAGE_THRESHOLD = 6
+TOOLS = [
+    {
+        "name": "Boost.Build",
+        "slug": "build",
+        "description": "The Boost build system, including the full Boost version of the jam sources.",
+        "url": "libs/latest/tools/build/doc/html/index.html",
+    },
+    {
+        "name": "Regression",
+        "slug": "regression",
+        "description": "The Boost regression testing system reporting sources.",
+        "url": "tools/regression/index.html",
+    },
+    {
+        "name": "Inspect",
+        "slug": "inspect",
+        "description": "The inspection tool used to detect errors in the Boost directory hierarchy.",
+        "url": "tools/inspect/index.html",
+    },
+    {
+        "name": "BoostBook",
+        "slug": "boostbook",
+        "description": "A Boost documentation system, based on DocBook and the Extensible Stylesheet Language (XSL), used by some Boost libraries.",
+        "url": "tools/boostbook/index.html",
+    },
+    {
+        "name": "bcp",
+        "slug": "bcp",
+        "description": "A utility to extract subsets of Boost; to determine which parts of Boost your code is using; and to print reports on Boost usage (including Licence information).",
+        "url": "tools/bcp/",
+    },
+    {
+        "name": "QuickBook",
+        "slug": "quickbook",
+        "description": "QuickBook is a WikiWiki style documentation tool geared towards C++ documentation using simple rules and markup for simple formatting tasks. QuickBook generates BoostBook XML.",
+        "url": "",
+    },
+    {
+        "name": "Wave",
+        "slug": "wave",
+        "description": "A Standards conformant C/C++ preprocessor usable on top of any other compiler. Usable for instance for the debugging of the expansion of macros in your code or as a replacement for your built-in preprocessor.",
+        "url": "",
+    },
+]
