@@ -212,21 +212,18 @@ class Version(models.Model):
         return f"release_notes_boost-{version}"
 
 
-class VersionFile(models.Model):
-    unix = "Unix"
-    windows = "Windows"
-    windows_bin = "Windows (Bin)"
-    OPERATING_SYSTEM_CHOICES = (
-        (unix, "Unix"),
-        (windows, "Windows"),
-        (windows_bin, "Windows (Bin)"),
-    )
+class OperatingSystems(models.TextChoices):
+    UNIX = "Unix", "Unix"
+    WINDOWS = "Windows", "Windows"
+    WINDOWS_BIN = "Windows (Bin)", "Windows (Bin)"
 
+
+class VersionFile(models.Model):
     version = models.ForeignKey(
         Version, related_name="downloads", on_delete=models.CASCADE
     )
     operating_system = models.CharField(
-        choices=OPERATING_SYSTEM_CHOICES, max_length=15, default=unix
+        choices=OperatingSystems, max_length=15, default=OperatingSystems.UNIX
     )
     checksum = models.CharField(max_length=64, default=None)
     url = models.URLField()
