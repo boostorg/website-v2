@@ -1,0 +1,23 @@
+{% load static %}
+
+<div class="relative content-between p-3 bg-white md:rounded-lg md:shadow-lg md:p-5 dark:bg-charcoal hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out">
+  <div class="">
+    <h3 class="pb-2 text-xl md:text-2xl capitalize border-b border-gray-700">
+      <div class="flex justify-between">
+        {% if tool.url %}
+          <a class="link-header" href="{{ tool.url }}" target="_blank" rel="noopener noreferrer">{{ tool.name }}</a>
+        {% else %}
+          <span class="link-header">{{ tool.name }}</span>
+        {% endif %}
+        {% if tool.url %}
+          <a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange text-base block py-3 text-center" href="{{ tool.url }}" target="_blank" rel="noopener noreferrer" title="Website">
+            <i class="fa fa-globe align-top"></i>
+          </a>
+        {% endif %}
+      </div>
+    </h3>
+  </div>
+  <div class="mb-3 pb-3">
+    <p class="mb-3 text-gray-700 dark:text-gray-300">{{ tool.description }}</p>
+  </div>
+</div>

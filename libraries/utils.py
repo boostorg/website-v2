@@ -28,6 +28,7 @@ from libraries.constants import (
     LEGACY_LATEST_RELEASE_URL_PATH_STR,
     DEVELOP_RELEASE_URL_PATH_STR,
     MASTER_RELEASE_URL_PATH_STR,
+    TOOLS,
 )
 from versions.models import Version
 
@@ -589,3 +590,21 @@ def group_libraries_by_tier(
             other.append(lib)
 
     return flagship, core, other
+
+
+def get_tools():
+    """
+    Return list of tool dictionaries.
+
+    Tools are utilities used by Boost developers and users,
+    separate from libraries. They appear alongside libraries
+    in library list views.
+
+    Returns:
+        list: List of tool dictionaries with keys:
+            - name: str
+            - slug: str
+            - description: str
+            - url: str
+    """
+    return sorted(TOOLS.copy(), key=lambda tool: tool["name"].lower())
