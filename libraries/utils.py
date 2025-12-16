@@ -19,6 +19,7 @@ from libraries.constants import (
     LEGACY_LATEST_RELEASE_URL_PATH_STR,
     DEVELOP_RELEASE_URL_PATH_STR,
     MASTER_RELEASE_URL_PATH_STR,
+    TOOLS,
 )
 from versions.models import Version
 
@@ -370,3 +371,21 @@ def generate_release_report_filename(version_slug: str, published_format: bool =
         filename_data.append(datetime.now(timezone.utc).isoformat())
     filename = f"{'-'.join(filename_data)}.pdf"
     return filename
+
+
+def get_tools():
+    """
+    Return list of tool dictionaries.
+
+    Tools are utilities used by Boost developers and users,
+    separate from libraries. They appear alongside libraries
+    in library list views.
+
+    Returns:
+        list: List of tool dictionaries with keys:
+            - name: str
+            - slug: str
+            - description: str
+            - url: str
+    """
+    return sorted(TOOLS.copy(), key=lambda tool: tool["name"].lower())
