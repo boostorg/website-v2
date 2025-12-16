@@ -5,7 +5,7 @@ import random
 
 from model_bakery import baker
 
-from versions.models import VersionFile
+from versions.models import OperatingSystems
 
 
 def fake_checksum():
@@ -152,7 +152,7 @@ def full_version_one(db):
     baker.make(
         "versions.VersionFile",
         version=v,
-        operating_system=VersionFile.Unix,
+        operating_system=OperatingSystems.UNIX,
         url=f1_url,
         checksum=c1,
     )
@@ -162,7 +162,7 @@ def full_version_one(db):
     baker.make(
         "versions.VersionFile",
         version=v,
-        operating_system=VersionFile.Unix,
+        operating_system=OperatingSystems.UNIX,
         url=f2_url,
         checksum=c2,
     )
@@ -172,7 +172,7 @@ def full_version_one(db):
     baker.make(
         "versions.VersionFile",
         version=v,
-        operating_system=VersionFile.Windows,
+        operating_system=OperatingSystems.WINDOWS,
         url=f3_url,
         checksum=c3,
     )
