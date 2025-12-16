@@ -44,6 +44,7 @@ class ReleaseTasksManager(ActionsManager):
                 "Importing most recent beta version",
                 ["import_beta_release", "--delete-versions"],
             ),
+            Action("Importing development versions", ["import_development_versions"]),
             Action("Importing libraries", ["update_libraries"]),
             Action(
                 "Saving library-version relationships", self.import_library_versions
@@ -64,7 +65,7 @@ class ReleaseTasksManager(ActionsManager):
 
     def import_versions(self):
         call_command("import_versions")
-        self.latest_version = Version.objects.most_recent()
+        self.latest_version = Version.objects.with_partials().most_recent()
 
     def import_library_versions(self):
         latest_version_number = self.latest_version.name.lstrip("boost-")
