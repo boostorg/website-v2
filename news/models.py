@@ -93,6 +93,14 @@ class Entry(models.Model):
     summary = models.TextField(
         blank=True, default="", help_text="AI generated summary. Delete to regenerate."
     )
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    deleted_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="deleted_entries",
+    )
 
     objects = EntryManager()
 
