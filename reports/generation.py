@@ -44,15 +44,14 @@ def generate_mailinglist_words(
     word_frequencies = {}
     for content in get_mail_content(version, prior_version):
         for key, val in WordCloud().process_text(content).items():
-            key = key.strip()
+            key = key.strip().lower()
             if len(key) < 2:
                 continue
             if key in SiteSettings.load().wordcloud_ignore_set:
                 continue
-            key_lower = key.lower()
-            if key_lower not in word_frequencies:
-                word_frequencies[key_lower] = 0
-            word_frequencies[key_lower] += val
+            if key not in word_frequencies:
+                word_frequencies[key] = 0
+            word_frequencies[key] += val
 
     return word_frequencies
 
