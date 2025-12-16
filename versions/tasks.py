@@ -73,7 +73,7 @@ def import_versions(
         if purge_after:
             logger.info("linking fastly purge")
             task_group.link(purge_fastly_release_cache.s())
-        task_group.link(mark_fully_completed.s())
+        task_group.link(mark_fully_completed.s(full_release_only=True))
         task_group()
     import_release_notes.delay()
 
@@ -84,9 +84,13 @@ def import_release_notes(new_versions_only=True):
     release notes in the repository."""
     versions = [Version.objects.most_recent()]
     if not new_versions_only:
-        versions = Version.objects.exclude(name__in=["master", "develop"]).active()
+        versions = (
+            Version.objects.exclude(name__in=["master", "develop"])
+            .active()
+            .order_by("name")
+        )
 
-    logger.info(f"import_release_notes {[(v.pk,v.name) for v in versions]}")
+    logger.info(f"import_release_notes {[v.name for v in versions]}")
     for version in versions:
         logger.info(f"retrieving release notes for {version.name=} {version.pk=}")
         store_release_notes_task(version.pk)
@@ -204,7 +208,7 @@ def import_most_recent_beta_release(token=None, delete_old=False):
                 logger.info(f"calling import_version with {name=} {tag=}")
                 import_version(name, tag, token=token, beta=True, full_release=False)
                 logger.info(f"completed import_version with {name=} {tag=}")
-                mark_fully_completed()
+                mark_fully_completed(beta_only=True)
                 # new_versions_only='False' otherwise will only be full releases
                 import_release_notes(new_versions_only=False)
                 return
@@ -484,10 +488,18 @@ def purge_fastly_release_cache():
 
 
 @app.task
-def mark_fully_completed():
+def mark_fully_completed(beta_only=False, full_release_only=False):
     """Marks all versions as fully imported"""
-    Version.objects.filter(fully_imported=False).update(fully_imported=True)
-    logger.info("Marked all versions as fully imported.")
+    qs = Version.objects.filter(fully_imported=False)
+    if full_release_only:
+        logger.info("Marking active as fully imported")
+        qs = qs.filter(full_release=True)
+    elif beta_only:
+        logger.info("Marking beta as fully imported")
+        qs = qs.filter(beta=True)
+    versions = [v.name for v in qs.order_by("name").all()]
+    qs.update(fully_imported=True)
+    logger.info(f"Marked {versions=} as fully imported.")
 
 
 # Helper functions
