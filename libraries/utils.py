@@ -373,7 +373,7 @@ def generate_release_report_filename(version_slug: str, published_format: bool =
     return filename
 
 
-def get_tools():
+def get_tools(version=None):
     """
     Return list of tool dictionaries.
 
@@ -381,11 +381,31 @@ def get_tools():
     separate from libraries. They appear alongside libraries
     in library list views.
 
+    Args:
+        version: Optional Version object. If provided, tools with
+            version_specific=True will have their URLs generated
+            based on the version.
+
     Returns:
         list: List of tool dictionaries with keys:
             - name: str
-            - slug: str
             - description: str
-            - url: str
+            - url: str (generated for version_specific tools if version provided)
     """
-    return sorted(TOOLS.copy(), key=lambda tool: tool["name"].lower())
+    tools = []
+    for tool in TOOLS.copy():
+        tool_dict = tool.copy()
+        url_path = tool_dict.get("url_path", "")
+        if tool_dict.get("version_specific"):
+            if version:
+                version_slug = version.stripped_boost_url_slug
+                tool_dict["url"] = (
+                    f"https://www.boost.org/doc/libs/{version_slug}/{url_path}"
+                )
+            else:
+                tool_dict["url"] = ""
+        else:
+            # For non-version-specific tools, use url_path as-is (full URL)
+            tool_dict["url"] = url_path
+        tools.append(tool_dict)
+    return sorted(tools, key=lambda tool: tool["name"].lower())
