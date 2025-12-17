@@ -105,7 +105,7 @@ class LibraryListBase(BoostVersionMixin, VersionAlertMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**self.kwargs)
         context["categories"] = self.get_categories(context["selected_version"])
-        context["tools"] = get_tools()
+        context["tools"] = get_tools(version=context.get("selected_version"))
         # todo: add tests for sort order
         if self.kwargs.get("category_slug"):
             context["category"] = Category.objects.get(
@@ -214,7 +214,7 @@ class LibraryCategorized(LibraryListBase):
             )
 
         # Add tools as a separate category
-        tools = get_tools()
+        tools = get_tools(version=version)
         if tools:
             # Create a simple object for tools category
             class ToolsCategory:
