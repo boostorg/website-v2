@@ -1,0 +1,18 @@
+{% load static %}
+
+{% if tool.url %}
+  <a href="{{ tool.url }}" target="_blank" rel="noopener noreferrer" class="block h-full">
+{% endif %}
+<div class="relative flex flex-col h-full p-3 bg-white md:rounded-lg md:shadow-lg md:p-5 dark:bg-charcoal hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out {% if tool.url %}cursor-pointer{% endif %}">
+  <div class="">
+    <h3 class="pb-2 text-xl md:text-2xl capitalize border-b border-gray-700">
+      <span class="link-header">{{ tool.name }}</span>
+    </h3>
+  </div>
+  <div class="mb-3 pb-3 flex-grow">
+    <p class="mb-3 text-gray-700 dark:text-gray-300">{{ tool.description }}</p>
+  </div>
+</div>
+{% if tool.url %}
+  </a>
+{% endif %}
