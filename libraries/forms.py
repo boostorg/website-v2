@@ -341,7 +341,9 @@ class CreateReportForm(CreateReportFullForm):
         library_data = get_library_data(library_order, prior_version.pk, version.pk)
         slack_stats = get_slack_stats(prior_version, version)
 
-        library_index_library_data = get_libraries_for_index(library_data, version)
+        library_index_library_data = get_libraries_for_index(
+            library_data, version, prior_version
+        )
         batched_library_data = conditional_batched(
             library_data,
             2,
@@ -463,7 +465,9 @@ class CreateReportForm(CreateReportFullForm):
         library_data = get_library_data(library_order, prior_version.pk, version.pk)
         slack_stats = get_slack_stats(prior_version, version)
 
-        library_index_library_data = get_libraries_for_index(library_data, version)
+        library_index_library_data = get_libraries_for_index(
+            library_data, version, prior_version
+        )
         batched_library_data = conditional_batched(
             library_data,
             2,
