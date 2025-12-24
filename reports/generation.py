@@ -642,13 +642,29 @@ def get_slack_channels():
     )
 
 
-def get_libraries_for_index(library_data, version: Version):
+def get_libraries_for_index(
+    library_data, version: Version, prior_version: Version | None = None
+):
     library_index_library_data = []
+
+    # Get libraries that existed in prior version
+    prior_version_library_ids = set()
+    if prior_version:
+        prior_version_library_ids = set(
+            LibraryVersion.objects.filter(version=prior_version).values_list(
+                "library_id", flat=True
+            )
+        )
+
+    changed_libraries = {lib["library"] for lib in library_data}
+
     for library in get_libraries_by_quality(version):
+        is_changed = library in changed_libraries
+        is_new = library.id not in prior_version_library_ids
         library_index_library_data.append(
             (
                 library,
-                library in [lib["library"] for lib in library_data],
+                is_changed or is_new,
             )
         )
     return library_index_library_data

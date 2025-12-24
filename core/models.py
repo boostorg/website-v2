@@ -84,4 +84,4 @@ class SiteSettings(models.Model):
 
     @property
     def wordcloud_ignore_set(self):
-        return set(x.strip() for x in self.wordcloud_ignore.split(","))
+        return set(x.strip().lower() for x in self.wordcloud_ignore.split(","))
