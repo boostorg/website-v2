@@ -861,6 +861,8 @@ h6 {
 body :not(pre):not([class^="L"]) > code {
   /* ovverrides builtin colors */
   color: var(--text-code-neutral, #0d0e0f);
+  border: 0;
+  background-color: unset;
 }
 
 /* Stacking context */
@@ -1287,6 +1289,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook b,
 .boostlook strong {
   font-variation-settings: "wght" 600, "wdth" 80;
+  text-shadow: none;
 }
 
 /* Comments within code (inline and blocks) */
@@ -1357,10 +1360,23 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook .doc .content pre,
 .boostlook .doc pre.highlight,
 .boostlook .doc .listingblock pre:not(.highlight),
-.boostlook .doc .literalblock pre {
+.boostlook .doc .literalblock pre
+.boostlook .literalblock pre,
+.boostlook .listingblock > .content > pre,
+.boostlook .listingblock > .content > pre:not(.highlight),
+.boostlook .literalblock > .content > pre:not(.highlight),
+.boostlook .exampleblock > .content,
+.boostlook .sidebarblock {
   padding: var(--spacing-size-xs, 0.75rem) var(--spacing-size-sm, 1rem);
-  background: var(--atom-one-light-bg, #fafafa);
+  background: var(--atom-one-light-bg, #fafafa) !important;
   border-radius: 0;
+  border: none;
+  box-shadow: none;
+}
+
+.boostlook .sidebarblock {
+  margin-top: 20px;
+  border: 1px solid var(--border-border-secondary, #d5d7d9);
 }
 
 /* Dark theme code block background */
@@ -1371,7 +1387,14 @@ html.dark .boostlook .doc pre.highlight,
 html.dark .boostlook .doc .listingblock pre:not(.highlight),
 html.dark .boostlook .doc .literalblock pre,
 html.dark .boostlook#libraryReadMe > pre:not(:last-child),
-html.dark .boostlook#libraryReadMe div.highlight:has(> pre):not(:is(dd pre, td pre)) {
+html.dark .boostlook#libraryReadMe div.highlight:has(> pre):not(:is(dd pre, td pre)),
+html.dark .boostlook .doc .literalblock pre,
+html.dark .boostlook .literalblock pre,
+html.dark .boostlook .literalblock > .content > pre:not(.highlight),
+html.dark .boostlook .listingblock > .content > pre,
+html.dark .boostlook .sidebarblock,
+html.dark .boostlook .exampleblock > .content,
+html.dark .boostlook .listingblock > .content > pre {
   background: var(--atom-one-dark-bg, #282c34) !important;
 }
 
@@ -1505,8 +1528,10 @@ html.dark .boostlook#libraryReadMe div.highlight:has(> pre):not(:is(dd pre, td p
 }
 
 .boostlook .highlight pre,
-.boostlook .content:has(> pre) pre.highlight {
+.boostlook .content:has(> pre) pre.highlight,
+.boostlook .literalblock > .content > pre:not(.highlight) {
   border: 1px solid var(--border-border-secondary, #d5d7d9);
+  border-radius: 0;
 }
 .boostlook .content:has(> pre):has(> .source-toolbox) pre {
   /*border: 1px solid var(--border-border-secondary, #d5d7d9);*/
@@ -1920,6 +1945,8 @@ html.dark .boostlook .hljs-code {
 .boostlook .doc .verseblock blockquote,
 .boostlook div.blockquote blockquote {
   margin: 0;
+  font: inherit;
+  color: inherit;
 }
 
 .boostlook .quoteblock blockquote .paragraph,
@@ -1937,6 +1964,10 @@ html.dark .boostlook .hljs-code {
   margin: 0;
   font: inherit;
   color: inherit;
+}
+
+.boostlook .quoteblock blockquote:before {
+  content: none;
 }
 
 /* Pagination */
@@ -2241,7 +2272,7 @@ html.dark .boostlook .hljs-code {
 .boostlook:not(:has(.doc)) div.tip,
 .boostlook:not(:has(.doc)) .notices.tip {
   border-color: var(--border-border-positive, #f8fefb);
-  background-color: var(--colors-positive-0, rgba(240, 254, 247, 0.5));
+  background-color: var(--surface-background-states-surface-positive-primary, #f6fafd);
 }
 /* .boostlook #content .admonitionblock.tip > table tr td.icon,
 .boostlook:not(:has(.doc)) div.tip > table tr:first-child th,
@@ -3196,6 +3227,7 @@ html:has(#docsiframe)::-webkit-scrollbar {
 /* TOC Scrolling */
 .boostlook #toc.toc2 {
   overflow-y: auto;
+  scrollbar-color: inherit;
 }
 /* TOC Positioning */
 .boostlook #toc.toc2,
