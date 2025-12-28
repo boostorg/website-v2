@@ -13,7 +13,10 @@
     <div class="py-8 md:mx-auto md:w-3/4">
       <!-- Author or Moderator Actions -->
       <div class="space-x-3 text-right">
-        {% if not entry.is_approved %}
+        {%  if entry.deleted_at %}
+          <div class="mb-2 p-4 bg-red-600 text-white text-sm rounded-md">Entry deleted on {{ entry.deleted_at }} by {{ entry.deleted_by.display_name }}.</div>
+        {% endif %}
+        {% if not entry.is_approved and not entry.deleted_at %}
           <div class="py-2">
             {% if user_can_approve %}
               <form method="POST" action="{% url 'news-approve' entry.slug %}">
@@ -28,10 +31,10 @@
             {% endif %}
           </div>
         {% endif %}
-        {% if user_can_delete %}
+        {% if user_can_delete and not entry.deleted_at%}
           <a href="{% url 'news-delete' entry.slug %}" class="float-right inline-block items-center dark:text-white/50 dark:hover:text-orange text-sm ml-3 mt-2"><i class="fas fa-trash-alt"></i></a>
         {% endif %}
-        {% if user_can_edit %}
+        {% if user_can_edit and not entry.deleted_at %}
           <a href="{% url 'news-update' entry.slug %}" class="float-right inline-block items-center dark:text-white/50 dark:hover:text-orange text-sm ml-3 mt-2"><i class="fas fa-edit"></i></a>
         {% endif %}
       </div>

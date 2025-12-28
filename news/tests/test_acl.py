@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime, timezone
 from model_bakery import baker
 
 from ..acl import (
@@ -176,3 +177,68 @@ def test_entry_author_needs_moderation_allowlist(make_entry, make_user, settings
 
     settings.NEWS_MODERATION_ALLOWLIST = [user.pk]
     assert author_needs_moderation(entry) is False
+
+
+# Tests for soft delete functionality (deleted_at field)
+
+
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_can_view_published_entry_not_deleted(make_entry, regular_user, model_class):
+    """Test that published, non-deleted entries are viewable by public."""
+    entry = make_entry(model_class, approved=True, deleted_at=None)
+
+    assert can_view(None, entry) is True
+    assert can_view(regular_user, entry) is True
+
+
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_can_view_published_entry_deleted_public(make_entry, regular_user, model_class):
+    """Test that published but deleted entries are NOT viewable by public."""
+    deleted_time = datetime.now(timezone.utc)
+    entry = make_entry(model_class, approved=True, deleted_at=deleted_time)
+
+    assert can_view(None, entry) is False
+    assert can_view(regular_user, entry) is False
+
+
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_can_view_deleted_entry_by_author(make_entry, model_class):
+    """Test that authors can still view their deleted entries."""
+    deleted_time = datetime.now(timezone.utc)
+    entry = make_entry(model_class, approved=True, deleted_at=deleted_time)
+
+    assert can_view(entry.author, entry) is True
+
+
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_can_view_deleted_entry_by_moderator(make_entry, make_user, model_class):
+    """Test that users with view permission can view deleted entries."""
+    deleted_time = datetime.now(timezone.utc)
+    entry = make_entry(model_class, approved=True, deleted_at=deleted_time)
+
+    user_with_view_perm = make_user(perms=["news.view_entry"])
+
+    assert can_view(user_with_view_perm, entry) is True
+
+
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+def test_can_view_deleted_entry_by_superuser(make_entry, superuser, model_class):
+    """Test that superusers can view deleted entries."""
+    deleted_time = datetime.now(timezone.utc)
+    entry = make_entry(model_class, approved=True, deleted_at=deleted_time)
+
+    # Superuser can view deleted entries
+    assert can_view(superuser, entry) is True
+
+
+@pytest.mark.parametrize("model_class", NEWS_MODELS)
+@pytest.mark.parametrize("deleted_at_value", [None, datetime.now(timezone.utc)])
+def test_can_view_unpublished_entry_with_deletion(
+    make_entry, regular_user, model_class, deleted_at_value
+):
+    """Test that unpublished entries follow same rules regardless of deletion status."""
+    entry = make_entry(model_class, approved=False, deleted_at=deleted_at_value)
+
+    assert can_view(None, entry) is False
+    assert can_view(regular_user, entry) is False
+    assert can_view(entry.author, entry) is True
