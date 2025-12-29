@@ -1,0 +1,23 @@
+{% if tool.url %}
+  <tr class="border-0 md:border border-gray-200/10 border-dotted md:border-t-0 md:border-r-0 md:border-l-0 md:border-b-1 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out cursor-pointer" onclick="window.open('{{ tool.url }}', '_blank', 'noopener,noreferrer')">
+{% else %}
+  <tr class="border-0 md:border border-gray-200/10 border-dotted md:border-t-0 md:border-r-0 md:border-l-0 md:border-b-1 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out">
+{% endif %}
+  <td class="py-2 align-top md:w-1/5">
+    <span class="mr-1 font-bold capitalize text-sky-600 dark:text-sky-300">{{ tool.name }}</span>
+  </td>
+
+  <td class="w-12 align-top pt-2.5 pr-2">
+    {# Empty cell for alignment with library rows #}
+  </td>
+  <td class="w-8 pt-2 px-2 text-center align-top">
+    {# Empty cell for alignment with library rows #}
+  </td>
+  <td class="w-8 text-center align-top">
+    {# Empty cell for alignment with library rows #}
+  </td>
+  <td class="hidden md:block py-2 pl-3 align-top" style="min-height: 3rem;">{{ tool.description }}</td>
+</tr>
+<tr class="block md:hidden">
+  <td>{{ tool.description }}</td>
+</tr>
