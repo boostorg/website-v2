@@ -11,7 +11,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import admin, messages
 from django.conf import settings
 
-from mailing_list.models import EmailData, SubscriptionData
+from mailing_list.models import EmailData, PostingData, SubscriptionData
 from mailing_list.tasks import sync_mailinglist_stats
 
 logger = logging.getLogger(__name__)
@@ -53,6 +53,13 @@ class EmailDataAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+
+@admin.register(PostingData)
+class PostingDataAdmin(admin.ModelAdmin):
+    list_display = ["name", "post_time"]
+    search_fields = ["name"]
+    list_filter = ["post_time"]
 
 
 class SubscribesCSVForm(forms.Form):
