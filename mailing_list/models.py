@@ -26,6 +26,7 @@ class EmailData(models.Model):
     objects = EmailDataManager()
 
     class Meta:
+        verbose_name_plural = "Email data"
         constraints = [
             models.UniqueConstraint(
                 fields=["author", "version"],
@@ -43,6 +44,9 @@ class PostingData(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name_plural = "Posting data"
+
     def __str__(self):
         return f"{self.name} {self.post_time}"
 
@@ -56,4 +60,5 @@ class SubscriptionData(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        verbose_name_plural = "Subscription data"
         unique_together = ["subscription_dt", "email", "list"]
