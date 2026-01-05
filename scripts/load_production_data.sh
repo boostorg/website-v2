@@ -188,7 +188,7 @@ download_latest_db_dump() {
     echo "Deleting all rows from socialaccount_socialapp table and setting fake passwords..."
     docker compose exec web bash -c "./manage.py shell -c 'from allauth.socialaccount.models import SocialApp; SocialApp.objects.all().delete()'"
     just manage "set_fake_passwords --password=test"
-    docker compose exec web bash -c "DJANGO_SUPERUSER_USERNAME=superadmin DJANGO_SUPERUSER_EMAIL=superadmin@boost.org DJANGO_SUPERUSER_PASSWORD=foobarone ./manage.py createsuperuser --noinput" || true
+    echo 'from django.contrib.auth import get_user_model; u=get_user_model().objects.get(email="superadmin@boost.org"); u.set_password("foobarone"); u.save()' | docker compose exec -T web python manage.py shell
     echo "Database restored successfully from $DUMP_FILENAME"
 
     return 0
