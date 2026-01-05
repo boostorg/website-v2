@@ -27,17 +27,18 @@ For a basic rundown on Nix, this video could be useful https://www.youtube.com/w
       * Windows - ?
    3. Just - https://just.systems/man/en/packages.html
    4. Nix - https://nixos.org/download/ (multi-user, y to all options)
-2. Clone this https://github.com/boostorg/website-v2.git repository to your machine.
-3. cd into the repository directory.
-4. In a terminal run `just bootstrap-nix` in the root of the checked out repository to install the necessary development dependencies and generate the .env file.
-   * This will ask you to log in to your google account to allow permissions for the production database load later. Ask Sam for permissions on the database backup drive with an email address associated with Google.
-5. Update the generated .env file with the necessary environment variables. Where you can't retrieve these yourself, you can ask someone for some in #boost-website on the slack server at https://ccplang.slack.com. The minimum that must be set is:
+2. Ask Sam to provide permissions on the database backup drive to an email address associated with Google that you provide.
+3. Clone this https://github.com/boostorg/website-v2.git repository to your machine.
+4. cd into the repository directory.
+   * This should trigger a process which has you to log in to your google account to allow permissions for the production database load later. Use the email address provided to Sam in point 2.
+5. In a terminal run `just bootstrap-nix` in the root of the checked out repository to install the necessary development dependencies and generate the .env file.
+6. Update the generated .env file with the necessary environment variables. Where you can't retrieve these yourself, you can ask someone for some in #boost-website on the slack server at https://ccplang.slack.com. The minimum that must be set is:
    * GITHUB_TOKEN - a personal access token for the GitHub API, from your profile
    * STATIC_CONTENT_AWS_ACCESS_KEY_ID - ask for this
    * STATIC_CONTENT_AWS_SECRET_ACCESS_KEY - ask for this
-5. Run `just setup` to build services, and build the JS and CSS assets. If docker fails with permissions errors, reboot your machine.
-6. Run `just load_production_data` to download live data from the backup server for the website and mailman/hyperkitty. That script can be run regularly to update data from the live servers. You will lose all local data.
-7. Run `docker compose up` to start the server.
+7. Run `just setup` to build services, and build the JS and CSS assets. If docker fails with permissions errors, reboot your machine.
+8. Run `just load_production_data` to download live data from the backup server for the website and mailman/hyperkitty. That script can be run regularly to update data from the live servers. You will lose all local data.
+9. Run `docker compose up` to start the server.
 
 
 ## Debugging
