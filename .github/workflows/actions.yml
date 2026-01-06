@@ -58,6 +58,7 @@ jobs:
       - name: Test with pytest
         env:
           DATABASE_URL: "postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres"
+          HYPERKITTY_DATABASE_URL: "postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/lists_production_web"
           SECRET_KEY: "for-testing-only"
           REDIS_HOST: "localhost"
           CI: "true"

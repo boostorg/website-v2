@@ -57,3 +57,20 @@ class SubscriptionData(models.Model):
 
     class Meta:
         unique_together = ["subscription_dt", "email", "list"]
+
+
+class ListPostingManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().using("hyperkitty")
+
+
+class ListPosting(models.Model):
+    id = models.IntegerField(primary_key=True, blank=False, null=False)
+    date = models.DateTimeField(blank=False, null=False)
+    sender_id = models.CharField(blank=False, null=False)
+
+    objects = ListPostingManager()
+
+    class Meta:
+        managed = False
+        db_table = "hyperkitty_email"
