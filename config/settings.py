@@ -189,7 +189,10 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 try:
-    DATABASES = {"default": env.dj_db_url("DATABASE_URL")}
+    DATABASES = {
+        "default": env.dj_db_url("DATABASE_URL"),
+        "hyperkitty": env.dj_db_url("HYPERKITTY_DATABASE_URL"),
+    }
 except (ImproperlyConfigured, environs.EnvError):
     DATABASES = {
         "default": {
@@ -201,7 +204,17 @@ except (ImproperlyConfigured, environs.EnvError):
             "USER": env("PGUSER"),
             "CONN_MAX_AGE": 0,
             "OPTIONS": {"MAX_CONNS": env("MAX_CONNECTIONS", default=20)},
-        }
+        },
+        "hyperkitty": {
+            "ENGINE": "django_db_geventpool.backends.postgresql_psycopg2",
+            "HOST": env("PGHOST"),
+            "NAME": env("HYPERKITTY_DATABASE_NAME", default=""),
+            "PASSWORD": env("PGPASSWORD"),
+            "PORT": env.int("PGPORT", default=5432),
+            "USER": env("PGUSER"),
+            "CONN_MAX_AGE": 0,
+            "OPTIONS": {"MAX_CONNS": env("MAX_CONNECTIONS", default=20)},
+        },
     }
 
 # Password validation
