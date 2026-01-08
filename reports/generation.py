@@ -100,16 +100,14 @@ def generate_wordcloud(
         word_frequencies,
         {x.from_word: x.to_word for x in WordcloudMergeWord.objects.all()},
     )
-    # first sort by number, then sort the top 200 alphabetically
-    word_frequencies = {
-        key: val
-        for key, val in sorted(
+    wordcloud_top_words = [
+        word
+        for word, frequency in sorted(
             word_frequencies.items(),
-            key=lambda x: x[1],
+            key=lambda x: x[1],  # sort by frequency
             reverse=True,
         )
-    }
-    wordcloud_top_words = sorted(list(word_frequencies.keys())[:200])
+    ][:200]
 
     wc.generate_from_frequencies(word_frequencies)
     plt.figure(figsize=(14, 7), facecolor=None)
