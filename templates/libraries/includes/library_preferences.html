@@ -26,8 +26,6 @@
           </div>
         </div>
 
-        <div></div>
-
         {# Select a category #}
         <div>
           <select
@@ -42,6 +40,12 @@
               <option value="{{ c.slug }}" {% if category == c %}selected="selected"{% endif %}>{{ c.name }}</option>
             {% endfor %}
           </select>
+        </div>
+
+        {# Tools link #}
+        <div class="relative group pb-3 flex items-center">
+          <a href="#tools" class="link text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm whitespace-nowrap"><i class="fas fa-wrench mr-1"></i>Tools</a>
+          <span class="z-50 group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-0 translate-y-full opacity-0 m-0 w-max">Scroll&nbsp;to&nbsp;Boost&nbsp;tools</span>
         </div>
         {# Select a version #}
         <div class="flex flex-row lib_pref grow justify-end">
