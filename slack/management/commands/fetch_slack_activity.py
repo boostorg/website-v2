@@ -51,6 +51,8 @@ def channel_messages_in_range(channel, oldest, latest):
         inclusive=False,
     )
     for page in pages:
+        # rate-limit to prevent 429 responses
+        time.sleep(1)
         yield page["messages"]
 
 
