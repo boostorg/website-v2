@@ -1,8 +1,12 @@
 def set_trace():
+    import socket
+    import struct
     import pydevd_pycharm
 
-    # this ip address is for the gateway IP, equivalent to host.docker.internal which
-    #  isn't available on all platforms
-    gateway_ip = "172.17.0.1"
-    # Use the same port number configured in PyCharm
-    pydevd_pycharm.settrace(host=gateway_ip, port=12345, suspend=False)
+    with open("/proc/net/route") as f:
+        for line in f.readlines()[1:]:
+            p = line.split()
+            if p and p[1] == "00000000":
+                gw = socket.inet_ntoa(struct.pack("<L", int(p[2], 16)))
+                break
+    pydevd_pycharm.settrace(host=gw, port=12345, suspend=False)
