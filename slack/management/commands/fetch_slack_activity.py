@@ -110,22 +110,31 @@ def fill_channel_gap(gap: ChannelUpdateGap, debug: bool):
     logger.info(
         f"Fetching channel history for {gap.channel.name} ({gap.channel.id}) "
         f"in range ({gap.oldest_message_ts}, {gap.newest_message_ts})"
+        f"({parse_ts(gap.oldest_message_ts)}Z to {parse_ts(gap.oldest_message_ts)}Z)"
     )
     pages = channel_messages_in_range(
         channel=gap.channel.id,
         latest=gap.newest_message_ts,
         oldest=gap.oldest_message_ts,
     )
-    first = True
+
+    # pages contain a grouping of 100 messages, oldest 100 returned first
     for page in pages:
         # use a separate transaction per page to allow restoring from an
         # interrupted run.
         with transaction.atomic():
+            # messages within a page of 100 however are newest first, so we need to update the channel on the first
+            #  message to have the future ranges retrieved without overlap
+            first = True
             for message in page:
-                if first and gap.newest_message_ts is None:
+                readable_dt = parse_ts(message["ts"])
+                if first:
                     gap.channel.last_update_ts = message["ts"]
+                    msg = f"saving {readable_dt}Z as last_update_ts for channel"
+                    logger.debug(msg)
                     gap.channel.save()
                     first = False
+                logger.debug(f"next message ts {readable_dt}Z")
                 # Shrink the gap, but no need to save until we've finished this
                 # page (transactionally).
                 gap.newest_message_ts = message["ts"]
