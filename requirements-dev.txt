@@ -10,7 +10,7 @@ django==5.2.8
     #   django-debug-toolbar
 django-debug-toolbar==6.1.0
     # via -r ./requirements-dev.in
-pydevd-pycharm==252.27397.106
+pydevd-pycharm==253.29346.142
     # via -r ./requirements-dev.in
 sqlparse==0.5.3
     # via

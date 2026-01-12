@@ -16,6 +16,7 @@
   - [`update_library_version_dependencies`](#update_library_version_dependencies)
   - [`release_tasks`](#release_tasks)
   - [`refresh_users_github_photos`](#refresh_users_github_photos)
+  - [`clear_slack_activity`](#clear_slack_activity)
 
 ## `boost_setup`
 
@@ -356,3 +357,36 @@ Preview which users would be updated:
 
 - Calls the `refresh_users_github_photos()` Celery task which queues photo updates for all users with GitHub usernames
 - With `--dry-run`, displays information about which users would be updated without making any changes
+
+## `clear_slack_activity`
+
+**Purpose**: Delete all slack activity tracking data from the database. This command removes all records from the `SlackActivityBucket` and `ChannelUpdateGap` tables, and resets the `last_update_ts` field to "0" for all channels. This is useful for resetting the slack activity tracking system to its initial state.
+
+**Example**
+
+```bash
+./manage.py clear_slack_activity --confirm
+```
+
+**Options**
+
+| Options      | Format | Description                                                                                  |
+|--------------|--------|----------------------------------------------------------------------------------------------|
+| `--confirm`  | bool   | Required flag to confirm deletion. The command will not execute without this flag.           |
+
+**Usage Examples**
+
+Execute the deletion:
+```bash
+./manage.py clear_slack_activity --confirm
+```
+
+**Process**
+
+- Deletes all `SlackActivityBucket` records (message counts per user per channel per day)
+- Deletes all `ChannelUpdateGap` records (tracking of message fetch progress)
+- Resets `last_update_ts` to "0" for all `Channel` records
+- All operations are performed within a database transaction to ensure atomicity
+- Logs the number of records affected in each table
+
+**Warning**: This command permanently deletes all slack activity data. Use with caution.
