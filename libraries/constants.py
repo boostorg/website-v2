@@ -425,11 +425,4 @@ TOOLS = [
         "url_path": "https://www.boost.org/doc/libs/latest/doc/html/quickbook.html",
         "version_specific": False,
     },
-    {
-        "name": "Wave",
-        "slug": "wave",
-        "description": "A Standards conformant C/C++ preprocessor usable on top of any other compiler. Usable for instance for the debugging of the expansion of macros in your code or as a replacement for your built-in preprocessor.",
-        "version_specific": True,
-        "url_path": "libs/wave/index.html",
-    },
 ]
