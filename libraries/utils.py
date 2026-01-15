@@ -392,16 +392,14 @@ def get_tools(version=None):
             - description: str
             - url: str (generated for version_specific tools if version provided)
     """
+    version_slug = version.stripped_boost_url_slug
     tools = []
     for tool in TOOLS.copy():
         tool_dict = tool.copy()
         url_path = tool_dict.get("url_path", "")
         if tool_dict.get("version_specific"):
             if version:
-                version_slug = version.stripped_boost_url_slug
-                tool_dict["url"] = (
-                    f"https://www.boost.org/doc/libs/{version_slug}/{url_path}"
-                )
+                tool_dict["url"] = f"/doc/libs/{version_slug}/{url_path}"
             else:
                 tool_dict["url"] = ""
         else:
