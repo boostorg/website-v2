@@ -422,7 +422,7 @@ TOOLS = [
     {
         "name": "QuickBook",
         "description": "QuickBook is a WikiWiki style documentation tool geared towards C++ documentation using simple rules and markup for simple formatting tasks. QuickBook generates BoostBook XML.",
-        "url_path": "https://www.boost.org/doc/libs/latest/doc/html/quickbook.html",
+        "url_path": "/doc/libs/latest/doc/html/quickbook.html",
         "version_specific": False,
     },
 ]
