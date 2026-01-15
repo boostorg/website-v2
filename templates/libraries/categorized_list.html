@@ -16,15 +16,25 @@
   {# Libraries list #}
   <div class="space-y-3">
     {% for result in library_versions_by_category %}
-      <div class="relative content-between p-3 w-full bg-white md:rounded-lg md:shadow-lg md:p-5 dark:bg-charcoal">
-        <h5 class="mb-2 pb-2 text-xl md:text-2xl leading-tight text-orange border-b border-gray-300 dark:border-slate">{{ result.category }}</h5>
+      <div {% if result.category.slug == "tools" %}id="tools"{% endif %} class="relative content-between p-3 w-full bg-white md:rounded-lg md:shadow-lg md:p-5 dark:bg-charcoal">
+        <h5 class="mb-2 pb-2 text-xl md:text-2xl leading-tight text-orange border-b border-gray-300 dark:border-slate">{{ result.category.name }}</h5>
+        {% if result.tools %}
+          <p class="text-gray-600 dark:text-gray-400 mb-4 mt-2 text-sm">Boost developers, testers, and maintainers have developed various programs to help with the administration of the Boost Libraries. Like everything else about Boost, these tools are available in source form, and are part of the regular Boost distribution.</p>
+        {% endif %}
         <table class="table-auto w-full">
           <tbody>
           {% for library_version in result.library_version_list %}
             {% include "libraries/_library_categorized_list_item.html" %}
           {% empty %}
-            <p class="text-gray-600 dark:text-gray-400">No libraries in this category yet.</p>
+            {% if not result.tools %}
+              <p class="text-gray-600 dark:text-gray-400">No libraries in this category yet.</p>
+            {% endif %}
           {% endfor %}
+          {% if result.tools %}
+            {% for tool in result.tools %}
+              {% include "libraries/_tool_categorized_list_item.html" %}
+            {% endfor %}
+          {% endif %}
           </tbody>
         </table>
       </div>
