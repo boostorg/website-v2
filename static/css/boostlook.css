@@ -4003,6 +4003,209 @@ html.dark .boostlook pre.rouge .cm {
   background-color: transparent;
 }
 
+/* Search Field Container */
+#search-field {
+  display: flex;
+  position: relative;
+}
+
+/* Search Input */
+#search-input {
+  padding: 0.15rem 0.75rem 0.15rem 1.75rem !important;
+  border: 1px solid var(--border-border-secondary);
+  border-radius: 6px;
+  background-color: var(--surface-background-main-surface-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0.35rem center;
+  background-size: 16px 16px;
+  color: var(--text-main-text-body-primary);
+  font-family: inherit;
+  font-size: 1rem !important; /* 16px minimum prevents iOS zoom on focus */
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+#search-input::placeholder {
+  color: var(--text-main-text-body-tetriary);
+}
+
+#search-input:focus {
+  outline: none;
+  border-color: var(--border-border-blue-primary);
+  box-shadow: 0 0 0 3px var(--colors-blue-50);
+}
+
+#search-input:disabled {
+  background: var(--colors-neutral-100);
+  color: var(--text-main-text-body-tetriary);
+  cursor: not-allowed;
+}
+
+/* Results Dropdown */
+.search-result-dropdown-menu {
+  position: absolute;
+  z-index: 100;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  min-width: 400px;
+  border-radius: 8px;
+  background: var(--surface-background-main-base-primary);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.search-result-dataset {
+  padding: 0.5rem;
+  border: 1px solid var(--border-border-secondary);
+  border-radius: 8px;
+  min-width: 580px;
+  max-height: calc(100vh - 6rem);
+  overflow: auto;
+}
+
+/* Result Component Header */
+.search-result-component-header {
+  padding: 0.5rem 0.75rem;
+  margin: 0.25rem 0;
+  border-bottom: 1px solid var(--border-border-secondary);
+  color: var(--text-main-text-body-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Result Item */
+.search-result-item {
+  display: flex;
+  margin: 0.25rem 0;
+  border-radius: 6px;
+}
+
+.search-result-item:hover {
+  background: var(--colors-neutral-50);
+}
+
+.search-result-item .no-result {
+  padding: 1rem;
+  color: var(--text-main-text-body-tetriary);
+  text-align: center;
+}
+
+/* Result Document Title (Left Column) */
+.search-result-document-title {
+  width: 25%;
+  padding: 0.625rem 0.75rem;
+  border-right: 1px solid var(--border-border-secondary);
+  color: var(--text-main-text-body-tetriary);
+  font-size: 0.75rem;
+  text-align: right;
+}
+
+/* Result Document Hit (Right Column) */
+.search-result-document-hit {
+  flex: 1;
+  color: var(--text-main-text-body-secondary);
+  font-size: 0.8125rem;
+}
+
+.search-result-document-hit > a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.search-result-document-hit > a:hover {
+  background: transparent;
+}
+
+.search-result-document-hit .search-result-section-title {
+  margin-bottom: 0.25rem;
+  color: var(--text-main-text-body-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.search-result-document-hit .search-result-highlight {
+  padding: 0.1em 0.2em;
+  border-radius: 2px;
+  background: var(--colors-blue-50);
+  color: var(--text-main-text-link-blue);
+  font-weight: 500;
+}
+
+/* Search Responsive: Mobile (< 768px) */
+@media screen and (max-width: 767px) {
+  .boostlook .toolbar {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .search-container {
+    order: 99;
+    flex: 1 0 100%;
+  }
+
+  #search-input {
+    width: 100% !important;
+    min-width: unset;
+    font-size: 1rem !important; /* Prevents iOS zoom on focus */
+  }
+
+  .search-result-dropdown-menu {
+    position: fixed;
+    top: 6rem;
+    left: 1rem;
+    right: 1rem;
+    min-width: unset;
+    max-width: unset;
+    width: auto;
+  }
+
+  .search-result-dataset {
+    min-width: unset;
+  }
+}
+
+/* Search Responsive: Tablet (768px - 1023px) */
+@media screen and (min-width: 768px) {
+  #search-input {
+    width: unset !important;
+    min-width: unset !important;
+  }
+
+  .search-result-dropdown-menu {
+    position: fixed;
+    top: 4rem;
+    left: calc(var(--main-max-width-leftbar) + 1rem);
+    right: 1rem;
+    min-width: unset;
+    max-width: unset;
+    width: auto;
+  }
+
+  .search-result-dataset {
+    min-width: unset;
+  }
+}
+
+/* Search Responsive: Desktop (1024px+) */
+@media screen and (min-width: 1024px) {
+  #search-input {
+    min-width: 200px !important;
+    z-index: 1001;
+  }
+
+  .search-result-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: auto;
+    right: 0;
+    width: clamp(530px, 45vw, 600px);
+  }
+}
+
 /*----------------- Styles specific to Antora Templates end -----------------*/
 
 /*---------- Quickbook docs styling fixes -----------*/
