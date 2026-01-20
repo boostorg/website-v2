@@ -83,11 +83,12 @@ def setup_periodic_tasks(sender, **kwargs):
         app.signature("core.tasks.clear_static_content_cache"),
     )
 
-    # Fetch Slack activity. Executes daily at 3:07 AM.
-    sender.add_periodic_task(
-        crontab(hour=3, minute=7),
-        app.signature("slack.tasks.fetch_slack_activity"),
-    )
+    # TODO: reenable
+    # # Fetch Slack activity. Executes daily at 3:07 AM.
+    # sender.add_periodic_task(
+    #     crontab(hour=3, minute=7),
+    #     app.signature("slack.tasks.fetch_slack_activity"),
+    # )
 
     # delete users scheduled for deletion, arbitrarily every 61 minutes
     sender.add_periodic_task(

@@ -360,7 +360,7 @@ Preview which users would be updated:
 
 ## `clear_slack_activity`
 
-**Purpose**: Delete all slack activity tracking data from the database. This command removes all records from the `SlackActivityBucket` and `ChannelUpdateGap` tables, and resets the `last_update_ts` field to "0" for all channels. This is useful for resetting the slack activity tracking system to its initial state.
+**Purpose**: Delete all slack activity tracking data from the database. This command removes all records from the `SlackActivityBucket` and resets the `last_update_ts` field to July 31st 2025 (for now) for all channels. This is useful for resetting the slack activity tracking system. It should in future be reset to zero for all data.
 
 **Example**
 
