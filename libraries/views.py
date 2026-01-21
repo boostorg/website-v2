@@ -35,6 +35,7 @@ from .utils import (
     get_documentation_url_redirect,
     get_prioritized_version,
     get_version_from_cookie,
+    get_tools,
 )
 from .constants import LATEST_RELEASE_URL_PATH_STR
 
@@ -104,6 +105,7 @@ class LibraryListBase(BoostVersionMixin, VersionAlertMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**self.kwargs)
         context["categories"] = self.get_categories(context["selected_version"])
+        context["tools"] = get_tools(version=context.get("selected_version"))
         # todo: add tests for sort order
         if self.kwargs.get("category_slug"):
             context["category"] = Category.objects.get(
@@ -210,6 +212,23 @@ class LibraryCategorized(LibraryListBase):
             results_by_category.append(
                 {"category": category, "library_version_list": library_versions}
             )
+
+        # Add tools as a separate category
+        tools = get_tools(version=version)
+        if tools:
+            # Create a simple object for tools category
+            class ToolsCategory:
+                name = "Tools"
+                slug = "tools"
+
+            results_by_category.append(
+                {
+                    "category": ToolsCategory(),
+                    "library_version_list": [],
+                    "tools": tools,
+                }
+            )
+
         return results_by_category
 
 

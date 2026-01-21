@@ -19,6 +19,7 @@ from libraries.constants import (
     LEGACY_LATEST_RELEASE_URL_PATH_STR,
     DEVELOP_RELEASE_URL_PATH_STR,
     MASTER_RELEASE_URL_PATH_STR,
+    TOOLS,
 )
 from versions.models import Version
 
@@ -370,3 +371,39 @@ def generate_release_report_filename(version_slug: str, published_format: bool =
         filename_data.append(datetime.now(timezone.utc).isoformat())
     filename = f"{'-'.join(filename_data)}.pdf"
     return filename
+
+
+def get_tools(version=None):
+    """
+    Return list of tool dictionaries.
+
+    Tools are utilities used by Boost developers and users,
+    separate from libraries. They appear alongside libraries
+    in library list views.
+
+    Args:
+        version: Optional Version object. If provided, tools with
+            version_specific=True will have their URLs generated
+            based on the version.
+
+    Returns:
+        list: List of tool dictionaries with keys:
+            - name: str
+            - description: str
+            - url: str (generated for version_specific tools if version provided)
+    """
+    version_slug = version.stripped_boost_url_slug
+    tools = []
+    for tool in TOOLS.copy():
+        tool_dict = tool.copy()
+        url_path = tool_dict.get("url_path", "")
+        if tool_dict.get("version_specific"):
+            if version:
+                tool_dict["url"] = f"/doc/libs/{version_slug}/{url_path}"
+            else:
+                tool_dict["url"] = ""
+        else:
+            # For non-version-specific tools, use url_path as-is (full URL)
+            tool_dict["url"] = url_path
+        tools.append(tool_dict)
+    return sorted(tools, key=lambda tool: tool["name"].lower())
