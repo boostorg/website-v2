@@ -56,6 +56,7 @@ There are two options for development setups, nix and native. The native setup d
    1. [Non-Dev Server Allauth Setup](docs/non-dev-server-allauth-setup.md)
    1. [Admin Features](docs/admin.md)
    1. [Mailing List Setup](docs/mailing_list.md)
+   1. [Connecting to Servers](https://github.com/cppalliance/website-v2-operations/blob/master/gcp/README.md)
 
 After going through the "Development System setup" steps above to create the Docker image, install dependencies, and start the services in `docker-compose.yml`, run:
 

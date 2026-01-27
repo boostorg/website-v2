@@ -68,7 +68,6 @@ class LibsPathToLatestFallbackMatcher(BasePathMatcher):
     is_index_fallback = True
 
     def generate_latest_s3_path(self, path, segments: PathSegments):
-        breakpoint()
         return os.path.sep.join(
             [
                 f"static_content_{self.latest_slug}",
