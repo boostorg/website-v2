@@ -27,6 +27,7 @@ def make_entry(db):
         kwargs.setdefault("approved_at", approved_at)
         kwargs.setdefault("moderator", moderator)
         kwargs.setdefault("publish_at", publish_at)
+        kwargs.setdefault("deleted_at", None)
         kwargs.setdefault("title", "Admin User's Q3 Update")
         entry = baker.make(model_class, **kwargs)
         entry.author.set_password("password")
