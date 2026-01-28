@@ -16,6 +16,7 @@
   - [`update_library_version_dependencies`](#update_library_version_dependencies)
   - [`release_tasks`](#release_tasks)
   - [`refresh_users_github_photos`](#refresh_users_github_photos)
+  - [`remove_unverified_users`](#remove_unverified_users)
   - [`clear_slack_activity`](#clear_slack_activity)
 
 ## `boost_setup`
@@ -357,6 +358,33 @@ Preview which users would be updated:
 
 - Calls the `refresh_users_github_photos()` Celery task which queues photo updates for all users with GitHub usernames
 - With `--dry-run`, displays information about which users would be updated without making any changes
+
+## `remove_unverified_users`
+
+**Purpose**: Remove unverified users that are candidates for deletion. This command queues a Celery task that deletes user accounts with unverified email addresses that have been registered for more than 14 days (since November 21, 2025). This helps maintain database hygiene by cleaning up abandoned user registrations.
+
+**Example**
+
+```bash
+./manage.py remove_unverified_users
+```
+
+**Options**
+
+This command takes no options.
+
+**Process**
+
+- Queues a Celery task (`users.tasks.remove_unverified_users`) for execution
+- The task finds users who:
+  - Have claimed accounts (`claimed=True`)
+  - Have unverified email addresses (`emailaddress__verified=False`)
+  - Joined on or after November 21, 2025
+  - Joined more than 14 days before the current date
+- Deletes each matching user account
+- Logs the deletion process for auditing purposes
+
+**Note**: This command is also executed automatically via a Celery periodic task that runs daily at 2:15 AM.
 
 ## `clear_slack_activity`
 

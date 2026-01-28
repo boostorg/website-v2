@@ -1,4 +1,5 @@
 from time import sleep
+from datetime import timedelta
 
 import structlog
 
@@ -13,6 +14,7 @@ from oauth2_provider.models import clear_expired
 
 from config.celery import app
 from core.githubhelper import GithubAPIClient
+from users.constants import UNVERIFIED_CLEANUP_DAYS, UNVERIFIED_CLEANUP_BEGIN
 
 logger = structlog.getLogger(__name__)
 
@@ -91,3 +93,36 @@ def send_account_deleted_email(email):
         settings.DEFAULT_FROM_EMAIL,
         [email],
     )
+
+
+@shared_task
+def remove_unverified_users():
+    """
+    Removes users that have accounts with unverified email addresses after some time
+    """
+    logger.info("Starting remove_unverified_users task")
+
+    try:
+        cutoff_date = timezone.now() - timedelta(days=UNVERIFIED_CLEANUP_DAYS)
+        logger.info(f"Joined after {UNVERIFIED_CLEANUP_BEGIN} and before {cutoff_date}")
+
+        unverified_users = User.objects.filter(
+            claimed=True,
+            emailaddress__verified=False,
+            date_joined__gte=UNVERIFIED_CLEANUP_BEGIN,
+            date_joined__lt=cutoff_date,
+        ).order_by("date_joined")
+
+        user_count = unverified_users.count()
+        logger.info(f"Found {user_count} unverified users for deletion")
+
+        if user_count == 0:
+            return
+
+        for user in unverified_users:
+            logger.info(f"Del user: {user.id=}, {user.email=}, {user.date_joined=}")
+            user.delete()
+        logger.info(f"Successfully processed {user_count} unverified users")
+
+    except Exception as e:
+        logger.exception(f"Error occurred processing unverified users for removal: {e}")
