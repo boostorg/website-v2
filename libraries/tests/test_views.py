@@ -350,3 +350,72 @@ def test_redirect_to_library_list_view(library_version, tp):
     # Should redirect to the libraries-list view with the version slug
     expected_redirect = "/libraries/1.79.0/grid/"
     assert response.url == expected_redirect
+
+
+def test_library_dependencies_no_previous_version(library_version, dependency, tp):
+    """
+    GET /libraries/{version_string}/
+    Test that a newly introduced library has its dependencies shown
+    """
+
+    library = library_version.library
+    url = tp.reverse("library-detail", "latest", library.slug)
+
+    response = tp.get(url)
+    tp.response_200(response)
+
+    # Context dependencies should contain our dependency
+    assert dependency in response.context["dependency_diff"]["current_dependencies"]
+    assert dependency.name not in response.context["dependency_diff"]["added"]
+    assert "dependencies_not_calculated" not in response.context
+
+
+def test_library_added_dependencies(library_version, old_version, dependency, tp):
+    """
+    GET /libraries/{version_string}/
+    Test that when a new dependency is added it is in the added field
+    """
+
+    library = library_version.library
+    baker.make("libraries.LibraryVersion", library=library, version=old_version)
+    url = tp.reverse("library-detail", "latest", library.slug)
+
+    response = tp.get(url)
+    tp.response_200(response)
+
+    # Context dependencies should contain our dependency
+    assert dependency in response.context["dependency_diff"]["current_dependencies"]
+    assert dependency.name in response.context["dependency_diff"]["added"]
+    assert "dependencies_not_calculated" not in response.context
+
+
+def test_library_removed_dependencies(library_version, old_version, dependency, tp):
+    """
+    GET /libraries/{version_string}/
+    Test that when a new dependency is removed it is in the removed field
+    """
+
+    library = library_version.library
+    new_dependency = baker.make(
+        "libraries.Library",
+        name="assert",
+        slug="assert",
+        description=("Customizable assert macros."),
+        github_url="https://github.com/boostorg/assert/tree/boost-1.90.0",
+    )
+    baker.make(
+        "libraries.LibraryVersion",
+        library=library,
+        version=old_version,
+        dependencies=[dependency, new_dependency],
+    )
+    url = tp.reverse("library-detail", "latest", library.slug)
+
+    response = tp.get(url)
+    tp.response_200(response)
+
+    # Context dependencies should contain our dependency
+    assert dependency in response.context["dependency_diff"]["current_dependencies"]
+    assert dependency.name not in response.context["dependency_diff"]["added"]
+    assert new_dependency.name in response.context["dependency_diff"]["removed"]
+    assert "dependencies_not_calculated" not in response.context

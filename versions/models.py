@@ -104,8 +104,8 @@ class Version(models.Model):
         if current_library_versions.exists():
             prev = {x.library.name: x for x in previous_library_versions}
             current = {x.library.name: x for x in current_library_versions}
-            for key, current_lv in current.items():
-                prev_lv = prev.get(key)
+            for library_name, current_lv in current.items():
+                prev_lv = prev.get(library_name)
                 if not prev_lv:
                     # In the event that the library is new to this version
                     # we don't want to mark any new dependencies, so we use
@@ -116,7 +116,7 @@ class Version(models.Model):
                 old_dependencies = {x.name for x in prev_dep_objects}
                 current_dependencies = {x.name for x in current_dep_objects}
                 dependencies_count += len(current_dependencies)
-                diffs[key] = {
+                diffs[library_name] = {
                     "library_id": current_lv.library_id,
                     "added": list(current_dependencies - old_dependencies),
                     "removed": list(old_dependencies - current_dependencies),

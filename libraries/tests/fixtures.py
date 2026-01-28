@@ -10,6 +10,17 @@ def category(db):
 
 
 @pytest.fixture
+def dependency(db):
+    return baker.make(
+        "libraries.Library",
+        name="array",
+        slug="array",
+        description=("STL compliant container wrapper for arrays of constant size."),
+        github_url="https://github.com/boostorg/array/tree/boost-1.90.0",
+    )
+
+
+@pytest.fixture
 def library(db):
     return baker.make(
         "libraries.Library",
@@ -24,8 +35,13 @@ def library(db):
 
 
 @pytest.fixture
-def library_version(library, version):
-    return baker.make("libraries.LibraryVersion", library=library, version=version)
+def library_version(library, version, dependency):
+    return baker.make(
+        "libraries.LibraryVersion",
+        library=library,
+        version=version,
+        dependencies=[dependency],
+    )
 
 
 @pytest.fixture
