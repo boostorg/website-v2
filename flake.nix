@@ -54,6 +54,7 @@
             awscli
             gdk
             just
+            kubectl
             opentofu
             # frontend
             nodejs_22 # matches Dockerfile, due for upgrade?

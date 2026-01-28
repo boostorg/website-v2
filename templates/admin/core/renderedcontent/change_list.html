@@ -3,6 +3,13 @@
 
 {% block object-tools-items %}
     {{ block.super }}
+    {% if has_start_content_refresh %}
+    <li>
+        <a href="{% url 'admin:core_renderedcontent_start_content_refresh' %}" class="addlink">
+            {% trans "Start Content Refresh" %}
+        </a>
+    </li>
+    {% endif %}
     {% if has_delete_all %}
     <li>
         <a href="{% url 'admin:core_renderedcontent_delete_all' %}" class="deletelink">
