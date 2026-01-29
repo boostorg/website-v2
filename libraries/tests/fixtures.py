@@ -11,6 +11,11 @@ def category(db):
 
 @pytest.fixture
 def dependency(db):
+    """
+    This is a library created for the purpose of being a dependency for another library.
+    See the library_version fixture and test_library_removed_dependencies test case
+    for usage.
+    """
     return baker.make(
         "libraries.Library",
         name="array",
