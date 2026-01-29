@@ -1,6 +1,5 @@
 import uuid
 import logging
-import os
 from contextlib import suppress
 
 import requests
@@ -10,7 +9,6 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin,
 )
-from django.core.files import File
 from django.core.mail import send_mail
 from django.db import models, transaction
 from django.db.models.signals import post_save
@@ -206,14 +204,14 @@ class User(BaseUser):
     is_commit_author_name_overridden = models.BooleanField(
         default=False, help_text="Select to override the commit author with Username"
     )
-    image = models.FileField(
+    profile_image = models.FileField(
         upload_to="profile-images",
         null=True,
         blank=True,
         validators=[image_validator, max_file_size_validator],
     )
     image_thumbnail = ImageSpecField(
-        source="image",
+        source="profile_image",
         processors=[ResizeToFill(100, 100)],
         format="JPEG",
         options={"quality": 90},
@@ -231,6 +229,10 @@ class User(BaseUser):
         processors=[ResizeToFill(4096, 4096)],
         format="JPEG",
         options={"quality": 90},
+    )
+    image_uploaded = models.BooleanField(
+        default=False,
+        help_text="Indicates if the user manually uploaded an image, prevents import overwrites",
     )
     claimed = models.BooleanField(
         _("claimed"),
@@ -263,16 +265,11 @@ class User(BaseUser):
     delete_permanently_at = models.DateTimeField(null=True, editable=False)
 
     def save_image_from_provider(self, avatar_url):
+        from django.core.files.base import ContentFile
+
         response = requests.get(avatar_url)
         filename = f"{self.profile_image_filename_root}.png"
-        os.path.join(settings.MEDIA_ROOT, "media", "profile-images", filename)
-
-        with open(filename, "wb") as f:
-            f.write(response.content)
-
-        reopen = open(filename, "rb")
-        django_file = File(reopen)
-        self.image.save(filename, django_file, save=True)
+        self.profile_image.save(filename, ContentFile(response.content), save=True)
 
     @cached_property
     def profile_image_filename_root(self):
@@ -288,7 +285,7 @@ class User(BaseUser):
 
     def get_thumbnail_url(self):
         # convenience method for templates
-        if self.image and self.image_thumbnail:
+        if self.profile_image and self.image_thumbnail:
             with suppress(AttributeError, MissingSource):
                 return getattr(self.image_thumbnail, "url", None)
 
@@ -327,9 +324,9 @@ class User(BaseUser):
         self.last_name = "Doe"
         self.display_name = "John Doe"
         self.email = "deleted-{}@example.com".format(uuid.uuid4())
-        image = self.image
+        image = self.profile_image
         transaction.on_commit(lambda: image.delete())
-        self.image = None
+        self.profile_image = None
         self.image_thumbnail = None
         self.delete_permanently_at = None
         self.save()

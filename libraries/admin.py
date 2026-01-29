@@ -1,4 +1,8 @@
-from django.contrib import admin
+import structlog
+from datetime import date
+from django.conf import settings
+from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import F, Count, OuterRef, Window
 from django.db.models.functions import RowNumber
@@ -8,10 +12,15 @@ from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
+from django import forms
+from celery import chain, group
 
+from core.admin_filters import StaffUserCreatedByFilter
 from libraries.forms import CreateReportForm, CreateReportFullForm
+from reports.generation import determine_versions
 from versions.models import Version
 from versions.tasks import import_all_library_versions
+from .filters import ReportConfigurationFilter
 from .models import (
     Category,
     Commit,
@@ -21,19 +30,31 @@ from .models import (
     Library,
     LibraryVersion,
     PullRequest,
+    ReleaseReport,
     WordcloudMergeWord,
 )
 from .tasks import (
+    count_mailinglist_contributors,
+    count_commit_contributors_totals,
     generate_library_report,
+    generate_mailinglist_cloud,
+    generate_release_report_with_stats,
+    generate_search_cloud,
+    get_mailing_list_stats,
+    get_new_contributors_count,
+    get_new_subscribers_stats,
+    synchronize_commit_author_user_data,
     update_authors_and_maintainers,
     update_commit_author_github_data,
     update_commits,
     update_issues,
     update_libraries,
     update_library_version_documentation_urls_all_versions,
-    generate_release_report,
-    synchronize_commit_author_user_data,
 )
+from .utils import generate_release_report_filename
+
+
+logger = structlog.get_logger()
 
 
 @admin.register(Commit)
@@ -177,11 +198,80 @@ class ReleaseReportView(TemplateView):
         return context
 
     def generate_report(self):
-        generate_release_report.delay(self.request.GET)
+        uri = f"{settings.ACCOUNT_DEFAULT_HTTP_PROTOCOL}://{self.request.get_host()}"
+        logger.info("Queuing release report workflow")
+
+        # Get the report configuration to determine version parameters
+        form = self.get_form()
+        if not form.is_valid():
+            return
+
+        report_configuration = form.cleaned_data["report_configuration"]
+
+        # NOTE TO FUTURE DEVS: remember to account for the fact that a report
+        #  configuration may not match with a real version in frequent cases where
+        #  reports are generated before the release version has been created.
+        (report_before_release, prior_version, version) = determine_versions(
+            report_configuration.version
+        )
+
+        # trigger stats tasks first to run in parallel using group, then chain the final
+        #  report generation task
+        stats_tasks = group(
+            [
+                count_mailinglist_contributors.s(prior_version.pk, version.pk),
+                get_mailing_list_stats.s(prior_version.pk, version.pk),
+                count_commit_contributors_totals.s(version.pk, prior_version.pk),
+                get_new_subscribers_stats.s(
+                    prior_version.release_date, version.release_date or date.today()
+                ),
+                generate_mailinglist_cloud.s(prior_version.pk, version.pk),
+                # if the report is based on a live version, look for stats for that
+                # version, otherwise use the stats for the prior (live) version
+                generate_search_cloud.s(
+                    prior_version.pk if report_before_release else version.pk
+                ),
+                get_new_contributors_count.s(version.pk),
+            ]
+        )
+
+        # chain stats collection with final report generation
+        workflow = chain(
+            stats_tasks,
+            generate_release_report_with_stats.s(
+                self.request.user.id,
+                self.request.GET,
+                uri,
+            ),
+        )
+        workflow.apply_async()
+
+    def locked_publish_check(self):
+        form = self.get_form()
+        form.is_valid()
+        publish = form.cleaned_data["publish"]
+        report_configuration = form.cleaned_data["report_configuration"]
+        if publish and ReleaseReport.latest_published_locked(report_configuration):
+            msg = (
+                f"A release report already exists with locked status for "
+                f"{report_configuration.display_name}. Delete or unlock the most "
+                f"recent report."
+            )
+            raise ValueError(msg)
 
     def get(self, request, *args, **kwargs):
         form = self.get_form()
         if form.is_valid():
+            try:
+                self.locked_publish_check()
+            except ValueError as e:
+                messages.error(request, str(e))
+                return TemplateResponse(
+                    request,
+                    self.form_template,
+                    self.get_context_data(),
+                )
+
             if form.cleaned_data["no_cache"]:
                 params = request.GET.copy()
                 form.cache_clear()
@@ -206,6 +296,8 @@ class LibraryReportView(ReleaseReportView):
     report_type = "library report"
 
     def generate_report(self):
+        # For library reports, we don't need a complex stats workflow since
+        #  CreateReportFullForm doesn't use the same async stats pattern
         generate_library_report.delay(self.request.GET)
 
 
@@ -348,7 +440,7 @@ class LibraryAdmin(admin.ModelAdmin):
 @admin.register(LibraryVersion)
 class LibraryVersionAdmin(admin.ModelAdmin):
     list_display = ["library", "version", "missing_docs", "documentation_url"]
-    list_filter = ["library", "version", "missing_docs"]
+    list_filter = ["library", "version", "missing_docs", "cpp20_module_support"]
     ordering = ["library__name", "-version__name"]
     search_fields = ["library__name", "version__name"]
     change_list_template = "admin/libraryversion_change_list.html"
@@ -440,3 +532,129 @@ class WordcloudMergeWordAdmin(admin.ModelAdmin):
             },
         ),
     ]
+
+
+class ReleaseReportAdminForm(forms.ModelForm):
+    class Meta:
+        model = ReleaseReport
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if not self.is_publish_editable():
+            # we require users to intentionally manually delete existing reports
+            self.fields["published"].disabled = True
+            self.fields["published"].help_text = (
+                "⚠️ A published PDF already exists for this Report Configuration. See "
+                '"Publishing" notes at the top of this page.'
+            )
+
+    def is_publish_editable(self) -> bool:
+        # in play here are currently published and previously published rows because of
+        # filename collision risk.
+        if self.instance.published:
+            return True
+
+        published_filename = generate_release_report_filename(
+            version_slug=self.instance.report_configuration.get_slug(),
+            published_format=True,
+        )
+        reports = ReleaseReport.objects.filter(
+            report_configuration=self.instance.report_configuration,
+            file=f"{ReleaseReport.upload_dir}{published_filename}",
+        )
+
+        if reports.count() == 0 or reports.latest("created_at") == self.instance:
+            return True
+
+        return False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not self.is_publish_editable():
+            raise ValidationError("This file is not publishable.")
+        if cleaned_data.get("published"):
+            report_configuration = cleaned_data.get("report_configuration")
+            if ReleaseReport.latest_published_locked(
+                report_configuration, self.instance
+            ):
+                raise ValidationError(
+                    f"A release report already exists with locked status for "
+                    f"{report_configuration.display_name}. Delete or unlock the most "
+                    f"recent report."
+                )
+
+        return cleaned_data
+
+
+@admin.register(ReleaseReport)
+class ReleaseReportAdmin(admin.ModelAdmin):
+    form = ReleaseReportAdminForm
+    list_display = ["__str__", "created_at", "published", "published_at", "locked"]
+    list_filter = [
+        "published",
+        "locked",
+        ReportConfigurationFilter,
+        StaffUserCreatedByFilter,
+    ]
+    search_fields = ["file"]
+    readonly_fields = ["created_at", "created_by"]
+    ordering = ["-created_at"]
+    change_list_template = "admin/releasereport_change_list.html"
+    change_form_template = "admin/releasereport_change_form.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path(
+                "release_tasks/",
+                self.admin_site.admin_view(self.release_tasks),
+                name="release_tasks",
+            ),
+        ]
+        return my_urls + urls
+
+    def release_tasks(self, request):
+        from libraries.tasks import release_tasks
+
+        release_tasks.delay(
+            base_uri=f"{settings.ACCOUNT_DEFAULT_HTTP_PROTOCOL}://{request.get_host()}",
+            user_id=request.user.id,
+            generate_report=False,
+        )
+        self.message_user(
+            request,
+            "release_tasks has started, you will receive an email when the task finishes.",  # noqa: E501
+        )
+        return HttpResponseRedirect("../")
+
+    def has_add_permission(self, request):
+        return False
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+    @staticmethod
+    def clear_other_report_files(release_report: ReleaseReport):
+        if release_report.file:
+            other_reports = ReleaseReport.objects.filter(
+                file=release_report.file.name
+            ).exclude(pk=release_report.pk)
+
+            if other_reports.exists():
+                release_report.file = None
+                release_report.save()
+
+    def delete_model(self, request, obj):
+        # check if another report uses the same file
+        self.clear_other_report_files(obj)
+        super().delete_model(request, obj)
+
+    def delete_queryset(self, request, queryset):
+        # clear file reference, prevents deletion of the file if it's linked elsewhere
+        for obj in queryset:
+            self.clear_other_report_files(obj)
+        super().delete_queryset(request, queryset)

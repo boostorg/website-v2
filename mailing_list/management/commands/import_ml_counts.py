@@ -6,41 +6,21 @@
 import djclick as click
 import logging
 import re
-import warnings
 from datetime import timedelta, datetime
-import html
 
-from dateutil.relativedelta import relativedelta
-from unidecode import unidecode
-
-import requests
 
 from mailing_list.constants import (
-    ML_STATS_URLS,
-    LATIN_1_EQUIVS,
     ARG_DATE_REGEX,
     AUTHOR_PATTERN_REGEX,
     DATE_PATTERN_REGEX,
 )
-from mailing_list.models import PostingData
+from mailing_list.models import PostingData, ListPosting
 
 logger = logging.getLogger(__name__)
 
 arg_date_pattern = re.compile(ARG_DATE_REGEX)
 author_pattern = re.compile(AUTHOR_PATTERN_REGEX)
 date_pattern = re.compile(DATE_PATTERN_REGEX)
-
-
-def decode_broken_html(str):
-    def latin_1_ord(char):
-        n = ord(char)
-        return LATIN_1_EQUIVS.get(n, n)
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        return unidecode(
-            bytearray(map(latin_1_ord, html.unescape(str))).decode("utf-8", "ignore")
-        )
 
 
 def parse_datetime(date_str: str, is_start: bool) -> datetime:
@@ -75,41 +55,12 @@ def parse_datetime(date_str: str, is_start: bool) -> datetime:
     return datetime(year, month, day, 23, 59, 59)
 
 
-def retrieve_authors_from_ml(url, start_date, end_date):
-    posts = []
-    logger.info(f"Retrieving data from {url=}.")
-    r = requests.get(url)
-    if r.status_code == 404:
-        return posts
-
-    author = None
-    for line in r.text.splitlines():
-        author_match = author_pattern.match(line)
-        if author_match:
-            # needs multiple passes to work
-            author = decode_broken_html(author_match.group(1))
-        else:
-            date_pattern_match = date_pattern.match(line)
-            if author and date_pattern_match:
-                post_date = datetime.strptime(
-                    date_pattern_match.group(1), "%Y-%m-%d %H:%M:%S"
-                )
-                if start_date <= post_date and post_date <= end_date:
-                    posts.append(PostingData(name=author, post_time=post_date))
-    return posts
-
-
 def retrieve_authors(start_date, end_date):
     logger.info(f"Retrieve_authors from {start_date:%Y-%m-%d} to {end_date:%Y-%m-%d}")
-    start_month = datetime(start_date.year, start_date.month, 1)
-    end_month = datetime(end_date.year, end_date.month, 1)
     authors = []
-    while start_month <= end_month:
-        for ml in ML_STATS_URLS:
-            authors += retrieve_authors_from_ml(
-                ml.format(start_month.year, start_month.month), start_date, end_date
-            )
-        start_month = start_month + relativedelta(months=+1)
+    for p in ListPosting.objects.filter(date__gte=start_date, date__lte=end_date):
+        authors.append(PostingData(name=p.sender_id, post_time=p.date))
+
     PostingData.objects.filter(
         post_time__gte=start_date, post_time__lte=end_date
     ).delete()

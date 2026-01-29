@@ -36,9 +36,7 @@ def get_download_uris_for_release(
         resp = session.get(release_path)
         resp.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        logger.error(
-            "get_archives_releases_list_error", exc_msg=str(e), url=release_path
-        )
+        logger.error(f"get_archives_releases_list_error {str(e)=}, {release_path=}")
         raise
 
     soup = BeautifulSoup(resp.text, "html.parser")
@@ -207,7 +205,7 @@ def get_release_notes_for_version_s3(version_pk):
     #  and are not extensible if we encounter additional filename patterns in the
     #  future; we should refactor.
     try:
-        version = Version.objects.get(pk=version_pk)
+        version = Version.objects.with_partials().get(pk=version_pk)
     except Version.DoesNotExist:
         logger.info(
             "get_release_notes_for_version_s3_error_version_not_found",
@@ -244,7 +242,7 @@ def get_release_notes_for_version_github(version_pk):
     #  and are not extensible if we encounter additional filename patterns in the
     #  future; we should refactor.
     try:
-        version = Version.objects.get(pk=version_pk)
+        version = Version.objects.with_partials().get(pk=version_pk)
     except Version.DoesNotExist:
         logger.info(
             "get_release_notes_for_version_error_version_not_found",
@@ -289,9 +287,16 @@ def get_release_notes_for_version(version_pk):
         processed_content = convert_adoc_to_html(content)
         content_type = "text/asciidoc"
     else:
-        content = get_release_notes_for_version_github(version_pk)
-        processed_content = process_release_notes(content)
-        content_type = "text/html"
+        try:
+            content = get_release_notes_for_version_github(version_pk)
+            processed_content = process_release_notes(content)
+            content_type = "text/html"
+        except requests.exceptions.HTTPError as e:
+            content = None
+            processed_content = None
+            content_type = None
+            logger.error(f"get_release_notes_for_version_http_error {e=}")
+
     return content, processed_content, content_type
 
 
@@ -317,16 +322,16 @@ def process_release_notes(content):
 def store_release_notes_for_version(version_pk):
     """Check S3 and then github for release notes and store them in RenderedContent."""
     # Get the version
+    # todo: convert to task, remove the task that calls this, is redundant
     try:
-        version = Version.objects.get(pk=version_pk)
+        version = Version.objects.with_partials().get(pk=version_pk)
     except Version.DoesNotExist:
-        logger.info(
-            "store_release_notes_for_version_error_version_not_found",
-            version_pk=version_pk,
-        )
+        logger.info(f"store_release_notes version_not_found {version_pk=}")
         raise Version.DoesNotExist
 
     content, processed_content, content_type = get_release_notes_for_version(version_pk)
+    if not content:
+        return
 
     # Save the result to the rendered content model with the version cache key
     rendered_content, _ = RenderedContent.objects.update_or_create(

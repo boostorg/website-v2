@@ -3,13 +3,13 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: boost
 spec:
-  minReplicas: 2
-  maxReplicas: 8
+  minReplicas: {{.Values.hpaMinReplicas}}
+  maxReplicas: 12
   metrics:
   - resource:
       name: cpu
       target:
-        averageUtilization: 50
+        averageUtilization: 18
         type: Utilization
     type: Resource
   scaleTargetRef:

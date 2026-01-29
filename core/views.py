@@ -1,9 +1,11 @@
 import os
+import re
+
+import requests
 from django.utils import timezone
 
 from urllib.parse import urljoin
 
-import requests
 import structlog
 from bs4 import BeautifulSoup
 import chardet
@@ -28,13 +30,15 @@ from django.views.generic import TemplateView
 
 from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
+from libraries.mixins import VersionAlertMixin
 from libraries.utils import (
     legacy_path_transform,
     generate_canonical_library_uri,
     get_prioritized_library_view,
     get_prioritized_version,
+    set_selected_boost_version,
 )
-from versions.models import Version
+from versions.models import Version, docs_path_to_boost_name
 
 from .asciidoc import convert_adoc_to_html
 from .boostrenderer import (
@@ -44,7 +48,12 @@ from .boostrenderer import (
     get_meta_redirect_from_html,
     get_s3_client,
 )
-from .constants import SourceDocType, BOOST_LIB_PATH_RE
+from .constants import (
+    SourceDocType,
+    BOOST_LIB_PATH_RE,
+    BOOST_VERSION_REGEX,
+    STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES,
+)
 from .htmlhelper import (
     modernize_legacy_page,
     convert_name_to_id,
@@ -236,6 +245,7 @@ class ContentNotFoundException(Exception):
 class BaseStaticContentTemplateView(TemplateView):
     template_name = "adoc_content.html"
     allowed_db_save_types = {"text/asciidoc"}
+    html_content_types = {"text/html", "text/html; charset=utf-8"}
 
     def get(self, request, *args, **kwargs):
         """Return static content that originates in S3.
@@ -250,6 +260,13 @@ class BaseStaticContentTemplateView(TemplateView):
         See the *_static_config.json files for URL mappings to specific S3 keys.
         """
         content_path = self.kwargs.get("content_path")
+
+        # Exit early for paths we know we don't want to handle here. We know that these
+        #  paths should have been resolved earlier by the URL router, and if we return
+        #  a 404 here redirecting will be handled by the webserver configuration.
+        if content_path.startswith(STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES):
+            raise Http404("Content not found")
+
         updated_legacy_path = legacy_path_transform(content_path)
         if updated_legacy_path != content_path:
             return redirect(
@@ -273,11 +290,7 @@ class BaseStaticContentTemplateView(TemplateView):
                 return redirect(self.content_dict.get("redirect"))
 
         except ContentNotFoundException:
-            logger.info(
-                "get_content_from_s3_view_not_in_cache",
-                content_path=content_path,
-                status_code=404,
-            )
+            logger.info(f"get_content_from_s3_view_not_in_cache {content_path} 404")
             raise Http404("Content not found")
         return super().get(request, *args, **kwargs)
 
@@ -336,13 +349,29 @@ class BaseStaticContentTemplateView(TemplateView):
         if content_type == "text/asciidoc":
             content_type = "text/html"
 
-        context.update({"content": content, "content_type": content_type})
-
+        context.update(
+            {
+                "content": content,
+                "content_type": content_type,
+                "selected_version": self.get_selected_version(),
+            }
+        )
         logger.info(
             "get_content_from_s3_view_success", key=self.kwargs.get("content_path")
         )
 
         return context
+
+    def get_selected_version(self) -> Version | None:
+        content_path = self.kwargs.get("content_path")
+        boost_name = docs_path_to_boost_name(content_path)
+        if not boost_name:
+            return None
+        try:
+            version = Version.objects.get(name=boost_name)
+        except Version.DoesNotExist:
+            version = None
+        return version
 
     def get_from_cache(self, static_content_cache, cache_key):
         cached_result = static_content_cache.get(cache_key)
@@ -435,6 +464,17 @@ class BaseStaticContentTemplateView(TemplateView):
 
 
 class StaticContentTemplateView(BaseStaticContentTemplateView):
+    def get(self, request, content_path, *args, **kwargs):
+        # filter out direct access to the doc paths
+        path_regexes = [
+            re.compile(rf"^{BOOST_VERSION_REGEX}/doc/html/.+$"),
+            re.compile(rf"^{BOOST_VERSION_REGEX}/libs/.+$"),
+        ]
+        path_match = any(regex.match(content_path) for regex in path_regexes)
+        if path_match:
+            raise Http404("Content not found")
+        return super().get(request, *args, **kwargs)
+
     def process_content(self, content):
         """Process the content we receive from S3"""
         content_html = self.content_dict.get("content")
@@ -480,7 +520,7 @@ def normalize_boost_doc_path(content_path: str) -> str:
     return f"/archives/{content_path}"
 
 
-class DocLibsTemplateView(BaseStaticContentTemplateView):
+class DocLibsTemplateView(VersionAlertMixin, BaseStaticContentTemplateView):
     allowed_db_save_types = {
         "text/asciidoc",
         "text/html",
@@ -488,12 +528,20 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         "text/css; charset=utf-8",
     }
 
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        set_selected_boost_version(
+            self.kwargs.get("content_path").split("/", 1)[0], response
+        )
+        return response
+
     def get_from_s3(self, content_path):
         legacy_url = normalize_boost_doc_path(content_path)
         return super().get_from_s3(legacy_url)
 
     def process_content(self, content: bytes):
         """Replace page header with the local one."""
+        context = super().get_context_data()
         content_type = self.content_dict.get("content_type")
         modernize = self.request.GET.get("modernize", "med").lower()
         if (
@@ -506,8 +554,6 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         req_uri = self.request.build_absolute_uri()
         canonical_uri = generate_canonical_library_uri(req_uri)
 
-        # this decode is needed for some libraries, e.g. assert
-        content = content.decode(chardet.detect(content)["encoding"])
         soup = BeautifulSoup(content, "html.parser")
 
         # handle libraries that expect no processing
@@ -517,10 +563,12 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
 
         soup = self._required_modernization_changes(soup)
 
-        context = {
-            "content": str(soup.prettify()),
-            "canonical_uri": canonical_uri if canonical_uri != req_uri else None,
-        }
+        context.update(
+            {
+                "content": str(soup),
+                "canonical_uri": canonical_uri if canonical_uri != req_uri else None,
+            }
+        )
         template_name = "original_docs.html"
 
         if is_in_fully_modernized_libs(self.request.path):
@@ -551,24 +599,26 @@ class DocLibsTemplateView(BaseStaticContentTemplateView):
         # For now at least we're only going to cache docs this way, user guides and
         #  will continue to be cached as they were
 
-        if not ENABLE_DB_CACHE:
-            return self.get_from_s3(content_path)
-
-        cache_key = f"static_content_{content_path}"
-        # check to see if in db, if not retrieve from s3 and save to db
-        result = self.get_from_database(cache_key)
-        if not result and (result := self.get_from_s3(content_path)):
-            self.save_to_database(cache_key, result)
-
-        result["redirect"] = get_meta_redirect_from_html(result["content"])
+        result = None
+        if ENABLE_DB_CACHE:
+            cache_key = f"static_content_{content_path}"
+            # check to see if in db, if not retrieve from s3 and save to db
+            result = self.get_from_database(cache_key)
+            if not result and (result := self.get_from_s3(content_path)):
+                self.save_to_database(cache_key, result)
+        elif content_data := self.get_from_s3(content_path):
+            # structure is to allow for redirect/return to be handled in a unified way
+            result = {
+                "content": content_data.get("content"),
+                "content_type": content_data.get("content_type"),
+            }
 
         if result is None:
-            logger.info(
-                "get_content_from_s3_view_no_valid_object",
-                key=content_path,
-                status_code=404,
-            )
+            logger.info(f"get_content_from_s3_view_no_valid_object {content_path=}")
             raise ContentNotFoundException("Content not found")
+
+        if result["content_type"] in self.html_content_types:
+            result["redirect"] = get_meta_redirect_from_html(result["content"])
 
         return result
 
@@ -936,8 +986,8 @@ class QRCodeView(View):
 
     def get(self, request: HttpRequest, campaign_identifier: str, main_path: str = ""):
         absolute_url = request.build_absolute_uri(request.path)
-        referrer = request.META.get("HTTP_REFERER", "")
-        user_agent = request.META.get("HTTP_USER_AGENT", "")
+        referrer = request.headers.get("referer", "")
+        user_agent = request.headers.get("user-agent", "")
 
         plausible_payload = {
             "name": "pageview",
@@ -948,7 +998,7 @@ class QRCodeView(View):
 
         headers = {"Content-Type": "application/json", "User-Agent": user_agent}
 
-        client_ip = request.META.get("HTTP_X_FORWARDED_FOR", "").split(",")[0].strip()
+        client_ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
         client_ip = client_ip or request.META.get("REMOTE_ADDR")
 
         if client_ip:

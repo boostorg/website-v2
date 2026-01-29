@@ -1,5 +1,5 @@
 {% extends "admin/library_report_base.html" %}
-{% load humanize avatar_tags text_helpers %}
+{% load countries humanize avatar_tags text_helpers %}
 {% load get_modulo_item_tag %}
 {% load split_tag %}
 
@@ -50,10 +50,18 @@ ul.slack-channels li div a:hover,
 .sponsor_message_copy p:first-child {
   padding-top: 0;
 }
+#search_stats_map {
+  border-radius: 8px;
+}
 
 </style>
 {% endblock css %}
 {% block content %}
+  <script src="{% static 'js/highlight.js' %}"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/jsvectormap.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+
   {% now "F j, Y" as today %}
   {% with bg_color='' %}
     <div>
@@ -86,12 +94,12 @@ ul.slack-channels li div a:hover,
             {% endif %}
           </div>
           {% if downloads %}
-          <table class="p-0 m-0 w-full text-sm text-left border-0 border-separate table-auto border-spacing-0 text-slate">
+          <table class="p-0 m-0 mt-1 w-full text-xs text-left border-0 border-separate table-auto border-spacing-0 text-slate">
             <tbody>
               <tr>
                 <th scope="col"
                     colspan="2"
-                    class="p-3 h-8 text-base border border-b-0 border-gray-400 text-center">
+                    class="p-1 text-sm border border-b-0 border-gray-400 text-center">
                   Download Now!
                 </th>
               </tr>
@@ -105,7 +113,7 @@ ul.slack-channels li div a:hover,
                           <i class="fab fa-{% if os == 'Unix' %}linux{% else %}windows{% endif %}"></i> {{ os }}
                         </th>
                       {% endif %}
-                      <td class="p-2 border {% if not forloop.last or not forloop.parentloop.last %}border-b-0 {% endif %}border-gray-400">
+                      <td class="p-[.33rem] border {% if not forloop.last or not forloop.parentloop.last %}border-b-0 {% endif %}border-gray-400">
                         <a href="{{ download.url }}" class="text-sky-600 hover:text-orange">{{ download.display_name }}</a>
                       </td>
                     </tr>
@@ -224,7 +232,7 @@ ul.slack-channels li div a:hover,
             </div>
           </div>
 
-          <div class="flex flex-col justify-center">
+          <div class="flex flex-col justify-center flex-1">
             <h3 class="mx-auto">Most Committed Libraries</h3>
             <div id="top-committed-libraries-chart" class="w-full text-center"></div>
           </div>
@@ -286,7 +294,7 @@ ul.slack-channels li div a:hover,
         <div class="flex flex-col h-full mx-auto w-full">
           <h2 class="mx-auto mb-10">Mailing List Top 200 Most Frequently Used Words</h2>
           <div class="flex flex-col flex-wrap gap-x-4 gap-y-1 text-xs h-5/6">
-            {% for word in wordcloud_frequencies %}
+            {% for word in mailinglist_wordcloud_frequencies %}
               <div class="max-w-[10rem]">
                 {{ word }}
               </div>
@@ -294,12 +302,12 @@ ul.slack-channels li div a:hover,
           </div>
         </div>
       </div>
-      {% if wordcloud_base64 %}
+      {% if mailinglist_wordcloud_base64 %}
         <div class="pdf-page flex {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}');">
           <div class="flex flex-col mx-auto">
             <h2 class="mx-auto mb-10">Mailing List Word Cloud</h2>
             <div class="flex mx-auto">
-              <img src="data:image/png;base64,{{ wordcloud_base64 }}" alt="Mailing List Word Cloud" class="w-full">
+              <img src="data:image/png;base64,{{ mailinglist_wordcloud_base64 }}" alt="Mailing List Word Cloud" class="w-full">
             </div>
           </div>
         </div>
@@ -371,29 +379,78 @@ ul.slack-channels li div a:hover,
           </div>
         {% endfor %}
       {% endif %}
+      {% if search_wordcloud_base64 %}
+        <div class="pdf-page flex flex-col {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg3.png' %}');">
+          <h2 class="mx-auto mb-10">Website Searches</h2>
+          <div class="flex flex-col mx-auto">
+            <div class="flex flex-row w-full h-1/2 p-4">
+              <div id="search_stats_map" class="w-1/2"></div>
+              <div class="w-1/2">
+                <div><strong>{{ search_stats.total_searches }}</strong> website searches.</div>
+                <div class="my-2">
+                  <div class="py-1">Top <strong>{{search_stats.top_countries|length}}</strong> countries:</div>
+                  <ul>
+                    {% for code, count in search_stats.top_countries %}
+                      {% get_country code as country %}
+                      <li>{{ country.name }}: <strong>{{ count }}</strong> search{{ count|pluralize:"es" }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="w-full h-1/2 p-4">
+              <div class="flex mx-auto">
+                <img src="data:image/png;base64,{{ search_wordcloud_base64 }}" alt="Search Word Cloud" class="w-full">
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
       <div class="pdf-page flex items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6-rev.png' %}');">
         <div class="flex flex-col h-full mx-auto w-full">
-          <h2 class="mx-auto">Library Index</h2>
+          <h2 class="mx-auto">Updated Libraries</h2>
           <ul id="library_index" class="flex flex-col flex-wrap gap-x-4 gap-y-2 text-xs h-5/6">
             {% for library, in_version_library_data in library_index_libraries %}
-              <li class="max-w-[10rem] flex gap-x-1 items-center">
-                {% if library.group == "great" %}
-                  <i class="text-orange fa-solid fa-star"></i>
-                {% elif library.group == "good" %}
-                  <i class="text-orange fa-regular fa-star"></i>
-                {% else %}
-                  <i class="text-orange fa-regular fa-fw"></i>
-                {% endif %}
-                {% if in_version_library_data %}
-                  <a href="#library-{{library.display_name}}" class="font-semibold">{{ library.name }}</a>
-                {% else %}
-                  <span>{{ library.name }}</span>
-                {% endif %}
-              </li>
+              {% if in_version_library_data %}
+                <li class="max-w-[10rem] flex gap-x-1 items-center">
+                  {% if library.group == "great" %}
+                    <i class="text-orange fa-solid fa-star"></i>
+                  {% elif library.group == "good" %}
+                    <i class="text-orange fa-regular fa-star"></i>
+                  {% else %}
+                    <i class="text-orange fa-regular fa-fw"></i>
+                  {% endif %}
+                    <a href="#library-{{library.display_name}}" class="font-semibold">{{ library.name }}</a>
+                </li>
+              {% endif %}
             {% endfor %}
           </ul>
         </div>
       </div>
+
+      <div class="pdf-page flex items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6-rev.png' %}');">
+        <div class="flex flex-col h-full mx-auto w-full">
+          <h2 class="mx-auto">Other Libraries</h2>
+          <ul id="library_index" class="flex flex-col flex-wrap gap-x-4 gap-y-2 text-xs h-5/6">
+            {% for library, in_version_library_data in library_index_libraries %}
+              {% if not in_version_library_data %}
+                <li class="max-w-[10rem] flex gap-x-1 items-center">
+                  {% if library.group == "great" %}
+                    <i class="text-orange fa-solid fa-star"></i>
+                  {% elif library.group == "good" %}
+                    <i class="text-orange fa-regular fa-star"></i>
+                  {% else %}
+                    <i class="text-orange fa-regular fa-fw"></i>
+                  {% endif %}
+                    <span>{{ library.name }}</span>
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
       {% if new_libraries %}
           <div class="pdf-page flex items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg3.png' %}');">
             <div class="flex flex-col h-full mx-auto w-full">
@@ -438,9 +495,9 @@ ul.slack-channels li div a:hover,
         {% with bg_list=bg_list_str|split:"," %}
           {% for batch in batched_library_data %}
             {% with current_bg=bg_list|get_modulo_item:forloop.counter0 %}
-              <div class="pdf-page flex flex-col {{ bg_color }}" id="library-{{item.library.display_name}}" style="background-image: url('{% static current_bg %}')">
+              <div class="pdf-page flex flex-col {{ bg_color }}" style="background-image: url('{% static current_bg %}')">
                 {% for item in batch %}
-                  <div class="grid grid-cols-3 gap-x-8 w-full p-4 h-1/2">
+                  <div class="grid grid-cols-3 gap-x-8 w-full p-4 h-1/2" id="library-{{ item.library.display_name }}">
                     <div class="col-span-2 flex flex-col gap-y-4">
                       <div class="flex flex-col gap-y-4">
                         <h2 class="text-orange mb-1 mt-0">{{ item.library.display_name }}</h2>
@@ -748,9 +805,25 @@ ul.slack-channels li div a:hover,
         adjustBubbleSize(msgWidth, msgHeight * bubbleScalingAdjustment, bubbleRadius);
       };
 
+      const drawSearchStatsMap = async () => {
+        const countryData = {{ search_stats.country_stats|safe }};
+        const map = new jsVectorMap({
+          selector: '#search_stats_map',
+          map: 'world',
+          zoomButtons: false,
+          visualizeData: { scale: ['#e8f1ff', '#1a73e8'], values: countryData },
+          onRegionTooltipShow: function(event, tooltip, code) {
+            const countryName = tooltip.text();
+            const searchCount = countryData[code] || 0;
+            tooltip.text(`${countryName}: ${searchCount} searches`);
+          }
+        })
+      }
+
       window.addEventListener('DOMContentLoaded', async () => {
         await fitText();
         await drawBubble();
+        await drawSearchStatsMap();
       });
     </script>
   {% endwith %}

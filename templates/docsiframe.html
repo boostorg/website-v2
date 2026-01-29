@@ -10,6 +10,10 @@
 {% endblock %}
 
 {% block content %}
+    {# alert for non-current Boost versions #}
+    <div class="bg-white dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+      {% include "libraries/includes/version_alert.html" %}
+    </div>
     <iframe
         {% if iframe_url %}
           src="{{ iframe_url }}"
@@ -21,6 +25,33 @@
         id="docsiframe"
     ></iframe>
     <script>
+      function updateVersionAlertHeight() {
+        const alert = document.querySelector('.version_alert');
+        if (alert && document.getElementById('docsiframe')) {
+          document.documentElement.style.setProperty('--version-alert-height', Math.ceil(alert.getBoundingClientRect().height) + 'px');
+        }
+      }
+
+      (function() {
+        const alert = document.querySelector('.version_alert');
+        if (!alert) return;
+
+        let rafId = null;
+        const update = () => {
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(() => {
+            updateVersionAlertHeight();
+            rafId = null;
+          });
+        };
+
+        requestAnimationFrame(updateVersionAlertHeight);
+        window.addEventListener('resize', update);
+        if (window.ResizeObserver) {
+          new ResizeObserver(update).observe(alert);
+        }
+      })();
+
       function iframeCustomizations(iframe) {
         let iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
         {#resizeIframe(iframe);#}

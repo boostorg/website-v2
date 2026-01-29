@@ -43,11 +43,12 @@ def command(release: str, new: bool):
     last_release = settings.MIN_ARCHIVES_RELEASE
 
     if release:
-        versions = Version.objects.filter(name__icontains=release)
+        name = f"boost-{release}" if release not in ["master", "develop"] else release
+        versions = [Version.objects.with_partials().get(name=name)]
     elif new:
-        versions = [Version.objects.most_recent()]
+        versions = [Version.objects.with_partials().most_recent()]
     else:
-        versions = Version.objects.filter(name__gte=last_release)
+        versions = Version.objects.with_partials().filter(name__gte=last_release)
     logger.info(f"import_archive_release_data {versions=}")
 
     for v in versions:

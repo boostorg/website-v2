@@ -1,0 +1,169 @@
+{% load static %}
+<html>
+  <head>
+      <link rel="stylesheet" href="{% static 'css/landing-style.css' %}" />
+  </head>
+  <body>
+  <h1>Drop your email below to get engineering updates. Then scroll down for the Unordered tech overview & links.</h1>
+
+{% if messages %}
+  {# Expect a success message from submitting the form #}
+  <div class="email-block">
+    <div class="messages">
+      {% for message in messages %}
+      <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+      {% endfor %}
+    </div>
+  </div>
+{% else %}
+  <div class="email-block">
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {{ form.email.errors }}
+      {{ form.email }}
+      <button class="email-button" type="submit">Get C++ updates</button>
+    </form>
+  </div>
+  <p>Privacy: no spam, one step unsubscribe. We'll only send high-signal dev content re Unordered and other Boost libraries.</p>
+{% endif %}
+
+<hr/>
+
+<h2>TECH OVERVIEW</h2>
+<h1 class="flex"><div class="logo"></div>Boost.Unordered: High-Performance Hash Containers for C++</h1>
+<h3>Understanding the Container Options</h3>
+<p>Boost.Unordered gives you 12 different hash container types to choose from, organized into three main families. Think of these as tools in your performance toolbox—each one is optimized for different situations.</p>
+<p><b>I. Closed-addressing containers</b> (like <code>boost::unordered_map</code> and <code>boost::unordered_set</code>) work exactly like <code>std</code> unordered containers. You can drop them into existing code as faster replacements. They support C++11 and newer standards.</p>
+<p><b>II. Open-addressing containers are the speed champions. </b><code>boost::unordered_flat_map</code> and <code>boost::unordered_flat_set</code> store elements directly in the bucket array for maximum performance. If you need pointer stability (addresses that don't change), use <code>boost::unordered_node_map</code> and <code>boost::unordered_node_set</code> instead—they're slightly slower but still very fast.</p>
+<p><b>III. Concurrent containers</b> like <code>boost::concurrent_flat_map</code> and <code>boost::concurrent_flat_set</code> are designed for multithreaded programs where multiple threads need to access the same container safely.
+<h3>I. Closed-Addressing Containers: How boost::unordered_map Got So Fast</h3>
+<h4>The Problem with Standard Implementations</h4>
+<p>Back in 2003, when C++ standardized hash tables, the committee chose "closed addressing" (also called separate chaining) because open addressing wasn't mature yet. This decision became baked into the standard through requirements like the bucket API, pointer stability, and user-controllable load factors.</p>
+<p>The standard also required that iterator increment be constant time and erase be constant time on average. These requirements forced standard libraries to use complicated workarounds that made their implementations slower.</p>
+<p>For example, libstdc++ and libc++ link all nodes together across the entire container. To make this work, buckets point to the node before the first one in the bucket (not the first one itself), and each node stores its hash value. These extra pointers and stored hash values waste memory and slow things down.</p>
+<h4>Boost's Solution (Released August 2022)</h4>
+<p>Boost.Unordered 1.80 went back to basics. Nodes are only linked within each bucket, not across the whole container. This makes deletion trivial—just remove the node from its bucket's list.</p>
+<p>For iteration, Boost introduced <b>bucket groups</b>. Each group has a 32/64-bit mask showing which buckets are occupied, plus pointers linking groups together. To iterate, you use fast bit operations on the masks and jump between groups using the pointers. This takes only 4 bits per bucket and is very fast.</p>
+<h4>Fast Modulo Magic</h4>
+<p>Hash tables need to map hash values to bucket positions. Traditional approaches use either expensive modulo operations with prime numbers, or power-of-two sizes with bit masking.</p>
+<p>Boost uses prime numbers (for better distribution) but uses them in combination with Daniel Lemire's "fastmod" technique—it's as fast as power-of-two bit operations but gives you the better distribution of prime numbers. Even better, eliminating function pointer tables allows the compiler to inline code for extra speed.</p>
+<h4>Real-World Speed Test: FastNetMon DDoS Detection</h4>
+<p>Pavel Odintsov, who runs one of the fastest DDoS detection products on the market (FastNetMon), tested the performance improvements using actual network traffic from a large ISP. The test used 131,000 unique IP addresses with real access patterns—not synthetic benchmark data.</p>
+<p>Testing on an AMD Ryzen 5 3600 with gcc 12.1 showed the Boost 1.80 <code>boost::unordered_map</code> achieved 32.4M ops/sec vs <code>std::unordered_map</code>'s 25.3M ops/sec.</p>
+<p>That's a <b>28% speed improvement</b> in real-world DDoS detection workloads. When you're trying to detect network attacks in under a second, this kind of performance gain matters.</p>
+<h4>Why It's Faster</h4>
+<p>Boost's improved layout uses less memory: only 12N + 0.5B bytes of overhead per element (on 64-bit systems) compared to libstdc++'s 16N + 8B bytes. Less memory means better cache performance. Combine that with fast modulo and one less pointer indirection per lookup, and you get substantial real-world speedups.</p>
+<h3>II. Open-Addressing Containers: When to Use boost::unordered_flat_map</h3>
+<p>Starting in Boost 1.81 (December 2022), Boost added <code>boost::unordered_flat_map</code> and <code>boost::unordered_flat_set</code>—containers that break some C++ standard requirements in exchange for much better performance. By 2022, open addressing had clearly won the performance race.</p>
+<h4>Choose boost::unordered_flat_map when:</h4>
+<ul>
+    <li>Speed is your top priority</li>
+<li>Your types support move construction (most do)</li>
+<li>You're using good hash functions (or Boost's defaults)</li>
+</ul>
+<h4>Stick with boost::unordered_map when:</h4>
+<ul><li>You need exact <code>std::unordered_map</code> compatibility</li>
+<li>You're using multimap or multiset variants</li>
+<li>Your hash functions aren't great</li>
+</ul>
+<h4>Why Open Addressing Is Fast</h4>
+<p><b>Cache-friendly</b> design: Elements live directly in the bucket array, not scattered in separate nodes. Modern CPUs love this because:</p>
+<ul>
+<li>No pointer indirection—the bucket position is the element position</li>
+<li>Contiguous memory layout means better cache utilization</li>
+</ul>
+<p><b>The collision problem:</b> When two elements hash to the same bucket, open addressing uses a "probing sequence" to find an empty bucket nearby. Boost uses a non-relocating approach (elements stay where they're inserted) to behave more like <code>std::unordered_map</code>.</p>
+<p>The main challenge: when you delete an element, you can't just mark its bucket as empty—that would break lookups for elements stored further along the probing sequence. Traditional solutions use "tombstones" (markers that say "something was here"), but those slow down lookups over time.</p>
+<h4>SIMD: Checking Multiple Buckets at Once</h4>
+<p>SMID stands for "Single Instruction, Multiple Data"—CPU instructions that process multiple values in parallel. Originally designed for video processing, hash table implementers realized SIMD could speed up lookups.</p>
+<p> <b>The basic idea:</b> Instead of storing just elements, also maintain a metadata array with one byte per bucket. Each metadata byte holds a "reduced hash value"—a shortened version of the element's hash. When looking up an element, SIMD instructions can check 16 metadata bytes simultaneously to find potential matches, then only do the expensive full comparison on actual candidates.</p>
+<p> This technique checks 16 buckets in constant time. Google's Abseil and Meta's F14 containers pioneered this approach.</p>
+<h4>How boost::unordered_flat_map Works</h4>
+<b>Group-based organization:</b> The bucket array is split into groups of 15 buckets. When inserting, the hash value selects a group (not an individual bucket). Elements fill groups from one end to the other, creating clusters of used buckets.
+<p><b>Metadata structure:</b> Each group has a 16-byte metadata word:</p>
+<ul>
+<li><b>15 hi bytes:</b> One per bucket, storing either 0 (empty), 1 (sentinel marker), or a reduced hash value [2-255]</li>
+<li><b>1 overflow byte (ofw):</b> Eight bits acting as a "mini-Bloom filter" for probing</li>
+</ul>
+<p><b>SIMD lookups:</b> When searching a group, SIMD instructions match the lookup's reduced hash against all 15 metadata bytes simultaneously. Only matching buckets get full element comparisons.</p>
+<p><b>The overflow byte trick:</b> Here's the clever part that avoids tombstones. When a group fills up during insertion, set a bit in the overflow byte (based on the hash value) before moving to the next group. During lookup, if the corresponding overflow bit is 0, you can stop searching—the element definitely isn't in later groups.</p>
+<p>This overflow byte acts like a Bloom filter: bits set to 1 mean "keep looking," bits set to 0 mean "definitely stop here."</p>
+<p><b>No SIMD? No problem:</b> On systems without SSE2 or Neon, Boost uses "bit interleaving" to pack the metadata into two 64-bit words, enabling reasonably fast operations without SIMD.</p>
+<p><b>Preventing performance drift:</b> Open addressing has a problem where repeated insertions and deletions gradually degrade performance. Boost's solution: when you delete an element whose overflow bit is set, the container lowers its maximum load threshold slightly. Eventually this triggers a rehash, restoring optimal performance.</p>
+<h4>Boost.Unordered vs Abseil</h4>
+<p>Simulation programs comparing <code>boost::unordered_flat_map</code> with <code>absl::flat_hash_map</code> reveal key performance differences.</p>
+<p><b>How Abseil works:</b> Abseil's Swiss Tables hash individual buckets (not groups), use 16-bucket SIMD scans, and store 7 bits of hash information per bucket with tombstones for deletion.</p>
+<p><b>Successful lookups:</b> Boost needs slightly more hops on average because free buckets cluster at group ends rather than distributing uniformly. However, actual comparison counts are nearly identical (within 1%) because Boost uses 7.99 bits of hash information versus Abseil's 7 bits—each extra bit roughly halves false matches.</p>
+<p><b>Unsuccessful lookups:</b> Boost is considerably faster here. Abseil's probe terminates only when finding a non-full group (all-or-nothing). Boost's overflow byte acts like a Bloom filter, providing 8 bits of termination information and making early termination 1.75x more likely. Under high load, Boost performs up to 3.2x fewer comparisons for unsuccessful lookups.</p>
+<h4>Real-World Performance Tests</h4>
+<p>Boost's aggregate benchmarks combine multiple operations using different key types (strings, integers, UUIDs) on Intel Xeon E5-2683 @ 2.10GHz:</p>
+<ul>
+<li><b>std::uint32_t:</b> Boost 29% faster (4,974ms vs 6,400ms) with lower memory</li>
+<li><b>std::uint64_t:</b> Boost 20% faster (5,447ms vs 6,530ms) with lower memory</li>
+<li><b>UUID (16 bytes):</b> Boost 14% faster (9,223ms vs 10,559ms) with lower memory</li>
+<li><b>std::string:</b> Abseil slightly faster (13,018ms vs 14,486ms) but uses more memory</li>
+</ul>
+<h4>Independent Verification</h4>
+<p>Jackson Allan's extensive 2024 benchmark suite tested diverse conditions on AMD Ryzen 7 5800H with GCC 13.2.0, confirming <code>boost::unordered_flat_map</code> as "the all-around best performer, especially when hot in the cache." The analysis found very fast insertions, excellent performance for looking up and erasing nonexisting keys, very fast string key lookups, and excellent iteration performance due to key clustering within bucket groups.</p>
+<p>Boost's advantage is particularly pronounced in low-key-count benchmarks (0 to 200,000 keys), suggesting it benefits more from cache residency than competing implementations.</p>
+<h3>III. Concurrent Containers: Multithreading with boost::concurrent_flat_map</h3>
+<p>Boost 1.83 added <code>boost::concurrent_flat_map</code> for programs where multiple threads need to access the same hash table. It uses the same fast open-addressing layout as <code>boost::unordered_flat_map</code> but adds smart locking.</p>
+<p><b>Two-level locking strategy:</b></p>
+<ul>
+<li><b>Container level:</b> A read-write mutex for whole-table operations like rehashing (rarely locked)</li>
+<li><b>Group level:</b> Each group has its own spinlock, so different threads can work on different groups simultaneously</li>
+</ul>
+<p><b>Mostly lock-free lookups:</b> Hash calculation, probing, and SIMD matching all happen without locks. Only the final element comparison needs a group lock.</p>
+<p><b>Smart insertions:</b> Uses "transactional optimistic insertion" to prevent duplicate elements. The algorithm saves the group's counter, does the insertion, then checks if another thread interfered. If so, it rolls back and retries. Even in worst-case scenarios, retries happen only parts-per-million times.</p>
+<h4>Performance vs Intel TBB</h4>
+<p>Benchmarks on AMD Ryzen 5 3600 show <code>boost::concurrent_flat_map</code> significantly outperforms <code>tbb::concurrent_hash_map</code>, particularly when many threads target a small set of keys (high-skew workloads). The fine-grained group locking (potentially thousands of groups) handles contention better than coarse 256-shard locking.</p>
+<p><b>The Results:</b></p>
+<p>500k updates across low (.01), medium (.5) , high skew (.99) via GCC 12, x64:</p>
+<p class="inset"><code>boost::concurrent_flat_map</code> handles <b>2x ops / sec</b> vs. <code>tbb::concurrent_hash_map</code></p>
+<p>5M updates across low (.01), medium (.5) , high skew (.99) via GCC 12, x64:</p>
+<p class="inset"><code>boost::concurrent_flat_map</code> handles <b>2.5x ops / sec</b> vs. <code>tbb::concurrent_hash_map</code></p>
+<p>For cache-friendly workloads with 500,000 operations, Boost continues improving performance even beyond the physical core count, suggesting memory latency (not computation) is the bottleneck. Performance characteristics depend heavily on your specific CPU and memory architecture, so test on your target hardware for best results.</p>
+<h3>Conclusion: By The Numbers</h3>
+<p>Boost.Unordered establishes itself as the performance leader through systematic innovations across all container types. Here's what the numbers show:
+<p><b>For drop-in std replacement:</b> <code>boost::unordered_map</code> delivers 28% improvements over <code>std::unordered_map</code> in real-world DDoS detection workloads while maintaining complete API compatibility.
+<p><b>For maximum speed:</b> <code>boost::unordered_flat_map</code> outperforms Abseil Swiss tables by 14-29% across diverse workloads, with particularly strong advantages for unsuccessful lookups (up to 3.2x better under high load) and integer key operations.
+<p><b>For multithreading:</b> <code>boost::concurrent_flat_map</code> outperforms Intel TBB by 2 to 2.5x while providing excellent performance through fine-grained locking and mostly lock-free operations.
+<p>Independent benchmarking consistently identifies <code>boost::unordered_flat_map</code> as "the all-around best performer, especially when hot in the cache." The library provides high-performance hash containers matched to your specific requirements, whether you need standards compliance, maximum throughput, or thread safety.
+<p><a href="https://github.com/boostorg/unordered" target="_blank">Unordered on GitHub</a></p>
+<p><a href="https://www.boost.org/doc/libs/latest/libs/unordered/index.html" target="_blank">Unordered documentation</a></p>
+<p><a href="https://www.boost.org/library/latest/unordered/" target="_blank">Unordered website page</a></p>
+
+<p>Sources:</p>
+  <p>
+      <code>boost::unordered_map</code> is new king of data structures:<br>
+      <a href="https://medium.com/@pavel.odintsov/boost-unordered-map-is-a-new-king-of-data-structures-292124d3ee2" target="_blank">https://medium.com/@pavel.odintsov/boost-unordered-map-is-a-new-king-of-data-structures-292124d3ee2</a>
+  </p>
+
+<p>
+    Advancing the state of the art for <code>std::unordered_map</code> implementation:<br>
+    <a href="https://bannalia.blogspot.com/2022/06/advancing-state-of-art-for.html" target="_blank">https://bannalia.blogspot.com/2022/06/advancing-state-of-art-for.html</a>
+</p>
+
+<p>Inside <code>boost::unordered_flat_map</code>:<br>
+    <a href="https://bannalia.blogspot.com/2022/11/inside-boostunorderedflatmap.html" target="_blank">https://bannalia.blogspot.com/2022/11/inside-boostunorderedflatmap.html</a>
+</p>
+
+<p>Inside <code>boost::concurrent_flat_map</code>:<br>
+    <a href="https://bannalia.blogspot.com/2023/07/inside-boostconcurrentflatmap.html?m=1" target="_blank">https://bannalia.blogspot.com/2023/07/inside-boostconcurrentflatmap.html?m=1</a>
+</p>
+
+<p>Comprehensive C++ Hashmap Benchmarks 2022:<br>
+    <a href="https://martin.ankerl.com/2022/08/27/hashmap-bench-01/" target="_blank">https://martin.ankerl.com/2022/08/27/hashmap-bench-01/</a>
+</p>
+
+<p>An Extensive Benchmark of C and C++ Hash Tables:<br>
+    <a href="https://jacksonallan.github.io/c_cpp_hash_tables_benchmark/" target="_blank">https://jacksonallan.github.io/c_cpp_hash_tables_benchmark/</a>
+</p>
+
+<p>Measuring <code>std::unordered_map</code> Badness:<br>
+    <a href="https://artificial-mind.net/blog/2021/10/09/unordered-map-badness" target="_blank">https://artificial-mind.net/blog/2021/10/09/unordered-map-badness</a>
+</p>
+
+    </body>
+</html>

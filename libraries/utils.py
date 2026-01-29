@@ -5,7 +5,7 @@ from itertools import islice
 
 import structlog
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from dateutil.relativedelta import relativedelta
 
 from dateutil.parser import ParserError, parse
@@ -184,15 +184,22 @@ def library_doc_latest_transform(url):
 
 def generate_canonical_library_uri(uri):
     matches = re.match(
-        r"(?P<domainpath>https?://[^/]+(?:/[^/]+){2}/?)(?P<version>[^/]+)(?P<docpath>/[\S]+)",
+        r"https?://(?P<domainpath>[^/]+(?:/[^/]+){2}/?)(?P<version>[^/]+)(?P<docpath>/[\S]+)",
         uri,
     )
     if matches.group("version") == LATEST_RELEASE_URL_PATH_STR:
         return uri
-    return f"{matches.group('domainpath')}{LATEST_RELEASE_URL_PATH_STR}{matches.group('docpath')}"
+    return f"https://{matches.group('domainpath')}{LATEST_RELEASE_URL_PATH_STR}{matches.group('docpath')}"
 
 
 def get_documentation_url(library_version, latest):
+    url = library_version.documentation_url
+    if url and latest:
+        url = library_doc_latest_transform(url)
+    return url
+
+
+def get_documentation_url_redirect(library_version, latest):
     """Get the documentation URL for the current library."""
 
     def find_documentation_url(library_version):
@@ -346,3 +353,20 @@ def parse_boostdep_artifact(content: str):
             "Some library versions were skipped during artifact parsing.",
             skipped_library_versions=skipped_library_versions,
         )
+
+
+def update_base_tag(html: str, base_uri: str):
+    """
+    Replace the base tag href with the new base_uri
+    """
+    pattern = r'<base\s+href="[^"]*">'
+    replacement = f'<base href="{base_uri}">'
+    return re.sub(pattern, replacement, html)
+
+
+def generate_release_report_filename(version_slug: str, published_format: bool = False):
+    filename_data = ["release-report", version_slug]
+    if not published_format:
+        filename_data.append(datetime.now(timezone.utc).isoformat())
+    filename = f"{'-'.join(filename_data)}.pdf"
+    return filename

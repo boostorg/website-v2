@@ -27,6 +27,7 @@ def make_entry(db):
         kwargs.setdefault("approved_at", approved_at)
         kwargs.setdefault("moderator", moderator)
         kwargs.setdefault("publish_at", publish_at)
+        kwargs.setdefault("deleted_at", None)
         kwargs.setdefault("title", "Admin User's Q3 Update")
         entry = baker.make(model_class, **kwargs)
         entry.author.set_password("password")
@@ -107,7 +108,7 @@ def moderator_user(db, make_user):
     image = Image.new("RGBA", size=(100, 100), color=(155, 0, 0))
     image.save(file, "png")
     file.seek(0)
-    user.image.save(filename, file)
+    user.profile_image.save(filename, file)
     user.save()
     return user
 
@@ -121,7 +122,7 @@ def regular_user(db, make_user):
     image = Image.new("RGBA", size=(100, 100), color=(155, 0, 0))
     image.save(file, "png")
     file.seek(0)
-    user.image.save(filename, file)
+    user.profile_image.save(filename, file)
     user.save()
     return user
 

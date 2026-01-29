@@ -1,4 +1,3 @@
-import logging
 from unittest.mock import patch
 
 import pytest
@@ -149,6 +148,84 @@ def test_markdown_view_trailing_slash(tp):
     tp.response_200(res)
 
 
+def test_doc_libs_get_content_with_db_cache(request_factory):
+    """Test DocLibsTemplateView.get_content with database caching enabled."""
+    from core.views import DocLibsTemplateView
+
+    # Mock S3 returning content
+    mock_s3_result = {
+        "content": b"<html>Test content</html>",
+        "content_type": "text/html",
+    }
+
+    with patch("core.views.ENABLE_DB_CACHE", True), patch(
+        "core.views.DocLibsTemplateView.get_from_database", return_value=None
+    ) as mock_get_from_db, patch(
+        "core.views.DocLibsTemplateView.get_from_s3", return_value=mock_s3_result
+    ) as mock_get_from_s3, patch(
+        "core.views.DocLibsTemplateView.save_to_database"
+    ) as mock_save_to_db:
+
+        view = DocLibsTemplateView()
+        view.request = request_factory.get("/doc/libs/test/")
+        result = view.get_content("test/path")
+
+        # verify database was checked first
+        mock_get_from_db.assert_called_once_with("static_content_test/path")
+        # verify S3 was called after cache miss
+        mock_get_from_s3.assert_called_once_with("test/path")
+        # verify content was saved to database
+        mock_save_to_db.assert_called_once_with(
+            "static_content_test/path", mock_s3_result
+        )
+
+        assert result["content"] == mock_s3_result["content"]
+        assert result["content_type"] == mock_s3_result["content_type"]
+        assert "redirect" in result
+
+
+def test_doc_libs_get_content_without_db_cache(request_factory):
+    """Test DocLibsTemplateView.get_content with database caching disabled."""
+    from core.views import DocLibsTemplateView
+
+    # Mock S3 returning content
+    mock_s3_result = {
+        "content": b"<html>Test content</html>",
+        "content_type": "text/html",
+    }
+
+    with patch("core.views.ENABLE_DB_CACHE", False), patch(
+        "core.views.DocLibsTemplateView.get_from_s3", return_value=mock_s3_result
+    ) as mock_get_from_s3:
+
+        view = DocLibsTemplateView()
+        view.request = request_factory.get("/doc/libs/test/")
+        result = view.get_content("test/path")
+
+        # verify S3 was called directly
+        mock_get_from_s3.assert_called_once_with("test/path")
+
+        assert result["content"] == mock_s3_result["content"]
+        assert result["content_type"] == mock_s3_result["content_type"]
+        assert "redirect" in result
+
+
+@patch("core.views.DocLibsTemplateView.get_from_s3")
+def test_doc_libs_get_content_not_found(mock_get_from_s3, request_factory):
+    """Test DocLibsTemplateView.get_content when content is not found."""
+    from core.views import DocLibsTemplateView, ContentNotFoundException
+
+    # mock S3 returning None (content not found)
+    mock_get_from_s3.return_value = None
+
+    request = request_factory.get("/doc/libs/test/")
+    view = DocLibsTemplateView()
+    view.request = request
+
+    with pytest.raises(ContentNotFoundException, match="Content not found"):
+        view.get_content("nonexistent/path")
+
+
 def test_markdown_view_top_level_includes_extension(tp):
     res = tp.get("/markdown/foo.html")
     tp.response_200(res)
@@ -281,54 +358,170 @@ def test_calendar(rf, tp):
     tp.response_200(response)
 
 
-def test_qrc_redirect_and_plausible_payload(tp):
-    """XFF present; querystring preserved; payload/headers correct."""
-    with patch("core.views.requests.post", return_value=None) as post_mock:
-        url = "/qrc/pv-01/library/latest/beast/?x=1&y=2"
-        res = tp.get(url)
+@pytest.mark.django_db
+@override_settings(
+    CACHES=TEST_CACHES,
+)
+def test_static_content_blocks_direct_doc_paths(request_factory):
+    """Test that direct access to doc paths and library paths is blocked with 404."""
 
-    tp.response_302(res)
-    assert res["Location"] == "/library/latest/beast/?x=1&y=2"
+    # Test cases for paths that should be blocked (return 404)
+    blocked_paths = [
+        # Original doc/html paths that should be blocked
+        "boost_1_53_0_beta1/doc/html/index.html",
+        "1_82_0/doc/html/tutorial.html",
+        "1_55_0b1/doc/html/reference/api.html",
+        "boost_1_86_0/doc/html/deep/nested/path.html",
+        "1_75_0/doc/html/simple.html",
+        # Edge cases with different boost version formats
+        "boost_1_53_0_beta1/doc/html/",  # trailing slash
+        "1_82_0/doc/html/a",  # single character file
+        # NEW: Library paths that should now be blocked
+        "boost_1_53_0_beta1/libs/algorithm/doc/index.html",
+        "1_82_0/libs/filesystem/doc/index.html",
+        "boost_1_86_0/libs/test/doc/reference.html",
+        "1_75_0/libs/wave/doc/tutorial.html",
+        "boost_1_82_0/libs/any_library/any_file.html",
+        "1_55_0b1/libs/serialization/index.html",
+        # Edge cases for libs paths
+        "boost_1_53_0_beta1/libs/",  # just libs with trailing slash
+        "1_82_0/libs/a",  # single character lib name
+    ]
 
-    # Plausible call
-    (endpoint,), kwargs = post_mock.call_args
-    assert endpoint == "https://plausible.io/api/event"
+    for content_path in blocked_paths:
+        request = request_factory.get(f"/{content_path}")
+        view = StaticContentTemplateView.as_view()
 
-    # View uses request.path, so no querystring in payload URL
-    assert kwargs["json"] == {
-        "name": "pageview",
-        "domain": "qrc.boost.org",
-        "url": "http://testserver/qrc/pv-01/library/latest/beast/",
-        "referrer": "",  # matches view behavior with no forwarded referer
-    }
-
-    headers = kwargs["headers"]
-    assert headers["Content-Type"] == "application/json"
-    assert kwargs["timeout"] == 2.0
+        # Should raise Http404 without even trying to fetch from S3
+        with pytest.raises(Http404):
+            view(request, content_path=content_path)
 
 
-def test_qrc_falls_back_to_remote_addr_when_no_xff(tp):
-    """No XFF provided -> uses REMOTE_ADDR (127.0.0.1 in Django test client)."""
-    with patch("core.views.requests.post", return_value=None) as post_mock:
-        res = tp.get("/qrc/camp/library/latest/algorithm/")
+@pytest.mark.django_db
+@override_settings(
+    CACHES=TEST_CACHES,
+)
+def test_static_content_allows_non_direct_doc_paths(request_factory):
+    """Test that non-direct doc paths are allowed and processed normally."""
 
-    tp.response_302(res)
-    assert res["Location"] == "/library/latest/algorithm/"
+    # Test cases for paths that should NOT be blocked (normal processing)
+    allowed_paths = [
+        # Tools paths - should still be allowed (not libs)
+        "1_82_0/tools/build/doc/index.html",
+        "boost_1_82_0/tools/cmake/doc/reference.html",
+        # Paths with non-boost-version prefixes - should be allowed
+        "develop/libs/filesystem/doc/index.html",  # develop prefix, not version
+        "master/libs/test/doc/reference.html",  # master prefix, not version
+        # Paths without version prefixes
+        "doc/html/index.html",  # No boost version prefix
+        "some/other/doc/html/file.html",  # Different structure
+        "libs/algorithm/doc/index.html",  # No version prefix
+        # Paths that don't match the exact patterns
+        "boost_1_82_0/doc/other/file.html",  # not /doc/html/
+        "1_82_0/doc/htmls/file.html",  # not exact /doc/html/
+        "1_82_0/documentation/html/file.html",  # not /doc/html/
+        "boost_1_82_0/libraries/algorithm/doc/index.html",  # libraries not libs
+        "some_other_prefix/libs/algorithm/doc/index.html",  # no boost version
+    ]
 
-    (_, kwargs) = post_mock.call_args
-    headers = kwargs["headers"]
-    assert headers["X-Forwarded-For"] == "127.0.0.1"  # Django test client default
+    for content_path in allowed_paths:
+        # Mock S3 to return content so we can test the path isn't blocked
+        with patch(
+            "core.views.get_content_from_s3",
+            return_value={"content": b"test content", "content_type": "text/plain"},
+        ):
+            response = call_view(request_factory, content_path)
+            # Should get 200 response, not 404 - the main thing is it's not blocked
+            assert (
+                response.status_code == 200
+            ), f"Path should be allowed but got {response.status_code}: {content_path}"
 
 
-def test_qrc_logs_plausible_error_but_still_redirects(tp, caplog):
-    """Plausible post raises -> error logged; redirect not interrupted."""
-    with patch("core.views.requests.post", side_effect=RuntimeError("boom")):
-        with caplog.at_level(logging.ERROR, logger="core.views"):
-            res = tp.get("/qrc/c1/library/", HTTP_USER_AGENT="ua")
+def test_boost_version_regex_doc_html_pattern():
+    """Test the BOOST_VERSION_REGEX doc/html pattern matches expected version formats."""
+    import re
+    from core.constants import BOOST_VERSION_REGEX
 
-    tp.response_302(res)
-    assert res["Location"] == "/library/"
-    assert any("Plausible event post failed" in r.message for r in caplog.records)
+    # Test the doc/html blocking pattern used in the view
+    doc_html_pattern = rf"^{BOOST_VERSION_REGEX}/doc/html/.+$"
+
+    # Test cases that should match the doc/html pattern
+    matching_cases = [
+        "boost_1_53_0_beta1/doc/html/index.html",
+        "1_82_0/doc/html/tutorial.html",
+        "1_55_0b1/doc/html/reference/api.html",
+        "boost_1_86_0/doc/html/test.html",
+        "1_75_0/doc/html/simple.html",
+    ]
+
+    for test_path in matching_cases:
+        match = re.match(doc_html_pattern, test_path)
+        assert match is not None, f"Doc/html pattern should match: {test_path}"
+        # The captured groups should match the expected version parts
+        version_match = re.match(BOOST_VERSION_REGEX, test_path)
+        assert version_match is not None, f"Version pattern should match: {test_path}"
+
+    # Test cases that should NOT match the doc/html pattern
+    non_matching_cases = [
+        "1_82_0/tools/build/doc/index.html",  # tools path
+        "develop/doc/html/index.html",  # develop prefix, not version
+        "doc/html/index.html",  # no version prefix
+        "boost_1_82_0/doc/other/file.html",  # not /doc/html/
+        "1_82_0/doc/htmls/file.html",  # not exact /doc/html/
+        "some/other/doc/html/file.html",  # no boost version
+        "boost_1_82_0/doc/html/",  # no file after /doc/html/
+        "1_82_0/doc/html",  # no trailing slash or file
+        "boost_1_53_0_beta1/libs/algorithm/doc/index.html",  # libs path
+    ]
+
+    for test_path in non_matching_cases:
+        match = re.match(doc_html_pattern, test_path)
+        assert match is None, f"Doc/html pattern should NOT match: {test_path}"
+
+
+def test_boost_version_regex_libs_pattern():
+    """Test the BOOST_VERSION_REGEX libs pattern matches expected version formats."""
+    import re
+    from core.constants import BOOST_VERSION_REGEX
+
+    # Test the libs blocking pattern used in the view
+    libs_pattern = rf"^{BOOST_VERSION_REGEX}/libs/.+$"
+
+    # Test cases that should match the libs pattern
+    matching_cases = [
+        "boost_1_53_0_beta1/libs/algorithm/doc/index.html",
+        "1_82_0/libs/filesystem/doc/index.html",
+        "boost_1_86_0/libs/test/doc/reference.html",
+        "1_75_0/libs/wave/doc/tutorial.html",
+        "boost_1_82_0/libs/any_library/any_file.html",
+        "1_55_0b1/libs/serialization/index.html",
+        "1_82_0/libs/a",  # single character lib name
+        "boost_1_53_0_beta1/libs/algorithm",  # no trailing file extension
+    ]
+
+    for test_path in matching_cases:
+        match = re.match(libs_pattern, test_path)
+        assert match is not None, f"Libs pattern should match: {test_path}"
+        # The captured groups should match the expected version parts
+        version_match = re.match(BOOST_VERSION_REGEX, test_path)
+        assert version_match is not None, f"Version pattern should match: {test_path}"
+
+    # Test cases that should NOT match the libs pattern
+    non_matching_cases = [
+        "1_82_0/tools/build/doc/index.html",  # tools path
+        "develop/libs/filesystem/doc/index.html",  # develop prefix, not version
+        "latest/libs/algorithm/doc/index.html",  # latest prefix, not version
+        "libs/algorithm/doc/index.html",  # no version prefix
+        "boost_1_82_0/libraries/algorithm/doc/index.html",  # libraries not libs
+        "some/other/libs/algorithm/file.html",  # no boost version
+        "boost_1_82_0/libs",  # no trailing slash or file
+        "boost_1_53_0_beta1/libs/",  # just libs with trailing slash (no content after)
+        "1_82_0/doc/html/index.html",  # doc/html path
+    ]
+
+    for test_path in non_matching_cases:
+        match = re.match(libs_pattern, test_path)
+        assert match is None, f"Libs pattern should NOT match: {test_path}"
 
 
 def test_redirect_to_library_detail_view(tp):

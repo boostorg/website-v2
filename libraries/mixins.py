@@ -1,3 +1,5 @@
+import re
+
 import structlog
 from types import SimpleNamespace
 
@@ -27,16 +29,47 @@ class VersionAlertMixin:
     """Mixin to selectively add a version alert to the context"""
 
     def get_context_data(self, **kwargs):
+        # todo: add units tests for this mixin, for standard paths and betas
         context = super().get_context_data(**kwargs)
         url_name = self.request.resolver_match.url_name
         if url_name in {"libraries", "releases-most-recent"}:
             return context
         current_version_kwargs = self.kwargs.copy()
-        current_version_kwargs.update({"version_slug": LATEST_RELEASE_URL_PATH_STR})
+
+        if url_name == "docs-libs-page":
+            alert_visible = not current_version_kwargs.get("content_path").startswith(
+                LATEST_RELEASE_URL_PATH_STR
+            )
+            # TODO: this hack is here because the BoostVersionMixin only handles the
+            #  libraries format (boost-1-90-0-beta-1) for betas, while this path uses
+            #  1_90_beta1 so we need to retrieve and set the selected_version
+            #  specifically for this use, db slug = "boost-1-90-0-beta1"
+            # path_slug = 1_90_beta1
+            path_slug = current_version_kwargs.get("content_path").split("/")[0]
+            if path_slug == LATEST_RELEASE_URL_PATH_STR:
+                context["selected_version"] = Version.objects.most_recent()
+            elif path_slug in ("master", "develop"):
+                context["selected_version"] = Version.objects.get(slug=path_slug)
+            else:
+                version_slug = f"boost-{path_slug.replace('_', '-')}"
+                context["selected_version"] = Version.objects.get(slug=version_slug)
+            # end of hack
+            current_version_kwargs.update(
+                {
+                    "content_path": re.sub(
+                        r"([_0-9a-zA-Z]+|master|develop)/(\S+)",
+                        rf"{LATEST_RELEASE_URL_PATH_STR}/\2",
+                        current_version_kwargs.get("content_path"),
+                    )
+                }
+            )
+        else:
+            current_version_kwargs.update({"version_slug": LATEST_RELEASE_URL_PATH_STR})
+            alert_visible = (
+                self.kwargs.get("version_slug") != LATEST_RELEASE_URL_PATH_STR
+            )
         context["version_alert_url"] = reverse(url_name, kwargs=current_version_kwargs)
-        context["version_alert"] = (
-            self.kwargs.get("version_slug") != LATEST_RELEASE_URL_PATH_STR
-        )
+        context["version_alert"] = alert_visible
         return context
 
 

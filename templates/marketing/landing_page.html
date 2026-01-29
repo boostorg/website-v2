@@ -1,0 +1,37 @@
+{# Generic landing page; don't use directly #}
+{% load static wagtailcore_tags %}
+<html>
+  <head>
+    <link rel="stylesheet" href="{% static 'css/landing-style.css' %}" />
+  </head>
+  <body>
+  <h1>{{ page.email_capture_intro }}</h1>
+
+  {% if messages %}
+    {# Expect a success message from submitting the form #}
+    <div class="email-block">
+      <div class="messages">
+        {% for message in messages %}
+        <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+    <div class="email-block">
+      <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {{ form.email.errors }}
+        {{ form.email }}
+        <button class="email-button" type="submit">Get C++ updates</button>
+      </form>
+    </div>
+    <p>{{ page.privacy_blurb }}</p>
+  {% endif %}
+
+  <hr/>
+
+  {{ page.body }}
+
+    </body>
+</html>

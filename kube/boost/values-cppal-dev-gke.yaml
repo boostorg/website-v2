@@ -36,6 +36,7 @@ publicFqdn: &fqdn cppal-dev.boost.cppalliance.org
 publicFqdn2: &fqdn2 cppal-dev.boost.org
 publicFqdn3: &fqdn3 cppal-dev2.boost.cppalliance.org
 publicFqdn4: &fqdn4 boost.org
+mainFqdn: www.cppal-dev.boost.org
 
 Env:
   - name: DJANGO_SETTINGS_MODULE
@@ -190,6 +191,17 @@ Env:
       secretKeyRef:
         name: slack
         key: slack_bot_token
+  - name: ALGOLIA_APP_ID
+    valueFrom:
+      secretKeyRef:
+        name: algolia
+        key: algolia_app_id
+  - name: ALGOLIA_ANALYTICS_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: algolia
+        key: algolia_analytics_api_key
+
   # Static content cache timeout
   - name: STATIC_CACHE_TIMEOUT
     value: "60"
@@ -200,6 +212,8 @@ Env:
   # postgres caching of s3 text file content
   - name: ENABLE_DB_CACHE
     value: "true"
+  - name: WAGTAILADMIN_BASE_URL
+    value: https://www.cppal-dev.boost.org
 
 # Volumes
 Volumes:
@@ -251,3 +265,4 @@ gatewayStaticIp: cppal-dev-ingress1
 gatewayStaticIpv6: cppal-dev-gateway-ipv6
 redisInstall: false
 celeryInstall: true
+hpaMinReplicas: 2

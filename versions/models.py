@@ -45,6 +45,11 @@ class Version(models.Model):
     )
     objects = VersionManager()
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["active", "fully_imported"]),
+        ]
+
     def __str__(self):
         return self.name
 
@@ -207,19 +212,18 @@ class Version(models.Model):
         return f"release_notes_boost-{version}"
 
 
-class VersionFile(models.Model):
-    Unix = "Unix"
-    Windows = "Windows"
-    OPERATING_SYSTEM_CHOICES = (
-        (Unix, "Unix"),
-        (Windows, "Windows"),
-    )
+class OperatingSystems(models.TextChoices):
+    UNIX = "Unix", "Unix"
+    WINDOWS = "Windows", "Windows"
+    WINDOWS_BIN = "Windows (Bin)", "Windows (Bin)"
 
+
+class VersionFile(models.Model):
     version = models.ForeignKey(
         Version, related_name="downloads", on_delete=models.CASCADE
     )
     operating_system = models.CharField(
-        choices=OPERATING_SYSTEM_CHOICES, max_length=15, default=Unix
+        choices=OperatingSystems, max_length=15, default=OperatingSystems.UNIX
     )
     checksum = models.CharField(max_length=64, default=None)
     url = models.URLField()
@@ -317,5 +321,22 @@ class ReportConfiguration(models.Model):
     def display_name(self):
         return self.version.replace("boost-", "")
 
+    def get_slug(self):
+        # this output should always match the Version slug format
+        name = self.version.replace(".", " ").replace("boost_", "")
+        return slugify(name)[:50]
+
     def __str__(self):
         return self.version
+
+
+def docs_path_to_boost_name(content_path):
+    """
+    Convert a documentation content path to the Boost version name.
+    e.g. "1_79_0/doc/html/accumulators.html" to "boost-1.79.0"
+    """
+    if content_path.startswith("develop") or content_path.startswith("master"):
+        result = content_path.split("/")[0]
+    else:
+        result = re.sub(r"^([_0-9]+)(/\S+)", r"boost-\1", content_path)
+    return result.replace("_", ".")

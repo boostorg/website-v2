@@ -4,14 +4,10 @@ from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import path
 
-from libraries.tasks import release_tasks
+from libraries.tasks import import_new_versions_tasks
 
 from . import models
-from .tasks import (
-    import_versions,
-    import_most_recent_beta_release,
-    import_development_versions,
-)
+from .models import Version
 
 
 class VersionFileInline(admin.StackedInline):
@@ -24,13 +20,24 @@ class VersionFileInline(admin.StackedInline):
 
 @admin.register(models.Version)
 class VersionAdmin(admin.ModelAdmin):
-    list_display = ["name", "release_date", "active", "full_release", "beta"]
+    list_display = [
+        "name",
+        "release_date",
+        "active",
+        "beta",
+        "fully_imported",
+        "full_release",
+    ]
     list_filter = ["active", "full_release", "beta"]
     ordering = ["-release_date", "-name"]
     search_fields = ["name", "description"]
     date_hierarchy = "release_date"
     inlines = [VersionFileInline]
     change_list_template = "admin/version_change_list.html"
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet:
+        # we want all versions here, including not fully_imported
+        return Version.objects.with_partials()
 
     def get_urls(self):
         urls = super().get_urls()
@@ -40,34 +47,13 @@ class VersionAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.import_new_releases),
                 name="import_new_releases",
             ),
-            path(
-                "release_tasks/",
-                self.admin_site.admin_view(self.release_tasks),
-                name="release_tasks",
-            ),
         ]
         return my_urls + urls
 
-    def release_tasks(self, request):
-        release_tasks.delay(user_id=request.user.id, generate_report=True)
-        self.message_user(
-            request,
-            "release_tasks has started, you will receive an email when the task finishes.",  # noqa: E501
-        )
-        return HttpResponseRedirect("../")
-
     def import_new_releases(self, request):
-        import_versions.delay(new_versions_only=True)
-        import_most_recent_beta_release.delay(delete_old=True)
-        # Import the master and develop branches
-        import_development_versions.delay()
-        self.message_user(
-            request,
-            """
-            New releases are being imported. If you don't see any new releases,
-            please refresh this page or check the logs.
-        """,
-        )
+        import_new_versions_tasks.delay(user_id=request.user.id)
+        msg = "New releases are being imported. You will receive an email when the task finishes."  # noqa: E501
+        self.message_user(request, msg)
         return HttpResponseRedirect("../")
 
 

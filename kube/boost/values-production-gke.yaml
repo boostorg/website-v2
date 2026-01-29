@@ -13,13 +13,13 @@ replicaCount: "2"
 
 wsgiResources:
   limits:
-    cpu: "3500m"
+    cpu: "2500m"
     ephemeral-storage: 1Gi
-    memory: 4Gi
+    memory: 2500Mi
   requests:
-    cpu: "3500m"
+    cpu: "2500m"
     ephemeral-storage: 1Gi
-    memory: 4Gi
+    memory: 2500Mi
 
 ## NOTE ##
 # set publcFqdn to the target domain. `www` will be prepended to the domain
@@ -36,6 +36,7 @@ publicFqdn: &fqdn boost.cppalliance.org
 publicFqdn2: &fqdn2 boost.org
 publicFqdn3: &fqdn3 preview.boost.org
 publicFqdn4: &fqdn4 boost.io
+mainFqdn: www.boost.org
 
 Env:
   - name: DJANGO_SETTINGS_MODULE
@@ -190,6 +191,16 @@ Env:
       secretKeyRef:
         name: slack
         key: slack_bot_token
+  - name: ALGOLIA_APP_ID
+    valueFrom:
+      secretKeyRef:
+        name: algolia
+        key: algolia_app_id
+  - name: ALGOLIA_ANALYTICS_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: algolia
+        key: algolia_analytics_api_key
   # Static content cache timeout
   - name: STATIC_CACHE_TIMEOUT
     value: "60"
@@ -200,6 +211,8 @@ Env:
   # postgres caching of s3 text file content
   - name: ENABLE_DB_CACHE
     value: "true"
+  - name: WAGTAILADMIN_BASE_URL
+    value: https://www.boost.org
 
 # Volumes
 Volumes:
@@ -250,3 +263,4 @@ gatewayStaticIp: boost-io-ingress1
 gatewayStaticIpv6: production-gateway-ipv6
 redisInstall: false
 celeryInstall: true
+hpaMinReplicas: 4

@@ -1,3 +1,4 @@
+import os
 import re
 import uuid
 from datetime import timedelta
@@ -7,6 +8,8 @@ from urllib.parse import urlparse
 from django.core.cache import caches
 from django.db import models, transaction
 from django.db.models import Sum
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -21,9 +24,14 @@ from core.asciidoc import convert_adoc_to_html
 from core.validators import image_validator, max_file_size_validator
 from libraries.managers import IssueManager
 from mailing_list.models import EmailData
+from versions.models import ReportConfiguration
 from .constants import LIBRARY_GITHUB_URL_OVERRIDES
 
-from .utils import generate_random_string, write_content_to_tempfile
+from .utils import (
+    generate_random_string,
+    write_content_to_tempfile,
+    generate_release_report_filename,
+)
 
 
 class Category(models.Model):
@@ -449,6 +457,7 @@ class LibraryVersion(models.Model):
     deletions = models.IntegerField(default=0)
     files_changed = models.IntegerField(default=0)
     cpp_standard_minimum = models.CharField(max_length=50, blank=True, null=True)
+    cpp20_module_support = models.BooleanField(default=False)
     dependencies = models.ManyToManyField(
         "libraries.Library",
         symmetrical=False,
@@ -541,3 +550,118 @@ class WordcloudMergeWord(models.Model):
 
     def __str__(self):
         return f"{self.from_word}->{self.to_word}"
+
+
+class ReleaseReport(models.Model):
+    upload_dir = "release-reports/"
+    file = models.FileField(upload_to=upload_dir, blank=True, null=True)
+    report_configuration = models.ForeignKey(
+        ReportConfiguration, on_delete=models.CASCADE
+    )
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(blank=True, null=True)
+    locked = models.BooleanField(
+        default=False,
+        help_text="Can't be overwritten during release report publish. Blocks task-based publishing.",
+    )
+
+    def __str__(self):
+        return f"{self.file.name.replace(self.upload_dir, "")}"
+
+    def rename_file_to(self, filename: str, allow_overwrite: bool = False):
+        """Rename the file to use the version slug from report_configuration."""
+        from django.core.files.storage import default_storage
+
+        current_name = self.file.name
+        final_filename = f"{self._meta.get_field("file").upload_to}{filename}"
+        if current_name == final_filename:
+            return
+
+        if default_storage.exists(final_filename):
+            if not allow_overwrite:
+                raise ValueError(f"{final_filename} already exists")
+            default_storage.delete(final_filename)
+
+        with default_storage.open(current_name, "rb") as source:
+            default_storage.save(final_filename, source)
+        # delete the old file and update the reference
+        default_storage.delete(current_name)
+        self.file.name = final_filename
+
+    def get_media_file(self):
+        return os.sep.join(
+            [
+                settings.MEDIA_URL.rstrip("/"),
+                self.file.name,
+            ]
+        )
+
+    @staticmethod
+    def latest_published_locked(
+        report_configuration: ReportConfiguration,
+        release_report_exclusion=None,
+    ) -> bool:
+        release_reports_qs = ReleaseReport.objects.filter(
+            report_configuration__version=report_configuration.version,
+            published=True,
+        )
+        if release_report_exclusion:
+            release_reports_qs = release_reports_qs.exclude(
+                pk=release_report_exclusion.id
+            )
+        if release_reports_qs:
+            return release_reports_qs.first().locked
+        return False
+
+    def unpublish_previous_reports(self):
+        for r in ReleaseReport.objects.filter(
+            report_configuration__version=self.report_configuration.version,
+            published=True,
+        ).exclude(pk=self.id):
+            r.published = False
+            r.save()
+
+    def save(self, allow_published_overwrite=False, *args, **kwargs):
+        """
+        Args:
+            allow_published_overwrite (bool): If True, allows overwriting of published
+                reports (locked checks still apply)
+            *args: Additional positional arguments passed to the superclass save method
+            **kwargs: Additional keyword arguments passed to the superclass save method
+
+        Raises:
+            ValueError: Raised if there is an existing locked release report for the configuration, preventing publication
+                        of another one without resolving the conflict.
+        """
+        is_being_published = self.published and not self.published_at
+        if not is_being_published:
+            super().save(*args, **kwargs)
+        if is_being_published and self.file:
+            if ReleaseReport.latest_published_locked(self.report_configuration, self):
+                msg = (
+                    f"A release report already exists with locked status for "
+                    f"{self.report_configuration.display_name}. Delete or unlock the "
+                    f"most recent report."
+                )
+                raise ValueError(msg)
+            self.unpublish_previous_reports()
+            new_filename = generate_release_report_filename(
+                self.report_configuration.get_slug(), self.published
+            )
+            self.rename_file_to(new_filename, allow_published_overwrite)
+            self.published_at = timezone.now()
+            super().save()
+
+
+# Signal handler to delete files when ReleaseReport is deleted
+@receiver(pre_delete, sender=ReleaseReport)
+def delete_release_report_files(sender, instance, **kwargs):
+    """Delete file from storage when ReleaseReport is deleted."""
+    if instance.file:
+        instance.file.delete(save=False)

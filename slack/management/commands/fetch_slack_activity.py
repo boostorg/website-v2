@@ -1,34 +1,28 @@
 import logging
-import datetime
 import functools
 import time
 import re
+from datetime import date, datetime, time as dt_time, timedelta, timezone
+from itertools import chain
+from typing import Generator
 
 from slack_sdk import WebClient
 from slack_sdk.http_retry.builtin_handlers import RateLimitErrorRetryHandler
 import djclick as click
 from django.db import transaction, connection
-from django.db.models.functions import Now, Cast
-from django.db.models import Q, FloatField
 from django.conf import settings
 from django.core.management import CommandError
 
 from core.constants import SLACK_URL
-from slack.models import (
-    SlackUser,
-    SlackActivityBucket,
-    Channel,
-    ChannelUpdateGap,
-    Thread,
-    parse_ts,
-    ToTimestamp,
-)
+from slack.models import SlackUser, SlackActivityBucket, Channel, parse_ts
 
 
 client = WebClient(token=settings.SLACK_BOT_TOKEN)
 client.retry_handlers.append(RateLimitErrorRetryHandler(max_retry_count=10))
 
 logger = logging.getLogger(__name__)
+
+OVERLAP_INTERVAL_DAYS = 4
 
 
 def get_my_channels():
@@ -51,18 +45,18 @@ def channel_messages_in_range(channel, oldest, latest):
         inclusive=False,
     )
     for page in pages:
+        # rate-limit to prevent 429 responses, max 50 messages per minute
+        time.sleep(1.21)
         yield page["messages"]
 
 
-def thread_messages_newer(channel, thread_ts, oldest):
+def thread_messages_newer(channel, thread_ts):
     """
-    All messages in a thread newer than oldest (not inclusive so we don't
-    double count). Returns an iterator over pages. Oldest messages come first.
+    All messages in a thread. Returns an iterator over pages. Oldest messages come first.
     """
     pages = client.conversations_replies(
         channel=channel,
         ts=thread_ts,
-        oldest=oldest,
         inclusive=False,
     )
     for page in pages:
@@ -97,119 +91,11 @@ def get_or_create_user(user_id):
 def should_track_message(message):
     # These are not regular messages
     # https://api.slack.com/events/message#subtypes
-    return message.get("subtype") in {None, "me_message"} and "bot_id" not in message
-
-
-def fill_channel_gap(gap: ChannelUpdateGap, debug: bool):
-    """
-    Download and process channel messages (not including replies to threads) in
-    the (possibly unbounded) range specified by `gap`.
-    """
-    logger.info(
-        f"Fetching channel history for {gap.channel.name} ({gap.channel.id}) "
-        f"in range ({gap.oldest_message_ts}, {gap.newest_message_ts})"
+    return (
+        message.get("subtype") in {None, "me_message"}
+        and "bot_id" not in message
+        and "user" in message
     )
-    pages = channel_messages_in_range(
-        channel=gap.channel.id,
-        latest=gap.newest_message_ts,
-        oldest=gap.oldest_message_ts,
-    )
-    first = True
-    for page in pages:
-        # use a separate transaction per page to allow restoring from an
-        # interrupted run.
-        with transaction.atomic():
-            for message in page:
-                if first and gap.newest_message_ts is None:
-                    gap.channel.last_update_ts = message["ts"]
-                    gap.channel.save()
-                    first = False
-                # Shrink the gap, but no need to save until we've finished this
-                # page (transactionally).
-                gap.newest_message_ts = message["ts"]
-
-                if not should_track_message(message):
-                    continue
-
-                if "user" in message:
-                    user = get_or_create_user(message["user"])
-                    if debug:
-                        gap.channel.seenmessage_set.create(ts=message["ts"])
-                    SlackActivityBucket.track_activity(gap.channel, user, message["ts"])
-
-                if message.get("thread_ts"):
-                    # Track this thread in the db to be able to check for
-                    # updates later.
-                    # Thread replies that are broadcast back to the channel have
-                    # the same thread_ts as the parent message thread_ts.
-                    # get_or_create must be used since the thread may have already been
-                    # created.
-                    Thread.objects.get_or_create(
-                        channel=gap.channel,
-                        thread_ts=message["thread_ts"],
-                        # None indicates that this thread still must be updated
-                        # even if it's old.
-                        defaults={"last_update_ts": None},
-                    )
-
-            gap.save()
-            logger.debug(
-                "Channel %r retrieved up to %s (%s)",
-                gap.channel.name,
-                # for the 'up to current' gap, newest_message_ts will be None
-                # and instead oldest_message_ts will be where we stopped.
-                gap.newest_message_ts or gap.oldest_message_ts,
-                parse_ts(gap.newest_message_ts or gap.oldest_message_ts),
-            )
-    # If we get here we must have gotten up to gap.oldest_message_ts, the gap
-    # is now empty. If we're interrupted before we get here, the gap will stay
-    # and be picked up from where we left off on the next run.
-    gap.delete()
-
-
-def do_thread(thread: Thread, debug: bool):
-    """
-    Download and process new messages in the specified thread.
-    """
-    pages = thread_messages_newer(
-        channel=thread.channel_id,
-        thread_ts=thread.thread_ts,
-        oldest=thread.last_update_ts,
-    )
-    for page in pages:
-        with transaction.atomic():
-            for message in page:
-                if message["thread_ts"] == message["ts"]:
-                    # This is the parent message, it was already counted as a
-                    # channel message. Slack always returns the first message
-                    # even if it's older than the oldest we requested.
-                    if thread.last_update_ts is None:
-                        # However, still record that this thread was updated.
-                        # I think this will only will only matter if all
-                        # messages in the thread have been deleted.
-                        thread.last_update_ts = message["ts"]
-                    continue
-
-                # We never need to look at this message again. Oldest messages
-                # come first unlike for channels.
-                thread.last_update_ts = message["ts"]
-
-                if message.get("subtype") == "thread_broadcast":
-                    # This message was broadcast to the channel, if we count it here
-                    # we will be double counting it.
-                    continue
-
-                if not should_track_message(message):
-                    continue
-
-                if debug:
-                    thread.channel.seenmessage_set.create(
-                        ts=message["ts"],
-                        thread=thread,
-                    )
-                user = get_or_create_user(message["user"])
-                SlackActivityBucket.track_activity(thread.channel, user, message["ts"])
-            thread.save()
 
 
 def locked(lock_id):
@@ -238,6 +124,115 @@ def locked(lock_id):
         return inner
 
     return decorator_factory
+
+
+def date_to_midnight_datetime(d: date) -> float:
+    return datetime.combine(d, dt_time.min, tzinfo=timezone.utc).timestamp()
+
+
+def count_channel_messages(
+    channel_user_messages: dict,
+    channel_id: str,
+    update_date: date,
+    pages: Generator,
+    is_thread: bool,
+) -> None:
+    """
+    @param channel_user_messages - an update by reference record of all slack messages by [day, user] = set(id,...,n)
+    @param channel_id - the slack id of the channel
+    @param update_date - the date for which to update the channel messages
+    @param pages - a Generator with data from conversations_history or conversations_replies to be iterated over
+    @param is_thread - whether this is a thread or top-level comment
+
+    @return: None
+
+    Iterates over messages for a day and any threads within that day to update the message count, including saving
+    thread messages into future-day records.
+    All changes are stored in the passed-in channel_user_messages
+    """
+    update_date_str = str(update_date)
+    channel_user_messages.setdefault(update_date_str, {})
+
+    for msg in chain.from_iterable(pages):
+        if not should_track_message(msg):
+            continue
+        # decided against using setdefault for ease of reading
+        if msg["user"] not in channel_user_messages[update_date_str]:
+            channel_user_messages[update_date_str][msg["user"]] = set()
+        # for some bizarre reason ts is the canonical "id" used for a message. wtf slack?
+        channel_user_messages[update_date_str][msg["user"]].add(msg["ts"])
+
+        # iterate over any thread and add messages to data, this will save messages in later days too
+        # adding every user message in a thread isn't a problem in terms of dupes, because set
+        if not is_thread and "thread_ts" in msg:
+            thread_pages = thread_messages_newer(channel_id, msg["thread_ts"])
+            count_channel_messages(
+                channel_user_messages,
+                channel_id,
+                update_date,
+                thread_pages,
+                is_thread=True,
+            )
+
+
+def save_channel_stats(
+    channel_user_messages: dict,
+    channel: Channel,
+    update_date: date,
+    end_time: float,
+):
+    update_date_str = str(update_date)
+    # guard rails are around each day worth of data
+    with transaction.atomic():
+        if day_messages := channel_user_messages[update_date_str]:
+            for slack_user in day_messages:
+                user = get_or_create_user(slack_user)
+                channel_msg_count = len(day_messages[slack_user])
+                SlackActivityBucket.objects.update_or_create(
+                    day=update_date,
+                    user=user,
+                    channel=channel,
+                    defaults={"count": channel_msg_count},
+                )
+
+        # account for channel updates that occur during the overlap (don't use those dates as last updated date)
+        if float(channel.last_update_ts) < end_time:
+            channel.last_update_ts = str(end_time)
+            channel.save()
+        # clean up the dict's now processed data
+        del channel_user_messages[update_date_str]
+
+
+def update_channel_message_counts(channel: Channel):
+    channel_created = parse_ts(channel.channel_created_ts)
+    last_channel_update_db = parse_ts(channel.last_update_ts)  # last processed
+
+    # starting point from which to update the db is the newest of the channel creation date or last update minus 2 weeks
+    # we overlap on previous runs in order to catch thread changes
+    update_date = (
+        max(channel_created, last_channel_update_db)
+        - timedelta(days=OVERLAP_INTERVAL_DAYS)
+    ).date()
+
+    # only process completed days, stop a day before now() to account for runs mid-day
+    processing_end_date = datetime.now().date()
+    logger.info(f"Start: {update_date=} - {processing_end_date=}, {channel.name=}")
+    channel_user_messages = {}
+    while update_date != processing_end_date:
+        logger.info(f"Updating data for {channel.name=} on {update_date=}")
+        start_time = date_to_midnight_datetime(update_date)
+        end_time = date_to_midnight_datetime(update_date + timedelta(days=1)) - 0.001
+        day_pages = channel_messages_in_range(channel.id, start_time, end_time)
+        # update the channel user messages (relies on pass by reference)
+        count_channel_messages(
+            channel_user_messages, channel.id, update_date, day_pages, is_thread=False
+        )
+        save_channel_stats(channel_user_messages, channel, update_date, end_time)
+
+        update_date = update_date + timedelta(days=1)
+        logger.info(f"Updated data for {channel.name=}, {update_date=}")
+
+    logger.info(f"End: {update_date=} - {processing_end_date=}, {channel.name=}")
 
 
 @click.command()
@@ -382,61 +377,9 @@ def command(channels, debug):
                     "name": channel_data["name"],
                     "topic": topic,
                     "purpose": purpose,
+                    "channel_created_ts": channel_data["created"],
                 },
             )
-            if created:
-                # we don't have any messages for this channel we just created
-                channel.channelupdategap_set.create(
-                    oldest_message_ts=None,
-                    newest_message_ts=None,
-                )
-            elif (
-                channel.last_update_ts
-                and not channel.channelupdategap_set.filter(
-                    newest_message_ts=None
-                ).exists()
-            ):
-                # gap from the most recent fetch till now
-                channel.channelupdategap_set.create(
-                    oldest_message_ts=channel.last_update_ts,
-                    newest_message_ts=None,
-                )
-            else:
-                assert (
-                    channel.channelupdategap_set.exists()
-                ), "We must have SOME gaps, time has passed since the last run!"
 
-    gaps = ChannelUpdateGap.objects.filter(
-        channel__id__in={c["id"] for c in selected_channels}
-    )
-    for gap in gaps:
-        fill_channel_gap(gap, debug)
-
-    # We have to track threads we've seen and update independently, replies
-    # don't show up in main channel history[1].
-    #
-    # [1]: <https://github.com/slackapi/python-slack-sdk/issues/1306>
-    logger.info("Fetching threads")
-    threads = Thread.objects.annotate(
-        last_update_as_datetime=ToTimestamp(
-            Cast("last_update_ts", output_field=FloatField())
-        ),
-    ).filter(
-        # Assume threads not updated for more than 1 month won't get posted to
-        # again. Otherwise it's too much work to check all threads ever.
-        # last_update_ts will be null for the threads do_channel just created,
-        # indicating they need to be updated at least once.
-        Q(last_update_as_datetime=None)
-        | Q(last_update_as_datetime__gte=Now() - datetime.timedelta(days=30)),
-        channel_id__in={c["id"] for c in selected_channels},
-    )
-    time.sleep(5)  # cool off overall rate limit before importing threads
-    total_threads = threads.count()
-    for idx, thread in enumerate(threads, start=1):
-        # Throttle - we're only allowed 20 requests per minute
-        time.sleep(1.5)
-        logger.info(
-            f"Importing thread {idx:,} of {total_threads:,} "
-            f"({idx/total_threads:.2%}) from #{thread.channel.name}"
-        )
-        do_thread(thread, debug)
+        logger.info(f"updating {channel.id=}")
+        update_channel_message_counts(channel)

@@ -1,17 +1,19 @@
-Django>=4.0, <5.0
+Django>=5.0, <6.0
 bumpversion
 django-admin-env-notice
 django-allauth
 django-allauth[socialaccount]
 django-anymail[mailgun]
 django-cors-headers
+django-countries
 django-db-geventpool
 django-extensions
 django-health-check
 django-imagekit
+django-import-export
 django-oauth-toolkit
 django-redis
-django-rest-auth
+django-upgrade
 django-widget-tweaks
 djangorestframework
 environs[django]
@@ -34,7 +36,11 @@ jsoncomment
 unidecode
 wordcloud
 lxml
+algoliasearch
 openai
+playwright
+wagtail
+wagtail-markdown
 
 # Logging
 django-tracer

@@ -1,9 +1,11 @@
 from time import sleep
+from datetime import timedelta
 
 import structlog
 
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.db.models import Q
 from django.utils import timezone
 from django.conf import settings
 
@@ -12,6 +14,7 @@ from oauth2_provider.models import clear_expired
 
 from config.celery import app
 from core.githubhelper import GithubAPIClient
+from users.constants import UNVERIFIED_CLEANUP_DAYS, UNVERIFIED_CLEANUP_BEGIN
 
 logger = structlog.getLogger(__name__)
 
@@ -47,10 +50,11 @@ def update_user_github_photo(user_pk):
 @app.task
 def refresh_users_github_photos():
     """
-    Refreshes the GitHub photos for all users who have a GitHub username.
+    Refreshes the GitHub photos for all users who have a GitHub username and haven't
+     uploaded an image manually.
     This is intended to be run periodically to ensure user photos are up-to-date.
     """
-    users = User.objects.exclude(github_username="")
+    users = User.objects.exclude(Q(github_username="") | Q(image_uploaded=True))
     for user in users:
         try:
             logger.info(f"updating {user.pk=}")
@@ -89,3 +93,36 @@ def send_account_deleted_email(email):
         settings.DEFAULT_FROM_EMAIL,
         [email],
     )
+
+
+@shared_task
+def remove_unverified_users():
+    """
+    Removes users that have accounts with unverified email addresses after some time
+    """
+    logger.info("Starting remove_unverified_users task")
+
+    try:
+        cutoff_date = timezone.now() - timedelta(days=UNVERIFIED_CLEANUP_DAYS)
+        logger.info(f"Joined after {UNVERIFIED_CLEANUP_BEGIN} and before {cutoff_date}")
+
+        unverified_users = User.objects.filter(
+            claimed=True,
+            emailaddress__verified=False,
+            date_joined__gte=UNVERIFIED_CLEANUP_BEGIN,
+            date_joined__lt=cutoff_date,
+        ).order_by("date_joined")
+
+        user_count = unverified_users.count()
+        logger.info(f"Found {user_count} unverified users for deletion")
+
+        if user_count == 0:
+            return
+
+        for user in unverified_users:
+            logger.info(f"Del user: {user.id=}, {user.email=}, {user.date_joined=}")
+            user.delete()
+        logger.info(f"Successfully processed {user_count} unverified users")
+
+    except Exception as e:
+        logger.exception(f"Error occurred processing unverified users for removal: {e}")

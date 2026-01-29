@@ -2,6 +2,9 @@
 <!DOCTYPE html>
 <html>
   <head>
+    {% if base_uri %}
+    <base href="{{ base_uri }}">
+    {% endif  %}
     <title>
       {% block title %}Boost{% endblock %}
     </title>
@@ -12,9 +15,12 @@
     <meta name="keywords" content="{% block keywords %}{% endblock %}" />
     <meta name="author"
           content="{% block author %}Boost C++ Libraries{% endblock %}" />
-    <link rel="shortcut icon"
-          href="{% static 'img/Boost_Symbol_Transparent.svg' %}"
-          type="image/x-icon" />
+    <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" sizes="any">
+    <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png" sizes="48x48">
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
+    <link rel="manifest" href="{% static 'img/site.webmanifest' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
@@ -26,7 +32,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <!-- TODO bring this local if we like it -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script src="{% static 'js/boost-gecko/main.C3hPHS6-.js' %}" defer></script>
+    <script src="{% static 'js/boost-gecko/main.D1bdgn0u.js' %}" defer></script>
     {% block extra_head %}
       <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
     {% endblock %}

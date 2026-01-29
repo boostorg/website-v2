@@ -388,9 +388,9 @@ def test_news_create_requirements(
         image = Image.new("RGB", size=(100, 100), color=(155, 0, 0))
         image.save(file, "jpeg")
         file.seek(0)
-        user.image.save(filename, file)
+        user.profile_image.save(filename, file)
     else:
-        user.image = None
+        user.profile_image = None
 
     user.display_name = "Test User" if has_display_name else ""
     user.save()

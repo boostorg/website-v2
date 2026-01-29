@@ -249,7 +249,7 @@ def test_library_detail_context_get_documentation_url_no_docs_link(
     response = tp.get(url)
     tp.response_200(response)
     assert "documentation_url" in response.context
-    assert response.context["documentation_url"] == "/doc/libs/1_79_0"
+    assert response.context["documentation_url"] is None
 
 
 def test_library_detail_context_get_documentation_url_missing_docs_bool(
@@ -267,7 +267,7 @@ def test_library_detail_context_get_documentation_url_missing_docs_bool(
     response = tp.get(url)
     tp.response_200(response)
     assert "documentation_url" in response.context
-    assert response.context["documentation_url"] == "/doc/libs/1_79_0"
+    assert response.context["documentation_url"] is None
 
 
 def test_library_detail_context_get_documentation_url_docs_present(
@@ -335,3 +335,18 @@ def test_library_detail_context_missing_readme(tp, user, library_version):
     tp.response_200(response)
     assert "description" in response.context
     assert response.context["description"] == README_MISSING
+
+
+def test_redirect_to_library_list_view(library_version, tp):
+    """
+    GET /libraries/{version_string}/
+    Test that redirection occurs to the proper libraries list view
+    """
+    url = tp.reverse("redirect-to-library-list-view", "1.79.0")
+
+    response = tp.get(url, follow=False)
+    tp.response_302(response)
+
+    # Should redirect to the libraries-list view with the version slug
+    expected_redirect = "/libraries/1.79.0/grid/"
+    assert response.url == expected_redirect

@@ -623,6 +623,7 @@ class GithubDataParser:
             "category": libraries_json.get("category", []),
             "maintainers": libraries_json.get("maintainers", []),
             "cxxstd": libraries_json.get("cxxstd"),
+            "cpp20_module_support": libraries_json.get("modules", False),
         }
 
     def parse_tag(self, tag_data: dict) -> dict:

@@ -149,6 +149,7 @@ def test_parse_libraries_json():
         "category": ["Math"],
         "maintainers": [],
         "cxxstd": "14",
+        "modules": True,
     }
 
     parser = GithubDataParser()

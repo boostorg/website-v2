@@ -15,6 +15,9 @@
   - [`sync_mailinglist_stats`](#sync_mailinglist_stats)
   - [`update_library_version_dependencies`](#update_library_version_dependencies)
   - [`release_tasks`](#release_tasks)
+  - [`refresh_users_github_photos`](#refresh_users_github_photos)
+  - [`remove_unverified_users`](#remove_unverified_users)
+  - [`clear_slack_activity`](#clear_slack_activity)
 
 ## `boost_setup`
 
@@ -137,7 +140,7 @@ Import `VersionFile` objects from Artifactory.
 **Example**
 
 ```bash
-./manage.py get_library_version_documentation_urls --version=1.81.0
+./manage.py import_library_version_docs_urls --version=1.81.0
 ```
 
 **Options**
@@ -323,3 +326,95 @@ For this to work `SLACK_BOT_API` must be set in the `.env` file.
 ```bash
 ./manage.py link_contributors_to_users
 ```
+
+## `refresh_users_github_photos`
+
+**Purpose**: Refresh GitHub profile photos for all users who have a GitHub username. This command fetches the latest profile photo from GitHub for each user and updates their local profile image. This is useful for local dev/testing, isn't used for production where a periodic celery task is used.
+
+**Example**
+
+```bash
+./manage.py refresh_users_github_photos
+```
+
+**Options**
+
+| Options      | Format | Description                                                                                  |
+|--------------|--------|----------------------------------------------------------------------------------------------|
+| `--dry-run`  | bool   | Show which users would be updated without actually updating them. Useful for testing.        |
+
+**Usage Examples**
+
+Refresh photos for all users with GitHub usernames:
+```bash
+./manage.py refresh_users_github_photos
+```
+
+Preview which users would be updated:
+```bash
+./manage.py refresh_users_github_photos --dry-run
+```
+**Process**
+
+- Calls the `refresh_users_github_photos()` Celery task which queues photo updates for all users with GitHub usernames
+- With `--dry-run`, displays information about which users would be updated without making any changes
+
+## `remove_unverified_users`
+
+**Purpose**: Remove unverified users that are candidates for deletion. This command queues a Celery task that deletes user accounts with unverified email addresses that have been registered for more than 14 days (since November 21, 2025). This helps maintain database hygiene by cleaning up abandoned user registrations.
+
+**Example**
+
+```bash
+./manage.py remove_unverified_users
+```
+
+**Options**
+
+This command takes no options.
+
+**Process**
+
+- Queues a Celery task (`users.tasks.remove_unverified_users`) for execution
+- The task finds users who:
+  - Have claimed accounts (`claimed=True`)
+  - Have unverified email addresses (`emailaddress__verified=False`)
+  - Joined on or after November 21, 2025
+  - Joined more than 14 days before the current date
+- Deletes each matching user account
+- Logs the deletion process for auditing purposes
+
+**Note**: This command is also executed automatically via a Celery periodic task that runs daily at 2:15 AM.
+
+## `clear_slack_activity`
+
+**Purpose**: Delete all slack activity tracking data from the database. This command removes all records from the `SlackActivityBucket` and resets the `last_update_ts` field to July 31st 2025 (for now) for all channels. This is useful for resetting the slack activity tracking system. It should in future be reset to zero for all data.
+
+**Example**
+
+```bash
+./manage.py clear_slack_activity --confirm
+```
+
+**Options**
+
+| Options      | Format | Description                                                                                  |
+|--------------|--------|----------------------------------------------------------------------------------------------|
+| `--confirm`  | bool   | Required flag to confirm deletion. The command will not execute without this flag.           |
+
+**Usage Examples**
+
+Execute the deletion:
+```bash
+./manage.py clear_slack_activity --confirm
+```
+
+**Process**
+
+- Deletes all `SlackActivityBucket` records (message counts per user per channel per day)
+- Deletes all `ChannelUpdateGap` records (tracking of message fetch progress)
+- Resets `last_update_ts` to "0" for all `Channel` records
+- All operations are performed within a database transaction to ensure atomicity
+- Logs the number of records affected in each table
+
+**Warning**: This command permanently deletes all slack activity data. Use with caution.

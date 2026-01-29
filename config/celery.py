@@ -83,11 +83,12 @@ def setup_periodic_tasks(sender, **kwargs):
         app.signature("core.tasks.clear_static_content_cache"),
     )
 
-    # Fetch Slack activity. Executes daily at 3:07 AM.
-    sender.add_periodic_task(
-        crontab(hour=3, minute=7),
-        app.signature("slack.tasks.fetch_slack_activity"),
-    )
+    # TODO: reenable
+    # # Fetch Slack activity. Executes daily at 3:07 AM.
+    # sender.add_periodic_task(
+    #     crontab(hour=3, minute=7),
+    #     app.signature("slack.tasks.fetch_slack_activity"),
+    # )
 
     # delete users scheduled for deletion, arbitrarily every 61 minutes
     sender.add_periodic_task(
@@ -98,13 +99,19 @@ def setup_periodic_tasks(sender, **kwargs):
     # Update data required for release report. Executes Saturday evenings.
     sender.add_periodic_task(
         crontab(day_of_week="sat", hour=20, minute=3),
-        app.signature("libraries.tasks.release_tasks", generate_report=True),
+        app.signature("libraries.tasks.release_tasks", generate_report=False),
     )
 
     # Update users' profile photos from GitHub. Executes daily at 3:30 AM.
     sender.add_periodic_task(
         crontab(hour=3, minute=30),
         app.signature("users.tasks.refresh_users_github_photos"),
+    )
+
+    # Remove unverified users. Executes daily at 2:15 AM.
+    sender.add_periodic_task(
+        crontab(hour=2, minute=15),
+        app.signature("users.tasks.remove_unverified_users"),
     )
 
     # Clean up old sandbox documents. Executes weekly on Sundays at 2:00 AM.

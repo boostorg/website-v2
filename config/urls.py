@@ -7,6 +7,9 @@ from django.urls import include, path, re_path, register_converter, reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from rest_framework import routers
+from wagtail import urls as wagtail_urls
+from wagtail.admin import urls as wagtailadmin_urls
+from wagtail.documents import urls as wagtaildocs_urls
 
 from ak.views import (
     ForbiddenView,
@@ -33,13 +36,14 @@ from core.views import (
     UserGuideTemplateView,
     BoostDevelopmentView,
     ModernizedDocsView,
-    QRCodeView,
     RedirectToLibraryDetailView,
 )
+from marketing.views import PlausibleRedirectView, WhitePaperView
 from libraries.api import LibrarySearchView
 from libraries.views import (
     LibraryDetail,
     LibraryListDispatcher,
+    LibraryMissingVersionView,
     CommitAuthorEmailCreateView,
     VerifyCommitEmailView,
     CommitEmailResendView,
@@ -73,7 +77,6 @@ from users.views import (
     CustomLoginView,
     CustomSignupView,
     CustomSocialSignupViewView,
-    ProfileView,
     UserViewSet,
     UserAvatar,
     DeleteUserView,
@@ -122,12 +125,29 @@ urlpatterns = (
         path("feed/news.atom", AtomNewsFeed(), name="news_feed_atom"),
         path("LICENSE_1_0.txt", BSLView, name="license"),
         path(
-            "qrc/<str:campaign_identifier>/", QRCodeView.as_view(), name="qr_code_root"
+            "qrc/<str:campaign_identifier>/",
+            PlausibleRedirectView.as_view(),
+            name="qr_code_root",
         ),  # just in case
         path(
             "qrc/<str:campaign_identifier>/<path:main_path>",
-            QRCodeView.as_view(),
+            PlausibleRedirectView.as_view(),
             name="qr_code",
+        ),
+        path(
+            "bsm/<str:campaign_identifier>/",
+            PlausibleRedirectView.as_view(),
+            name="bsm_root",
+        ),
+        path(
+            "bsm/<str:campaign_identifier>/<path:main_path>",
+            PlausibleRedirectView.as_view(),
+            name="bsm",
+        ),
+        path(
+            "outreach/<slug:category>/<slug:slug>",
+            WhitePaperView.as_view(),
+            name="whitepaper",
         ),
         path(
             "accounts/social/signup/",
@@ -154,7 +174,8 @@ urlpatterns = (
             DeleteImmediatelyView.as_view(),
             name="profile-delete-immediately",
         ),
-        path("users/<int:pk>/", ProfileView.as_view(), name="profile-user"),
+        # Return a 404 for now. Profile view is not ready.
+        # path("users/<int:pk>/", ProfileView.as_view(), name="profile-user"),
         path("users/avatar/", UserAvatar.as_view(), name="user-avatar"),
         path("api/v1/users/me/", CurrentUserAPIView.as_view(), name="current-user"),
         path(
@@ -235,6 +256,11 @@ urlpatterns = (
             "library/<boostversionslug:version_slug>/<slug:library_slug>/",
             LibraryDetail.as_view(),
             name="library-detail",
+        ),
+        path(
+            "library/<boostversionslug:version_slug>/<slug:library_slug>/missing/",
+            LibraryMissingVersionView.as_view(),
+            name="library-detail-version-missing",
         ),
         path(
             "libraries/commit_author_email_create/",
@@ -380,12 +406,21 @@ urlpatterns = (
             ModernizedDocsView.as_view(),
             name="modernized_docs",
         ),
+        # Wagtail stuff
+        path("cms/", include(wagtailadmin_urls)),
+        path("documents/", include(wagtaildocs_urls)),
+        path("outreach/", include(wagtail_urls)),
     ]
     + [
         re_path(
             r"^lib/(?P<library_slug>[^/]+)/?$",
             RedirectToLibraryDetailView.as_view(),
             name="redirect-to-library-view",
+        ),
+        path(
+            "libraries/<str:requested_version>/",
+            RedirectToLibrariesView.as_view(),
+            name="redirect-to-library-list-view",
         ),
         # Redirects for old boost.org urls.
         re_path(

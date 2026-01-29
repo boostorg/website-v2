@@ -129,3 +129,39 @@ def test_review_results():
 
     pending_result.refresh_from_db()
     assert not pending_result.is_most_recent
+
+
+@pytest.mark.parametrize(
+    "version_name",
+    [
+        "boost-1.75.0",
+        "boost-1.81.0",
+        "boost-1.82.0.beta1",
+        "boost_1.75.0",
+        "boost_1_75_0",
+        "develop",
+        "master",
+        "1.75.0",
+    ],
+)
+def test_report_configuration_slug_matches_version_slug_format(version_name):
+    """
+    Test that ReportConfiguration.get_slug() produces the same format as
+    Version.get_slug() for the same version name.
+
+    This ensures consistency between the two models' slug generation.
+    """
+    # Create a Version with the version name
+    version = baker.prepare("versions.Version", name=version_name, slug=None)
+    version_slug = version.get_slug()
+
+    # Create a ReportConfiguration with the same version name
+    report_config = baker.prepare("versions.ReportConfiguration", version=version_name)
+    report_config_slug = report_config.get_slug()
+
+    # Assert that both slugs match
+    assert version_slug == report_config_slug, (
+        f"Slug mismatch for version name '{version_name}': "
+        f"Version.get_slug() = '{version_slug}', "
+        f"ReportConfiguration.get_slug() = '{report_config_slug}'"
+    )

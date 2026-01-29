@@ -2,7 +2,7 @@ from django.db import transaction
 import requests
 import structlog
 
-from celery import group
+from celery import group, chain
 
 from config.celery import app
 from django.conf import settings
@@ -22,7 +22,7 @@ from versions.releases import (
 )
 
 
-logger = structlog.getLogger(__name__)
+logger = structlog.get_logger()
 
 
 @app.task
@@ -47,11 +47,11 @@ def import_versions(
             imports are finished.
     """
     if delete_versions:
-        Version.objects.all().delete()
+        Version.objects.with_partials().all().delete()
         logger.info("import_versions_deleted_all_versions")
 
     # delete any versions that were only partially imported so they are re-imported
-    Version.objects.filter(fully_imported=False).delete()
+    Version.objects.with_partials().filter(fully_imported=False).delete()
 
     # Get all Boost tags from Github
     client = GithubAPIClient(token=token)
@@ -73,7 +73,7 @@ def import_versions(
         if purge_after:
             logger.info("linking fastly purge")
             task_group.link(purge_fastly_release_cache.s())
-        task_group.link(mark_fully_completed.s())
+        task_group.link(mark_fully_completed.s(full_release_only=True))
         task_group()
     import_release_notes.delay()
 
@@ -82,13 +82,18 @@ def import_versions(
 def import_release_notes(new_versions_only=True):
     """Imports release notes from the existing rendered
     release notes in the repository."""
-    versions = [Version.objects.most_recent()]
+    versions = [Version.objects.with_partials().most_recent()]
     if not new_versions_only:
-        versions = Version.objects.exclude(name__in=["master", "develop"]).active()
+        versions = (
+            Version.objects.exclude(name__in=["master", "develop"])
+            .active()
+            .order_by("name")
+        )
 
+    logger.info(f"import_release_notes {[v.name for v in versions]}")
     for version in versions:
-        logger.info(f"retrieving release notes for {version.name=}")
-        store_release_notes_task.delay(str(version.pk))
+        logger.info(f"retrieving release notes for {version.name=} {version.pk=}")
+        store_release_notes_task(version.pk)
     store_release_notes_in_progress_task.delay()
 
 
@@ -96,7 +101,7 @@ def import_release_notes(new_versions_only=True):
 def store_release_notes_task(version_pk):
     """Stores the release notes for a single version."""
     try:
-        Version.objects.get(pk=version_pk)
+        Version.objects.with_partials().get(pk=version_pk)
     except Version.DoesNotExist:
         logger.error(f"store_release_notes_task_version_does_not_exist {version_pk=}")
         return
@@ -132,7 +137,7 @@ def import_version(
     else:
         data = {}
 
-    version, created = Version.objects.update_or_create(
+    version, created = Version.objects.with_partials().update_or_create(
         name=name,
         defaults={
             "github_url": f"{base_url}{name}",
@@ -161,17 +166,30 @@ def import_development_versions():
     """Imports the `master` and `develop` branches as Versions"""
     base_url = "https://github.com/boostorg/boost/tree/"
 
+    import_version_tasks = []
+    import_library_version_tasks = []
     for branch in settings.BOOST_BRANCHES:
-        import_version.delay(
-            branch,
-            branch,
-            beta=False,
-            full_release=False,
-            get_release_date=False,
-            base_url=base_url,
+        import_version_tasks.append(
+            import_version.s(
+                branch,
+                branch,
+                beta=False,
+                full_release=False,
+                get_release_date=False,
+                base_url=base_url,
+            )
         )
 
-        import_library_versions.delay(branch, version_type="branch")
+        import_library_version_tasks.append(
+            import_library_versions.s(branch, version_type="branch")
+        )
+
+    task_chain = chain(
+        group(*import_version_tasks),
+        group(*import_library_version_tasks),
+        mark_fully_completed.s(),
+    )
+    task_chain()
 
 
 @app.task
@@ -203,6 +221,7 @@ def import_most_recent_beta_release(token=None, delete_old=False):
                 logger.info(f"calling import_version with {name=} {tag=}")
                 import_version(name, tag, token=token, beta=True, full_release=False)
                 logger.info(f"completed import_version with {name=} {tag=}")
+                mark_fully_completed(beta_only=True)
                 # new_versions_only='False' otherwise will only be full releases
                 import_release_notes(new_versions_only=False)
                 return
@@ -263,7 +282,7 @@ def import_library_versions(version_name, token=None, version_type="tag"):
     """For a specific version, imports all LibraryVersions using GitHub data"""
     # todo: this needs to be refactored and tests added
     try:
-        version = Version.objects.get(name=version_name)
+        version = Version.objects.with_partials().get(name=version_name)
     except Version.DoesNotExist:
         logger.info(
             "import_library_versions_version_not_found", version_name=version_name
@@ -375,6 +394,7 @@ def import_library_versions(version_name, token=None, version_type="tag"):
                 defaults={
                     "data": lib_data,
                     "cpp_standard_minimum": lib_data.get("cxxstd"),
+                    "cpp20_module_support": lib_data.get("cpp20_module_support"),
                     "description": lib_data.get("description"),
                 },
             )
@@ -399,7 +419,7 @@ def import_library_versions(version_name, token=None, version_type="tag"):
 @app.task
 def import_release_downloads(version_pk):
     logger.info(f"import_release_downloads w/ {version_pk=}")
-    version = Version.objects.get(pk=version_pk)
+    version = Version.objects.with_partials().get(pk=version_pk)
     version_num = version.name.replace("boost-", "")
     if version_num < "1.63.0":
         # Downloads are in Sourceforge for older versions, and that has
@@ -420,11 +440,9 @@ def get_release_date_for_version(version_pk, commit_sha, token=None):
     :param commit_sha: The SHA of the commit to get the release date for.
     """
     try:
-        version = Version.objects.get(pk=version_pk)
+        version = Version.objects.with_partials().get(pk=version_pk)
     except Version.DoesNotExist:
-        logger.error(
-            "get_release_date_for_version_no_version_found", version_pk=version_pk
-        )
+        logger.error(f"get_release_date_for_version_no_version_found {version_pk=}")
         return
 
     if not token:
@@ -481,10 +499,18 @@ def purge_fastly_release_cache():
 
 
 @app.task
-def mark_fully_completed():
+def mark_fully_completed(beta_only=False, full_release_only=False):
     """Marks all versions as fully imported"""
-    Version.objects.filter(fully_imported=False).update(fully_imported=True)
-    logger.info("Marked all versions as fully imported.")
+    qs = Version.objects.with_partials().filter(fully_imported=False)
+    if full_release_only:
+        logger.info("Marking active as fully imported")
+        qs = qs.filter(full_release=True)
+    elif beta_only:
+        logger.info("Marking beta as fully imported")
+        qs = qs.filter(beta=True)
+    versions = [v.name for v in qs.order_by("name").all()]
+    qs.update(fully_imported=True)
+    logger.info(f"Marked {versions=} as fully imported.")
 
 
 # Helper functions
@@ -508,7 +534,7 @@ def skip_tag(name, new=False):
     EXCLUSIONS = ["beta", "-rc", "-bgl"]
 
     # If we are only importing new versions, and we already have this one, skip
-    if new and Version.objects.filter(name=name).exists():
+    if new and Version.objects.with_partials().filter(name=name).exists():
         return True
 
     # If this version falls in our exclusion list, skip it

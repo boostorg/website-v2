@@ -32,6 +32,8 @@ from .utils import (
     determine_selected_boost_version,
     set_selected_boost_version,
     get_documentation_url,
+    get_documentation_url_redirect,
+    get_prioritized_version,
     get_version_from_cookie,
 )
 from .constants import LATEST_RELEASE_URL_PATH_STR
@@ -324,13 +326,22 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, ContributorMixin, Deta
     def dispatch(self, request, *args, **kwargs):
         """Redirect to the documentation page, if configured to."""
         if self.redirect_to_docs:
+            try:
+                library_version = LibraryVersion.objects.get(
+                    library__slug=self.kwargs.get("library_slug"),
+                    version=self.get_version(),
+                )
+            except LibraryVersion.DoesNotExist:
+                # account for the library not yet being available in this version
+                return redirect(
+                    "library-detail-version-missing",
+                    library_slug=self.kwargs.get("library_slug"),
+                    version_slug=get_prioritized_version(request),
+                )
             return redirect(
-                get_documentation_url(
-                    LibraryVersion.objects.get(
-                        library__slug=self.kwargs.get("library_slug"),
-                        version=self.get_version(),
-                    ),
-                    latest=False,
+                get_documentation_url_redirect(
+                    library_version,
+                    latest=self.get_version() == Version.objects.most_recent(),
                 )
             )
         response = super().dispatch(request, *args, **kwargs)
@@ -338,6 +349,19 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, ContributorMixin, Deta
             self.kwargs.get("version_slug", LATEST_RELEASE_URL_PATH_STR), response
         )
         return response
+
+
+class LibraryMissingVersionView(BoostVersionMixin, DetailView):
+    """Display a missing library version page with proper context"""
+
+    model = Library
+    template_name = "libraries/missing_version.html"
+    slug_url_kwarg = "library_slug"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["library_view_str"] = get_prioritized_library_view(self.request)
+        return context
 
 
 class CommitAuthorEmailCreateView(FormView):

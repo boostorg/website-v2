@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ object.display_name }} - Version Not Available{% endblock %}
+{% block description %}
+    The {{ object.display_name }} library is not available in {{ selected_version.display_name }}.
+{% endblock %}
+
+{% block content %}
+  <main class="content">
+    <meta http-equiv="refresh" content="30;url={% url 'library-detail' version_slug=LATEST_RELEASE_URL_PATH_STR library_slug=object.slug %}">
+    <div class="pt-3 md:pt-4 md:pb-1 px-0 mb-0 w-full md:mb-2">
+      <div class="flex-auto mb-2 w-full">
+        <div id="overview">
+          <span class="mx-3 text-xl md:text-3xl text-orange">{{ object.display_name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <section class="p-6 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+      <div class="flex items-center">
+        <i class="fas fa-exclamation-triangle text-orange mr-3 text-2xl"></i>
+        <h2 class="text-2xl">{{ object.display_name|capfirst }} Not Available for {{ selected_version.display_name }}</h2>
+      </div>
+
+      <div class="whitespace-normal mb-6">
+
+        <div class="flex justify-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-600">
+          <div class="flex items-center text-blue-800 dark:text-blue-200 text-sm">
+            <i class="fas fa-clock mr-2"></i>
+            <p>
+              You will be automatically redirected to {{ object.display_name }} for the latest Boost version in
+              <span id="countdown">30</span> seconds if no option is selected.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center space-y-4">
+          <div>
+            <a href="{% url 'library-detail' version_slug=LATEST_RELEASE_URL_PATH_STR library_slug=object.slug %}"
+               class="inline-flex items-center px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition-colors">
+              <i class="fas fa-book mr-2"></i>
+              View {{ object.display_name }} in Current Version
+            </a>
+          </div>
+
+          <div>
+            <a href="{% url 'libraries-list' version_slug=version_str library_view_str=library_view_str %}"
+               class="inline-flex items-center px-4 py-2 bg-orange text-white rounded-md hover:bg-orange-600 transition-colors">
+              <i class="fas fa-list mr-2"></i>
+              Browse All Libraries in {{ selected_version.display_name }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let seconds = 30;
+    const countdownElement = document.getElementById('countdown');
+
+    const timer = setInterval(() => {
+      seconds--;
+      countdownElement.textContent = seconds;
+
+      if (seconds <= 0) {
+        clearInterval(timer);
+      }
+    }, 1000);
+
+  </script>
+{% endblock %}

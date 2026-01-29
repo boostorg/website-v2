@@ -119,11 +119,11 @@ class CustomClearableFileInput(forms.ClearableFileInput):
 
 
 class UserProfilePhotoForm(forms.ModelForm):
-    image = forms.FileField(widget=CustomClearableFileInput, required=False)
+    profile_image = forms.FileField(widget=CustomClearableFileInput, required=False)
 
     class Meta:
         model = User
-        fields = ["image"]
+        fields = ["profile_image"]
 
     def clean(self):
         """Ensure a user can't update their photo if they
@@ -137,24 +137,25 @@ class UserProfilePhotoForm(forms.ModelForm):
 
     def save(self, commit=True):
         # Temporarily store the old image
-        old_image = self.instance.image
+        old_image = self.instance.profile_image
         # Save the new image
         user = super().save(commit=False)
-
-        if old_image:
+        if not old_image:
+            # reset image on image delete checked
+            user.image_uploaded = False
+        elif self.cleaned_data["profile_image"] != old_image:
             # Delete the old image file if there's a new image being uploaded
-            if self.cleaned_data["image"] != old_image:
-                old_image.delete(save=False)
+            old_image.delete(save=False)
 
-        if self.cleaned_data.get("image"):
-            new_image = self.cleaned_data["image"]
+        if new_image := self.cleaned_data.get("profile_image"):
             _, file_extension = os.path.splitext(new_image.name)
 
             # Strip the leading period from the file extension.
             file_extension = file_extension.lstrip(".")
 
             new_image.name = f"{user.profile_image_filename_root}.{file_extension}"
-            user.image = new_image
+            user.profile_image = new_image
+            user.image_uploaded = True
 
         if commit:
             user.save()

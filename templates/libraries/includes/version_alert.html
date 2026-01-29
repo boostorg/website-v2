@@ -1,6 +1,6 @@
 {% if version_alert %}
-  <div role="alert" class="py-2 px-3 mb-3 text-center rounded-sm bg-yellow-200/70">
-    <p class="p-0 m-0">
+  <div role="alert" class="version_alert">
+    <p>
       <i class="fas fa-exclamation-circle"></i>
       {% if selected_version == current_version %}
         You've currently chosen the {{ current_version.display_name }} version. If a newer release comes out, you will continue to view the {{ current_version.display_name }} version, not the new <a href="{{ version_alert_url }}" class="font-semibold underline dark:text-white text-charcoal">latest release</a>.
@@ -10,9 +10,9 @@
         {% elif selected_version.full_release %}
           This is an older version of Boost and was released in {{ selected_version.release_date|date:"Y"}}.
         {% else %}
-          This version of Boost is under active development.
+          This version of Boost is under active development. You are currently in the {{ selected_version.display_name }} branch.
         {% endif %}
-      The <a href="{{ version_alert_url }}" class="font-semibold underline dark:text-white text-charcoal">current version</a> is {{ current_version.display_name }}.
+      The <a href="{{ version_alert_url }}">current version</a> is {{ current_version.display_name }}.
       {% endif %}
     </p>
   </div>

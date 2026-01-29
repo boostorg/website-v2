@@ -1,24 +1,45 @@
+from datetime import date, timedelta
+
 from celery import shared_task, chain
 from django.core.mail import EmailMultiAlternatives
 from django.core.management import call_command
 import structlog
+from django.db.models.functions import ExtractWeek, ExtractIsoYear
 
 from config.celery import app
 from django.conf import settings
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum, OuterRef
 from core.boostrenderer import get_content_from_s3
 from core.htmlhelper import get_library_documentation_urls
-from libraries.forms import CreateReportForm, CreateReportFullForm
 from libraries.github import LibraryUpdater
-from libraries.models import Library, LibraryVersion, CommitAuthorEmail, CommitAuthor
+from libraries.models import (
+    Library,
+    LibraryVersion,
+    CommitAuthorEmail,
+    CommitAuthor,
+    ReleaseReport,
+)
+from mailing_list.models import EmailData, PostingData
+from reports.generation import (
+    generate_algolia_words,
+    generate_wordcloud,
+    get_algolia_search_stats,
+    generate_mailinglist_words,
+    global_new_contributors,
+)
 from users.tasks import User
 from versions.models import Version
 from .constants import (
     LIBRARY_DOCS_EXCEPTIONS,
     LIBRARY_DOCS_MISSING,
     VERSION_DOCS_MISSING,
+    DOCKER_CONTAINER_URL_WEB,
 )
-from .utils import version_within_range
+from .utils import (
+    version_within_range,
+    update_base_tag,
+    generate_release_report_filename,
+)
 
 logger = structlog.getLogger(__name__)
 
@@ -26,7 +47,7 @@ logger = structlog.getLogger(__name__)
 @app.task
 def update_library_version_documentation_urls_all_versions():
     """Run the task to update all documentation URLs for all versions"""
-    for version in Version.objects.all().order_by("-name"):
+    for version in Version.objects.with_partials().all().order_by("-name"):
         get_and_store_library_version_documentation_urls_for_version(version.pk)
 
 
@@ -47,7 +68,7 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
     database.
     """
     try:
-        version = Version.objects.get(pk=version_pk)
+        version = Version.objects.with_partials().get(pk=version_pk)
     except Version.DoesNotExist:
         logger.error(f"Version does not exist for {version_pk=}")
         raise
@@ -60,6 +81,7 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
         return
 
     base_path = f"doc/libs/{version.boost_url_slug}/libs/"
+    boost_stripped_base_path = base_path.replace("doc/libs/boost_", "doc/libs/")
     key = f"{base_path}libraries.htm"
     result = get_content_from_s3(key)
 
@@ -74,7 +96,7 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
         try:
             # In most cases, the name matches close enough to get the correct object
             library_version = library_versions.get(library__name__iexact=library_name)
-            library_version.documentation_url = f"/{base_path}{url_path}"
+            library_version.documentation_url = f"/{boost_stripped_base_path}{url_path}"
             library_version.save()
         except LibraryVersion.DoesNotExist:
             logger.info(
@@ -131,7 +153,9 @@ def get_and_store_library_version_documentation_urls_for_version(version_pk):
             content = get_content_from_s3(key[0])
 
             if content:
-                library_version.documentation_url = documentation_url
+                library_version.documentation_url = documentation_url.replace(
+                    "doc/libs/boost_", "doc/libs/"
+                )
                 library_version.save()
             else:
                 logger.info(f"No valid docs in S3 for key {documentation_url}")
@@ -227,17 +251,111 @@ def update_issues(clean=False):
 
 
 @app.task
-def generate_release_report(params):
-    """Generate a release report asynchronously and save it in RenderedContent."""
+def generate_release_report_with_stats(stats_results, user_id, params, base_uri=None):
+    """Wrapper task that reorders arguments for workflow mode."""
+    return generate_release_report(user_id, params, base_uri, stats_results)
+
+
+@app.task
+def generate_release_report(user_id, params, base_uri=None, stats_results=None):
+    """Generate a release report asynchronously and save to RenderedContent/PDF
+
+    Args:
+        user_id: ID of the user creating the report
+        params: Form parameters for report configuration
+        base_uri: Base URI for the report (optional)
+        stats_results: Pre-collected stats from workflow (optional)
+    """
+    logger.info(f"Starting generate_release_report {settings.LOCAL_DEVELOPMENT=}")
+
+    from libraries.forms import CreateReportForm
+
     form = CreateReportForm(params)
-    form.cache_html()
+    if not form.is_valid():
+        logger.error(f"Form validation failed, {form.errors}")
+        return None
+
+    if stats_results:
+        html = form.render_with_stats(stats_results, base_uri=base_uri)
+    else:
+        html = form.cache_html(base_uri=base_uri)
+
+    # override the base uri to reference the internal container for local dev
+    if settings.LOCAL_DEVELOPMENT:
+        html = update_base_tag(html, DOCKER_CONTAINER_URL_WEB)
+
+    release_report = ReleaseReport(
+        created_by_id=user_id,
+        report_configuration_id=params.get("report_configuration"),
+    )
+    logger.info(f"Saving release_report {params.get('report_configuration')=}")
+    release_report.save()
+    logger.info(f"generate release report pdf {release_report.pk=}")
+    generate_release_report_pdf.delay(
+        release_report.pk, html=html, publish=params.get("publish")
+    )
+
+
+@app.task(bind=True, time_limit=300, soft_time_limit=240)
+def generate_release_report_pdf(
+    self, release_report_id: int, html: str, publish: bool = False
+):
+    """Generate a release report asynchronously and save it in PDF using Playwright."""
+    from playwright.sync_api import sync_playwright
+    from django.core.files.base import ContentFile
+
+    release_report = ReleaseReport.objects.get(pk=release_report_id)
+
+    logger.info(f"{release_report_id=}, task id: {self.request.id}")
+
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(
+                headless=True, executable_path="/usr/bin/chromium"
+            )
+            page = browser.new_page()
+            page.set_content(html, wait_until="networkidle")
+            # wait for fonts to be ready
+            page.evaluate("document.fonts.ready")
+            logger.info("Generating PDF")
+            page.emulate_media(media="print")
+            pdf_bytes = page.pdf(
+                format="Letter",
+                print_background=True,
+                prefer_css_page_size=True,
+                margin={
+                    "top": "0.5in",
+                    "right": "0.5in",
+                    "bottom": "0.5in",
+                    "left": "0.5in",
+                },
+            )
+            browser.close()
+
+        logger.info(f"PDF generated successfully, size: {len(pdf_bytes)} bytes")
+        # to start, we have the draft file, so it can be moved later into the
+        # final location by the ReleaseReport.save() process
+        filename = generate_release_report_filename(
+            release_report.report_configuration.get_slug(), published_format=False
+        )
+        release_report.file.save(filename, ContentFile(pdf_bytes), save=True)
+        if publish:
+            release_report.published = True
+            release_report.save(allow_published_overwrite=True)
+    except ValueError as e:
+        logger.error(f"Failed to publish release: {e}")
+    except Exception as e:
+        logger.error(f"Failed to generate PDF: {e}", exc_info=True)
+        raise
 
 
 @app.task
 def generate_library_report(params):
     """Generate a library report asynchronously and save it in RenderedContent."""
+    from libraries.forms import CreateReportFullForm
+
     form = CreateReportFullForm(params)
-    form.cache_html()
+    return form.cache_html()
 
 
 @app.task
@@ -249,18 +367,32 @@ def update_library_version_dependencies(token=None):
 
 
 @app.task
-def release_tasks(user_id=None, generate_report=False):
+def release_tasks(base_uri, user_id=None, generate_report=False):
     """Call the release_tasks management command.
 
+    @param base_uri should be in the format https://domain.tld
     If a user_id is given, that user will receive an email at the beginning
     and at the end of the task.
 
     """
-    command = ["release_tasks"]
+    command = ["release_tasks", "--base_uri", base_uri]
     if user_id:
         command.extend(["--user_id", user_id])
     if generate_report:
         command.append("--generate_report")
+    call_command(*command)
+
+
+@app.task
+def import_new_versions_tasks(user_id=None):
+    """Call the import_new_versions management command.
+
+    If a user_id is given, that user will receive an email at the beginning
+    and at the end of the task.
+    """
+    command = ["import_new_versions"]
+    if user_id:
+        command.extend(["--user_id", user_id])
     call_command(*command)
 
 
@@ -386,3 +518,198 @@ def send_commit_author_email_verify_mail(commit_author_email, url):
     msg.attach_alternative(html_content, "text/html")
     msg.send()
     logger.info(f"Verification email to {commit_author_email} sent")
+
+
+@shared_task
+def count_mailinglist_contributors(prior_version_id: int, version_id: int):
+    version = Version.objects.get(id=version_id)
+    prior_version = Version.objects.get(id=prior_version_id)
+
+    version_lt = list(
+        Version.objects.minor_versions()
+        .filter(version_array__lte=prior_version.cleaned_version_parts_int)
+        .values_list("id", flat=True)
+    )
+    version_lte = version_lt + [version.id]
+    current = (
+        EmailData.objects.filter(version__in=version_lte).distinct("author_id").count()
+    )
+    prior = (
+        EmailData.objects.filter(version__in=version_lt).distinct("author_id").count()
+    )
+    release = EmailData.objects.filter(version=version).count()
+    return release, current - prior
+
+
+@shared_task
+def generate_mailinglist_cloud(prior_version_id: int, version_id: int):
+    prior_version = Version.objects.get(id=prior_version_id)
+    version = Version.objects.get(id=version_id)
+
+    mailinglist_words = generate_mailinglist_words(prior_version, version)
+    mailinglist_wordcloud_base64, mailinglist_wordcloud_top_words = generate_wordcloud(
+        mailinglist_words, width=1400, height=700
+    )
+    return (
+        mailinglist_words,
+        mailinglist_wordcloud_base64,
+        mailinglist_wordcloud_top_words,
+    )
+
+
+@shared_task
+def generate_search_cloud(search_version_id: int):
+    """
+    Algolia search word cloud generation
+    """
+    search_version = Version.objects.get(id=search_version_id)
+    from algoliasearch.analytics.client import AnalyticsClientSync
+
+    client = AnalyticsClientSync(
+        settings.ALGOLIA.get("app_id"),
+        settings.ALGOLIA.get("analytics_api_key"),
+        settings.ALGOLIA.get("region"),
+    )
+    # if the report is based on a live version, look for stats for that
+    # version, otherwise use the stats for the prior (live) version
+    search_list_words = generate_algolia_words(client, search_version)
+    search_wordcloud_base64, search_wordcloud_top_words = generate_wordcloud(
+        search_list_words, width=800, height=250
+    )
+    search_stats = get_algolia_search_stats(client, search_version)
+
+    return search_wordcloud_base64, search_wordcloud_top_words, search_stats
+
+
+@shared_task
+def get_mailing_list_stats(prior_version_id: int, version_id: int):
+    version = Version.objects.get(id=version_id)
+    prior_version = Version.objects.get(id=prior_version_id)
+
+    start_date: date = prior_version.release_date
+    end_date: date = version.release_date or date.today()
+    data = (
+        PostingData.objects.filter(post_time__gt=start_date, post_time__lte=end_date)
+        .annotate(week=ExtractWeek("post_time"), iso_year=ExtractIsoYear("post_time"))
+        .values("iso_year", "week")
+        .annotate(count=Count("id"))
+        .order_by("iso_year", "week")
+    )
+
+    chart_data = []
+
+    for row in data:
+        week_number = row["week"]
+        year_number = str(row["iso_year"])[2:]  # e.g. 25
+        x = f"{week_number} ({year_number})"  # e.g., "51 (24)", "1 (25)"
+        y = row["count"]
+        chart_data.append({"x": x, "y": y})
+
+    total_mailinglist_count = EmailData.objects.filter(version=version).aggregate(
+        total=Sum("count")
+    )["total"]
+    return chart_data, total_mailinglist_count
+
+
+@shared_task
+def get_new_subscribers_stats(start_date: date, end_date: date):
+    """Get new subscribers statistics for HyperKitty mailing list using raw SQL."""
+    import psycopg2
+    from django.conf import settings
+
+    conn = psycopg2.connect(settings.HYPERKITTY_DATABASE_URL)
+
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    EXTRACT(ISOYEAR FROM date_joined) as iso_year,
+                    EXTRACT(WEEK FROM date_joined) as iso_week,
+                    COUNT(*) as count
+                FROM auth_user
+                WHERE date_joined::date >= %s
+                    AND date_joined::date <= %s
+                GROUP BY iso_year, iso_week
+                ORDER BY iso_year, iso_week
+            """,
+                [start_date, end_date],
+            )
+
+            data = cursor.fetchall()
+
+        # Convert data into a dict for easy lookup
+        counts_by_week = {(int(row[0]), int(row[1])): row[2] for row in data}
+
+        # Iterate through every ISO week in the date range
+        current = start_date
+        seen = set()
+        chart_data = []
+        while current <= end_date:
+            iso_year, iso_week, _ = current.isocalendar()
+            key = (iso_year, iso_week)
+            if key not in seen:  # skip duplicate weeks in the same loop
+                seen.add(key)
+                year_suffix = str(iso_year)[2:]
+                label = f"{iso_week} ({year_suffix})"
+                count = counts_by_week.get(key, 0)
+                chart_data.append({"x": label, "y": count})
+            current += timedelta(days=7)  # hop by weeks
+
+        return chart_data
+    finally:
+        conn.close()
+
+
+@shared_task
+def count_commit_contributors_totals(version_id: int, prior_version_id: int):
+    """Get a count of contributors for this release, and a count of
+    new contributors.
+
+    """
+    from libraries.forms import CreateReportFullForm
+
+    prior_version = Version.objects.get(id=prior_version_id)
+    version = Version.objects.get(id=version_id)
+
+    version_lt = list(
+        Version.objects.minor_versions()
+        .filter(version_array__lte=prior_version.cleaned_version_parts_int)
+        .values_list("id", flat=True)
+    )
+    version_lte = version_lt + [version.id]
+    lt_subquery = LibraryVersion.objects.filter(
+        version__in=version_lt,
+        library=OuterRef("id"),
+    ).values("id")
+    lte_subquery = LibraryVersion.objects.filter(
+        version__in=version_lte,
+        library=OuterRef("id"),
+    ).values("id")
+    qs = CreateReportFullForm.library_queryset.aggregate(
+        this_release_count=Count(
+            "library_version__commit__author",
+            filter=Q(library_version__version=version),
+            distinct=True,
+        ),
+        authors_before_release_count=Count(
+            "library_version__commit__author",
+            filter=Q(library_version__in=lt_subquery),
+            distinct=True,
+        ),
+        authors_through_release_count=Count(
+            "library_version__commit__author",
+            filter=Q(library_version__in=lte_subquery),
+            distinct=True,
+        ),
+    )
+    new_count = qs["authors_through_release_count"] - qs["authors_before_release_count"]
+    this_release_count = qs["this_release_count"]
+    return this_release_count, new_count
+
+
+@shared_task
+def get_new_contributors_count(version_id: int):
+    """Get a count of contributors for this release"""
+    version = Version.objects.get(id=version_id)
+    return len(global_new_contributors(version))
