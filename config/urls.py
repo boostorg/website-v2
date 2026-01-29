@@ -36,6 +36,7 @@ from core.views import (
     UserGuideTemplateView,
     BoostDevelopmentView,
     ModernizedDocsView,
+    RedirectToLibraryDetailView,
 )
 from marketing.views import PlausibleRedirectView, WhitePaperView
 from libraries.api import LibrarySearchView
@@ -411,6 +412,11 @@ urlpatterns = (
         path("outreach/", include(wagtail_urls)),
     ]
     + [
+        re_path(
+            r"^lib/(?P<library_slug>[^/]+)/?$",
+            RedirectToLibraryDetailView.as_view(),
+            name="redirect-to-library-view",
+        ),
         path(
             "libraries/<str:requested_version>/",
             RedirectToLibrariesView.as_view(),

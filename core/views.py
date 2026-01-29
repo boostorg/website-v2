@@ -33,8 +33,9 @@ from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import VersionAlertMixin
 from libraries.utils import (
     legacy_path_transform,
-    get_prioritized_library_view,
     generate_canonical_library_uri,
+    get_prioritized_library_view,
+    get_prioritized_version,
     set_selected_boost_version,
 )
 from versions.models import Version, docs_path_to_boost_name
@@ -939,6 +940,21 @@ class RedirectToReleaseView(BaseRedirectView):
 
         new_path = f"/releases/boost-{ requested_version }/"
         return HttpResponseRedirect(new_path)
+
+
+class RedirectToLibraryDetailView(BaseRedirectView):
+    """View to redirect to a library's detail page"""
+
+    def get(self, request, library_slug):
+        return redirect(
+            reverse(
+                "library-detail",
+                kwargs={
+                    "library_slug": library_slug,
+                    "version_slug": get_prioritized_version(request),
+                },
+            )
+        )
 
 
 class RedirectToLibrariesView(BaseRedirectView):

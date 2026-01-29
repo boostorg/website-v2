@@ -522,3 +522,18 @@ def test_boost_version_regex_libs_pattern():
     for test_path in non_matching_cases:
         match = re.match(libs_pattern, test_path)
         assert match is None, f"Libs pattern should NOT match: {test_path}"
+
+
+def test_redirect_to_library_detail_view(tp):
+    """Test that /lib/<library_slug>/ redirects to library detail page with prioritized version."""
+    response = tp.get("redirect-to-library-view", library_slug="algorithm")
+    tp.response_302(response)
+    assert response["Location"] == "/library/latest/algorithm/"
+
+
+def test_redirect_to_library_detail_view_with_cookie(tp):
+    """Test that /lib/<library_slug>/ redirects using version from cookie."""
+    tp.client.cookies["boost_version"] = "boost-1-86-0"
+    response = tp.get("redirect-to-library-view", library_slug="algorithm")
+    tp.response_302(response)
+    assert response["Location"] == "/library/1.86.0/algorithm/"
