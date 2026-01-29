@@ -10,6 +10,22 @@ def category(db):
 
 
 @pytest.fixture
+def dependency(db):
+    """
+    This is a library created for the purpose of being a dependency for another library.
+    See the library_version fixture and test_library_removed_dependencies test case
+    for usage.
+    """
+    return baker.make(
+        "libraries.Library",
+        name="array",
+        slug="array",
+        description=("STL compliant container wrapper for arrays of constant size."),
+        github_url="https://github.com/boostorg/array/tree/boost-1.90.0",
+    )
+
+
+@pytest.fixture
 def library(db):
     return baker.make(
         "libraries.Library",
@@ -24,8 +40,13 @@ def library(db):
 
 
 @pytest.fixture
-def library_version(library, version):
-    return baker.make("libraries.LibraryVersion", library=library, version=version)
+def library_version(library, version, dependency):
+    return baker.make(
+        "libraries.LibraryVersion",
+        library=library,
+        version=version,
+        dependencies=[dependency],
+    )
 
 
 @pytest.fixture
