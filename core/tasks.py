@@ -4,11 +4,14 @@ from celery import shared_task
 from dateutil.parser import parse
 
 from django.core.cache import caches
+from django.utils import timezone
 
 from core.asciidoc import convert_adoc_to_html
+from libraries.path_matcher.utils import get_path_match_from_chain
+from versions.models import Version
 from .boostrenderer import get_content_from_s3
 from .constants import RENDERED_CONTENT_BATCH_DELETE_SIZE
-from .models import RenderedContent
+from .models import RenderedContent, LatestPathMatchIndicator
 
 logger = structlog.get_logger()
 
@@ -66,9 +69,27 @@ def refresh_content_from_s3(s3_key, cache_key):
 @shared_task
 def save_rendered_content(cache_key, content_type, content_html, last_updated_at=None):
     """Saves a RenderedContent object to database."""
+
+    match_result = get_path_match_from_chain(
+        cache_key.replace("static_content_", ""), Version.objects.most_recent()
+    )
+
+    indicator = (
+        LatestPathMatchIndicator.DIRECT_MATCH
+        if match_result.is_direct_equivalent
+        else LatestPathMatchIndicator.CUSTOM_MATCH
+    )
+
+    # we don't set the latest_docs_path if it's a direct match, for db size reduction
     defaults = {
         "content_type": content_type,
         "content_html": content_html,
+        "latest_path_matched_indicator": indicator,
+        "latest_docs_path": (
+            match_result.latest_path if not match_result.is_direct_equivalent else None
+        ),
+        "latest_path_match_class": match_result.matcher,
+        "modified": timezone.now(),
     }
 
     if last_updated_at:
