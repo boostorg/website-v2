@@ -232,15 +232,15 @@
   /* Atom One Dark Theme Colors */
   --atom-one-dark-bg: #282c34;
   --atom-one-dark-text: #abb2bf;
-  --atom-one-dark-comment: #a31515;
-  --atom-one-dark-keyword: #00f;
+  --atom-one-dark-comment: #e06c75;
+  --atom-one-dark-keyword: #56b6c2;
   --atom-one-dark-operator: #abb2bf;
   --atom-one-dark-function: #abb2bf;
-  --atom-one-dark-string: #008000;
+  --atom-one-dark-string: #98c379;
   --atom-one-dark-variable: #abb2bf;
   --atom-one-dark-constant: #abb2bf;
   --atom-one-dark-class: #abb2bf;
-  --atom-one-dark-preprocess: #6f008a;
+  --atom-one-dark-preprocess: #c678dd;
 
   /* Atom One Light Theme Colors */
   --atom-one-light-bg: #fafafa;
