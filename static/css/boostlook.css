@@ -232,28 +232,26 @@
   /* Atom One Dark Theme Colors */
   --atom-one-dark-bg: #282c34;
   --atom-one-dark-text: #abb2bf;
-  --atom-one-dark-comment: #e06c75;
-  --atom-one-dark-keyword: #56b6c2;
-  --atom-one-dark-operator: #abb2bf;
-  --atom-one-dark-function: #abb2bf;
+  --atom-one-dark-comment: #5c6370;
+  --atom-one-dark-keyword: #c678dd;
+  --atom-one-dark-operator: #e06c75;
+  --atom-one-dark-function: #61aeee;
   --atom-one-dark-string: #98c379;
-  --atom-one-dark-variable: #abb2bf;
-  --atom-one-dark-constant: #abb2bf;
-  --atom-one-dark-class: #abb2bf;
-  --atom-one-dark-preprocess: #c678dd;
+  --atom-one-dark-variable: #d19a66;
+  --atom-one-dark-constant: #56b6c2;
+  --atom-one-dark-class: #e6c07b;
 
   /* Atom One Light Theme Colors */
   --atom-one-light-bg: #fafafa;
-  --atom-one-light-text: #000;
-  --atom-one-light-comment: #a31515;
-  --atom-one-light-keyword: #00f;
-  --atom-one-light-operator: #000;
-  --atom-one-light-function: #000;
-  --atom-one-light-string: #008000;
-  --atom-one-light-variable: #000;
-  --atom-one-light-constant: #000;
-  --atom-one-light-class: #000;
-  --atom-one-light-preprocess: #6f008a;
+  --atom-one-light-text: #383a42;
+  --atom-one-light-comment: #a0a1a7;
+  --atom-one-light-keyword: #a626a4;
+  --atom-one-light-operator: #e45649;
+  --atom-one-light-function: #4078f2;
+  --atom-one-light-string: #50a14f;
+  --atom-one-light-variable: #986801;
+  --atom-one-light-constant: #0184bb;
+  --atom-one-light-class: #c18401;
 
   /* Colors Other */
   --colors-neutral-150: #d5d7d9;
@@ -771,6 +769,21 @@ html:has(.boostlook) {
   line-gap-override: 0%;
 }
 
+/* Monaspace Xenon - Italic */
+@font-face {
+  font-family: "Monaspace Xenon";
+  font-style: italic;
+  font-weight: 400;
+  font-display: block;
+  src: url("../font/MonaspaceXenonFrozen-Italic.ttf") format("truetype"),
+    url("/static/font/MonaspaceXenon-Var.woff2") format("woff2"),
+    url("../../../../tools/boostlook/MonaspaceXenon-Var.woff2") format("woff2"),
+    url("https://cppalliance.org/fonts/MonaspaceXenon-Var.woff2") format("woff2");
+  size-adjust: 100%;
+  ascent-override: 92%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
 
 /*----------------- Font-Face Declarations end -----------------*/
 
@@ -1261,6 +1274,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook code i,
 .boostlook pre em,
 .boostlook pre i {
+  font-family: "Monaspace Xenon", monospace;
   font-size: inherit;
   font-style: italic;
 }
@@ -1287,6 +1301,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook code span.c1,
 .boostlook code span.cs,
 .boostlook code span.comment {
+  font-family: "Monaspace Xenon", monospace;
   font-style: italic;
 }
 
@@ -1759,7 +1774,7 @@ html.dark .boostlook .listingblock > .content > pre {
 .boostlook pre span.kt,
 .boostlook pre span.keyword,
 .boostlook pre span.property {
-  color: var(--text-code-purple, #6f008a);
+  color: var(--text-code-purple, #9f26e5);
 }
 
 .boostlook pre span.n,
@@ -1803,17 +1818,8 @@ html.dark .boostlook .listingblock > .content > pre {
 .boostlook .hljs-bullet,
 .boostlook .hljs-code {
   color: var(--atom-one-light-comment, #a0a1a7);
+  font-family: "Monaspace Xenon", monospace;
   font-style: italic;
-}
-
-.boostlook pre span.cp {
-  color: var(--atom-one-light-preprocess, #6f008a);
-  font-style: normal;
-}
-
-.boostlook pre span.cpf {
-  color: var(--atom-one-light-text, #000);
-  font-style: normal;
 }
 
 /* Dark theme comment color */
@@ -1835,17 +1841,8 @@ html.dark .boostlook .hljs-built_in,
 html.dark .boostlook .hljs-bullet,
 html.dark .boostlook .hljs-code {
   color: var(--atom-one-dark-comment, #5c6370);
+  font-family: "Monaspace Xenon", monospace;
   font-style: italic;
-}
-
-html.dark .boostlook pre span.cp {
-  color: var(--atom-one-dark-preprocess, #6f008a);
-  font-style: normal;
-}
-
-html.dark .boostlook pre span.cpf {
-  color: var(--atom-one-dark-text, #000);
-  font-style: normal;
 }
 
 .boostlook pre span.s,
@@ -3553,6 +3550,7 @@ html.is-clipped--nav:has(.boostlook) div#content {
 .boostlook pre.rouge .c1,
 .boostlook pre.rouge .cm { /* Comments */
   color: var(--atom-one-light-comment, #a0a1a7);
+  font-family: "Monaspace Xenon", monospace;
   font-style: italic;
 }
 
@@ -3584,6 +3582,7 @@ html.dark .boostlook pre.rouge .c,
 html.dark .boostlook pre.rouge .c1,
 html.dark .boostlook pre.rouge .cm {
   color: var(--atom-one-dark-comment, #5c6370);
+  font-family: "Monaspace Xenon", monospace;
   font-style: italic;
 }
 
