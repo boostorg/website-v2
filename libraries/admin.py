@@ -301,11 +301,32 @@ class LibraryReportView(ReleaseReportView):
         generate_library_report.delay(self.request.GET)
 
 
+class TierFilter(admin.SimpleListFilter):
+    title = "tier"
+    parameter_name = "tier"
+
+    def lookups(self, request, model_admin):
+        from libraries.models import Tier
+
+        choices = [
+            ("unassigned", "Unassigned"),
+        ]
+        choices.extend([(tier.value, tier.label) for tier in Tier])
+        return choices
+
+    def queryset(self, request, queryset):
+        if self.value() == "unassigned":
+            return queryset.filter(tier__isnull=True)
+        elif self.value() is not None:
+            return queryset.filter(tier=self.value())
+        return queryset
+
+
 @admin.register(Library)
 class LibraryAdmin(admin.ModelAdmin):
-    list_display = ["name", "key", "github_url", "view_stats"]
+    list_display = ["name", "key", "tier", "github_url", "view_stats"]
     search_fields = ["name", "description"]
-    list_filter = ["categories"]
+    list_filter = [TierFilter, "categories"]
     ordering = ["name"]
     change_list_template = "admin/library_change_list.html"
     inlines = [LibraryVersionInline]
