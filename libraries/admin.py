@@ -2,6 +2,7 @@ import structlog
 from datetime import date
 from django.conf import settings
 from django.contrib import admin, messages
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import F, Count, OuterRef, Window
@@ -14,8 +15,10 @@ from django.shortcuts import redirect
 from django.views.generic import TemplateView
 from django import forms
 from celery import chain, group
+from celery.result import AsyncResult
 
 from core.admin_filters import StaffUserCreatedByFilter
+from config.celery import app
 from libraries.forms import CreateReportForm, CreateReportFullForm
 from reports.generation import determine_versions
 from versions.models import Version
@@ -197,6 +200,45 @@ class ReleaseReportView(TemplateView):
         context["form"] = self.get_form()
         return context
 
+    def update_context_with_worklow_state(self, context={}, cache_key=""):
+        task_dict = {
+            count_mailinglist_contributors.name: {
+                "name": "Count Mailing List Contributors",
+                "value": "PENDING",
+            },
+            get_mailing_list_stats.name: {
+                "value": "PENDING",
+                "name": "Get Mailing List Stats",
+            },
+            count_commit_contributors_totals.name: {
+                "value": "PENDING",
+                "name": "Count Commit Contributors Totals",
+            },
+            get_new_subscribers_stats.name: {
+                "value": "PENDING",
+                "name": "Get New Subscriber Stats",
+            },
+            generate_mailinglist_cloud.name: {
+                "value": "PENDING",
+                "name": "Generate Mailing List Cloud",
+            },
+            generate_search_cloud.name: {
+                "value": "PENDING",
+                "name": "Generate Search Cloud",
+            },
+            get_new_contributors_count.name: {
+                "value": "PENDING",
+                "name": "Get New Contributors Count",
+            },
+        }
+        if workflow_ids := cache.get(cache_key):
+            for id in workflow_ids:
+                task: AsyncResult = app.AsyncResult(id)
+                if task.name:
+                    task_dict[task.name]["value"] = task.status
+        context["tasks"] = task_dict
+        return context
+
     def generate_report(self):
         uri = f"{settings.ACCOUNT_DEFAULT_HTTP_PROTOCOL}://{self.request.get_host()}"
         logger.info("Queuing release report workflow")
@@ -244,7 +286,23 @@ class ReleaseReportView(TemplateView):
                 uri,
             ),
         )
-        workflow.apply_async()
+        m: AsyncResult = workflow.apply_async()
+        task_ids = []
+        node = m
+        while node.parent:
+            if not node.children:
+                task_ids.append(node.id)
+            else:
+                task_ids += [x.id for x in node.children]
+            node = node.parent
+        if not node.children:
+            task_ids.append(node.id)
+        else:
+            task_ids += [x.id for x in node.children]
+
+        # After beginning the report generation, cache the key for an hour
+        # for polling purposes
+        cache.set(form.cache_key, task_ids, 60 * 60)
 
     def locked_publish_check(self):
         form = self.get_form()
@@ -261,6 +319,7 @@ class ReleaseReportView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         form = self.get_form()
+        context = self.get_context_data()
         if form.is_valid():
             try:
                 self.locked_publish_check()
@@ -284,10 +343,11 @@ class ReleaseReportView(TemplateView):
                 self.generate_report()
             elif content.content_html:
                 return HttpResponse(content.content_html)
+            context = self.update_context_with_worklow_state(context, form.cache_key)
         return TemplateResponse(
             request,
             self.get_template_names(),
-            self.get_context_data(),
+            context=context,
         )
 
 
