@@ -111,6 +111,7 @@ INSTALLED_APPS += [
 # Our Apps
 INSTALLED_APPS += [
     "ak",
+    "badges",
     "users",
     "versions",
     "libraries",
