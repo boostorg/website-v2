@@ -8,6 +8,7 @@ from django.db import transaction
 from django.db.models import F, Count, OuterRef, Window
 from django.db.models.functions import RowNumber
 from django.http import HttpResponse, HttpResponseRedirect
+from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.safestring import mark_safe
@@ -174,6 +175,7 @@ class LibraryVersionInline(admin.TabularInline):
 
 class ReleaseReportView(TemplateView):
     polling_template = "admin/report_polling.html"
+    polling_widget_template = "admin/task_polling_widget.html"
     form_template = "admin/library_report_form.html"
     form_class = CreateReportForm
     report_type = "release report"
@@ -200,43 +202,64 @@ class ReleaseReportView(TemplateView):
         context["form"] = self.get_form()
         return context
 
-    def update_context_with_worklow_state(self, context={}, cache_key=""):
+    def check_task_status(self, cache_key=""):
+        DEFAULT_STATUS_TEXT = "QUEUED"
+
         task_dict = {
             count_mailinglist_contributors.name: {
                 "name": "Count Mailing List Contributors",
-                "value": "PENDING",
+                "value": DEFAULT_STATUS_TEXT,
             },
             get_mailing_list_stats.name: {
-                "value": "PENDING",
                 "name": "Get Mailing List Stats",
+                "value": DEFAULT_STATUS_TEXT,
             },
             count_commit_contributors_totals.name: {
-                "value": "PENDING",
                 "name": "Count Commit Contributors Totals",
+                "value": DEFAULT_STATUS_TEXT,
             },
             get_new_subscribers_stats.name: {
-                "value": "PENDING",
                 "name": "Get New Subscriber Stats",
+                "value": DEFAULT_STATUS_TEXT,
             },
             generate_mailinglist_cloud.name: {
-                "value": "PENDING",
                 "name": "Generate Mailing List Cloud",
+                "value": DEFAULT_STATUS_TEXT,
             },
             generate_search_cloud.name: {
-                "value": "PENDING",
                 "name": "Generate Search Cloud",
+                "value": DEFAULT_STATUS_TEXT,
             },
             get_new_contributors_count.name: {
-                "value": "PENDING",
                 "name": "Get New Contributors Count",
+                "value": DEFAULT_STATUS_TEXT,
             },
         }
+        all_tasks_ready = True
         if workflow_ids := cache.get(cache_key):
             for id in workflow_ids:
                 task: AsyncResult = app.AsyncResult(id)
                 if task.name:
                     task_dict[task.name]["value"] = task.status
-        context["tasks"] = task_dict
+                if not task.ready():
+                    all_tasks_ready = False
+        return task_dict, all_tasks_ready
+
+    def render_task_widget(self, task_dict):
+        task_widget = render_to_string(
+            self.polling_widget_template, context={"tasks": task_dict}
+        )
+        return task_widget
+
+    def update_context_with_workflow_state(self, context={}, cache_key=""):
+        task_dict, _ = self.check_task_status(cache_key=cache_key)
+        task_widget = self.render_task_widget(task_dict=task_dict)
+        context["task_widget"] = task_widget
+        request = self.request
+        params = self.request.GET.copy()
+        if "render_widget" not in params:
+            params["render_widget"] = True
+        context["widget_endpoint"] = f"{request.path}?{params.urlencode()}"
         return context
 
     def generate_report(self):
@@ -343,7 +366,15 @@ class ReleaseReportView(TemplateView):
                 self.generate_report()
             elif content.content_html:
                 return HttpResponse(content.content_html)
-            context = self.update_context_with_worklow_state(context, form.cache_key)
+            if self.request.GET.get("render_widget", None):
+                task_dict, all_tasks_ready = self.check_task_status(form.cache_key)
+                status_code = 200
+                if all_tasks_ready:
+                    status_code = 283
+                response = HttpResponse(self.render_task_widget(task_dict))
+                response.status_code = status_code
+                return response
+            context = self.update_context_with_workflow_state(context, form.cache_key)
         return TemplateResponse(
             request,
             self.get_template_names(),
