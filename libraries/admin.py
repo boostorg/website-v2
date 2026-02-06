@@ -203,49 +203,51 @@ class ReleaseReportView(TemplateView):
         return context
 
     def check_task_status(self, cache_key=""):
+        """
+        Check the status of celery tasks stored in the cache from the generate report function.
+
+        Returns a list of task items containing their name and status, as well as a flag
+        of whether all the list tasks have completed.
+        """
         DEFAULT_STATUS_TEXT = "QUEUED"
 
+        class TaskStruct:
+            name = ""
+            value = DEFAULT_STATUS_TEXT
+            error = None
+
+            def __init__(self, name=""):
+                self.name = name
+
         task_dict = {
-            count_mailinglist_contributors.name: {
-                "name": "Count Mailing List Contributors",
-                "value": DEFAULT_STATUS_TEXT,
-            },
-            get_mailing_list_stats.name: {
-                "name": "Get Mailing List Stats",
-                "value": DEFAULT_STATUS_TEXT,
-            },
-            count_commit_contributors_totals.name: {
-                "name": "Count Commit Contributors Totals",
-                "value": DEFAULT_STATUS_TEXT,
-            },
-            get_new_subscribers_stats.name: {
-                "name": "Get New Subscriber Stats",
-                "value": DEFAULT_STATUS_TEXT,
-            },
-            generate_mailinglist_cloud.name: {
-                "name": "Generate Mailing List Cloud",
-                "value": DEFAULT_STATUS_TEXT,
-            },
-            generate_search_cloud.name: {
-                "name": "Generate Search Cloud",
-                "value": DEFAULT_STATUS_TEXT,
-            },
-            get_new_contributors_count.name: {
-                "name": "Get New Contributors Count",
-                "value": DEFAULT_STATUS_TEXT,
-            },
+            count_mailinglist_contributors.name: TaskStruct(
+                "Count Mailing List Contributors"
+            ),
+            get_mailing_list_stats.name: TaskStruct("Get Mailing List Stats"),
+            count_commit_contributors_totals.name: TaskStruct(
+                "Count Commit Contributors Totals"
+            ),
+            get_new_subscribers_stats.name: TaskStruct("Get New Subscriber Stats"),
+            generate_mailinglist_cloud.name: TaskStruct("Generate Mailing List Cloud"),
+            generate_search_cloud.name: TaskStruct("Generate Search Cloud"),
+            get_new_contributors_count.name: TaskStruct("Get New Contributors Count"),
         }
         all_tasks_ready = True
         if workflow_ids := cache.get(cache_key):
             for id in workflow_ids:
                 task: AsyncResult = app.AsyncResult(id)
-                if task.name:
-                    task_dict[task.name]["value"] = task.status
+                if task.name and task.name in task_dict:
+                    task_dict[task.name].value = task.status
+                    if task.failed():
+                        task_dict[task.name].error = task.result
                 if not task.ready():
                     all_tasks_ready = False
         return task_dict, all_tasks_ready
 
     def render_task_widget(self, task_dict):
+        """
+        Takes a dict of {"task_signature_name": TaskStruct} and returns a rendered widget.
+        """
         task_widget = render_to_string(
             self.polling_widget_template, context={"tasks": task_dict}
         )
@@ -310,18 +312,23 @@ class ReleaseReportView(TemplateView):
             ),
         )
         m: AsyncResult = workflow.apply_async()
-        task_ids = []
-        node = m
-        while node.parent:
+
+        def unpack_node_ids(node: AsyncResult):
+            """
+            Return the ID of a given Celery Async Result, along with any parents or children
+            as a list. Used to cache these ids for report generation.
+            """
+            local_ids = []
+            if node.parent:
+                local_ids += unpack_node_ids(node.parent)
             if not node.children:
-                task_ids.append(node.id)
+                local_ids.append(node.id)
             else:
-                task_ids += [x.id for x in node.children]
-            node = node.parent
-        if not node.children:
-            task_ids.append(node.id)
-        else:
-            task_ids += [x.id for x in node.children]
+                for c_node in node.children:
+                    local_ids += unpack_node_ids(c_node)
+            return local_ids
+
+        task_ids = unpack_node_ids(m)
 
         # After beginning the report generation, cache the key for an hour
         # for polling purposes
@@ -366,11 +373,14 @@ class ReleaseReportView(TemplateView):
                 self.generate_report()
             elif content.content_html:
                 return HttpResponse(content.content_html)
+            # If this flag is set, the page is being request via htmx and should only
+            # return the task widget
             if self.request.GET.get("render_widget", None):
                 task_dict, all_tasks_ready = self.check_task_status(form.cache_key)
                 status_code = 200
                 if all_tasks_ready:
-                    status_code = 283
+                    # magic number for htmx to stop polling
+                    status_code = 286
                 response = HttpResponse(self.render_task_widget(task_dict))
                 response.status_code = status_code
                 return response

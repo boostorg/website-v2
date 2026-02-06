@@ -1,5 +1,22 @@
 <div class="container my-4 mx-auto">
-  {% for key, value in tasks.items %}
-    <p>{{ value.name }}: {{ value.value }}</p>
-  {% endfor %}
+    <table>
+        <thead>
+            <th>Task Name</th>
+            <th>Task Status</th>
+            <th>Errors</th>
+        </thead>
+        <tbody>
+            {% for key, value in tasks.items %}
+            <tr>
+                <td>{{ value.name }}</td>
+                <td>{{ value.value }}</td>
+                <td style="color: red;">
+                    {% if value.error %}
+                    {{value.error}}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
