@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags %}
+
+{% block title %}
+  {{ page.author }} - Testimonial
+{% endblock %}
+
+{% block css %}
+  <link rel="stylesheet" href="{% static 'css/testimonial-style.css' %}" />
+{% endblock %}
+
+{% block content %}
+  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+    <div class="py-8 md:mx-auto md:w-3/4">
+      <h1 class="text-3xl mb-4">{{ page.title }}</h1>
+      <h3 class="text-xl mb-6 text-gray-600 dark:text-gray-400">
+        By
+        {% if page.author_url %}
+          <a href="{{ page.author_url }}" class="text-orange hover:underline">{{ page.author }}</a>
+        {% else %}
+           {{ page.author }}
+        {% endif %}
+      </h3>
+
+      {% if page.pull_quote %}
+        <div class="bg-white dark:bg-charcoal rounded-lg p-6 mb-6 border-l-4 border-orange">
+          <blockquote class="text-xl italic text-gray-700 dark:text-gray-300">
+            "{{ page.pull_quote }}"
+          </blockquote>
+        </div>
+      {% endif %}
+
+      <div class="bg-white dark:bg-charcoal rounded-lg p-6">
+        <div class="prose dark:prose-invert max-w-none">
+          {{ page.body }}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

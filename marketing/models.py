@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib import messages
 from django.db import models
 from django.http import Http404
@@ -9,19 +10,6 @@ from wagtail.fields import StreamField
 from wagtail.models import Page
 from wagtail.url_routing import RouteResult
 from wagtailmarkdown.blocks import MarkdownBlock
-
-RICH_TEXT_FEATURES = [
-    "h1",
-    "h2",
-    "h3",
-    "bold",
-    "italic",
-    "link",
-    "ol",
-    "ul",
-    "code",
-    "blockquote",
-]
 
 
 class CapturedEmail(models.Model):
@@ -76,7 +64,10 @@ class EmailCapturePage(Page):
     )
     body = StreamField(
         [
-            ("rich", RichTextBlock(features=RICH_TEXT_FEATURES, label="Rich text")),
+            (
+                "rich",
+                RichTextBlock(features=settings.RICH_TEXT_FEATURES, label="Rich text"),
+            ),
             ("md", MarkdownBlock(label="Markdown")),
         ],
         use_json_field=True,
