@@ -1,9 +1,11 @@
 import djclick as click
+import numpy as np
+
 from openpyxl import Workbook
 from openpyxl import worksheet
+from openpyxl.worksheet.table import Table
 from typing import Any
 from typing import Iterable
-import numpy as np
 
 from django.contrib.auth import get_user_model
 from django.db.models import Count
@@ -12,13 +14,18 @@ from django.db.models import QuerySet
 
 from libraries.models import CommitAuthor
 
+# Set a the number of percentiles to calculate.
+# e.g. 20 means calculate every 5 percent
+NUMBER_OF_PERCENTILES = 20
+STEP = int(100 / NUMBER_OF_PERCENTILES)
+PERCENTILE_RANKS = list(range(STEP, (NUMBER_OF_PERCENTILES + 1) * STEP, STEP))
+
 
 def calculate_percentile(
     data_list: Iterable[int],
-    percentile_ranks: Iterable[int],
 ):
     a = np.array(data_list)
-    res = np.percentile(a, percentile_ranks)
+    res = np.percentile(a, PERCENTILE_RANKS)
     return res
 
 
@@ -37,26 +44,16 @@ def insert_data_into_column(
 def insert_percentile_data_into_column(
     column_label: str,
     data_list: Iterable[int],
-    percentile_ranks: Iterable[int],
     start_index: int,
     worksheet: worksheet,
 ):
-    percentiles = calculate_percentile(
-        data_list,
-        percentile_ranks,
-    )
-    insert_data_into_column(
-        column_label,
-        percentiles,
-        start_index,
-        worksheet,
-    )
+    percentiles = calculate_percentile(data_list)
+    insert_data_into_column(column_label, percentiles, start_index, worksheet)
 
 
 def insert_qs_data_into_percentile_column(
     column_label: str,
     qs: QuerySet,
-    percentile_ranks: Iterable[int],
     start_index: int,
     worksheet: worksheet,
     field_name: str,
@@ -65,20 +62,13 @@ def insert_qs_data_into_percentile_column(
     title = " ".join(field_name.split("_")).capitalize()
     worksheet[f"{column_label}{start_index}"] = title
     insert_percentile_data_into_column(
-        column_label,
-        data_list,
-        percentile_ranks,
-        start_index + 1,
-        worksheet,
+        column_label, data_list, start_index + 1, worksheet
     )
 
 
 @click.command()
 def command():
     User = get_user_model()
-    number_of_percentiles = 20
-    step = int(100 / number_of_percentiles)
-    percentile_ranks = list(range(step, (number_of_percentiles + 1) * step, step))
 
     user_qs = (
         User.objects.all()
@@ -121,16 +111,16 @@ def command():
                 user.library_versions_authored,
             ]
         )
-
-    # Mark Top Row as Column Titles
-    ws.freeze_panes = "A2"
-    ws.print_title_rows = "1:1"
+    tab = Table(
+        displayName="LibraryAuthorsandVersions", ref=f"A1:C{user_qs.count() + 1}"
+    )
+    ws.add_table(tab)
 
     wb.create_sheet("Commit Author Data")
     ws = wb["Commit Author Data"]
     ws.append(
         [
-            "Email",
+            "Name",
             "Commits Authored",
             "Reviews Submitted",
             "Mailing List Contributions",
@@ -139,49 +129,40 @@ def command():
     for user in commit_author_qs:
         ws.append(
             [
-                user.name,
+                user.display_name,
                 user.commits_authored,
                 user.reviews_submitted,
                 user.mailing_list_count,
             ]
         )
-
-    ws.freeze_panes = "A2"
-    ws.print_title_rows = "1:1"
+    tab = Table(
+        displayName="CommitAuthorData", ref=f"A1:D{commit_author_qs.count() + 1}"
+    )
+    ws.add_table(tab)
 
     # Add percentile data
     wb.create_sheet("Percentile Analysis")
     ws = wb["Percentile Analysis"]
-    insert_data_into_column("A", ["Percentile"] + percentile_ranks, 1, ws)
+    insert_data_into_column("A", ["Percentile"] + PERCENTILE_RANKS, 1, ws)
+    insert_qs_data_into_percentile_column("B", user_qs, 1, ws, "libraries_authored")
     insert_qs_data_into_percentile_column(
-        "B", user_qs, percentile_ranks, 1, ws, "libraries_authored"
+        "C", user_qs, 1, ws, "library_versions_authored"
     )
     insert_qs_data_into_percentile_column(
-        "C", user_qs, percentile_ranks, 1, ws, "library_versions_authored"
+        "F", commit_author_qs.exclude(commits_authored=0), 1, ws, "commits_authored"
     )
     insert_qs_data_into_percentile_column(
-        "F",
-        commit_author_qs.exclude(commits_authored=0),
-        percentile_ranks,
-        1,
-        ws,
-        "commits_authored",
-    )
-    insert_qs_data_into_percentile_column(
-        "G",
-        commit_author_qs.exclude(reviews_submitted=0),
-        percentile_ranks,
-        1,
-        ws,
-        "reviews_submitted",
+        "G", commit_author_qs.exclude(reviews_submitted=0), 1, ws, "reviews_submitted"
     )
     insert_qs_data_into_percentile_column(
         "H",
         commit_author_qs.exclude(mailing_list_count=0),
-        percentile_ranks,
         1,
         ws,
         "mailing_list_count",
     )
+
+    tab = Table(displayName="PercentilData", ref=f"A1:H{NUMBER_OF_PERCENTILES+1}")
+    ws.add_table(tab)
 
     wb.save("badge_info.xlsx")
