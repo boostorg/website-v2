@@ -11,6 +11,7 @@ from core.calendar import extract_calendar_events, events_by_month, get_calendar
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import ContributorMixin
 from news.models import Entry
+from testimonials.models import Testimonial
 
 
 logger = structlog.get_logger()
@@ -27,6 +28,9 @@ class HomepageView(ContributorMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["entries"] = Entry.objects.published().order_by("-publish_at")[:3]
         context["events"] = self.get_events()
+        context["testimonial"] = (
+            Testimonial.objects.live().filter(pull_quote__gt="").last()
+        )
         if context["events"]:
             context["num_months"] = len(context["events"])
         else:

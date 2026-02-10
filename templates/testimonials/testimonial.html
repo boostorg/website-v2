@@ -22,14 +22,6 @@
         {% endif %}
       </h3>
 
-      {% if page.pull_quote %}
-        <div class="bg-white dark:bg-charcoal rounded-lg p-6 mb-6 border-l-4 border-orange">
-          <blockquote class="text-xl italic text-gray-700 dark:text-gray-300">
-            "{{ page.pull_quote }}"
-          </blockquote>
-        </div>
-      {% endif %}
-
       <div class="bg-white dark:bg-charcoal rounded-lg p-6">
         <div class="prose dark:prose-invert max-w-none">
           {{ page.body }}

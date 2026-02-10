@@ -173,3 +173,11 @@ html:has(#docsiframe) .version_alert {
 .version_alert a {
   @apply font-semibold underline dark:text-white text-charcoal;
 }
+
+.testimonials blockquote {
+  font-style: italic;
+}
+
+.testimonials a {
+  @apply text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange;
+}

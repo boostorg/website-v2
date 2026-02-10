@@ -36,8 +36,13 @@ class Testimonial(Page):
     author_url = models.URLField(
         help_text="Optional URL to link the author's name to", blank=True, default=""
     )
-    pull_quote = models.TextField(
-        help_text="Short extract from the full body", blank=True, default=""
+    pull_quote = StreamField(
+        [
+            ("md", MarkdownBlock(label="Markdown")),
+        ],
+        use_json_field=True,
+        blank=True,
+        help_text="Optional pull quote to highlight on the homepage",
     )
     body = StreamField(
         [
