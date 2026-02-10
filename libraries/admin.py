@@ -248,15 +248,13 @@ class ReleaseReportView(TemplateView):
         """
         Takes a dict of {"task_signature_name": TaskStruct} and returns a rendered widget.
         """
-        task_widget = render_to_string(
+        return render_to_string(
             self.polling_widget_template, context={"tasks": task_dict}
         )
-        return task_widget
 
     def update_context_with_workflow_state(self, context={}, cache_key=""):
         task_dict, _ = self.check_task_status(cache_key=cache_key)
-        task_widget = self.render_task_widget(task_dict=task_dict)
-        context["task_widget"] = task_widget
+        context["task_widget"] = self.render_task_widget(task_dict=task_dict)
         request = self.request
         params = self.request.GET.copy()
         if "render_widget" not in params:
