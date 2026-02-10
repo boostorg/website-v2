@@ -409,7 +409,8 @@ urlpatterns = (
         # Wagtail stuff
         path("cms/", include(wagtailadmin_urls)),
         path("documents/", include(wagtaildocs_urls)),
-        path("outreach/", include(wagtail_urls)),
+        # Custom Django views (must come before Wagtail catch-all)
+        path("testimonials/", include("testimonials.urls")),
     ]
     + [
         re_path(
@@ -480,14 +481,18 @@ urlpatterns = (
             ImageView.as_view(),
             name="images-page",
         ),
-        # Static content
+        # Static content (exclude Wagtail paths)
         re_path(
-            r"^(?!__debug__)(?P<content_path>.+)/?",
+            r"^(?!__debug__|outreach/|testimonials/)(?P<content_path>.+)/?",
             StaticContentTemplateView.as_view(),
             name="static-content-page",
         ),
     ]
     + djdt_urls
+    + [
+        # Wagtail catch-all (must be last!)
+        path("", include(wagtail_urls)),
+    ]
 )
 
 handler404 = "ak.views.custom_404_view"

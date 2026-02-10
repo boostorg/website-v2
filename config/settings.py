@@ -120,6 +120,7 @@ INSTALLED_APPS += [
     "reports",
     "core",
     "slack",
+    "testimonials",
     "asciidoctor_sandbox",
 ]
 
@@ -643,6 +644,18 @@ WAGTAILDOCS_EXTENSIONS = [
     "txt",
     "xlsx",
     "zip",
+]
+RICH_TEXT_FEATURES = [
+    "h1",
+    "h2",
+    "h3",
+    "bold",
+    "italic",
+    "link",
+    "ol",
+    "ul",
+    "code",
+    "blockquote",
 ]
 WAGTAILMARKDOWN = {
     "autodownload_fontawesome": True,

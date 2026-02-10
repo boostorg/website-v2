@@ -59,6 +59,22 @@
       </div>
     </div>
 
+    {% if testimonial %}
+    <div class="testimonials my-12 mb-3 md:mb-6 space-y-4 lg:mt-16 lg:mb-4 lg:space-y-0 lg:space-x-4 md:shadow-lg">
+      <div class="testimonial p-6 dark:text-white text-slate bg-white md:rounded-lg dark:bg-charcoal dark:bg-neutral-700 md:shadow-lg">
+        <h5 class="text-3xl leading-tight mb-2">Testimonials</h5>
+        <div class="flex items-end gap-4">
+        <div class="flex-grow">
+        {{ testimonial.pull_quote }}
+        </div>
+        <a href="{% url 'testimonial-detail' testimonial.author_slug %}" class="flex-shrink-0 mb-4">
+        <button class="py-2 px-3 text-sm text-white rounded bg-orange">Read&nbsp;More</button>
+        </a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
     {% if events %}
         <div class="my-12 mb-3 md:mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-4 lg:space-y-0 lg:space-x-4 md:shadow-lg">
       <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">

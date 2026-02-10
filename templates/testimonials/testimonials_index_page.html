@@ -1,0 +1,38 @@
+{% extends '_base.html' %}
+{% load i18n %}
+
+{% block title %}
+  Testimonials
+{% endblock %}
+
+{% block content %}
+  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+    <div class="py-8 md:mx-auto md:w-3/4">
+      <h1 class="text-3xl mb-6">Testimonials</h1>
+
+      <div class="space-y-6">
+        {% for testimonial in testimonials %}
+          <div class="bg-white dark:bg-charcoal rounded-lg p-6">
+            <h2 class="text-2xl mb-3">
+              <a href="{{ testimonial.url }}" class="text-orange hover:text-orange/75">
+                {{ testimonial.author }}
+              </a>
+            </h2>
+
+            {% if testimonial.pull_quote %}
+              <blockquote class="text-lg italic text-gray-700 dark:text-gray-300 border-l-4 border-orange pl-4 mb-3">
+                "{{ testimonial.pull_quote }}"
+              </blockquote>
+            {% endif %}
+
+            <a href="{{ testimonial.url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
+              Read more &rarr;
+            </a>
+          </div>
+        {% empty %}
+          <p class="text-gray-600 dark:text-gray-400">No testimonials yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
