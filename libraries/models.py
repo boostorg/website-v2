@@ -174,6 +174,13 @@ class Commit(models.Model):
         return self.sha
 
 
+class Tier(models.IntegerChoices):
+    FLAGSHIP = 10, "Flagship"
+    CORE = 20, "Core"
+    DEPRECATED = 30, "Deprecated"
+    LEGACY = 40, "Legacy"
+
+
 class Library(models.Model):
     """
     Model to represent component Libraries of Boost
@@ -240,6 +247,12 @@ class Library(models.Model):
     )
     data = models.JSONField(
         default=dict, help_text="Contains the libraries.json for this library"
+    )
+    tier = models.IntegerField(
+        choices=Tier,
+        blank=True,
+        null=True,
+        help_text="The tier classification for this library",
     )
 
     class Meta:
