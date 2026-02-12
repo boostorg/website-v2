@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Patches - Boost C++ Library
+{% endblock %}
+
+{% block content %}
+  <main class="px-0 md:px-4 my-4 mx-auto sm:mt-4">
+    <h1>Boost C++ Libary Patches</h1>
+    <p>These are patches from library authors which were found too late to be fixed in the release. Be careful as they have not been through the normal testing process.</p>
+
+    {% for key, value in grouped_patches.items %}
+      <h2>{{ key }}</h2>
+      <ul>
+        {% for patch in value %}
+          <li>
+            <a href="{{ patch.get_absolute_url }}">{{ patch.library_version.library }} - {{ patch }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% empty %}
+      <p>No Patches Found</p>
+    {% endfor %}
+  </main>
+{% endblock %}
