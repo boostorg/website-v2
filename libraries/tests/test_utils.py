@@ -13,6 +13,7 @@ from libraries.utils import (
     update_base_tag,
     version_within_range,
     write_content_to_tempfile,
+    modernize_boost_slug,
 )
 from libraries.constants_utils import (
     generate_library_docs_url,
@@ -398,3 +399,10 @@ def test_generate_release_report_filename_timestamp_format():
         datetime.fromisoformat(timestamp_part)
     except ValueError:
         pytest.fail(f"Timestamp '{timestamp_part}' is not a valid ISO format")
+
+
+def test_modernize_boost_slug():
+    """Test that the modernizer turns an old style slug into the correct new style slug"""
+    old_slug = "1_81_0"
+    new_slug = "boost-1-81-0"
+    assert new_slug == modernize_boost_slug(old_slug)
