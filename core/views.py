@@ -37,6 +37,7 @@ from libraries.utils import (
     get_prioritized_library_view,
     get_prioritized_version,
     set_selected_boost_version,
+    modernize_boost_slug,
 )
 from versions.models import Version, docs_path_to_boost_name
 
@@ -530,9 +531,9 @@ class DocLibsTemplateView(VersionAlertMixin, BaseStaticContentTemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
-        set_selected_boost_version(
-            self.kwargs.get("content_path").split("/", 1)[0], response
-        )
+        old_version_slug = self.kwargs.get("content_path").split("/", 1)[0]
+        version_slug = modernize_boost_slug(old_version_slug)
+        set_selected_boost_version(version_slug, response)
         return response
 
     def get_from_s3(self, content_path):

@@ -160,6 +160,13 @@ def determine_selected_boost_version(request_value, request):
     return None
 
 
+def modernize_boost_slug(version_slug: str) -> str:
+    """Takes an old style slug e.g. 1_81_0 and gives a modern slug e.g. boost-1-81-0"""
+    split_old_slug = version_slug.split("_")
+    rejoined_slug = ("-").join(split_old_slug)
+    return f"boost-{rejoined_slug}"
+
+
 def set_selected_boost_version(version_slug: str, response) -> None:
     """Update the selected version in the cookies."""
     versions_kwargs = {}
