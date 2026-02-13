@@ -8,10 +8,17 @@ class LibraryPatch(models.Model):
     boost library.
     """
 
-    library_version = models.ForeignKey(
-        "libraries.LibraryVersion",
+    version = models.ForeignKey(
+        "versions.Version",
         on_delete=models.CASCADE,
-        help_text="Library version that this patch applies to. Will be used to sort and display this patch.",
+        help_text="Version of Boost that this patch applies to.",
+    )
+    library = models.ForeignKey(
+        "libraries.Library",
+        on_delete=models.CASCADE,
+        help_text="Library that this Patch applies to. May be null if this patch is not specific to a library.",
+        null=True,
+        blank=True,
     )
     patch_name = models.CharField(
         max_length=256,
@@ -26,7 +33,7 @@ class LibraryPatch(models.Model):
         return reverse(
             "patches-urls:detail-view",
             kwargs={
-                "version_slug": self.library_version.version.slug,
+                "version_slug": self.version.slug,
                 "patch_name": self.patch_name,
             },
         )

@@ -14,7 +14,11 @@
       <ul>
         {% for patch in value %}
           <li>
-            <a href="{{ patch.get_absolute_url }}">{{ patch.library_version.library }} - {{ patch }}</a>
+            <a href="{{ patch.get_absolute_url }}">
+              {% if patch.library %}
+                {{ patch.library }} -
+              {% endif %}{{ patch }}
+            </a>
           </li>
         {% endfor %}
       </ul>

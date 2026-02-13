@@ -14,8 +14,8 @@ class PatchListView(TemplateView):
         context = super().get_context_data(**kwargs)
         object_dict = {}
         model = self.model
-        for v in Version.objects.all():
-            if model_qs := model.objects.filter(library_version__version=v):
+        for v in Version.objects.all().order_by("-name"):
+            if model_qs := model.objects.filter(version=v).order_by("patch_name"):
                 object_dict[v.display_name] = model_qs
 
         context["grouped_patches"] = object_dict
