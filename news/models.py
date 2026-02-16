@@ -266,6 +266,12 @@ class Link(Entry):
 
 class Video(Entry):
     news_type = "video"
+    thumbnail = models.ForeignKey(
+        "wagtailimages.Image",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     # Possible extra fields: length? quality?
 
 
