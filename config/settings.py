@@ -67,6 +67,7 @@ INSTALLED_APPS = [
 
 # Third-party apps
 INSTALLED_APPS += [
+    "waffle",
     "anymail",
     "rest_framework",
     "corsheaders",
@@ -145,7 +146,12 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "oauth2_provider.middleware.OAuth2TokenMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "waffle.middleware.WaffleMiddleware",
 ]
+
+# django-waffle settings
+WAFFLE_CREATE_MISSING_FLAGS = True
+WAFFLE_FLAG_DEFAULT = False
 
 if DEBUG:
     # These are necessary to turn on Whitenoise which will serve our static
