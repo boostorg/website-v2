@@ -20,6 +20,7 @@ from core.validators import (
 from . import acl
 from .constants import CONTENT_SUMMARIZATION_THRESHOLD
 from .tasks import summary_dispatcher
+from .tasks import set_thumbnail_for_video_entry
 
 User = get_user_model()
 logger = get_logger(__name__)
@@ -273,6 +274,13 @@ class Video(Entry):
         on_delete=models.SET_NULL,
     )
     # Possible extra fields: length? quality?
+
+    def save(self, *args, **kwargs):
+        result = super().save(*args, **kwargs)
+        if not self.thumbnail:
+            logger.info(f"Getting thumbnail for {self.title}")
+            set_thumbnail_for_video_entry.delay(self.pk)
+        return result
 
 
 class Poll(Entry):
