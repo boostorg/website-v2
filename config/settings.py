@@ -122,6 +122,7 @@ INSTALLED_APPS += [
     "core",
     "slack",
     "testimonials",
+    "patches",
     "asciidoctor_sandbox",
 ]
 
