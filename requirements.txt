@@ -145,6 +145,7 @@ django==6.0.2
     #   django-taggit
     #   django-tasks
     #   django-treebeard
+    #   django-waffle
     #   django-widget-tweaks
     #   djangorestframework
     #   laces
@@ -212,6 +213,8 @@ django-tracer==0.9.3
 django-treebeard==4.8.0
     # via wagtail
 django-upgrade==1.29.1
+    # via -r ./requirements.in
+django-waffle==5.0.0
     # via -r ./requirements.in
 django-widget-tweaks==1.5.1
     # via -r ./requirements.in

@@ -1,5 +1,6 @@
 {% load static %}
 {% load i18n %}
+{% load waffle_tags %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
@@ -347,6 +348,9 @@
         }"
         class="h-screen bg-gray-200 dark:bg-black{% if DEBUG %} DEBUG{% endif %}" {% block body_id %}{% endblock %}>
          <div class="modal-overlay" id="modalOverlay"><div class="modal-content"><iframe id="modalFrame" class="w-full h-full rounded-xl m-0 p-0"></iframe><div class="modal-close" id="modalClose" onclick="closeModal()"><i class="fa-solid fa-xmark fa-lg"></i></div></div></div>
+      {% flag "v3" %}
+      <div class="bg-slate text-white text-center py-2 font-semibold">v3 flag enabled</div>
+      {% endflag %}
       {% block main_content_wrapper %}<div class="max-w-7xl md:px-3 mx-auto transition-all">{% endblock %}
       {% block content_header %}
         {% include "includes/_header.html" %}

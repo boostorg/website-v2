@@ -14,6 +14,7 @@ django-import-export
 django-oauth-toolkit
 django-redis
 django-upgrade
+django-waffle
 django-widget-tweaks
 djangorestframework
 environs[django]
