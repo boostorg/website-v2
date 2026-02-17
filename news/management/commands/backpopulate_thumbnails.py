@@ -17,7 +17,7 @@ def command(dry_run):
     count = qs.count()
 
     if count == 0:
-        click.echo("No entries found without summaries.")
+        click.echo("No entries found without thumbnails.")
         return
 
     if dry_run:
