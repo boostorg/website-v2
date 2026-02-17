@@ -1,5 +1,7 @@
 import djclick as click
 from celery import group
+
+from news.models import Video
 from news.tasks import set_thumbnail_for_video_entry
 
 
@@ -11,7 +13,6 @@ from news.tasks import set_thumbnail_for_video_entry
 )
 def command(dry_run):
     """Backpopulate video entry thumbnails that have not been set"""
-    from news.models import Video
 
     qs = Video.objects.filter(thumbnail__isnull=True)
     count = qs.count()
