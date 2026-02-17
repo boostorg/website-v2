@@ -14,10 +14,8 @@
       <ul>
         {% for patch in value %}
           <li>
-            <a href="{{ patch.get_absolute_url }}">
-              {% if patch.library %}
-                {{ patch.library }} -
-              {% endif %}{{ patch }}
+            <a href="{% url 'patches:detail-view' key patch %}">
+              {{ patch }}
             </a>
           </li>
         {% endfor %}
