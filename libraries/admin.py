@@ -2,11 +2,13 @@ import structlog
 from datetime import date
 from django.conf import settings
 from django.contrib import admin, messages
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import F, Count, OuterRef, Window
 from django.db.models.functions import RowNumber
 from django.http import HttpResponse, HttpResponseRedirect
+from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.safestring import mark_safe
@@ -14,8 +16,10 @@ from django.shortcuts import redirect
 from django.views.generic import TemplateView
 from django import forms
 from celery import chain, group
+from celery.result import AsyncResult
 
 from core.admin_filters import StaffUserCreatedByFilter
+from config.celery import app
 from libraries.forms import CreateReportForm, CreateReportFullForm
 from reports.generation import determine_versions
 from versions.models import Version
@@ -171,6 +175,7 @@ class LibraryVersionInline(admin.TabularInline):
 
 class ReleaseReportView(TemplateView):
     polling_template = "admin/report_polling.html"
+    polling_widget_template = "admin/task_polling_widget.html"
     form_template = "admin/library_report_form.html"
     form_class = CreateReportForm
     report_type = "release report"
@@ -195,6 +200,66 @@ class ReleaseReportView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["report_type"] = self.report_type
         context["form"] = self.get_form()
+        return context
+
+    def check_task_status(self, cache_key=""):
+        """
+        Check the status of celery tasks stored in the cache from the generate report function.
+
+        Returns a list of task items containing their name and status, as well as a flag
+        of whether all the list tasks have completed.
+        """
+        DEFAULT_STATUS_TEXT = "QUEUED"
+
+        class TaskStruct:
+            name = ""
+            value = DEFAULT_STATUS_TEXT
+            error = None
+
+            def __init__(self, name=""):
+                self.name = name
+
+        task_dict = {
+            count_mailinglist_contributors.name: TaskStruct(
+                "Count Mailing List Contributors"
+            ),
+            get_mailing_list_stats.name: TaskStruct("Get Mailing List Stats"),
+            count_commit_contributors_totals.name: TaskStruct(
+                "Count Commit Contributors Totals"
+            ),
+            get_new_subscribers_stats.name: TaskStruct("Get New Subscriber Stats"),
+            generate_mailinglist_cloud.name: TaskStruct("Generate Mailing List Cloud"),
+            generate_search_cloud.name: TaskStruct("Generate Search Cloud"),
+            get_new_contributors_count.name: TaskStruct("Get New Contributors Count"),
+        }
+        all_tasks_ready = True
+        if workflow_ids := cache.get(cache_key):
+            for id in workflow_ids:
+                task: AsyncResult = app.AsyncResult(id)
+                if task.name and task.name in task_dict:
+                    task_dict[task.name].value = task.status
+                    if task.failed():
+                        task_dict[task.name].error = task.result
+                if not task.ready():
+                    all_tasks_ready = False
+        return task_dict, all_tasks_ready
+
+    def render_task_widget(self, task_dict):
+        """
+        Takes a dict of {"task_signature_name": TaskStruct} and returns a rendered widget.
+        """
+        return render_to_string(
+            self.polling_widget_template, context={"tasks": task_dict}
+        )
+
+    def update_context_with_workflow_state(self, context={}, cache_key=""):
+        task_dict, _ = self.check_task_status(cache_key=cache_key)
+        context["task_widget"] = self.render_task_widget(task_dict=task_dict)
+        request = self.request
+        params = self.request.GET.copy()
+        if "render_widget" not in params:
+            params["render_widget"] = True
+        context["widget_endpoint"] = f"{request.path}?{params.urlencode()}"
         return context
 
     def generate_report(self):
@@ -244,7 +309,28 @@ class ReleaseReportView(TemplateView):
                 uri,
             ),
         )
-        workflow.apply_async()
+        m: AsyncResult = workflow.apply_async()
+
+        def unpack_node_ids(node: AsyncResult):
+            """
+            Return the ID of a given Celery Async Result, along with any parents or children
+            as a list. Used to cache these ids for report generation.
+            """
+            local_ids = []
+            if node.parent:
+                local_ids += unpack_node_ids(node.parent)
+            if not node.children:
+                local_ids.append(node.id)
+            else:
+                for c_node in node.children:
+                    local_ids += unpack_node_ids(c_node)
+            return local_ids
+
+        task_ids = unpack_node_ids(m)
+
+        # After beginning the report generation, cache the key for an hour
+        # for polling purposes
+        cache.set(form.cache_key, task_ids, 60 * 60)
 
     def locked_publish_check(self):
         form = self.get_form()
@@ -261,6 +347,7 @@ class ReleaseReportView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         form = self.get_form()
+        context = self.get_context_data()
         if form.is_valid():
             try:
                 self.locked_publish_check()
@@ -284,10 +371,22 @@ class ReleaseReportView(TemplateView):
                 self.generate_report()
             elif content.content_html:
                 return HttpResponse(content.content_html)
+            # If this flag is set, the page is being request via htmx and should only
+            # return the task widget
+            if self.request.GET.get("render_widget", None):
+                task_dict, all_tasks_ready = self.check_task_status(form.cache_key)
+                status_code = 200
+                if all_tasks_ready:
+                    # magic number for htmx to stop polling
+                    status_code = 286
+                response = HttpResponse(self.render_task_widget(task_dict))
+                response.status_code = status_code
+                return response
+            context = self.update_context_with_workflow_state(context, form.cache_key)
         return TemplateResponse(
             request,
             self.get_template_names(),
-            self.get_context_data(),
+            context=context,
         )
 
 
