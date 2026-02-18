@@ -124,6 +124,7 @@ INSTALLED_APPS += [
     "testimonials",
     "patches",
     "asciidoctor_sandbox",
+    "contributions",
 ]
 
 AUTH_USER_MODEL = "users.User"
@@ -386,7 +387,8 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # GitHub settings
-
+GITHUB_API_REST_URL = "https://api.github.com/repos"
+GITHUB_API_GRAPHQL_URL = "https://api.github.com/graphql"
 GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
 JDOODLE_API_CLIENT_ID = env("JDOODLE_API_CLIENT_ID", "")
 JDOODLE_API_CLIENT_SECRET = env("JDOODLE_API_CLIENT_SECRET", "")
