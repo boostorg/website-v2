@@ -118,6 +118,11 @@ alias shell := console
 
 @makemigrations:  ## creates new database migrations
     docker compose run --rm web /code/manage.py makemigrations
+    echo "Adjusting migration file permissions (may require password)..."
+    sudo chown -R $(id -u):$(id -g) */migrations/
+    sudo chmod -R 664 */migrations/*.py
+    echo "✓ Migration files ownership and permissions updated"
+
 
 @migrate:  ## applies database migrations
     docker compose run --rm web /code/manage.py migrate --noinput
