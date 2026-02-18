@@ -1,6 +1,6 @@
 {% load static %}
 {% load account socialaccount %}
-<header class="header" role="banner" x-data="{ mobileMenuOpen: false }">
+<header class="header" role="banner" x-data="{ mobileMenuOpen: false, userOpen: false }">
   <div class="header__inner">
 
     {% comment %} Desktop & tablet nav (hidden on mobile) {% endcomment %}
@@ -50,9 +50,7 @@
         </button>
         {% endif %}
         {% if request.user.is_authenticated %}
-        <span class="header__user" hx-get="/users/avatar/" hx-trigger="load" hx-target="#header-avatar" hx-indicator="#header-avatar">
-          <span id="header-avatar"></span>
-        </span>
+        <span class="header__user">{% include "users/includes/header_avatar_v3.html" %}</span>
         {% else %}
         <a href="{% url 'account_login' %}" class="btn btn-primary header__nav-btn">Log In</a>
         {% endif %}
@@ -94,7 +92,7 @@
       </button>
       {% endif %}
       {% if request.user.is_authenticated %}
-      <span hx-get="/users/avatar/" hx-trigger="load" hx-target="#header-drawer-avatar" hx-indicator="#header-drawer-avatar"><span id="header-drawer-avatar"></span></span>
+      {% include "users/includes/header_avatar_v3.html" %}
       {% else %}
       <a href="{% url 'account_login' %}" class="btn btn-primary header__drawer-btn">Log In</a>
       {% endif %}

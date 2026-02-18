@@ -1,0 +1,35 @@
+{% load avatar_tags %}
+<div class="header__user-menu">
+  <button type="button"
+          class="header__user-trigger"
+          :class="{ 'header__user-trigger--open': userOpen }"
+          @click="userOpen = !userOpen"
+          :aria-expanded="userOpen"
+          aria-haspopup="true"
+          aria-controls="userMenu"
+          id="user-menu-button"
+          aria-label="User menu">
+    <span class="header__user-avatar-inner">
+      {% avatar user=request.user image_size="h-[48px] w-[48px]" icon_size="text-2xl" is_link=False %}
+    </span>
+  </button>
+  <div x-show="userOpen"
+       @click.away="userOpen = false"
+       id="userMenu"
+       x-transition:enter="transition ease-out duration-100"
+       x-transition:enter-start="opacity-0"
+       x-transition:enter-end="opacity-100"
+       x-transition:leave="transition ease-in duration-75"
+       x-transition:leave-start="opacity-100"
+       x-transition:leave-end="opacity-0"
+       role="menu"
+       aria-orientation="vertical"
+       aria-labelledby="user-menu-button"
+       tabindex="-1"
+       style="display: none;"
+       class="header__user-dropdown">
+    <a href="{% url 'profile-account' %}" class="header__user-dropdown-link" role="menuitem">My Profile</a>
+    <a href="{% url 'profile-account' %}" class="header__user-dropdown-link" role="menuitem">Edit Profile</a>
+    <a href="{% url 'account_logout' %}" class="header__user-dropdown-link" role="menuitem">Log Out</a>
+  </div>
+</div>
