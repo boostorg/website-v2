@@ -1,0 +1,30 @@
+/**
+ * Border Radius Tokens
+ *
+ * Border radius tokens define consistent corner rounding values.
+ *
+ * Naming Convention: --border-radius-{size}
+ * Example: --border-radius-s, --border-radius-xl
+ */
+
+:root {
+  /* Border Radius Scale (Desktop) */
+  --border-radius-xs: 2px;
+  --border-radius-s: 4px;
+  --border-radius-m: 6px;
+  --border-radius-l: 8px;
+  --border-radius-xl: 12px;
+  --border-radius-xxl: 16px;
+}
+
+/* Mobile Border Radius Overrides */
+@media (max-width: 767px) {
+  :root {
+    --border-radius-xs: 1px;
+    --border-radius-s: 3px;
+    --border-radius-m: 4px;
+    --border-radius-l: 6px;
+    --border-radius-xl: 10px;
+    --border-radius-xxl: 12px;
+  }
+}

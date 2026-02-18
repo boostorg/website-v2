@@ -1,0 +1,92 @@
+/**
+ * Theme Mappings
+ *
+ * Theme-specific overrides for semantic tokens. These override the default
+ * semantic token values defined in semantics.css.
+ *
+ * Dark theme: html.dark (set by theme_handling.js).
+ * Naming follows semantics.css.
+ */
+
+/* ============================================
+   LIGHT THEME (Default)
+   ============================================
+   Light theme values are defined as defaults in semantics.css.
+ */
+
+/* ============================================
+   DARK THEME (Boost)
+   ============================================ */
+html.dark {
+  /* Base Colors */
+  --color-bg-primary: var(--color-primary-black);
+  --color-bg-secondary: var(--color-primary-grey-950);
+  --color-text-primary: var(--color-primary-white);
+  --color-text-secondary: var(--color-primary-grey-400);
+  --color-border: var(--color-primary-grey-800);
+
+  /* Error Primitives (Dark theme override)
+     Note: This is a special case where a primitive token needs theme-specific opacity.
+     In dark theme, error-weak uses reduced opacity for better contrast. */
+  --color-error-weak: #FDF2F217;
+
+  /* Buttons */
+  --color-button-primary: var(--color-primary-grey-800);
+  --color-button-secondary: var(--color-primary-grey-900);
+
+  /* Icons */
+  --color-icon-link-accent: var(--color-secondary-mid-blue);
+  --color-icon-primary: var(--color-primary-white);
+  --color-icon-reverse: var(--color-primary-black);
+  --color-icon-secondary: var(--color-primary-grey-400);
+
+  /* Navigation */
+  --color-navigation-hover: var(--color-primary-grey-900);
+  --color-navigation-selected: var(--color-primary-grey-800);
+
+  /* Stroke */
+  --color-stroke-error: #D53F3F;
+  --color-stroke-link-accent: var(--color-secondary-mid-blue);
+  --color-stroke-mid: #F7F7F82B;
+  --color-stroke-strong: #F7F7F836;
+  --color-stroke-weak: #F7F7F81A;
+
+  /* Surface */
+  --color-surface-brand-accent-hovered: #FFA000D9;
+  --color-surface-error-strong: var(--color-error-mid);
+  --color-surface-error-weak: #FDF2F217;
+  --color-surface-mid: var(--color-primary-grey-900);
+  --color-surface-modal: #0508164D;
+  --color-surface-page: var(--color-primary-black);
+  --color-surface-strong: var(--color-primary-grey-800);
+  --color-surface-weak: var(--color-primary-grey-950);
+
+  /* Accent Surfaces (Dark theme overrides) */
+  --color-surface-strong-accent-green-default: var(--color-primary-grey-800);
+  --color-surface-strong-accent-green-hover: var(--color-primary-grey-850);
+  --color-surface-strong-accent-teal-default: var(--color-primary-grey-800);
+  --color-surface-strong-accent-teal-hover: var(--color-primary-grey-850);
+  --color-surface-strong-accent-yellow-default: var(--color-primary-grey-800);
+  --color-surface-strong-accent-yellow-hover: var(--color-primary-grey-850);
+  --color-surface-weak-accent-green: var(--color-primary-grey-850);
+  --color-surface-weak-accent-teal: var(--color-primary-grey-850);
+  --color-surface-weak-accent-yellow: var(--color-primary-grey-850);
+
+  /* Syntax */
+  --color-syntax-blue: var(--color-syntax-weak-blue);
+  --color-syntax-comments: var(--color-syntax-weak-grey);
+  --color-syntax-green: var(--color-syntax-weak-green);
+  --color-syntax-pink: var(--color-syntax-weak-pink);
+  --color-syntax-text: var(--color-primary-white);
+  --color-syntax-yellow: var(--color-syntax-weak-yellow);
+
+  /* Tag */
+  --color-tag-fill: var(--color-primary-grey-900);
+  --color-tag-stroke: #FFFFFF1A;
+
+  /* Text */
+  --color-text-error: var(--color-error-mid);
+  --color-text-link-accent: var(--color-secondary-mid-blue);
+  --color-text-reversed: var(--color-primary-black);
+  --color-text-tertiary: var(--color-primary-grey-600);
+}
