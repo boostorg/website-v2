@@ -435,8 +435,6 @@
     --typography-font-size-h3: var(--font-size-2md);
     --typography-font-size-h4: var(--font-size-md);
 
-    /*
-*/
   }
 }
 
@@ -859,7 +857,7 @@ h6 {
 }
 
 body :not(pre):not([class^="L"]) > code {
-  /* ovverrides builtin colors */
+  /* overrides builtin colors */
   color: var(--text-code-neutral, #0d0e0f);
   border: 0;
   background-color: unset;
@@ -1405,7 +1403,6 @@ html.dark .boostlook .listingblock > .content > pre {
 .boostlook .content:has(> pre),
 .boostlook .content:has(> pre.highlight) {
   border-radius: 0;
-  /*border: 1px solid var(--border-border-secondary, #d5d7d9);*/
   background: var(--surface-background-main-surface-secondary, #e4e7ea);
 }
 
@@ -1490,8 +1487,6 @@ html.dark .boostlook .listingblock > .content > pre {
 .boostlook#libraryReadMe > pre:not(:is(dd pre, td pre)),
 .boostlook#libraryReadMe .literalblock:has(pre):not(:is(dd pre, td pre)),
 .boostlook#libraryReadMe div.highlight:has(> pre):not(:is(dd pre, td pre)) {
-  /*margin-left: var(--spacing-size-xl);*/
-  /*border: 1px solid var(--border-border-secondary, #d5d7d9);*/
   background: var(--atom-one-light-bg, #fafafa);
   margin-top: var(--padding-padding-xs, 0.75rem);
 }
@@ -1533,11 +1528,6 @@ html.dark .boostlook .listingblock > .content > pre {
   border: 1px solid var(--border-border-secondary, #d5d7d9);
   border-radius: 0;
 }
-.boostlook .content:has(> pre):has(> .source-toolbox) pre {
-  /*border: 1px solid var(--border-border-secondary, #d5d7d9);*/
-  /*border-radius: var(--spacing-size-2xs, 0.5rem);*/
-}
-
 .boostlook .content:has(> pre):has(> .source-toolbox) .source-toolbox {
   position: static;
   order: 0;
@@ -1549,12 +1539,10 @@ html.dark .boostlook .listingblock > .content > pre {
   font-family: inherit;
   z-index: 1;
   padding: var(--article-article-compressing-from-12-8--, 0.5rem) var(--spacing-size-sm, 1rem);
-  /*min-height: 2rem;*/
   height: 0;
   max-height: 0;
   min-height: 0;
   padding: 0;
-  /*margin-top: -1px;*/
 }
 
 .boostlook .content:has(> pre):has(> .source-toolbox):not(:has(.source-lang)) .source-toolbox  {
@@ -1682,7 +1670,6 @@ html.dark .boostlook .listingblock > .content > pre {
 .boostlook .doc .colist > table code:not(:has(> code)) {
   border-radius: unset;
   padding: unset;
-  /* border: 1px solid var(--border-border-secondary, #d5d7d9); */
   background: transparent !important;
 }
 
@@ -1702,53 +1689,11 @@ html.dark .boostlook .listingblock > .content > pre {
 .boostlook .doc p:not(:is(table p)) code:has(> a:only-child),
 .boostlook .doc .colist > table code:has(> a:first-child:last-child),
 .boostlook .doc .colist > table code:has(> a:only-child) {
-  /* transition: all 0.2s ease; */
   border-radius: unset;
   border: none;
   background: transparent !important;
   color: inherit;
 }
-
-/* Applies to links in code in case where only one link tag inside code */
-/* .boostlook code:not(.tableblock code, .table code):has(> a:first-child:last-child) a,
-.boostlook code:not(.tableblock code, .table code):has(> a:only-child) a,
-.boostlook p code:not(.tableblock code, .table code):has(> a:first-child:last-child) a,
-.boostlook p code:not(.tableblock code, .table code):has(> a:only-child) a,
-.boostlook li code:not(.tableblock code, .table code):has(> a:first-child:last-child) a,
-.boostlook li code:not(.tableblock code, .table code):has(> a:only-child) a,
-.boostlook .doc p code:not(.tableblock code, .table code):has(> a:first-child:last-child) a,
-.boostlook .doc p code:not(.tableblock code, .table code):has(> a:only-child) a,
-.boostlook .doc .colist > table code:has(> a:first-child:last-child) a,
-.boostlook .doc .colist > table code:has(> a:only-child) a {
-  text-decoration: none;
-  font: inherit;
-  color: inherit;
-} */
-
-/* .boostlook .doc table.tableblock code a,
-.boostlook:not(:has(.doc)) table.table code a { */
-/* text-decoration-color: transparent; */
-/* color: var(--text-code-blue, #329cd2); */
-/* line-height: var(--typography-line-height-lg, 1.5rem); */
-/* } */
-
-/* Code Link Hover States */
-/* .boostlook p:not(:is(table p)) a:hover code,
-.boostlook li a:hover code,
-.boostlook .doc p:not(:is(table p)) a:hover code,
-.boostlook .doc table a:hover code,
-.boostlook .doc .colist > table a:hover code,
-.boostlook p:not(:is(table p)) code:has(> a:first-child:last-child):hover,
-.boostlook p:not(:is(table p)) code:has(> a:only-child):hover,
-.boostlook li code:has(> a:first-child:last-child):hover,
-.boostlook li code:has(> a:only-child):hover,
-.boostlook .doc p:not(:is(table p)) code:has(> a:first-child:last-child):hover,
-.boostlook .doc p:not(:is(table p)) code:has(> a:only-child):hover,
-.boostlook .doc .colist > table code:has(> a:first-child:last-child):hover,
-.boostlook .doc .colist > table code:has(> a:only-child):hover {
-  border-color: var(--border-border-blue-hover, #329cd2);
-  background: var(--surface-background-main-surface-blue-tetriary, #c2e2f4) !important;
-} */
 
 .boostlook a:hover code {
   color: inherit;
@@ -2200,7 +2145,6 @@ html.dark .boostlook .hljs-code {
   font-variation-settings: "wght" 600, "wdth" 62.5;
   line-height: var(--typography-line-height-lg, 1.5rem);
   letter-spacing: var(--spacing-size-size-0, 0rem);
-  /* text-transform: uppercase; */
 }
 .boostlook #content .admonitionblock > table tr td.icon > * {
   padding: 0;
@@ -2354,7 +2298,6 @@ html.dark .boostlook .hljs-code {
   letter-spacing: var(--spacing-size-size-0, 0rem);
   font-weight: 600;
   color: #000 !important;
-  /*margin-bottom: var(--spacing-size-2xs, 0.5rem);*/
 }
 .boostlook #content .dlist:not(:first-child):not(.dlist .dlist):has(.hdlist1) dd  a:hover {
   color: var(--text-states-text-warning, #FF9442);
@@ -2387,7 +2330,6 @@ html.dark .boostlook .hljs-code {
   gap: var(--spacing-size-2xs, 0.5rem);
 }
 
-/* Where is this used */
 .boostlook .dlist dl dt,
 .boostlook:not(:has(.doc)) .variablelist dl dt {
   display: block;
@@ -2395,7 +2337,6 @@ html.dark .boostlook .hljs-code {
   padding: initial;
   border-radius: initial;
   border: initial;
-  /* border-bottom-left-radius: unset; */
   background: initial;
   color: var(--text-code-neutral, #0d0e0f);
   font-size: var(--typography-font-size-xs, 0.875rem);
@@ -2671,9 +2612,6 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   top: 0px;
   width: 30px;
   height: 24px;
-  /*border: 1px solid var(--border-border-tetriary);*/
-  /* Mask to make square brackets for marker to make it look like [ 01 ] */
-  /*clip-path: polygon(0 0, 3px 0, 3px 3px, 27px 3px, 27px 0, 30px 0, 30px 24px, 27px 24px, 27px 21px, 3px 21px, 3px 24px, 0 24px);*/
 }
 
 /* LowerAlfa Ordered List */
@@ -2720,7 +2658,6 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   text-indent: unset;
   color: var(--text-main-text-primary, #18191b);
   text-align: center;
-  /*background: var(--surface-background-main-surface-secondary, #e4e7ea);*/
 }
 .boostlook .doc code .conum[data-value] {
   background: transparent;
@@ -2882,36 +2819,6 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook:not(:has(.doc)) table.table tr:last-child td,
 .boostlook#libraryReadMe > table tr:last-child td {
   border-bottom: 1px solid var(--border-border-primary, #e4e7ea);
-}
-
-.boostlook #content table.tableblock:has(thead) th:first-child,
-.boostlook #content table.tableblock:not(:has(thead)) tr:first-child td:first-child,
-.boostlook:not(:has(.doc)) table.table:has(thead) th:first-child,
-.boostlook:not(:has(.doc)) table.table:not(:has(thead)) tr:first-child td:first-child,
-.boostlook#libraryReadMe > table:has(thead) th:first-child,
-.boostlook#libraryReadMe > table:not(:has(thead)) tr:first-child td:first-child {
-  /*border-top-left-radius: var(--spacing-size-2xs, 0.5rem);*/
-}
-
-.boostlook #content table.tableblock:has(thead) th:last-child,
-.boostlook #content table.tableblock:not(:has(thead)) tr:first-child td:last-child,
-.boostlook:not(:has(.doc)) table.table:has(thead) th:last-child,
-.boostlook:not(:has(.doc)) table.table:not(:has(thead)) tr:first-child td:last-child,
-.boostlook#libraryReadMe > table:has(thead) th:last-child,
-.boostlook#libraryReadMe > table:not(:has(thead)) tr:first-child td:last-child {
-  /*border-top-right-radius: var(--spacing-size-2xs, 0.5rem);*/
-}
-
-.boostlook #content table.tableblock tr:last-child td:first-child,
-.boostlook:not(:has(.doc)) table.table tr:last-child td:first-child,
-.boostlook#libraryReadMe > table tr:last-child td:first-child {
-  /*border-bottom-left-radius: var(--spacing-size-2xs, 0.5rem);*/
-}
-
-.boostlook #content table.tableblock tr:last-child td:last-child,
-.boostlook:not(:has(.doc)) table.table tr:last-child td:last-child,
-.boostlook#libraryReadMe > table tr:last-child td:last-child {
-  /*border-bottom-right-radius: var(--spacing-size-2xs, 0.5rem);*/
 }
 
 .boostlook #content table.tableblock th,
@@ -3471,8 +3378,6 @@ html.is-clipped--nav:has(.boostlook) div#content {
   html.toc-visible #toc.toc2 {
     opacity: 1;
     visibility: visible;
-    /* width: 250px;
-    padding-left: 1.5rem; */
   }
 
   /* TOC Shadow States */
@@ -3666,6 +3571,7 @@ html.dark .boostlook pre.rouge .cm {
   font: inherit;
 }
 .boostlook .doc i {
+  font: inherit;
   color: inherit;
 }
 
@@ -3874,8 +3780,6 @@ html.dark .boostlook pre.rouge .cm {
   justify-content: center;
   gap: var(--spacing-size-2xs, 0.5rem);
   border-radius: var(--spacing-size-2xs, 0.5rem);
-  /* border: 1px solid var(--border-border-primary, #e4e7ea); */
-  /* background: var(--surface-background-main-base-primary, #fff); */
   width: 32px;
   height: 32px;
   text-decoration: none;
@@ -4250,9 +4154,6 @@ div.source-docs-antora.boostlook > #header,
 div.source-docs-antora.boostlook > #content,
 div.source-docs-antora.boostlook > #footer,
 div.source-docs-antora.boostlook > #footnotes {
-  /* width: auto;
-  max-width: unset;
-  margin-left: auto; */
   padding-left: unset;
   padding-right: unset;
 }
@@ -4445,9 +4346,6 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) > #cont
 .boostlook#boost-legacy-docs-wrapper:not(:has(.doc)):not(:has(> .boostlook)) > *,
 .boostlook#antora-template-wrapper:not(:has(.doc)):not(:has(> .boostlook)) > *,
 div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) > * {
-  /* max-width: var(--main-content-width);
-  margin-left: inherit;
-  margin-right: inherit; */
   margin: 0 auto;
 }
 
@@ -4532,7 +4430,6 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) div.spi
   display: flex;
   flex-direction: column;
   gap: var(--padding-padding-md, 1.125rem);
-  /* border: 2px solid red; */
 }
 
 /* Disable margins for all Headings inside table */
