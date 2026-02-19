@@ -370,7 +370,9 @@ class ReleaseReportView(TemplateView):
                 form.cache_set("")
                 self.generate_report()
             elif content.content_html:
-                return HttpResponse(content.content_html)
+                response = HttpResponse(content.content_html)
+                response.status_code = 286
+                return response
             # If this flag is set, the page is being request via htmx and should only
             # return the task widget
             if self.request.GET.get("render_widget", None):
