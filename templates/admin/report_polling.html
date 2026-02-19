@@ -6,7 +6,6 @@
 {% endblock %}
 
 {% block content %}
-  <div class="flex container my-4 mx-auto">The {{ report_type }} is being generated. This page will refresh periodically, please wait.</div>
   <div hx-get="{{widget_endpoint|escape}}" hx-trigger="every 2s">
     {{task_widget|safe}}
   </div>
