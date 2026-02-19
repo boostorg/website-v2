@@ -7,6 +7,7 @@ from config.celery import app
 from config.settings import OPENROUTER_API_KEY, OPENROUTER_URL
 from news.constants import CONTENT_SUMMARIZATION_THRESHOLD
 from news.helpers import extract_content
+from news.utils import set_video_thumbnail
 
 logger = structlog.get_logger(__name__)
 
@@ -140,3 +141,11 @@ def set_summary_for_video_entry(pk: int):
 @app.task
 def set_summary_for_poll_entry(pk: int):
     logger.info("Summarization not implemented")
+
+
+@app.task
+def set_thumbnail_for_video_entry(pk: int):
+    from news.models import Video
+
+    video = Video.objects.get(pk=pk)
+    set_video_thumbnail(video)
