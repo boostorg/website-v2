@@ -71,7 +71,7 @@ from .htmlhelper import (
     add_canonical_link,
 )
 from .markdown import process_md
-from .models import RenderedContent
+from .models import RenderedContent, SiteSettings
 from .tasks import (
     clear_rendered_content_cache_by_cache_key,
     clear_rendered_content_cache_by_content_type,
@@ -393,6 +393,7 @@ class BaseStaticContentTemplateView(TemplateView):
             return {
                 "content": content_obj.content_html.encode("utf-8"),
                 "content_type": content_obj.content_type,
+                "updated": content_obj.modified,
             }
         except RenderedContent.DoesNotExist:
             return None
@@ -607,6 +608,13 @@ class DocLibsTemplateView(VersionAlertMixin, BaseStaticContentTemplateView):
             result = self.get_from_database(cache_key)
             if not result and (result := self.get_from_s3(content_path)):
                 self.save_to_database(cache_key, result)
+            if result:
+                refresh_start = SiteSettings.load().rendered_content_replacement_start
+                last_updated = result.get("updated", timezone.now())
+                if refresh_start and last_updated < refresh_start:
+                    refresh_content_from_s3.delay(
+                        f"/archives/boost_{content_path}", cache_key
+                    )
         elif content_data := self.get_from_s3(content_path):
             # structure is to allow for redirect/return to be handled in a unified way
             result = {

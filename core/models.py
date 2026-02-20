@@ -103,6 +103,12 @@ class SiteSettings(models.Model):
         default="",
         help_text="A comma-separated list of words to ignore in the release report wordcloud.",  # noqa E501
     )
+    rendered_content_replacement_start = models.DateTimeField(
+        null=True,
+        blank=True,
+        editable=False,
+        help_text="Set via RenderedContent admin action.",
+    )
 
     class Meta:
         constraints = [

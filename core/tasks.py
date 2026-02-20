@@ -4,6 +4,7 @@ from celery import shared_task
 from dateutil.parser import parse
 
 from django.core.cache import caches
+from django.utils import timezone
 
 from core.asciidoc import convert_adoc_to_html
 from libraries.path_matcher.utils import get_path_match_from_chain
@@ -88,6 +89,7 @@ def save_rendered_content(cache_key, content_type, content_html, last_updated_at
             match_result.latest_path if not match_result.is_direct_equivalent else None
         ),
         "latest_path_match_class": match_result.matcher,
+        "modified": timezone.now(),
     }
 
     if last_updated_at:
