@@ -499,7 +499,6 @@ html.dark .header__user-trigger .header__user-avatar-inner .fa-user {
   height: 100vh;
   background: var(--color-bg-secondary, var(--card-color));
   border-left: 1px solid var(--color-border);
-  box-shadow: -4px 0 var(--space-large, 16px) var(--color-stroke-weak, rgba(5, 8, 22, 0.15));
   z-index: 1001;
   padding: var(--header-height) var(--space-large, 1rem) var(--space-large, 1rem);
   overflow-y: auto;

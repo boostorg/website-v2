@@ -50,7 +50,7 @@
         </button>
         {% endif %}
         {% if request.user.is_authenticated %}
-        <span class="header__user">{% include "users/includes/header_avatar_v3.html" %}</span>
+        <span class="header__user">{% include "v3/users/includes/header_avatar_v3.html" %}</span>
         {% else %}
         <a href="{% url 'account_login' %}" class="btn btn-primary header__nav-btn">Log In</a>
         {% endif %}
@@ -81,21 +81,18 @@
       <a href="{% url 'docs' %}" class="header__drawer-link">Learn</a>
       <a href="{% url 'community' %}" class="header__drawer-link">Community</a>
       <a href="{% url 'news' %}" class="header__drawer-link">Posts</a>
-      <a href="{% url 'releases-most-recent' %}" class="btn btn-primary header__drawer-btn">Download</a>
+      <a href="{% url 'releases-most-recent' %}" class="header__drawer-link">Download</a>
+      <a href="{% url 'releases-most-recent' %}" class="header__drawer-link">Latest</a>
     </nav>
     <div class="header__drawer-utilities">
-      <a href="{% url 'releases-most-recent' %}">Latest</a>
+
       {% if not disable_theme_switcher %}
       <button type="button" class="header__icon-btn" aria-label="Toggle theme" onclick="changeTheme()">
         <span class="header__icon--theme-sun">{% include "includes/icon.html" with icon_name="sun-alt" icon_class="header__icon header__icon--theme" icon_size=16 %}</span>
         <span class="header__icon--theme-moon">{% include "includes/icon.html" with icon_name="moon" icon_class="header__icon header__icon--theme" icon_size=16 %}</span>
       </button>
       {% endif %}
-      {% if request.user.is_authenticated %}
-      {% include "users/includes/header_avatar_v3.html" %}
-      {% else %}
-      <a href="{% url 'account_login' %}" class="btn btn-primary header__drawer-btn">Log In</a>
-      {% endif %}
+
     </div>
   </div>
   <div class="header__backdrop" x-show="mobileMenuOpen" x-cloak x-transition @click="mobileMenuOpen = false" aria-hidden="true"></div>

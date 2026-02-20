@@ -2,7 +2,7 @@
   V3 foundation button: hero primary (larger, for hero section). Optional leading icon.
   Variables: label (required), url (optional), icon_html (optional; HTML for icon, use with |safe), type (optional).
   Icon must be wrapped in <span class="btn-icon" aria-hidden>...</span>.
-  Usage: {% include "includes/v3/_button_hero_primary.html" with label="Get started" icon_html='<span class="btn-icon" aria-hidden><i class="fas fa-arrow-right"></i></span>' %}
+  Usage: {% include "v3/includes/_button_hero_primary.html" with label="Get started" icon_html='<span class="btn-icon" aria-hidden><i class="fas fa-arrow-right"></i></span>' %}
 {% endcomment %}
 {% if url %}
 <a href="{{ url }}" class="btn btn-hero btn-primary">{% if icon_html %}{{ icon_html|safe }}{% endif %}{{ label }}</a>
