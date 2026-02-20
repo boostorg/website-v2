@@ -1,0 +1,112 @@
+/**
+ * Semantic Tokens
+ *
+ * Semantic tokens provide meaning-based naming that maps to primitive tokens.
+ * These tokens represent how colors, spacing, and other values are used in context.
+ * Semantic tokens can be overridden per theme.
+ *
+ * Naming Convention: --color-{context}-{property}-{variant}
+ * Example: --color-button-primary, --color-text-error
+ *
+ * Note: Semantic tokens reference primitive tokens where appropriate, but can
+ * also have theme-specific values defined in themes.css
+ */
+
+:root {
+  /* ============================================
+     BASE SEMANTIC COLORS (Light Theme Defaults)
+     ============================================ */
+
+  /* Background */
+  --color-bg-primary: var(--color-secondary-light-blue);
+  --color-bg-secondary: var(--color-primary-white);
+  --color-border: var(--color-primary-grey-300);
+
+  /* Text */
+  --color-text-primary: var(--color-primary-black);
+  --color-text-secondary: var(--color-primary-grey-800);
+
+  /* ============================================
+     BUTTON SEMANTIC COLORS
+     ============================================ */
+  --color-button-accent: var(--color-primary-orange-mustard);
+  --color-button-primary: var(--color-primary-grey-200);
+  --color-button-secondary: var(--color-primary-white);
+
+  /* ============================================
+     ICON SEMANTIC COLORS
+     ============================================ */
+  --color-icon-brand-accent: var(--color-primary-orange-mustard);
+  --color-icon-error: var(--color-error-strong);
+  --color-icon-link-accent: var(--color-secondary-dark-blue);
+  --color-icon-on-accent: var(--color-primary-black);
+  --color-icon-primary: var(--color-primary-black);
+  --color-icon-reverse: var(--color-primary-white);
+  --color-icon-secondary: var(--color-primary-grey-700);
+
+  /* ============================================
+     NAVIGATION SEMANTIC COLORS
+     ============================================ */
+  --color-navigation-hover: var(--color-primary-grey-300);
+  --color-navigation-selected: var(--color-primary-grey-200);
+
+  /* ============================================
+     STROKE SEMANTIC COLORS
+     ============================================ */
+  --color-stroke-brand-accent: var(--color-primary-orange-mustard);
+  --color-stroke-error: #D53F3F33;
+  --color-stroke-link-accent: var(--color-secondary-dark-blue);
+  --color-stroke-mid: #0508162B;
+  --color-stroke-strong: #05081640;
+  --color-stroke-weak: #0508161A;
+
+  /* ============================================
+     SURFACE SEMANTIC COLORS
+     ============================================ */
+  --color-surface-brand-accent-default: var(--color-primary-orange-mustard);
+  --color-surface-brand-accent-hovered: #FFA000BF;
+  --color-surface-error-strong: var(--color-error-strong);
+  --color-surface-error-weak: var(--color-error-weak);
+  --color-surface-mid: var(--color-primary-grey-100);
+  --color-surface-modal: #050816B3;
+  --color-surface-page: var(--color-secondary-light-blue);
+  --color-surface-strong: var(--color-primary-grey-200);
+  --color-surface-weak: var(--color-primary-white);
+
+  /* Accent Surfaces */
+  --color-surface-strong-accent-green-default: var(--color-accent-strong-green);
+  --color-surface-strong-accent-green-hover: #CACA62BF;
+  --color-surface-strong-accent-teal-default: var(--color-accent-strong-teal);
+  --color-surface-strong-accent-teal-hover: #64DACEBF;
+  --color-surface-strong-accent-yellow-default: var(--color-accent-strong-yellow);
+  --color-surface-strong-accent-yellow-hover: #F5D039BF;
+  --color-surface-weak-accent-green: var(--color-accent-weak-green);
+  --color-surface-weak-accent-teal: var(--color-accent-weak-teal);
+  --color-surface-weak-accent-yellow: var(--color-accent-weak-yellow);
+
+  /* ============================================
+     SYNTAX SEMANTIC COLORS
+     ============================================ */
+  --color-syntax-blue: var(--color-syntax-strong-blue);
+  --color-syntax-comments: var(--color-syntax-strong-grey);
+  --color-syntax-green: var(--color-syntax-strong-green);
+  --color-syntax-pink: var(--color-syntax-strong-pink);
+  --color-syntax-text: var(--color-primary-black);
+  --color-syntax-yellow: var(--color-syntax-strong-yellow);
+
+  /* ============================================
+     TAG SEMANTIC COLORS
+     ============================================ */
+  --color-tag-fill: var(--color-primary-grey-100);
+  --color-tag-stroke: #0508161A;
+
+  /* ============================================
+     TEXT SEMANTIC COLORS
+     ============================================ */
+  --color-text-error: var(--color-error-strong);
+  --color-text-link-accent: var(--color-secondary-dark-blue);
+  --color-text-on-accent: var(--color-primary-black);
+  --color-text-reversed: var(--color-primary-white);
+  --color-text-reversed-on-accent: var(--color-primary-white);
+  --color-text-tertiary: var(--color-primary-grey-700);
+}
