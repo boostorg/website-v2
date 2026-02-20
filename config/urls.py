@@ -462,6 +462,10 @@ urlpatterns = (
     ]
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     + [
+        # Wagtail catch-all (must be last!)
+        path("pages/", include(wagtail_urls)),
+    ]
+    + [
         # Libraries docs, some HTML parts are re-written
         re_path(
             r"^doc/libs/(?P<content_path>.+)/?",
@@ -494,10 +498,6 @@ urlpatterns = (
         ),
     ]
     + djdt_urls
-    + [
-        # Wagtail catch-all (must be last!)
-        path("", include(wagtail_urls)),
-    ]
 )
 
 handler404 = "ak.views.custom_404_view"

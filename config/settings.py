@@ -103,6 +103,7 @@ INSTALLED_APPS += [
     "wagtail.images",
     "wagtail.search",
     "wagtail.admin",
+    "wagtail.contrib.routable_page",
     "wagtail",
     "wagtailmarkdown",
     "modelcluster",
@@ -123,6 +124,7 @@ INSTALLED_APPS += [
     "slack",
     "testimonials",
     "patches",
+    "pages",
     "asciidoctor_sandbox",
 ]
 
