@@ -1,8 +1,18 @@
+import re
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
+from libraries.path_matcher.utils import determine_latest_url
+from versions.models import Version
 from .managers import RenderedContentManager
+
+
+class LatestPathMatchIndicator(models.IntegerChoices):
+    UNDETERMINED = 0, _("Undetermined")
+    DIRECT_MATCH = 1, _("Direct match exists")
+    CUSTOM_MATCH = 2, _("Determined by matcher")
 
 
 class RenderedContent(TimeStampedModel):
@@ -41,6 +51,16 @@ class RenderedContent(TimeStampedModel):
         blank=True,
     )
 
+    latest_path_matched_indicator = models.IntegerField(
+        choices=LatestPathMatchIndicator,
+        default=LatestPathMatchIndicator.UNDETERMINED,
+        null=False,
+        blank=False,
+        help_text=_("Indicates how the latest path should be determined."),
+    )
+    latest_docs_path = models.CharField(blank=True, default="")
+    latest_path_match_class = models.CharField(max_length=128, blank=True, default="")
+
     objects = RenderedContentManager()
 
     class Meta:
@@ -49,6 +69,23 @@ class RenderedContent(TimeStampedModel):
 
     def __str__(self):
         return self.cache_key
+
+    @property
+    def latest_path(self) -> str | None:
+        indicator = self.latest_path_matched_indicator
+        if indicator == LatestPathMatchIndicator.DIRECT_MATCH:
+            return re.sub(
+                r"static_content_[\d_]+/(?P<content_path>[^/]\S+)",
+                "doc/libs/latest/\g<content_path>",
+                self.cache_key,
+            )
+        elif indicator == LatestPathMatchIndicator.CUSTOM_MATCH:
+            return self.latest_docs_path
+        elif indicator == LatestPathMatchIndicator.UNDETERMINED:
+            return determine_latest_url(
+                self.cache_key.replace("static_content_", ""),
+                Version.objects.most_recent(),
+            )
 
     def save(self, *args, **kwargs):
         if isinstance(self.content_original, bytes):
@@ -65,6 +102,12 @@ class SiteSettings(models.Model):
     wordcloud_ignore = models.TextField(
         default="",
         help_text="A comma-separated list of words to ignore in the release report wordcloud.",  # noqa E501
+    )
+    rendered_content_replacement_start = models.DateTimeField(
+        null=True,
+        blank=True,
+        editable=False,
+        help_text="Set via RenderedContent admin action.",
     )
 
     class Meta:
