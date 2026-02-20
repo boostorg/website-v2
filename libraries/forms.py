@@ -25,6 +25,7 @@ from reports.generation import (
     get_mailinglist_counts,
     get_slack_channels,
     get_slack_stats,
+    get_libraries_by_tier,
 )
 from versions.models import Version, ReportConfiguration
 from .models import (
@@ -32,6 +33,7 @@ from .models import (
     CommitAuthor,
     Library,
     CommitAuthorEmail,
+    Tier,
 )
 from libraries.constants import SUB_LIBRARIES, RELEASE_REPORT_AUTHORS_PER_PAGE_THRESHOLD
 from mailing_list.models import EmailData
@@ -44,7 +46,7 @@ from .tasks import (
     count_commit_contributors_totals,
     get_new_contributors_count,
 )
-from .utils import conditional_batched
+from .utils import batched, conditional_batched
 
 logger = get_logger(__name__)
 
@@ -443,8 +445,8 @@ class CreateReportForm(CreateReportFullForm):
         # Compute the synchronous stats that don't require async tasks
         commit_count, version_commit_count = get_commit_counts(version)
         top_libraries_for_version = get_top_libraries_for_version(version)
-        top_libraries_by_name = get_libraries_by_name(version)
-        library_order = self._get_library_order(top_libraries_by_name)
+        libraries_by_tier = get_libraries_by_tier(version)
+        library_order = self._get_library_order(libraries_by_tier)
         # TODO: we may in future need to find a way to show the removed libraries, for
         #  now it's not needed. In that case the distinction between running this on a
         #  ReportConfiguration with a real 'version' entry vs one that instead uses 'master'
@@ -463,16 +465,35 @@ class CreateReportForm(CreateReportFullForm):
         removed_library_count = 0
 
         library_data = get_library_data(library_order, prior_version.pk, version.pk)
-        slack_stats = get_slack_stats(prior_version, version)
+        libraries_without_tier = [
+            lib["library"].name for lib in library_data if lib["library"].tier is None
+        ]
+        if libraries_without_tier:
+            raise ValueError(
+                f"The following libraries have no tier assigned: {', '.join(libraries_without_tier)}"
+            )
 
+        slack_stats = get_slack_stats(prior_version, version)
         library_index_library_data = get_libraries_for_index(
             library_data, version, prior_version
         )
-        batched_library_data = conditional_batched(
-            library_data,
-            2,
-            lambda x: x.get("top_contributors_release").count()
-            <= RELEASE_REPORT_AUTHORS_PER_PAGE_THRESHOLD,
+        flagship_libraries = [
+            lib for lib in library_data if lib["library"].tier == Tier.FLAGSHIP
+        ]
+        core_libraries = list(
+            batched(
+                [lib for lib in library_data if lib["library"].tier == Tier.CORE], 2
+            )
+        )
+        deprecated_legacy_libraries = list(
+            batched(
+                [
+                    lib
+                    for lib in library_data
+                    if lib["library"].tier in (Tier.DEPRECATED, Tier.LEGACY)
+                ],
+                28,
+            )
         )
         git_graph_data = get_git_graph_data(prior_version, version)
         download = get_download_links(version)
@@ -505,8 +526,10 @@ class CreateReportForm(CreateReportFullForm):
             "version_commit_count": version_commit_count,
             "top_contributors_release_overall": top_contributors,
             "library_data": library_data,
+            "flagship_libraries": flagship_libraries,
+            "batched_core_libraries": core_libraries,
+            "batched_deprecated_legacy_libraries": deprecated_legacy_libraries,
             "new_libraries": new_libraries,
-            "batched_library_data": batched_library_data,
             "top_libraries_for_version": top_libraries_for_version,
             "library_count": libraries.count(),
             "library_index_libraries": library_index_library_data,

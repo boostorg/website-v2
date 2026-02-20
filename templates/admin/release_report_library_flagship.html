@@ -1,0 +1,52 @@
+{% load countries humanize avatar_tags text_helpers %}
+
+<div class="grid grid-cols-3 gap-x-8 w-full p-4 h-1/2" id="library-{{ library.library.name }}">
+  <div class="col-span-2 flex flex-col gap-y-4">
+    <div class="flex flex-col gap-y-4">
+      <h2 class="text-orange mb-1 mt-0">{{ library.library.display_name }}</h2>
+      <div>{{ library.library.description }}</div>
+    </div>
+    <div class="flex gap-x-8 items-center">
+      {% if library.library.graphic %}
+        <div class="max-w-[10rem]">
+          <img src="{{ library.library.graphic.url }}" alt="" />
+        </div>
+      {% endif %}
+      <div class="flex flex-col gap-y-1">
+        <div>
+          There
+          {{ library.version_count.commit_count|pluralize:"was,were" }}
+          <span class="font-bold">{{ library.version_count.commit_count }}</span>
+          commit{{ library.version_count.commit_count|pluralize }}
+          in release {{ report_configuration.display_name }}
+        </div>
+        {% with insertions=library.library_version.insertions deletions=library.library_version.deletions %}
+          <div>
+            <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added, <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
+          </div>
+        {% endwith %}
+        {% with count=library.new_contributors_count.count %}
+          {% if count >= 1 %}
+            <div>
+              There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} for this release!
+            </div>
+          {% endif %}
+        {% endwith %}
+        <div>
+          There {{ library.issues.opened|pluralize:"was,were" }} <span class="font-bold">{{ library.issues.opened }}</span> issue{{ library.issues.opened|pluralize }} opened
+          and {{ library.issues.closed|pluralize:"was,were" }} <span class="font-bold">{{ library.issues.closed }}</span> issue{{ library.issues.closed|pluralize }} closed
+        </div>
+        {% if library.deps.added or library.deps.removed %}
+          <div>
+            There {{ library.deps.added|length|pluralize:"was,were" }} <span class="font-bold">{{ library.deps.added|length }}</span> dependenc{{ library.deps.added|length|pluralize:"y,ies" }} added
+            and
+            <span class="font-bold">{{ library.deps.removed|length }}</span> dependenc{{ library.deps.removed|length|pluralize:"y,ies" }} removed
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="px-4">
+    {% include "./release_report_contributors.html" %}
+  </div>
+</div>
