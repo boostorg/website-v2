@@ -54,6 +54,7 @@
       <link href="{% static 'css/v3/foundations.css' %}" rel="stylesheet">
       <link href="{% static 'css/v3/buttons.css' %}" rel="stylesheet">
       <link href="{% static 'css/v3/header.css' %}" rel="stylesheet">
+      <link href="{% static 'css/v3/footer.css' %}" rel="stylesheet">
       {% endflag %}
     {% endblock %}
 
@@ -396,7 +397,11 @@
       </div>
 
       {% if not hide_footer %}
-        {% include "includes/_footer.html" %}
+        {% flag "v3" %}
+          {% include "v3/includes/_footer_v3.html" %}
+        {% else %}
+          {% include "includes/_footer.html" %}
+        {% endflag %}
       {% endif %}
     </div>
 

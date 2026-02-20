@@ -1,0 +1,168 @@
+.footer {
+  --footer-text: var(--Text-Primary, var(--color-text-primary, #050816));
+  padding: var(--space-large) var(--space-large);
+  color: var(--footer-text);
+  font-family: var(--Typefaces-Sans, var(--font-sans, "Mona Sans VF"));
+  font-size: var(--Sizes-XS, 12px);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: -0.12px;
+  border-top: 1px solid var(--color-border);
+}
+
+.footer *,
+.footer a,
+.footer p {
+  color: var(--footer-text);
+  font-family: var(--Typefaces-Sans, var(--font-sans, "Mona Sans VF"));
+  font-size: var(--Sizes-XS, 12px);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: -0.12px;
+}
+
+.footer__inner {
+  max-width: 80rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-xlarge);
+}
+
+/* ==========================================================================
+   Footer – nav: flex row, links left, social icons right (24x24)
+   ========================================================================== */
+
+.footer__nav {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-medium);
+  width: 100%;
+}
+
+.footer__nav-spacer {
+  flex: 1 1 0;
+  min-width: var(--space-medium);
+}
+
+.footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-default) var(--space-medium);
+}
+
+.footer__link {
+  color: var(--footer-text);
+  text-decoration: none;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.footer__link:hover {
+  color: var(--color-text-link-accent);
+  background: var(--color-navigation-hover);
+}
+
+.footer__link--inline {
+  color: var(--color-text-link-accent);
+  text-decoration: underline;
+  padding: 0;
+  border-radius: 0;
+}
+
+.footer__link--inline:hover {
+  color: var(--color-text-link-accent);
+  background: transparent;
+  text-decoration-thickness: 2px;
+}
+
+/* ==========================================================================
+   Footer – social: icons 24x24
+   ========================================================================== */
+
+.footer__social {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer__social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--footer-text);
+  border-radius: var(--border-radius-m, 6px);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.footer__social a:hover {
+  color: var(--color-text-link-accent);
+  background: var(--color-navigation-hover);
+}
+
+/* Restore Font Awesome icon font (overridden by .footer *) */
+.footer__social i,
+.footer__social .fa-brands {
+  font-family: "Font Awesome 6 Brands", "Font Awesome 6 Free";
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-style: normal;
+  font-weight: 400;
+}
+
+/* ==========================================================================
+   Footer – legal text (same typography)
+   ========================================================================== */
+
+.footer__legal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-default);
+}
+
+.footer__text {
+  margin: 0;
+  color: var(--footer-text);
+}
+
+.footer__text--xsmall {
+  font-style: italic;
+}
+
+/* ==========================================================================
+   Mobile: before 400px – stack on top of each other, justify left
+   ========================================================================== */
+
+@media (max-width: 399px) {
+  .footer__nav {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: var(--space-xl, 32px);
+  }
+
+  .footer__nav-spacer {
+    display: none;
+  }
+
+  .footer__links {
+    justify-content: flex-start;
+  }
+
+  .footer__legal {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
