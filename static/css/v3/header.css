@@ -304,6 +304,25 @@ html.dark .header__icon--theme-moon {
   min-width: 0;
   min-height: 0;
 }
+
+/* Dark mode: subtler avatar border and inner so it doesn’t look harsh or double-framed */
+html.dark .header__user-trigger {
+  border-color: var(--color-border);
+}
+html.dark .header__user-trigger:hover {
+  border-color: var(--color-stroke-mid);
+}
+html.dark .header__user-trigger--open,
+html.dark .header__user-trigger[aria-expanded="true"] {
+  border-color: var(--color-stroke-mid);
+}
+html.dark .header__user-trigger .header__user-avatar-inner > div {
+  background: transparent !important;
+}
+html.dark .header__user-trigger .header__user-avatar-inner .fa-user {
+  color: var(--color-icon-primary) !important;
+}
+
 .header__user-dropdown {
   position: absolute;
   top: calc(100% + var(--space-s, 4px));
