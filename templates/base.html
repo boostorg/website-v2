@@ -3,7 +3,7 @@
 {% load waffle_tags %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}"{% if v3_enabled %} class="v3"{% endif %}>
+<html lang="{{ LANGUAGE_CODE }}"{% flag "v3" %} class="v3"{% endflag %}>
 
   <head>
     {% if not disable_plausible %}

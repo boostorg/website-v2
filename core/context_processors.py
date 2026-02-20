@@ -1,14 +1,8 @@
 from enum import StrEnum
 
 from django.conf import settings
-from waffle import flag_is_active
 
 from versions.models import Version
-
-
-def v3_enabled(request):
-    """Expose v3 feature flag so templates can add html class for v3 typography/scope."""
-    return {"v3_enabled": flag_is_active(request, "v3")}
 
 
 def current_version(request):
