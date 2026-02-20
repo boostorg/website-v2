@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load wagtailcore_tags %}
+
+{% block title %}
+  {{ self.title }}
+{% endblock %}
+
+{% block content %}
+  <!-- end breadcrumb -->
+  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+    <div class="py-8 md:mx-auto md:w-3/4">
+      <h1 class="text-3xl">
+        <span class="inline-block align-middle text-base pr-1"><i class="fas fa-{{ self.icon_name }}"></i></span>
+        {{ self.title }}
+      </h1>
+      <div class="space-x-3 mt-3 flex items-center">
+        {% with author=self.owner %}
+          {% if author.image %}
+            <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
+                <img src="{{ author.image_thumbnail.url }}" alt="{{ author.display_name }}" class="h-full w-full object-cover" />
+            </span>
+          {% else %}
+            <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
+                <i class="text-2xl fas fa-user ml-1" title="{{ author.display_name }}"></i>
+            </span>
+          {% endif %}
+          {% if author.display_name %}
+            <div class="inline-block p-0 m-0">
+              {{ author.display_name }}<br />
+              <span class="block py-0 text-xs">{{ self.first_published_at|date:'M jS, Y' }}</span>
+            </div>
+          {% endif %}
+        {% endwith %}
+      </div>
+      <div class="block px-6 py-4 my-6 w-full bg-white rounded-lg dark:bg-charcoal md:flex justify-between">
+        <div class="flex-1 break-words">
+          {% include_block self.content %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
