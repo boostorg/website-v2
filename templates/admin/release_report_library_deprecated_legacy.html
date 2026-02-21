@@ -1,0 +1,23 @@
+{% load countries humanize avatar_tags text_helpers %}
+<tr class="text-xs">
+  <td class="px-2">{{ library.library.name }}</td>
+  <td class="px-2">
+    {% for author in library.library.authors.all %}{{ author.display_name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+  </td>
+  <td class="px-2">
+    <span class="font-bold">{{ library.version_count.commit_count }}</span> commit{{ library.version_count.commit_count|pluralize }}
+  </td>
+  {% with insertions=library.library_version.insertions deletions=library.library_version.deletions %}
+    <td class="px-2">
+      <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added,
+      <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
+    </td>
+  {% endwith %}
+{#  {% with count=library.new_contributors_count.count %}#}
+{#    <td class="px-2">#}
+{#      {% if count >= 1 %}#}
+{#        <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }}#}
+{#      {% endif %}#}
+{#    </td>#}
+{#  {% endwith %}#}
+</tr>
