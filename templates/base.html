@@ -3,7 +3,7 @@
 {% load waffle_tags %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}">
+<html lang="{{ LANGUAGE_CODE }}"{% flag "v3" %} class="v3"{% endflag %}>
 
   <head>
     {% if not disable_plausible %}
@@ -49,6 +49,12 @@
       <link href="{% static 'css/components.css' %}" rel="stylesheet">
       {% comment %} <link rel="preload" as="style" href="{% static 'css/fonts.css' %}" rel="stylesheet"> {% endcomment %}
       <link href="{% static 'css/boostlook.css' %}" rel="stylesheet">
+      {% flag "v3" %}
+      <link href="{% static 'css/v3/fonts.css' %}" rel="stylesheet">
+      <link href="{% static 'css/v3/foundations.css' %}" rel="stylesheet">
+      <link href="{% static 'css/v3/buttons.css' %}" rel="stylesheet">
+      <link href="{% static 'css/v3/header.css' %}" rel="stylesheet">
+      {% endflag %}
     {% endblock %}
 
     {% block css %}{% endblock css %}
@@ -353,7 +359,11 @@
       {% endflag %}
       {% block main_content_wrapper %}<div class="max-w-7xl md:px-3 mx-auto transition-all">{% endblock %}
       {% block content_header %}
-        {% include "includes/_header.html" %}
+        {% flag "v3" %}
+          {% include "v3/includes/_header_v3.html" %}
+        {% else %}
+          {% include "includes/_header.html" %}
+        {% endflag %}
       {% endblock %}
 
       <div class="w-full">

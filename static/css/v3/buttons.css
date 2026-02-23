@@ -1,0 +1,325 @@
+/* ========== Base button (size, distribution) ========== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-default, 8px);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: var(--line-height-relaxed, 1.24);
+  letter-spacing: -0.01em;
+  border-radius: var(--border-radius-l, 8px);
+  border: 1px solid transparent;
+  min-height: 36px;
+  width: 128px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+/* Row where buttons expand to fill width equally */
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  align-items: stretch;
+}
+
+.btn-row>.btn-error {
+  flex: 0 0 128px;
+  width: 128px;
+  min-width: 128px;
+}
+
+.btn-primary {
+  background-color: var(--color-button-secondary, #fff);
+  border-color: var(--color-stroke-strong, #05081640);
+  color: var(--color-text-primary, #050816);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-secondary-dark-blue, #00778B);
+  border-color: var(--color-secondary-dark-blue, #00778B);
+  color: var(--color-text-reversed, #fff);
+}
+
+.btn-secondary {
+  border-color: var(--color-stroke-strong, #05081640);
+  color: var(--color-text-primary, #050816);
+}
+
+.btn-secondary:hover  {
+  background-color: var(--color-button-secondary, #fff);
+  border-color: var(--color-secondary-dark-blue, #0077B8);
+  color: var(--color-secondary-dark-blue, #0077B8);
+}
+
+/* Primary outline: white, blue border and text */
+.btn-primary-outline {
+  background-color: var(--color-button-secondary, #fff);
+  border-color: var(--color-stroke-link-accent, #0077B8);
+  color: var(--color-text-link-accent, #0077B8);
+}
+
+.btn-primary-outline:hover {
+  background-color: var(--color-secondary-light-blue, #f7fdfe);
+  border-color: var(--color-text-link-accent, #00778B);
+  color: var(--color-text-link-accent, #00778B);
+}
+
+.btn-secondary-grey {
+  background-color: var(--color-button-primary, #efeff1);
+  border-color: var(--color-border, #d5d6d8);
+  color: var(--color-text-primary, #050816);
+}
+
+.btn-secondary-grey:hover {
+  background-color: var(--color-primary-grey-300, #d5d6d8);
+  border-color: var(--color-primary-grey-300, #d5d6d8);
+  color: var(--color-text-primary, #050816);
+}
+
+/* Green accent (on green card) – filled, no border */
+/* Default: Accent/Strong/Green #CACA62; Hover: Surface/Strong/Green Accent/Hover #CACA62 75% */
+.btn-green {
+  background-color: var(--color-surface-strong-accent-green-default, #CACA62);
+  border-color: transparent;
+  color: var(--color-text-primary, #050816);
+}
+
+.btn-green:hover {
+  background-color: var(--color-surface-strong-accent-green-hover, #CACA62BF);
+  border-color: transparent;
+  color: var(--color-text-primary, #050816);
+}
+
+/* Yellow accent (on yellow card) – filled, no border */
+/* Default: Surface/Strong/Yellow Accent/Default #F5D039; Hover: 75% */
+.btn-yellow {
+  background-color: var(--color-surface-strong-accent-yellow-default, #F5D039);
+  border-color: transparent;
+  color: var(--color-text-primary, #050816);
+}
+
+.btn-yellow:hover {
+  background-color: var(--color-surface-strong-accent-yellow-hover, #F5D039BF);
+  border-color: transparent;
+  color: var(--color-text-primary, #050816);
+}
+
+/* Teal accent (on teal card) – filled, no border */
+/* Default: Surface/Strong/Teal Accent/Default #64DACE; Hover: 75% */
+.btn-teal {
+  background-color: var(--color-surface-strong-accent-teal-default, #64DACE);
+  border-color: transparent;
+  color: var(--color-text-primary, #050816);
+}
+
+.btn-teal:hover {
+  background-color: var(--color-surface-strong-accent-teal-hover, #64DACEBF);
+  border-color: transparent;
+  color: var(--color-text-primary, #050816);
+}
+
+/* Error / danger: light red fill, red border and text */
+.btn-primary.btn-error,
+.btn-error {
+  background-color: var(--color-surface-error-weak, #fdf2f2);
+  border-color: var(--color-stroke-error, #d53f3f33);
+  color: var(--color-text-error, #d32f2f);
+}
+
+.btn-error:hover {
+  background-color: var(--color-surface-error-weak, #fdf2f2);
+  border-color: var(--color-error-strong, #d32f2f);
+  color: var(--color-text-error, #d32f2f);
+}
+
+/* ========== Hero buttons (Figma node 55-204) ========== */
+.btn-hero {
+  min-height: 48px;
+  padding: var(--space-medium, 12px) var(--space-large, 24px);
+  font-size: var(--font-size-base, 16px);
+  gap: var(--space-default, 8px);
+  width: auto;
+}
+
+/* Hero primary: uses design tokens – override .btn-primary */
+.btn.btn-hero.btn-primary {
+  background-color: var(--color-surface-brand-accent-default);
+  border-color: var(--color-surface-brand-accent-default);
+  color: var(--color-text-reversed);
+}
+.btn.btn-hero.btn-primary:hover {
+  background-color: var(--color-surface-brand-accent-hovered);
+  border-color: var(--color-surface-brand-accent-hovered);
+  color: var(--color-text-reversed);
+}
+
+/* Hero secondary: uses .btn-secondary colors, same size as hero primary */
+
+.btn-hero .btn-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* ========== Tooltip button ========== */
+.btn-tooltip {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: var(--border-radius-l, 8px);
+  background-color: var(--color-button-primary, #efeff1);
+  border: 1px solid var(--color-border, #d5d6d8);
+  color: var(--color-icon-primary, #050816);
+}
+
+.btn-tooltip:hover {
+  background-color: var(--color-primary-grey-300, #d5d6d8);
+}
+
+.btn-tooltip .btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tooltip-label {
+  position: absolute;
+  padding: var(--space-s, 4px) var(--space-default, 8px);
+  background: var(--color-primary-grey-900, #2f313d);
+  color: var(--color-text-reversed, #fff);
+  font-size: var(--font-size-xs, 12px);
+  font-weight: var(--font-weight-regular, 400);
+  border-radius: var(--border-radius-s, 4px);
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.tooltip-label.top {
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, -8px);
+}
+
+.tooltip-label.bottom {
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, 8px);
+}
+
+.tooltip-label.left {
+  right: 100%;
+  top: 50%;
+  transform: translate(-8px, -50%);
+}
+
+.tooltip-label.right {
+  left: 100%;
+  top: 50%;
+  transform: translate(8px, -50%);
+}
+
+/* ========== Carousel buttons ========== */
+.btn-carousel {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--border-radius-l, 8px);
+  background-color: var(--color-button-primary, #efeff1);
+  border: 1px solid var(--color-border, #d5d6d8);
+  color: var(--color-icon-primary, #050816);
+}
+
+.btn-carousel:hover {
+  background-color: var(--color-primary-grey-300, #d5d6d8);
+}
+
+.btn-carousel .btn-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* ========== Card link button ========== */
+.btn-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s, 4px);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-link-accent, #00778B);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.btn-card-link:hover {
+  text-decoration: underline;
+}
+
+.btn-card-link .btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* ========== List link ========== */
+.btn-list-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-default, 8px);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base, 16px);
+  font-weight: var(--font-weight-regular, 400);
+  color: var(--color-text-primary, #050816);
+  background: none;
+  border: none;
+  padding: var(--space-s, 4px) 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.btn-list-link:hover {
+  color: var(--color-text-link-accent, #00778B);
+}
+
+.btn-list-link .btn-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--color-icon-link-accent, #00778B);
+}
+
+/* ========== Icon button (library) ========== */
+.btn-icon-library {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-default, 8px);
+  padding: var(--space-default, 8px) var(--space-medium, 12px);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  font-weight: var(--font-weight-regular, 400);
+  color: var(--color-text-primary, #050816);
+  background-color: var(--color-button-primary, #efeff1);
+  border: 1px solid var(--color-border, #d5d6d8);
+  border-radius: var(--border-radius-l, 8px);
+  cursor: pointer;
+}
+
+.btn-icon-library:hover {
+  background-color: var(--color-primary-grey-300, #d5d6d8);
+}
+
+.btn-icon-library .btn-icon {
+  width: 24px;
+  height: 24px;
+}

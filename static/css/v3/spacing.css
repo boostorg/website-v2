@@ -1,0 +1,35 @@
+/**
+ * Spacing Tokens
+ *
+ * Spacing tokens define consistent spacing values across the design system.
+ * All values are on a 4px grid.
+ *
+ * Naming Convention: --space-{size}
+ * Example: --space-default, --space-large
+ */
+
+:root {
+  /* Spacing Scale (Desktop) */
+  --space-xs: 2px;
+  --space-s: 4px;
+  --space-default: 8px;
+  --space-medium: 12px;
+  --space-large: 16px;
+  --space-xlarge: 24px;
+  --space-xl: 32px;
+  --space-xxl: 60px;
+  --space-avatar: 48px;
+}
+
+/* Mobile Spacing Overrides */
+@media (max-width: 767px) {
+  :root {
+    --space-default: 6px;
+    --space-medium: 8px;
+    --space-large: 16px;
+    --space-xl: 20px;
+    --space-xxl: 48px;
+    --space-avatar: 40px;
+    /* xs, s unchanged on mobile */
+  }
+}

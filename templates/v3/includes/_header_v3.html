@@ -1,0 +1,99 @@
+{% load static %}
+{% load account socialaccount %}
+<header class="header" role="banner" x-data="{ mobileMenuOpen: false, userOpen: false }">
+  <div class="header__inner">
+
+    {% comment %} Desktop & tablet nav (hidden on mobile) {% endcomment %}
+    <nav class="header__nav header__nav--desktop" aria-label="Main navigation">
+      <a href="{% url 'home' %}" class="header__link header__logo" title="Boost Home" aria-label="Boost Home">
+        <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost" width="31" height="31">
+      </a>
+
+      <a href="{% url 'libraries' %}" class="header__link">Libraries</a>
+      <a href="#" class="header__link">Use Cases</a>
+      <a href="{% url 'docs' %}" class="header__link">Learn</a>
+      <a href="{% url 'community' %}" class="header__link">Community</a>
+      <a href="{% url 'news' %}" class="header__link header__link--posts">
+        Posts<span class="header__dot" aria-hidden="true"></span>
+      </a>
+      <a href="{% url 'releases-most-recent' %}" class="header__link header__link--btn">Download</a>
+    </nav>
+
+    <div class="header__right">
+      {% comment %} Desktop only: full search bar {% endcomment %}
+      <div class="header__search-bar header__search-bar--full">
+        <span class="header__search-icon icon-brand-accent" aria-hidden="true">
+          {% include "includes/icon.html" with icon_name="search" icon_class="header__icon icon-brand-accent" %}
+        </span>
+        <button type="button" id="gecko-search-button" class="header__search-input-trigger" data-current-boost-version="{{ current_version.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="sans-serif" aria-label="Search">
+          Search
+        </button>
+        <span class="header__search-kbd">CTRL+K</span>
+      </div>
+
+      {% comment %} Tablet only: compact search button (hidden on desktop and mobile via CSS) {% endcomment %}
+      <div class="header__search-compact">
+        <button type="button" class="header__search-btn" aria-label="Search" onclick="document.getElementById('gecko-search-button').click()">
+          {% include "includes/icon.html" with icon_name="search" icon_class="header__icon icon-brand-accent" %}
+          <span class="header__search-btn-label">Search</span>
+        </button>
+      </div>
+
+      <div class="header__utilities">
+        <div class="header__latest">
+          <a href="{% url 'releases-most-recent' %}" class="header__latest-trigger">Latest {% include "includes/icon.html" with icon_name="chevron-down" icon_class="header__icon header__icon--chevron icon-brand-accent" %}</a>
+        </div>
+        {% if not disable_theme_switcher %}
+        <button type="button" id="light-dark" class="header__icon-btn" aria-label="Toggle theme" onclick="changeTheme()">
+          <span class="header__icon--theme-sun">{% include "includes/icon.html" with icon_name="sun-alt" icon_class="header__icon header__icon--theme" icon_size=16 %}</span>
+          <span class="header__icon--theme-moon">{% include "includes/icon.html" with icon_name="moon" icon_class="header__icon header__icon--theme" icon_size=16 %}</span>
+        </button>
+        {% endif %}
+        {% if request.user.is_authenticated %}
+        <span class="header__user">{% include "v3/users/includes/header_avatar_v3.html" %}</span>
+        {% else %}
+        <a href="{% url 'account_login' %}" class="btn btn-primary header__nav-btn">Log In</a>
+        {% endif %}
+      </div>
+    </div>
+
+    {% comment %} Mobile only: logo, menu and search (full-width buttons) {% endcomment %}
+    <div class="header__mobile-actions">
+      <a href="{% url 'home' %}" class="header__mobile-logo" title="Boost Home" aria-label="Boost Home">
+        <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost" width="31" height="31">
+      </a>
+      <button type="button" class="header__menu-btn" aria-label="Open menu" :aria-expanded="mobileMenuOpen" aria-controls="header-drawer" @click="mobileMenuOpen = !mobileMenuOpen">
+        {% include "includes/icon.html" with icon_name="menu" icon_class="header__icon icon-brand-accent" %}
+        <span>Menu</span>
+      </button>
+      <button type="button" class="header__search-btn header__search-btn--mobile" aria-label="Search" onclick="document.getElementById('gecko-search-button').click()">
+        {% include "includes/icon.html" with icon_name="search" icon_class="header__icon icon-brand-accent" %}
+        <span>Search</span>
+      </button>
+    </div>
+  </div>
+
+  {% comment %} Mobile drawer {% endcomment %}
+  <div class="header__drawer" id="header-drawer" x-show="mobileMenuOpen" x-cloak x-transition role="dialog" aria-label="Mobile menu">
+    <nav class="header__drawer-nav" aria-label="Mobile navigation">
+      <a href="{% url 'libraries' %}" class="header__drawer-link">Libraries</a>
+      <a href="#" class="header__drawer-link">Use Cases</a>
+      <a href="{% url 'docs' %}" class="header__drawer-link">Learn</a>
+      <a href="{% url 'community' %}" class="header__drawer-link">Community</a>
+      <a href="{% url 'news' %}" class="header__drawer-link">Posts</a>
+      <a href="{% url 'releases-most-recent' %}" class="header__drawer-link">Download</a>
+      <a href="{% url 'releases-most-recent' %}" class="header__drawer-link">Latest</a>
+    </nav>
+    <div class="header__drawer-utilities">
+
+      {% if not disable_theme_switcher %}
+      <button type="button" class="header__icon-btn" aria-label="Toggle theme" onclick="changeTheme()">
+        <span class="header__icon--theme-sun">{% include "includes/icon.html" with icon_name="sun-alt" icon_class="header__icon header__icon--theme" icon_size=16 %}</span>
+        <span class="header__icon--theme-moon">{% include "includes/icon.html" with icon_name="moon" icon_class="header__icon header__icon--theme" icon_size=16 %}</span>
+      </button>
+      {% endif %}
+
+    </div>
+  </div>
+  <div class="header__backdrop" x-show="mobileMenuOpen" x-cloak x-transition @click="mobileMenuOpen = false" aria-hidden="true"></div>
+</header>
