@@ -1,0 +1,18 @@
+{% load static %}
+<footer class="footer" role="contentinfo"{% if user.is_authenticated %} data-track-login-method="{{ request.user.indicate_last_login_method }}" data-login-method="{{ request.session.boost_login_method }}"{% endif %}>
+  <div class="footer__inner">
+    <nav class="footer__nav" aria-label="Footer navigation">
+      <div class="footer__links">
+        <a href="https://lists.boost.org/mailman3/lists/boost-users.lists.boost.org/" class="footer__link">Contact</a>
+        <a href="{% url 'terms-of-use' %}" class="footer__link">Terms of Use</a>
+        <a href="{% url 'privacy' %}" class="footer__link">Privacy Policy</a>
+        <a href="/doc/user-guide/reporting-issues.html" class="footer__link">Report Bug</a>
+      </div>
+      <span class="footer__nav-spacer" aria-hidden="true"></span>
+      <div class="footer__social" aria-label="Social links">
+        {% include "includes/_social_icon_links.html" %}
+      </div>
+    </nav>
+
+  </div>
+</footer>
