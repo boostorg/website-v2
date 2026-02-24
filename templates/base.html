@@ -53,6 +53,8 @@
       <link href="{% static 'css/v3/fonts.css' %}" rel="stylesheet">
       <link href="{% static 'css/v3/foundations.css' %}" rel="stylesheet">
       <link href="{% static 'css/v3/buttons.css' %}" rel="stylesheet">
+      <link href="{% static 'css/v3/carousel-buttons.css' %}" rel="stylesheet">
+      <link href="{% static 'css/v3/v3-examples-section.css' %}" rel="stylesheet">
       <link href="{% static 'css/v3/header.css' %}" rel="stylesheet">
       <link href="{% static 'css/v3/footer.css' %}" rel="stylesheet">
       {% endflag %}
@@ -395,6 +397,10 @@
         {% block content %}{% endblock %}
       {% endblock %}
       </div>
+
+      {% flag "v3" %}
+      {% include "v3/includes/_v3_examples_section.html" %}
+      {% endflag %}
 
       {% if not hide_footer %}
         {% flag "v3" %}
