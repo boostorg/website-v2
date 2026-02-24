@@ -1,0 +1,116 @@
+{% comment %}
+  V3 combo (searchable dropdown) field.
+  Variables:
+    name         (required) — input name attribute
+    label        (optional) — label text
+    placeholder  (optional) — placeholder text when nothing selected
+    options_json (required) — JSON string of options, e.g. '[{"value":"us","label":"United States"}]'
+    selected     (optional) — value of the pre-selected option
+    help_text    (optional) — help text below the field
+    error        (optional) — error message (activates error state)
+    required     (optional) — if truthy, adds required attribute
+    extra_class  (optional) — additional classes on the wrapper
+  Usage:
+    {% include "v3/includes/_field_combo.html" with name="country" label="Country" options_json=country_json placeholder="Search countries..." %}
+{% endcomment %}
+<div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
+     x-data="{
+       open: false,
+       query: '',
+       selected: '{{ selected|default:'' }}',
+       selectedLabel: '',
+       options: {{ options_json|safe }},
+       get filtered() {
+         if (!this.query) return this.options;
+         const q = this.query.toLowerCase();
+         return this.options.filter(o => o.label.toLowerCase().includes(q));
+       },
+       init() {
+         if (this.selected) {
+           const match = this.options.find(o => o.value === this.selected);
+           if (match) this.selectedLabel = match.label;
+         }
+       },
+       choose(value, label) {
+         this.selected = value;
+         this.selectedLabel = label;
+         this.query = '';
+         this.open = false;
+         this.$refs.trigger.focus();
+       },
+       openPanel() {
+         this.open = true;
+         this.$nextTick(() => this.$refs.searchInput.focus());
+       }
+     }">
+  {% if label %}
+  <label class="field__label" id="field-{{ name }}-label">{{ label }}</label>
+  {% endif %}
+  <div class="dropdown" :class="{ 'dropdown--open': open }">
+    <button type="button"
+            class="dropdown__trigger"
+            x-ref="trigger"
+            @click="openPanel()"
+            @keydown.escape.prevent="open = false"
+            :aria-expanded="open"
+            aria-haspopup="listbox"
+            {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
+            {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}>
+      <span class="dropdown__trigger-text" x-show="selected" x-text="selectedLabel" x-cloak></span>
+      <span class="dropdown__trigger-text dropdown__trigger-placeholder" x-show="!selected">{{ placeholder|default:"Search..." }}</span>
+      <svg class="dropdown__chevron" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M7 8H5v2h2v2h2v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2h-2v-2H9v-2H7V8z"/>
+      </svg>
+    </button>
+    <div class="dropdown__panel"
+         x-show="open"
+         @click.away="open = false"
+         x-transition:enter="transition ease-out duration-100"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-75"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         style="display: none;"
+         role="combobox"
+         {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}>
+      <div class="combo__search">
+        <svg class="combo__search-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M6 2h8v2H6V2zM4 6V4h2v2H4zm0 8H2V6h2v8zm2 2H4v-2h2v2zm8 0v2H6v-2h8zm2-2h-2v2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm0-8h2v8h-2V6zm0 0V4h-2v2h2z"/>
+        </svg>
+        <input type="text"
+               class="combo__search-input"
+               x-ref="searchInput"
+               x-model="query"
+               @keydown.escape.prevent="open = false"
+               placeholder="Type to search..."
+               aria-autocomplete="list"
+               aria-label="Search options">
+        <svg class="dropdown__chevron" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M7 8H5v2h2v2h2v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2h-2v-2H9v-2H7V8z"/>
+        </svg>
+      </div>
+      <div class="dropdown__list" role="listbox">
+        <template x-for="option in filtered" :key="option.value">
+          <div class="dropdown__item"
+               :class="{ 'dropdown__item--selected': selected === option.value }"
+               role="option"
+               :aria-selected="selected === option.value"
+               @click="choose(option.value, option.label)"
+               @keydown.enter.prevent="choose(option.value, option.label)"
+               @keydown.space.prevent="choose(option.value, option.label)"
+               tabindex="0"
+               x-text="option.label">
+          </div>
+        </template>
+        <div class="dropdown__empty" x-show="filtered.length === 0">No results found</div>
+      </div>
+    </div>
+  </div>
+  <input type="hidden" name="{{ name }}" :value="selected" {% if required %}required{% endif %}>
+  {% if error %}
+  <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
+  {% elif help_text %}
+  <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+  {% endif %}
+</div>
