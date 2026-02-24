@@ -33,51 +33,12 @@
         <div class="md:w-1/2 w-full pt-2 md:pt-6">
           <div class="grid grid-cols-3 justify-center place-items-center space-y-1 space-x-1 {% if is_moderator %}sm:grid-cols-6{% else %}sm:grid-cols-5{% endif %} sm:space-y-0">
 
-            {% url 'news' as target_url %}
-            <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
-              <h6 class="pb-1 text-base">All</h6>
-              <i class="fa fa-globe"></i>
+            {% for type in filters %}
+            <a href="{% querystring type=type.filter_name %}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+              <h6 class="pb-1 text-base">{{type.content_type}}</h6>
+              <i class="fa fa-{{type.icon_name}}"></i>
             </a>
-
-            {% url 'news-news-list' as target_url %}
-            <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
-              <h6 class="pb-1 text-base">News</h6>
-              <i class="fa fa-newspaper"></i>
-            </a>
-
-            {% url 'news-blogpost-list' as target_url %}
-            <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
-              <h6 class="pb-1 text-base">Blogs</h6>
-              <i class="fa fa-comment"></i>
-            </a>
-
-            {% url 'news-link-list' as target_url %}
-            <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
-              <h6 class="pb-1 text-base">Links</h6>
-              <i class="fas fa-link"></i>
-            </a>
-
-            {% comment %}
-            <!-- turning off polls for now -->
-            {% url 'news-poll-list' as target_url %}
-            <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
-              <h6 class="pb-1 text-base">Polls</h6>
-              <i class="fa fa-poll"></i>
-            </a>
-            {% endcomment %}
-
-            {% url 'news-video-list' as target_url %}
-            <a href="{{ target_url }}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
-              <h6 class="pb-1 text-base">Videos</h6>
-              <i class="fa fa-video"></i>
-            </a>
-
-            {% if is_moderator %}
-            <a href="{% url "news-moderate" %}" class="w-22 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
-              <h6 class="pb-1 text-base">Moderate</h6>
-              <i class="fa fa-thumbs-up"></i>
-            </a>
-            {% endif %}
+            {% endfor %}
           </div>
         </div>
     </div>
@@ -87,11 +48,10 @@
         {% for entry in posts %}
         <div class="md:flex md:space-x-3">
           <div class="hidden mt-6 text-sm text-left capitalize md:block min-w-[120px] whitespace-nowrap">
-            <a href="{{ entry.get_absolute_url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ entry.first_published_at|date:"M jS, Y" }}&nbsp;&nbsp;</a>
+            <a href="{{ entry.url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ entry.first_published_at|date:"M jS, Y" }}&nbsp;&nbsp;</a>
           </div>
           <div class="hidden pt-6 border-l-2 border-white md:block min-w-[50px] dark:border-slate">
-              {% url 'news-link-list' as target_url %}
-              <a href="{{ target_url }}" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
+              <a href="{% querystring type=entry.specific.filter_name %}" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
                 <i class="fas fa-{{entry.specific.icon_name}}"></i>
               </a>
           </div>
@@ -103,21 +63,21 @@
             <div class="flex">
               <div class="flex-grow-1">
               <h2 class="py-0 my-0 text-xl font-semibold mr-4">
-                <a class="link-header" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+                <a class="link-header" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.url }}{% endif %}">
                   {{ entry.title }}
                 </a>
               </h2>
             </div>
               <div class="md:block text-xs hidden ml-auto text-right w-[150px]">
                 {{ entry.owner.display_name }}<br />
-                <span class="text-xs">{{ entry.publish_at|date:"M jS, Y" }}</span>
+                <span class="text-xs">{{ entry.first_published_at|date:"M jS, Y" }}</span>
               </div>
             </div>
             {% if entry.visible_content %}
               <div>
                 <div class="text-base text-gray-500 dark:text-white/70">{{ entry.visible_content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|multi_truncate_middle:30 }}</div>
                 {% if entry.use_summary %}
-                  {% if entry.determined_news_type == "link" %}
+                  {% if entry.specific.content_type == "Link" %}
                     <a href="{{ entry.external_url }}" class="inline-block text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange mt-2">Read more&#8230;</a>
                   {% else %}
                     <a href="{{ entry.get_absolute_url }}" class="inline-block text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange mt-2">Read more&#8230;</a>

@@ -12,6 +12,9 @@ class CustomVideoBlock(StructBlock):
     video = EmbedBlock()
     thumbnail = ImageChooserBlock()
 
+    class Meta:
+        template = "blocks/custom_video_block.html"
+
 
 class PollBlock(StreamBlock):
     poll_choice = CharBlock(max_length=200)
