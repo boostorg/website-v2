@@ -1,0 +1,32 @@
+/* V3 examples section (layout without Tailwind) */
+.v3-examples-section {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: var(--space-xl, 32px) var(--space-default, 8px);
+}
+.v3-examples-section__heading {
+  font-size: var(--font-size-xl, 20px);
+  font-weight: var(--font-weight-medium, 500);
+  margin-bottom: var(--space-default, 8px);
+}
+.v3-examples-section__block {
+  margin-bottom: var(--space-xl, 32px);
+}
+.v3-examples-section__block:last-child {
+  margin-bottom: 0;
+}
+.v3-examples-section__block h3 {
+  font-size: var(--font-size-base, 16px);
+  font-weight: var(--font-weight-medium, 500);
+  margin-bottom: var(--space-default, 8px);
+}
+.v3-examples-section__block--carousel h3 {
+  margin-bottom: var(--space-s, 4px);
+}
+.v3-examples-section__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-default, 8px);
+  align-items: center;
+}

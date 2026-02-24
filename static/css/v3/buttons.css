@@ -185,6 +185,14 @@
   height: 16px;
 }
 
+.btn-tooltip--with-text {
+  width: auto;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 var(--space-default, 8px);
+  gap: var(--space-s, 4px);
+}
+
 .tooltip-wrapper {
   position: relative;
   display: inline-flex;
@@ -199,9 +207,29 @@
   color: var(--color-text-reversed, #fff);
   font-size: var(--font-size-xs, 12px);
   font-weight: var(--font-weight-regular, 400);
+  line-height: 1.25;
   border-radius: var(--border-radius-s, 4px);
   white-space: nowrap;
-  z-index: 1;
+  z-index: 10;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+  transition-delay: 0s;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tooltip-wrapper:hover .tooltip-label,
+.tooltip-wrapper:focus-within .tooltip-label {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0.1s;
+}
+
+.tooltip-label::after {
+  content: "";
+  position: absolute;
+  border: 5px solid transparent;
 }
 
 .tooltip-label.top {
@@ -209,11 +237,23 @@
   left: 50%;
   transform: translate(-50%, -8px);
 }
+.tooltip-label.top::after {
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-top-color: var(--color-primary-grey-900, #2f313d);
+}
 
 .tooltip-label.bottom {
   top: 100%;
   left: 50%;
   transform: translate(-50%, 8px);
+}
+.tooltip-label.bottom::after {
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-bottom-color: var(--color-primary-grey-900, #2f313d);
 }
 
 .tooltip-label.left {
@@ -221,11 +261,23 @@
   top: 50%;
   transform: translate(-8px, -50%);
 }
+.tooltip-label.left::after {
+  left: 100%;
+  top: 50%;
+  margin-top: -5px;
+  border-left-color: var(--color-primary-grey-900, #2f313d);
+}
 
 .tooltip-label.right {
   left: 100%;
   top: 50%;
   transform: translate(8px, -50%);
+}
+.tooltip-label.right::after {
+  right: 100%;
+  top: 50%;
+  margin-top: -5px;
+  border-right-color: var(--color-primary-grey-900, #2f313d);
 }
 
 /* ========== Card link button ========== */
