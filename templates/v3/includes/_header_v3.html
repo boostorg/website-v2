@@ -83,6 +83,9 @@
       <a href="{% url 'news' %}" class="header__drawer-link">Posts</a>
       <a href="{% url 'releases-most-recent' %}" class="header__drawer-link">Download</a>
       <a href="{% url 'releases-most-recent' %}" class="header__drawer-link">Latest</a>
+      {% if not request.user.is_authenticated %}
+      <a href="{% url 'account_login' %}" class="header__drawer-link">Log In</a>
+      {% endif %}
     </nav>
     <div class="header__drawer-utilities">
 
