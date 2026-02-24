@@ -189,14 +189,27 @@
   transform: rotate(180deg);
 }
 
+/* Open state: trigger gets active styling, connects to panel */
+.dropdown--open .dropdown__trigger {
+  background-color: var(--color-surface-mid, #f7f7f8);
+  border-color: var(--color-stroke-strong, #05081640);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: var(--color-stroke-weak, #0508161A);
+}
+
 .dropdown__panel {
   position: absolute;
-  top: calc(100% + var(--space-s, 4px));
+  top: 100%;
   left: 0;
   right: 0;
   background-color: var(--color-surface-weak, #fff);
-  border: 1px solid var(--color-stroke-weak, #0508161A);
-  border-radius: var(--border-radius-xl, 12px);
+  border: 1px solid var(--color-stroke-strong, #05081640);
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-left-radius: var(--border-radius-xl, 12px);
+  border-bottom-right-radius: var(--border-radius-xl, 12px);
   box-shadow: 0 1px 4px rgba(5, 8, 22, 0.04);
   z-index: 50;
   overflow: hidden;
@@ -254,13 +267,27 @@
 }
 
 /* ========== Combo (searchable dropdown) ========== */
-.combo__search {
+
+/* Search row sits inside the trigger, inline with the chevron */
+.combo__search-row {
   display: flex;
   align-items: center;
   gap: var(--space-default, 8px);
-  height: 40px;
-  padding: 0 var(--space-large, 16px);
-  border-bottom: 1px solid var(--color-stroke-weak, #0508161A);
+  flex: 1;
+  min-width: 0;
+}
+
+/* Chevron button inside the trigger — unstyled wrapper */
+.combo__chevron-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .combo__search-icon {
@@ -276,11 +303,19 @@
   border: none;
   background: transparent;
   outline: none;
+  box-shadow: none;
+  -webkit-appearance: none;
   font-family: var(--font-sans);
   font-size: var(--font-size-small, 14px);
   font-weight: var(--font-weight-regular, 400);
   color: var(--color-text-primary, #050816);
   padding: 0;
+}
+
+.combo__search-input:focus {
+  outline: none;
+  box-shadow: none;
+  border: none;
 }
 
 .combo__search-input::placeholder {
