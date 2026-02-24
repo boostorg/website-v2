@@ -909,7 +909,7 @@ body :not(pre):not([class^="L"]) > code {
 /* Base Container */
 .boostlook {
   font-family: var(--font-family-body, "Noto Sans") !important;
-  font-variation-settings: "wght" 350, "wdth" 80;
+  font-variation-settings: "wght" 350, "wdth" 87.5;
   background: var(--surface-background-main-base-primary, #fff);
 }
 
@@ -932,10 +932,10 @@ body :not(pre):not([class^="L"]) > code {
   color: var(--text-main-text-primary, #18191b);
   display: block;
   line-height: var(--typography-line-height-xl, 1.75rem);
-  margin-top: var(--padding-padding-xl, 2rem);
+  margin-top: var(--padding-padding-lg, 1.5rem);
   letter-spacing: var(--spacing-size-size-0, 0rem);
   margin-bottom: 0.5rem;
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   position: relative;
 }
 
@@ -1151,6 +1151,18 @@ body :not(pre):not([class^="L"]) > code {
   opacity: 1;
 }
 
+/* Inline math (stem/latexmath) — override reset's svg { display: block } */
+.boostlook .steminline {
+  display: inline;
+  white-space: nowrap;
+}
+
+.boostlook .steminline svg {
+  display: inline;
+  vertical-align: middle;
+  max-width: none;
+}
+
 /* Paragraph Styling */
 .boostlook p {
   padding-top: initial !important;
@@ -1286,7 +1298,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 /* Text Emphasis */
 .boostlook b,
 .boostlook strong {
-  font-variation-settings: "wght" 600, "wdth" 80;
+  font-variation-settings: "wght" 600, "wdth" 87.5;
   text-shadow: none;
 }
 
@@ -1419,7 +1431,7 @@ html.dark .boostlook .listingblock > .content > pre {
   color: var(--text-main-text-body-primary, #2a2c30);
   font-size: var(--typography-font-size-xs, 0.875rem);
   font-style: normal;
-  font-variation-settings: "wght" 600, "wdth" 80;
+  font-variation-settings: "wght" 600, "wdth" 87.5;
   line-height: var(--typography-line-height-md, 1.25rem);
   letter-spacing: unset;
   padding-bottom: var(--padding-padding-2xs, 0.5rem);
@@ -1560,7 +1572,7 @@ html.dark .boostlook .listingblock > .content > pre {
   font-family: "Noto Sans";
   font-size: var(--typography-font-size-2xs, 0.75rem);
   font-style: normal;
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-sm, 1rem); /* 133.333% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
   text-transform: uppercase;
@@ -1646,7 +1658,7 @@ html.dark .boostlook .listingblock > .content > pre {
   color: var(--text-main-text-primary, #18191b);
   text-align: center;
   font-size: var(--typography-font-size-sm, 1rem);
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-lg, 1.5rem); /* 150% */
 }
 
@@ -1657,9 +1669,9 @@ html.dark .boostlook .listingblock > .content > pre {
 .boostlook .doc .colist > table code:not(:has(> code)) {
   display: inline;
   color: var(--text-code-neutral, #0d0e0f);
-  font-size: 0.96em;
+  font-size: 0.88em;
   font-style: normal;
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-md);
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
@@ -1957,7 +1969,7 @@ html.dark .boostlook .hljs-code {
   padding: var(--padding-padding-xs, 0.75rem);
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-sm, 1rem);
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-lg, 1.5rem); /* 150% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
   text-decoration: none;
@@ -1987,7 +1999,7 @@ html.dark .boostlook .hljs-code {
   position: static;
   color: var(--text-main-text-body-quaternary, #949a9e);
   font-size: var(--typography-font-size-2xs, 0.75rem);
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-sm, 1rem); /* 133.333% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
   transform: revert;
@@ -2176,7 +2188,7 @@ html.dark .boostlook .hljs-code {
 .boostlook:not(:has(.doc)) .notices .message p {
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-xs, 0.875rem);
-  font-variation-settings: "wght" 400, "wdth" 80;
+  font-variation-settings: "wght" 400, "wdth" 87.5;
   line-height: var(--typography-line-height-lg, 1.5rem); /* 171.429% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
@@ -2318,7 +2330,7 @@ html.dark .boostlook .hljs-code {
   border: none;
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-xs, 0.875rem);
-  font-variation-settings: "wght" 400, "wdth" 80;
+  font-variation-settings: "wght" 400, "wdth" 87.5;
   line-height: var(--typography-line-height-lg, 1.5rem);
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
@@ -2341,7 +2353,7 @@ html.dark .boostlook .hljs-code {
   color: var(--text-code-neutral, #0d0e0f);
   font-size: var(--typography-font-size-xs, 0.875rem);
   font-style: normal;
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-lg, 1.5rem); /* 171.429% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
   margin-bottom: 0;
@@ -2368,7 +2380,7 @@ html.dark .boostlook .hljs-code {
 
 .boostlook .dlist dl dt code,
 .boostlook:not(:has(.doc)) .variablelist dl dt code {
-  font-variation-settings: "wght" 600, "wdth" 80;
+  font-variation-settings: "wght" 600, "wdth" 87.5;
   font-family: var(--font-family-code, 'Monaspace Neon');
 }
 
@@ -2412,7 +2424,7 @@ html.dark .boostlook .hljs-code {
 .boostlook .dlist dl dd em,
 .boostlook:not(:has(.doc)) .variablelist dl dd em {
   font: inherit;
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
 }
 
 /* Edit Page Link */
@@ -2421,7 +2433,7 @@ html.dark .boostlook .hljs-code {
   text-align: right;
   font-size: var(--typography-font-size-2xs, 0.75rem);
   font-style: normal;
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-sm, 1rem); /* 133.333% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
   padding: 0 var(--padding-padding-2xs, 0.5rem);
@@ -2448,7 +2460,7 @@ html.dark .boostlook .hljs-code {
   padding-bottom: var(--padding-padding-sm);
   color: var(--text-main-text-body-quaternary, #949a9e);
   font-size: var(--typography-font-size-xs);
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-sm, 1rem); /* 133.333% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
@@ -2526,6 +2538,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content > ul:not([class])> li {
   position: relative;
   padding-left: 2rem;
+  line-height: var(--typography-line-height-lg, 1.5rem);
 }
 
 .boostlook ul.itemizedlist > li,
@@ -2537,6 +2550,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content ul:not([class]) li,
 div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #content ol:not([class]) li {
   font: inherit;
+  line-height: var(--typography-line-height-lg, 1.5rem);
 }
 
 .boostlook ul.itemizedlist > li + li,
@@ -2586,6 +2600,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   position: relative;
   padding-left: 2rem;
   counter-increment: list-counter;
+  line-height: var(--typography-line-height-lg, 1.5rem);
 }
 
 .boostlook .olist.arabic > ol > li::before,
@@ -2619,6 +2634,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   position: relative;
   padding-left: 2rem;
   counter-increment: list-counter;
+  line-height: var(--typography-line-height-lg, 1.5rem);
 }
 
 .boostlook .olist.loweralpha > ol > li::before {
@@ -2633,7 +2649,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   justify-content: center;
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-xs, 0.875rem);
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--Typography-line-height-lg, 1.5rem); /* 171.429% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
@@ -2648,7 +2664,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   justify-content: center;
   font-family: "Noto Sans";
   font-style: normal;
-  font-variation-settings: "wght" 350, "wdth" 80;
+  font-variation-settings: "wght" 350, "wdth" 87.5;
   line-height: var(--typography-line-height-sm, 1rem);
   font-size: var(--typography-font-size-sm, 1rem);
   text-align: center;
@@ -2777,7 +2793,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   color: var(--text-main-text-body-primary, #2a2c30);
   font-size: var(--typography-font-size-xs, 0.875rem);
   font-style: normal;
-  font-variation-settings: "wght" 600, "wdth" 80;
+  font-variation-settings: "wght" 600, "wdth" 87.5;
   line-height: var(--typography-line-height-md, 1.25rem); /* 142.857% */
   padding: 0;
   padding-bottom: var(--padding-padding-2xs, 0.5rem);
@@ -2786,7 +2802,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook #content table.tableblock caption > *,
 .boostlook:not(:has(.doc)) div.table .title > * {
   font: inherit;
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   text-decoration: none;
 }
 
@@ -2830,7 +2846,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   background: var(--surface-background-main-surface-primary, #f5f6f8);
   color: var(--text-main-text-primary, #000000);
   font-size: var(--typography-font-size-xs, 0.875rem);
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-lg, 1.5rem); /* 171.429% */
 }
 
@@ -2891,7 +2907,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
 .boostlook #content table.tableblock td strong,
 .boostlook:not(:has(.doc)) table.table td strong,
 .boostlook#libraryReadMe > table td strong {
-  font-variation-settings: "wght" 600, "wdth" 80;
+  font-variation-settings: "wght" 600, "wdth" 87.5;
 }
 
 .boostlook #content table.tableblock td code,
@@ -3189,7 +3205,7 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
 .boostlook #toc > ul.sectlevel1 li:has(> ul) > a {
   color: var(--text-main-text-body-quaternary, #949a9e);
   font-size: var(--typography-font-size-2xs, 0.75rem);
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-sm, 1rem);
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
@@ -3256,7 +3272,7 @@ div.source-docs-antora.boostlook:not(:has(article.doc)):not(:has(> .boostlook)) 
   font-size: var(--typography-font-size-2xs, 0.75rem);
   line-height: var(--typography-line-height-sm, 1rem);
   letter-spacing: var(--spacing-size-size-0, 0rem);
-  font-variation-settings: "wght" 600, "wdth" 80;
+  font-variation-settings: "wght" 600, "wdth" 87.5;
 }
 
 /* TOC code in links */
@@ -3419,7 +3435,7 @@ html.is-clipped--nav:has(.boostlook) div#content {
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-lg, 1.25rem);
   font-style: normal;
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-xl, 1.75rem);
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
@@ -3674,7 +3690,7 @@ html.dark .boostlook pre.rouge .cm {
   list-style: none;
   color: var(--text-main-text-body-tetriary, #62676b);
   font-size: var(--typography-font-size-xs, 0.875rem);
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-lg, 1.5rem); /* 171.429% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
@@ -4185,7 +4201,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) {
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-2xl, 1.75rem);
   font-style: normal;
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-3xl, 2.5rem);
   letter-spacing: var(--spacing-size-size-0, 0rem);
   margin: 0;
@@ -4206,7 +4222,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(>.boostlook)) > #conte
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-lg, 1.25rem);
   font-style: normal;
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-xl, 1.75rem);
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
@@ -4321,7 +4337,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) > #cont
   padding: var(--spacing-size-3xs, 0.25rem);
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-2xs, 0.75rem);
-  font-variation-settings: "wght" 600, "wdth" 80;
+  font-variation-settings: "wght" 600, "wdth" 87.5;
   line-height: var(--typography-line-height-sm, 1rem); /* 133.333% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
@@ -4366,6 +4382,18 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) div.spi
 /* Content Blocks */
 .boostlook:not(:has(.doc)) .inlinemediaobject:has(> img):first-child:last-child {
   margin: var(--padding-padding-xs, 0.75rem) 0;
+}
+
+.boostlook :is(h1, h2, h3, h4, h5) code,
+.boostlook .doc :is(h1, h2, h3, h4, h5) code {
+  background: transparent !important;
+  border: none;
+  font-size: 0.85em;
+  font-weight: 400;
+  color: inherit;
+  padding: 0;
+  display: initial;
+  transition: none;
 }
 
 .boostlook:not(:has(.doc)) a:is(h1 a, h2 a, h3 a, h4 a, h5 a) code {
@@ -4445,7 +4473,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) div.spi
   color: var(--text-main-text-primary, #18191b);
   font-size: var(--typography-font-size-md, 1.125rem);
   font-style: normal;
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-xl, 1.75rem); /* 155.556% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
@@ -4475,7 +4503,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) div.spi
   color: var(--text-main-text-body-tetriary, #62676b);
   font-size: var(--typography-font-size-xs, 0.875rem);
   font-style: normal;
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-lg, 1.5rem); /* 171.429% */
   letter-spacing: var(--spacing-size-size-0, 0rem);
 }
@@ -4515,7 +4543,7 @@ div.source-docs-antora.boostlook:not(:has(.doc)):not(:has(> .boostlook)) div.spi
 .boostlook:not(:has(.doc)) .copyright-footer {
   color: var(--text-main-text-body-quaternary, #949a9e);
   font-size: var(--typography-font-size-xs);
-  font-variation-settings: "wght" 500, "wdth" 80;
+  font-variation-settings: "wght" 500, "wdth" 87.5;
   line-height: var(--typography-line-height-sm, 1rem);
   letter-spacing: var(--spacing-size-size-0, 0rem);
   text-align: left;
