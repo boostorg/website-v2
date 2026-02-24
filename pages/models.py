@@ -1,3 +1,5 @@
+from typing import NamedTuple
+
 from wagtail.contrib.routable_page.models import RoutablePageMixin
 from wagtail.fields import StreamField
 
@@ -21,6 +23,58 @@ class RoutableHomePage(BasePage, RoutablePageMixin):
     max_count = 1
 
 
+class _PostContentType(NamedTuple):
+    """
+    Associates content block names with label, icon, and filter name
+    """
+
+    block_name: list = []
+    icon_name: str = ""
+    content_type: str = ""
+    filter_name: str = ""
+
+
+POST_CONTENT_TYPES = (
+    _PostContentType(
+        block_name=[],
+        icon_name="globe",
+        content_type="All",
+        filter_name="",
+    ),
+    _PostContentType(
+        block_name=["rich_text", "markdown"],
+        icon_name="comment",
+        content_type="Blog",
+        filter_name="blog",
+    ),
+    _PostContentType(
+        block_name=[],
+        icon_name="newspaper",
+        content_type="News",
+        filter_name="news",
+    ),
+    _PostContentType(
+        block_name=["video"],
+        icon_name="video",
+        content_type="Video",
+        filter_name="video",
+    ),
+    _PostContentType(
+        block_name=["url"],
+        icon_name="link",
+        content_type="Link",
+        filter_name="link",
+    ),
+)
+CONTENT_TYPES_BY_FILTER: dict[str, _PostContentType] = {
+    x.filter_name: x for x in POST_CONTENT_TYPES if x.filter_name
+}
+CONTENT_TYPES_BY_BLOCK: dict[str, _PostContentType] = {}
+for i in POST_CONTENT_TYPES:
+    for bn in i.block_name:
+        CONTENT_TYPES_BY_BLOCK[bn] = i
+
+
 class PostIndexPage(BasePage):
     """
     Parent Index of News items, inheriting by base Page and displaying all content items when visited
@@ -30,23 +84,33 @@ class PostIndexPage(BasePage):
     subpage_types = ["pages.PostPage"]
     max_count = 1
 
-    def get_children_by_content_type(self, content_type: str) -> QuerySet["PostPage"]:
+    def get_children_by_content_type(
+        self, content_type: str | list[str]
+    ) -> QuerySet["PostPage"]:
         posts = PostPage.objects.child_of(self).live().order_by("-first_published_at")
-        print(posts.first().content[0].block)
-        return posts.filter(content__0__name=content_type)
+        if isinstance(content_type, str):
+            return posts.filter(content__0__type=content_type)
+        elif isinstance(content_type, list):
+            return posts.filter(content__0__type__in=content_type)
+        else:
+            return posts.none()
 
     def get_context(self, request, *args, **kwargs):
         ctx = super().get_context(request, *args, **kwargs)
 
-        posts = (
-            self.get_children().type(PostPage).live().order_by("-first_published_at")
-        )
-        if content_type := request.GET.get("content-type", "").lower():
-            match content_type:
-                case "blog":
-                    posts = self.get_children_by_content_type("rich_text")
+        content_type = request.GET.get("type", "").lower()
+        if content_value := CONTENT_TYPES_BY_FILTER.get(content_type, None):
+            posts = self.get_children_by_content_type(content_value.block_name)
+        else:
+            posts = (
+                self.get_children()
+                .type(PostPage)
+                .live()
+                .order_by("-first_published_at")
+            )
 
         ctx["posts"] = posts
+        ctx["filters"] = POST_CONTENT_TYPES
         return ctx
 
 
@@ -60,7 +124,7 @@ class PostPage(BasePage):
     content = StreamField(POST_BLOCKS, min_num=1, max_num=1)
 
     @property
-    def content_type(self):
+    def stream_content_type(self):
         if not len(self.content):
             return ""
         else:
@@ -68,31 +132,21 @@ class PostPage(BasePage):
 
     @property
     def post_content_type(self):
-        match self.content_type:
-            case "rich_text":
-                return "Blog"
-            case "markdown":
-                return "Blog"
-            case "url":
-                return "Link"
-            case "video":
-                return "Video"
-            case "poll":
-                return "Poll"
+        return CONTENT_TYPES_BY_BLOCK.get(
+            self.stream_content_type, _PostContentType()
+        ).content_type
 
     @property
     def icon_name(self):
-        match self.content_type:
-            case "rich_text":
-                return "comment"
-            case "markdown":
-                return "comment"
-            case "url":
-                return "link"
-            case "video":
-                return "video"
-            case "poll":
-                return "poll"
+        return CONTENT_TYPES_BY_BLOCK.get(
+            self.stream_content_type, _PostContentType()
+        ).icon_name
+
+    @property
+    def filter_name(self):
+        return CONTENT_TYPES_BY_BLOCK.get(
+            self.stream_content_type, _PostContentType()
+        ).filter_name
 
     content_panels = BasePage.content_panels + [
         "content",
