@@ -21,22 +21,23 @@ from ak.views import (
 from config.settings import DEBUG_TOOLBAR
 from core.views import (
     BSLView,
+    BoostDevelopmentView,
     CalendarView,
     ClearCacheView,
+    DemoFormsView,
     DocLibsTemplateView,
     ImageView,
     MarkdownTemplateView,
+    ModernizedDocsView,
     RedirectToDocsView,
     RedirectToHTMLDocsView,
     RedirectToHTMLToolsView,
     RedirectToLibrariesView,
+    RedirectToLibraryDetailView,
     RedirectToReleaseView,
     RedirectToToolsView,
     StaticContentTemplateView,
     UserGuideTemplateView,
-    BoostDevelopmentView,
-    ModernizedDocsView,
-    RedirectToLibraryDetailView,
 )
 from marketing.views import PlausibleRedirectView, WhitePaperView
 from libraries.api import LibrarySearchView
@@ -241,6 +242,7 @@ urlpatterns = (
             TemplateView.as_view(template_name="style_guide.html"),
             name="style-guide",
         ),
+        path("v3/demo/forms/", DemoFormsView.as_view(), name="v3-demo-forms"),
         path("libraries/", LibraryListDispatcher.as_view(), name="libraries"),
         path(
             "libraries/<boostversionslug:version_slug>/<str:library_view_str>/",

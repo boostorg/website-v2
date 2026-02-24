@@ -1026,3 +1026,58 @@ class QRCodeView(View):
             redirect_path = f"{redirect_path}?{qs}"
 
         return HttpResponseRedirect(redirect_path)
+
+
+class DemoFormsView(UserPassesTestMixin, TemplateView):
+    """Staff-only demo page for v3 form input components."""
+
+    template_name = "v3/demo_forms.html"
+    login_url = "/accounts/login/"
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def handle_no_permission(self):
+        return HttpResponse(
+            "You do not have permission to access this page.", status=403
+        )
+
+    def get_context_data(self, **kwargs):
+        import json
+
+        ctx = super().get_context_data(**kwargs)
+        ctx["dropdown_options"] = [
+            {"value": "1.87.0", "label": "Boost 1.87.0"},
+            {"value": "1.86.0", "label": "Boost 1.86.0"},
+            {"value": "1.85.0", "label": "Boost 1.85.0"},
+            {"value": "1.84.0", "label": "Boost 1.84.0"},
+            {"value": "1.83.0", "label": "Boost 1.83.0"},
+            {"value": "1.82.0", "label": "Boost 1.82.0"},
+        ]
+        ctx["libraries_json"] = json.dumps(
+            [
+                {"value": "asio", "label": "Asio"},
+                {"value": "beast", "label": "Beast"},
+                {"value": "filesystem", "label": "Filesystem"},
+                {"value": "json", "label": "JSON"},
+                {"value": "mp11", "label": "Mp11"},
+                {"value": "multiprecision", "label": "Multiprecision"},
+                {"value": "spirit", "label": "Spirit"},
+                {"value": "test", "label": "Test"},
+                {"value": "thread", "label": "Thread"},
+                {"value": "url", "label": "URL"},
+            ]
+        )
+        ctx["categories_json"] = json.dumps(
+            [
+                {"value": "algorithms", "label": "Algorithms"},
+                {"value": "containers", "label": "Containers"},
+                {"value": "io", "label": "I/O"},
+                {"value": "math", "label": "Math & Numerics"},
+                {"value": "networking", "label": "Networking"},
+                {"value": "string", "label": "String & Text"},
+                {"value": "system", "label": "System"},
+                {"value": "template", "label": "Template Metaprogramming"},
+            ]
+        )
+        return ctx

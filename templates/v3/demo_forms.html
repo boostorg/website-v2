@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}V3 Form Components Demo{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 40px auto; padding: 0 24px; display: flex; flex-direction: column; gap: 48px;">
+
+  <!-- ====== Text Fields ====== -->
+  <section style="display: flex; flex-direction: column; gap: 24px;">
+    <h2 style="font-family: var(--font-sans); font-size: var(--font-size-large); font-weight: var(--font-weight-medium); color: var(--color-text-primary);">Text Fields</h2>
+
+    {% include "v3/includes/_field_text.html" with name="basic" label="Basic field" placeholder="Enter text..." %}
+
+    {% include "v3/includes/_field_text.html" with name="prefilled" label="Pre-filled field" value="Hello world" %}
+
+    {% include "v3/includes/_field_text.html" with name="with_help" label="With help text" placeholder="Enter your email" help_text="We'll never share your email with anyone." %}
+
+    {% include "v3/includes/_field_text.html" with name="with_icon_left" label="With left icon" placeholder="Search..." icon_left="search" %}
+
+    {% include "v3/includes/_field_text.html" with name="with_error" label="Error state" placeholder="Enter value" error="This field is required." %}
+
+    {% include "v3/includes/_field_text.html" with name="disabled_field" label="Disabled field" placeholder="Can't touch this" disabled="true" %}
+  </section>
+
+  <!-- ====== Checkboxes ====== -->
+  <section style="display: flex; flex-direction: column; gap: 24px;">
+    <h2 style="font-family: var(--font-sans); font-size: var(--font-size-large); font-weight: var(--font-weight-medium); color: var(--color-text-primary);">Checkboxes</h2>
+
+    {% include "v3/includes/_field_checkbox.html" with name="agree" label="I agree to the terms and conditions" %}
+
+    {% include "v3/includes/_field_checkbox.html" with name="newsletter" label="Subscribe to newsletter" checked="true" %}
+
+    {% include "v3/includes/_field_checkbox.html" with name="disabled_check" label="Disabled checkbox" disabled="true" %}
+  </section>
+
+  <!-- ====== Dropdown ====== -->
+  <section style="display: flex; flex-direction: column; gap: 24px;">
+    <h2 style="font-family: var(--font-sans); font-size: var(--font-size-large); font-weight: var(--font-weight-medium); color: var(--color-text-primary);">Dropdown</h2>
+
+    {% with options=dropdown_options %}
+    {% include "v3/includes/_field_dropdown.html" with name="version" label="Boost version" placeholder="Select a version..." options=options help_text="Choose the version you're using." %}
+    {% endwith %}
+
+    {% with options=dropdown_options %}
+    {% include "v3/includes/_field_dropdown.html" with name="version_err" label="Dropdown with error" placeholder="Select..." options=options error="Please select a version." %}
+    {% endwith %}
+  </section>
+
+  <!-- ====== Combo (searchable) ====== -->
+  <section style="display: flex; flex-direction: column; gap: 24px;">
+    <h2 style="font-family: var(--font-sans); font-size: var(--font-size-large); font-weight: var(--font-weight-medium); color: var(--color-text-primary);">Combo (Searchable Dropdown)</h2>
+
+    {% include "v3/includes/_field_combo.html" with name="library" label="Library" placeholder="Search libraries..." options_json=libraries_json help_text="Start typing to filter." %}
+  </section>
+
+  <!-- ====== Multi-select ====== -->
+  <section style="display: flex; flex-direction: column; gap: 24px;">
+    <h2 style="font-family: var(--font-sans); font-size: var(--font-size-large); font-weight: var(--font-weight-medium); color: var(--color-text-primary);">Multi-Select</h2>
+
+    {% include "v3/includes/_field_multiselect.html" with name="tags" label="Categories" placeholder="Select categories..." options_json=categories_json help_text="Select one or more categories." %}
+  </section>
+
+  <!-- ====== Kitchen sink form ====== -->
+  <section style="display: flex; flex-direction: column; gap: 24px; padding-bottom: 80px;">
+    <h2 style="font-family: var(--font-sans); font-size: var(--font-size-large); font-weight: var(--font-weight-medium); color: var(--color-text-primary);">Kitchen Sink Form</h2>
+    <form method="post" action="" style="display: flex; flex-direction: column; gap: 16px;">
+      {% csrf_token %}
+      {% include "v3/includes/_field_text.html" with name="full_name" label="Full name" placeholder="Jane Doe" required="true" %}
+      {% include "v3/includes/_field_text.html" with name="email" label="Email" placeholder="jane@example.com" type="email" required="true" %}
+      {% include "v3/includes/_field_combo.html" with name="fav_library" label="Favourite library" placeholder="Search libraries..." options_json=libraries_json %}
+      {% include "v3/includes/_field_multiselect.html" with name="interests" label="Interests" placeholder="Select interests..." options_json=categories_json %}
+      {% include "v3/includes/_field_checkbox.html" with name="tos" label="I accept the terms of service" required="true" %}
+      <div style="padding-top: 8px;">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </form>
+  </section>
+
+</div>
+{% endblock %}
