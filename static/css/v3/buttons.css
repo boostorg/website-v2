@@ -228,26 +228,6 @@
   transform: translate(8px, -50%);
 }
 
-/* ========== Carousel buttons ========== */
-.btn-carousel {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border-radius: var(--border-radius-l, 8px);
-  background-color: var(--color-button-primary, #efeff1);
-  border: 1px solid var(--color-border, #d5d6d8);
-  color: var(--color-icon-primary, #050816);
-}
-
-.btn-carousel:hover {
-  background-color: var(--color-primary-grey-300, #d5d6d8);
-}
-
-.btn-carousel .btn-icon {
-  width: 20px;
-  height: 20px;
-}
-
 /* ========== Card link button ========== */
 .btn-card-link {
   display: inline-flex;
