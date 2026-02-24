@@ -12,11 +12,18 @@
   Usage:
     {% include "v3/includes/_field_multiselect.html" with name="tags" label="Tags" options_json=tags_json placeholder="Select tags..." %}
 {% endcomment %}
+<script type="application/json" id="field-{{ name }}-options">{{ options_json|safe }}</script>
+{% if selected_json %}<script type="application/json" id="field-{{ name }}-selected">{{ selected_json|safe }}</script>{% endif %}
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
      x-data="{
        open: false,
-       selectedValues: {{ selected_json|default:'[]'|safe }},
-       options: {{ options_json|safe }},
+       selectedValues: [],
+       options: [],
+       init() {
+         this.options = JSON.parse(document.getElementById('field-{{ name }}-options').textContent);
+         const selEl = document.getElementById('field-{{ name }}-selected');
+         if (selEl) this.selectedValues = JSON.parse(selEl.textContent);
+       },
        toggle(value) {
          const idx = this.selectedValues.indexOf(value);
          if (idx === -1) {

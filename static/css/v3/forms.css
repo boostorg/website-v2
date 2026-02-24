@@ -30,6 +30,10 @@
   border-color: var(--color-stroke-mid, #0508162B);
 }
 
+.field__control:hover .field__input::placeholder {
+  color: var(--color-text-link-accent, #00778B);
+}
+
 .field__control:focus-within {
   background-color: var(--color-surface-mid, #f7f7f8);
   border-color: var(--color-stroke-strong, #05081640);
@@ -41,12 +45,20 @@
   border: none;
   background: transparent;
   outline: none;
+  box-shadow: none;
+  -webkit-appearance: none;
   font-family: var(--font-sans);
   font-size: var(--font-size-small, 14px);
   font-weight: var(--font-weight-regular, 400);
   line-height: var(--line-height-relaxed, 1.24);
   color: var(--color-text-primary, #050816);
   padding: 0;
+}
+
+.field__input:focus {
+  outline: none;
+  box-shadow: none;
+  border: none;
 }
 
 .field__input::placeholder {
@@ -141,6 +153,10 @@
 
 .dropdown__trigger:hover {
   border-color: var(--color-stroke-mid, #0508162B);
+}
+
+.dropdown__trigger:hover .dropdown__trigger-placeholder {
+  color: var(--color-text-link-accent, #00778B);
 }
 
 .dropdown__trigger:focus {

@@ -13,19 +13,21 @@
   Usage:
     {% include "v3/includes/_field_combo.html" with name="country" label="Country" options_json=country_json placeholder="Search countries..." %}
 {% endcomment %}
+<script type="application/json" id="field-{{ name }}-options">{{ options_json|safe }}</script>
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
      x-data="{
        open: false,
        query: '',
        selected: '{{ selected|default:'' }}',
        selectedLabel: '',
-       options: {{ options_json|safe }},
+       options: [],
        get filtered() {
          if (!this.query) return this.options;
          const q = this.query.toLowerCase();
          return this.options.filter(o => o.label.toLowerCase().includes(q));
        },
        init() {
+         this.options = JSON.parse(document.getElementById('field-{{ name }}-options').textContent);
          if (this.selected) {
            const match = this.options.find(o => o.value === this.selected);
            if (match) this.selectedLabel = match.label;
