@@ -1,6 +1,7 @@
 import logging
 
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path, register_converter, reverse_lazy
@@ -24,7 +25,6 @@ from core.views import (
     BoostDevelopmentView,
     CalendarView,
     ClearCacheView,
-    DemoFormsView,
     DocLibsTemplateView,
     ImageView,
     MarkdownTemplateView,
@@ -242,7 +242,11 @@ urlpatterns = (
             TemplateView.as_view(template_name="style_guide.html"),
             name="style-guide",
         ),
-        path("v3/demo/forms/", DemoFormsView.as_view(), name="v3-demo-forms"),
+        path(
+            "v3/demo/components/",
+            staff_member_required(TemplateView.as_view(template_name="base.html")),
+            name="v3-demo-components",
+        ),
         path("libraries/", LibraryListDispatcher.as_view(), name="libraries"),
         path(
             "libraries/<boostversionslug:version_slug>/<str:library_view_str>/",

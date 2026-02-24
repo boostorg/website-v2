@@ -30,3 +30,9 @@
   gap: var(--space-default, 8px);
   align-items: center;
 }
+.v3-examples-section__forms {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-l, 16px);
+  max-width: 24rem;
+}
