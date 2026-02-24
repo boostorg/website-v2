@@ -15,6 +15,7 @@
   --space-default: 8px;
   --space-medium: 12px;
   --space-large: 16px;
+  --space-card: 16px;
   --space-xlarge: 24px;
   --space-xl: 32px;
   --space-xxl: 60px;
@@ -30,6 +31,7 @@
     --space-xl: 20px;
     --space-xxl: 48px;
     --space-avatar: 40px;
+    --space-card: 12px;
     /* xs, s unchanged on mobile */
   }
 }
