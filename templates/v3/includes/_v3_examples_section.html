@@ -1,3 +1,5 @@
+{% load static %}
+
 <section class="v3-examples-section" aria-labelledby="v3-examples-heading">
   <h2 id="v3-examples-heading" class="v3-examples-section__heading">V3 examples</h2>
   <div class="v3-examples-section__block">
@@ -56,6 +58,21 @@
       {% with cats_json='[{"value":"algorithms","label":"Algorithms"},{"value":"containers","label":"Containers"},{"value":"io","label":"I/O"},{"value":"math","label":"Math & Numerics"},{"value":"networking","label":"Networking"}]' %}
         {% include "v3/includes/_field_multiselect.html" with name="ex_categories" label="Multi-select" placeholder="Select categories..." options_json=cats_json %}
       {% endwith %}
+    </div>
+  </div>
+  <div class="v3-examples-section__block">
+    <h3>Testimonial Card</h3>
+    <div class="testimonial-card">
+      <div class="testimonial-card__heading">
+        <span class="testimonial-card__title">What Engineers are saying</span>
+        {% include 'v3/includes/_carousel_buttons.html' %}
+      </div>
+      <div class="testimonial-card__heading-rule"></div>
+      <div class="testimonial-card__carousel">
+          {% static 'img/v3/demo_page/Avatar.png' as avatar_url %}
+          {% static 'img/v3/demo_page/Badge.svg' as badge_url %}
+          {% include "v3/includes/_testimonial_card_quote.html" with quote="I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too." avatar_url=avatar_url name="Name Surname" role="Contributor" role_badge=badge_url%}
+      </div>
     </div>
   </div>
 </section>

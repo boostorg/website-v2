@@ -1,0 +1,20 @@
+<div class="testimonial-card__body">
+  <div class="testimonial-card__text-wrapper">
+    <div class="testimonial-card__text">{{ quote }}</div>
+  </div>
+  <div class="testimonial-card__tail-wrapper">
+      <svg width="32" height="30" viewBox="0 0 32 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path class="testimonial-card__text-tail" d="M0 0H32L3.41421 28.5858C2.15428 29.8457 0 28.9534 0 27.1716V0Z"/>
+      </svg>
+    </div>
+</div>
+<div class="testimonial-card__author">
+  <img src="{{ avatar_url }}" alt="{{ name }}" class="testimonial-card__author-avatar" width="48" height="48" loading="lazy" decoding="async" />
+  <div class="testimonial-card__author-info">
+    <span class="testimonial-card__author-name"><span class="testimonial-card__author-name-text">{{ name }}</span></span>
+    <span class="testimonial-card__author-role">
+      <span class="testimonial-card__author-role-text">{{ role }}</span>
+      <span class="testimonial-card__author-role-badge"><img src="{{ role_badge }}" /></span>
+    </span>
+  </div>
+</div>
