@@ -462,7 +462,7 @@ urlpatterns = (
     ]
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     + [
-        # Wagtail catch-all (must be last!)
+        path("outreach/", include(wagtail_urls)),
         path("pages/", include(wagtail_urls)),
     ]
     + [

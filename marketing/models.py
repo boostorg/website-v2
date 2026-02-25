@@ -139,7 +139,10 @@ class DetailPage(EmailCapturePage):
 class OutreachHomePage(Page):
     """A dummy homepage to just return a 404 at the `/outreach/` url"""
 
-    parent_page_types = ["wagtailcore.Page"]
+    parent_page_types = [
+        "wagtailcore.Page",
+        "pages.RoutableHomePage",
+    ]
     subpage_types = ["marketing.ProgramPageIndex", "marketing.TopicPage"]
     max_count = 1  # one container
 

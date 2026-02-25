@@ -48,7 +48,7 @@
         {% for entry in posts %}
         <div class="md:flex md:space-x-3">
           <div class="hidden mt-6 text-sm text-left capitalize md:block min-w-[120px] whitespace-nowrap">
-            <a href="{{ entry.url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ entry.first_published_at|date:"M jS, Y" }}&nbsp;&nbsp;</a>
+            <a href="{{ entry.specific.get_listing_url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ entry.first_published_at|date:"M jS, Y" }}&nbsp;&nbsp;</a>
           </div>
           <div class="hidden pt-6 border-l-2 border-white md:block min-w-[50px] dark:border-slate">
               <a href="{% querystring type=entry.specific.filter_name %}" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
@@ -63,7 +63,7 @@
             <div class="flex">
               <div class="flex-grow-1">
               <h2 class="py-0 my-0 text-xl font-semibold mr-4">
-                <a class="link-header" {% if entry.tag == "link" %}target="_blank"{% endif %} href="{% if entry.tag == "link" %}{{ entry.external_url }}{% else %}{{ entry.url }}{% endif %}">
+                <a class="link-header" {% if entry.specific.filter_name == "link" %}target="_blank"{% endif %} href="{{entry.specific.get_listing_url}}">
                   {{ entry.title }}
                 </a>
               </h2>
@@ -73,16 +73,12 @@
                 <span class="text-xs">{{ entry.first_published_at|date:"M jS, Y" }}</span>
               </div>
             </div>
-            {% if entry.visible_content %}
+            {% if entry.specific.visible_content %}
               <div>
-                <div class="text-base text-gray-500 dark:text-white/70">{{ entry.visible_content|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaksbr|multi_truncate_middle:30 }}</div>
-                {% if entry.use_summary %}
-                  {% if entry.specific.content_type == "Link" %}
-                    <a href="{{ entry.external_url }}" class="inline-block text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange mt-2">Read more&#8230;</a>
-                  {% else %}
-                    <a href="{{ entry.get_absolute_url }}" class="inline-block text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange mt-2">Read more&#8230;</a>
+                <div class="text-base text-gray-500 dark:text-white/70">{{ entry.specific.visible_content }}</div>
+                {% if entry.specific.use_summary %}
+                    <a href="{{ entry.specific.get_url }}" class="inline-block text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange mt-2">Read more&#8230;</a>
                   {% endif %}
-                {% endif %}
               </div>
             {% endif %}
 
@@ -90,42 +86,17 @@
             <div class="flex border-t mt-4 border-gray-300 md:hidden">
               <div class="mt-6 w-1/3 text-xs text-left capitalize">
                 {{ entry.owner.display_name }}<br />
-                {{ entry.display_publish_at }}
+                {{ entry.first_published_at }}
               </div>
               <div class="pt-6 w-1/3 text-center md:border-l-2 border-white dark:border-slate">
-                {% if entry.tag == "link" %}
-                  {% url 'news-link-list' as target_url %}
-                  <a href="{{ target_url }}" title="Link" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
-                    <i class="fas fa-link"></i>
+                  <a href="{% querystring type=entry.specific.filter_name %}" title="{{entry.specific.filter_name}}" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
+                    <i class="fas fa-{{entry.specific.icon_name}}"></i>
                   </a>
-                {% elif entry.tag == "news" %}
-                  {% url 'news-news-list' as target_url %}
-                  <a href="{{ target_url }}" title="News" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
-                    <i class="fa fa-newspaper"></i>
-                  </a>
-                {% elif entry.tag == "blogpost" %}
-                  {% url 'news-blogpost-list' as target_url %}
-                  <a href="{{ target_url }}" title="Blog Post" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 py-[1px] w-[30px] h-[30px] dark:bg-slate">
-                    <i class="fa fa-comment"></i>
-                  </a>
-                {% elif entry.tag == "poll" %}
-                  {% url 'news-poll-list' as target_url %}
-                  <a href="{{ target_url }}" title="Poll" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
-                    <i class="fa fa-poll"></i>
-                  </a>
-                {% elif entry.tag == "video" %}
-                  {% url 'news-video-list' as target_url %}
-                  <a href="{{ target_url }}" title="Video" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
-                    <i class="fa fa-video"></i>
-                  </a>
-                {% else %}
-                  <i class="text-gray-400 fas fa-calendar-alt dark:text-white/60" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate"></i>
-                {% endif %}
               </div>
               <div class="pt-2 mt-4 w-1/3 text-xs text-right">
                 {% if entry.owner.image %}
                   <span class="inline-block h-[36px] w-[36px] overflow-hidden rounded-lg  ">
-                    <img src="{{ entry.author.image.url }}" alt="{{ entry.owner.display_name }}" class="h-full w-full object-cover">
+                    <img src="{{ entry.owner.image.url }}" alt="{{ entry.owner.display_name }}" class="h-full w-full object-cover">
                   </span>
                 {% else %}
                   <span class="inline-block h-[36px] w-[36px] bg-white rounded-lg dark:text-white dark:bg-slate border">
