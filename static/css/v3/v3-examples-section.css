@@ -3,7 +3,6 @@
   margin-left: auto;
   margin-right: auto;
   padding: var(--space-xl, 32px) var(--space-default, 8px);
-  background: #fff;
 }
 
 .v3-examples-section__heading {
