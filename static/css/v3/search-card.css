@@ -24,13 +24,6 @@
   color: var(--color-text-primary, #050816);
 }
 
-/* The search input uses the shared _field_text.html component */
-
-/* Hide the label wrapper that field adds — search card has its own heading */
-.search-card .field__label {
-  display: none;
-}
-
 /* Popular terms section */
 
 .search-card__popular {

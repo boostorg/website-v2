@@ -9,7 +9,6 @@
     help_text    (optional) — help text below the field
     error        (optional) — error message (activates error state)
     icon_left    (optional) — icon name for left slot (e.g. "search")
-    icon_right   (optional) — icon name for right slot (decorative)
     submit_icon  (optional) — icon name for a submit button in the right slot (e.g. "arrow-right")
     submit_label (optional) — aria-label for the submit button, default "Submit"
     required     (optional) — if truthy, adds required attribute
@@ -23,7 +22,7 @@
   {% if label %}
   <label class="field__label" for="field-{{ name }}">{{ label }}</label>
   {% endif %}
-  <div class="field__control{% if disabled %} field__control--disabled{% endif %}">
+  <div class="field__control{% if disabled %} field__control--disabled{% endif %}"{% if submit_icon %} x-data="{ q: '' }"{% endif %}>
     {% if icon_left %}
     <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name=icon_left icon_class="field__icon" %}</span>
     {% endif %}
@@ -37,13 +36,12 @@
       {% if required %}required{% endif %}
       {% if disabled %}disabled{% endif %}
       {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
+      {% if submit_icon %}x-model="q"{% endif %}
     >
     {% if submit_icon %}
-    <button type="submit" class="field__submit" aria-label="{{ submit_label|default:'Submit' }}">
+    <button type="submit" class="field__submit" aria-label="{{ submit_label|default:'Submit' }}" :disabled="!q.trim()">
       {% include "includes/icon.html" with icon_name=submit_icon icon_class="field__submit-icon" %}
     </button>
-    {% elif icon_right %}
-    <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name=icon_right icon_class="field__icon" %}</span>
     {% endif %}
   </div>
   {% if error %}
