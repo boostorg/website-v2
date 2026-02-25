@@ -1,0 +1,73 @@
+<div class="v3-buttons-group">
+  <h4 class="v3-buttons-group__title">Default</h4>
+  <div class="btn-row" style="margin-bottom: 12px;">
+    <button type="button" class="btn btn-primary">Button</button>
+    <button type="button" class="btn btn-secondary">Button</button>
+    <button type="button" class="btn btn-green">Button</button>
+    <button type="button" class="btn btn-yellow">Button</button>
+    <button type="button" class="btn btn-teal">Button</button>
+  </div>
+  <div class="btn-row" style="margin-bottom: 12px;">
+    <button type="button" class="btn btn-primary" data-hover>Button</button>
+    <button type="button" class="btn btn-secondary" data-hover>Button</button>
+    <button type="button" class="btn btn-green" data-hover>Button</button>
+    <button type="button" class="btn btn-yellow" data-hover>Button</button>
+    <button type="button" class="btn btn-teal" data-hover>Button</button>
+  </div>
+  <div class="btn-row">
+    <button type="button" class="btn btn-error">Button</button>
+  </div>
+</div>
+
+<div class="v3-buttons-group">
+  <h4 class="v3-buttons-group__title">Hero</h4>
+  <div style="display: flex; flex-direction: column; gap: 16px; align-items: flex-start;">
+    <button type="button" class="btn btn-hero btn-primary">
+      <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=20 %}</span>
+      Primary
+    </button>
+    <button type="button" class="btn btn-hero btn-primary" data-hover>
+      <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=20 %}</span>
+      Primary
+    </button>
+    <button type="button" class="btn btn-hero btn-secondary">
+      <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=20 %}</span>
+      Secondary
+    </button>
+    <button type="button" class="btn btn-hero btn-secondary" data-hover>
+      <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=20 %}</span>
+      Secondary
+    </button>
+  </div>
+</div>
+
+<div class="v3-buttons-group">
+  <h4 class="v3-buttons-group__title">Tooltip</h4>
+  <div class="v3-examples-section__tools">
+    {% include "v3/includes/_button_tooltip_v3.html" with label="Top" position="top" %}
+    {% include "v3/includes/_button_tooltip_v3.html" with label="Right" position="right" %}
+    {% include "v3/includes/_button_tooltip_v3.html" with label="Bottom" position="bottom" %}
+    {% include "v3/includes/_button_tooltip_v3.html" with label="Left" position="left" %}
+    {% include "v3/includes/_button_tooltip_v3.html" with label="More information here" position="bottom" button_text="Info" %}
+  </div>
+</div>
+
+<div class="v3-buttons-group">
+  <h4 class="v3-buttons-group__title">Carousel</h4>
+  {% include "v3/includes/_carousel_buttons.html" %}
+</div>
+
+<div class="v3-buttons-group">
+  <h4 class="v3-buttons-group__title">Card link</h4>
+  <button type="button" class="btn-card-link">Text <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=16 %}</span></button>
+</div>
+
+<div class="v3-buttons-group">
+  <h4 class="v3-buttons-group__title">List link</h4>
+  <button type="button" class="btn-list-link"><span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="link" icon_size=20 %}</span>Link for list</button>
+</div>
+
+<div class="v3-buttons-group">
+  <h4 class="v3-buttons-group__title">Icon button (library)</h4>
+  <button type="button" class="btn-icon-library">C++ 03 <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="human" icon_size=24 %}</span></button>
+</div>
