@@ -1,3 +1,4 @@
+import json
 import os
 import re
 
@@ -1034,3 +1035,39 @@ class QRCodeView(View):
             redirect_path = f"{redirect_path}?{qs}"
 
         return HttpResponseRedirect(redirect_path)
+
+
+class V3ComponentDemoView(TemplateView):
+    """Demo page for V3 design system components."""
+
+    template_name = "base.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["popular_terms"] = [
+            {"label": "Networking"},
+            {"label": "Math"},
+            {"label": "Data processing"},
+            {"label": "Concurrency"},
+            {"label": "File systems"},
+            {"label": "Testing"},
+        ]
+        context["demo_libs_json"] = json.dumps(
+            [
+                {"value": "asio", "label": "Asio"},
+                {"value": "beast", "label": "Beast"},
+                {"value": "filesystem", "label": "Filesystem"},
+                {"value": "json", "label": "JSON"},
+                {"value": "spirit", "label": "Spirit"},
+            ]
+        )
+        context["demo_cats_json"] = json.dumps(
+            [
+                {"value": "algorithms", "label": "Algorithms"},
+                {"value": "containers", "label": "Containers"},
+                {"value": "io", "label": "I/O"},
+                {"value": "math", "label": "Math & Numerics"},
+                {"value": "networking", "label": "Networking"},
+            ]
+        )
+        return context
