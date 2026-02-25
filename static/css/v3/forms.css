@@ -71,6 +71,31 @@
   color: var(--color-icon-secondary, #6b6d78);
 }
 
+.field__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-icon-primary, #050816);
+  cursor: pointer;
+}
+
+.field__submit:focus-visible {
+  outline: 2px solid var(--color-stroke-link-accent, #1F3044);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-xs, 2px);
+}
+
+.field__submit-icon {
+  width: 24px;
+  height: 24px;
+}
+
 .field__help {
   margin: 0;
   padding: 0;
