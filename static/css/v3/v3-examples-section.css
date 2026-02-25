@@ -1,29 +1,40 @@
-/* V3 examples section (layout without Tailwind) */
 .v3-examples-section {
   max-width: 80rem;
   margin-left: auto;
   margin-right: auto;
   padding: var(--space-xl, 32px) var(--space-default, 8px);
+  background: #fff;
 }
+
 .v3-examples-section__heading {
   font-size: var(--font-size-xl, 20px);
   font-weight: var(--font-weight-medium, 500);
   margin-bottom: var(--space-default, 8px);
 }
+
 .v3-examples-section__block {
   margin-bottom: var(--space-xl, 32px);
 }
+
 .v3-examples-section__block:last-child {
   margin-bottom: 0;
 }
+
 .v3-examples-section__block h3 {
   font-size: var(--font-size-base, 16px);
   font-weight: var(--font-weight-medium, 500);
   margin-bottom: var(--space-default, 8px);
 }
-.v3-examples-section__block--carousel h3 {
-  margin-bottom: var(--space-s, 4px);
+
+.v3-examples-section__example-box {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--space-xl, 32px);
+  background: #fff;
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 8px;
 }
+
 .v3-examples-section__tools {
   display: flex;
   flex-wrap: wrap;
@@ -31,11 +42,8 @@
   align-items: center;
 }
 
+/* Button groups inside examples – spacing only, no extra box */
 .v3-buttons-group {
-  padding: var(--space-xl, 32px);
-  background: var(--color-bg-primary);
-  border-radius: 16px;
-  border: 2px dashed var(--color-border);
   margin-bottom: var(--space-xl, 24px);
 }
 
@@ -49,7 +57,7 @@
   margin: 0 0 var(--space-default, 8px);
 }
 
-/* Hover state simulation for demo only (data-hover) – not actual app behaviour */
+/* Demo hover overrides for this section only */
 .v3-examples-section [data-hover].btn-primary {
   background-color: var(--color-secondary-dark-blue, #00778B);
   border-color: var(--color-secondary-dark-blue, #00778B);
