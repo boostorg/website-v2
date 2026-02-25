@@ -230,3 +230,15 @@
   border: 1px solid var(--color-stroke-strong);
   color: var(--color-text-primary);
 }
+
+.post-cards__cta .btn-secondary-grey:hover {
+  background-color: var(--color-primary-grey-300);
+  border-color: var(--color-primary-grey-300);
+  color: var(--color-text-primary);
+}
+
+.post-cards__cta .btn-secondary:hover {
+  background-color: var(--color-button-secondary);
+  border-color: var(--color-secondary-dark-blue);
+  color: var(--color-secondary-dark-blue);
+}
