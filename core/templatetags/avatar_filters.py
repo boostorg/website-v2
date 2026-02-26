@@ -9,17 +9,17 @@ def avatar_initials(value):
     Return 1–2 letter initials from a name.
     """
     if not isinstance(value, str):
-        return "User"
+        return "U"
 
     name = value.strip()
     if not name:
-        return "User"
+        return "U"
 
     parts = name.split(None, 2)
     first = parts[0]
 
     if not first:
-        return "User"
+        return "U"
 
     first_initial = first[0].upper()
 
