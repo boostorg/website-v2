@@ -1,26 +1,26 @@
 {% comment %}
-  V3 Event cards – bloque de event cards (una variante o galería de todas).
-  Usa static/css/v3/event-cards.css y event-content de content.css.
+  V3 Event cards – event cards block (one variant or gallery of all).
+  Uses static/css/v3/event-cards.css and event-content from content.css.
 
-  Variables (para uso dinámico desde vista):
-    event_list         (optional) — lista de eventos. Cada ítem: title, description, date, datetime (opcional).
-    variant            (optional) — "white" | "grey" | "yellow" | "beige" | "teal". Si no se pasa, se muestra la galería de variantes.
-    section_heading    (optional) — título de la sección, default "Upcoming Events"
-    primary_btn_text   (optional) — texto del botón primario
-    primary_btn_url    (optional) — URL del botón primario
-    secondary_btn_text (optional) — texto del botón secundario
-    secondary_btn_url  (optional) — URL del botón secundario
+  Variables (for dynamic use from view):
+    event_list         (optional) — list of events. Each item: title, description, date, datetime (optional).
+    variant            (optional) — "white" | "grey" | "yellow" | "beige" | "teal". If omitted, shows the variant gallery.
+    section_heading    (optional) — section heading, default "Upcoming Events"
+    primary_btn_text   (optional) — primary button text
+    primary_btn_url    (optional) — primary button URL
+    secondary_btn_text (optional) — secondary button text
+    secondary_btn_url  (optional) — secondary button URL
 
-  Uso en vista (una sola variante con datos dinámicos):
+  Usage from view (single variant with dynamic data):
     {% include "v3/includes/_event_cards.html" with event_list=events variant="white" section_heading="Upcoming Events" primary_btn_text="Download latest release" secondary_btn_text="View events calendar" %}
 
-  Uso en style guide (galería de todas las variantes):
+  Usage in style guide (gallery of all variants):
     {% include "v3/includes/_event_cards.html" %}
 {% endcomment %}
 {% if event_list and variant %}
   {% include "v3/includes/_event_cards_section.html" with section_heading=section_heading event_list=event_list variant=variant primary_btn_text=primary_btn_text primary_btn_url=primary_btn_url secondary_btn_text=secondary_btn_text secondary_btn_url=secondary_btn_url %}
 {% else %}
-  {% comment %}Galería: las 5 variantes (white, grey, yellow, beige, teal) con contenido de ejemplo.{% endcomment %}
+  {% comment %}Gallery: all 5 variants (white, grey, yellow, beige, teal) with sample content.{% endcomment %}
   <div class="event-cards-gallery">
     <div class="event-cards-gallery__item">
       <section class="event-cards event-cards--white" aria-labelledby="event-cards-heading-white">

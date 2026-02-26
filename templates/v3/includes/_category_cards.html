@@ -1,31 +1,30 @@
 {% comment %}
-  V3 Category cards – muestra todas las variantes de category tags y version tags.
-  Usa estilos de static/css/v3/category-tags.css.
-  Solo incluye las tags y sus variantes (sin header ni logo).
+  V3 Category cards – shows all category tag and version tag variants.
+  Uses static/css/v3/category-tags.css. Tags and variants only (no header/logo).
 
-  Variables (todas opcionales, para uso dinámico desde vista):
-    category_tags (optional) — lista de dicts con tag_label, url, variant, size para tags dinámicos.
-                 Si no se pasa, se muestra la galería de variantes (Default + Tight, colores neutral/green/yellow/teal).
-    section_heading (optional) — título de la sección, default "Category tags"
-    show_version_tags (optional) — si es truthy, muestra bloque de version tags (Default + Hover).
+  Variables (all optional, for dynamic use from view):
+    category_tags (optional) — list of dicts with tag_label, url, variant, size.
+                 If omitted, shows the variant gallery (Default + Tight, neutral/green/yellow/teal).
+    section_heading (optional) — section heading, default "Category tags"
+    show_version_tags (optional) — if truthy, shows version tags block (Default + Hover).
 
-  Uso en vista (lista dinámica de tags):
+  Usage from view (dynamic tag list):
     {% include "v3/includes/_category_cards.html" with category_tags=my_tags section_heading="Categories" %}
-  Uso en style guide (todas las variantes):
+  Usage in style guide (all variants):
     {% include "v3/includes/_category_cards.html" %}
 {% endcomment %}
 <section class="category-cards-demo" aria-labelledby="category-cards-heading">
   <h2 id="category-cards-heading" class="category-cards-demo__heading">{{ section_heading|default:"Category tags" }}</h2>
 
   {% if category_tags %}
-    {% comment %}Modo dinámico: solo una lista de tags con las clases según cada ítem.{% endcomment %}
+    {% comment %}Dynamic mode: single list of tags with classes per item.{% endcomment %}
     <div class="category-cards-demo__list">
       {% for tag in category_tags %}
         {% include "v3/includes/_category_tag.html" with tag_label=tag.tag_label url=tag.url variant=tag.variant size=tag.size %}
       {% endfor %}
     </div>
   {% else %}
-    {% comment %}Galería de variantes: Default y Tight, cada uno con neutral / green / yellow / teal y estado normal + hover.{% endcomment %}
+    {% comment %}Variant gallery: Default and Tight, each with neutral / green / yellow / teal and normal + hover state.{% endcomment %}
     <div class="category-cards-demo__block">
       <span class="category-cards-demo__label">Default</span>
       <div class="category-cards-demo__row">
