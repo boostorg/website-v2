@@ -1,29 +1,39 @@
-/* V3 examples section (layout without Tailwind) */
 .v3-examples-section {
   max-width: 80rem;
   margin-left: auto;
   margin-right: auto;
   padding: var(--space-xl, 32px) var(--space-default, 8px);
 }
+
 .v3-examples-section__heading {
   font-size: var(--font-size-xl, 20px);
   font-weight: var(--font-weight-medium, 500);
   margin-bottom: var(--space-default, 8px);
 }
+
 .v3-examples-section__block {
   margin-bottom: var(--space-xl, 32px);
 }
+
 .v3-examples-section__block:last-child {
   margin-bottom: 0;
 }
+
 .v3-examples-section__block h3 {
   font-size: var(--font-size-base, 16px);
   font-weight: var(--font-weight-medium, 500);
   margin-bottom: var(--space-default, 8px);
 }
-.v3-examples-section__block--carousel h3 {
-  margin-bottom: var(--space-s, 4px);
+
+.v3-examples-section__example-box {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--space-xl, 32px);
+  background: #fff;
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 8px;
 }
+
 .v3-examples-section__tools {
   display: flex;
   flex-wrap: wrap;
@@ -35,4 +45,72 @@
   flex-direction: column;
   gap: var(--space-l, 16px);
   max-width: 24rem;
+}
+
+/* Button groups inside examples – spacing only, no extra box */
+.v3-buttons-group {
+  margin-bottom: var(--space-xl, 24px);
+}
+
+.v3-buttons-group:last-child {
+  margin-bottom: 0;
+}
+
+.v3-buttons-group__title {
+  font-size: var(--font-size-base, 16px);
+  font-weight: var(--font-weight-medium, 500);
+  margin: 0 0 var(--space-default, 8px);
+}
+
+/* Demo hover overrides for this section only */
+.v3-examples-section [data-hover].btn-primary {
+  background-color: var(--color-secondary-dark-blue, #00778B);
+  border-color: var(--color-secondary-dark-blue, #00778B);
+  color: var(--color-text-reversed, #fff);
+}
+
+.v3-examples-section [data-hover].btn-primary-outline {
+  background-color: var(--color-secondary-light-blue, #f7fdfe);
+  border-color: var(--color-text-link-accent, #00778B);
+  color: var(--color-text-link-accent, #00778B);
+}
+
+.v3-examples-section [data-hover].btn-secondary {
+  background-color: var(--color-button-secondary, #fff);
+  border-color: var(--color-secondary-dark-blue, #0077B8);
+  color: var(--color-secondary-dark-blue, #0077B8);
+}
+
+.v3-examples-section [data-hover].btn-secondary-grey {
+  background-color: var(--color-primary-grey-300, #d5d6d8);
+  border-color: var(--color-primary-grey-300, #d5d6d8);
+  color: var(--color-text-primary, #050816);
+}
+
+.v3-examples-section [data-hover].btn-green {
+  background-color: var(--color-surface-strong-accent-green-hover, #CACA62BF);
+  border-color: transparent;
+  color: var(--color-text-primary, #050816);
+}
+
+.v3-examples-section [data-hover].btn-yellow {
+  background-color: var(--color-surface-strong-accent-yellow-hover, #F5D039BF);
+  border-color: transparent;
+  color: var(--color-text-primary, #050816);
+}
+
+.v3-examples-section [data-hover].btn-teal {
+  background-color: var(--color-surface-strong-accent-teal-hover, #64DACEBF);
+  border-color: transparent;
+  color: var(--color-text-primary, #050816);
+}
+
+.v3-examples-section [data-hover].btn-carousel {
+  color: var(--color-secondary-dark-blue, #0077B8);
+}
+
+.v3-examples-section [data-hover].btn.btn-hero.btn-primary {
+  background-color: var(--color-surface-brand-accent-hovered);
+  border-color: var(--color-surface-brand-accent-hovered);
+  color: var(--color-text-reversed);
 }

@@ -1,0 +1,42 @@
+<div class="v3-buttons-group">
+  <h4 class="v3-buttons-group__title">Default</h4>
+  <div class="btn-row" style="margin-bottom: 12px;">
+    <button type="button" class="btn btn-primary">Button</button>
+    <button type="button" class="btn btn-secondary">Button</button>
+    <button type="button" class="btn btn-green">Button</button>
+    <button type="button" class="btn btn-yellow">Button</button>
+    <button type="button" class="btn btn-teal">Button</button>
+  </div>
+  <div class="btn-row" style="margin-bottom: 12px;">
+    <button type="button" class="btn btn-primary" data-hover>Button</button>
+    <button type="button" class="btn btn-secondary" data-hover>Button</button>
+    <button type="button" class="btn btn-green" data-hover>Button</button>
+    <button type="button" class="btn btn-yellow" data-hover>Button</button>
+    <button type="button" class="btn btn-teal" data-hover>Button</button>
+  </div>
+  <div class="btn-row">
+    <button type="button" class="btn btn-error">Button</button>
+  </div>
+</div>
+
+<div class="v3-buttons-group">
+  <h4 class="v3-buttons-group__title">Hero</h4>
+  <div style="display: flex; flex-direction: column; gap: 16px; align-items: flex-start;">
+    <button type="button" class="btn btn-hero btn-primary">
+      <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=20 %}</span>
+      Primary
+    </button>
+    <button type="button" class="btn btn-hero btn-primary" data-hover>
+      <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=20 %}</span>
+      Primary
+    </button>
+    <button type="button" class="btn btn-hero btn-secondary">
+      <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=20 %}</span>
+      Secondary
+    </button>
+    <button type="button" class="btn btn-hero btn-secondary" data-hover>
+      <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=20 %}</span>
+      Secondary
+    </button>
+  </div>
+</div>
