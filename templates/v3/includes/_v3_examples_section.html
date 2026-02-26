@@ -27,7 +27,6 @@
   </div>
   <div class="v3-examples-section__block">
     <h3>Avatar</h3>
-    {% load avatar_filters %}
     <div class="v3-examples-section__example-box">
     <table class="v3-examples-section__avatar-table">
       <tbody>
@@ -40,13 +39,18 @@
             </div>
           </td>
           <td>
-            {% get_current_user_avatar_url as user_avatar_url %}
-            {% if user_avatar_url %}
-              <div class="v3-examples-section__avatar-item">
-                {% include "v3/includes/_avatar_v3.html" with src=user_avatar_url size="md" %}
-                <span class="v3-examples-section__avatar-label">You</span>
-              </div>
-            {% endif %}
+            <div class="v3-examples-section__avatar-item">
+              {% with user_avatar_url=request.user.get_thumbnail_url %}
+                {% if user_avatar_url %}
+                  {% include "v3/includes/_avatar_v3.html" with src=user_avatar_url size="md" %}
+                {% elif request.user.is_authenticated %}
+                  {% include "v3/includes/_avatar_v3.html" with name=request.user.display_name size="md" %}
+                {% else %}
+                  {% include "v3/includes/_avatar_v3.html" with size="md" %}
+                {% endif %}
+              {% endwith %}
+              <span class="v3-examples-section__avatar-label">You</span>
+            </div>
           </td>
           <td>
             <div class="v3-examples-section__avatar-item">
