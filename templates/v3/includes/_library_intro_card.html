@@ -31,6 +31,10 @@
   <div class="library-intro-card__author">
     {% if author.avatar_url %}
     <img class="library-intro-card__avatar" src="{{ author.avatar_url }}" alt="{{ author.name }}">
+    {% else %}
+    <div class="library-intro-card__avatar library-intro-card__avatar--placeholder" role="img" aria-label="{{ author.name }}">
+      {% include "includes/icon.html" with icon_name="human" %}
+    </div>
     {% endif %}
     <div class="library-intro-card__author-content">
       <div class="library-intro-card__author-meta">

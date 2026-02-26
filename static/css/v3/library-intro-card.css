@@ -86,6 +86,14 @@
   flex-shrink: 0;
 }
 
+.library-intro-card__avatar--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-strong, #e9ecef);
+  color: var(--color-bg-secondary, #fff);
+}
+
 .library-intro-card__author-content {
   display: flex;
   flex-direction: column;
