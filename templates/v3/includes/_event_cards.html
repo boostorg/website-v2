@@ -1,0 +1,109 @@
+{% comment %}
+  V3 Event cards – bloque de event cards (una variante o galería de todas).
+  Usa static/css/v3/event-cards.css y event-content de content.css.
+
+  Variables (para uso dinámico desde vista):
+    event_list         (optional) — lista de eventos. Cada ítem: title, description, date, datetime (opcional).
+    variant            (optional) — "white" | "grey" | "yellow" | "beige" | "teal". Si no se pasa, se muestra la galería de variantes.
+    section_heading    (optional) — título de la sección, default "Upcoming Events"
+    primary_btn_text   (optional) — texto del botón primario
+    primary_btn_url    (optional) — URL del botón primario
+    secondary_btn_text (optional) — texto del botón secundario
+    secondary_btn_url  (optional) — URL del botón secundario
+
+  Uso en vista (una sola variante con datos dinámicos):
+    {% include "v3/includes/_event_cards.html" with event_list=events variant="white" section_heading="Upcoming Events" primary_btn_text="Download latest release" secondary_btn_text="View events calendar" %}
+
+  Uso en style guide (galería de todas las variantes):
+    {% include "v3/includes/_event_cards.html" %}
+{% endcomment %}
+{% if event_list and variant %}
+  {% include "v3/includes/_event_cards_section.html" with section_heading=section_heading event_list=event_list variant=variant primary_btn_text=primary_btn_text primary_btn_url=primary_btn_url secondary_btn_text=secondary_btn_text secondary_btn_url=secondary_btn_url %}
+{% else %}
+  {% comment %}Galería: las 5 variantes (white, grey, yellow, beige, teal) con contenido de ejemplo.{% endcomment %}
+  <div class="event-cards-gallery">
+    <div class="event-cards-gallery__item">
+      <section class="event-cards event-cards--white" aria-labelledby="event-cards-heading-white">
+        <h2 id="event-cards-heading-white" class="event-cards__heading">Upcoming Events</h2>
+        <ul class="event-cards__list">
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+        </ul>
+        <div class="event-cards__buttons">
+          <a href="#" class="event-cards__btn event-cards__btn--primary">Download latest release</a>
+          <a href="#" class="event-cards__btn event-cards__btn--secondary">View events calendar</a>
+        </div>
+      </section>
+    </div>
+    <div class="event-cards-gallery__item">
+      <section class="event-cards event-cards--grey" aria-labelledby="event-cards-heading-grey">
+        <h2 id="event-cards-heading-grey" class="event-cards__heading">Upcoming Events</h2>
+        <ul class="event-cards__list">
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+        </ul>
+        <div class="event-cards__buttons">
+          <a href="#" class="event-cards__btn event-cards__btn--primary">Button</a>
+          <a href="#" class="event-cards__btn event-cards__btn--secondary">Button</a>
+        </div>
+      </section>
+    </div>
+    <div class="event-cards-gallery__item">
+      <section class="event-cards event-cards--yellow" aria-labelledby="event-cards-heading-yellow">
+        <h2 id="event-cards-heading-yellow" class="event-cards__heading">Upcoming Events</h2>
+        <ul class="event-cards__list">
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+        </ul>
+        <div class="event-cards__buttons">
+          <a href="#" class="event-cards__btn event-cards__btn--primary">Button</a>
+          <a href="#" class="event-cards__btn event-cards__btn--secondary">Button</a>
+        </div>
+      </section>
+    </div>
+    <div class="event-cards-gallery__item">
+      <section class="event-cards event-cards--beige" aria-labelledby="event-cards-heading-beige">
+        <h2 id="event-cards-heading-beige" class="event-cards__heading">Upcoming Events</h2>
+        <ul class="event-cards__list">
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+        </ul>
+        <div class="event-cards__buttons">
+          <a href="#" class="event-cards__btn event-cards__btn--primary">Button</a>
+          <a href="#" class="event-cards__btn event-cards__btn--secondary">Button</a>
+        </div>
+      </section>
+    </div>
+    <div class="event-cards-gallery__item">
+      <section class="event-cards event-cards--teal" aria-labelledby="event-cards-heading-teal">
+        <h2 id="event-cards-heading-teal" class="event-cards__heading">Upcoming Events</h2>
+        <ul class="event-cards__list">
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+        </ul>
+        <div class="event-cards__buttons">
+          <a href="#" class="event-cards__btn event-cards__btn--primary">Button</a>
+          <a href="#" class="event-cards__btn event-cards__btn--secondary">Button</a>
+        </div>
+      </section>
+    </div>
+    <div class="event-cards-gallery__item">
+      <section class="event-cards event-cards--white" aria-labelledby="event-cards-heading-white-single">
+        <h2 id="event-cards-heading-white-single" class="event-cards__heading">Upcoming Events</h2>
+        <ul class="event-cards__list">
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+          <li class="event-cards__item">{% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" %}</li>
+        </ul>
+        <div class="event-cards__buttons">
+          <a href="#" class="event-cards__btn event-cards__btn--primary">View events page</a>
+        </div>
+      </section>
+    </div>
+  </div>
+{% endif %}

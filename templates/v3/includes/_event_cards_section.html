@@ -1,0 +1,19 @@
+{% comment %}
+  V3 Event cards – una sección (una variante de color).
+  Variables: section_heading, event_list, variant, primary_btn_text, primary_btn_url, secondary_btn_text, secondary_btn_url.
+  variant: white | grey | yellow | beige | teal
+{% endcomment %}
+<section class="event-cards event-cards--{{ variant }}" aria-labelledby="event-cards-heading-{{ variant }}">
+  <h2 id="event-cards-heading-{{ variant }}" class="event-cards__heading">{{ section_heading|default:"Upcoming Events" }}</h2>
+  <ul class="event-cards__list">
+    {% for event in event_list %}
+      <li class="event-cards__item">
+        {% include "v3/includes/_event_card_item.html" with title=event.title description=event.description date=event.date datetime=event.datetime %}
+      </li>
+    {% endfor %}
+  </ul>
+  <div class="event-cards__buttons">
+    {% if primary_btn_text %}<a href="{{ primary_btn_url|default:'#' }}" class="event-cards__btn event-cards__btn--primary">{{ primary_btn_text }}</a>{% endif %}
+    {% if secondary_btn_text %}<a href="{{ secondary_btn_url|default:'#' }}" class="event-cards__btn event-cards__btn--secondary">{{ secondary_btn_text }}</a>{% endif %}
+  </div>
+</section>

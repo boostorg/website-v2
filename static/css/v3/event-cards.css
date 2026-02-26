@@ -169,3 +169,19 @@
   background: var(--color-accent-weak-teal);
   border: 1px solid var(--color-border);
 }
+
+/* Gallery: event cards en fila (wrap) para no apilarse */
+.event-cards-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xl);
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.event-cards-gallery__item {
+  max-width: 458px;
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 0;
+}

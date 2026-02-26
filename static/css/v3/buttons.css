@@ -1,3 +1,18 @@
+:root {
+  --color-button-accent: var(--color-primary-orange-mustard);
+  --color-button-primary: var(--color-primary-grey-200);
+  --color-button-secondary: var(--color-primary-white);
+
+  --button-padding-x: var(--space-default);
+  --button-padding-y: var(--space-s);
+  --button-gap: var(--space-default);
+  --button-radius: var(--border-radius-m);
+  --button-font-size: var(--font-size-small);
+  --button-font-weight: 600;
+  --button-line-height: var(--line-height-default);
+  --button-font-family: var(--font-sans);
+}
+
 .btn {
   display: inline-flex;
   align-items: center;

@@ -28,6 +28,7 @@
   font-size: var(--font-size-small);
   line-height: var(--line-height-relaxed);
   color: var(--color-text-secondary);
+  padding: 0;
 }
 
 .event-content__date {
