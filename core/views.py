@@ -1070,27 +1070,16 @@ class V3ComponentDemoView(TemplateView):
                 {"value": "networking", "label": "Networking"},
             ]
         )
-        context["demo_library_authors"] = [
-            {
-                "name": "Peter Dimov",
-                "role": "Maintainer",
-                "avatar_url": "https://avatars.githubusercontent.com/u/1231890",
-                "badge": "🥇",
-                "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
-            },
-            {
-                "name": "Glen Fernandes",
-                "role": "Contributor",
-                "avatar_url": "https://avatars.githubusercontent.com/u/5308040",
-                "badge": "🥈",
-                "bio": "Core library utilities and allocator support.",
-            },
-            {
-                "name": "Marshall Clow",
-                "role": "Contributor",
-                "avatar_url": "https://avatars.githubusercontent.com/u/1429508",
-                "badge": "🥉",
-                "bio": "Algorithms, testing, and quality assurance.",
-            },
-        ]
+        from libraries.models import LibraryVersion
+        from libraries.utils import build_library_intro_context
+
+        latest = Version.objects.most_recent()
+        if latest:
+            lv = (
+                LibraryVersion.objects.filter(version=latest, library__slug="beast")
+                .select_related("library")
+                .first()
+            )
+            if lv:
+                context["library_intro"] = build_library_intro_context(lv)
         return context

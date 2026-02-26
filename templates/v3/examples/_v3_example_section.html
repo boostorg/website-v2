@@ -161,6 +161,17 @@
     </div>
   </div>
 
+  {% if library_intro %}
+  <div class="v3-examples-section__block">
+    <h3>Library Intro Card</h3>
+    <div class="v3-examples-section__example-box">
+      {% with intro=library_intro %}
+      {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
+      {% endwith %}
+    </div>
+  </div>
+  {% endif %}
+
   <div class="v3-examples-section__block">
     <h3>Form inputs</h3>
     <div class="v3-examples-section__example-box">
