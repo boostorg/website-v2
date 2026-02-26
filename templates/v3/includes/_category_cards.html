@@ -1,0 +1,89 @@
+{% comment %}
+  V3 Category cards – muestra todas las variantes de category tags y version tags.
+  Usa estilos de static/css/v3/category-tags.css.
+  Solo incluye las tags y sus variantes (sin header ni logo).
+
+  Variables (todas opcionales, para uso dinámico desde vista):
+    category_tags (optional) — lista de dicts con tag_label, url, variant, size para tags dinámicos.
+                 Si no se pasa, se muestra la galería de variantes (Default + Tight, colores neutral/green/yellow/teal).
+    section_heading (optional) — título de la sección, default "Category tags"
+    show_version_tags (optional) — si es truthy, muestra bloque de version tags (Default + Hover).
+
+  Uso en vista (lista dinámica de tags):
+    {% include "v3/includes/_category_cards.html" with category_tags=my_tags section_heading="Categories" %}
+  Uso en style guide (todas las variantes):
+    {% include "v3/includes/_category_cards.html" %}
+{% endcomment %}
+<section class="category-cards-demo" aria-labelledby="category-cards-heading">
+  <h2 id="category-cards-heading" class="category-cards-demo__heading">{{ section_heading|default:"Category tags" }}</h2>
+
+  {% if category_tags %}
+    {% comment %}Modo dinámico: solo una lista de tags con las clases según cada ítem.{% endcomment %}
+    <div class="category-cards-demo__list">
+      {% for tag in category_tags %}
+        {% include "v3/includes/_category_tag.html" with tag_label=tag.tag_label url=tag.url variant=tag.variant size=tag.size %}
+      {% endfor %}
+    </div>
+  {% else %}
+    {% comment %}Galería de variantes: Default y Tight, cada uno con neutral / green / yellow / teal y estado normal + hover.{% endcomment %}
+    <div class="category-cards-demo__block">
+      <span class="category-cards-demo__label">Default</span>
+      <div class="category-cards-demo__row">
+        <div class="category-cards-demo__group">
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="neutral" size="default" %}
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="neutral" size="default" show_hover=True %}
+        </div>
+        <div class="category-cards-demo__group">
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="green" size="default" %}
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="green" size="default" show_hover=True %}
+        </div>
+        <div class="category-cards-demo__group">
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="yellow" size="default" %}
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="yellow" size="default" show_hover=True %}
+        </div>
+        <div class="category-cards-demo__group">
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="teal" size="default" %}
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="teal" size="default" show_hover=True %}
+        </div>
+      </div>
+    </div>
+
+    <div class="category-cards-demo__block">
+      <span class="category-cards-demo__label">Tight</span>
+      <div class="category-cards-demo__row">
+        <div class="category-cards-demo__group">
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="neutral" size="tight" %}
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="neutral" size="tight" show_hover=True %}
+        </div>
+        <div class="category-cards-demo__group">
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="green" size="tight" %}
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="green" size="tight" show_hover=True %}
+        </div>
+        <div class="category-cards-demo__group">
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="yellow" size="tight" %}
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="yellow" size="tight" show_hover=True %}
+        </div>
+        <div class="category-cards-demo__group">
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="teal" size="tight" %}
+          {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="teal" size="tight" show_hover=True %}
+        </div>
+      </div>
+    </div>
+
+    {% if show_version_tags %}
+    <div class="category-cards-demo__block">
+      <span class="category-cards-demo__label">Version tags (not clickable)</span>
+      <div class="category-cards-demo__row">
+        <div class="category-cards-demo__group">
+          <span class="category-cards-demo__state-label">Default</span>
+          <span class="version-tag version-tag--default">C++ 03</span>
+        </div>
+        <div class="category-cards-demo__group">
+          <span class="category-cards-demo__state-label">Hover</span>
+          <span class="version-tag version-tag--hover">C++ 03</span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  {% endif %}
+</section>

@@ -1,8 +1,3 @@
-/**
- * Event Cards – Styles and themes.
- * All event-cards styling lives in tokens; no theme/component CSS in foundations.
- * Uses tokens from cards.css and buttons.css.
- */
 
 .event-cards {
   font-family: var(--font-sans);
