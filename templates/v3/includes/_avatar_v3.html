@@ -1,0 +1,25 @@
+{% comment %}
+  Variables: src (optional; image URL), name (optional), variant (optional; yellow|green|teal, default yellow), size (optional; sm|md|xl, default md).
+  Usage: {% include "v3/includes/_avatar_v3.html" with src=author.avatar_url name=author.name variant="yellow" size="md" %}
+  Image: {% include "v3/includes/_avatar_v3.html" with src="/static/images/avatar-demo.png" size="md" %}
+  Initials: {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="green" %}
+  Placeholder: {% include "v3/includes/_avatar_v3.html" %}
+{% endcomment %}
+{% load avatar_filters %}
+{% with size=size|default:"md" variant=variant|default:"yellow" %}
+  {% if src %}
+    <span class="avatar avatar--{{ size }}" aria-hidden>
+      <img src="{{ src }}" alt="" class="avatar__img" width="{% if size == 'sm' %}32{% elif size == 'xl' %}48{% else %}40{% endif %}" height="{% if size == 'sm' %}32{% elif size == 'xl' %}48{% else %}40{% endif %}" loading="lazy" decoding="async">
+    </span>
+  {% elif name %}
+    {% with inits=name|avatar_initials %}
+      {% if inits == "?" %}
+        <span class="avatar avatar-placeholder avatar--{{ size }}" aria-hidden>?</span>
+      {% else %}
+        <span class="avatar avatar--{{ size }} avatar--{{ variant }} avatar__initials" aria-hidden>{{ inits }}</span>
+      {% endif %}
+    {% endwith %}
+  {% else %}
+    <span class="avatar avatar-placeholder avatar--{{ size }}" aria-hidden>?</span>
+  {% endif %}
+{% endwith %}

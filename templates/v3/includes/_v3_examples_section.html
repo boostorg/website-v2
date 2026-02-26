@@ -10,6 +10,21 @@
       {% include "v3/includes/_button_tooltip_v3.html" with label="More information here" position="bottom" button_text="Info" %}
     </div>
   </div>
+  <div class="v3-examples-section__block">
+    <h3>Avatar</h3>
+    <div class="v3-examples-section__tools">
+      {% include "v3/includes/_avatar_v3.html" with src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Crect fill='%23999' width='48' height='48'/%3E%3C/svg%3E" size="md" %}
+      {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="yellow" %}
+      {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="green" %}
+      {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="teal" %}
+      {% include "v3/includes/_avatar_v3.html" %}
+    </div>
+    <div class="v3-examples-section__tools" style="margin-top: var(--space-medium, 12px);">
+      {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="sm" %}
+      {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="md" %}
+      {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="xl" %}
+    </div>
+  </div>
   <div class="v3-examples-section__block v3-examples-section__block--carousel">
     <h3>Carousel buttons</h3>
     {% include "v3/includes/_carousel_buttons.html" %}

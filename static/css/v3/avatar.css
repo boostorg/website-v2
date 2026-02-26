@@ -1,0 +1,117 @@
+:root {
+  --avatar-size-sm: 32px;
+  --avatar-size-md: 40px;
+  --avatar-size-xl: 48px;
+}
+
+/* Mobile avatar size overrides */
+@media (max-width: 767px) {
+  :root {
+    --avatar-size-sm: 28px;
+    --avatar-size-md: 36px;
+    --avatar-size-xl: 40px;
+  }
+}
+
+/* ========== Avatar base ========== */
+.avatar {
+  width: var(--avatar-size-md);
+  height: var(--avatar-size-md);
+  flex-shrink: 0;
+  border-radius: var(--border-radius-m);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Avatar size modifiers */
+.avatar.avatar--sm {
+  width: var(--avatar-size-sm);
+  height: var(--avatar-size-sm);
+}
+
+.avatar.avatar--md {
+  width: var(--avatar-size-md);
+  height: var(--avatar-size-md);
+}
+
+.avatar.avatar--xl {
+  width: var(--avatar-size-xl);
+  height: var(--avatar-size-xl);
+}
+
+/* Image inside avatar container: fill and cover so it's contained and cropped */
+.avatar img.avatar__img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+.avatar__initials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-on-accent);
+  line-height: 1;
+}
+
+/* Scale initials font by avatar size */
+.avatar.avatar--sm .avatar__initials {
+  font-size: var(--font-size-small);
+}
+
+.avatar.avatar--md .avatar__initials {
+  font-size: var(--font-size-small);
+}
+
+.avatar.avatar--xl .avatar__initials {
+  font-size: var(--font-size-base);
+}
+
+/* Initials variants (no image): same element has .avatar.avatar--* .avatar__initials */
+.avatar.avatar--yellow {
+  background: var(--color-accent-weak-yellow);
+}
+
+.avatar.avatar--green {
+  background: var(--color-accent-weak-green);
+}
+
+.avatar.avatar--teal {
+  background: var(--color-accent-weak-teal);
+}
+
+/* Placeholder (e.g. Header when no image and no name) */
+.avatar-placeholder {
+  width: var(--avatar-size-md);
+  height: var(--avatar-size-md);
+  flex-shrink: 0;
+  border-radius: var(--border-radius-m);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-mid);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.avatar-placeholder.avatar--sm {
+  width: var(--avatar-size-sm);
+  height: var(--avatar-size-sm);
+}
+
+.avatar-placeholder.avatar--xl {
+  width: var(--avatar-size-xl);
+  height: var(--avatar-size-xl);
+}
