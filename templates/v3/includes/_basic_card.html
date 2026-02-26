@@ -1,0 +1,42 @@
+{% comment %}
+    Basic implementation of a card. Can be used on its own, or extended to make other cards
+    Inputs:
+        Title: Required, text that appears bolded at the top of the card
+        Text: Required, text that appears in the middle of the card
+        Primary Button Link, Text, and Style: Optional. Link is the destination of the button, text is the text of the button, style is from the style list
+        Secondary Button Link, Text, and Style: Optional, same use as primary
+    Blocks:
+        header - Replaces content in the top of the card before the first <hr>
+        top/bottom hr - allows for custom styling of rules, or removal if not used in other cards
+        body_content - Content appearing in the middle of the card
+        buttons - Customization of the buttons at the bottom of the card
+{% endcomment %}
+
+<div class="basic-card card__column py-large rounded-xl">
+  <div class="card__center">
+    {% block header %}
+      <span class="card__title">{{ title }}</span>
+    {% endblock %}
+  </div>
+  {% block top_hr %}
+    <hr class="card__hr" />
+  {% endblock %}
+  <div class="card__column px-large">
+    {% block body_content %}
+      <span class="card__text">{{ text }}</span>
+    {% endblock %}
+  </div>
+  {% block bottom_hr %}
+    <hr class="card__hr" />
+  {% endblock %}
+  {% block buttons %}
+    <div class="px-large btn-row">
+      {% if primary_button_link and primary_button_text %}
+        <a class="btn btn-{{primary_style|default:"primary"}} btn-flex" href="{{ primary_button_link }}">{{ primary_button_text }}</a>
+      {% endif %}
+      {% if secondary_button_link and secondary_button_text %}
+        <a class="btn btn-{{secondary_style|default:"secondary"}} btn-flex" href="{{ secondary_button_link }}">{{ secondary_button_text }}</a>
+      {% endif %}
+    </div>
+  {% endblock %}
+</div>

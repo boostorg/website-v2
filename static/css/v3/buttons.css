@@ -22,11 +22,18 @@
   flex-wrap: wrap;
   gap: 40px;
   align-items: stretch;
+  width: 100%;
 }
 
 .btn-row>.btn-error {
   flex: 0 0 128px;
   width: 128px;
+  min-width: 128px;
+}
+
+.btn-row>.btn-flex {
+  flex: 1 0 0;
+  display: flex;
   min-width: 128px;
 }
 
