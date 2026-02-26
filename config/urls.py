@@ -1,6 +1,7 @@
 import logging
 
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path, register_converter, reverse_lazy
@@ -21,22 +22,22 @@ from ak.views import (
 from config.settings import DEBUG_TOOLBAR
 from core.views import (
     BSLView,
+    BoostDevelopmentView,
     CalendarView,
     ClearCacheView,
     DocLibsTemplateView,
     ImageView,
     MarkdownTemplateView,
+    ModernizedDocsView,
     RedirectToDocsView,
     RedirectToHTMLDocsView,
     RedirectToHTMLToolsView,
     RedirectToLibrariesView,
+    RedirectToLibraryDetailView,
     RedirectToReleaseView,
     RedirectToToolsView,
     StaticContentTemplateView,
     UserGuideTemplateView,
-    BoostDevelopmentView,
-    ModernizedDocsView,
-    RedirectToLibraryDetailView,
 )
 from marketing.views import PlausibleRedirectView, WhitePaperView
 from libraries.api import LibrarySearchView
@@ -240,6 +241,11 @@ urlpatterns = (
             "style-guide/",
             TemplateView.as_view(template_name="style_guide.html"),
             name="style-guide",
+        ),
+        path(
+            "v3/demo/components/",
+            staff_member_required(TemplateView.as_view(template_name="base.html")),
+            name="v3-demo-components",
         ),
         path("libraries/", LibraryListDispatcher.as_view(), name="libraries"),
         path(

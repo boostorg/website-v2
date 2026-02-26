@@ -68,4 +68,22 @@
       </section>
     </div>
   </div>
+
+  <div class="v3-examples-section__block">
+    <h3>Form inputs</h3>
+    <div class="v3-examples-section__example-box">
+      <div class="v3-examples-section__forms">
+        {% include "v3/includes/_field_text.html" with name="ex_basic" label="Text field" placeholder="Enter text..." %}
+        {% include "v3/includes/_field_text.html" with name="ex_search" label="With icon" placeholder="Search..." icon_left="search" %}
+        {% include "v3/includes/_field_text.html" with name="ex_error" label="Error state" placeholder="Enter value" error="This field is required." %}
+        {% include "v3/includes/_field_checkbox.html" with name="ex_agree" label="I agree to the terms and conditions" %}
+        {% with libs_json='[{"value":"asio","label":"Asio"},{"value":"beast","label":"Beast"},{"value":"filesystem","label":"Filesystem"},{"value":"json","label":"JSON"},{"value":"spirit","label":"Spirit"}]' %}
+          {% include "v3/includes/_field_combo.html" with name="ex_library" label="Combo (searchable)" placeholder="Search libraries..." options_json=libs_json %}
+        {% endwith %}
+        {% with cats_json='[{"value":"algorithms","label":"Algorithms"},{"value":"containers","label":"Containers"},{"value":"io","label":"I/O"},{"value":"math","label":"Math & Numerics"},{"value":"networking","label":"Networking"}]' %}
+          {% include "v3/includes/_field_multiselect.html" with name="ex_categories" label="Multi-select" placeholder="Select categories..." options_json=cats_json %}
+        {% endwith %}
+      </div>
+    </div>
+  </div>
 </section>
