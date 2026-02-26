@@ -1,20 +1,38 @@
+{% comment %}
+The inner component of a testimonial card, should generally only be used by _testimonial_card
+  inputs:
+    avatar_url: Url for the author avatar_url
+    name: Name of the author
+    quote: Testimonial quote to be displayed
+    role: Author role (moderator, maintainer, contributer, etc.)
+    role_badge: url for an icon representing the role
+{% endcomment %}
+
 <div class="testimonial-card__body">
   <div class="testimonial-card__text-wrapper">
     <div class="testimonial-card__text">{{ quote }}</div>
   </div>
   <div class="testimonial-card__tail-wrapper">
-      <svg width="32" height="30" viewBox="0 0 32 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path class="testimonial-card__text-tail" d="M0 0H32L3.41421 28.5858C2.15428 29.8457 0 28.9534 0 27.1716V0Z"/>
-      </svg>
-    </div>
+    <svg width="32" height="30" viewBox="0 0 32 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path class="testimonial-card__text-tail" d="M0 0H32L3.41421 28.5858C2.15428 29.8457 0 28.9534 0 27.1716V0Z" />
+    </svg>
+  </div>
 </div>
 <div class="testimonial-card__author">
-  <img src="{{ avatar_url }}" alt="{{ name }}" class="testimonial-card__author-avatar" width="48" height="48" loading="lazy" decoding="async" />
+  {% if avatar_url %}
+    <img src="{{ avatar_url }}" alt="{{ name }}" class="testimonial-card__author-avatar" width="48" height="48" loading="lazy" decoding="async" />
+  {% endif %}
   <div class="testimonial-card__author-info">
-    <span class="testimonial-card__author-name"><span class="testimonial-card__author-name-text">{{ name }}</span></span>
+    {% if name %}
+      <span class="testimonial-card__author-name"><span class="testimonial-card__author-name-text">{{ name }}</span></span>
+    {% endif %}
     <span class="testimonial-card__author-role">
-      <span class="testimonial-card__author-role-text">{{ role }}</span>
-      <span class="testimonial-card__author-role-badge"><img src="{{ role_badge }}" /></span>
+      {% if role %}
+        <span class="testimonial-card__author-role-text">{{ role }}</span>
+      {% endif %}
+      {% if role_badge %}
+        <span class="testimonial-card__author-role-badge"><img src="{{ role_badge }}" /></span>
+      {% endif %}
     </span>
   </div>
 </div>
