@@ -3,12 +3,16 @@ import string
 import re
 from itertools import islice
 
+import boto3
 import structlog
 import tempfile
 from datetime import datetime, timezone
+
+from botocore.client import BaseClient
 from dateutil.relativedelta import relativedelta
 
 from dateutil.parser import ParserError, parse
+from django.conf import settings
 from django.utils.text import slugify
 
 from libraries.constants import (
@@ -377,3 +381,12 @@ def generate_release_report_filename(version_slug: str, published_format: bool =
         filename_data.append(datetime.now(timezone.utc).isoformat())
     filename = f"{'-'.join(filename_data)}.pdf"
     return filename
+
+
+def get_s3_client() -> BaseClient:
+    return boto3.client(
+        "s3",
+        aws_access_key_id=settings.STATIC_CONTENT_AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.STATIC_CONTENT_AWS_SECRET_ACCESS_KEY,
+        region_name=settings.STATIC_CONTENT_REGION,
+    )

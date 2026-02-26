@@ -64,6 +64,7 @@ pre-commit
 pytest
 pytest-cov
 pytest-django
+pytest-mock
 responses
 
 # Packaging

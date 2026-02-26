@@ -398,9 +398,7 @@ def test_static_content_blocks_direct_doc_paths(request_factory):
 
 
 @pytest.mark.django_db
-@override_settings(
-    CACHES=TEST_CACHES,
-)
+@override_settings(CACHES=TEST_CACHES)
 def test_static_content_allows_non_direct_doc_paths(request_factory):
     """Test that non-direct doc paths are allowed and processed normally."""
 

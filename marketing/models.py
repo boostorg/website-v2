@@ -152,10 +152,10 @@ class OutreachHomePage(Page):
         if not path_components:
             return RouteResult(self)
 
-        first, *rest = path_components
+        _, second, *rest = path_components
 
         # Fixed segment for program pages
-        if first == "program_page":
+        if second == "program_page":
             try:
                 program_page_index = ProgramPageIndex.objects.child_of(self).get()
             except ProgramPageIndex.DoesNotExist:
@@ -165,7 +165,7 @@ class OutreachHomePage(Page):
 
         # Otherwise, first segment should be a TopicPage slug
         try:
-            topic = TopicPage.objects.child_of(self).get(slug=first)
+            topic = TopicPage.objects.child_of(self).get(slug=second)
         except TopicPage.DoesNotExist:
             raise Http404("Topic not found")
 
