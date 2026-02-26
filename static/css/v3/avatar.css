@@ -1,6 +1,7 @@
 :root {
   --avatar-size-sm: 32px;
   --avatar-size-md: 40px;
+  --avatar-size-lg: 44px;
   --avatar-size-xl: 48px;
 }
 
@@ -9,6 +10,7 @@
   :root {
     --avatar-size-sm: 28px;
     --avatar-size-md: 36px;
+    --avatar-size-lg: 40px;
     --avatar-size-xl: 40px;
   }
 }
@@ -34,6 +36,11 @@
 .avatar.avatar--md {
   width: var(--avatar-size-md);
   height: var(--avatar-size-md);
+}
+
+.avatar.avatar--lg {
+  width: var(--avatar-size-lg);
+  height: var(--avatar-size-lg);
 }
 
 .avatar.avatar--xl {
@@ -69,6 +76,10 @@
 }
 
 .avatar.avatar--md .avatar__initials {
+  font-size: var(--font-size-small);
+}
+
+.avatar.avatar--lg .avatar__initials {
   font-size: var(--font-size-small);
 }
 
@@ -109,6 +120,11 @@
 .avatar-placeholder.avatar--sm {
   width: var(--avatar-size-sm);
   height: var(--avatar-size-sm);
+}
+
+.avatar-placeholder.avatar--lg {
+  width: var(--avatar-size-lg);
+  height: var(--avatar-size-lg);
 }
 
 .avatar-placeholder.avatar--xl {
