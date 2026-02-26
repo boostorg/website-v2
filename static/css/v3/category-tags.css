@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-sans);
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-xs);
   line-height: var(--line-height-default);
   font-weight: var(--font-weight-regular);
   border: 1px solid;
@@ -76,9 +76,9 @@
 .version-tag {
   display: inline-flex;
   align-items: center;
-  padding: var(--space-s) var(--space-default);
+  padding: var(--space-default) var(--space-default);
   font-family: var(--font-sans);
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
   border: 1px solid var(--color-tag-stroke);
   border-radius: var(--border-radius-xl);
