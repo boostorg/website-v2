@@ -145,3 +145,68 @@
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
 }
+
+/* ========== Dark theme (alineado con post-cards/event-cards: fondo oscuro, texto claro, borde de acento) ========== */
+html.dark .category-tag--neutral {
+  background: var(--color-primary-grey-800);
+  border-color: var(--color-tag-stroke);
+  color: var(--color-text-secondary);
+}
+
+html.dark .category-tag--neutral:hover,
+html.dark .category-tag--neutral.category-tag--hover-state {
+  background: var(--color-primary-grey-850);
+  border-color: var(--color-tag-stroke);
+  color: var(--color-text-secondary);
+}
+
+html.dark .category-tag--green {
+  background: var(--color-primary-grey-800);
+  border-color: var(--color-accent-strong-green);
+  color: var(--color-text-secondary);
+}
+
+html.dark .category-tag--green:hover,
+html.dark .category-tag--green.category-tag--hover-state {
+  background: var(--color-primary-grey-850);
+  border-color: var(--color-accent-strong-green);
+  color: var(--color-text-secondary);
+}
+
+html.dark .category-tag--yellow {
+  background: var(--color-primary-grey-800);
+  border-color: var(--color-accent-strong-yellow);
+  color: var(--color-text-secondary);
+}
+
+html.dark .category-tag--yellow:hover,
+html.dark .category-tag--yellow.category-tag--hover-state {
+  background: var(--color-primary-grey-850);
+  border-color: var(--color-accent-strong-yellow);
+  color: var(--color-text-secondary);
+}
+
+html.dark .category-tag--teal {
+  background: var(--color-primary-grey-800);
+  border-color: var(--color-accent-strong-teal);
+  color: var(--color-text-secondary);
+}
+
+html.dark .category-tag--teal:hover,
+html.dark .category-tag--teal.category-tag--hover-state {
+  background: var(--color-primary-grey-850);
+  border-color: var(--color-accent-strong-teal);
+  color: var(--color-text-secondary);
+}
+
+html.dark .version-tag--default {
+  background: var(--color-primary-grey-800);
+  border-color: var(--color-tag-stroke);
+  color: var(--color-text-secondary);
+}
+
+html.dark .version-tag--hover {
+  background: var(--color-primary-grey-850);
+  border-color: var(--color-tag-stroke);
+  color: var(--color-text-secondary);
+}

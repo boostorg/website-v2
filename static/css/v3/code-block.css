@@ -6,6 +6,7 @@
   --code-block-text: var(--color-syntax-text);
   --code-block-bg-standalone: var(--color-primary-grey-100);
   --code-block-border-standalone: var(--color-border);
+  --code-block-bg-grey: var(--color-primary-grey-100);
   --code-block-copy-icon-size: var(--space-card);
   --code-block-copy-icon-color: var(--color-icon-secondary);
   --code-block-copy-icon-color-success: var(--color-syntax-green);
@@ -27,7 +28,7 @@
 }
 
 .code-block--grey-bg {
-  background: var(--color-primary-grey-100);
+  background: var(--code-block-bg-grey);
 }
 
 .code-block--white-bg {
@@ -81,6 +82,10 @@
 .code-block-card--teal {
   background: var(--color-accent-weak-teal);
   border: 1px solid var(--color-accent-strong-teal);
+}
+
+html.dark .code-block-card--teal {
+  background: var(--color-primary-grey-850);
 }
 
 .code-block-card__heading {

@@ -84,6 +84,15 @@ html.dark {
   --color-tag-fill: var(--color-primary-grey-900);
   --color-tag-stroke: #FFFFFF1A;
 
+   /* Text on accent: en dark las superficies de acento son oscuras → texto claro */
+   --color-text-on-accent: var(--color-primary-white);
+
+   /* Code block (dark backgrounds + contrast so code is readable) */
+   --code-block-bg-standalone: var(--color-primary-grey-900);
+   --code-block-border-standalone: var(--color-border);
+   --code-block-bg-grey: var(--color-primary-grey-900);
+   --code-block-card-btn-bg: var(--color-primary-grey-800);
+
   /* Text */
   --color-text-error: var(--color-error-mid);
   --color-text-link-accent: var(--color-secondary-mid-blue);

@@ -34,6 +34,10 @@
   border-radius: 8px;
 }
 
+html.dark .v3-examples-section__example-box {
+  background: rgb(23 42 52/var(--tw-bg-opacity))
+}
+
 .v3-examples-section__tools {
   display: flex;
   flex-wrap: wrap;
