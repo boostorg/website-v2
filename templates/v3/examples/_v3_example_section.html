@@ -28,6 +28,91 @@
   </div>
 
   <div class="v3-examples-section__block">
+    <h3>Avatar</h3>
+    <div class="v3-examples-section__example-box">
+      <table class="v3-examples-section__avatar-table">
+        <tbody>
+          <tr>
+            <th scope="row">Variants</th>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with src="https://thispersondoesnotexist.com/" size="md" %}
+                <span class="v3-examples-section__avatar-label">Example photo</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% with user_avatar_url=request.user.get_thumbnail_url %}
+                  {% if user_avatar_url %}
+                    {% include "v3/includes/_avatar_v3.html" with src=user_avatar_url size="md" %}
+                  {% elif request.user.is_authenticated %}
+                    {% include "v3/includes/_avatar_v3.html" with name=request.user.display_name size="md" %}
+                  {% else %}
+                    {% include "v3/includes/_avatar_v3.html" with size="md" %}
+                  {% endif %}
+                {% endwith %}
+                <span class="v3-examples-section__avatar-label">You</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="yellow" %}
+                <span class="v3-examples-section__avatar-label">Yellow</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="green" %}
+                <span class="v3-examples-section__avatar-label">Green</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="teal" %}
+                <span class="v3-examples-section__avatar-label">Teal</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" %}
+                <span class="v3-examples-section__avatar-label">Placeholder</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Sizes</th>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="sm" %}
+                <span class="v3-examples-section__avatar-label">sm</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="md" %}
+                <span class="v3-examples-section__avatar-label">md</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="lg" %}
+                <span class="v3-examples-section__avatar-label">lg</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="xl" %}
+                <span class="v3-examples-section__avatar-label">xl</span>
+              </div>
+            </td>
+            <td colspan="2"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block v3-examples-section__block--carousel">
     <h3>Carousel buttons</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_carousel_buttons.html" %}
@@ -95,6 +180,13 @@
   </div>
 
   <div class="v3-examples-section__block">
+    <h3>Search Card</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="#" popular_terms=popular_terms %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
     <h3>Form inputs</h3>
     <div class="v3-examples-section__example-box">
       <div class="v3-examples-section__forms">
@@ -102,12 +194,8 @@
         {% include "v3/includes/_field_text.html" with name="ex_search" label="With icon" placeholder="Search..." icon_left="search" %}
         {% include "v3/includes/_field_text.html" with name="ex_error" label="Error state" placeholder="Enter value" error="This field is required." %}
         {% include "v3/includes/_field_checkbox.html" with name="ex_agree" label="I agree to the terms and conditions" %}
-        {% with libs_json='[{"value":"asio","label":"Asio"},{"value":"beast","label":"Beast"},{"value":"filesystem","label":"Filesystem"},{"value":"json","label":"JSON"},{"value":"spirit","label":"Spirit"}]' %}
-          {% include "v3/includes/_field_combo.html" with name="ex_library" label="Combo (searchable)" placeholder="Search libraries..." options_json=libs_json %}
-        {% endwith %}
-        {% with cats_json='[{"value":"algorithms","label":"Algorithms"},{"value":"containers","label":"Containers"},{"value":"io","label":"I/O"},{"value":"math","label":"Math & Numerics"},{"value":"networking","label":"Networking"}]' %}
-          {% include "v3/includes/_field_multiselect.html" with name="ex_categories" label="Multi-select" placeholder="Select categories..." options_json=cats_json %}
-        {% endwith %}
+        {% include "v3/includes/_field_combo.html" with name="ex_library" label="Combo (searchable)" placeholder="Search libraries..." options_json=demo_libs_json %}
+        {% include "v3/includes/_field_multiselect.html" with name="ex_categories" label="Multi-select" placeholder="Select categories..." options_json=demo_cats_json %}
       </div>
     </div>
   </div>

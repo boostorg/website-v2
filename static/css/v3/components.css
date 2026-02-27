@@ -3,6 +3,7 @@
 @import './buttons.css';
 @import './button-tooltip.css';
 @import './post-cards.css';
+@import './avatar.css';
 @import './carousel-buttons.css';
 @import './v3-examples-section.css';
 @import './header.css';
@@ -13,3 +14,4 @@
 @import './why-boost-cards.css';
 @import './category-tags.css';
 @import './code-block.css';
+@import './search-card.css';
