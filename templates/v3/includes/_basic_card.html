@@ -3,8 +3,9 @@
     Inputs:
         Title: Required, text that appears bolded at the top of the card
         Text: Required, text that appears in the middle of the card
-        Primary Button Link, Text, and Style: Optional. Link is the destination of the button, text is the text of the button, style is from the style list
-        Secondary Button Link, Text, and Style: Optional, same use as primary
+        Primary Button Url,rl Label, and Style: Optional.
+          Url is the destination of the button, label is the text of the button, style is from the style list
+        Secondary Button U, Label, and Style: Optional, same use as primary
     Blocks:
         header - Replaces content in the top of the card before the first <hr>
         top/bottom hr - allows for custom styling of rules, or removal if not used in other cards
@@ -31,11 +32,11 @@
   {% endblock %}
   {% block buttons %}
     <div class="px-large btn-row">
-      {% if primary_button_link and primary_button_text %}
-        <a class="btn btn-{{primary_style|default:"primary"}} btn-flex" href="{{ primary_button_link }}">{{ primary_button_text }}</a>
+      {% if primary_button_url and primary_button_label %}
+        {% include 'v3/includes/_button.html' with style=primary_style url=primary_button_url label=primary_button_label %}
       {% endif %}
-      {% if secondary_button_link and secondary_button_text %}
-        <a class="btn btn-{{secondary_style|default:"secondary"}} btn-flex" href="{{ secondary_button_link }}">{{ secondary_button_text }}</a>
+      {% if secondary_button_url and secondary_button_label %}
+        {% include 'v3/includes/_button.html' with style=secondary_style url=secondary_button_url label=secondary_button_label %}
       {% endif %}
     </div>
   {% endblock %}
