@@ -1,0 +1,11 @@
+
+:root {
+  --color-card-bg: var(--color-bg-secondary);
+  --color-card-border: var(--color-border);
+  --color-card-shadow: var(--color-stroke-weak);
+  --card-padding: var(--space-card);
+  --card-radius: var(--border-radius-l);
+  --card-radius-lg: var(--border-radius-xxl);
+  --card-gap: var(--space-default);
+  --card-shadow-value: 0 1px 3px var(--color-card-shadow);
+}

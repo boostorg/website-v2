@@ -1,0 +1,186 @@
+
+.event-cards {
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  border-radius: var(--card-radius-lg);
+  padding: var(--space-large) 0;
+  width: 100%;
+  max-width: 458px;
+  min-width: 0;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.event-cards--white {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.event-cards--grey {
+  background: var(--color-primary-grey-100);
+  border: 1px solid var(--color-border);
+}
+
+.event-cards--yellow {
+  background: var(--color-accent-weak-yellow);
+  border: 1px solid var(--color-accent-strong-yellow);
+}
+
+.event-cards--beige {
+  background: var(--color-accent-weak-green);
+  border: 1px solid var(--color-accent-strong-green);
+}
+
+.event-cards--teal {
+  background: var(--color-accent-weak-teal);
+  border: 1px solid var(--color-accent-strong-teal);
+}
+
+.event-cards__heading {
+  margin: 0 var(--space-card) var(--space-medium);
+  padding-bottom: var(--space-default);
+  font-size: var(--font-size-large);
+  font-weight: 500;
+  font-family: var(--font-display);
+}
+
+.event-cards__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+}
+
+.event-cards--white .event-cards__list {
+  gap: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.event-cards__item {
+  list-style: none;
+}
+
+.event-cards--white .event-cards__item {
+  border-bottom: 1px solid var(--color-border);
+  padding-top: var(--space-medium);
+}
+
+.event-cards--white .event-card {
+  background: transparent;
+  box-shadow: none;
+  margin: 0;
+  padding: var(--space-medium) var(--space-card);
+}
+
+.event-card {
+  background: var(--color-card-bg);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  margin: 0 var(--space-card);
+}
+
+.event-card__title {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  line-height: var(--line-height-default);
+  font-family: var(--font-sans);
+}
+
+.event-card__description {
+  margin: 0 0 var(--space-default);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+}
+
+.event-card__date {
+  font-size: var(--font-size-small);
+  color: var(--color-text-tertiary);
+}
+
+.event-cards__buttons {
+  display: flex;
+  gap: var(--button-gap);
+  margin: 0 var(--space-card);
+  padding-top: var(--space-xl);
+}
+
+.event-cards__btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: var(--space-default) var(--space-default); /* 8px 8px */
+  border-radius: var(--button-radius);
+  font-size: var(--button-font-size);
+  font-weight: var(--button-font-weight);
+  line-height: var(--button-line-height);
+  font-family: var(--button-font-family);
+  text-decoration: none;
+  text-align: center;
+  box-sizing: border-box;
+  color: var(--color-text-primary);
+}
+
+.event-cards--white .event-cards__btn--primary,
+.event-cards--grey .event-cards__btn--primary {
+  background: var(--color-button-primary);
+  border: none;
+}
+
+.event-cards--white .event-cards__btn--secondary {
+  background: var(--color-button-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.event-cards--grey .event-cards__btn--secondary {
+  background: var(--color-primary-grey-100);
+  border: 1px solid var(--color-border);
+}
+
+.event-cards--yellow .event-cards__btn--primary {
+  background: var(--color-surface-strong-accent-yellow-default);
+  border: none;
+}
+
+.event-cards--yellow .event-cards__btn--secondary {
+  background: var(--color-accent-weak-yellow);
+  border: 1px solid var(--color-border);
+}
+
+.event-cards--beige .event-cards__btn--primary {
+  background: var(--color-surface-strong-accent-green-default);
+  border: none;
+}
+
+.event-cards--beige .event-cards__btn--secondary {
+  background: var(--color-accent-weak-green);
+  border: 1px solid var(--color-border);
+}
+
+.event-cards--teal .event-cards__btn--primary {
+  background: var(--color-surface-strong-accent-teal-default);
+  border: none;
+}
+
+.event-cards--teal .event-cards__btn--secondary {
+  background: var(--color-accent-weak-teal);
+  border: 1px solid var(--color-border);
+}
+
+/* Gallery: event cards en fila (wrap) para no apilarse */
+.event-cards-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xl);
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.event-cards-gallery__item {
+  max-width: 458px;
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 0;
+}
