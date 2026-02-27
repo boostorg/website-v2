@@ -1,0 +1,23 @@
+{% comment %}
+  V3 Why Boost – section with a grid of icon+title+description cards.
+  Uses styles from static/css/v3/why-boost-cards.css and static/css/v3/content.css.
+
+  Variables:
+    section_heading (optional) — heading for the section, default "Why Boost?"
+    why_boost_cards (required) — list of card dicts. Each item can have:
+      - title       (required) — card heading
+      - description (required) — card body text
+      - icon_name   (optional) — icon name for includes/icon.html (e.g. "bullseye-arrow")
+      - title_url   (optional) — if set, title is a link to this URL
+
+  Usage (from view context):
+    {% include "v3/includes/_why_boost_cards.html" with section_heading="Why Boost?" why_boost_cards=cards %}
+{% endcomment %}
+<section class="why-boost-cards" aria-labelledby="why-boost-heading">
+  <h2 id="why-boost-heading" class="why-boost-cards__heading">{{ section_heading|default:"Why Boost?" }}</h2>
+  <div class="why-boost-cards__grid">
+    {% for card in why_boost_cards %}
+      {% include "v3/includes/_content_detail_card_item.html" with title=card.title description=card.description icon_name=card.icon_name title_url=card.title_url %}
+    {% endfor %}
+  </div>
+</section>

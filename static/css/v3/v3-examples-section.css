@@ -40,6 +40,63 @@
   gap: var(--space-default, 8px);
   align-items: center;
 }
+
+/* Avatar block – table presentation */
+
+.v3-examples-section__avatar-row {
+  align-items: flex-end;
+}
+
+.v3-examples-section__avatar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-small, 6px);
+}
+
+.v3-examples-section__avatar-label {
+  font-size: var(--font-size-xs, 12px);
+  color: var(--color-text-secondary, #6b7280);
+  line-height: 1;
+  text-align: center;
+}
+
+.v3-examples-section__avatar-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.v3-examples-section__avatar-table th,
+.v3-examples-section__avatar-table td {
+  padding: var(--space-l, 16px);
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid var(--color-border, #e5e5e5);
+}
+
+.v3-examples-section__avatar-table th {
+  font-size: var(--font-size-small, 14px);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary, #6b7280);
+  background: var(--color-bg-secondary, #fafafa);
+  padding: var(--space-xl, 32px) var(--space-xl, 32px);
+}
+
+/* Extra gap between Variants row and Sizes row */
+.v3-examples-section__avatar-table tbody tr:first-child th,
+.v3-examples-section__avatar-table tbody tr:first-child td {
+  padding-bottom: var(--space-xl, 32px);
+}
+
+.v3-examples-section__avatar-table tbody tr:nth-child(2) th,
+.v3-examples-section__avatar-table tbody tr:nth-child(2) td {
+  padding-top: var(--space-xl, 32px);
+}
+
+.v3-examples-section__avatar-table td {
+  background: #fff;
+}
+
 .v3-examples-section__forms {
   display: flex;
   flex-direction: column;
