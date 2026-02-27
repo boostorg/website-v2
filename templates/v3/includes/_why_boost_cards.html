@@ -17,7 +17,7 @@
   <h2 id="why-boost-heading" class="why-boost-cards__heading">{{ section_heading|default:"Why Boost?" }}</h2>
   <div class="why-boost-cards__grid">
     {% for card in why_boost_cards %}
-      {% include "v3/includes/_why_boost_card_item.html" with title=card.title description=card.description icon_name=card.icon_name title_url=card.title_url %}
+      {% include "v3/includes/_content_detail_card_item.html" with title=card.title description=card.description icon_name=card.icon_name title_url=card.title_url %}
     {% endfor %}
   </div>
 </section>

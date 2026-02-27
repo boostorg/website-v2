@@ -8,7 +8,7 @@
   <ul class="event-cards__list">
     {% for event in event_list %}
       <li class="event-cards__item">
-        {% include "v3/includes/_event_card_item.html" with title=event.title description=event.description date=event.date datetime=event.datetime %}
+        {% include "v3/includes/_content_event_card_item.html" with title=event.title description=event.description date=event.date datetime=event.datetime %}
       </li>
     {% endfor %}
   </ul>

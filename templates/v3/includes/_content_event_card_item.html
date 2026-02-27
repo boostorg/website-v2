@@ -1,5 +1,5 @@
 {% comment %}
-  V3 Event card – single event item (title, description, date).
+  V3 Event content card – single event item (title, description, date).
   Uses event-content from static/css/v3/content.css inside event-card from event-cards.css.
 
   Variables:
@@ -9,7 +9,7 @@
     datetime    (optional) — value for <time datetime="..."> (e.g. "2025-10-29" or "29/10/25")
 
   Usage:
-    {% include "v3/includes/_event_card_item.html" with title="Boost 1.90.0 closed" description="Release closed for major changes." date="29/10/25" datetime="2025-10-29" %}
+    {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed" description="Release closed for major changes." date="29/10/25" datetime="2025-10-29" %}
 {% endcomment %}
 <div class="event-card">
   <article class="event-content">
