@@ -29,13 +29,7 @@
   {% for author in authors %}
   <hr class="library-intro-card__divider">
   <div class="library-intro-card__author">
-    {% if author.avatar_url %}
-    <img class="library-intro-card__avatar" src="{{ author.avatar_url }}" alt="{{ author.name }}">
-    {% else %}
-    <div class="library-intro-card__avatar library-intro-card__avatar--placeholder" role="img" aria-label="{{ author.name }}">
-      {% include "includes/icon.html" with icon_name="human" %}
-    </div>
-    {% endif %}
+    {% include "v3/includes/_avatar_v3.html" with src=author.avatar_url name=author.name size="xl" %}
     <div class="library-intro-card__author-content">
       <div class="library-intro-card__author-meta">
         <p class="library-intro-card__author-name">{{ author.name }}</p>
