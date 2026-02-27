@@ -25,16 +25,6 @@
   border-color: var(--color-stroke-weak);
 }
 
-.post-cards--teal {
-  background: var(--color-surface-weak-accent-teal);
-  border-color: var(--color-accent-strong-teal);
-}
-
-.post-cards--yellow {
-  background: var(--color-surface-weak-accent-yellow);
-  border-color: var(--color-accent-strong-yellow);
-}
-
 .post-cards__heading {
   margin: 0;
   padding: 0 var(--space-card);
@@ -271,10 +261,6 @@
 }
 
 .post-cards--content-card.post-cards--horizontal .post-cards__item {
-  border-right: none;
-}
-
-.post-cards--content-card.post-cards--horizontal .post-cards__item:last-child {
   border-right: none;
 }
 
