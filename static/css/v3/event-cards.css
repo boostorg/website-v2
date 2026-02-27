@@ -78,7 +78,6 @@
   background: var(--color-card-bg);
   border-radius: var(--card-radius);
   padding: var(--card-padding);
-  box-shadow: var(--card-shadow-value);
   margin: 0 var(--space-card);
 }
 
