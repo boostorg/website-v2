@@ -8,6 +8,7 @@
     track_aria_label (optional) — aria-label for the track. Default: "Detail cards carousel"
     cards (optional) — list of dicts with: title, description, icon_name, cta_label, cta_href.
                        When omitted, no cards are shown (pass from view for content).
+    infinite (optional) — if True, carousel loops infinitely. Default: False
     autoplay (optional) — if True, carousel scrolls automatically. Default: False
     autoplay_delay (optional) — autoplay interval in milliseconds. Only used when autoplay is True. Default: 4000
 
@@ -19,9 +20,12 @@
 
   Usage (from view context with cards list):
     {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="my-carousel" heading="Featured" cards=my_cards_list %}
+
+  Usage (infinite looping carousel):
+    {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="my-carousel" heading="Featured" cards=my_cards_list infinite=True %}
 {% endcomment %}
 {% with carousel_id=carousel_id|default:"cards-carousel" heading=heading|default:"Libraries categories" track_aria_label=track_aria_label|default:"Detail cards carousel" %}
-<div id="{{ carousel_id }}" data-carousel class="cards-carousel" role="region" aria-labelledby="{{ carousel_id }}-heading"{% if autoplay %} data-carousel-autoplay="{{ autoplay_delay|default:4000 }}"{% endif %}>
+<div id="{{ carousel_id }}" data-carousel class="cards-carousel" role="region" aria-labelledby="{{ carousel_id }}-heading"{% if infinite %} data-carousel-infinite{% endif %}{% if autoplay %} data-carousel-autoplay="{{ autoplay_delay|default:4000 }}"{% endif %}>
   <div class="cards-carousel__header">
     <h2 id="{{ carousel_id }}-heading" class="cards-carousel__heading">{{ heading }}</h2>
     <div class="cards-carousel__controls">
