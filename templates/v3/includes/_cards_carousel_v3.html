@@ -3,16 +3,13 @@
   Requires static/css/v3/post-cards.css and carousel-buttons.css; static/js/carousel.js for behaviour.
 
   Variables:
-    carousel_id (optional) — id for the carousel root and controls. Default: "cards-carousel"
-    heading (optional) — section heading. Default: "Libraries categories"
+    carousel_id (required) — id for the carousel root and controls.
+    heading (required) — section heading.
     track_aria_label (optional) — aria-label for the track. Default: "Detail cards carousel"
     cards (optional) — list of dicts with: title, description, icon_name, cta_label, cta_href.
                        When omitted, no cards are shown (pass from view for content).
     autoplay (optional) — if True, carousel scrolls automatically. Default: False
     autoplay_delay (optional) — autoplay interval in milliseconds. Only used when autoplay is True. Default: 4000
-
-  Usage (default demo):
-    {% include "v3/includes/_cards_carousel_v3.html" with cards=cards_carousel_cards %}
 
   Usage (custom heading and id):
     {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="libs-carousel" heading="Library categories" %}

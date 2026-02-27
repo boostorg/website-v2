@@ -1070,7 +1070,7 @@ class V3ComponentDemoView(TemplateView):
                 {"value": "networking", "label": "Networking"},
             ]
         )
-        context["cards_carousel_cards"] = [
+        context["demo_cards_carousel_cards"] = [
             {
                 "title": "Get help",
                 "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
