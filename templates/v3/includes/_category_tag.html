@@ -1,0 +1,21 @@
+{% comment %}
+  V3 Category tag – single tag (link or span).
+  Uses styles from static/css/v3/category-tags.css.
+
+  Variables:
+    tag_label   (required) — text inside the tag (e.g. "Math", "C++ 03")
+    url         (optional) — if set, renders <a href="...">; if omitted, renders <span> (e.g. version tags)
+    variant     (required) — "neutral" | "green" | "yellow" | "teal"
+    size        (optional) — "default" | "tight", default "default"
+    show_hover  (optional) — if truthy, adds category-tag--hover-state for hover preview in docs
+
+  Usage (clickable category tag):
+    {% include "v3/includes/_category_tag.html" with tag_label="Math" url="#" variant="neutral" size="default" %}
+  Usage (version tag, non-clickable):
+    {% include "v3/includes/_category_tag.html" with tag_label="C++ 03" variant="neutral" size="default" %}
+{% endcomment %}
+{% if url %}
+<a href="{{ url }}" class="category-tag category-tag--{{ variant }} category-tag--{{ size|default:'default' }}{% if show_hover %} category-tag--hover-state{% endif %}">{{ tag_label }}</a>
+{% else %}
+<span class="category-tag category-tag--{{ variant }} category-tag--{{ size|default:'default' }}{% if show_hover %} category-tag--hover-state{% endif %}">{{ tag_label }}</span>
+{% endif %}

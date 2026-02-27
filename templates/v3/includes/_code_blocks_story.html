@@ -1,0 +1,22 @@
+{% comment %}
+  V3 Code blocks story – two-column grid with code block variants and cards.
+  Uses static/css/v3/code-block.css. Requires static/js/code-block-copy.js for copy button.
+  Variables (all optional; pass from view for dynamic code):
+    code_standalone_1, code_standalone_2 — strings for the two standalone blocks (left column)
+    code_card_1, code_card_2, code_card_3   — strings for the three cards (right column)
+  When omitted, the demo uses the inline code strings below.
+  Usage from view: {% include "v3/includes/_code_blocks_story.html" with code_standalone_1=my_code code_card_1=hello_code %}
+{% endcomment %}
+{% with code_demo_beast='int main()<br>{<br>    net::io_context ioc;<br>    tcp::resolver resolver(ioc);<br>    beast::tcp_stream stream(ioc);<br><br>    stream.connect(resolver.resolve("example.com", "80"));<br><br>    http::request&lt;http::empty_body&gt; req{http::verb::get, "/", 11};<br>    req.set(http::field::host, "example.com");<br><br>    http::write(stream, req);<br><br>    beast::flat_buffer buffer;<br>    http::response&lt;http::string_body&gt; res;<br>    http::read(stream, buffer, res);<br><br>    std::cout &lt;&lt; res &lt;&lt; std::endl;<br>}' code_demo_hello='#include &lt;iostream&gt;<br>int main()<br>{<br>    std::cout &lt;&lt; "Hello, Boost.";<br>}' code_demo_install='brew install openssl<br><br>export OPENSSL_ROOT=$(brew --prefix openssl)<br><br># Install bjam tool user config: https://www.bfgroup.xyz/b2/manual/release/index.html<br>cp ./libs/beast/tools/user-config.jam $HOME' %}
+  <div class="code-block-story-grid">
+    <div class="code-block-story-column">
+      {% include "v3/includes/_code_block.html" with code_html=code_standalone_1|default:code_demo_beast variant="standalone" %}
+      {% include "v3/includes/_code_block.html" with code_html=code_standalone_2|default:code_demo_beast variant="white-bg" %}
+    </div>
+    <div class="code-block-story-column">
+      {% include "v3/includes/_code_block_card.html" with heading="Get started with our libraries" code_html=code_card_1|default:code_demo_hello block_variant="grey-bg" button_text="Explore examples" %}
+      {% include "v3/includes/_code_block_card.html" with card_variant="neutral" heading="About Beast" description="Beast lets you use HTTP and WebSocket to write clients and servers that connect to networks using Boost.Asio." code_html=code_card_2|default:code_demo_beast block_variant="grey-bg" %}
+      {% include "v3/includes/_code_block_card.html" with card_variant="teal" heading="Install" description="Get started with header-only libraries." code_html=code_card_3|default:code_demo_install block_variant="grey-bg" %}
+    </div>
+  </div>
+{% endwith %}

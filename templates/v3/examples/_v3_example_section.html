@@ -86,4 +86,80 @@
       </div>
     </div>
   </div>
+
+  <div class="v3-examples-section__block">
+    <h3>Why Boost</h3>
+    <div class="v3-examples-section__example-box">
+      <section class="why-boost-cards" aria-labelledby="why-boost-heading">
+        <h2 id="why-boost-heading" class="why-boost-cards__heading">Why Boost?</h2>
+        <div class="why-boost-cards__grid">
+          {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3>Category tags</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_category_cards.html" with show_version_tags=True %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3>Event cards</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_event_cards.html" %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3>Content event card</h3>
+    <div class="v3-examples-section__example-box">
+      <section class="content-story-section">
+        <h4 class="content-story-section__title">Content event card</h4>
+        <p class="content-story-section__description">Default and contained variants.</p>
+        <div class="content-story-grid">
+          <div class="content-story-block">
+            <p class="content-story-variant-label">Default</p>
+            {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.83.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="23/11/23" datetime="2023-11-23" %}
+          </div>
+          <div class="content-story-block">
+            <p class="content-story-variant-label">Contained</p>
+            {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.83.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="23/11/23" datetime="2023-11-23" contained=True %}
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3>Content detail card</h3>
+    <div class="v3-examples-section__example-box">
+      <section class="content-story-section">
+        <h4 class="content-story-section__title">Content detail card</h4>
+        <p class="content-story-section__description">With icon and optional title link.</p>
+        <div class="content-story-grid">
+          <div class="content-story-block">
+            <p class="content-story-variant-label">With link</p>
+            {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="get-help" title_url="/help" %}
+          </div>
+          <div class="content-story-block">
+            <p class="content-story-variant-label">Another card</p>
+            {% include "v3/includes/_content_detail_card_item.html" with title="Another card" description="With a different icon. Icon is optional and dynamic." icon_name="device-tv" %}
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3>Code blocks</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_code_blocks_story.html" %}
+    </div>
+  </div>
 </section>

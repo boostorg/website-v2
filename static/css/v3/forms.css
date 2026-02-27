@@ -1,4 +1,3 @@
-/* ========== Field (text input wrapper) ========== */
 .field {
   display: flex;
   flex-direction: column;
@@ -119,7 +118,6 @@
   color: var(--color-text-error, #d32f2f);
 }
 
-/* Disabled state */
 .field__control--disabled,
 .field__control--disabled:hover,
 .field__control--disabled:focus-within {
@@ -131,7 +129,6 @@
   cursor: not-allowed;
 }
 
-/* ========== Dropdown ========== */
 .dropdown {
   position: relative;
 }
@@ -193,7 +190,6 @@
   transform: rotate(180deg);
 }
 
-/* Open state: trigger gets active styling, connects to panel */
 .dropdown--open .dropdown__trigger {
   background-color: var(--color-surface-mid, #f7f7f8);
   border-color: var(--color-stroke-strong, #05081640);
@@ -225,7 +221,6 @@
   padding: var(--space-s, 4px) 0;
 }
 
-/* Custom scrollbar */
 .dropdown__list::-webkit-scrollbar {
   width: 4px;
 }
@@ -260,7 +255,6 @@
   font-weight: var(--font-weight-medium, 500);
 }
 
-/* Error state for dropdown */
 .field--error .dropdown__trigger {
   background-color: var(--color-surface-error-weak, #fdf2f2);
   border-color: var(--color-stroke-error, #D53F3F33);
@@ -270,9 +264,6 @@
   border-color: var(--color-stroke-error, #D53F3F33);
 }
 
-/* ========== Combo (searchable dropdown) ========== */
-
-/* Search row sits inside the trigger, inline with the chevron */
 .combo__search-row {
   display: flex;
   align-items: center;
@@ -281,7 +272,6 @@
   min-width: 0;
 }
 
-/* Chevron button inside the trigger — unstyled wrapper */
 .combo__chevron-btn {
   display: flex;
   align-items: center;
@@ -336,7 +326,6 @@
   color: var(--color-text-tertiary, #6b6d78);
 }
 
-/* ========== Multi-select ========== */
 .multiselect__item {
   display: flex;
   align-items: center;
@@ -387,7 +376,6 @@
   white-space: nowrap;
 }
 
-/* ========== Checkbox ========== */
 .checkbox {
   display: inline-flex;
   align-items: center;
