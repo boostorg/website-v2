@@ -120,57 +120,22 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Post card (standalone)</h3>
-    <div class="v3-examples-section__example-box">
-      {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True %}
-        {% include "v3/includes/_post_card_v3.html" %}
-      {% endwith %}
-    </div>
-  </div>
-
-  <div class="v3-examples-section__block">
-    <h3>Post cards</h3>
-    <div class="v3-examples-section__example-box">
-      <section class="post-cards post-cards--default post-cards--neutral post-cards--vertical">
-        <h2 class="post-cards__heading">
-          <a href="#" class="post-cards__heading-link">Posts from the Boost community</a>
-        </h2>
-        <ul class="post-cards__list">
-          <li class="post-cards__item">
-            {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True %}
-              {% include "v3/includes/_post_card_v3.html" %}
-            {% endwith %}
-          </li>
-          <li class="post-cards__item">
-            {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Peter Dimov" author_role="Maintainer" author_show_badge=True %}
-              {% include "v3/includes/_post_card_v3.html" %}
-            {% endwith %}
-          </li>
-        </ul>
-        <div class="post-cards__cta">
-          <a href="#" class="btn btn-secondary-grey">View all posts</a>
-        </div>
-      </section>
-    </div>
-  </div>
-
-  <div class="v3-examples-section__block">
     <h3>Detail card carousel</h3>
     <div class="v3-examples-section__example-box">
       <div id="post-cards-carousel" data-carousel class="post-cards-carousel">
         <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card post-cards--horizontal post-cards--carousel">
           <ul class="post-cards__list" data-carousel-track aria-label="Detail cards carousel">
             <li class="post-cards__item">
-              {% include "v3/includes/_content_card_v3.html" with card_title="Get help" card_description="Tap into quick answers, networking, and chat with 24,000+ members." card_icon_name="info-box" card_cta_label="Start here" card_cta_href="#" %}
+              {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="info-box" cta_label="Start here" cta_href="#" %}
             </li>
             <li class="post-cards__item">
-              {% include "v3/includes/_content_card_v3.html" with card_title="Documentation" card_description="Browse library docs, examples, and release notes in one place." card_icon_name="link" card_cta_label="View docs" card_cta_href="#" %}
+              {% include "v3/includes/_content_detail_card_item.html" with title="Documentation" description="Browse library docs, examples, and release notes in one place." icon_name="link" cta_label="View docs" cta_href="#" %}
             </li>
             <li class="post-cards__item">
-              {% include "v3/includes/_content_card_v3.html" with card_title="Community" card_description="Mailing lists, GitHub, and community guidelines for contributors." card_icon_name="human" card_cta_label="Join" card_cta_href="#" %}
+              {% include "v3/includes/_content_detail_card_item.html" with title="Community" description="Mailing lists, GitHub, and community guidelines for contributors." icon_name="human" cta_label="Join" cta_href="#" %}
             </li>
             <li class="post-cards__item">
-              {% include "v3/includes/_content_card_v3.html" with card_title="Releases" card_description="Latest releases, download links, and release notes." card_icon_name="info-box" card_cta_label="Download" card_cta_href="#" %}
+              {% include "v3/includes/_content_detail_card_item.html" with title="Releases" description="Latest releases, download links, and release notes." icon_name="info-box" cta_label="Download" cta_href="#" %}
             </li>
           </ul>
         </section>
@@ -207,9 +172,9 @@
         <h2 id="why-boost-heading" class="why-boost-cards__heading">Why Boost?</h2>
         <div class="why-boost-cards__grid">
           {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Documentation" description="Browse library docs, examples, and release notes in one place." icon_name="link" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Community" description="Mailing lists, GitHub, and community guidelines for contributors." icon_name="human" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Releases" description="Latest releases, download links, and release notes." icon_name="info-box" %}
         </div>
       </section>
     </div>
