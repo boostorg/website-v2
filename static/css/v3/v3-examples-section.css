@@ -114,3 +114,24 @@
   border-color: var(--color-surface-brand-accent-hovered);
   color: var(--color-text-reversed);
 }
+
+/* Post card carousel: hide scrollbar, layout wrapper */
+.post-cards-carousel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default, 8px);
+  min-width: 0;
+}
+
+.post-cards-carousel .carousel-buttons {
+  flex-shrink: 0;
+}
+
+.post-cards--carousel .post-cards__list {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.post-cards--carousel .post-cards__list::-webkit-scrollbar {
+  display: none;
+}

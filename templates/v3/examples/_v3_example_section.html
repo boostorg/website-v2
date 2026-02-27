@@ -70,6 +70,31 @@
   </div>
 
   <div class="v3-examples-section__block">
+    <h3>Detail card carousel</h3>
+    <div class="v3-examples-section__example-box">
+      <div id="post-cards-carousel" data-carousel class="post-cards-carousel">
+        <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card post-cards--horizontal post-cards--carousel">
+          <ul class="post-cards__list" data-carousel-track aria-label="Detail cards carousel">
+            <li class="post-cards__item">
+              {% include "v3/includes/_content_card_v3.html" with card_title="Get help" card_description="Tap into quick answers, networking, and chat with 24,000+ members." card_icon_name="info-box" card_cta_label="Start here" card_cta_href="#" %}
+            </li>
+            <li class="post-cards__item">
+              {% include "v3/includes/_content_card_v3.html" with card_title="Documentation" card_description="Browse library docs, examples, and release notes in one place." card_icon_name="link" card_cta_label="View docs" card_cta_href="#" %}
+            </li>
+            <li class="post-cards__item">
+              {% include "v3/includes/_content_card_v3.html" with card_title="Community" card_description="Mailing lists, GitHub, and community guidelines for contributors." card_icon_name="human" card_cta_label="Join" card_cta_href="#" %}
+            </li>
+            <li class="post-cards__item">
+              {% include "v3/includes/_content_card_v3.html" with card_title="Releases" card_description="Latest releases, download links, and release notes." card_icon_name="info-box" card_cta_label="Download" card_cta_href="#" %}
+            </li>
+          </ul>
+        </section>
+        {% include "v3/includes/_carousel_buttons.html" with carousel_id="post-cards-carousel" %}
+      </div>
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
     <h3>Form inputs</h3>
     <div class="v3-examples-section__example-box">
       <div class="v3-examples-section__forms">
