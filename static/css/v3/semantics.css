@@ -98,6 +98,7 @@
      TAG SEMANTIC COLORS
      ============================================ */
   --color-tag-fill: var(--color-primary-grey-100);
+  --color-tag-fill-hover: var(--color-primary-grey-200);
   --color-tag-stroke: #0508161A;
 
   /* ============================================

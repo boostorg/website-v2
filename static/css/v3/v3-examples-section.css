@@ -35,7 +35,7 @@
 }
 
 html.dark .v3-examples-section__example-box {
-  background: rgb(23 42 52/var(--tw-bg-opacity))
+  background: var(--color-surface-mid)
 }
 
 .v3-examples-section__tools {

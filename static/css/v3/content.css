@@ -3,11 +3,10 @@
   font-family: var(--font-sans);
   color: var(--color-text-primary);
   margin: 0;
-  padding: 0;
+  padding: var(--space-medium) var(--space-card);
   border-radius: var(--card-radius);
   box-sizing: border-box;
   transition: background-color 0.2s ease, border-color 0.2s ease;
-  padding: var(--space-medium) var(--space-card);
 }
 
 a:hover .event-content:not(.event-content--card-contained) {

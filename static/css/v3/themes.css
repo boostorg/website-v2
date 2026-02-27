@@ -82,10 +82,8 @@ html.dark {
 
   /* Tag */
   --color-tag-fill: var(--color-primary-grey-900);
+  --color-tag-fill-hover: var(--color-primary-grey-850);
   --color-tag-stroke: #FFFFFF1A;
-
-   /* Text on accent: en dark las superficies de acento son oscuras → texto claro */
-   --color-text-on-accent: var(--color-primary-white);
 
    /* Code block (dark backgrounds + contrast so code is readable) */
    --code-block-bg-standalone: var(--color-primary-grey-900);
@@ -96,6 +94,7 @@ html.dark {
   /* Text */
   --color-text-error: var(--color-error-mid);
   --color-text-link-accent: var(--color-secondary-mid-blue);
+  --color-text-on-accent: var(--color-primary-white);
   --color-text-reversed: var(--color-primary-black);
   --color-text-tertiary: var(--color-primary-grey-600);
 }
