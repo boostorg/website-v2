@@ -1,0 +1,49 @@
+{% comment %}
+  Cards carousel: container with header (title + controls), divider, horizontal track of content detail cards.
+  Requires static/css/v3/post-cards.css and carousel-buttons.css; static/js/carousel.js for behaviour.
+
+  Variables:
+    carousel_id (optional) — id for the carousel root and controls. Default: "cards-carousel"
+    heading (optional) — section heading. Default: "Libraries categories"
+    track_aria_label (optional) — aria-label for the track. Default: "Detail cards carousel"
+    cards (optional) — list of dicts with: title, description, icon_name, cta_label, cta_href.
+                       When omitted, no cards are shown (pass from view for content).
+    autoplay (optional) — if True, carousel scrolls automatically. Default: False
+    autoplay_delay (optional) — autoplay interval in milliseconds. Only used when autoplay is True. Default: 4000
+
+  Usage (default demo):
+    {% include "v3/includes/_cards_carousel_v3.html" with cards=cards_carousel_cards %}
+
+  Usage (custom heading and id):
+    {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="libs-carousel" heading="Library categories" %}
+
+  Usage (with autoplay, 5 second interval):
+    {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="featured" autoplay=True autoplay_delay=5000 %}
+
+  Usage (from view context with cards list):
+    {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="my-carousel" heading="Featured" cards=my_cards_list %}
+{% endcomment %}
+{% with carousel_id=carousel_id|default:"cards-carousel" heading=heading|default:"Libraries categories" track_aria_label=track_aria_label|default:"Detail cards carousel" %}
+<div id="{{ carousel_id }}" data-carousel class="cards-carousel" role="region" aria-labelledby="{{ carousel_id }}-heading"{% if autoplay %} data-carousel-autoplay="{{ autoplay_delay|default:4000 }}"{% endif %}>
+  <div class="cards-carousel__header">
+    <h2 id="{{ carousel_id }}-heading" class="cards-carousel__heading">{{ heading }}</h2>
+    <div class="cards-carousel__controls">
+      {% include "v3/includes/_carousel_buttons.html" with carousel_id=carousel_id %}
+    </div>
+  </div>
+  <hr class="cards-carousel__divider" aria-hidden="true" />
+  <div class="cards-carousel__track">
+    <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card post-cards--horizontal post-cards--carousel">
+      <ul class="post-cards__list" data-carousel-track aria-label="{{ track_aria_label }}">
+        {% if cards %}
+          {% for card in cards %}
+            <li class="post-cards__item">
+              {% include "v3/includes/_content_detail_card_item.html" with title=card.title description=card.description icon_name=card.icon_name cta_label=card.cta_label cta_href=card.cta_href %}
+            </li>
+          {% endfor %}
+        {% endif %}
+      </ul>
+    </section>
+  </div>
+</div>
+{% endwith %}

@@ -122,25 +122,7 @@
   <div class="v3-examples-section__block">
     <h3>Detail card carousel</h3>
     <div class="v3-examples-section__example-box">
-      <div id="post-cards-carousel" data-carousel class="post-cards-carousel">
-        <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card post-cards--horizontal post-cards--carousel">
-          <ul class="post-cards__list" data-carousel-track aria-label="Detail cards carousel">
-            <li class="post-cards__item">
-              {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="info-box" cta_label="Start here" cta_href="#" %}
-            </li>
-            <li class="post-cards__item">
-              {% include "v3/includes/_content_detail_card_item.html" with title="Documentation" description="Browse library docs, examples, and release notes in one place." icon_name="link" cta_label="View docs" cta_href="#" %}
-            </li>
-            <li class="post-cards__item">
-              {% include "v3/includes/_content_detail_card_item.html" with title="Community" description="Mailing lists, GitHub, and community guidelines for contributors." icon_name="human" cta_label="Join" cta_href="#" %}
-            </li>
-            <li class="post-cards__item">
-              {% include "v3/includes/_content_detail_card_item.html" with title="Releases" description="Latest releases, download links, and release notes." icon_name="info-box" cta_label="Download" cta_href="#" %}
-            </li>
-          </ul>
-        </section>
-        {% include "v3/includes/_carousel_buttons.html" with carousel_id="post-cards-carousel" %}
-      </div>
+      {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel" heading="Libraries categories" cards=cards_carousel_cards %}
     </div>
   </div>
 

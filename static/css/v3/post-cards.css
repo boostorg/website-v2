@@ -277,3 +277,91 @@
 .post-cards--content-card.post-cards--horizontal .post-cards__item:last-child {
   border-right: none;
 }
+
+
+.cards-carousel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large, 16px);
+  padding: var(--space-large, 16px) 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  background: var(--color-surface-mid, #f7f7f8);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-radius: var(--border-radius-l, 8px);
+  overflow: hidden;
+}
+
+.cards-carousel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-large, 16px);
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.cards-carousel__heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--font-size-large, 24px);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: 1;
+  letter-spacing: -0.24px;
+  color: var(--color-text-primary, #050816);
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.cards-carousel__controls {
+  flex-shrink: 0;
+}
+
+.cards-carousel__divider {
+  margin: 0;
+  border: none;
+  border-top: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  width: 100%;
+  height: 0;
+  flex-shrink: 0;
+}
+
+.cards-carousel__track {
+  padding: 0 var(--space-large, 16px);
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.cards-carousel .post-cards {
+  background: transparent;
+  border: none;
+  padding: 0;
+  max-width: 100%;
+}
+
+.cards-carousel .post-cards--content-card .post-cards__list {
+  gap: var(--space-large, 16px);
+  align-items: stretch;
+}
+
+.cards-carousel .post-cards--content-card .post-cards__item {
+  flex: 0 0 300px;
+  width: 300px;
+  min-width: 300px;
+  display: flex;
+}
+
+.cards-carousel .content-detail-icon {
+  background: var(--color-surface-weak, #fff);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-radius: var(--border-radius-l, 8px);
+  padding: var(--space-large, 16px);
+  gap: var(--space-large, 16px);
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
+  min-height: 100%;
+}

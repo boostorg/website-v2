@@ -1,30 +1,27 @@
-/**
- * Carousel: scrolls a track by one step (e.g. one card) on prev/next button click.
- * Optional autoplay via data-carousel-autoplay (delay in ms).
- *
- * DOM: [data-carousel] root with id; inside: [data-carousel-track] (scrollable), and
- * controls with id "{root.id}-controls" containing [data-carousel-prev] / [data-carousel-next].
- */
+
 (function () {
-  'use strict';
+
+  const CAROUSEL_STEP_PX_FALLBACK = 320;
 
   function getStepPx(track) {
-    var first = track.querySelector('.post-cards__item');
+    const first = track.querySelector('.post-cards__item');
     if (first) {
-      var style = window.getComputedStyle(first);
-      var width = first.offsetWidth;
-      var marginRight = parseFloat(style.marginRight) || 0;
-      return width + marginRight;
+      const itemStyle = window.getComputedStyle(first);
+      const width = first.offsetWidth;
+      const marginRight = parseFloat(itemStyle.marginRight) || 0;
+      const trackStyle = window.getComputedStyle(track);
+      const gap = parseFloat(trackStyle.gap) || 0;
+      return width + marginRight + gap;
     }
-    return 320;
+    return CAROUSEL_STEP_PX_FALLBACK;
   }
 
   function scrollCarousel(track, direction, smooth) {
     if (!track) return;
-    var step = getStepPx(track);
-    var maxScroll = track.scrollWidth - track.clientWidth;
-    var current = track.scrollLeft;
-    var next = direction === 'next'
+    const step = getStepPx(track);
+    const maxScroll = track.scrollWidth - track.clientWidth;
+    const current = track.scrollLeft;
+    const next = direction === 'next'
       ? Math.min(current + step, maxScroll)
       : Math.max(current - step, 0);
     track.scrollTo({ left: next, behavior: smooth ? 'smooth' : 'auto' });
@@ -32,12 +29,12 @@
 
   function initCarousel(root) {
     if (!root || !root.id) return;
-    var track = root.querySelector('[data-carousel-track]');
-    var controls = document.getElementById(root.id + '-controls');
+    const track = root.querySelector('[data-carousel-track]');
+    const controls = document.getElementById(root.id + '-controls');
     if (!track || !controls) return;
 
-    var prevBtn = controls.querySelector('[data-carousel-prev]');
-    var nextBtn = controls.querySelector('[data-carousel-next]');
+    const prevBtn = controls.querySelector('[data-carousel-prev]');
+    const nextBtn = controls.querySelector('[data-carousel-next]');
     if (prevBtn) {
       prevBtn.addEventListener('click', function () { scrollCarousel(track, 'prev', true); });
     }
@@ -45,12 +42,12 @@
       nextBtn.addEventListener('click', function () { scrollCarousel(track, 'next', true); });
     }
 
-    var autoplayDelay = root.getAttribute('data-carousel-autoplay');
+    const autoplayDelay = root.getAttribute('data-carousel-autoplay');
     if (autoplayDelay) {
-      var delayMs = parseInt(autoplayDelay, 10) || 4000;
-      var timer = null;
+      const delayMs = parseInt(autoplayDelay, 10) || 4000;
+      let timer = null;
 
-      function startAutoplay() {
+      const startAutoplay = () => {
         timer = setInterval(function () {
           var maxScroll = track.scrollWidth - track.clientWidth;
           if (track.scrollLeft >= maxScroll - 1) {
@@ -61,7 +58,7 @@
         }, delayMs);
       }
 
-      function stopAutoplay() {
+      const stopAutoplay = () => {
         if (timer) clearInterval(timer);
         timer = null;
       }
