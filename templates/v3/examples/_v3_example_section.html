@@ -28,6 +28,91 @@
   </div>
 
   <div class="v3-examples-section__block">
+    <h3>Avatar</h3>
+    <div class="v3-examples-section__example-box">
+      <table class="v3-examples-section__avatar-table">
+        <tbody>
+          <tr>
+            <th scope="row">Variants</th>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with src="https://thispersondoesnotexist.com/" size="md" %}
+                <span class="v3-examples-section__avatar-label">Example photo</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% with user_avatar_url=request.user.get_thumbnail_url %}
+                  {% if user_avatar_url %}
+                    {% include "v3/includes/_avatar_v3.html" with src=user_avatar_url size="md" %}
+                  {% elif request.user.is_authenticated %}
+                    {% include "v3/includes/_avatar_v3.html" with name=request.user.display_name size="md" %}
+                  {% else %}
+                    {% include "v3/includes/_avatar_v3.html" with size="md" %}
+                  {% endif %}
+                {% endwith %}
+                <span class="v3-examples-section__avatar-label">You</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="yellow" %}
+                <span class="v3-examples-section__avatar-label">Yellow</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="green" %}
+                <span class="v3-examples-section__avatar-label">Green</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="teal" %}
+                <span class="v3-examples-section__avatar-label">Teal</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" %}
+                <span class="v3-examples-section__avatar-label">Placeholder</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Sizes</th>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="sm" %}
+                <span class="v3-examples-section__avatar-label">sm</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="md" %}
+                <span class="v3-examples-section__avatar-label">md</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="lg" %}
+                <span class="v3-examples-section__avatar-label">lg</span>
+              </div>
+            </td>
+            <td>
+              <div class="v3-examples-section__avatar-item">
+                {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="xl" %}
+                <span class="v3-examples-section__avatar-label">xl</span>
+              </div>
+            </td>
+            <td colspan="2"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block v3-examples-section__block--carousel">
     <h3>Carousel buttons</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_carousel_buttons.html" %}
