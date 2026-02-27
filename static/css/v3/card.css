@@ -1,12 +1,12 @@
 /*
     Styles for the basic card, as well as some basic structural members for any children based off the basic card
 
-    __column - flex column for material in the card
-    __center - Centers its children inside the flex parent
-    __title - Styles the material bolded for title presentation
-    __hr - a Horizonatl rule for seperating the card and being dark mode responsive
+    card - basic shared styling and layout for cards
+    card__column - flex column for material in the card
+    card__center - Centers its children inside the flex parent
+    card__title - Styles the material bolded for title presentation
+    card__hr - a Horizonatl rule for seperating the card and being dark mode responsive
 
-    .basic-card - Styling for the basic card, including bg color, border, and sizing
 */
 
 .card {
