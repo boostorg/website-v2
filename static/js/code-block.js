@@ -50,9 +50,19 @@
     btn.setAttribute("aria-label", copied ? "Copied" : "Copy code to clipboard");
   }
 
+  function initHighlight() {
+    if (typeof hljs !== "undefined" && hljs.highlightAll) {
+      hljs.highlightAll();
+    }
+  }
+
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", function () {
+      init();
+      initHighlight();
+    });
   } else {
     init();
+    initHighlight();
   }
 })();

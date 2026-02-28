@@ -99,6 +99,14 @@ html.dark {
   --code-block-bg-grey: var(--color-primary-grey-900);
   --code-block-card-btn-bg: var(--color-primary-grey-800);
 
+  /* Syntax highlighting (C++ / cpp-highlight, Atom One Dark palette) */
+  --syntax-keyword: #c678dd;
+  --syntax-string: #98c379;
+  --syntax-preprocessor: #e06c75;
+  --syntax-comment: #5c6370;
+  --syntax-attribute: #d19a66;
+  --syntax-text: #abb2bf;
+
   /* Text */
   --color-text-error: var(--color-error-mid);
   --color-text-link-accent: var(--color-secondary-mid-blue);

@@ -6,6 +6,7 @@
     description   (optional) — paragraph below heading
     code          (optional) — plain text string for the code block (use code or code_html)
     code_html     (optional) — pre-rendered HTML for <code>
+    language      (optional) — language for highlight.js when using code (e.g. "cpp", "bash")
     block_variant (optional) — "standalone" | "white-bg" | "grey-bg", default "grey-bg"
     button_text   (optional) — if set, a button is shown
     button_url    (optional) — button href, default "#"
@@ -15,7 +16,7 @@
   {% if description %}
   <p class="code-block-card__description">{{ description }}</p>
   {% endif %}
-  {% include "v3/includes/_code_block.html" with code=code code_html=code_html variant=block_variant|default:"grey-bg" %}
+  {% include "v3/includes/_code_block.html" with code=code code_html=code_html language=language variant=block_variant|default:"grey-bg" %}
   {% if button_text %}
   <a href="{{ button_url|default:'#' }}" class="code-block-card__btn">{{ button_text }}</a>
   {% endif %}
