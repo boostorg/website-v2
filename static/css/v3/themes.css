@@ -84,12 +84,20 @@ html.dark {
   --color-tag-fill: var(--color-primary-grey-900);
   --color-tag-fill-hover: var(--color-primary-grey-850);
   --color-tag-stroke: #FFFFFF1A;
+  /* Category tag dark: single source for neutral and colored tag surfaces (no raw primitives in category-tags.css) */
+  --color-tag-neutral-bg: var(--color-primary-grey-900);
+  --color-tag-neutral-bg-hover: var(--color-primary-grey-800);
+  --color-tag-neutral-border: var(--color-primary-grey-900);
+  --color-tag-colored-bg: var(--color-primary-grey-800);
+  --color-tag-colored-bg-hover: var(--color-primary-grey-850);
+  --color-tag-colored-border: var(--color-primary-grey-800);
+  --color-tag-colored-text: var(--color-text-primary);
 
-   /* Code block (dark backgrounds + contrast so code is readable) */
-   --code-block-bg-standalone: var(--color-primary-grey-900);
-   --code-block-border-standalone: var(--color-border);
-   --code-block-bg-grey: var(--color-primary-grey-900);
-   --code-block-card-btn-bg: var(--color-primary-grey-800);
+  /* Code block (dark backgrounds + contrast so code is readable) */
+  --code-block-bg-standalone: var(--color-primary-grey-900);
+  --code-block-border-standalone: var(--color-border);
+  --code-block-bg-grey: var(--color-primary-grey-900);
+  --code-block-card-btn-bg: var(--color-primary-grey-800);
 
   /* Text */
   --color-text-error: var(--color-error-mid);

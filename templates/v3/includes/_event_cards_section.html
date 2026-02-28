@@ -13,7 +13,7 @@
     {% endfor %}
   </ul>
   <div class="event-cards__buttons">
-    {% if primary_btn_text %}<a href="{{ primary_btn_url|default:'#' }}" class="event-cards__btn event-cards__btn--primary">{{ primary_btn_text }}</a>{% endif %}
-    {% if secondary_btn_text %}<a href="{{ secondary_btn_url|default:'#' }}" class="event-cards__btn event-cards__btn--secondary">{{ secondary_btn_text }}</a>{% endif %}
+    {% if primary_btn_text %}<a href="{{ primary_btn_url|default:'#' }}" class="btn {% if variant == 'teal' %}btn-teal{% elif variant == 'yellow' %}btn-yellow{% elif variant == 'beige' %}btn-green{% else %}btn-primary{% endif %}" aria-label="{{ primary_btn_text }}">{{ primary_btn_text }}</a>{% endif %}
+    {% if secondary_btn_text %}<a href="{{ secondary_btn_url|default:'#' }}" class="btn {% if variant == 'white' or variant == 'grey' %}btn-secondary-grey{% else %}btn-secondary{% endif %}" aria-label="{{ secondary_btn_text }}">{{ secondary_btn_text }}</a>{% endif %}
   </div>
 </section>

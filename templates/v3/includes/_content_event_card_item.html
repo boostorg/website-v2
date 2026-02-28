@@ -11,8 +11,8 @@
   Usage:
     {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed" description="Release closed for major changes." date="29/10/25" datetime="2025-10-29" %}
 {% endcomment %}
-<div class="{% if contained %} event-content--card-contained{% endif %} event-card ">
-  <article class="event-content">
+<div class="event-card">
+  <article class="event-content{% if contained %} event-content--card-contained{% endif %}">
     <h3 class="event-content__title">{{ title }}</h3>
     <p class="event-content__description">{{ description }}</p>
     <time class="event-content__date" datetime="{{ datetime|default:date }}">{{ date }}</time>

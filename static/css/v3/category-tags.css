@@ -11,6 +11,7 @@
   text-decoration: none;
   cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  color: var(--color-text-secondary);
 }
 
 .category-tag--default {
@@ -22,14 +23,13 @@
 }
 
 .category-tag--neutral {
-  background: var(--color-primary-grey-100);
+  background: var(--color-tag-fill);
   border-color: var(--color-tag-stroke);
-  color: var(--color-text-secondary);
 }
 
 .category-tag--neutral:hover,
 .category-tag--neutral.category-tag--hover-state {
-  background: var(--color-primary-grey-200);
+  background: var(--color-tag-fill-hover);
   border-color: var(--color-tag-stroke);
   color: var(--color-text-secondary);
 }
@@ -37,40 +37,37 @@
 .category-tag--green {
   background: var(--color-surface-strong-accent-green-default);
   border-color: var(--color-accent-strong-green);
-  color: var(--color-text-on-accent);
 }
 
 .category-tag--green:hover,
 .category-tag--green.category-tag--hover-state {
   background: var(--color-surface-strong-accent-green-hover);
   border-color: var(--color-accent-strong-green);
-  color: var(--color-text-on-accent);
+  color: var(--color-text-secondary);
 }
 
 .category-tag--yellow {
   background: var(--color-surface-strong-accent-yellow-default);
   border-color: var(--color-accent-strong-yellow);
-  color: var(--color-text-on-accent);
 }
 
 .category-tag--yellow:hover,
 .category-tag--yellow.category-tag--hover-state {
   background: var(--color-surface-strong-accent-yellow-hover);
   border-color: var(--color-accent-strong-yellow);
-  color: var(--color-text-on-accent);
+  color: var(--color-text-secondary);
 }
 
 .category-tag--teal {
   background: var(--color-surface-strong-accent-teal-default);
   border-color: var(--color-accent-strong-teal);
-  color: var(--color-text-on-accent);
 }
 
 .category-tag--teal:hover,
 .category-tag--teal.category-tag--hover-state {
   background: var(--color-surface-strong-accent-teal-hover);
   border-color: var(--color-accent-strong-teal);
-  color: var(--color-text-on-accent);
+  color: var(--color-text-secondary);
 }
 
 .version-tag {
@@ -86,11 +83,11 @@
 }
 
 .version-tag--default {
-  background: var(--color-primary-grey-100);
+  background: var(--color-tag-fill);
 }
 
 .version-tag--hover {
-  background: var(--color-primary-grey-200);
+  background: var(--color-tag-fill-hover);
 }
 
 
@@ -146,67 +143,36 @@
   color: var(--color-text-secondary);
 }
 
-/* ========== Dark theme (alineado con post-cards/event-cards: fondo oscuro, texto claro, borde de acento) ========== */
+
+/* Dark theme: use semantic variables from themes.css only (no raw primitives) */
 html.dark .category-tag--neutral {
-  background: var(--color-primary-grey-800);
-  border-color: var(--color-tag-stroke);
+  background: var(--color-tag-neutral-bg);
+  border-color: var(--color-tag-neutral-border);
   color: var(--color-text-secondary);
 }
 
 html.dark .category-tag--neutral:hover,
 html.dark .category-tag--neutral.category-tag--hover-state {
-  background: var(--color-primary-grey-850);
-  border-color: var(--color-tag-stroke);
-  color: var(--color-text-secondary);
+  background: var(--color-tag-neutral-bg-hover);
+  border-color: var(--color-tag-neutral-border);
+  color: var(--color-text-primary);
 }
 
-html.dark .category-tag--green {
-  background: var(--color-primary-grey-800);
-  border-color: var(--color-accent-strong-green);
-  color: var(--color-text-secondary);
+html.dark .category-tag--green,
+html.dark .category-tag--yellow,
+html.dark .category-tag--teal {
+  background: var(--color-tag-colored-bg);
+  border-color: var(--color-tag-colored-border);
+  color: var(--color-tag-colored-text);
 }
 
 html.dark .category-tag--green:hover,
-html.dark .category-tag--green.category-tag--hover-state {
-  background: var(--color-primary-grey-850);
-  border-color: var(--color-accent-strong-green);
-  color: var(--color-text-secondary);
-}
-
-html.dark .category-tag--yellow {
-  background: var(--color-primary-grey-800);
-  border-color: var(--color-accent-strong-yellow);
-  color: var(--color-text-secondary);
-}
-
 html.dark .category-tag--yellow:hover,
-html.dark .category-tag--yellow.category-tag--hover-state {
-  background: var(--color-primary-grey-850);
-  border-color: var(--color-accent-strong-yellow);
-  color: var(--color-text-secondary);
-}
-
-html.dark .category-tag--teal {
-  background: var(--color-primary-grey-800);
-  border-color: var(--color-accent-strong-teal);
-  color: var(--color-text-secondary);
-}
-
 html.dark .category-tag--teal:hover,
+html.dark .category-tag--green.category-tag--hover-state,
+html.dark .category-tag--yellow.category-tag--hover-state,
 html.dark .category-tag--teal.category-tag--hover-state {
-  background: var(--color-primary-grey-850);
-  border-color: var(--color-accent-strong-teal);
-  color: var(--color-text-secondary);
-}
-
-html.dark .version-tag--default {
-  background: var(--color-primary-grey-800);
-  border-color: var(--color-tag-stroke);
-  color: var(--color-text-secondary);
-}
-
-html.dark .version-tag--hover {
-  background: var(--color-primary-grey-850);
-  border-color: var(--color-tag-stroke);
-  color: var(--color-text-secondary);
+  background: var(--color-tag-colored-bg-hover);
+  border-color: var(--color-tag-colored-border);
+  color: var(--color-tag-colored-text);
 }

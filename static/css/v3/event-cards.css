@@ -1,4 +1,3 @@
-
 .event-cards {
   font-family: var(--font-sans);
   color: var(--color-text-primary);
@@ -50,7 +49,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-large);
+  gap: var(--space-default);
 }
 
 .event-cards--white .event-cards__list {
@@ -87,68 +86,15 @@
   padding-top: var(--space-xl);
 }
 
-.event-cards__btn {
+.event-cards__buttons .btn {
   flex: 1 1 0;
-  min-width: 0;
-  padding: var(--space-default) var(--space-default); /* 8px 8px */
-  border-radius: var(--button-radius);
-  font-size: var(--button-font-size);
-  font-weight: var(--button-font-weight);
-  line-height: var(--button-line-height);
-  font-family: var(--button-font-family);
+  min-width: 128px;
+  width: auto;
   text-decoration: none;
-  text-align: center;
-  box-sizing: border-box;
-  color: var(--color-text-primary);
 }
 
-.event-cards--white .event-cards__btn--primary,
-.event-cards--grey .event-cards__btn--primary {
-  background: var(--color-button-primary);
-  border: none;
-}
-
-.event-cards--white .event-cards__btn--secondary {
-  background: var(--color-button-secondary);
-  border: 1px solid var(--color-border);
-}
-
-.event-cards--grey .event-cards__btn--secondary {
-  background: var(--color-surface-mid);
-  border: 1px solid var(--color-border);
-}
-
-.event-cards--yellow .event-cards__btn--primary {
-  background: var(--color-surface-strong-accent-yellow-default);
-  border: none;
-}
-
-.event-cards--yellow .event-cards__btn--secondary {
-  background: var(--color-surface-weak-accent-yellow);
-  border: 1px solid var(--color-accent-strong-yellow);
-  color: var(--color-text-primary);
-}
-
-.event-cards--beige .event-cards__btn--primary {
-  background: var(--color-surface-strong-accent-green-default);
-  border: none;
-}
-
-.event-cards--beige .event-cards__btn--secondary {
-  background: var(--color-surface-weak-accent-green);
-  border: 1px solid var(--color-accent-strong-green);
-  color: var(--color-text-primary);
-}
-
-.event-cards--teal .event-cards__btn--primary {
-  background: var(--color-surface-strong-accent-teal-default);
-  border: none;
-}
-
-.event-cards--teal .event-cards__btn--secondary {
-  background: var(--color-surface-weak-accent-teal);
-  border: 1px solid var(--color-accent-strong-teal);
-  color: var(--color-text-primary);
+.event-cards__buttons .btn:hover {
+  text-decoration: none;
 }
 
 .event-cards-gallery {
@@ -164,4 +110,16 @@
   width: 100%;
   min-width: 0;
   flex-shrink: 0;
+}
+
+html.dark .event-cards--teal,
+html.dark .event-cards--yellow,
+html.dark .event-cards--beige {
+  background: var(--color-primary-grey-850);
+  border: 1px solid var(--color-primary-grey-850);
+}
+
+html.dark .event-cards--grey {
+  background: var(--color-primary-grey-900);
+  border: 1px solid var(--color-primary-grey-900);
 }
