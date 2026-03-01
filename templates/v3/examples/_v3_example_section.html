@@ -90,13 +90,18 @@
   <div class="v3-examples-section__block">
     <h3>Why Boost</h3>
     <div class="v3-examples-section__example-box">
+      {% comment %}Use 8 cards to test ACs: "Why Boost Cards render correctly with 1–8 cards" and "Cards wrap correctly after four items on desktop/tablet" (4+4 rows).{% endcomment %}
       <section class="why-boost-cards" aria-labelledby="why-boost-heading">
         <h2 id="why-boost-heading" class="why-boost-cards__heading">Why Boost?</h2>
         <div class="why-boost-cards__grid">
           {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Learn" description="Access documentation, books, and courses to level up your C++." icon_name="bullseye-arrow" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Contribute" description="Report issues, submit patches, and join the community." icon_name="bullseye-arrow" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Stay updated" description="Releases, news, and announcements from the Boost community." icon_name="bullseye-arrow" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Libraries" description="Portable, peer-reviewed libraries for a wide range of use cases." icon_name="bullseye-arrow" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Standards" description="Many Boost libraries have been adopted into the C++ standard." icon_name="bullseye-arrow" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Quality" description="Peer-reviewed code and documentation maintained by the community." icon_name="bullseye-arrow" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Cross-platform" description="Libraries designed to work across compilers and platforms." icon_name="bullseye-arrow" %}
         </div>
       </section>
     </div>

@@ -12,13 +12,6 @@
   --code-block-copy-icon-color-success: var(--color-syntax-green);
   --code-block-card-max-width: 458px;
   --code-block-card-radius: var(--card-radius-lg);
-  --code-block-card-btn-bg: var(--color-primary-grey-200);
-}
-
-
-pre{
-  color: var(--color-syntax-text) !important;
-  font-weight: 500;
 }
 
 .code-block--standalone {
@@ -66,7 +59,7 @@ pre{
 }
 
 .code-block-card .code-block {
-  margin: 0 var(--space-medium);
+  margin: 0 var(--space-card);
   overflow: visible;
 }
 
@@ -75,9 +68,34 @@ pre{
   overflow-wrap: break-word;
 }
 
-.code-block-card .code-block-card__btn {
-  margin: var(--space-medium) var(--space-medium) 0 var(--space-medium);
-  max-width: calc(100% - var(--space-medium) * 2);
+.code-block__inner code{
+  font-weight: 500;
+  color: var(--color-syntax-text) !important;
+  white-space: break-spaces !important;
+}
+
+.code-block__inner code{
+  font-weight: 500;
+  color: var(--color-syntax-text) !important;
+  white-space: break-spaces !important;
+}
+
+/* CTA button in card – same look as .post-cards__cta .btn-secondary-grey */
+.code-block-card .btn {
+  flex: 1 1 0;
+  min-width: 128px;
+  text-decoration: none;
+  margin: var(--space-medium) 0 0 0;
+}
+
+.code-block-card .btn:hover {
+  text-decoration: none;
+}
+
+.code-block-card .btn-secondary-grey {
+  background-color: var(--color-button-primary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
 }
 
 .code-block-card--neutral {
@@ -127,7 +145,7 @@ html.dark .code-block-card--grey {
 
 .code-block-card__heading {
   margin: 0;
-  padding: 0 var(--space-medium) var(--space-card) var(--space-medium);
+  padding: 0 var(--space-card) var(--space-card) var(--space-card);
   font-size: var(--font-size-large);
   font-weight: 600;
   font-family: var(--font-display);
@@ -135,7 +153,7 @@ html.dark .code-block-card--grey {
 }
 
 .code-block-card__description {
-  padding: var(--space-card) var(--space-medium) var(--space-default) var(--space-medium);
+  padding: var(--space-card) var(--space-card) var(--space-default) var(--space-card);
   margin: 0 0 var(--space-medium);
   font-size: var(--font-size-medium);
   line-height: var(--line-height-relaxed);
@@ -144,23 +162,6 @@ html.dark .code-block-card--grey {
 
 .code-block-card  .code-block-card__description{
   border-top: 1px solid var(--color-border);
-}
-
-.code-block-card__btn {
-  margin-top: var(--space-medium);
-  padding: var(--space-default) var(--space-default);
-  width: 100%;
-  background: var(--code-block-card-btn-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-m);
-  font-size: var(--font-size-small);
-  font-weight: 600;
-  font-family: var(--font-sans);
-  color: var(--color-text-primary);
-  cursor: pointer;
-  box-sizing: border-box;
-  text-align: center;
-  display: block;
 }
 
 .code-block__inner {

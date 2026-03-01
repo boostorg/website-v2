@@ -17,7 +17,7 @@
     {% include "v3/includes/_code_block.html" with code=code_standalone_2|default:code_demo_beast variant="white-bg" language="cpp" %}
   </div>
   <div class="code-block-story-column">
-    {% include "v3/includes/_code_block_card.html" with heading="Get started with our libraries" code=code_card_1|default:code_demo_hello block_variant="grey-bg" button_text="Explore examples" language="cpp" %}
+    {% include "v3/includes/_code_block_card.html" with heading="Get started with our libraries" code=code_card_1|default:code_demo_hello block_variant="grey-bg" button_text="Explore examples" language="cpp" button_aria_label="Explore examples" %}
     {% include "v3/includes/_code_block_card.html" with card_variant="neutral" heading="About Beast" description="Beast lets you use HTTP and WebSocket to write clients and servers that connect to networks using Boost.Asio." code=code_card_2|default:code_demo_beast block_variant="grey-bg" language="cpp" %}
     {% include "v3/includes/_code_block_card.html" with card_variant="teal" heading="Install" description="Get started with header-only libraries." code=code_card_3|default:code_demo_install block_variant="grey-bg" language="bash" %}
   </div>
