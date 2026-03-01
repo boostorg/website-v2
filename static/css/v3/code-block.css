@@ -15,6 +15,12 @@
   --code-block-card-btn-bg: var(--color-primary-grey-200);
 }
 
+
+pre{
+  color: var(--color-syntax-text) !important;
+  font-weight: 500;
+}
+
 .code-block--standalone {
   background: var(--code-block-bg-standalone);
   border: 1px dashed var(--code-block-border-standalone);

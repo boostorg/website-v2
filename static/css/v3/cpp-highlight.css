@@ -36,6 +36,16 @@
    color: #9e9e9e;
  }
 
+ .code-block code.cpp-highlight .cpp-number,
+ .code-block .code-block__inner code.cpp-highlight .cpp-number {
+   color: var(--syntax-number, #098658);
+ }
+
+ .code-block code.cpp-highlight .cpp-function,
+ .code-block .code-block__inner code.cpp-highlight .cpp-function {
+   color: var(--syntax-function, #267f99);
+ }
+
  /* Light theme – highlight.js classes (same colors as cpp-highlight) */
  .code-block .hljs-keyword,
  .code-block .hljs-selector-tag,
@@ -72,74 +82,4 @@
  .code-block .hljs-built_in,
  .code-block .hljs-class .hljs-title {
    color: #267f99;
- }
-
- /* Dark theme – cpp-highlight classes */
- html.dark .code-block code.cpp-highlight .cpp-keyword,
- html.dark .code-block .code-block__inner code.cpp-highlight .cpp-keyword {
-   color: var(--syntax-keyword, #c678dd);
- }
-
- html.dark .code-block code.cpp-highlight .cpp-string,
- html.dark .code-block .code-block__inner code.cpp-highlight .cpp-string {
-   color: var(--syntax-string, #98c379);
- }
-
- html.dark .code-block code.cpp-highlight .cpp-preprocessor,
- html.dark .code-block .code-block__inner code.cpp-highlight .cpp-preprocessor {
-   color: var(--syntax-preprocessor, #e06c75);
- }
-
- html.dark .code-block code.cpp-highlight .cpp-comment,
- html.dark .code-block .code-block__inner code.cpp-highlight .cpp-comment {
-   color: var(--syntax-comment, #5c6370);
-   font-style: italic;
- }
-
- html.dark .code-block code.cpp-highlight .cpp-attribute,
- html.dark .code-block .code-block__inner code.cpp-highlight .cpp-attribute {
-   color: var(--syntax-attribute, #d19a66);
- }
-
- html.dark .code-block code.cpp-highlight,
- html.dark .code-block .code-block__inner code.cpp-highlight {
-   color: var(--syntax-text, #abb2bf);
- }
-
- /* Dark theme – highlight.js classes */
- html.dark .code-block .hljs-keyword,
- html.dark .code-block .hljs-selector-tag,
- html.dark .code-block .hljs-addition {
-   color: var(--syntax-keyword, #c678dd);
- }
-
- html.dark .code-block .hljs-string {
-   color: var(--syntax-string, #98c379);
- }
-
- html.dark .code-block .hljs-meta,
- html.dark .code-block .hljs-meta .hljs-keyword {
-   color: var(--syntax-preprocessor, #e06c75);
- }
-
- html.dark .code-block .hljs-comment,
- html.dark .code-block .hljs-quote {
-   color: var(--syntax-comment, #5c6370);
-   font-style: italic;
- }
-
- html.dark .code-block .hljs-attribute,
- html.dark .code-block .hljs-variable,
- html.dark .code-block .hljs-template-variable {
-   color: var(--syntax-attribute, #d19a66);
- }
-
- html.dark .code-block .hljs-number,
- html.dark .code-block .hljs-literal {
-   color: var(--syntax-string, #98c379);
- }
-
- html.dark .code-block .hljs-built_in,
- html.dark .code-block .hljs-class .hljs-title {
-   color: #61afef;
  }
