@@ -1,11 +1,11 @@
 /**
- * Code block copy: al hacer clic en .code-block__copy, copia el texto del código
- * al portapapeles, pone data-copied="true" en el botón y muestra el icono check.
- * Tras COPY_FEEDBACK_MS vuelve al estado inicial.
+ * Code block copy: on click of .code-block__copy, copies the code text to the clipboard,
+ * sets data-copied="true" on the button and shows the check icon.
+ * After COPY_FEEDBACK_MS it reverts to the initial state.
  */
 (function () {
-  var COPY_FEEDBACK_MS = 2000;
-  var CppHighlight = typeof window !== 'undefined' && window.CppHighlight
+  const COPY_FEEDBACK_MS = 2000;
+  const CppHighlight = typeof window !== 'undefined' && window.CppHighlight
 
   function init() {
     document.querySelectorAll(".code-block__copy").forEach(function (btn) {
@@ -15,40 +15,75 @@
     });
   }
 
+  function fallbackCopy(text) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    let ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      /* ignore */
+    }
+    document.body.removeChild(textarea);
+    return ok;
+  }
+
   function handleCopyClick(ev) {
-    var btn = ev.currentTarget;
-    var block = btn.closest(".code-block");
+    const btn = ev.currentTarget;
+    const block = btn.closest(".code-block");
     if (!block) return;
-    var codeEl = block.querySelector(".code-block__inner code");
+    const codeEl = block.querySelector(".code-block__inner code");
     if (!codeEl) return;
-    var text = codeEl.textContent || codeEl.innerText || "";
+    const text = codeEl.textContent || codeEl.innerText || "";
+
+    function showCopiedFeedback() {
+      setCopiedState(btn, "true");
+      setTimeout(function () {
+        setCopiedState(btn, "false");
+      }, COPY_FEEDBACK_MS);
+    }
+
+    function showErrorFeedback() {
+      setCopiedState(btn, "error");
+      setTimeout(function () {
+        setCopiedState(btn, "false");
+      }, COPY_FEEDBACK_MS);
+    }
 
     if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(
         function () {
-          setCopiedState(btn, true);
-          setTimeout(function () {
-            setCopiedState(btn, false);
-          }, COPY_FEEDBACK_MS);
+          showCopiedFeedback();
         },
         function () {
-          setCopiedState(btn, true);
-          setTimeout(function () {
-            setCopiedState(btn, false);
-          }, COPY_FEEDBACK_MS);
+          if (fallbackCopy(text)) {
+            showCopiedFeedback();
+          } else {
+            showErrorFeedback();
+          }
         }
       );
     } else {
-      setCopiedState(btn, true);
-      setTimeout(function () {
-        setCopiedState(btn, false);
-      }, COPY_FEEDBACK_MS);
+      if (fallbackCopy(text)) {
+        showCopiedFeedback();
+      } else {
+        showErrorFeedback();
+      }
     }
   }
 
-  function setCopiedState(btn, copied) {
-    btn.setAttribute("data-copied", copied ? "true" : "false");
-    btn.setAttribute("aria-label", copied ? "Copied" : "Copy code to clipboard");
+  function setCopiedState(btn, state) {
+    btn.setAttribute("data-copied", state);
+    const labels = {
+      true: "Copied",
+      false: "Copy code to clipboard",
+      error: "Copy failed"
+    };
+    btn.setAttribute("aria-label", labels[state] || labels.false);
   }
 
     // Replace C++ highlighting AFTER highlight.js processes blocks
@@ -56,7 +91,7 @@
   function processCppBlocks () {
     if (!CppHighlight) return
     // Selectors for C++ code blocks that highlight.js has already processed
-    var cppSelectors = [
+    const cppSelectors = [
       'code.language-cpp.hljs',
       'code.language-c++.hljs',
       'code[data-lang="cpp"].hljs',
@@ -65,7 +100,7 @@
       '.doc pre.highlight code[data-lang="c++"].hljs',
     ]
 
-    var processedCount = 0
+    let processedCount = 0
 
     cppSelectors.forEach(function (selector) {
       try {
@@ -116,8 +151,8 @@
     // Also use MutationObserver to catch dynamically added content
   // Process C++ blocks after highlight.js processes new content
   if (typeof window.MutationObserver !== 'undefined') {
-    var observer = new window.MutationObserver(function (mutations) {
-      var shouldProcess = false
+    const observer = new window.MutationObserver(function (mutations) {
+      let shouldProcess = false
       mutations.forEach(function (mutation) {
         if (mutation.addedNodes.length > 0) {
           shouldProcess = true

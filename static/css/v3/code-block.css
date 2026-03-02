@@ -204,6 +204,10 @@ html.dark .code-block-card--grey {
   color: var(--code-block-copy-icon-color-success);
 }
 
+.code-block__copy[data-copied="error"] {
+  color: var(--color-text-error, #d32f2f);
+}
+
 .code-block__copy-icon {
   width: var(--code-block-copy-icon-size);
   height: var(--code-block-copy-icon-size);

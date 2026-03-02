@@ -175,3 +175,37 @@ html.dark .v3-examples-section__example-box {
   border-color: var(--color-surface-brand-accent-hovered);
   color: var(--color-text-reversed);
 }
+
+.v3-examples-section .category-cards .category-cards__gallery-block {
+  margin-bottom: var(--space-large);
+}
+
+.v3-examples-section .category-cards .category-cards__gallery-block:last-child {
+  margin-bottom: 0;
+}
+
+.v3-examples-section .category-cards .category-cards__gallery-label {
+  display: block;
+  margin-bottom: var(--space-default);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.v3-examples-section .category-cards .category-cards__gallery-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+.v3-examples-section .category-cards .category-cards__gallery-group {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.v3-examples-section .category-cards .category-cards__gallery-state-label {
+  width: 56px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}

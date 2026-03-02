@@ -90,59 +90,16 @@
   background: var(--color-tag-fill-hover);
 }
 
-
-.category-cards-demo {
+.category-cards {
   font-family: var(--font-sans);
   color: var(--color-text-primary);
 }
 
-.category-cards-demo__heading {
+.category-cards__heading {
   margin: 0 0 var(--space-large);
   font-size: var(--font-size-medium);
   font-weight: var(--font-weight-medium);
 }
-
-.category-cards-demo__list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-default);
-  align-items: center;
-}
-
-.category-cards-demo__block {
-  margin-bottom: var(--space-large);
-}
-
-.category-cards-demo__block:last-child {
-  margin-bottom: 0;
-}
-
-.category-cards-demo__label {
-  display: block;
-  margin-bottom: var(--space-default);
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-}
-
-.category-cards-demo__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: center;
-}
-
-.category-cards-demo__group {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-
-.category-cards-demo__state-label {
-  width: 56px;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-}
-
 
 /* Dark theme: use semantic variables from themes.css only (no raw primitives) */
 html.dark .category-tag--neutral {

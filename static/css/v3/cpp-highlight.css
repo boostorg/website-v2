@@ -38,12 +38,12 @@
 
  .code-block code.cpp-highlight .cpp-number,
  .code-block .code-block__inner code.cpp-highlight .cpp-number {
-   color: var(--syntax-number, #098658);
+   color: var(--color-syntax-number, #098658);
  }
 
  .code-block code.cpp-highlight .cpp-function,
  .code-block .code-block__inner code.cpp-highlight .cpp-function {
-   color: var(--syntax-function, #267f99);
+   color: var(--color-syntax-function, #267f99);
  }
 
  /* Light theme – highlight.js classes (same colors as cpp-highlight) */
