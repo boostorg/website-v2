@@ -181,9 +181,9 @@
     {% with basic_card_data as card %}
     <div class="v3-examples-section__example-box">
       <h4 class="py-large">Card with two buttons</h4>
-      {% include "v3/includes/_basic_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label secondary_button_url=card.secondary_button_url secondary_button_label=card.secondary_button_label extra_classes="btn-flex" %}
+      {% include "v3/includes/_basic_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label secondary_button_url=card.secondary_button_url secondary_button_label=card.secondary_button_label %}
       <h4 class="py-large">Card with one button</h4>
-      {% include "v3/includes/_basic_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label extra_classes="btn-flex" %}
+      {% include "v3/includes/_basic_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label %}
     </div>
     {% endwith %}
   </div>
