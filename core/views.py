@@ -1043,7 +1043,43 @@ class V3ComponentDemoView(TemplateView):
     template_name = "base.html"
 
     def get_context_data(self, **kwargs):
+        CODE_DEMO_BEAST = """int main()
+        {
+            net::io_context ioc;
+            tcp::resolver resolver(ioc);
+            beast::tcp_stream stream(ioc);
+
+            stream.connect(resolver.resolve("example.com", "80"));
+
+            http::request<http::empty_body> req{http::verb::get, "/", 11};
+            req.set(http::field::host, "example.com");
+
+            http::write(stream, req);
+
+            beast::flat_buffer buffer;
+            http::response<http::string_body> res;
+            http::read(stream, buffer, res);
+
+            std::cout << res << std::endl;
+        }"""
+
+        CODE_DEMO_HELLO = """#include <iostream>
+        int main()
+        {
+            std::cout << "Hello, Boost.";
+        }"""
+
+        CODE_DEMO_INSTALL = """brew install openssl
+
+        export OPENSSL_ROOT=$(brew --prefix openssl)
+
+        # Install bjam tool user config: https://www.bfgroup.xyz/b2/manual/release/index.html
+        cp ./libs/beast/tools/user-config.jam $HOME"""
+
         context = super().get_context_data(**kwargs)
+        context["code_demo_beast"] = CODE_DEMO_BEAST
+        context["code_demo_hello"] = CODE_DEMO_HELLO
+        context["code_demo_install"] = CODE_DEMO_INSTALL
         context["popular_terms"] = [
             {"label": "Networking"},
             {"label": "Math"},
