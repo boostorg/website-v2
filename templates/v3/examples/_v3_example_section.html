@@ -204,6 +204,14 @@
     {% endwith %}
   </div>
   <div class="v3-examples-section__block">
+    <h3>Thread Archive Card</h3>
+    {% with basic_card_data as card %}
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_thread_archive_card.html"  %}
+    </div>
+    {% endwith %}
+  </div>
+  <div class="v3-examples-section__block">
     <h3>Why Boost</h3>
     <div class="v3-examples-section__example-box">
       <section class="why-boost-cards" aria-labelledby="why-boost-heading">

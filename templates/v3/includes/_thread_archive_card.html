@@ -1,0 +1,19 @@
+{% comment %}
+  Basic implementation of a card. Can be used on its own, or extended to make other cards
+{% endcomment %}
+{% load static %}
+
+<div class="basic-card thread-archive-card card py-large">
+  <div class="card__center">
+    <span class="card__title">Explore The Boost Developers Mailing List</span>
+  </div>
+  <hr class="card__hr" />
+  <div class="card__column px-large">
+    <img src="{% static 'img/checker.png' %}">
+  </div>
+  <hr class="card__hr" />
+  <div class="px-large btn-row">
+      {% include 'v3/includes/_button.html' with style="primary" url="https://lists.boost.org/archives/list/boost@lists.boost.org/latest" label="Recent Threads" extra_classes="btn-flex" only %}
+      {% include 'v3/includes/_button.html' with style="secondary" url="https://lists.boost.org/archives/list/boost@lists.boost.org/" label="View Archive" extra_classes="btn-flex" only %}
+    </div>
+</div>
