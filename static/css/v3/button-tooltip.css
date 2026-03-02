@@ -12,16 +12,23 @@
   border: 1px solid var(--color-border, #d5d6d8);
   color: var(--color-icon-primary, #050816);
 }
-
 .btn-tooltip:hover {
   background-color: var(--color-primary-grey-300, #d5d6d8);
+}
+
+html.dark .btn-tooltip {
+  background-color: var(--color-button-primary);
+  border-color: var(--color-border);
+  color: var(--color-icon-primary);
+}
+html.dark .btn-tooltip:hover {
+  background-color: var(--color-primary-grey-700);
 }
 
 .btn-tooltip .btn-icon {
   width: 16px;
   height: 16px;
 }
-
 .btn-tooltip--with-text {
   width: auto;
   min-width: 32px;
@@ -37,7 +44,8 @@
   justify-content: center;
 }
 
-.tooltip-label {
+
+:where(.tooltip-label) {
   position: absolute;
   padding: var(--space-s, 4px) var(--space-default, 8px);
   background: var(--color-primary-grey-900, #2f313d);
@@ -55,7 +63,6 @@
   pointer-events: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
-
 .tooltip-wrapper:hover .tooltip-label,
 .tooltip-wrapper:focus-within .tooltip-label {
   opacity: 1;
@@ -116,3 +123,14 @@
   margin-top: -5px;
   border-right-color: var(--color-primary-grey-900, #2f313d);
 }
+
+html.dark .tooltip-wrapper .tooltip-label {
+  background: #ffffff !important;
+  color: #050816 !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+html.dark .tooltip-wrapper .tooltip-label.top::after { border-top-color: #ffffff !important; }
+html.dark .tooltip-wrapper .tooltip-label.bottom::after { border-bottom-color: #ffffff !important; }
+html.dark .tooltip-wrapper .tooltip-label.left::after { border-left-color: #ffffff !important; }
+html.dark .tooltip-wrapper .tooltip-label.right::after { border-right-color: #ffffff !important; }
