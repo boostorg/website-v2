@@ -1,0 +1,33 @@
+{% comment %}
+  Search Card component — a search prompt card with popular term tags.
+
+  Variables:
+    heading        (string, required)  — Card heading text, e.g. "What are you trying to find?"
+    placeholder    (string, optional)  — Input placeholder, default "Search libraries, docs, examples"
+    action_url     (string, required)  — Form action URL for search submission
+    input_name     (string, optional)  — Form input name attribute, default "q"
+    popular_terms  (list, optional)    — List of objects with .label (string) attribute
+    popular_label  (string, optional)  — Label above tags, default "Popular terms:"
+
+  Usage:
+    {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="/search/" popular_terms=popular_terms %}
+{% endcomment %}
+
+<div class="search-card">
+  <h2 class="search-card__heading">{{ heading }}</h2>
+
+  <form action="{{ action_url }}" method="get">
+    {% include "v3/includes/_field_text.html" with name=input_name|default:"q" placeholder=placeholder|default:"Search libraries, docs, examples" submit_icon="arrow-right" submit_label="Search" %}
+  </form>
+
+  {% if popular_terms %}
+  <div class="search-card__popular">
+    <p class="search-card__popular-label">{{ popular_label|default:"Popular terms:" }}</p>
+    <div class="search-card__tags">
+      {% for term in popular_terms %}
+      <a href="{{ action_url }}?{{ input_name|default:'q' }}={{ term.label|urlencode }}" class="search-card__tag">{{ term.label }}</a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
