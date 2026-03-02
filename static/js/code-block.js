@@ -5,7 +5,6 @@
  */
 (function () {
   const COPY_FEEDBACK_MS = 2000;
-  const CppHighlight = typeof window !== 'undefined' && window.CppHighlight
 
   function init() {
     document.querySelectorAll(".code-block__copy").forEach(function (btn) {
@@ -26,7 +25,7 @@
     try {
       ok = document.execCommand("copy");
     } catch (e) {
-      /* ignore */
+      console.warn("code-block: execCommand('copy') failed", e);
     }
     document.body.removeChild(textarea);
     return ok;
@@ -89,6 +88,7 @@
     // Replace C++ highlighting AFTER highlight.js processes blocks
   // Let hljs work initially, then replace C++ blocks with custom highlighter
   function processCppBlocks () {
+    const CppHighlight = typeof window !== "undefined" && window.CppHighlight;
     if (!CppHighlight) return
     // Selectors for C++ code blocks that highlight.js has already processed
     const cppSelectors = [
@@ -121,9 +121,6 @@
       }
     })
 
-    if (processedCount > 0) {
-      console.log('cpp-highlight: Replaced ' + processedCount + ' C++ code blocks')
-    }
   }
 
   function initHighlight() {

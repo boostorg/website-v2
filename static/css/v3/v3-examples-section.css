@@ -194,13 +194,13 @@ html.dark .v3-examples-section__example-box {
 .v3-examples-section .category-cards .category-cards__gallery-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: var(--space-card, 16px);
   align-items: center;
 }
 
 .v3-examples-section .category-cards .category-cards__gallery-group {
   display: flex;
-  gap: 16px;
+  gap: var(--space-card, 16px);
   align-items: center;
 }
 
