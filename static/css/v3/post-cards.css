@@ -272,7 +272,6 @@
   flex-direction: column;
   gap: var(--space-medium);
   padding: var(--space-card);
-  min-width: 300px;
   font-family: var(--font-sans);
   color: var(--color-text-primary);
   transition: background-color 0.2s ease, border-color 0.2s ease;
