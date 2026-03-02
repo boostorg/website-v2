@@ -1,0 +1,58 @@
+{% comment %}
+  Library Intro Card — introduces a Boost library with its authors.
+
+  Variables:
+    library_name   (string, required)  — Library display name, e.g. "Boost.Core."
+    description    (string, required)  — Short library description
+    authors        (list, optional)    — List of author objects, each with:
+                                          .name       (string) — display name
+                                          .role       (string) — e.g. "Contributor", "Maintainer"
+                                          .avatar_url (string) — URL to avatar image
+                                          .badge      (string, optional) — badge emoji, e.g. "🥇"
+                                          .badge_url  (string, optional) — URL to badge image (alternative to .badge)
+                                          .bio        (string, optional) — short bio
+    cta_label      (string, optional)  — Button text, default "Use {{ library_name }}"
+    cta_url        (string, optional)  — Button link URL
+
+  Usage:
+    {% include "v3/includes/_library_intro_card.html" with library_name="Boost.Core." description="Lightweight utilities that power dozens of other Boost libraries" authors=library_authors cta_url="/libs/core/" %}
+{% endcomment %}
+
+<div class="library-intro-card">
+  <div class="library-intro-card__header">
+    <div class="library-intro-card__title">
+      Meet <span class="library-intro-card__title-pill">{{ library_name }}.</span>
+    </div>
+    <p class="library-intro-card__description">{{ description }}</p>
+  </div>
+
+  {% for author in authors %}
+  <hr class="library-intro-card__divider">
+  <div class="library-intro-card__author">
+    {% include "v3/includes/_avatar_v3.html" with src=author.avatar_url name=author.name size="xl" %}
+    <div class="library-intro-card__author-content">
+      <div class="library-intro-card__author-meta">
+        <p class="library-intro-card__author-name">{{ author.name }}</p>
+        {% if author.role %}
+        <p class="library-intro-card__author-role">{{ author.role }}</p>
+        {% endif %}
+        {% if author.badge %}
+        <span class="library-intro-card__author-badge" aria-hidden="true">{{ author.badge }}</span>
+        {% elif author.badge_url %}
+        <span class="library-intro-card__author-badge" aria-hidden="true"><img src="{{ author.badge_url }}" alt=""></span>
+        {% endif %}
+      </div>
+      {% if author.bio %}
+      <p class="library-intro-card__author-bio">{{ author.bio }}</p>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if cta_url %}
+  <hr class="library-intro-card__divider">
+  <div class="library-intro-card__cta">
+    <a href="{{ cta_url }}" class="btn btn-secondary-grey">{{ cta_label|default:"Use "|add:library_name }}</a>
+  </div>
+  {% endif %}
+</div>
