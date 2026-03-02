@@ -1,0 +1,15 @@
+{% comment %}Card with an input to sign up for the mailing list{% endcomment %}
+
+<div class="basic-card card py-large">
+  <div class="card__center">
+    <span class="card__title">Join the Boost Developers Mailing List</span>
+  </div>
+  <hr class="card__hr" />
+  <div class="card__column px-large">
+    <span>Get the latest on releases, features, security patches, fixes and all major announcements.</span>
+    {% include 'v3/includes/_field_text.html' with name='mailing_email' placeholder='Email Address' required='True' type='email' submit_icon='arrow-right' %}
+  </div>
+  <div class="px-large btn-row">
+    {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Subscribe' extra_classes='btn-flex' only %}
+  </div>
+</div>
