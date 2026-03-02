@@ -4,9 +4,10 @@
   const CAROUSEL_STEP_PX_FALLBACK = 320;
   const SCROLL_RESET_EPSILON = 2;
   const DEFAULT_AUTOPLAY_MS = 4000;
+  const CAROUSEL_ITEM_SELECTOR = '[data-carousel-item]';
 
   function getStepPx(track) {
-    const first = track.querySelector('.post-cards__item');
+    const first = track.querySelector(CAROUSEL_ITEM_SELECTOR);
     if (first) {
       const itemStyle = window.getComputedStyle(first);
       const width = first.offsetWidth;
@@ -49,12 +50,12 @@
   }
 
   function setupInfiniteCarousel(root, track) {
-    const items = track.querySelectorAll('.post-cards__item');
+    const items = track.querySelectorAll(CAROUSEL_ITEM_SELECTOR);
     if (items.length === 0) return;
 
     let setCount = 1;
     const appendCloneSet = () => {
-      const list = track.querySelectorAll('.post-cards__item');
+      const list = track.querySelectorAll(CAROUSEL_ITEM_SELECTOR);
       const n = list.length / setCount;
       for (let i = 0; i < n; i++) {
         track.appendChild(list[i].cloneNode(true));

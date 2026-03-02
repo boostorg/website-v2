@@ -38,7 +38,7 @@
       <ul class="post-cards__list" data-carousel-track aria-label="{{ track_aria_label }}">
         {% if cards %}
           {% for card in cards %}
-            <li class="post-cards__item">
+            <li class="post-cards__item" data-carousel-item>
               {% include "v3/includes/_content_detail_card_item.html" with title=card.title description=card.description icon_name=card.icon_name cta_label=card.cta_label cta_href=card.cta_href %}
             </li>
           {% endfor %}
