@@ -122,7 +122,7 @@
   <div class="v3-examples-section__block">
     <h3>Post card (standalone)</h3>
     <div class="v3-examples-section__example-box">
-      {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True %}
+      {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Richard+Thomson&size=48" %}
         {% include "v3/includes/_post_card_v3.html" %}
       {% endwith %}
     </div>
@@ -137,12 +137,17 @@
         </h2>
         <ul class="post-cards__list">
           <li class="post-cards__item">
-            {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True %}
+            {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Richard+Thomson&size=48" %}
               {% include "v3/includes/_post_card_v3.html" %}
             {% endwith %}
           </li>
           <li class="post-cards__item">
-            {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Peter Dimov" author_role="Maintainer" author_show_badge=True %}
+            {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Peter Dimov" author_role="Maintainer" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Peter+Dimov&size=48" %}
+              {% include "v3/includes/_post_card_v3.html" %}
+            {% endwith %}
+          </li>
+          <li class="post-cards__item">
+            {% with post_title="Boost.Bind and modern C++: a quick overview" post_url="#" post_date="15/02/2025" post_category="Releases" post_tag="bind" author_name="Alex Morgan" author_role="Contributor" author_show_badge=False author_avatar_url="https://thispersondoesnotexist.com/" %}
               {% include "v3/includes/_post_card_v3.html" %}
             {% endwith %}
           </li>
@@ -160,6 +165,17 @@
       {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="#" popular_terms=popular_terms %}
     </div>
   </div>
+
+  {% if library_intro %}
+  <div class="v3-examples-section__block">
+    <h3>Library Intro Card</h3>
+    <div class="v3-examples-section__example-box">
+      {% with intro=library_intro %}
+      {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
+      {% endwith %}
+    </div>
+  </div>
+  {% endif %}
 
   <div class="v3-examples-section__block">
     <h3>Form inputs</h3>

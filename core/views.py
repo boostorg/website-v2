@@ -1079,4 +1079,16 @@ class V3ComponentDemoView(TemplateView):
             "secondary_button_label": "Secondary Button",
         }
 
+        from libraries.models import LibraryVersion
+        from libraries.utils import build_library_intro_context
+
+        latest = Version.objects.most_recent()
+        if latest:
+            lv = (
+                LibraryVersion.objects.filter(version=latest, library__slug="beast")
+                .select_related("library")
+                .first()
+            )
+            if lv:
+                context["library_intro"] = build_library_intro_context(lv)
         return context

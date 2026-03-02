@@ -3,6 +3,7 @@
   margin-left: auto;
   margin-right: auto;
   padding: var(--space-xl, 32px) var(--space-default, 8px);
+  color: var(--color-text-primary);
 }
 
 .v3-examples-section__heading {
@@ -30,7 +31,7 @@
   width: 100%;
   padding: var(--space-xl, 32px);
   background: var(--color-surface-weak);
-  border: 1px solid var(--color-border, #e5e5e5);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
 }
 
@@ -43,10 +44,6 @@
 
 /* Avatar block – table presentation */
 
-.v3-examples-section__avatar-row {
-  align-items: flex-end;
-}
-
 .v3-examples-section__avatar-item {
   display: flex;
   flex-direction: column;
@@ -56,7 +53,7 @@
 
 .v3-examples-section__avatar-label {
   font-size: var(--font-size-xs, 12px);
-  color: var(--color-text-secondary, #6b7280);
+  color: var(--color-text-secondary);
   line-height: 1;
   text-align: center;
 }
@@ -71,14 +68,14 @@
   padding: var(--space-l, 16px);
   text-align: center;
   vertical-align: middle;
-  border: 1px solid var(--color-border, #e5e5e5);
+  border: 1px solid var(--color-border);
 }
 
 .v3-examples-section__avatar-table th {
   font-size: var(--font-size-small, 14px);
   font-weight: var(--font-weight-medium, 500);
-  color: var(--color-text-secondary, #6b7280);
-  background: var(--color-bg-secondary, #fafafa);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
   padding: var(--space-xl, 32px) var(--space-xl, 32px);
 }
 
@@ -94,7 +91,7 @@
 }
 
 .v3-examples-section__avatar-table td {
-  background: #fff;
+  background: var(--color-bg-secondary);
 }
 
 .v3-examples-section__forms {
