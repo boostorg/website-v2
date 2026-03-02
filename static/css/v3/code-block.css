@@ -7,7 +7,7 @@
   --code-block-bg-standalone: var(--color-primary-grey-100);
   --code-block-border-standalone: var(--color-border);
   --code-block-bg-grey: var(--color-primary-grey-100);
-  --code-block-copy-icon-size: var(--space-card);
+  --code-block-copy-icon-size: var(--space-icon-copy);
   --code-block-copy-icon-color: var(--color-icon-secondary);
   --code-block-copy-icon-color-success: var(--color-syntax-green);
   --code-block-card-max-width: 458px;
