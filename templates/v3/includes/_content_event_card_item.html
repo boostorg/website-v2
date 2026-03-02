@@ -1,21 +1,36 @@
 {% comment %}
-  V3 Event content card – single event item (title, description, date).
-  Uses event-content from static/css/v3/content.css inside event-card from event-cards.css.
+  V3 Content event card – single event item (title, description, date).
+  Uses content-card from static/css/v3/content.css; event-card from event-cards.css when wrapped.
 
   Variables:
-    title       (required) — event title
-    description (required) — event description
-    date        (required) — human-readable date (e.g. "29/10/25")
-    datetime    (optional) — value for <time datetime="..."> (e.g. "2025-10-29" or "29/10/25")
+    title        (required) — event title
+    description  (required) — event description
+    date         (required) — human-readable date (e.g. "29/10/25")
+    datetime     (optional) — value for <time datetime="..."> (e.g. "2025-10-29" or "29/10/25")
+    card_url     (optional) — if set, the card is wrapped in a link (clickable card)
+    card_aria_label (optional) — aria-label for the link; defaults to title
+    event_card_wrapper (optional) — if True, wraps article in <div class="event-card"> (for event-cards section or content-card display)
+    contained    (optional) — if True, adds content-card--contained for contained variant styling
 
-  Usage:
-    {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed" description="Release closed for major changes." date="29/10/25" datetime="2025-10-29" %}
+  Usage (inside event-cards section, no link):
+    {% include "v3/includes/_content_event_card_item.html" with title="..." description="..." date="29/10/25" datetime="2025-10-29" event_card_wrapper=True %}
+  Usage (clickable card):
+    {% include "v3/includes/_content_event_card_item.html" with title="..." description="..." date="29/10/25" card_url="/events/1" card_aria_label="Boost 1.90.0 closed" event_card_wrapper=True %}
 {% endcomment %}
+{% if card_url %}
+<a href="{{ card_url }}" aria-label="{{ card_aria_label|default:title }}" class="content-card-link">
+{% endif %}
+{% if event_card_wrapper %}
 <div class="event-card">
-  <article class="event-content{% if contained %} event-content--card-contained{% endif %}">
-    <h3 class="event-content__title">{{ title }}</h3>
-    <p class="event-content__description">{{ description }}</p>
-    <time class="event-content__date" datetime="{{ datetime|default:date }}">{{ date }}</time>
-  </article>
-
+{% endif %}
+<article class="content-card content-card--event{% if contained %} content-card--contained{% endif %}">
+  <p class="content-card__title">{{ title }}</p>
+  <p class="content-card__description">{{ description }}</p>
+  {% if datetime %}<time class="content-card__date" datetime="{{ datetime }}">{{ date }}</time>{% else %}<p class="content-card__date">{{ date }}</p>{% endif %}
+</article>
+{% if event_card_wrapper %}
 </div>
+{% endif %}
+{% if card_url %}
+</a>
+{% endif %}

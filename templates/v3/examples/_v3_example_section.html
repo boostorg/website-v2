@@ -122,21 +122,31 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Content event card</h3>
+    <h3>Content event list – clickable cards (link wraps each card)</h3>
     <div class="v3-examples-section__example-box">
-      <section class="content-story-section">
-        <h4 class="content-story-section__title">Content event card</h4>
-        <p class="content-story-section__description">Default and contained variants.</p>
-        <div class="content-story-grid">
-          <div class="content-story-block">
-            <p class="content-story-variant-label">Default</p>
-            {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.83.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="23/11/23" datetime="2023-11-23" %}
-          </div>
-          <div class="content-story-block">
-            <p class="content-story-variant-label">Contained</p>
-            {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.83.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="23/11/23" datetime="2023-11-23" contained=True %}
-          </div>
-        </div>
+      <section class="post-cards post-cards--content post-cards--neutral post-cards--content-list" aria-labelledby="content-event-releases-links-list">
+        <h2 id="content-event-releases-links-list" class="post-cards__heading"><a href="#" class="post-cards__heading-link">Releases</a></h2>
+        <ul class="post-cards__list">
+          <li class="post-cards__item">{% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" card_url="#event-0" card_aria_label="Boost 1.90.0 closed for major changes" event_card_wrapper=False %}</li>
+          <li class="post-cards__item">{% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15. Topics include modern C++, Boost libraries, and tooling." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=False %}</li>
+          <li class="post-cards__item">{% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries. See release notes for details." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=False %}</li>
+        </ul>
+        <div class="post-cards__cta"><a href="#" class="btn btn-secondary-grey" aria-label="View all">View all</a></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3>Content event card – clickable cards (link wraps each card)</h3>
+    <div class="v3-examples-section__example-box">
+      <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card" aria-labelledby="content-event-releases-links-card">
+        <h2 id="content-event-releases-links-card" class="post-cards__heading"><a href="#" class="post-cards__heading-link">Releases</a></h2>
+        <ul class="post-cards__list">
+          <li class="post-cards__item">{% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" card_url="#event-0" card_aria_label="Boost 1.90.0 closed for major changes" event_card_wrapper=True %}</li>
+          <li class="post-cards__item">{% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15. Topics include modern C++, Boost libraries, and tooling." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=True %}</li>
+          <li class="post-cards__item">{% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries. See release notes for details." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=True %}</li>
+        </ul>
+        <div class="post-cards__cta"><a href="#" class="btn btn-secondary-grey" aria-label="View all">View all</a></div>
       </section>
     </div>
   </div>
