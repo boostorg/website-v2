@@ -1045,7 +1045,7 @@ class V3ComponentDemoView(TemplateView):
     def get_context_data(self, **kwargs):
         from libraries.models import LibraryVersion
         from libraries.utils import build_library_intro_context
-        
+
         context = super().get_context_data(**kwargs)
         context["popular_terms"] = [
             {"label": "Networking"},
