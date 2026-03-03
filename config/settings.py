@@ -122,6 +122,7 @@ INSTALLED_APPS += [
     "core",
     "slack",
     "testimonials",
+    "patches",
     "asciidoctor_sandbox",
 ]
 
@@ -324,6 +325,8 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
     "max_connections": env.int("MAX_CELERY_CONNECTIONS", default=60)
 }
 CELERY_RESULT_BACKEND_THREAD_SAFE = True
+CELERY_RESULT_EXTENDED = True
+CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER", False)
 # Reduce large amount of logging in redis. Usually 1 day.
 CELERY_TASK_RESULT_EXPIRES = 3600

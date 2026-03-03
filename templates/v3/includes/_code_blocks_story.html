@@ -1,0 +1,22 @@
+{% comment %}
+  V3 Code blocks story – two-column grid with code block variants and cards.
+  Production component only. Uses static/css/v3/code-block.css, static/js/code-block.js, highlight.js.
+
+  Required variables (pass from parent):
+    code_standalone_1, code_standalone_2 — strings for the two standalone blocks (left column)
+    code_card_1, code_card_2, code_card_3   — strings for the three cards (right column)
+
+  Usage:
+    {% include "v3/includes/_code_blocks_story.html" with code_standalone_1=code code_standalone_2=code code_card_1=hello code_card_2=beast code_card_3=install %}
+{% endcomment %}
+<div class="code-block-story-grid">
+  <div class="code-block-story-column">
+    {% include "v3/includes/_code_block.html" with code=code_standalone_1 variant="standalone" language="cpp" %}
+    {% include "v3/includes/_code_block.html" with code=code_standalone_2 variant="white-bg" language="cpp" %}
+  </div>
+  <div class="code-block-story-column">
+    {% include "v3/includes/_code_block_card.html" with heading="Get started with our libraries" code=code_card_1 block_variant="grey-bg" button_text="Explore examples" language="cpp" button_aria_label="Explore examples" %}
+    {% include "v3/includes/_code_block_card.html" with card_variant="neutral" heading="About Beast" description="Beast lets you use HTTP and WebSocket to write clients and servers that connect to networks using Boost.Asio." code=code_card_2 block_variant="grey-bg" language="cpp" %}
+    {% include "v3/includes/_code_block_card.html" with card_variant="teal" heading="Install" description="Get started with header-only libraries." code=code_card_3 block_variant="grey-bg" language="bash" %}
+  </div>
+</div>

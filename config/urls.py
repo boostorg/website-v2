@@ -28,6 +28,7 @@ from core.views import (
     DocLibsTemplateView,
     ImageView,
     MarkdownTemplateView,
+    V3ComponentDemoView,
     ModernizedDocsView,
     RedirectToDocsView,
     RedirectToHTMLDocsView,
@@ -244,7 +245,7 @@ urlpatterns = (
         ),
         path(
             "v3/demo/components/",
-            staff_member_required(TemplateView.as_view(template_name="base.html")),
+            staff_member_required(V3ComponentDemoView.as_view()),
             name="v3-demo-components",
         ),
         path("libraries/", LibraryListDispatcher.as_view(), name="libraries"),
@@ -404,6 +405,11 @@ urlpatterns = (
             "getting-started/",
             TemplateView.as_view(template_name="support/getting_started.html"),
             name="getting-started",
+        ),
+        # Patches
+        path(
+            "patches/",
+            include("patches.urls", namespace="patches-urls"),
         ),
         # Internal functions
         path("internal/clear-cache/", ClearCacheView.as_view(), name="clear-cache"),

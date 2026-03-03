@@ -15,7 +15,12 @@ logger = logging.getLogger(__name__)
     is_flag=True,
     help="Confirm deletion of all slack activity data.",
 )
-def command(confirm):
+@click.option(
+    "--last-update-ts",
+    default="0",
+    help="Timestamp to set for last_update_ts on all channels (default: 0).",
+)
+def command(confirm, last_update_ts):
     """
     Delete all records in SlackActivityBucket and ChannelUpdateGap tables,
     and set last_update_ts to "0" for all Channels.
@@ -38,6 +43,6 @@ def command(confirm):
         SlackActivityBucket.objects.all().delete()
 
         logger.info(f"Resetting last_update_ts for {channel_count:,} Channels...")
-        Channel.objects.all().update(last_update_ts="1753920000")  # 31st July, 2025
+        Channel.objects.all().update(last_update_ts=last_update_ts)
 
         logger.info("Successfully cleared all slack activity data.")

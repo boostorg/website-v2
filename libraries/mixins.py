@@ -1,13 +1,12 @@
 import re
 
 import structlog
-from types import SimpleNamespace
 
 from django.db.models import Count, Exists, OuterRef
-from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
+from core.models import RenderedContent
 from libraries.constants import (
     LATEST_RELEASE_URL_PATH_STR,
     MASTER_RELEASE_URL_PATH_STR,
@@ -16,10 +15,11 @@ from libraries.constants import (
 from libraries.models import (
     Commit,
     CommitAuthor,
-    CommitAuthorEmail,
     Library,
     LibraryVersion,
 )
+from libraries.path_matcher.utils import determine_latest_url
+from libraries.utils import patch_commit_authors
 from versions.models import Version
 
 logger = structlog.get_logger()
@@ -37,15 +37,33 @@ class VersionAlertMixin:
         current_version_kwargs = self.kwargs.copy()
 
         if url_name == "docs-libs-page":
-            alert_visible = not current_version_kwargs.get("content_path").startswith(
-                LATEST_RELEASE_URL_PATH_STR
-            )
+            allowed_types = getattr(self, "html_content_types", [])
+            if allowed_types and context.get("content_type") not in allowed_types:
+                return context
+            content_path = current_version_kwargs.get("content_path")
+
+            alert_visible = not content_path.startswith(LATEST_RELEASE_URL_PATH_STR)
+            if alert_visible:
+                content = RenderedContent.objects.filter(
+                    cache_key=f"static_content_{content_path}"
+                ).first()
+
+                version_alert_url = (
+                    content.latest_path
+                    if content
+                    else determine_latest_url(
+                        content_path,
+                        Version.objects.most_recent(),
+                    )
+                )
+                context["version_alert_url"] = f"/{version_alert_url}"
+
             # TODO: this hack is here because the BoostVersionMixin only handles the
             #  libraries format (boost-1-90-0-beta-1) for betas, while this path uses
             #  1_90_beta1 so we need to retrieve and set the selected_version
             #  specifically for this use, db slug = "boost-1-90-0-beta1"
             # path_slug = 1_90_beta1
-            path_slug = current_version_kwargs.get("content_path").split("/")[0]
+            path_slug = content_path.split("/")[0]
             if path_slug == LATEST_RELEASE_URL_PATH_STR:
                 context["selected_version"] = Version.objects.most_recent()
             elif path_slug in ("master", "develop"):
@@ -59,7 +77,7 @@ class VersionAlertMixin:
                     "content_path": re.sub(
                         r"([_0-9a-zA-Z]+|master|develop)/(\S+)",
                         rf"{LATEST_RELEASE_URL_PATH_STR}/\2",
-                        current_version_kwargs.get("content_path"),
+                        content_path,
                     )
                 }
             )
@@ -68,7 +86,10 @@ class VersionAlertMixin:
             alert_visible = (
                 self.kwargs.get("version_slug") != LATEST_RELEASE_URL_PATH_STR
             )
-        context["version_alert_url"] = reverse(url_name, kwargs=current_version_kwargs)
+            context["version_alert_url"] = reverse(
+                url_name, kwargs=current_version_kwargs
+            )
+
         context["version_alert"] = alert_visible
         return context
 
@@ -209,23 +230,7 @@ class ContributorMixin:
         if exclude_ids:
             qs = qs.exclude(id__in=exclude_ids)
         qs = list(qs)
-        commit_authors = {
-            author_email.email: author_email
-            for author_email in CommitAuthorEmail.objects.annotate(
-                email_lower=Lower("email")
-            )
-            .filter(email_lower__in=[x.email.lower() for x in qs])
-            .select_related("author")
-        }
-        for user in qs:
-            if author_email := commit_authors.get(user.email.lower(), None):
-                user.commitauthor = author_email.author
-            else:
-                user.commitauthor = SimpleNamespace(
-                    github_profile_url="",
-                    avatar_url="",
-                    display_name=f"{user.display_name}",
-                )
+        patch_commit_authors(qs)
         return qs
 
     def get_author_tag(self, library_version):

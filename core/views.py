@@ -1,3 +1,4 @@
+import json
 import os
 import re
 
@@ -71,7 +72,7 @@ from .htmlhelper import (
     add_canonical_link,
 )
 from .markdown import process_md
-from .models import RenderedContent
+from .models import RenderedContent, SiteSettings
 from .tasks import (
     clear_rendered_content_cache_by_cache_key,
     clear_rendered_content_cache_by_content_type,
@@ -393,6 +394,7 @@ class BaseStaticContentTemplateView(TemplateView):
             return {
                 "content": content_obj.content_html.encode("utf-8"),
                 "content_type": content_obj.content_type,
+                "updated": content_obj.modified,
             }
         except RenderedContent.DoesNotExist:
             return None
@@ -607,6 +609,13 @@ class DocLibsTemplateView(VersionAlertMixin, BaseStaticContentTemplateView):
             result = self.get_from_database(cache_key)
             if not result and (result := self.get_from_s3(content_path)):
                 self.save_to_database(cache_key, result)
+            if result:
+                refresh_start = SiteSettings.load().rendered_content_replacement_start
+                last_updated = result.get("updated", timezone.now())
+                if refresh_start and last_updated < refresh_start:
+                    refresh_content_from_s3.delay(
+                        f"/archives/boost_{content_path}", cache_key
+                    )
         elif content_data := self.get_from_s3(content_path):
             # structure is to allow for redirect/return to be handled in a unified way
             result = {
@@ -1026,3 +1035,169 @@ class QRCodeView(View):
             redirect_path = f"{redirect_path}?{qs}"
 
         return HttpResponseRedirect(redirect_path)
+
+
+class V3ComponentDemoView(TemplateView):
+    """Demo page for V3 design system components."""
+
+    template_name = "base.html"
+
+    def get_context_data(self, **kwargs):
+        from libraries.models import LibraryVersion
+        from libraries.utils import build_library_intro_context
+
+        CODE_DEMO_BEAST = """int main()
+        {
+            net::io_context ioc;
+            tcp::resolver resolver(ioc);
+            beast::tcp_stream stream(ioc);
+
+            stream.connect(resolver.resolve("example.com", "80"));
+
+            http::request<http::empty_body> req{http::verb::get, "/", 11};
+            req.set(http::field::host, "example.com");
+
+            http::write(stream, req);
+
+            beast::flat_buffer buffer;
+            http::response<http::string_body> res;
+            http::read(stream, buffer, res);
+
+            std::cout << res << std::endl;
+        }"""
+
+        CODE_DEMO_HELLO = """#include <iostream>
+        int main()
+        {
+            std::cout << "Hello, Boost.";
+        }"""
+
+        CODE_DEMO_INSTALL = """brew install openssl
+
+        export OPENSSL_ROOT=$(brew --prefix openssl)
+
+        # Install bjam tool user config: https://www.bfgroup.xyz/b2/manual/release/index.html
+        cp ./libs/beast/tools/user-config.jam $HOME"""
+
+        context = super().get_context_data(**kwargs)
+        context["code_demo_beast"] = CODE_DEMO_BEAST
+        context["code_demo_hello"] = CODE_DEMO_HELLO
+        context["code_demo_install"] = CODE_DEMO_INSTALL
+        context["popular_terms"] = [
+            {"label": "Networking"},
+            {"label": "Math"},
+            {"label": "Data processing"},
+            {"label": "Concurrency"},
+            {"label": "File systems"},
+            {"label": "Testing"},
+        ]
+        context["demo_libs_json"] = json.dumps(
+            [
+                {"value": "asio", "label": "Asio"},
+                {"value": "beast", "label": "Beast"},
+                {"value": "filesystem", "label": "Filesystem"},
+                {"value": "json", "label": "JSON"},
+                {"value": "spirit", "label": "Spirit"},
+            ]
+        )
+        context["demo_cats_json"] = json.dumps(
+            [
+                {"value": "algorithms", "label": "Algorithms"},
+                {"value": "containers", "label": "Containers"},
+                {"value": "io", "label": "I/O"},
+                {"value": "math", "label": "Math & Numerics"},
+                {"value": "networking", "label": "Networking"},
+            ]
+        )
+        context["basic_card_data"] = {
+            "title": "Found a Bug?",
+            "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole comm",
+            "primary_button_url": "www.example.com",
+            "primary_button_label": "Primary Button",
+            "secondary_button_url": "www.example.com",
+            "secondary_button_label": "Secondary Button",
+        }
+
+        context["demo_cards_carousel_cards"] = [
+            {
+                "title": "Get help",
+                "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
+                "icon_name": "info-box",
+                "cta_label": "Start here",
+                "cta_href": reverse("community"),
+            },
+            {
+                "title": "Documentation",
+                "description": "Browse library docs, examples, and release notes in one place.",
+                "icon_name": "link",
+                "cta_label": "View docs",
+                "cta_href": reverse("docs"),
+            },
+            {
+                "title": "Community",
+                "description": "Mailing lists, GitHub, and community guidelines for contributors.",
+                "icon_name": "human",
+                "cta_label": "Join",
+                "cta_href": reverse("community"),
+            },
+            {
+                "title": "Releases",
+                "description": "Latest releases, download links, and release notes.",
+                "icon_name": "info-box",
+                "cta_label": "Download",
+                "cta_href": reverse("releases-most-recent"),
+            },
+            {
+                "title": "Libraries",
+                "description": "Explore the full catalog of Boost C++ libraries with docs and metadata.",
+                "icon_name": "link",
+                "cta_label": "Browse libraries",
+                "cta_href": reverse("libraries"),
+            },
+            {
+                "title": "News",
+                "description": "Blog posts, announcements, and community news from the Boost project.",
+                "icon_name": "device-tv",
+                "cta_label": "Read news",
+                "cta_href": reverse("news"),
+            },
+            {
+                "title": "Getting started",
+                "description": "Step-by-step guides to build and use Boost in your projects.",
+                "icon_name": "bullseye-arrow",
+                "cta_label": "Get started",
+                "cta_href": reverse("getting-started"),
+            },
+            {
+                "title": "Resources",
+                "description": "Learning resources, books, and other materials for Boost users.",
+                "icon_name": "get-help",
+                "cta_label": "View resources",
+                "cta_href": reverse("resources"),
+            },
+            {
+                "title": "Calendar",
+                "description": "Community events, meetings, and review schedule.",
+                "icon_name": "info-box",
+                "cta_label": "View calendar",
+                "cta_href": reverse("calendar"),
+            },
+            {
+                "title": "Donate",
+                "description": "Support the Boost Software Foundation and open-source C++.",
+                "icon_name": "human",
+                "cta_label": "Donate",
+                "cta_href": reverse("donate"),
+            },
+        ]
+
+        latest = Version.objects.most_recent()
+        if latest:
+            lv = (
+                LibraryVersion.objects.filter(version=latest, library__slug="beast")
+                .select_related("library")
+                .first()
+            )
+            if lv:
+                context["library_intro"] = build_library_intro_context(lv)
+        return context

@@ -1,18 +1,19 @@
 {% comment %}
-  V3 foundation: tooltip button (icon-only or icon + text, with hover tooltip).
-  Variables: label (required; tooltip content), position (optional; top|right|bottom|left), button_text (optional; text on trigger), url, aria_label, icon_html.
+  Variables: label (required; tooltip content), position (optional; top|right|bottom|left), button_text (optional; text on trigger), url, aria_label, icon_html, tooltip_id (optional; for multiple tooltips with same label, pass a unique id).
   Usage: {% include "v3/includes/_button_tooltip_v3.html" with label="Help" position="bottom" %}
   With text: {% include "v3/includes/_button_tooltip_v3.html" with label="More info" button_text="Help" %}
 {% endcomment %}
+{% with tid=tooltip_id|default:label|slugify %}
 <div class="tooltip-wrapper">
-  <span class="tooltip-label {{ position|default:'bottom' }}">{{ label }}</span>
+  <span id="tooltip-{{ tid }}" class="tooltip-label {{ position|default:'bottom' }}" role="tooltip">{{ label }}</span>
   {% if url %}
-  <a href="{{ url }}" class="btn btn-tooltip{% if button_text %} btn-tooltip--with-text{% endif %}" aria-label="{{ aria_label|default:'More information' }}">
+  <a href="{{ url }}" class="btn btn-tooltip{% if button_text %} btn-tooltip--with-text{% endif %}" aria-label="{{ aria_label|default:'More information' }}" aria-describedby="tooltip-{{ tid }}">
     {% if icon_html %}{{ icon_html|safe }}{% else %}<span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="info-box" icon_size=16 %}</span>{% endif %}{% if button_text %} {{ button_text }}{% endif %}
   </a>
   {% else %}
-  <button type="button" class="btn btn-tooltip{% if button_text %} btn-tooltip--with-text{% endif %}" aria-label="{{ aria_label|default:'More information' }}">
+  <button type="button" class="btn btn-tooltip{% if button_text %} btn-tooltip--with-text{% endif %}" aria-label="{{ aria_label|default:'More information' }}" aria-describedby="tooltip-{{ tid }}">
     {% if icon_html %}{{ icon_html|safe }}{% else %}<span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="info-box" icon_size=16 %}</span>{% endif %}{% if button_text %} {{ button_text }}{% endif %}
   </button>
   {% endif %}
 </div>
+{% endwith %}

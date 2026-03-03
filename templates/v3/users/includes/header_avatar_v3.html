@@ -1,4 +1,3 @@
-{% load avatar_tags %}
 <div class="header__user-menu">
   <button type="button"
           class="header__user-trigger"
@@ -10,7 +9,13 @@
           id="user-menu-button"
           aria-label="User menu">
     <span class="header__user-avatar-inner">
-      {% avatar user=request.user image_size="h-[48px] w-[48px]" icon_size="text-2xl" is_link=False %}
+      {% with user_avatar_url=request.user.get_thumbnail_url %}
+        {% if user_avatar_url %}
+          {% include "v3/includes/_avatar_v3.html" with src=user_avatar_url size="xl" %}
+        {% else %}
+          {% include "v3/includes/_avatar_v3.html" with name=request.user.display_name size="xl" %}
+        {% endif %}
+      {% endwith %}
     </span>
   </button>
   <div x-show="userOpen"

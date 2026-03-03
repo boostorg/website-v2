@@ -1,0 +1,20 @@
+{% comment %}
+  V3 Event cards – one section (one colour variant).
+  Variables: section_heading, event_list, variant, primary_btn_text, primary_btn_url, secondary_btn_text, secondary_btn_url.
+  variant: white | grey | yellow | beige | teal
+  Each event in event_list may have: title, description, date, datetime (optional), card_url (optional), card_aria_label (optional).
+{% endcomment %}
+<section class="event-cards event-cards--{{ variant }}" aria-labelledby="event-cards-heading-{{ variant }}">
+  <h2 id="event-cards-heading-{{ variant }}" class="post-cards__heading">{{ section_heading|default:"Upcoming Events" }}</h2>
+  <ul class="post-cards__list">
+    {% for event in event_list %}
+      <li class="post-cards__item">
+        {% include "v3/includes/_content_event_card_item.html" with title=event.title description=event.description date=event.date datetime=event.datetime event_card_wrapper=True card_url=event.card_url card_aria_label=event.card_aria_label %}
+      </li>
+    {% endfor %}
+  </ul>
+  <div class="post-cards__cta">
+    {% if primary_btn_text %}<a href="{{ primary_btn_url|default:'#' }}" class="btn {% if variant == 'teal' %}btn-teal{% elif variant == 'yellow' %}btn-yellow{% elif variant == 'beige' %}btn-green{% else %}btn-primary{% endif %}" aria-label="{{ primary_btn_text }}">{{ primary_btn_text }}</a>{% endif %}
+    {% if secondary_btn_text %}<a href="{{ secondary_btn_url|default:'#' }}" class="btn {% if variant == 'white' or variant == 'grey' %}btn-secondary-grey{% else %}btn-secondary{% endif %}" aria-label="{{ secondary_btn_text }}">{{ secondary_btn_text }}</a>{% endif %}
+  </div>
+</section>
