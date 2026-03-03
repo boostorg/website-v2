@@ -1043,6 +1043,9 @@ class V3ComponentDemoView(TemplateView):
     template_name = "base.html"
 
     def get_context_data(self, **kwargs):
+        from libraries.models import LibraryVersion
+        from libraries.utils import build_library_intro_context
+
         CODE_DEMO_BEAST = """int main()
         {
             net::io_context ioc;
@@ -1106,8 +1109,78 @@ class V3ComponentDemoView(TemplateView):
                 {"value": "networking", "label": "Networking"},
             ]
         )
-        from libraries.models import LibraryVersion
-        from libraries.utils import build_library_intro_context
+        context["demo_cards_carousel_cards"] = [
+            {
+                "title": "Get help",
+                "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
+                "icon_name": "info-box",
+                "cta_label": "Start here",
+                "cta_href": reverse("community"),
+            },
+            {
+                "title": "Documentation",
+                "description": "Browse library docs, examples, and release notes in one place.",
+                "icon_name": "link",
+                "cta_label": "View docs",
+                "cta_href": reverse("docs"),
+            },
+            {
+                "title": "Community",
+                "description": "Mailing lists, GitHub, and community guidelines for contributors.",
+                "icon_name": "human",
+                "cta_label": "Join",
+                "cta_href": reverse("community"),
+            },
+            {
+                "title": "Releases",
+                "description": "Latest releases, download links, and release notes.",
+                "icon_name": "info-box",
+                "cta_label": "Download",
+                "cta_href": reverse("releases-most-recent"),
+            },
+            {
+                "title": "Libraries",
+                "description": "Explore the full catalog of Boost C++ libraries with docs and metadata.",
+                "icon_name": "link",
+                "cta_label": "Browse libraries",
+                "cta_href": reverse("libraries"),
+            },
+            {
+                "title": "News",
+                "description": "Blog posts, announcements, and community news from the Boost project.",
+                "icon_name": "device-tv",
+                "cta_label": "Read news",
+                "cta_href": reverse("news"),
+            },
+            {
+                "title": "Getting started",
+                "description": "Step-by-step guides to build and use Boost in your projects.",
+                "icon_name": "bullseye-arrow",
+                "cta_label": "Get started",
+                "cta_href": reverse("getting-started"),
+            },
+            {
+                "title": "Resources",
+                "description": "Learning resources, books, and other materials for Boost users.",
+                "icon_name": "get-help",
+                "cta_label": "View resources",
+                "cta_href": reverse("resources"),
+            },
+            {
+                "title": "Calendar",
+                "description": "Community events, meetings, and review schedule.",
+                "icon_name": "info-box",
+                "cta_label": "View calendar",
+                "cta_href": reverse("calendar"),
+            },
+            {
+                "title": "Donate",
+                "description": "Support the Boost Software Foundation and open-source C++.",
+                "icon_name": "human",
+                "cta_label": "Donate",
+                "cta_href": reverse("donate"),
+            },
+        ]
 
         latest = Version.objects.most_recent()
         if latest:

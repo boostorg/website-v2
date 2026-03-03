@@ -112,6 +112,8 @@
     </div>
   </div>
 
+
+
   <div class="v3-examples-section__block v3-examples-section__block--carousel">
     <h3>Carousel buttons</h3>
     <div class="v3-examples-section__example-box">
@@ -120,16 +122,30 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Post card (standalone)</h3>
+    <h3>Detail card carousel</h3>
     <div class="v3-examples-section__example-box">
-      {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Richard+Thomson&size=48" %}
-        {% include "v3/includes/_post_card_v3.html" %}
-      {% endwith %}
+      {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo" heading="Libraries categories" cards=demo_cards_carousel_cards %}
+    </div>
+  </div>
+
+
+
+  <div class="v3-examples-section__block">
+    <h3>Detail card carousel with autoplay</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo-autoplay" heading="Libraries categories" cards=demo_cards_carousel_cards autoplay=True autoplay_delay=5000 %}
     </div>
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Post cards</h3>
+    <h3>Detail card carousel with infinite looping and autoplay</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo-infinite-autoplay" heading="Libraries categories" cards=demo_cards_carousel_cards infinite=True autoplay=True autoplay_delay=5000 %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3>Post cards list</h3>
     <div class="v3-examples-section__example-box">
       <section class="post-cards post-cards--default post-cards--neutral post-cards--vertical">
         <h2 class="post-cards__heading">
@@ -156,6 +172,15 @@
           <a href="#" class="btn btn-secondary-grey">View all posts</a>
         </div>
       </section>
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3>Detail card (single)</h3>
+    <div class="v3-examples-section__example-box">
+      {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Richard+Thomson&size=48" %}
+        {% include "v3/includes/_post_card_v3.html" %}
+      {% endwith %}
     </div>
   </div>
 
@@ -199,6 +224,9 @@
         <h2 id="why-boost-heading" class="why-boost-cards__heading">Why Boost?</h2>
         <div class="why-boost-cards__grid">
           {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Documentation" description="Browse library docs, examples, and release notes in one place." icon_name="link" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Community" description="Mailing lists, GitHub, and community guidelines for contributors." icon_name="human" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Releases" description="Latest releases, download links, and release notes." icon_name="info-box" %}
           {% include "v3/includes/_content_detail_card_item.html" with title="Learn" description="Access documentation, books, and courses to level up your C++." icon_name="bullseye-arrow" %}
           {% include "v3/includes/_content_detail_card_item.html" with title="Contribute" description="Report issues, submit patches, and join the community." icon_name="bullseye-arrow" %}
           {% include "v3/includes/_content_detail_card_item.html" with title="Stay updated" description="Releases, news, and announcements from the Boost community." icon_name="bullseye-arrow" %}
