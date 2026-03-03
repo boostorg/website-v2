@@ -173,7 +173,6 @@ html.dark .v3-examples-section__example-box {
   color: var(--color-text-reversed);
 }
 
-/* Detail card carousel: layout and scrollbar (template uses .cards-carousel, inner .post-cards--carousel) */
 .v3-examples-section .cards-carousel {
   display: flex;
   flex-direction: column;
