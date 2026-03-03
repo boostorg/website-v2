@@ -103,7 +103,15 @@
           <div class="flex">
             <div class="flex w-full">
               <div class="w-full">
-                <div id="chart1" class="w-full text-center">{# Commits per Release #}</div>
+                {% if library_commits_stats_bars %}
+                  {% if documentation_url %}
+                    {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=library_commits_stats_bars theme="default" primary_cta_label="Source Code" primary_cta_url=github_url secondary_cta_label="Documentation" secondary_cta_url=documentation_url %}
+                  {% else %}
+                    {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=library_commits_stats_bars theme="default" primary_cta_label="Source Code" primary_cta_url=github_url %}
+                  {% endif %}
+                {% else %}
+                  <div class="w-full text-center text-gray-600 dark:text-gray-400 py-8">No commit data for this library yet.</div>
+                {% endif %}
               </div>
             </div>
           </div>
@@ -222,94 +230,6 @@
     });
   </script>
   <script>
-    var options = {
-      series: [{
-        name: 'Commits',
-        data: [{% for commit_data in commit_data_by_release %}{{ commit_data.commit_count }}, {% endfor %}]
-      }],
-      chart: {
-        height: 350,
-        type: 'bar',
-        foreColor: localStorage.getItem('colorMode') === 'dark' ? '#f6f7f8' : '#373d3f',
-        background: localStorage.getItem('colorMode') === 'dark' ? '#172A34' : '#ffffff',
-        toolbar: {
-          show: false,
-        },
-      },
-      theme: {
-        mode: localStorage.getItem('colorMode') === 'dark' ? 'dark' : 'light',
-      },
-      tooltip: {
-        theme: localStorage.getItem('colorMode') === 'dark' ? 'dark' : 'light',
-      },
-      plotOptions: {
-        bar: {
-          borderRadius: 2,
-          dataLabels: {
-            position: 'top', // top, center, bottom
-          },
-        }
-      },
-      dataLabels: {
-        enabled: true,
-        formatter: function (val) {
-          //return val + "%";
-          return val;
-        },
-        offsetY: -20,
-        style: {
-          fontSize: '12px',
-
-        }
-      },
-
-      xaxis: {
-        categories: [{% for commit_data in commit_data_by_release %}"{{ commit_data.release }}",{% endfor %}],
-        position: 'top',
-        labels: {
-          rotate: -45,
-          rotateAlways: true,
-        },
-        axisBorder: {
-          show: false
-        },
-        axisTicks: {
-          show: false
-        },
-
-        tooltip: {
-          enabled: true,
-        }
-      },
-      yaxis: {
-        axisBorder: {
-          show: true
-        },
-        axisTicks: {
-          show: true,
-        },
-        labels: {
-          show: true,
-          formatter: function (val) {
-            //return val + "%";
-            return val;
-          }
-        }
-
-      },
-      title: {
-        text: 'Commits Per Release',
-        floating: true,
-        offsetY: 330,
-        align: 'center',
-
-      }
-    };
-
-    // SS: putting this in the window object, a bit hacky, to be able to access it in the light/dark switcher - probably a better way
-    window.chart = new ApexCharts(document.querySelector("#chart1"), options);
-    window.chart.render();
-
     const ValidateGitImages = () => {
       document.querySelectorAll("img").forEach((img) => {
         var test_img = new Image();

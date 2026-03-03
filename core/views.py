@@ -1043,6 +1043,14 @@ class V3ComponentDemoView(TemplateView):
     template_name = "base.html"
 
     def get_context_data(self, **kwargs):
+        from django.urls import reverse
+        from libraries.models import Library, LibraryVersion
+        from libraries.utils import (
+            build_library_intro_context,
+            get_commit_data_by_release_for_library,
+            commit_data_to_stats_bars,
+        )
+
         CODE_DEMO_BEAST = """int main()
         {
             net::io_context ioc;
@@ -1106,8 +1114,6 @@ class V3ComponentDemoView(TemplateView):
                 {"value": "networking", "label": "Networking"},
             ]
         )
-        from libraries.models import LibraryVersion
-        from libraries.utils import build_library_intro_context
 
         latest = Version.objects.most_recent()
         if latest:
@@ -1118,4 +1124,40 @@ class V3ComponentDemoView(TemplateView):
             )
             if lv:
                 context["library_intro"] = build_library_intro_context(lv)
+
+        # Commits per release: dropdown of libraries, Beast first and default
+        raw_library = self.request.GET.get("library")
+        library_slug = (
+            (raw_library or "beast").strip().lower()
+            if raw_library is not None
+            else "beast"
+        )
+        # Build dropdown choices: Beast first, then others alphabetically by name
+        beast = Library.objects.filter(slug="beast").first()
+        rest = Library.objects.exclude(slug="beast").order_by("name")[:99]
+        choices = []
+        if beast:
+            choices.append((beast.slug, beast.display_name))
+        for lib in rest:
+            choices.append((lib.slug, lib.display_name))
+        context["example_library_choices"] = choices
+
+        library = Library.objects.filter(slug__iexact=library_slug).first()
+        if library:
+            commit_data = get_commit_data_by_release_for_library(library)
+            context["example_library_commits_bars"] = commit_data_to_stats_bars(
+                commit_data[-10:] if len(commit_data) > 10 else commit_data
+            )
+            context["example_library_name"] = library.display_name
+            context["example_library_slug"] = library.slug
+            context["example_library_detail_url"] = reverse(
+                "library-detail",
+                kwargs={
+                    "version_slug": "latest",
+                    "library_slug": library.slug,
+                },
+            )
+        else:
+            context["example_library_not_found"] = library_slug
+            context["example_library_slug"] = library_slug
         return context

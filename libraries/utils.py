@@ -14,7 +14,7 @@ from dateutil.relativedelta import relativedelta
 
 from dateutil.parser import ParserError, parse
 from django.conf import settings
-from django.db.models import Count
+from django.db.models import Count, F
 from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils.text import slugify
@@ -31,6 +31,53 @@ from libraries.constants import (
 from versions.models import Version
 
 logger = structlog.get_logger()
+
+STATS_COMMITS_BAR_HEIGHT_MAX_PX = 120
+STATS_COMMITS_BAR_HEIGHT_MIN_PX = 8
+
+
+def get_commit_data_by_release_for_library(library, limit=20):
+    """Return list of { release, commit_count } for a library, ordered by release (oldest first).
+
+    Used by the library detail page and by the V3 examples “commits per release” lookup.
+    """
+    from .models import LibraryVersion
+
+    qs = (
+        LibraryVersion.objects.filter(
+            library=library,
+            version__in=Version.objects.minor_versions(),
+        )
+        .annotate(count=Count("commit"), version_name=F("version__name"))
+        .order_by("-version__name")
+    )[:limit]
+    return [
+        {"release": x.version_name.strip("boost-"), "commit_count": x.count}
+        for x in reversed(list(qs))
+    ]
+
+
+def commit_data_to_stats_bars(commit_data):
+    """Convert commit_data_by_release (list of { release, commit_count }) to stats bar format.
+
+    Returns list of { label, height_px } with heights scaled to STATS_COMMITS_BAR_HEIGHT_*.
+    """
+    if not commit_data:
+        return []
+    counts = [d["commit_count"] for d in commit_data]
+    max_count = max(counts) or 1
+    return [
+        {
+            "label": d["release"],
+            "height_px": max(
+                STATS_COMMITS_BAR_HEIGHT_MIN_PX,
+                round(
+                    (d["commit_count"] / max_count) * STATS_COMMITS_BAR_HEIGHT_MAX_PX
+                ),
+            ),
+        }
+        for d in commit_data
+    ]
 
 
 def decode_content(content):

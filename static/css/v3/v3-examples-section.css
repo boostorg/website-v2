@@ -206,3 +206,49 @@ html.dark .v3-examples-section__example-box {
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
 }
+
+/* Stats block – 2 per row in examples only */
+.v3-examples-section__stats-grid {
+  display: grid;
+  gap: var(--space-xl, 32px);
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 959px) {
+  .v3-examples-section__stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Stats full-width (outside grid) and sized-demo grid */
+.v3-examples-section__stats-full-width {
+  margin-top: var(--space-xl, 32px);
+  margin-bottom: 0;
+}
+
+.v3-examples-section__stats-grid--sized-demo {
+  margin-top: var(--space-xl, 32px);
+}
+
+.v3-examples-section__stats-grid-cell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.v3-examples-section__stats-grid-cell--full {
+  width: 100%;
+}
+
+.v3-examples-section__stats-grid-cell--free {
+  align-items: flex-start;
+}
+
+.v3-examples-section__stats-demo-label {
+  margin: 0 0 var(--space-s, 8px) 0;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+/* Don't override .stats width/height – component has fixed dimensions (e.g. .stats--in-numbers 696×360, .stats--benchmarks 460×420). */

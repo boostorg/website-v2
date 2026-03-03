@@ -1,0 +1,41 @@
+{% comment %}
+  V3 Stats by number – card with heading, description, vertical bar chart, and primary/secondary CTA.
+  Takes container width by default; shows up to 20 bars (bars beyond 20 are not shown).
+
+  Variables:
+    heading            (required) — section heading
+    description        (required) — short description below heading
+    theme              (optional) — "default" | "yellow" | "green" | "teal", default "default"
+    bars               (required) — list of dicts with label, height_px (e.g. [{"label": "1.70.0", "height_px": 78}, ...])
+    primary_cta_label   (required) — primary button text
+    primary_cta_url     (required) — primary button URL
+    secondary_cta_label (optional) — secondary button text; if set, secondary_cta_url required
+    secondary_cta_url   (optional) — secondary button URL
+
+  Usage:
+    {% include "v3/includes/_stats_in_numbers.html" with heading="Boost in numbers" description="Some detail about a graph in here" bars=stats_bars theme="default" primary_cta_label="Boost Org on GitHub" primary_cta_url="#" secondary_cta_label="Button" secondary_cta_url="#" %}
+{% endcomment %}
+<section class="stats stats--in-numbers stats--{{ theme|default:'default' }}" aria-labelledby="stats-in-numbers-heading-{{ theme|default:'default' }}">
+  <h2 id="stats-in-numbers-heading-{{ theme|default:'default' }}" class="stats__heading">{{ heading }}</h2>
+  <hr class="stats__separator" aria-hidden>
+  <p class="stats__description">{{ description }}</p>
+  <div class="stats__bars" role="img" aria-label="Bar chart">
+    {% for bar in bars|slice:":20" %}
+    <div class="stats__bar-wrap">
+      <div class="stats__bar" style="height: {{ bar.height_px }}px;"></div>
+      <p class="stats__bar-label">{{ bar.label }}</p>
+    </div>
+    {% endfor %}
+  </div>
+  <hr class="stats__separator" aria-hidden>
+  <div class="stats__cta">
+    {% if theme == 'default' or not theme %}
+    <a href="{{ primary_cta_url }}" class="btn btn-secondary-grey">{{ primary_cta_label }}</a>
+    {% else %}
+    <a href="{{ primary_cta_url }}" class="btn btn-{{ theme }}">{{ primary_cta_label }}</a>
+    {% endif %}
+    {% if secondary_cta_label %}
+    <a href="{{ secondary_cta_url }}" class="btn btn-secondary">{{ secondary_cta_label }}</a>
+    {% endif %}
+  </div>
+</section>
