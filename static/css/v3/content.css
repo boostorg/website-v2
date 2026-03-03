@@ -73,6 +73,21 @@ a:hover .content-detail-icon:not(.content-detail-icon--contained) {
   padding: 0;
 }
 
+.content-detail-icon__cta {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  letter-spacing: -0.12px;
+  color: var(--color-text-primary);
+  text-decoration: underline;
+  text-decoration-skip-ink: none;
+}
+
+.content-detail-icon__cta:hover {
+  text-decoration: underline;
+}
+
 .content-detail-icon--contained {
   background: transparent;
   border: none;

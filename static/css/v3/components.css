@@ -9,6 +9,7 @@
 @import './header.css';
 @import './footer.css';
 @import './forms.css';
+@import './card.css';
 @import './event-cards.css';
 @import './content.css';
 @import './why-boost-cards.css';
@@ -16,3 +17,4 @@
 @import './code-block.css';
 @import './search-card.css';
 @import './privacy-policy.css';
+@import './library-intro-card.css';

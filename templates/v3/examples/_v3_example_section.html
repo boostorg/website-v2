@@ -112,6 +112,8 @@
     </div>
   </div>
 
+
+
   <div class="v3-examples-section__block v3-examples-section__block--carousel">
     <h3>Carousel buttons</h3>
     <div class="v3-examples-section__example-box">
@@ -120,16 +122,30 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Post card (standalone)</h3>
+    <h3>Detail card carousel</h3>
     <div class="v3-examples-section__example-box">
-      {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Richard+Thomson&size=48" %}
-        {% include "v3/includes/_post_card_v3.html" %}
-      {% endwith %}
+      {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo" heading="Libraries categories" cards=demo_cards_carousel_cards %}
+    </div>
+  </div>
+
+
+
+  <div class="v3-examples-section__block">
+    <h3>Detail card carousel with autoplay</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo-autoplay" heading="Libraries categories" cards=demo_cards_carousel_cards autoplay=True autoplay_delay=5000 %}
     </div>
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Post cards</h3>
+    <h3>Detail card carousel with infinite looping and autoplay</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo-infinite-autoplay" heading="Libraries categories" cards=demo_cards_carousel_cards infinite=True autoplay=True autoplay_delay=5000 %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3>Post cards list</h3>
     <div class="v3-examples-section__example-box">
       <section class="post-cards post-cards--default post-cards--neutral post-cards--vertical">
         <h2 class="post-cards__heading">
@@ -160,11 +176,31 @@
   </div>
 
   <div class="v3-examples-section__block">
+    <h3>Detail card (single)</h3>
+    <div class="v3-examples-section__example-box">
+      {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Richard+Thomson&size=48" %}
+        {% include "v3/includes/_post_card_v3.html" %}
+      {% endwith %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
     <h3>Search Card</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="#" popular_terms=popular_terms %}
     </div>
   </div>
+
+  {% if library_intro %}
+  <div class="v3-examples-section__block">
+    <h3>Library Intro Card</h3>
+    <div class="v3-examples-section__example-box">
+      {% with intro=library_intro %}
+      {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
+      {% endwith %}
+    </div>
+  </div>
+  {% endif %}
 
   <div class="v3-examples-section__block">
     <h3>Form inputs</h3>
@@ -180,6 +216,18 @@
     </div>
   </div>
 
+
+  <div class="v3-examples-section__block">
+    <h3>Basic Card</h3>
+    {% with basic_card_data as card %}
+    <div class="v3-examples-section__example-box">
+      <h4 class="py-large">Card with two buttons</h4>
+      {% include "v3/includes/_basic_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label secondary_button_url=card.secondary_button_url secondary_button_label=card.secondary_button_label %}
+      <h4 class="py-large">Card with one button</h4>
+      {% include "v3/includes/_basic_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label %}
+    </div>
+    {% endwith %}
+  </div>
   <div class="v3-examples-section__block">
     <h3>Why Boost</h3>
     <div class="v3-examples-section__example-box">
@@ -188,6 +236,9 @@
         <h2 id="why-boost-heading" class="why-boost-cards__heading">Why Boost?</h2>
         <div class="why-boost-cards__grid">
           {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Documentation" description="Browse library docs, examples, and release notes in one place." icon_name="link" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Community" description="Mailing lists, GitHub, and community guidelines for contributors." icon_name="human" %}
+          {% include "v3/includes/_content_detail_card_item.html" with title="Releases" description="Latest releases, download links, and release notes." icon_name="info-box" %}
           {% include "v3/includes/_content_detail_card_item.html" with title="Learn" description="Access documentation, books, and courses to level up your C++." icon_name="bullseye-arrow" %}
           {% include "v3/includes/_content_detail_card_item.html" with title="Contribute" description="Report issues, submit patches, and join the community." icon_name="bullseye-arrow" %}
           {% include "v3/includes/_content_detail_card_item.html" with title="Stay updated" description="Releases, news, and announcements from the Boost community." icon_name="bullseye-arrow" %}
