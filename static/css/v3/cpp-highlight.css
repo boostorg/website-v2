@@ -1,0 +1,85 @@
+
+/* ========== C++ Syntax highlighting (cpp-highlight + highlight.js) ==========
+ * Supports both: (1) cpp-highlight custom classes (.cpp-keyword, .cpp-string, etc.)
+ * from Antora docs, and (2) standard highlight.js classes (.hljs-keyword, .hljs-string, etc.)
+ * Color scheme aligned with cpp-highlight.css for consistency.
+ */
+ .code-block code.cpp-highlight,
+ .code-block .code-block__inner code.cpp-highlight {
+   color: inherit;
+ }
+
+ /* Light theme – cpp-highlight classes */
+ .code-block code.cpp-highlight .cpp-keyword,
+ .code-block .code-block__inner code.cpp-highlight .cpp-keyword {
+  color: var(--color-syntax-keyword, #00f);
+ }
+
+ .code-block code.cpp-highlight .cpp-string,
+ .code-block .code-block__inner code.cpp-highlight .cpp-string {
+  color: var(--color-syntax-string, #a31515);
+ }
+
+ .code-block code.cpp-highlight .cpp-preprocessor,
+ .code-block .code-block__inner code.cpp-highlight .cpp-preprocessor {
+  color: var(--color-syntax-preprocessor, #6f008a);
+ }
+
+ .code-block code.cpp-highlight .cpp-comment,
+ .code-block .code-block__inner code.cpp-highlight .cpp-comment {
+  color: var(--color-syntax-comment, #008000);
+   font-style: italic;
+ }
+
+ .code-block code.cpp-highlight .cpp-attribute,
+ .code-block .code-block__inner code.cpp-highlight .cpp-attribute {
+  color: var(--color-syntax-attribute, #9e9e9e);
+ }
+
+ .code-block code.cpp-highlight .cpp-number,
+ .code-block .code-block__inner code.cpp-highlight .cpp-number {
+   color: var(--color-syntax-number, #098658);
+ }
+
+ .code-block code.cpp-highlight .cpp-function,
+ .code-block .code-block__inner code.cpp-highlight .cpp-function {
+   color: var(--color-syntax-function, #267f99);
+ }
+
+ /* Light theme – highlight.js classes (same colors as cpp-highlight) */
+ .code-block .hljs-keyword,
+ .code-block .hljs-selector-tag,
+ .code-block .hljs-addition {
+  color: var(--color-syntax-keyword, #00f);
+ }
+
+ .code-block .hljs-string {
+  color: var(--color-syntax-string, #a31515);
+ }
+
+ .code-block .hljs-meta,
+ .code-block .hljs-meta .hljs-keyword {
+  color: var(--color-syntax-preprocessor, #6f008a);
+ }
+
+ .code-block .hljs-comment,
+ .code-block .hljs-quote {
+  color: var(--color-syntax-comment, #008000);
+   font-style: italic;
+ }
+
+ .code-block .hljs-attribute,
+ .code-block .hljs-variable,
+ .code-block .hljs-template-variable {
+  color: var(--color-syntax-attribute, #9e9e9e);
+ }
+
+ .code-block .hljs-number,
+ .code-block .hljs-literal {
+  color: var(--color-syntax-number, #098658);
+ }
+
+ .code-block .hljs-built_in,
+ .code-block .hljs-class .hljs-title {
+  color: var(--color-syntax-function, #267f99);
+ }

@@ -1,41 +1,3 @@
-
-.event-content {
-  font-family: var(--font-sans);
-  color: var(--color-text-primary);
-  margin: 0;
-  padding: 0;
-  border-radius: var(--card-radius);
-  box-sizing: border-box;
-}
-
-.event-content--card-contained {
-  background: var(--color-primary-grey-100);
-  padding: var(--card-padding);
-  border: 1px solid var(--color-border);
-}
-
-.event-content__title {
-  margin: 0 0 var(--space-xs);
-  font-size: var(--font-size-base);
-  font-weight: 700;
-  line-height: var(--line-height-default);
-  font-family: var(--font-sans);
-  color: var(--color-text-primary);
-}
-
-.event-content__description {
-  margin: 0 0 var(--space-default);
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-relaxed);
-  color: var(--color-text-secondary);
-  padding: 0;
-}
-
-.event-content__date {
-  font-size: var(--font-size-small);
-  color: var(--color-text-tertiary);
-}
-
 .content-detail-icon {
   font-family: var(--font-sans);
   color: var(--color-text-primary);
@@ -50,6 +12,12 @@
   position: relative;
   box-sizing: border-box;
   align-self: start;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+a:hover .content-detail-icon:not(.content-detail-icon--contained) {
+  background: var(--color-primary-grey-200);
+  border-color: var(--color-border);
 }
 
 .content-detail-icon__icon {
@@ -62,6 +30,12 @@
   justify-content: center;
   width: var(--space-card);
   height: var(--space-card);
+  transition: color 0.2s ease;
+}
+
+.content-detail-icon__icon:hover {
+  color: var(--color-icon-primary);
+  cursor: pointer;
 }
 
 .content-detail-icon__icon svg {
@@ -84,6 +58,11 @@
 .content-detail-icon__title-link {
   color: inherit;
   text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.content-detail-icon__title-link:hover {
+  color: var(--color-stroke-link-accent, var(--color-text-primary));
 }
 
 .content-detail-icon__description {
