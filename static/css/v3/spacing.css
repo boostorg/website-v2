@@ -20,6 +20,7 @@
   --space-xl: 32px;
   --space-xxl: 60px;
   --space-avatar: 48px;
+  --space-icon-copy: 16px;
 }
 
 /* Mobile Spacing Overrides */
@@ -32,6 +33,7 @@
     --space-xxl: 48px;
     --space-avatar: 40px;
     --space-card: 12px;
+    --space-icon-copy: 20px;
     /* xs, s unchanged on mobile */
   }
 }

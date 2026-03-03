@@ -82,11 +82,37 @@ html.dark {
 
   /* Tag */
   --color-tag-fill: var(--color-primary-grey-900);
+  --color-tag-fill-hover: var(--color-primary-grey-850);
   --color-tag-stroke: #FFFFFF1A;
+  /* Category tag dark: single source for neutral and colored tag surfaces (no raw primitives in category-tags.css) */
+  --color-tag-neutral-bg: var(--color-primary-grey-900);
+  --color-tag-neutral-bg-hover: var(--color-primary-grey-800);
+  --color-tag-neutral-border: var(--color-primary-grey-900);
+  --color-tag-colored-bg: var(--color-primary-grey-800);
+  --color-tag-colored-bg-hover: var(--color-primary-grey-850);
+  --color-tag-colored-border: var(--color-primary-grey-800);
+  --color-tag-colored-text: var(--color-text-primary);
+
+  /* Code block (dark backgrounds + contrast so code is readable) */
+  --code-block-bg-standalone: var(--color-primary-grey-900);
+  --code-block-border-standalone: var(--color-border);
+  --code-block-bg-grey: var(--color-primary-grey-900);
+  --code-block-card-btn-bg: var(--color-primary-grey-800);
+
+  /* Syntax highlighting (C++ / cpp-highlight, Atom One Dark palette) */
+  --color-syntax-keyword: #c678dd;
+  --color-syntax-string: #98c379;
+  --color-syntax-preprocessor: #e06c75;
+  --color-syntax-comment: #5c6370;
+  --color-syntax-attribute: #d19a66;
+  --color-syntax-number: #98c379;
+  --color-syntax-function: #61afef;
+  --color-syntax-text: #abb2bf;
 
   /* Text */
   --color-text-error: var(--color-error-mid);
   --color-text-link-accent: var(--color-secondary-mid-blue);
+  --color-text-on-accent: var(--color-primary-white);
   --color-text-reversed: var(--color-primary-black);
   --color-text-tertiary: var(--color-primary-grey-600);
 }

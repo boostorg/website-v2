@@ -12,7 +12,7 @@
   width: 44px;
   height: 24px;
   border-radius: 8px;
-  background: var(--color-button-primary, #EFEFF1);
+  background: var(--color-surface-strong, #EFEFF1);
 }
 
 .carousel-buttons .btn-carousel {
