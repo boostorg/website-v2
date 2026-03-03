@@ -1045,6 +1045,7 @@ class V3ComponentDemoView(TemplateView):
     def get_context_data(self, **kwargs):
         from libraries.models import LibraryVersion
         from libraries.utils import build_library_intro_context
+
         CODE_DEMO_BEAST = """int main()
         {
             net::io_context ioc;
