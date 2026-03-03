@@ -1109,6 +1109,12 @@ class V3ComponentDemoView(TemplateView):
                 {"value": "networking", "label": "Networking"},
             ]
         )
+        context["demo_dropdown_options"] = [
+            {"value": "blog", "label": "Blog"},
+            {"value": "link", "label": "Link"},
+            {"value": "news", "label": "News"},
+            {"value": "video", "label": "Video"},
+        ]
         context["basic_card_data"] = {
             "title": "Found a Bug?",
             "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole comm",

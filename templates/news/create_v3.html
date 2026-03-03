@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load waffle_tags %}
+
+{% block title %}{% translate "Create Post" %}{% endblock %}
+
+{% block content %}
+  {% flag "v3" %}
+  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+    <div class="md:w-[70%] mx-auto max-w-4xl">
+  <div class="create-post-wrapper" x-data="createPostForm()">
+    <form
+      class="create-post-page"
+      enctype="multipart/form-data"
+      method="post"
+      novalidate
+      :action="formAction"
+      @submit="prepareSubmit"
+      data-create-post-form
+    >
+      {% csrf_token %}
+
+      <div class="create-post-page__header">
+        <h1 class="create-post-page__title">{% translate "Create Post" %}</h1>
+        <p class="create-post-page__subtitle">
+          {% translate "Posts will be reviewed by the moderation team before they appear in the feed." %}
+        </p>
+      </div>
+
+      <div class="create-post-page__card">
+        {% comment %} Post Type dropdown: Blog, News, Video, Link. Placeholder "Select Post Type". Controls conditional fields. {% endcomment %}
+        <div class="field" :class="{ 'field--error': errors.post_type }" @click.away="openPostTypeDropdown = false">
+          <label class="field__label" for="post-type-trigger">{% translate "Post type" %} *</label>
+          <div class="dropdown" :class="{ 'dropdown--open': openPostTypeDropdown }">
+            <button type="button"
+                    id="post-type-trigger"
+                    class="dropdown__trigger"
+                    @click="openPostTypeDropdown = !openPostTypeDropdown"
+                    :aria-expanded="openPostTypeDropdown"
+                    aria-haspopup="listbox"
+                    :aria-invalid="!!errors.post_type"
+                    :aria-describedby="errors.post_type ? 'post-type-error' : null">
+              <span class="dropdown__trigger-text" x-show="postType" x-text="postTypeLabel" x-cloak></span>
+              <span class="dropdown__trigger-text dropdown__trigger-placeholder" x-show="!postType">{% translate "Select Post Type" %}</span>
+              <svg class="dropdown__chevron" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 8H5v2h2v2h2v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2h-2v-2H9v-2H7V8z"/></svg>
+            </button>
+            <div class="dropdown__panel" x-show="openPostTypeDropdown" x-transition x-cloak role="listbox">
+              <div class="dropdown__list">
+                {% for opt in post_type_options %}
+                <div class="dropdown__item"
+                     :class="{ 'dropdown__item--selected': postType === '{{ opt.value }}' }"
+                     role="option"
+                     @click="setPostType('{{ opt.value }}'); openPostTypeDropdown = false">{{ opt.label }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <input type="hidden" name="post_type" :value="postType">
+          <p class="field__error" id="post-type-error" role="alert" x-show="errors.post_type" x-text="errors.post_type" x-cloak></p>
+        </div>
+
+        <div class="field" :class="{ 'field--error': errors.title }">
+          <label class="field__label" for="field-title">{% translate "Post title" %} *</label>
+          <div class="field__control">
+            <input class="field__input" type="text" id="field-title" name="title" placeholder="Title" required
+                   :aria-invalid="!!errors.title"
+                   :aria-describedby="errors.title ? 'field-title-error' : null">
+          </div>
+          <p class="field__error" id="field-title-error" role="alert" x-show="errors.title" x-text="errors.title" x-cloak aria-live="polite"></p>
+        </div>
+
+        {% comment %} Write Up (Blog, News): Content required. Link (Video, Link): hide Content. {% endcomment %}
+        <div class="field field--textarea" x-show="isWriteUp" x-cloak :class="{ 'field--error': errors.content }">
+          <label class="field__label" for="field-content">{% translate "Content" %} *</label>
+          <div class="field__control field__control--textarea">
+            <textarea class="field__input field__input--textarea" id="field-content" name="content" rows="6" placeholder="What would you like to write?"
+                      :aria-invalid="!!errors.content"
+                      :aria-describedby="errors.content ? 'field-content-error' : 'field-content-help'"></textarea>
+          </div>
+          <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
+          <p class="field__help" id="field-content-help" x-show="!errors.content">This text field supports Markdown.</p>
+        </div>
+
+        {% comment %} Link (Video, Link): Link (required) and Description (optional). {% endcomment %}
+        <div class="create-post-page__link-fields" x-show="isLinkType" x-cloak>
+          <div class="field" :class="{ 'field--error': errors.external_url }">
+            <label class="field__label" for="field-external_url">{% translate "Link" %} *</label>
+            <div class="field__control">
+              <input class="field__input" type="url" id="field-external_url" name="external_url" placeholder="https://..."
+                     :aria-invalid="!!errors.external_url"
+                     :aria-describedby="errors.external_url ? 'field-external_url-error' : null">
+            </div>
+            <p class="field__error" id="field-external_url-error" role="alert" x-show="errors.external_url" x-text="errors.external_url" x-cloak aria-live="polite"></p>
+          </div>
+          {% include "v3/includes/_field_textarea.html" with name="content_link" label="Description" placeholder="Optional description" rows=3 %}
+        </div>
+
+        <div class="field field--file field--file-narrow" :class="{ 'field--error': errors.image }"
+             x-data="{ fileName: '' }"
+             x-init="const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = '' })">
+          <label class="field__label" for="field-image">{% translate "Image" %}</label>
+          <div class="field__control field__control--file">
+            <span class="field__file-display" aria-hidden="true">
+              <span x-show="!fileName" x-cloak x-transition class="field__file-placeholder">Choose File</span>
+              <span x-show="fileName" x-cloak x-transition class="field__file-name" x-text="fileName"></span>
+            </span>
+            <input class="field__input field__input--file" type="file" id="field-image" name="image" accept="image/png,image/jpeg"
+                   x-on:change="fileName = $event.target.files.length ? $event.target.files[0].name : ''"
+                   :aria-invalid="!!errors.image"
+                   :aria-describedby="errors.image ? 'field-image-error' : 'field-image-help'">
+          </div>
+          <p class="field__error" id="field-image-error" role="alert" x-show="errors.image" x-text="errors.image" x-cloak aria-live="polite"></p>
+          <p class="field__help" id="field-image-help" x-show="!errors.image">This should be a PNG or JPEG format and no longer than 5MB</p>
+        </div>
+
+        {% include "v3/includes/_field_dropdown.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" %}
+
+        {% include "v3/includes/_field_text.html" with name="publish_at" label="Publish Date" type="datetime-local" value=publish_at_initial placeholder="Today at 10:00AM" %}
+
+        <div class="create-post-page__actions">
+          <a href="{% url 'news' %}" class="create-post-page__btn create-post-page__btn--secondary">{% translate "Cancel" %}</a>
+          <button type="submit" class="create-post-page__btn create-post-page__btn--primary">{% translate "Submit" %}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+    </div>
+  </div>
+  {% else %}
+  {# Non-v3: show legacy type selector #}
+  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+    <div class="md:w-full">
+      <h1 class="text-3xl text-center capitalize">{% translate 'Create news' %}</h1>
+      <p class="mt-0 text-center">Select the kind of news you would like to submit.</p>
+      <div class="divide-y divide-gray-300">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 py-5 w-[70%] mx-auto">
+          {% for item in items %}
+            {% if item.model_name != 'Poll' %}
+              <a href="{% url item.add_url_name %}" class="p-5 font-semibold text-center bg-white rounded-lg dark:text-white dark:text-slate hover:bg-white/60">
+                {% if item.model_name == 'BlogPost' %}<i class="mr-3 fas fa-comment"></i> Blog Post
+                {% elif item.model_name == 'Video' %}<i class="mr-3 fas fa-video"></i> Video
+                {% elif item.model_name == 'Link' %}<i class="mr-3 fas fa-link"></i> Link
+                {% elif item.model_name == 'News' %}<i class="mr-3 fas fa-newspaper"></i> News
+                {% else %}{{ item.model_name }}{% endif %}
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endflag %}
+  <script>
+  document.addEventListener('alpine:init', () => {
+    const createUrls = {
+      blog: '{{ blogpost_create_url }}',
+      news: '{{ news_create_url }}',
+      link: '{{ link_create_url }}',
+      video: '{{ video_create_url }}'
+    };
+    const postTypeOptions = [
+      { value: 'blog', label: 'Blog' },
+      { value: 'news', label: 'News' },
+      { value: 'video', label: 'Video' },
+      { value: 'link', label: 'Link' }
+    ];
+    window.createPostForm = function() {
+      return {
+        postType: '',
+        openPostTypeDropdown: false,
+        errors: { post_type: '', title: '', content: '', external_url: '', image: '' },
+        postTypeOptions,
+        get postTypeLabel() {
+          const o = postTypeOptions.find(x => x.value === this.postType);
+          return o ? o.label : '';
+        },
+        get isWriteUp() { return this.postType === 'blog' || this.postType === 'news'; },
+        get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
+        get formAction() { return createUrls[this.postType] || ''; },
+        setPostType(value) {
+          this.postType = value;
+          this.errors.post_type = '';
+          const form = this.$el.querySelector('[data-create-post-form]');
+          if (!form) return;
+          if (this.isWriteUp) {
+            const linkInput = form.querySelector('input[name="external_url"]');
+            const descInput = form.querySelector('textarea[name="content_link"]');
+            if (linkInput) linkInput.value = ''; if (linkInput) linkInput.removeAttribute('required');
+            if (descInput) descInput.value = '';
+          } else {
+            const contentInput = form.querySelector('textarea[name="content"]');
+            if (contentInput) contentInput.value = '';
+          }
+        },
+        prepareSubmit(e) {
+          this.errors = { post_type: '', title: '', content: '', external_url: '', image: '' };
+          const form = e.target;
+          const titleEl = form.querySelector('input[name="title"]');
+          const contentEl = form.querySelector('textarea[name="content"]');
+          const urlEl = form.querySelector('input[name="external_url"]');
+          const imageEl = form.querySelector('input[name="image"]');
+
+          if (!this.postType) {
+            this.errors.post_type = '{% translate "Please select a post type." %}';
+          }
+          if (!titleEl?.value?.trim()) {
+            this.errors.title = '{% translate "Post title is required." %}';
+          }
+          if (this.isWriteUp) {
+            if (!contentEl?.value?.trim()) {
+              this.errors.content = '{% translate "Content is required." %}';
+            }
+          } else {
+            if (!urlEl?.value?.trim()) {
+              this.errors.external_url = '{% translate "Link is required." %}';
+            } else {
+              try { new URL(urlEl.value); } catch (_) {
+                this.errors.external_url = '{% translate "Please enter a valid URL." %}';
+              }
+            }
+          }
+          if (imageEl?.files?.length) {
+            const file = imageEl.files[0];
+            const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+              this.errors.image = '{% translate "Please choose a PNG or JPEG image." %}';
+            } else {
+              const maxSize = 5 * 1024 * 1024;
+              if (file.size > maxSize) {
+                this.errors.image = '{% translate "Image must be 5MB or smaller." %}';
+              }
+            }
+          }
+
+          const hasErrors = Object.values(this.errors).some(function(v) { return v !== ''; });
+          if (hasErrors) {
+            e.preventDefault();
+            const firstId = this.errors.post_type ? 'post-type-trigger' :
+              this.errors.title ? 'field-title' : this.errors.content ? 'field-content' :
+              this.errors.external_url ? 'field-external_url' : this.errors.image ? 'field-image' : null;
+            const firstEl = firstId ? (this.$el.querySelector('#' + firstId) || form.querySelector('[name="' + firstId.replace('field-', '') + '"]')) : null;
+            if (firstEl) firstEl.focus();
+            return;
+          }
+
+          form.querySelector('input[name="post_type"]')?.setAttribute('disabled', 'disabled');
+          if (this.isWriteUp) {
+            form.querySelector('input[name="external_url"]')?.setAttribute('disabled', 'disabled');
+            form.querySelector('textarea[name="content_link"]')?.setAttribute('disabled', 'disabled');
+          } else {
+            form.querySelector('textarea[name="content"]')?.setAttribute('disabled', 'disabled');
+          }
+        }
+      };
+    };
+  });
+  </script>
+{% endblock %}

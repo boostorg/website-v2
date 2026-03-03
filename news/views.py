@@ -12,7 +12,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template.defaultfilters import date as datefilter
 from django.urls import reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.timezone import now
+from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 from django.views.generic import (
     CreateView,
@@ -25,6 +25,7 @@ from django.views.generic import (
 )
 from django.views.generic.detail import SingleObjectMixin
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
+from waffle import flag_is_active
 
 from .acl import can_approve
 from .constants import NEWS_APPROVAL_SALT, MAGIC_LINK_EXPIRATION
@@ -233,6 +234,18 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         context["add_label"] = self.add_label
         context["add_url_name"] = self.add_url_name
         context["cancel_url"] = reverse_lazy("news")
+        form = context.get("form")
+        if form and "publish_at" in form.fields:
+            dt = form.initial.get("publish_at") or getattr(
+                form.instance, "publish_at", None
+            )
+            if dt:
+                context["publish_at_initial"] = localtime(dt).strftime("%Y-%m-%dT%H:%M")
+            else:
+                context["publish_at_initial"] = ""
+        else:
+            context["publish_at_initial"] = ""
+        context["related_libraries_options"] = [{"value": "", "label": _("Select")}]
         return context
 
 
@@ -286,7 +299,8 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         """User must have a profile photo and a name to post an entry."""
-        if request.user.is_authenticated:
+        # With v3 flag, allow viewing the Create Post page for testing; backend may still require profile on submit
+        if not flag_is_active(request, "v3") and request.user.is_authenticated:
             missing_data = []
 
             if not request.user.display_name:
@@ -303,6 +317,11 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get_template_names(self):
+        if flag_is_active(self.request, "v3"):
+            return ["news/create_v3.html"]
+        return ["news/create.html"]
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         items = [
@@ -315,6 +334,19 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
         if can_approve(self.request.user):
             items.append(self.item_params(PollCreateView))
         context["items"] = items
+        if flag_is_active(self.request, "v3"):
+            context["post_type_options"] = [
+                {"value": "blog", "label": _("Blog")},
+                {"value": "news", "label": _("News")},
+                {"value": "video", "label": _("Video")},
+                {"value": "link", "label": _("Link")},
+            ]
+            context["related_libraries_options"] = [{"value": "", "label": _("Select")}]
+            context["publish_at_initial"] = localtime(now()).strftime("%Y-%m-%dT%H:%M")
+            context["blogpost_create_url"] = reverse_lazy("news-blogpost-create")
+            context["news_create_url"] = reverse_lazy("news-news-create")
+            context["link_create_url"] = reverse_lazy("news-link-create")
+            context["video_create_url"] = reverse_lazy("news-video-create")
         return context
 
 
@@ -375,6 +407,16 @@ class EntryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         context["cancel_url"] = reverse_lazy(
             "news-detail", kwargs={"slug": self.object.slug}
         )
+        form = context.get("form")
+        if form and "publish_at" in form.fields:
+            dt = getattr(self.object, "publish_at", None)
+            if dt:
+                context["publish_at_initial"] = localtime(dt).strftime("%Y-%m-%dT%H:%M")
+            else:
+                context["publish_at_initial"] = ""
+        else:
+            context["publish_at_initial"] = ""
+        context["related_libraries_options"] = [{"value": "", "label": _("Select")}]
         return context
 
 
