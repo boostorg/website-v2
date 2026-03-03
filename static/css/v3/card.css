@@ -38,7 +38,7 @@
 }
 
 .card__header {
-    align-items: center;
+    align-self: stretch;
     display: flex;
     padding: 0 var(--space-large, 1rem);
 }
