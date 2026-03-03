@@ -173,25 +173,27 @@ html.dark .v3-examples-section__example-box {
   color: var(--color-text-reversed);
 }
 
-/* Post card carousel: hide scrollbar, layout wrapper */
-.post-cards-carousel {
+/* Detail card carousel: layout and scrollbar (template uses .cards-carousel, inner .post-cards--carousel) */
+.v3-examples-section .cards-carousel {
   display: flex;
   flex-direction: column;
   gap: var(--space-default, 8px);
   min-width: 0;
 }
 
-.post-cards-carousel .carousel-buttons {
+.v3-examples-section .cards-carousel .carousel-buttons {
   flex-shrink: 0;
 }
 
-.post-cards--carousel .post-cards__list {
+.v3-examples-section .post-cards--carousel .post-cards__list {
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
 
-.post-cards--carousel .post-cards__list::-webkit-scrollbar {
+.v3-examples-section .post-cards--carousel .post-cards__list::-webkit-scrollbar {
   display: none;
+}
+
 .v3-examples-section .category-cards .category-cards__gallery-block {
   margin-bottom: var(--space-large);
 }
@@ -239,10 +241,9 @@ html.dark .v3-examples-section__example-box {
   }
 }
 
-/* Stats full-width (outside grid) and sized-demo grid */
+/* Full-width stats block (outside grid) */
 .v3-examples-section__stats-full-width {
   margin-top: var(--space-xl, 32px);
-  margin-bottom: 0;
 }
 
 .v3-examples-section__stats-grid--sized-demo {
@@ -269,5 +270,3 @@ html.dark .v3-examples-section__example-box {
   font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
 }
-
-/* Don't override .stats width/height – component has fixed dimensions (e.g. .stats--in-numbers 696×360, .stats--benchmarks 460×420). */
