@@ -240,6 +240,17 @@ class MarkdownTemplateView(TemplateView):
         return self.render_to_response(context)
 
 
+class PrivacyPolicyView(TemplateView):
+    """Privacy Policy page using v3 privacy-policy styles."""
+
+    template_name = "privacy_policy.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["last_updated"] = "2024-02-17"
+        return context
+
+
 class ContentNotFoundException(Exception):
     pass
 

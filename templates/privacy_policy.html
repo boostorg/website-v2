@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Privacy Policy{% endblock %}
+
+{% block content %}
+<div class="privacy-policy">
+  <div class="privacy-policy__inner">
+    <header class="privacy-policy__header">
+      <h1 class="privacy-policy__title">Privacy Policy</h1>
+      <p class="privacy-policy__last-updated">Last Updated: {{ last_updated|default:"2024-02-17" }}</p>
+    </header>
+    <div class="privacy-policy__intro">
+      <p>This privacy notice for The C Plus Plus Alliance, Inc. describes how and why we might collect, store, use, and/or share your information when you use our services ("Services").</p>
+      <p>The C Plus Plus Alliance is committed to protecting the privacy and accuracy of confidential information to the extent possible, subject to provisions of state and federal law. Other than as required by laws that guarantee public access to certain types of information, or in response to subpoenas or other legal instruments that authorize access, personal information is not actively shared.</p>
+      <p>In particular, we do not re-distribute or sell personal information collected on our web servers.</p>
+    </div>
+    <section class="privacy-policy__section">
+      <h2 class="privacy-policy__section-title">Information collected</h2>
+      <div class="privacy-policy__section-body">
+        <p>The website collects the following analytics:</p>
+        <ul>
+          <li>Internet Protocol (IP) address of computer being used</li>
+          <li>web pages requested</li>
+          <li>referring web page</li>
+          <li>browser used</li>
+          <li>date and time</li>
+        </ul>
+        <p>We also collect any personal information that you voluntarily provide to us either while registering for an account or while using the site. This includes information such as your name, email address, and profile photo among other things.</p>
+        <p>We do not collect any sensitive information.</p>
+      </div>
+    </section>
+    <section class="privacy-policy__section">
+      <h2 class="privacy-policy__section-title">Cookies</h2>
+      <div class="privacy-policy__section-body">
+        <p>The website may use cookies in order to deliver web content specific to individual users' interests or as functional cookies for the authentication purposes of the site. Sensitive personal information is not stored within cookies.</p>
+      </div>
+    </section>
+    <section class="privacy-policy__section">
+      <h2 class="privacy-policy__section-title">Log and Usage Data</h2>
+      <div class="privacy-policy__section-body">
+        <p>We collect and store log and usage data for diagnostic and performance purposes. This may include the same analytics information above along with additional information related to your usage of the site.</p>
+      </div>
+    </section>
+    <section class="privacy-policy__section">
+      <h2 class="privacy-policy__section-title">Privacy Statement Revisions</h2>
+      <div class="privacy-policy__section-body">
+        <p>We may update this privacy notice from time to time. The updated version will be indicated by an updated "Revised" date and the updated version will be effective as soon as it is accessible. If we make material changes to this privacy notice, we may notify you either by prominently posting a notice of such changes or by directly sending you a notification. We encourage you to review this privacy notice frequently to be informed of how we are protecting your information.</p>
+      </div>
+    </section>
+    <section class="privacy-policy__section">
+      <h2 class="privacy-policy__section-title">Questions</h2>
+      <div class="privacy-policy__section-body">
+        <p>Questions or concerns? Reading this privacy notice will help you understand your privacy rights and choices. If you do not agree with our policies and practices, please do not use our Services. If you still have any questions or concerns, please contact us at <a href="mailto:info@cppalliance.org">info@cppalliance.org</a>.</p>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
