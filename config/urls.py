@@ -350,6 +350,7 @@ urlpatterns = (
             "privacy/",
             PrivacyPolicyView.as_view(),
             name="privacy",
+            kwargs={"markdown_local": "privacy-policy"},
         ),
         path(
             "terms-of-use/",

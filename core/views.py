@@ -240,15 +240,33 @@ class MarkdownTemplateView(TemplateView):
         return self.render_to_response(context)
 
 
-class PrivacyPolicyView(TemplateView):
-    """Privacy Policy page using v3 privacy-policy styles."""
+class PrivacyPolicyView(MarkdownTemplateView):
+    """Renders the v3 Privacy Policy page when the v3 flag is active, else markdown template."""
 
-    template_name = "privacy_policy.html"
+    def get(self, request, *args, **kwargs):
+        try:
+            from waffle import flag_is_active
+        except ImportError:
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["last_updated"] = "2024-02-17"
-        return context
+            def flag_is_active(req, name):
+                return False
+
+        if flag_is_active(request, "v3"):
+            context = self.get_context_data(last_updated="2024-02-17")
+            return self.render_to_response(context)
+        return super().get(request, *args, **kwargs)
+
+    def get_template_names(self):
+        try:
+            from waffle import flag_is_active
+        except ImportError:
+
+            def flag_is_active(req, name):
+                return False
+
+        if flag_is_active(self.request, "v3"):
+            return ["privacy_policy.html"]
+        return super().get_template_names()
 
 
 class ContentNotFoundException(Exception):
