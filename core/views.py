@@ -21,7 +21,7 @@ from django.http import (
     HttpResponseRedirect,
     HttpRequest,
 )
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -238,6 +238,23 @@ class MarkdownTemplateView(TemplateView):
             status_code=200,
         )
         return self.render_to_response(context)
+
+
+class TermsOfUseView(MarkdownTemplateView):
+    """Renders the v3 Terms of Use page when the v3 flag is active, else markdown template."""
+
+    def get(self, request, *args, **kwargs):
+        try:
+            from waffle import flag_is_active
+        except ImportError:
+
+            def flag_is_active(req, name):
+                return False
+
+        if flag_is_active(request, "v3"):
+            context = {"last_updated": "2024-02-22"}
+            return render(request, "v3/terms_of_use.html", context)
+        return super().get(request, *args, **kwargs)
 
 
 class ContentNotFoundException(Exception):
