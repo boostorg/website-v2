@@ -234,18 +234,6 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         context["add_label"] = self.add_label
         context["add_url_name"] = self.add_url_name
         context["cancel_url"] = reverse_lazy("news")
-        form = context.get("form")
-        if form and "publish_at" in form.fields:
-            dt = form.initial.get("publish_at") or getattr(
-                form.instance, "publish_at", None
-            )
-            if dt:
-                context["publish_at_initial"] = localtime(dt).strftime("%Y-%m-%dT%H:%M")
-            else:
-                context["publish_at_initial"] = ""
-        else:
-            context["publish_at_initial"] = ""
-        context["related_libraries_options"] = [{"value": "", "label": _("Select")}]
         return context
 
 
@@ -407,16 +395,6 @@ class EntryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         context["cancel_url"] = reverse_lazy(
             "news-detail", kwargs={"slug": self.object.slug}
         )
-        form = context.get("form")
-        if form and "publish_at" in form.fields:
-            dt = getattr(self.object, "publish_at", None)
-            if dt:
-                context["publish_at_initial"] = localtime(dt).strftime("%Y-%m-%dT%H:%M")
-            else:
-                context["publish_at_initial"] = ""
-        else:
-            context["publish_at_initial"] = ""
-        context["related_libraries_options"] = [{"value": "", "label": _("Select")}]
         return context
 
 
