@@ -41,9 +41,7 @@
     gap: var(--space-large, 16px);
 }
 
-.card__center {
-    justify-content: center;
-    align-items: center;
+.card__header {
     align-self: stretch;
     display: flex;
     padding: 0 var(--space-large, 1rem);
@@ -65,4 +63,5 @@
     height: 1px;
     background: var(--color-stroke-weak, rgba(5, 8, 22, 0.10));
     border: none;
+    margin: 0;
 }

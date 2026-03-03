@@ -12,6 +12,12 @@
 
   Usage (from view context):
     {% include "v3/includes/_why_boost_cards.html" with section_heading="Why Boost?" why_boost_cards=cards %}
+
+  Acceptance criteria (Why Boost Cards – not Category Tags):
+  - Render correctly with 1–8 cards (view passes why_boost_cards with 1 to 8 items).
+  - Layout: Cards wrap correctly after four items on desktop/tablet (grid 4 columns); single column on small viewports.
+  - Accessibility: Section has aria-labelledby pointing to the heading; each card is an <article> with heading level and description.
+  - Analytics: Track as needed for Why Boost card clicks/views (component-specific, not Category Tags).
 {% endcomment %}
 <section class="why-boost-cards" aria-labelledby="why-boost-heading">
   <h2 id="why-boost-heading" class="why-boost-cards__heading">{{ section_heading|default:"Why Boost?" }}</h2>

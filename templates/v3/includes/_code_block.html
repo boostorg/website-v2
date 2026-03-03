@@ -1,22 +1,25 @@
 {% comment %}
-  V3 Code block – code block with copy button.
-  Uses static/css/v3/code-block.css.
-  JS in static/js/code-block-copy.js copies text to clipboard and toggles icon to check.
+  V3 Code block – code block with copy button and C++ syntax highlighting.
+  Uses static/css/v3/code-block.css. Requires highlight.js for dynamic highlighting.
+  JS in static/js/code-block.js copies text to clipboard and toggles icon to check.
 
   Variables:
-    code      (optional) — plain text string to show in the code box (auto-escaped). Use for dynamic content from view.
-    code_html (optional) — pre-rendered HTML inside <code> (use |safe when you need token spans). Use code or code_html.
+    code      (optional) — plain text string (auto-escaped). Use for highlight.js to process.
+    code_html (optional) — pre-rendered HTML with spans (.cpp-keyword, .cpp-string, etc. or .hljs-*).
+                          Use code or code_html.
     variant   (optional) — "standalone" | "white-bg" | "grey-bg". Default "standalone".
+    language  (optional) — language for highlight.js (e.g. "cpp", "bash"). Default "cpp" when code is used.
+    cpp_highlight (optional) — if truthy and code_html used, adds class cpp-highlight for cpp-highlight.css styles.
 
-  Usage with plain string from view:
-    {% include "v3/includes/_code_block.html" with code=code_string variant="grey-bg" %}
-  Usage with pre-rendered HTML:
-    {% include "v3/includes/_code_block.html" with code_html=my_code_html variant="standalone" %}
+  Usage with plain code (highlight.js will add spans):
+    {% include "v3/includes/_code_block.html" with code=code_string variant="grey-bg" language="cpp" %}
+  Usage with pre-rendered HTML (cpp-highlight or hljs spans):
+    {% include "v3/includes/_code_block.html" with code_html=my_code_html variant="standalone" cpp_highlight=True %}
 {% endcomment %}
 <div class="code-block code-block--{{ variant|default:'standalone' }}">
   <button type="button" class="code-block__copy" aria-label="Copy code to clipboard" data-copied="false">
     <span class="code-block__copy-icon code-block__copy-icon--copy" aria-hidden="true">{% include "includes/icon.html" with icon_name="copy" icon_class="code-block__copy-svg" icon_size=16 %}</span>
     <span class="code-block__copy-icon code-block__copy-icon--check" aria-hidden="true">{% include "includes/icon.html" with icon_name="check" icon_class="code-block__copy-svg" icon_size=16 %}</span>
   </button>
-  <pre class="code-block__inner"><code>{% if code_html %}{{ code_html|safe }}{% else %}{{ code }}{% endif %}</code></pre>
+  <pre class="code-block__inner"><code class="{% if code_html %}nohighlight{% if cpp_highlight %} cpp-highlight{% endif %}{% else %}language-{{ language|default:'cpp' }}{% endif %}">{% if code_html %}{{ code_html|safe }}{% else %}{{ code }}{% endif %}</code></pre>
 </div>
