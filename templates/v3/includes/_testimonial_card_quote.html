@@ -8,7 +8,7 @@ The inner component of a testimonial card, should generally only be used by _tes
     role_badge: url for an icon representing the role
 {% endcomment %}
 
-<div class="testimonial-card__body">
+<div>
   <div class="testimonial-card__text-wrapper">
     <div class="testimonial-card__text">{{ quote }}</div>
   </div>
@@ -19,9 +19,7 @@ The inner component of a testimonial card, should generally only be used by _tes
   </div>
 </div>
 <div class="testimonial-card__author">
-  {% if avatar_url %}
-    <img src="{{ avatar_url }}" alt="{{ name }}" class="testimonial-card__author-avatar" width="48" height="48" loading="lazy" decoding="async" />
-  {% endif %}
+  {% include "v3/includes/_avatar_v3.html" %}
   <div class="testimonial-card__author-info">
     {% if name %}
       <span class="testimonial-card__author-name"><span class="testimonial-card__author-name-text">{{ name }}</span></span>

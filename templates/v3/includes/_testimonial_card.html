@@ -6,14 +6,14 @@
     Renders only when there is content, only displays fields for which content is provided
 {% endcomment %}
 
-<div class="testimonial-card">
+<div class="card card-basic">
   <div class="testimonial-card__heading">
     <span class="testimonial-card__title">{{ heading }}</span>
     {% include 'v3/includes/_carousel_buttons.html' %}
   </div>
-  <div class="testimonial-card__heading-rule"></div>
+  <hr class="card__hr" />
   <div class="testimonial-card__carousel">
-    {% for testimimonial in testimonials %}
+    {% for testimonial in testimonials %}
     {% include "v3/includes/_testimonial_card_quote.html" with quote="{{testimonial.text}}" avatar_url="{{testimimonial.author.image.url}}" name="{{testimimonial.author.name}}" role="{{testimimonial.author.role.name}}" role_badge="{{testimimonial.author.role.badge}}" %}
     {% endfor %}
   </div>
