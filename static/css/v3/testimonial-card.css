@@ -72,6 +72,19 @@
 .testimonial-card__author-role {
     height: 16px;
     gap: var(--space-default, 8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.testimonial-card__post {
+    padding: 0;
+    border: none;
+    min-width: 0;
+}
+
+.testimonial-card__post .post-cards__item {
+    max-width: 100%;
 }
 
 .testimonial-card__author-role-text {
@@ -82,4 +95,8 @@
     width: 16px;
     height: 16px;
     aspect-ratio: 1/1;
+}
+
+.testimonial-card__cards {
+    max-width: 100%;
 }

@@ -12,14 +12,14 @@ The inner component of a testimonial card, should generally only be used by _tes
   <div class="testimonial-card__text-wrapper">
     <div class="testimonial-card__text">{{ quote }}</div>
   </div>
-  <div class="testimonial-card__tail-wrapper">
+  <div class="testimonial-card__tail-wrapper mb-large">
     <svg width="32" height="30" viewBox="0 0 32 30" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path class="testimonial-card__text-tail" d="M0 0H32L3.41421 28.5858C2.15428 29.8457 0 28.9534 0 27.1716V0Z" />
     </svg>
   </div>
 </div>
 <div class="testimonial-card__author">
-  {% include "v3/includes/_avatar_v3.html" %}
+  {% include "v3/includes/_avatar_v3.html" with src=avatar_url %}
   <div class="testimonial-card__author-info">
     {% if name %}
       <span class="testimonial-card__author-name"><span class="testimonial-card__author-name-text">{{ name }}</span></span>

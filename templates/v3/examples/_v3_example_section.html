@@ -121,7 +121,7 @@
     </div>
   </div>
 
-  <div class="v3-examples-section__block">
+  {% comment %} <div class="v3-examples-section__block">
     <h3>Detail card carousel</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo" heading="Libraries categories" cards=demo_cards_carousel_cards %}
@@ -142,7 +142,7 @@
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo-infinite-autoplay" heading="Libraries categories" cards=demo_cards_carousel_cards infinite=True autoplay=True autoplay_delay=5000 %}
     </div>
-  </div>
+  </div> {% endcomment %}
 
   <div class="v3-examples-section__block">
     <h3>Post cards list</h3>
@@ -232,16 +232,7 @@
    <div class="v3-examples-section__block">
     <h3>Testimonial Card</h3>
     <div class="v3-examples-section__example-box">
-      <div class="card testimonial-card py-large">
-        <div class="card__header">
-          <span class="card__title">What Engineers are saying</span>
-          {% include 'v3/includes/_carousel_buttons.html' %}
-        </div>
-        <hr class="card__hr" />
-        <div class="testimonial-card__carousel">
-          {% include "v3/includes/_testimonial_card_quote.html" with quote="I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too." avatar_url=avatar_url name="Name Surname" role="Contributor" role_badge=badge_url%}
-        </div>
-      </div>
+      {% include "v3/includes/_testimonial_card.html" with heading=testimonial_data.heading testimonials=testimonial_data.testimonials %}
     </div>
   </div>
 
