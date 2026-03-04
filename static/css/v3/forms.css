@@ -646,50 +646,20 @@
   flex-wrap: wrap;
 }
 
+.create-post-page__actions .btn {
+  flex: 1 1 0;
+  min-width: 128px;
+  justify-content: center;
+  text-decoration: none;
+}
+
 @media (max-width: 480px) {
   .create-post-page__actions {
     flex-direction: column;
   }
-  .create-post-page__btn {
+  .create-post-page__actions .btn {
     min-width: 100%;
   }
-}
-
-.create-post-page__btn {
-  flex: 1;
-  min-width: 128px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-default, 8px);
-  border-radius: var(--border-radius-l, 8px);
-  font-family: var(--font-sans);
-  font-size: var(--font-size-small, 14px);
-  font-weight: var(--font-weight-medium, 500);
-  line-height: 1.24;
-  cursor: pointer;
-  text-decoration: none;
-  border: none;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.create-post-page__btn--secondary {
-  background: transparent;
-  border: 1px solid var(--color-stroke-strong, rgba(5, 8, 22, 0.25));
-  color: var(--color-text-primary, #050816);
-}
-
-.create-post-page__btn--secondary:hover {
-  background: var(--color-surface-mid, #f7f7f8);
-}
-
-.create-post-page__btn--primary {
-  background: var(--color-buttons-primary, #efeff1);
-  color: var(--color-text-primary, #050816);
-}
-
-.create-post-page__btn--primary:hover {
-  background: var(--color-surface-strong, #e2e2e4);
 }
 
 /* ========== Inputs page (foundation doc layout) ========== */

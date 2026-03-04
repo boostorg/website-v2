@@ -118,8 +118,8 @@
         {% include "v3/includes/_field_text.html" with name="publish_at" label="Publish Date" type="datetime-local" value=publish_at_initial placeholder="Today at 10:00AM" %}
 
         <div class="create-post-page__actions">
-          <a href="{% url 'news' %}" class="create-post-page__btn create-post-page__btn--secondary">{% translate "Cancel" %}</a>
-          <button type="submit" class="create-post-page__btn create-post-page__btn--primary">{% translate "Submit" %}</button>
+          <a href="{% url 'news' %}" class="btn btn-primary">{% translate "Cancel" %}</a>
+          <button type="submit" class="btn btn-secondary-grey">{% translate "Submit" %}</button>
         </div>
       </div>
     </form>
