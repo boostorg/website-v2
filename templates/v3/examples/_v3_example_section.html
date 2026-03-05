@@ -229,6 +229,14 @@
     {% endwith %}
   </div>
   <div class="v3-examples-section__block">
+    <h3>Thread Archive Card</h3>
+    {% with basic_card_data as card %}
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_thread_archive_card.html"  %}
+    </div>
+    {% endwith %}
+  </div>
+  <div class="v3-examples-section__block">
     <h3>Why Boost</h3>
     <div class="v3-examples-section__example-box">
       {% comment %}Use 8 cards to test ACs: "Why Boost Cards render correctly with 1–8 cards" and "Cards wrap correctly after four items on desktop/tablet" (4+4 rows).{% endcomment %}
