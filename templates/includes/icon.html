@@ -6,8 +6,21 @@
   icon_class: optional, default "icon" (for size/color utilities)
   icon_size: optional, default 24 (viewBox is 24 for all)
 {% endcomment %}
+{% if icon_name == "chevron-input" or icon_name == "dropdown-chevron-down" %}
+<svg class="{{ icon_class|default:'icon' }}" viewBox="0 0 11 10" width="11" height="10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path d="M0 4V5.33333H8V6.66667H9.33333V5.33333H10.6667V4H9.33333V2.66667H8V4H0ZM6.66667 1.33333H8V2.66667H6.66667V1.33333ZM6.66667 1.33333H5.33333V0H6.66667V1.33333ZM6.66667 8H8V6.66667H6.66667V8ZM6.66667 8H5.33333V9.33333H6.66667V8Z" fill="currentColor"/>
+</svg>
+{% elif icon_name == "dropdown-chevron-up" %}
+<svg class="{{ icon_class|default:'icon' }}" viewBox="0 0 10 6" width="10" height="6" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path d="M1.33333 5.33333H0V4H1.33333V2.66667H2.66667V1.33333H4V0H5.33333V1.33333H6.66667V2.66667H8V4H9.33333V5.33333H8V4H6.66667V2.66667H5.33333V1.33333H4V2.66667H2.66667V4H1.33333V5.33333Z" fill="currentColor"/>
+</svg>
+{% else %}
 <svg class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  {% if icon_name == "search" %}
+  {% if icon_name == "text" %}
+  <path d="M6 2h8v2H6V2zM4 6V4h2v2H4zm0 8H2V6h2v8zm2 2H4v-2h2v2zm8 0v2H6v-2h8zm2-2h-2v2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm0-8h2v8h-2V6zm0 0V4h-2v2h2z"/>
+  {% elif icon_name == "calendar" %}
+  <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+  {% elif icon_name == "search" %}
   <path d="M6 2h8v2H6V2zM4 6V4h2v2H4zm0 8H2V6h2v8zm2 2H4v-2h2v2zm8 0v2H6v-2h8zm2-2h-2v2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm0-8h2v8h-2V6zm0 0V4h-2v2h2z"/>
   {% elif icon_name == "chevron-down" %}
   <path d="M7 8H5v2h2v2h2v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2h-2v-2H9v-2H7V8z"/>
@@ -43,3 +56,4 @@
   <path d="M20 2H2v20h2V4h16v12H6v2H4v2h2v-2h16V2h-2z"/>
   {% endif %}
 </svg>
+{% endif %}

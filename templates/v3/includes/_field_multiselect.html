@@ -57,9 +57,10 @@
             {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}>
       <span class="multiselect__trigger-text" x-show="selectedValues.length > 0" x-text="displayText" x-cloak></span>
       <span class="dropdown__trigger-text dropdown__trigger-placeholder" x-show="selectedValues.length === 0">{{ placeholder|default:"Select..." }}</span>
-      <svg class="dropdown__chevron" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M7 8H5v2h2v2h2v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2h-2v-2H9v-2H7V8z"/>
-      </svg>
+      <span class="dropdown__chevron" aria-hidden="true">
+        <span class="dropdown__chevron-icon" x-show="!open" x-cloak>{% include "includes/icon.html" with icon_name="dropdown-chevron-down" icon_class="dropdown__chevron-icon" %}</span>
+        <span class="dropdown__chevron-icon" x-show="open" x-cloak>{% include "includes/icon.html" with icon_name="dropdown-chevron-up" icon_class="dropdown__chevron-icon" %}</span>
+      </span>
     </button>
     <div class="dropdown__panel"
          x-show="open"

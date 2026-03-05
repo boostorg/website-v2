@@ -30,11 +30,12 @@
       <div class="create-post-page__card">
         {% comment %} Post Type dropdown: Blog, News, Video, Link. Placeholder "Select Post Type". Controls conditional fields. {% endcomment %}
         <div class="field" :class="{ 'field--error': errors.post_type }" @click.away="openPostTypeDropdown = false">
-          <label class="field__label" for="post-type-trigger">{% translate "Post type" %} *</label>
+          <label class="field__label" id="post-type-label" for="post-type-trigger">{% translate "Post type" %} *</label>
           <div class="dropdown" :class="{ 'dropdown--open': openPostTypeDropdown }">
             <button type="button"
                     id="post-type-trigger"
                     class="dropdown__trigger"
+                    aria-labelledby="post-type-label"
                     @click="openPostTypeDropdown = !openPostTypeDropdown"
                     :aria-expanded="openPostTypeDropdown"
                     aria-haspopup="listbox"
@@ -42,7 +43,10 @@
                     :aria-describedby="errors.post_type ? 'post-type-error' : null">
               <span class="dropdown__trigger-text" x-show="postType" x-text="postTypeLabel" x-cloak></span>
               <span class="dropdown__trigger-text dropdown__trigger-placeholder" x-show="!postType">{% translate "Select Post Type" %}</span>
-              <svg class="dropdown__chevron" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 8H5v2h2v2h2v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2h-2v-2H9v-2H7V8z"/></svg>
+              <span class="dropdown__chevron" aria-hidden="true">
+                <span x-show="!openPostTypeDropdown" x-cloak class="dropdown__chevron-icon">{% include "includes/icon.html" with icon_name="dropdown-chevron-down" icon_class="dropdown__chevron-icon" %}</span>
+                <span x-show="openPostTypeDropdown" x-cloak class="dropdown__chevron-icon">{% include "includes/icon.html" with icon_name="dropdown-chevron-up" icon_class="dropdown__chevron-icon" %}</span>
+              </span>
             </button>
             <div class="dropdown__panel" x-show="openPostTypeDropdown" x-transition x-cloak role="listbox">
               <div class="dropdown__list">
@@ -62,9 +66,11 @@
         <div class="field" :class="{ 'field--error': errors.title }">
           <label class="field__label" for="field-title">{% translate "Post title" %} *</label>
           <div class="field__control">
+            <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="text" icon_class="field__icon" %}</span>
             <input class="field__input" type="text" id="field-title" name="title" placeholder="Title" required
                    :aria-invalid="!!errors.title"
                    :aria-describedby="errors.title ? 'field-title-error' : null">
+            <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="chevron-input" icon_class="field__icon" %}</span>
           </div>
           <p class="field__error" id="field-title-error" role="alert" x-show="errors.title" x-text="errors.title" x-cloak aria-live="polite"></p>
         </div>
@@ -86,9 +92,11 @@
           <div class="field" :class="{ 'field--error': errors.external_url }">
             <label class="field__label" for="field-external_url">{% translate "Link" %} *</label>
             <div class="field__control">
+              <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="text" icon_class="field__icon" %}</span>
               <input class="field__input" type="url" id="field-external_url" name="external_url" placeholder="https://..."
                      :aria-invalid="!!errors.external_url"
                      :aria-describedby="errors.external_url ? 'field-external_url-error' : null">
+              <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="chevron-input" icon_class="field__icon" %}</span>
             </div>
             <p class="field__error" id="field-external_url-error" role="alert" x-show="errors.external_url" x-text="errors.external_url" x-cloak aria-live="polite"></p>
           </div>
@@ -115,11 +123,11 @@
 
         {% include "v3/includes/_field_dropdown.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" %}
 
-        {% include "v3/includes/_field_text.html" with name="publish_at" label="Publish Date" type="datetime-local" value=publish_at_initial placeholder="Today at 10:00AM" %}
+        {% include "v3/includes/_field_text.html" with name="publish_at" label="Publish Date" type="datetime-local" value=publish_at_initial placeholder="Today at 10:00AM" icon_left="calendar" %}
 
         <div class="create-post-page__actions">
-          <a href="{% url 'news' %}" class="btn btn-primary">{% translate "Cancel" %}</a>
-          <button type="submit" class="btn btn-secondary-grey">{% translate "Submit" %}</button>
+          <a href="{% url 'news' %}" class="btn btn-secondary-grey">{% translate "Cancel" %}</a>
+          <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
         </div>
       </div>
     </form>

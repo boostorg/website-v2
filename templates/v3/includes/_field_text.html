@@ -8,7 +8,8 @@
     type         (optional) — input type, default "text"
     help_text    (optional) — help text below the field
     error        (optional) — error message (activates error state)
-    icon_left    (optional) — icon name for left slot (e.g. "search")
+    icon_left    (optional) — "calendar" for date/datetime, or truthy for text icon
+    icon_right   (optional) — if truthy, shows chevron on the right (omit in date fields)
     submit_icon  (optional) — icon name for a submit button in the right slot (e.g. "arrow-right")
     submit_label (optional) — aria-label for the submit button, default "Submit"
     required     (optional) — if truthy, adds required attribute
@@ -16,15 +17,17 @@
     extra_class  (optional) — additional classes on the wrapper
   Usage:
     {% include "v3/includes/_field_text.html" with name="email" label="Email" placeholder="Enter email" %}
-    {% include "v3/includes/_field_text.html" with name="q" placeholder="Search..." submit_icon="arrow-right" submit_label="Search" %}
+    {% include "v3/includes/_field_text.html" with name="publish_at" label="Publish Date" type="datetime-local" icon_left=1 icon_right=1 %}
 {% endcomment %}
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}">
   {% if label %}
   <label class="field__label" for="field-{{ name }}">{{ label }}</label>
   {% endif %}
   <div class="field__control{% if disabled %} field__control--disabled{% endif %}"{% if submit_icon %} x-data="{ q: '' }"{% endif %}>
-    {% if icon_left %}
-    <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name=icon_left icon_class="field__icon" %}</span>
+    {% if icon_left == "calendar" %}
+    <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="calendar" icon_class="field__icon" %}</span>
+    {% elif icon_left %}
+    <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="text" icon_class="field__icon" %}</span>
     {% endif %}
     <input
       class="field__input"
@@ -38,6 +41,9 @@
       {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
       {% if submit_icon %}x-model="q"{% endif %}
     >
+    {% if icon_right %}
+    <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="chevron-input" icon_class="field__icon" %}</span>
+    {% endif %}
     {% if submit_icon %}
     <button type="submit" class="field__submit" aria-label="{{ submit_label|default:'Submit' }}" :disabled="!q.trim()">
       {% include "includes/icon.html" with icon_name=submit_icon icon_class="field__submit-icon" %}
