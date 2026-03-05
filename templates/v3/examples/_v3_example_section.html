@@ -121,7 +121,7 @@
     </div>
   </div>
 
-  <div class="v3-examples-section__block">
+  {% comment %} <div class="v3-examples-section__block">
     <h3>Detail card carousel</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo" heading="Libraries categories" cards=demo_cards_carousel_cards %}
@@ -142,7 +142,7 @@
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo-infinite-autoplay" heading="Libraries categories" cards=demo_cards_carousel_cards infinite=True autoplay=True autoplay_delay=5000 %}
     </div>
-  </div>
+  </div> {% endcomment %}
 
   <div class="v3-examples-section__block">
     <h3>Post cards list</h3>
@@ -238,6 +238,21 @@
     </div>
   </div>
 
+   <div class="v3-examples-section__block">
+    <h3>Testimonial Card</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_testimonial_card.html" with heading=testimonial_data.heading testimonials=testimonial_data.testimonials %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3>Thread Archive Card</h3>
+    {% with basic_card_data as card %}
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_thread_archive_card.html"  %}
+    </div>
+    {% endwith %}
+  </div>
   <div class="v3-examples-section__block">
     <h3>Why Boost</h3>
     <div class="v3-examples-section__example-box">

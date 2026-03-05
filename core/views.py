@@ -1203,6 +1203,48 @@ class V3ComponentDemoView(TemplateView):
             "image_src": "/static/img/v3/examples/Learn Card Image.png",
         }
 
+        context["testimonial_data"] = {
+            "heading": "What Engineers are saying",
+            "testimonials": [
+                {
+                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                    "author": {
+                        "name": "Name Surname",
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                        "role": "Contributor",
+                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                    },
+                },
+                {
+                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                    "author": {
+                        "name": "Name Surname",
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                        "role": "Contributor",
+                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                    },
+                },
+                {
+                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                    "author": {
+                        "name": "Name Surname",
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                        "role": "Contributor",
+                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                    },
+                },
+                {
+                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                    "author": {
+                        "name": "Name Surname",
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                        "role": "Contributor",
+                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                    },
+                },
+            ],
+        }
+
         latest = Version.objects.most_recent()
         if latest:
             lv = (
