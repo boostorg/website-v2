@@ -1,0 +1,19 @@
+.learn-card {
+    max-width: 696px;
+}
+
+.learn-card__row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-large, 16px);
+    align-self: stretch;
+}
+
+.learn-card__column {
+    display: flex;
+flex-direction: column;
+justify-content: space-between;
+align-items: flex-start;
+flex: 1 0 0;
+align-self: stretch;
+}

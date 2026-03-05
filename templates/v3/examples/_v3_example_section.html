@@ -228,6 +228,16 @@
     </div>
     {% endwith %}
   </div>
+
+<div class="v3-examples-section__block">
+    <h3>Learn Card</h3>
+    {% with basic_card_data as card %}
+    <div class="v3-examples-section__example-box">
+    {% include "v3/includes/_learn_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label %}
+    </div>
+    {% endwith %}
+  </div>
+
   <div class="v3-examples-section__block">
     <h3>Why Boost</h3>
     <div class="v3-examples-section__example-box">

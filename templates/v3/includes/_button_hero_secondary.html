@@ -1,10 +1,10 @@
 {% comment %}
   V3 foundation button: hero secondary.
-  Variables: label (required), url (optional), icon_html (optional), type (optional).
+  Variables: label (required), url (optional), icon_html (optional), type (optional), extra_classes (optoinal).
   Usage: {% include "v3/includes/_button_hero_secondary.html" with label="Learn more" %}
 {% endcomment %}
 {% if url %}
-<a href="{{ url }}" class="btn btn-hero btn-secondary">{% if icon_html %}{{ icon_html|safe }}{% endif %}{{ label }}</a>
+<a href="{{ url }}" class="btn btn-hero btn-secondary {{extra_classes}}">{% if icon_html %}{{ icon_html|safe }}{% endif %}{{ label }}</a>
 {% else %}
-<button type="{{ type|default:'button' }}" class="btn btn-hero btn-secondary">{% if icon_html %}{{ icon_html|safe }}{% endif %}{{ label }}</button>
+<button type="{{ type|default:'button' }}" class="btn btn-hero btn-secondary {{extra_classes}}">{% if icon_html %}{{ icon_html|safe }}{% endif %}{{ label }}</button>
 {% endif %}
