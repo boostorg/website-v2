@@ -1191,6 +1191,18 @@ class V3ComponentDemoView(TemplateView):
             },
         ]
 
+        context["learn_card_data"] = {
+            "title": "I want to learn:",
+            "text": "How to install Boost, use its libraries, build projects, and get help when you need it.",
+            "links": [
+                {"label": "Explore common use cases", "url": "https://www.example.com"},
+                {"label": "Build with CMake", "url": "https://www.example.com"},
+                {"label": "Visit the FAQ", "url": "https://www.example.com"},
+            ],
+            "hero_link": "www.example.com",
+            "image_src": "/static/img/v3/examples/Learn Card Image.png",
+        }
+
         latest = Version.objects.most_recent()
         if latest:
             lv = (
