@@ -1199,7 +1199,8 @@ class V3ComponentDemoView(TemplateView):
                 {"label": "Build with CMake", "url": "https://www.example.com"},
                 {"label": "Visit the FAQ", "url": "https://www.example.com"},
             ],
-            "hero_link": "www.example.com",
+            "url": "https://www.example.com",
+            "label": "Learn more about Boost",
             "image_src": "/static/img/v3/examples/Learn Card Image.png",
         }
 

@@ -1,4 +1,12 @@
 {% comment %}
+Card for displaying a boost library along with learn links, along with a large eye catching image
+Inputs:
+  - title(required) - Title for the top of the card
+  - text (required) - A short description under the header, before the linebreaks
+  - links (required) - A list of links, earch with a label and url
+  - label (required) - Label for the hero button
+  - url (required) - Url for the hero button
+  - image_src (required) - Url at which the image can be found
 {% endcomment %}
 
 <div class="card learn-card p-large">
@@ -23,7 +31,7 @@
         </div>
       </div>
       <div class="btn-row">
-        {% include 'v3/includes/_button_hero_primary.html' with label='Get started with Boost' url=url icon_html='<span class="btn-icon" aria-hidden><i class="fas fa-arrow-right"></i></span>' extra_classes='btn-flex' %}
+        {% include 'v3/includes/_button_hero_primary.html' with label=label url=url icon_html='<span class="btn-icon" aria-hidden><i class="fas fa-arrow-right"></i></span>' extra_classes='btn-flex' %}
       </div>
     </div>
     <div>
