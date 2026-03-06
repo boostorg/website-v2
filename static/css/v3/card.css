@@ -43,6 +43,10 @@
     padding: 0 var(--space-large, 1rem);
 }
 
+.card__image {
+    width: 100%;
+}
+
 .card__title {
     flex: 1 0 0;
     color: var(--color-text-primary, #050816);
