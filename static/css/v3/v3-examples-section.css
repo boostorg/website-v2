@@ -19,7 +19,7 @@
   margin-bottom: 0;
 }
 
-.v3-examples-section__block h3 {
+.v3-examples-section__block .block-title {
   font-size: var(--font-size-base, 16px);
   font-weight: var(--font-weight-medium, 500);
   margin-bottom: var(--space-default, 8px);
