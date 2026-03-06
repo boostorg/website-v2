@@ -657,7 +657,7 @@
   font-size: var(--font-size-2xl, 40px);
   font-weight: var(--font-weight-medium, 500);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: -1px;
   color: var(--color-text-primary, #050816);
   margin: 0;
 }
@@ -667,7 +667,7 @@
   font-size: var(--font-size-large, 24px);
   font-weight: var(--font-weight-regular, 400);
   line-height: 1.33;
-  letter-spacing: -0.01em;
+  letter-spacing: -1px;
   color: var(--color-text-secondary, #585a64);
   padding: 0;
 }
