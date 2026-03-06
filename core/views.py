@@ -28,6 +28,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
+from waffle import flag_is_active
 
 from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
@@ -238,6 +239,21 @@ class MarkdownTemplateView(TemplateView):
             status_code=200,
         )
         return self.render_to_response(context)
+
+
+class PrivacyPolicyView(MarkdownTemplateView):
+    """Renders the v3 Privacy Policy page when the v3 flag is active, else markdown template."""
+
+    def get(self, request, *args, **kwargs):
+        if flag_is_active(request, "v3"):
+            context = self.get_context_data(last_updated="2024-02-17")
+            return self.render_to_response(context)
+        return super().get(request, *args, **kwargs)
+
+    def get_template_names(self):
+        if flag_is_active(self.request, "v3"):
+            return ["v3/privacy_policy.html"]
+        return super().get_template_names()
 
 
 class ContentNotFoundException(Exception):
