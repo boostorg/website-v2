@@ -26,13 +26,6 @@
   margin-right: auto;
 }
 
-@media (max-width: 767px) {
-  .privacy-policy {
-    padding-left: var(--space-large);
-    padding-right: var(--space-large);
-  }
-}
-
 .privacy-policy__header {
   display: flex;
   flex-direction: column;
