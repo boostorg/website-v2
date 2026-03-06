@@ -1,0 +1,216 @@
+.wysiwyg-v3 {
+  position: relative;
+  width: 100%;
+}
+
+.wysiwyg-editor__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-default, 8px);
+  padding: var(--space-default, 8px) var(--space-medium, 12px);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-bottom: none;
+  border-radius: var(--border-radius-xl, 12px) var(--border-radius-xl, 12px) 0 0;
+  background: var(--color-surface-weak, #fff);
+}
+
+.wysiwyg-toolbar__left,
+.wysiwyg-toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-default, 8px);
+}
+
+.wysiwyg-toolbar__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--border-radius-l, 8px);
+  background: transparent;
+  color: var(--color-icon-primary, #050816);
+  font-size: var(--font-size-small, 14px);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.wysiwyg-toolbar__btn:hover {
+  background: var(--color-surface-mid, #f7f7f8);
+  color: var(--color-text-primary, #050816);
+}
+
+.wysiwyg-toolbar__btn--active {
+  background: var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard));
+  color: var(--color-icon-on-accent, #050816);
+}
+
+.wysiwyg-toolbar__btn--active:hover {
+  background: var(--color-surface-brand-accent-hovered, #FFA000BF);
+}
+
+.wysiwyg-toolbar__lang-select {
+  height: 28px;
+  padding: 0 var(--space-default, 8px);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-radius: var(--border-radius-l, 8px);
+  background: var(--color-surface-weak, #fff);
+  color: var(--color-text-primary, #050816);
+  font-size: var(--font-size-small, 14px);
+  cursor: pointer;
+}
+
+.wysiwyg-toolbar__lang-select:hover:not(:disabled) {
+  border-color: var(--color-stroke-mid, #0508162B);
+}
+
+.wysiwyg-toolbar__lang-select:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.wysiwyg-editor__body {
+  min-height: 200px;
+  max-height: 700px;
+  resize: vertical;
+  overflow: auto;
+  padding: var(--space-medium, 12px) var(--space-large, 16px);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-radius: 0 0 var(--border-radius-xl, 12px) var(--border-radius-xl, 12px);
+  background: var(--color-surface-weak, #fff);
+}
+
+.wysiwyg-editor__body:focus-within {
+  border-color: var(--color-stroke-mid, #0508162B);
+  outline: none;
+}
+
+/* ProseMirror editor content */
+.wysiwyg-editor__prose {
+  min-height: 180px;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  line-height: 1.2;
+  color: var(--color-text-primary, #050816);
+  outline: none;
+}
+
+.wysiwyg-editor__prose p {
+  margin: 0 0 4px;
+}
+
+.wysiwyg-editor__prose p:last-child {
+  margin-bottom: 0;
+}
+
+.wysiwyg-editor__prose ul,
+.wysiwyg-editor__prose ol {
+  margin: 0 0 4px;
+  padding-left: var(--space-xl, 24px);
+}
+
+/* Inline code – single-token styling (no lexical highlight, just code look) */
+.wysiwyg-editor__prose code {
+  padding: 0.15em 0.35em;
+  font-family: var(--font-code);
+  font-size: 0.9em;
+  background: var(--color-surface-mid, #f7f7f8);
+  border-radius: var(--border-radius-l, 8px);
+  color: var(--color-syntax-text, var(--color-text-primary));
+}
+
+/* Code block container */
+.wysiwyg-editor__prose pre {
+  margin: var(--space-default, 8px) 0;
+  padding: var(--space-medium, 12px);
+  overflow: auto;
+  background: var(--code-block-bg, var(--color-bg-secondary));
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-l, 8px);
+  font-family: var(--font-code);
+  font-size: var(--font-size-small, 14px);
+  line-height: var(--line-height-code, 1.5);
+}
+
+.wysiwyg-editor__prose pre code {
+  padding: 0;
+  background: none;
+  color: var(--color-syntax-text, var(--color-text-primary));
+  font-weight: inherit;
+}
+
+/* Syntax highlighting in code blocks (lowlight/highlight.js classes) */
+.wysiwyg-editor__prose pre .hljs-keyword,
+.wysiwyg-editor__prose pre .hljs-selector-tag,
+.wysiwyg-editor__prose pre .hljs-addition {
+  color: var(--color-syntax-keyword, #00f);
+}
+
+.wysiwyg-editor__prose pre .hljs-string {
+  color: var(--color-syntax-string, #a31515);
+}
+
+.wysiwyg-editor__prose pre .hljs-meta,
+.wysiwyg-editor__prose pre .hljs-meta .hljs-keyword {
+  color: var(--color-syntax-preprocessor, #6f008a);
+}
+
+.wysiwyg-editor__prose pre .hljs-comment,
+.wysiwyg-editor__prose pre .hljs-quote {
+  color: var(--color-syntax-comment, #008000);
+  font-style: italic;
+}
+
+.wysiwyg-editor__prose pre .hljs-attribute,
+.wysiwyg-editor__prose pre .hljs-variable,
+.wysiwyg-editor__prose pre .hljs-template-variable {
+  color: var(--color-syntax-attribute, #9e9e9e);
+}
+
+.wysiwyg-editor__prose pre .hljs-number,
+.wysiwyg-editor__prose pre .hljs-literal {
+  color: var(--color-syntax-number, #098658);
+}
+
+.wysiwyg-editor__prose pre .hljs-built_in,
+.wysiwyg-editor__prose pre .hljs-class .hljs-title {
+  color: var(--color-syntax-function, #267f99);
+}
+
+.wysiwyg-editor__prose pre .hljs-title,
+.wysiwyg-editor__prose pre .hljs-section {
+  color: var(--color-syntax-function, #267f99);
+}
+
+.wysiwyg-editor__prose pre .hljs-attr,
+.wysiwyg-editor__prose pre .hljs-name,
+.wysiwyg-editor__prose pre .hljs-tag {
+  color: var(--color-syntax-keyword, #00f);
+}
+
+.wysiwyg-editor__prose pre .hljs-operator,
+.wysiwyg-editor__prose pre .hljs-punctuation {
+  color: var(--color-text-secondary, #6b6d78);
+}
+
+.wysiwyg-editor__prose a {
+  color: var(--color-stroke-link-accent, #0077B8);
+  text-decoration: underline;
+}
+
+.wysiwyg-editor__prose a:hover {
+  text-decoration: none;
+}
+
+/* Placeholder when empty */
+.wysiwyg-editor__prose p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--color-text-secondary, #6b6d78);
+  pointer-events: none;
+  height: 0;
+}

@@ -1,0 +1,17 @@
+{% load widget_tweaks %}
+<div class="wysiwyg-v3" data-wysiwyg="v3">
+  <label class="font-semibold pb-4" for="id_content">
+    {{ field.label }}
+    {% if field.errors %}
+      {% for error in field.errors %}
+        <div class="py-1 px-3 text-white bg-red-600">{{ error }}</div>
+      {% endfor %}
+    {% endif %}
+  </label>
+  {% render_field field class="w-full min-h-[200px] bg-white rounded border-gray-300 dark:text-white text-slate dark:border-slate dark:bg-charcoal" placeholder="" %}
+  <div class="wysiwyg-editor__toolbar" aria-hidden="true"></div>
+  <div class="wysiwyg-editor__body" aria-hidden="true"></div>
+  {% if field.help_text %}
+    <small>{{ field.help_text }}</small>
+  {% endif %}
+</div>

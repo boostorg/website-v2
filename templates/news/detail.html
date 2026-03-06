@@ -83,7 +83,11 @@
           {% endif %}
           {% with content_to_display=entry.content|default:entry.visible_content %}
             {% if content_to_display %}
-              {{ content_to_display|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaks }}
+              {% if content_to_display|looks_like_html %}
+                <div class="news-entry-content news-entry-content--html">{{ content_to_display|sanitize_html_allowlist }}</div>
+              {% else %}
+                {{ content_to_display|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaks }}
+              {% endif %}
             {% endif %}
           {% endwith %}
         </div>
