@@ -1061,6 +1061,15 @@ class V3ComponentDemoView(TemplateView):
                 {"value": "spirit", "label": "Spirit"},
             ]
         )
+        context["demo_cats_json"] = json.dumps(
+            [
+                {"value": "algorithms", "label": "Algorithms"},
+                {"value": "containers", "label": "Containers"},
+                {"value": "io", "label": "I/O"},
+                {"value": "math", "label": "Math & Numerics"},
+                {"value": "networking", "label": "Networking"},
+            ]
+        )
         context["create_account_card_preview_url"] = (
             "https://www.figma.com/api/mcp/asset/9cbcbd1f-7315-4ba3-b553-2c46c2323311"
         )
