@@ -12,9 +12,11 @@
   Usage:
     {% include "v3/includes/_create_account_card.html" with heading="Contribute to earn badges, track your progress and grow your impact" body_html=create_account_card_body_html preview_image_url=create_account_card_preview_url cta_url="#" cta_label="Start contributing" %}
 {% endcomment %}
-<section class="create-account-card" aria-label="{{ heading|default:'Create account card' }}">
-  <h3 class="create-account-card__title">{{ heading|default:"Contribute to earn badges, track your progress and grow your impact" }}</h3>
-  <hr class="create-account-card__divider">
+<section class="create-account-card card" aria-label="{{ heading|default:'Create account card' }}">
+  <div class="card__header">
+    <h3 class="card__title">{{ heading|default:"Contribute to earn badges, track your progress and grow your impact" }}</h3>
+  </div>
+  <hr class="card__hr">
 
   <div class="create-account-card__body">
     <div class="create-account-card__richtext">
@@ -36,9 +38,9 @@
     {% endif %}
   </div>
 
-  <hr class="create-account-card__divider">
+  <hr class="card__hr">
 
-  <div class="create-account-card__cta-wrap">
-    <a href="{{ cta_url|default:'#' }}" class="create-account-card__cta">{{ cta_label|default:"Start contributing" }}</a>
+  <div class="btn-row px-large">
+    {% include "v3/includes/_button.html" with url=cta_url|default:'#' label=cta_label|default:"Start contributing" extra_classes="btn-flex" %}
   </div>
 </section>
