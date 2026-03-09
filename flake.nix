@@ -51,6 +51,8 @@
             # e.g. this could contain docker client if we wanted that to be consistent,
             #  though we need the daemon on the host anyway so it's redundant
             # general project
+            pkgs.git
+            pkgs.pre-commit
             awscli
             gdk
             just
