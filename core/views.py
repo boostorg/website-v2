@@ -1266,11 +1266,7 @@ class V3ComponentDemoView(TemplateView):
 
         # Commits per release: dropdown of libraries, Beast first and default
         raw_library = self.request.GET.get("library")
-        library_slug = (
-            (raw_library or "beast").strip().lower()
-            if raw_library is not None
-            else "beast"
-        )
+        library_slug = (raw_library or "beast").strip().lower()
         # Build dropdown choices: Beast first, then others alphabetically by name
         beast = Library.objects.filter(slug="beast").first()
         rest = Library.objects.exclude(slug="beast").order_by("name")[:99]
