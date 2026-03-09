@@ -30,7 +30,7 @@
   box-sizing: border-box;
   width: 100%;
   padding: var(--space-xl, 32px);
-  background: var(--color-surface-mid);
+  background: var(--color-surface-weak);
   border: 1px solid var(--color-border);
   border-radius: 8px;
 }
@@ -173,6 +173,25 @@ html.dark .v3-examples-section__example-box {
   color: var(--color-text-reversed);
 }
 
+/* Post card carousel: hide scrollbar, layout wrapper */
+.post-cards-carousel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default, 8px);
+  min-width: 0;
+}
+
+.post-cards-carousel .carousel-buttons {
+  flex-shrink: 0;
+}
+
+.post-cards--carousel .post-cards__list {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.post-cards--carousel .post-cards__list::-webkit-scrollbar {
+  display: none;
 .v3-examples-section .category-cards .category-cards__gallery-block {
   margin-bottom: var(--space-large);
 }

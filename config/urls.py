@@ -29,6 +29,7 @@ from core.views import (
     ImageView,
     MarkdownTemplateView,
     TermsOfUseView,
+    PrivacyPolicyView,
     V3ComponentDemoView,
     ModernizedDocsView,
     RedirectToDocsView,
@@ -348,7 +349,7 @@ urlpatterns = (
         ),
         path(
             "privacy/",
-            MarkdownTemplateView.as_view(),
+            PrivacyPolicyView.as_view(),
             name="privacy",
             kwargs={"markdown_local": "privacy-policy"},
         ),

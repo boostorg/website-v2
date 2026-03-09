@@ -28,6 +28,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
+from waffle import flag_is_active
 
 from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
@@ -255,6 +256,21 @@ class TermsOfUseView(MarkdownTemplateView):
             context = {"last_updated": "2024-02-22"}
             return render(request, "v3/terms_of_use.html", context)
         return super().get(request, *args, **kwargs)
+
+
+class PrivacyPolicyView(MarkdownTemplateView):
+    """Renders the v3 Privacy Policy page when the v3 flag is active, else markdown template."""
+
+    def get(self, request, *args, **kwargs):
+        if flag_is_active(request, "v3"):
+            context = self.get_context_data(last_updated="2024-02-17")
+            return self.render_to_response(context)
+        return super().get(request, *args, **kwargs)
+
+    def get_template_names(self):
+        if flag_is_active(self.request, "v3"):
+            return ["v3/privacy_policy.html"]
+        return super().get_template_names()
 
 
 class ContentNotFoundException(Exception):
@@ -1060,6 +1076,9 @@ class V3ComponentDemoView(TemplateView):
     template_name = "base.html"
 
     def get_context_data(self, **kwargs):
+        from libraries.models import LibraryVersion
+        from libraries.utils import build_library_intro_context
+
         CODE_DEMO_BEAST = """int main()
         {
             net::io_context ioc;
@@ -1123,8 +1142,129 @@ class V3ComponentDemoView(TemplateView):
                 {"value": "networking", "label": "Networking"},
             ]
         )
-        from libraries.models import LibraryVersion
-        from libraries.utils import build_library_intro_context
+        context["basic_card_data"] = {
+            "title": "Found a Bug?",
+            "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole comm",
+            "primary_button_url": "www.example.com",
+            "primary_button_label": "Primary Button",
+            "secondary_button_url": "www.example.com",
+            "secondary_button_label": "Secondary Button",
+        }
+
+        context["demo_cards_carousel_cards"] = [
+            {
+                "title": "Get help",
+                "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
+                "icon_name": "info-box",
+                "cta_label": "Start here",
+                "cta_href": reverse("community"),
+            },
+            {
+                "title": "Documentation",
+                "description": "Browse library docs, examples, and release notes in one place.",
+                "icon_name": "link",
+                "cta_label": "View docs",
+                "cta_href": reverse("docs"),
+            },
+            {
+                "title": "Community",
+                "description": "Mailing lists, GitHub, and community guidelines for contributors.",
+                "icon_name": "human",
+                "cta_label": "Join",
+                "cta_href": reverse("community"),
+            },
+            {
+                "title": "Releases",
+                "description": "Latest releases, download links, and release notes.",
+                "icon_name": "info-box",
+                "cta_label": "Download",
+                "cta_href": reverse("releases-most-recent"),
+            },
+            {
+                "title": "Libraries",
+                "description": "Explore the full catalog of Boost C++ libraries with docs and metadata.",
+                "icon_name": "link",
+                "cta_label": "Browse libraries",
+                "cta_href": reverse("libraries"),
+            },
+            {
+                "title": "News",
+                "description": "Blog posts, announcements, and community news from the Boost project.",
+                "icon_name": "device-tv",
+                "cta_label": "Read news",
+                "cta_href": reverse("news"),
+            },
+            {
+                "title": "Getting started",
+                "description": "Step-by-step guides to build and use Boost in your projects.",
+                "icon_name": "bullseye-arrow",
+                "cta_label": "Get started",
+                "cta_href": reverse("getting-started"),
+            },
+            {
+                "title": "Resources",
+                "description": "Learning resources, books, and other materials for Boost users.",
+                "icon_name": "get-help",
+                "cta_label": "View resources",
+                "cta_href": reverse("resources"),
+            },
+            {
+                "title": "Calendar",
+                "description": "Community events, meetings, and review schedule.",
+                "icon_name": "info-box",
+                "cta_label": "View calendar",
+                "cta_href": reverse("calendar"),
+            },
+            {
+                "title": "Donate",
+                "description": "Support the Boost Software Foundation and open-source C++.",
+                "icon_name": "human",
+                "cta_label": "Donate",
+                "cta_href": reverse("donate"),
+            },
+        ]
+
+        context["testimonial_data"] = {
+            "heading": "What Engineers are saying",
+            "testimonials": [
+                {
+                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                    "author": {
+                        "name": "Name Surname",
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                        "role": "Contributor",
+                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                    },
+                },
+                {
+                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                    "author": {
+                        "name": "Name Surname",
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                        "role": "Contributor",
+                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                    },
+                },
+                {
+                    "quote": "I use Boost d1aily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                    "author": {
+                        "name": "Name Surname",
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                        "role": "Contributor",
+                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                    },
+                },
+                {
+                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                    "author": {
+                        "name": "Name Surname",
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                        "role": "Contributor",
+                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                    },
+                },
+            ],
+        }
 
         latest = Version.objects.most_recent()
         if latest:
