@@ -1,0 +1,35 @@
+{% comment %}
+  V3 Stats by benchmark – card with heading and one or more sets of horizontal bar rows.
+  Bar width is precomputed: each row must have width_pct (percentage 0–100).
+
+  Variables:
+    heading        (required) — section heading
+    theme          (optional) — "default" | "yellow" | "green" | "teal", default "default"
+    sets           (required) — list of dicts: title, rows. Each row: label, value, width_pct (precomputed in view).
+    sized_by_parent (optional) — if true, wrap in fill wrapper so size is determined by parent (keeps aspect ratio)
+
+  Usage:
+    {% include "v3/includes/_stats_benchmarks.html" with heading="Benchmark (custom)" sets=stats_benchmark_sets theme="teal" %}
+{% endcomment %}
+{% if sized_by_parent %}<div class="stats-wrap stats-wrap--fill-benchmarks">{% endif %}
+<section class="stats stats--benchmarks {% if sized_by_parent %}stats--fill {% endif %}stats--{{ theme|default:'default' }}" aria-labelledby="stats-benchmarks-heading-{{ theme|default:'default' }}">
+  <hr class="stats__separator" aria-hidden>
+  <h2 id="stats-benchmarks-heading-{{ theme|default:'default' }}" class="stats__heading">{{ heading }}</h2>
+  <hr class="stats__separator" aria-hidden>
+  {% for set in sets %}
+  <div class="stats__set">
+    <p class="stats__set-title">{{ set.title }}</p>
+    <div class="stats__set-rows">
+      {% for row in set.rows %}
+      <div class="stats__set-row">
+        <p class="stats__set-label">{{ row.label }}</p>
+        <div class="stats__set-bar-wrap">
+          <div class="stats__set-bar" style="width: {{ row.width_pct }}%;" role="presentation"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</section>
+{% if sized_by_parent %}</div>{% endif %}

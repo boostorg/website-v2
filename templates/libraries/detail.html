@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static avatar_tags version_select %}
+{% load i18n static avatar_tags version_select waffle_tags %}
 
 {% block title %}{% if object %}{{ object.display_name }} {% else %} {{ object.name }} {% endif %}({{ selected_version.display_name }}){% endblock %}
 {% block description %}
@@ -103,7 +103,17 @@
           <div class="flex">
             <div class="flex w-full">
               <div class="w-full">
-                <div id="chart1" class="w-full text-center">{# Commits per Release #}</div>
+                {% flag "v3" %}
+                  {% if library_commits_stats_bars %}
+                    {% if documentation_url %}
+                      {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=library_commits_stats_bars theme="default" primary_cta_label="Source Code" primary_cta_url=github_url secondary_cta_label="Documentation" secondary_cta_url=documentation_url %}
+                    {% else %}
+                      {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=library_commits_stats_bars theme="default" primary_cta_label="Source Code" primary_cta_url=github_url %}
+                    {% endif %}
+                  {% else %}
+                    <div id="chart1" class="w-full text-center">{# Commits per Release #}</div>
+                  {% endif %}
+                {% endflag %}
               </div>
             </div>
           </div>

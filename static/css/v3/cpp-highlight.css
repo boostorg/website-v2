@@ -1,0 +1,63 @@
+/* ========== C++ Syntax highlighting (cpp-highlight + highlight.js) ==========
+ * Brand Guidelines Syntax palette: Keyword (Blue), Text, Literal (Green),
+ * Comment (Yellow), Preprocessor (Pink), Attribute (Grey).
+ * Light/Dark variants from themes.css (--color-syntax-*).
+ */
+.code-block code.cpp-highlight,
+.code-block .code-block__inner code.cpp-highlight {
+  color: inherit;
+}
+
+/* Keyword (Blue): light #38DDFF, dark #1345E8 */
+.code-block code.cpp-highlight .cpp-keyword,
+.code-block .code-block__inner code.cpp-highlight .cpp-keyword,
+.code-block .hljs-keyword,
+.code-block .hljs-selector-tag,
+.code-block .hljs-addition {
+  color: var(--color-syntax-blue);
+}
+
+/* Literal / String / Number (Green): light #72FE92, dark #289D30 */
+.code-block code.cpp-highlight .cpp-string,
+.code-block .code-block__inner code.cpp-highlight .cpp-string,
+.code-block code.cpp-highlight .cpp-number,
+.code-block .code-block__inner code.cpp-highlight .cpp-number,
+.code-block .hljs-string,
+.code-block .hljs-number,
+.code-block .hljs-literal {
+  color: var(--color-syntax-green);
+}
+
+/* Preprocessor (Pink): light #F358C0, dark #D31FA7 */
+.code-block code.cpp-highlight .cpp-preprocessor,
+.code-block .code-block__inner code.cpp-highlight .cpp-preprocessor,
+.code-block .hljs-meta,
+.code-block .hljs-meta .hljs-keyword {
+  color: var(--color-syntax-pink);
+}
+
+/* Comment (Yellow): light #FFF173, dark #A3A38C */
+.code-block code.cpp-highlight .cpp-comment,
+.code-block .code-block__inner code.cpp-highlight .cpp-comment,
+.code-block .hljs-comment,
+.code-block .hljs-quote {
+  color: var(--color-syntax-yellow);
+  font-style: italic;
+}
+
+/* Attribute (Grey): light #A3A3A3, dark #9E9E9E */
+.code-block code.cpp-highlight .cpp-attribute,
+.code-block .code-block__inner code.cpp-highlight .cpp-attribute,
+.code-block .hljs-attribute,
+.code-block .hljs-variable,
+.code-block .hljs-template-variable {
+  color: var(--color-syntax-comments);
+}
+
+/* Function / built-in: same as Keyword (Blue) for consistency */
+.code-block code.cpp-highlight .cpp-function,
+.code-block .code-block__inner code.cpp-highlight .cpp-function,
+.code-block .hljs-built_in,
+.code-block .hljs-class .hljs-title {
+  color: var(--color-syntax-blue);
+}

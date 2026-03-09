@@ -1,0 +1,26 @@
+{% comment %}
+  V3 foundation button: style able button. Optional leading icon.
+  Variables:
+    label (required),
+    url (optional),
+    icon_html (optional; HTML for icon, use with |safe),
+    type (optional)
+    style (optional): Choice between
+        - primary
+        - secondary
+        - primary-outline
+        - secondary-grey
+        - green
+        - yellow
+        - teal
+        - error
+    Defaults to primary
+    extra classes (optional) : Any extra classes that the button should have, as a string
+  Icon must be wrapped in <span class="btn-icon" aria-hidden>...</span>.
+  Usage: {% include "v3/includes/_button.html" with label="Get started" icon_html='<span class="btn-icon" aria-hidden><i class="fas fa-arrow-right"></i></span>' style="secondary" extra_classes="btn-flex" %}
+{% endcomment %}
+{% if url %}
+<a href="{{ url }}" class="btn btn-{{style|default:"primary"}} {{extra_classes}}">{% if icon_html %}{{ icon_html|safe }}{% endif %}{{ label }}</a>
+{% else %}
+<button type="{{ type|default:'button' }}" class="btn btn-{{style|default:"primary"}} {{extra_classes}}">{% if icon_html %}{{ icon_html|safe }}{% endif %}{{ label }}</button>
+{% endif %}

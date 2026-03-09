@@ -1,0 +1,30 @@
+{% comment %}
+  Standalone testimonial card
+  Context:
+    -Testimonials, a list of testimonial objects, each containing text and an author.
+    -Heading, the title that should be displayed at the top of the card
+  Renders only when there is content, only displays fields for which content is provided
+{% endcomment %}
+
+{% with carousel_id='_testimonials_cards_carousel' %}
+<div class="card testimonial-card py-large" id="{{carousel_id}}" data-carousel>
+  <div class="card__header">
+    <span class="card__title">{{ heading }}</span>
+    {% include 'v3/includes/_carousel_buttons.html' with carousel_id=carousel_id %}
+  </div>
+  <hr class="card__hr" />
+  <div class="cards-carousel__track">
+    <section class="testimonial-card__post post-cards post-cards--content post-cards--content-card post-cards--horizontal ">
+      <ul class="post-cards__list" data-carousel-track>
+        {% if testimonials %}
+        {% for testimonial in testimonials %}
+        <li class="post-cards__item" data-carousel-item>
+          {% include 'v3/includes/_testimonial_card_quote.html' with quote=testimonial.quote avatar_url=testimonial.author.avatar_url name=testimonial.author.name role=testimonial.author.role role_badge=testimonial.author.role_badge only %}
+        </li>
+        {% endfor %}
+        {% endif %}
+      </ul>
+    </section>
+  </div>
+</div>
+{% endwith %}

@@ -42,6 +42,7 @@ from libraries.utils import (
 )
 from versions.models import Version, docs_path_to_boost_name
 
+from .mixins import V3Mixin
 from .asciidoc import convert_adoc_to_html
 from .boostrenderer import (
     convert_img_paths,
@@ -238,6 +239,24 @@ class MarkdownTemplateView(TemplateView):
             status_code=200,
         )
         return self.render_to_response(context)
+
+
+class TermsOfUseView(V3Mixin, MarkdownTemplateView):
+    """Renders the v3 Terms of Use page when the v3 flag is active, else markdown template."""
+
+    v3_template_name = "v3/terms_of_use.html"
+
+    def get_v3_context_data(self, **kwargs):
+        return {"last_updated": "2024-02-22"}
+
+
+class PrivacyPolicyView(V3Mixin, MarkdownTemplateView):
+    """Renders the v3 Privacy Policy page when the v3 flag is active, else markdown template."""
+
+    v3_template_name = "v3/privacy_policy.html"
+
+    def get_v3_context_data(self, **kwargs):
+        return {"last_updated": "2024-02-17"}
 
 
 class ContentNotFoundException(Exception):
@@ -1043,7 +1062,51 @@ class V3ComponentDemoView(TemplateView):
     template_name = "base.html"
 
     def get_context_data(self, **kwargs):
+        from django.urls import reverse
+        from libraries.models import Library, LibraryVersion
+        from libraries.utils import (
+            build_library_intro_context,
+            get_commit_data_by_release_for_library,
+            commit_data_to_stats_bars,
+        )
+
+        CODE_DEMO_BEAST = """int main()
+        {
+            net::io_context ioc;
+            tcp::resolver resolver(ioc);
+            beast::tcp_stream stream(ioc);
+
+            stream.connect(resolver.resolve("example.com", "80"));
+
+            http::request<http::empty_body> req{http::verb::get, "/", 11};
+            req.set(http::field::host, "example.com");
+
+            http::write(stream, req);
+
+            beast::flat_buffer buffer;
+            http::response<http::string_body> res;
+            http::read(stream, buffer, res);
+
+            std::cout << res << std::endl;
+        }"""
+
+        CODE_DEMO_HELLO = """#include <iostream>
+        int main()
+        {
+            std::cout << "Hello, Boost.";
+        }"""
+
+        CODE_DEMO_INSTALL = """brew install openssl
+
+        export OPENSSL_ROOT=$(brew --prefix openssl)
+
+        # Install bjam tool user config: https://www.bfgroup.xyz/b2/manual/release/index.html
+        cp ./libs/beast/tools/user-config.jam $HOME"""
+
         context = super().get_context_data(**kwargs)
+        context["code_demo_beast"] = CODE_DEMO_BEAST
+        context["code_demo_hello"] = CODE_DEMO_HELLO
+        context["code_demo_install"] = CODE_DEMO_INSTALL
         context["popular_terms"] = [
             {"label": "Networking"},
             {"label": "Math"},
@@ -1073,4 +1136,169 @@ class V3ComponentDemoView(TemplateView):
         context["create_account_card_preview_url"] = (
             "https://www.figma.com/api/mcp/asset/9cbcbd1f-7315-4ba3-b553-2c46c2323311"
         )
+        context["basic_card_data"] = {
+            "title": "Found a Bug?",
+            "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole comm",
+            "primary_button_url": "www.example.com",
+            "primary_button_label": "Primary Button",
+            "secondary_button_url": "www.example.com",
+            "secondary_button_label": "Secondary Button",
+        }
+
+        context["demo_cards_carousel_cards"] = [
+            {
+                "title": "Get help",
+                "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
+                "icon_name": "info-box",
+                "cta_label": "Start here",
+                "cta_href": reverse("community"),
+            },
+            {
+                "title": "Documentation",
+                "description": "Browse library docs, examples, and release notes in one place.",
+                "icon_name": "link",
+                "cta_label": "View docs",
+                "cta_href": reverse("docs"),
+            },
+            {
+                "title": "Community",
+                "description": "Mailing lists, GitHub, and community guidelines for contributors.",
+                "icon_name": "human",
+                "cta_label": "Join",
+                "cta_href": reverse("community"),
+            },
+            {
+                "title": "Releases",
+                "description": "Latest releases, download links, and release notes.",
+                "icon_name": "info-box",
+                "cta_label": "Download",
+                "cta_href": reverse("releases-most-recent"),
+            },
+            {
+                "title": "Libraries",
+                "description": "Explore the full catalog of Boost C++ libraries with docs and metadata.",
+                "icon_name": "link",
+                "cta_label": "Browse libraries",
+                "cta_href": reverse("libraries"),
+            },
+            {
+                "title": "News",
+                "description": "Blog posts, announcements, and community news from the Boost project.",
+                "icon_name": "device-tv",
+                "cta_label": "Read news",
+                "cta_href": reverse("news"),
+            },
+            {
+                "title": "Getting started",
+                "description": "Step-by-step guides to build and use Boost in your projects.",
+                "icon_name": "bullseye-arrow",
+                "cta_label": "Get started",
+                "cta_href": reverse("getting-started"),
+            },
+            {
+                "title": "Resources",
+                "description": "Learning resources, books, and other materials for Boost users.",
+                "icon_name": "get-help",
+                "cta_label": "View resources",
+                "cta_href": reverse("resources"),
+            },
+            {
+                "title": "Calendar",
+                "description": "Community events, meetings, and review schedule.",
+                "icon_name": "info-box",
+                "cta_label": "View calendar",
+                "cta_href": reverse("calendar"),
+            },
+            {
+                "title": "Donate",
+                "description": "Support the Boost Software Foundation and open-source C++.",
+                "icon_name": "human",
+                "cta_label": "Donate",
+                "cta_href": reverse("donate"),
+            },
+        ]
+
+        context["testimonial_data"] = {
+            "heading": "What Engineers are saying",
+            "testimonials": [
+                {
+                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                    "author": {
+                        "name": "Name Surname",
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                        "role": "Contributor",
+                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                    },
+                },
+                {
+                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                    "author": {
+                        "name": "Name Surname",
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                        "role": "Contributor",
+                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                    },
+                },
+                {
+                    "quote": "I use Boost d1aily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                    "author": {
+                        "name": "Name Surname",
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                        "role": "Contributor",
+                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                    },
+                },
+                {
+                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                    "author": {
+                        "name": "Name Surname",
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                        "role": "Contributor",
+                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                    },
+                },
+            ],
+        }
+
+        latest = Version.objects.most_recent()
+        if latest:
+            lv = (
+                LibraryVersion.objects.filter(version=latest, library__slug="beast")
+                .select_related("library")
+                .first()
+            )
+            if lv:
+                context["library_intro"] = build_library_intro_context(lv)
+
+        # Commits per release: dropdown of libraries, Beast first and default
+        raw_library = self.request.GET.get("library")
+        library_slug = (raw_library or "beast").strip().lower()
+        # Build dropdown choices: Beast first, then others alphabetically by name
+        beast = Library.objects.filter(slug="beast").first()
+        rest = Library.objects.exclude(slug="beast").order_by("name")[:99]
+        choices = []
+        if beast:
+            choices.append((beast.slug, beast.display_name))
+        for lib in rest:
+            choices.append((lib.slug, lib.display_name))
+        context["example_library_choices"] = choices
+
+        library = Library.objects.filter(slug__iexact=library_slug).first()
+        if library:
+            commit_data = get_commit_data_by_release_for_library(library)
+            context["example_library_commits_bars"] = commit_data_to_stats_bars(
+                commit_data[-10:] if len(commit_data) > 10 else commit_data
+            )
+            context["example_library_name"] = library.display_name
+            context["example_library_slug"] = library.slug
+            context["example_library_detail_url"] = reverse(
+                "library-detail",
+                kwargs={
+                    "version_slug": "latest",
+                    "library_slug": library.slug,
+                },
+            )
+        else:
+            context["example_library_not_found"] = library_slug
+            context["example_library_slug"] = library_slug
         return context

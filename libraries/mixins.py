@@ -1,10 +1,8 @@
 import re
 
 import structlog
-from types import SimpleNamespace
 
 from django.db.models import Count, Exists, OuterRef
-from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
@@ -17,11 +15,11 @@ from libraries.constants import (
 from libraries.models import (
     Commit,
     CommitAuthor,
-    CommitAuthorEmail,
     Library,
     LibraryVersion,
 )
 from libraries.path_matcher.utils import determine_latest_url
+from libraries.utils import patch_commit_authors
 from versions.models import Version
 
 logger = structlog.get_logger()
@@ -232,23 +230,7 @@ class ContributorMixin:
         if exclude_ids:
             qs = qs.exclude(id__in=exclude_ids)
         qs = list(qs)
-        commit_authors = {
-            author_email.email: author_email
-            for author_email in CommitAuthorEmail.objects.annotate(
-                email_lower=Lower("email")
-            )
-            .filter(email_lower__in=[x.email.lower() for x in qs])
-            .select_related("author")
-        }
-        for user in qs:
-            if author_email := commit_authors.get(user.email.lower(), None):
-                user.commitauthor = author_email.author
-            else:
-                user.commitauthor = SimpleNamespace(
-                    github_profile_url="",
-                    avatar_url="",
-                    display_name=f"{user.display_name}",
-                )
+        patch_commit_authors(qs)
         return qs
 
     def get_author_tag(self, library_version):
