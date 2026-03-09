@@ -28,6 +28,7 @@ from core.views import (
     DocLibsTemplateView,
     ImageView,
     MarkdownTemplateView,
+    TermsOfUseView,
     PrivacyPolicyView,
     V3ComponentDemoView,
     ModernizedDocsView,
@@ -354,7 +355,7 @@ urlpatterns = (
         ),
         path(
             "terms-of-use/",
-            MarkdownTemplateView.as_view(),
+            TermsOfUseView.as_view(),
             name="terms-of-use",
             kwargs={"markdown_local": "terms-of-use"},
         ),
