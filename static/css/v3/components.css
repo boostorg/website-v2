@@ -14,10 +14,13 @@
 @import './event-cards.css';
 @import './content.css';
 @import './why-boost-cards.css';
+@import './stats.css';
 @import './category-tags.css';
 @import './code-block.css';
 @import './search-card.css';
+@import './create-account-card.css';
 @import './privacy-policy.css';
 @import './library-intro-card.css';
+@import './terms-of-use.css';
 @import './thread-archive-card.css';
 @import './achivement-card.css';

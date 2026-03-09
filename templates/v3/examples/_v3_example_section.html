@@ -3,14 +3,14 @@
   <h2 id="v3-examples-heading" class="v3-examples-section__heading">V3 Examples for testing</h2>
 
   <div class="v3-examples-section__block">
-    <h3>Buttons</h3>
+    <h3 class="block-title">Buttons</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/examples/_v3_example_buttons_block.html" %}
     </div>
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Tooltip button</h3>
+    <h3 class="block-title">Tooltip button</h3>
     <div class="v3-examples-section__example-box">
       <div class="v3-examples-section__tools">
         {% include "v3/includes/_button_tooltip_v3.html" with label="Top" position="top" button_text="Help" %}
@@ -28,7 +28,7 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Avatar</h3>
+    <h3 class="block-title">Avatar</h3>
     <div class="v3-examples-section__example-box">
       <table class="v3-examples-section__avatar-table">
         <tbody>
@@ -115,7 +115,7 @@
 
 
   <div class="v3-examples-section__block v3-examples-section__block--carousel">
-    <h3>Carousel buttons</h3>
+    <h3 class="block-title">Carousel buttons</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_carousel_buttons.html" %}
     </div>
@@ -127,8 +127,6 @@
       {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo" heading="Libraries categories" cards=demo_cards_carousel_cards %}
     </div>
   </div>
-
-
 
   <div class="v3-examples-section__block">
     <h3>Detail card carousel with autoplay</h3>
@@ -145,7 +143,7 @@
   </div> {% endcomment %}
 
   <div class="v3-examples-section__block">
-    <h3>Post cards list</h3>
+    <h3 class="block-title">Post cards list</h3>
     <div class="v3-examples-section__example-box">
       <section class="post-cards post-cards--default post-cards--neutral post-cards--vertical">
         <h2 class="post-cards__heading">
@@ -185,7 +183,7 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Search Card</h3>
+    <h3 class="block-title">Search Card</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="#" popular_terms=popular_terms %}
     </div>
@@ -202,8 +200,53 @@
   </div>
   {% endif %}
 
+  {% if example_library_choices %}
   <div class="v3-examples-section__block">
-    <h3>Form inputs</h3>
+    <h3>Commits per release (by library)</h3>
+    <div class="v3-examples-section__example-box">
+      <form method="get" action="{% url 'v3-demo-components' %}" class="v3-examples-section__stats-lookup" style="display: flex; gap: var(--space-default, 8px); align-items: center; flex-wrap: wrap; margin-bottom: var(--stats-space, 24px);">
+        <label for="example-library-select" class="v3-examples-section__stats-lookup-label">Library</label>
+        <select id="example-library-select" name="library" onchange="this.form.submit()" style="padding: var(--space-medium, 12px); border: 1px solid var(--color-border); border-radius: var(--border-radius-s, 4px); min-width: 14rem;">
+          {% for slug, name in example_library_choices %}
+            <option value="{{ slug }}" {% if example_library_slug == slug %}selected{% endif %}>{{ name }}</option>
+          {% endfor %}
+        </select>
+      </form>
+      {% if example_library_not_found %}
+        <p class="v3-examples-section__stats-lookup-message" style="color: var(--color-text-secondary);">Library “{{ example_library_not_found }}” not found.</p>
+      {% elif example_library_commits_bars %}
+        <div class="v3-examples-section__stats-grid">
+          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="default" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="yellow" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="green" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="teal" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+        </div>
+        <div class="v3-examples-section__stats-full-width">
+          <p class="v3-examples-section__stats-demo-label">Full width</p>
+          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Takes full width of container; up to 20 bars." bars=example_library_commits_bars theme="green" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+        </div>
+        <div class="v3-examples-section__stats-grid v3-examples-section__stats-grid--sized-demo">
+          <div class="v3-examples-section__stats-grid-cell v3-examples-section__stats-grid-cell--free">
+            <p class="v3-examples-section__stats-demo-label">5 bars only</p>
+            {% with example_bars_5=example_library_commits_bars|slice:":5" %}
+            {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Same data limited to 5 bars." bars=example_bars_5 theme="teal" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+            {% endwith %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="v3-examples-section__block">
+    <h3 class="block-title">Create Account Card</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_create_account_card.html" with heading="Contribute to earn badges, track your progress and grow your impact" body_html=create_account_card_body_html preview_image_url=create_account_card_preview_url cta_url="#" cta_label="Start contributing" %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3 class="block-title">Form inputs</h3>
     <div class="v3-examples-section__example-box">
       <div class="v3-examples-section__forms">
         {% include "v3/includes/_field_text.html" with name="ex_basic" label="Text field" placeholder="Enter text..." %}
@@ -245,7 +288,7 @@
     {% endwith %}
   </div>
   <div class="v3-examples-section__block">
-    <h3>Why Boost</h3>
+    <h3 class="block-title">Why Boost</h3>
     <div class="v3-examples-section__example-box">
       {% comment %}Use 8 cards to test ACs: "Why Boost Cards render correctly with 1–8 cards" and "Cards wrap correctly after four items on desktop/tablet" (4+4 rows).{% endcomment %}
       <section class="why-boost-cards" aria-labelledby="why-boost-heading">
@@ -268,21 +311,21 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Category tags</h3>
+    <h3 class="block-title">Category tags</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_category_cards.html" with show_version_tags=True %}
     </div>
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Event cards</h3>
+    <h3 class="block-title">Event cards</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_event_cards.html" %}
     </div>
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Achievement cards</h3>
+    <h3 class="block-title">Achievement cards</h3>
     <div class="v3-examples-section__example-box">
       <h4 class="mb-large">Empty Card</h4>
       {% include "v3/includes/_achievement_card.html" %}
@@ -292,7 +335,7 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Content event list – clickable cards (link wraps each card)</h3>
+    <h3 class="block-title">Content event list – clickable cards (link wraps each card)</h3>
     <div class="v3-examples-section__example-box">
       <section class="post-cards post-cards--content post-cards--neutral post-cards--content-list" aria-labelledby="content-event-releases-links-list">
         <h2 id="content-event-releases-links-list" class="post-cards__heading"><a href="#" class="post-cards__heading-link">Releases</a></h2>
@@ -322,7 +365,7 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Content detail card</h3>
+    <h3 class="block-title">Content detail card</h3>
     <div class="v3-examples-section__example-box">
       <section class="content-story-section">
         <h4 class="content-story-section__title">Content detail card</h4>
@@ -342,7 +385,7 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Code blocks</h3>
+    <h3 class="block-title">Code blocks</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_code_blocks_story.html" with code_standalone_1=code_demo_beast code_standalone_2=code_demo_beast code_card_1=code_demo_hello code_card_2=code_demo_beast code_card_3=code_demo_install %}
     </div>
