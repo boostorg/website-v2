@@ -42,6 +42,7 @@ from libraries.utils import (
 )
 from versions.models import Version, docs_path_to_boost_name
 
+from .mixins import V3Mixin
 from .asciidoc import convert_adoc_to_html
 from .boostrenderer import (
     convert_img_paths,
@@ -238,6 +239,24 @@ class MarkdownTemplateView(TemplateView):
             status_code=200,
         )
         return self.render_to_response(context)
+
+
+class TermsOfUseView(V3Mixin, MarkdownTemplateView):
+    """Renders the v3 Terms of Use page when the v3 flag is active, else markdown template."""
+
+    v3_template_name = "v3/terms_of_use.html"
+
+    def get_v3_context_data(self, **kwargs):
+        return {"last_updated": "2024-02-22"}
+
+
+class PrivacyPolicyView(V3Mixin, MarkdownTemplateView):
+    """Renders the v3 Privacy Policy page when the v3 flag is active, else markdown template."""
+
+    v3_template_name = "v3/privacy_policy.html"
+
+    def get_v3_context_data(self, **kwargs):
+        return {"last_updated": "2024-02-17"}
 
 
 class ContentNotFoundException(Exception):
@@ -1043,8 +1062,13 @@ class V3ComponentDemoView(TemplateView):
     template_name = "base.html"
 
     def get_context_data(self, **kwargs):
-        from libraries.models import LibraryVersion
-        from libraries.utils import build_library_intro_context
+        from django.urls import reverse
+        from libraries.models import Library, LibraryVersion
+        from libraries.utils import (
+            build_library_intro_context,
+            get_commit_data_by_release_for_library,
+            commit_data_to_stats_bars,
+        )
 
         CODE_DEMO_BEAST = """int main()
         {
@@ -1213,7 +1237,7 @@ class V3ComponentDemoView(TemplateView):
                     },
                 },
                 {
-                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                    "quote": "I use Boost d1aily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
                     "author": {
                         "name": "Name Surname",
                         "avatar_url": "/static/img/v3/demo_page/Avatar.png",
@@ -1242,4 +1266,36 @@ class V3ComponentDemoView(TemplateView):
             )
             if lv:
                 context["library_intro"] = build_library_intro_context(lv)
+
+        # Commits per release: dropdown of libraries, Beast first and default
+        raw_library = self.request.GET.get("library")
+        library_slug = (raw_library or "beast").strip().lower()
+        # Build dropdown choices: Beast first, then others alphabetically by name
+        beast = Library.objects.filter(slug="beast").first()
+        rest = Library.objects.exclude(slug="beast").order_by("name")[:99]
+        choices = []
+        if beast:
+            choices.append((beast.slug, beast.display_name))
+        for lib in rest:
+            choices.append((lib.slug, lib.display_name))
+        context["example_library_choices"] = choices
+
+        library = Library.objects.filter(slug__iexact=library_slug).first()
+        if library:
+            commit_data = get_commit_data_by_release_for_library(library)
+            context["example_library_commits_bars"] = commit_data_to_stats_bars(
+                commit_data[-10:] if len(commit_data) > 10 else commit_data
+            )
+            context["example_library_name"] = library.display_name
+            context["example_library_slug"] = library.slug
+            context["example_library_detail_url"] = reverse(
+                "library-detail",
+                kwargs={
+                    "version_slug": "latest",
+                    "library_slug": library.slug,
+                },
+            )
+        else:
+            context["example_library_not_found"] = library_slug
+            context["example_library_slug"] = library_slug
         return context

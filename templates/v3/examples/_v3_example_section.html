@@ -128,8 +128,6 @@
     </div>
   </div>
 
-
-
   <div class="v3-examples-section__block">
     <h3>Detail card carousel with autoplay</h3>
     <div class="v3-examples-section__example-box">
@@ -198,6 +196,44 @@
       {% with intro=library_intro %}
       {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
       {% endwith %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if example_library_choices %}
+  <div class="v3-examples-section__block">
+    <h3>Commits per release (by library)</h3>
+    <div class="v3-examples-section__example-box">
+      <form method="get" action="{% url 'v3-demo-components' %}" class="v3-examples-section__stats-lookup" style="display: flex; gap: var(--space-default, 8px); align-items: center; flex-wrap: wrap; margin-bottom: var(--stats-space, 24px);">
+        <label for="example-library-select" class="v3-examples-section__stats-lookup-label">Library</label>
+        <select id="example-library-select" name="library" onchange="this.form.submit()" style="padding: var(--space-medium, 12px); border: 1px solid var(--color-border); border-radius: var(--border-radius-s, 4px); min-width: 14rem;">
+          {% for slug, name in example_library_choices %}
+            <option value="{{ slug }}" {% if example_library_slug == slug %}selected{% endif %}>{{ name }}</option>
+          {% endfor %}
+        </select>
+      </form>
+      {% if example_library_not_found %}
+        <p class="v3-examples-section__stats-lookup-message" style="color: var(--color-text-secondary);">Library “{{ example_library_not_found }}” not found.</p>
+      {% elif example_library_commits_bars %}
+        <div class="v3-examples-section__stats-grid">
+          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="default" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="yellow" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="green" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="teal" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+        </div>
+        <div class="v3-examples-section__stats-full-width">
+          <p class="v3-examples-section__stats-demo-label">Full width</p>
+          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Takes full width of container; up to 20 bars." bars=example_library_commits_bars theme="green" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+        </div>
+        <div class="v3-examples-section__stats-grid v3-examples-section__stats-grid--sized-demo">
+          <div class="v3-examples-section__stats-grid-cell v3-examples-section__stats-grid-cell--free">
+            <p class="v3-examples-section__stats-demo-label">5 bars only</p>
+            {% with example_bars_5=example_library_commits_bars|slice:":5" %}
+            {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Same data limited to 5 bars." bars=example_bars_5 theme="teal" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+            {% endwith %}
+          </div>
+        </div>
+      {% endif %}
     </div>
   </div>
   {% endif %}
