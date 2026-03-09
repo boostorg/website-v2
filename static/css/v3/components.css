@@ -9,6 +9,7 @@
 @import './header.css';
 @import './footer.css';
 @import './forms.css';
+@import './testimonial-card.css';
 @import './card.css';
 @import './event-cards.css';
 @import './content.css';
@@ -17,4 +18,6 @@
 @import './category-tags.css';
 @import './code-block.css';
 @import './search-card.css';
+@import './privacy-policy.css';
 @import './library-intro-card.css';
+@import './thread-archive-card.css';
