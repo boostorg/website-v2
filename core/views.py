@@ -21,14 +21,13 @@ from django.http import (
     HttpResponseRedirect,
     HttpRequest,
 )
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
-from waffle import flag_is_active
 
 from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
@@ -43,6 +42,7 @@ from libraries.utils import (
 )
 from versions.models import Version, docs_path_to_boost_name
 
+from .mixins import V3Mixin
 from .asciidoc import convert_adoc_to_html
 from .boostrenderer import (
     convert_img_paths,
@@ -241,36 +241,22 @@ class MarkdownTemplateView(TemplateView):
         return self.render_to_response(context)
 
 
-class TermsOfUseView(MarkdownTemplateView):
+class TermsOfUseView(V3Mixin, MarkdownTemplateView):
     """Renders the v3 Terms of Use page when the v3 flag is active, else markdown template."""
 
-    def get(self, request, *args, **kwargs):
-        try:
-            from waffle import flag_is_active
-        except ImportError:
+    v3_template_name = "v3/terms_of_use.html"
 
-            def flag_is_active(req, name):
-                return False
-
-        if flag_is_active(request, "v3"):
-            context = {"last_updated": "2024-02-22"}
-            return render(request, "v3/terms_of_use.html", context)
-        return super().get(request, *args, **kwargs)
+    def get_v3_context_data(self, **kwargs):
+        return {"last_updated": "2024-02-22"}
 
 
-class PrivacyPolicyView(MarkdownTemplateView):
+class PrivacyPolicyView(V3Mixin, MarkdownTemplateView):
     """Renders the v3 Privacy Policy page when the v3 flag is active, else markdown template."""
 
-    def get(self, request, *args, **kwargs):
-        if flag_is_active(request, "v3"):
-            context = self.get_context_data(last_updated="2024-02-17")
-            return self.render_to_response(context)
-        return super().get(request, *args, **kwargs)
+    v3_template_name = "v3/privacy_policy.html"
 
-    def get_template_names(self):
-        if flag_is_active(self.request, "v3"):
-            return ["v3/privacy_policy.html"]
-        return super().get_template_names()
+    def get_v3_context_data(self, **kwargs):
+        return {"last_updated": "2024-02-17"}
 
 
 class ContentNotFoundException(Exception):
