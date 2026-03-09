@@ -3,14 +3,14 @@
   <h2 id="v3-examples-heading" class="v3-examples-section__heading">V3 Examples for testing</h2>
 
   <div class="v3-examples-section__block">
-    <h3>Buttons</h3>
+    <h3 class="block-title">Buttons</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/examples/_v3_example_buttons_block.html" %}
     </div>
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Tooltip button</h3>
+    <h3 class="block-title">Tooltip button</h3>
     <div class="v3-examples-section__example-box">
       <div class="v3-examples-section__tools">
         {% include "v3/includes/_button_tooltip_v3.html" with label="Top" position="top" button_text="Help" %}
@@ -28,7 +28,7 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Avatar</h3>
+    <h3 class="block-title">Avatar</h3>
     <div class="v3-examples-section__example-box">
       <table class="v3-examples-section__avatar-table">
         <tbody>
@@ -115,7 +115,7 @@
 
 
   <div class="v3-examples-section__block v3-examples-section__block--carousel">
-    <h3>Carousel buttons</h3>
+    <h3 class="block-title">Carousel buttons</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_carousel_buttons.html" %}
     </div>
@@ -143,7 +143,7 @@
   </div> {% endcomment %}
 
   <div class="v3-examples-section__block">
-    <h3>Post cards list</h3>
+    <h3 class="block-title">Post cards list</h3>
     <div class="v3-examples-section__example-box">
       <section class="post-cards post-cards--default post-cards--neutral post-cards--vertical">
         <h2 class="post-cards__heading">
@@ -183,7 +183,7 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Search Card</h3>
+    <h3 class="block-title">Search Card</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="#" popular_terms=popular_terms %}
     </div>
@@ -239,7 +239,14 @@
   {% endif %}
 
   <div class="v3-examples-section__block">
-    <h3>Form inputs</h3>
+    <h3 class="block-title">Create Account Card</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_create_account_card.html" with heading="Contribute to earn badges, track your progress and grow your impact" body_html=create_account_card_body_html preview_image_url=create_account_card_preview_url cta_url="#" cta_label="Start contributing" %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3 class="block-title">Form inputs</h3>
     <div class="v3-examples-section__example-box">
       <div class="v3-examples-section__forms">
         {% include "v3/includes/_field_text.html" with name="ex_basic" label="Text field" placeholder="Enter text..." %}
@@ -281,7 +288,7 @@
     {% endwith %}
   </div>
   <div class="v3-examples-section__block">
-    <h3>Why Boost</h3>
+    <h3 class="block-title">Why Boost</h3>
     <div class="v3-examples-section__example-box">
       {% comment %}Use 8 cards to test ACs: "Why Boost Cards render correctly with 1–8 cards" and "Cards wrap correctly after four items on desktop/tablet" (4+4 rows).{% endcomment %}
       <section class="why-boost-cards" aria-labelledby="why-boost-heading">
@@ -304,21 +311,21 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Category tags</h3>
+    <h3 class="block-title">Category tags</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_category_cards.html" with show_version_tags=True %}
     </div>
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Event cards</h3>
+    <h3 class="block-title">Event cards</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_event_cards.html" %}
     </div>
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Content event list – clickable cards (link wraps each card)</h3>
+    <h3 class="block-title">Content event list – clickable cards (link wraps each card)</h3>
     <div class="v3-examples-section__example-box">
       <section class="post-cards post-cards--content post-cards--neutral post-cards--content-list" aria-labelledby="content-event-releases-links-list">
         <h2 id="content-event-releases-links-list" class="post-cards__heading"><a href="#" class="post-cards__heading-link">Releases</a></h2>
@@ -348,7 +355,7 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Content detail card</h3>
+    <h3 class="block-title">Content detail card</h3>
     <div class="v3-examples-section__example-box">
       <section class="content-story-section">
         <h4 class="content-story-section__title">Content detail card</h4>
@@ -368,7 +375,7 @@
   </div>
 
   <div class="v3-examples-section__block">
-    <h3>Code blocks</h3>
+    <h3 class="block-title">Code blocks</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_code_blocks_story.html" with code_standalone_1=code_demo_beast code_standalone_2=code_demo_beast code_card_1=code_demo_hello code_card_2=code_demo_beast code_card_3=code_demo_install %}
     </div>
