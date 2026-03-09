@@ -1134,7 +1134,7 @@ class V3ComponentDemoView(TemplateView):
             ]
         )
         context["create_account_card_preview_url"] = (
-            "https://www.figma.com/api/mcp/asset/9cbcbd1f-7315-4ba3-b553-2c46c2323311"
+            f"{settings.STATIC_URL}img/checker.png"
         )
         context["basic_card_data"] = {
             "title": "Found a Bug?",

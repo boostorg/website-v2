@@ -34,7 +34,7 @@
     </div>
 
     {% if preview_image_url %}
-    <img class="create-account-card__preview" src="{{ preview_image_url }}" alt="{{ preview_image_alt|default:'' }}" loading="lazy" decoding="async">
+    <img class="create-account-card__preview" src="{{ preview_image_url }}" alt="{{ preview_image_alt|default:heading|default:'Card preview' }}" loading="lazy" decoding="async">
     {% endif %}
   </div>
 
