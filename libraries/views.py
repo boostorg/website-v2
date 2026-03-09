@@ -2,7 +2,7 @@ import datetime
 import structlog
 
 from django.contrib import messages
-from django.db.models import F, Count, Prefetch
+from django.db.models import Prefetch
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -35,6 +35,8 @@ from .utils import (
     get_documentation_url_redirect,
     get_prioritized_version,
     get_version_from_cookie,
+    get_commit_data_by_release_for_library,
+    commit_data_to_stats_bars,
 )
 from .constants import LATEST_RELEASE_URL_PATH_STR
 
@@ -247,8 +249,11 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, ContributorMixin, Deta
             else self.object.github_url
         )
 
-        # Populate the commit graphs
-        context["commit_data_by_release"] = self.get_commit_data_by_release()
+        commit_data = get_commit_data_by_release_for_library(self.object)
+        context["commit_data_by_release"] = commit_data
+        context["library_commits_stats_bars"] = commit_data_to_stats_bars(
+            commit_data[-10:] if len(commit_data) > 10 else commit_data
+        )
         try:
             context["dependency_diff"] = self.get_dependency_diff(library_version)
         except BoostImportedDataException:
@@ -269,23 +274,6 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, ContributorMixin, Deta
             library=library_version.library
         )
         return diffs.get(library_version.library.name, {})
-
-    def get_commit_data_by_release(self):
-        qs = (
-            LibraryVersion.objects.filter(
-                library=self.object,
-                version__in=Version.objects.minor_versions(),
-            )
-            .annotate(count=Count("commit"), version_name=F("version__name"))
-            .order_by("-version__name")
-        )[:20]
-        return [
-            {
-                "release": x.version_name.strip("boost-"),
-                "commit_count": x.count,
-            }
-            for x in reversed(list(qs))
-        ]
 
     def _prepare_commit_data(self, commit_data, data_type):
         commit_data_list = []

@@ -173,25 +173,26 @@ html.dark .v3-examples-section__example-box {
   color: var(--color-text-reversed);
 }
 
-/* Post card carousel: hide scrollbar, layout wrapper */
-.post-cards-carousel {
+.v3-examples-section .cards-carousel {
   display: flex;
   flex-direction: column;
   gap: var(--space-default, 8px);
   min-width: 0;
 }
 
-.post-cards-carousel .carousel-buttons {
+.v3-examples-section .cards-carousel .carousel-buttons {
   flex-shrink: 0;
 }
 
-.post-cards--carousel .post-cards__list {
+.v3-examples-section .post-cards--carousel .post-cards__list {
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
 
-.post-cards--carousel .post-cards__list::-webkit-scrollbar {
+.v3-examples-section .post-cards--carousel .post-cards__list::-webkit-scrollbar {
   display: none;
+}
+
 .v3-examples-section .category-cards .category-cards__gallery-block {
   margin-bottom: var(--space-large);
 }
@@ -223,5 +224,48 @@ html.dark .v3-examples-section__example-box {
 .v3-examples-section .category-cards .category-cards__gallery-state-label {
   width: 56px;
   font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+/* Stats block – 2 per row in examples only */
+.v3-examples-section__stats-grid {
+  display: grid;
+  gap: var(--space-xl, 32px);
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 959px) {
+  .v3-examples-section__stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Full-width stats block (outside grid) */
+.v3-examples-section__stats-full-width {
+  margin-top: var(--space-xl, 32px);
+}
+
+.v3-examples-section__stats-grid--sized-demo {
+  margin-top: var(--space-xl, 32px);
+}
+
+.v3-examples-section__stats-grid-cell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.v3-examples-section__stats-grid-cell--full {
+  width: 100%;
+}
+
+.v3-examples-section__stats-grid-cell--free {
+  align-items: flex-start;
+}
+
+.v3-examples-section__stats-demo-label {
+  margin: 0 0 var(--space-s, 8px) 0;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
 }
