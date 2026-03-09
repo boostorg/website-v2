@@ -282,6 +282,16 @@
   </div>
 
   <div class="v3-examples-section__block">
+    <h3>Achievement cards</h3>
+    <div class="v3-examples-section__example-box">
+      <h4 class="mb-large">Empty Card</h4>
+      {% include "v3/includes/_achievement_card.html" %}
+      <h4 class="py-large">Card with Achievements</h4>
+      {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements primary_button_url="https://www.example.com" %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
     <h3>Content event list – clickable cards (link wraps each card)</h3>
     <div class="v3-examples-section__example-box">
       <section class="post-cards post-cards--content post-cards--neutral post-cards--content-list" aria-labelledby="content-event-releases-links-list">

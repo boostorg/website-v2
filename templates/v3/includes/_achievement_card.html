@@ -1,0 +1,50 @@
+{% comment %}TODO: Description Inputs: TODO: Inputs{% endcomment %}
+
+<div class="wide-card card py-large">
+  <div class="card__header">
+    <span class="card__title">Achievements</span>
+  </div>
+  <hr class="card__hr" />
+  <div class="card__column px-large">
+    {% if not achievements %}
+      <span class="achievement-card__bold-text">Showcase your contributions and milestones as you participate in the community.</span>
+    {% endif %}
+    <div class="achievement-card__container">
+      {% for ach in achievements %}
+        <div class="achievement-card__achievement">
+          <div class="achievement-card__points-badge">
+            <div class="achievement-card__points-badge-content">{{ ach.points }}</div>
+          </div>
+          <div class="achievement-card__description">
+            <div class="achievement-card__ach-text text-primary">{{ ach.title }}</div>
+            <div class="achievement-card__ach-text text-secondary">{{ ach.description }}</div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="achievement-card__achievement achievement-card__achivement-example">
+          <div class="achievement-card__points-badge">
+            <div class="achievement-card__points-badge-content">19</div>
+          </div>
+          <div class="achievement-card__description">
+            <div class="achievement-card__ach-text text-primary">Patch Wizard</div>
+            <div class="achievement-card__ach-text text-secondary">Submitted patch that was reviewed and merged</div>
+          </div>
+        </div>
+        <div class="achievement-card__achievement achievement-card__achivement-example">
+          <div class="achievement-card__points-badge">
+            <div class="achievement-card__points-badge-content">7</div>
+          </div>
+          <div class="achievement-card__description">
+            <div class="achievement-card__ach-text text-primary">Consensus Builder</div>
+            <div class="achievement-card__ach-text text-secondary">Guided technical discussion toward agreement</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% if not achievements %}
+    <div class="px-large btn-row">
+      {% include 'v3/includes/_button.html' with style=primary_style url=primary_button_url label='Learn how achievements work' extra_classes='btn-flex' only %}
+    </div>
+  {% endif %}
+</div>

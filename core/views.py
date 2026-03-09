@@ -1249,6 +1249,17 @@ class V3ComponentDemoView(TemplateView):
             ],
         }
 
+        context["achievements_data"] = {
+            "achievements": [
+                {
+                    "title": "Lorem Ipsum",
+                    "points": 22,
+                    "description": "A longer description giving a summary of the achievement.",
+                }
+                for _ in range(4)
+            ]
+        }
+
         latest = Version.objects.most_recent()
         if latest:
             lv = (
