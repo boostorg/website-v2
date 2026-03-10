@@ -3,7 +3,7 @@
    ========================================================================== */
 
 .header {
-  max-width: 1440px;
+  --header-width: 1440px;
   --header-radius: var(--border-radius-l, 8px);
 
   --header-height: 48px;
@@ -15,7 +15,17 @@
   font-size: var(--Sizes-Small, 14px);
   font-style: normal;
   font-weight: 400;
+
+  width: 100%;
+  max-width: var(--header-width);
+  margin: 0 auto;
   color: var(--color-text-primary, var(--text-color));
+}
+
+@media (min-width: 1440px) {
+  .header {
+    min-width: var(--header-width);
+  }
 }
 
 .header__inner {
@@ -24,7 +34,8 @@
   justify-content: space-between;
   gap: var(--space-s, 4px);
   height: var(--header-height);
-  max-width: 80rem;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -73,8 +84,8 @@
   top: 50%;
   right: var(--space-s, 4px);
   transform: translateY(-50%);
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: var(--color-surface-brand-accent-default, var(--primary-color));
 }
@@ -124,17 +135,18 @@
 }
 
 .header__search-kbd {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 2px;
   height: 24px;
-  padding: var(--space-default, 8px);
+  padding: 8px;
+  color: var(--Text-Primary, #050816);
   font-family: var(--Typefaces-Sans, "Mona Sans VF");
   font-size: var(--Sizes-XS, 12px);
   font-style: normal;
   font-weight: 400;
-  line-height: var(--line-height-default, 1.2);
-  color: var(--color-text-tertiary, var(--color-text-primary));
+  line-height: 120%;
+  letter-spacing: -0.12px;
   border-radius: var(--border-radius-m, 6px);
   background: var(--color-surface-mid, #F7F7F8);
 }
@@ -165,11 +177,13 @@
 }
 
 .header__latest-trigger {
-  display: inline-flex;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: var(--space-s, 4px);
-  min-height: var(--header-height);
-  padding: var(--space-s, 4px) var(--space-default, 8px);
+  width: 93px;
+  height:  var(--header-height);
+  padding: 16px;
   color: var(--color-text-primary, var(--text-color));
   text-decoration: none;
   font-size: var(--Sizes-Small, 14px);
@@ -177,6 +191,12 @@
   border: var(--header-control-border);
   border-radius: var(--header-control-radius);
   background: var(--header-control-bg);
+}
+
+.header__latest-trigger .header__icon--chevron {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .header__latest-trigger:hover {
@@ -365,7 +385,7 @@ html.dark .header__user-trigger .header__user-avatar-inner .fa-user {
 .header__utilities {
   display: flex;
   align-items: center;
-  gap: var(--space-default, 8px);
+  gap: var(--space-s, 4px);
 }
 
 .header__nav--desktop {
