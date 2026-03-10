@@ -1,0 +1,25 @@
+{% comment %}
+  V3 WYSIWYG editor component. Renders toolbar + editor placeholder; JS mounts TipTap when [data-wysiwyg="v3"] is present.
+
+  Required variables:
+    textarea_id   — id for the textarea (e.g. "id_content")
+    textarea_name — name attribute for form submission (e.g. "content")
+
+  Optional variables:
+    label — label text (default: "Content")
+
+  Usage:
+    {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_content" textarea_name="content" %}
+    {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_body" textarea_name="body" label="Body" %}
+{% endcomment %}
+<div class="wysiwyg-v3" data-wysiwyg="v3">
+  <textarea
+    id="{{ textarea_id }}"
+    name="{{ textarea_name }}"
+    class="w-full min-h-[200px]"
+    placeholder=""
+    aria-hidden="true"
+  ></textarea>
+  <div class="wysiwyg-editor__toolbar" aria-hidden="true"></div>
+  <div class="wysiwyg-editor__body" aria-hidden="true"></div>
+</div>
