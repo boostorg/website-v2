@@ -1,10 +1,15 @@
 @import './index.css';
 
-html.v3 body {
+html.v3 body,
+body.v3 {
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
   line-height: var(--line-height-default);
   letter-spacing: var(--letter-spacing-tight);
+}
+
+body.v3 {
+  background: var(--color-surface-page);
 }
 
 html.v3 code {
