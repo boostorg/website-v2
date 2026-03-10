@@ -1218,6 +1218,19 @@ class V3ComponentDemoView(TemplateView):
             },
         ]
 
+        context["learn_card_data"] = {
+            "title": "I want to learn:",
+            "text": "How to install Boost, use its libraries, build projects, and get help when you need it.",
+            "links": [
+                {"label": "Explore common use cases", "url": "https://www.example.com"},
+                {"label": "Build with CMake", "url": "https://www.example.com"},
+                {"label": "Visit the FAQ", "url": "https://www.example.com"},
+            ],
+            "url": "https://www.example.com",
+            "label": "Learn more about Boost",
+            "image_src": "/static/img/v3/examples/Learn Card Image.png",
+        }
+
         context["testimonial_data"] = {
             "heading": "What Engineers are saying",
             "testimonials": [
