@@ -1,0 +1,40 @@
+{% comment %}
+  Account Connections Card
+  Shows linked social/OAuth accounts with connection status and action buttons.
+
+  Variables:
+    heading       (str, optional)  — card heading, default "Account connections"
+    connections   (list of dict)   — connection items, each with:
+      .platform       (str)  — icon key: "github" or "google"
+      .label          (str)  — display name, e.g. "GitHub"
+      .connected      (bool) — whether the account is linked
+      .status_text    (str)  — status label, e.g. "Connected" or "Not connected"
+      .action_label   (str)  — button text, e.g. "Manage" or "Connect"
+      .action_url     (str)  — button destination URL
+
+  Usage:
+    {% include "v3/includes/_account_connections_card.html" with heading="Account connections" connections=account_connections %}
+{% endcomment %}
+
+<div class="account-connections-card card py-large">
+  <div class="card__header">
+    <span class="card__title">{{ heading|default:"Account connections" }}</span>
+  </div>
+  <hr class="card__hr" />
+  <div class="account-connections__items">
+    {% for conn in connections %}
+    <div class="account-connections__item">
+      <div class="account-connections__platform">
+        {% if conn.platform == "github" %}
+        {% include "v3/includes/icons/_github.html" %}
+        {% elif conn.platform == "google" %}
+        {% include "v3/includes/icons/_google.html" %}
+        {% endif %}
+        <span class="account-connections__platform-name">{{ conn.label }}</span>
+      </div>
+      <span class="account-connections__status">{{ conn.status_text }}</span>
+      <a href="{{ conn.action_url }}" class="btn btn-primary">{{ conn.action_label }}</a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
