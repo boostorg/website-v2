@@ -5,7 +5,7 @@
  * Uses design tokens with fallbacks for compatibility.
  */
 
- .field {
+.field {
   display: flex;
   flex-direction: column;
   gap: var(--space-default, 8px);
