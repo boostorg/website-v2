@@ -75,16 +75,12 @@
           <p class="field__error" id="field-title-error" role="alert" x-show="errors.title" x-text="errors.title" x-cloak aria-live="polite"></p>
         </div>
 
-        {% comment %} Write Up (Blog, News): Content required. Link (Video, Link): hide Content. {% endcomment %}
-        <div class="field field--textarea" x-show="isWriteUp" x-cloak :class="{ 'field--error': errors.content }">
+        {% comment %} Write Up (Blog, News): Content required. WYSIWYG editor (Markdown). {% endcomment %}
+        <div class="field" x-show="isWriteUp" x-cloak :class="{ 'field--error': errors.content }">
           <label class="field__label" for="field-content">{% translate "Content" %} *</label>
-          <div class="field__control field__control--textarea">
-            <textarea class="field__input field__input--textarea" id="field-content" name="content" rows="6" placeholder="What would you like to write?"
-                      :aria-invalid="!!errors.content"
-                      :aria-describedby="errors.content ? 'field-content-error' : 'field-content-help'"></textarea>
-          </div>
+          {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" %}
           <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
-          <p class="field__help" id="field-content-help" x-show="!errors.content">This text field supports Markdown.</p>
+          <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
         </div>
 
         {% comment %} Link (Video, Link): Link (required) and Description (optional). {% endcomment %}
@@ -190,14 +186,18 @@
           this.errors.post_type = '';
           const form = this.$el.querySelector('[data-create-post-form]');
           if (!form) return;
+          const contentInput = form.querySelector('textarea[name="content"]');
           if (this.isWriteUp) {
             const linkInput = form.querySelector('input[name="external_url"]');
             const descInput = form.querySelector('textarea[name="content_link"]');
             if (linkInput) linkInput.value = ''; if (linkInput) linkInput.removeAttribute('required');
             if (descInput) descInput.value = '';
           } else {
-            const contentInput = form.querySelector('textarea[name="content"]');
             if (contentInput) contentInput.value = '';
+          }
+          if (contentInput && contentInput.id) {
+            contentInput.value = '';
+            import('/static/js/v3/wysiwyg-editor.js').then(m => { if (m.initWysiwyg) m.initWysiwyg(contentInput.id); });
           }
         },
         prepareSubmit(e) {
