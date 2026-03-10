@@ -300,7 +300,9 @@
    <div class="v3-examples-section__block">
     <h3>Account Connections Card</h3>
     <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_account_connections_card.html" with connections=account_connections %}
+      {% include "v3/includes/_account_connections_card.html" with connections=account_connections_mixed %}
+      {% include "v3/includes/_account_connections_card.html" with connections=account_connections_all_connected %}
+      {% include "v3/includes/_account_connections_card.html" with connections=account_connections_none_connected %}
     </div>
   </div>
 

@@ -21,9 +21,9 @@
     <span class="card__title">{{ heading|default:"Account connections" }}</span>
   </div>
   <hr class="card__hr" />
-  <div class="account-connections__items">
+  <ul class="account-connections__items">
     {% for conn in connections %}
-    <div class="account-connections__item">
+    <li class="account-connections__item">
       <div class="account-connections__platform">
         {% if conn.platform == "github" %}
         {% include "v3/includes/icons/_github.html" %}
@@ -33,8 +33,8 @@
         <span class="account-connections__platform-name">{{ conn.label }}</span>
       </div>
       <span class="account-connections__status">{{ conn.status_text }}</span>
-      <a href="{{ conn.action_url }}" class="btn btn-primary">{{ conn.action_label }}</a>
-    </div>
+      <a href="{{ conn.action_url }}" class="btn btn-primary" aria-label="{{ conn.action_label }} {{ conn.label }}">{{ conn.action_label }}</a>
+    </li>
     {% endfor %}
-  </div>
+  </ul>
 </div>
