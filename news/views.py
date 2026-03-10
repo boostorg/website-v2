@@ -233,9 +233,6 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         context["add_label"] = self.add_label
         context["add_url_name"] = self.add_url_name
         context["cancel_url"] = reverse_lazy("news")
-        context["is_blog_post_form"] = False
-        if "form" in context and context["form"].instance:
-            context["entry"] = context["form"].instance
         return context
 
 
@@ -244,11 +241,6 @@ class BlogPostCreateView(EntryCreateView):
     form_class = BlogPostForm
     add_label = _("Create Blog Post")
     add_url_name = "news-blogpost-create"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["is_blog_post_form"] = True
-        return context
 
 
 class LinkCreateView(EntryCreateView):
@@ -380,11 +372,9 @@ class EntryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["entry"] = self.object
         context["cancel_url"] = reverse_lazy(
             "news-detail", kwargs={"slug": self.object.slug}
         )
-        context["is_blog_post_form"] = self.object.is_blogpost
         return context
 
 

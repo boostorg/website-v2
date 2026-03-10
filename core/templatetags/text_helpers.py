@@ -1,36 +1,10 @@
 from urllib.parse import urlparse, urlunparse
 
-import bleach
 from django import template
 from django.template.defaultfilters import stringfilter
 import re
 
 register = template.Library()
-
-# Allowlist for WYSIWYG entry content (TipTap output): reduces XSS when rendering with safe.
-SANITIZE_HTML_TAGS = [
-    "p",
-    "br",
-    "strong",
-    "em",
-    "u",
-    "b",
-    "i",
-    "ul",
-    "ol",
-    "li",
-    "a",
-    "code",
-    "pre",
-    "span",
-]
-SANITIZE_HTML_ATTRS = {
-    "a": ["href", "target", "rel", "title"],
-    "span": ["class"],
-    "code": ["class"],
-    "pre": ["class"],
-}
-SANITIZE_HTML_PROTOCOLS = ["http", "https", "mailto"]
 
 
 @register.filter(is_safe=True)
@@ -99,32 +73,6 @@ def url_target_blank(value, arg):
     Use after urlize to add target="_blank" and add classes.
     """
     return value.replace("<a ", f'<a target="_blank" class="{arg}" ')
-
-
-@register.filter(is_safe=True)
-def sanitize_html_allowlist(value):
-    """
-    Sanitize HTML with an allowlist of tags and attributes (bleach).
-    Use for WYSIWYG entry content before rendering to reduce XSS risk.
-    """
-    if not value or not isinstance(value, str):
-        return value
-    return bleach.clean(
-        value,
-        tags=SANITIZE_HTML_TAGS,
-        attributes=SANITIZE_HTML_ATTRS,
-        protocols=SANITIZE_HTML_PROTOCOLS,
-        strip=False,
-    )
-
-
-@register.filter
-def looks_like_html(value):
-    """Return True if the string looks like HTML (e.g. from WYSIWYG), for conditional safe rendering."""
-    if not value or not isinstance(value, str):
-        return False
-    stripped = value.strip()
-    return stripped.startswith("<") and ">" in stripped
 
 
 @register.filter
