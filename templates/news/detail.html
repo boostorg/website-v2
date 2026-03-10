@@ -83,7 +83,7 @@
           {% endif %}
           {% with content_to_display=entry.content|default:entry.visible_content %}
             {% if content_to_display %}
-            {{ content_to_display|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaks }}
+              {{ content_to_display|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange'|linebreaks }}
             {% endif %}
           {% endwith %}
         </div>
