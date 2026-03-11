@@ -95,12 +95,20 @@ def BSLView(request):
         raise Http404("File not found.")
 
 
-class CalendarView(TemplateView):
+class CalendarView(V3Mixin, TemplateView):
     template_name = "calendar.html"
+    v3_template_name = "v3/boost_calendar.html"
 
-    def get(self, request, *args, **kwargs):
-        context = {"boost_calendar": settings.BOOST_CALENDAR}
-        return self.render_to_response(context)
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["boost_calendar"] = settings.BOOST_CALENDAR
+        return ctx
+
+    def get_v3_context_data(self, **kwargs):
+        ctx = super().get_v3_context_data(**kwargs)
+        print(self.request.headers)
+        ctx["timezone"] = "America/Chicago"
+        return ctx
 
 
 class BoostDevelopmentView(CalendarView):
