@@ -1,0 +1,46 @@
+/*
+  Tab
+  Reusable tab trigger and tab list styles.
+  Used by _tab.html template component.
+*/
+
+/* ── Tab list ─────────────────────────────────────────────── */
+
+.tab__list {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-medium);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Hide scrollbar while keeping scroll functionality */
+  scrollbar-width: none;
+}
+
+.tab__list::-webkit-scrollbar {
+  display: none;
+}
+
+.tab__trigger {
+  margin: var(--space-xs);
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-default);
+  transition:
+    color 0.1s ease,
+    border-color 0.1s ease;
+}
+
+.tab__trigger:hover {
+  color: var(--color-text-primary);
+}
+
+.tab__trigger--active {
+  border-bottom-color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+}

@@ -1,0 +1,28 @@
+{% comment %}
+  V3 Tab Button
+  Reusable tab button for use inside a role="tablist" container.
+  Requires a parent Alpine.js x-data scope with switchTab(value) method and activeTab property.
+  CSS: tab.css (.tab__trigger)
+
+  Variables:
+    tab_label    — visible button text for the tab trigger
+    tab_value    — Alpine.js tab identifier (e.g. 'package-managers')
+    tab_id       — HTML id attribute (e.g. 'install-tab-pkg')
+    tab_controls — aria-controls target panel id
+    tab_next     — tab value to switch to on right arrow key
+    tab_prev     — tab value to switch to on left arrow key
+
+  Usage:
+    {% include "v3/includes/_tab.html" with tab_label="Package Managers" tab_value="package-managers" tab_id="install-tab-pkg" tab_controls="install-panel" tab_next="system-install" tab_prev="system-install" only %}
+{% endcomment %}
+<button role="tab"
+        class="tab__trigger"
+        :class="{ 'tab__trigger--active': activeTab === '{{ tab_value }}' }"
+        :aria-selected="activeTab === '{{ tab_value }}'"
+        :tabindex="activeTab === '{{ tab_value }}' ? 0 : -1"
+        @click="switchTab('{{ tab_value }}')"
+        @keydown.right.prevent="switchTab('{{ tab_next }}'); $nextTick(() => $refs['tab-{{ tab_next }}'].focus())"
+        @keydown.left.prevent="switchTab('{{ tab_prev }}'); $nextTick(() => $refs['tab-{{ tab_prev }}'].focus())"
+        x-ref="tab-{{ tab_value }}"
+        id="{{ tab_id }}"
+        aria-controls="{{ tab_controls }}">{{ tab_label }}</button>

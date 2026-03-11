@@ -1,0 +1,82 @@
+/*
+  Install Card
+  Tabs + dropdown selector + command display for getting-started install instructions.
+  Builds on .card (card.css), .dropdown (forms.css), .code-block (code-block.css).
+  The tabs are styled in tab.css
+*/
+
+.install-card {
+  max-width: 458px;
+  gap: var(--space-xl);
+}
+
+/* ── Heading ─────────────────────────────────────────────── */
+.install-card__title {
+  margin-bottom: 0;
+}
+
+/* ── Body wrapper ─────────────────────────────────────────── */
+.install-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-medium);
+  width: 100%;
+  padding-bottom: var(--space-large);
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* ── Command display: code block with nested dropdown ─────── */
+.install-card__command {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-xl);
+  border-radius: var(--border-radius-l);
+  padding: var(--space-medium) var(--space-large);
+  /* Allow the dropdown panel to overflow the container */
+  overflow: visible;
+  position: relative;
+}
+
+/* Code text fills remaining space and wraps rather than going under the dropdown */
+.install-card__command .code-block__inner {
+  flex: 1 1 0;
+  min-width: 0;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  margin-top: var(--space-medium);
+  margin-bottom: var(--space-medium);
+}
+
+.install-card__command .code-block__inner code {
+  font-weight: var(--font-weight-regular);
+}
+
+/* ── Dropdown (inside command block) ──────────────────────── */
+.install-card__dropdown {
+  flex-shrink: 0;
+  min-width: 140px;
+}
+
+.install-card__dropdown .dropdown__trigger {
+  background-color: var(--color-surface-strong);
+  border: 1px solid var(--color-surface-strong);
+}
+
+.install-card__dropdown.dropdown--open > .dropdown__trigger {
+  background-color: var(--color-surface-mid);
+  color: var(--color-text-secondary);
+}
+
+.install-card__dropdown .dropdown__item:hover {
+  color: var(--color-text-link-accent);
+  background-color: var(--color-surface-mid);
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .install-card__dropdown {
+    min-width: 120px;
+  }
+}

@@ -1,0 +1,90 @@
+{% comment %}
+  V3 Install Card
+  Interactive card with tabbed installation methods and a dynamic command display.
+  Uses Alpine.js for tab/dropdown state (script is placed in static/js/install-card.js).
+  CSS in static/css/v3/install-card.css.
+
+  Variables:
+    title (optional) — card heading text; defaults to "Install Boost and get started in your terminal."
+    install_card_pkg_managers_json — JSON array of { label, value, command } for Package Managers tab
+    install_card_system_install_json — JSON array of { label, value, command } for System Install tab
+    extra_attrs (optional) — string of extra HTML attributes on the root element (e.g. for analytics)
+
+  Usage:
+    {% include "v3/includes/_install_card.html" %}
+{% endcomment %}
+
+<script type="application/json" id="install-card-pkg-options">{{ install_card_pkg_managers_json|default:"[]"|safe }}</script>
+<script type="application/json" id="install-card-sys-options">{{ install_card_system_install_json|default:"[]"|safe }}</script>
+<section class="install-card card"
+  aria-labelledby="install-card-heading"
+  {% if extra_attrs %}{{ extra_attrs }}{% endif %}
+
+  {# djlint:off #}
+  x-data="{
+    activeTab: 'package-managers',
+    dropdownOpen: false,
+    selected: {
+      'package-managers': '',
+      'system-install': ''
+    },
+    config: {
+      'package-managers': { options: [] },
+      'system-install': { options: [] }
+    },
+
+    get currentOptions() {
+      return this.config[this.activeTab].options;
+    },
+
+    get currentCommand() {
+      const opt = this.currentOptions.find(o => o.value === this.selected[this.activeTab]);
+      return opt ? opt.command : '';
+    },
+
+    get currentLabel() {
+      const opt = this.currentOptions.find(o => o.value === this.selected[this.activeTab]);
+      return opt ? opt.label : '';
+    },
+
+    init() {
+      const pkgEl = document.getElementById('install-card-pkg-options');
+      const sysEl = document.getElementById('install-card-sys-options');
+      if (pkgEl) {
+        const opts = JSON.parse(pkgEl.textContent);
+        this.config['package-managers'].options = opts;
+        if (opts.length) this.selected['package-managers'] = opts[0].value;
+      }
+      if (sysEl) {
+        const opts = JSON.parse(sysEl.textContent);
+        this.config['system-install'].options = opts;
+        if (opts.length) this.selected['system-install'] = opts[0].value;
+      }
+    },
+
+    switchTab(tab) {
+      this.activeTab = tab; this.dropdownOpen = false;
+    },
+
+    selectOption(val) {
+      this.selected[this.activeTab] = val; this.dropdownOpen = false;
+    }
+  }">
+  {# djlint:on #}
+
+  <div class="card__header">
+    <h2 id="install-card-heading" class="card__title install-card__title">
+      {{ title|default:"Install Boost and get started in your terminal." }}
+    </h2>
+  </div>
+
+  <div class="install-card__body px-large">
+    {# Tab list #}
+    <div class="tab__list" role="tablist" aria-label="Installation method">
+      {% include "v3/includes/_tab.html" with tab_label="Package Managers" tab_value="package-managers" tab_id="install-tab-pkg" tab_controls="install-panel" tab_next="system-install" tab_prev="system-install" only %}
+      {% include "v3/includes/_tab.html" with tab_label="System Install" tab_value="system-install" tab_id="install-tab-sys" tab_controls="install-panel" tab_next="package-managers" tab_prev="package-managers" only %}
+    </div>
+    {# Single tab content – content updates reactively with active tab #}
+    {% include "v3/includes/_tab_content.html" with content_id="install-panel" content_tab_a_id="install-tab-pkg" content_tab_b_id="install-tab-sys" content_tab_a_value="package-managers" tab_content_template="v3/includes/_install_card_tab_content_body.html" only %}
+  </div>
+</section>
