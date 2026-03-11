@@ -1191,6 +1191,14 @@ class V3ComponentDemoView(TemplateView):
             "button_label": "See license details",
         }
 
+        context["horizontal_card_data"] = {
+            "title": "Build anything with Boost",
+            "text": "Use, modify, and distribute Boost libraries freely. No binary attribution needed.",
+            "image_url": f"{settings.STATIC_URL}img/checker.png",
+            "button_url": "#",
+            "button_label": "See license details",
+        }
+
         context["demo_cards_carousel_cards"] = [
             {
                 "title": "Get help",
