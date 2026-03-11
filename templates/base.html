@@ -399,9 +399,11 @@
       {% endblock %}
       </div>
 
-      {% flag "v3" %}
-      {% include "v3/examples/_v3_example_section.html" %}
-      {% endflag %}
+      {% if '/v3/demo/component' in request.path %}
+        {% flag "v3" %}
+          {% include "v3/examples/_v3_example_section.html" %}
+        {% endflag %}
+      {% endif %}
 
       {% if not hide_footer %}
         {% flag "v3" %}
