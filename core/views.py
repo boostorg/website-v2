@@ -97,7 +97,7 @@ def BSLView(request):
 
 class CalendarView(V3Mixin, TemplateView):
     template_name = "calendar.html"
-    v3_template_name = "v3/boost_calendar.html"
+    v3_template_name = "v3/calendar.html"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
