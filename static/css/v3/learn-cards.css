@@ -10,7 +10,7 @@
     flex-direction: row;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 696px) {
     .learn-card__row {
         flex-direction: column;
     }
@@ -44,7 +44,6 @@
     font-family: var(--font-sans, "Mona Sans VF");
     font-size: var(--font-size-base, 16px);
     font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-default);
     /* 19.2px */
     letter-spacing: -0.16px;
 }
@@ -54,10 +53,12 @@
     min-width: 128px;
     align-items: center;
     gap: var(--space-s, 4px);
+    padding: 1px 0px;
+    margin: -1px 0px;
 }
 
 .learn-card__link-icon {
-    fill: var(--color-icon-primary)
+    fill: var(--color-icon-primary);
 }
 
 .learn-card__link {
@@ -80,5 +81,5 @@
     flex: 1 0 0;
     aspect-ratio: 1/1;
     border-radius: var(--border-radius-default, 8px);
-    background: url(<path-to-image>) lightgray 50% / cover no-repeat, url(<path-to-image>) lightgray 50% / cover no-repeat;
+    width: 100%;
 }

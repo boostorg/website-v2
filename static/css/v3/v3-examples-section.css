@@ -170,7 +170,7 @@ html.dark .v3-examples-section__example-box {
 .v3-examples-section [data-hover].btn.btn-hero.btn-primary {
   background-color: var(--color-surface-brand-accent-hovered);
   border-color: var(--color-surface-brand-accent-hovered);
-  color: var(--color-text-reversed);
+  color: var(--color-text-primary);
 }
 
 .v3-examples-section .cards-carousel {
