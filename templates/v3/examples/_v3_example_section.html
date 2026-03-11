@@ -239,6 +239,41 @@
   {% endif %}
 
   <div class="v3-examples-section__block">
+    <h3 class="block-title">Badges Card (empty with CTA)</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icons_html=badge_icons_html %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3 class="block-title">Badges Card (empty without CTA)</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_badges_card.html" with empty_icons_html=badge_icons_html %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3 class="block-title">Badges Card (filled — 6 badges)</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_badges_card.html" with badges=demo_badges %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3 class="block-title">Badges Card (filled — 2 badges)</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_badges_card.html" with badges=demo_badges_few %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3 class="block-title">Badges Card (with analytics attributes)</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_badges_card.html" with badges=demo_badges_few data_attrs='data-track="badges-card" data-section="profile"' %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
     <h3 class="block-title">Create Account Card</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_create_account_card.html" with heading="Contribute to earn badges, track your progress and grow your impact" body_html=create_account_card_body_html preview_image_url=create_account_card_preview_url cta_url="#" cta_label="Start contributing" %}
