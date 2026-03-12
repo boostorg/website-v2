@@ -25,11 +25,7 @@
     {% for conn in connections %}
     <li class="account-connections__item">
       <div class="account-connections__platform">
-        {% if conn.platform == "github" %}
-        {% include "v3/includes/icons/_github.html" %}
-        {% elif conn.platform == "google" %}
-        {% include "v3/includes/icons/_google.html" %}
-        {% endif %}
+        {% include "includes/icon.html" with icon_name=conn.platform icon_class="account-connections__platform-icon" icon_size=16 %}
         <span class="account-connections__platform-name">{{ conn.label }}</span>
       </div>
       <span class="account-connections__status">{{ conn.status_text }}</span>
