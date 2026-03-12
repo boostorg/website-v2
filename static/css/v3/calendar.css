@@ -22,7 +22,7 @@
     margin-bottom: 0;
 }
 
-.calendar__hero span {
+.calendar__hero p {
     color: var(--color-text-secondary, #585A64);
 
     /* Sans/Desktop/Regular/M */
@@ -33,4 +33,5 @@
     line-height: var(--line-height-default);
     /* 21.6px */
     letter-spacing: -0.18px;
+    padding: 0;
 }
