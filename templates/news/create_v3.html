@@ -104,6 +104,9 @@
              x-init="const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = ''; if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = ''; } })">
           <label class="field__label" for="field-image">{% translate "Image" %}</label>
           <div class="field__control field__control--file" x-show="!previewUrl" x-cloak x-transition>
+            <span class="field__file-display" aria-hidden="true">
+              <span class="field__file-placeholder">Choose File</span>
+            </span>
             <input x-ref="fileInput" class="field__input field__input--file" type="file" id="field-image" name="image" accept="image/png,image/jpeg"
                    x-on:change="
                      const file = $event.target.files && $event.target.files[0];

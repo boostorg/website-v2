@@ -610,14 +610,8 @@
   display: block;
   width: 100%;
   max-width: 100%;
-  max-height: 200px;
   border-radius: var(--border-radius-xl, 12px);
   object-fit: cover;
-}
-
-/* Create Post image field: no filename text, only preview; click image to change */
-.create-post-page__field-image .field__control--file {
-  min-height: 120px;
 }
 
 .field__input--file {
