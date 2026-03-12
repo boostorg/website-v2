@@ -1,0 +1,151 @@
+/*
+  V3 Homepage layout – future replacement homepage at /v3/homepage/.
+  Composes existing v3 card components; this file only defines grid and spacing.
+*/
+
+.v3-homepage {
+  background: var(--color-bg-primary, #f7fdfe);
+  min-height: 50vh;
+}
+
+.v3-homepage__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxl, 64px);
+  align-items: stretch;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--space-large, 16px);
+  box-sizing: border-box;
+}
+
+.v3-homepage__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xlarge, 24px);
+}
+
+.v3-homepage__row--top {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-large, 16px);
+  align-items: start;
+}
+
+.v3-homepage__col {
+  min-width: 0;
+}
+
+.v3-homepage__col--left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large, 16px);
+}
+
+.v3-homepage__col--middle {
+  display: flex;
+  flex-direction: column;
+}
+
+.v3-homepage__col--right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large, 16px);
+}
+
+.v3-homepage__join-card {
+  background: var(--color-surface-weak-yellow, #fbeba9);
+  border-radius: var(--border-radius-xl, 12px);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  padding: var(--space-large, 16px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large, 16px);
+}
+
+.v3-homepage__community-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s, 4px);
+}
+
+.v3-homepage__row--why {
+  width: 100%;
+}
+
+.v3-homepage__row--stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-large, 16px);
+  align-items: stretch;
+}
+
+.v3-homepage__row--bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 458px) minmax(0, 1fr);
+  gap: var(--space-large, 16px);
+  align-items: start;
+}
+
+.v3-homepage__build-body {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-large, 16px);
+  align-items: flex-start;
+  padding: 0 var(--space-large, 16px);
+}
+
+.v3-homepage__build-body .library-intro-card__description {
+  flex: 1;
+  margin: 0;
+}
+
+.v3-homepage__build-img {
+  flex-shrink: 0;
+  width: 205px;
+  height: 205px;
+  border-radius: var(--border-radius-default, 8px);
+  object-fit: cover;
+}
+
+.v3-homepage__build-card .library-intro-card__title {
+  padding: 0 var(--space-large, 16px);
+}
+
+.v3-homepage__build-card .library-intro-card__divider {
+  margin: 0;
+}
+
+.v3-homepage__build-card .post-cards__cta {
+  padding: var(--space-large, 16px);
+}
+
+@media (max-width: 1024px) {
+  .v3-homepage__row--top {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .v3-homepage__row--stats {
+    grid-template-columns: 1fr;
+  }
+
+  .v3-homepage__row--bottom {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .v3-homepage__row--top {
+    grid-template-columns: 1fr;
+  }
+
+  .v3-homepage__build-body {
+    flex-direction: column;
+  }
+
+  .v3-homepage__build-img {
+    width: 100%;
+    height: auto;
+    max-height: 240px;
+  }
+}

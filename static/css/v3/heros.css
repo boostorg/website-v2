@@ -24,6 +24,7 @@
    justify-content: space-between;
    align-items: center;
    background: var(--color-surface-weak-accent-yellow-homepage);
+   margin-bottom: var(--space-large, 16px);
  }
 
  .hero-home__block {

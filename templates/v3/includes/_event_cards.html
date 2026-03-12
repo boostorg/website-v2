@@ -18,7 +18,20 @@
     {% include "v3/includes/_event_cards.html" %}
 {% endcomment %}
 {% if event_list and variant %}
-  {% include "v3/includes/_event_cards_section.html" with section_heading=section_heading event_list=event_list variant=variant primary_btn_text=primary_btn_text primary_btn_url=primary_btn_url secondary_btn_text=secondary_btn_text secondary_btn_url=secondary_btn_url %}
+  <div class="event-cards-gallery__item">
+    <section class="post-cards post-cards--content post-cards--neutral post-cards--content-list" aria-labelledby="event-cards-heading-{{ variant }}">
+      <h2 id="event-cards-heading-{{ variant }}" class="post-cards__heading">{{ section_heading|default:"Upcoming Events" }}</h2>
+      <ul class="event-cards__list">
+        {% for event in event_list %}
+          <li class="post-cards__item">{% include "v3/includes/_content_event_card_item.html" with title=event.title description=event.description date=event.date datetime=event.datetime event_card_wrapper=False card_url=event.card_url card_aria_label=event.card_aria_label %}</li>
+        {% endfor %}
+      </ul>
+      <div class="post-cards__cta">
+        {% if primary_btn_text %}<a href="{{ primary_btn_url|default:'#' }}" class="btn btn-primary" aria-label="{{ primary_btn_text }}">{{ primary_btn_text }}</a>{% endif %}
+        {% if secondary_btn_text %}<a href="{{ secondary_btn_url|default:'#' }}" class="btn btn-secondary" aria-label="{{ secondary_btn_text }}">{{ secondary_btn_text }}</a>{% endif %}
+      </div>
+    </section>
+  </div>
 {% else %}
   {% comment %}Gallery: all 5 variants (white, grey, yellow, beige, teal) with sample content.{% endcomment %}
   <div class="event-cards-gallery">

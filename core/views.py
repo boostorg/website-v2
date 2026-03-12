@@ -1316,3 +1316,150 @@ class V3ComponentDemoView(TemplateView):
             context["example_library_not_found"] = library_slug
             context["example_library_slug"] = library_slug
         return context
+
+
+class V3HomepageView(TemplateView):
+    """Future v3 homepage at /v3/homepage/. Reuses v3 includes; does not replace current site homepage."""
+
+    template_name = "v3/homepage.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["hero_image_url"] = f"{settings.STATIC_URL}img/v3/home-page/heros.png"
+        context["popular_terms"] = [
+            {"label": "Networking"},
+            {"label": "Math"},
+            {"label": "Data processing"},
+            {"label": "Concurrency"},
+            {"label": "File systems"},
+            {"label": "Testing"},
+        ]
+        context["event_list"] = [
+            {
+                "title": "Boost 1.90.0 closed for major changes",
+                "description": "Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review.",
+                "date": "29/10/25",
+                "datetime": "2025-10-29",
+            },
+            {
+                "title": "Boost 1.90.0 closed for beta",
+                "description": "Release closed for all changes",
+                "date": "29/10/25",
+                "datetime": "2025-10-29",
+            },
+        ]
+        context["event_primary_btn_text"] = "Download latest release"
+        context["event_primary_btn_url"] = reverse("releases-most-recent")
+        context["event_secondary_btn_text"] = "View events calendar"
+        context["event_secondary_btn_url"] = reverse("calendar")
+        from datetime import date
+        avatar_url = f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png"
+        badge_url = f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg"
+        context["homepage_posts"] = [
+            {
+                "title": "Chaotic Attractors with Boost.OdeInt, a talk by Richard Thomson at the Utah C++ Programmers Group",
+                "url": "#",
+                "date": date(2025, 3, 3),
+                "category": "Issues",
+                "tag": "beast",
+                "author": {"name": "Christopher Kormanyos", "role": "Contributor", "avatar_url": avatar_url, "role_badge": badge_url, "show_badge": True},
+            },
+            {
+                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+                "url": "#",
+                "date": date(2025, 3, 3),
+                "category": "Issues",
+                "tag": "beast",
+                "author": {"name": "Dave Abrahams", "role": "Contributor", "avatar_url": avatar_url, "role_badge": badge_url, "show_badge": True},
+            },
+        ]
+        context["homepage_posts_view_all_url"] = reverse("news")
+        context["code_demo_hello"] = """#include <iostream>
+int main() {
+  std::cout << "Hello, Boost.";
+}"""
+        context["community_cards"] = [
+            {
+                "title": "Get help",
+                "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
+                "icon_name": "info-box",
+                "cta_label": "Start here",
+                "cta_href": reverse("community"),
+            },
+            {
+                "title": "Contribute",
+                "description": "Learn how to test or evaluate library submissions, or submit your own.",
+                "icon_name": "bullseye-arrow",
+                "cta_label": "Start here",
+                "cta_href": reverse("community"),
+            },
+            {
+                "title": "Stay updated",
+                "description": "Get updates on the latest releases, fixes and announcements.",
+                "icon_name": "device-tv",
+                "cta_label": "Start here",
+                "cta_href": reverse("releases-most-recent"),
+            },
+            {
+                "title": "Find work",
+                "description": "See who's looking for the C++ skills you've got.",
+                "icon_name": "human",
+                "cta_label": "Start here",
+                "cta_href": "#",
+            },
+        ]
+        context["community_cta_url"] = reverse("community")
+        context["why_boost_cards"] = [
+            {"title": "Performant", "description": "Optimized for production at any scale, Boost outperforms many standard benchmarks.", "icon_name": "bullseye-arrow"},
+            {"title": "Peer-reviewed", "description": "Well tested by members of the C++ standards committee.", "icon_name": "get-help"},
+            {"title": "Portable", "description": "Works across all platforms, compilers, and C++ standards.", "icon_name": "link"},
+            {"title": "Innovative", "description": "Over 40 Boost libraries have become part of the C++ standard over the past 25 years.", "icon_name": "bullseye-arrow"},
+            {"title": "Community-powered", "description": "Contributing to Boost builds credibility, sharpens skills, and advances careers.", "icon_name": "human"},
+            {"title": "Known worldwide", "description": "Used in countless projects, you've probably encountered Boost without realizing it.", "icon_name": "link"},
+            {"title": "Free", "description": "Open source now and always, thanks to the Boost Software License.", "icon_name": "check"},
+            {"title": "Production-ready", "description": "Battle-tested in critical systems across industries around the globe.", "icon_name": "bullseye-arrow"},
+        ]
+        context["stats_bars"] = [
+            {"label": "1.70.0", "height_px": 78},
+            {"label": "1.71.0", "height_px": 121},
+            {"label": "1.72.0", "height_px": 74},
+            {"label": "1.73.0", "height_px": 86},
+            {"label": "1.74.0", "height_px": 100},
+            {"label": "1.75.0", "height_px": 86},
+            {"label": "1.76.0", "height_px": 36},
+            {"label": "1.77.0", "height_px": 21},
+            {"label": "1.78.0", "height_px": 98},
+            {"label": "1.79.0", "height_px": 61},
+        ]
+        context["testimonial_data"] = {
+            "heading": "What engineers are saying",
+            "testimonials": [
+                {
+                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                    "author": {
+                        "name": "Christopher Kormanyos",
+                        "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                        "role": "Author",
+                        "role_badge": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
+                    },
+                },
+            ],
+        }
+        context["library_intro"] = {
+            "library_name": "Boost.Core.",
+            "description": "Lightweight utilities that power dozens of other Boost libraries",
+            "authors": [
+                {"name": "Vinnie Falco", "role": "Author", "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png", "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg", "bio": "Big C++ fan. Not quite kidney-donation level, but close."},
+                {"name": "Alex Wells", "role": "Contributor", "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png", "bio": "C++ enthusiast who has worked at Intel and Microsoft."},
+                {"name": "Dave Abrahams", "role": "Maintainer", "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png", "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg", "bio": "Contributor to Boost since 2009."},
+            ],
+            "cta_url": reverse("library-detail", kwargs={"version_slug": "latest", "library_slug": "core"}),
+        }
+        context["build_anything_card"] = {
+            "title": "Build anything with boost",
+            "description": "Use, modify, and distribute Boost libraries freely. No binary attribution needed.",
+            "image_url": f"{settings.STATIC_URL}img/v3/solo-images/beaver-computer-blow-up.png",
+            "cta_label": "See license details",
+            "cta_url": "https://www.boost.org/users/license.html",
+        }
+        return context
