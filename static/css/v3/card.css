@@ -30,6 +30,10 @@
   width: 100%;
 }
 
+.card .field {
+    width: 100%;
+}
+
 .card__column {
     display: flex;
     flex-direction: column;
