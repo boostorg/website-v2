@@ -7,7 +7,7 @@
 {% block content %}
   {% flag "v3" %}
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
-    <div class="md:w-[70%] mx-auto max-w-4xl">
+    <div class="mx-auto w-full" style="display: flex; justify-content: center;">
   <div class="create-post-wrapper" x-data="createPostForm()">
     <form
       class="create-post-page"
@@ -99,19 +99,30 @@
           {% include "v3/includes/_field_textarea.html" with name="content_link" label="Description" placeholder="Optional description" rows=3 %}
         </div>
 
-        <div class="field field--file field--file-narrow" :class="{ 'field--error': errors.image }"
-             x-data="{ fileName: '' }"
-             x-init="const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = '' })">
+        <div class="field field--file field--file-narrow create-post-page__field-image" :class="{ 'field--error': errors.image }"
+             x-data="{ fileName: '', previewUrl: '' }"
+             x-init="const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = ''; if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = ''; } })">
           <label class="field__label" for="field-image">{% translate "Image" %}</label>
-          <div class="field__control field__control--file">
-            <span class="field__file-display" aria-hidden="true">
-              <span x-show="!fileName" x-cloak x-transition class="field__file-placeholder">Choose File</span>
-              <span x-show="fileName" x-cloak x-transition class="field__file-name" x-text="fileName"></span>
-            </span>
-            <input class="field__input field__input--file" type="file" id="field-image" name="image" accept="image/png,image/jpeg"
-                   x-on:change="fileName = $event.target.files.length ? $event.target.files[0].name : ''"
+          <div class="field__control field__control--file" x-show="!previewUrl" x-cloak x-transition>
+            <input x-ref="fileInput" class="field__input field__input--file" type="file" id="field-image" name="image" accept="image/png,image/jpeg"
+                   x-on:change="
+                     const file = $event.target.files && $event.target.files[0];
+                     if (previewUrl) {
+                       URL.revokeObjectURL(previewUrl);
+                       previewUrl = '';
+                     }
+                     if (file) {
+                       fileName = file.name;
+                       previewUrl = URL.createObjectURL(file);
+                     } else {
+                       fileName = '';
+                     }
+                   "
                    :aria-invalid="!!errors.image"
                    :aria-describedby="errors.image ? 'field-image-error' : 'field-image-help'">
+          </div>
+          <div class="field__image-preview-wrapper" x-show="previewUrl" x-cloak @click="previewUrl && $refs.fileInput.click()">
+            <img :src="previewUrl" alt="" class="field__image-preview">
           </div>
           <p class="field__error" id="field-image-error" role="alert" x-show="errors.image" x-text="errors.image" x-cloak aria-live="polite"></p>
           <p class="field__help" id="field-image-help" x-show="!errors.image">This should be a PNG or JPEG format and no longer than 5MB</p>
@@ -122,8 +133,8 @@
         {% include "v3/includes/_field_text.html" with name="publish_at" label="Publish Date" type="datetime-local" value=publish_at_initial placeholder="Today at 10:00AM" icon_left="calendar" %}
 
         <div class="create-post-page__actions">
-          <a href="{% url 'news' %}" class="btn btn-secondary-grey">{% translate "Cancel" %}</a>
-          <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
+          <a href="{% url 'news' %}" class="btn btn-primary">{% translate "Cancel" %}</a>
+          <button type="submit" class="btn btn-secondary-grey">{% translate "Submit" %}</button>
         </div>
       </div>
     </form>

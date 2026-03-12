@@ -571,7 +571,7 @@
   resize: vertical;
   min-height: 96px;
   padding: 0;
-  line-height: var(--line-height-relaxed, 1.24);
+  line-height: 1.4;
 }
 
 /* ========== File input variant ========== */
@@ -599,6 +599,25 @@
 
 .field__file-name {
   color: var(--color-text-primary, #050816);
+}
+
+.field__image-preview-wrapper {
+  margin-top: var(--space-medium, 12px);
+  cursor: pointer;
+}
+
+.field__image-preview {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: var(--border-radius-xl, 12px);
+  object-fit: cover;
+}
+
+/* Create Post image field: no filename text, only preview; click image to change */
+.create-post-page__field-image .field__control--file {
+  min-height: 120px;
 }
 
 .field__input--file {
@@ -635,6 +654,7 @@
 /* ========== Create post layout (Django) ========== */
 .create-post-wrapper {
   width: 100%;
+  max-width: 694px;
 }
 
 .create-post-page {

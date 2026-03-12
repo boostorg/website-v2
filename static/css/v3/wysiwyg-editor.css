@@ -241,6 +241,7 @@
 
 .wysiwyg-editor__prose p {
   margin: 0 0 4px;
+  padding: 0;
 }
 
 .wysiwyg-editor__prose p code {
