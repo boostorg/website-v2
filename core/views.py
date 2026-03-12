@@ -1143,6 +1143,7 @@ class V3ComponentDemoView(TemplateView):
             "primary_button_label": "Primary Button",
             "secondary_button_url": "www.example.com",
             "secondary_button_label": "Secondary Button",
+            "image": "/static/img/v3/demo_page/Calendar.png",
         }
 
         context["demo_cards_carousel_cards"] = [
