@@ -14,6 +14,7 @@ import TaskItem from "@tiptap/extension-task-item";
 import { common, createLowlight } from "lowlight";
 import { toHtml } from "hast-util-to-html";
 import { marked } from "marked";
+import DOMPurify from "dompurify";
 import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
 
@@ -30,6 +31,10 @@ marked.use({
     },
   }],
 });
+
+function parseMarkdownSafe(md) {
+  return DOMPurify.sanitize(marked.parse(md));
+}
 
 const lowlight = createLowlight(common);
 
@@ -705,7 +710,7 @@ export const initWysiwyg = (textareaId) => {
   let initialContent = rawContent;
   if (initialContent && !isHtml) {
     try {
-      initialContent = marked.parse(initialContent);
+      initialContent = parseMarkdownSafe(initialContent);
     } catch (_) {
       initialContent = rawContent;
     }
@@ -756,7 +761,7 @@ export const initWysiwyg = (textareaId) => {
               /\n```|\n#{1,6}\s|\n\*\*|\n\- |\n\d+\. |\n\|---|\n\- \[ \]/.test(pastedText)));
         if (looksLikeMarkdown) {
           try {
-            const html = marked.parse(pastedText);
+            const html = parseMarkdownSafe(pastedText);
             editorRef.current.chain().focus().insertContent(html).run();
             return true;
           } catch (_) {
@@ -797,7 +802,7 @@ export const initWysiwyg = (textareaId) => {
   markdownPane.after(previewEl);
 
   const updateMdPreview = () => {
-    mdPreview.innerHTML = marked.parse(state.markdownText);
+    mdPreview.innerHTML = parseMarkdownSafe(state.markdownText);
     highlightPreviewCodeBlocks(mdPreview);
     renderMermaidPreview(mdPreview);
   };
@@ -825,7 +830,7 @@ export const initWysiwyg = (textareaId) => {
       updateMdPreview();
       mdTextarea.focus();
     } else {
-      editor.commands.setContent(marked.parse(state.markdownText));
+      editor.commands.setContent(parseMarkdownSafe(state.markdownText));
       state.mode = "wysiwyg";
       state.previewOn = false;
       mdBtn.classList.remove("wysiwyg-toolbar__btn--active");
@@ -845,7 +850,7 @@ export const initWysiwyg = (textareaId) => {
     if (state.previewOn) {
       markdownPane.style.display = "none";
       previewEl.style.display = "";
-      previewEl.innerHTML = marked.parse(state.markdownText);
+      previewEl.innerHTML = parseMarkdownSafe(state.markdownText);
       highlightPreviewCodeBlocks(previewEl);
       renderMermaidPreview(previewEl);
     } else {
