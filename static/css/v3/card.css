@@ -30,6 +30,10 @@
   width: 100%;
 }
 
+.card .field {
+    width: 100%;
+}
+
 .card__column {
     display: flex;
     flex-direction: column;
@@ -41,6 +45,10 @@
     align-self: stretch;
     display: flex;
     padding: 0 var(--space-large, 1rem);
+}
+
+.card__image {
+    width: 100%;
 }
 
 .card__title {

@@ -14,6 +14,7 @@ import TaskItem from "@tiptap/extension-task-item";
 import { common, createLowlight } from "lowlight";
 import { toHtml } from "hast-util-to-html";
 import { marked } from "marked";
+import DOMPurify from "dompurify";
 import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
 
@@ -30,6 +31,14 @@ marked.use({
     },
   }],
 });
+
+function parseMarkdownSafe(md) {
+  return DOMPurify.sanitize(marked.parse(md));
+}
+
+function sanitizeSvg(svgString) {
+  return DOMPurify.sanitize(svgString, { USE_PROFILES: { svg: true, svgFilters: true }, ADD_TAGS: ["use"] });
+}
 
 const lowlight = createLowlight(common);
 
@@ -164,7 +173,9 @@ const getMermaid = async () => {
   } else {
     await new Promise((resolve, reject) => {
       const script = document.createElement("script");
-      script.src = "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js";
+      script.src = "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js";
+      script.integrity = "sha256-pDvBr9RG+cTMZqxd1F0C6NZeJvxTROwO94f4jW3bb54=";
+      script.crossOrigin = "anonymous";
       script.onload = resolve;
       script.onerror = () => reject(new Error("Failed to load mermaid"));
       document.head.appendChild(script);
@@ -504,9 +515,10 @@ const buildToolbar = (editor, toolbarEl) => {
   tableWrapper.appendChild(gridPopup);
   left.appendChild(tableWrapper);
 
-  document.addEventListener("click", (e) => {
+  const handleDocClick = (e) => {
     if (!tableWrapper.contains(e.target)) gridPopup.style.display = "none";
-  });
+  };
+  document.addEventListener("click", handleDocClick);
 
   left.appendChild(createSeparator());
 
@@ -589,7 +601,7 @@ const buildToolbar = (editor, toolbarEl) => {
   toolbarEl.appendChild(left);
   toolbarEl.appendChild(right);
 
-  return { mdBtn, previewBtn };
+  return { mdBtn, previewBtn, handleDocClick };
 };
 
 const setupMermaidEditMode = (editor, editorEl) => {
@@ -619,7 +631,7 @@ const setupMermaidEditMode = (editor, editorEl) => {
         const mermaid = await getMermaid();
         const id = `mermaid-edit-${++mermaidIdCounter}`;
         const { svg } = await mermaid.render(id, diagram);
-        preview.innerHTML = svg;
+        preview.innerHTML = sanitizeSvg(svg);
         preview.classList.remove("mermaid-error");
       } catch (err) {
         const errSpan = document.createElement("span");
@@ -670,7 +682,7 @@ const renderMermaidPreview = async (container) => {
     try {
       const id = `mermaid-preview-${++mermaidIdCounter}`;
       const { svg } = await mermaid.render(id, diagram);
-      div.innerHTML = svg;
+      div.innerHTML = sanitizeSvg(svg);
     } catch (err) {
       const errSpan = document.createElement("span");
       errSpan.className = "mermaid-error";
@@ -687,7 +699,8 @@ const editorInstances = new Map();
 export const initWysiwyg = (textareaId) => {
   const prev = editorInstances.get(textareaId);
   if (prev) {
-    prev.destroy();
+    prev.editor.destroy();
+    prev.cleanup();
     editorInstances.delete(textareaId);
   }
 
@@ -705,7 +718,7 @@ export const initWysiwyg = (textareaId) => {
   let initialContent = rawContent;
   if (initialContent && !isHtml) {
     try {
-      initialContent = marked.parse(initialContent);
+      initialContent = parseMarkdownSafe(initialContent);
     } catch (_) {
       initialContent = rawContent;
     }
@@ -756,7 +769,8 @@ export const initWysiwyg = (textareaId) => {
               /\n```|\n#{1,6}\s|\n\*\*|\n\- |\n\d+\. |\n\|---|\n\- \[ \]/.test(pastedText)));
         if (looksLikeMarkdown) {
           try {
-            const html = marked.parse(pastedText);
+            event.preventDefault();
+            const html = parseMarkdownSafe(pastedText);
             editorRef.current.chain().focus().insertContent(html).run();
             return true;
           } catch (_) {
@@ -771,7 +785,7 @@ export const initWysiwyg = (textareaId) => {
 
   const state = { mode: "wysiwyg", markdownText: "", previewOn: false };
 
-  const { mdBtn, previewBtn } = buildToolbar(editor, toolbarEl);
+  const { mdBtn, previewBtn, handleDocClick } = buildToolbar(editor, toolbarEl);
   setupTableContextBar(editor, toolbarEl);
   setupMermaidEditMode(editor, editorEl);
 
@@ -797,7 +811,7 @@ export const initWysiwyg = (textareaId) => {
   markdownPane.after(previewEl);
 
   const updateMdPreview = () => {
-    mdPreview.innerHTML = marked.parse(state.markdownText);
+    mdPreview.innerHTML = parseMarkdownSafe(state.markdownText);
     highlightPreviewCodeBlocks(mdPreview);
     renderMermaidPreview(mdPreview);
   };
@@ -825,7 +839,7 @@ export const initWysiwyg = (textareaId) => {
       updateMdPreview();
       mdTextarea.focus();
     } else {
-      editor.commands.setContent(marked.parse(state.markdownText));
+      editor.commands.setContent(parseMarkdownSafe(state.markdownText));
       state.mode = "wysiwyg";
       state.previewOn = false;
       mdBtn.classList.remove("wysiwyg-toolbar__btn--active");
@@ -845,7 +859,7 @@ export const initWysiwyg = (textareaId) => {
     if (state.previewOn) {
       markdownPane.style.display = "none";
       previewEl.style.display = "";
-      previewEl.innerHTML = marked.parse(state.markdownText);
+      previewEl.innerHTML = parseMarkdownSafe(state.markdownText);
       highlightPreviewCodeBlocks(previewEl);
       renderMermaidPreview(previewEl);
     } else {
@@ -872,7 +886,12 @@ export const initWysiwyg = (textareaId) => {
     });
   }
 
-  editorInstances.set(textareaId, editor);
+  editorInstances.set(textareaId, {
+    editor,
+    cleanup: () => {
+      document.removeEventListener("click", handleDocClick);
+    },
+  });
   return editor;
 };
 
