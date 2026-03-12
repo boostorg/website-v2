@@ -10,7 +10,7 @@
     flex-direction: row;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 696px) {
     .learn-card__row {
         flex-direction: column;
     }
@@ -44,7 +44,6 @@
     font-family: var(--font-sans, "Mona Sans VF");
     font-size: var(--font-size-base, 16px);
     font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-default);
     /* 19.2px */
     letter-spacing: -0.16px;
 }
@@ -57,7 +56,7 @@
 }
 
 .learn-card__link-icon {
-    fill: var(--color-icon-primary)
+    fill: var(--color-icon-primary);
 }
 
 .learn-card__link {
@@ -76,9 +75,23 @@
     text-underline-position: from-font;
 }
 
+.learn-card__link-tag {
+    text-decoration: none;
+    color: inherit;
+}
+.learn-card__link-tag:focus-visible {
+    outline: none;
+}
+.learn-card__link-tag:focus-visible .learn-card__link-container {
+    outline: 2px solid Highlight;
+    outline: 2px solid -webkit-focus-ring-color;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
 .learn-card__image {
     flex: 1 0 0;
     aspect-ratio: 1/1;
     border-radius: var(--border-radius-default, 8px);
-    background: url(<path-to-image>) lightgray 50% / cover no-repeat, url(<path-to-image>) lightgray 50% / cover no-repeat;
+    width: 100%;
 }
