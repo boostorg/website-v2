@@ -279,7 +279,7 @@ html.dark .header__icon--theme-moon {
   height: var(--header-height);
   min-height: var(--header-height);
   padding: 0;
-  border-radius: var(--border-radius-xl, 12px);
+  border-radius: var(--header-control-radius);
   border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.10));
   background: var(--color-surface-weak, #FFF);
   cursor: pointer;
