@@ -24,14 +24,14 @@
       <h2 class="hero-home__headline">{{ headline|default:"Built by the C++ community.<br>Trusted by the world."|safe }}</h2>
       <div class="hero-home__actions">
         {% if primary_url %}
-        <a href="{{ primary_url }}" class="btn btn-hero btn-primary"><svg class="btn-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>{{ primary_label|default:"I'm new to Boost" }}</span></a>
+        <a href="{{ primary_url }}" class="btn btn-hero btn-primary">{% include "includes/icon.html" with icon_name="arrow-right" icon_class="btn-icon" icon_size=16 %}<span>{{ primary_label|default:"I'm new to Boost" }}</span></a>
         {% else %}
-        <button type="button" class="btn btn-hero btn-primary"><svg class="btn-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>{{ primary_label|default:"I'm new to Boost" }}</span></button>
+        <button type="button" class="btn btn-hero btn-primary">{% include "includes/icon.html" with icon_name="arrow-right" icon_class="btn-icon" icon_size=16 %}<span>{{ primary_label|default:"I'm new to Boost" }}</span></button>
         {% endif %}
         {% if secondary_url %}
-        <a href="{{ secondary_url }}" class="btn btn-hero btn-secondary"><svg class="btn-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>{{ secondary_label|default:"I need a specific solution" }}</span></a>
+        <a href="{{ secondary_url }}" class="btn btn-hero btn-secondary">{% include "includes/icon.html" with icon_name="arrow-right" icon_class="btn-icon" icon_size=16 %}<span>{{ secondary_label|default:"I need a specific solution" }}</span></a>
         {% else %}
-        <button type="button" class="btn btn-hero btn-secondary"><svg class="btn-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>{{ secondary_label|default:"I need a specific solution" }}</span></button>
+        <button type="button" class="btn btn-hero btn-secondary">{% include "includes/icon.html" with icon_name="arrow-right" icon_class="btn-icon" icon_size=16 %}<span>{{ secondary_label|default:"I need a specific solution" }}</span></button>
         {% endif %}
       </div>
     </div>
@@ -46,7 +46,7 @@
           <code class="hero-home__code-text">{{ code_text|default:"conan install boost" }}</code>
           <div class="hero-home__code-badge">
             <span class="hero-home__code-badge-label">{{ code_badge_label|default:"Conan" }}</span>
-            <svg class="btn-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            {% include "includes/icon.html" with icon_name="arrow-right" icon_class="btn-icon" icon_size=16 %}
           </div>
         </div>
       </div>
