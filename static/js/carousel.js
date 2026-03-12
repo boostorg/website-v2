@@ -128,6 +128,8 @@
     if (!root || !root.id) return;
     const track = root.querySelector('[data-carousel-track]');
     const controls = document.getElementById(root.id + '-controls');
+    console.log(track)
+    console.log(controls)
     if (!track || !controls) return;
 
     if (root.hasAttribute('data-carousel-infinite')) {
