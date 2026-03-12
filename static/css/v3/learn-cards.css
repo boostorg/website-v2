@@ -53,8 +53,6 @@
     min-width: 128px;
     align-items: center;
     gap: var(--space-s, 4px);
-    padding: 1px 0px;
-    margin: -1px 0px;
 }
 
 .learn-card__link-icon {
@@ -75,6 +73,20 @@
     text-underline-offset: 15.2%;
     /* 2.128px */
     text-underline-position: from-font;
+}
+
+.learn-card__link-tag {
+    text-decoration: none;
+    color: inherit;
+}
+.learn-card__link-tag:focus-visible {
+    outline: none;
+}
+.learn-card__link-tag:focus-visible .learn-card__link-container {
+    outline: 2px solid Highlight;
+    outline: 2px solid -webkit-focus-ring-color;
+    outline-offset: 2px;
+    border-radius: 2px;
 }
 
 .learn-card__image {

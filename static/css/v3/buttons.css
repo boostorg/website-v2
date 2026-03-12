@@ -158,12 +158,12 @@
 .btn.btn-hero.btn-primary {
   background-color: var(--color-surface-brand-accent-default);
   border-color: var(--color-surface-brand-accent-default);
-  color: var(--color-text-primary);
+  color: var(--color-text-reversed);
 }
 .btn.btn-hero.btn-primary:hover {
   background-color: var(--color-surface-brand-accent-hovered);
   border-color: var(--color-surface-brand-accent-hovered);
-  color: var(--color-text-primary);
+  color: var(--color-text-reversed);
 }
 
 .btn-hero .btn-icon {
