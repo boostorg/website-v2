@@ -1275,7 +1275,7 @@ class V3ComponentDemoView(TemplateView):
 
         context["banner_data"] = {
             "icon_name": "alert",
-            "banner_message": "This is an older version of Boost and was released in 2017. The <a href='https://www.exampe.com'>current version</a> is 1.90.0.",
+            "banner_message": "This is an older version of Boost and was released in 2017. The <a href='https://www.example.com'>current version</a> is 1.90.0.",
         }
 
         latest = Version.objects.most_recent()

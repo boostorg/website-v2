@@ -11,8 +11,9 @@ then plays an animation which will fade the object from view by setting its opac
 
         const fadeDelay = root.getAttribute('data-fade-ms');
         if (fadeDelay) {
+            root.classList.add("fade-default")
             setTimeout(() => {
-                root.classList.add("fade-default")
+                root.classList.add("hidden")
             }, parseInt(fadeDelay, 10));
         }
     }

@@ -1,14 +1,10 @@
-@keyframes fade {
-    from {
-        opacity: 100%;
-    }
-    to {
-        opacity: 0%;
-    }
+.fade-default {
+    transition-property: opacity, display;
+    transition-duration: 1s;
+    transition-behavior: allow-discrete;
 }
 
-.fade-default {
-    animation-name: fade;
-    animation-duration: 1s;
-    opacity: 0%;
+.fade-default.hidden {
+    opacity: 0;
+    display: none;
 }
