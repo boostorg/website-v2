@@ -17,6 +17,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
   gap: var(--space-default, 8px);
   font-family: var(--font-sans);
   font-size: var(--font-size-small, 14px);
