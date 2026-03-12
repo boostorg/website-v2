@@ -1,4 +1,16 @@
-<div class="banner" {% if fade_time %}data-fade-ms="{{fade_time}}"{% endif %}>
+{% comment %}
+    Banner component for displaying alerts and other information on the screen.
+    Inputs:
+        Required:
+            banner_message, HTML content: Message to be displayed in the banner.
+        Optional:
+            icon_name, string: name of an icon to be displayed. See includes/icon.html for options
+            fate_time, number: time in ms after which the banner should fade. See fade.js for more info
+{% endcomment %}
+
+<div class="banner" role="alert" {% if fade_time %}data-fade-ms="{{fade_time}}"{% endif %}>
+    {% if icon_name %}
     {% include 'includes/icon.html' with icon_name=icon_name icon_class="banner__icon" icon_size=16 %}
+    {% endif %}
     <span class="banner__message">{{banner_message|safe}}</span>
 </div>

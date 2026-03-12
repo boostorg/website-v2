@@ -1,5 +1,7 @@
 /*
-
+Functionality to apply a fade class to any feature which has the 'data-fade-ms` data attribute. This
+data attribute defines a time in ms, after which the `fade-default` class will be applied. This class
+then plays an animation which will fade the object from view by setting its opacity to 0.
 */
 
 
