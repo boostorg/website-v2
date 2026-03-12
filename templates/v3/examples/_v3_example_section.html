@@ -10,6 +10,16 @@
   </div>
 
   <div class="v3-examples-section__block">
+    <h3 class="block-title">Heros</h3>
+    <div class="v3-examples-section__example-box">
+      <p class="v3-examples-section__block-subtitle">Hero Home</p>
+      {% include "v3/includes/_hero_home.html" with hero_image_url=hero_image_url %}
+      <p class="v3-examples-section__block-subtitle" style="margin-top: 2rem;">Hero Library</p>
+      {% include "v3/includes/_hero_library.html" with doc_url="#" source_url="#" slack_url="#" github_url="#" version_tag="C++ 03" added_text="Added in 1.66.0" hero_image_url=hero_image_url %}
+    </div>
+  </div>
+
+  <div class="v3-examples-section__block">
     <h3 class="block-title">Tooltip button</h3>
     <div class="v3-examples-section__example-box">
       <div class="v3-examples-section__tools">

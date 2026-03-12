@@ -1,0 +1,60 @@
+{% comment %}
+  V3 Hero Home: headline, two CTA buttons, and an install card with tabs + code.
+
+  Variables:
+    headline          (optional) — Main headline (HTML allowed, e.g. with <br>). Default: "Built by the C++ community.<br>Trusted by the world."
+    primary_label     (optional) — Primary button label. Default: "I'm new to Boost"
+    primary_url       (optional) — Primary button URL. If omitted, renders as <button>.
+    secondary_label   (optional) — Secondary button label. Default: "I need a specific solution"
+    secondary_url     (optional) — Secondary button URL. If omitted, renders as <button>.
+    card_title        (optional) — Card title. Default: "Install Boost and get started in your terminal."
+    tab1_label        (optional) — First tab label. Default: "Package Managers"
+    tab2_label        (optional) — Second tab label. Default: "System Install"
+    code_text         (optional) — Code snippet. Default: "conan install boost"
+    code_badge_label  (optional) — Badge next to code. Default: "Conan"
+    hero_image_url    (optional) — Image URL for the right side. If omitted, image block is not shown.
+
+  Usage:
+    {% include "v3/includes/_hero_home.html" %}
+    {% include "v3/includes/_hero_home.html" with headline="Welcome to Boost" primary_url="/docs/" hero_image_url=hero_image_url %}
+{% endcomment %}
+<section class="hero-home" aria-label="Hero">
+  <div class="hero-home__block">
+    <div class="hero-home__content">
+      <h2 class="hero-home__headline">{{ headline|default:"Built by the C++ community.<br>Trusted by the world."|safe }}</h2>
+      <div class="hero-home__actions">
+        {% if primary_url %}
+        <a href="{{ primary_url }}" class="btn btn-hero btn-primary"><svg class="btn-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>{{ primary_label|default:"I'm new to Boost" }}</span></a>
+        {% else %}
+        <button type="button" class="btn btn-hero btn-primary"><svg class="btn-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>{{ primary_label|default:"I'm new to Boost" }}</span></button>
+        {% endif %}
+        {% if secondary_url %}
+        <a href="{{ secondary_url }}" class="btn btn-hero btn-secondary"><svg class="btn-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>{{ secondary_label|default:"I need a specific solution" }}</span></a>
+        {% else %}
+        <button type="button" class="btn btn-hero btn-secondary"><svg class="btn-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span>{{ secondary_label|default:"I need a specific solution" }}</span></button>
+        {% endif %}
+      </div>
+    </div>
+    <div class="hero-home__card">
+      <p class="hero-home__card-title">{{ card_title|default:"Install Boost and get started in your terminal." }}</p>
+      <div class="hero-home__card-body">
+        <div class="hero-home__tabs">
+          <div class="hero-home__tab hero-home__tab--active"><span>{{ tab1_label|default:"Package Managers" }}</span></div>
+          <div class="hero-home__tab"><span>{{ tab2_label|default:"System Install" }}</span></div>
+        </div>
+        <div class="hero-home__code-row">
+          <code class="hero-home__code-text">{{ code_text|default:"conan install boost" }}</code>
+          <div class="hero-home__code-badge">
+            <span class="hero-home__code-badge-label">{{ code_badge_label|default:"Conan" }}</span>
+            <svg class="btn-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% if hero_image_url %}
+    <div class="hero-home__image">
+      <img alt="" class="hero-home__img" src="{{ hero_image_url }}" loading="lazy" decoding="async">
+    </div>
+    {% endif %}
+  </div>
+</section>

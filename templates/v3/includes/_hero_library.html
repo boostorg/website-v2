@@ -1,0 +1,66 @@
+{% comment %}
+  V3 Hero Library: tags, version, title, description, and doc/source/slack/github links.
+
+  Variables:
+    title              (optional) — Library name. Default: "Boost.Beast"
+    description        (optional) — Short description. Default: "Portable HTTP, WebSocket, and network operations using only C++11 and Boost.Asio"
+    category_tags      (optional) — List of dicts with "label" and "url" (e.g. [{"label":"Concurrent","url":"#"}, ...]). Default: example tags
+    version_tag        (optional) — e.g. "C++ 03". Omit to hide.
+    added_text         (optional) — e.g. "Added in 1.66.0". Omit to hide.
+    doc_url            (optional) — Documentation link URL. Omit to hide.
+    source_url         (optional) — Source code link URL. Omit to hide.
+    slack_url          (optional) — Discuss in Slack URL. Omit to hide.
+    github_url         (optional) — GitHub Issues URL. Omit to hide.
+    hero_image_url     (optional) — Image URL. If omitted, image block is not shown.
+
+  Usage:
+    {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}
+{% endcomment %}
+<section class="hero-library" aria-label="Library hero">
+  <div class="hero-library__block">
+    <div class="hero-library__content">
+      <div class="hero-library__meta">
+        <div class="hero-library__tags">
+          {% for tag in category_tags %}
+          <a href="{{ tag.url|default:'#' }}" class="category-tag category-tag--neutral category-tag--default">{{ tag.label }}</a>
+          {% empty %}
+          <a href="#" class="category-tag category-tag--neutral category-tag--default">Concurrent</a>
+          <a href="#" class="category-tag category-tag--neutral category-tag--default">IO</a>
+          <a href="#" class="category-tag category-tag--neutral category-tag--default">Flagship</a>
+          {% endfor %}
+          {% if version_tag %}
+          <span class="version-tag version-tag--default">{{ version_tag }}</span>
+          {% endif %}
+          {% if added_text %}
+          <div class="hero-library__added-wrap">
+            <span class="hero-library__added">{{ added_text }}</span>
+          </div>
+          {% endif %}
+        </div>
+        <div class="hero-library__text-block">
+          <h1 class="hero-library__title">{{ title|default:"Boost.Beast" }}</h1>
+          <p class="hero-library__description">{{ description|default:"Portable HTTP, WebSocket, and network operations using only C++11 and Boost.Asio" }}</p>
+        </div>
+      </div>
+      <div class="hero-library__links">
+        {% if doc_url %}
+        <a href="{{ doc_url }}" class="btn-icon-library">Documentation<svg class="btn-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M14 14.6666H2V1.33331H10V2.66665H11.3333V3.99998H12.6667V5.33331H14V14.6666ZM11.3333 3.99998H10V5.33331H11.3333V3.99998ZM3.33333 2.66665V13.3333H12.6667V6.66665H8.66667V2.66665H3.33333ZM8.66667 10.6666H4.66667V12H8.66667V10.6666ZM4.66667 7.99998H11.3333V9.33331H4.66667V7.99998ZM7.33333 5.33331H4.66667V6.66665H7.33333V5.33331Z" fill="currentColor"></path></svg></a>
+        {% endif %}
+        {% if source_url %}
+        <a href="{{ source_url }}" class="btn-icon-library">Source code<svg class="btn-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.33341 6.00002V4.66669H6.66675V6.00002H5.33341ZM4.00008 7.33335V6.00002H5.33341V7.33335H4.00008ZM4.00008 8.66669H2.66675V7.33335H4.00008V8.66669ZM5.33341 10V8.66669H4.00008V10H5.33341ZM5.33341 10H6.66675V11.3334H5.33341V10ZM10.6667 6.00002V4.66669H9.33341V6.00002H10.6667ZM12.0001 7.33335V6.00002H10.6667V7.33335H12.0001ZM12.0001 8.66669V7.33335H13.3334V8.66669H12.0001ZM10.6667 10V8.66669H12.0001V10H10.6667ZM10.6667 10V11.3334H9.33341V10H10.6667Z" fill="currentColor"></path></svg></a>
+        {% endif %}
+        {% if slack_url %}
+        <a href="{{ slack_url }}" class="btn-icon-library">Discuss in Slack<svg class="btn-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M13.3333 1.33331H1.33325V14.6666H2.66659V2.66665H13.3333V10.6666H3.99992V12H2.66659V13.3333H3.99992V12H14.6666V1.33331H13.3333ZM3.99992 4.66665H11.9999V5.99998H3.99992V4.66665ZM9.33325 7.33331H3.99992V8.66665H9.33325V7.33331Z" fill="currentColor"></path></svg></a>
+        {% endif %}
+        {% if github_url %}
+        <a href="{{ github_url }}" class="btn-icon-library">GitHub Issues<svg class="btn-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3.33341 1.33331H6.00008V2.66665H4.66675V3.99998H3.33341V1.33331ZM3.33341 7.99998H2.00008V3.99998H3.33341V7.99998ZM4.66675 9.33331H3.33341V7.99998H4.66675V9.33331ZM6.00008 10.6666V9.33331H4.66675V10.6666H2.00008V9.33331H0.666748V10.6666H2.00008V12H4.66675V14.6666H6.00008V12H7.33341V10.6666H6.00008ZM6.00008 10.6666V12H4.66675V10.6666H6.00008ZM10.0001 2.66665V3.99998H6.00008V2.66665H10.0001ZM12.6667 3.99998H11.3334V2.66665H10.0001V1.33331H12.6667V3.99998ZM12.6667 7.99998V3.99998H14.0001V7.99998H12.6667ZM11.3334 9.33331V7.99998H12.6667V9.33331H11.3334ZM10.0001 10.6666V9.33331H11.3334V10.6666H10.0001ZM10.0001 12H8.66675V10.6666H10.0001V12ZM10.0001 12H11.3334V14.6666H10.0001V12Z" fill="currentColor"></path></svg></a>
+        {% endif %}
+      </div>
+    </div>
+    {% if hero_image_url %}
+    <div class="hero-library__image">
+      <img alt="" class="hero-library__img" src="{{ hero_image_url }}" loading="lazy" decoding="async">
+    </div>
+    {% endif %}
+  </div>
+</section>
