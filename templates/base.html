@@ -399,7 +399,7 @@
       {% endblock %}
       </div>
 
-      {% if '/v3/demo/component' in request.path %}
+      {% if request.resolver_match.url_name == 'v3-demo-components' %}
         {% flag "v3" %}
           {% include "v3/examples/_v3_example_section.html" %}
         {% endflag %}
