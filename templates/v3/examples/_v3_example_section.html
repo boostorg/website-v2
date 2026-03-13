@@ -440,4 +440,19 @@
       {% include "v3/includes/_code_blocks_story.html" with code_standalone_1=code_demo_beast code_standalone_2=code_demo_beast code_card_1=code_demo_hello code_card_2=code_demo_beast code_card_3=code_demo_install %}
     </div>
   </div>
+
+  <div class="v3-examples-section__block">
+    <h3 class="block-title">Dialog</h3>
+    <div class="v3-examples-section__example-box">
+      <h4 class="py-large">Dialog Modal with description</h4>
+      <a href="#demo-dialog-with-desc" class="btn btn-primary">Open dialog</a>
+
+      <h4 class="py-large">Dialog Modal without description</h4>
+      <a href="#demo-dialog-no-desc" class="btn btn-primary">Open dialog</a>
+    </div>
+  </div>
 </section>
+
+{% comment %}Dialogs placed outside section to avoid position:fixed containment issues{% endcomment %}
+{% include "v3/includes/_dialog.html" with dialog_id="demo-dialog-with-desc" title="Title of Dialog" description="Description that can go inside of Dialog" primary_label="Confirm" secondary_label="Cancel" %}
+{% include "v3/includes/_dialog.html" with dialog_id="demo-dialog-no-desc" title="Title of Dialog" primary_label="Confirm" secondary_label="Cancel" %}

@@ -1,0 +1,161 @@
+/**
+ * Dialog Component
+ *
+ * A modal dialog triggered by user action, requiring an interstitial step.
+ * Dialog Container (.dialog-modal__container) is the inner content area and
+ * is NOT intended as a standalone module – it only exists inside Dialog Modal.
+ *
+ * Open/close is CSS-only via the :target pseudo-class. No JavaScript required.
+ * Trigger: <a href="#dialog-id">…</a>
+ * Close:   <a href="#">…</a>  (close button and backdrop link inside the dialog)
+ *
+ * Structure:
+ *   .dialog-modal               – full-screen overlay (hidden by default)
+ *   .dialog-modal__backdrop     – invisible close link covering the overlay area
+ *   .dialog-modal__container    – centred content card
+ *   .dialog-modal__header       – title row + close link
+ *   .dialog-modal__title        – heading text
+ *   .dialog-modal__close        – dismiss link (×)
+ *   .dialog-modal__description  – optional body text
+ *   .dialog-modal__buttons      – primary / secondary action row
+ *
+ * Light/dark: all colour tokens are already theme-aware via semantics.css + themes.css.
+ */
+
+/* ============================================
+   DIALOG MODAL (full-screen overlay)
+   ============================================ */
+.dialog-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background-color: var(--color-surface-modal, rgba(5, 8, 22, 0.7));
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-modal:target {
+  display: flex !important;
+}
+
+/* ============================================
+   BACKDROP CLOSE LINK
+   Fills the overlay; clicking outside the container closes the dialog.
+   ============================================ */
+.dialog-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  cursor: default;
+  z-index: 0;
+}
+
+/* ============================================
+   DIALOG CONTAINER (inner content card)
+   ============================================ */
+.dialog-modal__container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large, 16px);
+  width: 695px;
+  max-width: calc(100vw - 2 * var(--space-large, 16px));
+  background-color: var(--color-surface-page, #f7fdfe);
+  border-radius: var(--border-radius-xl, 12px);
+  overflow: hidden;
+}
+
+/* ============================================
+   HEADER (title + close link on the same row)
+   ============================================ */
+.dialog-modal__header {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start;
+  gap: var(--space-default, 8px);
+  padding: var(--space-large, 16px);
+  width: 100%;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+}
+
+.dialog-modal__title {
+  flex: 1 0 0 !important;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: var(--font-display);
+  font-size: var(--font-size-large, 24px);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: var(--line-height-tight, 1);
+  letter-spacing: var(--letter-spacing-display-regular, -0.02em);
+  color: var(--color-text-primary, #050816);
+  display: block !important;
+}
+
+/* ============================================
+   CLOSE LINK (×)
+   ============================================ */
+.dialog-modal__close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--color-icon-primary, #050816);
+  text-decoration: none;
+}
+
+.dialog-modal__close:hover {
+  color: var(--color-icon-secondary, #71737b);
+}
+
+.dialog-modal__close svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+/* ============================================
+   DESCRIPTION (optional)
+   ============================================ */
+.dialog-modal__description {
+  padding: 0 var(--space-large, 16px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dialog-modal__description p {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base, 16px);
+  font-weight: var(--font-weight-regular, 400);
+  line-height: var(--line-height-default, 1.2);
+  letter-spacing: var(--letter-spacing-tight, -0.01em);
+  color: var(--color-text-secondary, #585a64);
+}
+
+/* ============================================
+   BUTTONS ROW
+   ============================================ */
+.dialog-modal__buttons {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-default, 8px);
+  padding: 0 var(--space-large, 16px) var(--space-large, 16px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dialog-modal__buttons .btn {
+  flex: 1 0 0;
+  min-width: 128px;
+  width: auto;
+  text-decoration: none;
+}
+
+.dialog-modal__buttons a.btn {
+  text-decoration: none;
+}

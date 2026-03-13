@@ -1,0 +1,52 @@
+{% comment %}
+  Dialog Modal – full-screen overlay with an internal Dialog Container.
+  The Dialog Container is NOT available as a standalone include.
+
+  Open/close is CSS-only via the :target pseudo-class (no JavaScript required).
+  Trigger: <a href="#{{ dialog_id }}">…</a>
+
+  Variables:
+    dialog_id       (required): Unique ID for this dialog instance.
+    title           (required): Title displayed in the dialog header.
+    description     (optional): Descriptive text below the title.
+    primary_label   (required): Label for the primary action button.
+    secondary_label (required): Label for the secondary action button.
+    primary_style   (optional): Button style for primary action.  Default "secondary-grey".
+    secondary_style (optional): Button style for secondary action. Default "primary".
+    primary_url     (optional): URL for primary button. Defaults to "" (renders as <button>).
+    secondary_url   (optional): URL for secondary button. Defaults to "#" (closes the dialog).
+
+  Accessibility:
+    - role="dialog", aria-modal="true", aria-labelledby / aria-describedby
+    - Close via: × link, Cancel button (href="#"), or clicking the backdrop
+
+  Analytics readiness:
+    - Pass extra data-* attributes on the trigger <a> element as needed.
+{% endcomment %}
+
+<div class="dialog-modal" id="{{ dialog_id }}">
+  <a class="dialog-modal__backdrop" href="#" aria-hidden="true" tabindex="-1"></a>
+  <div class="dialog-modal__container"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="{{ dialog_id }}-title"
+       {% if description %}aria-describedby="{{ dialog_id }}-desc"{% endif %}>
+    <div class="dialog-modal__header">
+      <h2 class="dialog-modal__title" id="{{ dialog_id }}-title">{{ title }}</h2>
+      <a class="dialog-modal__close"
+         href="#"
+         aria-label="Close dialog">
+        {% include "includes/icon.html" with icon_name="close" icon_class="dialog-modal__close-icon" icon_size=24 %}
+      </a>
+    </div>
+    {% if description %}
+    <div class="dialog-modal__description" id="{{ dialog_id }}-desc">
+      <p>{{ description }}</p>
+    </div>
+    {% endif %}
+    <div class="dialog-modal__buttons">
+      {% include "v3/includes/_button.html" with label=primary_label url=primary_url style=primary_style|default:"secondary-grey" extra_classes="btn-flex" only %}
+      {% include "v3/includes/_button.html" with label=secondary_label url=secondary_url|default:"#" style=secondary_style|default:"primary" extra_classes="btn-flex" only %}
+    </div>
+  </div>
+</div>
