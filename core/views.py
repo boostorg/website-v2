@@ -1142,12 +1142,8 @@ class V3ComponentDemoView(TemplateView):
         context["install_card_title"] = (
             "Install Boost and get started in your terminal."
         )
-        context["install_card_pkg_managers_json"] = json.dumps(
-            INSTALL_CARD_PKG_MANAGERS
-        )
-        context["install_card_system_install_json"] = json.dumps(
-            INSTALL_CARD_SYSTEM_INSTALL
-        )
+        context["install_card_pkg_managers"] = INSTALL_CARD_PKG_MANAGERS
+        context["install_card_system_install"] = INSTALL_CARD_SYSTEM_INSTALL
         context["popular_terms"] = [
             {"label": "Networking"},
             {"label": "Math"},

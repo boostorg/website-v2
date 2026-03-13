@@ -1,51 +1,55 @@
 {% comment %}
   V3 Install Card — Tab Content Body
-  The tab content body for the install card: a code block with an embedded dropdown.
-  Relies on the parent Alpine.js x-data scope from _install_card.html.
+  Pre-rendered code block with embedded dropdown for one tab.
+  Uses CSS radio inputs for option selection (no JS required).
   CSS: install-card.css, code-block.css, forms.css (.dropdown)
+
+  Variables:
+    options — list of { label, value, command } dicts
+    prefix  — radio name prefix (e.g. "pkg", "sys")
 {% endcomment %}
-{# Code block with dropdown nested inside #}
+
+{# Option radio inputs — must be siblings of .code-block for CSS :checked selectors #}
+{% for opt in options %}
+<input type="radio"
+       name="{{ prefix }}-option"
+       id="{{ prefix }}-{{ opt.value }}"
+       {% if forloop.first %}checked{% endif %}
+       class="install-card__radio">
+{% endfor %}
+
+{# Code block with commands + dropdown #}
 <div class="code-block install-card__command code-block--grey-bg">
-  {# Code #}
-  <pre class="code-block__inner"><code class="nohighlight" x-text="currentCommand"></code></pre>
-  {# Inline Dropdown to share the parent x-data scope #}
-  <div class="dropdown install-card__dropdown"
-       :class="{ 'dropdown--open': dropdownOpen }">
-    <button type="button"
-            class="dropdown__trigger"
-            x-ref="dropdownTrigger"
-            @click="dropdownOpen = !dropdownOpen"
-            @keydown.escape.prevent="dropdownOpen = false; $refs.dropdownTrigger.focus()"
-            :aria-expanded="dropdownOpen"
-            aria-haspopup="listbox"
-            aria-label="Select installation method">
-      <span class="dropdown__trigger-text" x-text="currentLabel"></span>
-      {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
-    </button>
+  {# Pre-rendered commands — CSS shows only the one matching the checked radio #}
+  {% for opt in options %}
+  <pre class="code-block__inner install-card__cmd"
+       data-option="{{ prefix }}-{{ opt.value }}"><code class="nohighlight">{{ opt.command }}</code></pre>
+  {% endfor %}
+
+  {# Dropdown #}
+  <details class="dropdown install-card__dropdown">
+    <summary class="dropdown__trigger"
+             aria-haspopup="listbox"
+             aria-label="Select installation method">
+      {# Pre-rendered labels — CSS shows only the one matching the checked radio #}
+      {% for opt in options %}
+      <span class="dropdown__label dropdown__trigger-text"
+            data-option="{{ prefix }}-{{ opt.value }}">{{ opt.label }}</span>
+      {% endfor %}
+      {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" only %}
+    </summary>
     <div class="dropdown__panel"
-         x-show="dropdownOpen"
-         @click.away="dropdownOpen = false"
-         x-transition:enter="transition ease-out duration-100"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-75"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
          role="listbox"
          aria-label="Select installation method">
       <div class="dropdown__list">
-        <template x-for="option in currentOptions" :key="option.value">
-          <div class="dropdown__item"
-               :class="{ 'dropdown__item--selected': selected[activeTab] === option.value }"
+        {% for opt in options %}
+        <label for="{{ prefix }}-{{ opt.value }}"
+               class="dropdown__item"
                role="option"
-               :aria-selected="selected[activeTab] === option.value"
-               @click="selectOption(option.value); $refs.dropdownTrigger.focus()"
-               @keydown.enter.prevent="selectOption(option.value); $refs.dropdownTrigger.focus()"
-               @keydown.space.prevent="selectOption(option.value); $refs.dropdownTrigger.focus()"
-               tabindex="0"
-               x-text="option.label"></div>
-        </template>
+               {% if forloop.first %}aria-selected="true"{% else %}aria-selected="false"{% endif %}
+               tabindex="0">{{ opt.label }}</label>
+        {% endfor %}
       </div>
     </div>
-  </div>
+  </details>
 </div>
