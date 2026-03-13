@@ -6,8 +6,9 @@
     icon_name   (optional) — icon name for includes/icon.html (e.g. "bullseye-arrow").
                  If omitted, card is rendered without icon and modifier --has-icon is not applied.
     title_url   (optional) — if set, title is wrapped in a link
-    cta_label   (optional) — if set with cta_href, renders a CTA link below description
+    cta_label   (optional) — if set with cta_href, renders a CTA link below description (or span if cta_as_span)
     cta_href    (optional) — used with cta_label for the CTA link
+    cta_as_span (optional) — if truthy, CTA is rendered as <span> (use when the whole card is wrapped in a link)
   Usage:
     {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers..." icon_name="bullseye-arrow" %}
     With CTA: {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="..." icon_name="info-box" cta_label="Start here" cta_href="#" %}
@@ -22,7 +23,11 @@
     {% if title_url %}<a href="{{ title_url }}" class="content-detail-icon__title-link">{% endif %}{{ title }}{% if title_url %}</a>{% endif %}
   </h3>
   <p class="content-detail-icon__description">{{ description }}</p>
-  {% if cta_label and cta_href %}
+  {% if cta_label %}
+  {% if cta_as_span %}
+  <span class="content-detail-icon__cta">{{ cta_label }}</span>
+  {% elif cta_href %}
   <a href="{{ cta_href }}" class="content-detail-icon__cta">{{ cta_label }}</a>
+  {% endif %}
   {% endif %}
 </article>

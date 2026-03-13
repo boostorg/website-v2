@@ -17,17 +17,23 @@
       </div>
       <div class="v3-homepage__col v3-homepage__col--right">
         {% include "v3/includes/_code_block_card.html" with heading="Get started with our libraries" code=code_demo_hello language="cpp" button_text="Explore examples" button_url="/libraries/latest/browse/" %}
-        <div class="v3-homepage__join-card">
-          <h2 class="post-cards__heading">Join developers building the future of C++</h2>
-          <div class="v3-homepage__community-cards">
+        <section class="post-cards post-cards--content event-cards--yellow post-cards--content-card v3-homepage__join-card" aria-labelledby="join-developers-heading">
+          <h2 id="join-developers-heading" class="post-cards__heading">Join developers building the future of C++</h2>
+          <ul class="post-cards__list">
             {% for card in community_cards %}
-              {% include "v3/includes/_content_detail_card_item.html" with title=card.title description=card.description icon_name=card.icon_name cta_label=card.cta_label cta_href=card.cta_href %}
+              <li class="post-cards__item">
+                <a href="{{ card.cta_href }}" class="content-card-link" aria-label="{{ card.title }}">
+                  <div class="event-card" aria-hidden="true">
+                  {% include "v3/includes/_content_detail_card_item.html" with title=card.title description=card.description icon_name=card.icon_name cta_label=card.cta_label cta_as_span=True %}
+                </div>
+                </a>
+              </li>
             {% endfor %}
-          </div>
+          </ul>
           <div class="post-cards__cta">
             <a href="{{ community_cta_url }}" class="btn btn-yellow">Explore the community</a>
           </div>
-        </div>
+        </section>
       </div>
     </div>
 
@@ -46,24 +52,7 @@
         {% include "v3/includes/_library_intro_card.html" with library_name=library_intro.library_name description=library_intro.description authors=library_intro.authors cta_url=library_intro.cta_url %}
       </div>
       {% endif %}
-      {% if build_anything_card %}
-      <div class="v3-homepage__col v3-homepage__col--build">
-        <div class="card library-intro-card v3-homepage__build-card">
-          <h2 class="library-intro-card__title" style="margin-bottom: var(--space-default, 8px);">{{ build_anything_card.title }}</h2>
-          <hr class="library-intro-card__divider" aria-hidden>
-          <div class="v3-homepage__build-body">
-            <p class="library-intro-card__description">{{ build_anything_card.description }}</p>
-            {% if build_anything_card.image_url %}
-            <img src="{{ build_anything_card.image_url }}" alt="" class="v3-homepage__build-img" loading="lazy" decoding="async">
-            {% endif %}
-          </div>
-          <hr class="library-intro-card__divider" aria-hidden>
-          <div class="post-cards__cta">
-            <a href="{{ build_anything_card.cta_url }}" class="btn btn-secondary-grey">{{ build_anything_card.cta_label }}</a>
-          </div>
-        </div>
-      </div>
-      {% endif %}
+
     </div>
   </div>
 </main>

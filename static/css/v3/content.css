@@ -1,3 +1,9 @@
+.content-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
 .content-detail-icon {
   font-family: var(--font-sans);
   color: var(--color-text-primary);
