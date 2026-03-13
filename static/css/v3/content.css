@@ -9,7 +9,7 @@
   color: var(--color-text-primary);
   margin: 0;
   padding: var(--space-card);
-  border-radius: var(--border-radius-xxl);
+  border-radius: var(--border-radius-l);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   display: flex;

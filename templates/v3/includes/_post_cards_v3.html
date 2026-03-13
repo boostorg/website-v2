@@ -5,7 +5,7 @@
   No defaults for content; only output what is passed.
 {% endcomment %}
 {% if heading or posts or view_all_url or secondary_cta_url %}
-<section class="post-cards post-cards--{{ variant|default:'default' }} post-cards--{{ theme|default:'neutral' }} post-cards--{{ layout|default:'vertical' }}">
+<section class="post-cards post-cards--content-card post-cards--{{ theme|default:'neutral' }} post-cards--{{ layout|default:'vertical' }} event-cards--teal">
   {% if heading %}
   <h2 class="post-cards__heading">
     {% if heading_url %}
@@ -19,7 +19,9 @@
   <ul class="post-cards__list">
     {% for item in posts %}
     <li class="post-cards__item">
-      {% include "v3/includes/_post_card_v3.html" with post=item %}
+      <div class="event-card">
+        {% include "v3/includes/_post_card_v3.html" with post=item %}
+      </div>
     </li>
     {% endfor %}
   </ul>
@@ -27,7 +29,7 @@
   {% if view_all_url or secondary_cta_url %}
   <div class="post-cards__cta">
     {% if view_all_url %}
-    <a href="{{ view_all_url }}" class="btn btn-secondary-grey">{{ view_all_label|default:"View all" }}</a>
+    <a href="{{ view_all_url }}" class="btn btn-teal">{{ view_all_label|default:"View all" }}</a>
     {% endif %}
     {% if secondary_cta_url %}
     <a href="{{ secondary_cta_url }}" class="btn btn-secondary">{{ secondary_cta_label }}</a>

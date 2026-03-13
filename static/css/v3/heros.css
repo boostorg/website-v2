@@ -60,6 +60,7 @@
    margin: 0;
    align-self: stretch;
    letter-spacing: -4px;
+   z-index: 1;
  }
 
  .hero-home__actions {
