@@ -10,9 +10,6 @@
   </div>
   <hr class="card__hr" />
   <div class="card__column px-large">
-    {% if not achievements %}
-      <span class="achievement-card__bold-text">Showcase your contributions and milestones as you participate in the community.</span>
-    {% endif %}
     <div class="achievement-card__container">
       {% for ach in achievements %}
         <div class="achievement-card__achievement">
@@ -45,6 +42,9 @@
         </div>
       {% endfor %}
     </div>
+    {% if not achievements %}
+      <span class="achievement-card__bold-text">Showcase your contributions and milestones as you participate in the community.</span>
+    {% endif %}
   </div>
   {% if not achievements %}
     <div class="px-large btn-row">
