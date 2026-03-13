@@ -45,8 +45,8 @@
     </div>
     {% endif %}
     <div class="dialog-modal__buttons">
-      {% include "v3/includes/_button.html" with label=primary_label url=primary_url style=primary_style|default:"secondary-grey" extra_classes="btn-flex" only %}
-      {% include "v3/includes/_button.html" with label=secondary_label url=secondary_url|default:"#" style=secondary_style|default:"primary" extra_classes="btn-flex" only %}
+      {% include "v3/includes/_button.html" with label=primary_label style="primary" url=primary_url extra_classes="btn-flex" %}
+      {% include "v3/includes/_button.html" with label=secondary_label url=secondary_url|default:"#" style="secondary" extra_classes="btn-flex" %}
     </div>
   </div>
 </div>
