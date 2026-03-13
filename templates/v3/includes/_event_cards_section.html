@@ -4,8 +4,11 @@
   variant: white | grey | yellow | beige | teal
   Each event in event_list may have: title, description, date, datetime (optional), card_url (optional), card_aria_label (optional).
 {% endcomment %}
-<section class="event-cards event-cards--{{ variant }}" aria-labelledby="event-cards-heading-{{ variant }}">
-  <h2 id="event-cards-heading-{{ variant }}" class="post-cards__heading">{{ section_heading|default:"Upcoming Events" }}</h2>
+<section class="event-cards event-cards--{{ variant }}"
+         aria-labelledby="event-cards-heading-{{ variant }}">
+  <h2 id="event-cards-heading-{{ variant }}" class="post-cards__heading">
+    {{ section_heading|default:"Upcoming Events" }}
+  </h2>
   <ul class="post-cards__list">
     {% for event in event_list %}
       <li class="post-cards__item">
@@ -13,8 +16,24 @@
       </li>
     {% endfor %}
   </ul>
-  <div class="post-cards__cta">
-    {% if primary_btn_text %}<a href="{{ primary_btn_url|default:'#' }}" class="btn {% if variant == 'teal' %}btn-teal{% elif variant == 'yellow' %}btn-yellow{% elif variant == 'beige' %}btn-green{% else %}btn-primary{% endif %}" aria-label="{{ primary_btn_text }}">{{ primary_btn_text }}</a>{% endif %}
-    {% if secondary_btn_text %}<a href="{{ secondary_btn_url|default:'#' }}" class="btn {% if variant == 'white' or variant == 'grey' %}btn-secondary-grey{% else %}btn-secondary{% endif %}" aria-label="{{ secondary_btn_text }}">{{ secondary_btn_text }}</a>{% endif %}
+  <div class="card__cta_section">
+    {% if primary_btn_text %}
+      {% if variant == 'teal' %}
+        {% include "v3/includes/_button.html" with label=primary_btn_text url=primary_btn_url|default:'#' style="teal" only %}
+      {% elif variant == 'yellow' %}
+        {% include "v3/includes/_button.html" with label=primary_btn_text url=primary_btn_url|default:'#' style="yellow" only %}
+      {% elif variant == 'beige' %}
+        {% include "v3/includes/_button.html" with label=primary_btn_text url=primary_btn_url|default:'#' style="green" only %}
+      {% else %}
+        {% include "v3/includes/_button.html" with label=primary_btn_text url=primary_btn_url|default:'#' style="primary" only %}
+      {% endif %}
+    {% endif %}
+    {% if secondary_btn_text %}
+      {% if variant == 'white' or variant == 'grey' %}
+        {% include "v3/includes/_button.html" with label=secondary_btn_text url=secondary_btn_url|default:'#' style="primary" only %}
+      {% else %}
+        {% include "v3/includes/_button.html" with label=secondary_btn_text url=secondary_btn_url|default:'#' style="secondary" only %}
+      {% endif %}
+    {% endif %}
   </div>
 </section>

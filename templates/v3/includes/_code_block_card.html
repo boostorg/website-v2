@@ -14,15 +14,11 @@
 {% endcomment %}
 <div class="code-block-card code-block-card--{{ card_variant|default:'neutral' }}">
   <h2 class="code-block-card__heading">{{ heading }}</h2>
-  {% if description %}
-  <p class="code-block-card__description">{{ description }}</p>
-  {% endif %}
+  {% if description %}<p class="code-block-card__description">{{ description }}</p>{% endif %}
   {% include "v3/includes/_code_block.html" with code=code code_html=code_html language=language variant=block_variant|default:"grey-bg" %}
   {% if button_text %}
-  <div class="post-cards__cta">
-    <a href="{{ button_url|default:'#' }}" class="btn btn-secondary-grey" aria-label="{{ button_aria_label|default:button_text }}">
-      {{ button_text }}
-    </a>
-  </div>
+    <div class="card__cta_section">
+      {% include "v3/includes/_button.html" with label=button_text url=button_url|default:'#' aria_label=button_aria_label|default:button_text %}
+    </div>
   {% endif %}
 </div>
