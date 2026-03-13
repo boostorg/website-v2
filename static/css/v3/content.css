@@ -19,6 +19,7 @@
   box-sizing: border-box;
   align-self: start;
   transition: background-color 0.2s ease, border-color 0.2s ease;
+  height: 100%;
 }
 
 a:hover .content-detail-icon:not(.content-detail-icon--contained) {

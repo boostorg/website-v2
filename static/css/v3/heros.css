@@ -204,6 +204,19 @@
    display: block;
  }
 
+ .hero-home__image--theme-aware .hero-home__img--light {
+   display: block;
+ }
+ .hero-home__image--theme-aware .hero-home__img--dark {
+   display: none;
+ }
+ .dark .hero-home__image--theme-aware .hero-home__img--light {
+   display: none;
+ }
+ .dark .hero-home__image--theme-aware .hero-home__img--dark {
+   display: block;
+ }
+
  [data-theme="dark"] .hero-home__image .hero-home__img {
    mix-blend-mode: screen;
  }
@@ -377,6 +390,19 @@
    height: 100%;
    object-fit: contain;
    object-position: center bottom;
+   display: block;
+ }
+
+ .hero-library__image--theme-aware .hero-library__img--light {
+   display: block;
+ }
+ .hero-library__image--theme-aware .hero-library__img--dark {
+   display: none;
+ }
+ .dark .hero-library__image--theme-aware .hero-library__img--light {
+   display: none;
+ }
+ .dark .hero-library__image--theme-aware .hero-library__img--dark {
    display: block;
  }
 
