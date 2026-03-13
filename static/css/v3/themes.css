@@ -115,4 +115,6 @@ html.dark {
   --color-text-on-accent: var(--color-primary-black);
   --color-text-reversed: var(--color-primary-black);
   --color-text-tertiary: var(--color-primary-grey-600);
+  --color-text-primary: var(--color-primary-white);
+  --color-text-secondary: var(--color-primary-grey-400);
 }
