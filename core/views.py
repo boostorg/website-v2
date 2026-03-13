@@ -1137,8 +1137,12 @@ class V3ComponentDemoView(TemplateView):
             f"{settings.STATIC_URL}img/checker.png"
         )
         context["hero_image_url"] = f"{settings.STATIC_URL}img/v3/home-page/heros.png"
-        context["hero_image_url_light"] = f"{settings.STATIC_URL}img/v3/home-page/heros.png"
-        context["hero_image_url_dark"] = f"{settings.STATIC_URL}img/v3/home-page/heros_light.png"
+        context["hero_image_url_light"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/heros.png"
+        )
+        context["hero_image_url_dark"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/heros_light.png"
+        )
         context["basic_card_data"] = {
             "title": "Found a Bug?",
             "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole comm",
@@ -1328,8 +1332,12 @@ class V3HomepageView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["hero_image_url"] = f"{settings.STATIC_URL}img/v3/home-page/heros.png"
-        context["hero_image_url_light"] = f"{settings.STATIC_URL}img/v3/home-page/heros.png"
-        context["hero_image_url_dark"] = f"{settings.STATIC_URL}img/v3/home-page/heros_light.png"
+        context["hero_image_url_light"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/heros.png"
+        )
+        context["hero_image_url_dark"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/heros_light.png"
+        )
         context["popular_terms"] = [
             {"label": "Networking"},
             {"label": "Math"},
@@ -1357,6 +1365,7 @@ class V3HomepageView(TemplateView):
         context["event_secondary_btn_text"] = "View events calendar"
         context["event_secondary_btn_url"] = reverse("calendar")
         from datetime import date
+
         avatar_url = f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png"
         badge_url = f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg"
         context["homepage_posts"] = [
@@ -1366,7 +1375,13 @@ class V3HomepageView(TemplateView):
                 "date": date(2025, 3, 3),
                 "category": "Issues",
                 "tag": "beast",
-                "author": {"name": "Christopher Kormanyos", "role": "Contributor", "avatar_url": avatar_url, "role_badge": badge_url, "show_badge": True},
+                "author": {
+                    "name": "Christopher Kormanyos",
+                    "role": "Contributor",
+                    "avatar_url": avatar_url,
+                    "role_badge": badge_url,
+                    "show_badge": True,
+                },
             },
             {
                 "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
@@ -1374,11 +1389,19 @@ class V3HomepageView(TemplateView):
                 "date": date(2025, 3, 3),
                 "category": "Issues",
                 "tag": "beast",
-                "author": {"name": "Dave Abrahams", "role": "Contributor", "avatar_url": avatar_url, "role_badge": badge_url, "show_badge": True},
+                "author": {
+                    "name": "Dave Abrahams",
+                    "role": "Contributor",
+                    "avatar_url": avatar_url,
+                    "role_badge": badge_url,
+                    "show_badge": True,
+                },
             },
         ]
         context["homepage_posts_view_all_url"] = reverse("news")
-        context["code_demo_hello"] = """#include <iostream>
+        context[
+            "code_demo_hello"
+        ] = """#include <iostream>
 int main() {
   std::cout << "Hello, Boost.";
 }"""
@@ -1414,14 +1437,46 @@ int main() {
         ]
         context["community_cta_url"] = reverse("community")
         context["why_boost_cards"] = [
-            {"title": "Performant", "description": "Optimized for production at any scale, Boost outperforms many standard benchmarks.", "icon_name": "bullseye-arrow"},
-            {"title": "Peer-reviewed", "description": "Well tested by members of the C++ standards committee.", "icon_name": "get-help"},
-            {"title": "Portable", "description": "Works across all platforms, compilers, and C++ standards.", "icon_name": "link"},
-            {"title": "Innovative", "description": "Over 40 Boost libraries have become part of the C++ standard over the past 25 years.", "icon_name": "bullseye-arrow"},
-            {"title": "Community-powered", "description": "Contributing to Boost builds credibility, sharpens skills, and advances careers.", "icon_name": "human"},
-            {"title": "Known worldwide", "description": "Used in countless projects, you've probably encountered Boost without realizing it.", "icon_name": "link"},
-            {"title": "Free", "description": "Open source now and always, thanks to the Boost Software License.", "icon_name": "check"},
-            {"title": "Production-ready", "description": "Battle-tested in critical systems across industries around the globe.", "icon_name": "bullseye-arrow"},
+            {
+                "title": "Performant",
+                "description": "Optimized for production at any scale, Boost outperforms many standard benchmarks.",
+                "icon_name": "bullseye-arrow",
+            },
+            {
+                "title": "Peer-reviewed",
+                "description": "Well tested by members of the C++ standards committee.",
+                "icon_name": "get-help",
+            },
+            {
+                "title": "Portable",
+                "description": "Works across all platforms, compilers, and C++ standards.",
+                "icon_name": "link",
+            },
+            {
+                "title": "Innovative",
+                "description": "Over 40 Boost libraries have become part of the C++ standard over the past 25 years.",
+                "icon_name": "bullseye-arrow",
+            },
+            {
+                "title": "Community-powered",
+                "description": "Contributing to Boost builds credibility, sharpens skills, and advances careers.",
+                "icon_name": "human",
+            },
+            {
+                "title": "Known worldwide",
+                "description": "Used in countless projects, you've probably encountered Boost without realizing it.",
+                "icon_name": "link",
+            },
+            {
+                "title": "Free",
+                "description": "Open source now and always, thanks to the Boost Software License.",
+                "icon_name": "check",
+            },
+            {
+                "title": "Production-ready",
+                "description": "Battle-tested in critical systems across industries around the globe.",
+                "icon_name": "bullseye-arrow",
+            },
         ]
         context["stats_bars"] = [
             {"label": "1.70.0", "height_px": 78},
@@ -1453,11 +1508,31 @@ int main() {
             "library_name": "Boost.Core.",
             "description": "Lightweight utilities that power dozens of other Boost libraries",
             "authors": [
-                {"name": "Vinnie Falco", "role": "Author", "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png", "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg", "bio": "Big C++ fan. Not quite kidney-donation level, but close."},
-                {"name": "Alex Wells", "role": "Contributor", "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png", "bio": "C++ enthusiast who has worked at Intel and Microsoft."},
-                {"name": "Dave Abrahams", "role": "Maintainer", "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png", "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg", "bio": "Contributor to Boost since 2009."},
+                {
+                    "name": "Vinnie Falco",
+                    "role": "Author",
+                    "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                    "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
+                    "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
+                },
+                {
+                    "name": "Alex Wells",
+                    "role": "Contributor",
+                    "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                    "bio": "C++ enthusiast who has worked at Intel and Microsoft.",
+                },
+                {
+                    "name": "Dave Abrahams",
+                    "role": "Maintainer",
+                    "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                    "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
+                    "bio": "Contributor to Boost since 2009.",
+                },
             ],
-            "cta_url": reverse("library-detail", kwargs={"version_slug": "latest", "library_slug": "core"}),
+            "cta_url": reverse(
+                "library-detail",
+                kwargs={"version_slug": "latest", "library_slug": "core"},
+            ),
         }
         context["build_anything_card"] = {
             "title": "Build anything with boost",
