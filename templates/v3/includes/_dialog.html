@@ -25,7 +25,7 @@
 {% endcomment %}
 
 <div class="dialog-modal" id="{{ dialog_id }}">
-  <a class="dialog-modal__backdrop" href="#" aria-hidden="true" tabindex="-1"></a>
+  <a class="dialog-modal__backdrop" href="#_" aria-hidden="true" tabindex="-1"></a>
   <div class="dialog-modal__container"
        role="dialog"
        aria-modal="true"
@@ -34,7 +34,7 @@
     <div class="dialog-modal__header">
       <h2 class="dialog-modal__title" id="{{ dialog_id }}-title">{{ title }}</h2>
       <a class="dialog-modal__close"
-         href="#"
+         href="#_"
          aria-label="Close dialog">
         {% include "includes/icon.html" with icon_name="close" icon_class="dialog-modal__close-icon" icon_size=24 %}
       </a>
@@ -46,7 +46,7 @@
     {% endif %}
     <div class="dialog-modal__buttons">
       {% include "v3/includes/_button.html" with label=primary_label style="primary" url=primary_url extra_classes="btn-flex" %}
-      {% include "v3/includes/_button.html" with label=secondary_label url=secondary_url|default:"#" style="secondary" extra_classes="btn-flex" %}
+      {% include "v3/includes/_button.html" with label=secondary_label url=secondary_url|default:"#_" style="secondary" extra_classes="btn-flex" %}
     </div>
   </div>
 </div>
