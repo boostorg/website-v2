@@ -9,7 +9,6 @@ import structlog
 from corsheaders.defaults import default_headers
 from django.core.exceptions import ImproperlyConfigured
 from pythonjsonlogger import jsonlogger
-from core.template_utils import InvalidTemplateVariable
 
 env = environs.Env()
 
@@ -171,10 +170,6 @@ TEMPLATES = [
             str(BASE_DIR.joinpath("templates")),
         ],
         "OPTIONS": {
-            "debug": DEBUG,
-            "string_if_invalid": (
-                InvalidTemplateVariable("INVALID_VARIABLE_%s") if DEBUG else ""
-            ),
             "context_processors": [
                 # Django Admin Env Notice
                 "django_admin_env_notice.context_processors.from_settings",
