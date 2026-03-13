@@ -4,7 +4,7 @@
 
   Variables (for dynamic use from view):
     event_list         (optional) — list of events. Each item: title, description, date, datetime (optional).
-    variant            (optional) — "white" | "grey" | "yellow" | "beige" | "teal". If omitted, shows the variant gallery.
+    variant            (optional) — "white" | "grey" | "yellow" | "green" | "teal". If omitted, shows the variant gallery.
     section_heading    (optional) — section heading, default "Upcoming Events"
     primary_btn_text   (optional) — primary button text
     primary_btn_url    (optional) — primary button URL
@@ -20,7 +20,7 @@
 {% if event_list and variant %}
   {% include "v3/includes/_event_cards_section.html" with section_heading=section_heading event_list=event_list variant=variant primary_btn_text=primary_btn_text primary_btn_url=primary_btn_url secondary_btn_text=secondary_btn_text secondary_btn_url=secondary_btn_url %}
 {% else %}
-  {% comment %}Gallery: all 5 variants (white, grey, yellow, beige, teal) with sample content.{% endcomment %}
+  {% comment %}Gallery: all 5 variants (white, grey, yellow, green, teal) with sample content.{% endcomment %}
   <div class="event-cards-gallery">
     <div class="event-cards-gallery__item">
       <section class="post-cards post-cards--content post-cards--neutral post-cards--content-list"
@@ -86,9 +86,9 @@
       </section>
     </div>
     <div class="event-cards-gallery__item">
-      <section class="post-cards post-cards--content post-cards--content-card event-cards--beige"
-               aria-labelledby="event-cards-heading-beige">
-        <h2 id="event-cards-heading-beige" class="post-cards__heading">Upcoming Events</h2>
+      <section class="post-cards post-cards--content post-cards--content-card event-cards--green"
+               aria-labelledby="event-cards-heading-green">
+        <h2 id="event-cards-heading-green" class="post-cards__heading">Upcoming Events</h2>
         <ul class="post-cards__list">
           <li class="post-cards__item">
             {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" event_card_wrapper=True %}

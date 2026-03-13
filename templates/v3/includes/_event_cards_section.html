@@ -1,7 +1,7 @@
 {% comment %}
   V3 Event cards – one section (one colour variant).
   Variables: section_heading, event_list, variant, primary_btn_text, primary_btn_url, secondary_btn_text, secondary_btn_url.
-  variant: white | grey | yellow | beige | teal
+  variant: white | grey | yellow | green | teal
   Each event in event_list may have: title, description, date, datetime (optional), card_url (optional), card_aria_label (optional).
 {% endcomment %}
 <section class="event-cards event-cards--{{ variant }}"
@@ -18,21 +18,13 @@
   </ul>
   <div class="card__cta_section">
     {% if primary_btn_text %}
-      {% if variant == 'teal' %}
-        {% include "v3/includes/_button.html" with label=primary_btn_text url=primary_btn_url|default:'#' style="teal" only %}
-      {% elif variant == 'yellow' %}
-        {% include "v3/includes/_button.html" with label=primary_btn_text url=primary_btn_url|default:'#' style="yellow" only %}
-      {% elif variant == 'beige' %}
-        {% include "v3/includes/_button.html" with label=primary_btn_text url=primary_btn_url|default:'#' style="green" only %}
-      {% else %}
-        {% include "v3/includes/_button.html" with label=primary_btn_text url=primary_btn_url|default:'#' style="primary" only %}
-      {% endif %}
+      {% include "v3/includes/_button.html" with label=primary_btn_text url=primary_btn_url|default:'#' style=variant aria_label=primary_btn_text only %}
     {% endif %}
     {% if secondary_btn_text %}
       {% if variant == 'white' or variant == 'grey' %}
-        {% include "v3/includes/_button.html" with label=secondary_btn_text url=secondary_btn_url|default:'#' style="primary" only %}
+        {% include "v3/includes/_button.html" with label=secondary_btn_text url=secondary_btn_url|default:'#' style="primary" aria_label=secondary_btn_text only %}
       {% else %}
-        {% include "v3/includes/_button.html" with label=secondary_btn_text url=secondary_btn_url|default:'#' style="secondary" only %}
+        {% include "v3/includes/_button.html" with label=secondary_btn_text url=secondary_btn_url|default:'#' style="secondary" aria_label=secondary_btn_text only %}
       {% endif %}
     {% endif %}
   </div>
