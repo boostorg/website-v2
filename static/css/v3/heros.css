@@ -69,9 +69,9 @@
    align-items: flex-start;
  }
 
- .heros .btn.btn-hero.btn-secondary {
+ .btn.btn-hero.btn-secondary {
    background-color: var(--color-button-secondary);
-   border-color: var(--color-stroke-weak);
+   border-color: var(--color-stroke-strong);
  }
 
  .hero-home__actions .btn-icon {
