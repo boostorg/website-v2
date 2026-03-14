@@ -24,6 +24,28 @@
   border: 0;
 }
 
+.install-card__radio:focus-visible
+  ~ .install-card__body
+  .tab__list
+  [for="install-tab-pkg"],
+.install-card__radio:focus-visible
+  ~ .install-card__body
+  .tab__list
+  [for="install-tab-sys"] {
+  outline: none;
+}
+
+#install-tab-pkg:focus-visible
+  ~ .install-card__body
+  .tab__list
+  [for="install-tab-pkg"],
+#install-tab-sys:focus-visible
+  ~ .install-card__body
+  .tab__list
+  [for="install-tab-sys"] {
+  outline: medium auto -webkit-focus-ring-color;
+}
+
 /* ── Heading ─────────────────────────────────────────────── */
 .install-card__title {
   margin-bottom: 0;
