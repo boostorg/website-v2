@@ -61,7 +61,11 @@ def _sync_contacts(client, dry_run):
 
 
 def _sync_leads(client, dry_run):
-    leads = CapturedEmail.objects.filter(opted_out=False).order_by("pk")
+    leads = (
+        CapturedEmail.objects.filter(opted_out=False)
+        .select_related("page")
+        .order_by("pk")
+    )
     total = leads.count()
     click.secho(f"Syncing {total} leads to Monday.com Leads board...", fg="green")
 

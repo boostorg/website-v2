@@ -29,6 +29,7 @@ LEADS_COLUMNS = {
     "state": "text_mm14p6vv",
     "country": "text_mm14jjtj",
     "referrer": "text_mm14ebdc",
+    "page": "text_mm1e9bx7",
     "captured_at": "date_mm14hcxb",
 }
 
@@ -330,6 +331,8 @@ class MondayClient:
             value = getattr(captured_email, field, "")
             if value:
                 column_values[LEADS_COLUMNS[key]] = value
+        if captured_email.page:
+            column_values[LEADS_COLUMNS["page"]] = captured_email.page.title
         if captured_email.created_at:
             column_values[LEADS_COLUMNS["captured_at"]] = self._format_date(
                 captured_email.created_at
