@@ -38,6 +38,14 @@ class MondayAPIError(Exception):
     """Raised when the Monday.com API returns an error response."""
 
 
+class MondayRateLimitError(MondayAPIError):
+    """Raised when the Monday.com API returns a 429 rate limit response."""
+
+    def __init__(self, retry_after=30):
+        self.retry_after = retry_after
+        super().__init__(f"Rate limited, retry after {retry_after}s")
+
+
 class MondayClient:
     """
     Minimal Monday.com GraphQL client for one-way CRM push.
@@ -76,6 +84,9 @@ class MondayClient:
             payload["variables"] = variables
 
         response = self.session.post(MONDAY_API_URL, json=payload)
+        if response.status_code == 429:
+            retry_after = int(response.headers.get("Retry-After", 30))
+            raise MondayRateLimitError(retry_after)
         response.raise_for_status()
 
         data = response.json()
@@ -92,9 +103,19 @@ class MondayClient:
         for attempt in range(1, max_retries + 1):
             try:
                 return self._query(query, variables)
+            except MondayRateLimitError as e:
+                if attempt == max_retries:
+                    raise
+                logger.warning(
+                    "Monday.com rate limited, waiting %ds (attempt %d/%d)",
+                    e.retry_after,
+                    attempt,
+                    max_retries,
+                )
+                time.sleep(e.retry_after)
             except MondayAPIError:
                 raise
-            except Exception:
+            except requests.RequestException:
                 if attempt == max_retries:
                     raise
                 wait = 2**attempt
@@ -138,34 +159,33 @@ class MondayClient:
         cursor = None
         while True:
             if cursor:
-                query = (
-                    """
-                query ($cursor: String!) {
+                query = """
+                query ($cursor: String!, $col_ids: [String!]) {
                     next_items_page(limit: 500, cursor: $cursor) {
                         cursor
-                        items { id column_values(ids: ["%s"]) { text } }
+                        items { id column_values(ids: $col_ids) { text } }
                     }
                 }
                 """
-                    % email_column_id
-                )
-                data = self._query_with_retry(query, {"cursor": cursor})
+                variables = {"cursor": cursor, "col_ids": [email_column_id]}
+                data = self._query_with_retry(query, variables)
                 page = data["next_items_page"]
             else:
-                query = (
-                    """
-                query ($board_id: ID!) {
+                query = """
+                query ($board_id: ID!, $col_ids: [String!]) {
                     boards(ids: [$board_id]) {
                         items_page(limit: 500) {
                             cursor
-                            items { id column_values(ids: ["%s"]) { text } }
+                            items { id column_values(ids: $col_ids) { text } }
                         }
                     }
                 }
                 """
-                    % email_column_id
-                )
-                data = self._query_with_retry(query, {"board_id": str(board_id)})
+                variables = {
+                    "board_id": str(board_id),
+                    "col_ids": [email_column_id],
+                }
+                data = self._query_with_retry(query, variables)
                 page = data["boards"][0]["items_page"]
 
             for item in page["items"]:
@@ -373,34 +393,43 @@ class MondayClient:
             item_id = self.create_item(board_id, name, column_values)
             return item_id, "created"
 
+    def _flush_batch(self, board_id, create_buf, update_buf, counters):
+        """Flush create/update buffers when they reach BATCH_SIZE."""
+        if len(create_buf) >= self.BATCH_SIZE:
+            self.create_items_batch(board_id, create_buf)
+            counters[0] += len(create_buf)
+            create_buf.clear()
+        if len(update_buf) >= self.BATCH_SIZE:
+            self.update_items_batch(board_id, update_buf)
+            counters[1] += len(update_buf)
+            update_buf.clear()
+
     def bulk_upsert_contacts(self, users):
         """Bulk upsert Users into the Contacts board. Returns (created, updated)."""
         board_id = settings.MONDAY_CONTACTS_BOARD_ID
         email_col = CONTACTS_COLUMNS["email"]
         existing = self.get_all_emails(board_id, email_col)
 
-        to_create = []
-        to_update = []
-        for user in users:
+        create_buf, update_buf = [], []
+        counters = [0, 0]  # [created, updated]
+        for user in users.iterator():
             name, col_vals = self._contact_row(user)
             item_id = existing.get(user.email)
             if item_id:
-                to_update.append((item_id, col_vals))
+                update_buf.append((item_id, col_vals))
             else:
-                to_create.append((name, col_vals))
+                create_buf.append((name, col_vals))
+            self._flush_batch(board_id, create_buf, update_buf, counters)
 
-        created = updated = 0
-        for i in range(0, len(to_create), self.BATCH_SIZE):
-            batch = to_create[i : i + self.BATCH_SIZE]
-            self.create_items_batch(board_id, batch)
-            created += len(batch)
+        # Flush remaining
+        if create_buf:
+            self.create_items_batch(board_id, create_buf)
+            counters[0] += len(create_buf)
+        if update_buf:
+            self.update_items_batch(board_id, update_buf)
+            counters[1] += len(update_buf)
 
-        for i in range(0, len(to_update), self.BATCH_SIZE):
-            batch = to_update[i : i + self.BATCH_SIZE]
-            self.update_items_batch(board_id, batch)
-            updated += len(batch)
-
-        return created, updated
+        return counters[0], counters[1]
 
     def bulk_upsert_leads(self, leads):
         """Bulk upsert CapturedEmails into the Leads board. Returns (created, updated)."""
@@ -408,25 +437,23 @@ class MondayClient:
         email_col = LEADS_COLUMNS["email"]
         existing = self.get_all_emails(board_id, email_col)
 
-        to_create = []
-        to_update = []
-        for lead in leads:
+        create_buf, update_buf = [], []
+        counters = [0, 0]  # [created, updated]
+        for lead in leads.iterator():
             name, col_vals = self._lead_row(lead)
             item_id = existing.get(lead.email)
             if item_id:
-                to_update.append((item_id, col_vals))
+                update_buf.append((item_id, col_vals))
             else:
-                to_create.append((name, col_vals))
+                create_buf.append((name, col_vals))
+            self._flush_batch(board_id, create_buf, update_buf, counters)
 
-        created = updated = 0
-        for i in range(0, len(to_create), self.BATCH_SIZE):
-            batch = to_create[i : i + self.BATCH_SIZE]
-            self.create_items_batch(board_id, batch)
-            created += len(batch)
+        # Flush remaining
+        if create_buf:
+            self.create_items_batch(board_id, create_buf)
+            counters[0] += len(create_buf)
+        if update_buf:
+            self.update_items_batch(board_id, update_buf)
+            counters[1] += len(update_buf)
 
-        for i in range(0, len(to_update), self.BATCH_SIZE):
-            batch = to_update[i : i + self.BATCH_SIZE]
-            self.update_items_batch(board_id, batch)
-            updated += len(batch)
-
-        return created, updated
+        return counters[0], counters[1]
