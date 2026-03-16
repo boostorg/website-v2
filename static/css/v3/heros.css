@@ -23,8 +23,20 @@
    width: 100%;
    justify-content: space-between;
    align-items: center;
-   background: var(--color-surface-weak-accent-yellow-homepage);
+   background: var(--color-surface-weak-accent-yellow);
    margin-bottom: var(--space-large, 16px);
+ }
+
+ .dark .hero-home {
+   background: #081040;
+ }
+
+ .hero-home--no-image {
+   background: none;
+ }
+
+ .dark .hero-home--no-image {
+   background: none;
  }
 
  .hero-home__block {
@@ -49,13 +61,13 @@
    max-width: 950px;
    margin: auto;
    margin-left: 0;
+   width: 53%;
  }
 
  .hero-home__headline {
    color: var(--color-text-primary);
    font-size: 64px;
    line-height: 1;
-   letter-spacing: -0.01em;
    font-weight: 400;
    margin: 0;
    align-self: stretch;
@@ -71,8 +83,8 @@
  }
 
  .btn.btn-hero.btn-secondary {
-   background-color: var(--color-button-secondary);
-   border-color: var(--color-stroke-strong);
+   background-color: var(--color-surface-weak);
+   border-color: var(--color-stroke-weak);
  }
 
  .hero-home__actions .btn-icon {
@@ -90,6 +102,7 @@
    flex-direction: column;
    gap: 24px;
    width: 458px;
+   z-index: 1;
  }
 
  .hero-home__image {
@@ -232,6 +245,10 @@
      padding: 80px 8px 0 8px;
    }
 
+   .hero-home--no-image .hero-home__block {
+    min-height: auto;
+  }
+
    .hero-home__content {
      position: static;
      left: auto;
@@ -285,8 +302,20 @@
    flex-direction: column;
    gap: 16px;
    width: 100%;
-   background: var(--color-surface-weak-accent-yellow-homepage);
+   background: var(--color-surface-weak-accent-yellow);
    align-items: center;
+ }
+
+ .dark .hero-library {
+   background: #081040;
+ }
+
+ .hero-library--no-image {
+   background: none;
+ }
+
+ .dark .hero-library--no-image {
+   background: none;
  }
 
  .hero-library__block {
@@ -323,6 +352,8 @@
  }
 
  .hero-library__added-wrap {
+   display: inline-flex;
+   align-items: center;
    padding: 6px 8px;
    border-radius: 1000px;
  }
@@ -383,10 +414,11 @@
    margin-right: 16px;
    overflow: hidden;
    flex: 1;
+   display: flex;
+   flex-direction: row-reverse;
  }
 
  .hero-library__image .hero-library__img {
-   width: 100%;
    height: 100%;
    object-fit: contain;
    object-position: center bottom;
@@ -420,6 +452,11 @@
      justify-content: center;
      padding: 80px 8px 0 8px;
    }
+
+   .hero-library--no-image .hero-library__block {
+    min-height: auto;
+    height: auto;
+  }
 
    .hero-library__content {
      left: 8px;
@@ -486,5 +523,6 @@
      height: 306px;
      right: 0px;
      bottom: 0;
+     justify-content: center;
    }
  }

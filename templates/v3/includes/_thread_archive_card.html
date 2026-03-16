@@ -4,7 +4,6 @@
   NOTE: This currently contains a placeholder image that should be replaced.
 {% endcomment %}
 {% load static %}
-
 <div class="basic-card thread-archive-card card py-large">
   <div class="card__header">
     <span class="card__title">Explore The Boost Developers Mailing List</span>
@@ -14,8 +13,8 @@
     <img src="{% static 'img/checker.png' %}">
   </div>
   <hr class="card__hr" />
-  <div class="px-large btn-row">
-      {% include 'v3/includes/_button.html' with style="primary" url="https://lists.boost.org/archives/list/boost@lists.boost.org/latest" label="Recent Threads" extra_classes="btn-flex" only %}
-      {% include 'v3/includes/_button.html' with style="secondary" url="https://lists.boost.org/archives/list/boost@lists.boost.org/" label="View Archive" extra_classes="btn-flex" only %}
-    </div>
+  <div class="card__cta_section">
+    {% include "v3/includes/_button.html" with style="primary" url="https://lists.boost.org/archives/list/boost@lists.boost.org/latest" label="Recent Threads" only %}
+    {% include "v3/includes/_button.html" with style="secondary" url="https://lists.boost.org/archives/list/boost@lists.boost.org/" label="View Archive" only %}
+  </div>
 </div>

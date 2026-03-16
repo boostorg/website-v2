@@ -31,10 +31,15 @@
     {% if view_all_url %}
     <a href="{{ view_all_url }}" class="btn btn-teal">{{ view_all_label|default:"View all" }}</a>
     {% endif %}
-    {% if secondary_cta_url %}
-    <a href="{{ secondary_cta_url }}" class="btn btn-secondary">{{ secondary_cta_label }}</a>
+    {% if view_all_url or secondary_cta_url %}
+      <div class="card__cta_section">
+        {% if view_all_url %}
+          {% include "v3/includes/_button.html" with label=view_all_label|default:"View all" url=view_all_url style="primary" only %}
+        {% endif %}
+        {% if secondary_cta_url %}
+          {% include "v3/includes/_button.html" with label=secondary_cta_label url=secondary_cta_url style="secondary" only %}
+        {% endif %}
+      </div>
     {% endif %}
-  </div>
-  {% endif %}
-</section>
+  </section>
 {% endif %}

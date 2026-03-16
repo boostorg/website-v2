@@ -1,10 +1,11 @@
 {% comment %}
-  V3 Hero Library: tags, version, title, description, and doc/source/slack/github links.
+  V3 Hero Library: tags, title, description, and doc/source/slack/github links.
+  For use on Library Subpage; pass all required data to avoid placeholder content.
 
   Variables:
-    title              (optional) — Library name. Default: "Boost.Beast"
-    description        (optional) — Short description. Default: "Portable HTTP, WebSocket, and network operations using only C++11 and Boost.Asio"
-    category_tags      (optional) — List of dicts with "label" and "url" (e.g. [{"label":"Concurrent","url":"#"}, ...]). Default: example tags
+    title              (optional) — Library name.
+    description        (optional) — Short description.
+    category_tags      (optional) — List of dicts with "label" and "url".
     version_tag        (optional) — e.g. "C++ 03". Omit to hide.
     added_text         (optional) — e.g. "Added in 1.66.0". Omit to hide.
     doc_url            (optional) — Documentation link URL. Omit to hide.
@@ -16,7 +17,7 @@
   Usage:
     {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}
 {% endcomment %}
-<section class="hero-library" aria-label="Library hero">
+<section class="hero-library{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-library--no-image{% endif %}" aria-label="Library hero">
   <div class="hero-library__block">
     <div class="hero-library__content">
       <div class="hero-library__meta">
@@ -38,8 +39,12 @@
           {% endif %}
         </div>
         <div class="hero-library__text-block">
-          <h1 class="hero-library__title">{{ title|default:"Boost.Beast" }}</h1>
-          <p class="hero-library__description">{{ description|default:"Portable HTTP, WebSocket, and network operations using only C++11 and Boost.Asio" }}</p>
+          {% if title %}
+          <h1 class="hero-library__title">{{ title }}</h1>
+          {% endif %}
+          {% if description %}
+          <p class="hero-library__description">{{ description }}</p>
+          {% endif %}
         </div>
       </div>
       <div class="hero-library__links">
@@ -57,9 +62,14 @@
         {% endif %}
       </div>
     </div>
-    {% if hero_image_url %}
-    <div class="hero-library__image">
-      <img alt="" class="hero-library__img" src="{{ hero_image_url }}" loading="lazy" decoding="async">
+    {% if hero_image_url or hero_image_url_light or hero_image_url_dark %}
+    <div class="hero-library__image{% if hero_image_url_dark %} hero-library__image--theme-aware{% endif %}">
+      {% with hero_light=hero_image_url_light|default:hero_image_url hero_dark=hero_image_url_dark %}
+      <img alt="" class="hero-library__img hero-library__img--light" src="{{ hero_light }}" loading="lazy" decoding="async">
+      {% if hero_dark %}
+      <img alt="" class="hero-library__img hero-library__img--dark" src="{{ hero_dark }}" loading="lazy" decoding="async">
+      {% endif %}
+      {% endwith %}
     </div>
     {% endif %}
   </div>
