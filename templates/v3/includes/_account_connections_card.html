@@ -29,7 +29,7 @@
         <span class="account-connections__platform-name">{{ conn.label }}</span>
       </div>
       <span class="account-connections__status">{{ conn.status_text }}</span>
-      <a href="{{ conn.action_url }}" class="btn btn-primary" aria-label="{{ conn.action_label }} {{ conn.label }}">{{ conn.action_label }}</a>
+      <a href="{{ conn.action_url }}" class="btn {% if conn.connected %}btn-secondary{% else %}btn-primary{% endif %}" aria-label="{{ conn.action_label }} {{ conn.label }}">{{ conn.action_label }}</a>
     </li>
     {% endfor %}
   </ul>
