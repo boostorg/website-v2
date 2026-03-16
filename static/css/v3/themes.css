@@ -64,7 +64,6 @@ html.dark {
   /* Accent Surfaces (Dark theme overrides) */
   --color-surface-strong-accent-green-default: var(--color-primary-grey-800);
   --color-surface-strong-accent-green-hover: var(--color-primary-grey-850);
-  --color-surface-weak-accent-yellow-homepage: #081040;
   --color-surface-strong-accent-teal-default: var(--color-primary-grey-800);
   --color-surface-strong-accent-teal-hover: var(--color-primary-grey-850);
   --color-surface-strong-accent-yellow-default: var(--color-primary-grey-800);

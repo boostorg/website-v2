@@ -364,7 +364,7 @@
       {% if request.resolver_match.url_name == 'v3-demo-components' %}
       {% include "v3/includes/_hero_home.html" with hero_image_url=hero_image_url %}
       <div class="v3-demo-heros-spacer" style="margin-top: 3rem;"></div>
-      {% include "v3/includes/_hero_library.html" with doc_url="#" source_url="#" slack_url="#" github_url="#" version_tag="C++ 03" added_text="Added in 1.66.0" hero_image_url=hero_image_url %}
+      {% include "v3/includes/_hero_library.html" with title="Boost.Beast" description="Portable HTTP, WebSocket, and network operations using only C++11 and Boost.Asio" doc_url="#" source_url="#" slack_url="#" github_url="#" version_tag="C++ 03" added_text="Added in 1.66.0" hero_image_url=hero_image_url %}
       {% endif %}
       {% endflag %}
       {% block main_content_wrapper %}<div class="max-w-7xl md:px-3 mx-auto transition-all">{% endblock %}

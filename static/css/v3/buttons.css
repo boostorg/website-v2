@@ -154,6 +154,7 @@
   font-size: var(--font-size-base, 16px);
   gap: var(--space-default, 8px);
   width: auto;
+  z-index: 1;
 }
 
 .btn.btn-hero.btn-primary {
@@ -231,8 +232,8 @@
   font-size: var(--font-size-small, 14px);
   font-weight: var(--font-weight-regular, 400);
   color: var(--color-text-primary, #050816);
-  background-color: var(--color-button-primary, #efeff1);
-  border: 1px solid var(--color-border, #d5d6d8);
+  background-color: var(--color-surface-weak, #ffffff);
+  border: 1px solid var(--color-stroke-weak, #d5d6d8);
   border-radius: var(--border-radius-l, 8px);
   cursor: pointer;
 }
