@@ -35,4 +35,5 @@
     height: 16px;
     flex-shrink: 0;
     aspect-ratio: 1/1;
+    fill: var(--color-text-on-accent);
 }
