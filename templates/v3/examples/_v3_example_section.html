@@ -266,7 +266,17 @@
       </div>
     {% endwith %}
   </div>
+
   <div class="v3-examples-section__block">
+    <h3>Horizontal Card</h3>
+    {% with horizontal_card_data as card %}
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_horizontal_card.html" with title=card.title text=card.text image_url=card.image_url button_url=card.button_url button_label=card.button_label %}
+    </div>
+    {% endwith %}
+  </div>
+
+<div class="v3-examples-section__block">
     <h3>Learn Card</h3>
     <div class="v3-examples-section__example-box">
       {% with learn_card_data as data %}
