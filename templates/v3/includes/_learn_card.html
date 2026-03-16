@@ -8,7 +8,6 @@ Inputs:
   - url (required) - Url for the hero button
   - image_src (required) - Url at which the image can be found
 {% endcomment %}
-
 <div class="card learn-card p-large">
   <div class="learn-card__row">
     <div class="learn-card__column">
@@ -18,9 +17,14 @@ Inputs:
           <span class="learn-card__text">{{ text }}</span>
           <div class="gap-default card__column mb-xxl">
             {% for link in links %}
-            <a href="{{ link.url }}" class="learn-card__link-tag">
-              <span class="learn-card__link-container">
-                  <svg class="learn-card__link-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <a href="{{ link.url }}" class="learn-card__link-tag">
+                <span class="learn-card__link-container">
+                  <svg class="learn-card__link-icon"
+                       width="16"
+                       height="16"
+                       viewBox="0 0 16 16"
+                       fill="none"
+                       xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.99984 10.6667H10.6665V12H11.9998V10.6667H13.3332V9.33335H11.9998V8.00002H10.6665V9.33335H3.99984V2.66669H2.6665V10.6667H3.99984ZM10.6665 8.00002V6.66669H9.33317V8.00002H10.6665ZM10.6665 12V13.3334H9.33317V12H10.6665Z" />
                   </svg>
                   <span class="learn-card__link">{{ link.label }}</span>
@@ -30,9 +34,7 @@ Inputs:
           </div>
         </div>
       </div>
-      <div class="btn-row">
-        {% include 'v3/includes/_button_hero_primary.html' with label=label url=url icon_html='<span class="btn-icon" aria-hidden><i class="fas fa-arrow-right"></i></span>' extra_classes='btn-flex' %}
-      </div>
+      <div class="btn-row">{% include "v3/includes/_button_hero.html" with label=label url=url %}</div>
     </div>
     <img class="learn-card__image" src="{{ image_src }}" />
   </div>

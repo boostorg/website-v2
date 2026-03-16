@@ -27,8 +27,8 @@
   </div>
   {% if button_url and button_label %}
     <hr class="card__hr" />
-    <div class="px-large btn-row">
-      {% include 'v3/includes/_button.html' with style=button_style url=button_url label=button_label extra_classes="btn-flex" only %}
+    <div class="card__cta_section">
+      {% include 'v3/includes/_button.html' with style=button_style url=button_url label=button_label only %}
     </div>
   {% endif %}
 </div>

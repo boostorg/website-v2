@@ -36,7 +36,7 @@
 }
 
 html.dark .v3-examples-section__example-box {
-  background: var(--color-surface-mid)
+  background: var(--color-surface-mid);
 }
 
 .v3-examples-section__tools {
@@ -120,59 +120,6 @@ html.dark .v3-examples-section__example-box {
   margin: 0 0 var(--space-default, 8px);
 }
 
-/* Demo hover overrides for this section only */
-.v3-examples-section [data-hover].btn-primary {
-  background-color: var(--color-secondary-dark-blue, #00778B);
-  border-color: var(--color-secondary-dark-blue, #00778B);
-  color: var(--color-text-reversed, #fff);
-}
-
-.v3-examples-section [data-hover].btn-primary-outline {
-  background-color: var(--color-secondary-light-blue, #f7fdfe);
-  border-color: var(--color-text-link-accent, #00778B);
-  color: var(--color-text-link-accent, #00778B);
-}
-
-.v3-examples-section [data-hover].btn-secondary {
-  background-color: var(--color-button-secondary, #fff);
-  border-color: var(--color-secondary-dark-blue, #0077B8);
-  color: var(--color-secondary-dark-blue, #0077B8);
-}
-
-.v3-examples-section [data-hover].btn-secondary-grey {
-  background-color: var(--color-primary-grey-300, #d5d6d8);
-  border-color: var(--color-primary-grey-300, #d5d6d8);
-  color: var(--color-text-primary, #050816);
-}
-
-.v3-examples-section [data-hover].btn-green {
-  background-color: var(--color-surface-strong-accent-green-hover, #CACA62BF);
-  border-color: transparent;
-  color: var(--color-text-primary, #050816);
-}
-
-.v3-examples-section [data-hover].btn-yellow {
-  background-color: var(--color-surface-strong-accent-yellow-hover, #F5D039BF);
-  border-color: transparent;
-  color: var(--color-text-primary, #050816);
-}
-
-.v3-examples-section [data-hover].btn-teal {
-  background-color: var(--color-surface-strong-accent-teal-hover, #64DACEBF);
-  border-color: transparent;
-  color: var(--color-text-primary, #050816);
-}
-
-.v3-examples-section [data-hover].btn-carousel {
-  color: var(--color-secondary-dark-blue, #0077B8);
-}
-
-.v3-examples-section [data-hover].btn.btn-hero.btn-primary {
-  background-color: var(--color-surface-brand-accent-hovered);
-  border-color: var(--color-surface-brand-accent-hovered);
-  color: var(--color-text-primary);
-}
-
 .v3-examples-section .cards-carousel {
   display: flex;
   flex-direction: column;
@@ -189,7 +136,9 @@ html.dark .v3-examples-section__example-box {
   -webkit-overflow-scrolling: touch;
 }
 
-.v3-examples-section .post-cards--carousel .post-cards__list::-webkit-scrollbar {
+.v3-examples-section
+  .post-cards--carousel
+  .post-cards__list::-webkit-scrollbar {
   display: none;
 }
 
