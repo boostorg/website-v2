@@ -52,7 +52,7 @@
   {% if cta_url %}
   <hr class="library-intro-card__divider">
   <div class="library-intro-card__cta">
-    <a href="{{ cta_url }}" class="btn btn-secondary-grey">{{ cta_label|default:"Use "|add:library_name }}</a>
+    {% include "v3/includes/_button.html" with style="secondary-grey" url=cta_url label=cta_label|default:"Use "|add:library_name %}
   </div>
   {% endif %}
 </div>
