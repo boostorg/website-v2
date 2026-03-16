@@ -245,6 +245,10 @@
      padding: 80px 8px 0 8px;
    }
 
+   .hero-home--no-image .hero-home__block {
+    min-height: auto;
+  }
+
    .hero-home__content {
      position: static;
      left: auto;
@@ -448,6 +452,11 @@
      justify-content: center;
      padding: 80px 8px 0 8px;
    }
+
+   .hero-library--no-image .hero-library__block {
+    min-height: auto;
+    height: auto;
+  }
 
    .hero-library__content {
      left: 8px;
