@@ -17,7 +17,6 @@
   Usage:
     {% include "v3/includes/_library_intro_card.html" with library_name="Boost.Core." description="Lightweight utilities that power dozens of other Boost libraries" authors=library_authors cta_url="/libs/core/" %}
 {% endcomment %}
-
 <div class="library-intro-card">
   <div class="library-intro-card__header">
     <div class="library-intro-card__title">
@@ -25,34 +24,30 @@
     </div>
     <p class="library-intro-card__description">{{ description }}</p>
   </div>
-
   {% for author in authors %}
-  <hr class="library-intro-card__divider">
-  <div class="library-intro-card__author">
-    {% include "v3/includes/_avatar_v3.html" with src=author.avatar_url name=author.name size="xl" %}
-    <div class="library-intro-card__author-content">
-      <div class="library-intro-card__author-meta">
-        <p class="library-intro-card__author-name">{{ author.name }}</p>
-        {% if author.role %}
-        <p class="library-intro-card__author-role">{{ author.role }}</p>
-        {% endif %}
-        {% if author.badge %}
-        <span class="library-intro-card__author-badge" aria-hidden="true">{{ author.badge }}</span>
-        {% elif author.badge_url %}
-        <span class="library-intro-card__author-badge" aria-hidden="true"><img src="{{ author.badge_url }}" alt=""></span>
-        {% endif %}
+    <hr class="library-intro-card__divider">
+    <div class="library-intro-card__author">
+      {% include "v3/includes/_avatar_v3.html" with src=author.avatar_url name=author.name size="xl" %}
+      <div class="library-intro-card__author-content">
+        <div class="library-intro-card__author-meta">
+          <p class="library-intro-card__author-name">{{ author.name }}</p>
+          {% if author.role %}<p class="library-intro-card__author-role">{{ author.role }}</p>{% endif %}
+          {% if author.badge %}
+            <span class="library-intro-card__author-badge" aria-hidden="true">{{ author.badge }}</span>
+          {% elif author.badge_url %}
+            <span class="library-intro-card__author-badge" aria-hidden="true">
+              <img src="{{ author.badge_url }}" alt="">
+            </span>
+          {% endif %}
+        </div>
+        {% if author.bio %}<p class="library-intro-card__author-bio">{{ author.bio }}</p>{% endif %}
       </div>
-      {% if author.bio %}
-      <p class="library-intro-card__author-bio">{{ author.bio }}</p>
-      {% endif %}
     </div>
-  </div>
   {% endfor %}
-
   {% if cta_url %}
-  <hr class="library-intro-card__divider">
-  <div class="library-intro-card__cta">
-    <a href="{{ cta_url }}" class="btn btn-secondary-grey">{{ cta_label|default:"Use "|add:library_name }}</a>
-  </div>
+    <hr class="library-intro-card__divider">
+    <div class="library-intro-card__cta">
+      {% include "v3/includes/_button.html" with url=cta_url label=cta_label|default:"Use "|add:library_name only %}
+    </div>
   {% endif %}
 </div>
