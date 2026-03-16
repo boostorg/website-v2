@@ -574,3 +574,4 @@ zope-event==6.1
     # via gevent
 zope-interface==8.2
     # via gevent
+django-lookbook==1.0.2

@@ -42,6 +42,7 @@ openai
 playwright
 wagtail
 wagtail-markdown
+django-lookbook
 
 # Logging
 django-tracer
