@@ -1,14 +1,10 @@
 <section class="v3-examples-section" aria-labelledby="v3-examples-heading">
   {% comment %}V3 examples section for testing. To be removed – everything under v3/examples/ is disposable.{% endcomment %}
   <h2 id="v3-examples-heading" class="v3-examples-section__heading">V3 Examples for testing</h2>
-
   <div class="v3-examples-section__block">
     <h3 class="block-title">Buttons</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/examples/_v3_example_buttons_block.html" %}
-    </div>
+    <div class="v3-examples-section__example-box">{% include "v3/examples/_v3_example_buttons_block.html" %}</div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3 class="block-title">Tooltip button</h3>
     <div class="v3-examples-section__example-box">
@@ -26,7 +22,6 @@
       </div>
     </div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3 class="block-title">Avatar</h3>
     <div class="v3-examples-section__example-box">
@@ -111,37 +106,28 @@
       </table>
     </div>
   </div>
-
-
-
   <div class="v3-examples-section__block v3-examples-section__block--carousel">
     <h3 class="block-title">Carousel buttons</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_carousel_buttons.html" %}
-    </div>
+    <div class="v3-examples-section__example-box">{% include "v3/includes/_carousel_buttons.html" %}</div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3>Detail card carousel</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo" heading="Libraries categories" cards=demo_cards_carousel_cards %}
     </div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3>Detail card carousel with autoplay</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo-autoplay" heading="Libraries categories" cards=demo_cards_carousel_cards autoplay=True autoplay_delay=5000 %}
     </div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3>Detail card carousel with infinite looping and autoplay</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo-infinite-autoplay" heading="Libraries categories" cards=demo_cards_carousel_cards infinite=True autoplay=True autoplay_delay=5000 %}
     </div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3 class="block-title">Post cards list</h3>
     <div class="v3-examples-section__example-box">
@@ -166,13 +152,12 @@
             {% endwith %}
           </li>
         </ul>
-        <div class="post-cards__cta">
-          <a href="#" class="btn btn-secondary-grey">View all posts</a>
+        <div class="card__cta_section">
+          {% include "v3/includes/_button.html" with label="View all posts" url="#" %}
         </div>
       </section>
     </div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3>Detail card (single)</h3>
     <div class="v3-examples-section__example-box">
@@ -181,70 +166,82 @@
       {% endwith %}
     </div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3 class="block-title">Search Card</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="#" popular_terms=popular_terms %}
     </div>
   </div>
-
   {% if library_intro %}
-  <div class="v3-examples-section__block">
-    <h3>Library Intro Card</h3>
-    <div class="v3-examples-section__example-box">
-      {% with intro=library_intro %}
-      {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
-      {% endwith %}
+    <div class="v3-examples-section__block">
+      <h3>Library Intro Card</h3>
+      <div class="v3-examples-section__example-box">
+        {% with intro=library_intro %}
+          {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
+        {% endwith %}
+      </div>
     </div>
-  </div>
   {% endif %}
-
   {% if example_library_choices %}
-  <div class="v3-examples-section__block">
-    <h3>Commits per release (by library)</h3>
-    <div class="v3-examples-section__example-box">
-      <form method="get" action="{% url 'v3-demo-components' %}" class="v3-examples-section__stats-lookup" style="display: flex; gap: var(--space-default, 8px); align-items: center; flex-wrap: wrap; margin-bottom: var(--stats-space, 24px);">
-        <label for="example-library-select" class="v3-examples-section__stats-lookup-label">Library</label>
-        <select id="example-library-select" name="library" onchange="this.form.submit()" style="padding: var(--space-medium, 12px); border: 1px solid var(--color-border); border-radius: var(--border-radius-s, 4px); min-width: 14rem;">
-          {% for slug, name in example_library_choices %}
-            <option value="{{ slug }}" {% if example_library_slug == slug %}selected{% endif %}>{{ name }}</option>
-          {% endfor %}
-        </select>
-      </form>
-      {% if example_library_not_found %}
-        <p class="v3-examples-section__stats-lookup-message" style="color: var(--color-text-secondary);">Library “{{ example_library_not_found }}” not found.</p>
-      {% elif example_library_commits_bars %}
-        <div class="v3-examples-section__stats-grid">
-          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="default" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
-          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="yellow" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
-          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="green" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
-          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="teal" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
-        </div>
-        <div class="v3-examples-section__stats-full-width">
-          <p class="v3-examples-section__stats-demo-label">Full width</p>
-          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Takes full width of container; up to 20 bars." bars=example_library_commits_bars theme="green" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
-        </div>
-        <div class="v3-examples-section__stats-grid v3-examples-section__stats-grid--sized-demo">
-          <div class="v3-examples-section__stats-grid-cell v3-examples-section__stats-grid-cell--free">
-            <p class="v3-examples-section__stats-demo-label">5 bars only</p>
-            {% with example_bars_5=example_library_commits_bars|slice:":5" %}
-            {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Same data limited to 5 bars." bars=example_bars_5 theme="teal" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
-            {% endwith %}
+    <div class="v3-examples-section__block">
+      <h3>Commits per release (by library)</h3>
+      <div class="v3-examples-section__example-box">
+        <form method="get"
+              action="{% url 'v3-demo-components' %}"
+              class="v3-examples-section__stats-lookup"
+              style="display: flex;
+                     gap: var(--space-default, 8px);
+                     align-items: center;
+                     flex-wrap: wrap;
+                     margin-bottom: var(--stats-space, 24px)">
+          <label for="example-library-select"
+                 class="v3-examples-section__stats-lookup-label">Library</label>
+          <select id="example-library-select"
+                  name="library"
+                  onchange="this.form.submit()"
+                  style="padding: var(--space-medium, 12px);
+                         border: 1px solid var(--color-border);
+                         border-radius: var(--border-radius-s, 4px);
+                         min-width: 14rem">
+            {% for slug, name in example_library_choices %}
+              <option value="{{ slug }}"
+                      {% if example_library_slug == slug %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+          </select>
+        </form>
+        {% if example_library_not_found %}
+          <p class="v3-examples-section__stats-lookup-message"
+             style="color: var(--color-text-secondary)">Library “{{ example_library_not_found }}” not found.</p>
+        {% elif example_library_commits_bars %}
+          <div class="v3-examples-section__stats-grid">
+            {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="default" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+            {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="yellow" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+            {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="green" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+            {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="teal" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
           </div>
-        </div>
-      {% endif %}
+          <div class="v3-examples-section__stats-full-width">
+            <p class="v3-examples-section__stats-demo-label">Full width</p>
+            {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Takes full width of container; up to 20 bars." bars=example_library_commits_bars theme="green" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+          </div>
+          <div class="v3-examples-section__stats-grid v3-examples-section__stats-grid--sized-demo">
+            <div class="v3-examples-section__stats-grid-cell v3-examples-section__stats-grid-cell--free">
+              <p class="v3-examples-section__stats-demo-label">5 bars only</p>
+              {% with example_bars_5=example_library_commits_bars|slice:":5" %}
+                {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Same data limited to 5 bars." bars=example_bars_5 theme="teal" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+              {% endwith %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
     </div>
-  </div>
   {% endif %}
-
+  {% include "v3/examples/_v3_example_section_wysiwyg.html" %}
   <div class="v3-examples-section__block">
     <h3 class="block-title">Create Account Card</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_create_account_card.html" with heading="Contribute to earn badges, track your progress and grow your impact" body_html=create_account_card_body_html preview_image_url=create_account_card_preview_url cta_url="#" cta_label="Start contributing" %}
     </div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3 class="block-title">Form inputs</h3>
     <div class="v3-examples-section__example-box">
@@ -273,11 +270,20 @@
   <div class="v3-examples-section__block">
     <h3>Basic Card</h3>
     {% with basic_card_data as card %}
+      <div class="v3-examples-section__example-box">
+        <h4 class="py-large">Card with two buttons</h4>
+        {% include "v3/includes/_basic_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label secondary_button_url=card.secondary_button_url secondary_button_label=card.secondary_button_label %}
+        <h4 class="py-large">Card with one button</h4>
+        {% include "v3/includes/_basic_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label %}
+      </div>
+    {% endwith %}
+  </div>
+
+  <div class="v3-examples-section__block">
+    <h3>Horizontal Card</h3>
+    {% with horizontal_card_data as card %}
     <div class="v3-examples-section__example-box">
-      <h4 class="py-large">Card with two buttons</h4>
-      {% include "v3/includes/_basic_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label secondary_button_url=card.secondary_button_url secondary_button_label=card.secondary_button_label %}
-      <h4 class="py-large">Card with one button</h4>
-      {% include "v3/includes/_basic_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label %}
+      {% include "v3/includes/_horizontal_card.html" with title=card.title text=card.text image_url=card.image_url button_url=card.button_url button_label=card.button_label %}
     </div>
     {% endwith %}
   </div>
@@ -290,21 +296,29 @@
       {% endwith %}
     </div>
   </div>
-
-   <div class="v3-examples-section__block">
+  <div class="v3-examples-section__block">
     <h3>Testimonial Card</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_testimonial_card.html" with heading=testimonial_data.heading testimonials=testimonial_data.testimonials %}
     </div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3>Thread Archive Card</h3>
     {% with basic_card_data as card %}
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_thread_archive_card.html"  %}
-    </div>
+      <div class="v3-examples-section__example-box">{% include "v3/includes/_thread_archive_card.html" %}</div>
     {% endwith %}
+  </div>
+  <div class="v3-examples-section__block">
+    <h3>Vertical Layout Card</h3>
+    {% with basic_card_data as card %}
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_vertical_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label primary_style="secondary-grey" image_url=card.image %}
+      </div>
+    {% endwith %}
+  </div>
+  <div class="v3-examples-section__block">
+    <h3>Mailing List Card</h3>
+    <div class="v3-examples-section__example-box">{% include "v3/includes/_mailing_list_card.html" %}</div>
   </div>
   <div class="v3-examples-section__block">
     <h3 class="block-title">Why Boost</h3>
@@ -328,51 +342,62 @@
       </section>
     </div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3 class="block-title">Category tags</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_category_cards.html" with show_version_tags=True %}
     </div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3 class="block-title">Event cards</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_event_cards.html" %}
-    </div>
+    <div class="v3-examples-section__example-box">{% include "v3/includes/_event_cards.html" %}</div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3 class="block-title">Content event list – clickable cards (link wraps each card)</h3>
     <div class="v3-examples-section__example-box">
-      <section class="post-cards post-cards--content post-cards--neutral post-cards--content-list" aria-labelledby="content-event-releases-links-list">
-        <h2 id="content-event-releases-links-list" class="post-cards__heading"><a href="#" class="post-cards__heading-link">Releases</a></h2>
+      <section class="post-cards post-cards--content post-cards--neutral post-cards--content-list"
+               aria-labelledby="content-event-releases-links-list">
+        <h2 id="content-event-releases-links-list" class="post-cards__heading">
+          <a href="#" class="post-cards__heading-link">Releases</a>
+        </h2>
         <ul class="post-cards__list">
-          <li class="post-cards__item">{% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" card_url="#event-0" card_aria_label="Boost 1.90.0 closed for major changes" event_card_wrapper=False %}</li>
-          <li class="post-cards__item">{% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15. Topics include modern C++, Boost libraries, and tooling." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=False %}</li>
-          <li class="post-cards__item">{% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries. See release notes for details." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=False %}</li>
+          <li class="post-cards__item">
+            {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" card_url="#event-0" card_aria_label="Boost 1.90.0 closed for major changes" event_card_wrapper=False %}
+          </li>
+          <li class="post-cards__item">
+            {% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15. Topics include modern C++, Boost libraries, and tooling." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=False %}
+          </li>
+          <li class="post-cards__item">
+            {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries. See release notes for details." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=False %}
+          </li>
         </ul>
-        <div class="post-cards__cta"><a href="#" class="btn btn-secondary-grey" aria-label="View all">View all</a></div>
+        <div class="card__cta_section">{% include "v3/includes/_button.html" with label="View all" url="#" %}</div>
       </section>
     </div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3>Content event card – clickable cards (link wraps each card)</h3>
     <div class="v3-examples-section__example-box">
-      <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card" aria-labelledby="content-event-releases-links-card">
-        <h2 id="content-event-releases-links-card" class="post-cards__heading"><a href="#" class="post-cards__heading-link">Releases</a></h2>
+      <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card"
+               aria-labelledby="content-event-releases-links-card">
+        <h2 id="content-event-releases-links-card" class="post-cards__heading">
+          <a href="#" class="post-cards__heading-link">Releases</a>
+        </h2>
         <ul class="post-cards__list">
-          <li class="post-cards__item">{% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" card_url="#event-0" card_aria_label="Boost 1.90.0 closed for major changes" event_card_wrapper=True %}</li>
-          <li class="post-cards__item">{% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15. Topics include modern C++, Boost libraries, and tooling." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=True %}</li>
-          <li class="post-cards__item">{% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries. See release notes for details." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=True %}</li>
+          <li class="post-cards__item">
+            {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" card_url="#event-0" card_aria_label="Boost 1.90.0 closed for major changes" event_card_wrapper=True %}
+          </li>
+          <li class="post-cards__item">
+            {% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15. Topics include modern C++, Boost libraries, and tooling." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=True %}
+          </li>
+          <li class="post-cards__item">
+            {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries. See release notes for details." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=True %}
+          </li>
         </ul>
-        <div class="post-cards__cta"><a href="#" class="btn btn-secondary-grey" aria-label="View all">View all</a></div>
+        <div class="card__cta_section">{% include "v3/includes/_button.html" with label="View all" url="#" %}</div>
       </section>
     </div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3 class="block-title">Content detail card</h3>
     <div class="v3-examples-section__example-box">
@@ -392,7 +417,6 @@
       </section>
     </div>
   </div>
-
   <div class="v3-examples-section__block">
     <h3 class="block-title">Code blocks</h3>
     <div class="v3-examples-section__example-box">
