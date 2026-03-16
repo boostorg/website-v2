@@ -1,0 +1,34 @@
+{% comment %}
+  Horizontal card: title, side-by-side text + image, and CTA button.
+
+  Variables:
+    title        (string, required) — card heading
+    text         (string, required) — description text beside the image
+    image_url    (string, required) — URL of the image
+    image_alt    (string, optional) — alt text for image, defaults to ""
+    button_url   (string, optional) — CTA link destination
+    button_label (string, optional) — CTA button text
+    button_style (string, optional) — button style variant, defaults to "primary"
+
+  Usage:
+    {% include "v3/includes/_horizontal_card.html" with title="Build anything with Boost" text="Use, modify, and distribute..." image_url="/static/img/example.png" button_url="#" button_label="See license details" %}
+{% endcomment %}
+
+<div class="horizontal-card card py-large">
+  <div class="card__header">
+    <span class="card__title">{{ title }}</span>
+  </div>
+  <hr class="card__hr" />
+  <div class="horizontal-card__content-row">
+    <p class="horizontal-card__text">{{ text }}</p>
+    <div class="horizontal-card__image">
+      <img src="{{ image_url }}" alt="{{ image_alt|default:'' }}" />
+    </div>
+  </div>
+  {% if button_url and button_label %}
+    <hr class="card__hr" />
+    <div class="px-large btn-row">
+      {% include 'v3/includes/_button.html' with style=button_style url=button_url label=button_label extra_classes="btn-flex" only %}
+    </div>
+  {% endif %}
+</div>
