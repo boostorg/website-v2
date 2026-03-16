@@ -31,6 +31,10 @@
    background: #081040;
  }
 
+ .hero-home--no-image {
+   background: none;
+ }
+
  .dark .hero-home--no-image {
    background: none;
  }
@@ -300,6 +304,10 @@
 
  .dark .hero-library {
    background: #081040;
+ }
+
+ .hero-library--no-image {
+   background: none;
  }
 
  .dark .hero-library--no-image {
