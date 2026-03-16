@@ -1,10 +1,23 @@
-.fade-default {
-    transition-property: opacity, display;
-    transition-duration: 1s;
-    transition-behavior: allow-discrete;
+/*
+This animaiton controls the fade out of banners and other items that are hidden after a delay.
+*/
+
+@keyframes fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        display: none;
+    }
 }
 
-.fade-default.hidden {
-    opacity: 0;
-    display: none;
+.banner--fade {
+    /*
+    Set the --fade-delay variable on the element with the class to control
+    how quickly the element is hidden
+    */
+    animation: fade-out 1s var(--fade-delay, 0ms) forwards;
+    animation-timing-function: ease;
+    transition-behavior: allow-discrete;
 }
