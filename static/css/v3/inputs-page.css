@@ -1,0 +1,250 @@
+/**
+ * Inputs page (foundation doc layout).
+ * BEM: .inputs-page, .inputs-page__*
+ */
+
+.inputs-page {
+  box-sizing: border-box;
+  padding: var(--space-xl);
+  background: var(--color-bg-primary);
+  min-height: 100vh;
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto;
+  max-width: 1260px;
+}
+
+.inputs-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  width: 100%;
+  margin-bottom: var(--space-xxl);
+  padding: var(--space-xl);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-xxl);
+}
+
+.inputs-page__header-row {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-card);
+  align-items: center;
+}
+
+.inputs-page__logo {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.inputs-page__header-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+}
+
+.inputs-page__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-primary);
+}
+
+.inputs-page__description {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+}
+
+.inputs-page__section-title {
+  margin: 0 0 var(--space-card);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-secondary);
+}
+
+.inputs-page__section {
+  margin-bottom: var(--space-xxl);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.inputs-page__section > * {
+  align-self: stretch;
+}
+
+.inputs-page__examples {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  padding: var(--space-card);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-m);
+  overflow: visible;
+  max-width: 560px;
+}
+
+/* Two-column row: description left, input right (matches original design) */
+.inputs-page__example-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 200px;
+  gap: var(--space-large);
+  align-items: center;
+}
+
+.inputs-page__example-row .inputs-page__section-title {
+  margin: 0;
+  min-width: 0;
+}
+
+.inputs-page__example-row .inputs-page__open-combo-demo,
+.inputs-page__example-row .inputs-page__open-dropdown-demo,
+.inputs-page__example-row .inputs-page__open-multiselect-demo {
+  min-width: 0;
+}
+
+@media (max-width: 767px) {
+  .inputs-page__example-row {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+}
+
+.inputs-page__examples-title {
+  margin: 0 0 var(--space-default);
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.inputs-page__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xl);
+  align-items: flex-start;
+}
+
+/* Top section: 3 columns like the original Figma layout; content centered and same width */
+.inputs-page__three-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-large);
+  align-items: start;
+  margin-bottom: var(--space-xxl);
+  overflow: visible;
+  width: 100%;
+}
+
+.inputs-page__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-card);
+  min-width: 0;
+  overflow: visible;
+  align-items: center;
+}
+
+@media (max-width: 1024px) {
+  .inputs-page__three-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.inputs-page__state-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-card);
+  padding: var(--space-xl);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--border-radius-m);
+}
+
+/* Same width for state-group; examples wider for two-column (label left, input right) layout */
+.inputs-page__three-col .inputs-page__state-group {
+  width: 100%;
+  min-width: 0;
+}
+
+.inputs-page__three-col .inputs-page__examples {
+  width: 100%;
+  max-width: 560px;
+  min-width: 0;
+}
+
+/* Reserve space below always-open demos so panels don't overlap the next examples */
+.inputs-page__open-combo-demo {
+  padding-bottom: 280px;
+}
+
+/* Reserve space below "Dropdown open" so the panel doesn't cover "Multiselect" */
+.inputs-page__open-dropdown-demo {
+  padding-bottom: 200px;
+}
+
+/* Reserve space below "Multiselect" open so the panel doesn't cover "Filter Examples" */
+.inputs-page__open-multiselect-demo {
+  padding-bottom: 180px;
+}
+
+/* ========== Mobile: inputs page ========== */
+@media (max-width: 767px) {
+  .inputs-page {
+    padding: var(--space-card);
+  }
+
+  .inputs-page__header {
+    padding: var(--space-card);
+  }
+
+  .inputs-page__three-col {
+    gap: var(--space-card);
+    margin-bottom: var(--space-xl);
+  }
+
+  .inputs-page__three-col .inputs-page__state-group,
+  .inputs-page__three-col .inputs-page__examples {
+    max-width: none;
+    width: 100%;
+  }
+
+  .inputs-page__open-combo-demo {
+    padding-bottom: 247px;
+  }
+
+  .inputs-page__open-dropdown-demo {
+    padding-bottom: 180px;
+  }
+
+  .inputs-page__open-multiselect-demo {
+    padding-bottom: 140px;
+  }
+
+  .inputs-page__section {
+    margin-bottom: var(--space-xl);
+  }
+}
+
+.dropdown__list::-webkit-scrollbar {
+  width: 4px;
+}
+.dropdown__list::-webkit-scrollbar-thumb {
+  background: var(--color-surface-modal, #0508162B);
+  border-radius: 2px;
+}

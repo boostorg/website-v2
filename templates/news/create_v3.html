@@ -1,8 +1,7 @@
 {% extends "base.html" %}
-{% load i18n %}
 {% load waffle_tags %}
 
-{% block title %}{% translate "Create Post" %}{% endblock %}
+{% block title %}Create Post{% endblock %}
 
 {% block content %}
   {% flag "v3" %}
@@ -21,16 +20,16 @@
       {% csrf_token %}
 
       <div class="create-post-page__header">
-        <h1 class="create-post-page__title">{% translate "Create Post" %}</h1>
+        <h1 class="create-post-page__title">Create Post</h1>
         <p class="create-post-page__subtitle">
-          {% translate "Posts will be reviewed by the moderation team before they appear in the feed." %}
+          Posts will be reviewed by the moderation team before they appear in the feed.
         </p>
       </div>
 
       <div class="create-post-page__card">
         {% comment %} Post Type dropdown: Blog, News, Video, Link. Placeholder "Select Post Type". Controls conditional fields. {% endcomment %}
         <div class="field" :class="{ 'field--error': errors.post_type }" @click.away="openPostTypeDropdown = false">
-          <label class="field__label" id="post-type-label" for="post-type-trigger">{% translate "Post type" %} *</label>
+          <label class="field__label" id="post-type-label" for="post-type-trigger">Post type *</label>
           <div class="dropdown" :class="{ 'dropdown--open': openPostTypeDropdown }">
             <button type="button"
                     id="post-type-trigger"
@@ -42,7 +41,7 @@
                     :aria-invalid="!!errors.post_type"
                     :aria-describedby="errors.post_type ? 'post-type-error' : null">
               <span class="dropdown__trigger-text" x-show="postType" x-text="postTypeLabel" x-cloak></span>
-              <span class="dropdown__trigger-text dropdown__trigger-placeholder" x-show="!postType">{% translate "Select Post Type" %}</span>
+              <span class="dropdown__trigger-text dropdown__trigger-placeholder" x-show="!postType">Select Post Type</span>
               <span class="dropdown__chevron" aria-hidden="true">
                 <span x-show="!openPostTypeDropdown" x-cloak class="dropdown__chevron-icon">{% include "includes/icon.html" with icon_name="dropdown-chevron-down" icon_class="dropdown__chevron-icon" %}</span>
                 <span x-show="openPostTypeDropdown" x-cloak class="dropdown__chevron-icon">{% include "includes/icon.html" with icon_name="dropdown-chevron-up" icon_class="dropdown__chevron-icon" %}</span>
@@ -64,7 +63,7 @@
         </div>
 
         <div class="field" :class="{ 'field--error': errors.title }">
-          <label class="field__label" for="field-title">{% translate "Post title" %} *</label>
+          <label class="field__label" for="field-title">Post title *</label>
           <div class="field__control">
             <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="text" icon_class="field__icon" %}</span>
             <input class="field__input" type="text" id="field-title" name="title" placeholder="Title" required
@@ -77,7 +76,7 @@
 
         {% comment %} Write Up (Blog, News): Content required. WYSIWYG editor (Markdown). {% endcomment %}
         <div class="field" x-show="isWriteUp" x-cloak :class="{ 'field--error': errors.content }">
-          <label class="field__label" for="field-content">{% translate "Content" %} *</label>
+          <label class="field__label" for="field-content">Content *</label>
           {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" %}
           <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
           <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
@@ -86,7 +85,7 @@
         {% comment %} Link (Video, Link): Link (required) and Description (optional). {% endcomment %}
         <div class="create-post-page__link-fields" x-show="isLinkType" x-cloak>
           <div class="field" :class="{ 'field--error': errors.external_url }">
-            <label class="field__label" for="field-external_url">{% translate "Link" %} *</label>
+            <label class="field__label" for="field-external_url">Link *</label>
             <div class="field__control">
               <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="text" icon_class="field__icon" %}</span>
               <input class="field__input" type="url" id="field-external_url" name="external_url" placeholder="https://..."
@@ -102,7 +101,7 @@
         <div class="field field--file field--file-narrow create-post-page__field-image" :class="{ 'field--error': errors.image }"
              x-data="{ fileName: '', previewUrl: '' }"
              x-init="const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = ''; if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = ''; } })">
-          <label class="field__label" for="field-image">{% translate "Image" %}</label>
+          <label class="field__label" for="field-image">Image</label>
           <div class="field__control field__control--file" x-show="!previewUrl" x-cloak x-transition>
             <span class="field__file-display" aria-hidden="true">
               <span class="field__file-placeholder">Choose File</span>
@@ -136,8 +135,8 @@
         {% include "v3/includes/_field_text.html" with name="publish_at" label="Publish Date" type="datetime-local" value=publish_at_initial placeholder="Today at 10:00AM" icon_left="calendar" %}
 
         <div class="create-post-page__actions">
-          <a href="{% url 'news' %}" class="btn btn-primary">{% translate "Cancel" %}</a>
-          <button type="submit" class="btn btn-secondary-grey">{% translate "Submit" %}</button>
+          <a href="{% url 'news' %}" class="btn btn-primary">Cancel</a>
+          <button type="submit" class="btn btn-secondary-grey">Submit</button>
         </div>
       </div>
     </form>
@@ -148,7 +147,7 @@
   {# Non-v3: show legacy type selector #}
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
     <div class="md:w-full">
-      <h1 class="text-3xl text-center capitalize">{% translate 'Create news' %}</h1>
+      <h1 class="text-3xl text-center capitalize">Create news</h1>
       <p class="mt-0 text-center">Select the kind of news you would like to submit.</p>
       <div class="divide-y divide-gray-300">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 py-5 w-[70%] mx-auto">
@@ -223,21 +222,21 @@
           const imageEl = form.querySelector('input[name="image"]');
 
           if (!this.postType) {
-            this.errors.post_type = '{% translate "Please select a post type." %}';
+            this.errors.post_type = 'Please select a post type.';
           }
           if (!titleEl?.value?.trim()) {
-            this.errors.title = '{% translate "Post title is required." %}';
+            this.errors.title = 'Post title is required.';
           }
           if (this.isWriteUp) {
             if (!contentEl?.value?.trim()) {
-              this.errors.content = '{% translate "Content is required." %}';
+              this.errors.content = 'Content is required.';
             }
           } else {
             if (!urlEl?.value?.trim()) {
-              this.errors.external_url = '{% translate "Link is required." %}';
+              this.errors.external_url = 'Link is required.';
             } else {
               try { new URL(urlEl.value); } catch (_) {
-                this.errors.external_url = '{% translate "Please enter a valid URL." %}';
+                this.errors.external_url = 'Please enter a valid URL.';
               }
             }
           }
@@ -245,11 +244,11 @@
             const file = imageEl.files[0];
             const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
             if (!validTypes.includes(file.type)) {
-              this.errors.image = '{% translate "Please choose a PNG or JPEG image." %}';
+              this.errors.image = 'Please choose a PNG or JPEG image.';
             } else {
               const maxSize = 5 * 1024 * 1024;
               if (file.size > maxSize) {
-                this.errors.image = '{% translate "Image must be 5MB or smaller." %}';
+                this.errors.image = 'Image must be 5MB or smaller.';
               }
             }
           }
