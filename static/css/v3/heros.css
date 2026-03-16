@@ -42,13 +42,14 @@
  .hero-home__block {
    width: 100%;
    max-width: 1440px;
-   height: 480px;
+   min-height: 480px;
    position: relative;
    display: flex;
    align-items: center;
    flex-direction: row;
    padding: 20px;
    align-items: end;
+   padding-top: 60px;
  }
 
  .hero-home__content {
@@ -321,7 +322,7 @@
  .hero-library__block {
    width: 100%;
    max-width: 1440px;
-   height: 480px;
+   min-height: 480px;
    display: flex;
    align-items: center;
    justify-content: space-between;
