@@ -1,0 +1,119 @@
+/*
+    Styles for the basic card, as well as some basic structural members for any children based off the basic card
+
+    card - basic shared styling and layout for cards
+    card__column - flex column for material in the card
+    card__center - Centers its children inside the flex parent
+    card__title - Styles the material bolded for title presentation
+    card__hr - a Horizontal rule for separating the card and being dark mode responsive
+
+*/
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-large);
+  width: 100%;
+  border-radius: var(--border-radius-xl);
+  border: 1px solid var(--color-stroke-weak);
+  background: var(--color-surface-weak);
+}
+
+.basic-card {
+  max-width: 458px;
+}
+
+.card .btn-row {
+  width: 100%;
+}
+
+.card .field {
+  width: 100%;
+}
+
+.card__column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-large);
+}
+
+.card__header {
+  align-self: stretch;
+  display: flex;
+  padding: 0 var(--space-large);
+}
+
+.card__image {
+  width: 100%;
+}
+
+.card__title {
+  flex: 1 0 0;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: var(--font-size-large);
+  font-style: normal;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-display-regular);
+}
+
+.card__hr {
+  width: 100%;
+  height: 1px;
+  background: var(--color-stroke-weak);
+  border: none;
+  margin: 0;
+}
+
+.card__cta_section {
+  display: flex;
+  gap: var(--space-default);
+  align-self: stretch;
+  padding: 0 var(--space-card);
+}
+
+.card__cta_section .btn {
+  flex: 1 0 0;
+}
+
+/* Horizontal card — text + image side by side */
+
+.horizontal-card {
+    max-width: 459px;
+}
+
+.horizontal-card__content-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-large, 16px);
+    align-self: stretch;
+    padding: 0 var(--space-large, 16px);
+}
+
+.horizontal-card__text {
+    flex: 1 0 0;
+    padding: 0;
+    color: var(--color-text-secondary, #585a64);
+    font-family: var(--font-sans, 'Mona Sans VF'), sans-serif;
+    font-size: var(--font-size-base, 16px);
+    font-weight: var(--font-weight-regular, 400);
+    line-height: var(--line-height-default, 1.2);
+    letter-spacing: var(--letter-spacing-tight, -0.01em);
+}
+
+.horizontal-card__image {
+    flex: 1 0 0;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--border-radius-l, 8px);
+    overflow: hidden;
+}
+
+.horizontal-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}

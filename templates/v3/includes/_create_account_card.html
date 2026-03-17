@@ -1,0 +1,46 @@
+{% comment %}
+  Create Account Card component.
+
+  Variables:
+    heading            (string, optional)  - Card title text
+    body_html          (string, optional)  - Rich text HTML content for the card body
+    preview_image_url  (string, optional)  - Preview image URL
+    preview_image_alt  (string, optional)  - Preview image alt text
+    cta_url            (string, optional)  - CTA target URL
+    cta_label          (string, optional)  - CTA text
+
+  Usage:
+    {% include "v3/includes/_create_account_card.html" with heading="Contribute to earn badges, track your progress and grow your impact" body_html=create_account_card_body_html preview_image_url=create_account_card_preview_url cta_url="#" cta_label="Start contributing" %}
+{% endcomment %}
+<section class="create-account-card card" aria-label="{{ heading|default:'Create account card' }}">
+  <div class="card__header">
+    <h3 class="card__title">{{ heading|default:"Contribute to earn badges, track your progress and grow your impact" }}</h3>
+  </div>
+  <hr class="card__hr">
+
+  <div class="create-account-card__body">
+    <div class="create-account-card__richtext">
+      {% if body_html %}
+        {{ body_html|safe }}
+      {% else %}
+        {# Default content #}
+        <p>Your contribution badges appear on your Boost profile with:</p>
+        <ul>
+          <li>Contribution statistics</li>
+          <li>Progress towards next badge</li>
+          <li>Recent activity feed</li>
+        </ul>
+      {% endif %}
+    </div>
+
+    {% if preview_image_url %}
+    <img class="create-account-card__preview" src="{{ preview_image_url }}" alt="{{ preview_image_alt|default:heading|default:'Card preview' }}" loading="lazy" decoding="async">
+    {% endif %}
+  </div>
+
+  <hr class="card__hr">
+
+  <div class="card__cta_section">
+    {% include "v3/includes/_button.html" with url=cta_url|default:'#' label=cta_label|default:"Start contributing" %}
+  </div>
+</section>

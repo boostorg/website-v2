@@ -1,0 +1,13 @@
+{% comment %}
+  Variables: carousel_id (optional, for JS), prev_label, next_label (defaults: Previous, Next).
+  Usage: {% include "v3/includes/_carousel_buttons.html" %}
+  For JS: use data-carousel-prev / data-carousel-next or wrap in a carousel container with carousel_id.
+{% endcomment %}
+<div class="carousel-buttons" {% if carousel_id %}id="{{ carousel_id }}-controls"{% endif %} role="group" aria-label="Carousel navigation">
+  <button type="button" class="btn btn-carousel" aria-label="{{ prev_label|default:'Previous' }}" data-carousel-prev>
+    <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=12 %}</span>
+  </button>
+  <button type="button" class="btn btn-carousel" aria-label="{{ next_label|default:'Next' }}" data-carousel-next>
+    <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=12 %}</span>
+  </button>
+</div>

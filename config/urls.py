@@ -1,6 +1,7 @@
 import logging
 
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path, register_converter, reverse_lazy
@@ -21,22 +22,25 @@ from ak.views import (
 from config.settings import DEBUG_TOOLBAR
 from core.views import (
     BSLView,
+    BoostDevelopmentView,
     CalendarView,
     ClearCacheView,
     DocLibsTemplateView,
     ImageView,
     MarkdownTemplateView,
+    TermsOfUseView,
+    PrivacyPolicyView,
+    V3ComponentDemoView,
+    ModernizedDocsView,
     RedirectToDocsView,
     RedirectToHTMLDocsView,
     RedirectToHTMLToolsView,
     RedirectToLibrariesView,
+    RedirectToLibraryDetailView,
     RedirectToReleaseView,
     RedirectToToolsView,
     StaticContentTemplateView,
     UserGuideTemplateView,
-    BoostDevelopmentView,
-    ModernizedDocsView,
-    RedirectToLibraryDetailView,
 )
 from marketing.views import PlausibleRedirectView, WhitePaperView
 from libraries.api import LibrarySearchView
@@ -241,6 +245,11 @@ urlpatterns = (
             TemplateView.as_view(template_name="style_guide.html"),
             name="style-guide",
         ),
+        path(
+            "v3/demo/components/",
+            staff_member_required(V3ComponentDemoView.as_view()),
+            name="v3-demo-components",
+        ),
         path("libraries/", LibraryListDispatcher.as_view(), name="libraries"),
         path(
             "libraries/<boostversionslug:version_slug>/<str:library_view_str>/",
@@ -340,13 +349,13 @@ urlpatterns = (
         ),
         path(
             "privacy/",
-            MarkdownTemplateView.as_view(),
+            PrivacyPolicyView.as_view(),
             name="privacy",
             kwargs={"markdown_local": "privacy-policy"},
         ),
         path(
             "terms-of-use/",
-            MarkdownTemplateView.as_view(),
+            TermsOfUseView.as_view(),
             name="terms-of-use",
             kwargs={"markdown_local": "terms-of-use"},
         ),

@@ -2,6 +2,7 @@ import random
 import string
 import re
 from itertools import islice
+from types import SimpleNamespace
 
 import boto3
 import structlog
@@ -13,6 +14,9 @@ from dateutil.relativedelta import relativedelta
 
 from dateutil.parser import ParserError, parse
 from django.conf import settings
+from django.db.models import Count, F
+from django.db.models.functions import Lower
+from django.urls import reverse
 from django.utils.text import slugify
 
 from libraries.constants import (
@@ -27,6 +31,53 @@ from libraries.constants import (
 from versions.models import Version
 
 logger = structlog.get_logger()
+
+STATS_COMMITS_BAR_HEIGHT_MAX_PX = 120
+STATS_COMMITS_BAR_HEIGHT_MIN_PX = 8
+
+
+def get_commit_data_by_release_for_library(library, limit=20):
+    """Return list of { release, commit_count } for a library, ordered by release (oldest first).
+
+    Used by the library detail page and by the V3 examples “commits per release” lookup.
+    """
+    from .models import LibraryVersion
+
+    qs = (
+        LibraryVersion.objects.filter(
+            library=library,
+            version__in=Version.objects.minor_versions(),
+        )
+        .annotate(count=Count("commit"), version_name=F("version__name"))
+        .order_by("-version__name")
+    )[:limit]
+    return [
+        {"release": x.version_name.strip("boost-"), "commit_count": x.count}
+        for x in reversed(list(qs))
+    ]
+
+
+def commit_data_to_stats_bars(commit_data):
+    """Convert commit_data_by_release (list of { release, commit_count }) to stats bar format.
+
+    Returns list of { label, height_px } with heights scaled to STATS_COMMITS_BAR_HEIGHT_*.
+    """
+    if not commit_data:
+        return []
+    counts = [d["commit_count"] for d in commit_data]
+    max_count = max(counts) or 1
+    return [
+        {
+            "label": d["release"],
+            "height_px": max(
+                STATS_COMMITS_BAR_HEIGHT_MIN_PX,
+                round(
+                    (d["commit_count"] / max_count) * STATS_COMMITS_BAR_HEIGHT_MAX_PX
+                ),
+            ),
+        }
+        for d in commit_data
+    ]
 
 
 def decode_content(content):
@@ -364,6 +415,126 @@ def parse_boostdep_artifact(content: str):
             "Some library versions were skipped during artifact parsing.",
             skipped_library_versions=skipped_library_versions,
         )
+
+
+def patch_commit_authors(users):
+    """Patch CommitAuthor data onto a list of User objects.
+
+    For each user, looks up their email in CommitAuthorEmail and attaches
+    the matching CommitAuthor (with avatar_url, github_profile_url,
+    display_name) as user.commitauthor. Falls back to a SimpleNamespace
+    stub when no match is found.
+    """
+    from libraries.models import CommitAuthorEmail
+
+    commit_authors = {
+        author_email.email: author_email
+        for author_email in CommitAuthorEmail.objects.annotate(
+            email_lower=Lower("email")
+        )
+        .filter(email_lower__in=[u.email.lower() for u in users])
+        .select_related("author")
+    }
+    for user in users:
+        if author_email := commit_authors.get(user.email.lower(), None):
+            user.commitauthor = author_email.author
+        else:
+            user.commitauthor = SimpleNamespace(
+                github_profile_url="",
+                avatar_url="",
+                display_name=f"{user.display_name}",
+            )
+    return users
+
+
+def build_library_intro_context(library_version, *, max_authors=3):
+    """Build template context for the library intro card.
+
+    Returns a dict with keys: library_name, description, authors, cta_url.
+
+    Matches the detail page's ordering: authors first, then maintainers
+    (excluding duplicates), then top git contributors to fill remaining slots.
+    """
+    from libraries.models import CommitAuthor
+
+    library = library_version.library
+
+    # Authors first, then maintainers — same order as ContributorMixin
+    authors = list(library_version.authors.all())
+    author_ids = {a.id for a in authors}
+    maintainers = list(library_version.maintainers.exclude(id__in=author_ids))
+
+    combined = (authors + maintainers)[:max_authors]
+    roles = {}
+    for user in combined:
+        roles[user.id] = "Author" if user.id in author_ids else "Maintainer"
+
+    # Fill remaining slots with top git contributors
+    remaining = max_authors - len(combined)
+    if remaining > 0:
+        exclude_commit_author_ids = []
+        patch_commit_authors(combined)
+        for user in combined:
+            ca_id = getattr(user.commitauthor, "id", None)
+            if ca_id:
+                exclude_commit_author_ids.append(ca_id)
+
+        top_contributors = (
+            CommitAuthor.objects.filter(commit__library_version=library_version)
+            .exclude(id__in=exclude_commit_author_ids)
+            .annotate(count=Count("commit"))
+            .order_by("-count")[:remaining]
+        )
+    else:
+        top_contributors = []
+        patch_commit_authors(combined)
+
+    def get_avatar(user):
+        url = user.get_thumbnail_url()
+        if url:
+            return url
+        return getattr(user.commitauthor, "avatar_url", "") or ""
+
+    medals = ["🥇", "🥈", "🥉"]
+
+    author_dicts = []
+    for user in combined:
+        author_dicts.append(
+            {
+                "name": user.display_name or user.get_full_name(),
+                "role": roles[user.id],
+                "avatar_url": get_avatar(user),
+                "badge": (
+                    medals[len(author_dicts)] if len(author_dicts) < len(medals) else ""
+                ),
+                "bio": "",
+            }
+        )
+    for ca in top_contributors:
+        author_dicts.append(
+            {
+                "name": ca.display_name,
+                "role": "Contributor",
+                "avatar_url": ca.avatar_url or "",
+                "badge": (
+                    medals[len(author_dicts)] if len(author_dicts) < len(medals) else ""
+                ),
+                "bio": "",
+            }
+        )
+
+    return {
+        "library_name": library.display_name,
+        "description": library_version.description or library.description or "",
+        "authors": author_dicts,
+        "cta_url": reverse(
+            "library-detail",
+            kwargs={
+                "version_slug": LATEST_RELEASE_URL_PATH_STR,
+                "library_slug": library.slug,
+            },
+        ),
+    }
 
 
 def update_base_tag(html: str, base_uri: str):

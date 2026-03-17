@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load text_helpers avatar_tags %}
+{% load waffle_tags %}
 
 {% block content %}
   {# homepage hero #}
@@ -204,6 +205,25 @@
       </div>
     </div>
 
+    {% flag "v3" %}
+    <section class="post-cards post-cards--default post-cards--neutral post-cards--vertical">
+      <h2 class="post-cards__heading">
+        <a href="{% url 'news' %}" class="post-cards__heading-link">Recent News</a>
+      </h2>
+      <ul class="post-cards__list">
+        {% for entry in entries %}
+        <li class="post-cards__item">
+          {% with post_title=entry.title post_url=entry.external_url|default:entry.get_absolute_url post_date=entry.publish_at|date:"d/m/Y" post_category=entry.tag|title author_name=entry.author.display_name author_avatar_url=entry.author.get_thumbnail_url %}
+            {% include "v3/includes/_post_card_v3.html" %}
+          {% endwith %}
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="post-cards__cta">
+        <a href="{% url 'news' %}" class="btn btn-secondary-grey">View all news</a>
+      </div>
+    </section>
+    {% else %}
     <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:space-y-0 lg:space-x-4 md:shadow-lg">
       <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
         <div class="mb-6">
@@ -248,8 +268,8 @@
           {% endfor %}
         </div>
       </div>
-
     </div>
+    {% endflag %}
 
     {% comment %}
     <div class="my-12 space-y-4 lg:flex lg:my-16 lg:space-y-0 lg:space-x-4">

@@ -1,0 +1,44 @@
+<div class="v3-buttons-group">
+  <h4 class="v3-buttons-group__title">Default</h4>
+  <div class="btn-row" style="margin-bottom: 12px;">
+    <button type="button" class="btn btn-primary">Primary</button>
+    <button type="button" class="btn btn-secondary">Secondary</button>
+    <button type="button" class="btn btn-green">Green</button>
+    <button type="button" class="btn btn-yellow">Yellow</button>
+    <button type="button" class="btn btn-teal">Teal</button>
+    <button type="button" class="btn btn-error">Error</button>
+  </div>
+  <h4 class="v3-buttons-group__title">Hovered</h4>
+  <div class="btn-row" style="margin-bottom: 12px;">
+    <button type="button" class="btn btn-primary" data-hover>Primary (Hovered)</button>
+    <button type="button" class="btn btn-secondary" data-hover>Secondary (Hovered)</button>
+    <button type="button" class="btn btn-green" data-hover>Green (Hovered)</button>
+    <button type="button" class="btn btn-yellow" data-hover>Yellow (Hovered)</button>
+    <button type="button" class="btn btn-teal" data-hover>Teal (Hovered)</button>
+    <button type="button" class="btn btn-error" data-hover>Error (Hovered)</button>
+  </div>
+</div>
+<div class="v3-buttons-group">
+  <h4 class="v3-buttons-group__title">Hero Buttons</h4>
+  <div style="display: flex;
+              flex-direction: column;
+              gap: 16px;
+              align-items: flex-start">
+    <button type="button" class="btn btn-hero btn-primary">
+      <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=16 %}</span>
+      Primary Hero
+    </button>
+    <button type="button" class="btn btn-hero btn-primary" data-hover>
+      <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=16 %}</span>
+      Primary Hero (Hovered)
+    </button>
+    <button type="button" class="btn btn-hero btn-secondary">
+      <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=16 %}</span>
+      Secondary Hero
+    </button>
+    <button type="button" class="btn btn-hero btn-secondary" data-hover>
+      <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=16 %}</span>
+      Secondary Hero (Hovered)
+    </button>
+  </div>
+</div>

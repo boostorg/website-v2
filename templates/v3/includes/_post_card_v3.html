@@ -1,0 +1,132 @@
+{% comment %}
+  Standalone post card – one article, all blocks optional.
+  Context (either):
+    - post: object with optional title, url, date, category, tag, author (name, role, avatar_url, show_badge)
+    - Or individual: post_title, post_url, post_date, post_category, post_tag, author_name, author_role, author_avatar_url, author_show_badge
+  Renders only when there is content; only outputs blocks for which data is provided.
+{% endcomment %}
+{% if post %}
+  {% if post.title or post.url or post.date or post.category or post.tag %}
+  <article class="post-card">
+    {% if post.title or post.url or post.date or post.category or post.tag %}
+    <div class="post-card__title-block">
+      {% if post.title or post.url %}
+      {% if post.url %}
+      <a href="{{ post.url }}" class="post-card__title">{{ post.title }}</a>
+      {% else %}
+      <span class="post-card__title">{{ post.title }}</span>
+      {% endif %}
+      {% endif %}
+      {% if post.date or post.category or post.tag %}
+      <div class="post-card__meta">
+        {% if post.date %}<time datetime="{{ post.date|date:'c' }}">{{ post.date|date:"d/m/Y" }}</time>{% endif %}
+        {% if post.date and post.category %}<span class="post-card__meta-sep" aria-hidden> • </span>{% endif %}
+        {% if post.category %}<span>{{ post.category }}</span>{% endif %}
+        {% if post.tag %}
+          {% if post.date or post.category %}<span class="post-card__meta-sep" aria-hidden> • </span>{% endif %}
+          <span>#{{ post.tag }}</span>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% if post.author and post.author.name %}
+    <div class="post-card__author">
+      {% if post.author.avatar_url %}
+      <img src="{{ post.author.avatar_url }}" alt="{{ post.author.name }}" class="post-card__avatar" width="48" height="48" loading="lazy" decoding="async">
+      {% endif %}
+      <div class="post-card__author-info">
+        <p class="post-card__author-name">{{ post.author.name }}</p>
+        {% if post.author.role or post.author.show_badge %}
+        <div class="post-card__author-role-row">
+          {% if post.author.role %}<p class="post-card__author-role">{{ post.author.role }}</p>{% endif %}
+          {% if post.author.show_badge %}
+          <span class="post-card__badge" aria-label="Contributor badge" role="img">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+              <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </article>
+  {% elif post.author and post.author.name %}
+  <article class="post-card">
+    <div class="post-card__author">
+      {% if post.author.avatar_url %}
+      <img src="{{ post.author.avatar_url }}" alt="{{ post.author.name }}" class="post-card__avatar" width="48" height="48" loading="lazy" decoding="async">
+      {% endif %}
+      <div class="post-card__author-info">
+        <p class="post-card__author-name">{{ post.author.name }}</p>
+        {% if post.author.role or post.author.show_badge %}
+        <div class="post-card__author-role-row">
+          {% if post.author.role %}<p class="post-card__author-role">{{ post.author.role }}</p>{% endif %}
+          {% if post.author.show_badge %}
+          <span class="post-card__badge" aria-label="Contributor badge" role="img">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+              <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </article>
+  {% endif %}
+{% else %}
+  {% if post_title or post_url or post_date or post_category or post_tag or author_name %}
+  <article class="post-card">
+    {% if post_title or post_url or post_date or post_category or post_tag %}
+    <div class="post-card__title-block">
+      {% if post_title or post_url %}
+      {% if post_url %}
+      <a href="{{ post_url }}" class="post-card__title">{{ post_title }}</a>
+      {% else %}
+      <span class="post-card__title">{{ post_title }}</span>
+      {% endif %}
+      {% endif %}
+      {% if post_date or post_category or post_tag %}
+      <div class="post-card__meta">
+        {% if post_date %}<time datetime="{{ post_date }}">{{ post_date }}</time>{% endif %}
+        {% if post_date and post_category %}<span class="post-card__meta-sep" aria-hidden> • </span>{% endif %}
+        {% if post_category %}<span>{{ post_category }}</span>{% endif %}
+        {% if post_tag %}
+          {% if post_date or post_category %}<span class="post-card__meta-sep" aria-hidden> • </span>{% endif %}
+          <span>#{{ post_tag }}</span>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% if author_name %}
+    <div class="post-card__author">
+      {% if author_avatar_url %}
+      <img src="{{ author_avatar_url }}" alt="{{ author_name }}" class="post-card__avatar" width="48" height="48" loading="lazy" decoding="async">
+      {% endif %}
+      <div class="post-card__author-info">
+        <p class="post-card__author-name">{{ author_name }}</p>
+        {% if author_role or author_show_badge %}
+        <div class="post-card__author-role-row">
+          {% if author_role %}<p class="post-card__author-role">{{ author_role }}</p>{% endif %}
+          {% if author_show_badge %}
+          <span class="post-card__badge" aria-label="Contributor badge" role="img">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+              <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </article>
+  {% endif %}
+{% endif %}

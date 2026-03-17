@@ -1,0 +1,102 @@
+.testimonial-card {
+    max-width: 696px;
+}
+
+.testimonial-card__carousel {
+    display: flex;
+    padding: 0 var(--space-large, 16px);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-large, 16px);
+    align-self: stretch;
+}
+
+.testimonial-card__text-wrapper {
+    display: flex;
+    padding: var(--space-xl, 32px);
+    border-radius: var(--space-xl, 32px);
+    background: var(--color-surface-mid, #F7F7F8);
+}
+
+.testimonial-card__text {
+    color: var(--color-text-primary, #050816);
+    font-family: var(--font-sans, "Mona Sans VF");
+    font-size: var(--font-size-xl, 32px);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-display-regular);
+}
+
+.testimonial-card__text-tail {
+    width: 32px;
+    height: var(--space-xl, 32px);
+    aspect-ratio: 1/1;
+    fill: var(--color-surface-mid, #F7F7F8);
+}
+
+.testimonial-card__tail-wrapper {
+    display: flex;
+    padding: 0 var(--Chat-bubble-tail-left-padding, 60px);
+    align-items: center;
+}
+
+.testimonial-card__author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-medium, 12px);
+}
+
+.testimonial-card__author-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: var(--space-s, 4px);
+
+
+    /* Sans/Desktop/Regular/XS/Default */
+    font-family: var(--font-sans, "Mona Sans VF");
+    font-size: var(--font-size-xs, 12px);
+    font-style: normal;
+    font-weight: 400;
+    line-height: 120%;
+    /* 14.4px */
+    letter-spacing: -0.12px;
+}
+
+
+.testimonial-card__author-name-text {
+    color: var(--color-text-primary, #050816);
+}
+
+.testimonial-card__author-role {
+    height: 16px;
+    gap: var(--space-default, 8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.testimonial-card__post {
+    padding: 0;
+    border: none;
+    min-width: 0;
+}
+
+.testimonial-card__post .post-cards__item {
+    max-width: 100%;
+}
+
+.testimonial-card__author-role-text {
+    color: var(--color-text-secondary, #585A64);
+}
+
+.testimonial-card__author-role-badge {
+    width: 16px;
+    height: 16px;
+    aspect-ratio: 1/1;
+}
+
+.testimonial-card__cards {
+    max-width: 100%;
+}

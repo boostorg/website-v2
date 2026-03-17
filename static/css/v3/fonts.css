@@ -1,0 +1,115 @@
+/**
+ * V3 typography fonts.
+ * Reuses v2 fonts from /static/font/ where same (Monaspace); v3-only (Mona Sans, Space Mono) in /static/font/v3/
+ */
+
+/* Mona Sans – v3 only */
+@font-face {
+  font-family: 'Mona Sans VF';
+  font-style: normal;
+  font-weight: 200 900;
+  font-stretch: 75% 125%;
+  font-display: swap;
+  src: url('/static/font/v3/mona-sans/mona-sans-vf.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Mona Sans VF';
+  font-style: italic;
+  font-weight: 200 900;
+  font-stretch: 75% 125%;
+  font-display: swap;
+  src: url('/static/font/v3/mona-sans/mona-sans-vf-italic.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Mona Sans Display SemiCondensed';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url('/static/font/v3/mona-sans-display/MonaSans_SemiCondensed-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Mona Sans Display SemiCondensed';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url('/static/font/v3/mona-sans-display/MonaSans_SemiCondensed-Medium.ttf') format('truetype');
+}
+
+/* Monaspace Neon – reuse v2 assets in /static/font/ */
+@font-face {
+  font-family: 'Monaspace Neon';
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url('/static/font/MonaspaceNeon-Var.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Monaspace Neon';
+  font-style: italic;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url('/static/font/v3/monaspace-neon/monaspace-neon-latin-400-italic.ttf') format('truetype');
+}
+
+/* Monaspace Xenon – reuse v2 assets in /static/font/ */
+@font-face {
+  font-family: 'Monaspace Xenon';
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url('/static/font/MonaspaceXenon-Var.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Monaspace Xenon';
+  font-style: italic;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url('/static/font/MonaspaceXenon-Italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url('/static/font/v3/space-mono/SpaceMono-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  font-style: italic;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url('/static/font/v3/space-mono/SpaceMono-Italic.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url('/static/font/v3/space-mono/SpaceMono-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  font-style: italic;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url('/static/font/v3/space-mono/SpaceMono-BoldItalic.ttf') format('truetype');
+}

@@ -1,0 +1,52 @@
+{% comment %}
+  V3 text input field.
+  Variables:
+    name         (required) — input name attribute
+    label        (optional) — label text
+    placeholder  (optional) — placeholder text
+    value        (optional) — pre-filled value
+    type         (optional) — input type, default "text"
+    help_text    (optional) — help text below the field
+    error        (optional) — error message (activates error state)
+    icon_left    (optional) — icon name for left slot (e.g. "search")
+    submit_icon  (optional) — icon name for a submit button in the right slot (e.g. "arrow-right")
+    submit_label (optional) — aria-label for the submit button, default "Submit"
+    required     (optional) — if truthy, adds required attribute
+    disabled     (optional) — if truthy, adds disabled attribute
+    extra_class  (optional) — additional classes on the wrapper
+  Usage:
+    {% include "v3/includes/_field_text.html" with name="email" label="Email" placeholder="Enter email" %}
+    {% include "v3/includes/_field_text.html" with name="q" placeholder="Search..." submit_icon="arrow-right" submit_label="Search" %}
+{% endcomment %}
+<div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}">
+  {% if label %}
+  <label class="field__label" for="field-{{ name }}">{{ label }}</label>
+  {% endif %}
+  <div class="field__control{% if disabled %} field__control--disabled{% endif %}"{% if submit_icon %} x-data="{ q: '' }"{% endif %}>
+    {% if icon_left %}
+    <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name=icon_left icon_class="field__icon" %}</span>
+    {% endif %}
+    <input
+      class="field__input"
+      type="{{ type|default:'text' }}"
+      id="field-{{ name }}"
+      name="{{ name }}"
+      {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+      {% if value %}value="{{ value }}"{% endif %}
+      {% if required %}required{% endif %}
+      {% if disabled %}disabled{% endif %}
+      {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
+      {% if submit_icon %}x-model="q"{% endif %}
+    >
+    {% if submit_icon %}
+    <button type="submit" class="field__submit" aria-label="{{ submit_label|default:'Submit' }}" :disabled="!q.trim()">
+      {% include "includes/icon.html" with icon_name=submit_icon icon_class="field__submit-icon" %}
+    </button>
+    {% endif %}
+  </div>
+  {% if error %}
+  <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
+  {% elif help_text %}
+  <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+  {% endif %}
+</div>

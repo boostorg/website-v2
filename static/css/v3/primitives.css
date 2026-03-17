@@ -1,0 +1,62 @@
+/**
+ * Primitive Tokens
+ *
+ * Primitive tokens are the foundational design values that are theme-agnostic.
+ * These are raw color values, spacing values, typography scales, etc. that don't
+ * change between themes.
+ *
+ * Naming Convention: --{category}-{property}-{variant}
+ * Example: --color-primary-grey-100, --space-default
+ */
+
+:root {
+  /* ============================================
+     COLOR PRIMITIVES
+     ============================================ */
+
+  /* Accent Colors */
+  --color-accent-strong-green: #caca62;
+  --color-accent-strong-teal: #64dace;
+  --color-accent-strong-yellow: #f5d039;
+  --color-accent-weak-green: #e4e4c0;
+  --color-accent-weak-teal: #c9f2ee;
+  --color-accent-weak-yellow: #fbeba9;
+
+  /* Error Colors */
+  --color-error-mid: #ff3b30;
+  --color-error-strong: #d32f2f;
+  --color-error-weak: #fdf2f2;
+
+  /* Primary Colors */
+  --color-primary-black: #050816;
+  --color-primary-grey-100: #f7f7f8;
+  --color-primary-grey-200: #efeff1;
+  --color-primary-grey-300: #d5d6d8;
+  --color-primary-grey-400: #cacbce;
+  --color-primary-grey-500: #acadb1;
+  --color-primary-grey-600: #82848a;
+  --color-primary-grey-700: #71737b;
+  --color-primary-grey-800: #585a64;
+  --color-primary-grey-850: #444651;
+  --color-primary-grey-900: #2f313d;
+  --color-primary-grey-950: #1a1c29;
+  --color-primary-orange-mustard: #ffa000;
+  --color-primary-white: #ffffff;
+
+  /* Secondary Colors */
+  --color-secondary-dark-blue: #0077b8;
+  --color-secondary-light-blue: #f7fdfe;
+  --color-secondary-mid-blue: #6dcdf7;
+
+  /* Syntax Colors */
+  --color-syntax-strong-blue: #1345e8;
+  --color-syntax-strong-green: #289d30;
+  --color-syntax-strong-grey: #9e9e9e;
+  --color-syntax-strong-pink: #d31fa7;
+  --color-syntax-strong-yellow: #a3a38c;
+  --color-syntax-weak-blue: #38ddff;
+  --color-syntax-weak-green: #72fe92;
+  --color-syntax-weak-grey: #a3a3a3;
+  --color-syntax-weak-pink: #f358c0;
+  --color-syntax-weak-yellow: #fff173;
+}

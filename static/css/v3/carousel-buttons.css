@@ -1,0 +1,44 @@
+/**
+ * Carousel buttons – single block with prev/next controls.
+ * Wrapper uses Surface-Strong background; inner buttons are borderless, icon turns blue on hover.
+ */
+
+.carousel-buttons {
+  display: inline-flex;
+  padding: 4px;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  width: 44px;
+  height: 24px;
+  border-radius: 8px;
+  background: var(--color-surface-strong, #EFEFF1);
+}
+
+.carousel-buttons .btn-carousel {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.carousel-buttons .btn-carousel .btn-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.carousel-buttons .btn-carousel .btn-icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.carousel-buttons .btn-carousel:hover {
+  color: var(--color-secondary-dark-blue, #0077B8);
+}
+
+.carousel-buttons .btn-carousel[data-hover] {
+  color: var(--color-secondary-dark-blue, #0077B8);
+}
