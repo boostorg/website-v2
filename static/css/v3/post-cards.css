@@ -78,7 +78,8 @@
 
 .post-cards--horizontal {
   max-width: 100%;
-  min-width: 960px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .post-cards--horizontal .post-cards__list {
@@ -87,6 +88,7 @@
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  min-width: 0;
 }
 
 .post-cards__item {
@@ -103,12 +105,27 @@
   border-top: none;
   border-bottom: none;
   border-right: 1px solid var(--color-stroke-weak);
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  min-width: 368px;
   max-width: 458px;
 }
 
 .post-cards--horizontal .post-cards__item:last-child {
   border-right: none;
+}
+
+/* Carousel variant: horizontal scroll is intentional */
+.post-cards--horizontal.post-cards--carousel {
+  overflow: visible;
+}
+.post-cards--horizontal.post-cards--carousel .post-cards__list {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.post-cards--horizontal.post-cards--carousel .post-cards__item {
+  flex: 0 0 auto;
+  flex-shrink: 0;
 }
 
 .post-card {
