@@ -18,7 +18,7 @@
   Usage:
     {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}
 {% endcomment %}
-<section class="hero-library{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-library--no-image{% endif %}"
+<section class="hero-library{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-library--no-image{% endif %}{% if hero_background_image_url and hero_image_url or hero_background_image_url and hero_image_url_light or hero_background_image_url and hero_image_url_dark %} hero-library--with-bg-and-image{% endif %}"
          {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');"{% endif %}
          aria-label="Library hero">
   <div class="hero-library__block">

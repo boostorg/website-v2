@@ -83,6 +83,11 @@
    z-index: 1;
  }
 
+ /* When hero has background + center image, main headline is white (light and dark mode) */
+ .hero-home--with-bg-and-image .hero-home__headline {
+   color: #fff;
+ }
+
  .hero-home__actions {
    display: flex;
    flex-direction: row;
@@ -391,7 +396,16 @@
    line-height: 1;
    letter-spacing: -0.01em;
    font-weight: 400;
-   margin: 0;
+ }
+
+ /* When hero has background + center image, main title is white (light and dark mode) */
+ .hero-library--with-bg-and-image .hero-library__title {
+   color: #fff;
+ }
+
+ /* When hero has background + center image, description uses secondary text color (light and dark mode) */
+ .hero-library--with-bg-and-image .hero-library__description {
+   color: var(--color-primary-grey-400);
  }
 
  .hero-library__description {
