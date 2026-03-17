@@ -112,7 +112,7 @@ html.dark {
   /* Text */
   --color-text-error: var(--color-error-mid);
   --color-text-link-accent: var(--color-secondary-mid-blue);
-  --color-text-on-accent: var(--color-primary-white);
+  --color-text-on-accent: var(--color-primary-black);
   --color-text-reversed: var(--color-primary-black);
   --color-text-tertiary: var(--color-primary-grey-600);
 }
