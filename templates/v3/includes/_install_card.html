@@ -1,0 +1,78 @@
+{% comment %}
+  V3 Install Card
+  Interactive card with tabbed installation methods and a dynamic command display.
+  Uses CSS-only radio inputs for tab switching and option selection.
+  JS enhances keyboard navigation only.
+  CSS in static/css/v3/install-card.css.
+
+  Variables:
+    title (optional) — card heading text; defaults to "Install Boost and get started in your terminal."
+    install_card_pkg_managers — list of { label, value, command } for Package Managers tab
+    install_card_system_install — list of { label, value, command } for System Install tab
+
+  Usage:
+    {% include "v3/includes/_install_card.html" %}
+{% endcomment %}
+{# Per-option visibility rules (generated from data, complements static rules in install-card.css) #}
+<style>
+  {% for opt in install_card_pkg_managers %}
+  #pkg-{{ opt.value }}:checked ~ .code-block [data-option="pkg-{{ opt.value }}"] { display: block; }
+  #pkg-{{ opt.value }}:checked ~ .code-block .dropdown__trigger [data-option="pkg-{{ opt.value }}"] { display: inline; }
+  #pkg-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="pkg-{{ opt.value }}"] { color: var(--color-text-primary); font-weight: var(--font-weight-medium, 500); text-decoration: underline; }
+  #pkg-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="pkg-{{ opt.value }}"]:hover { color: var(--color-text-link-accent); }
+  {% endfor %}
+  {% for opt in install_card_system_install %}
+  #sys-{{ opt.value }}:checked ~ .code-block [data-option="sys-{{ opt.value }}"] { display: block; }
+  #sys-{{ opt.value }}:checked ~ .code-block .dropdown__trigger [data-option="sys-{{ opt.value }}"] { display: inline; }
+  #sys-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="sys-{{ opt.value }}"] { color: var(--color-text-primary); font-weight: var(--font-weight-medium, 500); text-decoration: underline; }
+  #sys-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="sys-{{ opt.value }}"]:hover { color: var(--color-text-link-accent); }
+  {% endfor %}
+</style>
+<section class="install-card card"
+         data-install-card
+         aria-labelledby="install-card-heading">
+  {# Tab radio inputs — must be direct children of section for sibling selectors #}
+  <input type="radio"
+         name="install-tab"
+         id="install-tab-pkg"
+         checked
+         class="install-card__radio">
+  <input type="radio"
+         name="install-tab"
+         id="install-tab-sys"
+         class="install-card__radio">
+  <div class="card__header">
+    <h2 id="install-card-heading" class="card__title install-card__title">
+      {{ title|default:"Install Boost and get started in your terminal." }}
+    </h2>
+  </div>
+  <div class="install-card__body px-large">
+    {# Tab list #}
+    <div class="tab__list" role="tablist" aria-label="Installation method">
+      <label for="install-tab-pkg"
+             class="tab__trigger"
+             role="tab"
+             id="install-tab-pkg-label"
+             aria-controls="install-panel-pkg">Package Managers</label>
+      <label for="install-tab-sys"
+             class="tab__trigger"
+             role="tab"
+             id="install-tab-sys-label"
+             aria-controls="install-panel-sys">System Install</label>
+    </div>
+    {# Panel: Package Managers #}
+    <div id="install-panel-pkg"
+         class="install-card__panel install-card__panel--pkg"
+         role="tabpanel"
+         aria-labelledby="install-tab-pkg-label">
+      {% include "v3/includes/_install_card_tab_content_body.html" with options=install_card_pkg_managers prefix="pkg" only %}
+    </div>
+    {# Panel: System Install #}
+    <div id="install-panel-sys"
+         class="install-card__panel install-card__panel--sys"
+         role="tabpanel"
+         aria-labelledby="install-tab-sys-label">
+      {% include "v3/includes/_install_card_tab_content_body.html" with options=install_card_system_install prefix="sys" only %}
+    </div>
+  </div>
+</section>

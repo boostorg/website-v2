@@ -96,8 +96,6 @@
   min-height: 160px;
 }
 
-
-
 .stats--in-numbers .stats__bar-wrap {
   flex: 1 1 0;
   min-width: max(8px, 100cqh * 0.04);
@@ -146,18 +144,8 @@
   flex-shrink: 0;
 }
 
-.stats__cta a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.stats__cta a:hover {
-  text-decoration: none;
-}
-
 .stats__cta .btn {
-  flex: 1 1 0;
-  min-width: 128px;
+  flex: 1 0 0;
 }
 
 .stats--benchmarks {

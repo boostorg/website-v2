@@ -91,9 +91,10 @@
     const CppHighlight = typeof window !== "undefined" && window.CppHighlight;
     if (!CppHighlight) return
     // Selectors for C++ code blocks that highlight.js has already processed
+    // + in class names must be escaped in CSS selectors (\+), so language-c\+\+ in selector
     const cppSelectors = [
       'code.language-cpp.hljs',
-      'code.language-c++.hljs',
+      'code.language-c\\+\\+.hljs',
       'code[data-lang="cpp"].hljs',
       'code[data-lang="c++"].hljs',
       '.doc pre.highlight code[data-lang="cpp"].hljs',

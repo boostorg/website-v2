@@ -3,6 +3,24 @@
   width: 100%;
 }
 
+/* Active/focus state: single unified box */
+.wysiwyg-v3:focus-within {
+  border-radius: var(--xl, 12px);
+  border: 1px solid var(--Stroke-Strong, rgba(5, 8, 22, 0.25));
+  background: var(--Surface-Mid, #F7F7F8);
+  overflow: hidden;
+}
+
+.wysiwyg-v3:focus-within .wysiwyg-editor__toolbar {
+  border: none;
+  background: transparent;
+}
+
+.wysiwyg-v3:focus-within .wysiwyg-editor__body {
+  border: none;
+  background: transparent;
+}
+
 .wysiwyg-editor__toolbar {
   display: flex;
   align-items: center;
@@ -13,6 +31,9 @@
   border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
   border-radius: var(--border-radius-xl, 12px) var(--border-radius-xl, 12px) 0 0;
   background: var(--color-surface-weak, #fff);
+  min-width: 0; /* allow shrinking so content can wrap */
+  overflow-x: auto; /* fallback: scroll on very narrow viewports */
+  -webkit-overflow-scrolling: touch;
 }
 
 /* When in markdown mode, hide all formatting controls except the MD toggle */
@@ -24,7 +45,13 @@
 .wysiwyg-toolbar__right {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-default, 8px);
+  min-width: 0;
+}
+
+.wysiwyg-toolbar__left {
+  flex: 1 1 auto; /* grow and shrink, allow wrapping to next row when needed */
 }
 .wysiwyg-editor__body code {
   font-family: var(--font-mono);
@@ -211,7 +238,6 @@
 }
 
 .wysiwyg-editor__body:focus-within {
-  border-color: var(--color-stroke-mid, #0508162B);
   outline: none;
 }
 

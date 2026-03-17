@@ -17,11 +17,6 @@
      BASE SEMANTIC COLORS (Light Theme Defaults)
      ============================================ */
 
-  /* Background */
-  --color-bg-primary: var(--color-secondary-light-blue);
-  --color-bg-secondary: var(--color-primary-white);
-  --color-border: var(--color-primary-grey-300);
-
   /* Text */
   --color-text-primary: var(--color-primary-black);
   --color-text-secondary: var(--color-primary-grey-800);
@@ -110,4 +105,17 @@
   --color-text-reversed: var(--color-primary-white);
   --color-text-reversed-on-accent: var(--color-primary-white);
   --color-text-tertiary: var(--color-primary-grey-700);
+
+
+
+  /* ============================================
+     DEPRECATED
+
+     Please, do not use these colors. They were originally assigned as "background" colors, but this
+     semantics doesn't exist in the Figma Foundations designs.
+     Use "surface" colors instead.
+     ============================================ */
+  --color-bg-primary: var(--color-secondary-light-blue);
+  --color-bg-secondary: var(--color-primary-white);
+  --color-border: var(--color-primary-grey-300);
 }

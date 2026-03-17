@@ -1,0 +1,32 @@
+{% comment %}
+  V3 foundation button: hero (larger, for hero sections). Always includes an icon.
+  Defaults to arrow-right if icon_html is not provided.
+  Variables:
+  - label (required)
+  - url (optional)
+  - icon_name (optional): defaults to "arrow-right". Please use icons from the _icon.html include for consistency.
+  - style (optional): "primary" or "secondary", defaults to "primary"
+  - type (optional)
+  - extra_classes (optional): string of additional styling classes to add to the button
+
+  Usage:
+    {% include "v3/includes/_button_hero.html" with label="Learn more" style="secondary" %}
+    {% include "v3/includes/_button_hero.html" with label="Custom icon" icon_name="get-help" %}
+{% endcomment %}
+{% if url %}
+  <a href="{{ url }}"
+     class="btn btn-hero btn-{{ style|default:'primary' }} {{ extra_classes|default:'' }}">
+    <span class="btn-icon" aria-hidden>
+      {% include "includes/icon.html" with icon_name=icon_name|default:"arrow-right" icon_size=16 %}
+    </span>
+    {{ label }}
+  </a>
+{% else %}
+  <button type="{{ type|default:'button' }}"
+          class="btn btn-hero btn-{{ style|default:'primary' }} {{ extra_classes|default:'' }}">
+    <span class="btn-icon" aria-hidden>
+      {% include "includes/icon.html" with icon_name=icon_name|default:"arrow-right" icon_size=16 %}
+    </span>
+    {{ label }}
+  </button>
+{% endif %}

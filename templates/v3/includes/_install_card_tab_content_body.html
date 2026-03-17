@@ -1,0 +1,55 @@
+{% comment %}
+  V3 Install Card — Tab Content Body
+  Pre-rendered code block with embedded dropdown for one tab.
+  Uses CSS radio inputs for option selection (no JS required).
+  CSS: install-card.css, code-block.css, forms.css (.dropdown)
+
+  Variables:
+    options — list of { label, value, command } dicts
+    prefix  — radio name prefix (e.g. "pkg", "sys")
+{% endcomment %}
+
+{# Option radio inputs — must be siblings of .code-block for CSS :checked selectors #}
+{% for opt in options %}
+<input type="radio"
+       name="{{ prefix }}-option"
+       id="{{ prefix }}-{{ opt.value }}"
+       {% if forloop.first %}checked{% endif %}
+       class="install-card__radio">
+{% endfor %}
+
+{# Code block with commands + dropdown #}
+<div class="code-block install-card__command code-block--grey-bg">
+  {# Pre-rendered commands — CSS shows only the one matching the checked radio #}
+  {% for opt in options %}
+  <pre class="code-block__inner install-card__cmd"
+       data-option="{{ prefix }}-{{ opt.value }}"><code class="nohighlight">{{ opt.command }}</code></pre>
+  {% endfor %}
+
+  {# Dropdown #}
+  <details class="dropdown install-card__dropdown">
+    <summary class="dropdown__trigger"
+             aria-haspopup="listbox"
+             aria-label="Select installation method">
+      {# Pre-rendered labels — CSS shows only the one matching the checked radio #}
+      {% for opt in options %}
+      <span class="dropdown__label dropdown__trigger-text"
+            data-option="{{ prefix }}-{{ opt.value }}">{{ opt.label }}</span>
+      {% endfor %}
+      {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" only %}
+    </summary>
+    <div class="dropdown__panel"
+         role="listbox"
+         aria-label="Select installation method">
+      <div class="dropdown__list">
+        {% for opt in options %}
+        <label for="{{ prefix }}-{{ opt.value }}"
+               class="dropdown__item"
+               role="option"
+               {% if forloop.first %}aria-selected="true"{% else %}aria-selected="false"{% endif %}
+               tabindex="0">{{ opt.label }}</label>
+        {% endfor %}
+      </div>
+    </div>
+  </details>
+</div>

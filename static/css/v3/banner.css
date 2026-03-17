@@ -1,0 +1,39 @@
+.banner {
+    width: 100%;
+    display: flex;
+    padding: var(--space-default, 8px) var(--space-large, 16px);
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-large, 16px);
+
+    border-radius: var(--border-radius-l, 8px);
+    background: var(--color-surface-brand-accent-default, #FFA000);
+}
+
+.banner__message {
+    color: var(--color-text-on-accent, #050816);
+
+    /* Sans/Desktop/Regular/XS/Tight */
+    font-family: var(--font-sans, "Mona Sans VF");
+    font-size: var(--font-size-xs, 12px);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-tight);
+    /* 12px */
+    letter-spacing: -0.12px;
+}
+
+.banner__message a {
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-skip-ink: auto;
+    text-decoration-thickness: auto;
+    text-underline-offset: auto;
+}
+
+.banner__icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    aspect-ratio: 1/1;
+    fill: var(--color-text-on-accent);
+}
