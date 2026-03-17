@@ -406,7 +406,7 @@ html.dark .header__user-trigger .header__user-avatar-inner .fa-user {
   align-items: center;
   gap: var(--space-default, 8px);
   flex: 1;
-  min-width: 0;
+  min-width: 360px;
   height: var(--header-height);
   padding: 0 var(--space-medium, 12px);
   border: var(--header-control-border);
