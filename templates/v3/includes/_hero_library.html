@@ -26,11 +26,11 @@
       <div class="hero-library__meta">
         <div class="hero-library__tags">
           {% for tag in category_tags %}
-          <a href="{{ tag.url|default:'#' }}" class="category-tag category-tag--neutral category-tag--default">{{ tag.label }}</a>
+          {% include "v3/includes/_category_tag.html" with tag_label=tag.label url=tag.url|default:"#" variant="neutral" size="default" %}
           {% empty %}
-          <a href="#" class="category-tag category-tag--neutral category-tag--default">Concurrent</a>
-          <a href="#" class="category-tag category-tag--neutral category-tag--default">IO</a>
-          <a href="#" class="category-tag category-tag--neutral category-tag--default">Flagship</a>
+          {% include "v3/includes/_category_tag.html" with tag_label="Concurrent" url="#" variant="neutral" size="default" %}
+          {% include "v3/includes/_category_tag.html" with tag_label="IO" url="#" variant="neutral" size="default" %}
+          {% include "v3/includes/_category_tag.html" with tag_label="Flagship" url="#" variant="neutral" size="default" %}
           {% endfor %}
           {% if version_tag %}
           <span class="version-tag version-tag--default">{{ version_tag }}</span>
