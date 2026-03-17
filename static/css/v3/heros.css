@@ -258,7 +258,7 @@
   }
 
   .hero-home {
-    background-size: 100% auto;
+    background-size: cover;
     background-position: center top;
   }
 
@@ -481,7 +481,7 @@
   }
 
   .hero-library {
-    background-size: 100% auto;
+    background-size: cover;
     background-position: center top;
   }
 
