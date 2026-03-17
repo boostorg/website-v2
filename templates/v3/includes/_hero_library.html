@@ -13,11 +13,14 @@
     slack_url          (optional) — Discuss in Slack URL. Omit to hide.
     github_url         (optional) — GitHub Issues URL. Omit to hide.
     hero_image_url     (optional) — Image URL. If omitted, image block is not shown.
+    hero_background_image_url (optional) — Background image URL for the hero container.
 
   Usage:
     {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}
 {% endcomment %}
-<section class="hero-library{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-library--no-image{% endif %}" aria-label="Library hero">
+<section class="hero-library{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-library--no-image{% endif %}"
+         {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');"{% endif %}
+         aria-label="Library hero">
   <div class="hero-library__block">
     <div class="hero-library__content">
       <div class="hero-library__meta">

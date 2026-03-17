@@ -15,12 +15,15 @@
     hero_image_url    (optional) — Image URL for the right side. If omitted, image block is not shown.
     hero_image_url_light (optional) — Image URL for light mode. If omitted, falls back to hero_image_url.
     hero_image_url_dark  (optional) — Image URL for dark mode. If omitted, only the light image is used.
+    hero_background_image_url (optional) — Background image URL for the hero container.
 
   Usage:
     {% include "v3/includes/_hero_home.html" %}
     {% include "v3/includes/_hero_home.html" with headline="Welcome to Boost" primary_url="/docs/" hero_image_url=hero_image_url %}
 {% endcomment %}
-<section class="hero-home{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-home--no-image{% endif %}" aria-label="Hero">
+<section class="hero-home{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-home--no-image{% endif %}"
+         {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');"{% endif %}
+         aria-label="Hero">
   <div class="hero-home__block">
     <div class="hero-home__content">
       <h2 class="hero-home__headline">{{ headline|default:"Built by the C++ community. Trusted by the world." }}</h2>
