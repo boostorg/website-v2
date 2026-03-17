@@ -111,19 +111,19 @@
     <div class="v3-examples-section__example-box">{% include "v3/includes/_carousel_buttons.html" %}</div>
   </div>
   <div class="v3-examples-section__block">
-    <h3>Detail card carousel</h3>
+    <h3 class="block-title">Detail card carousel</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo" heading="Libraries categories" cards=demo_cards_carousel_cards %}
     </div>
   </div>
   <div class="v3-examples-section__block">
-    <h3>Detail card carousel with autoplay</h3>
+    <h3 class="block-title">Detail card carousel with autoplay</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo-autoplay" heading="Libraries categories" cards=demo_cards_carousel_cards autoplay=True autoplay_delay=5000 %}
     </div>
   </div>
   <div class="v3-examples-section__block">
-    <h3>Detail card carousel with infinite looping and autoplay</h3>
+    <h3 class="block-title">Detail card carousel with infinite looping and autoplay</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo-infinite-autoplay" heading="Libraries categories" cards=demo_cards_carousel_cards infinite=True autoplay=True autoplay_delay=5000 %}
     </div>
@@ -159,7 +159,7 @@
     </div>
   </div>
   <div class="v3-examples-section__block">
-    <h3>Detail card (single)</h3>
+    <h3 class="block-title">Detail card (single)</h3>
     <div class="v3-examples-section__example-box">
       {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Richard+Thomson&size=48" %}
         {% include "v3/includes/_post_card_v3.html" %}
@@ -173,14 +173,14 @@
     </div>
   </div>
   {% if library_intro %}
-    <div class="v3-examples-section__block">
-      <h3>Library Intro Card</h3>
-      <div class="v3-examples-section__example-box">
-        {% with intro=library_intro %}
-          {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
-        {% endwith %}
+      <div class="v3-examples-section__block">
+        <h3 class="block-title">Library Intro Card</h3>
+        <div class="v3-examples-section__example-box">
+          {% with intro=library_intro %}
+              {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
+          {% endwith %}
+        </div>
       </div>
-    </div>
   {% endif %}
   {% if example_library_choices %}
     <div class="v3-examples-section__block">
@@ -266,9 +266,8 @@
     </div>
   </div>
 
-
   <div class="v3-examples-section__block">
-    <h3>Basic Card</h3>
+    <h3 class="block-title">Basic Card</h3>
     {% with basic_card_data as card %}
       <div class="v3-examples-section__example-box">
         <h4 class="py-large">Card with two buttons</h4>
@@ -288,8 +287,8 @@
     {% endwith %}
   </div>
 
-<div class="v3-examples-section__block">
-    <h3>Learn Card</h3>
+  <div class="v3-examples-section__block">
+    <h3 class="block-title">Learn Card</h3>
     <div class="v3-examples-section__example-box">
       {% with learn_card_data as data %}
         {% include "v3/includes/_learn_card.html" with title=data.title text=data.text links=data.links image_src=data.image_src url=data.url label=data.label %}
@@ -386,7 +385,7 @@
     </div>
   </div>
   <div class="v3-examples-section__block">
-    <h3>Content event card – clickable cards (link wraps each card)</h3>
+    <h3 class="block-title">Content event card – clickable cards (link wraps each card)</h3>
     <div class="v3-examples-section__example-box">
       <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card"
                aria-labelledby="content-event-releases-links-card">
@@ -427,6 +426,14 @@
       </section>
     </div>
   </div>
+
+  <div class="v3-examples-section__block">
+    <h3 class="block-title">Install Card</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_install_card.html" with title=install_card_title %}
+    </div>
+  </div>
+
   <div class="v3-examples-section__block">
     <h3 class="block-title">Code blocks</h3>
     <div class="v3-examples-section__example-box">

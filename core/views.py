@@ -1111,10 +1111,39 @@ class V3ComponentDemoView(TemplateView):
         # Install bjam tool user config: https://www.bfgroup.xyz/b2/manual/release/index.html
         cp ./libs/beast/tools/user-config.jam $HOME"""
 
+        INSTALL_CARD_PKG_MANAGERS = [
+            {"label": "Conan", "value": "conan", "command": "conan install boost"},
+            {"label": "Vcpkg", "value": "vcpkg", "command": "vcpkg install boost"},
+        ]
+        INSTALL_CARD_SYSTEM_INSTALL = [
+            {
+                "label": "Ubuntu",
+                "value": "ubuntu",
+                "command": "sudo apt install libboost-all-dev",
+            },
+            {
+                "label": "Fedora",
+                "value": "fedora",
+                "command": "sudo dnf install boost-devel",
+            },
+            {
+                "label": "CentOS",
+                "value": "centos",
+                "command": "sudo yum install boost-devel",
+            },
+            {"label": "Arch", "value": "arch", "command": "sudo pacman -S boost"},
+            {"label": "Homebrew", "value": "homebrew", "command": "brew install boost"},
+        ]
+
         context = super().get_context_data(**kwargs)
         context["code_demo_beast"] = CODE_DEMO_BEAST
         context["code_demo_hello"] = CODE_DEMO_HELLO
         context["code_demo_install"] = CODE_DEMO_INSTALL
+        context["install_card_title"] = (
+            "Install Boost and get started in your terminal."
+        )
+        context["install_card_pkg_managers"] = INSTALL_CARD_PKG_MANAGERS
+        context["install_card_system_install"] = INSTALL_CARD_SYSTEM_INSTALL
         context["popular_terms"] = [
             {"label": "Networking"},
             {"label": "Math"},
