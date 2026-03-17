@@ -7,11 +7,8 @@
     primary_url       (optional) — Primary button URL. If omitted, renders as <button>.
     secondary_label   (optional) — Secondary button label. Default: "I need a specific solution"
     secondary_url     (optional) — Secondary button URL. If omitted, renders as <button>.
-    card_title        (optional) — Card title. Default: "Install Boost and get started in your terminal."
-    tab1_label        (optional) — First tab label. Default: "Package Managers"
-    tab2_label        (optional) — Second tab label. Default: "System Install"
-    code_text         (optional) — Code snippet. Default: "conan install boost"
-    code_badge_label  (optional) — Badge next to code. Default: "Conan"
+    install_card_title (optional) — Install card heading; same as in _v3_example_section. If unset, uses "Install Boost and get started in your terminal."
+    install_card_pkg_managers, install_card_system_install — required by install card for tab content (see _install_card.html).
     hero_image_url    (optional) — Image URL for the right side. If omitted, image block is not shown.
     hero_image_url_light (optional) — Image URL for light mode. If omitted, falls back to hero_image_url.
     hero_image_url_dark  (optional) — Image URL for dark mode. If omitted, only the light image is used.
@@ -33,20 +30,7 @@
       </div>
     </div>
     <div class="hero-home__card">
-      <p class="hero-home__card-title">{{ card_title|default:"Install Boost and get started in your terminal." }}</p>
-      <div class="hero-home__card-body">
-        <div class="hero-home__tabs">
-          <div class="hero-home__tab hero-home__tab--active"><span>{{ tab1_label|default:"Package Managers" }}</span></div>
-          <div class="hero-home__tab"><span>{{ tab2_label|default:"System Install" }}</span></div>
-        </div>
-        <div class="hero-home__code-row">
-          <code class="hero-home__code-text">{{ code_text|default:"conan install boost" }}</code>
-          <div class="hero-home__code-badge">
-            <span class="hero-home__code-badge-label">{{ code_badge_label|default:"Conan" }}</span>
-            {% include "includes/icon.html" with icon_name="arrow-right" icon_class="btn-icon" icon_size=16 %}
-          </div>
-        </div>
-      </div>
+      {% include "v3/includes/_install_card.html" with title=install_card_title|default:"Install Boost and get started in your terminal." %}
     </div>
     {% if hero_image_url or hero_image_url_light or hero_image_url_dark %}
     <div class="hero-home__image{% if hero_image_url_dark %} hero-home__image--theme-aware{% endif %}">
