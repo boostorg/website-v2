@@ -90,10 +90,10 @@ class ContentEventCardPreview(LookbookPreview):
               {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" card_url="#event-0" card_aria_label="Boost 1.90.0 closed for major changes" event_card_wrapper=False %}
             </li>
             <li class="post-cards__item">
-              {% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=False %}
+              {% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15. Topics include modern C++, Boost libraries, and tooling." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=False %}
             </li>
             <li class="post-cards__item">
-              {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=False %}
+              {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries. See release notes for details." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=False %}
             </li>
           </ul>
           <div class="card__cta_section">{% include "v3/includes/_button.html" with label="View all" url="#" %}</div>
@@ -117,10 +117,10 @@ class ContentEventCardPreview(LookbookPreview):
               {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" card_url="#event-0" card_aria_label="Boost 1.90.0 closed for major changes" event_card_wrapper=True %}
             </li>
             <li class="post-cards__item">
-              {% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=True %}
+              {% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15. Topics include modern C++, Boost libraries, and tooling." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=True %}
             </li>
             <li class="post-cards__item">
-              {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=True %}
+              {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries. See release notes for details." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=True %}
             </li>
           </ul>
           <div class="card__cta_section">{% include "v3/includes/_button.html" with label="View all" url="#" %}</div>
@@ -161,89 +161,37 @@ class WhyBoostCardsPreview(LookbookPreview):
         """
         Why Boost section — a grid of icon + title + description cards.
 
-        Template: `v3/includes/_why_boost_cards.html`
+        Uses the same inline markup as the demo page with all 11 cards.
+
+        Template: `v3/includes/_content_detail_card_item.html` (wrapped in why-boost-cards section)
 
         | Variable | Required | Description |
         |---|---|---|
-        | `section_heading` | No | Default: "Why Boost?" |
-        | `why_boost_cards` | Yes | List of card dicts (title, description, icon_name, title_url) |
+        | `title` | Yes | Card heading |
+        | `description` | Yes | Card body text |
+        | `icon_name` | No | Icon name |
         """
-        cards = [
-            {
-                "title": "Get help",
-                "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
-                "icon_name": "bullseye-arrow",
-            },
-            {
-                "title": "Documentation",
-                "description": "Browse library docs, examples, and release notes in one place.",
-                "icon_name": "link",
-            },
-            {
-                "title": "Community",
-                "description": "Mailing lists, GitHub, and community guidelines for contributors.",
-                "icon_name": "human",
-            },
-            {
-                "title": "Releases",
-                "description": "Latest releases, download links, and release notes.",
-                "icon_name": "info-box",
-            },
-            {
-                "title": "Learn",
-                "description": "Access documentation, books, and courses to level up your C++.",
-                "icon_name": "bullseye-arrow",
-            },
-            {
-                "title": "Contribute",
-                "description": "Report issues, submit patches, and join the community.",
-                "icon_name": "bullseye-arrow",
-            },
-            {
-                "title": "Stay updated",
-                "description": "Releases, news, and announcements from the Boost community.",
-                "icon_name": "bullseye-arrow",
-            },
-            {
-                "title": "Libraries",
-                "description": "Portable, peer-reviewed libraries for a wide range of use cases.",
-                "icon_name": "bullseye-arrow",
-            },
-        ]
-        return render_to_string(
-            "v3/includes/_why_boost_cards.html",
-            {
-                "why_boost_cards": cards,
-            },
+        template = Template(
+            """
+        <section class="why-boost-cards" aria-labelledby="why-boost-heading">
+          <h2 id="why-boost-heading" class="why-boost-cards__heading">Why Boost?</h2>
+          <div class="why-boost-cards__grid">
+            {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Documentation" description="Browse library docs, examples, and release notes in one place." icon_name="link" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Community" description="Mailing lists, GitHub, and community guidelines for contributors." icon_name="human" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Releases" description="Latest releases, download links, and release notes." icon_name="info-box" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Learn" description="Access documentation, books, and courses to level up your C++." icon_name="bullseye-arrow" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Contribute" description="Report issues, submit patches, and join the community." icon_name="bullseye-arrow" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Stay updated" description="Releases, news, and announcements from the Boost community." icon_name="bullseye-arrow" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Libraries" description="Portable, peer-reviewed libraries for a wide range of use cases." icon_name="bullseye-arrow" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Standards" description="Many Boost libraries have been adopted into the C++ standard." icon_name="bullseye-arrow" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Quality" description="Peer-reviewed code and documentation maintained by the community." icon_name="bullseye-arrow" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Cross-platform" description="Libraries designed to work across compilers and platforms." icon_name="bullseye-arrow" %}
+          </div>
+        </section>
+        """
         )
-
-    def few_cards(self, **kwargs):
-        """
-        Why Boost section with only 3 cards, demonstrating flexible grid behaviour.
-        """
-        cards = [
-            {
-                "title": "Standards",
-                "description": "Many Boost libraries have been adopted into the C++ standard.",
-                "icon_name": "bullseye-arrow",
-            },
-            {
-                "title": "Quality",
-                "description": "Peer-reviewed code and documentation maintained by the community.",
-                "icon_name": "bullseye-arrow",
-            },
-            {
-                "title": "Cross-platform",
-                "description": "Libraries designed to work across compilers and platforms.",
-                "icon_name": "bullseye-arrow",
-            },
-        ]
-        return render_to_string(
-            "v3/includes/_why_boost_cards.html",
-            {
-                "why_boost_cards": cards,
-            },
-        )
+        return template.render(Context({}))
 
 
 class CategoryTagsPreview(LookbookPreview):

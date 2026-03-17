@@ -24,10 +24,10 @@ class BasicCardPreview(LookbookPreview):
             "v3/includes/_basic_card.html",
             {
                 "title": "Found a Bug?",
-                "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole community.",
-                "primary_button_url": "#",
+                "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole comm",
+                "primary_button_url": "www.example.com",
                 "primary_button_label": "Primary Button",
-                "secondary_button_url": "#",
+                "secondary_button_url": "www.example.com",
                 "secondary_button_label": "Secondary Button",
             },
         )
@@ -40,8 +40,8 @@ class BasicCardPreview(LookbookPreview):
             "v3/includes/_basic_card.html",
             {
                 "title": "Found a Bug?",
-                "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole community.",
-                "primary_button_url": "#",
+                "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole comm",
+                "primary_button_url": "www.example.com",
                 "primary_button_label": "Primary Button",
             },
         )
@@ -70,9 +70,10 @@ class VerticalCardPreview(LookbookPreview):
             "v3/includes/_vertical_card.html",
             {
                 "title": "Found a Bug?",
-                "text": "We rely on developers like you to keep Boost solid.",
-                "primary_button_url": "#",
+                "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole comm",
+                "primary_button_url": "www.example.com",
                 "primary_button_label": "Primary Button",
+                "primary_style": "secondary-grey",
                 "image_url": "/static/img/v3/demo_page/Calendar.png",
             },
         )
@@ -163,11 +164,14 @@ class LearnCardPreview(LookbookPreview):
                 "title": "I want to learn:",
                 "text": "How to install Boost, use its libraries, build projects, and get help when you need it.",
                 "links": [
-                    {"label": "Explore common use cases", "url": "#"},
-                    {"label": "Build with CMake", "url": "#"},
-                    {"label": "Visit the FAQ", "url": "#"},
+                    {
+                        "label": "Explore common use cases",
+                        "url": "https://www.example.com",
+                    },
+                    {"label": "Build with CMake", "url": "https://www.example.com"},
+                    {"label": "Visit the FAQ", "url": "https://www.example.com"},
                 ],
-                "url": "#",
+                "url": "https://www.example.com",
                 "label": "Learn more about Boost",
                 "image_src": "/static/img/v3/examples/Learn Card Image.png",
             },
@@ -211,7 +215,7 @@ class TestimonialCardPreview(LookbookPreview):
                         },
                     },
                     {
-                        "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+                        "quote": "I use Boost d1aily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
                         "author": {
                             "name": "Name Surname",
                             "avatar_url": "/static/img/v3/demo_page/Avatar.png",
@@ -285,7 +289,7 @@ class PostCardPreview(LookbookPreview):
               {% endwith %}
             </li>
             <li class="post-cards__item">
-              {% with post_title="Boost.Bind and modern C++: a quick overview" post_url="#" post_date="15/02/2025" post_category="Releases" post_tag="bind" author_name="Alex Morgan" author_role="Contributor" author_show_badge=False author_avatar_url="https://ui-avatars.com/api/?name=Alex+Morgan&size=48" %}
+              {% with post_title="Boost.Bind and modern C++: a quick overview" post_url="#" post_date="15/02/2025" post_category="Releases" post_tag="bind" author_name="Alex Morgan" author_role="Contributor" author_show_badge=False author_avatar_url="https://thispersondoesnotexist.com/" %}
                 {% include "v3/includes/_post_card_v3.html" %}
               {% endwith %}
             </li>

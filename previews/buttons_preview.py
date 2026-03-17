@@ -1,6 +1,5 @@
 from django_lookbook.preview import LookbookPreview
 from django.template import Context, Template
-from django.template.loader import render_to_string
 
 
 class ButtonsPreview(LookbookPreview):
@@ -26,7 +25,7 @@ class ButtonsPreview(LookbookPreview):
         template = Template(
             """
         {% load static %}
-        <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+        <div class="btn-row" style="margin-bottom: 12px;">
           <button type="button" class="btn btn-primary">Primary</button>
           <button type="button" class="btn btn-secondary">Secondary</button>
           <button type="button" class="btn btn-green">Green</button>
@@ -47,13 +46,13 @@ class ButtonsPreview(LookbookPreview):
         """
         template = Template(
             """
-        <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
-          <button type="button" class="btn btn-primary" data-hover>Primary</button>
-          <button type="button" class="btn btn-secondary" data-hover>Secondary</button>
-          <button type="button" class="btn btn-green" data-hover>Green</button>
-          <button type="button" class="btn btn-yellow" data-hover>Yellow</button>
-          <button type="button" class="btn btn-teal" data-hover>Teal</button>
-          <button type="button" class="btn btn-error" data-hover>Error</button>
+        <div class="btn-row" style="margin-bottom: 12px;">
+          <button type="button" class="btn btn-primary" data-hover>Primary (Hovered)</button>
+          <button type="button" class="btn btn-secondary" data-hover>Secondary (Hovered)</button>
+          <button type="button" class="btn btn-green" data-hover>Green (Hovered)</button>
+          <button type="button" class="btn btn-yellow" data-hover>Yellow (Hovered)</button>
+          <button type="button" class="btn btn-teal" data-hover>Teal (Hovered)</button>
+          <button type="button" class="btn btn-error" data-hover>Error (Hovered)</button>
         </div>
         """
         )
@@ -62,7 +61,7 @@ class ButtonsPreview(LookbookPreview):
     def hero_buttons(self, **kwargs):
         """
         Hero buttons — larger buttons intended for hero / landing sections.
-        Always includes an icon (defaults to arrow-right).
+        Shows default and hovered states for both primary and secondary.
 
         Template: `v3/includes/_button_hero.html`
 
@@ -75,43 +74,27 @@ class ButtonsPreview(LookbookPreview):
         | `type` | No | Button type attribute |
         | `extra_classes` | No | Additional CSS classes |
         """
-        return render_to_string(
-            "v3/includes/_button_hero.html",
-            {"label": "Primary Hero", "style": "primary"},
-        ) + render_to_string(
-            "v3/includes/_button_hero.html",
-            {"label": "Secondary Hero", "style": "secondary"},
-        )
-
-    def hero_buttons_hovered(self, **kwargs):
-        """
-        Hero buttons with forced hover state via `data-hover`.
-        """
         template = Template(
             """
         {% load static %}
         <div style="display: flex; flex-direction: column; gap: 16px; align-items: flex-start;">
-          <button type="button" class="btn btn-hero btn-primary" data-hover>
+          <button type="button" class="btn btn-hero btn-primary">
             <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=16 %}</span>
             Primary Hero
           </button>
-          <button type="button" class="btn btn-hero btn-secondary" data-hover>
+          <button type="button" class="btn btn-hero btn-primary" data-hover>
+            <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=16 %}</span>
+            Primary Hero (Hovered)
+          </button>
+          <button type="button" class="btn btn-hero btn-secondary">
             <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=16 %}</span>
             Secondary Hero
+          </button>
+          <button type="button" class="btn btn-hero btn-secondary" data-hover>
+            <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="arrow-right" icon_size=16 %}</span>
+            Secondary Hero (Hovered)
           </button>
         </div>
         """
         )
         return template.render(Context({}))
-
-    def button_as_link(self, **kwargs):
-        """
-        Buttons rendered as anchor tags by passing a `url`.
-        """
-        return render_to_string(
-            "v3/includes/_button.html",
-            {"label": "Primary Link", "url": "#", "style": "primary"},
-        ) + render_to_string(
-            "v3/includes/_button.html",
-            {"label": "Secondary Link", "url": "#", "style": "secondary"},
-        )

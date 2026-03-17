@@ -24,8 +24,8 @@ class AvatarsPreview(LookbookPreview):
         {% load avatar_tags %}
         <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
           <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-            {% include "v3/includes/_avatar_v3.html" with src="https://ui-avatars.com/api/?name=Jane+Doe&size=80" size="md" %}
-            <span style="font-size: 12px;">Image</span>
+            {% include "v3/includes/_avatar_v3.html" with src="https://thispersondoesnotexist.com/" size="md" %}
+            <span style="font-size: 12px;">Example photo</span>
           </div>
           <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
             {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="yellow" %}

@@ -59,6 +59,20 @@ SAMPLE_CARDS = [
         "cta_label": "View resources",
         "cta_href": "#",
     },
+    {
+        "title": "Calendar",
+        "description": "Community events, meetings, and review schedule.",
+        "icon_name": "info-box",
+        "cta_label": "View calendar",
+        "cta_href": "#",
+    },
+    {
+        "title": "Donate",
+        "description": "Support the Boost Software Foundation and open-source C++.",
+        "icon_name": "human",
+        "cta_label": "Donate",
+        "cta_href": "#",
+    },
 ]
 
 
