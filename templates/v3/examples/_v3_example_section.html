@@ -255,6 +255,18 @@
       </div>
     </div>
   </div>
+
+  <div class="v3-examples-section__block">
+    <h3 class="block-title">Alert Banner</h3>
+    <div class="v3-examples-section__example-box">
+      <div class="mb-default">
+        {% include "v3/includes/_banner.html" with icon_name=banner_data.icon_name banner_message=banner_data.banner_message %}
+      </div>
+      {% include "v3/includes/_banner.html" with icon_name=banner_data.icon_name banner_message=banner_data.banner_message fade_time=5000 %}
+    </div>
+  </div>
+
+
   <div class="v3-examples-section__block">
     <h3>Basic Card</h3>
     {% with basic_card_data as card %}
