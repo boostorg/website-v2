@@ -67,6 +67,7 @@
             python313.pkgs.black
             python313.pkgs.isort
             python313.pkgs.pip-tools
+            git
           ];
           # Host system installation workflow goes into the bootstrap justfile target.
           # Project specific installation and execution workflow should go here.

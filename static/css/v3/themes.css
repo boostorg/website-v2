@@ -18,13 +18,6 @@
    DARK THEME (Boost)
    ============================================ */
 html.dark {
-  /* Base Colors */
-  --color-bg-primary: var(--color-primary-black);
-  --color-bg-secondary: var(--color-primary-grey-950);
-  --color-text-primary: var(--color-primary-white);
-  --color-text-secondary: var(--color-primary-grey-400);
-  --color-border: var(--color-primary-grey-800);
-
   /* Error Primitives (Dark theme override)
      Note: This is a special case where a primitive token needs theme-specific opacity.
      In dark theme, error-weak uses reduced opacity for better contrast. */
@@ -115,4 +108,17 @@ html.dark {
   --color-text-on-accent: var(--color-primary-black);
   --color-text-reversed: var(--color-primary-black);
   --color-text-tertiary: var(--color-primary-grey-600);
+  --color-text-primary: var(--color-primary-white);
+  --color-text-secondary: var(--color-primary-grey-400);
+
+  /* ============================================
+   DEPRECATED
+
+   Please, do not use these colors. They were originally assigned as "background" colors, but this
+   semantics doesn't exist in the Figma Foundations designs.
+   Use "surface" colors instead.
+   ============================================ */
+  --color-bg-primary: var(--color-primary-black);
+  --color-bg-secondary: var(--color-primary-grey-950);
+  --color-border: var(--color-primary-grey-800);
 }
