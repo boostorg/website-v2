@@ -28,9 +28,9 @@ class HomepageView(ContributorMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["entries"] = Entry.objects.published().order_by("-publish_at")[:3]
         context["events"] = self.get_events()
-        context["testimonial"] = (
-            Testimonial.objects.live().filter(pull_quote__gt="").last()
-        )
+        testimonials = Testimonial.objects.live().filter(pull_quote__gt="")
+        context["testimonials"] = testimonials
+        context["num_testimonials"] = testimonials.count()
         if context["events"]:
             context["num_months"] = len(context["events"])
         else:
