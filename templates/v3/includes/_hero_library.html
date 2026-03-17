@@ -49,16 +49,16 @@
       </div>
       <div class="hero-library__links">
         {% if doc_url %}
-        <a href="{{ doc_url }}" class="btn-icon-library">Documentation{% include "includes/icon.html" with icon_name="documentation" icon_class="btn-icon" icon_size=16 icon_viewbox="0 0 16 16" %}</a>
+        {% include "v3/includes/_button.html" with label="Documentation" url=doc_url style="icon-library" icon_name="documentation" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
         {% if source_url %}
-        <a href="{{ source_url }}" class="btn-icon-library">Source code{% include "includes/icon.html" with icon_name="source-code" icon_class="btn-icon" icon_size=16 icon_viewbox="0 0 16 16" %}</a>
+        {% include "v3/includes/_button.html" with label="Source code" url=source_url style="icon-library" icon_name="source-code" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
         {% if slack_url %}
-        <a href="{{ slack_url }}" class="btn-icon-library">Discuss in Slack{% include "includes/icon.html" with icon_name="slack" icon_class="btn-icon" icon_size=16 icon_viewbox="0 0 16 16" %}</a>
+        {% include "v3/includes/_button.html" with label="Discuss in Slack" url=slack_url style="icon-library" icon_name="slack" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
         {% if github_url %}
-        <a href="{{ github_url }}" class="btn-icon-library">GitHub Issues{% include "includes/icon.html" with icon_name="github-issues" icon_class="btn-icon" icon_size=16 icon_viewbox="0 0 16 16" %}</a>
+        {% include "v3/includes/_button.html" with label="GitHub Issues" url=github_url style="icon-library" icon_name="github-issues" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
       </div>
     </div>
