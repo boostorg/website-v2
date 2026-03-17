@@ -1,0 +1,391 @@
+html.v3 .MuiBackdrop-root {
+  background-color: var(--color-surface-modal, rgba(5, 8, 22, 0.7)) !important;
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+}
+
+html.v3 .MuiDialog-container {
+  padding: var(--space-large, 16px);
+}
+
+html.v3 .MuiDialog-paper {
+  width: min(695px, calc(100vw - (var(--space-large, 16px) * 2)));
+  max-height: 700px;
+  height: auto !important;
+  margin: 0;
+  border-radius: var(--border-radius-xl, 12px);
+  background: var(--color-surface-page, #f7fdfe);
+  color: var(--color-text-primary, #050816);
+  overflow: hidden;
+}
+
+/* Common dialog spacing */
+html.v3 .MuiDialogTitle-root {
+  padding: var(--space-large, 16px);
+}
+
+html.v3 .MuiDialogContent-root {
+  padding: 0 var(--space-large, 16px);
+  background: var(--color-surface-page, #f7fdfe);
+  overflow: auto;
+  max-height: 320px;
+}
+
+/* When empty state is shown, make content area tall enough for 400px block */
+html.v3 .MuiDialogContent-root:has(> .MuiBox-root:has(.MuiButton-root[disabled])) {
+  min-height: 400px;
+  max-height: 400px;
+}
+
+html.v3 .MuiDialogActions-root {
+  padding: var(--space-default, 8px) var(--space-large, 16px);
+  background: var(--color-surface-page, #f7fdfe);
+}
+
+/* Input row: make MUI input feel like v3 field */
+html.v3 .MuiInputBase-root,
+html.v3 .MuiOutlinedInput-root {
+  height: 40px;
+  border-radius: var(--border-radius-xl, 12px);
+  background: var(--color-surface-weak, #fff);
+}
+
+html.v3 .MuiOutlinedInput-notchedOutline {
+  border-color: var(--color-stroke-weak, #0508161A);
+}
+
+html.v3 .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: var(--color-stroke-mid, #0508162B);
+}
+
+html.v3 .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--color-stroke-strong, #05081640);
+}
+
+html.v3 .MuiInputBase-input {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  line-height: var(--line-height-relaxed, 1.24);
+  letter-spacing: -0.14px;
+  color: var(--color-text-primary, #050816);
+}
+
+html.v3 .MuiInputBase-input::placeholder {
+  color: var(--color-text-secondary, #6b6d78);
+  opacity: 1;
+}
+
+/* Icon buttons (submit arrow, close, etc.) */
+html.v3 .MuiIconButton-root {
+  color: var(--color-icon-primary, #050816);
+}
+
+html.v3 .MuiIconButton-root:hover {
+  color: var(--color-text-link-accent, #00778B);
+}
+
+html.v3 .MuiIconButton-root:focus-visible {
+  outline: 2px solid var(--color-stroke-link-accent, #1F3044);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-xs, 2px);
+}
+
+/* Ensure submit arrow adornment sits flush on the far right */
+html.v3 .MuiDialog-paper .MuiInputAdornment-positionEnd {
+  margin-left: auto;
+}
+
+/* “Esc” control often renders as a small button */
+html.v3 .MuiButton-root {
+  border-radius: var(--border-radius-xl, 12px);
+  text-transform: none;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  line-height: var(--line-height-relaxed, 1.24);
+  letter-spacing: -0.14px;
+}
+
+/* Title row layout: input + Esc align like Storybook */
+html.v3 .MuiDialogTitle-root .MuiGrid-container {
+  align-items: flex-start;
+}
+
+html.v3 .MuiDialogTitle-root .MuiGrid-container > .MuiGrid-root {
+  min-width: 0;
+}
+
+/* Esc button: match the small “field” in Storybook and hide the X icon */
+html.v3 .MuiDialogTitle-root .MuiButton-outlined {
+  height: 40px;
+  min-width: 54px;
+  padding: 0 var(--space-large, 16px);
+  border: 1px solid var(--color-stroke-weak, #0508161A);
+  background: var(--color-surface-weak, #fff);
+  color: var(--color-text-secondary, #6b6d78);
+}
+
+html.v3 .MuiDialogTitle-root .MuiButton-outlined:hover {
+  border-color: var(--color-stroke-mid, #0508162B);
+  background: var(--color-surface-weak, #fff);
+  color: var(--color-text-primary, #050816);
+}
+
+html.v3 .MuiDialogTitle-root .MuiButton-outlined .MuiSvgIcon-root {
+  display: none;
+}
+
+html.v3 .MuiDialogTitle-root .MuiButton-outlined:focus-visible {
+  outline: 2px solid var(--color-stroke-link-accent, #1F3044);
+  outline-offset: 2px;
+}
+
+html.v3 .MuiTabs-root {
+  min-height: unset;
+  border-bottom: none;
+}
+
+html.v3 .MuiTabs-list.MuiTabs-flexContainer {
+  gap: 16px;
+}
+
+html.v3 .MuiTab-root {
+  min-height: unset;
+  padding: var(--space-default, 8px);
+  border-radius: var(--border-radius-l, 8px);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  line-height: var(--line-height-relaxed, 1.24);
+  letter-spacing: -0.14px;
+  text-transform: none;
+}
+
+html.v3 .MuiTab-root.Mui-selected {
+  background: var(--color-surface-strong, #efeff1);
+  color: var(--color-text-primary, #050816);
+}
+
+html.v3 .MuiTab-root:not(.Mui-selected) {
+  color: var(--color-text-tertiary, #71737b);
+  border: 1px solid var(--color-stroke-mid, #0508162B);
+}
+
+/* Hide the MUI underline indicator to match Storybook */
+html.v3 .MuiTabs-indicator {
+  display: none;
+}
+
+
+/* Tip row: match Storybook’s secondary text */
+html.v3 .MuiDialogTitle-root .MuiTypography-caption {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  line-height: var(--line-height-relaxed, 1.24);
+  letter-spacing: -0.14px;
+  color: var(--color-text-secondary, #585a64);
+  padding-top: var(--space-default, 8px);
+  padding-bottom: var(--space-default, 8px);
+  display: none;
+}
+
+html.v3 .MuiDialogTitle-root .MuiTypography-caption .MuiBox-root {
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-primary, #050816);
+}
+
+/* Counts inside tabs: don’t shrink typography too much */
+html.v3 .MuiTab-root .MuiTypography-caption {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  color: inherit;
+}
+
+/* “Show More” doesn’t exist in Storybook; hide (including the empty-state one) */
+html.v3 .MuiDialogContent-root .MuiButton-root[disabled] {
+  display: none;
+}
+
+/* Empty state: 400px height + “No results yet” when nothing is typed */
+html.v3 .MuiDialogContent-root > .MuiBox-root:has(.MuiButton-root[disabled]) {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-default, 8px);
+  background: transparent;
+  border-radius: 0;
+  margin-bottom: 0;
+}
+
+html.v3 .MuiDialogContent-root > .MuiBox-root:has(.MuiButton-root[disabled]) > * {
+  display: none;
+}
+
+html.v3 .MuiDialogContent-root > .MuiBox-root:has(.MuiButton-root[disabled])::before {
+  content: "No results yet";
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  font-weight: var(--font-weight-regular, 400);
+  line-height: var(--line-height-relaxed, 1.24);
+  color: var(--color-text-secondary, #585a64);
+}
+
+/* Results list items: approximate Search Item “cards” */
+html.v3 .MuiList-root {
+  padding: 0;
+  margin: 0;
+}
+
+html.v3 .MuiListItem-root {
+  padding: 0;
+}
+
+html.v3 .MuiListItemText-primary {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: var(--line-height-relaxed, 1.24);
+  letter-spacing: -0.14px;
+  color: var(--color-text-primary, #050816);
+}
+
+html.v3 .MuiListItemText-secondary {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  font-weight: var(--font-weight-regular, 400);
+  line-height: var(--line-height-relaxed, 1.24);
+  letter-spacing: -0.14px;
+  color: var(--color-text-secondary, #585a64);
+}
+
+/* Result links: pointer cursor, no underline */
+html.v3 .MuiDialogContent-root a {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+html.v3 .MuiDialogContent-root a:hover {
+  text-decoration: none;
+}
+
+/* Algolia hit boxes (breadcrumb + snippet) – match SearchItem styling */
+html.v3 .MuiDialogContent-root .MuiBox-root .MuiBreadcrumbs-root {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: var(--line-height-relaxed, 1.24);
+  letter-spacing: -0.14px;
+  color: var(--color-text-primary, #050816);
+}
+
+html.v3 .MuiDialogContent-root .MuiBreadcrumbs-ol {
+  padding: 0;
+  margin: 0;
+}
+
+html.v3 .MuiDialogContent-root .MuiBreadcrumbs-li {
+  display: inline-flex;
+  align-items: center;
+}
+
+html.v3 .MuiDialogContent-root .MuiBreadcrumbs-separator {
+  padding: 0 var(--space-s, 4px);
+  font-size: 10px;
+  color: var(--color-text-primary, #050816);
+}
+
+html.v3 .MuiDialogContent-root .MuiBreadcrumbs-root a {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+html.v3 .MuiDialogContent-root .MuiBreadcrumbs-root a:hover {
+  text-decoration: none;
+}
+
+html.v3 .MuiDialogContent-root .ais-Snippet {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  font-weight: var(--font-weight-regular, 400);
+  line-height: var(--line-height-relaxed, 1.24);
+  letter-spacing: -0.14px;
+  color: var(--color-text-secondary, #585a64);
+}
+
+html.v3 .MuiDialogContent-root .ais-Snippet-highlighted {
+  font-weight: var(--font-weight-medium, 500);
+}
+
+/* Wrap each hit: debugging mode (no background, red text) */
+html.v3 .MuiDialogContent-root .MuiBox-root {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-s, 4px);
+  align-self: stretch;
+  border-radius: var(--s, 4px);
+  background: white;
+  margin-bottom: 12px;
+}
+
+
+
+/* Footer: Powered by / Report Issue alignment + link styling */
+html.v3 .MuiDialogActions-root .MuiGrid-container {
+  align-items: center;
+}
+
+html.v3 .ais-PoweredBy {
+  padding-top: 0 !important;
+  width: auto !important;
+}
+
+html.v3 .ais-PoweredBy-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-default, 8px);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  line-height: var(--line-height-relaxed, 1.24);
+  letter-spacing: -0.14px;
+  color: var(--color-text-secondary, #585a64);
+  text-decoration: none;
+}
+
+html.v3 .ais-PoweredBy-link:hover {
+  text-decoration: none;
+}
+
+html.v3 .MuiDialogActions-root a.MuiButton-root {
+  justify-content: flex-end;
+  padding: 0;
+  min-width: 0;
+  color: var(--Text-Secondary, var(--color-text-secondary, #585a64));
+  font-family: var(--Typefaces-Sans, var(--font-sans, "Mona Sans VF"));
+  font-size: var(--Sizes-Small, 14px);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 124%;
+  letter-spacing: -0.14px;
+  text-decoration: none;
+}
+
+html.v3 .MuiDialogActions-root a.MuiButton-root:hover {
+  text-decoration: underline;
+}
+
+html.v3 .MuiDialogActions-root a.MuiButton-root .MuiButton-icon {
+  display: none;
+}
+
+/* Results highlight */
+html.v3 mark {
+  font-weight: var(--font-weight-medium, 500);
+  background: transparent;
+  color: var(--color-text-primary, #050816);
+}
