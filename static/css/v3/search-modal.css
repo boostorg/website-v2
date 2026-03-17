@@ -31,6 +31,11 @@ html.v3 .MuiDialogContent-root {
   max-height: 320px;
 }
 
+/* Results / Learn tab panel wrapper: 12px gap between contents */
+html.v3 .MuiDialogContent-root > .MuiBox-root {
+  gap: 12px;
+}
+
 /* When empty state is shown, make content area tall enough for 400px block */
 html.v3 .MuiDialogContent-root:has(> .MuiBox-root:has(.MuiButton-root[disabled])) {
   min-height: 400px;
