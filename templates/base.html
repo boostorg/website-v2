@@ -48,6 +48,7 @@
     <script src="{% static 'js/highlight.js' %}"></script>
     <script src="{% static 'js/highlight-block.js' %}"></script>
     <script src="{% static 'js/code-block.js' %}" defer></script>
+    <script src="{% static 'js/install-card.js' %}" defer></script>
     {% endflag %}
     {% block extra_head %}
       <link href="{% static 'css/styles.css' %}" rel="stylesheet">
@@ -406,9 +407,11 @@
       {% endblock %}
       </div>
 
-      {% flag "v3" %}
-      {% include "v3/examples/_v3_example_section.html" %}
-      {% endflag %}
+      {% if request.resolver_match.url_name == 'v3-demo-components' %}
+        {% flag "v3" %}
+          {% include "v3/examples/_v3_example_section.html" %}
+        {% endflag %}
+      {% endif %}
 
       {% if not hide_footer %}
         {% flag "v3" %}
@@ -421,6 +424,7 @@
 
     {% flag "v3" %}
     <script src="{% static 'js/carousel.js' %}" defer></script>
+    <script src="{% static 'js/dialog.js' %}" defer></script>
     {% endflag %}
 
     {% block footer_js %}{% endblock %}
