@@ -22,6 +22,7 @@ class CapturedEmail(models.Model):
     address_city = models.CharField(blank=True, default="")
     address_state = models.CharField(blank=True, default="")
     address_country = models.CharField(blank=True, default="")
+    github_username = models.CharField(blank=True, default="")
     opted_out = models.BooleanField(default=False)
 
     referrer = models.CharField(blank=True, default="")
@@ -34,6 +35,14 @@ class CapturedEmail(models.Model):
         default=None,
     )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=~models.Q(email=""),
+                name="captured_email_requires_email",
+            ),
+        ]
 
     def __str__(self):
         return self.email
