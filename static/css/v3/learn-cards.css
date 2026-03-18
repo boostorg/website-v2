@@ -1,0 +1,97 @@
+.learn-card {
+    max-width: 696px;
+}
+
+.learn-card__row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-large, 16px);
+    align-self: stretch;
+    flex-direction: row;
+}
+
+@media (max-width: 696px) {
+    .learn-card__row {
+        flex-direction: column;
+    }
+}
+
+.learn-card__column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex: 1 0 0;
+    align-self: stretch;
+}
+
+.learn-card__title {
+    color: var(--color-text-primary, #050816);
+
+    /* Display/Desktop/Medium/Large */
+    font-family: var(--font-display, "Mona Sans Display SemiCondensed");
+    font-size: var(--font-size-large, 24px);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--tight);
+    /* 24px */
+    letter-spacing: -0.24px;
+}
+
+.learn-card__text {
+    color: var(--color-text-secondary, #585A64);
+
+    /* Sans/Desktop/Regular/Base */
+    font-family: var(--font-sans, "Mona Sans VF");
+    font-size: var(--font-size-base, 16px);
+    font-weight: var(--font-weight-regular);
+    /* 19.2px */
+    letter-spacing: -0.16px;
+}
+
+.learn-card__link-container {
+    display: flex;
+    min-width: 128px;
+    align-items: center;
+    gap: var(--space-s, 4px);
+}
+
+.learn-card__link-icon {
+    fill: var(--color-icon-primary);
+}
+
+.learn-card__link {
+    font-size: var(--font-sizes-small, 14px);
+    font-weight: var(--font-weight-medium);
+    line-height: 124%;
+    /* 17.36px */
+    letter-spacing: -0.14px;
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-skip-ink: auto;
+    text-decoration-thickness: 7.5%;
+    /* 1.05px */
+    text-underline-offset: 15.2%;
+    /* 2.128px */
+    text-underline-position: from-font;
+}
+
+.learn-card__link-tag {
+    text-decoration: none;
+    color: inherit;
+}
+.learn-card__link-tag:focus-visible {
+    outline: none;
+}
+.learn-card__link-tag:focus-visible .learn-card__link-container {
+    outline: 2px solid Highlight;
+    outline: 2px solid -webkit-focus-ring-color;
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+.learn-card__image {
+    flex: 1 0 0;
+    aspect-ratio: 1/1;
+    border-radius: var(--border-radius-default, 8px);
+    width: 100%;
+}

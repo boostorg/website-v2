@@ -1,0 +1,187 @@
+<div class="v3-examples-section__block">
+  <h3>WYSIWYG editor</h3>
+  <div class="v3-examples-section__example-box">
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button type="button" id="wysiwyg-demo-fill" class="btn btn-primary">Fill demo content</button>
+      <button type="button" id="wysiwyg-demo-clear" class="btn btn-secondary">Clear</button>
+    </div>
+    {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_demo_content" textarea_name="demo_content" label="Content" %}
+  </div>
+  <script type="module">
+  const DEMO_MARKDOWN = `# Boost.Asio Networking Example
+
+This document demonstrates **all supported formatting** in the WYSIWYG editor.
+
+## Inline formatting
+
+Here is **bold text**, *italic text*, ~~strikethrough~~, <u>underlined text</u>, and \`inline code\` mixed in a paragraph. You can also combine **bold with *nested italic*** for emphasis.
+
+The \`boost::asio::io_context\` class is the core I/O object. Call \`ctx.run()\` to start the event loop.
+
+## Headings
+
+### This is heading 3
+
+Regular paragraph text below a heading.
+
+## Code blocks
+
+### C++ — Async TCP server
+
+\`\`\`cpp
+#include <boost/asio.hpp>
+#include <iostream>
+
+using boost::asio::ip::tcp;
+
+class Session : public std::enable_shared_from_this<Session> {
+public:
+    explicit Session(tcp::socket socket) : socket_(std::move(socket)) {}
+
+    void start() {
+        auto self = shared_from_this();
+        boost::asio::async_read_until(socket_, buffer_, "\\n",
+            [this, self](boost::system::error_code ec, std::size_t len) {
+                if (!ec) {
+                    std::string msg(
+                        boost::asio::buffers_begin(buffer_.data()),
+                        boost::asio::buffers_begin(buffer_.data()) + len);
+                    std::cout << "Received: " << msg;
+                    start(); // keep reading
+                }
+            });
+    }
+
+private:
+    tcp::socket socket_;
+    boost::asio::streambuf buffer_;
+};
+\`\`\`
+
+### Python — HTTP client
+
+\`\`\`python
+import asyncio
+import aiohttp
+
+async def fetch(url: str) -> str:
+    """Fetch a URL and return its body text."""
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            resp.raise_for_status()
+            return await resp.text()
+
+async def main():
+    urls = [
+        "https://www.boost.org",
+        "https://www.boost.org/doc/libs/",
+    ]
+    results = await asyncio.gather(*[fetch(u) for u in urls])
+    for url, body in zip(urls, results):
+        print(f"{url}: {len(body)} bytes")
+
+asyncio.run(main())
+\`\`\`
+
+## Lists
+
+### Bullet list
+- Boost.Asio for async I/O
+- Boost.Beast for HTTP/WebSocket
+- Boost.JSON for parsing
+- Nested items:
+  - Sub-item one
+  - Sub-item two
+
+### Ordered list
+1. Install Boost via package manager
+2. Include the required headers
+3. Link against the Boost libraries
+4. Compile and run
+
+### Checkbox list
+- [x] Set up build system
+- [x] Add Boost dependencies
+- [ ] Write unit tests
+- [ ] Benchmark performance
+- [ ] Deploy to production
+
+## Blockquote
+
+> "C++ is a language that lets you shoot yourself in the foot, and then provides a library to bandage it."
+> — Adapted from Bjarne Stroustrup
+
+## Table
+
+| Library | Category | Header-only |
+|---|---|---|
+| Asio | Networking | Yes |
+| Beast | HTTP/WS | Yes |
+| JSON | Parsing | Yes |
+| Filesystem | System | No |
+| Thread | Concurrency | No |
+
+## Horizontal rule
+
+---
+
+## Links and images
+
+Visit [Boost.org](https://www.boost.org) for documentation.
+
+![Boost logo](https://www.boost.org/doc/libs/1_84_0/boost.png)
+
+## Mermaid diagram
+
+\`\`\`mermaid
+graph LR
+    A[Client] -->|TCP| B[Acceptor]
+    B --> C[Session 1]
+    B --> D[Session 2]
+    B --> E[Session N]
+    C -->|async_read| F[io_context]
+    D -->|async_read| F
+    E -->|async_read| F
+\`\`\`
+
+---
+
+*This demo content showcases all editor features: headings, inline styles, code blocks with syntax highlighting, lists, checkboxes, blockquotes, tables, links, images, horizontal rules, and mermaid diagrams.*
+`;
+
+  function resetEditor(ta) {
+    const wrapper = ta.closest('[data-wysiwyg="v3"]');
+    if (wrapper) {
+      const toolbar = wrapper.querySelector('.wysiwyg-editor__toolbar');
+      const body = wrapper.querySelector('.wysiwyg-editor__body');
+      if (toolbar) toolbar.innerHTML = '';
+      if (body) body.innerHTML = '';
+      wrapper.querySelectorAll('.wysiwyg-table-context, .wysiwyg-editor__markdown-pane, .wysiwyg-editor__preview').forEach(el => el.remove());
+      ta.style.position = '';
+      ta.style.left = '';
+      ta.style.width = '';
+      ta.style.height = '';
+      ta.removeAttribute('aria-hidden');
+      ta.tabIndex = 0;
+    }
+    import('/static/js/v3/wysiwyg-editor.js').then(m => m.initWysiwyg('id_demo_content'));
+  }
+
+  document.getElementById('wysiwyg-demo-fill')?.addEventListener('click', () => {
+    const ta = document.getElementById('id_demo_content');
+    if (!ta) return;
+    ta.value = DEMO_MARKDOWN;
+    resetEditor(ta);
+  });
+
+  document.getElementById('wysiwyg-demo-clear')?.addEventListener('click', () => {
+    const ta = document.getElementById('id_demo_content');
+    if (!ta) return;
+    ta.value = '';
+    resetEditor(ta);
+  });
+
+  // Load and init WYSIWYG on page load so the editor is ready without clicking Fill demo content
+  import('/static/js/v3/wysiwyg-editor.js').then(m => m.initWysiwyg('id_demo_content'));
+  </script>
+</div>

@@ -15,6 +15,7 @@
 {% endcomment %}
 <script type="application/json" id="field-{{ name }}-options">{{ options_json|safe }}</script>
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
+  {# djlint:off #}
      x-data="{
        open: false,
        query: '',
@@ -48,9 +49,8 @@
          }
        }
      }">
-  {% if label %}
-  <label class="field__label" id="field-{{ name }}-label">{{ label }}</label>
-  {% endif %}
+  {# djlint:on #}
+  {% if label %}<label class="field__label" id="field-{{ name }}-label">{{ label }}</label>{% endif %}
   <div class="dropdown dropdown--combo" :class="{ 'dropdown--open': open }">
     <div class="dropdown__trigger"
          :class="{ 'dropdown__trigger--active': open }"
@@ -58,16 +58,15 @@
          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}>
       <!-- Closed state: show selected value or placeholder -->
       <template x-if="!open">
-        <span class="dropdown__trigger-text" :class="{ 'dropdown__trigger-placeholder': !selected }">
+        <span class="dropdown__trigger-text"
+              :class="{ 'dropdown__trigger-placeholder': !selected }">
           <span x-text="selected ? selectedLabel : '{{ placeholder|default:"Search..." }}'"></span>
         </span>
       </template>
       <!-- Open state: show search icon + input -->
       <template x-if="open">
         <span class="combo__search-row">
-          <svg class="combo__search-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M6 2h8v2H6V2zM4 6V4h2v2H4zm0 8H2V6h2v8zm2 2H4v-2h2v2zm8 0v2H6v-2h8zm2-2h-2v2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm0-8h2v8h-2V6zm0 0V4h-2v2h2z"/>
-          </svg>
+          {% include "includes/icon.html" with icon_name="search" icon_class="combo__search-icon" %}
           <input type="text"
                  class="combo__search-input"
                  x-ref="searchInput"
@@ -84,9 +83,7 @@
               @click.stop="toggle()"
               :aria-expanded="open"
               aria-label="Toggle search">
-        <svg class="dropdown__chevron" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M7 8H5v2h2v2h2v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2h-2v-2H9v-2H7V8z"/>
-        </svg>
+        {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
       </button>
     </div>
     <div class="dropdown__panel"
@@ -98,7 +95,7 @@
          x-transition:leave="transition ease-in duration-75"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
-         style="display: none;"
+         style="display: none"
          role="combobox"
          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}>
       <div class="dropdown__list" role="listbox">
@@ -111,17 +108,19 @@
                @keydown.enter.prevent="choose(option.value, option.label)"
                @keydown.space.prevent="choose(option.value, option.label)"
                tabindex="0"
-               x-text="option.label">
-          </div>
+               x-text="option.label"></div>
         </template>
         <div class="dropdown__empty" x-show="filtered.length === 0">No results found</div>
       </div>
     </div>
   </div>
-  <input type="hidden" name="{{ name }}" :value="selected" {% if required %}required{% endif %}>
+  <input type="hidden"
+         name="{{ name }}"
+         :value="selected"
+         {% if required %}required{% endif %}>
   {% if error %}
-  <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
+    <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
   {% elif help_text %}
-  <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+    <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
   {% endif %}
 </div>

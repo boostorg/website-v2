@@ -1,0 +1,676 @@
+.wysiwyg-v3 {
+  position: relative;
+  width: 100%;
+}
+
+/* Active/focus state: single unified box */
+.wysiwyg-v3:focus-within {
+  border-radius: var(--xl, 12px);
+  border: 1px solid var(--Stroke-Strong, rgba(5, 8, 22, 0.25));
+  background: var(--Surface-Mid, #F7F7F8);
+  overflow: hidden;
+}
+
+.wysiwyg-v3:focus-within .wysiwyg-editor__toolbar {
+  border: none;
+  background: transparent;
+}
+
+.wysiwyg-v3:focus-within .wysiwyg-editor__body {
+  border: none;
+  background: transparent;
+}
+
+.wysiwyg-editor__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-default, 8px);
+  padding: var(--space-default, 8px) var(--space-medium, 12px);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-radius: var(--border-radius-xl, 12px) var(--border-radius-xl, 12px) 0 0;
+  background: var(--color-surface-weak, #fff);
+  min-width: 0; /* allow shrinking so content can wrap */
+  overflow-x: auto; /* fallback: scroll on very narrow viewports */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* When in markdown mode, hide all formatting controls except the MD toggle */
+.wysiwyg-editor__toolbar--markdown .wysiwyg-toolbar__left > :not(.wysiwyg-toolbar__btn--md) {
+  display: none;
+}
+
+.wysiwyg-toolbar__left,
+.wysiwyg-toolbar__right {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-default, 8px);
+  min-width: 0;
+}
+
+.wysiwyg-toolbar__left {
+  flex: 1 1 auto; /* grow and shrink, allow wrapping to next row when needed */
+}
+.wysiwyg-editor__body code {
+  font-family: var(--font-mono);
+  color: var(--color-text-brand-accent-default, #050816);
+  font-size: var(--font-size-small, 14px);
+  background: var(--color-surface-mid, #f7f7f8);
+  padding: var(--space-default, 8px) var(--space-medium, 12px);
+  border-radius: var(--border-radius-l, 8px);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+}
+
+.wysiwyg-toolbar__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--border-radius-l, 8px);
+  background: transparent;
+  color: var(--color-icon-primary, #050816);
+  font-size: var(--font-size-small, 14px);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.wysiwyg-toolbar__btn:hover {
+  background: var(--color-surface-mid, #f7f7f8);
+  color: var(--color-text-primary, #050816);
+}
+
+.wysiwyg-toolbar__btn svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+
+.wysiwyg-toolbar__btn--active {
+  background: var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard));
+  color: var(--color-icon-on-accent, #050816);
+}
+
+.wysiwyg-toolbar__btn--active:hover {
+  background: var(--color-surface-brand-accent-hovered, #FFA000BF);
+}
+
+/* Toolbar separator */
+.wysiwyg-toolbar__sep {
+  display: inline-block;
+  width: 1px;
+  height: 20px;
+  background: var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  flex-shrink: 0;
+}
+
+.wysiwyg-toolbar__lang-select {
+  height: 28px;
+  padding: 0 var(--space-default, 8px);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-radius: var(--border-radius-l, 8px);
+  background: var(--color-surface-weak, #fff);
+  color: var(--color-text-primary, #050816);
+  font-size: var(--font-size-small, 14px);
+  cursor: pointer;
+}
+
+.wysiwyg-toolbar__lang-select:hover:not(:disabled) {
+  border-color: var(--color-stroke-mid, #0508162B);
+}
+
+.wysiwyg-toolbar__lang-select:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ── Table grid size picker ─────────────────────────────────────── */
+
+.wysiwyg-toolbar__table-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.wysiwyg-table-grid {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  margin-top: 4px;
+  padding: var(--space-default, 8px);
+  background: var(--color-surface-weak, #fff);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-radius: var(--border-radius-l, 8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.wysiwyg-table-grid__label {
+  font-size: 12px;
+  color: var(--color-text-secondary, #6b6d78);
+  margin-bottom: 6px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.wysiwyg-table-grid__cells {
+  display: grid;
+  grid-template-columns: repeat(6, 20px);
+  grid-template-rows: repeat(6, 20px);
+  gap: 2px;
+}
+
+.wysiwyg-table-grid__cell {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.15));
+  border-radius: 3px;
+  background: var(--color-surface-weak, #fff);
+  cursor: pointer;
+  transition: background-color 0.1s ease, border-color 0.1s ease;
+}
+
+.wysiwyg-table-grid__cell:hover,
+.wysiwyg-table-grid__cell--active {
+  background: var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard, #FFA000));
+  border-color: rgba(255, 160, 0, 0.5);
+}
+
+/* ── Table context bar (row/col controls) ──────────────────────── */
+
+.wysiwyg-table-context {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px var(--space-medium, 12px);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-top: none;
+  background: var(--color-surface-mid, #f7f7f8);
+  flex-wrap: wrap;
+}
+
+.wysiwyg-table-context__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 24px;
+  padding: 0 8px;
+  border: none;
+  border-radius: var(--border-radius-l, 8px);
+  background: var(--color-surface-weak, #fff);
+  color: var(--color-text-primary, #050816);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+
+.wysiwyg-table-context__btn:hover {
+  background: var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard, #FFA000));
+}
+
+.wysiwyg-table-context__btn--danger {
+  color: var(--color-text-error, #d32f2f);
+}
+
+.wysiwyg-table-context__btn--danger:hover {
+  background: #fde8e8;
+}
+
+.wysiwyg-table-context .wysiwyg-toolbar__sep {
+  height: 16px;
+}
+
+.wysiwyg-editor__body {
+  min-height: 200px;
+  max-height: 700px;
+  resize: vertical;
+  overflow: auto;
+  padding: var(--space-medium, 12px) var(--space-large, 16px);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-top: none;
+  border-radius: 0 0 var(--border-radius-xl, 12px) var(--border-radius-xl, 12px);
+  background: var(--color-surface-weak, #fff);
+}
+
+.wysiwyg-editor__body:focus-within {
+  outline: none;
+}
+
+/* Preview pane */
+.wysiwyg-editor__preview {
+  min-height: 200px;
+  max-height: 80vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-medium, 12px) var(--space-large, 16px);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-top: none;
+  border-radius: 0 0 var(--border-radius-xl, 12px) var(--border-radius-xl, 12px);
+  background: var(--color-surface-weak, #fff);
+}
+
+/* ProseMirror editor content */
+.wysiwyg-editor__prose {
+  min-height: 180px;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  line-height: 1.5;
+  color: var(--color-text-primary, #050816);
+  outline: none;
+  overflow-wrap: break-word;
+}
+
+.wysiwyg-editor__prose p {
+  margin: 0 0 4px;
+}
+
+.wysiwyg-editor__prose p code {
+
+  color: var(--color-text-brand-accent-default, #050816) !important;
+background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important; }
+
+.wysiwyg-editor__prose p:last-child {
+  margin-bottom: 0;
+}
+
+/* Bullet and ordered lists – ensure markers are visible */
+.wysiwyg-editor__prose ul:not([data-type="taskList"]),
+.wysiwyg-editor__prose ol {
+  margin: 0 0 4px;
+  padding-left: var(--space-xl, 24px);
+}
+
+.wysiwyg-editor__prose ul:not([data-type="taskList"]) {
+  list-style-type: disc;
+}
+
+.wysiwyg-editor__prose ul:not([data-type="taskList"]) li,
+.wysiwyg-editor__prose ol li {
+  margin: 2px 0;
+  display: list-item;
+}
+
+.wysiwyg-editor__prose ol {
+  list-style-type: decimal;
+}
+
+/* Headings */
+.wysiwyg-editor__prose h1 {
+  font-size: 1.75em;
+  font-weight: 700;
+  margin: 0.6em 0 0.3em;
+  line-height: 1.2;
+}
+
+.wysiwyg-editor__prose h2 {
+  font-size: 1.4em;
+  font-weight: 600;
+  margin: 0.5em 0 0.25em;
+  line-height: 1.25;
+}
+
+.wysiwyg-editor__prose h3 {
+  font-size: 1.15em;
+  font-weight: 600;
+  margin: 0.4em 0 0.2em;
+  line-height: 1.3;
+}
+
+/* Blockquote */
+.wysiwyg-editor__prose blockquote {
+  margin: var(--space-default, 8px) 0;
+  padding: var(--space-default, 8px) var(--space-large, 16px);
+  border-left: 3px solid var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard, #FFA000));
+  color: var(--color-text-secondary, #6b6d78);
+  background: var(--color-surface-mid, #f7f7f8);
+  border-radius: 0 var(--border-radius-l, 8px) var(--border-radius-l, 8px) 0;
+}
+
+/* Horizontal rule */
+.wysiwyg-editor__prose hr {
+  border: none;
+  border-top: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  margin: var(--space-medium, 12px) 0;
+}
+
+/* Images */
+.wysiwyg-editor__prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-l, 8px);
+}
+
+/* Tables */
+.wysiwyg-editor__prose table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: var(--space-default, 8px) 0;
+}
+
+.wysiwyg-editor__prose th,
+.wysiwyg-editor__prose td {
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  padding: var(--space-default, 8px) var(--space-medium, 12px);
+  text-align: left;
+}
+
+.wysiwyg-editor__prose th {
+  background: var(--color-surface-mid, #f7f7f8);
+  font-weight: 600;
+}
+
+/* Task / checkbox lists */
+.wysiwyg-editor__prose ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+  margin: 4px 0;
+}
+
+.wysiwyg-editor__prose ul[data-type="taskList"] li {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 2px 0;
+}
+
+.wysiwyg-editor__prose ul[data-type="taskList"] li > label {
+  flex-shrink: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  top: 1px;
+}
+
+.wysiwyg-editor__prose ul[data-type="taskList"] li input[type="checkbox"] {
+  width: 1em;
+  height: 1em;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard));
+  flex-shrink: 0;
+}
+
+.wysiwyg-editor__prose ul[data-type="taskList"] li > div {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Inline code – visible on-brand highlight */
+.wysiwyg-editor__prose code {
+  padding: 0.2em 0.45em;
+  font-family: var(--font-code, ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace);
+  font-size: 0.85em;
+  background: rgba(255, 160, 0, 0.15);
+  border: 1px solid rgba(255, 160, 0, 0.3);
+  border-radius: 6px;
+  color: var(--color-text-primary, #050816);
+  word-break: break-word;
+}
+
+/* Code block container */
+.wysiwyg-editor__prose pre {
+  margin: var(--space-default, 8px) 0;
+  padding: var(--space-medium, 12px);
+  overflow: auto;
+  background: var(--code-block-bg, #f6f8fa);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-radius: var(--border-radius-l, 8px);
+  font-family: var(--font-code, ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace);
+  font-size: var(--font-size-small, 14px);
+  line-height: var(--line-height-code, 1.5);
+}
+
+.wysiwyg-editor__prose pre code {
+  padding: 0;
+  background: none;
+  color: var(--color-syntax-text, var(--color-text-primary));
+  font-weight: inherit;
+  font-size: inherit;
+  border-radius: 0;
+  word-break: normal;
+}
+
+/* Syntax highlighting in code blocks (lowlight/highlight.js classes) */
+.wysiwyg-editor__prose pre .hljs-keyword,
+.wysiwyg-editor__prose pre .hljs-selector-tag,
+.wysiwyg-editor__prose pre .hljs-addition {
+  color: var(--color-syntax-keyword, #00f);
+}
+
+.wysiwyg-editor__prose pre .hljs-string {
+  color: var(--color-syntax-string, #a31515);
+}
+
+.wysiwyg-editor__prose pre .hljs-meta,
+.wysiwyg-editor__prose pre .hljs-meta .hljs-keyword {
+  color: var(--color-syntax-preprocessor, #6f008a);
+}
+
+.wysiwyg-editor__prose pre .hljs-comment,
+.wysiwyg-editor__prose pre .hljs-quote {
+  color: var(--color-syntax-comment, #008000);
+  font-style: italic;
+}
+
+.wysiwyg-editor__prose pre .hljs-attribute,
+.wysiwyg-editor__prose pre .hljs-variable,
+.wysiwyg-editor__prose pre .hljs-template-variable {
+  color: var(--color-syntax-attribute, #9e9e9e);
+}
+
+.wysiwyg-editor__prose pre .hljs-number,
+.wysiwyg-editor__prose pre .hljs-literal {
+  color: var(--color-syntax-number, #098658);
+}
+
+.wysiwyg-editor__prose pre .hljs-built_in,
+.wysiwyg-editor__prose pre .hljs-class .hljs-title {
+  color: var(--color-syntax-function, #267f99);
+}
+
+.wysiwyg-editor__prose pre .hljs-title,
+.wysiwyg-editor__prose pre .hljs-section {
+  color: var(--color-syntax-function, #267f99);
+}
+
+.wysiwyg-editor__prose pre .hljs-attr,
+.wysiwyg-editor__prose pre .hljs-name,
+.wysiwyg-editor__prose pre .hljs-tag {
+  color: var(--color-syntax-keyword, #00f);
+}
+
+.wysiwyg-editor__prose pre .hljs-operator,
+.wysiwyg-editor__prose pre .hljs-punctuation {
+  color: var(--color-text-secondary, #6b6d78);
+}
+
+.wysiwyg-editor__prose a {
+  color: var(--color-stroke-link-accent, #0077B8);
+  text-decoration: underline;
+}
+
+.wysiwyg-editor__prose a:hover {
+  text-decoration: none;
+}
+
+/* Mermaid diagram preview */
+.mermaid-preview {
+  margin: var(--space-default, 8px) 0;
+  padding: var(--space-medium, 12px);
+  border: 1px dashed var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-radius: var(--border-radius-l, 8px);
+  background: var(--color-surface-weak, #fff);
+  text-align: center;
+  overflow: auto;
+}
+
+.mermaid-preview svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-error {
+  color: var(--color-text-error, #d32f2f);
+  font-size: var(--font-size-small, 14px);
+}
+
+/* Placeholder when empty */
+.wysiwyg-editor__prose p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--color-text-secondary, #6b6d78);
+  pointer-events: none;
+  height: 0;
+}
+
+/* ── Markdown pane — side-by-side ──────────────────────────────── */
+
+.wysiwyg-editor__markdown-pane {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 70vh;
+  min-height: 200px;
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-top: none;
+  border-radius: 0 0 var(--border-radius-xl, 12px) var(--border-radius-xl, 12px);
+  background: var(--color-surface-weak, #fff);
+}
+
+.wysiwyg-markdown__textarea {
+  resize: none;
+  min-height: 0;
+  border: none;
+  border-right: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  padding: var(--space-medium, 12px) var(--space-large, 16px);
+  font-family: var(--font-code, ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace);
+  font-size: var(--font-size-small, 14px);
+  line-height: 1.5;
+  color: var(--color-text-primary, #050816);
+  background: var(--color-surface-weak, #fff);
+  outline: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.wysiwyg-markdown__textarea::placeholder {
+  color: var(--color-text-secondary, #6b6d78);
+}
+
+.wysiwyg-markdown__preview {
+  min-height: 0;
+  padding: var(--space-medium, 12px) var(--space-large, 16px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 767px) {
+  .wysiwyg-editor__markdown-pane {
+    grid-template-columns: 1fr;
+  }
+
+  .wysiwyg-markdown__textarea {
+    border-right: none;
+    border-bottom: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  }
+
+  .wysiwyg-markdown__preview {
+    display: none;
+  }
+}
+
+/* ── Modal ─────────────────────────────────────────────────────── */
+
+.wysiwyg-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+}
+
+.wysiwyg-modal {
+  background: var(--color-surface-weak, #fff);
+  border-radius: var(--border-radius-xl, 12px);
+  padding: var(--space-xl, 24px);
+  width: 90%;
+  max-width: 440px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.wysiwyg-modal__title {
+  font-size: 1.1em;
+  font-weight: 600;
+  margin: 0 0 var(--space-large, 16px);
+  color: var(--color-text-primary, #050816);
+}
+
+.wysiwyg-modal__label {
+  display: block;
+  font-size: var(--font-size-small, 14px);
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b6d78);
+  margin-bottom: 4px;
+}
+
+.wysiwyg-modal__input {
+  display: block;
+  width: 100%;
+  padding: var(--space-default, 8px) var(--space-medium, 12px);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-radius: var(--border-radius-l, 8px);
+  font-size: var(--font-size-small, 14px);
+  color: var(--color-text-primary, #050816);
+  background: var(--color-surface-weak, #fff);
+  outline: none;
+  margin-bottom: var(--space-medium, 12px);
+  box-sizing: border-box;
+}
+
+.wysiwyg-modal__input:focus {
+  border-color: var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard, #FFA000));
+  box-shadow: 0 0 0 2px rgba(255, 160, 0, 0.2);
+}
+
+.wysiwyg-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-default, 8px);
+  margin-top: var(--space-large, 16px);
+}
+
+.wysiwyg-modal__btn {
+  padding: var(--space-default, 8px) var(--space-large, 16px);
+  border: none;
+  border-radius: var(--border-radius-l, 8px);
+  font-size: var(--font-size-small, 14px);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.wysiwyg-modal__btn--cancel {
+  background: var(--color-surface-mid, #f7f7f8);
+  color: var(--color-text-secondary, #6b6d78);
+}
+
+.wysiwyg-modal__btn--cancel:hover {
+  background: var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+}
+
+.wysiwyg-modal__btn--insert {
+  background: var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard, #FFA000));
+  color: var(--color-icon-on-accent, #050816);
+}
+
+.wysiwyg-modal__btn--insert:hover {
+  background: var(--color-surface-brand-accent-hovered, #FFA000BF);
+}
