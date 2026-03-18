@@ -393,8 +393,8 @@ class MondayClient:
             item_id = self.create_item(board_id, name, column_values)
             return item_id, "created"
 
-    def _flush_batch(self, board_id, create_buf, update_buf, counters):
-        """Flush create/update buffers when they reach BATCH_SIZE."""
+    def _commit_batch(self, board_id, create_buf, update_buf, counters):
+        """Commit create/update buffers when they reach BATCH_SIZE."""
         if len(create_buf) >= self.BATCH_SIZE:
             self.create_items_batch(board_id, create_buf)
             counters[0] += len(create_buf)
@@ -419,7 +419,7 @@ class MondayClient:
                 update_buf.append((item_id, col_vals))
             else:
                 create_buf.append((name, col_vals))
-            self._flush_batch(board_id, create_buf, update_buf, counters)
+            self._commit_batch(board_id, create_buf, update_buf, counters)
 
         # Flush remaining
         if create_buf:
@@ -446,7 +446,7 @@ class MondayClient:
                 update_buf.append((item_id, col_vals))
             else:
                 create_buf.append((name, col_vals))
-            self._flush_batch(board_id, create_buf, update_buf, counters)
+            self._commit_batch(board_id, create_buf, update_buf, counters)
 
         # Flush remaining
         if create_buf:
