@@ -1,0 +1,66 @@
+/*
+    Account Connections Card
+    Shows linked social/OAuth account status with management actions.
+    Extends the base .card component.
+
+    account-connections__items    — vertical list of connection rows
+    account-connections__item     — single connection row (icon + name | status | button)
+    account-connections__platform — icon + platform name group
+    account-connections__platform-icon  — brand icon (16x16)
+    account-connections__platform-name  — platform display name
+    account-connections__status   — connection status text (fills remaining space)
+*/
+
+.account-connections-card {
+  max-width: 696px;
+}
+
+.account-connections__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large, 16px);
+  padding: 0 var(--space-large, 16px);
+  width: 100%;
+  list-style: none;
+  margin: 0;
+}
+
+.account-connections__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xlarge, 24px);
+}
+
+.account-connections__platform {
+  display: flex;
+  align-items: center;
+  gap: var(--space-default, 8px);
+  flex-shrink: 0;
+}
+
+.account-connections__platform-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--color-text-primary, #050816);
+}
+
+.account-connections__platform-name {
+  font-family: var(--font-sans, 'Mona Sans VF'), sans-serif;
+  font-size: var(--font-size-base, 16px);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: var(--line-height-default, 1.2);
+  letter-spacing: var(--letter-spacing-tight, -0.01em);
+  color: var(--color-text-secondary, #585A64);
+  white-space: nowrap;
+}
+
+.account-connections__status {
+  flex: 1 1 0;
+  font-family: var(--font-sans, 'Mona Sans VF'), sans-serif;
+  font-size: var(--font-size-base, 16px);
+  font-weight: var(--font-weight-regular, 400);
+  line-height: var(--line-height-default, 1.2);
+  letter-spacing: var(--letter-spacing-tight, -0.01em);
+  color: var(--color-text-secondary, #585A64);
+}

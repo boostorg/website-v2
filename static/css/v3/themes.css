@@ -18,17 +18,10 @@
    DARK THEME (Boost)
    ============================================ */
 html.dark {
-  /* Base Colors */
-  --color-bg-primary: var(--color-primary-black);
-  --color-bg-secondary: var(--color-primary-grey-950);
-  --color-text-primary: var(--color-primary-white);
-  --color-text-secondary: var(--color-primary-grey-400);
-  --color-border: var(--color-primary-grey-800);
-
   /* Error Primitives (Dark theme override)
      Note: This is a special case where a primitive token needs theme-specific opacity.
      In dark theme, error-weak uses reduced opacity for better contrast. */
-  --color-error-weak: #FDF2F217;
+  --color-error-weak: #fdf2f217;
 
   /* Buttons */
   --color-button-primary: var(--color-primary-grey-800);
@@ -45,18 +38,18 @@ html.dark {
   --color-navigation-selected: var(--color-primary-grey-800);
 
   /* Stroke */
-  --color-stroke-error: #D53F3F;
+  --color-stroke-error: #d53f3f;
   --color-stroke-link-accent: var(--color-secondary-mid-blue);
-  --color-stroke-mid: #F7F7F82B;
-  --color-stroke-strong: #F7F7F836;
-  --color-stroke-weak: #F7F7F81A;
+  --color-stroke-mid: #f7f7f82b;
+  --color-stroke-strong: #f7f7f836;
+  --color-stroke-weak: #f7f7f81a;
 
   /* Surface */
-  --color-surface-brand-accent-hovered: #FFA000D9;
+  --color-surface-brand-accent-hovered: #ffa000d9;
   --color-surface-error-strong: var(--color-error-mid);
-  --color-surface-error-weak: #FDF2F217;
+  --color-surface-error-weak: #fdf2f217;
   --color-surface-mid: var(--color-primary-grey-900);
-  --color-surface-modal: #0508164D;
+  --color-surface-modal: #0508164d;
   --color-surface-page: var(--color-primary-black);
   --color-surface-strong: var(--color-primary-grey-800);
   --color-surface-weak: var(--color-primary-grey-950);
@@ -83,7 +76,7 @@ html.dark {
   /* Tag */
   --color-tag-fill: var(--color-primary-grey-900);
   --color-tag-fill-hover: var(--color-primary-grey-850);
-  --color-tag-stroke: #FFFFFF1A;
+  --color-tag-stroke: #ffffff1a;
   /* Category tag dark: single source for neutral and colored tag surfaces (no raw primitives in category-tags.css) */
   --color-tag-neutral-bg: var(--color-primary-grey-900);
   --color-tag-neutral-bg-hover: var(--color-primary-grey-800);
@@ -112,7 +105,20 @@ html.dark {
   /* Text */
   --color-text-error: var(--color-error-mid);
   --color-text-link-accent: var(--color-secondary-mid-blue);
-  --color-text-on-accent: var(--color-primary-white);
+  --color-text-on-accent: var(--color-primary-black);
   --color-text-reversed: var(--color-primary-black);
   --color-text-tertiary: var(--color-primary-grey-600);
+  --color-text-primary: var(--color-primary-white);
+  --color-text-secondary: var(--color-primary-grey-400);
+
+  /* ============================================
+   DEPRECATED
+
+   Please, do not use these colors. They were originally assigned as "background" colors, but this
+   semantics doesn't exist in the Figma Foundations designs.
+   Use "surface" colors instead.
+   ============================================ */
+  --color-bg-primary: var(--color-primary-black);
+  --color-bg-secondary: var(--color-primary-grey-950);
+  --color-border: var(--color-primary-grey-800);
 }

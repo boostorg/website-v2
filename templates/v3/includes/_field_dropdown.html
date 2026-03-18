@@ -14,6 +14,7 @@
     {% include "v3/includes/_field_dropdown.html" with name="country" label="Country" options=country_options placeholder="Select a country" %}
 {% endcomment %}
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
+  {# djlint:off #}
      x-data="{
        open: false,
        selected: '{{ selected|default:'' }}',
@@ -33,9 +34,8 @@
          this.$refs.trigger.focus();
        }
      }">
-  {% if label %}
-  <label class="field__label" id="field-{{ name }}-label">{{ label }}</label>
-  {% endif %}
+  {# djlint:on #}
+  {% if label %}<label class="field__label" id="field-{{ name }}-label">{{ label }}</label>{% endif %}
   <div class="dropdown" :class="{ 'dropdown--open': open }">
     <button type="button"
             class="dropdown__trigger"
@@ -46,11 +46,13 @@
             aria-haspopup="listbox"
             {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
             {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}>
-      <span class="dropdown__trigger-text" x-show="selected" x-text="selectedLabel" x-cloak></span>
-      <span class="dropdown__trigger-text dropdown__trigger-placeholder" x-show="!selected">{{ placeholder|default:"Select..." }}</span>
-      <svg class="dropdown__chevron" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M7 8H5v2h2v2h2v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2h-2v-2H9v-2H7V8z"/>
-      </svg>
+      <span class="dropdown__trigger-text"
+            x-show="selected"
+            x-text="selectedLabel"
+            x-cloak></span>
+      <span class="dropdown__trigger-text dropdown__trigger-placeholder"
+            x-show="!selected">{{ placeholder|default:"Select..." }}</span>
+      {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
     </button>
     <div class="dropdown__panel"
          x-show="open"
@@ -61,31 +63,32 @@
          x-transition:leave="transition ease-in duration-75"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
-         style="display: none;"
+         style="display: none"
          role="listbox"
          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}>
       <div class="dropdown__list" x-ref="list">
         {% for option in options %}
-        <div class="dropdown__item"
-             :class="{ 'dropdown__item--selected': selected === '{{ option.value }}' }"
-             role="option"
-             :aria-selected="selected === '{{ option.value }}'"
-             data-value="{{ option.value }}"
-             data-label="{{ option.label }}"
-             @click="choose('{{ option.value }}', '{{ option.label }}')"
-             @keydown.enter.prevent="choose('{{ option.value }}', '{{ option.label }}')"
-             @keydown.space.prevent="choose('{{ option.value }}', '{{ option.label }}')"
-             tabindex="0">
-          {{ option.label }}
-        </div>
+          <div class="dropdown__item"
+               :class="{ 'dropdown__item--selected': selected === '{{ option.value }}' }"
+               role="option"
+               :aria-selected="selected === '{{ option.value }}'"
+               data-value="{{ option.value }}"
+               data-label="{{ option.label }}"
+               @click="choose('{{ option.value }}', '{{ option.label }}')"
+               @keydown.enter.prevent="choose('{{ option.value }}', '{{ option.label }}')"
+               @keydown.space.prevent="choose('{{ option.value }}', '{{ option.label }}')"
+               tabindex="0">{{ option.label }}</div>
         {% endfor %}
       </div>
     </div>
   </div>
-  <input type="hidden" name="{{ name }}" :value="selected" {% if required %}required{% endif %}>
+  <input type="hidden"
+         name="{{ name }}"
+         :value="selected"
+         {% if required %}required{% endif %}>
   {% if error %}
-  <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
+    <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
   {% elif help_text %}
-  <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+    <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
   {% endif %}
 </div>

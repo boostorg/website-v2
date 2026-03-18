@@ -13,21 +13,24 @@
     slack_url          (optional) — Discuss in Slack URL. Omit to hide.
     github_url         (optional) — GitHub Issues URL. Omit to hide.
     hero_image_url     (optional) — Image URL. If omitted, image block is not shown.
+    hero_background_image_url (optional) — Background image URL for the hero container.
 
   Usage:
     {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}
 {% endcomment %}
-<section class="hero-library{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-library--no-image{% endif %}" aria-label="Library hero">
+<section class="hero-library{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-library--no-image{% endif %}{% if hero_background_image_url and hero_image_url or hero_background_image_url and hero_image_url_light or hero_background_image_url and hero_image_url_dark %} hero-library--with-bg-and-image{% endif %}"
+         {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');"{% endif %}
+         aria-label="Library hero">
   <div class="hero-library__block">
     <div class="hero-library__content">
       <div class="hero-library__meta">
         <div class="hero-library__tags">
           {% for tag in category_tags %}
-          <a href="{{ tag.url|default:'#' }}" class="category-tag category-tag--neutral category-tag--default">{{ tag.label }}</a>
+          {% include "v3/includes/_category_tag.html" with tag_label=tag.label url=tag.url|default:"#" variant="neutral" size="default" %}
           {% empty %}
-          <a href="#" class="category-tag category-tag--neutral category-tag--default">Concurrent</a>
-          <a href="#" class="category-tag category-tag--neutral category-tag--default">IO</a>
-          <a href="#" class="category-tag category-tag--neutral category-tag--default">Flagship</a>
+          {% include "v3/includes/_category_tag.html" with tag_label="Concurrent" url="#" variant="neutral" size="default" %}
+          {% include "v3/includes/_category_tag.html" with tag_label="IO" url="#" variant="neutral" size="default" %}
+          {% include "v3/includes/_category_tag.html" with tag_label="Flagship" url="#" variant="neutral" size="default" %}
           {% endfor %}
           {% if version_tag %}
           <span class="version-tag version-tag--default">{{ version_tag }}</span>
@@ -49,16 +52,16 @@
       </div>
       <div class="hero-library__links">
         {% if doc_url %}
-        <a href="{{ doc_url }}" class="btn-icon-library">Documentation{% include "includes/icon.html" with icon_name="documentation" icon_class="btn-icon" icon_size=16 icon_viewbox="0 0 16 16" %}</a>
+        {% include "v3/includes/_button.html" with label="Documentation" url=doc_url style="icon-library" icon_name="documentation" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
         {% if source_url %}
-        <a href="{{ source_url }}" class="btn-icon-library">Source code{% include "includes/icon.html" with icon_name="source-code" icon_class="btn-icon" icon_size=16 icon_viewbox="0 0 16 16" %}</a>
+        {% include "v3/includes/_button.html" with label="Source code" url=source_url style="icon-library" icon_name="source-code" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
         {% if slack_url %}
-        <a href="{{ slack_url }}" class="btn-icon-library">Discuss in Slack{% include "includes/icon.html" with icon_name="slack" icon_class="btn-icon" icon_size=16 icon_viewbox="0 0 16 16" %}</a>
+        {% include "v3/includes/_button.html" with label="Discuss in Slack" url=slack_url style="icon-library" icon_name="slack" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
         {% if github_url %}
-        <a href="{{ github_url }}" class="btn-icon-library">GitHub Issues{% include "includes/icon.html" with icon_name="github-issues" icon_class="btn-icon" icon_size=16 icon_viewbox="0 0 16 16" %}</a>
+        {% include "v3/includes/_button.html" with label="GitHub Issues" url=github_url style="icon-library" icon_name="github-issues" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
       </div>
     </div>

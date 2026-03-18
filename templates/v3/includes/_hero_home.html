@@ -7,49 +7,30 @@
     primary_url       (optional) — Primary button URL. If omitted, renders as <button>.
     secondary_label   (optional) — Secondary button label. Default: "I need a specific solution"
     secondary_url     (optional) — Secondary button URL. If omitted, renders as <button>.
-    card_title        (optional) — Card title. Default: "Install Boost and get started in your terminal."
-    tab1_label        (optional) — First tab label. Default: "Package Managers"
-    tab2_label        (optional) — Second tab label. Default: "System Install"
-    code_text         (optional) — Code snippet. Default: "conan install boost"
-    code_badge_label  (optional) — Badge next to code. Default: "Conan"
+    install_card_title (optional) — Install card heading; same as in _v3_example_section. If unset, uses "Install Boost and get started in your terminal."
+    install_card_pkg_managers, install_card_system_install — required by install card for tab content (see _install_card.html).
     hero_image_url    (optional) — Image URL for the right side. If omitted, image block is not shown.
+    hero_image_url_light (optional) — Image URL for light mode. If omitted, falls back to hero_image_url.
+    hero_image_url_dark  (optional) — Image URL for dark mode. If omitted, only the light image is used.
+    hero_background_image_url (optional) — Background image URL for the hero container.
 
   Usage:
     {% include "v3/includes/_hero_home.html" %}
     {% include "v3/includes/_hero_home.html" with headline="Welcome to Boost" primary_url="/docs/" hero_image_url=hero_image_url %}
 {% endcomment %}
-<section class="hero-home{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-home--no-image{% endif %}" aria-label="Hero">
+<section class="hero-home{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-home--no-image{% endif %}{% if hero_background_image_url and hero_image_url or hero_background_image_url and hero_image_url_light or hero_background_image_url and hero_image_url_dark %} hero-home--with-bg-and-image{% endif %}"
+         {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');"{% endif %}
+         aria-label="Hero">
   <div class="hero-home__block">
     <div class="hero-home__content">
       <h2 class="hero-home__headline">{{ headline|default:"Built by the C++ community. Trusted by the world." }}</h2>
       <div class="hero-home__actions">
-        {% if primary_url %}
-        <a href="{{ primary_url }}" class="btn btn-hero btn-primary">{% include "includes/icon.html" with icon_name="arrow-right" icon_class="btn-icon" icon_size=16 %}<span>{{ primary_label|default:"I'm new to Boost" }}</span></a>
-        {% else %}
-        <button type="button" class="btn btn-hero btn-primary">{% include "includes/icon.html" with icon_name="arrow-right" icon_class="btn-icon" icon_size=16 %}<span>{{ primary_label|default:"I'm new to Boost" }}</span></button>
-        {% endif %}
-        {% if secondary_url %}
-        <a href="{{ secondary_url }}" class="btn btn-hero btn-secondary">{% include "includes/icon.html" with icon_name="arrow-right" icon_class="btn-icon" icon_size=16 %}<span>{{ secondary_label|default:"I need a specific solution" }}</span></a>
-        {% else %}
-        <button type="button" class="btn btn-hero btn-secondary">{% include "includes/icon.html" with icon_name="arrow-right" icon_class="btn-icon" icon_size=16 %}<span>{{ secondary_label|default:"I need a specific solution" }}</span></button>
-        {% endif %}
+        {% include "v3/includes/_button_hero.html" with label=primary_label|default:"I'm new to Boost" url=primary_url style="primary" type="button" %}
+        {% include "v3/includes/_button_hero.html" with label=secondary_label|default:"I need a specific solution" url=secondary_url style="secondary" type="button" %}
       </div>
     </div>
     <div class="hero-home__card">
-      <p class="hero-home__card-title">{{ card_title|default:"Install Boost and get started in your terminal." }}</p>
-      <div class="hero-home__card-body">
-        <div class="hero-home__tabs">
-          <div class="hero-home__tab hero-home__tab--active"><span>{{ tab1_label|default:"Package Managers" }}</span></div>
-          <div class="hero-home__tab"><span>{{ tab2_label|default:"System Install" }}</span></div>
-        </div>
-        <div class="hero-home__code-row">
-          <code class="hero-home__code-text">{{ code_text|default:"conan install boost" }}</code>
-          <div class="hero-home__code-badge">
-            <span class="hero-home__code-badge-label">{{ code_badge_label|default:"Conan" }}</span>
-            {% include "includes/icon.html" with icon_name="arrow-right" icon_class="btn-icon" icon_size=16 %}
-          </div>
-        </div>
-      </div>
+      {% include "v3/includes/_install_card.html" with title=install_card_title|default:"Install Boost and get started in your terminal." %}
     </div>
     {% if hero_image_url or hero_image_url_light or hero_image_url_dark %}
     <div class="hero-home__image{% if hero_image_url_dark %} hero-home__image--theme-aware{% endif %}">

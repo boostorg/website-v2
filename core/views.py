@@ -1111,10 +1111,39 @@ class V3ComponentDemoView(TemplateView):
         # Install bjam tool user config: https://www.bfgroup.xyz/b2/manual/release/index.html
         cp ./libs/beast/tools/user-config.jam $HOME"""
 
+        INSTALL_CARD_PKG_MANAGERS = [
+            {"label": "Conan", "value": "conan", "command": "conan install boost"},
+            {"label": "Vcpkg", "value": "vcpkg", "command": "vcpkg install boost"},
+        ]
+        INSTALL_CARD_SYSTEM_INSTALL = [
+            {
+                "label": "Ubuntu",
+                "value": "ubuntu",
+                "command": "sudo apt install libboost-all-dev",
+            },
+            {
+                "label": "Fedora",
+                "value": "fedora",
+                "command": "sudo dnf install boost-devel",
+            },
+            {
+                "label": "CentOS",
+                "value": "centos",
+                "command": "sudo yum install boost-devel",
+            },
+            {"label": "Arch", "value": "arch", "command": "sudo pacman -S boost"},
+            {"label": "Homebrew", "value": "homebrew", "command": "brew install boost"},
+        ]
+
         context = super().get_context_data(**kwargs)
         context["code_demo_beast"] = CODE_DEMO_BEAST
         context["code_demo_hello"] = CODE_DEMO_HELLO
         context["code_demo_install"] = CODE_DEMO_INSTALL
+        context["install_card_title"] = (
+            "Install Boost and get started in your terminal."
+        )
+        context["install_card_pkg_managers"] = INSTALL_CARD_PKG_MANAGERS
+        context["install_card_system_install"] = INSTALL_CARD_SYSTEM_INSTALL
         context["popular_terms"] = [
             {"label": "Networking"},
             {"label": "Math"},
@@ -1144,12 +1173,23 @@ class V3ComponentDemoView(TemplateView):
         context["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/checker.png"
         )
-        context["hero_image_url"] = f"{settings.STATIC_URL}img/v3/home-page/heros.png"
-        context["hero_image_url_light"] = (
+        context["hero_background_image_url"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-background.png"
+        )
+        context["hero_legacy_image_url_light"] = (
             f"{settings.STATIC_URL}img/v3/home-page/heros.png"
         )
-        context["hero_image_url_dark"] = (
+        context["hero_legacy_image_url_dark"] = (
             f"{settings.STATIC_URL}img/v3/home-page/heros_light.png"
+        )
+        context["hero_image_url"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
+        )
+        context["hero_image_url_light"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
+        )
+        context["hero_image_url_dark"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
         )
         context["basic_card_data"] = {
             "title": "Found a Bug?",
@@ -1296,6 +1336,66 @@ class V3ComponentDemoView(TemplateView):
                 },
             ],
         }
+
+        context["banner_data"] = {
+            "icon_name": "alert",
+            "banner_message": "This is an older version of Boost and was released in 2017. The <a href='https://www.example.com'>current version</a> is 1.90.0.",
+        }
+
+        context["account_connections_mixed"] = [
+            {
+                "platform": "github",
+                "label": "GitHub",
+                "connected": True,
+                "status_text": "Connected",
+                "action_label": "Manage",
+                "action_url": "#",
+            },
+            {
+                "platform": "google",
+                "label": "Google",
+                "connected": False,
+                "status_text": "Not connected",
+                "action_label": "Connect",
+                "action_url": "#",
+            },
+        ]
+        context["account_connections_all_connected"] = [
+            {
+                "platform": "github",
+                "label": "GitHub",
+                "connected": True,
+                "status_text": "Connected",
+                "action_label": "Manage",
+                "action_url": "#",
+            },
+            {
+                "platform": "google",
+                "label": "Google",
+                "connected": True,
+                "status_text": "Connected",
+                "action_label": "Manage",
+                "action_url": "#",
+            },
+        ]
+        context["account_connections_none_connected"] = [
+            {
+                "platform": "github",
+                "label": "GitHub",
+                "connected": False,
+                "status_text": "Not connected",
+                "action_label": "Connect",
+                "action_url": "#",
+            },
+            {
+                "platform": "google",
+                "label": "Google",
+                "connected": False,
+                "status_text": "Not connected",
+                "action_label": "Connect",
+                "action_url": "#",
+            },
+        ]
 
         latest = Version.objects.most_recent()
         if latest:
