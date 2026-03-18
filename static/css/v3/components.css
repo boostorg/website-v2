@@ -5,6 +5,7 @@
 @import "./buttons.css";
 @import "./avatar.css";
 @import "./carousel-buttons.css";
+@import "./badge.css";
 @import "./v3-examples-section.css";
 @import "./header.css";
 @import "./footer.css";
@@ -30,3 +31,4 @@
 @import "./banner.css";
 @import "./animations.css";
 @import "./account-connections.css";
+@import "./dialog.css";
