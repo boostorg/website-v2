@@ -87,6 +87,12 @@ a:hover .content-detail-icon:not(.content-detail-icon--contained) {
 .content-detail-icon__cta:hover {
   text-decoration: underline;
 }
+.content-detail-icon__cta,
+.content-detail-icon__cta:focus,
+.content-detail-icon__cta:focus-visible {
+  text-decoration: underline;
+  text-decoration-skip-ink: none;
+}
 
 .content-detail-icon--contained {
   background: transparent;

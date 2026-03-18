@@ -35,10 +35,15 @@
   height: 12px;
 }
 
-.carousel-buttons .btn-carousel:hover {
+.carousel-buttons .btn-carousel:hover:not(:disabled) {
   color: var(--color-secondary-dark-blue, #0077B8);
 }
 
-.carousel-buttons .btn-carousel[data-hover] {
+.carousel-buttons .btn-carousel[data-hover]:not(:disabled) {
   color: var(--color-secondary-dark-blue, #0077B8);
+}
+
+.carousel-buttons .btn-carousel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
