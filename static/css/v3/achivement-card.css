@@ -79,7 +79,7 @@
 .achievement-card__ach-text {
     /* Sans/Desktop/Regular/XS/Default */
     font-family: var(--font-sans);
-    font-size: var(--size-xs);
+    font-size: var(--font-size-xs);
     font-style: normal;
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-default);
