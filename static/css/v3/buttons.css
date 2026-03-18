@@ -63,7 +63,7 @@
 }
 
 .btn-secondary {
-  background: var(--color-surface-weak);
+  background: var(--color-secondary-light-blue);
   border-color: var(--color-stroke-strong);
   color: var(--color-text-primary);
 }
