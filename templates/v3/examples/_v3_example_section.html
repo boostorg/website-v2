@@ -310,34 +310,43 @@
   {% endif %}
 
   {% include "v3/examples/_v3_example_section_wysiwyg.html" %}
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Badges Card (empty with CTA)</h3>
+
+  {% with section_title="Badges Card (empty with CTA)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
     </div>
   </div>
+  {% endwith %}
 
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Badges Card (empty without CTA)</h3>
+
+  {% with section_title="Badges Card (empty without CTA)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_badges_card.html" with empty_icon_srcs=badge_icon_srcs %}
     </div>
   </div>
+  {% endwith %}
 
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Badges Card (filled — 6 badges)</h3>
+  {% with section_title="Badges Card (filled — 6 badges)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_badges_card.html" with badges=demo_badges %}
     </div>
   </div>
+  {% endwith %}
 
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Badges Card (filled — 2 badges)</h3>
+  {% with section_title="Badges Card (filled — 2 badges)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_badges_card.html" with badges=demo_badges_few %}
     </div>
   </div>
-
+  {% endwith %}
 
   {% with section_title="Create Account Card" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
