@@ -70,7 +70,7 @@
         <div style="grid-area: 1/1"
              x-show="activeSlide === {{ forloop.counter }}"
              x-transition.opacity.duration.300ms
-             x-cloak>
+             {% if not forloop.first %}x-cloak{% endif %}>
           <div class="flex flex-col md:flex-row gap-4">
             <div class="flex-grow pull-quote">
               {{ t.pull_quote }}
