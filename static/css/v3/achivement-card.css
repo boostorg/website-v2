@@ -1,9 +1,9 @@
 .achievement-card__bold-text {
-    color: var(--color-text-primary, #050816);
+    color: var(--color-text-primary);
 
     /* Sans/Desktop/Medium/Base */
-    font-family: var(--font-sans, "Mona Sans VF");
-    font-size: var(--font-size-base, 16px);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-medium);
     line-height: var(--line-height-default);
     /* 19.2px */
@@ -14,10 +14,15 @@
     display: flex;
     align-items: flex-start;
     align-content: flex-start;
-    gap: 16px var(--space-large, 16px);
+    gap: 16px var(--space-large);
     align-self: stretch;
     flex-wrap: wrap;
     width: 100%;
+}
+
+.achievement-card__container p {
+    padding-bottom: 0;
+    padding-top: 0;
 }
 
 .achievement-card__achievement {
@@ -42,8 +47,8 @@
     height: 16px;
     flex-shrink: 0;
     aspect-ratio: 1/1;
-    border-radius: var(--space-s, 4px);
-    background: var(--color-icon-brand-accent, #FFA000);
+    border-radius: var(--space-s);
+    background: var(--color-icon-brand-accent);
 }
 
 .achievement-card__points-badge-content {
@@ -53,9 +58,9 @@
     flex-direction: column;
     justify-content: center;
     aspect-ratio: 1/1;
-    color: var(--color-text-on-accent, #050816);
+    color: var(--color-text-on-accent);
     text-align: center;
-    font-family: var(--font-sans, "Mona Sans VF");
+    font-family: var(--font-sans);
     font-size: 10px;
     font-weight: var(--font-weight-regular);
     line-height: var(--letter-spacing-tight);
@@ -73,8 +78,8 @@
 
 .achievement-card__ach-text {
     /* Sans/Desktop/Regular/XS/Default */
-    font-family: var(--font-sans, "Mona Sans VF");
-    font-size: var(--size-xs, 12px);
+    font-family: var(--font-sans);
+    font-size: var(--size-xs);
     font-style: normal;
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-default);

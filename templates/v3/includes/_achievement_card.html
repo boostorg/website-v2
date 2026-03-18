@@ -4,9 +4,9 @@
       Achievements - Optional: A list of achievements, each of which has points, a title, and a description
 {% endcomment %}
 
-<div class="wide-card card py-large">
+<div class="card wide-card py-large">
   <div class="card__header">
-    <span class="card__title">Achievements</span>
+    <h3 class="card__title">Achievements</h3>
   </div>
   <hr class="card__hr" />
   <div class="card__column px-large">
@@ -14,30 +14,30 @@
       {% for ach in achievements %}
         <div class="achievement-card__achievement">
           <div class="achievement-card__points-badge">
-            <div class="achievement-card__points-badge-content">{{ ach.points }}</div>
+            <p class="achievement-card__points-badge-content">{{ ach.points }}</p>
           </div>
           <div class="achievement-card__description">
-            <div class="achievement-card__ach-text text-primary">{{ ach.title }}</div>
-            <div class="achievement-card__ach-text text-secondary">{{ ach.description }}</div>
+            <p class="achievement-card__ach-text text-primary">{{ ach.title }}</p>
+            <p class="achievement-card__ach-text text-secondary">{{ ach.description }}</p>
           </div>
         </div>
       {% empty %}
         <div class="achievement-card__achievement achievement-card__achivement-example">
           <div class="achievement-card__points-badge">
-            <div class="achievement-card__points-badge-content">19</div>
+            <span class="achievement-card__points-badge-content">19</span>
           </div>
           <div class="achievement-card__description">
-            <div class="achievement-card__ach-text text-primary">Patch Wizard</div>
-            <div class="achievement-card__ach-text text-secondary">Submitted patch that was reviewed and merged</div>
+            <p class="achievement-card__ach-text text-primary">Patch Wizard</p>
+            <p class="achievement-card__ach-text text-secondary">Submitted patch that was reviewed and merged</p>
           </div>
         </div>
         <div class="achievement-card__achievement achievement-card__achivement-example">
           <div class="achievement-card__points-badge">
-            <div class="achievement-card__points-badge-content">7</div>
+            <span class="achievement-card__points-badge-content">7</span>
           </div>
           <div class="achievement-card__description">
-            <div class="achievement-card__ach-text text-primary">Consensus Builder</div>
-            <div class="achievement-card__ach-text text-secondary">Guided technical discussion toward agreement</div>
+            <p class="achievement-card__ach-text text-primary">Consensus Builder</p>
+            <p class="achievement-card__ach-text text-secondary">Guided technical discussion toward agreement</p>
           </div>
         </div>
       {% endfor %}
@@ -47,8 +47,8 @@
     {% endif %}
   </div>
   {% if not achievements %}
-    <div class="px-large btn-row">
-      {% include 'v3/includes/_button.html' with style=primary_style url=primary_button_url label='Learn how achievements work' extra_classes='btn-flex' only %}
+    <div class="px-large card__cta_section">
+      {% include 'v3/includes/_button.html' with style=primary_style url=primary_button_url label='Learn how achievements work' only %}
     </div>
   {% endif %}
 </div>
