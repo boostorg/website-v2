@@ -16,6 +16,7 @@
 .install-card {
   max-width: 458px;
   gap: var(--space-xl);
+  overflow: hidden;
 }
 
 /* ── Visually hidden radio inputs ────────────────────────── */

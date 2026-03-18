@@ -82,6 +82,14 @@
     body {
       padding: var(--space-large, 24px);
       background: var(--color-surface-page);
+      overflow-x: hidden;
+    }
+    /* Carousel needs to break out of body padding to avoid cropped nav buttons */
+    .cards-carousel {
+      margin-left: calc(-1 * var(--space-large, 24px));
+      margin-right: calc(-1 * var(--space-large, 24px));
+      padding-left: var(--space-large, 24px);
+      padding-right: var(--space-large, 24px);
     }
   </style>
 </head>

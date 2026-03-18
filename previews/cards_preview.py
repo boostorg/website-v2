@@ -345,24 +345,51 @@ class LibraryIntroCardPreview(LookbookPreview):
         | `cta_label` | No | Button text |
         | `cta_url` | No | Button link URL |
         """
+        try:
+            from libraries.utils import build_library_intro_context
+            from libraries.models import LibraryVersion
+            from versions.models import Version
+
+            latest = Version.objects.most_recent()
+            if latest:
+                lv = (
+                    LibraryVersion.objects.filter(version=latest, library__slug="beast")
+                    .select_related("library")
+                    .first()
+                )
+                if lv:
+                    ctx = build_library_intro_context(lv)
+                    return render_to_string("v3/includes/_library_intro_card.html", ctx)
+        except Exception:
+            pass
         return render_to_string(
             "v3/includes/_library_intro_card.html",
             {
-                "library_name": "Beast",
-                "description": "HTTP and WebSocket built on Boost.Asio — portable, header-only C++ with a consistent asynchronous model.",
+                "library_name": "Boost.Beast",
+                "description": "Portable HTTP, WebSocket, and network operations using only C++11 and Boost.Asio",
                 "authors": [
                     {
                         "name": "Vinnie Falco",
-                        "role": "Maintainer",
+                        "role": "Author",
                         "avatar_url": "https://ui-avatars.com/api/?name=Vinnie+Falco&size=48",
+                        "badge": "\U0001f947",
+                        "bio": "",
                     },
                     {
-                        "name": "Richard Thomson",
+                        "name": "Mohammad Nejati",
+                        "role": "Maintainer",
+                        "avatar_url": "https://ui-avatars.com/api/?name=Mohammad+Nejati&size=48",
+                        "badge": "\U0001f948",
+                        "bio": "",
+                    },
+                    {
+                        "name": "dvtate",
                         "role": "Contributor",
-                        "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
+                        "avatar_url": "https://ui-avatars.com/api/?name=dvtate&size=48",
+                        "badge": "\U0001f949",
+                        "bio": "",
                     },
                 ],
                 "cta_url": "#",
-                "cta_label": "Use Beast",
             },
         )

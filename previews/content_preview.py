@@ -81,8 +81,9 @@ class ContentEventCardPreview(LookbookPreview):
         """
         template = Template(
             """
-        <section class="post-cards post-cards--content post-cards--neutral post-cards--content-list">
-          <h2 class="post-cards__heading">
+        <section class="post-cards post-cards--content post-cards--neutral post-cards--content-list"
+                 aria-labelledby="content-event-releases-links-list">
+          <h2 id="content-event-releases-links-list" class="post-cards__heading">
             <a href="#" class="post-cards__heading-link">Releases</a>
           </h2>
           <ul class="post-cards__list">
@@ -108,8 +109,9 @@ class ContentEventCardPreview(LookbookPreview):
         """
         template = Template(
             """
-        <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card">
-          <h2 class="post-cards__heading">
+        <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card"
+                 aria-labelledby="content-event-releases-links-card">
+          <h2 id="content-event-releases-links-card" class="post-cards__heading">
             <a href="#" class="post-cards__heading-link">Releases</a>
           </h2>
           <ul class="post-cards__list">

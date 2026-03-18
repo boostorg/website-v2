@@ -137,6 +137,10 @@
   text-align: left;
 }
 
+.stats .card__hr {
+  flex-shrink: 0;
+}
+
 .stats__cta {
   display: flex;
   gap: var(--space-default);
