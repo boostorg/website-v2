@@ -1448,12 +1448,18 @@ class V3HomepageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["hero_image_url"] = f"{settings.STATIC_URL}img/v3/home-page/heros.png"
+        # Keep the hero background + centered image consistent with the v3 demos.
+        context["hero_background_image_url"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-background.png"
+        )
+        context["hero_image_url"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
+        )
         context["hero_image_url_light"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/heros.png"
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
         )
         context["hero_image_url_dark"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/heros_light.png"
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
         )
         context["popular_terms"] = [
             {"label": "Networking"},
