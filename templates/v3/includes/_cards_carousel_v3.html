@@ -39,7 +39,7 @@
         {% if cards %}
           {% for card in cards %}
             <li class="post-cards__item" data-carousel-item>
-              {% include "v3/includes/_content_detail_card_item.html" with title=card.title description=card.description icon_name=card.icon_name cta_label="Start here" cta_href=card.cta_href %}
+              {% include "v3/includes/_content_detail_card_item.html" with title=card.title description=card.description badge_count=forloop.counter cta_label="Start here" cta_href=card.cta_href %}
             </li>
           {% endfor %}
         {% endif %}

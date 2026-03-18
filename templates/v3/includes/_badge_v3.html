@@ -1,0 +1,9 @@
+{% comment %}
+  V3 Badge – small non-clickable count/label badge.
+  Variables:
+    value (required) — text or number to show inside the badge.
+  Usage:
+    {% include "v3/includes/_badge_v3.html" with value=1 %}
+    {% include "v3/includes/_badge_v3.html" with value=count %}
+{% endcomment %}
+<span class="badge-v3" aria-hidden="true">{{ value }}</span>

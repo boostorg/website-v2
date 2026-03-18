@@ -44,6 +44,12 @@ a:hover .content-detail-icon:not(.content-detail-icon--contained) {
   display: block;
 }
 
+.content-detail-icon__badge-slot {
+  position: absolute;
+  top: var(--space-card);
+  right: var(--space-card);
+}
+
 .content-detail-icon__title {
   margin: 0;
   font-size: var(--font-size-base);
@@ -51,7 +57,8 @@ a:hover .content-detail-icon:not(.content-detail-icon--contained) {
   line-height: var(--line-height-default);
 }
 
-.content-detail-icon--has-icon .content-detail-icon__title {
+.content-detail-icon--has-icon .content-detail-icon__title,
+.content-detail-icon--has-badge .content-detail-icon__title {
   padding-right: var(--space-icon-offset);
 }
 
