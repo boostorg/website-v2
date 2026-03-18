@@ -1134,41 +1134,41 @@ class V3ComponentDemoView(TemplateView):
             ]
         )
         badge_img = f"{settings.STATIC_URL}img/v3/badges"
-        context["badge_icons_html"] = (
-            f'<img src="{badge_img}/badge-gold-star.svg" alt="" width="32" height="32">'
-            f'<img src="{badge_img}/badge-silver.svg" alt="" width="32" height="32">'
-            f'<img src="{badge_img}/badge-bronze.svg" alt="" width="32" height="32">'
-            f'<img src="{badge_img}/badge-gold-ribbon.svg" alt="" width="32" height="32">'
-            f'<img src="{badge_img}/badge-gold-medal.svg" alt="" width="32" height="32">'
-        )
+        context["badge_icon_srcs"] = [
+            f"{badge_img}/badge-first-place.png",
+            f"{badge_img}/badge-second-place.png",
+            f"{badge_img}/badge-bronze.png",
+            f"{badge_img}/badge-gold-medal.png",
+            f"{badge_img}/badge-military-star.png",
+        ]
         context["demo_badges"] = [
             {
-                "icon_html": f'<img src="{badge_img}/badge-gold-star.svg" alt="" width="32" height="32">',
+                "icon_src": f"{badge_img}/badge-first-place.png",
                 "name": "Patch Wizard",
                 "earned_date": "08/08/2025",
             },
             {
-                "icon_html": f'<img src="{badge_img}/badge-gold-medal.svg" alt="" width="32" height="32">',
+                "icon_src": f"{badge_img}/badge-gold-medal.png",
                 "name": "Standard Bearer",
                 "earned_date": "03/07/2025",
             },
             {
-                "icon_html": f'<img src="{badge_img}/badge-gold-ribbon.svg" alt="" width="32" height="32">',
+                "icon_src": f"{badge_img}/badge-military-star.png",
                 "name": "Review Hawk",
                 "earned_date": "03/06/2025",
             },
             {
-                "icon_html": f'<img src="{badge_img}/badge-silver.svg" alt="" width="32" height="32">',
+                "icon_src": f"{badge_img}/badge-second-place.png",
                 "name": "Library Alchemist",
                 "earned_date": "03/04/2025",
             },
             {
-                "icon_html": f'<img src="{badge_img}/badge-gold-star.svg" alt="" width="32" height="32">',
+                "icon_src": f"{badge_img}/badge-first-place.png",
                 "name": "Bug Catcher",
                 "earned_date": "02/04/2025",
             },
             {
-                "icon_html": f'<img src="{badge_img}/badge-bronze.svg" alt="" width="32" height="32">',
+                "icon_src": f"{badge_img}/badge-bronze.png",
                 "name": "Code Whisperer",
                 "earned_date": "01/01/2025",
             },
