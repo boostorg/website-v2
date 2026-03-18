@@ -495,10 +495,11 @@ def build_library_intro_context(library_version, *, max_authors=3):
             return url
         return getattr(user.commitauthor, "avatar_url", "") or ""
 
+    badge_img = f"{settings.STATIC_URL}img/v3/badges"
     medals = [
-        "/static/img/v3/badges/badge-first-place.png",
-        "/static/img/v3/badges/badge-second-place.png",
-        "/static/img/v3/badges/badge-bronze.png",
+        f"{badge_img}/badge-first-place.png",
+        f"{badge_img}/badge-second-place.png",
+        f"{badge_img}/badge-bronze.png",
     ]
 
     author_dicts = []
