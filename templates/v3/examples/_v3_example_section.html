@@ -241,14 +241,14 @@
   <div class="v3-examples-section__block">
     <h3 class="block-title">Badges Card (empty with CTA)</h3>
     <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icons_html=badge_icons_html %}
+      {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
     </div>
   </div>
 
   <div class="v3-examples-section__block">
     <h3 class="block-title">Badges Card (empty without CTA)</h3>
     <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with empty_icons_html=badge_icons_html %}
+      {% include "v3/includes/_badges_card.html" with empty_icon_srcs=badge_icon_srcs %}
     </div>
   </div>
 
@@ -263,13 +263,6 @@
     <h3 class="block-title">Badges Card (filled — 2 badges)</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_badges_card.html" with badges=demo_badges_few %}
-    </div>
-  </div>
-
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Badges Card (with analytics attributes)</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with badges=demo_badges_few data_attrs='data-track="badges-card" data-section="profile"' %}
     </div>
   </div>
 
