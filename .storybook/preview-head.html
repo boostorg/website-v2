@@ -1,0 +1,83 @@
+<!-- Fonts and icons (external CDNs — loaded directly) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+<!-- Project CSS (proxied to Django via middleware) -->
+<link href="/static/css/styles.css" rel="stylesheet">
+<link href="/static/css/components.css" rel="stylesheet">
+<link href="/static/css/boostlook.css" rel="stylesheet">
+<link href="/static/css/v3/components.css" rel="stylesheet">
+
+<!-- Alpine.js -->
+<script src="https://cdn.jsdelivr.net/npm/@ryangjchandler/alpine-clipboard@2.x.x/dist/alpine-clipboard.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js" defer></script>
+<script src="//unpkg.com/alpinejs" defer></script>
+
+<!-- Project JS — scripts that only need to load once (utilities, global listeners) -->
+<script src="/static/js/theme_handling.js"></script>
+<script src="/static/js/utils.js"></script>
+<script src="/static/js/highlight.js"></script>
+<script src="/static/js/highlight-block.js"></script>
+<script src="/static/js/dialog.js" defer></script>
+<script src="/static/js/install-card.js" defer></script>
+
+<!-- Theme meta tags (same as base.html) -->
+<meta class="meta-theme" name="theme-color" content="#FAFAFA" data-dark="#18181B" data-light="#FAFAFA">
+<meta class="meta-theme" name="color-scheme" content="light" data-dark="dark" data-light="light">
+
+<!-- Hide carousel scrollbar (the track scrolls via JS, scrollbar is unwanted) -->
+<style>
+  .post-cards--horizontal .post-cards__list {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .post-cards--horizontal .post-cards__list::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+
+<!--
+  Prevent demo links (href="#", href="#_", href="#someId") from navigating
+  the Storybook iframe. In a real page these are harmless hash changes,
+  but Storybook intercepts them as route changes.
+-->
+<script>
+document.addEventListener('click', function(e) {
+  var link = e.target.closest('a[href]');
+  if (!link) return;
+  var href = link.getAttribute('href');
+  if (href && (href === '#' || href.charAt(0) === '#')) {
+    e.preventDefault();
+    if (href !== '#') {
+      window.location.hash = href.substring(1);
+    }
+  }
+}, true);
+</script>
+
+<!--
+  Scripts that self-initialize via readyState check (carousel.js, code-block.js)
+  must be re-loaded AFTER storybook-django injects Pattern HTML.
+  storybook-django fires a synthetic DOMContentLoaded after each Pattern render,
+  so we dynamically load these scripts on each DOMContentLoaded event.
+-->
+<script>
+(function() {
+  var scriptsToReinit = [
+    '/static/js/carousel.js',
+    '/static/js/code-block.js'
+  ];
+  document.addEventListener('DOMContentLoaded', function() {
+    scriptsToReinit.forEach(function(src) {
+      var old = document.querySelector('script[data-storybook-reinit="' + src + '"]');
+      if (old) old.parentNode.removeChild(old);
+      var s = document.createElement('script');
+      s.src = src + '?_=' + Date.now();
+      s.setAttribute('data-storybook-reinit', src);
+      document.body.appendChild(s);
+    });
+  });
+})();
+</script>

@@ -12,7 +12,9 @@
     "builddocs": "NODE_ENV=production tailwindcss -c ./docstailwind.config.js -i frontend/docsstyles.css -o static/css/docsstyles.css --minify",
     "builduserguide": "NODE_ENV=production tailwindcss -c ./userguidetailwind.config.js -i frontend/userguidestyles.css -o static/css/userguidestyles.css --minify",
     "build:wysiwyg": "esbuild frontend/wysiwyg-editor.js --bundle --minify --format=esm --outfile=static/js/v3/wysiwyg-editor.js --external:mermaid",
-    "build:fuse": "esbuild frontend/fuse-entry.js --bundle --minify --format=iife --outfile=static/js/v3/fuse.min.js"
+    "build:fuse": "esbuild frontend/fuse-entry.js --bundle --minify --format=iife --outfile=static/js/v3/fuse.min.js",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build -o var/storybook"
   },
   "dependencies": {
     "@svgdotjs/svg.js": "^3.2.4",
@@ -45,6 +47,13 @@
     "turndown-plugin-gfm": "^1.0.2"
   },
   "devDependencies": {
-    "esbuild": "^0.24.0"
+    "@storybook/addon-essentials": "^7.6.0",
+    "@storybook/react": "^7.6.0",
+    "@storybook/react-webpack5": "^7.6.0",
+    "esbuild": "^0.24.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "storybook": "^7.6.0",
+    "storybook-django": "^0.5.1"
   }
 }

@@ -41,6 +41,7 @@ from core.views import (
     RedirectToReleaseView,
     RedirectToToolsView,
     StaticContentTemplateView,
+    StorybookView,
     UserGuideTemplateView,
 )
 from marketing.views import PlausibleRedirectView, WhitePaperView
@@ -353,6 +354,9 @@ urlpatterns = (
         ),
         # Internal functions
         path("internal/clear-cache/", ClearCacheView.as_view(), name="clear-cache"),
+        # Storybook — pre-built static bundle, staff only
+        path("storybook/", StorybookView.as_view(), {"path": ""}, name="storybook"),
+        path("storybook/<path:path>", StorybookView.as_view()),
         path(
             "internal/modernized-docs/<path:content_path>",
             ModernizedDocsView.as_view(),
@@ -447,5 +451,12 @@ urlpatterns = (
         path("", include(wagtail_urls)),
     ]
 )
+
+# Pattern library (for Storybook) — only when ENABLE_PATTERN_LIBRARY=True.
+# Protected by PatternLibraryStaffMiddleware (core/middleware.py).
+if getattr(settings, "ENABLE_PATTERN_LIBRARY", False):
+    from pattern_library import urls as pattern_library_urls
+
+    urlpatterns.insert(0, path("pattern-library/", include(pattern_library_urls)))
 
 handler404 = "ak.views.custom_404_view"
