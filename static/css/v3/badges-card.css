@@ -37,14 +37,14 @@
 
 .badges-card__name {
   color: var(--color-text-primary, #050816);
-  font-size: var(--font-size-base, 16px);
+  font-size: var(--font-size-xs, 12px);
   font-weight: var(--font-weight-regular, 400);
   line-height: var(--line-height-default, 1.2);
 }
 
 .badges-card__date {
   color: var(--color-text-secondary, #585a64);
-  font-size: var(--font-size-small, 14px);
+  font-size: var(--font-size-xs, 12px);
   font-weight: var(--font-weight-regular, 400);
   line-height: var(--line-height-default, 1.2);
 }
