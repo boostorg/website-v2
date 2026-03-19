@@ -147,6 +147,7 @@
 }
 
 .btn.btn-hero.btn-secondary {
+  background: var(--color-surface-weak);
   border-color: var(--color-stroke-weak);
 }
 
