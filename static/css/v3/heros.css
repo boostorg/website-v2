@@ -117,6 +117,7 @@
 
  .hero-home__card {
    z-index: 1;
+   min-width: 458px;
  }
 
  .hero-home__image {
