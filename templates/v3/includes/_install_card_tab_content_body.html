@@ -1,21 +1,34 @@
 {% comment %}
   V3 Install Card — Tab Content Body
+  Internal sub-component — included only by _install_card.html. Do not use directly.
+
   Pre-rendered code block with embedded dropdown for one tab.
   Uses CSS radio inputs for option selection (no JS required).
   CSS: install-card.css, code-block.css, forms.css (.dropdown)
 
+  Structure:
+    Radio inputs and .code-block must be siblings (not nested) because the dynamic
+    <style> in _install_card.html uses :checked ~ .code-block selectors.
+    The dropdown uses <details>/<summary> for CSS-only open/close.
+
   Variables:
     options — list of { label, value, command } dicts
     prefix  — radio name prefix (e.g. "pkg", "sys")
+    card_id — unique card identifier for scoping IDs/names across multiple cards
+
+  Usage (internal):
+    {% include "v3/includes/_install_card_tab_content_body.html" with options=install_card_system_install prefix="sys" card_id=card_id only %}
 {% endcomment %}
 
-{# Option radio inputs — must be siblings of .code-block for CSS :checked selectors #}
+{# Option radio inputs for the different packages (e.g. vcpkg, conan) — must be siblings of .code-block for CSS :checked selectors #}
 {% for opt in options %}
 <input type="radio"
-       name="{{ prefix }}-option"
-       id="{{ prefix }}-{{ opt.value }}"
+       name="{{ card_id }}-{{ prefix }}-option"
+       id="{{ card_id }}-{{ prefix }}-{{ opt.value }}"
        {% if forloop.first %}checked{% endif %}
-       class="install-card__radio">
+       class="install-card__radio"
+       tabindex="-1"
+       >
 {% endfor %}
 
 {# Code block with commands + dropdown #}
@@ -23,7 +36,7 @@
   {# Pre-rendered commands — CSS shows only the one matching the checked radio #}
   {% for opt in options %}
   <pre class="code-block__inner install-card__cmd"
-       data-option="{{ prefix }}-{{ opt.value }}"><code class="nohighlight">{{ opt.command }}</code></pre>
+       data-option="{{ card_id }}-{{ prefix }}-{{ opt.value }}"><code class="nohighlight">{{ opt.command }}</code></pre>
   {% endfor %}
 
   {# Dropdown #}
@@ -34,7 +47,7 @@
       {# Pre-rendered labels — CSS shows only the one matching the checked radio #}
       {% for opt in options %}
       <span class="dropdown__label dropdown__trigger-text"
-            data-option="{{ prefix }}-{{ opt.value }}">{{ opt.label }}</span>
+            data-option="{{ card_id }}-{{ prefix }}-{{ opt.value }}">{{ opt.label }}</span>
       {% endfor %}
       {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" only %}
     </summary>
@@ -43,7 +56,7 @@
          aria-label="Select installation method">
       <div class="dropdown__list">
         {% for opt in options %}
-        <label for="{{ prefix }}-{{ opt.value }}"
+        <label for="{{ card_id }}-{{ prefix }}-{{ opt.value }}"
                class="dropdown__item"
                role="option"
                {% if forloop.first %}aria-selected="true"{% else %}aria-selected="false"{% endif %}

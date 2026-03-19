@@ -33,7 +33,7 @@
 
 .account-connections__platform {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: var(--space-default, 8px);
   flex-shrink: 0;
 }

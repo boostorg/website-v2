@@ -139,6 +139,7 @@
 
 .dialog-modal__description p {
   margin: 0;
+  padding: 0;
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-regular);

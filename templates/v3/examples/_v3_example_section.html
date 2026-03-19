@@ -1,240 +1,314 @@
+{% comment %}
+  V3 Component Demo Page
+  ======================
+  Staff-only page for previewing and testing V3 components.
+  URL: /v3/demo/components/
+
+  How to add a new component
+  --------------------------
+  Wrap your demo in the standard block pattern using a {% with %} tag.
+  The section_title is slugified to produce the anchor ID automatically,
+  and the JS-generated Table of Contents at the top picks it up.
+
+    {% with section_title="My New Component" %}
+      <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+        <h3>{{ section_title }}</h3>
+        <div class="v3-examples-section__example-box">
+          {% include "v3/includes/_my_component.html" with ... %}
+        </div>
+      </div>
+    {% endwith %}
+
+  Features
+  --------
+  - Table of Contents: Auto-generated via inline JS from every
+    .v3-examples-section__block[id] > h3 on the page.
+  - Anchor links: Each section gets an id from {{ section_title|slugify }},
+    so you can link directly, e.g. /v3/demo/components/#basic-card.
+  - Dark mode toggle: Fixed button in the bottom-right corner calls the
+    global changeTheme() function for quick theme switching.
+  - Styles: static/css/v3/v3-examples-section.css — h3 headings inside
+    __block are styled via the structural selector (no class needed).
+{% endcomment %}
 <section class="v3-examples-section" aria-labelledby="v3-examples-heading">
-  {% comment %}V3 examples section for testing. To be removed – everything under v3/examples/ is disposable.{% endcomment %}
   <h2 id="v3-examples-heading" class="v3-examples-section__heading">V3 Examples for testing</h2>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Buttons</h3>
-    <div class="v3-examples-section__example-box">{% include "v3/examples/_v3_example_buttons_block.html" %}</div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Tooltip button</h3>
-    <div class="v3-examples-section__example-box">
-      <div class="v3-examples-section__tools">
-        {% include "v3/includes/_button_tooltip_v3.html" with label="Top" position="top" button_text="Help" %}
-        {% include "v3/includes/_button_tooltip_v3.html" with label="Right" position="right" button_text="Help" %}
-        {% include "v3/includes/_button_tooltip_v3.html" with label="Bottom" position="bottom" button_text="Help" %}
-        {% include "v3/includes/_button_tooltip_v3.html" with label="Left" position="left" button_text="Help" %}
-        {% include "v3/includes/_button_tooltip_v3.html" with label="More information here" position="bottom" button_text="Info" %}
-        {% include "v3/includes/_button_tooltip_v3.html" with label="Top" position="top" %}
-        {% include "v3/includes/_button_tooltip_v3.html" with label="Right" position="right" %}
-        {% include "v3/includes/_button_tooltip_v3.html" with label="Bottom" position="bottom" %}
-        {% include "v3/includes/_button_tooltip_v3.html" with label="Left" position="left" %}
-        {% include "v3/includes/_button_tooltip_v3.html" with label="Icon only tooltip" position="bottom" %}
+
+  {% comment %}Table of contents – generated via JS from the section h3 headings.{% endcomment %}
+  <nav class="v3-examples-section__toc" aria-label="Table of contents">
+    <h3 class="v3-examples-section__toc-heading">Table of Contents</h3>
+    <ul class="v3-examples-section__toc-list"></ul>
+  </nav>
+
+  {% with section_title="Buttons" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">{% include "v3/examples/_v3_example_buttons_block.html" %}</div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Tooltip button" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <div class="v3-examples-section__tools">
+          {% include "v3/includes/_button_tooltip_v3.html" with label="Top" position="top" button_text="Help" %}
+          {% include "v3/includes/_button_tooltip_v3.html" with label="Right" position="right" button_text="Help" %}
+          {% include "v3/includes/_button_tooltip_v3.html" with label="Bottom" position="bottom" button_text="Help" %}
+          {% include "v3/includes/_button_tooltip_v3.html" with label="Left" position="left" button_text="Help" %}
+          {% include "v3/includes/_button_tooltip_v3.html" with label="More information here" position="bottom" button_text="Info" %}
+          {% include "v3/includes/_button_tooltip_v3.html" with label="Top" position="top" %}
+          {% include "v3/includes/_button_tooltip_v3.html" with label="Right" position="right" %}
+          {% include "v3/includes/_button_tooltip_v3.html" with label="Bottom" position="bottom" %}
+          {% include "v3/includes/_button_tooltip_v3.html" with label="Left" position="left" %}
+          {% include "v3/includes/_button_tooltip_v3.html" with label="Icon only tooltip" position="bottom" %}
+        </div>
       </div>
     </div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Avatar</h3>
-    <div class="v3-examples-section__example-box">
-      <table class="v3-examples-section__avatar-table">
-        <tbody>
-          <tr>
-            <th scope="row">Variants</th>
-            <td>
-              <div class="v3-examples-section__avatar-item">
-                {% include "v3/includes/_avatar_v3.html" with src="https://thispersondoesnotexist.com/" size="md" %}
-                <span class="v3-examples-section__avatar-label">Example photo</span>
-              </div>
-            </td>
-            <td>
-              <div class="v3-examples-section__avatar-item">
-                {% with user_avatar_url=request.user.get_thumbnail_url %}
-                  {% if user_avatar_url %}
-                    {% include "v3/includes/_avatar_v3.html" with src=user_avatar_url size="md" %}
-                  {% elif request.user.is_authenticated %}
-                    {% include "v3/includes/_avatar_v3.html" with name=request.user.display_name size="md" %}
-                  {% else %}
-                    {% include "v3/includes/_avatar_v3.html" with size="md" %}
-                  {% endif %}
-                {% endwith %}
-                <span class="v3-examples-section__avatar-label">You</span>
-              </div>
-            </td>
-            <td>
-              <div class="v3-examples-section__avatar-item">
-                {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="yellow" %}
-                <span class="v3-examples-section__avatar-label">Yellow</span>
-              </div>
-            </td>
-            <td>
-              <div class="v3-examples-section__avatar-item">
-                {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="green" %}
-                <span class="v3-examples-section__avatar-label">Green</span>
-              </div>
-            </td>
-            <td>
-              <div class="v3-examples-section__avatar-item">
-                {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="teal" %}
-                <span class="v3-examples-section__avatar-label">Teal</span>
-              </div>
-            </td>
-            <td>
-              <div class="v3-examples-section__avatar-item">
-                {% include "v3/includes/_avatar_v3.html" %}
-                <span class="v3-examples-section__avatar-label">Placeholder</span>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">Sizes</th>
-            <td>
-              <div class="v3-examples-section__avatar-item">
-                {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="sm" %}
-                <span class="v3-examples-section__avatar-label">sm</span>
-              </div>
-            </td>
-            <td>
-              <div class="v3-examples-section__avatar-item">
-                {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="md" %}
-                <span class="v3-examples-section__avatar-label">md</span>
-              </div>
-            </td>
-            <td>
-              <div class="v3-examples-section__avatar-item">
-                {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="lg" %}
-                <span class="v3-examples-section__avatar-label">lg</span>
-              </div>
-            </td>
-            <td>
-              <div class="v3-examples-section__avatar-item">
-                {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="xl" %}
-                <span class="v3-examples-section__avatar-label">xl</span>
-              </div>
-            </td>
-            <td colspan="2"></td>
-          </tr>
-        </tbody>
-      </table>
+  {% endwith %}
+
+  {% with section_title="Avatar" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <table class="v3-examples-section__avatar-table">
+          <tbody>
+            <tr>
+              <th scope="row">Variants</th>
+              <td>
+                <div class="v3-examples-section__avatar-item">
+                  {% include "v3/includes/_avatar_v3.html" with src="https://thispersondoesnotexist.com/" size="md" %}
+                  <span class="v3-examples-section__avatar-label">Example photo</span>
+                </div>
+              </td>
+              <td>
+                <div class="v3-examples-section__avatar-item">
+                  {% with user_avatar_url=request.user.get_thumbnail_url %}
+                    {% if user_avatar_url %}
+                      {% include "v3/includes/_avatar_v3.html" with src=user_avatar_url size="md" %}
+                    {% elif request.user.is_authenticated %}
+                      {% include "v3/includes/_avatar_v3.html" with name=request.user.display_name size="md" %}
+                    {% else %}
+                      {% include "v3/includes/_avatar_v3.html" with size="md" %}
+                    {% endif %}
+                  {% endwith %}
+                  <span class="v3-examples-section__avatar-label">You</span>
+                </div>
+              </td>
+              <td>
+                <div class="v3-examples-section__avatar-item">
+                  {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="yellow" %}
+                  <span class="v3-examples-section__avatar-label">Yellow</span>
+                </div>
+              </td>
+              <td>
+                <div class="v3-examples-section__avatar-item">
+                  {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="green" %}
+                  <span class="v3-examples-section__avatar-label">Green</span>
+                </div>
+              </td>
+              <td>
+                <div class="v3-examples-section__avatar-item">
+                  {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="teal" %}
+                  <span class="v3-examples-section__avatar-label">Teal</span>
+                </div>
+              </td>
+              <td>
+                <div class="v3-examples-section__avatar-item">
+                  {% include "v3/includes/_avatar_v3.html" %}
+                  <span class="v3-examples-section__avatar-label">Placeholder</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Sizes</th>
+              <td>
+                <div class="v3-examples-section__avatar-item">
+                  {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="sm" %}
+                  <span class="v3-examples-section__avatar-label">sm</span>
+                </div>
+              </td>
+              <td>
+                <div class="v3-examples-section__avatar-item">
+                  {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="md" %}
+                  <span class="v3-examples-section__avatar-label">md</span>
+                </div>
+              </td>
+              <td>
+                <div class="v3-examples-section__avatar-item">
+                  {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="lg" %}
+                  <span class="v3-examples-section__avatar-label">lg</span>
+                </div>
+              </td>
+              <td>
+                <div class="v3-examples-section__avatar-item">
+                  {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="xl" %}
+                  <span class="v3-examples-section__avatar-label">xl</span>
+                </div>
+              </td>
+              <td colspan="2"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-  <div class="v3-examples-section__block v3-examples-section__block--carousel">
-    <h3 class="block-title">Carousel buttons</h3>
-    <div class="v3-examples-section__example-box">{% include "v3/includes/_carousel_buttons.html" %}</div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Detail card carousel</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo" heading="Libraries categories" cards=demo_cards_carousel_cards %}
+  {% endwith %}
+
+  {% with section_title="Carousel buttons" %}
+    <div class="v3-examples-section__block v3-examples-section__block--carousel" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">{% include "v3/includes/_carousel_buttons.html" %}</div>
     </div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Detail card carousel with autoplay</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo-autoplay" heading="Libraries categories" cards=demo_cards_carousel_cards autoplay=True autoplay_delay=5000 %}
+  {% endwith %}
+
+  {% with section_title="Detail card carousel" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo" heading="Libraries categories" cards=demo_cards_carousel_cards %}
+      </div>
     </div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Detail card carousel with infinite looping and autoplay</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo-infinite-autoplay" heading="Libraries categories" cards=demo_cards_carousel_cards infinite=True autoplay=True autoplay_delay=5000 %}
+  {% endwith %}
+
+  {% with section_title="Detail card carousel with autoplay" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo-autoplay" heading="Libraries categories" cards=demo_cards_carousel_cards autoplay=True autoplay_delay=5000 %}
+      </div>
     </div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Post cards list</h3>
-    <div class="v3-examples-section__example-box">
-      <section class="post-cards post-cards--default post-cards--neutral post-cards--vertical">
-        <h2 class="post-cards__heading">
-          <a href="#" class="post-cards__heading-link">Posts from the Boost community</a>
-        </h2>
-        <ul class="post-cards__list">
-          <li class="post-cards__item">
-            {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Richard+Thomson&size=48" %}
-              {% include "v3/includes/_post_card_v3.html" %}
-            {% endwith %}
-          </li>
-          <li class="post-cards__item">
-            {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Peter Dimov" author_role="Maintainer" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Peter+Dimov&size=48" %}
-              {% include "v3/includes/_post_card_v3.html" %}
-            {% endwith %}
-          </li>
-          <li class="post-cards__item">
-            {% with post_title="Boost.Bind and modern C++: a quick overview" post_url="#" post_date="15/02/2025" post_category="Releases" post_tag="bind" author_name="Alex Morgan" author_role="Contributor" author_show_badge=False author_avatar_url="https://thispersondoesnotexist.com/" %}
-              {% include "v3/includes/_post_card_v3.html" %}
-            {% endwith %}
-          </li>
-        </ul>
-        <div class="card__cta_section">
-          {% include "v3/includes/_button.html" with label="View all posts" url="#" %}
-        </div>
-      </section>
+  {% endwith %}
+
+  {% with section_title="Detail card carousel with infinite looping and autoplay" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="post-cards-carousel-demo-infinite-autoplay" heading="Libraries categories" cards=demo_cards_carousel_cards infinite=True autoplay=True autoplay_delay=5000 %}
+      </div>
     </div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Detail card (single)</h3>
-    <div class="v3-examples-section__example-box">
-      {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Richard+Thomson&size=48" %}
-        {% include "v3/includes/_post_card_v3.html" %}
-      {% endwith %}
+  {% endwith %}
+
+  {% with section_title="Post cards list" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <section class="post-cards post-cards--default post-cards--neutral post-cards--vertical">
+          <h2 class="post-cards__heading">
+            <a href="#" class="post-cards__heading-link">Posts from the Boost community</a>
+          </h2>
+          <ul class="post-cards__list">
+            <li class="post-cards__item">
+              {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Richard+Thomson&size=48" %}
+                {% include "v3/includes/_post_card_v3.html" %}
+              {% endwith %}
+            </li>
+            <li class="post-cards__item">
+              {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Peter Dimov" author_role="Maintainer" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Peter+Dimov&size=48" %}
+                {% include "v3/includes/_post_card_v3.html" %}
+              {% endwith %}
+            </li>
+            <li class="post-cards__item">
+              {% with post_title="Boost.Bind and modern C++: a quick overview" post_url="#" post_date="15/02/2025" post_category="Releases" post_tag="bind" author_name="Alex Morgan" author_role="Contributor" author_show_badge=False author_avatar_url="https://thispersondoesnotexist.com/" %}
+                {% include "v3/includes/_post_card_v3.html" %}
+              {% endwith %}
+            </li>
+          </ul>
+          <div class="card__cta_section">
+            {% include "v3/includes/_button.html" with label="View all posts" url="#" %}
+          </div>
+        </section>
+      </div>
     </div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Search Card</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="#" popular_terms=popular_terms %}
+  {% endwith %}
+
+  {% with section_title="Detail card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Richard+Thomson&size=48" %}
+          {% include "v3/includes/_post_card_v3.html" %}
+        {% endwith %}
+      </div>
     </div>
-  </div>
+  {% endwith %}
+
+  {% with section_title="Search Card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="#" popular_terms=popular_terms %}
+      </div>
+    </div>
+  {% endwith %}
+
   {% if library_intro %}
-      <div class="v3-examples-section__block">
-        <h3 class="block-title">Library Intro Card</h3>
+    {% with section_title="Library Intro Card" %}
+      <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+        <h3>{{ section_title }}</h3>
         <div class="v3-examples-section__example-box">
           {% with intro=library_intro %}
-              {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
+            {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
           {% endwith %}
         </div>
       </div>
+    {% endwith %}
   {% endif %}
+
   {% if example_library_choices %}
-    <div class="v3-examples-section__block">
-      <h3>Commits per release (by library)</h3>
-      <div class="v3-examples-section__example-box">
-        <form method="get"
-              action="{% url 'v3-demo-components' %}"
-              class="v3-examples-section__stats-lookup"
-              style="display: flex;
-                     gap: var(--space-default, 8px);
-                     align-items: center;
-                     flex-wrap: wrap;
-                     margin-bottom: var(--stats-space, 24px)">
-          <label for="example-library-select"
-                 class="v3-examples-section__stats-lookup-label">Library</label>
-          <select id="example-library-select"
-                  name="library"
-                  onchange="this.form.submit()"
-                  style="padding: var(--space-medium, 12px);
-                         border: 1px solid var(--color-border);
-                         border-radius: var(--border-radius-s, 4px);
-                         min-width: 14rem">
-            {% for slug, name in example_library_choices %}
-              <option value="{{ slug }}"
-                      {% if example_library_slug == slug %}selected{% endif %}>{{ name }}</option>
-            {% endfor %}
-          </select>
-        </form>
-        {% if example_library_not_found %}
-          <p class="v3-examples-section__stats-lookup-message"
-             style="color: var(--color-text-secondary)">Library “{{ example_library_not_found }}” not found.</p>
-        {% elif example_library_commits_bars %}
-          <div class="v3-examples-section__stats-grid">
-            {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="default" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
-            {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="yellow" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
-            {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="green" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
-            {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="teal" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
-          </div>
-          <div class="v3-examples-section__stats-full-width">
-            <p class="v3-examples-section__stats-demo-label">Full width</p>
-            {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Takes full width of container; up to 20 bars." bars=example_library_commits_bars theme="green" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
-          </div>
-          <div class="v3-examples-section__stats-grid v3-examples-section__stats-grid--sized-demo">
-            <div class="v3-examples-section__stats-grid-cell v3-examples-section__stats-grid-cell--free">
-              <p class="v3-examples-section__stats-demo-label">5 bars only</p>
-              {% with example_bars_5=example_library_commits_bars|slice:":5" %}
-                {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Same data limited to 5 bars." bars=example_bars_5 theme="teal" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
-              {% endwith %}
+    {% with section_title="Commits per release" %}
+      <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+        <h3>{{ section_title }}</h3>
+        <div class="v3-examples-section__example-box">
+          <form method="get"
+                action="{% url 'v3-demo-components' %}"
+                class="v3-examples-section__stats-lookup"
+                style="display: flex;
+                       gap: var(--space-default, 8px);
+                       align-items: center;
+                       flex-wrap: wrap;
+                       margin-bottom: var(--stats-space, 24px)">
+            <label for="example-library-select"
+                   class="v3-examples-section__stats-lookup-label">Library</label>
+            <select id="example-library-select"
+                    name="library"
+                    onchange="this.form.submit()"
+                    style="padding: var(--space-medium, 12px);
+                           border: 1px solid var(--color-border);
+                           border-radius: var(--border-radius-s, 4px);
+                           min-width: 14rem">
+              {% for slug, name in example_library_choices %}
+                <option value="{{ slug }}"
+                        {% if example_library_slug == slug %}selected{% endif %}>{{ name }}</option>
+              {% endfor %}
+            </select>
+          </form>
+          {% if example_library_not_found %}
+            <p class="v3-examples-section__stats-lookup-message"
+               style="color: var(--color-text-secondary)">Library "{{ example_library_not_found }}" not found.</p>
+          {% elif example_library_commits_bars %}
+            <div class="v3-examples-section__stats-grid">
+              {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="default" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+              {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="yellow" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+              {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="green" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+              {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=example_library_commits_bars theme="teal" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
             </div>
-          </div>
-        {% endif %}
+            <div class="v3-examples-section__stats-full-width">
+              <p class="v3-examples-section__stats-demo-label">Full width</p>
+              {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Takes full width of container; up to 20 bars." bars=example_library_commits_bars theme="green" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+            </div>
+            <div class="v3-examples-section__stats-grid v3-examples-section__stats-grid--sized-demo">
+              <div class="v3-examples-section__stats-grid-cell v3-examples-section__stats-grid-cell--free">
+                <p class="v3-examples-section__stats-demo-label">5 bars only</p>
+                {% with example_bars_5=example_library_commits_bars|slice:":5" %}
+                  {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Same data limited to 5 bars." bars=example_bars_5 theme="teal" primary_cta_label="View library" primary_cta_url=example_library_detail_url %}
+                {% endwith %}
+              </div>
+            </div>
+          {% endif %}
+        </div>
       </div>
-    </div>
+    {% endwith %}
   {% endif %}
+
   {% include "v3/examples/_v3_example_section_wysiwyg.html" %}
   <div class="v3-examples-section__block">
     <h3 class="block-title">Create Account Card</h3>
@@ -259,199 +333,366 @@
     </div>
   </div>
 
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Alert Banner</h3>
+  {% with section_title="Badges Card (empty with CTA)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
-      <div class="mb-default">
-        {% include "v3/includes/_banner.html" with icon_name=banner_data.icon_name banner_message=banner_data.banner_message %}
-      </div>
-      {% include "v3/includes/_banner.html" with icon_name=banner_data.icon_name banner_message=banner_data.banner_message fade_time=5000 %}
+      {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
     </div>
   </div>
+  {% endwith %}
 
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Basic Card</h3>
-    {% with basic_card_data as card %}
+
+  {% with section_title="Badges Card (empty without CTA)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_badges_card.html" with empty_icon_srcs=badge_icon_srcs %}
+    </div>
+  </div>
+  {% endwith %}
+
+  {% with section_title="Badges Card (filled — 6 badges)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_badges_card.html" with badges=demo_badges %}
+    </div>
+  </div>
+  {% endwith %}
+
+  {% with section_title="Badges Card (filled — 2 badges)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_badges_card.html" with badges=demo_badges_few %}
+    </div>
+  </div>
+  {% endwith %}
+
+  {% with section_title="Create Account Card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
-        <h4 class="py-large">Card with two buttons</h4>
-        {% include "v3/includes/_basic_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label secondary_button_url=card.secondary_button_url secondary_button_label=card.secondary_button_label %}
-        <h4 class="py-large">Card with one button</h4>
-        {% include "v3/includes/_basic_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label %}
+        {% include "v3/includes/_create_account_card.html" with heading="Contribute to earn badges, track your progress and grow your impact" body_html=create_account_card_body_html preview_image_url=create_account_card_preview_url cta_url="#" cta_label="Start contributing" %}
       </div>
-    {% endwith %}
-  </div>
-
-  <div class="v3-examples-section__block">
-    <h3>Horizontal Card</h3>
-    {% with horizontal_card_data as card %}
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_horizontal_card.html" with title=card.title text=card.text image_url=card.image_url button_url=card.button_url button_label=card.button_label %}
     </div>
-    {% endwith %}
-  </div>
+  {% endwith %}
 
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Learn Card</h3>
-    <div class="v3-examples-section__example-box">
-      {% with learn_card_data as data %}
-        {% include "v3/includes/_learn_card.html" with title=data.title text=data.text links=data.links image_src=data.image_src url=data.url label=data.label %}
+  {% with section_title="Form inputs" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <div class="v3-examples-section__forms">
+          {% include "v3/includes/_field_text.html" with name="ex_basic" label="Text field" placeholder="Enter text..." %}
+          {% include "v3/includes/_field_text.html" with name="ex_search" label="With icon" placeholder="Search..." icon_left="search" %}
+          {% include "v3/includes/_field_text.html" with name="ex_error" label="Error state" placeholder="Enter value" error="This field is required." %}
+          {% include "v3/includes/_field_checkbox.html" with name="ex_agree" label="I agree to the terms and conditions" %}
+          {% include "v3/includes/_field_combo.html" with name="ex_library" label="Combo (searchable)" placeholder="Search libraries..." options_json=demo_libs_json %}
+          {% include "v3/includes/_field_multiselect.html" with name="ex_categories" label="Multi-select" placeholder="Select categories..." options_json=demo_cats_json %}
+        </div>
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Alert Banner" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <div class="mb-default">
+          {% include "v3/includes/_banner.html" with icon_name=banner_data.icon_name banner_message=banner_data.banner_message %}
+        </div>
+        {% include "v3/includes/_banner.html" with icon_name=banner_data.icon_name banner_message=banner_data.banner_message fade_time=5000 %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Basic Card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      {% with basic_card_data as card %}
+        <div class="v3-examples-section__example-box">
+          <h4 class="py-large">Card with two buttons</h4>
+          {% include "v3/includes/_basic_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label secondary_button_url=card.secondary_button_url secondary_button_label=card.secondary_button_label %}
+          <h4 class="py-large">Card with one button</h4>
+          {% include "v3/includes/_basic_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label %}
+        </div>
       {% endwith %}
     </div>
-  </div>
+  {% endwith %}
 
-   <div class="v3-examples-section__block">
-    <h3>Account Connections Card</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_account_connections_card.html" with connections=account_connections_mixed %}
-      {% include "v3/includes/_account_connections_card.html" with connections=account_connections_all_connected %}
-      {% include "v3/includes/_account_connections_card.html" with connections=account_connections_none_connected %}
+  {% with section_title="Horizontal Card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      {% with horizontal_card_data as card %}
+        <div class="v3-examples-section__example-box">
+          {% include "v3/includes/_horizontal_card.html" with title=card.title text=card.text image_url=card.image_url button_url=card.button_url button_label=card.button_label %}
+        </div>
+      {% endwith %}
     </div>
-  </div>
+  {% endwith %}
 
-  <div class="v3-examples-section__block">
-    <h3>Testimonial Card</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_testimonial_card.html" with heading=testimonial_data.heading testimonials=testimonial_data.testimonials %}
-    </div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3>Thread Archive Card</h3>
-    {% with basic_card_data as card %}
-      <div class="v3-examples-section__example-box">{% include "v3/includes/_thread_archive_card.html" %}</div>
-    {% endwith %}
-  </div>
-  <div class="v3-examples-section__block">
-    <h3>Vertical Layout Card</h3>
-    {% with basic_card_data as card %}
+  {% with section_title="Learn Card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
-        {% include "v3/includes/_vertical_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label primary_style="secondary-grey" image_url=card.image %}
+        {% with learn_card_data as data %}
+          {% include "v3/includes/_learn_card.html" with title=data.title text=data.text links=data.links image_src=data.image_src url=data.url label=data.label %}
+        {% endwith %}
       </div>
-    {% endwith %}
-  </div>
-  <div class="v3-examples-section__block">
-    <h3>Mailing List Card</h3>
-    <div class="v3-examples-section__example-box">{% include "v3/includes/_mailing_list_card.html" %}</div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Why Boost</h3>
-    <div class="v3-examples-section__example-box">
-      {% comment %}Use 8 cards to test ACs: "Why Boost Cards render correctly with 1–8 cards" and "Cards wrap correctly after four items on desktop/tablet" (4+4 rows).{% endcomment %}
-      <section class="why-boost-cards" aria-labelledby="why-boost-heading">
-        <h2 id="why-boost-heading" class="why-boost-cards__heading">Why Boost?</h2>
-        <div class="why-boost-cards__grid">
-          {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Documentation" description="Browse library docs, examples, and release notes in one place." icon_name="link" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Community" description="Mailing lists, GitHub, and community guidelines for contributors." icon_name="human" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Releases" description="Latest releases, download links, and release notes." icon_name="info-box" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Learn" description="Access documentation, books, and courses to level up your C++." icon_name="bullseye-arrow" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Contribute" description="Report issues, submit patches, and join the community." icon_name="bullseye-arrow" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Stay updated" description="Releases, news, and announcements from the Boost community." icon_name="bullseye-arrow" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Libraries" description="Portable, peer-reviewed libraries for a wide range of use cases." icon_name="bullseye-arrow" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Standards" description="Many Boost libraries have been adopted into the C++ standard." icon_name="bullseye-arrow" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Quality" description="Peer-reviewed code and documentation maintained by the community." icon_name="bullseye-arrow" %}
-          {% include "v3/includes/_content_detail_card_item.html" with title="Cross-platform" description="Libraries designed to work across compilers and platforms." icon_name="bullseye-arrow" %}
+    </div>
+  {% endwith %}
+
+  {% with section_title="Account Connections Card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_account_connections_card.html" with connections=account_connections_mixed %}
+        {% include "v3/includes/_account_connections_card.html" with connections=account_connections_all_connected %}
+        {% include "v3/includes/_account_connections_card.html" with connections=account_connections_none_connected %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Testimonial Card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_testimonial_card.html" with heading=testimonial_data.heading testimonials=testimonial_data.testimonials %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Thread Archive Card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      {% with basic_card_data as card %}
+        <div class="v3-examples-section__example-box">{% include "v3/includes/_thread_archive_card.html" %}</div>
+      {% endwith %}
+    </div>
+  {% endwith %}
+
+  {% with section_title="Vertical Layout Card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      {% with basic_card_data as card %}
+        <div class="v3-examples-section__example-box">
+          {% include "v3/includes/_vertical_card.html" with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label primary_style="secondary-grey" image_url=card.image %}
         </div>
-      </section>
+      {% endwith %}
     </div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Category tags</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_category_cards.html" with show_version_tags=True %}
+  {% endwith %}
+
+  {% with section_title="Mailing List Card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">{% include "v3/includes/_mailing_list_card.html" %}</div>
     </div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Event cards</h3>
-    <div class="v3-examples-section__example-box">{% include "v3/includes/_event_cards.html" %}</div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Content event list – clickable cards (link wraps each card)</h3>
-    <div class="v3-examples-section__example-box">
-      <section class="post-cards post-cards--content post-cards--neutral post-cards--content-list"
-               aria-labelledby="content-event-releases-links-list">
-        <h2 id="content-event-releases-links-list" class="post-cards__heading">
-          <a href="#" class="post-cards__heading-link">Releases</a>
-        </h2>
-        <ul class="post-cards__list">
-          <li class="post-cards__item">
-            {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" card_url="#event-0" card_aria_label="Boost 1.90.0 closed for major changes" event_card_wrapper=False %}
-          </li>
-          <li class="post-cards__item">
-            {% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15. Topics include modern C++, Boost libraries, and tooling." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=False %}
-          </li>
-          <li class="post-cards__item">
-            {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries. See release notes for details." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=False %}
-          </li>
-        </ul>
-        <div class="card__cta_section">{% include "v3/includes/_button.html" with label="View all" url="#" %}</div>
-      </section>
-    </div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Content event card – clickable cards (link wraps each card)</h3>
-    <div class="v3-examples-section__example-box">
-      <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card"
-               aria-labelledby="content-event-releases-links-card">
-        <h2 id="content-event-releases-links-card" class="post-cards__heading">
-          <a href="#" class="post-cards__heading-link">Releases</a>
-        </h2>
-        <ul class="post-cards__list">
-          <li class="post-cards__item">
-            {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" card_url="#event-0" card_aria_label="Boost 1.90.0 closed for major changes" event_card_wrapper=True %}
-          </li>
-          <li class="post-cards__item">
-            {% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15. Topics include modern C++, Boost libraries, and tooling." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=True %}
-          </li>
-          <li class="post-cards__item">
-            {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries. See release notes for details." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=True %}
-          </li>
-        </ul>
-        <div class="card__cta_section">{% include "v3/includes/_button.html" with label="View all" url="#" %}</div>
-      </section>
-    </div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Content detail card</h3>
-    <div class="v3-examples-section__example-box">
-      <section class="content-story-section">
-        <h4 class="content-story-section__title">Content detail card</h4>
-        <p class="content-story-section__description">With icon and optional title link.</p>
-        <div class="content-story-grid">
-          <div class="content-story-block">
-            <p class="content-story-variant-label">With link</p>
-            {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="get-help" title_url="/help" %}
+  {% endwith %}
+
+  {% with section_title="Why Boost" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% comment %}Use 8 cards to test ACs: "Why Boost Cards render correctly with 1–8 cards" and "Cards wrap correctly after four items on desktop/tablet" (4+4 rows).{% endcomment %}
+        <section class="why-boost-cards" aria-labelledby="why-boost-heading">
+          <h2 id="why-boost-heading" class="why-boost-cards__heading">Why Boost?</h2>
+          <div class="why-boost-cards__grid">
+            {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="bullseye-arrow" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Documentation" description="Browse library docs, examples, and release notes in one place." icon_name="link" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Community" description="Mailing lists, GitHub, and community guidelines for contributors." icon_name="human" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Releases" description="Latest releases, download links, and release notes." icon_name="info-box" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Learn" description="Access documentation, books, and courses to level up your C++." icon_name="bullseye-arrow" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Contribute" description="Report issues, submit patches, and join the community." icon_name="bullseye-arrow" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Stay updated" description="Releases, news, and announcements from the Boost community." icon_name="bullseye-arrow" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Libraries" description="Portable, peer-reviewed libraries for a wide range of use cases." icon_name="bullseye-arrow" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Standards" description="Many Boost libraries have been adopted into the C++ standard." icon_name="bullseye-arrow" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Quality" description="Peer-reviewed code and documentation maintained by the community." icon_name="bullseye-arrow" %}
+            {% include "v3/includes/_content_detail_card_item.html" with title="Cross-platform" description="Libraries designed to work across compilers and platforms." icon_name="bullseye-arrow" %}
           </div>
-          <div class="content-story-block">
-            <p class="content-story-variant-label">Another card</p>
-            {% include "v3/includes/_content_detail_card_item.html" with title="Another card" description="With a different icon. Icon is optional and dynamic." icon_name="device-tv" %}
+        </section>
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Category tags" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_category_cards.html" with show_version_tags=True %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Event cards" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">{% include "v3/includes/_event_cards.html" %}</div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Achievement cards" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <h4 class="mb-large">Empty Card</h4>
+        {% include "v3/includes/_achievement_card.html" %}
+        <h4 class="py-large">Card with Achievements</h4>
+        {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements primary_button_url="https://www.example.com" %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Content event list" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <section class="post-cards post-cards--content post-cards--neutral post-cards--content-list"
+                 aria-labelledby="content-event-releases-links-list">
+          <h2 id="content-event-releases-links-list" class="post-cards__heading">
+            <a href="#" class="post-cards__heading-link">Releases</a>
+          </h2>
+          <ul class="post-cards__list">
+            <li class="post-cards__item">
+              {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" card_url="#event-0" card_aria_label="Boost 1.90.0 closed for major changes" event_card_wrapper=False %}
+            </li>
+            <li class="post-cards__item">
+              {% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15. Topics include modern C++, Boost libraries, and tooling." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=False %}
+            </li>
+            <li class="post-cards__item">
+              {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries. See release notes for details." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=False %}
+            </li>
+          </ul>
+          <div class="card__cta_section">{% include "v3/includes/_button.html" with label="View all" url="#" %}</div>
+        </section>
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Content event card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card"
+                 aria-labelledby="content-event-releases-links-card">
+          <h2 id="content-event-releases-links-card" class="post-cards__heading">
+            <a href="#" class="post-cards__heading-link">Releases</a>
+          </h2>
+          <ul class="post-cards__list">
+            <li class="post-cards__item">
+              {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" card_url="#event-0" card_aria_label="Boost 1.90.0 closed for major changes" event_card_wrapper=True %}
+            </li>
+            <li class="post-cards__item">
+              {% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15. Topics include modern C++, Boost libraries, and tooling." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=True %}
+            </li>
+            <li class="post-cards__item">
+              {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries. See release notes for details." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=True %}
+            </li>
+          </ul>
+          <div class="card__cta_section">{% include "v3/includes/_button.html" with label="View all" url="#" %}</div>
+        </section>
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Content detail card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <section class="content-story-section">
+          <h4 class="content-story-section__title">Content detail card</h4>
+          <p class="content-story-section__description">With icon and optional title link.</p>
+          <div class="content-story-grid">
+            <div class="content-story-block">
+              <p class="content-story-variant-label">With link</p>
+              {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers, networking, and chat with 24,000+ members." icon_name="get-help" title_url="/help" %}
+            </div>
+            <div class="content-story-block">
+              <p class="content-story-variant-label">Another card</p>
+              {% include "v3/includes/_content_detail_card_item.html" with title="Another card" description="With a different icon. Icon is optional and dynamic." icon_name="device-tv" %}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
-  </div>
+  {% endwith %}
 
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Install Card</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_install_card.html" with title=install_card_title %}
+  {% with section_title="Install Card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_install_card.html" with title=install_card_title card_id="install-1" %}
+      </div>
     </div>
-  </div>
+  {% endwith %}
 
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Code blocks</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_code_blocks_story.html" with code_standalone_1=code_demo_beast code_standalone_2=code_demo_beast code_card_1=code_demo_hello code_card_2=code_demo_beast code_card_3=code_demo_install %}
+  {% with section_title="Install Card 2" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_install_card.html" with title=install_card_title card_id="install-2" %}
+      </div>
     </div>
-  </div>
+  {% endwith %}
 
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Dialog</h3>
-    <div class="v3-examples-section__example-box">
-      <h4 class="py-large">Dialog Modal With Description</h4>
-      <a href="#demo-dialog-with-desc" class="btn btn-primary">Open dialog</a>
+  {% with section_title="Code blocks" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_code_blocks_story.html" with code_standalone_1=code_demo_beast code_standalone_2=code_demo_beast code_card_1=code_demo_hello code_card_2=code_demo_beast code_card_3=code_demo_install %}
+      </div>
     </div>
-  </div>
+  {% endwith %}
+
+  {% with section_title="Dialog" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <h4 class="py-large">Dialog Modal With Description</h4>
+        <a href="#demo-dialog-with-desc" class="btn btn-primary">Open dialog</a>
+      </div>
+    </div>
+  {% endwith %}
+
+  {% comment %}
+  Position Fixed dark mode toggle for quick theme switching without scrolling to the header.
+  {% endcomment %}
+  <button type="button"
+          class="v3-examples-section__theme-toggle"
+          aria-label="Toggle theme"
+          onclick="changeTheme()">
+    <span class="v3-examples-section__theme-toggle-sun">{% include "includes/icon.html" with icon_name="sun-alt" %}</span>
+    <span class="v3-examples-section__theme-toggle-moon">{% include "includes/icon.html" with icon_name="moon" %}</span>
+  </button>
 </section>
+
+{% comment %}
+Table of Contents generator – runs after all section blocks have been parsed.
+{% endcomment %}
+<script>
+(function () {
+  const section = document.querySelector('.v3-examples-section');
+  const list = section.querySelector('.v3-examples-section__toc-list');
+  section.querySelectorAll('.v3-examples-section__block[id] > h3').forEach(function (h3) {
+    const id = h3.parentElement.id;
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.className = 'v3-examples-section__toc-link';
+    a.href = '#' + id;
+    a.textContent = h3.textContent;
+    li.appendChild(a);
+    list.appendChild(li);
+
+    // Anchor link icon next to heading
+    var anchor = document.createElement('a');
+    anchor.className = 'v3-examples-section__anchor-link';
+    anchor.href = '#' + id;
+    anchor.setAttribute('aria-label', 'Copy link to ' + h3.textContent);
+    anchor.innerHTML = '🔗';
+    h3.appendChild(anchor);
+  });
+})();
+</script>
 
 {% comment %}Dialogs placed outside section to avoid position:fixed containment issues{% endcomment %}
 {% include "v3/includes/_dialog.html" with dialog_id="demo-dialog-with-desc" title="Title of Dialog" description="Description that can go inside of Dialog" primary_url="#_" secondary_url="#_" primary_label="Button" secondary_label="Button" %}
