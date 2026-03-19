@@ -43,8 +43,7 @@
               <span class="dropdown__trigger-text" x-show="postType" x-text="postTypeLabel" x-cloak></span>
               <span class="dropdown__trigger-text dropdown__trigger-placeholder" x-show="!postType">Select Post Type</span>
               <span class="dropdown__chevron" aria-hidden="true">
-                <span x-show="!openPostTypeDropdown" x-cloak class="dropdown__chevron-icon">{% include "includes/icon.html" with icon_name="dropdown-chevron-down" icon_class="dropdown__chevron-icon" %}</span>
-                <span x-show="openPostTypeDropdown" x-cloak class="dropdown__chevron-icon">{% include "includes/icon.html" with icon_name="dropdown-chevron-up" icon_class="dropdown__chevron-icon" %}</span>
+        
               </span>
             </button>
             <div class="dropdown__panel" x-show="openPostTypeDropdown" x-transition x-cloak role="listbox">
@@ -65,11 +64,10 @@
         <div class="field" :class="{ 'field--error': errors.title }">
           <label class="field__label" for="field-title">Post title *</label>
           <div class="field__control">
-            <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="text" icon_class="field__icon" %}</span>
             <input class="field__input" type="text" id="field-title" name="title" placeholder="Title" required
                    :aria-invalid="!!errors.title"
                    :aria-describedby="errors.title ? 'field-title-error' : null">
-            <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="chevron-input" icon_class="field__icon" %}</span>
+      
           </div>
           <p class="field__error" id="field-title-error" role="alert" x-show="errors.title" x-text="errors.title" x-cloak aria-live="polite"></p>
         </div>
@@ -132,11 +130,11 @@
 
         {% include "v3/includes/_field_dropdown.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" %}
 
-        {% include "v3/includes/_field_text.html" with name="publish_at" label="Publish Date" type="datetime-local" value=publish_at_initial placeholder="Today at 10:00AM" icon_left="calendar" %}
+        {% include "v3/includes/_field_text.html" with name="publish_at" label="Publish Date" type="datetime-local" value=publish_at_initial placeholder="Today at 10:00AM" %}
 
         <div class="create-post-page__actions">
-          <a href="{% url 'news' %}" class="btn btn-primary">Cancel</a>
-          <button type="submit" class="btn btn-secondary-grey">Submit</button>
+          <a href="{% url 'news' %}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">Submit</button>
         </div>
       </div>
     </form>

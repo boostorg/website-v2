@@ -329,7 +329,15 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
                 {"value": "video", "label": _("Video")},
                 {"value": "link", "label": _("Link")},
             ]
-            context["related_libraries_options"] = [{"value": "", "label": _("Select")}]
+            # Basic examples for the v3 create page selector.
+            context["related_libraries_options"] = [
+                {"value": "", "label": _("Select")},
+                {"value": "asio", "label": _("Asio")},
+                {"value": "beast", "label": _("Beast")},
+                {"value": "filesystem", "label": _("Filesystem")},
+                {"value": "json", "label": _("JSON")},
+                {"value": "spirit", "label": _("Spirit")},
+            ]
             context["publish_at_initial"] = localtime(now()).strftime("%Y-%m-%dT%H:%M")
             context["blogpost_create_url"] = reverse_lazy("news-blogpost-create")
             context["news_create_url"] = reverse_lazy("news-news-create")
