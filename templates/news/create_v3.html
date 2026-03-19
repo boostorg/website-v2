@@ -43,7 +43,7 @@
               <span class="dropdown__trigger-text" x-show="postType" x-text="postTypeLabel" x-cloak></span>
               <span class="dropdown__trigger-text dropdown__trigger-placeholder" x-show="!postType">Select Post Type</span>
               <span class="dropdown__chevron" aria-hidden="true">
-        
+
               </span>
             </button>
             <div class="dropdown__panel" x-show="openPostTypeDropdown" x-transition x-cloak role="listbox">
@@ -67,7 +67,7 @@
             <input class="field__input" type="text" id="field-title" name="title" placeholder="Title" required
                    :aria-invalid="!!errors.title"
                    :aria-describedby="errors.title ? 'field-title-error' : null">
-      
+
           </div>
           <p class="field__error" id="field-title-error" role="alert" x-show="errors.title" x-text="errors.title" x-cloak aria-live="polite"></p>
         </div>
