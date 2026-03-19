@@ -18,7 +18,7 @@
     {% include "v3/includes/_hero_home.html" %}
     {% include "v3/includes/_hero_home.html" with headline="Welcome to Boost" primary_url="/docs/" hero_image_url=hero_image_url %}
 {% endcomment %}
-<section class="hero-home{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-home--no-image{% endif %}{% if hero_background_image_url and hero_image_url or hero_background_image_url and hero_image_url_light or hero_background_image_url and hero_image_url_dark %} hero-home--with-bg-and-image{% endif %}"
+<section class="hero-home{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-home--no-image{% endif %}{% if hero_background_image_url and hero_image_url or hero_background_image_url and hero_image_url_light or hero_background_image_url and hero_image_url_dark %} hero-home--with-bg-and-image{% endif %}{% if hero_background_image_url %} hero-home--with-background-image{% endif %}"
          {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');"{% endif %}
          aria-label="Hero">
   <div class="hero-home__block">
