@@ -1,0 +1,15 @@
+FROM node:22-slim
+
+WORKDIR /code
+
+COPY package.json yarn.lock ./
+RUN yarn install
+
+COPY .storybook/ .storybook/
+COPY storybook/ storybook/
+COPY templates/ templates/
+COPY static/ static/
+
+EXPOSE 6006
+
+CMD ["npx", "storybook", "dev", "-p", "6006", "--host", "0.0.0.0"]
