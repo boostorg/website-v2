@@ -249,6 +249,14 @@
    mix-blend-mode: screen;
  }
 
+  /* ----- Hero home: mobile ----- */
+  @media (max-width: 1000px) {
+    .hero-home__actions{
+      flex-direction: column;
+    }
+
+    }
+
  /* ----- Hero home: mobile ----- */
  @media (max-width: 700px) {
    .hero-home__block {
