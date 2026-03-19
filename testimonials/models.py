@@ -58,7 +58,6 @@ class Testimonial(Page):
 
     # Configure Wagtail admin panels
     content_panels = Page.content_panels + [
-        FieldPanel("title"),
         FieldPanel("author"),
         FieldPanel("author_slug"),
         FieldPanel("author_url"),
