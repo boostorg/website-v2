@@ -63,7 +63,6 @@
 }
 
 .btn-secondary {
-  background: var(--color-surface-weak);
   border-color: var(--color-stroke-strong);
   color: var(--color-text-primary);
 }
@@ -149,6 +148,7 @@
 }
 
 .btn.btn-hero.btn-secondary {
+  background: var(--color-surface-weak);
   border-color: var(--color-stroke-weak);
 }
 

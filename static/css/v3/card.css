@@ -24,6 +24,10 @@
   max-width: 458px;
 }
 
+.wide-card {
+    max-width: 696px;
+}
+
 .card .btn-row {
   width: 100%;
 }
@@ -33,10 +37,11 @@
 }
 
 .card__column {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-large);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-large);
+    width: 100%;
 }
 
 .card__header {

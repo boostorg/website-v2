@@ -713,6 +713,10 @@ export const initWysiwyg = (textareaId) => {
   const editorEl = wrapper.querySelector(".wysiwyg-editor__body");
   if (!toolbarEl || !editorEl) return null;
 
+  /* Ensure toolbar is empty and remove any previous table-context bar after re-init (e.g. Fill demo content) to avoid duplicate bars */
+  toolbarEl.innerHTML = "";
+  wrapper.querySelectorAll(".wysiwyg-table-context").forEach((el) => el.remove());
+
   const rawContent = textarea.value ? textarea.value.trim() : "";
   const isHtml = rawContent.startsWith("<") && rawContent.includes(">");
   let initialContent = rawContent;
