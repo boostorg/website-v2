@@ -11,6 +11,11 @@
   overflow: hidden;
 }
 
+.dark .wysiwyg-v3:focus-within {
+  border-color: var(--color-stroke-strong, rgba(255, 255, 255, 0.05));
+  background: var(--color-surface-mid, #1f2430);
+}
+
 .wysiwyg-v3:focus-within .wysiwyg-editor__toolbar {
   border: none;
   background: transparent;
@@ -18,6 +23,13 @@
 
 .wysiwyg-v3:focus-within .wysiwyg-editor__body {
   border: none;
+  background: transparent;
+}
+
+.dark .wysiwyg-v3:focus-within .wysiwyg-editor__toolbar,
+.dark .wysiwyg-v3:focus-within .wysiwyg-editor__body,
+.dark .wysiwyg-v3:focus-within .wysiwyg-editor__preview,
+.dark .wysiwyg-v3:focus-within .wysiwyg-editor__markdown-pane {
   background: transparent;
 }
 

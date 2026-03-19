@@ -1,7 +1,15 @@
 {% extends "base.html" %}
 {% load waffle_tags %}
+{% load static %}
 
 {% block title %}Create Post{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  {% flag "v3" %}
+    <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
+  {% endflag %}
+{% endblock %}
 
 {% block content %}
   {% flag "v3" %}

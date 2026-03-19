@@ -19,7 +19,7 @@
     class="w-full min-h-[200px]"
     placeholder=""
     aria-hidden="true"
-  ></textarea>
+  >{{ value|default_if_none:"" }}</textarea>
   <div class="wysiwyg-editor__toolbar"></div>
   <div class="wysiwyg-editor__body"></div>
 </div>
