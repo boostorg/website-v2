@@ -32,7 +32,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
     <!-- TODO bring this local if we like it -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    {% flag "v3" %}
+    <script src="{% static 'js/boost-gecko/main.D4-wc48T.js' %}" defer></script>
+    {% else %}
     <script src="{% static 'js/boost-gecko/main.D1bdgn0u.js' %}" defer></script>
+    {% endflag %}
     {% block extra_head %}
       <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
     {% endblock %}
