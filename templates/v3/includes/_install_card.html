@@ -3,76 +3,133 @@
   Interactive card with tabbed installation methods and a dynamic command display.
   Uses CSS-only radio inputs for tab switching and option selection.
   JS enhances keyboard navigation only.
-  CSS in static/css/v3/install-card.css.
+
+  Architecture:
+    Two levels of CSS radio-driven show/hide:
+    1. Tab radios ({card_id}-tab-pkg / -tab-sys) are direct children of <section>.
+       Static :checked ~ sibling rules in install-card.css toggle panel visibility.
+    2. Option radios (inside each panel) control which command and dropdown label
+       are visible. Dynamic :checked ~ rules are generated in the inline <style>
+       block below because the number of options is data-driven.
 
   Variables:
     title (optional) — card heading text; defaults to "Install Boost and get started in your terminal."
-    install_card_pkg_managers — list of { label, value, command } for Package Managers tab
-    install_card_system_install — list of { label, value, command } for System Install tab
+    card_id (IMPORTANT) — unique identifier to scope IDs/names when multiple cards appear on the same page; defaults to slugified title, then "install"
+    install_card_pkg_managers — list of { label, value, command } dicts for Package Managers tab
+    install_card_system_install — list of { label, value, command } dicts for System Install tab
+
+    Each option dict:
+      label   — display text in the dropdown (e.g. "vcpkg")
+      value   — CSS-safe identifier, used in element IDs (e.g. "vcpkg"; no spaces or special characters)
+      command — terminal command shown in the code block (e.g. "vcpkg install boost")
+
+  Dependencies:
+    CSS: card.css, tab.css, install-card.css, code-block.css, forms.css (.dropdown)
+    JS:  install-card.js (keyboard nav + ARIA updates; optional — core works without it)
+
+  Accessibility:
+    - role="tablist" on tab container, role="tab" on labels, role="tabpanel" on panels
+    - aria-controls links tabs to panels; aria-labelledby links panels back to tabs
+    - JS adds: aria-selected sync on tab labels, dropdown keyboard support (Escape, Enter/Space)
 
   Usage:
-    {% include "v3/includes/_install_card.html" %}
+    {% include "v3/includes/_install_card.html" with card_id="install-1" install_card_pkg_managers=pkg_list install_card_system_install=sys_list %}
 {% endcomment %}
+{% with resolved_title=title|slugify|default:"install" %}
+{% with card_id=card_id|default:resolved_title %}
 {# Per-option visibility rules (generated from data, complements static rules in install-card.css) #}
 <style>
   {% for opt in install_card_pkg_managers %}
-  #pkg-{{ opt.value }}:checked ~ .code-block [data-option="pkg-{{ opt.value }}"] { display: block; }
-  #pkg-{{ opt.value }}:checked ~ .code-block .dropdown__trigger [data-option="pkg-{{ opt.value }}"] { display: inline; }
-  #pkg-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="pkg-{{ opt.value }}"] { color: var(--color-text-primary); font-weight: var(--font-weight-medium, 500); text-decoration: underline; }
-  #pkg-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="pkg-{{ opt.value }}"]:hover { color: var(--color-text-link-accent); }
+    /* Showing the matching command */
+    #{{ card_id }}-pkg-{{ opt.value }}:checked ~ .code-block [data-option="{{ card_id }}-pkg-{{ opt.value }}"] {
+      display: block;
+    }
+    /* Showing the matching dropdown label in the trigger */
+    #{{ card_id }}-pkg-{{ opt.value }}:checked ~ .code-block .dropdown__trigger [data-option="{{ card_id }}-pkg-{{ opt.value }}"] {
+      display: inline;
+    }
+    /* Highlighting the selected dropdown item (and adding underline) */
+    #{{ card_id }}-pkg-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="{{ card_id }}-pkg-{{ opt.value }}"] {
+      color: var(--color-text-primary);
+      font-weight: var(--font-weight-medium, 500);
+      text-decoration: underline;
+    }
+    #{{ card_id }}-pkg-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="{{ card_id }}-pkg-{{ opt.value }}"]:hover {
+      color: var(--color-text-link-accent);
+  }
   {% endfor %}
+
   {% for opt in install_card_system_install %}
-  #sys-{{ opt.value }}:checked ~ .code-block [data-option="sys-{{ opt.value }}"] { display: block; }
-  #sys-{{ opt.value }}:checked ~ .code-block .dropdown__trigger [data-option="sys-{{ opt.value }}"] { display: inline; }
-  #sys-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="sys-{{ opt.value }}"] { color: var(--color-text-primary); font-weight: var(--font-weight-medium, 500); text-decoration: underline; }
-  #sys-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="sys-{{ opt.value }}"]:hover { color: var(--color-text-link-accent); }
+    /* Showing the matching command */
+    #{{ card_id }}-sys-{{ opt.value }}:checked ~ .code-block [data-option="{{ card_id }}-sys-{{ opt.value }}"] {
+      display: block;
+    }
+    /* Showing the matching dropdown label in the trigger */
+    #{{ card_id }}-sys-{{ opt.value }}:checked ~ .code-block .dropdown__trigger [data-option="{{ card_id }}-sys-{{ opt.value }}"] {
+      display: inline;
+    }
+    /* Highlighting the selected dropdown item (and adding underline) */
+    #{{ card_id }}-sys-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="{{ card_id }}-sys-{{ opt.value }}"] {
+      color: var(--color-text-primary);
+      font-weight: var(--font-weight-medium, 500);
+      text-decoration: underline;
+    }
+    #{{ card_id }}-sys-{{ opt.value }}:checked ~ .code-block .dropdown__item[for="{{ card_id }}-sys-{{ opt.value }}"]:hover {
+      color: var(--color-text-link-accent);
+    }
   {% endfor %}
 </style>
 <section class="install-card card"
          data-install-card
-         aria-labelledby="install-card-heading">
+         aria-labelledby="{{ card_id }}-heading">
   {# Tab radio inputs — must be direct children of section for sibling selectors #}
   <input type="radio"
-         name="install-tab"
-         id="install-tab-pkg"
+         name="{{ card_id }}-tab"
+         id="{{ card_id }}-tab-pkg"
          checked
-         class="install-card__radio">
+         class="install-card__radio install-card__radio--pkg">
   <input type="radio"
-         name="install-tab"
-         id="install-tab-sys"
-         class="install-card__radio">
+         name="{{ card_id }}-tab"
+         id="{{ card_id }}-tab-sys"
+         class="install-card__radio install-card__radio--sys">
   <div class="card__header">
-    <h2 id="install-card-heading" class="card__title install-card__title">
+    <h2 id="{{ card_id }}-heading" class="card__title install-card__title">
       {{ title|default:"Install Boost and get started in your terminal." }}
     </h2>
   </div>
   <div class="install-card__body px-large">
     {# Tab list #}
     <div class="tab__list" role="tablist" aria-label="Installation method">
-      <label for="install-tab-pkg"
+      <label for="{{ card_id }}-tab-pkg"
              class="tab__trigger"
              role="tab"
-             id="install-tab-pkg-label"
-             aria-controls="install-panel-pkg">Package Managers</label>
-      <label for="install-tab-sys"
+             id="{{ card_id }}-tab-pkg-label"
+             aria-controls="{{ card_id }}-panel-pkg"
+             aria-selected="true"
+             tabindex="-1">Package Managers</label>
+      <label for="{{ card_id }}-tab-sys"
              class="tab__trigger"
              role="tab"
-             id="install-tab-sys-label"
-             aria-controls="install-panel-sys">System Install</label>
+             id="{{ card_id }}-tab-sys-label"
+             aria-controls="{{ card_id }}-panel-sys"
+             aria-selected="false"
+             tabindex="-1">System Install</label>
     </div>
     {# Panel: Package Managers #}
-    <div id="install-panel-pkg"
+    <div id="{{ card_id }}-panel-pkg"
          class="install-card__panel install-card__panel--pkg"
          role="tabpanel"
-         aria-labelledby="install-tab-pkg-label">
-      {% include "v3/includes/_install_card_tab_content_body.html" with options=install_card_pkg_managers prefix="pkg" only %}
+         aria-labelledby="{{ card_id }}-tab-pkg-label">
+      {% include "v3/includes/_install_card_tab_content_body.html" with options=install_card_pkg_managers prefix="pkg" card_id=card_id only %}
     </div>
     {# Panel: System Install #}
-    <div id="install-panel-sys"
+    <div id="{{ card_id }}-panel-sys"
          class="install-card__panel install-card__panel--sys"
          role="tabpanel"
-         aria-labelledby="install-tab-sys-label">
-      {% include "v3/includes/_install_card_tab_content_body.html" with options=install_card_system_install prefix="sys" only %}
+         aria-labelledby="{{ card_id }}-tab-sys-label">
+      {% include "v3/includes/_install_card_tab_content_body.html" with options=install_card_system_install prefix="sys" card_id=card_id only %}
     </div>
   </div>
 </section>
+{% endwith %}
+{% endwith %}

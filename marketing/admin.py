@@ -19,6 +19,14 @@ class CapturedEmailResource(resources.ModelResource):
     address_country = fields.Field(
         column_name="Address (Country)", attribute="address_country"
     )
+    github_username = fields.Field(
+        column_name="GitHub Username", attribute="github_username"
+    )
+
+    def skip_row(self, instance, original, row, import_validation_errors=None):
+        if not instance.email:
+            return True
+        return super().skip_row(instance, original, row, import_validation_errors)
 
     class Meta:
         model = CapturedEmail
@@ -36,6 +44,7 @@ class CapturedEmailResource(resources.ModelResource):
             "address_city",
             "address_state",
             "address_country",
+            "github_username",
         )
 
 
