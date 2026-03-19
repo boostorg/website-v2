@@ -1187,6 +1187,7 @@ class V3ComponentDemoView(TemplateView):
             "title": "Build anything with Boost",
             "text": "Use, modify, and distribute Boost libraries freely. No binary attribution needed.",
             "image_url": f"{settings.STATIC_URL}img/checker.png",
+            "image_alt": "This is a placeholder image",
             "button_url": "#",
             "button_label": "See license details",
         }

@@ -2,6 +2,10 @@
     max-width: 696px;
 }
 
+.learn-card .card__cta_section {
+    padding: 0;
+}
+
 .learn-card__row {
     display: flex;
     align-items: flex-start;
@@ -87,11 +91,4 @@
     outline: 2px solid -webkit-focus-ring-color;
     outline-offset: 2px;
     border-radius: 2px;
-}
-
-.learn-card__image {
-    flex: 1 0 0;
-    aspect-ratio: 1/1;
-    border-radius: var(--border-radius-default, 8px);
-    width: 100%;
 }

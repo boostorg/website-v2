@@ -34,8 +34,10 @@ Inputs:
           </div>
         </div>
       </div>
-      <div class="btn-row">{% include "v3/includes/_button_hero.html" with label=label url=url %}</div>
+      <div class="card__cta_section">{% include "v3/includes/_button_hero.html" with label=label url=url %}</div>
     </div>
-    <img class="learn-card__image" src="{{ image_src }}" />
+    <div class="square-card-image">
+      <img src="{{ image_src }}" />
+    </div>
   </div>
 </div>
