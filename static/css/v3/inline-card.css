@@ -6,7 +6,7 @@
 }
 
 .inline-card__grid-layout .card__cta_section {
-    padding: 0
+    padding: 0;
 }
 
 .inline-card__image {
@@ -31,9 +31,10 @@
     grid-template-areas:
     "title d-image"
     "text d-image"
-    "m-image d-image"
+    ". d-image"
     "button d-image";
     grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto 1fr auto;
     column-gap: var(--space-large);
     row-gap: var(--space-medium);
 }
@@ -45,6 +46,11 @@
     }
 
     .inline-card__grid-layout {
-        grid-template-columns: 1fr auto;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+        "title"
+        "text"
+        "m-image"
+        "button";
     }
 }

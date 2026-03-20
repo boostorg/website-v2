@@ -7,6 +7,7 @@ Inputs:
   - label (required) - Label for the hero button
   - url (required) - Url for the hero button
   - image_src (required) - Url at which the image can be found
+  - image_alt (required) - Alt text for the image
 {% endcomment %}
 <div class="card learn-card p-large">
   <div class="learn-card__row">
@@ -37,7 +38,7 @@ Inputs:
       <div class="card__cta_section">{% include "v3/includes/_button_hero.html" with label=label url=url %}</div>
     </div>
     <div class="square-card-image">
-      <img src="{{ image_src }}" />
+      <img src="{{ image_src }}" alt="{{ image_alt }}" />
     </div>
   </div>
 </div>
