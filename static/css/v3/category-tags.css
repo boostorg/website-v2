@@ -33,6 +33,7 @@
 
 .category-tag--green {
   background: var(--color-surface-strong-accent-green-default);
+  color: var(--color-text-primary);
 }
 
 .category-tag--green:hover,
@@ -43,6 +44,7 @@
 
 .category-tag--yellow {
   background: var(--color-surface-strong-accent-yellow-default);
+  color: var(--color-text-primary);
 }
 
 .category-tag--yellow:hover,
@@ -53,6 +55,7 @@
 
 .category-tag--teal {
   background: var(--color-surface-strong-accent-teal-default);
+  color: var(--color-text-primary);
 }
 
 .category-tag--teal:hover,
