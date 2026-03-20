@@ -5,33 +5,40 @@
     align-self: stretch;
 }
 
-.inline-card__column {
-    flex: 1 0 0;
-    align-self: stretch;
-    justify-content: space-between;
-}
-
-.inline-card__column .card__cta_section {
+.inline-card__grid-layout .card__cta_section {
     padding: 0
 }
 
-.inline-card__mobile-image {
-    align-self: stretch;
-    aspect-ratio: 16/9;
-    border-radius: var(--border-radius-l);
-    display: none;
-}
-
-.inline-card__desktop-image {
-    display: block;
+.inline-card__image {
+    grid-area: d-image;
 }
 
 @media (max-width: 767px) {
-    .inline-card__mobile-image {
-        display: block;
+    .inline-card__image {
+        grid-area: m-image;
+        aspect-ratio: 16/9;
     }
+}
 
-    .inline-card__desktop-image {
-        display: none;
-    }
+.inline-card__button {
+    grid-area: button;
+}
+
+.inline-card__title {
+    grid-area: title;
+}
+
+.inline-card__text {
+    grid-area: text;
+}
+
+.inline-card__grid-layout {
+    display: grid;
+    grid-template:
+    "title d-image" auto
+    "text d-image" auto
+    "m-image d-image" auto
+    "button d-image" auto / 1fr auto;
+    column-gap: var(--space-large);
+    row-gap: var(--space-medium);
 }

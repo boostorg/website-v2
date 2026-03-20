@@ -128,7 +128,6 @@
     aspect-ratio: 1/1;
     border-radius: var(--border-radius-l);
     width: 100%;
-    overflow: hidden;
 }
 
 .square-card-image img {
@@ -136,4 +135,5 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    border-radius: var(--border-radius-l);
 }

@@ -13,20 +13,15 @@
 
 <div class="basic-card card py-large">
     <div class="inline-card__row px-large">
-        <div class="card__column inline-card__column">
-            <div class="card__column">
-            <span class="card__title">{{ title }}</span>
-                <span>{{ text }}</span>
+        <div class="inline-card__grid-layout">
+            <span class="card__title inline-card__title">{{ title }}</span>
+            <span class="inline-card__text">{{ text }}</span>
+            <div class="card__cta_section inline-card__button">
+                {% include "v3/includes/_button.html" with style="primary" url=button_url label=button_label only %}
             </div>
-            <div class="card__column">
-                <img class="inline-card__mobile-image" src="{{ image_url }}" alt="{{ image_alt }}" />
-                <div class="card__cta_section">
-                    {% include "v3/includes/_button.html" with style="primary" url=button_url label=button_label only %}
-                </div>
+            <div class="square-card-image inline-card__image">
+                <img src="{{ image_url }}" alt="{{ image_alt }}" />
             </div>
-        </div>
-        <div class="square-card-image inline-card__desktop-image">
-            <img src="{{ image_url }}" alt="{{ image_alt }}" />
         </div>
     </div>
 </div>
