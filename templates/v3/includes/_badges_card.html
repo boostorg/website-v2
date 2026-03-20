@@ -52,7 +52,7 @@
     {% if cta_url %}
     <div class="btn-row">
       {% with default_cta="Explore available badges and how to earn them" %}
-      {% include "v3/includes/_button.html" with url=cta_url label=cta_label|default:default_cta style="secondary-grey" extra_classes="btn-flex" %}
+      {% include "v3/includes/_button.html" with url=cta_url label=cta_label|default:default_cta style="primary" extra_classes="btn-flex" %}
       {% endwith %}
     </div>
     {% endif %}

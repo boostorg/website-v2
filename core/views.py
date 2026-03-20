@@ -1443,6 +1443,20 @@ class V3ComponentDemoView(TemplateView):
             )
             if lv:
                 context["library_intro"] = build_library_intro_context(lv)
+                deps = lv.dependencies.order_by("name")
+                context["dependencies_card_data"] = [
+                    {
+                        "name": dep.display_name_short,
+                        "url": reverse(
+                            "library-detail",
+                            kwargs={
+                                "version_slug": "latest",
+                                "library_slug": dep.slug,
+                            },
+                        ),
+                    }
+                    for dep in deps
+                ]
 
         # Commits per release: dropdown of libraries, Beast first and default
         raw_library = self.request.GET.get("library")

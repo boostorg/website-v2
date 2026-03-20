@@ -443,6 +443,17 @@
     </div>
   {% endwith %}
 
+  {% with section_title="Dependencies Card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_dependencies_card.html" with dependencies=dependencies_card_data %}
+        <br>
+        {% include "v3/includes/_dependencies_card.html" with dependencies='' %}
+      </div>
+    </div>
+  {% endwith %}
+
   {% with section_title="Testimonial Card" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
