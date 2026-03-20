@@ -6,7 +6,6 @@
   font-size: var(--font-size-xs);
   line-height: var(--line-height-default);
   font-weight: var(--font-weight-regular);
-  border: 1px solid;
   border-radius: var(--border-radius-s);
   text-decoration: none;
   cursor: pointer;
@@ -24,49 +23,45 @@
 
 .category-tag--neutral {
   background: var(--color-tag-fill);
-  border-color: var(--color-tag-stroke);
 }
 
 .category-tag--neutral:hover,
 .category-tag--neutral.category-tag--hover-state {
   background: var(--color-tag-fill-hover);
-  border-color: var(--color-tag-stroke);
+  color: var(--color-text-secondary);
 }
 
 .category-tag--green {
   background: var(--color-surface-strong-accent-green-default);
-  border-color: var(--color-accent-strong-green);
   color: var(--color-text-primary);
 }
 
 .category-tag--green:hover,
 .category-tag--green.category-tag--hover-state {
   background: var(--color-surface-strong-accent-green-hover);
-  border-color: var(--color-accent-strong-green);
+  color: var(--color-text-secondary);
 }
 
 .category-tag--yellow {
   background: var(--color-surface-strong-accent-yellow-default);
-  border-color: var(--color-accent-strong-yellow);
   color: var(--color-text-primary);
 }
 
 .category-tag--yellow:hover,
 .category-tag--yellow.category-tag--hover-state {
   background: var(--color-surface-strong-accent-yellow-hover);
-  border-color: var(--color-accent-strong-yellow);
+  color: var(--color-text-secondary);
 }
 
 .category-tag--teal {
   background: var(--color-surface-strong-accent-teal-default);
-  border-color: var(--color-accent-strong-teal);
   color: var(--color-text-primary);
 }
 
 .category-tag--teal:hover,
 .category-tag--teal.category-tag--hover-state {
   background: var(--color-surface-strong-accent-teal-hover);
-  border-color: var(--color-accent-strong-teal);
+  color: var(--color-text-secondary);
 }
 
 .version-tag {
