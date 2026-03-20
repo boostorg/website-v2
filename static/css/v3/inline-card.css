@@ -38,7 +38,7 @@
     "title d-image" auto
     "text d-image" auto
     "m-image d-image" auto
-    "button d-image" auto / 1fr auto;
+    "button d-image" auto / 1fr 1fr;
     column-gap: var(--space-large);
     row-gap: var(--space-medium);
 }
