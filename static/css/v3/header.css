@@ -140,7 +140,7 @@
   gap: 2px;
   height: 24px;
   padding: 8px;
-  color: var(--Text-Primary, #050816);
+  color: var(--color-text-primary, #050816);
   font-family: var(--Typefaces-Sans, "Mona Sans VF");
   font-size: var(--Sizes-XS, 12px);
   font-style: normal;

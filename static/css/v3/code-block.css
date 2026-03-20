@@ -1,7 +1,7 @@
 :root {
   --code-block-bg: var(--color-bg-secondary);
   --code-block-border: var(--color-border);
-  --code-block-text: var(--color-syntax-text);
+  --code-block-text: var(--color-syntax-cpp-text);
   --code-block-bg-standalone: var(--color-primary-grey-100);
   --code-block-border-standalone: var(--color-border);
   --code-block-bg-grey: var(--color-primary-grey-100);
@@ -67,7 +67,7 @@
 
 .code-block__inner code {
   font-weight: 500;
-  color: var(--color-syntax-text) !important;
+  color: var(--color-syntax-cpp-text) !important;
   white-space: break-spaces !important;
 }
 
