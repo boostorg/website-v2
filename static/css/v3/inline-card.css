@@ -13,12 +13,6 @@
     grid-area: d-image;
 }
 
-@media (max-width: 767px) {
-    .inline-card__image {
-        grid-area: m-image;
-        aspect-ratio: 16/9;
-    }
-}
 
 .inline-card__button {
     grid-area: button;
@@ -34,11 +28,23 @@
 
 .inline-card__grid-layout {
     display: grid;
-    grid-template:
-    "title d-image" auto
-    "text d-image" auto
-    "m-image d-image" auto
-    "button d-image" auto / 1fr 1fr;
+    grid-template-areas:
+    "title d-image"
+    "text d-image"
+    "m-image d-image"
+    "button d-image";
+    grid-template-columns: 1fr 1fr;
     column-gap: var(--space-large);
     row-gap: var(--space-medium);
+}
+
+@media (max-width: 767px) {
+    .inline-card__image {
+        grid-area: m-image;
+        aspect-ratio: 16/9;
+    }
+
+    .inline-card__grid-layout {
+        grid-template-columns: 1fr auto;
+    }
 }
