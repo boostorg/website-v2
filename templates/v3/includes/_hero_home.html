@@ -8,6 +8,7 @@
     secondary_label   (optional) — Secondary button label. Default: "I need a specific solution"
     secondary_url     (optional) — Secondary button URL. If omitted, renders as <button>.
     install_card_title (optional) — Install card heading; same as in _v3_example_section. If unset, uses "Install Boost and get started in your terminal."
+    install_card_id    (optional) — Unique ID passed to _install_card when multiple cards are on the same page.
     install_card_pkg_managers, install_card_system_install — required by install card for tab content (see _install_card.html).
     hero_image_url    (optional) — Image URL for the right side. If omitted, image block is not shown.
     hero_image_url_light (optional) — Image URL for light mode. If omitted, falls back to hero_image_url.
@@ -18,7 +19,7 @@
     {% include "v3/includes/_hero_home.html" %}
     {% include "v3/includes/_hero_home.html" with headline="Welcome to Boost" primary_url="/docs/" hero_image_url=hero_image_url %}
 {% endcomment %}
-<section class="hero-home{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-home--no-image{% endif %}{% if hero_background_image_url and hero_image_url or hero_background_image_url and hero_image_url_light or hero_background_image_url and hero_image_url_dark %} hero-home--with-bg-and-image{% endif %}"
+<section class="hero-home{% if not hero_image_url and not hero_image_url_light and not hero_image_url_dark %} hero-home--no-image{% endif %}{% if hero_background_image_url and hero_image_url or hero_background_image_url and hero_image_url_light or hero_background_image_url and hero_image_url_dark %} hero-home--with-bg-and-image{% endif %}{% if hero_background_image_url %} hero-home--with-background-image{% endif %}"
          {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');"{% endif %}
          aria-label="Hero">
   <div class="hero-home__block">
@@ -30,7 +31,7 @@
       </div>
     </div>
     <div class="hero-home__card">
-      {% include "v3/includes/_install_card.html" with title=install_card_title|default:"Install Boost and get started in your terminal." %}
+      {% include "v3/includes/_install_card.html" with title=install_card_title|default:"Install Boost and get started in your terminal." card_id=install_card_id|default:"hero-home-install" %}
     </div>
     {% if hero_image_url or hero_image_url_light or hero_image_url_dark %}
     <div class="hero-home__image{% if hero_image_url_dark %} hero-home__image--theme-aware{% endif %}">

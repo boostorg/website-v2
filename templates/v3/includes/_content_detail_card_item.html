@@ -4,17 +4,22 @@
     title       (required) — card heading
     description (required) — card body text
     icon_name   (optional) — icon name for includes/icon.html (e.g. "bullseye-arrow").
-                 If omitted, card is rendered without icon and modifier --has-icon is not applied.
+                 If omitted (and badge_count not set), card is rendered without icon and modifier --has-icon is not applied.
+    badge_count (optional) — when set (e.g. in carousel), shows a non-clickable count badge instead of icon.
     title_url   (optional) — if set, title is wrapped in a link
     cta_label   (optional) — if set with cta_href, renders a CTA link below description (or span if cta_as_span)
     cta_href    (optional) — used with cta_label for the CTA link
     cta_as_span (optional) — if truthy, CTA is rendered as <span> (use when the whole card is wrapped in a link)
   Usage:
     {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="Tap into quick answers..." icon_name="bullseye-arrow" %}
-    With CTA: {% include "v3/includes/_content_detail_card_item.html" with title="Get help" description="..." icon_name="info-box" cta_label="Start here" cta_href="#" %}
+    With badge (e.g. carousel): {% include "..." with title="..." description="..." badge_count=1 %}
 {% endcomment %}
-<article class="content-detail-icon{% if icon_name %} content-detail-icon--has-icon{% endif %}">
-  {% if icon_name %}
+<article class="content-detail-icon{% if icon_name %} content-detail-icon--has-icon{% endif %}{% if badge_count %} content-detail-icon--has-badge{% endif %}">
+  {% if badge_count %}
+  <div class="content-detail-icon__badge-slot">
+    {% include "v3/includes/_badge_v3.html" with value=badge_count %}
+  </div>
+  {% elif icon_name %}
   <div class="content-detail-icon__icon" aria-hidden="true">
     {% include "includes/icon.html" with icon_name=icon_name icon_class="content-detail-icon__icon-svg" icon_size=24 %}
   </div>

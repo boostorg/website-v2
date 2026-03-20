@@ -3,8 +3,23 @@
 
   const CAROUSEL_STEP_PX_FALLBACK = 320;
   const SCROLL_RESET_EPSILON = 2;
+  const SCROLL_END_EPSILON = 1;
   const DEFAULT_AUTOPLAY_MS = 4000;
   const CAROUSEL_ITEM_SELECTOR = '[data-carousel-item]';
+
+  function updateArrowState(track, prevBtn, nextBtn) {
+    if (!track || !prevBtn || !nextBtn) return;
+    const maxScroll = track.scrollWidth - track.clientWidth;
+    if (maxScroll <= 0) {
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      return;
+    }
+    const atStart = track.scrollLeft <= 0;
+    const atEnd = track.scrollLeft >= maxScroll - SCROLL_END_EPSILON;
+    prevBtn.disabled = atStart;
+    nextBtn.disabled = atEnd;
+  }
 
   function getStepPx(track) {
     const first = track.querySelector(CAROUSEL_ITEM_SELECTOR);
@@ -138,10 +153,26 @@
     const prevBtn = controls.querySelector('[data-carousel-prev]');
     const nextBtn = controls.querySelector('[data-carousel-next]');
     if (prevBtn) {
-      prevBtn.addEventListener('click', function () { scrollCarousel(track, 'prev', true); });
+      prevBtn.addEventListener('click', function () {
+        if (prevBtn.disabled) return;
+        scrollCarousel(track, 'prev', true);
+      });
     }
     if (nextBtn) {
-      nextBtn.addEventListener('click', function () { scrollCarousel(track, 'next', true); });
+      nextBtn.addEventListener('click', function () {
+        if (nextBtn.disabled) return;
+        scrollCarousel(track, 'next', true);
+      });
+    }
+
+    const syncArrows = function () {
+      updateArrowState(track, prevBtn, nextBtn);
+    };
+    requestAnimationFrame(syncArrows);
+    track.addEventListener('scroll', syncArrows, { passive: true });
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(syncArrows);
+      ro.observe(track);
     }
 
     const autoplayDelay = root.getAttribute('data-carousel-autoplay');

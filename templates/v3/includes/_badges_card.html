@@ -1,0 +1,60 @@
+{% comment %}
+  Badges Card component.
+
+  Variables:
+    badges          (list, optional)    - List of badge objects. Each badge has: icon_src, name, earned_date.
+                                          Empty or undefined triggers the empty state.
+    cta_url         (string, optional)  - CTA target URL (empty state). Omit to hide the CTA button.
+    cta_label       (string, optional)  - CTA button text (empty state)
+    empty_icon_srcs (list, optional)    - List of image URLs for the decorative icon row in empty state
+
+  Usage:
+    Empty state with CTA:
+      {% include "v3/includes/_badges_card.html" with cta_url="/badges" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
+
+    Empty state without CTA:
+      {% include "v3/includes/_badges_card.html" with empty_icon_srcs=badge_icon_srcs %}
+
+    Filled state:
+      {% include "v3/includes/_badges_card.html" with badges=user_badges %}
+{% endcomment %}
+<section class="badges-card card" aria-label="Badges">
+  <div class="card__header">
+    <span class="card__title">Badges</span>
+  </div>
+  <hr class="card__hr">
+
+  {% if badges %}
+    {# Filled state #}
+    <ul class="badges-card__grid" role="list">
+      {% for badge in badges %}
+        <li class="badges-card__entry" aria-label="{{ badge.name }}, earned {{ badge.earned_date }}">
+          <span class="badges-card__icon" aria-hidden="true">
+            {% if badge.icon_src %}<img src="{{ badge.icon_src }}" alt="" width="32" height="32">{% endif %}
+          </span>
+          <div class="badges-card__text">
+            <span class="badges-card__name">{{ badge.name }}</span>
+            <span class="badges-card__date">{{ badge.earned_date }}</span>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    {# Empty state #}
+    <div class="badges-card__empty">
+      <div class="badges-card__icon-row" aria-hidden="true">
+        {% for src in empty_icon_srcs %}
+          <img src="{{ src }}" alt="" width="32" height="32">
+        {% endfor %}
+      </div>
+      <p class="badges-card__description">Badges highlight specific skills, roles, or areas of contribution</p>
+    </div>
+    {% if cta_url %}
+    <div class="btn-row">
+      {% with default_cta="Explore available badges and how to earn them" %}
+      {% include "v3/includes/_button.html" with url=cta_url label=cta_label|default:default_cta style="primary" extra_classes="btn-flex" %}
+      {% endwith %}
+    </div>
+    {% endif %}
+  {% endif %}
+</section>

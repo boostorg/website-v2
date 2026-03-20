@@ -30,9 +30,18 @@
    margin-bottom: var(--space-large, 16px);
  }
 
+/* If a background image is provided, surface color should be transparent */
+.hero-home--with-background-image {
+ background-color: transparent;
+}
+
  .dark .hero-home {
  background-color: #081040;
  }
+
+.dark .hero-home--with-background-image {
+ background-color: transparent;
+}
 
  .hero-home--no-image {
   background-image: none;
@@ -109,6 +118,7 @@
 
  .hero-home__card {
    z-index: 1;
+   min-width: 458px;
  }
 
  .hero-home__image {
@@ -240,6 +250,14 @@
    mix-blend-mode: screen;
  }
 
+  /* ----- Hero home: mobile ----- */
+  @media (max-width: 1000px) {
+    .hero-home__actions{
+      flex-direction: column;
+    }
+
+    }
+
  /* ----- Hero home: mobile ----- */
  @media (max-width: 700px) {
    .hero-home__block {
@@ -320,9 +338,18 @@
    align-items: center;
  }
 
+/* If a background image is provided, surface color should be transparent */
+.hero-library--with-background-image {
+ background-color: transparent;
+}
+
  .dark .hero-library {
   background-color: #081040;
  }
+
+.dark .hero-library--with-background-image {
+ background-color: transparent;
+}
 
  .hero-library--no-image {
   background-image: none;
@@ -383,6 +410,11 @@
    line-height: 1.2;
   font-weight: var(--font-weight-regular);
  }
+
+/* Keep added text color consistent with description on bg+image heroes */
+.hero-library--with-bg-and-image .hero-library__added {
+ color: var(--color-primary-grey-400);
+}
 
  .hero-library__text-block {
    display: flex;
