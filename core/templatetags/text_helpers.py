@@ -90,7 +90,9 @@ def to_json(value):
     [{"value": ..., "label": ...}, ...] before serializing, matching the
     shape expected by V3 form component Alpine.js code.
     """
-    if value and isinstance(value[0], (list, tuple)):
+    if not value:
+        return mark_safe("[]")
+    if isinstance(value[0], (list, tuple)):
         value = [{"value": v, "label": lbl} for v, lbl in value]
     return mark_safe(json.dumps(value).translate(_JSON_SCRIPT_ESCAPES))
 

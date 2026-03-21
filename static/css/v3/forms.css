@@ -299,6 +299,11 @@
   outline: none;
 }
 
+.dropdown__item:focus-visible {
+  outline: 2px solid var(--color-text-link-accent, #5751d5);
+  outline-offset: -2px;
+}
+
 .dropdown__item--selected {
   color: var(--color-text-primary);
   font-weight: var(--font-weight-medium, 500);
@@ -394,6 +399,11 @@
 .multiselect__item:focus {
   background-color: var(--color-surface-mid, #f7f7f8);
   outline: none;
+}
+
+.multiselect__item:focus-visible {
+  outline: 2px solid var(--color-text-link-accent, #5751d5);
+  outline-offset: -2px;
 }
 
 .multiselect__check {
