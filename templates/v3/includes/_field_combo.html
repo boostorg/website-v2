@@ -23,7 +23,7 @@
        selectedLabel: '',
        options: [],
        activeIndex: -1,
-       activeValue: null,
+       get activeValue() { return this.filtered[this.activeIndex]?.value ?? null; },
        get filtered() {
          if (!this.query) return this.options;
          const q = this.query.toLowerCase();
@@ -41,7 +41,6 @@
          this.selectedLabel = label;
          this.query = '';
          this.activeIndex = -1;
-         this.activeValue = null;
          this.open = false;
          setTimeout(() => this.$refs.chevronBtn.focus());
        },
@@ -51,7 +50,6 @@
          } else {
            this.open = true;
            this.activeIndex = -1;
-           this.activeValue = null;
            this.$nextTick(() => this.$refs.searchInput.focus());
          }
        }
@@ -78,10 +76,10 @@
                  class="combo__search-input"
                  x-ref="searchInput"
                  x-model="query"
-                 @input="activeIndex = -1; activeValue = null"
+                 @input="activeIndex = -1"
                  @keydown.escape.prevent="open = false; setTimeout(() => $refs.chevronBtn.focus())"
-                 @keydown.arrow-down.prevent="activeIndex = Math.min(activeIndex + 1, filtered.length - 1); activeValue = filtered[activeIndex]?.value ?? null"
-                 @keydown.arrow-up.prevent="activeIndex = activeIndex > 0 ? activeIndex - 1 : -1; activeValue = filtered[activeIndex]?.value ?? null"
+                 @keydown.arrow-down.prevent="activeIndex = Math.min(activeIndex + 1, filtered.length - 1)"
+                 @keydown.arrow-up.prevent="activeIndex = activeIndex > 0 ? activeIndex - 1 : -1"
                  @keydown.enter.prevent="if (activeValue) choose(activeValue, filtered[activeIndex].label)"
                  placeholder="Type to search..."
                  aria-autocomplete="list"
