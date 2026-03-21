@@ -1,7 +1,9 @@
+import json
 from urllib.parse import urlparse, urlunparse
 
 from django import template
 from django.template.defaultfilters import stringfilter
+from django.utils.safestring import mark_safe
 import re
 
 register = template.Library()
@@ -73,6 +75,24 @@ def url_target_blank(value, arg):
     Use after urlize to add target="_blank" and add classes.
     """
     return value.replace("<a ", f'<a target="_blank" class="{arg}" ')
+
+
+# Escapes <, >, and & so that JSON embedded in a <script> tag cannot break out of
+# it via sequences like </script> or <!-- regardless of string values in the data.
+_JSON_SCRIPT_ESCAPES = {ord(">"): "\\u003E", ord("<"): "\\u003C", ord("&"): "\\u0026"}
+
+
+@register.filter(is_safe=True)
+def to_json(value):
+    """Serialize value to a JSON string safe for embedding in <script> tags.
+
+    A list of 2-tuples (e.g. from TextChoices.choices) is converted to
+    [{"value": ..., "label": ...}, ...] before serializing, matching the
+    shape expected by V3 form component Alpine.js code.
+    """
+    if value and isinstance(value[0], (list, tuple)):
+        value = [{"value": v, "label": lbl} for v, lbl in value]
+    return mark_safe(json.dumps(value).translate(_JSON_SCRIPT_ESCAPES))
 
 
 @register.filter

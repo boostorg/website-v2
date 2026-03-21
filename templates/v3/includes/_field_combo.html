@@ -1,22 +1,24 @@
 {% comment %}
   V3 combo (searchable dropdown) field.
   Variables:
-    name         (required) — input name attribute
-    label        (optional) — label text
-    placeholder  (optional) — placeholder text when nothing selected
-    options_json (required) — JSON string of options, e.g. '[{"value":"us","label":"United States"}]'
-    selected     (optional) — value of the pre-selected option
-    help_text    (optional) — help text below the field
-    error        (optional) — error message (activates error state)
-    required     (optional) — if truthy, adds required attribute
-    extra_class  (optional) — additional classes on the wrapper
+    name        (required) — input name attribute
+    label       (optional) — label text
+    placeholder (optional) — placeholder text when nothing selected
+    options     (required) — list of (value, label) 2-tuples (e.g. from TextChoices.choices)
+    selected    (optional) — value of the pre-selected option
+    help_text   (optional) — help text below the field
+    error       (optional) — error message (activates error state)
+    required    (optional) — if truthy, adds required attribute
+    extra_class (optional) — additional classes on the wrapper
   Usage:
-    {% include "v3/includes/_field_combo.html" with name="country" label="Country" options_json=country_json placeholder="Search countries..." %}
+    {% include "v3/includes/_field_combo.html" with name="country" label="Country" options=country_options placeholder="Search countries..." %}
 {% endcomment %}
-<script type="application/json" id="field-{{ name }}-options">{{ options_json|safe }}</script>
+{% load text_helpers %}
+<script type="application/json" id="field-{{ name }}-options">{{ options|to_json }}</script>
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
   {# djlint:off #}
      x-data="{
+       jsReady: false,
        open: false,
        query: '',
        selected: '{{ selected|default:'' }}',
@@ -30,6 +32,7 @@
          return this.options.filter(o => o.label.toLowerCase().includes(q));
        },
        init() {
+         this.jsReady = true;
          this.options = JSON.parse(document.getElementById('field-{{ name }}-options').textContent);
          if (this.selected) {
            const match = this.options.find(o => o.value === this.selected);
@@ -56,7 +59,19 @@
      }">
   {# djlint:on #}
   {% if label %}<label class="field__label" id="field-{{ name }}-label">{{ label }}</label>{% endif %}
-  <div class="dropdown dropdown--combo" :class="{ 'dropdown--open': open }">
+  <select class="field__select"
+          name="{{ name }}"
+          {% if required %}required{% endif %}
+          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
+          {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
+          x-show="!jsReady"
+          :disabled="jsReady">
+    {% if placeholder %}<option value="">{{ placeholder }}</option>{% endif %}
+    {% for value, label in options %}
+      <option value="{{ value }}"{% if value == selected %} selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <div class="dropdown dropdown--combo" :class="{ 'dropdown--open': open }" x-cloak>
     <div class="dropdown__trigger"
          :class="{ 'dropdown__trigger--active': open }"
          @click="if (!open) toggle()"
@@ -128,6 +143,8 @@
   <input type="hidden"
          name="{{ name }}"
          :value="selected"
+         disabled
+         :disabled="!jsReady"
          {% if required %}required{% endif %}>
   {% if error %}
     <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>

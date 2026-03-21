@@ -4,7 +4,7 @@
     name        (required) — input name attribute
     label       (optional) — label text
     placeholder (optional) — placeholder text when nothing selected
-    options     (required) — list of dicts with "value" and "label" keys
+    options     (required) — list of (value, label) 2-tuples (e.g. from TextChoices.choices)
     selected    (optional) — value of the pre-selected option
     help_text   (optional) — help text below the field
     error       (optional) — error message (activates error state)
@@ -16,10 +16,12 @@
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
   {# djlint:off #}
      x-data="{
+       jsReady: false,
        open: false,
        selected: '{{ selected|default:'' }}',
        selectedLabel: '',
        init() {
+         this.jsReady = true;
          if (this.selected) {
            const opts = this.$refs.list.querySelectorAll('[data-value]');
            opts.forEach(el => {
@@ -36,7 +38,19 @@
      }">
   {# djlint:on #}
   {% if label %}<label class="field__label" id="field-{{ name }}-label">{{ label }}</label>{% endif %}
-  <div class="dropdown" :class="{ 'dropdown--open': open }">
+  <select class="field__select"
+          name="{{ name }}"
+          {% if required %}required{% endif %}
+          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
+          {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
+          x-show="!jsReady"
+          :disabled="jsReady">
+    {% if placeholder %}<option value="">{{ placeholder }}</option>{% endif %}
+    {% for value, label in options %}
+      <option value="{{ value }}"{% if value == selected %} selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <div class="dropdown" :class="{ 'dropdown--open': open }" x-cloak>
     <button type="button"
             class="dropdown__trigger"
             x-ref="trigger"
@@ -69,19 +83,19 @@
          role="listbox"
          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}>
       <div class="dropdown__list" x-ref="list">
-        {% for option in options %}
+        {% for value, label in options %}
           <div class="dropdown__item"
-               :class="{ 'dropdown__item--selected': selected === '{{ option.value }}' }"
+               :class="{ 'dropdown__item--selected': selected === '{{ value }}' }"
                role="option"
-               :aria-selected="selected === '{{ option.value }}'"
-               data-value="{{ option.value }}"
-               data-label="{{ option.label }}"
-               @click="choose('{{ option.value }}', '{{ option.label }}')"
-               @keydown.enter.prevent="choose('{{ option.value }}', '{{ option.label }}')"
-               @keydown.space.prevent="choose('{{ option.value }}', '{{ option.label }}')"
+               :aria-selected="selected === '{{ value }}'"
+               data-value="{{ value }}"
+               data-label="{{ label }}"
+               @click="choose('{{ value }}', '{{ label }}')"
+               @keydown.enter.prevent="choose('{{ value }}', '{{ label }}')"
+               @keydown.space.prevent="choose('{{ value }}', '{{ label }}')"
                @keydown.arrow-down.prevent="$el.nextElementSibling?.focus()"
                @keydown.arrow-up.prevent="$el.previousElementSibling?.hasAttribute('tabindex') ? $el.previousElementSibling.focus() : $refs.trigger.focus()"
-               tabindex="0">{{ option.label }}</div>
+               tabindex="0">{{ label }}</div>
         {% endfor %}
       </div>
     </div>
@@ -89,6 +103,8 @@
   <input type="hidden"
          name="{{ name }}"
          :value="selected"
+         disabled
+         :disabled="!jsReady"
          {% if required %}required{% endif %}>
   {% if error %}
     <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
