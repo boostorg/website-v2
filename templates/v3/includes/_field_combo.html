@@ -22,6 +22,8 @@
        selected: '{{ selected|default:'' }}',
        selectedLabel: '',
        options: [],
+       activeIndex: -1,
+       activeValue: null,
        get filtered() {
          if (!this.query) return this.options;
          const q = this.query.toLowerCase();
@@ -38,13 +40,18 @@
          this.selected = value;
          this.selectedLabel = label;
          this.query = '';
+         this.activeIndex = -1;
+         this.activeValue = null;
          this.open = false;
+         setTimeout(() => this.$refs.chevronBtn.focus());
        },
        toggle() {
          if (this.open) {
            this.open = false;
          } else {
            this.open = true;
+           this.activeIndex = -1;
+           this.activeValue = null;
            this.$nextTick(() => this.$refs.searchInput.focus());
          }
        }
@@ -71,7 +78,11 @@
                  class="combo__search-input"
                  x-ref="searchInput"
                  x-model="query"
-                 @keydown.escape.prevent="open = false"
+                 @input="activeIndex = -1; activeValue = null"
+                 @keydown.escape.prevent="open = false; setTimeout(() => $refs.chevronBtn.focus())"
+                 @keydown.arrow-down.prevent="activeIndex = Math.min(activeIndex + 1, filtered.length - 1); activeValue = filtered[activeIndex]?.value ?? null"
+                 @keydown.arrow-up.prevent="activeIndex = activeIndex > 0 ? activeIndex - 1 : -1; activeValue = filtered[activeIndex]?.value ?? null"
+                 @keydown.enter.prevent="if (activeValue) choose(activeValue, filtered[activeIndex].label)"
                  placeholder="Type to search..."
                  aria-autocomplete="list"
                  aria-label="Search options">
@@ -80,6 +91,7 @@
       <!-- Chevron: always present, animates via .dropdown--open -->
       <button type="button"
               class="combo__chevron-btn"
+              x-ref="chevronBtn"
               @click.stop="toggle()"
               :aria-expanded="open"
               aria-label="Toggle search">
@@ -89,6 +101,7 @@
     <div class="dropdown__panel"
          x-show="open"
          @click.away="open = false"
+         @keydown.escape.prevent="open = false; setTimeout(() => $refs.chevronBtn.focus())"
          x-transition:enter="transition ease-out duration-100"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
@@ -101,7 +114,7 @@
       <div class="dropdown__list" role="listbox">
         <template x-for="option in filtered" :key="option.value">
           <div class="dropdown__item"
-               :class="{ 'dropdown__item--selected': selected === option.value }"
+               :class="{ 'dropdown__item--selected': selected === option.value, 'dropdown__item--active': activeValue === option.value }"
                role="option"
                :aria-selected="selected === option.value"
                @click="choose(option.value, option.label)"

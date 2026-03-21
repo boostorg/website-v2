@@ -42,6 +42,7 @@
             x-ref="trigger"
             @click="open = !open"
             @keydown.escape.prevent="open = false"
+            @keydown.arrow-down.prevent="open = true; $nextTick(() => $refs.list.querySelector('[role=option]')?.focus())"
             :aria-expanded="open"
             aria-haspopup="listbox"
             {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
@@ -57,6 +58,7 @@
     <div class="dropdown__panel"
          x-show="open"
          @click.away="open = false"
+         @keydown.escape.prevent="open = false; $refs.trigger.focus()"
          x-transition:enter="transition ease-out duration-100"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
@@ -77,6 +79,8 @@
                @click="choose('{{ option.value }}', '{{ option.label }}')"
                @keydown.enter.prevent="choose('{{ option.value }}', '{{ option.label }}')"
                @keydown.space.prevent="choose('{{ option.value }}', '{{ option.label }}')"
+               @keydown.arrow-down.prevent="$el.nextElementSibling?.focus()"
+               @keydown.arrow-up.prevent="$el.previousElementSibling ? $el.previousElementSibling.focus() : $refs.trigger.focus()"
                tabindex="0">{{ option.label }}</div>
         {% endfor %}
       </div>

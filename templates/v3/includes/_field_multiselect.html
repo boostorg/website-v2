@@ -51,8 +51,10 @@
   <div class="dropdown" :class="{ 'dropdown--open': open }">
     <button type="button"
             class="dropdown__trigger"
+            x-ref="trigger"
             @click="open = !open"
             @keydown.escape.prevent="open = false"
+            @keydown.arrow-down.prevent="open = true; $nextTick(() => $refs.list.querySelector('[role=option]')?.focus())"
             :aria-expanded="open"
             aria-haspopup="listbox"
             {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
@@ -68,6 +70,7 @@
     <div class="dropdown__panel"
          x-show="open"
          @click.away="open = false"
+         @keydown.escape.prevent="open = false; $refs.trigger.focus()"
          x-transition:enter="transition ease-out duration-100"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
@@ -78,7 +81,7 @@
          role="listbox"
          aria-multiselectable="true"
          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}>
-      <div class="dropdown__list">
+      <div class="dropdown__list" x-ref="list">
         <template x-for="option in options" :key="option.value">
           <div class="multiselect__item"
                role="option"
@@ -86,6 +89,8 @@
                @click="toggle(option.value)"
                @keydown.enter.prevent="toggle(option.value)"
                @keydown.space.prevent="toggle(option.value)"
+               @keydown.arrow-down.prevent="$el.nextElementSibling?.focus()"
+               @keydown.arrow-up.prevent="$el.previousElementSibling?.hasAttribute('tabindex') ? $el.previousElementSibling.focus() : $refs.trigger.focus()"
                tabindex="0">
             <span class="multiselect__check"
                   :class="{ 'multiselect__check--active': isSelected(option.value) }">
