@@ -1,0 +1,23 @@
+{% load wagtailmarkdown %}
+{% comment %}
+  Markdown card component. Accepts markdown content and displays it in a card layout.
+  Inputs:
+    title: str, required - text that appears bolded at the top of the card
+    markdown: str, required - markdown formatted text that appears in the body of the card. The card handles transforming the text
+    button url, label, and style: Optional. Url is the destination of the button, label is the text of the button, style is from the style list
+{% endcomment %}
+<div class="basic-card card py-large">
+  <div class="card__header">
+    <span class="card__title">{{ title }}</span>
+  </div>
+  <hr class="card__hr" />
+  <div class="card__column px-large">
+    <span>{{ markdown|markdown }}</span>
+  </div>
+  {% if button_url and button_label %}
+  <hr class="card__hr" />
+  <div class="card__cta_section">
+      {% include "v3/includes/_button.html" with style=button_style url=button_url label=button_label only %}
+    </div>
+{% endif %}
+</div>
