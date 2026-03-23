@@ -442,7 +442,7 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
 .wysiwyg-editor__prose pre code {
   padding: 0;
   background: none;
-  color: var(--color-syntax-text, var(--color-text-primary));
+  color: var(--color-syntax-hljs-text, var(--color-text-primary));
   font-weight: inherit;
   font-size: inherit;
   border-radius: 0;

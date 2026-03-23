@@ -361,7 +361,7 @@
   </div>
   {% endwith %}
 
-  {% with section_title="Badges Card (filled — 2 badges)" %}
+  {% with section_title="Badges Card (filled — 3 badges)" %}
   <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
     <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
@@ -379,6 +379,17 @@
     </div>
   {% endwith %}
 
+  {% with section_title="Inline Card" %}
+  <div class="v3-examples-section__block" id="{{section_title|slugify}}">
+    <h3>{{ section_title }}</h3>
+    {% with horizontal_card_data as card %}
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_inline_card.html" with title=card.title text=card.text image_url=card.image_url image_alt=card.image_alt button_url=card.button_url button_label=card.button_label %}
+    </div>
+    {% endwith %}
+  </div>
+  {% endwith %}
+
   {% with section_title="Form inputs" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
@@ -388,8 +399,8 @@
           {% include "v3/includes/_field_text.html" with name="ex_search" label="With icon" placeholder="Search..." icon_left="search" %}
           {% include "v3/includes/_field_text.html" with name="ex_error" label="Error state" placeholder="Enter value" error="This field is required." %}
           {% include "v3/includes/_field_checkbox.html" with name="ex_agree" label="I agree to the terms and conditions" %}
-          {% include "v3/includes/_field_combo.html" with name="ex_library" label="Combo (searchable)" placeholder="Search libraries..." options_json=demo_libs_json %}
-          {% include "v3/includes/_field_multiselect.html" with name="ex_categories" label="Multi-select" placeholder="Select categories..." options_json=demo_cats_json %}
+          {% include "v3/includes/_field_combo.html" with name="ex_library" label="Combo (searchable)" placeholder="Search libraries..." options=demo_libs %}
+          {% include "v3/includes/_field_multiselect.html" with name="ex_categories" label="Multi-select" placeholder="Select categories..." options=demo_cats %}
         </div>
       </div>
     </div>
@@ -437,7 +448,7 @@
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
         {% with learn_card_data as data %}
-          {% include "v3/includes/_learn_card.html" with title=data.title text=data.text links=data.links image_src=data.image_src url=data.url label=data.label %}
+          {% include "v3/includes/_learn_card.html" with title=data.title text=data.text links=data.links image_src=data.image_src image_alt="Test Image" url=data.url label=data.label %}
         {% endwith %}
       </div>
     </div>
@@ -450,6 +461,17 @@
         {% include "v3/includes/_account_connections_card.html" with connections=account_connections_mixed %}
         {% include "v3/includes/_account_connections_card.html" with connections=account_connections_all_connected %}
         {% include "v3/includes/_account_connections_card.html" with connections=account_connections_none_connected %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Dependencies Card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_dependencies_card.html" with dependencies=dependencies_card_data %}
+        <br>
+        {% include "v3/includes/_dependencies_card.html" with dependencies='' %}
       </div>
     </div>
   {% endwith %}

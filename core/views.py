@@ -1,4 +1,3 @@
-import json
 import os
 import re
 
@@ -1152,24 +1151,20 @@ class V3ComponentDemoView(TemplateView):
             {"label": "File systems"},
             {"label": "Testing"},
         ]
-        context["demo_libs_json"] = json.dumps(
-            [
-                {"value": "asio", "label": "Asio"},
-                {"value": "beast", "label": "Beast"},
-                {"value": "filesystem", "label": "Filesystem"},
-                {"value": "json", "label": "JSON"},
-                {"value": "spirit", "label": "Spirit"},
-            ]
-        )
-        context["demo_cats_json"] = json.dumps(
-            [
-                {"value": "algorithms", "label": "Algorithms"},
-                {"value": "containers", "label": "Containers"},
-                {"value": "io", "label": "I/O"},
-                {"value": "math", "label": "Math & Numerics"},
-                {"value": "networking", "label": "Networking"},
-            ]
-        )
+        context["demo_libs"] = [
+            ("asio", "Asio"),
+            ("beast", "Beast"),
+            ("filesystem", "Filesystem"),
+            ("json", "JSON"),
+            ("spirit", "Spirit"),
+        ]
+        context["demo_cats"] = [
+            ("algorithms", "Algorithms"),
+            ("containers", "Containers"),
+            ("io", "I/O"),
+            ("math", "Math & Numerics"),
+            ("networking", "Networking"),
+        ]
         context["demo_dropdown_options"] = [
             {"value": "blog", "label": "Blog"},
             {"value": "link", "label": "Link"},
@@ -1217,10 +1212,28 @@ class V3ComponentDemoView(TemplateView):
             },
         ]
 
-        context["demo_badges_few"] = context["demo_badges"][:2]
+        context["demo_badges_few"] = context["demo_badges"][:3]
 
         context["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/checker.png"
+        )
+        context["hero_background_image_url"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-background.png"
+        )
+        context["hero_legacy_image_url_light"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/heros.png"
+        )
+        context["hero_legacy_image_url_dark"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/heros_light.png"
+        )
+        context["hero_image_url"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
+        )
+        context["hero_image_url_light"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
+        )
+        context["hero_image_url_dark"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
         )
         context["basic_card_data"] = {
             "title": "Found a Bug?",
@@ -1236,6 +1249,7 @@ class V3ComponentDemoView(TemplateView):
             "title": "Build anything with Boost",
             "text": "Use, modify, and distribute Boost libraries freely. No binary attribution needed.",
             "image_url": f"{settings.STATIC_URL}img/checker.png",
+            "image_alt": "This is a placeholder image",
             "button_url": "#",
             "button_label": "See license details",
         }
@@ -1448,6 +1462,20 @@ class V3ComponentDemoView(TemplateView):
             )
             if lv:
                 context["library_intro"] = build_library_intro_context(lv)
+                deps = lv.dependencies.order_by("name")
+                context["dependencies_card_data"] = [
+                    {
+                        "name": dep.display_name_short,
+                        "url": reverse(
+                            "library-detail",
+                            kwargs={
+                                "version_slug": "latest",
+                                "library_slug": dep.slug,
+                            },
+                        ),
+                    }
+                    for dep in deps
+                ]
 
         # Commits per release: dropdown of libraries, Beast first and default
         raw_library = self.request.GET.get("library")

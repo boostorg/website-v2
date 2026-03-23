@@ -1,0 +1,29 @@
+{% comment %}
+  Dependencies Card — lists library dependencies as clickable tags.
+  Extends the base .card component.
+
+  Variables:
+    heading       (optional) — card heading text, defaults to "Dependencies"
+    dependencies  (required) — list of dicts, each with:
+                    "name"  (str)  — display name of the dependency (e.g. "Asio")
+                    "url"   (str)  — link to the dependency's library page
+    extra_classes (optional) — additional CSS classes on the outer card
+
+  Usage:
+    {% include "v3/includes/_dependencies_card.html" with dependencies=dep_list %}
+    {% include "v3/includes/_dependencies_card.html" with heading="Depends on" dependencies=dep_list %}
+{% endcomment %}
+
+<div class="card dependencies-card{% if extra_classes %} {{ extra_classes }}{% endif %}">
+  <h3 class="card__title">{{ heading|default:"Dependencies" }}</h3>
+
+  {% if dependencies %}
+  <div class="dependencies-card__tags">
+    {% for dep in dependencies %}
+      {% include "v3/includes/_category_tag.html" with tag_label=dep.name url=dep.url variant="yellow" size="tight" aria_label=dep.name %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="dependencies-card__empty">No dependencies</p>
+  {% endif %}
+</div>

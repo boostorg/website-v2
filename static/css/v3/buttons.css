@@ -133,6 +133,7 @@
   font-size: var(--font-size-base);
   gap: var(--space-medium);
   width: auto;
+  z-index: 1;
 }
 
 .btn.btn-hero.btn-primary {
@@ -218,16 +219,20 @@
   padding: var(--space-default) var(--space-medium);
   font-family: var(--font-sans);
   font-size: var(--font-size-small);
-  font-weight: var(--font-weight-regular);
+  font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
-  background-color: var(--color-button-primary);
-  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-weak);
+  border: 1px solid var(--color-stroke-weak);
   border-radius: var(--border-radius-l);
   cursor: pointer;
 }
 
 .btn-icon-library:hover {
   background-color: var(--color-primary-grey-300);
+}
+
+html.dark .btn-icon-library:hover {
+  background-color: var(--color-stroke-mid);
 }
 
 .btn-icon-library .btn-icon {

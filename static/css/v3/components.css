@@ -8,6 +8,7 @@
 @import "./badge.css";
 @import "./v3-examples-section.css";
 @import "./header.css";
+@import "./heros.css";
 @import "./footer.css";
 @import "./forms.css";
 @import "./create-post-page.css";
@@ -36,3 +37,5 @@
 @import "./account-connections.css";
 @import "./dialog.css";
 @import "./achivement-card.css";
+@import "./inline-card.css";
+@import "./dependencies-card.css";

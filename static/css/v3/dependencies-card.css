@@ -1,0 +1,27 @@
+/*
+    Dependencies Card — extends .card base
+    Lists library dependencies as clickable yellow tags in a wrapping row.
+
+    dependencies-card              — yellow background + max-width override
+    dependencies-card__tags        — wrapping flex container for tags
+    dependencies-card__empty       — empty state message
+*/
+
+.dependencies-card {
+  max-width: 458px;
+  padding: var(--space-large, 16px);
+  background: var(--color-surface-weak-accent-yellow, #fbeba9);
+}
+
+.dependencies-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-s, 4px);
+}
+
+.dependencies-card__empty {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin: 0;
+}

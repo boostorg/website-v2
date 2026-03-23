@@ -1,28 +1,31 @@
 {% comment %}
   V3 multi-select dropdown field.
   Variables:
-    name          (required) — input name attribute (submitted as multiple values)
-    label         (optional) — label text
-    placeholder   (optional) — placeholder text when nothing selected
-    options_json  (required) — JSON string of options, e.g. '[{"value":"a","label":"Alpha"}]'
-    selected_json (optional) — JSON string of selected values, e.g. '["a","b"]'
-    help_text     (optional) — help text below the field
-    error         (optional) — error message (activates error state)
-    extra_class   (optional) — additional classes on the wrapper
+    name            (required) — input name attribute (submitted as multiple values)
+    label           (optional) — label text
+    placeholder     (optional) — placeholder text when nothing selected
+    options         (required) — list of (value, label) 2-tuples (e.g. from TextChoices.choices)
+    selected_values (optional) — list of pre-selected values, e.g. ["a","b"]
+    help_text       (optional) — help text below the field
+    error           (optional) — error message (activates error state)
+    extra_class     (optional) — additional classes on the wrapper
   Usage:
-    {% include "v3/includes/_field_multiselect.html" with name="tags" label="Tags" options_json=tags_json placeholder="Select tags..." %}
+    {% include "v3/includes/_field_multiselect.html" with name="tags" label="Tags" options=tags_options placeholder="Select tags..." %}
 {% endcomment %}
-<script type="application/json" id="field-{{ name }}-options">{{ options_json|safe }}</script>
-{% if selected_json %}
-  <script type="application/json" id="field-{{ name }}-selected">{{ selected_json|safe }}</script>
+{% load text_helpers %}
+<script type="application/json" id="field-{{ name }}-options">{{ options|to_json }}</script>
+{% if selected_values %}
+  <script type="application/json" id="field-{{ name }}-selected">{{ selected_values|to_json }}</script>
 {% endif %}
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
   {# djlint:off #}
     x-data="{
+       jsReady: false,
        open: false,
        selectedValues: [],
        options: [],
        init() {
+         this.jsReady = true;
          this.options = JSON.parse(document.getElementById('field-{{ name }}-options').textContent);
          const selEl = document.getElementById('field-{{ name }}-selected');
          if (selEl) this.selectedValues = JSON.parse(selEl.textContent);
@@ -48,11 +51,24 @@
      }">
   {# djlint:on #}
   {% if label %}<label class="field__label" id="field-{{ name }}-label">{{ label }}</label>{% endif %}
-  <div class="dropdown" :class="{ 'dropdown--open': open }">
+  <select class="field__select"
+          multiple
+          name="{{ name }}"
+          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
+          {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
+          x-show="!jsReady"
+          :disabled="jsReady">
+    {% for value, label in options %}
+      <option value="{{ value }}"{% if value in selected_values %} selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <div class="dropdown" :class="{ 'dropdown--open': open }" x-cloak>
     <button type="button"
             class="dropdown__trigger"
+            x-ref="trigger"
             @click="open = !open"
             @keydown.escape.prevent="open = false"
+            @keydown.arrow-down.prevent="open = true; $nextTick(() => $refs.list.querySelector('[role=option]')?.focus())"
             :aria-expanded="open"
             aria-haspopup="listbox"
             {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
@@ -68,6 +84,7 @@
     <div class="dropdown__panel"
          x-show="open"
          @click.away="open = false"
+         @keydown.escape.prevent="open = false; $refs.trigger.focus()"
          x-transition:enter="transition ease-out duration-100"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
@@ -78,14 +95,17 @@
          role="listbox"
          aria-multiselectable="true"
          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}>
-      <div class="dropdown__list">
+      <div class="dropdown__list" x-ref="list">
         <template x-for="option in options" :key="option.value">
           <div class="multiselect__item"
                role="option"
                :aria-selected="isSelected(option.value)"
+               :data-value="option.value"
                @click="toggle(option.value)"
                @keydown.enter.prevent="toggle(option.value)"
                @keydown.space.prevent="toggle(option.value)"
+               @keydown.arrow-down.prevent="$el.nextElementSibling?.focus()"
+               @keydown.arrow-up.prevent="$el.previousElementSibling?.hasAttribute('data-value') ? $el.previousElementSibling.focus() : $refs.trigger.focus()"
                tabindex="0">
             <span class="multiselect__check"
                   :class="{ 'multiselect__check--active': isSelected(option.value) }">

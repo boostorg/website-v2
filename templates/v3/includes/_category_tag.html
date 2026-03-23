@@ -7,6 +7,7 @@
     url         (optional) — if set, renders <a href="...">; if omitted, renders <span> (e.g. version tags)
     variant     (required) — "neutral" | "green" | "yellow" | "teal"
     size        (optional) — "default" | "tight", default "default"
+    target      (optional) — link target attribute (e.g. "_blank"); adds rel="noopener noreferrer" when set
     show_hover  (optional) — if truthy, adds category-tag--hover-state for hover preview in docs
     aria_label  (optional) — for links, accessible name (e.g. "Filter by category: Math"). Defaults to "Filter by category: {{ tag_label }}".
 
@@ -16,7 +17,7 @@
     {% include "v3/includes/_category_tag.html" with tag_label="C++ 03" variant="neutral" size="default" %}
 {% endcomment %}
 {% if url %}
-<a href="{{ url }}" class="category-tag category-tag--{{ variant }} category-tag--{{ size|default:'default' }}{% if show_hover %} category-tag--hover-state{% endif %}" aria-label="{% if aria_label %}{{ aria_label }}{% else %}Filter by category: {{ tag_label }}{% endif %}">{{ tag_label }}</a>
+<a href="{{ url }}" class="category-tag category-tag--{{ variant }} category-tag--{{ size|default:'default' }}{% if show_hover %} category-tag--hover-state{% endif %}"{% if target %} target="{{ target }}" rel="noopener noreferrer"{% endif %} aria-label="{% if aria_label %}{{ aria_label }}{% else %}Filter by category: {{ tag_label }}{% endif %}">{{ tag_label }}</a>
 {% else %}
 <span class="category-tag category-tag--{{ variant }} category-tag--{{ size|default:'default' }}{% if show_hover %} category-tag--hover-state{% endif %}">{{ tag_label }}</span>
 {% endif %}

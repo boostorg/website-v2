@@ -1,33 +1,38 @@
 {% comment %}
   V3 combo (searchable dropdown) field.
   Variables:
-    name         (required) — input name attribute
-    label        (optional) — label text
-    placeholder  (optional) — placeholder text when nothing selected
-    options_json (required) — JSON string of options, e.g. '[{"value":"us","label":"United States"}]'
-    selected     (optional) — value of the pre-selected option
-    help_text    (optional) — help text below the field
-    error        (optional) — error message (activates error state)
-    required     (optional) — if truthy, adds required attribute
-    extra_class  (optional) — additional classes on the wrapper
+    name        (required) — input name attribute
+    label       (optional) — label text
+    placeholder (optional) — placeholder text when nothing selected
+    options     (required) — list of (value, label) 2-tuples (e.g. from TextChoices.choices)
+    selected    (optional) — value of the pre-selected option
+    help_text   (optional) — help text below the field
+    error       (optional) — error message (activates error state)
+    required    (optional) — if truthy, adds required attribute
+    extra_class (optional) — additional classes on the wrapper
   Usage:
-    {% include "v3/includes/_field_combo.html" with name="country" label="Country" options_json=country_json placeholder="Search countries..." %}
+    {% include "v3/includes/_field_combo.html" with name="country" label="Country" options=country_options placeholder="Search countries..." %}
 {% endcomment %}
-<script type="application/json" id="field-{{ name }}-options">{{ options_json|safe }}</script>
+{% load text_helpers %}
+<script type="application/json" id="field-{{ name }}-options">{{ options|to_json }}</script>
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
   {# djlint:off #}
      x-data="{
+       jsReady: false,
        open: false,
        query: '',
        selected: '{{ selected|default:'' }}',
        selectedLabel: '',
        options: [],
+       activeIndex: -1,
+       get activeValue() { return this.filtered[this.activeIndex]?.value ?? null; },
        get filtered() {
          if (!this.query) return this.options;
          const q = this.query.toLowerCase();
          return this.options.filter(o => o.label.toLowerCase().includes(q));
        },
        init() {
+         this.jsReady = true;
          this.options = JSON.parse(document.getElementById('field-{{ name }}-options').textContent);
          if (this.selected) {
            const match = this.options.find(o => o.value === this.selected);
@@ -38,20 +43,35 @@
          this.selected = value;
          this.selectedLabel = label;
          this.query = '';
+         this.activeIndex = -1;
          this.open = false;
+         setTimeout(() => this.$refs.chevronBtn.focus());
        },
        toggle() {
          if (this.open) {
            this.open = false;
          } else {
            this.open = true;
+           this.activeIndex = -1;
            this.$nextTick(() => this.$refs.searchInput.focus());
          }
        }
      }">
   {# djlint:on #}
   {% if label %}<label class="field__label" id="field-{{ name }}-label">{{ label }}</label>{% endif %}
-  <div class="dropdown dropdown--combo" :class="{ 'dropdown--open': open }">
+  <select class="field__select"
+          name="{{ name }}"
+          {% if required %}required{% endif %}
+          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
+          {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
+          x-show="!jsReady"
+          :disabled="jsReady">
+    {% if placeholder %}<option value="">{{ placeholder }}</option>{% endif %}
+    {% for value, label in options %}
+      <option value="{{ value }}"{% if value == selected %} selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <div class="dropdown dropdown--combo" :class="{ 'dropdown--open': open }" x-cloak>
     <div class="dropdown__trigger"
          :class="{ 'dropdown__trigger--active': open }"
          @click="if (!open) toggle()"
@@ -71,15 +91,21 @@
                  class="combo__search-input"
                  x-ref="searchInput"
                  x-model="query"
-                 @keydown.escape.prevent="open = false"
+                 @input="activeIndex = -1"
+                 @keydown.escape.prevent="open = false; setTimeout(() => $refs.chevronBtn.focus())"
+                 @keydown.arrow-down.prevent="activeIndex = Math.min(activeIndex + 1, filtered.length - 1)"
+                 @keydown.arrow-up.prevent="activeIndex = activeIndex > 0 ? activeIndex - 1 : -1"
+                 @keydown.enter.prevent="if (activeValue) choose(activeValue, filtered[activeIndex].label)"
                  placeholder="Type to search..."
                  aria-autocomplete="list"
-                 aria-label="Search options">
+                 aria-label="Search options"
+                 :aria-activedescendant="activeValue ? 'field-{{ name }}-option-' + activeValue : null">
         </span>
       </template>
       <!-- Chevron: always present, animates via .dropdown--open -->
       <button type="button"
               class="combo__chevron-btn"
+              x-ref="chevronBtn"
               @click.stop="toggle()"
               :aria-expanded="open"
               aria-label="Toggle search">
@@ -89,6 +115,7 @@
     <div class="dropdown__panel"
          x-show="open"
          @click.away="open = false"
+         @keydown.escape.prevent="open = false; setTimeout(() => $refs.chevronBtn.focus())"
          x-transition:enter="transition ease-out duration-100"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
@@ -101,7 +128,8 @@
       <div class="dropdown__list" role="listbox">
         <template x-for="option in filtered" :key="option.value">
           <div class="dropdown__item"
-               :class="{ 'dropdown__item--selected': selected === option.value }"
+               :id="'field-{{ name }}-option-' + option.value"
+               :class="{ 'dropdown__item--selected': selected === option.value, 'dropdown__item--active': activeValue === option.value }"
                role="option"
                :aria-selected="selected === option.value"
                @click="choose(option.value, option.label)"
@@ -117,6 +145,8 @@
   <input type="hidden"
          name="{{ name }}"
          :value="selected"
+         disabled
+         :disabled="!jsReady"
          {% if required %}required{% endif %}>
   {% if error %}
     <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
