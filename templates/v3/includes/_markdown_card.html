@@ -11,8 +11,8 @@
     <span class="card__title">{{ title }}</span>
   </div>
   <hr class="card__hr" />
-  <div class="card__column px-large">
-    <span>{{ markdown|markdown }}</span>
+  <div class="card__column px-large markdown-content">
+    {{ markdown|markdown }}
   </div>
   {% if button_url and button_label %}
   <hr class="card__hr" />

@@ -5,6 +5,7 @@ import re
 import requests
 from django.utils import timezone
 
+from textwrap import dedent
 from urllib.parse import urljoin
 
 import structlog
@@ -1453,31 +1454,20 @@ class V3ComponentDemoView(TemplateView):
         ]
         context["markdown_data"] = {
             "title": "Markdown Block",
-            "markdown": """
-            # Movens infraque habebit est
+            "markdown": dedent(
+                """
+            ### Markdown Block
 
-            Lorem markdownum antiquas sedes. Ponit aequa mallet iunctisque ecce eliso: tuli
-            multa tempora movet contigerant `exbibyteCamera` omnia lupis fama est ceu
-            `blogSite` sanguine conveniant fertur. Haec ora quoque, curas ferarum sensit
-            quae in recondidit puer parentis famulus telo Armeniae. Cum nunc per minor
-            vidistis hirsutaque plagis tollit in magno quoque Surrentino trabibus minus,
-            nulla.
+            Insert anything Required
 
-            1. Sospite merum ad honorque Tityos in illic
-            2. Unus qua mores pro pluviaque quid frondes
-            3. Mea minabitur plenum puerum
-            4. Diro est bipenni purpureo nec longa Aegides
-            5. Illo nec quae tauros hunc amnis manat
-            6. Prospiciens contigit facinus feruntur dixit id meminisse
+            * Could
+            * be
+            * a
+            * list
 
-            Caeso utroque virgis, portat suo quisquis Pico nusquam caput mihi: tibi quem;
-            marinas nec certe ter. Et mihi est auget lyraeque: fecit in cetera me causam
-            haesit numen. Phoebus nuper exstincta Canentem videt **nomina** o sacros este
-            nutrimen dolens praebet; occumbere omnibus nisi? Seposuit quis animo **alas**,
-            pro et **hoc** nec vox tempore. Ausae te tantus undis tamen tulitquemuneris
-            `digitalCiscRouter` adventus at eras haud, licet tactusque nec a magis parva;
-            tellus.
-            """,
+            Or **bold** and *italics* and whatever it needs to be formatted or [use links](https://www.example.com)!
+            """
+            ),
             "button_url": "#",
             "button_label": "Optional CTA Button",
             "button_style": "primary",
