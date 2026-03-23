@@ -100,11 +100,12 @@
           <div class="multiselect__item"
                role="option"
                :aria-selected="isSelected(option.value)"
+               :data-value="option.value"
                @click="toggle(option.value)"
                @keydown.enter.prevent="toggle(option.value)"
                @keydown.space.prevent="toggle(option.value)"
                @keydown.arrow-down.prevent="$el.nextElementSibling?.focus()"
-               @keydown.arrow-up.prevent="$el.previousElementSibling?.hasAttribute('tabindex') ? $el.previousElementSibling.focus() : $refs.trigger.focus()"
+               @keydown.arrow-up.prevent="$el.previousElementSibling?.hasAttribute('data-value') ? $el.previousElementSibling.focus() : $refs.trigger.focus()"
                tabindex="0">
             <span class="multiselect__check"
                   :class="{ 'multiselect__check--active': isSelected(option.value) }">

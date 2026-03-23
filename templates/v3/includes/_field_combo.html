@@ -98,7 +98,8 @@
                  @keydown.enter.prevent="if (activeValue) choose(activeValue, filtered[activeIndex].label)"
                  placeholder="Type to search..."
                  aria-autocomplete="list"
-                 aria-label="Search options">
+                 aria-label="Search options"
+                 :aria-activedescendant="activeValue ? 'field-{{ name }}-option-' + activeValue : null">
         </span>
       </template>
       <!-- Chevron: always present, animates via .dropdown--open -->
@@ -127,6 +128,7 @@
       <div class="dropdown__list" role="listbox">
         <template x-for="option in filtered" :key="option.value">
           <div class="dropdown__item"
+               :id="'field-{{ name }}-option-' + option.value"
                :class="{ 'dropdown__item--selected': selected === option.value, 'dropdown__item--active': activeValue === option.value }"
                role="option"
                :aria-selected="selected === option.value"

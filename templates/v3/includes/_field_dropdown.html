@@ -94,7 +94,7 @@
                @keydown.enter.prevent="choose('{{ value }}', '{{ label }}')"
                @keydown.space.prevent="choose('{{ value }}', '{{ label }}')"
                @keydown.arrow-down.prevent="$el.nextElementSibling?.focus()"
-               @keydown.arrow-up.prevent="$el.previousElementSibling?.hasAttribute('tabindex') ? $el.previousElementSibling.focus() : $refs.trigger.focus()"
+               @keydown.arrow-up.prevent="$el.previousElementSibling?.hasAttribute('data-value') ? $el.previousElementSibling.focus() : $refs.trigger.focus()"
                tabindex="0">{{ label }}</div>
         {% endfor %}
       </div>

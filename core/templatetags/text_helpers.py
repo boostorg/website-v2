@@ -82,7 +82,7 @@ def url_target_blank(value, arg):
 _JSON_SCRIPT_ESCAPES = {ord(">"): "\\u003E", ord("<"): "\\u003C", ord("&"): "\\u0026"}
 
 
-@register.filter(is_safe=True)
+@register.filter
 def to_json(value):
     """Serialize value to a JSON string safe for embedding in <script> tags.
 
