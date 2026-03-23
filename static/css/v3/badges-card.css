@@ -38,7 +38,7 @@
 
 .badges-card__name {
   color: var(--color-text-primary);
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-default);
   white-space: nowrap;
