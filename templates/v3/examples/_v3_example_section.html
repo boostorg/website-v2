@@ -310,28 +310,6 @@
   {% endif %}
 
   {% include "v3/examples/_v3_example_section_wysiwyg.html" %}
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Create Account Card</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_create_account_card.html" with heading="Contribute to earn badges, track your progress and grow your impact" body_html=create_account_card_body_html preview_image_url=create_account_card_preview_url cta_url="#" cta_label="Start contributing" %}
-    </div>
-  </div>
-  <div class="v3-examples-section__block">
-    <h3 class="block-title">Form inputs</h3>
-    <div class="v3-examples-section__example-box">
-      <div class="v3-examples-section__forms">
-        {% include "v3/includes/_field_text.html" with name="ex_basic" label="Text field" placeholder="Enter text..." %}
-        {% include "v3/includes/_field_text.html" with name="ex_search" label="With icon" placeholder="Search..." icon_left="search" %}
-        {% include "v3/includes/_field_text.html" with name="ex_error" label="Error state" placeholder="Enter value" error="This field is required." %}
-        {% include "v3/includes/_field_textarea.html" with name="ex_content" label="Textarea" placeholder="What would you like to write?" help_text="This text field supports Markdown." rows=4 %}
-        {% include "v3/includes/_field_file.html" with name="ex_image" label="File upload" accept="image/png,image/jpeg" help_text="PNG or JPEG, max 5MB" %}
-        {% include "v3/includes/_field_dropdown.html" with name="ex_type" label="Dropdown" options=demo_dropdown_options placeholder="Select type..." %}
-        {% include "v3/includes/_field_checkbox.html" with name="ex_agree" label="I agree to the terms and conditions" %}
-        {% include "v3/includes/_field_combo.html" with name="ex_library" label="Combo (searchable)" placeholder="Search libraries..." options_json=demo_libs_json %}
-        {% include "v3/includes/_field_multiselect.html" with name="ex_categories" label="Multi-select" placeholder="Select categories..." options_json=demo_cats_json %}
-      </div>
-    </div>
-  </div>
 
   {% with section_title="Badges Card (empty with CTA)" %}
   <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
@@ -395,6 +373,9 @@
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
         <div class="v3-examples-section__forms">
+          {% include "v3/includes/_field_textarea.html" with name="ex_content" label="Textarea" placeholder="What would you like to write?" help_text="This text field supports Markdown." rows=4 %}
+          {% include "v3/includes/_field_file.html" with name="ex_image" label="File upload" accept="image/png,image/jpeg" help_text="PNG or JPEG, max 5MB" %}
+          {% include "v3/includes/_field_dropdown.html" with name="ex_type" label="Dropdown" options=demo_dropdown_options placeholder="Select type..." %}
           {% include "v3/includes/_field_text.html" with name="ex_basic" label="Text field" placeholder="Enter text..." %}
           {% include "v3/includes/_field_text.html" with name="ex_search" label="With icon" placeholder="Search..." icon_left="search" %}
           {% include "v3/includes/_field_text.html" with name="ex_error" label="Error state" placeholder="Enter value" error="This field is required." %}
