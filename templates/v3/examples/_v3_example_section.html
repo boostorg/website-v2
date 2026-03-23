@@ -377,8 +377,8 @@
           {% include "v3/includes/_field_text.html" with name="ex_search" label="With icon" placeholder="Search..." icon_left="search" %}
           {% include "v3/includes/_field_text.html" with name="ex_error" label="Error state" placeholder="Enter value" error="This field is required." %}
           {% include "v3/includes/_field_checkbox.html" with name="ex_agree" label="I agree to the terms and conditions" %}
-          {% include "v3/includes/_field_combo.html" with name="ex_library" label="Combo (searchable)" placeholder="Search libraries..." options_json=demo_libs_json %}
-          {% include "v3/includes/_field_multiselect.html" with name="ex_categories" label="Multi-select" placeholder="Select categories..." options_json=demo_cats_json %}
+          {% include "v3/includes/_field_combo.html" with name="ex_library" label="Combo (searchable)" placeholder="Search libraries..." options=demo_libs %}
+          {% include "v3/includes/_field_multiselect.html" with name="ex_categories" label="Multi-select" placeholder="Select categories..." options=demo_cats %}
         </div>
       </div>
     </div>

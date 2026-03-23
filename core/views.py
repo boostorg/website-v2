@@ -1,4 +1,3 @@
-import json
 import os
 import re
 
@@ -1152,24 +1151,20 @@ class V3ComponentDemoView(TemplateView):
             {"label": "File systems"},
             {"label": "Testing"},
         ]
-        context["demo_libs_json"] = json.dumps(
-            [
-                {"value": "asio", "label": "Asio"},
-                {"value": "beast", "label": "Beast"},
-                {"value": "filesystem", "label": "Filesystem"},
-                {"value": "json", "label": "JSON"},
-                {"value": "spirit", "label": "Spirit"},
-            ]
-        )
-        context["demo_cats_json"] = json.dumps(
-            [
-                {"value": "algorithms", "label": "Algorithms"},
-                {"value": "containers", "label": "Containers"},
-                {"value": "io", "label": "I/O"},
-                {"value": "math", "label": "Math & Numerics"},
-                {"value": "networking", "label": "Networking"},
-            ]
-        )
+        context["demo_libs"] = [
+            ("asio", "Asio"),
+            ("beast", "Beast"),
+            ("filesystem", "Filesystem"),
+            ("json", "JSON"),
+            ("spirit", "Spirit"),
+        ]
+        context["demo_cats"] = [
+            ("algorithms", "Algorithms"),
+            ("containers", "Containers"),
+            ("io", "I/O"),
+            ("math", "Math & Numerics"),
+            ("networking", "Networking"),
+        ]
         badge_img = f"{settings.STATIC_URL}img/v3/badges"
         context["badge_icon_srcs"] = [
             f"{badge_img}/badge-first-place.png",
