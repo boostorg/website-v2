@@ -1216,6 +1216,24 @@ class V3ComponentDemoView(TemplateView):
         context["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/checker.png"
         )
+        context["hero_background_image_url"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-background.png"
+        )
+        context["hero_legacy_image_url_light"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/heros.png"
+        )
+        context["hero_legacy_image_url_dark"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/heros_light.png"
+        )
+        context["hero_image_url"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
+        )
+        context["hero_image_url_light"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
+        )
+        context["hero_image_url_dark"] = (
+            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
+        )
         context["basic_card_data"] = {
             "title": "Found a Bug?",
             "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole comm",
