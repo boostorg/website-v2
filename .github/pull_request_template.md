@@ -3,8 +3,10 @@
 ## Summary & Context
 <!-- *1-2 sentences describing what this PR does and why* -->
 
-- **Figma link**: *<!-- paste link or remove if N/A -->*
-- **Link to components/page:**
+- **Figma links**:
+  - ML Figma:
+  - CPPA Figma:
+- **Link to components/page:** <!-- e.g. localhost:8000/news/add -->
 
 ## Changes
 
@@ -20,13 +22,13 @@
 <!-- Before | After
 -- | -- -->
 
-<!-- Light mode | Dark mode
--- | -- -->
+<!-- Desktop Light Mode | Desktop Dark Mode | Mobile
+-- | -- | -- -->
 
 
 ## Self-review Checklist
 <!-- Delete the section that doesn't apply -->
-- [ ] Tag relevant team members for review
+- [ ] Tag at least one team member from each team to review this PR
 - [ ] Link this PR to the related GitHub Project ticket
 
 ### Frontend
