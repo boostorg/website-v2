@@ -1211,7 +1211,7 @@ class V3ComponentDemoView(TemplateView):
             },
         ]
 
-        context["demo_badges_few"] = context["demo_badges"][:2]
+        context["demo_badges_few"] = context["demo_badges"][:3]
 
         context["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/checker.png"
