@@ -122,3 +122,18 @@
     object-fit: cover;
     display: block;
 }
+
+.square-card-image {
+    flex: 1 0 0;
+    aspect-ratio: 1/1;
+    border-radius: var(--border-radius-l);
+    width: 100%;
+    overflow:hidden;
+}
+
+.square-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
