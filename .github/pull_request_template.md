@@ -27,6 +27,7 @@
 ## Self-review Checklist
 <!-- Delete the section that doesn't apply -->
 - [ ] Tag relevant team members for review
+- [ ] Link this PR to the related GitHub Project ticket
 
 ### Frontend
 - [ ] UI implementation matches Figma design
