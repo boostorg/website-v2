@@ -1166,10 +1166,10 @@ class V3ComponentDemoView(TemplateView):
             ("networking", "Networking"),
         ]
         context["demo_dropdown_options"] = [
-            {"value": "blog", "label": "Blog"},
-            {"value": "link", "label": "Link"},
-            {"value": "news", "label": "News"},
-            {"value": "video", "label": "Video"},
+            ("blog", "Blog"),
+            ("link", "Link"),
+            ("news", "News"),
+            ("video", "Video"),
         ]
         badge_img = f"{settings.STATIC_URL}img/v3/badges"
         context["badge_icon_srcs"] = [
