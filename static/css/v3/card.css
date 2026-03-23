@@ -124,7 +124,7 @@
 }
 
 .square-card-image {
-    flex: 1 0 1;
+    flex: 1 0 0;
     aspect-ratio: 1/1;
     border-radius: var(--border-radius-l);
     width: 100%;

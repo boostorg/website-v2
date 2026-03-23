@@ -18,6 +18,10 @@
     .learn-card__row {
         flex-direction: column;
     }
+
+    .learn-card .square-card-image {
+        flex: 1 0 auto;
+    }
 }
 
 .learn-card__column {
@@ -25,7 +29,7 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: flex-start;
-    flex: 1 0 1;
+    flex: 1 0 0;
     align-self: stretch;
 }
 
