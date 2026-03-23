@@ -10,7 +10,7 @@
 }
 
 .inline-card__image {
-    grid-area: d-image;
+    grid-area: image;
 }
 
 
@@ -29,10 +29,10 @@
 .inline-card__grid-layout {
     display: grid;
     grid-template-areas:
-    "title d-image"
-    "text d-image"
-    ". d-image"
-    "button d-image";
+    "title image"
+    "text image"
+    ". image"
+    "button image";
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto 1fr auto;
     column-gap: var(--space-large);
@@ -41,7 +41,6 @@
 
 @media (max-width: 767px) {
     .inline-card__image {
-        grid-area: m-image;
         aspect-ratio: 16/9;
     }
 
@@ -50,7 +49,7 @@
         grid-template-areas:
         "title"
         "text"
-        "m-image"
+        "image"
         "button";
     }
 }
