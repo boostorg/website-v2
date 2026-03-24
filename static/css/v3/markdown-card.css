@@ -4,10 +4,10 @@
 
 .markdown-content a {
     text-decoration: underline;
-    text-decoration-line: underline;
-    text-decoration-style: solid;
     text-decoration-skip-ink: none;
-    text-decoration-thickness: auto;
-    text-underline-offset: auto;
     text-underline-position: from-font;
+}
+
+.markdown-card p {
+    padding: 0;
 }

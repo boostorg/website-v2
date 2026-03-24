@@ -4,9 +4,11 @@
   Inputs:
     title: str, required - text that appears bolded at the top of the card
     markdown: str, required - markdown formatted text that appears in the body of the card. The card handles transforming the text
-    button url, label, and style: Optional. Url is the destination of the button, label is the text of the button, style is from the style list
+    button url: str, optional - url that the button should link to. If not provided, button is not shown
+    button_label: str, optional - label for the optional cta button. If not provided, button is not shown.
+    button_style: str, optional - style of the optional cta button. See _button.html for options. Primary is used as default.
 {% endcomment %}
-<div class="basic-card card py-large">
+<div class="basic-card card py-large markdown-card">
   <div class="card__header">
     <span class="card__title">{{ title }}</span>
   </div>
@@ -17,7 +19,7 @@
   {% if button_url and button_label %}
   <hr class="card__hr" />
   <div class="card__cta_section">
-      {% include "v3/includes/_button.html" with style=button_style url=button_url label=button_label only %}
-    </div>
+    {% include "v3/includes/_button.html" with style=button_style url=button_url label=button_label only %}
+  </div>
 {% endif %}
 </div>
