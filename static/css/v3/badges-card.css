@@ -69,11 +69,11 @@
   padding: var(--space-medium);
   padding-left: 0;
   padding-bottom: 0;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
   font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-medium);
   line-height: var(--line-height-default);
-  letter-spacing: -0.01em;
+  letter-spacing: var(--letter-spacing-tight);
 }
 
 .badges-card .btn-row {
