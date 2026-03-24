@@ -5,7 +5,7 @@ import pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 
 from playwright.sync_api import expect
-from selectors import selectors
+from page_selectors import selectors
 from utils import log_and_screenshot, safe_goto
 from config_helper import build_url, test_data, url_patterns
 from test_helpers import find_visible_element, test_patterns
