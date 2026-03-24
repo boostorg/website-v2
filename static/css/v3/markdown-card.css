@@ -1,3 +1,7 @@
+.markdown-content {
+    gap: var(--space-medium);
+}
+
 .markdown-content ul {
     list-style: inside;
 }
