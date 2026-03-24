@@ -8,9 +8,9 @@ from playwright.sync_api import expect
 from page_selectors import selectors
 from utils import safe_goto
 from config_helper import build_url, test_data, url_patterns, expected_url_patterns
-from test_helpers import (
+from helpers import (
     find_visible_element,
-    test_element_visibility,
+    check_element_visibility,
     handle_mobile_menu,
     perform_search,
     find_search_results,
@@ -38,7 +38,7 @@ class TestBoostSmoke:
             page.locator(".logo img, #logo img"),
             page.locator("header img").first,
         ]
-        test_element_visibility(
+        check_element_visibility(
             page, test_id, selectors.logo(page), logo_fallbacks, "Logo", test_id, LOG
         )
 
@@ -47,7 +47,7 @@ class TestBoostSmoke:
             page.locator('div[class*="nav"]'),
             page.locator(".navbar, .navigation"),
         ]
-        test_element_visibility(
+        check_element_visibility(
             page,
             test_id,
             selectors.nav(page),
@@ -62,7 +62,7 @@ class TestBoostSmoke:
             page.locator("main, .main"),
             page.locator(".content, #content"),
         ]
-        test_element_visibility(
+        check_element_visibility(
             page,
             test_id,
             selectors.content(page),
@@ -283,7 +283,7 @@ class TestBoostSmoke:
             page.locator('div[class*="nav"]'),
             page.locator(".navbar, .navigation"),
         ]
-        test_element_visibility(
+        check_element_visibility(
             page,
             test_id,
             selectors.nav(page),
@@ -300,7 +300,7 @@ class TestBoostSmoke:
         ]
         nav_locator = selectors.nav(page)
         content_locator = selectors.content(page)
-        test_element_visibility(
+        check_element_visibility(
             page,
             test_id,
             content_locator,

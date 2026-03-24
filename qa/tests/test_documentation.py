@@ -7,7 +7,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 from playwright.sync_api import expect
 from page_selectors import selectors
 from config_helper import build_url, test_data, url_patterns
-from test_helpers import find_visible_element, test_element_visibility, test_patterns
+from helpers import find_visible_element, check_element_visibility, test_patterns
 
 LOG = "test-logs.txt"
 
@@ -51,7 +51,7 @@ class TestBoostDocumentation:
             if toc_found
             else f"{test_id} No explicit TOC found"
         )
-        test_element_visibility(
+        check_element_visibility(
             page,
             test_id,
             selectors.content(page),

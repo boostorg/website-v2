@@ -7,7 +7,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 from playwright.sync_api import expect
 from page_selectors import selectors
 from config_helper import build_url, test_data, url_patterns
-from test_helpers import (
+from helpers import (
     find_visible_element,
     perform_search,
     find_search_results,

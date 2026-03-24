@@ -8,7 +8,7 @@ from playwright.sync_api import expect
 from page_selectors import selectors
 from utils import log_and_screenshot, safe_goto
 from config_helper import build_url, test_data, url_patterns
-from test_helpers import find_visible_element, test_patterns
+from helpers import find_visible_element, test_patterns
 
 LOG = "test-logs.txt"
 

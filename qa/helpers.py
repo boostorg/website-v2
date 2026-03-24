@@ -22,7 +22,7 @@ def find_visible_element(locator, element_name, test_id, log_file="test-logs.txt
     return None
 
 
-def test_element_visibility(
+def check_element_visibility(
     page,
     test_name,
     primary_locator,
@@ -183,7 +183,7 @@ def find_search_results(page, search_term, test_id, log_file="test-logs.txt"):
     }
 
 
-def test_navigation_link(
+def check_navigation_link(
     page, test_name, link, index, test_id, home_url, log_file="test-logs.txt"
 ):
     try:

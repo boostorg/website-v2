@@ -9,13 +9,13 @@ from playwright.sync_api import expect
 from page_selectors import selectors
 from utils import log_and_screenshot, safe_goto
 from config_helper import build_url, test_data, url_patterns, expected_url_patterns
-from test_helpers import (
+from helpers import (
     find_visible_element,
-    test_element_visibility,
+    check_element_visibility,
     handle_mobile_menu,
     perform_search,
     find_search_results,
-    test_navigation_link,
+    check_navigation_link,
     validate_element_details,
     test_patterns,
 )
@@ -63,7 +63,7 @@ class TestBoostFunctional:
             page.locator(".logo img, #logo img"),
             page.locator("header img").first,
         ]
-        test_element_visibility(
+        check_element_visibility(
             page,
             test_id,
             selectors.logo(page),
@@ -72,10 +72,10 @@ class TestBoostFunctional:
             test_id,
             LOG,
         )
-        test_element_visibility(
+        check_element_visibility(
             page, test_id, selectors.nav(page), [], "Navigation bar", test_id, LOG
         )
-        test_element_visibility(
+        check_element_visibility(
             page, test_id, selectors.content(page), [], "Main content", test_id, LOG
         )
 
@@ -85,7 +85,7 @@ class TestBoostFunctional:
         for i, candidate in enumerate(cta_candidates):
             validate_element_details(candidate, f"CTA candidate {i}", test_id, LOG)
 
-        visible_cta = test_element_visibility(
+        visible_cta = check_element_visibility(
             page,
             test_id,
             selectors.cta(page),
@@ -110,7 +110,7 @@ class TestBoostFunctional:
             page.locator("nav:last-of-type, ul:last-of-type"),
         ]
         try:
-            test_element_visibility(
+            check_element_visibility(
                 page,
                 test_id,
                 selectors.footer(page),
@@ -170,7 +170,7 @@ class TestBoostFunctional:
             return
 
         for i, link in enumerate(nav_links[:5]):
-            test_navigation_link(page, test_id, link, i, test_id, homepage_url, LOG)
+            check_navigation_link(page, test_id, link, i, test_id, homepage_url, LOG)
 
     # TC_FUNC_004
     def test_responsive_design_adapts_to_mobile_viewport(self, page, base_url):
@@ -217,7 +217,7 @@ class TestBoostFunctional:
             page.locator(".logo img, #logo img"),
             page.locator("header img").first,
         ]
-        visible_logo = test_element_visibility(
+        visible_logo = check_element_visibility(
             page, test_id, selectors.logo(page), logo_fallbacks, "Logo", test_id, LOG
         )
         visible_logo.click()
@@ -239,7 +239,7 @@ class TestBoostFunctional:
             page.locator('*:has-text("Copyright"), *:has-text("©")'),
         ]
         try:
-            test_element_visibility(
+            check_element_visibility(
                 page, test_id, footer, footer_fallbacks, "Footer", test_id, LOG
             )
             footer_links = footer.locator("a").all()
@@ -255,7 +255,7 @@ class TestBoostFunctional:
         test_id = "TC_FUNC_007"
         library_url = build_url(base_url, url_patterns.documentation, cachebust=True)
         test_patterns.load_and_validate_page(page, test_id, library_url, test_id, LOG)
-        test_element_visibility(
+        check_element_visibility(
             page, test_id, selectors.content(page), [], "Main content", test_id, LOG
         )
 
@@ -290,7 +290,7 @@ class TestBoostFunctional:
         test_id = "TC_FUNC_010"
         doc_url = build_url(base_url, url_patterns.doc_libs_version(), cachebust=True)
         test_patterns.load_and_validate_page(page, test_id, doc_url, test_id, LOG)
-        test_element_visibility(
+        check_element_visibility(
             page,
             test_id,
             selectors.content(page),
@@ -309,7 +309,7 @@ class TestBoostFunctional:
         test_patterns.load_and_validate_page(
             page, test_id, release_notes_url, test_id, LOG
         )
-        test_element_visibility(
+        check_element_visibility(
             page,
             test_id,
             selectors.content(page),
