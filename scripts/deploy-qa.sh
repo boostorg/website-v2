@@ -109,7 +109,7 @@ ensure_repo() {
     if [[ ! -d "${WORK_DIR}/.git" ]]; then
         echo "==> Cloning ${MY_ORG}/${MY_REPO} into ${WORK_DIR} …"
         mkdir -p "$(dirname "${WORK_DIR}")"
-        git clone "${MY_REMOTE_URL}" "${WORK_DIR}"
+        git clone "${MY_REMOTE_URL}" "${WORK_DIR}" 2>/dev/null
     fi
 
     cd "${WORK_DIR}"
@@ -117,7 +117,7 @@ ensure_repo() {
     # Make sure the upstream remote exists
     if ! git remote get-url "${MAIN_REMOTE_NAME}" &>/dev/null; then
         echo "==> Adding remote '${MAIN_REMOTE_NAME}' → ${MAIN_REMOTE_URL}"
-        git remote add "${MAIN_REMOTE_NAME}" "${MAIN_REMOTE_URL}"
+        git remote add "${MAIN_REMOTE_NAME}" "${MAIN_REMOTE_URL}" 2>/dev/null
     fi
 }
 
@@ -132,17 +132,17 @@ LOCAL_PR_BRANCH="pr/${PR_NUMBER}"
 
 echo "==> Switching to '${TARGET_BRANCH}' before fetching …"
 if git show-ref --quiet "refs/heads/${TARGET_BRANCH}"; then
-    git checkout "${TARGET_BRANCH}"
+    git checkout "${TARGET_BRANCH}" 2>/dev/null
 else
     if git ls-remote --exit-code origin "refs/heads/${TARGET_BRANCH}" &>/dev/null; then
-        git checkout -b "${TARGET_BRANCH}" "origin/${TARGET_BRANCH}"
+        git checkout -b "${TARGET_BRANCH}" "origin/${TARGET_BRANCH}" 2>/dev/null
     else
-        git checkout -b "${TARGET_BRANCH}"
+        git checkout -b "${TARGET_BRANCH}" 2>/dev/null
     fi
 fi
 
 echo "==> Fetching PR #${PR_NUMBER} from ${MAIN_REMOTE_NAME} …"
-git fetch "${MAIN_REMOTE_NAME}" "${PR_REF}:${LOCAL_PR_BRANCH}"
+git fetch "${MAIN_REMOTE_NAME}" "${PR_REF}:${LOCAL_PR_BRANCH}" 2>/dev/null
 
 PR_SHA=$(git rev-parse "${LOCAL_PR_BRANCH}")
 echo "    PR commit SHA: ${PR_SHA}"
@@ -152,7 +152,7 @@ if [[ "$DO_MERGE" == true ]]; then
     # MERGE mode: standard merge then normal push
     # -----------------------------------------------------------------------
     echo "==> Merging '${LOCAL_PR_BRANCH}' into '${TARGET_BRANCH}' …"
-    git merge "${LOCAL_PR_BRANCH}" --no-edit
+    git merge "${LOCAL_PR_BRANCH}" --no-edit 2>/dev/null
 
     SHOULD_PUSH=false
     if [[ "$FORCE_PUSH_AUTO" == true ]]; then
@@ -167,7 +167,7 @@ if [[ "$DO_MERGE" == true ]]; then
 
     if [[ "$SHOULD_PUSH" == true ]]; then
         echo "==> Pushing to origin/${TARGET_BRANCH} …"
-        git push origin "${TARGET_BRANCH}"
+        git push origin "${TARGET_BRANCH}" 2>/dev/null
         echo "Done."
     else
         echo "Push skipped."
@@ -177,7 +177,7 @@ else
     # FORCE-PUSH mode: hard-reset TARGET_BRANCH to the PR SHA, then force-push
     # -----------------------------------------------------------------------
     echo "==> Hard-resetting '${TARGET_BRANCH}' to PR commit ${PR_SHA} …"
-    git reset --hard "${PR_SHA}"
+    git reset --hard "${PR_SHA}" 2>/dev/null
 
     SHOULD_PUSH=false
     if [[ "$FORCE_PUSH_AUTO" == true ]]; then
