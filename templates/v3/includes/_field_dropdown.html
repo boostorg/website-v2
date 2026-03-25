@@ -34,6 +34,7 @@
          this.selectedLabel = label;
          this.open = false;
          this.$refs.trigger.focus();
+         this.$dispatch('field-change', { name: '{{ name }}', value, label });
        }
      }">
   {# djlint:on #}
@@ -44,7 +45,8 @@
           {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
           {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
           x-show="!jsReady"
-          :disabled="jsReady">
+          :disabled="jsReady"
+          @change="$dispatch('field-change', { name: '{{ name }}', value: $event.target.value, label: $event.target.options[$event.target.selectedIndex].text })">
     {% if placeholder %}<option value="">{{ placeholder }}</option>{% endif %}
     {% for value, label in options %}
       <option value="{{ value }}"{% if value == selected %} selected{% endif %}>{{ label }}</option>
