@@ -32,6 +32,7 @@ Options:
   --merge            Perform a standard merge and regular git push.
                      Without this flag the script hard-resets '${TARGET_BRANCH}'
                      to the PR's commit SHA and performs a force push instead.
+  --force            Skip the confirmation prompt before pushing.
   --help             Show this help message and exit.
 
 Workflow:
@@ -54,6 +55,7 @@ EOF
 # Parse arguments
 # ---------------------------------------------------------------------------
 DO_MERGE=false
+FORCE_PUSH_AUTO=false
 PR_NUMBER=""
 
 while [[ $# -gt 0 ]]; do
@@ -64,6 +66,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --merge)
             DO_MERGE=true
+            shift
+            ;;
+        --force)
+            FORCE_PUSH_AUTO=true
             shift
             ;;
         -*)
@@ -148,9 +154,18 @@ if [[ "$DO_MERGE" == true ]]; then
     echo "==> Merging '${LOCAL_PR_BRANCH}' into '${TARGET_BRANCH}' …"
     git merge "${LOCAL_PR_BRANCH}" --no-edit
 
-    printf "\nPush the PR to the branch '%s'? (y/n) " "${TARGET_BRANCH}"
-    read -r ANSWER
-    if [[ "$ANSWER" =~ ^[Yy]$ ]]; then
+    SHOULD_PUSH=false
+    if [[ "$FORCE_PUSH_AUTO" == true ]]; then
+        SHOULD_PUSH=true
+    else
+        printf "\nPush the PR to the branch '%s'? (y/n) " "${TARGET_BRANCH}"
+        read -r ANSWER
+        if [[ "$ANSWER" =~ ^[Yy]$ ]]; then
+            SHOULD_PUSH=true
+        fi
+    fi
+
+    if [[ "$SHOULD_PUSH" == true ]]; then
         echo "==> Pushing to origin/${TARGET_BRANCH} …"
         git push origin "${TARGET_BRANCH}"
         echo "Done."
@@ -164,11 +179,20 @@ else
     echo "==> Hard-resetting '${TARGET_BRANCH}' to PR commit ${PR_SHA} …"
     git reset --hard "${PR_SHA}"
 
-    printf "\nForce push the PR to the branch '%s'? (y/n) " "${TARGET_BRANCH}"
-    read -r ANSWER
-    if [[ "$ANSWER" =~ ^[Yy]$ ]]; then
+    SHOULD_PUSH=false
+    if [[ "$FORCE_PUSH_AUTO" == true ]]; then
+        SHOULD_PUSH=true
+    else
+        printf "\nForce push the PR to the branch '%s'? (y/n) " "${TARGET_BRANCH}"
+        read -r ANSWER
+        if [[ "$ANSWER" =~ ^[Yy]$ ]]; then
+            SHOULD_PUSH=true
+        fi
+    fi
+
+    if [[ "$SHOULD_PUSH" == true ]]; then
         echo "==> Force-pushing to origin/${TARGET_BRANCH} …"
-        git push --force origin "${TARGET_BRANCH}"
+        git push --force origin "${TARGET_BRANCH}" 2>/dev/null
         echo "Done."
     else
         echo "Force push skipped."
