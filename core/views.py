@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from textwrap import dedent
 from urllib.parse import urljoin
+from waffle import flag_is_active
 
 import structlog
 from bs4 import BeautifulSoup
@@ -267,6 +268,19 @@ class PrivacyPolicyView(V3Mixin, MarkdownTemplateView):
 
     def get_v3_context_data(self, **kwargs):
         return {"last_updated": "2024-02-17"}
+
+
+class LearnPageView(V3Mixin, TemplateView):
+    v3_template_name = "v3/learn_page.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not flag_is_active(request, "v3"):
+            return HttpResponseNotFound()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_v3_context_data(self, **kwargs):
+        ctx = self.get_context_data(**kwargs)
+        return ctx
 
 
 class ContentNotFoundException(Exception):
