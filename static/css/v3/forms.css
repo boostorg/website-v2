@@ -665,3 +665,36 @@
 .field--file-narrow .field__input--file {
   flex: 0 1 auto;
 }
+
+/* ========== No-JS fallback: native <select> ========== */
+.field__select {
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--space-large, 16px);
+  background-color: var(--color-surface-weak, #fff);
+  border: 1px solid var(--color-stroke-weak, #0508161a);
+  border-radius: var(--border-radius-xl, 12px);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  font-weight: var(--font-weight-regular, 400);
+  color: var(--color-text-primary, #050816);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.field__select:hover {
+  border-color: var(--color-stroke-mid, #0508162b);
+}
+
+.field__select:focus {
+  background-color: var(--color-surface-mid, #f7f7f8);
+  border-color: var(--color-stroke-strong, #05081640);
+  outline: none;
+}
+
+.field--error .field__select {
+  background-color: var(--color-surface-error-weak, #fdf2f2);
+  border-color: var(--color-stroke-error, #d53f3f33);
+}
