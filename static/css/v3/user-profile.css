@@ -1,0 +1,79 @@
+/*
+  User Profile
+  Displays a user's avatar, name, role, badge, and optional bio.
+  Dependencies: avatar.css, badge.css, tokens
+*/
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: var(--space-medium);
+  width: fit-content;
+
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+/* ── Content: grid for rows ─────────────────── */
+
+.user-profile__content {
+  display: grid;
+  row-gap: var(--space-s);
+  min-width: 0;
+}
+
+.user-profile--has-bio .user-profile__content {
+  flex: 1;
+}
+
+/* ── Header: flex row with wrap ─────────────── */
+/*
+  Default (no bio): name takes full width,
+  forcing role + badge to wrap onto a second line.
+
+  With bio: name shrinks to fit-content,
+  so all items sit inline on one row.
+*/
+
+.user-profile__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--space-default);
+  row-gap: var(--space-s);
+}
+
+.user-profile__name {
+  width: 100%;
+}
+
+.user-profile--has-bio .user-profile__name {
+  width: auto;
+}
+
+/* ── Text styles ────────────────────────────── */
+
+.user-profile__name {
+  text-decoration: none;
+}
+
+a.user-profile__name:hover {
+  text-decoration: underline;
+}
+
+.user-profile__role {
+  color: var(--color-text-secondary);
+}
+
+/* ── Bio ────────────────────────────── */
+
+.user-profile__bio {
+  margin: 0;
+  padding: 0;
+  color: var(--color-text-secondary);
+}

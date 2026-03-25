@@ -1,3 +1,5 @@
+from datetime import date
+
 import os
 import re
 
@@ -1208,6 +1210,48 @@ class V3ComponentDemoView(TemplateView):
 
         context["demo_badges_few"] = context["demo_badges"][:3]
 
+        context["demo_posts"] = [
+            {
+                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+                "url": "#",
+                "date": date(2025, 3, 3),
+                "category": "Issues",
+                "tag": "beast",
+                "author": {
+                    "name": "Richard Thomson",
+                    "role": "Contributor",
+                    "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
+                    "badge_url": f"{badge_img}/badge-first-place.png",
+                },
+            },
+            {
+                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+                "url": "#",
+                "date": date(2025, 3, 3),
+                "category": "Issues",
+                "tag": "beast",
+                "author": {
+                    "name": "Peter Dimov",
+                    "role": "Maintainer",
+                    "avatar_url": "https://ui-avatars.com/api/?name=Peter+Dimov&size=48",
+                    "badge_url": f"{badge_img}/badge-bronze.png",
+                },
+            },
+            {
+                "title": "Boost.Bind and modern C++: a quick overview",
+                "url": "#",
+                "date": date(2025, 2, 15),
+                "category": "Releases",
+                "tag": "bind",
+                "author": {
+                    "name": "Alex Morgan",
+                    "role": "Contributor",
+                    "avatar_url": "https://thispersondoesnotexist.com/",
+                },
+            },
+        ]
+        context["demo_post"] = context["demo_posts"][0]
+
         context["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/checker.png"
         )
@@ -1343,7 +1387,7 @@ class V3ComponentDemoView(TemplateView):
                         "name": "Name Surname",
                         "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                         "role": "Contributor",
-                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
                     },
                 },
                 {
@@ -1352,7 +1396,7 @@ class V3ComponentDemoView(TemplateView):
                         "name": "Name Surname",
                         "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                         "role": "Contributor",
-                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
                     },
                 },
                 {
@@ -1361,7 +1405,7 @@ class V3ComponentDemoView(TemplateView):
                         "name": "Name Surname",
                         "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                         "role": "Contributor",
-                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
                     },
                 },
                 {
@@ -1370,7 +1414,7 @@ class V3ComponentDemoView(TemplateView):
                         "name": "Name Surname",
                         "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                         "role": "Contributor",
-                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
                     },
                 },
             ],
@@ -1444,6 +1488,41 @@ class V3ComponentDemoView(TemplateView):
                 "status_text": "Not connected",
                 "action_label": "Connect",
                 "action_url": "#",
+            },
+        ]
+
+        context["user_profile_data"] = [
+            {
+                "name": "John Doe",
+                "role": "Author",
+                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-first-place.png",
+                "badge": "",
+                "bio": "",
+            },
+            {
+                "name": "Richard Thomson",
+                "role": "Contributor",
+                "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
+                "badge_url": "",
+                "badge": "",
+                "bio": "",
+            },
+            {
+                "name": "Richard Thomson",
+                "role": "Contributor",
+                "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
+                "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-bronze.png",
+                "badge": "",
+                "bio": "",
+            },
+            {
+                "name": "Richard Thomson",
+                "role": "Author",
+                "avatar_url": "",
+                "badge_url": "",
+                "badge": "",
+                "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
             },
         ]
 

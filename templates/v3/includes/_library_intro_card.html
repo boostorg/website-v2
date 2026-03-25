@@ -4,13 +4,7 @@
   Variables:
     library_name   (string, required)  — Library display name, e.g. "Boost.Core."
     description    (string, required)  — Short library description
-    authors        (list, optional)    — List of author objects, each with:
-                                          .name       (string) — display name
-                                          .role       (string) — e.g. "Contributor", "Maintainer"
-                                          .avatar_url (string) — URL to avatar image
-                                          .badge      (string, optional) — badge emoji, e.g. "🥇"
-                                          .badge_url  (string, optional) — URL to badge image (alternative to .badge)
-                                          .bio        (string, optional) — short bio
+    authors        (list, optional)    — List of author objects passed to _user_profile.html (see that template for fields)
     cta_label      (string, optional)  — Button text, default "Use {{ library_name }}"
     cta_url        (string, optional)  — Button link URL
 
@@ -27,26 +21,12 @@
   {% for author in authors %}
     <hr class="library-intro-card__divider">
     <div class="library-intro-card__author">
-      {% include "v3/includes/_avatar_v3.html" with src=author.avatar_url name=author.name size="xl" %}
-      <div class="library-intro-card__author-content">
-        <div class="library-intro-card__author-meta">
-          <p class="library-intro-card__author-name">{{ author.name }}</p>
-          {% if author.role %}<p class="library-intro-card__author-role">{{ author.role }}</p>{% endif %}
-          {% if author.badge %}
-            <span class="library-intro-card__author-badge" aria-hidden="true">{{ author.badge }}</span>
-          {% elif author.badge_url %}
-            <span class="library-intro-card__author-badge" aria-hidden="true">
-              <img src="{{ author.badge_url }}" alt="">
-            </span>
-          {% endif %}
-        </div>
-        {% if author.bio %}<p class="library-intro-card__author-bio">{{ author.bio }}</p>{% endif %}
-      </div>
+      {% include "v3/includes/_user_profile.html" with author=author %}
     </div>
   {% endfor %}
   {% if cta_url %}
-    <hr class="library-intro-card__divider">
-    <div class="library-intro-card__cta">
+    <hr class="card__hr">
+    <div class="card__cta_section library-intro-card__cta">
       {% include "v3/includes/_button.html" with url=cta_url label=cta_label|default:"Use "|add:library_name only %}
     </div>
   {% endif %}

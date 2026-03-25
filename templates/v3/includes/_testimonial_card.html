@@ -19,7 +19,7 @@
         {% if testimonials %}
         {% for testimonial in testimonials %}
         <li class="post-cards__item" data-carousel-item>
-          {% include 'v3/includes/_testimonial_card_quote.html' with quote=testimonial.quote avatar_url=testimonial.author.avatar_url name=testimonial.author.name role=testimonial.author.role role_badge=testimonial.author.role_badge only %}
+          {% include 'v3/includes/_testimonial_card_quote.html' with quote=testimonial.quote author=testimonial.author only %}
         </li>
         {% endfor %}
         {% endif %}
