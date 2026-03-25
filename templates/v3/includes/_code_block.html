@@ -16,7 +16,7 @@
   Usage with pre-rendered HTML (cpp-highlight or hljs spans):
     {% include "v3/includes/_code_block.html" with code_html=my_code_html variant="standalone" cpp_highlight=True %}
 {% endcomment %}
-<div class="code-block code-block--{{ variant|default:'asd' }}">
+<div class="code-block code-block--{{ variant|default:'asasdd' }}">
   <button type="button" class="code-block__copy" aria-label="Copy code to clipboard" data-copied="false">
     <span class="code-block__copy-icon code-block__copy-icon--copy" aria-hidden="true">{% include "includes/icon.html" with icon_name="copy" icon_class="code-block__copy-svg" icon_size=16 %}</span>
     <span class="code-block__copy-icon code-block__copy-icon--check" aria-hidden="true">{% include "includes/icon.html" with icon_name="check" icon_class="code-block__copy-svg" icon_size=16 %}</span>
