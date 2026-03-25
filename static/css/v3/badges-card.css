@@ -1,17 +1,22 @@
-.badges-card {
+.badges-card.card {
   box-sizing: border-box;
   max-width: 696px;
-  padding: var(--space-large) 0;
+  align-items: initial;
+}
+
+.badges-card.card {
+  padding-top: var(--space-large);
+  padding-bottom: var(--space-large);
 }
 
 /* Filled state — 3-column badge grid */
 .badges-card__grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-xlarge) var(--space-xxl);
-  padding: 0 var(--space-large) var(--space-large);
+  gap: var(--space-large) var(--space-xxl);
   box-sizing: border-box;
   margin: 0;
+  padding: 0 var(--space-large);
   list-style: none;
 }
 
@@ -32,7 +37,7 @@
 .badges-card__text {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-s);
   min-width: 0;
 }
 
@@ -55,20 +60,18 @@
 .badges-card__empty {
   display: flex;
   flex-direction: column;
-  gap: var(--space-medium);
+  gap: var(--space-large);
   padding: 0 var(--space-large);
 }
 
 .badges-card__icon-row {
   display: flex;
-  gap: var(--space-default);
+  gap: var(--space-large);
 }
 
 .badges-card__description {
+  padding: 0;
   margin: 0;
-  padding: var(--space-medium);
-  padding-left: 0;
-  padding-bottom: 0;
   color: var(--color-text-primary);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
