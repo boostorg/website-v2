@@ -32,7 +32,7 @@ Options:
   --merge            Perform a standard merge and regular git push.
                      Without this flag the script hard-resets '${TARGET_BRANCH}'
                      to the PR's commit SHA and performs a force push instead.
-  --force            Skip the confirmation prompt before pushing.
+  --yes              Skip the confirmation prompt before pushing.
   --verbose          Show Git error/warning messages (suppressed by default).
   --help             Show this help message and exit.
 
@@ -56,7 +56,7 @@ EOF
 # Parse arguments
 # ---------------------------------------------------------------------------
 DO_MERGE=false
-FORCE_PUSH_AUTO=false
+PUSH_AUTO=false
 VERBOSE=false
 PR_NUMBER=""
 
@@ -70,8 +70,8 @@ while [[ $# -gt 0 ]]; do
             DO_MERGE=true
             shift
             ;;
-        --force)
-            FORCE_PUSH_AUTO=true
+        --yes)
+            PUSH_AUTO=true
             shift
             ;;
         --verbose)
@@ -170,7 +170,7 @@ if [[ "$DO_MERGE" == true ]]; then
     eval "git merge \"${LOCAL_PR_BRANCH}\" --no-edit ${ERR_REDIRECT}"
 
     SHOULD_PUSH=false
-    if [[ "$FORCE_PUSH_AUTO" == true ]]; then
+    if [[ "$PUSH_AUTO" == true ]]; then
         SHOULD_PUSH=true
     else
         printf "\nPush the PR to the branch '%s'? (y/n) " "${TARGET_BRANCH}"
@@ -195,7 +195,7 @@ else
     eval "git reset --hard \"${PR_SHA}\" ${ERR_REDIRECT}"
 
     SHOULD_PUSH=false
-    if [[ "$FORCE_PUSH_AUTO" == true ]]; then
+    if [[ "$PUSH_AUTO" == true ]]; then
         SHOULD_PUSH=true
     else
         printf "\nForce push the PR to the branch '%s'? (y/n) " "${TARGET_BRANCH}"
