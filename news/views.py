@@ -324,19 +324,19 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
         context["items"] = items
         if flag_is_active(self.request, "v3"):
             context["post_type_options"] = [
-                {"value": "blog", "label": _("Blog")},
-                {"value": "news", "label": _("News")},
-                {"value": "video", "label": _("Video")},
-                {"value": "link", "label": _("Link")},
+                ("blog", _("Blog")),
+                ("news", _("News")),
+                ("video", _("Video")),
+                ("link", _("Link")),
             ]
             # Basic examples for the v3 create page selector.
             context["related_libraries_options"] = [
-                {"value": "", "label": _("Select")},
-                {"value": "asio", "label": _("Asio")},
-                {"value": "beast", "label": _("Beast")},
-                {"value": "filesystem", "label": _("Filesystem")},
-                {"value": "json", "label": _("JSON")},
-                {"value": "spirit", "label": _("Spirit")},
+                ("", _("Select")),
+                ("asio", _("Asio")),
+                ("beast", _("Beast")),
+                ("filesystem", _("Filesystem")),
+                ("json", _("JSON")),
+                ("spirit", _("Spirit")),
             ]
             context["publish_at_initial"] = localtime(now()).strftime("%Y-%m-%dT%H:%M")
             context["blogpost_create_url"] = reverse_lazy("news-blogpost-create")
