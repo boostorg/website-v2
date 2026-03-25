@@ -180,59 +180,6 @@
   gap: var(--space-medium);
 }
 
-.post-card__avatar {
-  width: var(--space-avatar);
-  height: var(--space-avatar);
-  flex-shrink: 0;
-  border-radius: var(--border-radius-m);
-  object-fit: cover;
-  overflow: hidden;
-}
-
-.post-card__author-info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
-  justify-content: center;
-}
-
-.post-card__author-name {
-  margin: 0;
-  padding: 0;
-  font-family: var(--font-sans);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-default);
-  letter-spacing: -0.12px;
-  color: var(--color-text-primary);
-}
-
-.post-card__author-role-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-default);
-}
-
-.post-card__author-role {
-  margin: 0;
-  padding: 0;
-  font-family: var(--font-sans);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-default);
-  letter-spacing: -0.12px;
-  color: var(--color-text-secondary);
-}
-
-.post-card__badge {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .post-cards--content .post-cards__list {
   gap: 0;
 }
