@@ -29,27 +29,27 @@
     </div>
     <div class="card-masonry py-large">
       <div class="item-a">
-      {% with data=event_cards_data %}
-      {% include 'v3/includes/_event_cards_section.html' with section_heading=data.heading event_list=data.event_list primary_btn_url_url=data.primary_btn_url primary_btn_text=data.primary_btn_text variant="teal" %}
-      {% endwith %}
+        {% with data=event_cards_data %}
+          {% include 'v3/includes/_event_cards_section.html' with section_heading=data.heading event_list=data.event_list primary_btn_url_url=data.primary_btn_url primary_btn_text=data.primary_btn_text variant='teal' %}
+        {% endwith %}
       </div>
       <div class="item-b">
-      {% with data=boost_community_data %}
-      {% include 'v3/includes/_event_cards_section.html' with section_heading=data.heading event_list=data.event_list primary_btn_url_url=data.primary_btn_url primary_btn_text=data.primary_btn_text display="list" %}
-      {% endwith %}
+        {% with data=boost_community_data %}
+          {% include 'v3/includes/_event_cards_section.html' with section_heading=data.heading event_list=data.event_list primary_btn_url_url=data.primary_btn_url primary_btn_text=data.primary_btn_text display='list' %}
+        {% endwith %}
       </div>
       <div class="item-d">
-      {% with card=info_card %}
-        {% include 'v3/includes/_basic_card.html' with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label primary_style='secondary-grey' image_url=card.image %}
-      {% endwith %}
+        {% with card=info_card %}
+          {% include 'v3/includes/_basic_card.html' with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label primary_style='secondary-grey' image_url=card.image %}
+        {% endwith %}
       </div>
       <div class="item-c">
-      {% with card=calendar_card %}
-        {% include 'v3/includes/_vertical_card.html' with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label primary_style='secondary-grey' image_url=card.image %}
-      {% endwith %}
+        {% with card=calendar_card %}
+          {% include 'v3/includes/_vertical_card.html' with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label primary_style='secondary-grey' image_url=card.image %}
+        {% endwith %}
       </div>
       <div class="item-e">
-      {% include 'v3/includes/_mailing_list_card.html' %}
+        {% include 'v3/includes/_mailing_list_card.html' %}
       </div>
     </div>
   </div>
