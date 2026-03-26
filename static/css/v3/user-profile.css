@@ -62,10 +62,6 @@
   text-decoration: none;
 }
 
-a.user-profile__name:hover {
-  text-decoration: underline;
-}
-
 .user-profile__role {
   color: var(--color-text-secondary);
 }
