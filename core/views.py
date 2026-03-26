@@ -280,6 +280,155 @@ class LearnPageView(V3Mixin, TemplateView):
 
     def get_v3_context_data(self, **kwargs):
         ctx = self.get_context_data(**kwargs)
+        ctx["learn_card_data"] = 2 * [
+            {
+                "title": "I want to learn:",
+                "text": "How to install Boost, use its libraries, build projects, and get help when you need it.",
+                "links": [
+                    {
+                        "label": "Explore common use cases",
+                        "url": "https://www.example.com",
+                    },
+                    {"label": "Build with CMake", "url": "https://www.example.com"},
+                    {"label": "Visit the FAQ", "url": "https://www.example.com"},
+                ],
+                "url": "https://www.example.com",
+                "label": "Learn more about Boost",
+                "image_src": "/static/img/v3/examples/Learn Card Image.png",
+            }
+        ]
+
+        example_card = {
+            "title": "Found a Bug?",
+            "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole comm",
+            "primary_button_url": "www.example.com",
+            "primary_button_label": "Primary Button",
+            "secondary_button_url": "www.example.com",
+            "secondary_button_label": "Secondary Button",
+            "image": "/static/img/v3/demo_page/Calendar.png",
+        }
+
+        demo_cards = [
+            {
+                "title": "Get help",
+                "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
+                "icon_name": "info-box",
+                "cta_label": "Start here",
+                "cta_href": reverse("community"),
+            },
+            {
+                "title": "Documentation",
+                "description": "Browse library docs, examples, and release notes in one place.",
+                "icon_name": "link",
+                "cta_label": "View docs",
+                "cta_href": reverse("docs"),
+            },
+            {
+                "title": "Community",
+                "description": "Mailing lists, GitHub, and community guidelines for contributors.",
+                "icon_name": "human",
+                "cta_label": "Join",
+                "cta_href": reverse("community"),
+            },
+            {
+                "title": "Releases",
+                "description": "Latest releases, download links, and release notes.",
+                "icon_name": "info-box",
+                "cta_label": "Download",
+                "cta_href": reverse("releases-most-recent"),
+            },
+            {
+                "title": "Libraries",
+                "description": "Explore the full catalog of Boost C++ libraries with docs and metadata.",
+                "icon_name": "link",
+                "cta_label": "Browse libraries",
+                "cta_href": reverse("libraries"),
+            },
+            {
+                "title": "News",
+                "description": "Blog posts, announcements, and community news from the Boost project.",
+                "icon_name": "device-tv",
+                "cta_label": "Read news",
+                "cta_href": reverse("news"),
+            },
+            {
+                "title": "Getting started",
+                "description": "Step-by-step guides to build and use Boost in your projects.",
+                "icon_name": "bullseye-arrow",
+                "cta_label": "Get started",
+                "cta_href": reverse("getting-started"),
+            },
+            {
+                "title": "Resources",
+                "description": "Learning resources, books, and other materials for Boost users.",
+                "icon_name": "get-help",
+                "cta_label": "View resources",
+                "cta_href": reverse("resources"),
+            },
+            {
+                "title": "Calendar",
+                "description": "Community events, meetings, and review schedule.",
+                "icon_name": "info-box",
+                "cta_label": "View calendar",
+                "cta_href": reverse("calendar"),
+            },
+            {
+                "title": "Donate",
+                "description": "Support the Boost Software Foundation and open-source C++.",
+                "icon_name": "human",
+                "cta_label": "Donate",
+                "cta_href": reverse("donate"),
+            },
+        ]
+
+        ctx["library_cards"] = demo_cards
+        ctx["why_boost_cards"] = demo_cards[:6]
+        ctx["calendar_card"] = example_card
+        ctx["info_card"] = example_card
+        ctx["event_cards_data"] = {
+            "heading": "Posts from the Boost Community",
+            "primary_btn_url": "#",
+            "primary_btn_text": "View All Posts",
+            "event_list": 4
+            * [
+                {
+                    "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+                    "card_url": "#",
+                    "description": "Lorem Ispum Sum Delores",
+                    "date": "03/03/2025",
+                    "category": "Issues",
+                    "tag": "beast",
+                    "author": {
+                        "name": "Richard Thomson",
+                        "role": "Contributor",
+                        "show_badge": True,
+                        "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
+                    },
+                }
+            ],
+        }
+        ctx["boost_community_data"] = {
+            "heading": "The Boost community",
+            "primary_btn_url": "#",
+            "primary_btn_text": "Explore the community",
+            "event_list": 3
+            * [
+                {
+                    "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+                    "description": "Lorem Ispum Sum Delores",
+                    "card_url": "#",
+                    "date": "03/03/2025",
+                    "category": "Issues",
+                    "tag": "beast",
+                    "author": {
+                        "name": "Richard Thomson",
+                        "role": "Contributor",
+                        "show_badge": True,
+                        "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
+                    },
+                }
+            ],
+        }
         return ctx
 
 

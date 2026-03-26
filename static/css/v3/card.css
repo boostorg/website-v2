@@ -20,6 +20,7 @@
   background: var(--color-surface-weak);
   padding-top: var(--space-large);
   padding-bottom: var(--space-large);
+  height: fit-content;
 }
 
 .basic-card {

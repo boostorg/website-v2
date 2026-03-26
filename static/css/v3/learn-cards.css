@@ -14,7 +14,7 @@
     flex-direction: row;
 }
 
-@media (max-width: 696px) {
+@media (max-width: 1280px) {
     .learn-card__row {
         flex-direction: column;
     }
