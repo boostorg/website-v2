@@ -2,6 +2,7 @@
   User Profile – displays avatar, name, role, badge, and optional bio.
     Variables: "author" object with:
     - name       (string) — display name
+    - profile_url (string) — URL to user profile
     - role       (string) — e.g. "Contributor", "Maintainer"
     - avatar_url (string) — URL to avatar image
     - badge_url  (string, optional) — URL to badge image
@@ -11,17 +12,28 @@
     {% include "v3/includes/_user_profile.html" with author=author %}
 {% endcomment %}
 <div class="user-profile{% if author.bio %} user-profile--has-bio{% endif %}" role="group" aria-label="{{ author.name }}">
-  {% include "v3/includes/_avatar_v3.html" with src=author.avatar_url name=author.name size="xl" %}
+  {% if author.profile_url %}
+    <a href="{{ author.profile_url }}" class="user-profile__avatar-link">
+      {% include "v3/includes/_avatar_v3.html" with src=author.avatar_url name=author.name size="xl" %}
+    </a>
+  {% else %}
+    {% include "v3/includes/_avatar_v3.html" with src=author.avatar_url name=author.name size="xl" %}
+  {% endif %}
+
   <div class="user-profile__content">
     <div class="user-profile__header">
       {% if author.name %}
-        <span class="user-profile__name">{{ author.name }}</span>
+        {% if author.profile_url %}
+          <a href="{{ author.profile_url }}" class="user-profile__name">{{ author.name }}</a>
+        {% else %}
+          <span class="user-profile__name">{{ author.name }}</span>
+        {% endif %}
       {% endif %}
       {% if author.role %}
         <span class="user-profile__role">{{ author.role }}</span>
       {% endif %}
       {% if author.badge_url %}
-        <span class="user-profile-badge" aria-hidden="true">
+        <span aria-hidden="true">
           <img src="{{ author.badge_url }}" alt="" width="16" height="16">
         </span>
       {% endif %}
