@@ -12,6 +12,16 @@
     text-underline-position: from-font;
 }
 
+.markdown-content {
+    color: var(--color-text-secondary);
+    padding: 0 var(--space-large)
+}
+
+.markdown-content h1, h2, h3, h4, h5, h6, b {
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-medium);
+}
+
 .markdown-card p {
     padding: 0;
 }

@@ -1456,9 +1456,8 @@ class V3ComponentDemoView(TemplateView):
             "title": "Markdown Block",
             "markdown": dedent(
                 """
-            ### Markdown Block
 
-            Insert anything Required
+            ####Insert anything Required
 
             * Could
             * be
