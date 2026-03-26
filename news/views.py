@@ -287,8 +287,7 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         """User must have a profile photo and a name to post an entry."""
-        # With v3 flag, allow viewing the Create Post page for testing; backend may still require profile on submit
-        if not flag_is_active(request, "v3") and request.user.is_authenticated:
+        if request.user.is_authenticated:
             missing_data = []
 
             if not request.user.display_name:
