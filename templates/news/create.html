@@ -16,7 +16,8 @@
           {% for item in items %}
             {# Hide polls for now #}
             {% if item.model_name != 'Poll' %}
-              <a href="{% url item.add_url_name %}" class="p-5 font-semibold text-center bg-white rounded-lg dark:text-white dark:bg-slate hover:bg-white/60">
+              <a href="{% url item.add_url_name %}"
+                 class="p-5 font-semibold text-center bg-white rounded-lg dark:text-white dark:bg-slate hover:bg-white/60">
                 {% if item.model_name == 'BlogPost' %}
                   <i class="mr-3 fas fa-comment"></i> Blog Post
                 {% elif item.model_name == 'Poll' %}

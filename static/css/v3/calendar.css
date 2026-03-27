@@ -1,37 +1,37 @@
 .calendar__hero {
-    padding: var(--space-xlarge) 0 var(--space-avatar) 0;
-    display: flex;
-    max-width: 662px;
-    width: 100%;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-medium, 24px);
+  padding: var(--space-xlarge) 0 var(--space-avatar) 0;
+  display: flex;
+  max-width: 662px;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-medium, 24px);
 }
 
 .calendar__hero h1 {
-    color: var(--color-text-primary, #050816);
+  color: var(--color-text-primary, #050816);
 
-    /* Sans/Desktop/Regular/2XL */
-    font-family: var(--font-sans, "Mona Sans VF");
-    font-size: var(--font-size-2xl, 40px);
-    font-style: normal;
-    font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-tight);
-    /* 40px */
-    letter-spacing: -0.4px;
-    margin-bottom: 0;
+  /* Sans/Desktop/Regular/2XL */
+  font-family: var(--font-sans, 'Mona Sans VF');
+  font-size: var(--font-size-2xl, 40px);
+  font-style: normal;
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-tight);
+  /* 40px */
+  letter-spacing: -0.4px;
+  margin-bottom: 0;
 }
 
 .calendar__hero p {
-    color: var(--color-text-secondary, #585A64);
+  color: var(--color-text-secondary, #585a64);
 
-    /* Sans/Desktop/Regular/M */
-    font-family: var(--font-sans, "Mona Sans VF");
-    font-size: var(--font-size-medium, 18px);
-    font-style: normal;
-    font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-default);
-    /* 21.6px */
-    letter-spacing: -0.18px;
-    padding: 0;
+  /* Sans/Desktop/Regular/M */
+  font-family: var(--font-sans, 'Mona Sans VF');
+  font-size: var(--font-size-medium, 18px);
+  font-style: normal;
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  /* 21.6px */
+  letter-spacing: -0.18px;
+  padding: 0;
 }

@@ -24,7 +24,7 @@
 {% if url %}
   <a href="{{ url }}"
      class="{% if style == 'icon-library' %}btn-icon-library {{ extra_classes }}{% else %}btn btn-{{ style|default:"primary" }} {{ extra_classes }}{% endif %}"
-     aria-label="{{aria_label|default:label}}">
+     aria-label="{{ aria_label|default:label }}">
     {% if icon_html %}
       {{ icon_html|safe }}
     {% elif icon_name %}
@@ -37,7 +37,7 @@
   <button type="{{ type|default:'button' }}"
           aria-label="{{ aria_label|default:label }}"
           class="{% if style == 'icon-library' %}btn-icon-library {{ extra_classes }}{% else %}btn btn-{{ style|default:"primary" }} {{ extra_classes }}{% endif %}"
-          aria-label="{{aria_label|default:label}}">
+          aria-label="{{ aria_label|default:label }}">
     {% if icon_html %}
       {{ icon_html|safe }}
     {% elif icon_name %}

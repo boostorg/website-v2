@@ -25,26 +25,34 @@
     {% include "v3/includes/_cards_carousel_v3.html" with carousel_id="my-carousel" heading="Featured" cards=my_cards_list infinite=True %}
 {% endcomment %}
 {% with carousel_id=carousel_id|default:"cards-carousel" heading=heading|default:"Libraries categories" track_aria_label=track_aria_label|default:"Detail cards carousel" %}
-<div id="{{ carousel_id }}" data-carousel class="cards-carousel" role="region" aria-labelledby="{{ carousel_id }}-heading"{% if infinite %} data-carousel-infinite{% endif %}{% if autoplay %} data-carousel-autoplay="{{ autoplay_delay|default:4000 }}"{% endif %}>
-  <div class="cards-carousel__header">
-    <h2 id="{{ carousel_id }}-heading" class="cards-carousel__heading">{{ heading }}</h2>
-    <div class="cards-carousel__controls">
-      {% include "v3/includes/_carousel_buttons.html" with carousel_id=carousel_id %}
+  <div id="{{ carousel_id }}"
+       data-carousel
+       class="cards-carousel"
+       role="region"
+       aria-labelledby="{{ carousel_id }}-heading"
+       {% if infinite %}data-carousel-infinite{% endif %}
+       {% if autoplay %}data-carousel-autoplay="{{ autoplay_delay|default:4000 }}"{% endif %}>
+    <div class="cards-carousel__header">
+      <h2 id="{{ carousel_id }}-heading" class="cards-carousel__heading">{{ heading }}</h2>
+      <div class="cards-carousel__controls">
+        {% include "v3/includes/_carousel_buttons.html" with carousel_id=carousel_id %}
+      </div>
+    </div>
+    <hr class="cards-carousel__divider" aria-hidden="true" />
+    <div class="cards-carousel__track">
+      <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card post-cards--horizontal post-cards--carousel">
+        <ul class="post-cards__list"
+            data-carousel-track
+            aria-label="{{ track_aria_label }}">
+          {% if cards %}
+            {% for card in cards %}
+              <li class="post-cards__item" data-carousel-item>
+                {% include "v3/includes/_content_detail_card_item.html" with title=card.title description=card.description badge_count=forloop.counter cta_label="Start here" cta_href=card.cta_href %}
+              </li>
+            {% endfor %}
+          {% endif %}
+        </ul>
+      </section>
     </div>
   </div>
-  <hr class="cards-carousel__divider" aria-hidden="true" />
-  <div class="cards-carousel__track">
-    <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card post-cards--horizontal post-cards--carousel">
-      <ul class="post-cards__list" data-carousel-track aria-label="{{ track_aria_label }}">
-        {% if cards %}
-          {% for card in cards %}
-            <li class="post-cards__item" data-carousel-item>
-              {% include "v3/includes/_content_detail_card_item.html" with title=card.title description=card.description badge_count=forloop.counter cta_label="Start here" cta_href=card.cta_href %}
-            </li>
-          {% endfor %}
-        {% endif %}
-      </ul>
-    </section>
-  </div>
-</div>
 {% endwith %}

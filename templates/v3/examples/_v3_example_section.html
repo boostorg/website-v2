@@ -36,7 +36,8 @@
   {% comment %}Table of contents – generated via JS from the section h3 headings.{% endcomment %}
   <nav class="v3-examples-section__toc" aria-label="Table of contents">
     <h3 class="v3-examples-section__toc-heading">Table of Contents</h3>
-    <ul class="v3-examples-section__toc-list"></ul>
+    <ul class="v3-examples-section__toc-list">
+    </ul>
   </nav>
 
   {% with section_title="Buttons" %}
@@ -154,7 +155,8 @@
   {% endwith %}
 
   {% with section_title="Carousel buttons" %}
-    <div class="v3-examples-section__block v3-examples-section__block--carousel" id="{{ section_title|slugify }}">
+    <div class="v3-examples-section__block v3-examples-section__block--carousel"
+         id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">{% include "v3/includes/_carousel_buttons.html" %}</div>
     </div>
@@ -212,9 +214,7 @@
               {% endwith %}
             </li>
           </ul>
-          <div class="card__cta_section">
-            {% include "v3/includes/_button.html" with label="View all posts" url="#" %}
-          </div>
+          <div class="card__cta_section">{% include "v3/includes/_button.html" with label="View all posts" url="#" %}</div>
         </section>
       </div>
     </div>
@@ -312,40 +312,40 @@
   {% include "v3/examples/_v3_example_section_wysiwyg.html" %}
 
   {% with section_title="Badges Card (empty with CTA)" %}
-  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-    <h3>{{ section_title }}</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
+      </div>
     </div>
-  </div>
   {% endwith %}
 
 
   {% with section_title="Badges Card (empty without CTA)" %}
-  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-    <h3>{{ section_title }}</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with empty_icon_srcs=badge_icon_srcs %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_badges_card.html" with empty_icon_srcs=badge_icon_srcs %}
+      </div>
     </div>
-  </div>
   {% endwith %}
 
   {% with section_title="Badges Card (filled — 6 badges)" %}
-  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-    <h3>{{ section_title }}</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with badges=demo_badges %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_badges_card.html" with badges=demo_badges %}
+      </div>
     </div>
-  </div>
   {% endwith %}
 
   {% with section_title="Badges Card (filled — 3 badges)" %}
-  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-    <h3>{{ section_title }}</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with badges=demo_badges_few %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_badges_card.html" with badges=demo_badges_few %}
+      </div>
     </div>
-  </div>
   {% endwith %}
 
   {% with section_title="Create Account Card" %}
@@ -358,14 +358,14 @@
   {% endwith %}
 
   {% with section_title="Inline Card" %}
-  <div class="v3-examples-section__block" id="{{section_title|slugify}}">
-    <h3>{{ section_title }}</h3>
-    {% with horizontal_card_data as card %}
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_inline_card.html" with title=card.title text=card.text image_url=card.image_url image_alt=card.image_alt button_url=card.button_url button_label=card.button_label %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      {% with horizontal_card_data as card %}
+        <div class="v3-examples-section__example-box">
+          {% include "v3/includes/_inline_card.html" with title=card.title text=card.text image_url=card.image_url image_alt=card.image_alt button_url=card.button_url button_label=card.button_label %}
+        </div>
+      {% endwith %}
     </div>
-    {% endwith %}
-  </div>
   {% endwith %}
 
   {% with section_title="Form inputs" %}

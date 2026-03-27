@@ -10,72 +10,90 @@
   x-cloak: optional, Alpine directive to prevent flash of unstyled icon when using x-show
 {% endcomment %}
 {% if icon_name == "github" %}
-<svg class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" viewBox="0 0 14.36 14" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <path d="M7.18 0C3.21 0 0 3.21 0 7.18c0 3.17 2.06 5.86 4.91 6.81.36.07.49-.17.49-.38 0-.17-.01-.71-.01-1.22-2 .43-2.42-.49-2.42-.49-.33-.83-.8-1.05-.8-1.05-.66-.44.04-.44.04-.44.73.05 1.1.71 1.1.71.64 1.1 1.68.79 2.09.6.07-.46.25-.79.46-.97-1.59-.18-3.27-.8-3.27-3.55 0-.78.28-1.42.74-1.93-.07-.18-.32-.91.07-1.89 0 0 .6-.19 1.97.74.58-.16 1.19-.24 1.8-.24.61 0 1.22.08 1.8.24 1.36-1.04 1.96-.74 1.96-.74.39.99.15 1.71.07 1.89.46.5.74 1.15.74 1.93 0 2.76-1.68 3.37-3.28 3.55.25.22.47.64.47 1.29 0 .96-.01 1.73-.01 1.97 0 .19.13.42.5.35 2.87-.95 4.93-3.64 4.93-6.8C14.36 3.21 11.14 0 7.18 0z"/>
-</svg>
+  <svg class="{{ icon_class|default:'icon' }}"
+       width="{{ icon_size|default:24 }}"
+       height="{{ icon_size|default:24 }}"
+       viewBox="0 0 14.36 14"
+       fill="currentColor"
+       xmlns="http://www.w3.org/2000/svg"
+       aria-hidden="true">
+    <path d="M7.18 0C3.21 0 0 3.21 0 7.18c0 3.17 2.06 5.86 4.91 6.81.36.07.49-.17.49-.38 0-.17-.01-.71-.01-1.22-2 .43-2.42-.49-2.42-.49-.33-.83-.8-1.05-.8-1.05-.66-.44.04-.44.04-.44.73.05 1.1.71 1.1.71.64 1.1 1.68.79 2.09.6.07-.46.25-.79.46-.97-1.59-.18-3.27-.8-3.27-3.55 0-.78.28-1.42.74-1.93-.07-.18-.32-.91.07-1.89 0 0 .6-.19 1.97.74.58-.16 1.19-.24 1.8-.24.61 0 1.22.08 1.8.24 1.36-1.04 1.96-.74 1.96-.74.39.99.15 1.71.07 1.89.46.5.74 1.15.74 1.93 0 2.76-1.68 3.37-3.28 3.55.25.22.47.64.47 1.29 0 .96-.01 1.73-.01 1.97 0 .19.13.42.5.35 2.87-.95 4.93-3.64 4.93-6.8C14.36 3.21 11.14 0 7.18 0z" />
+  </svg>
 {% elif icon_name == "google" %}
-<svg class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" viewBox="0 0 13.05 13.33" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <path d="M6.67 2.64c.98 0 1.86.34 2.55 1l1.9-1.9C9.97.66 8.46 0 6.67 0 4.06 0 1.81 1.49.71 3.67l2.22 1.72c.52-1.58 2-2.75 3.74-2.75z"/>
-  <path d="M13.05 6.82c0-.44-.04-.86-.11-1.26H6.67v2.5h3.59c-.16.82-.63 1.52-1.33 2l2.15 1.67c1.25-1.16 1.97-2.88 1.97-4.91z"/>
-  <path d="M2.92 7.94c-.13-.4-.21-.83-.21-1.27 0-.44.08-.87.21-1.28L.71 3.67C.26 4.57 0 5.59 0 6.67c0 1.08.26 2.09.71 2.99l2.21-1.72z"/>
-  <path d="M6.67 13.33c1.8 0 3.31-.59 4.41-1.61l-2.15-1.67c-.6.4-1.37.64-2.27.64-1.74 0-3.21-1.17-3.74-2.75L.71 9.66c1.1 2.18 3.35 3.67 5.96 3.67z"/>
-</svg>
+  <svg class="{{ icon_class|default:'icon' }}"
+       width="{{ icon_size|default:24 }}"
+       height="{{ icon_size|default:24 }}"
+       viewBox="0 0 13.05 13.33"
+       fill="currentColor"
+       xmlns="http://www.w3.org/2000/svg"
+       aria-hidden="true">
+    <path d="M6.67 2.64c.98 0 1.86.34 2.55 1l1.9-1.9C9.97.66 8.46 0 6.67 0 4.06 0 1.81 1.49.71 3.67l2.22 1.72c.52-1.58 2-2.75 3.74-2.75z" />
+    <path d="M13.05 6.82c0-.44-.04-.86-.11-1.26H6.67v2.5h3.59c-.16.82-.63 1.52-1.33 2l2.15 1.67c1.25-1.16 1.97-2.88 1.97-4.91z" />
+    <path d="M2.92 7.94c-.13-.4-.21-.83-.21-1.27 0-.44.08-.87.21-1.28L.71 3.67C.26 4.57 0 5.59 0 6.67c0 1.08.26 2.09.71 2.99l2.21-1.72z" />
+    <path d="M6.67 13.33c1.8 0 3.31-.59 4.41-1.61l-2.15-1.67c-.6.4-1.37.64-2.27.64-1.74 0-3.21-1.17-3.74-2.75L.71 9.66c1.1 2.18 3.35 3.67 5.96 3.67z" />
+  </svg>
 {% elif icon_name == "alert" %}
-<svg class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <path d="M8.6665 0.666687H7.33317V2.00002H5.99984V3.33335H4.6665V4.66669H3.33317V6.00002H1.99984V7.33335H0.666504V8.66669H1.99984V10H3.33317V11.3334H4.6665V12.6667H5.99984V14H7.33317V15.3334H8.6665V14H9.99984V12.6667H11.3332V11.3334H12.6665V10H13.9998V8.66669H15.3332V7.33335H13.9998V6.00002H12.6665V4.66669H11.3332V3.33335H9.99984V2.00002H8.6665V0.666687ZM8.6665 2.00002V3.33335H9.99984V4.66669H11.3332V6.00002H12.6665V7.33335H13.9998V8.66669H12.6665V10H11.3332V11.3334H9.99984V12.6667H8.6665V14H7.33317V12.6667H5.99984V11.3334H4.6665V10H3.33317V8.66669H1.99984V7.33335H3.33317V6.00002H4.6665V4.66669H5.99984V3.33335H7.33317V2.00002H8.6665ZM8.6665 4.66669H7.33317V8.66669H8.6665V4.66669ZM8.6665 10H7.33317V11.3334H8.6665V10Z"/>
-</svg>
+  <svg class="{{ icon_class|default:'icon' }}"
+       width="{{ icon_size|default:24 }}"
+       height="{{ icon_size|default:24 }}"
+       viewBox="0 0 16 16"
+       fill="currentColor"
+       xmlns="http://www.w3.org/2000/svg"
+       aria-hidden="true">
+    <path d="M8.6665 0.666687H7.33317V2.00002H5.99984V3.33335H4.6665V4.66669H3.33317V6.00002H1.99984V7.33335H0.666504V8.66669H1.99984V10H3.33317V11.3334H4.6665V12.6667H5.99984V14H7.33317V15.3334H8.6665V14H9.99984V12.6667H11.3332V11.3334H12.6665V10H13.9998V8.66669H15.3332V7.33335H13.9998V6.00002H12.6665V4.66669H11.3332V3.33335H9.99984V2.00002H8.6665V0.666687ZM8.6665 2.00002V3.33335H9.99984V4.66669H11.3332V6.00002H12.6665V7.33335H13.9998V8.66669H12.6665V10H11.3332V11.3334H9.99984V12.6667H8.6665V14H7.33317V12.6667H5.99984V11.3334H4.6665V10H3.33317V8.66669H1.99984V7.33335H3.33317V6.00002H4.6665V4.66669H5.99984V3.33335H7.33317V2.00002H8.6665ZM8.6665 4.66669H7.33317V8.66669H8.6665V4.66669ZM8.6665 10H7.33317V11.3334H8.6665V10Z" />
+  </svg>
 {% else %}
-<svg class="{{ icon_class|default:'icon' }}"
-     width="{{ icon_size|default:24 }}"
-     height="{{ icon_size|default:24 }}"
-     viewBox="{% if icon_viewbox %}{{ icon_viewbox }}{% else %}0 0 24 24{% endif %}"
-     fill="currentColor"
-     xmlns="http://www.w3.org/2000/svg"
-     aria-hidden="true"
-     {% if x_show %}x-show="{{ x_show }}"{% endif %}
-     {% if x_cloak %}x-cloak{% endif %}>
-  {% if icon_name == "search" %}
-    <path d="M6 2h8v2H6V2zM4 6V4h2v2H4zm0 8H2V6h2v8zm2 2H4v-2h2v2zm8 0v2H6v-2h8zm2-2h-2v2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm0-8h2v8h-2V6zm0 0V4h-2v2h2z" />
-  {% elif icon_name == "chevron-down" %}
-    <path d="M7 8H5v2h2v2h2v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2h-2v-2H9v-2H7V8z" />
-  {% elif icon_name == "sun-alt" %}
-    <path d="M13 0h-2v4h2V0ZM0 11v2h4v-2H0Zm24 0v2h-4v-2h4ZM13 24h-2v-4h2v4ZM8 6h8v2H8V6ZM6 8h2v8H6V8Zm2 10v-2h8v2H8Zm10-2h-2V8h2v8Zm2-14h2v2h-2V2Zm0 2v2h-2V4h2Zm2 18h-2v-2h2v2Zm-2-2h-2v-2h2v2ZM4 2H2v2h2v2h2V4H4V2ZM2 22h2v-2h2v-2H4v2H2v2Z" />
-  {% elif icon_name == "moon" %}
-    <path d="M6 2h8v2h-2v2h-2V4H6V2ZM4 6V4h2v2H4zm0 10H2V6h2v10Zm2 2H4v-2h2v2Zm2 2H6v-2h2v2Zm10 0v2H8v-2h10Zm2-2v2h-2v-2h2Zm-2-4h2v4h2v-8h-2v2h-2v2Zm-6 0v2h6v-2h-6Zm-2-2h2v2h-2v-2Zm0 0V6H8v6h2Z" />
-  {% elif icon_name == "menu" %}
-    <path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm16 5H4v2h16v-2z" />
-  {% elif icon_name == "chevron-left" %}
-    <path d="M16 5v2h-2V5h2zm-4 4V7h2v2h-2zm-2 2V9h2v2h-2zm0 2H8v-2h2v2zm2 2v-2h-2v2h2zm0 0h2v2h-2v-2zm4 4v-2h-2v2h2z" />
-  {% elif icon_name == "chevron-right" %}
-    <path d="M8 5v2h2V5H8zm4 4V7h-2v2h2zm2 2V9h-2v2h2zm0 2h2v-2h-2v2zm-2 2v-2h2v2h-2zm0 0h-2v2h2v-2zm-4 4v-2h2v2H8z" />
-  {% elif icon_name == "info-box" %}
-    <path d="M3 3h2v18H3V3zm16 0H5v2h14v14H5v2h16V3h-2zm-8 6h2V7h-2v2zm2 8h-2v-6h2v6z" />
-  {% elif icon_name == "check" %}
-    <path d="M18 6H20V8H18V6ZM16 10V8H18V10H16ZM14 12V10H16V12H14ZM12 14H14V12H12V14ZM10 16H12V14H10V16ZM8 16V18H10V16H8ZM6 14H8V16H6V14ZM6 14H4V12H6V14Z" />
-  {% elif icon_name == "close" %}
-    <path d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z" />
-  {% elif icon_name == "arrow-right" %}
-    <path d="M4 11v2h12v2h2v-2h2v-2h-2V9h-2v2H4zm10-4h2v2h-2V7zm0 0h-2V5h2v2zm0 10h2v-2h-2v2zm0 0h-2v2h2v-2z" />
-  {% elif icon_name == "link" %}
-    <path d="M4 6h7v2H4v8h7v2H2V6h2zm16 0h-7v2h7v8h-7v2h9V6h-2zm-3 5H7v2h10v-2z" />
-  {% elif icon_name == "human" %}
-    <path d="M10 2h4v4h-4V2zM3 7h18v2h-6v13h-2v-6h-2v6H9V9H3V7z" />
-  {% elif icon_name == "bullseye-arrow" %}
-    <path d="M6 2h10v2H6V2zM4 6V4h2v2H4zm0 12H2V6h2v12zm2 2H4v-2h2v2zm12 0H6v2h12v-2zm2-2v2h-2v-2h2zm0 0h2V8h-2v10zM12 6H8v2H6v8h2v2h8v-2h2v-4h-2v4H8V8h4V6zm2 8v-4h2V8h2V6h4V4h-2V2h-2v4h-2v2h-2v2h-4v4h4z" />
-  {% elif icon_name == "copy" %}
-    <path d="M10 2h6v2h4v18H4V4h4V2h2zm6 4v2H8V6H6v14h12V6h-2zm-2 0V4h-4v2h4z" />
-  {% elif icon_name == "get-help" %}
-    <path d="M6 2h10v2H6V2zM4 6V4h2v2H4zm0 12H2V6h2v12zm2 2H4v-2h2v2zm12 0H6v2h12v-2zm2-2v2h-2v-2h2zm0 0h2V8h-2v10zM12 6H8v2H6v8h2v2h8v-2h2v-4h-2v4H8V8h4V6zm2 8v-4h2V8h2V6h4V4h-2V2h-2v4h-2v2h-2v2h-4v4h4z" />
-  {% elif icon_name == "device-tv" %}
-    <path d="M20 2H2v20h2V4h16v12H6v2H4v2h2v-2h16V2h-2z" />
-  {% elif icon_name == "documentation" %}
-    <path d="M14 14.6666H2V1.33331H10V2.66665H11.3333V3.99998H12.6667V5.33331H14V14.6666ZM11.3333 3.99998H10V5.33331H11.3333V3.99998ZM3.33333 2.66665V13.3333H12.6667V6.66665H8.66667V2.66665H3.33333ZM8.66667 10.6666H4.66667V12H8.66667V10.6666ZM4.66667 7.99998H11.3333V9.33331H4.66667V7.99998ZM7.33333 5.33331H4.66667V6.66665H7.33333V5.33331Z" />
-  {% elif icon_name == "source-code" %}
-    <path d="M5.33341 6.00002V4.66669H6.66675V6.00002H5.33341ZM4.00008 7.33335V6.00002H5.33341V7.33335H4.00008ZM4.00008 8.66669H2.66675V7.33335H4.00008V8.66669ZM5.33341 10V8.66669H4.00008V10H5.33341ZM5.33341 10H6.66675V11.3334H5.33341V10ZM10.6667 6.00002V4.66669H9.33341V6.00002H10.6667ZM12.0001 7.33335V6.00002H10.6667V7.33335H12.0001ZM12.0001 8.66669V7.33335H13.3334V8.66669H12.0001ZM10.6667 10V8.66669H12.0001V10H10.6667ZM10.6667 10V11.3334H9.33341V10H10.6667Z" />
-  {% elif icon_name == "slack" %}
-    <path d="M13.3333 1.33331H1.33325V14.6666H2.66659V2.66665H13.3333V10.6666H3.99992V12H2.66659V13.3333H3.99992V12H14.6666V1.33331H13.3333ZM3.99992 4.66665H11.9999V5.99998H3.99992V4.66665ZM9.33325 7.33331H3.99992V8.66665H9.33325V7.33331Z" />
-  {% elif icon_name == "github-issues" %}
-    <path d="M3.33341 1.33331H6.00008V2.66665H4.66675V3.99998H3.33341V1.33331ZM3.33341 7.99998H2.00008V3.99998H3.33341V7.99998ZM4.66675 9.33331H3.33341V7.99998H4.66675V9.33331ZM6.00008 10.6666V9.33331H4.66675V10.6666H2.00008V9.33331H0.666748V10.6666H2.00008V12H4.66675V14.6666H6.00008V12H7.33341V10.6666H6.00008ZM6.00008 10.6666V12H4.66675V10.6666H6.00008ZM10.0001 2.66665V3.99998H6.00008V2.66665H10.0001ZM12.6667 3.99998H11.3334V2.66665H10.0001V1.33331H12.6667V3.99998ZM12.6667 7.99998V3.99998H14.0001V7.99998H12.6667ZM11.3334 9.33331V7.99998H12.6667V9.33331H11.3334ZM10.0001 10.6666V9.33331H11.3334V10.6666H10.0001ZM10.0001 12H8.66675V10.6666H10.0001V12ZM10.0001 12H11.3334V14.6666H10.0001V12Z" />
-  {% endif %}
-</svg>
+  <svg class="{{ icon_class|default:'icon' }}"
+       width="{{ icon_size|default:24 }}"
+       height="{{ icon_size|default:24 }}"
+       viewBox="{% if icon_viewbox %}{{ icon_viewbox }}{% else %}0 0 24 24{% endif %}"
+       fill="currentColor"
+       xmlns="http://www.w3.org/2000/svg"
+       aria-hidden="true"
+       {% if x_show %}x-show="{{ x_show }}"{% endif %}
+       {% if x_cloak %}x-cloak{% endif %}>
+    {% if icon_name == "search" %}
+      <path d="M6 2h8v2H6V2zM4 6V4h2v2H4zm0 8H2V6h2v8zm2 2H4v-2h2v2zm8 0v2H6v-2h8zm2-2h-2v2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm0-8h2v8h-2V6zm0 0V4h-2v2h2z" />
+    {% elif icon_name == "chevron-down" %}
+      <path d="M7 8H5v2h2v2h2v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2h-2v-2H9v-2H7V8z" />
+    {% elif icon_name == "sun-alt" %}
+      <path d="M13 0h-2v4h2V0ZM0 11v2h4v-2H0Zm24 0v2h-4v-2h4ZM13 24h-2v-4h2v4ZM8 6h8v2H8V6ZM6 8h2v8H6V8Zm2 10v-2h8v2H8Zm10-2h-2V8h2v8Zm2-14h2v2h-2V2Zm0 2v2h-2V4h2Zm2 18h-2v-2h2v2Zm-2-2h-2v-2h2v2ZM4 2H2v2h2v2h2V4H4V2ZM2 22h2v-2h2v-2H4v2H2v2Z" />
+    {% elif icon_name == "moon" %}
+      <path d="M6 2h8v2h-2v2h-2V4H6V2ZM4 6V4h2v2H4zm0 10H2V6h2v10Zm2 2H4v-2h2v2Zm2 2H6v-2h2v2Zm10 0v2H8v-2h10Zm2-2v2h-2v-2h2Zm-2-4h2v4h2v-8h-2v2h-2v2Zm-6 0v2h6v-2h-6Zm-2-2h2v2h-2v-2Zm0 0V6H8v6h2Z" />
+    {% elif icon_name == "menu" %}
+      <path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm16 5H4v2h16v-2z" />
+    {% elif icon_name == "chevron-left" %}
+      <path d="M16 5v2h-2V5h2zm-4 4V7h2v2h-2zm-2 2V9h2v2h-2zm0 2H8v-2h2v2zm2 2v-2h-2v2h2zm0 0h2v2h-2v-2zm4 4v-2h-2v2h2z" />
+    {% elif icon_name == "chevron-right" %}
+      <path d="M8 5v2h2V5H8zm4 4V7h-2v2h2zm2 2V9h-2v2h2zm0 2h2v-2h-2v2zm-2 2v-2h2v2h-2zm0 0h-2v2h2v-2zm-4 4v-2h2v2H8z" />
+    {% elif icon_name == "info-box" %}
+      <path d="M3 3h2v18H3V3zm16 0H5v2h14v14H5v2h16V3h-2zm-8 6h2V7h-2v2zm2 8h-2v-6h2v6z" />
+    {% elif icon_name == "check" %}
+      <path d="M18 6H20V8H18V6ZM16 10V8H18V10H16ZM14 12V10H16V12H14ZM12 14H14V12H12V14ZM10 16H12V14H10V16ZM8 16V18H10V16H8ZM6 14H8V16H6V14ZM6 14H4V12H6V14Z" />
+    {% elif icon_name == "close" %}
+      <path d="M5 5h2v2H5V5zm4 4H7V7h2v2zm2 2H9V9h2v2zm2 0h-2v2H9v2H7v2H5v2h2v-2h2v-2h2v-2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm2-2v2h-2V9h2zm2-2v2h-2V7h2zm0 0V5h2v2h-2z" />
+    {% elif icon_name == "arrow-right" %}
+      <path d="M4 11v2h12v2h2v-2h2v-2h-2V9h-2v2H4zm10-4h2v2h-2V7zm0 0h-2V5h2v2zm0 10h2v-2h-2v2zm0 0h-2v2h2v-2z" />
+    {% elif icon_name == "link" %}
+      <path d="M4 6h7v2H4v8h7v2H2V6h2zm16 0h-7v2h7v8h-7v2h9V6h-2zm-3 5H7v2h10v-2z" />
+    {% elif icon_name == "human" %}
+      <path d="M10 2h4v4h-4V2zM3 7h18v2h-6v13h-2v-6h-2v6H9V9H3V7z" />
+    {% elif icon_name == "bullseye-arrow" %}
+      <path d="M6 2h10v2H6V2zM4 6V4h2v2H4zm0 12H2V6h2v12zm2 2H4v-2h2v2zm12 0H6v2h12v-2zm2-2v2h-2v-2h2zm0 0h2V8h-2v10zM12 6H8v2H6v8h2v2h8v-2h2v-4h-2v4H8V8h4V6zm2 8v-4h2V8h2V6h4V4h-2V2h-2v4h-2v2h-2v2h-4v4h4z" />
+    {% elif icon_name == "copy" %}
+      <path d="M10 2h6v2h4v18H4V4h4V2h2zm6 4v2H8V6H6v14h12V6h-2zm-2 0V4h-4v2h4z" />
+    {% elif icon_name == "get-help" %}
+      <path d="M6 2h10v2H6V2zM4 6V4h2v2H4zm0 12H2V6h2v12zm2 2H4v-2h2v2zm12 0H6v2h12v-2zm2-2v2h-2v-2h2zm0 0h2V8h-2v10zM12 6H8v2H6v8h2v2h8v-2h2v-4h-2v4H8V8h4V6zm2 8v-4h2V8h2V6h4V4h-2V2h-2v4h-2v2h-2v2h-4v4h4z" />
+    {% elif icon_name == "device-tv" %}
+      <path d="M20 2H2v20h2V4h16v12H6v2H4v2h2v-2h16V2h-2z" />
+    {% elif icon_name == "documentation" %}
+      <path d="M14 14.6666H2V1.33331H10V2.66665H11.3333V3.99998H12.6667V5.33331H14V14.6666ZM11.3333 3.99998H10V5.33331H11.3333V3.99998ZM3.33333 2.66665V13.3333H12.6667V6.66665H8.66667V2.66665H3.33333ZM8.66667 10.6666H4.66667V12H8.66667V10.6666ZM4.66667 7.99998H11.3333V9.33331H4.66667V7.99998ZM7.33333 5.33331H4.66667V6.66665H7.33333V5.33331Z" />
+    {% elif icon_name == "source-code" %}
+      <path d="M5.33341 6.00002V4.66669H6.66675V6.00002H5.33341ZM4.00008 7.33335V6.00002H5.33341V7.33335H4.00008ZM4.00008 8.66669H2.66675V7.33335H4.00008V8.66669ZM5.33341 10V8.66669H4.00008V10H5.33341ZM5.33341 10H6.66675V11.3334H5.33341V10ZM10.6667 6.00002V4.66669H9.33341V6.00002H10.6667ZM12.0001 7.33335V6.00002H10.6667V7.33335H12.0001ZM12.0001 8.66669V7.33335H13.3334V8.66669H12.0001ZM10.6667 10V8.66669H12.0001V10H10.6667ZM10.6667 10V11.3334H9.33341V10H10.6667Z" />
+    {% elif icon_name == "slack" %}
+      <path d="M13.3333 1.33331H1.33325V14.6666H2.66659V2.66665H13.3333V10.6666H3.99992V12H2.66659V13.3333H3.99992V12H14.6666V1.33331H13.3333ZM3.99992 4.66665H11.9999V5.99998H3.99992V4.66665ZM9.33325 7.33331H3.99992V8.66665H9.33325V7.33331Z" />
+    {% elif icon_name == "github-issues" %}
+      <path d="M3.33341 1.33331H6.00008V2.66665H4.66675V3.99998H3.33341V1.33331ZM3.33341 7.99998H2.00008V3.99998H3.33341V7.99998ZM4.66675 9.33331H3.33341V7.99998H4.66675V9.33331ZM6.00008 10.6666V9.33331H4.66675V10.6666H2.00008V9.33331H0.666748V10.6666H2.00008V12H4.66675V14.6666H6.00008V12H7.33341V10.6666H6.00008ZM6.00008 10.6666V12H4.66675V10.6666H6.00008ZM10.0001 2.66665V3.99998H6.00008V2.66665H10.0001ZM12.6667 3.99998H11.3334V2.66665H10.0001V1.33331H12.6667V3.99998ZM12.6667 7.99998V3.99998H14.0001V7.99998H12.6667ZM11.3334 9.33331V7.99998H12.6667V9.33331H11.3334ZM10.0001 10.6666V9.33331H11.3334V10.6666H10.0001ZM10.0001 12H8.66675V10.6666H10.0001V12ZM10.0001 12H11.3334V14.6666H10.0001V12Z" />
+    {% endif %}
+  </svg>
 {% endif %}

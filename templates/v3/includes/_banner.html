@@ -8,9 +8,11 @@
             fate_time, number: time in ms after which the banner should fade. See animation.css for more info
 {% endcomment %}
 
-<div class="banner{% if fade_time %} banner--fade{% endif %}" role="alert" {% if fade_time %}style="--fade-delay: {{fade_time}}ms"{% endif %}>
-    {% if icon_name %}
+<div class="banner{% if fade_time %} banner--fade{% endif %}"
+     role="alert"
+     {% if fade_time %}style="--fade-delay: {{ fade_time }}ms"{% endif %}>
+  {% if icon_name %}
     {% include 'includes/icon.html' with icon_name=icon_name icon_class="banner__icon" icon_size=16 %}
-    {% endif %}
-    <span class="banner__message">{{banner_message|safe}}</span>
+  {% endif %}
+  <span class="banner__message">{{ banner_message|safe }}</span>
 </div>

@@ -51,16 +51,15 @@
     {% endfor %}
   </select>
   <div class="dropdown" :class="{ 'dropdown--open': open }" x-cloak>
-    <button type="button"
-            class="dropdown__trigger"
-            x-ref="trigger"
-            @click="open = !open"
-            @keydown.escape.prevent="open = false"
-            @keydown.arrow-down.prevent="open = true; $nextTick(() => $refs.list.querySelector('[role=option]')?.focus())"
-            :aria-expanded="open"
-            aria-haspopup="listbox"
-            {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
-            {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}>
+    <button type="button" class="dropdown__trigger" x-ref="trigger" @click="open = !open" @keydown.escape.prevent="open = false" @keydown.arrow-down.prevent="open = true; $nextTick(() => $refs.list.querySelector('[role=option]')?.focus())" :aria-expanded="open" aria-haspopup="listbox"
+      {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
+
+      {% if error %}
+        aria-invalid="true" aria-describedby="field-{{ name }}-error"
+      {% elif help_text %}
+        aria-describedby="field-{{ name }}-help"
+      {% endif %}
+      >
       <span class="dropdown__trigger-text"
             x-show="selected"
             x-text="selectedLabel"

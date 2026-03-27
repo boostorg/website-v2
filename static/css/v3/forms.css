@@ -57,11 +57,11 @@
 }
 
 /* Overrides to handle collision with styles.css */
-.field__input[type=email] {
+.field__input[type='email'] {
   background: transparent;
 }
 
-.dark .field__input[type=email] {
+.dark .field__input[type='email'] {
   background: transparent;
 }
 

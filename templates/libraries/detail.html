@@ -1,13 +1,20 @@
 {% extends "base.html" %}
 {% load i18n static avatar_tags version_select waffle_tags %}
 
-{% block title %}{% if object %}{{ object.display_name }} {% else %} {{ object.name }} {% endif %}({{ selected_version.display_name }}){% endblock %}
+{% block title %}
+  {% if object %}
+    {{ object.display_name }}
+  {% else %}
+    {{ object.name }}
+  {% endif %}
+  ({{ selected_version.display_name }})
+{% endblock %}
 {% block description %}
-    {% if library_version.description %}
-        {% trans library_version.description %}
-    {% elif object.description %}
-        {{ object.description }}
-    {% endif %}
+  {% if library_version.description %}
+    {% trans library_version.description %}
+  {% elif object.description %}
+    {{ object.description }}
+  {% endif %}
 {% endblock %}
 {% block author %}{{ author_tag }}{% endblock %}
 
@@ -22,7 +29,7 @@
         </div>
       </div>
       <div class="flex flex-row mr-3 md:mr-0">
-        {% include "libraries/includes/dev_master_links.html"  %}
+        {% include "libraries/includes/dev_master_links.html" %}
         {% version_select %}
       </div>
     </div>
@@ -35,113 +42,119 @@
           <div class="flex flex-col">
 
             <div class="pb-4 pt-1">
-              <span
-                class="py-0 px-2 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40"
-                title="C++ Version {% if library_version.cpp_standard_minimum %}{{ library_version.cpp_standard_minimum }}{% else %}03{% endif %} or Later"
-              ><span
-                class="scale-x-75 text-white dark:text-gray-800 tracking-wide origin-left w-6 inline-block whitespace-nowrap"
-              >C++</span> {% if library_version.cpp_standard_minimum %}{{ library_version.cpp_standard_minimum }}{% else %}03{% endif %}</span>
-
-              {% if library_version.cpp20_module_support %}
-              <span
-                class="ml-2 text-sm font-bold text-gray-600 dark:text-gray-300"
-                title="Supports usage via C++ 20 modules (import)"><i class="fa-solid fa-puzzle-piece"></i></span>
-              {% endif %}
-
-              <span class="float-right">{% if object.first_boost_version %}Added in Boost
-                {{ object.first_boost_version.display_name }}{% endif %}</span>
-            </div>
-
-            <div>
-              <div class="pt-1 text-sm flex flex-wrap">
-                <span class="font-bold">Categories: &nbsp;</span>
-                {% for category in object.categories.all %}
-                  <a class="inline text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-                  href="{% url 'libraries-list' category_slug=category.slug library_view_str=library_view_str version_slug=version_str %}">{{ category.name }}</a>
-                  {% if not forloop.last %},&nbsp;{% endif %}
-                {% endfor %}
-              </div>
-
-              <p class="pt-4 mt-4 whitespace-normal text-lg border-t border-gray-700">{{ library_version.description|default:"No description provided for this version." }}</p>
-            </div>
-
-            <div class="-ml-2 min-h-16">
-              {% if documentation_url %}
-              <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-                href="{{ documentation_url }}">
-                <span class="dark:text-white text-slate">Documentation</span>
-                  <span class="block text-xs break-words text-wrap whitespace-pre-line mb-2">{{ request.get_host }}{{ documentation_url|cut:"https://" }}</span>
-              </a>
+              <span class="py-0 px-2 text-sm font-bold text-gray-600 rounded-full border dark:text-gray-300 bg-green/40 border-green/60 dark:bg-green/40"
+                    title="C++ Version {% if library_version.cpp_standard_minimum %}{{ library_version.cpp_standard_minimum }}{% else %}03{% endif %} or Later"><span class="scale-x-75 text-white dark:text-gray-800 tracking-wide origin-left w-6 inline-block whitespace-nowrap">C++</span>
+              {% if library_version.cpp_standard_minimum %}
+                {{ library_version.cpp_standard_minimum }}
               {% else %}
+                03
+              {% endif %}
+            </span>
+
+            {% if library_version.cpp20_module_support %}
+              <span class="ml-2 text-sm font-bold text-gray-600 dark:text-gray-300"
+                    title="Supports usage via C++ 20 modules (import)"><i class="fa-solid fa-puzzle-piece"></i></span>
+            {% endif %}
+
+            <span class="float-right">
+              {% if object.first_boost_version %}
+                Added in Boost
+                {{ object.first_boost_version.display_name }}
+              {% endif %}
+            </span>
+          </div>
+
+          <div>
+            <div class="pt-1 text-sm flex flex-wrap">
+              <span class="font-bold">Categories: &nbsp;</span>
+              {% for category in object.categories.all %}
+                <a class="inline text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
+                   href="{% url 'libraries-list' category_slug=category.slug library_view_str=library_view_str version_slug=version_str %}">{{ category.name }}</a>
+                {% if not forloop.last %},&nbsp;{% endif %}
+              {% endfor %}
+            </div>
+
+            <p class="pt-4 mt-4 whitespace-normal text-lg border-t border-gray-700">
+              {{ library_version.description|default:"No description provided for this version." }}
+            </p>
+          </div>
+
+          <div class="-ml-2 min-h-16">
+            {% if documentation_url %}
+              <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
+                 href="{{ documentation_url }}">
+                <span class="dark:text-white text-slate">Documentation</span>
+                <span class="block text-xs break-words text-wrap whitespace-pre-line mb-2">{{ request.get_host }}{{ documentation_url|cut:"https://" }}</span>
+              </a>
+            {% else %}
               <div class="block items-center py-1 px-2 rounded">
                 <span class="dark:text-white text-slate">Documentation</span>
                 <span class="block text-xs break-words text-wrap whitespace-pre-line mb-2">No documentation for this version</span>
               </div>
-              {% endif %}
-            </div>
-            <div class="-ml-2 min-h-16">
-              <a
-                class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-                href="{{ object.github_issues_url }}">
-                <i class="float-right mt-1 fas fa-bug"></i>
-                <span class="dark:text-white text-slate">GitHub Issues</span>
-                <span class="block text-xs whitespace-pre-line mb-2">{{ object.github_issues_url|cut:"https://" }}</span>
-              </a>
-            </div>
-            <div class="-ml-2 min-h-16">
-              <a
-                class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
-                href="{{ github_url }}">
-                <i class="float-right mt-1 fab fa-github"></i>
-                <span class="dark:text-white text-slate">Source Code</span>
-                <span class="block text-xs whitespace-pre-line mb-2">{{ github_url|cut:"https://" }}</span>
-              </a>
-            </div>
+            {% endif %}
+          </div>
+          <div class="-ml-2 min-h-16">
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
+               href="{{ object.github_issues_url }}">
+              <i class="float-right mt-1 fas fa-bug"></i>
+              <span class="dark:text-white text-slate">GitHub Issues</span>
+              <span class="block text-xs whitespace-pre-line mb-2">{{ object.github_issues_url|cut:"https://" }}</span>
+            </a>
+          </div>
+          <div class="-ml-2 min-h-16">
+            <a class="block items-center py-1 px-2 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
+               href="{{ github_url }}">
+              <i class="float-right mt-1 fab fa-github"></i>
+              <span class="dark:text-white text-slate">Source Code</span>
+              <span class="block text-xs whitespace-pre-line mb-2">{{ github_url|cut:"https://" }}</span>
+            </a>
           </div>
         </div>
-        <div class="pb-2 px-0 ml-0 w-full h-auto md:w-2/3 md:pb-0 md:pl-6 md:mx-6">
-          <div class="flex">
-            <div class="flex w-full">
-              <div class="w-full">
-                {% flag "v3" %}
-                  {% if library_commits_stats_bars %}
-                    {% if documentation_url %}
-                      {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=library_commits_stats_bars theme="default" primary_cta_label="Source Code" primary_cta_url=github_url secondary_cta_label="Documentation" secondary_cta_url=documentation_url %}
-                    {% else %}
-                      {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=library_commits_stats_bars theme="default" primary_cta_label="Source Code" primary_cta_url=github_url %}
-                    {% endif %}
-                  {% endif %}
+      </div>
+      <div class="pb-2 px-0 ml-0 w-full h-auto md:w-2/3 md:pb-0 md:pl-6 md:mx-6">
+        <div class="flex">
+          <div class="flex w-full">
+            <div class="w-full">
+              {% flag "v3" %}
+              {% if library_commits_stats_bars %}
+                {% if documentation_url %}
+                  {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=library_commits_stats_bars theme="default" primary_cta_label="Source Code" primary_cta_url=github_url secondary_cta_label="Documentation" secondary_cta_url=documentation_url %}
                 {% else %}
-                  <div id="chart1" class="w-full text-center">{# Commits per Release #}</div>
-                {% endflag %}
-              </div>
-            </div>
+                  {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=library_commits_stats_bars theme="default" primary_cta_label="Source Code" primary_cta_url=github_url %}
+                {% endif %}
+              {% endif %}
+            {% else %}
+              <div id="chart1" class="w-full text-center">{# Commits per Release #}</div>
+            {% endflag %}
           </div>
         </div>
-      {% else %}
-        {% if object.first_boost_version %}
-          <div class="whitespace-normal">
-            There was no version of the {{object.display_name}} library in the
-            {{selected_version.display_name}} version of Boost. The
-            <a href="{% url 'library-detail' version_slug=object.first_boost_version.display_name library_slug=object.slug %}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">first release of the {{ object.display_name }} library in Boost</a>
-             was {{ object.first_boost_version.display_name }}.
-          </div>
-        {% else %}
-          <div class="whitespace-normal">
-            There was no version of the {{object.display_name}} library in the {{selected_version.display_name}} version of Boost.
-          </div>
-        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    {% if object.first_boost_version %}
+      <div class="whitespace-normal">
+        There was no version of the {{ object.display_name }} library in the
+        {{ selected_version.display_name }} version of Boost. The
+        <a href="{% url 'library-detail' version_slug=object.first_boost_version.display_name library_slug=object.slug %}"
+           class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">first release of the {{ object.display_name }} library in Boost</a>
+        was {{ object.first_boost_version.display_name }}.
+      </div>
+    {% else %}
+      <div class="whitespace-normal">
+        There was no version of the {{ object.display_name }} library in the {{ selected_version.display_name }} version of Boost.
+      </div>
+    {% endif %}
 
-      {% endif %}
+  {% endif %}
 
-    </section>
+</section>
 
-    {% if authors or maintainers or top_contributors_release_new or top_contributors_release_old %}
-    <section class="p-6 pt-1 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-      <!-- Avatars -->
-      <h2 class="text-2xl">This Release</h2>
-      <div class="flex flex-col gap-y-4">
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-3 gap-x-2">
+{% if authors or maintainers or top_contributors_release_new or top_contributors_release_old %}
+  <section class="p-6 pt-1 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+    <!-- Avatars -->
+    <h2 class="text-2xl">This Release</h2>
+    <div class="flex flex-col gap-y-4">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-3 gap-x-2">
         {% for user in authors %}
           {% avatar user=user commitauthor=user.commitauthor avatar_type="wide" contributor_label="Author" %}
         {% endfor %}
@@ -154,74 +167,75 @@
         {% for author in top_contributors_release_old %}
           {% avatar commitauthor=author avatar_type="wide" contributor_label="Contributor" %}
         {% endfor %}
-        </div>
       </div>
-    </section>
+    </div>
+  </section>
+{% endif %}
+
+<section class="p-6 pt-1 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+  <h2 class="text-2xl">Dependencies</h2>
+  {% if dependency_diff.previous_dependencies and dependency_diff.current_dependencies %}
+    <div class="flex gap-x-4 gap-y-2 flex-wrap">
+      {% for dep in dependency_diff.current_dependencies %}
+        <div>
+          <a href="{% url 'library-detail' version_slug=version_str library_slug=dep.slug %}"
+             class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ dep.name }}</a>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if dependency_diff.added %}
+      <h4 class="mt-3">Added</h4>
+      <div class="flex gap-x-4 flex-wrap">
+        {% for dep in dependency_diff.current_dependencies %}
+          {% if dep.name in dependency_diff.added %}
+            <a href="{% url 'library-detail' version_slug=version_str library_slug=dep.slug %}"
+               class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ dep.name }}</a>
+          {% endif %}
+        {% endfor %}
+      </div>
     {% endif %}
 
-    <section class="p-6 pt-1 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-      <h2 class="text-2xl">Dependencies</h2>
-      {% if dependency_diff.previous_dependencies and dependency_diff.current_dependencies %}
-        <div class="flex gap-x-4 gap-y-2 flex-wrap">
-          {% for dep in dependency_diff.current_dependencies %}
-            <div>
-              <a href="{% url 'library-detail' version_slug=version_str library_slug=dep.slug %}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ dep.name }}</a>
-            </div>
-          {% endfor %}
-        </div>
-
-        {% if dependency_diff.added %}
-          <h4 class="mt-3">Added</h4>
-          <div class="flex gap-x-4 flex-wrap">
-            {% for dep in dependency_diff.current_dependencies %}
-              {% if dep.name in dependency_diff.added %}
-                <a href="{% url 'library-detail' version_slug=version_str library_slug=dep.slug %}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ dep.name }}</a>
-              {% endif %}
-            {% endfor %}
-          </div>
-        {% endif %}
-
-        {% if dependency_diff.removed %}
-          <h4 class="mt-3">Removed</h4>
-          <div class="flex gap-x-4 flex-wrap">
-            {% for dep in dependency_diff.previous_dependencies %}
-              {% if dep.name in dependency_diff.removed %}
-                <a href="{% url 'library-detail' version_slug=version_str library_slug=dep.slug %}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ dep.name }}</a>
-              {% endif %}
-            {% endfor %}
-          </div>
-        {% endif %}
-      {% elif dependencies_not_calculated %}
-        <div class="text-sm">
-          Library dependencies will be generated soon, please check back later.
-        </div>
-      {% endif %}
-
-    </section>
-
-    {% if description %}
-      <section id="libraryReadMe"
-        class="boostlook p-6 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-        {{ description|safe }}
-      </section>
+    {% if dependency_diff.removed %}
+      <h4 class="mt-3">Removed</h4>
+      <div class="flex gap-x-4 flex-wrap">
+        {% for dep in dependency_diff.previous_dependencies %}
+          {% if dep.name in dependency_diff.removed %}
+            <a href="{% url 'library-detail' version_slug=version_str library_slug=dep.slug %}"
+               class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ dep.name }}</a>
+          {% endif %}
+        {% endfor %}
+      </div>
     {% endif %}
+  {% elif dependencies_not_calculated %}
+    <div class="text-sm">Library dependencies will be generated soon, please check back later.</div>
+  {% endif %}
 
-    {% if previous_contributors %}
-    <section class="p-6 pt-1 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-      <h2 class="text-2xl">All Time</h2>
-      <div class="flex flex-col gap-y-4">
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-3 gap-x-2">
+</section>
+
+{% if description %}
+  <section id="libraryReadMe"
+           class="boostlook p-6 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+    {{ description|safe }}
+  </section>
+{% endif %}
+
+{% if previous_contributors %}
+  <section class="p-6 pt-1 my-4 bg-white md:rounded-lg md:shadow-lg dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+    <h2 class="text-2xl">All Time</h2>
+    <div class="flex flex-col gap-y-4">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-3 gap-x-2">
         {% for author in previous_contributors %}
           {% avatar commitauthor=author avatar_type="wide" contributor_label="Contributor" %}
         {% endfor %}
-        </div>
       </div>
-    </section>
-    {% endif %}
+    </div>
+  </section>
+{% endif %}
 
-  </main>
-  <link rel="stylesheet" href="{% static 'css/highlight-js.min.css' %}">
-  <script src="{% static 'js/highlight.js' %}"></script>
+</main>
+<link rel="stylesheet" href="{% static 'css/highlight-js.min.css' %}">
+<script src="{% static 'js/vendor/highlight/highlight.js' %}"></script>
 
 {% endblock %}
 {% block footer_js %}

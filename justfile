@@ -178,5 +178,25 @@ alias shell := console
     docker compose cp "db:/tmp/${DUMP_FILENAME}" "./${DUMP_FILENAME}"
     echo "Database dumped successfully to ${DUMP_FILENAME}"
 
+@prettier:  ## formats JS and CSS files with Prettier
+    yarn prettier --write 'frontend/**/*.css' 'static/**/*.css' 'static/js/*.js' 'static/wagtail/*.js'
+
+@prettier-check:  ## checks JS and CSS formatting with Prettier
+    yarn prettier --check 'frontend/**/*.css' 'static/**/*.css' 'static/js/*.js' 'static/wagtail/*.js'
+
+@djlint:  ## reformats all HTML files with djlint
+    djlint templates/ users/templates/ reports/templates/ --reformat
+
+@djlint-check:  ## checks all HTML file formatting with djlint
+    djlint templates/ users/templates/ reports/templates/ --check
+
+@format:  ## formats Prettier (JS/CSS) and djlint (HTML)
+    just prettier
+    just djlint
+
+@format-check:  ## checks formatting for Prettier and djlint
+    just prettier-check
+    just djlint-check
+
 @manage +args:
     docker compose run --rm web python manage.py {{ args }}
