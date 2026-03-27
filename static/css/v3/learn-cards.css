@@ -14,13 +14,17 @@
     flex-direction: row;
 }
 
-@media (max-width: 696px) {
+@media (max-width: 1280px) {
     .learn-card__row {
         flex-direction: column;
     }
 
     .learn-card .square-card-image {
         flex: 1 0 auto;
+    }
+
+    .learn-card__link-column {
+        margin-bottom: var(--space-xxl);
     }
 }
 

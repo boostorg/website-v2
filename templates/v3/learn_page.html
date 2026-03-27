@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  Learn Boost
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/learn-page.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+  <div class="px-large">
+    <div class="learn-page-header py-large">
+      <h1>Start Anywhere. Learn Everything. Build Anything</h1>
+      <p>A complete, well-documented ecosystem of modern libraries-designed to grow with you.</p>
+    </div>
+    <div class="card-row py-large">
+      {% for data in learn_card_data %}
+        {% include 'v3/includes/_learn_card.html' with title=data.title text=data.text links=data.links image_src=data.image_src image_alt='Test Image' url=data.url label=data.label %}
+      {% endfor %}
+    </div>
+    <div class="py-large three-column">
+      {% include 'v3/includes/_why_boost_cards.html' with why_boost_cards=why_boost_cards %}
+    </div>
+    <div class="py-large mobile-d-none">
+      {% include 'v3/includes/_cards_carousel_v3.html' with carousel_id='library-cards-carousel' heading='Libraries categories' cards=library_cards %}
+    </div>
+    <div class="card-masonry py-large">
+      <div class="item-a">
+        {% with data=post_cards_data %}
+          {% include 'v3/includes/_post_cards_v3.html' with heading=data.heading posts=data.posts view_all_url=data.view_all_url view_all_label=data.view_all_label theme='teal' variant="content-card" %}
+        {% endwith %}
+      </div>
+      <div class="item-b">
+        {% with data=boost_community_data %}
+          {% include 'v3/includes/_post_cards_v3.html' with heading=data.heading posts=data.posts view_all_url=data.view_all_url view_all_label=data.view_all_label %}
+        {% endwith %}
+      </div>
+      <div class="item-d">
+        {% with card=info_card %}
+          {% include 'v3/includes/_basic_card.html' with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label primary_style='secondary-grey' image_url=card.image %}
+        {% endwith %}
+      </div>
+      <div class="item-c">
+        {% with card=calendar_card %}
+          {% include 'v3/includes/_vertical_card.html' with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label primary_style='secondary-grey' image_url=card.image %}
+        {% endwith %}
+      </div>
+      <div class="item-e">
+        {% include 'v3/includes/_mailing_list_card.html' %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
