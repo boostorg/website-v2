@@ -24,20 +24,26 @@
 
 {% block main_content_wrapper %}<div class="auth-page">{% endblock %}
 
-{% block content_header %}{% endblock %}
+  {% block content_header %}{% endblock %}
 
-{% block messages %}{% endblock %}
+  {% block messages %}{% endblock %}
 
-{% block content %}
-  <main class="auth-page__wrapper">
-    <div class="auth-page__illustration">
-      <img class="auth-page__illustration-foreground" src="{{ foreground_image_url|default:'' }}" alt="" loading="eager">
-      <img class="auth-page__illustration-background" src="{{ background_image_url|default:'' }}" alt="" loading="eager">
-    </div>
-    <div class="auth-page__content">
-      <div class="auth-page__content-inner">
-        {% block auth_content %}{% endblock %}
+  {% block content %}
+    <main class="auth-page__wrapper">
+      <div class="auth-page__illustration">
+        <img class="auth-page__illustration-foreground"
+             src="{{ foreground_image_url|default:'' }}"
+             alt=""
+             loading="eager">
+        <img class="auth-page__illustration-background"
+             src="{{ background_image_url|default:'' }}"
+             alt=""
+             loading="eager">
       </div>
-    </div>
-  </main>
-{% endblock %}
+      <div class="auth-page__content">
+        <div class="auth-page__content-inner">
+          {% block auth_content %}{% endblock %}
+        </div>
+      </div>
+    </main>
+  {% endblock %}

@@ -2,8 +2,8 @@
 {% load static %}
 
 {% block extrahead %}
-{{ block.super }}
-<style>
+  {{ block.super }}
+  <style>
 .split-container {
     display: flex;
     gap: 20px;
@@ -63,26 +63,24 @@
     font-size: 10px;
     color: #666;
 }
-</style>
+  </style>
 {% endblock %}
 
 {% block content %}
-<div class="split-container">
-    <div class="content-editor">
-        {{ block.super }}
-    </div>
+  <div class="split-container">
+    <div class="content-editor">{{ block.super }}</div>
     <div class="content-preview">
-        <div class="preview-header">
-          Live Preview <span class="saving_optional">(Saving is optional)</span>
-            <button type="button" class="preview-btn" id="preview-btn">Preview</button>
-        </div>
-        <div class="preview-content" id="preview-content">
-            <div class="preview-loading">Click "Preview" to see rendered content...</div>
-        </div>
+      <div class="preview-header">
+        Live Preview <span class="saving_optional">(Saving is optional)</span>
+        <button type="button" class="preview-btn" id="preview-btn">Preview</button>
+      </div>
+      <div class="preview-content" id="preview-content">
+        <div class="preview-loading">Click "Preview" to see rendered content...</div>
+      </div>
     </div>
-</div>
+  </div>
 
-<script>
+  <script>
 document.addEventListener('DOMContentLoaded', function() {
     const textArea = document.getElementById('id_asciidoc_content');
     const previewDiv = document.getElementById('preview-content');
@@ -134,5 +132,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
-</script>
+  </script>
 {% endblock %}

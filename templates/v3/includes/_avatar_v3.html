@@ -27,20 +27,32 @@
 {% load avatar_tags %}
 {% with size=size|default:"md" variant=variant|default:"yellow" %}
   {% if src %}
-    <span class="avatar avatar--{{ size }}"{% if name %} role="img" aria-label="{{ name }}"{% else %} aria-hidden="true"{% endif %}>
-      <img src="{{ src }}" alt="" class="avatar__img" width="{% if size == 'sm' %}32{% elif size == 'lg' %}44{% elif size == 'xl' %}48{% else %}40{% endif %}" height="{% if size == 'sm' %}32{% elif size == 'lg' %}44{% elif size == 'xl' %}48{% else %}40{% endif %}" loading="lazy" decoding="async">
+    <span class="avatar avatar--{{ size }}"
+          {% if name %} role="img" aria-label="{{ name }}"{% else %} aria-hidden="true"{% endif %}>
+      <img src="{{ src }}"
+           alt=""
+           class="avatar__img"
+           width="{% if size == 'sm' %}32{% elif size == 'lg' %}44{% elif size == 'xl' %}48{% else %}40{% endif %}"
+           height="{% if size == 'sm' %}32{% elif size == 'lg' %}44{% elif size == 'xl' %}48{% else %}40{% endif %}"
+           loading="lazy"
+           decoding="async">
     </span>
   {% elif name %}
     {% with inits=name|avatar_initials %}
       {% if inits == "?" %}
-        <span class="avatar avatar-placeholder avatar--{{ size }}" role="img" aria-label="{{ name }}">?</span>
+        <span class="avatar avatar-placeholder avatar--{{ size }}"
+              role="img"
+              aria-label="{{ name }}">?</span>
       {% else %}
-        <span class="avatar avatar--{{ size }} avatar--{{ variant }}" role="img" aria-label="{{ name }}">
+        <span class="avatar avatar--{{ size }} avatar--{{ variant }}"
+              role="img"
+              aria-label="{{ name }}">
           <span class="avatar__initials" aria-hidden="true">{{ inits }}</span>
         </span>
       {% endif %}
     {% endwith %}
   {% else %}
-    <span class="avatar avatar-placeholder avatar--{{ size }}" aria-hidden="true">?</span>
+    <span class="avatar avatar-placeholder avatar--{{ size }}"
+          aria-hidden="true">?</span>
   {% endif %}
 {% endwith %}

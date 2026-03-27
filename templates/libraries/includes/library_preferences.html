@@ -1,7 +1,7 @@
 {% load version_select %}
 {% with request.resolver_match.view_name as view_name %}
   <div class="pt-3 px-0 mb-2 text-right md:mb-2 mx-3 md:mx-0">
-    <form action="{{request.path}}" method="get">
+    <form action="{{ request.path }}" method="get">
       <div class="flex flex-wrap relative space-x-3 justify-start">
         {# Search #}
 
@@ -13,15 +13,18 @@
         {# Display options #}
         <div class="flex space-x-3 pb-3">
           <div class="relative group">
-            <a title="Name View" href="{% if category_slug %}{% url 'libraries-list' library_view_str='list' version_slug=version_str category_slug=category_slug %}{%  else %}{% url 'libraries-list' library_view_str='list' version_slug=version_str %}{% endif %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-list p-[10px] {% if library_view_str == 'list' %}bg-gray-100 dark:bg-slate{% else %}hover:bg-gray-100 dark:hover:bg-slate{% endif %}"></i></a>
+            <a title="Name View"
+               href="{% if category_slug %}{% url 'libraries-list' library_view_str='list' version_slug=version_str category_slug=category_slug %}{% else %}{% url 'libraries-list' library_view_str='list' version_slug=version_str %}{% endif %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-list p-[10px] {% if library_view_str == 'list' %}bg-gray-100 dark:bg-slate{% else %}hover:bg-gray-100 dark:hover:bg-slate{% endif %}"></i></a>
             <span class="z-50 group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">List&nbsp;View</span>
           </div>
           <div class="relative group">
-            <a title="Grid View" href="{% if category_slug %}{% url 'libraries-list' library_view_str='grid' version_slug=version_str category_slug=category_slug %}{%  else %}{% url 'libraries-list' library_view_str='grid' version_slug=version_str %}{% endif %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-th-large p-[10px] {% if library_view_str == 'grid' %}bg-gray-100 dark:bg-slate{% else %}hover:bg-gray-100 dark:hover:bg-slate{% endif %}"></i></a>
+            <a title="Grid View"
+               href="{% if category_slug %}{% url 'libraries-list' library_view_str='grid' version_slug=version_str category_slug=category_slug %}{% else %}{% url 'libraries-list' library_view_str='grid' version_slug=version_str %}{% endif %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-th-large p-[10px] {% if library_view_str == 'grid' %}bg-gray-100 dark:bg-slate{% else %}hover:bg-gray-100 dark:hover:bg-slate{% endif %}"></i></a>
             <span class="z-50 group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">Grid&nbsp;View</span>
           </div>
           <div class="relative group">
-            <a title="Category View" href="{% if category_slug %}{% url 'libraries-list' library_view_str='categorized' version_slug=version_str category_slug=category_slug %}{%  else %}{% url 'libraries-list' library_view_str='categorized' version_slug=version_str %}{% endif %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-cat p-[10px] {% if library_view_str == 'categorized' %}bg-gray-100 dark:bg-slate{% else %}hover:bg-gray-100 dark:hover:bg-slate{% endif %}"></i></a>
+            <a title="Category View"
+               href="{% if category_slug %}{% url 'libraries-list' library_view_str='categorized' version_slug=version_str category_slug=category_slug %}{% else %}{% url 'libraries-list' library_view_str='categorized' version_slug=version_str %}{% endif %}"><i class="link rounded border border-gray-300 cursor-pointer fas fa-cat p-[10px] {% if library_view_str == 'categorized' %}bg-gray-100 dark:bg-slate{% else %}hover:bg-gray-100 dark:hover:bg-slate{% endif %}"></i></a>
             <span class="z-50 group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">Category&nbsp;View</span>
           </div>
         </div>
@@ -30,23 +33,22 @@
 
         {# Select a category #}
         <div>
-          <select
-            name="category"
-            class="dropdown"
-            id="id_category"
-            {% if library_view_str == "categorized" %}disabled="disabled"{% endif %}
-          >
+          <select name="category"
+                  class="dropdown"
+                  id="id_category"
+                  {% if library_view_str == "categorized" %}disabled="disabled"{% endif %}>
 
             <option value="">Filter by category</option>
             {% for c in categories %}
-              <option value="{{ c.slug }}" {% if category == c %}selected="selected"{% endif %}>{{ c.name }}</option>
+              <option value="{{ c.slug }}"
+                      {% if category == c %}selected="selected"{% endif %}>{{ c.name }}</option>
             {% endfor %}
           </select>
         </div>
         {# Select a version #}
         <div class="flex flex-row lib_pref grow justify-end">
-          {% include "libraries/includes/dev_master_links.html"  %}
-            {% version_select %}
+          {% include "libraries/includes/dev_master_links.html" %}
+          {% version_select %}
         </div>
       </div>
     </form>

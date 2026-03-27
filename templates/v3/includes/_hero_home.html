@@ -24,8 +24,7 @@
          aria-label="Hero">
   <div class="hero-home__block">
     <div class="hero-home__content">
-      <h1 class="hero-home__headline">
-        {{ headline|default:"Built by the C++ community. Trusted by the world." }}</h1>
+      <h1 class="hero-home__headline">{{ headline|default:"Built by the C++ community. Trusted by the world." }}</h1>
       <div class="hero-home__actions">
         {% include "v3/includes/_button_hero.html" with label=primary_label|default:"I'm new to Boost" url=primary_url style="primary" type="button" %}
         {% include "v3/includes/_button_hero.html" with label=secondary_label|default:"I need a specific solution" url=secondary_url style="secondary" type="button" %}
@@ -35,14 +34,22 @@
       {% include "v3/includes/_install_card.html" with title=install_card_title|default:"Install Boost and get started in your terminal." card_id=install_card_id|default:"hero-home-install" %}
     </div>
     {% if hero_image_url or hero_image_url_light or hero_image_url_dark %}
-    <div class="hero-home__image{% if hero_image_url_dark %} hero-home__image--theme-aware{% endif %}">
-      {% with hero_light=hero_image_url_light|default:hero_image_url hero_dark=hero_image_url_dark %}
-      <img alt="" class="hero-home__img hero-home__img--light" src="{{ hero_light }}" loading="lazy" decoding="async">
-      {% if hero_dark %}
-      <img alt="" class="hero-home__img hero-home__img--dark" src="{{ hero_dark }}" loading="lazy" decoding="async">
-      {% endif %}
-      {% endwith %}
-    </div>
+      <div class="hero-home__image{% if hero_image_url_dark %} hero-home__image--theme-aware{% endif %}">
+        {% with hero_light=hero_image_url_light|default:hero_image_url hero_dark=hero_image_url_dark %}
+          <img alt=""
+               class="hero-home__img hero-home__img--light"
+               src="{{ hero_light }}"
+               loading="lazy"
+               decoding="async">
+          {% if hero_dark %}
+            <img alt=""
+                 class="hero-home__img hero-home__img--dark"
+                 src="{{ hero_dark }}"
+                 loading="lazy"
+                 decoding="async">
+          {% endif %}
+        {% endwith %}
+      </div>
     {% endif %}
   </div>
 </section>

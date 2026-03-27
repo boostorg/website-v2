@@ -2,7 +2,10 @@
 <tr class="text-xs" style="height: 34px;">
   <td class="px-2">{{ item.library.name }}</td>
   <td class="px-2">
-    {% for author in item.top_contributors_release %}{{ author.display_name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+    {% for author in item.top_contributors_release %}
+      {{ author.display_name }}
+      {% if not forloop.last %},{% endif %}
+    {% endfor %}
   </td>
   <td class="px-2 whitespace-nowrap">
     <span class="font-bold">{{ item.version_count.commit_count }}</span> commit{{ item.version_count.commit_count|pluralize }}

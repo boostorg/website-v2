@@ -21,13 +21,18 @@
     See _event_card.html and _post_card.html for examples.
 {% endcomment %}
 {% if heading or items %}
-  <section class="card-group card-group--{{ variant|default:'list' }}{% if variant == 'card' %} card-group--{{ theme|default:'default' }}{% endif %} card-group--{{ layout|default:'vertical' }}"{% if heading %} aria-labelledby="card-group-{{ heading|slugify }}"{% endif %}>
+  <section class="card-group card-group--{{ variant|default:'list' }}{% if variant == 'card' %} card-group--{{ theme|default:'default' }}{% endif %} card-group--{{ layout|default:'vertical' }}"
+           {% if heading %}aria-labelledby="card-group-{{ heading|slugify }}"{% endif %}>
     {% if heading %}
-      <h2 class="card-group__heading" id="card-group-{{ heading|slugify }}">{% if heading_url %}<a href="{{ heading_url }}">{{ heading }}</a>{% else %}{{ heading }}{% endif %}</h2>
+      <h2 class="card-group__heading" id="card-group-{{ heading|slugify }}">
+        {% if heading_url %}
+          <a href="{{ heading_url }}">{{ heading }}</a>
+        {% else %}
+          {{ heading }}
+        {% endif %}
+      </h2>
     {% endif %}
-    {% block card_list %}
-      {# Consumers will fill this block with their item loop #}
-    {% endblock %}
+    {% block card_list %}{# Consumers will fill this block with their item loop #}{% endblock %}
     {% if primary_cta_url or secondary_cta_url %}
       <div class="card__cta_section">
         {% if primary_cta_url %}

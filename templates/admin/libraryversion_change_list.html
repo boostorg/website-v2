@@ -2,10 +2,12 @@
 {% load i18n admin_urls %}
 
 {% block object-tools %}
-<ul class="object-tools">
+  <ul class="object-tools">
     {% block object-tools-items %}
-        {{ block.super }}
-        <li><a href="{% url 'admin:update_docs_urls' %}" class="addlink">{% trans "Refresh Documentation Links" %}</a></li>
+      {{ block.super }}
+      <li>
+        <a href="{% url 'admin:update_docs_urls' %}" class="addlink">{% trans "Refresh Documentation Links" %}</a>
+      </li>
     {% endblock %}
-</ul>
+  </ul>
 {% endblock %}

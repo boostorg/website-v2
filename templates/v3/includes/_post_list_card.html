@@ -22,34 +22,36 @@
         <li class="card-group__item">
           <article class="post-card">
             <div class="post-card__row">
-                <div class="card__column">
-                    <div class="post-card__title-block">
-                      <a href="{{ item.get_absolute_url }}" class="post-card__title">{{ item.title }}</a>
-                      {% if item.visible_content %}
-                        <div class="post-card__summary">{{item.visible_content|urlize|url_target_blank:''|linebreaksbr|multi_truncate_middle:30}}</div>
-                      {% endif %}
-                      <div class="post-card__meta">
-                        <time datetime="{{ item.created_at|date:'c' }}">{{ item.created_at|date:"d/m/Y" }}</time>
-                        {% if item.determined_news_type %}<span>{{ item.determined_news_type|capfirst }}</span>{% endif %}
-                        {% if item.tag %}<span>#{{ item.tag }}</span>{% endif %}
-                      </div>
+              <div class="card__column">
+                <div class="post-card__title-block">
+                  <a href="{{ item.get_absolute_url }}" class="post-card__title">{{ item.title }}</a>
+                  {% if item.visible_content %}
+                    <div class="post-card__summary">
+                      {{ item.visible_content|urlize|url_target_blank:''|linebreaksbr|multi_truncate_middle:30 }}
                     </div>
-                {% if item.author and item.author.name %}
-                    {% include "v3/includes/_user_profile.html" with author=item.author only %}
-                {% endif %}
+                  {% endif %}
+                  <div class="post-card__meta">
+                    <time datetime="{{ item.created_at|date:'c' }}">{{ item.created_at|date:"d/m/Y" }}</time>
+                    {% if item.determined_news_type %}<span>{{ item.determined_news_type|capfirst }}</span>{% endif %}
+                    {% if item.tag %}<span>#{{ item.tag }}</span>{% endif %}
+                  </div>
                 </div>
-                {% if item.video_thumbnail %}
-                <a  class="post-card__thumbnail" href="{{ item.get_absolute_url }}">
+                {% if item.author and item.author.name %}
+                  {% include "v3/includes/_user_profile.html" with author=item.author only %}
+                {% endif %}
+              </div>
+              {% if item.video_thumbnail %}
+                <a class="post-card__thumbnail" href="{{ item.get_absolute_url }}">
                   {% image item.video_thumbnail fill-360x200 %}
                   <div class="post-card__play-icon">
                     {% include "includes/icon.html" with icon_name="play_button" icon_size=16 only %}
                   </div>
                 </a>
-                {% elif item.image %}
-                <a  class="post-card__thumbnail" href="{{ item.get_absolute_url }}">
-                    <img src="{{item.image.url}}" />
+              {% elif item.image %}
+                <a class="post-card__thumbnail" href="{{ item.get_absolute_url }}">
+                  <img src="{{ item.image.url }}" />
                 </a>
-                {% endif %}
+              {% endif %}
             </div>
           </article>
         </li>

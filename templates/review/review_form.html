@@ -5,7 +5,8 @@
 {% block subnav %}
   <div class="py-8 px-4 space-y-4 text-sm uppercase border-b md:py-2 md:px-0 md:space-x-10 border-slate">
     <a href="{% url 'review-process' %}" class="block md:inline">Review Process</a>
-    <a href="{% url 'review-request' %}" class="block md:inline md:py-1 md:border-b text-orange md:border-orange">Submit Review</a>
+    <a href="{% url 'review-request' %}"
+       class="block md:inline md:py-1 md:border-b text-orange md:border-orange">Submit Review</a>
     <a href="{% url 'review-upcoming' %}" class="block md:inline">Upcoming Reviews</a>
     <a href="{% url 'review-past' %}" class="block md:inline">Past Reviews</a>
   </div>

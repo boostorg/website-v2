@@ -1,12 +1,15 @@
 {% extends "admin/base.html" %}
 {% load i18n %}
 
-{% block title %}{{ title }} | {% trans 'boost.revsys.dev admin' %}{% endblock %}
+{% block title %}
+  {{ title }} | {% trans 'boost.revsys.dev admin' %}
+{% endblock %}
 
-{% block extrastyle %}{{ block.super }}
-{% if ENVIRONMENT_NAME and ENVIRONMENT_COLOR %}
-<!-- Environment notice -->
-<style type="text/css"{% if request.csp_nonce %} nonce="{{ request.csp_nonce }}"{% endif %}>
+{% block extrastyle %}
+  {{ block.super }}
+  {% if ENVIRONMENT_NAME and ENVIRONMENT_COLOR %}
+    <!-- Environment notice -->
+    <style type="text/css"{% if request.csp_nonce %} nonce="{{ request.csp_nonce }}"{% endif %}>
     {{ ENVIRONMENT_ADMIN_SELECTOR }}:before {
         display: block;
         line-height: 35px;
@@ -22,12 +25,12 @@
             z-index: 1000;
         {% endif %}
     }
-</style>
-{% endif %}
+    </style>
+  {% endif %}
 {% endblock %}
 
 {% block branding %}
-<h1 id="site-name">{% trans 'boost.revsys.dev administration' %}</h1>
+  <h1 id="site-name">{% trans 'boost.revsys.dev administration' %}</h1>
 {% endblock %}
 
 {% block nav-global %}{% endblock %}

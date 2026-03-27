@@ -16,7 +16,8 @@
             <form method="post" action={{ action_url }}>
               {% csrf_token %}
               {{ redirect_field }}
-              <button type="submit" class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">
+              <button type="submit"
+                      class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">
                 {% trans 'Confirm' %}
               </button>
             </form>
@@ -31,7 +32,7 @@
             {% blocktrans %}This email confirmation link expired or is invalid. Please <a href="{{ email_url }}">issue a new email confirmation request</a>.{% endblocktrans %}
           </p>
         {% endif %}
-        </div>
+      </div>
     </div>
   </div>
 {% endblock %}

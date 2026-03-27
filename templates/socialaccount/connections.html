@@ -21,15 +21,17 @@
             {% csrf_token %}
 
             <fieldset>
-              {% if form.non_field_errors %}
-                <div id="errorMsg">{{ form.non_field_errors }}</div>
-              {% endif %}
+              {% if form.non_field_errors %}<div id="errorMsg">{{ form.non_field_errors }}</div>{% endif %}
 
               {% for base_account in form.accounts %}
                 {% with account=base_account.get_provider_account %}
                   <div>
-                    <label for="id_account_{{ base_account.id }}" class="text-slate dark:text-white/70">
-                      <input id="id_account_{{ base_account.id }}" type="radio" name="account" value="{{ base_account.id }}" />
+                    <label for="id_account_{{ base_account.id }}"
+                           class="text-slate dark:text-white/70">
+                      <input id="id_account_{{ base_account.id }}"
+                             type="radio"
+                             name="account"
+                             value="{{ base_account.id }}" />
                       <span class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{ account.get_brand.name }}</span>
                       {{ account }}
                     </label>
@@ -38,15 +40,16 @@
               {% endfor %}
 
               <div class="my-4">
-                <button type="submit" class="py-1 px-2 text-sm text-white rounded border border-orange bg-orange">{% trans 'Remove Connection' %}</button>
+                <button type="submit"
+                        class="py-1 px-2 text-sm text-white rounded border border-orange bg-orange">
+                  {% trans 'Remove Connection' %}
+                </button>
               </div>
             </fieldset>
           </div>
         </form>
       {% else %}
-        <p class="mt-0 text-center">
-          {% trans 'You currently have no social network accounts connected to this account.' %}
-        </p>
+        <p class="mt-0 text-center">{% trans 'You currently have no social network accounts connected to this account.' %}</p>
       {% endif %}
 
       <h2 class="text-2xl text-center">{% trans 'Add a Third Party Account' %}</h2>

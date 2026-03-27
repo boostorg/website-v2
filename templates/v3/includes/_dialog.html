@@ -25,7 +25,10 @@
 {% endcomment %}
 
 <div class="dialog-modal" id="{{ dialog_id }}">
-  <a class="dialog-modal__backdrop" href="#_" aria-hidden="true" tabindex="-1"></a>
+  <a class="dialog-modal__backdrop"
+     href="#_"
+     aria-hidden="true"
+     tabindex="-1"></a>
   <div class="dialog-modal__container"
        role="dialog"
        aria-modal="true"
@@ -41,9 +44,9 @@
       </a>
     </div>
     {% if description %}
-    <div class="dialog-modal__description" id="{{ dialog_id }}-desc">
-      <p>{{ description }}</p>
-    </div>
+      <div class="dialog-modal__description" id="{{ dialog_id }}-desc">
+        <p>{{ description }}</p>
+      </div>
     {% endif %}
     <div class="dialog-modal__buttons">
       {% include "v3/includes/_button.html" with label=primary_label style="primary" url=primary_url extra_classes="btn-flex" %}

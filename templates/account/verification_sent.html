@@ -6,8 +6,13 @@
     <div class="md:mt-11 w-full bg-white dark:bg-charcoal mx-auto rounded py-9 px-3 md:pt-20">
       <div class="w-full text-center">
         <p class="m-0 p-2">An email has been sent to the provided email address</p>
-        <p class="m-0 p-2">Please click on the link in the email to finish the sign up process. The link will expire in {{ EMAIL_CONFIRMATION_EXPIRE_DAYS }} days.</p>
-        <p class="m-0 p-2">Continue to <a href="{% url 'account_login' %}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">log in</a></p>
+        <p class="m-0 p-2">
+          Please click on the link in the email to finish the sign up process. The link will expire in {{ EMAIL_CONFIRMATION_EXPIRE_DAYS }} days.
+        </p>
+        <p class="m-0 p-2">
+          Continue to <a href="{% url 'account_login' %}"
+    class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">log in</a>
+        </p>
       </div>
     </div>
   </div>

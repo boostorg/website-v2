@@ -19,6 +19,11 @@
     {% include "v3/includes/header/_header_nav_link.html" with url="/news/" label="Posts" nav_id="news" is_unread=True %}
     {% include "v3/includes/header/_header_nav_link.html" with url="#" label="Selected" is_active=True %}
 {% endcomment %}
-<a href="{{ url }}" class="header__nav-link{% if is_active or nav_id and active_nav_item == nav_id %} header__nav-link--active{% endif %}{% if is_unread %} header__nav-link--unread{% endif %}"{% if is_active or nav_id and active_nav_item == nav_id %} aria-current="page"{% endif %}>
-  {{ label }}{% if is_unread %}<span class="header__nav-link-sr-hint"> (new)</span><span class="header__nav-link-dot" aria-hidden="true"></span>{% endif %}
+<a href="{{ url }}"
+   class="header__nav-link{% if is_active or nav_id and active_nav_item == nav_id %} header__nav-link--active{% endif %}{% if is_unread %} header__nav-link--unread{% endif %}"
+   {% if is_active or nav_id and active_nav_item == nav_id %}aria-current="page"{% endif %}>
+  {{ label }}
+  {% if is_unread %}
+    <span class="header__nav-link-sr-hint">(new)</span><span class="header__nav-link-dot" aria-hidden="true"></span>
+  {% endif %}
 </a>

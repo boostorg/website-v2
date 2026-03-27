@@ -8,22 +8,18 @@
     <form method="POST">
       {% csrf_token %}
       {% for field in form %}
-      <p>
-      {% blocktrans count days=ACCOUNT_DELETION_GRACE_PERIOD_DAYS trimmed %}
-      Your account will be scheduled for deletion in {{ ACCOUNT_DELETION_GRACE_PERIOD_DAYS }} day.
-      You can cancel the deletion before then.
-      {% plural %}
-      Your account will be scheduled for deletion in {{ ACCOUNT_DELETION_GRACE_PERIOD_DAYS }} days.
-      You can cancel the deletion before then.
-      {% endblocktrans %}
-      </p>
-      <div>
-        {% include "includes/_form_input.html" %}
-      </div>
+        <p>
+          {% blocktrans count days=ACCOUNT_DELETION_GRACE_PERIOD_DAYS trimmed %}
+            Your account will be scheduled for deletion in {{ ACCOUNT_DELETION_GRACE_PERIOD_DAYS }} day.
+            You can cancel the deletion before then.
+          {% plural %}
+            Your account will be scheduled for deletion in {{ ACCOUNT_DELETION_GRACE_PERIOD_DAYS }} days.
+            You can cancel the deletion before then.
+          {% endblocktrans %}
+        </p>
+        <div>{% include "includes/_form_input.html" %}</div>
       {% endfor %}
-      <button class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">
-        {% trans 'Confirm' %}
-      </button>
+      <button class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">{% trans 'Confirm' %}</button>
       <a href="{% url 'profile-account' %}">{% trans 'Cancel' %}</a>
     </form>
   </div>
