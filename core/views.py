@@ -385,15 +385,16 @@ class LearnPageView(V3Mixin, TemplateView):
         ctx["why_boost_cards"] = demo_cards[:6]
         ctx["calendar_card"] = example_card
         ctx["info_card"] = example_card
-        ctx["event_cards_data"] = {
+        ctx["post_cards_data"] = {
             "heading": "Posts from the Boost Community",
-            "primary_btn_url": "#",
-            "primary_btn_text": "View All Posts",
-            "event_list": 4
+            "view_all_url": "#",
+            "view_all_label": "View All Posts",
+            "variant": "Content Card",
+            "posts": 4
             * [
                 {
                     "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
-                    "card_url": "#",
+                    "url": "#",
                     "description": "Lorem Ispum Sum Delores",
                     "date": "03/03/2025",
                     "category": "Issues",
@@ -409,14 +410,14 @@ class LearnPageView(V3Mixin, TemplateView):
         }
         ctx["boost_community_data"] = {
             "heading": "The Boost community",
-            "primary_btn_url": "#",
-            "primary_btn_text": "Explore the community",
-            "event_list": 3
+            "view_all_url": "#",
+            "view_all_label": "Explore the community",
+            "posts": 3
             * [
                 {
                     "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
                     "description": "Lorem Ispum Sum Delores",
-                    "card_url": "#",
+                    "url": "#",
                     "date": "03/03/2025",
                     "category": "Issues",
                     "tag": "beast",
