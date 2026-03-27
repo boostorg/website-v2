@@ -14,10 +14,22 @@
 
 .markdown-content {
     color: var(--color-text-secondary);
-    padding: 0 var(--space-large)
+    padding: 0 var(--space-large);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-default);
+    /* 16.8px */
+    letter-spacing: var(--letter-spacing-tight);
 }
 
-.markdown-content h1, h2, h3, h4, h5, h6, b {
+.markdown-content h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+b,
+strong {
     color: var(--color-text-primary);
     font-weight: var(--font-weight-medium);
 }
