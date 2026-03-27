@@ -165,7 +165,7 @@ graph LR
       ta.removeAttribute('aria-hidden');
       ta.tabIndex = 0;
     }
-    import('/static/js/v3/wysiwyg-editor.js').then(m => m.initWysiwyg('id_demo_content'));
+    import('/static/js/vendor/wysiwyg-editor/wysiwyg-editor.js').then(m => m.initWysiwyg('id_demo_content'));
   }
 
   document.getElementById('wysiwyg-demo-fill')?.addEventListener('click', () => {
@@ -183,7 +183,7 @@ graph LR
   });
 
   // Load and init WYSIWYG on page load so the editor is ready without clicking Fill demo content
-  import('/static/js/v3/wysiwyg-editor.js').then(m => m.initWysiwyg('id_demo_content'));
+  import('/static/js/vendor/wysiwyg-editor/wysiwyg-editor.js').then(m => m.initWysiwyg('id_demo_content'));
   </script>
 </div>
 {% endwith %}
