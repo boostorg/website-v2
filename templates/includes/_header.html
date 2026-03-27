@@ -1,57 +1,91 @@
 {% load static %}
 {% load account socialaccount %}
 <div class="header-menu-bar topnavbar">
-    <!-- mobile navbar -->
-    <div id="mobileNav" >
-      <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
-      <div id="selectedpage" onclick="openNav()" class="">
-        <div id="pageName">{{ active_nav_item|title }}</div>
-        <div class="material-symbols-outlined">arrow_drop_down</div>
+  <!-- mobile navbar -->
+  <div id="mobileNav">
+    <a href="{% url 'home' %}" title="Boost Home" class="logo-link">
+      <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost">
+    </a>
+    <div id="selectedpage" onclick="openNav()" class="">
+      <div id="pageName">{{ active_nav_item|title }}</div>
+      <div class="material-symbols-outlined">arrow_drop_down</div>
+    </div>
+    <div id="pageselector"
+         onmouseleave="closeNav()"
+         class="hide boost-drop-shadow">
+      <div class="mobile-menu-item">
+        <a href="{% url 'news' %}" title="News">News</a>
       </div>
-      <div id="pageselector" onmouseleave="closeNav()" class="hide boost-drop-shadow"  >
-          <div class="mobile-menu-item"><a href="{% url 'news' %}" title="News">News</a></div>
-          <div class="mobile-menu-item"><a href="{% url 'docs' %}" title="Learn">Learn</a></div>
-          <div class="mobile-menu-item"><a href="{% url 'community' %}" title="Community">Community</a></div>
-          <div class="mobile-menu-item"><a href="{% url 'libraries' %}" title="Libraries">Libraries</a></div>
-          <div class="mobile-menu-item"><a href="{% url 'releases-most-recent' %}" title="Releases">Releases</a></div>
+      <div class="mobile-menu-item">
+        <a href="{% url 'docs' %}" title="Learn">Learn</a>
+      </div>
+      <div class="mobile-menu-item">
+        <a href="{% url 'community' %}" title="Community">Community</a>
+      </div>
+      <div class="mobile-menu-item">
+        <a href="{% url 'libraries' %}" title="Libraries">Libraries</a>
+      </div>
+      <div class="mobile-menu-item">
+        <a href="{% url 'releases-most-recent' %}" title="Releases">Releases</a>
       </div>
     </div>
-    <!-- desktop navbar -->
-    <div id="desktopNav" class="left-menubar">
-        <a href="{% url 'home' %}" title="Boost Home" class="logo-link"><img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost"></a>
-        <a href="{% url 'news' %}" id="news" class="menu-link {% if active_nav_item == 'news' %}active-link{% endif %}">news</a>
-        <a href="{% url 'docs' %}" id="learn" class="menu-link {% if active_nav_item == 'learn' %}active-link{% endif %}">learn</a>
-        <a href="{% url 'community' %}" id="community" class="menu-link {% if active_nav_item == 'community' %}active-link{% endif %}">community</a>
-        <a href="{% url 'libraries' %}" id="libraries" class="menu-link {% if active_nav_item == 'libraries' %}active-link{% endif %}">libraries</a>
-        <a href="{% url 'releases-most-recent' %}" id="releases" class="menu-link {% if active_nav_item == 'releases' %}active-link{% endif %}">releases</a>
-    </div>
-    <div class="right-menubar" x-data="{ 'searchOpen': false }">
-        <span style="position: relative;" x-ref="desktopSearchArea">
-         <i id="gecko-search-button" data-current-boost-version="{{ current_version.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="sans-serif" class="fas fa-search icon-link"></i>
-        </span>
-        <span x-data="{ 'guideOpen': false }" style="position:relative;">
-            <i class="icon-link fas fa-question-circle" @click="guideOpen = !guideOpen"></i>
-                <span x-show="guideOpen" x-cloak @click.away="guideOpen = false" id="guideMenu" class="guide-modal boost-drop-shadow hidden">
-                    <a href="/doc/user-guide/index.html">User Guide</a>
-                    <a href="/doc/contributor-guide/index.html">Contributor Guide</a>
-                    <a href="{% url 'review-process' %}">Formal Reviews</a>
-                </span>
-            </span>
-        {% if not disable_theme_switcher %}
-        <i id="light-dark" class="fas fa-sun icon-link " onclick="changeTheme()"></i>
-        {% endif %}
-        <span x-data="{ 'userOpen': false }" class="menu-link w-8 relative">
-            {# HTMX to load the avatar content, allows cached docs/guides pages to load the user status #}
-            <span hx-get="/users/avatar/"
-                 hx-trigger="load"
-                 hx-target="#avatar"
-                 hx-indicator="#avatar">
-            </span>
-            <span id="avatar"></span>
-        </span>
-    </div>
+  </div>
+  <!-- desktop navbar -->
+  <div id="desktopNav" class="left-menubar">
+    <a href="{% url 'home' %}" title="Boost Home" class="logo-link">
+      <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost">
+    </a>
+    <a href="{% url 'news' %}"
+       id="news"
+       class="menu-link {% if active_nav_item == 'news' %}active-link{% endif %}">news</a>
+    <a href="{% url 'docs' %}"
+       id="learn"
+       class="menu-link {% if active_nav_item == 'learn' %}active-link{% endif %}">learn</a>
+    <a href="{% url 'community' %}"
+       id="community"
+       class="menu-link {% if active_nav_item == 'community' %}active-link{% endif %}">community</a>
+    <a href="{% url 'libraries' %}"
+       id="libraries"
+       class="menu-link {% if active_nav_item == 'libraries' %}active-link{% endif %}">libraries</a>
+    <a href="{% url 'releases-most-recent' %}"
+       id="releases"
+       class="menu-link {% if active_nav_item == 'releases' %}active-link{% endif %}">releases</a>
+  </div>
+  <div class="right-menubar" x-data="{ 'searchOpen': false }">
+    <span style="position: relative;" x-ref="desktopSearchArea">
+      <i id="gecko-search-button"
+         data-current-boost-version="{{ current_version.stripped_boost_url_slug }}"
+         data-theme-mode="light"
+         data-font-family="sans-serif"
+         class="fas fa-search icon-link"></i>
+    </span>
+    <span x-data="{ 'guideOpen': false }" style="position:relative;">
+      <i class="icon-link fas fa-question-circle"
+         @click="guideOpen = !guideOpen"></i>
+      <span x-show="guideOpen"
+            x-cloak
+            @click.away="guideOpen = false"
+            id="guideMenu"
+            class="guide-modal boost-drop-shadow hidden">
+        <a href="/doc/user-guide/index.html">User Guide</a>
+        <a href="/doc/contributor-guide/index.html">Contributor Guide</a>
+        <a href="{% url 'review-process' %}">Formal Reviews</a>
+      </span>
+    </span>
+    {% if not disable_theme_switcher %}
+      <i id="light-dark" class="fas fa-sun icon-link " onclick="changeTheme()"></i>
+    {% endif %}
+    <span x-data="{ 'userOpen': false }" class="menu-link w-8 relative">
+      {# HTMX to load the avatar content, allows cached docs/guides pages to load the user status #}
+      <span hx-get="/users/avatar/"
+            hx-trigger="load"
+            hx-target="#avatar"
+            hx-indicator="#avatar"></span>
+      <span id="avatar"></span>
+    </span>
+  </div>
 </div>
-    <script>
+<script>
 
     if (window.parent !== window) {
       var nav = document.getElementsByClassName('topnavbar');
@@ -94,4 +128,4 @@
           guide.classList.remove("hidden");
         }
       }
-    </script>
+</script>

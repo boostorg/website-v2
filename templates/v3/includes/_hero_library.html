@@ -27,55 +27,59 @@
       <div class="hero-library__meta">
         <div class="hero-library__tags">
           {% for tag in category_tags %}
-          {% include "v3/includes/_category_tag.html" with tag_label=tag.label url=tag.url|default:"#" variant="neutral" size="default" %}
+            {% include "v3/includes/_category_tag.html" with tag_label=tag.label url=tag.url|default:"#" variant="neutral" size="default" %}
           {% empty %}
-          {% include "v3/includes/_category_tag.html" with tag_label="Concurrent" url="#" variant="neutral" size="default" %}
-          {% include "v3/includes/_category_tag.html" with tag_label="IO" url="#" variant="neutral" size="default" %}
-          {% include "v3/includes/_category_tag.html" with tag_label="Flagship" url="#" variant="neutral" size="default" %}
+            {% include "v3/includes/_category_tag.html" with tag_label="Concurrent" url="#" variant="neutral" size="default" %}
+            {% include "v3/includes/_category_tag.html" with tag_label="IO" url="#" variant="neutral" size="default" %}
+            {% include "v3/includes/_category_tag.html" with tag_label="Flagship" url="#" variant="neutral" size="default" %}
           {% endfor %}
-          {% if version_tag %}
-          <span class="version-tag version-tag--default">{{ version_tag }}</span>
-          {% endif %}
+          {% if version_tag %}<span class="version-tag version-tag--default">{{ version_tag }}</span>{% endif %}
           {% if added_text %}
-          <div class="hero-library__added-wrap">
-            <span class="hero-library__added">{{ added_text }}</span>
-          </div>
+            <div class="hero-library__added-wrap">
+              <span class="hero-library__added">{{ added_text }}</span>
+            </div>
           {% endif %}
         </div>
         <div class="hero-library__text-block">
           {% if title %}
-          <h1 class="hero-library__title{% if is_flagship_lib %} hero-library__title--flagship
-{% endif %}" style="margin-bottom: 0;">{{ title }}</h1>
+            <h1 class="hero-library__title{% if is_flagship_lib %} hero-library__title--flagship {% endif %}"
+                style="margin-bottom: 0">{{ title }}</h1>
           {% endif %}
-          {% if description %}
-          <p class="hero-library__description">{{ description }}</p>
-          {% endif %}
+          {% if description %}<p class="hero-library__description">{{ description }}</p>{% endif %}
         </div>
       </div>
       <div class="hero-library__links">
         {% if doc_url %}
-        {% include "v3/includes/_button.html" with icon_position="right" label="Documentation" url=doc_url style="icon-library" icon_name="documentation" icon_size=16 icon_viewbox="0 0 16 16" %}
+          {% include "v3/includes/_button.html" with icon_position="right" label="Documentation" url=doc_url style="icon-library" icon_name="documentation" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
         {% if source_url %}
-        {% include "v3/includes/_button.html" with icon_position="right" label="Source code" url=source_url style="icon-library" icon_name="source-code" icon_size=16 icon_viewbox="0 0 16 16" %}
+          {% include "v3/includes/_button.html" with icon_position="right" label="Source code" url=source_url style="icon-library" icon_name="source-code" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
         {% if slack_url %}
-        {% include "v3/includes/_button.html" with icon_position="right" label="Discuss in Slack" url=slack_url style="icon-library" icon_name="slack" icon_size=16 icon_viewbox="0 0 16 16" %}
+          {% include "v3/includes/_button.html" with icon_position="right" label="Discuss in Slack" url=slack_url style="icon-library" icon_name="slack" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
         {% if github_url %}
-        {% include "v3/includes/_button.html" with icon_position="right" label="GitHub Issues" url=github_url style="icon-library" icon_name="github-issues" icon_size=16 icon_viewbox="0 0 16 16" %}
+          {% include "v3/includes/_button.html" with icon_position="right" label="GitHub Issues" url=github_url style="icon-library" icon_name="github-issues" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
       </div>
     </div>
     {% if hero_image_url or hero_image_url_light or hero_image_url_dark %}
-    <div class="hero-library__image{% if hero_image_url_dark %} hero-library__image--theme-aware{% endif %}">
-      {% with hero_light=hero_image_url_light|default:hero_image_url hero_dark=hero_image_url_dark %}
-      <img alt="" class="hero-library__img hero-library__img--light" src="{{ hero_light }}" loading="lazy" decoding="async">
-      {% if hero_dark %}
-      <img alt="" class="hero-library__img hero-library__img--dark" src="{{ hero_dark }}" loading="lazy" decoding="async">
-      {% endif %}
-      {% endwith %}
-    </div>
+      <div class="hero-library__image{% if hero_image_url_dark %} hero-library__image--theme-aware{% endif %}">
+        {% with hero_light=hero_image_url_light|default:hero_image_url hero_dark=hero_image_url_dark %}
+          <img alt=""
+               class="hero-library__img hero-library__img--light"
+               src="{{ hero_light }}"
+               loading="lazy"
+               decoding="async">
+          {% if hero_dark %}
+            <img alt=""
+                 class="hero-library__img hero-library__img--dark"
+                 src="{{ hero_dark }}"
+                 loading="lazy"
+                 decoding="async">
+          {% endif %}
+        {% endwith %}
+      </div>
     {% endif %}
   </div>
 </section>

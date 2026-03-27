@@ -1,7 +1,9 @@
 {% load doc_url_with_latest %}
 
 {% if library_version.documentation_url %}
-  <a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange text-base block py-3 text-center" href="{% doc_url_with_latest library_version.documentation_url version_str LATEST_RELEASE_URL_PATH_STR %}" title="Documentation">
+  <a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange text-base block py-3 text-center"
+     href="{% doc_url_with_latest library_version.documentation_url version_str LATEST_RELEASE_URL_PATH_STR %}"
+     title="Documentation">
     <i class="fa fa-book align-top"></i>
   </a>
 {% endif %}
