@@ -53,18 +53,18 @@
   textarea {
     @apply w-full rounded bg-white dark:bg-charcoal border border-slate;
   }
-  input[type=email] {
+  input[type='email'] {
     @apply w-full rounded bg-white dark:bg-charcoal border border-slate;
   }
-  input[type=checkbox] {
+  input[type='checkbox'] {
     @apply mr-3 rounded bg-white dark:bg-charcoal border border-slate text-orange dark:border-slate;
     @apply cursor-pointer;
   }
-  input[type=file] {
+  input[type='file'] {
     @apply block w-full px-3 py-1 text-base text-slate dark:text-white font-normal bg-clip-padding border border-solid border-slate rounded transition ease-in-out my-2;
   }
-  #signup_form input[type=email],
-  #signup_form input[type=password]{
+  #signup_form input[type='email'],
+  #signup_form input[type='password'] {
     @apply rounded bg-white dark:bg-charcoal text-slate dark:text-white border border-slate w-full;
   }
   #authpages #footerSignup {
@@ -83,7 +83,10 @@
 
   /* use both .link and .link-force on an icon in order to bypass the following style and use all styles from .link */
   i:not(.link-force) {
-    i.fa, i.fab, i.fa-brands, i.fas {
+    i.fa,
+    i.fab,
+    i.fa-brands,
+    i.fas {
       @apply text-slate dark:text-white;
     }
   }
@@ -148,14 +151,22 @@ html:has(#docsiframe):has(.version_alert) {
 }
 
 html:has(#docsiframe) body {
-  padding-top: calc(var(--header-height, 41px) + var(--version-alert-height, 0px));
+  padding-top: calc(
+    var(--header-height, 41px) + var(--version-alert-height, 0px)
+  );
 }
 
 #docsiframe {
   @apply w-full mx-0 my-auto overflow-hidden p-0 mt-[1px];
-  height: calc(100vh - var(--header-height, 41px) - var(--version-alert-height, 0px)); /* Fallback for older browsers*/
-  height: calc(100svh - var(--header-height, 41px) - var(--version-alert-height, 0px));
-  max-height: calc(100svh - var(--header-height, 41px) - var(--version-alert-height, 0px));
+  height: calc(
+    100vh - var(--header-height, 41px) - var(--version-alert-height, 0px)
+  ); /* Fallback for older browsers*/
+  height: calc(
+    100svh - var(--header-height, 41px) - var(--version-alert-height, 0px)
+  );
+  max-height: calc(
+    100svh - var(--header-height, 41px) - var(--version-alert-height, 0px)
+  );
 }
 
 .version_alert {

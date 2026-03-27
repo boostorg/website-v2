@@ -1,6 +1,4 @@
-
 (function () {
-
   const CAROUSEL_STEP_PX_FALLBACK = 320;
   const SCROLL_RESET_EPSILON = 2;
   const SCROLL_END_EPSILON = 1;
@@ -39,9 +37,10 @@
     const step = getStepPx(track);
     const maxScroll = track.scrollWidth - track.clientWidth;
     const current = track.scrollLeft;
-    const next = direction === 'next'
-      ? Math.min(current + step, maxScroll)
-      : Math.max(current - step, 0);
+    const next =
+      direction === 'next'
+        ? Math.min(current + step, maxScroll)
+        : Math.max(current - step, 0);
     track.scrollTo({ left: next, behavior: smooth ? 'smooth' : 'auto' });
   }
 
@@ -126,16 +125,20 @@
 
     const autoplayDelay = root.getAttribute('data-carousel-autoplay');
     if (autoplayDelay) {
-      setupAutoplay(root, () => {
-        if (track.scrollLeft >= setWidth - SCROLL_RESET_EPSILON) {
-          scrollResetInProgress = true;
-          track.scrollLeft = track.scrollLeft - setWidth;
-          requestAnimationFrame(function () {
-            scrollResetInProgress = false;
-          });
-        }
-        scrollCarousel(track, 'next', true);
-      }, parseInt(autoplayDelay, 10));
+      setupAutoplay(
+        root,
+        () => {
+          if (track.scrollLeft >= setWidth - SCROLL_RESET_EPSILON) {
+            scrollResetInProgress = true;
+            track.scrollLeft = track.scrollLeft - setWidth;
+            requestAnimationFrame(function () {
+              scrollResetInProgress = false;
+            });
+          }
+          scrollCarousel(track, 'next', true);
+        },
+        parseInt(autoplayDelay, 10)
+      );
     }
   }
 
@@ -177,14 +180,18 @@
 
     const autoplayDelay = root.getAttribute('data-carousel-autoplay');
     if (autoplayDelay) {
-      setupAutoplay(root,  () => {
-        const maxScroll = track.scrollWidth - track.clientWidth;
-        if (track.scrollLeft >= maxScroll - 1) {
-          track.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-          scrollCarousel(track, 'next', true);
-        }
-      }, parseInt(autoplayDelay, 10));
+      setupAutoplay(
+        root,
+        () => {
+          const maxScroll = track.scrollWidth - track.clientWidth;
+          if (track.scrollLeft >= maxScroll - 1) {
+            track.scrollTo({ left: 0, behavior: 'smooth' });
+          } else {
+            scrollCarousel(track, 'next', true);
+          }
+        },
+        parseInt(autoplayDelay, 10)
+      );
     }
   }
 
