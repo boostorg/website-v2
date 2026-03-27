@@ -14,6 +14,7 @@
     github_url         (optional) — GitHub Issues URL. Omit to hide.
     hero_image_url     (optional) — Image URL. If omitted, image block is not shown.
     hero_background_image_url (optional) — Background image URL for the hero container.
+    is_flagship_lib    (optional) — Boolean value stating whether or not this is the hero for a flagship library. If it isn't, styles are a bit different.
 
   Usage:
     {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}
@@ -43,7 +44,8 @@
         </div>
         <div class="hero-library__text-block">
           {% if title %}
-          <h1 class="hero-library__title">{{ title }}</h1>
+          <h1 class="hero-library__title{% if is_flagship_lib %} hero-library__title--flagship
+{% endif %}" style="margin-bottom: 0;">{{ title }}</h1>
           {% endif %}
           {% if description %}
           <p class="hero-library__description">{{ description }}</p>
@@ -52,16 +54,16 @@
       </div>
       <div class="hero-library__links">
         {% if doc_url %}
-        {% include "v3/includes/_button.html" with label="Documentation" url=doc_url style="icon-library" icon_name="documentation" icon_size=16 icon_viewbox="0 0 16 16" %}
+        {% include "v3/includes/_button.html" with icon_position="right" label="Documentation" url=doc_url style="icon-library" icon_name="documentation" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
         {% if source_url %}
-        {% include "v3/includes/_button.html" with label="Source code" url=source_url style="icon-library" icon_name="source-code" icon_size=16 icon_viewbox="0 0 16 16" %}
+        {% include "v3/includes/_button.html" with icon_position="right" label="Source code" url=source_url style="icon-library" icon_name="source-code" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
         {% if slack_url %}
-        {% include "v3/includes/_button.html" with label="Discuss in Slack" url=slack_url style="icon-library" icon_name="slack" icon_size=16 icon_viewbox="0 0 16 16" %}
+        {% include "v3/includes/_button.html" with icon_position="right" label="Discuss in Slack" url=slack_url style="icon-library" icon_name="slack" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
         {% if github_url %}
-        {% include "v3/includes/_button.html" with label="GitHub Issues" url=github_url style="icon-library" icon_name="github-issues" icon_size=16 icon_viewbox="0 0 16 16" %}
+        {% include "v3/includes/_button.html" with icon_position="right" label="GitHub Issues" url=github_url style="icon-library" icon_name="github-issues" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
       </div>
     </div>
