@@ -12,7 +12,7 @@
   width: 44px;
   height: 24px;
   border-radius: 8px;
-  background: var(--color-surface-strong, #EFEFF1);
+  background: var(--color-surface-strong, #efeff1);
 }
 
 .carousel-buttons .btn-carousel {
@@ -36,11 +36,11 @@
 }
 
 .carousel-buttons .btn-carousel:hover:not(:disabled) {
-  color: var(--color-secondary-dark-blue, #0077B8);
+  color: var(--color-secondary-dark-blue, #0077b8);
 }
 
 .carousel-buttons .btn-carousel[data-hover]:not(:disabled) {
-  color: var(--color-secondary-dark-blue, #0077B8);
+  color: var(--color-secondary-dark-blue, #0077b8);
 }
 
 .carousel-buttons .btn-carousel:disabled {

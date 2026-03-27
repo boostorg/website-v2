@@ -9,7 +9,10 @@
   border-radius: var(--border-radius-s);
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
   color: var(--color-text-secondary);
   border: 1px solid var(--color-tag-stroke);
 }
