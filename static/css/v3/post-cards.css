@@ -87,6 +87,11 @@
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.post-cards--horizontal .post-cards__list::-webkit-scrollbar {
+  display: none;
 }
 
 .post-cards__item {
