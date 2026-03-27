@@ -31,10 +31,16 @@
        aria-orientation="vertical"
        aria-labelledby="user-menu-button"
        tabindex="-1"
-       style="display: none;"
+       style="display: none"
        class="header__user-dropdown">
-    <a href="{% url 'profile-account' %}" class="header__user-dropdown-link" role="menuitem">My Profile</a>
-    <a href="{% url 'profile-account' %}" class="header__user-dropdown-link" role="menuitem">Edit Profile</a>
-    <a href="{% url 'account_logout' %}" class="header__user-dropdown-link" role="menuitem">Log Out</a>
+    <a href="{% url 'profile-account' %}"
+       class="header__user-dropdown-link"
+       role="menuitem">My Profile</a>
+    <a href="{% url 'profile-account' %}"
+       class="header__user-dropdown-link"
+       role="menuitem">Edit Profile</a>
+    <a href="{% url 'account_logout' %}"
+       class="header__user-dropdown-link"
+       role="menuitem">Log Out</a>
   </div>
 </div>

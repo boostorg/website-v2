@@ -21,13 +21,14 @@
   </form>
 
   {% if popular_terms %}
-  <div class="search-card__popular">
-    <p class="search-card__popular-label">{{ popular_label|default:"Popular terms:" }}</p>
-    <div class="search-card__tags">
-      {% for term in popular_terms %}
-      <a href="{{ action_url }}?{{ input_name|default:'q' }}={{ term.label|urlencode }}" class="search-card__tag">{{ term.label }}</a>
-      {% endfor %}
+    <div class="search-card__popular">
+      <p class="search-card__popular-label">{{ popular_label|default:"Popular terms:" }}</p>
+      <div class="search-card__tags">
+        {% for term in popular_terms %}
+          <a href="{{ action_url }}?{{ input_name|default:'q' }}={{ term.label|urlencode }}"
+             class="search-card__tag">{{ term.label }}</a>
+        {% endfor %}
+      </div>
     </div>
-  </div>
   {% endif %}
 </div>

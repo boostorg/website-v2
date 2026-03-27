@@ -77,19 +77,25 @@
   }
 }
 </style>
-<footer class="main-footer"{% if user.is_authenticated %} data-track-login-method="{{ request.user.indicate_last_login_method }}" data-login-method="{{ request.session.boost_login_method }}"{% endif %}>
+<footer class="main-footer"
+        {% if user.is_authenticated %} data-track-login-method="{{ request.user.indicate_last_login_method }}" data-login-method="{{ request.session.boost_login_method }}"{% endif %}>
   <div class="footer-container">
     <div class="links">
       <a href="https://lists.boost.org/mailman3/lists/boost-users.lists.boost.org/">Contact</a>
       <a href="{% url 'privacy' %}">Privacy Policy</a>
       <a href="{% url 'terms-of-use' %}">Terms of Use</a>
       <a href="/doc/user-guide/reporting-issues.html">Report Bug</a>
-      <div class="link-icons">
-        {% include "includes/_social_icon_links.html" %}
-      </div>
+      <div class="link-icons">{% include "includes/_social_icon_links.html" %}</div>
     </div>
-    <div><span class="small-text">Website supported by grants from <a href="https://cppalliance.org/" target="_blank" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">The C++ Alliance</a>.</span></div>
-    <div><span class="xsmall-text">Distributed under the <a href="/LICENSE_1_0.txt" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Boost Software License, Version 1.0</a>.</span></div>
+    <div>
+      <span class="small-text">Website supported by grants from <a href="https://cppalliance.org/"
+    target="_blank"
+    class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">The C++ Alliance</a>.</span>
+    </div>
+    <div>
+      <span class="xsmall-text">Distributed under the <a href="/LICENSE_1_0.txt"
+    class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Boost Software License, Version 1.0</a>.</span>
+    </div>
     {# <div><span class="text-sm"><i>Slack is a registered trademark and service mark of Slack Technologies, Inc.</i></span></div> #}
   </div>
 </footer>

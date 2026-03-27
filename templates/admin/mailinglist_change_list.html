@@ -3,11 +3,15 @@
 
 {% block object-tools %}
   <ul class="object-tools">
-      {% block object-tools-items %}
-          {{ block.super }}
-          <li><a href="{% url 'admin:sync_mailinglist_stats' %}" class="addlink">{% trans "Sync Mailing List Stats" %}</a></li>
-          <li><a href="{% url 'admin:import_csv' %}" class="addlink">{% trans "Import 'Subscribe' Data" %}</a></li>
-      {% endblock %}
+    {% block object-tools-items %}
+      {{ block.super }}
+      <li>
+        <a href="{% url 'admin:sync_mailinglist_stats' %}" class="addlink">{% trans "Sync Mailing List Stats" %}</a>
+      </li>
+      <li>
+        <a href="{% url 'admin:import_csv' %}" class="addlink">{% trans "Import 'Subscribe' Data" %}</a>
+      </li>
+    {% endblock %}
   </ul>
 
 {% endblock %}

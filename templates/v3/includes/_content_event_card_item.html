@@ -18,19 +18,19 @@
     {% include "v3/includes/_content_event_card_item.html" with title="..." description="..." date="29/10/25" card_url="/events/1" card_aria_label="Boost 1.90.0 closed" event_card_wrapper=True %}
 {% endcomment %}
 {% if card_url %}
-<a href="{{ card_url }}" aria-label="{{ card_aria_label|default:title }}" class="content-card-link">
-{% endif %}
-{% if event_card_wrapper %}
-<div class="event-card">
-{% endif %}
-<article class="content-card content-card--event{% if contained %} content-card--contained{% endif %}">
-  <p class="content-card__title">{{ title }}</p>
-  <p class="content-card__description">{{ description }}</p>
-  {% if datetime %}<time class="content-card__date" datetime="{{ datetime }}">{{ date }}</time>{% else %}<p class="content-card__date">{{ date }}</p>{% endif %}
-</article>
-{% if event_card_wrapper %}
-</div>
-{% endif %}
-{% if card_url %}
-</a>
-{% endif %}
+  <a href="{{ card_url }}"
+     aria-label="{{ card_aria_label|default:title }}"
+     class="content-card-link">
+  {% endif %}
+  {% if event_card_wrapper %}<div class="event-card">{% endif %}
+    <article class="content-card content-card--event{% if contained %} content-card--contained{% endif %}">
+      <p class="content-card__title">{{ title }}</p>
+      <p class="content-card__description">{{ description }}</p>
+      {% if datetime %}
+        <time class="content-card__date" datetime="{{ datetime }}">{{ date }}</time>
+      {% else %}
+        <p class="content-card__date">{{ date }}</p>
+      {% endif %}
+    </article>
+    {% if event_card_wrapper %}</div>{% endif %}
+  {% if card_url %}</a>{% endif %}

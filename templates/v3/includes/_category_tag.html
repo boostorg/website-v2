@@ -17,7 +17,10 @@
     {% include "v3/includes/_category_tag.html" with tag_label="C++ 03" variant="neutral" size="default" %}
 {% endcomment %}
 {% if url %}
-<a href="{{ url }}" class="category-tag category-tag--{{ variant }} category-tag--{{ size|default:'default' }}{% if show_hover %} category-tag--hover-state{% endif %}"{% if target %} target="{{ target }}" rel="noopener noreferrer"{% endif %} aria-label="{% if aria_label %}{{ aria_label }}{% else %}Filter by category: {{ tag_label }}{% endif %}">{{ tag_label }}</a>
+  <a href="{{ url }}"
+     class="category-tag category-tag--{{ variant }} category-tag--{{ size|default:'default' }}{% if show_hover %} category-tag--hover-state{% endif %}"
+     {% if target %}target="{{ target }}" rel="noopener noreferrer"{% endif %}
+     aria-label="{% if aria_label %}{{ aria_label }}{% else %}Filter by category: {{ tag_label }}{% endif %}">{{ tag_label }}</a>
 {% else %}
-<span class="category-tag category-tag--{{ variant }} category-tag--{{ size|default:'default' }}{% if show_hover %} category-tag--hover-state{% endif %}">{{ tag_label }}</span>
+  <span class="category-tag category-tag--{{ variant }} category-tag--{{ size|default:'default' }}{% if show_hover %} category-tag--hover-state{% endif %}">{{ tag_label }}</span>
 {% endif %}

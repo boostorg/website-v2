@@ -39,12 +39,12 @@
           <form method="POST" action="." class="space-y-3">
             {% csrf_token %}
             {% for field in profile_form.visible_fields %}
-              <div>
-                {% include 'includes/_form_input.html' with form=profile_form field=field %}
-              </div>
+              <div>{% include 'includes/_form_input.html' with form=profile_form field=field %}</div>
             {% endfor %}
             <div class="mb-4">
-              <button name="update_profile" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Update Profile</button>
+              <button name="update_profile"
+                      class="py-2 px-3 text-sm text-white rounded bg-orange"
+                      type="submit">Update Profile</button>
             </div>
           </form>
         </div>
@@ -56,12 +56,12 @@
             <h5 class="font-bold mt-4">Notify me via email when:</h5>
             {{ profile_preferences_form.errors }}
             {% for field in profile_preferences_form.visible_fields %}
-              <div>
-                {% include 'includes/_form_input.html' with form=profile_preferences_form field=field %}
-              </div>
+              <div>{% include 'includes/_form_input.html' with form=profile_preferences_form field=field %}</div>
             {% endfor %}
             <div class="mt-4">
-              <button name="update_preferences" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Update Preferences</button>
+              <button name="update_preferences"
+                      class="py-2 px-3 text-sm text-white rounded bg-orange"
+                      type="submit">Update Preferences</button>
             </div>
           </form>
         </div>
@@ -74,29 +74,36 @@
             {% if user.github_username %}
               <form method="POST" action="." class="space-y-3 border-b border-slate py-3">
                 {% csrf_token %}
-                <button name="update_github_photo" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Use My GitHub Photo</button>
+                <button name="update_github_photo"
+                        class="py-2 px-3 text-sm text-white rounded bg-orange"
+                        type="submit">Use My GitHub Photo</button>
               </form>
             {% endif %}
 
-            <form method="POST" enctype="multipart/form-data" action="." class="space-y-3 py-3">
+            <form method="POST"
+                  enctype="multipart/form-data"
+                  action="."
+                  class="space-y-3 py-3">
               {% csrf_token %}
               {% for field in profile_photo_form.visible_fields %}
                 <div>
                   {% if field.errors %}
-                    {% for error in field.errors %}
-                      <div class="py-1 px-3 text-white bg-red-600">{{ error }}</div>
-                    {% endfor %}
+                    {% for error in field.errors %}<div class="py-1 px-3 text-white bg-red-600">{{ error }}</div>{% endfor %}
                   {% endif %}
 
                   {% if user.image %}
-                    <img src="{{ user.image.url }}" alt="user" class="ml-4 inline -mt-1 rounded bg-white dark:bg-slate w-[30px] mr-2" />
+                    <img src="{{ user.image.url }}"
+                         alt="user"
+                         class="ml-4 inline -mt-1 rounded bg-white dark:bg-slate w-[30px] mr-2" />
                   {% endif %}
 
                   {% render_field field class='text-sm text-grey-500 !border-0 file:mr-5 file:py-2 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white file:text-slate hover:file:cursor-pointer hover:file:bg-orange hover:file:text-white' %}
                 </div>
               {% endfor %}
               <div class="mt-4">
-                <button name="update_photo" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Save</button>
+                <button name="update_photo"
+                        class="py-2 px-3 text-sm text-white rounded bg-orange"
+                        type="submit">Save</button>
               </div>
             </form>
           {% else %}
@@ -110,12 +117,12 @@
             <form method="POST" action="." class="password_set space-y-3">
               {% csrf_token %}
               {% for field in change_password_form.visible_fields %}
-                <div>
-                  {% include 'includes/_form_input.html' with form=change_password_form field=field %}
-                </div>
+                <div>{% include 'includes/_form_input.html' with form=change_password_form field=field %}</div>
               {% endfor %}
               <div class="mt-4">
-                <button name="change_password" class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">Set Password</button>
+                <button name="change_password"
+                        class="py-2 px-3 text-sm text-white rounded bg-orange"
+                        type="submit">Set Password</button>
               </div>
             </form>
           </div>
@@ -123,7 +130,9 @@
           <div class="rounded bg-white dark:bg-charcoal p-4">
             <h3>{% trans 'Account Connections' %}</h3>
             <div class="mt-4">
-              <a href="{% url 'socialaccount_connections' %}"><button class="py-2 px-3 text-sm text-white rounded bg-orange">{% trans 'Manage Account Connections' %}</button></a>
+              <a href="{% url 'socialaccount_connections' %}">
+                <button class="py-2 px-3 text-sm text-white rounded bg-orange">{% trans 'Manage Account Connections' %}</button>
+              </a>
             </div>
           </div>
         {% endif %}
@@ -134,14 +143,19 @@
           <h3>{% trans 'Delete Account' %}</h3>
           {% if user.delete_permanently_at %}
             <p>
-              {% blocktrans with at=request.user.delete_permanently_at|date:'N j, Y, P e' trimmed %}Your account is scheduled for deletion at {{ at }}
+              {% blocktrans with at=request.user.delete_permanently_at|date:'N j, Y, P e' trimmed %}
+                Your account is scheduled for deletion at {{ at }}
               {% endblocktrans %}
             </p>
             <p>
-              <button class="profile-cancel"><a href="{% url 'profile-cancel-delete' %}">Cancel Deletion</a></button>
+              <button class="profile-cancel">
+                <a href="{% url 'profile-cancel-delete' %}">Cancel Deletion</a>
+              </button>
             </p>
             <p>
-              <button class="profile-delete"><a href="{% url 'profile-delete-immediately' %}">Delete Now</a></button>
+              <button class="profile-delete">
+                <a href="{% url 'profile-delete-immediately' %}">Delete Now</a>
+              </button>
             </p>
           {% else %}
             <a href="{% url 'profile-delete' %}">{% trans 'Delete account' %}</a>
