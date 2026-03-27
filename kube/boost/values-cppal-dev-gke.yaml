@@ -13,11 +13,11 @@ replicaCount: "2"
 
 wsgiResources:
   limits:
-    cpu: "500m"
+    cpu: "1"
     ephemeral-storage: 1Gi
     memory: 2Gi
   requests:
-    cpu: "500m"
+    cpu: "1"
     ephemeral-storage: 1Gi
     memory: 2Gi
 

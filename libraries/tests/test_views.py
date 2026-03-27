@@ -1,6 +1,7 @@
 import datetime
 
 import pytest
+import waffle.testutils
 
 from model_bakery import baker
 
@@ -213,6 +214,18 @@ def test_library_detail_context_get_commit_data_(tp, library_version):
     url = tp.reverse("library-detail", "latest", library.slug)
     response = tp.get_check_200(url)
     assert "commit_data_by_release" in response.context
+
+
+@waffle.testutils.override_flag("v3", active=False)
+def test_library_detail_chart1_shown_without_v3_flag(tp, library_version):
+    """
+    GET /libraries/latest/{library_slug}/
+    The chart1 div should render when the v3 flag is disabled.
+    """
+    library = library_version.library
+    url = tp.reverse("library-detail", "latest", library.slug)
+    response = tp.get_check_200(url)
+    assert 'id="chart1"' in response.content.decode("utf-8")
 
 
 def test_library_detail_context_get_maintainers(tp, user, library_version):
