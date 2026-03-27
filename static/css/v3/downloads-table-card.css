@@ -142,8 +142,6 @@
 
 /* ── Mobile ── */
 @media (max-width: 767px) {
-
-
   .downloads-table-card__wrapper {
     -webkit-overflow-scrolling: touch;
   }

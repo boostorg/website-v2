@@ -44,7 +44,6 @@ html.dark .btn-tooltip:hover {
   justify-content: center;
 }
 
-
 :where(.tooltip-label) {
   position: absolute;
   padding: var(--space-s, 4px) var(--space-default, 8px);
@@ -58,7 +57,10 @@ html.dark .btn-tooltip:hover {
   z-index: 10;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    visibility 0.15s ease,
+    transform 0.15s ease;
   transition-delay: 0s;
   pointer-events: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -71,7 +73,7 @@ html.dark .btn-tooltip:hover {
 }
 
 .tooltip-label::after {
-  content: "";
+  content: '';
   position: absolute;
   border: 5px solid transparent;
 }
@@ -130,7 +132,15 @@ html.dark .tooltip-wrapper .tooltip-label {
   border: 1px solid rgba(255, 255, 255, 0.25) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
-html.dark .tooltip-wrapper .tooltip-label.top::after { border-top-color: #ffffff !important; }
-html.dark .tooltip-wrapper .tooltip-label.bottom::after { border-bottom-color: #ffffff !important; }
-html.dark .tooltip-wrapper .tooltip-label.left::after { border-left-color: #ffffff !important; }
-html.dark .tooltip-wrapper .tooltip-label.right::after { border-right-color: #ffffff !important; }
+html.dark .tooltip-wrapper .tooltip-label.top::after {
+  border-top-color: #ffffff !important;
+}
+html.dark .tooltip-wrapper .tooltip-label.bottom::after {
+  border-bottom-color: #ffffff !important;
+}
+html.dark .tooltip-wrapper .tooltip-label.left::after {
+  border-left-color: #ffffff !important;
+}
+html.dark .tooltip-wrapper .tooltip-label.right::after {
+  border-right-color: #ffffff !important;
+}

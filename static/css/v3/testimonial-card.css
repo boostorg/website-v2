@@ -1,130 +1,128 @@
 .testimonial-card {
-    max-width: 696px;
+  max-width: 696px;
 }
 
 .testimonial-card__carousel {
-    display: flex;
-    padding: 0 var(--space-large, 16px);
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-large, 16px);
-    align-self: stretch;
+  display: flex;
+  padding: 0 var(--space-large, 16px);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-large, 16px);
+  align-self: stretch;
 }
 
 .testimonial-card__text-wrapper {
-    display: flex;
-    padding: var(--space-xl, 32px);
-    border-radius: var(--space-xl, 32px);
-    background: var(--color-surface-mid, #F7F7F8);
+  display: flex;
+  padding: var(--space-xl, 32px);
+  border-radius: var(--space-xl, 32px);
+  background: var(--color-surface-mid, #f7f7f8);
 }
 
 .testimonial-card__text {
-    color: var(--color-text-primary, #050816);
-    font-family: var(--font-sans, "Mona Sans VF");
-    font-size: var(--font-size-xl, 32px);
-    font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-tight);
-    letter-spacing: var(--letter-spacing-display-regular);
+  color: var(--color-text-primary, #050816);
+  font-family: var(--font-sans, 'Mona Sans VF');
+  font-size: var(--font-size-xl, 32px);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-display-regular);
 }
 
 .testimonial-card__text-tail {
-    width: 32px;
-    height: var(--space-xl, 32px);
-    aspect-ratio: 1/1;
-    fill: var(--color-surface-mid, #F7F7F8);
+  width: 32px;
+  height: var(--space-xl, 32px);
+  aspect-ratio: 1/1;
+  fill: var(--color-surface-mid, #f7f7f8);
 }
 
 .testimonial-card__tail-wrapper {
-    display: flex;
-    padding: 0 var(--space-xxl);
-    align-items: center;
+  display: flex;
+  padding: 0 var(--space-xxl);
+  align-items: center;
 }
 
 .testimonial-card__author {
-    display: flex;
-    align-items: center;
-    gap: var(--space-medium, 12px);
+  display: flex;
+  align-items: center;
+  gap: var(--space-medium, 12px);
 }
 
 .testimonial-card__author-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    gap: var(--space-s, 4px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--space-s, 4px);
 
-
-    /* Sans/Desktop/Regular/XS/Default */
-    font-family: var(--font-sans, "Mona Sans VF");
-    font-size: var(--font-size-xs, 12px);
-    font-style: normal;
-    font-weight: 400;
-    line-height: 120%;
-    /* 14.4px */
-    letter-spacing: -0.12px;
+  /* Sans/Desktop/Regular/XS/Default */
+  font-family: var(--font-sans, 'Mona Sans VF');
+  font-size: var(--font-size-xs, 12px);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+  /* 14.4px */
+  letter-spacing: -0.12px;
 }
 
-
 .testimonial-card__author-name-text {
-    color: var(--color-text-primary, #050816);
+  color: var(--color-text-primary, #050816);
 }
 
 .testimonial-card__author-role {
-    height: 16px;
-    gap: var(--space-default, 8px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  height: 16px;
+  gap: var(--space-default, 8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .testimonial-card__post {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    box-sizing: border-box;
-    flex-shrink: 0;
-    overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .testimonial-card__list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    gap: var(--space-card);
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    min-width: 0;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: var(--space-card);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  min-width: 0;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .testimonial-card__list-item {
-    list-style: none;
-    flex: 0 0 auto;
-    min-width: 0;
-    max-width: 100%;
-    border: none;
-    padding: 0;
+  list-style: none;
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 100%;
+  border: none;
+  padding: 0;
 }
 
 .testimonial-card__author-role-text {
-    color: var(--color-text-secondary, #585A64);
+  color: var(--color-text-secondary, #585a64);
 }
 
 .testimonial-card__author-role-badge {
-    width: 16px;
-    height: 16px;
-    aspect-ratio: 1/1;
+  width: 16px;
+  height: 16px;
+  aspect-ratio: 1/1;
 }
 
 .testimonial-card__cards {
-    max-width: 100%;
+  max-width: 100%;
 }
 
 /*
@@ -137,24 +135,24 @@
  * _testimonial_card.html), which trades touch scroll for a working arrow UI.
  */
 .testimonial-card__state {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    border: 0;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    overflow: hidden;
-    white-space: nowrap;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .testimonial-card__controls {
-    display: contents;
+  display: contents;
 }
 
 .testimonial-card .testimonial-card__nav-set {
-    display: none;
+  display: none;
 }
 
 /* Per-index `display: inline-flex` overrides for the checked radio's nav-set
@@ -162,18 +160,18 @@
    data-driven, so the rule set is rendered inline by the template). */
 
 .carousel-buttons label.btn-carousel {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    text-decoration: none;
-    cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-.carousel-buttons .btn-carousel[aria-disabled="true"] {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
+.carousel-buttons .btn-carousel[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* Focus mirroring: the radios are visually hidden but remain keyboard-focusable
@@ -183,10 +181,11 @@
    on the adjacent prev/next pills. Only the nav-set matching the checked
    radio is `display: inline-flex`; the others are `display: none`, so a
    single rule suffices. */
-.testimonial-card:has(.testimonial-card__state:focus-visible) .testimonial-card__nav-set {
-    outline: 2px solid currentColor;
-    outline-offset: 2px;
-    border-radius: 8px;
+.testimonial-card:has(.testimonial-card__state:focus-visible)
+  .testimonial-card__nav-set {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 8px;
 }
 
 /* Scroll-snap: align items when the user swipes. JS uses smooth scroll on
@@ -194,10 +193,10 @@
    `flex: 0 0 100%` forces each item to exactly the flex container width so
    both native scroll and the no-JS transform math land on item boundaries. */
 .testimonial-card__list {
-    scroll-snap-type: x mandatory;
+  scroll-snap-type: x mandatory;
 }
 
 .testimonial-card__list-item {
-    scroll-snap-align: start;
-    flex: 0 0 100%;
+  scroll-snap-align: start;
+  flex: 0 0 100%;
 }

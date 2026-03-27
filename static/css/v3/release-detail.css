@@ -65,9 +65,15 @@ body:has(.releases-v3) .hero-library--no-image {
   margin: var(--space-large) 0 var(--space-default);
 }
 
-.release-detail__release-notes-body h1 { font-size: var(--font-size-large); }
-.release-detail__release-notes-body h2 { font-size: var(--font-size-medium); }
-.release-detail__release-notes-body h3 { font-size: var(--font-size-base); }
+.release-detail__release-notes-body h1 {
+  font-size: var(--font-size-large);
+}
+.release-detail__release-notes-body h2 {
+  font-size: var(--font-size-medium);
+}
+.release-detail__release-notes-body h3 {
+  font-size: var(--font-size-base);
+}
 
 .release-detail__release-notes-body p,
 .release-detail__release-notes-body li {

@@ -116,7 +116,6 @@
   flex-wrap: nowrap;
   gap: var(--space-s);
   min-width: 0;
-
 }
 
 .card-group--horizontal .card-group__item {

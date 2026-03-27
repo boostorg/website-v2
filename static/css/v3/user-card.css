@@ -259,5 +259,4 @@ html.dark .user-card--logged-out.card {
   .user-card--logged-out .btn {
     font-size: var(--font-size-small);
   }
-
 }
