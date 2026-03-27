@@ -192,7 +192,7 @@ We use [pre-commit hooks](https://pre-commit.com/) to check code for style, synt
 | --------------- | ----------- |
 | [Black](https://github.com/psf/black) | Formats Python code using the `black` code formatter |
 | [Ruff](https://github.com/charliermarsh/ruff) | Wrapper around `flake8` and `isort`, among other linters |
-| [Djhtml](https://github.com/rtts/djhtml) | Auto-formats Django templates |
+| [djlint](https://www.djlint.com/) | Formats and lints Django HTML templates |
 
 Example commands for running specific hooks:
 
@@ -200,4 +200,15 @@ Example commands for running specific hooks:
 | --------------- | --------------- |
 | Black | `pre-commit run black` |
 | Ruff | `pre-commit run ruff` |
-| Djhtml | `pre-commit run djhtml` |
+| djlint | `pre-commit run djlint-reformat-django` |
+
+## Formatting
+
+We use [Prettier](https://prettier.io/) for JS/CSS and [djlint](https://www.djlint.com/) for HTML templates. Both are checked in CI via `yarn format:check`.
+
+| Command | Description |
+| ------- | ----------- |
+| `just format` | Format all JS, CSS, and HTML files |
+| `just format-check` | Check formatting without modifying files |
+| `just prettier` | Format JS and CSS only |
+| `just djlint` | Format HTML templates only |

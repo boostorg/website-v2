@@ -5,10 +5,10 @@ exclude: .*migrations\/.*|static\/img\/.*|static\/animations\/.*|static\/js\/boo
 
 repos:
   - repo: https://github.com/adamchainz/django-upgrade
-    rev: "1.27.0"
+    rev: '1.27.0'
     hooks:
       - id: django-upgrade
-        args: [--target-version, "5.2"]   # Replace with Django version
+        args: [--target-version, '5.2'] # Replace with Django version
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
@@ -28,10 +28,11 @@ repos:
     hooks:
       - id: ruff
         args: [--fix]
-  - repo: https://github.com/rtts/djhtml
-    rev: 3.0.7
+  - repo: https://github.com/djlint/djLint
+    rev: v1.36.4
     hooks:
-      - id: djhtml
-        entry: djhtml --tabwidth 2
-        files: .*/templates/.*\.html$
+      - id: djlint-reformat-django
+        files: (^|/)templates/.*\.html$
         alias: autoformat
+      - id: djlint-django
+        files: (^|/)templates/.*\.html$
