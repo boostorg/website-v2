@@ -2,7 +2,7 @@
   --footer-text: var(--Text-Primary, var(--color-text-primary, #050816));
   padding: var(--space-large) var(--space-large);
   color: var(--footer-text);
-  font-family: var(--Typefaces-Sans, var(--font-sans, "Mona Sans VF"));
+  font-family: var(--Typefaces-Sans, var(--font-sans, 'Mona Sans VF'));
   font-size: var(--Sizes-XS, 12px);
   font-style: normal;
   font-weight: 400;
@@ -15,7 +15,7 @@
 .footer a,
 .footer p {
   color: var(--footer-text);
-  font-family: var(--Typefaces-Sans, var(--font-sans, "Mona Sans VF"));
+  font-family: var(--Typefaces-Sans, var(--font-sans, 'Mona Sans VF'));
   font-size: var(--Sizes-XS, 12px);
   font-style: normal;
   font-weight: 400;
@@ -59,7 +59,9 @@
 .footer__link {
   color: var(--footer-text);
   text-decoration: none;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .footer__link:hover {
@@ -99,7 +101,9 @@
   padding: 0;
   color: var(--footer-text);
   border-radius: var(--border-radius-m, 6px);
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .footer__social a:hover {
@@ -110,7 +114,7 @@
 /* Restore Font Awesome icon font (overridden by .footer *) */
 .footer__social i,
 .footer__social .fa-brands {
-  font-family: "Font Awesome 6 Brands", "Font Awesome 6 Free";
+  font-family: 'Font Awesome 6 Brands', 'Font Awesome 6 Free';
   font-size: 24px;
   width: 24px;
   height: 24px;

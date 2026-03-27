@@ -16,7 +16,7 @@
       'textarea:not([disabled])',
       'input:not([disabled])',
       'select:not([disabled])',
-      '[tabindex]:not([tabindex="-1"])'
+      '[tabindex]:not([tabindex="-1"])',
     ].join(', ');
 
     return Array.from(container.querySelectorAll(focusableSelectors));
@@ -34,12 +34,16 @@
 
     const currentIndex = focusableElements.indexOf(activeElement);
 
-    const isForbiddenElement = currentIndex === -1 || !dialog.contains(activeElement);
+    const isForbiddenElement =
+      currentIndex === -1 || !dialog.contains(activeElement);
 
     if (e.shiftKey && (activeElement === firstElement || isForbiddenElement)) {
       e.preventDefault();
       lastElement.focus();
-    } else if (!e.shiftKey && (activeElement === lastElement || isForbiddenElement)) {
+    } else if (
+      !e.shiftKey &&
+      (activeElement === lastElement || isForbiddenElement)
+    ) {
       e.preventDefault();
       firstElement.focus();
     }
@@ -56,7 +60,8 @@
   window.addEventListener('hashchange', function () {
     const openDialogWrapper = document.querySelector('.dialog-modal:target');
     if (openDialogWrapper) {
-      const dialogContainer = openDialogWrapper.querySelector('[role="dialog"]');
+      const dialogContainer =
+        openDialogWrapper.querySelector('[role="dialog"]');
       if (dialogContainer) {
         setInitialFocus(dialogContainer);
       }

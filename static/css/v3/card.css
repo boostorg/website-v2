@@ -25,7 +25,7 @@
 }
 
 .wide-card {
-    max-width: 696px;
+  max-width: 696px;
 }
 
 .card .btn-row {
@@ -37,11 +37,11 @@
 }
 
 .card__column {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-large);
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-large);
+  width: 100%;
 }
 
 .card__header {
@@ -87,53 +87,53 @@
 /* Horizontal card — text + image side by side */
 
 .horizontal-card {
-    max-width: 459px;
+  max-width: 459px;
 }
 
 .horizontal-card__content-row {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-large, 16px);
-    align-self: stretch;
-    padding: 0 var(--space-large, 16px);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-large, 16px);
+  align-self: stretch;
+  padding: 0 var(--space-large, 16px);
 }
 
 .horizontal-card__text {
-    flex: 1 0 0;
-    padding: 0;
-    color: var(--color-text-secondary, #585a64);
-    font-family: var(--font-sans, 'Mona Sans VF'), sans-serif;
-    font-size: var(--font-size-base, 16px);
-    font-weight: var(--font-weight-regular, 400);
-    line-height: var(--line-height-default, 1.2);
-    letter-spacing: var(--letter-spacing-tight, -0.01em);
+  flex: 1 0 0;
+  padding: 0;
+  color: var(--color-text-secondary, #585a64);
+  font-family: var(--font-sans, 'Mona Sans VF'), sans-serif;
+  font-size: var(--font-size-base, 16px);
+  font-weight: var(--font-weight-regular, 400);
+  line-height: var(--line-height-default, 1.2);
+  letter-spacing: var(--letter-spacing-tight, -0.01em);
 }
 
 .horizontal-card__image {
-    flex: 1 0 0;
-    aspect-ratio: 1 / 1;
-    border-radius: var(--border-radius-l, 8px);
-    overflow: hidden;
+  flex: 1 0 0;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--border-radius-l, 8px);
+  overflow: hidden;
 }
 
 .horizontal-card__image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .square-card-image {
-    flex: 1 0 0;
-    aspect-ratio: 1/1;
-    border-radius: var(--border-radius-l);
-    width: 100%;
-    overflow:hidden;
+  flex: 1 0 0;
+  aspect-ratio: 1/1;
+  border-radius: var(--border-radius-l);
+  width: 100%;
+  overflow: hidden;
 }
 
 .square-card-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }

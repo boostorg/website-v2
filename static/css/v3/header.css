@@ -11,7 +11,7 @@
   --header-control-radius: var(--header-radius);
   --header-control-bg: var(--color-surface-weak);
   padding: var(--space-large, 16px);
-  font-family: var(--Typefaces-Sans, "Mona Sans VF");
+  font-family: var(--Typefaces-Sans, 'Mona Sans VF');
   font-size: var(--Sizes-Small, 14px);
   font-style: normal;
   font-weight: 400;
@@ -65,13 +65,15 @@
   padding: var(--space-s, 4px) var(--space-default, 8px);
   border-radius: var(--header-radius);
   white-space: nowrap;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .header__link:hover {
   color: var(--color-text-primary, var(--text-color));
   border-radius: var(--border-radius-m, 6px);
-  background: var(--Navigation-Hover, var(--color-navigation-hover, #D5D6D8));
+  background: var(--Navigation-Hover, var(--color-navigation-hover, #d5d6d8));
 }
 
 .header__link--posts {
@@ -101,8 +103,8 @@
 
 .header .btn:hover {
   border-radius: var(--border-radius-m, 6px);
-  background: var(--Navigation-Hover, var(--color-navigation-hover, #D5D6D8));
-  border-color: var(--Navigation-Hover, var(--color-navigation-hover, #D5D6D8));
+  background: var(--Navigation-Hover, var(--color-navigation-hover, #d5d6d8));
+  border-color: var(--Navigation-Hover, var(--color-navigation-hover, #d5d6d8));
   color: var(--color-text-primary, var(--text-color));
 }
 
@@ -131,7 +133,7 @@
   font-weight: 400;
   text-align: left;
   cursor: pointer;
-  font-family: var(--Typefaces-Sans, "Mona Sans VF");
+  font-family: var(--Typefaces-Sans, 'Mona Sans VF');
 }
 
 .header__search-kbd {
@@ -141,14 +143,14 @@
   height: 24px;
   padding: 8px;
   color: var(--color-text-primary, #050816);
-  font-family: var(--Typefaces-Sans, "Mona Sans VF");
+  font-family: var(--Typefaces-Sans, 'Mona Sans VF');
   font-size: var(--Sizes-XS, 12px);
   font-style: normal;
   font-weight: 400;
   line-height: 120%;
   letter-spacing: -0.12px;
   border-radius: var(--border-radius-m, 6px);
-  background: var(--color-surface-mid, #F7F7F8);
+  background: var(--color-surface-mid, #f7f7f8);
 }
 
 .header__search-btn {
@@ -164,7 +166,7 @@
   font-size: var(--Sizes-Small, 14px);
   font-weight: 400;
   cursor: pointer;
-  font-family: var(--Typefaces-Sans, "Mona Sans VF");
+  font-family: var(--Typefaces-Sans, 'Mona Sans VF');
 }
 
 .header__search-btn:hover {
@@ -182,7 +184,7 @@
   align-items: center;
   gap: var(--space-s, 4px);
   width: 93px;
-  height:  var(--header-height);
+  height: var(--header-height);
   padding: 16px;
   color: var(--color-text-primary, var(--text-color));
   text-decoration: none;
@@ -201,8 +203,8 @@
 
 .header__latest-trigger:hover {
   border-radius: var(--border-radius-m, 6px);
-  background: var(--Navigation-Hover, var(--color-navigation-hover, #D5D6D8));
-  border-color: var(--Navigation-Hover, var(--color-navigation-hover, #D5D6D8));
+  background: var(--Navigation-Hover, var(--color-navigation-hover, #d5d6d8));
+  border-color: var(--Navigation-Hover, var(--color-navigation-hover, #d5d6d8));
   color: var(--color-text-primary, var(--text-color));
 }
 
@@ -255,8 +257,8 @@ html.dark .header__icon--theme-moon {
 
 .header__icon-btn:hover {
   border-radius: var(--border-radius-m, 6px);
-  background: var(--Navigation-Hover, var(--color-navigation-hover, #D5D6D8));
-  border-color: var(--Navigation-Hover, var(--color-navigation-hover, #D5D6D8));
+  background: var(--Navigation-Hover, var(--color-navigation-hover, #d5d6d8));
+  border-color: var(--Navigation-Hover, var(--color-navigation-hover, #d5d6d8));
   color: var(--color-icon-primary, var(--color-text-primary));
 }
 
@@ -280,20 +282,22 @@ html.dark .header__icon--theme-moon {
   min-height: var(--header-height);
   padding: 0;
   border-radius: var(--header-control-radius);
-  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.10));
-  background: var(--color-surface-weak, #FFF);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  background: var(--color-surface-weak, #fff);
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
   overflow: hidden;
 }
 .header__user-trigger:hover {
   border-color: var(--color-stroke-strong, rgba(5, 8, 22, 0.25));
-  background: var(--color-surface-mid, #F7F7F8);
+  background: var(--color-surface-mid, #f7f7f8);
 }
 .header__user-trigger--open,
-.header__user-trigger[aria-expanded="true"] {
+.header__user-trigger[aria-expanded='true'] {
   border-color: var(--color-stroke-mid, rgba(5, 8, 22, 0.17));
-  background: var(--color-surface-mid, #F7F7F8);
+  background: var(--color-surface-mid, #f7f7f8);
 }
 .header__user-trigger .header__user-avatar-inner {
   width: 100%;
@@ -318,7 +322,7 @@ html.dark .header__icon--theme-moon {
 .header__user-trigger .header__user-avatar-inner a {
   text-decoration: none;
 }
-.header__user-trigger .header__user-avatar-inner [class*="w-"] {
+.header__user-trigger .header__user-avatar-inner [class*='w-'] {
   width: 100% !important;
   height: 100% !important;
   min-width: 0;
@@ -333,7 +337,7 @@ html.dark .header__user-trigger:hover {
   border-color: var(--color-stroke-mid);
 }
 html.dark .header__user-trigger--open,
-html.dark .header__user-trigger[aria-expanded="true"] {
+html.dark .header__user-trigger[aria-expanded='true'] {
   border-color: var(--color-stroke-mid);
 }
 html.dark .header__user-trigger .header__user-avatar-inner > div {
@@ -461,7 +465,7 @@ html.dark .header__user-trigger .header__user-avatar-inner .fa-user {
   font-size: var(--Sizes-Small, 14px);
   font-weight: 400;
   cursor: pointer;
-  font-family: var(--Typefaces-Sans, "Mona Sans VF");
+  font-family: var(--Typefaces-Sans, 'Mona Sans VF');
 }
 
 .header__menu-btn:hover,
@@ -494,7 +498,6 @@ html.dark .header__user-trigger .header__user-avatar-inner .fa-user {
    ========================================================================== */
 
 @media (max-width: 991px) {
-
   .header__nav--desktop,
   .header__right {
     display: none;
@@ -520,7 +523,8 @@ html.dark .header__user-trigger .header__user-avatar-inner .fa-user {
   background: var(--color-bg-secondary, var(--card-color));
   border-left: 1px solid var(--color-border);
   z-index: 1001;
-  padding: var(--header-height) var(--space-large, 1rem) var(--space-large, 1rem);
+  padding: var(--header-height) var(--space-large, 1rem)
+    var(--space-large, 1rem);
   overflow-y: auto;
 }
 

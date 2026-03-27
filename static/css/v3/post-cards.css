@@ -20,7 +20,7 @@
 .post-cards .content-detail-icon__cta:focus-visible,
 .post-cards .content-card__cta:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--color-stroke-link-accent, #1F3044);
+  box-shadow: 0 0 0 2px var(--color-stroke-link-accent, #1f3044);
   border-radius: 4px;
   display: inline-block;
 }
