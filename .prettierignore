@@ -1,0 +1,14 @@
+# Generated CSS output
+static-deploy/css/
+
+# Vendored / bundled JS
+static/js/vendor/
+*.min.js
+*.min.css
+
+# Dependencies
+node_modules/
+
+# Django
+*.py
+*.html
