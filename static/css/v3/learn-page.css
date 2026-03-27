@@ -55,8 +55,10 @@
         ". d e"
         ". d ."
     ;
-    gap: var(--space-card);
-    justify-items: left;
+    row-gap: var(--space-card);
+    column-gap: var(--space-card);
+    justify-items: start;
+    width: fit-content;
 }
 
 .card-masonry .item-a {
@@ -119,5 +121,9 @@
 
     .learn-page-header {
         max-width: none;
+    }
+
+    .mobile-d-none {
+        display: none;
     }
 }
