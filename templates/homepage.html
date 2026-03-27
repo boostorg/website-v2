@@ -12,7 +12,8 @@
         <div class="flex md:flex-col items-center justify-top">
           <div class="hidden md:block toon w-max h-max mx-auto my-3 rounded-lg"></div>
           <div class="mx-auto group flex justify-center items-center my-5 space-y-3 max-w-md md:mt-8 md:space-y-0 ">
-            <a href="{% url 'releases-most-recent' %}" class="w-80 flex justify-left items-center py-4 pl-6 md:pl-3 text-base font-medium link-header text-white hover:text-white hover:bg-sky-600 hover:border-white dark:hover:bg-sky-600 rounded-md border md:text-lg border-orange bg-orange dark:bg-charcoal dark:hover:bg-charcoal/75">
+            <a href="{% url 'releases-most-recent' %}"
+               class="w-80 flex justify-left items-center py-4 pl-6 md:pl-3 text-base font-medium link-header text-white hover:text-white hover:bg-sky-600 hover:border-white dark:hover:bg-sky-600 rounded-md border md:text-lg border-orange bg-orange dark:bg-charcoal dark:hover:bg-charcoal/75">
               <i class="pl-2 pr-4 md:pr-2 text-white fas fa-arrow-circle-down dark:text-orange dark:group-hover:text-sky-600 dark:group-hover:border-orange"></i> Download the Latest Release
             </a>
           </div>
@@ -21,7 +22,9 @@
           <h1 class="text-3xl font-extrabold md:text-5xl md:leading-[3.5rem]">
             <span class="block xl:inline">The <span class="active-link">Boost</span> C++ Libraries are open source, peer-reviewed, portable and free </span>
           </h1>
-          <p class=" pb-0 mt-3 max-w-md text md:text-lg md:mt-5 md:mb-3 md:max-w-3xl">Created by experts to be reliable, skillfully-designed, and well-tested.</p>
+          <p class=" pb-0 mt-3 max-w-md text md:text-lg md:mt-5 md:mb-3 md:max-w-3xl">
+            Created by experts to be reliable, skillfully-designed, and well-tested.
+          </p>
         </div>
       </div>
     </div>
@@ -31,29 +34,38 @@
         <div class="lg:order-last lg:w-1/2 px-4 pt-2">
           <h5 class="text-3xl leading-tight text-orange mb-2">Boost Mission</h5>
           <ul class="mb-0 pl-2 ml-6 space-y-2 list-disc">
-          <li>development of high quality, expert reviewed, legally unencumbered, open-source libraries,</li>
-          <li>inspiring standard enhancements, and</li>
-          <li>advancing and disseminating software development best practices.</li>
+            <li>development of high quality, expert reviewed, legally unencumbered, open-source libraries,</li>
+            <li>inspiring standard enhancements, and</li>
+            <li>advancing and disseminating software development best practices.</li>
           </ul>
-          <p class="pb-0">It does this by fostering community engagement, nurturing leaders, providing necessary financial/legal support, and making directional decisions in the event of Boost community deadlock.</p>
-          <p class="pb-0">Equally important to our mission is the guidance provided by our shared values. These are transparency, inclusivity, consensus-building, federated authorship, and community-driven leadership.</p>
-          <div>
-          </div>
+          <p class="pb-0">
+            It does this by fostering community engagement, nurturing leaders, providing necessary financial/legal support, and making directional decisions in the event of Boost community deadlock.
+          </p>
+          <p class="pb-0">
+            Equally important to our mission is the guidance provided by our shared values. These are transparency, inclusivity, consensus-building, federated authorship, and community-driven leadership.
+          </p>
+          <div></div>
         </div>
         <div class="flex lg:mr-4 my-auto pt-8 lg:w-1/2 justify-center">
           <div class="grid grid-cols-2 w-full justify-items-center">
             <div class="items-center text-center px-4">
-              <img class="mx-auto mb-2" src="{% static 'img/icons/icon-download-grn.svg' %}" alt="Downloads">
+              <img class="mx-auto mb-2"
+                   src="{% static 'img/icons/icon-download-grn.svg' %}"
+                   alt="Downloads">
               <h4 class="mb-3 text-5xl">10M+</h4>
               Total Downloads
             </div>
             <div class="items-center text-center px-4">
-              <img class="mx-auto mb-2" src="{% static 'img/icons/icon-library-grn.svg' %}" alt="Libraries">
+              <img class="mx-auto mb-2"
+                   src="{% static 'img/icons/icon-library-grn.svg' %}"
+                   alt="Libraries">
               <h4 class="mb-3 text-5xl">165+</h4>
               Individual Libraries
             </div>
             <div class="col-span-2 items-center w-full text-left pl-4 pr-2">
-              <p><span class="text-xl font-bold">Why Use Boost?</span>&nbsp;&nbsp; In a word, <i>Productivity</i>. Use of high-quality libraries like Boost speeds initial development, results in fewer bugs, reduces reinvention-of-the-wheel, and cuts long-term maintenance costs. And since Boost libraries tend to become de facto or de jure standards, many programmers are already familiar with them.</p>
+              <p>
+                <span class="text-xl font-bold">Why Use Boost?</span>&nbsp;&nbsp; In a word, <i>Productivity</i>. Use of high-quality libraries like Boost speeds initial development, results in fewer bugs, reduces reinvention-of-the-wheel, and cuts long-term maintenance costs. And since Boost libraries tend to become de facto or de jure standards, many programmers are already familiar with them.
+              </p>
             </div>
           </div>
         </div>
@@ -61,110 +73,112 @@
     </div>
 
     {% if testimonials %}
-    <div class="testimonials my-12 mb-3 md:mb-6 space-y-4 lg:mt-16 lg:mb-4 lg:space-y-0 lg:space-x-4 md:shadow-lg">
-      <div class="testimonial p-6 dark:text-white text-slate bg-white md:rounded-lg dark:bg-charcoal dark:bg-neutral-700 md:shadow-lg"
-           x-data="{ activeSlide: 1, slides: Array.from({ length: {{ num_testimonials }} }, (_, i) => i + 1) }">
-        <h5 class="text-3xl leading-tight mb-2">Testimonials</h5>
-        <div class="grid">
-        {% for t in testimonials %}
-        <div style="grid-area: 1/1"
-             x-show="activeSlide === {{ forloop.counter }}"
-             x-transition.opacity.duration.300ms
-             {% if not forloop.first %}x-cloak{% endif %}>
-          <div class="flex flex-col md:flex-row gap-4">
-            <div class="flex-grow pull-quote">
-              {{ t.pull_quote }}
-            </div>
-            <div class="flex items-end">
-              <a href="{% url 'testimonial-detail' t.author_slug %}">
-                <button class="py-2 px-3 text-sm text-white rounded bg-orange">Read&nbsp;More</button>
-              </a>
-            </div>
+      <div class="testimonials my-12 mb-3 md:mb-6 space-y-4 lg:mt-16 lg:mb-4 lg:space-y-0 lg:space-x-4 md:shadow-lg">
+        <div class="testimonial p-6 dark:text-white text-slate bg-white md:rounded-lg dark:bg-charcoal dark:bg-neutral-700 md:shadow-lg"
+             x-data="{ activeSlide: 1, slides: Array.from({ length: {{ num_testimonials }} }, (_, i) => i + 1) }">
+          <h5 class="text-3xl leading-tight mb-2">Testimonials</h5>
+          <div class="grid">
+            {% for t in testimonials %}
+              <div style="grid-area: 1/1"
+                   x-show="activeSlide === {{ forloop.counter }}"
+                   x-transition.opacity.duration.300ms
+                   {% if not forloop.first %}x-cloak{% endif %}>
+                <div class="flex flex-col md:flex-row gap-4">
+                  <div class="flex-grow pull-quote">{{ t.pull_quote }}</div>
+                  <div class="flex items-end">
+                    <a href="{% url 'testimonial-detail' t.author_slug %}">
+                      <button class="py-2 px-3 text-sm text-white rounded bg-orange">Read&nbsp;More</button>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="flex justify-center items-center gap-4 mt-4"
+               x-show="slides.length > 1"
+               x-cloak>
+            <button :style="activeSlide === 1 ? 'visibility:hidden;pointer-events:none' : ''"
+                    @click="activeSlide--"
+                    class="w-8 h-8 font-bold text-white hover:text-orange bg-gray-400 rounded-full">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <span class="text-sm text-gray-500 dark:text-gray-400"
+                  x-text="activeSlide + ' / ' + slides.length"></span>
+            <button :style="activeSlide === slides.length ? 'visibility:hidden;pointer-events:none' : ''"
+                    @click="activeSlide++"
+                    class="w-8 h-8 font-bold text-white hover:text-orange bg-gray-400 rounded-full">
+              <i class="fas fa-chevron-right"></i>
+            </button>
           </div>
         </div>
-        {% endfor %}
-        </div>
-        <div class="flex justify-center items-center gap-4 mt-4" x-show="slides.length > 1" x-cloak>
-          <button :style="activeSlide === 1 ? 'visibility:hidden;pointer-events:none' : ''"
-                  @click="activeSlide--"
-                  class="w-8 h-8 font-bold text-white hover:text-orange bg-gray-400 rounded-full">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-          <span class="text-sm text-gray-500 dark:text-gray-400" x-text="activeSlide + ' / ' + slides.length"></span>
-          <button :style="activeSlide === slides.length ? 'visibility:hidden;pointer-events:none' : ''"
-                  @click="activeSlide++"
-                  class="w-8 h-8 font-bold text-white hover:text-orange bg-gray-400 rounded-full">
-            <i class="fas fa-chevron-right"></i>
-          </button>
-        </div>
       </div>
-    </div>
     {% endif %}
 
     {% if events %}
-        <div class="my-12 mb-3 md:mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-4 lg:space-y-0 lg:space-x-4 md:shadow-lg">
-      <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
-            <div class="w-full">
-              <div class="mb-6">
-            <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">schedule of events</span>
-                <a id="schedule"></a>
-                <div class="absolute top-6 right-8 p-2 group">
-                  <a href="/calendar/"
-                    class="text-sm font-medium md:text-base lg:text-base  text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange">
-                    All Events&nbsp;<i class="fas fa-chevron-right  text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange"></i>
-                  </a>
-                </div>
+      <div class="my-12 mb-3 md:mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-4 lg:space-y-0 lg:space-x-4 md:shadow-lg">
+        <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
+          <div class="w-full">
+            <div class="mb-6">
+              <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">schedule of events</span>
+              <a id="schedule"></a>
+              <div class="absolute top-6 right-8 p-2 group">
+                <a href="/calendar/"
+                   class="text-sm font-medium md:text-base lg:text-base  text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange">
+                  All Events&nbsp;<i class="fas fa-chevron-right  text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange"></i>
+                </a>
               </div>
-
             </div>
-            <div class="flex flex-col justify-center items-center pb-4 h-full">
-              <div class="relative mx-auto w-4/5"
-              x-data="{ activeSlide: 1, slides: Array.from({ length: {{ num_months }} }, (_, i) => i + 1) }">
-                <!-- Slides -->
-                {% for month_year, month_events in events.items %}
-                <div x-show="activeSlide === {{ forloop.counter }}" x-cloak
-                    class="flex items-center py-0 px-12 h-full rounded-lg">
+
+          </div>
+          <div class="flex flex-col justify-center items-center pb-4 h-full">
+            <div class="relative mx-auto w-4/5"
+                 x-data="{ activeSlide: 1, slides: Array.from({ length: {{ num_months }} }, (_, i) => i + 1) }">
+              <!-- Slides -->
+              {% for month_year, month_events in events.items %}
+                <div x-show="activeSlide === {{ forloop.counter }}"
+                     x-cloak
+                     class="flex items-center py-0 px-12 h-full rounded-lg">
                   <div class="w-full">
-                    <h3 class="pb-2 mb-2 text-sm md:text-lg lg:text-lg capitalize border-b border-gray-400 text-orange dark:border-slate">{{ month_year }}</h3>
+                    <h3 class="pb-2 mb-2 text-sm md:text-lg lg:text-lg capitalize border-b border-gray-400 text-orange dark:border-slate">
+                      {{ month_year }}
+                    </h3>
                     {% for event in month_events %}
-                    <span class="pb-1 mx-auto w-full text-sm md:text-base align-left">
-                      <strong>{{ event.start.date }}:</strong> {{ event.name }}
-                      <br />
-                      <span class="pt-1 pl-4 font-light">{{ event.description }}</span>
-                      <br />
-                    </span>
+                      <span class="pb-1 mx-auto w-full text-sm md:text-base align-left">
+                        <strong>{{ event.start.date }}:</strong> {{ event.name }}
+                        <br />
+                        <span class="pt-1 pl-4 font-light">{{ event.description }}</span>
+                        <br />
+                      </span>
                     {% endfor %}
                   </div>
                 </div>
-                {% endfor %}
-                <!-- Prev/Next Arrows -->
-                <div class="flex absolute inset-0">
-                  <div class="flex justify-start items-center w-1/2">
-                    <button
-                      x-show="activeSlide !== 1"
-                      class="-ml-6 w-12 h-12 font-bold text-white hover:text-orange bg-gray-400 rounded-full"
-                      x-on:click="activeSlide = activeSlide === 1 ? slides.length : activeSlide - 1">
-                      <i class="fas fa-chevron-left"></i>
-                    </button>
-                  </div>
-                  <div class="flex justify-end items-center w-1/2">
-                    <button
-                      x-show="activeSlide !== slides.length"
-                      class="-mr-6 w-12 h-12 font-bold text-white hover:text-orange bg-gray-400 rounded-full"
-                      x-on:click="activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1">
-                      <i class="fas fa-chevron-right"></i>
-                    </button>
-                  </div>
+              {% endfor %}
+              <!-- Prev/Next Arrows -->
+              <div class="flex absolute inset-0">
+                <div class="flex justify-start items-center w-1/2">
+                  <button x-show="activeSlide !== 1"
+                          class="-ml-6 w-12 h-12 font-bold text-white hover:text-orange bg-gray-400 rounded-full"
+                          x-on:click="activeSlide = activeSlide === 1 ? slides.length : activeSlide - 1">
+                    <i class="fas fa-chevron-left"></i>
+                  </button>
+                </div>
+                <div class="flex justify-end items-center w-1/2">
+                  <button x-show="activeSlide !== slides.length"
+                          class="-mr-6 w-12 h-12 font-bold text-white hover:text-orange bg-gray-400 rounded-full"
+                          x-on:click="activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1">
+                    <i class="fas fa-chevron-right"></i>
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
     {% endif %}
 
     {% if featured_library %}
-    <div class="my-12 mb-3 md:mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-4 lg:space-y-0 lg:space-x-4 md:shadow-lg">
-      <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
+      <div class="my-12 mb-3 md:mb-6 space-y-4 lg:flex lg:mt-16 lg:mb-4 lg:space-y-0 lg:space-x-4 md:shadow-lg">
+        <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
           <div class="mb-6">
             <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">library spotlight</span>
           </div>
@@ -174,11 +188,16 @@
               All Libraries&nbsp;<i class="fas fa-chevron-right  text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange"></i>
             </a>
           </div>
-          <h3 class="pb-2 mb-4 text-lg md:text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate"><a href="{% url 'library-detail' library_slug=featured_library.library.slug version_slug=LATEST_RELEASE_URL_PATH_STR %}" class="link-header">{{ featured_library.library.name }}</a></h3>
-          <span class="pb-1 mx-auto w-full text-sm md:text-base align-left">
-            {{ featured_library.description }}
-          </span>
-          <p class="pb-1 mx-auto w-full text-xs md:text-sm align-left">{% if featured_library.first_boost_version %}Added in {{ featured_library.first_boost_version.display_name }}{% endif %}</p>
+          <h3 class="pb-2 mb-4 text-lg md:text-2xl capitalize border-b border-gray-400 text-orange dark:border-slate">
+            <a href="{% url 'library-detail' library_slug=featured_library.library.slug version_slug=LATEST_RELEASE_URL_PATH_STR %}"
+               class="link-header">{{ featured_library.library.name }}</a>
+          </h3>
+          <span class="pb-1 mx-auto w-full text-sm md:text-base align-left">{{ featured_library.description }}</span>
+          <p class="pb-1 mx-auto w-full text-xs md:text-sm align-left">
+            {% if featured_library.first_boost_version %}
+              Added in {{ featured_library.first_boost_version.display_name }}
+            {% endif %}
+          </p>
           <div class="py-4">
             {% if authors or maintainers %}
               <div class="flex flex-wrap justify-start">
@@ -209,19 +228,22 @@
           </div>
           {% endcomment %}
 
+        </div>
       </div>
-    </div>
     {% endif %}
 
     <div class="my-12 space-y-4 lg:flex lg:mb-16 lg:space-y-0 lg:space-x-4 md:shadow-lg">
       <div class="p-6 relative bg-white md:rounded-lg md:p-11 w-full dark:bg-charcoal">
-          <div>
+        <div>
           <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">featured video</span>
         </div>
         <div class="flex flex-col justify-center items-center h-full pb-4">
           <div class="mx-auto">
             <div class="flex items-center justify-center h-full py-4 rounded-lg">
-              <a href="https://www.youtube.com/watch?v=XB3uEit5R_Y" target="_blank" rel="noopener noreferrer" class="text-sm md:text-lg text-center text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
+              <a href="https://www.youtube.com/watch?v=XB3uEit5R_Y"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="text-sm md:text-lg text-center text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">
                 Getting Started with Boost.Asio: Timers and Serial Ports
               </a>
             </div>
@@ -237,7 +259,7 @@
         </div>
         <div class="absolute top-6 right-8 p-2 group">
           <a href="{% url 'news' %}"
-            class="text-sm font-medium md:text-base text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange">
+             class="text-sm font-medium md:text-base text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange">
             All News&nbsp;<i class="fas fa-chevron-right text-sky-600 dark:text-sky-300 group-hover:text-orange dark:group-hover:text-orange"></i>
           </a>
         </div>
@@ -259,15 +281,20 @@
                     <i class="fas fa-video"></i>
                   {% endif %}
                 </span>
-                <a class="link-header" {% if entry.external_url %}target="_blank"{% endif %} href="{% if entry.external_url %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
-                  {{ entry.title }} {% if entry.external_url %}<i class="fa fa-external-link text-sm ml-1"></i>{% endif %}
+                <a class="link-header"
+                   {% if entry.external_url %}target="_blank"{% endif %}
+                   href="{% if entry.external_url %}{{ entry.external_url }}{% else %}{{ entry.get_absolute_url }}{% endif %}">
+                  {{ entry.title }}
+                  {% if entry.external_url %}<i class="fa fa-external-link text-sm ml-1"></i>{% endif %}
                 </a>
               </h2>
 
-              <p class="pt-0 pb-4 mx-auto w-full text-xs md:text-sm align-left">Posted on {{ entry.publish_at|date:"M jS, Y" }} by {{ entry.author.display_name }}</p>
+              <p class="pt-0 pb-4 mx-auto w-full text-xs md:text-sm align-left">
+                Posted on {{ entry.publish_at|date:"M jS, Y" }} by {{ entry.author.display_name }}
+              </p>
               {% if entry.summary %}
-              <div class="md:ml-[40px]">
-                <span class="text-sm md:text-base text-gray-500 dark:text-white/70">{{ entry.summary }}</span>
+                <div class="md:ml-[40px]">
+                  <span class="text-sm md:text-base text-gray-500 dark:text-white/70">{{ entry.summary }}</span>
                 </div>
               {% endif %}
             </div>
@@ -283,11 +310,7 @@
           <span class="inline py-1 px-3 w-auto text-sm uppercase rounded md:text-base text-[rgb(14,174,96)] dark:text-green font-semibold bg-gray-300/50 dark:bg-green/10 border border-green-500">featured video</span>
         </div>
         <div class="relative h-0 overflow-hidden max-w-full w-full" style="padding-bottom: 56.25%">
-          <iframe
-            src="https://www.youtube.com/embed/Z1imC1HcJUA"
-            frameborder="0"
-            allowfullscreen
-            class="absolute top-0 left-0 w-full h-full"></iframe>
+          <iframe src="https://www.youtube.com/embed/Z1imC1HcJUA" frameborder="0" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe>
         </div>
       </div>
     </div>
@@ -296,17 +319,17 @@
     <!-- END RECENT NEWS & JOIN CONVERSATION -->
 
     <!-- BOOST LIBRARIES LOGOS AND TESTIMONIALS -->
-{#    <div>#}
-{#      <h2 class="text-3xl text-center">Boost Libraries Headline</h2>#}
-{#      <div class="grid grid-cols-2 gap-4 justify-between justify-items-center items-center my-16 md:grid-cols-6">#}
-{#        <img src="{% static 'img/fpo/airbus.svg' %}" alt="airbus" />#}
-{#        <img src="{% static 'img/fpo/usairforce.svg' %}" alt="air force" />#}
-{#        <img src="{% static 'img/fpo/airbus.svg' %}" alt="airbus" />#}
-{#        <img src="{% static 'img/fpo/usairforce.svg' %}" alt="air force" />#}
-{#        <img src="{% static 'img/fpo/airbus.svg' %}" alt="airbus" />#}
-{#        <img src="{% static 'img/fpo/usairforce.svg' %}" alt="air force" />#}
-{#      </div>#}
-{#    </div>#}
+    {#    <div>#}
+    {#      <h2 class="text-3xl text-center">Boost Libraries Headline</h2>#}
+    {#      <div class="grid grid-cols-2 gap-4 justify-between justify-items-center items-center my-16 md:grid-cols-6">#}
+    {#        <img src="{% static 'img/fpo/airbus.svg' %}" alt="airbus" />#}
+    {#        <img src="{% static 'img/fpo/usairforce.svg' %}" alt="air force" />#}
+    {#        <img src="{% static 'img/fpo/airbus.svg' %}" alt="airbus" />#}
+    {#        <img src="{% static 'img/fpo/usairforce.svg' %}" alt="air force" />#}
+    {#        <img src="{% static 'img/fpo/airbus.svg' %}" alt="airbus" />#}
+    {#        <img src="{% static 'img/fpo/usairforce.svg' %}" alt="air force" />#}
+    {#      </div>#}
+    {#    </div>#}
     <!-- END BOOST LIBRARIES LOGOS AND TESTIMONIALS -->
   </main>
   <!-- End Homepage Hero Section -->
@@ -325,6 +348,4 @@
   </style>
 {% endblock %}
 
-{% block footer_js %}
-
-{% endblock %}
+{% block footer_js %}{% endblock %}

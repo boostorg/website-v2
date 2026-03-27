@@ -1,14 +1,14 @@
 {% with section_title="WYSIWYG editor" %}
-<div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-  <h3>{{ section_title }}</h3>
-  <div class="v3-examples-section__example-box">
-    <div style="display:flex;gap:8px;margin-bottom:12px">
-      <button type="button" id="wysiwyg-demo-fill" class="btn btn-primary">Fill demo content</button>
-      <button type="button" id="wysiwyg-demo-clear" class="btn btn-secondary">Clear</button>
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
+    <div class="v3-examples-section__example-box">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button type="button" id="wysiwyg-demo-fill" class="btn btn-primary">Fill demo content</button>
+        <button type="button" id="wysiwyg-demo-clear" class="btn btn-secondary">Clear</button>
+      </div>
+      {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_demo_content" textarea_name="demo_content" label="Content" %}
     </div>
-    {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_demo_content" textarea_name="demo_content" label="Content" %}
-  </div>
-  <script type="module">
+    <script type="module">
   const DEMO_MARKDOWN = `# Boost.Asio Networking Example
 
 This document demonstrates **all supported formatting** in the WYSIWYG editor.
@@ -184,6 +184,6 @@ graph LR
 
   // Load and init WYSIWYG on page load so the editor is ready without clicking Fill demo content
   import('/static/js/vendor/wysiwyg-editor/wysiwyg-editor.js').then(m => m.initWysiwyg('id_demo_content'));
-  </script>
-</div>
+    </script>
+  </div>
 {% endwith %}

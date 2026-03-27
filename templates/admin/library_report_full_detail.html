@@ -2,86 +2,31 @@
 {% load humanize avatar_tags %}
 {% load static %}
 {% block content %}
-    <body class=" !bg-gray-900 !text-stone-white ">
-      <div>
-        <div class="pdf-page flex flex-col relative items-center justify-center bottom-1 border-gray-700 border-b-2 " style="background-image:url({% static 'img/code.jpg' %});background-position: left;background-size: cover;background-repeat: no-repeat;">
-          <h1 class="mx-auto flex items-center mb-6 mt-8"><img style="width:3rem; margin-right:1rem;" src="{% static 'img/Boost_Symbol_Transparent.svg' %}">Boost</h1>
-          <div class="mx-auto">{{ commit_count|intcomma }} commits in all releases across all {{ library_count }} libraries</div>
-          <div class="flex flex-row items-center w-full justify-around grow">
-            <div class="flex flex-col grow mb-12 mt-6">
-              <div class="m-auto gap-x-2">
-                <div>
-                  <div class="mx-auto mb-6">Top Contributors</div>
-                  <div class="m-auto grid grid-cols-1 gap-2">
-                    {% for author in top_contributors %}
-                      <div class="flex flex-row gap-y-2 w-40 items-center ml-6">
-                        {% avatar commitauthor=author %}
-                        <div class="w-full flex flex-col ml-2">
-                          <div class="text-[0.8rem] text-bold overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-[rgb(14,174,96)] dark:text-green">
-                            {{ author.name }}
-                          </div>
-                          <div class="text-[0.7rem]">{{ author.commit_count }}</div>
-                        </div>
-                      </div>
-                    {% endfor %}
-                  </div>
-                </div>
-              </div>
-        </div>
-          <div class="flex flex-col grow justify-center items-center">
-            <h3 class="">Most Committed Libraries</h3>
-            <div id="top-committed-libraries-chart" class="text-center"></div>
-          </div>
-        </div>
-      </div>
-        <div class="pdf-page flex flex-col relative items-center justify-center bottom-1 border-gray-700 border-b-2" style="background-image:url({% static 'img/code.jpg' %});background-position: left;background-size: cover;background-repeat: no-repeat;">
-          <div class="absolute left-4 top-4 ">
-            <h3 class="text-white flex items-center m-0 p-0"><img style="width:1.3rem; margin-right:.5rem;" src="{% static 'img/Boost_Symbol_Transparent.svg' %}">Boost</h3>
-          </div>
-          <div class="flex flex-col mx-auto">
-            <h2 class="mx-auto mt-8 text-sky-400">Mailing List</h2>
-            <div class="mx-auto">There have been {{ mailinglist_total|intcomma }} Mailing List posts since the release of Version&nbsp;{{ first_version.display_name }}</div>
-            <div class="flex flex-row items-center w-full justify-around grow">
-            <div class="flex flex-col grow mb-12 mt-6">
-            <div class="flex gap-x-2 mx-auto">
+  <body class=" !bg-gray-900 !text-stone-white ">
+    <div>
+      <div class="pdf-page flex flex-col relative items-center justify-center bottom-1 border-gray-700 border-b-2 "
+           style="background-image:url({% static 'img/code.jpg' %});
+                  background-position: left;
+                  background-size: cover;
+                  background-repeat: no-repeat">
+        <h1 class="mx-auto flex items-center mb-6 mt-8">
+          <img style="width:3rem;
+                      margin-right:1rem"
+               src="{% static 'img/Boost_Symbol_Transparent.svg' %}">
+          Boost
+        </h1>
+        <div class="mx-auto">{{ commit_count|intcomma }} commits in all releases across all {{ library_count }} libraries</div>
+        <div class="flex flex-row items-center w-full justify-around grow">
+          <div class="flex flex-col grow mb-12 mt-6">
+            <div class="m-auto gap-x-2">
               <div>
                 <div class="mx-auto mb-6">Top Contributors</div>
-                  <div class="m-auto grid grid-cols-1 gap-2">
-                  {% for item in mailinglist_counts %}
-                    <div class="flex flex-row gap-y-2 w-40 items-center ml-6">
-                      {% avatar commitauthor=item %}
-                      <div class="w-full flex flex-col ml-2">
-                          <div class="text-[0.8rem] text-bold overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-[rgb(14,174,96)] dark:text-green">
-                          {{ item.name }}
-                        </div>
-                        <div class="text-[0.7rem]">({{ item.total_count }})</div>
-                      </div>
-                    </div>
-                  {% endfor %}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-          </div>
-        </div>
-      </div>
-        {% for item in library_data %}
-          <div class="pdf-page relative flex flex-row items-center bottom-1 border-gray-700 border-b-2 justify-around" style="background-image:url({% static 'img/code.jpg' %});background-position: left;background-size: cover;background-repeat: no-repeat;">
-            <div class="absolute left-4 top-4 ">
-              <h3 class="text-white flex items-center m-0 p-0"><img style="width:1.3rem; margin-right:.5rem;" src="{% static 'img/Boost_Symbol_Transparent.svg' %}">Boost</h3>
-            </div>
-
-            <div class="flex w-max flex-row items-center justify-around">
-
-              <div class="flex flex-col items-center justify-center">
-                <div class="mb-2">Top Contributors</div>
-                <div class="flex flex-col gap-y-2 w-40 items-center ml-6">
-                  {% for author in item.top_contributors %}
+                <div class="m-auto grid grid-cols-1 gap-2">
+                  {% for author in top_contributors %}
                     <div class="flex flex-row gap-y-2 w-40 items-center ml-6">
                       {% avatar commitauthor=author %}
                       <div class="w-full flex flex-col ml-2">
-                          <div class="text-[0.8rem] text-bold overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-[rgb(14,174,96)] dark:text-green">
+                        <div class="text-[0.8rem] text-bold overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-[rgb(14,174,96)] dark:text-green">
                           {{ author.name }}
                         </div>
                         <div class="text-[0.7rem]">{{ author.commit_count }}</div>
@@ -91,16 +36,100 @@
                 </div>
               </div>
             </div>
-            <div class="w-1/2">
-              <h3 class="text-orange">{{ item.library.name }}</h3>
-              <div class="mb-8">{{ item.library.description }}</div>
-              <h4>There are {{ item.full_count.commit_count|intcomma }} commits across all releases</h4>
+          </div>
+          <div class="flex flex-col grow justify-center items-center">
+            <h3 class="">Most Committed Libraries</h3>
+            <div id="top-committed-libraries-chart" class="text-center"></div>
+          </div>
+        </div>
+      </div>
+      <div class="pdf-page flex flex-col relative items-center justify-center bottom-1 border-gray-700 border-b-2"
+           style="background-image:url({% static 'img/code.jpg' %});
+                  background-position: left;
+                  background-size: cover;
+                  background-repeat: no-repeat">
+        <div class="absolute left-4 top-4 ">
+          <h3 class="text-white flex items-center m-0 p-0">
+            <img style="width:1.3rem;
+                        margin-right:.5rem"
+                 src="{% static 'img/Boost_Symbol_Transparent.svg' %}">
+            Boost
+          </h3>
+        </div>
+        <div class="flex flex-col mx-auto">
+          <h2 class="mx-auto mt-8 text-sky-400">Mailing List</h2>
+          <div class="mx-auto">
+            There have been {{ mailinglist_total|intcomma }} Mailing List posts since the release of Version&nbsp;{{ first_version.display_name }}
+          </div>
+          <div class="flex flex-row items-center w-full justify-around grow">
+            <div class="flex flex-col grow mb-12 mt-6">
+              <div class="flex gap-x-2 mx-auto">
+                <div>
+                  <div class="mx-auto mb-6">Top Contributors</div>
+                  <div class="m-auto grid grid-cols-1 gap-2">
+                    {% for item in mailinglist_counts %}
+                      <div class="flex flex-row gap-y-2 w-40 items-center ml-6">
+                        {% avatar commitauthor=item %}
+                        <div class="w-full flex flex-col ml-2">
+                          <div class="text-[0.8rem] text-bold overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-[rgb(14,174,96)] dark:text-green">
+                            {{ item.name }}
+                          </div>
+                          <div class="text-[0.7rem]">({{ item.total_count }})</div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        {% endfor %}
+        </div>
       </div>
-      <div class="pdf-page {{ bg_color }}" style="page-break-after: avoid;">This is the last page</div>
-      <script>
+    </div>
+    {% for item in library_data %}
+      <div class="pdf-page relative flex flex-row items-center bottom-1 border-gray-700 border-b-2 justify-around"
+           style="background-image:url({% static 'img/code.jpg' %});
+                  background-position: left;
+                  background-size: cover;
+                  background-repeat: no-repeat">
+        <div class="absolute left-4 top-4 ">
+          <h3 class="text-white flex items-center m-0 p-0">
+            <img style="width:1.3rem;
+                        margin-right:.5rem"
+                 src="{% static 'img/Boost_Symbol_Transparent.svg' %}">
+            Boost
+          </h3>
+        </div>
+
+        <div class="flex w-max flex-row items-center justify-around">
+
+          <div class="flex flex-col items-center justify-center">
+            <div class="mb-2">Top Contributors</div>
+            <div class="flex flex-col gap-y-2 w-40 items-center ml-6">
+              {% for author in item.top_contributors %}
+                <div class="flex flex-row gap-y-2 w-40 items-center ml-6">
+                  {% avatar commitauthor=author %}
+                  <div class="w-full flex flex-col ml-2">
+                    <div class="text-[0.8rem] text-bold overflow-ellipsis overflow-hidden whitespace-nowrap w-full text-[rgb(14,174,96)] dark:text-green">
+                      {{ author.name }}
+                    </div>
+                    <div class="text-[0.7rem]">{{ author.commit_count }}</div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="w-1/2">
+          <h3 class="text-orange">{{ item.library.name }}</h3>
+          <div class="mb-8">{{ item.library.description }}</div>
+          <h4>There are {{ item.full_count.commit_count|intcomma }} commits across all releases</h4>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="pdf-page {{ bg_color }}" style="page-break-after: avoid;">This is the last page</div>
+  <script>
         var options = {
           series: [{
             name: 'Commits',
@@ -165,5 +194,5 @@
         // SS: putting this in the window object, a bit hacky, to be able to access it in the light/dark switcher - probably a better way
         const chart = new ApexCharts(document.querySelector("#top-committed-libraries-chart"), options);
         chart.render();
-      </script>
+  </script>
 {% endblock content %}

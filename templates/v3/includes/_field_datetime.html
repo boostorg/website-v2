@@ -13,26 +13,22 @@
     {% include "v3/includes/_field_datetime.html" with name="publish_at" label="Publish Date" value=publish_at_initial %}
 {% endcomment %}
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}">
-  {% if label %}
-  <label class="field__label" for="field-{{ name }}">{{ label }}</label>
-  {% endif %}
+  {% if label %}<label class="field__label" for="field-{{ name }}">{{ label }}</label>{% endif %}
   <div class="field__control{% if disabled %} field__control--disabled{% endif %} field__control--datetime">
-    <input
-      class="field__input"
-      type="datetime-local"
-      id="field-{{ name }}"
-      name="{{ name }}"
-      {% if value %}value="{{ value }}"{% endif %}
-      {% if required %}required{% endif %}
-      {% if disabled %}disabled{% endif %}
-      {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
-      min="{% now "Y-m-d\TH:i" %}"
-    >
+    <input class="field__input"
+           type="datetime-local"
+           id="field-{{ name }}"
+           name="{{ name }}"
+           {% if value %}value="{{ value }}"{% endif %}
+           {% if required %}required{% endif %}
+           {% if disabled %}disabled{% endif %}
+           {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
+           min="{% now "Y-m-d\TH:i" %}">
   </div>
   {% if error %}
-  <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
+    <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
   {% elif help_text %}
-  <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+    <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
   {% endif %}
   <script>
     (function() {

@@ -20,45 +20,60 @@
 {% endcomment %}
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
      {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}>
-  {% if label %}
-  <label class="field__label" for="field-{{ name }}">{{ label }}</label>
-  {% endif %}
-  <div class="field__control{% if disabled %} field__control--disabled{% endif %}"{% if submit_icon %} x-data="{ q: '' }"{% endif %}>
+  {% if label %}<label class="field__label" for="field-{{ name }}">{{ label }}</label>{% endif %}
+  <div class="field__control{% if disabled %} field__control--disabled{% endif %}"
+       {% if submit_icon %}x-data="{ q: '' }"{% endif %}>
     {% if icon_left %}
-    <span class="field__icon" aria-hidden="true">
-      {% include "includes/icon.html" with icon_name="search" icon_class="field__icon" %}</span>
+      <span class="field__icon" aria-hidden="true">
+        {% include "includes/icon.html" with icon_name="search" icon_class="field__icon" %}
+      </span>
     {% endif %}
-    <input
-      class="field__input"
-      type="{{ type|default:'text' }}"
-      id="field-{{ name }}"
-      name="{{ name }}"
-      {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
-      {% if value %}value="{{ value }}"{% endif %}
-      {% if required %}required{% endif %}
-      {% if disabled %}disabled{% endif %}
-      {% if alpine_error %}:aria-invalid="!!{{ alpine_error }}" :aria-describedby="{{ alpine_error }} ? 'field-{{ name }}-error' : {% if help_text %}'field-{{ name }}-help'{% else %}null{% endif %}"{% elif error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
-      {% if submit_icon %}x-model="q"{% endif %}
-    >
+    <input class="field__input"
+           type="{{ type|default:'text' }}"
+           id="field-{{ name }}"
+           name="{{ name }}"
+           {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+           {% if value %}value="{{ value }}"{% endif %}
+           {% if required %}required{% endif %}
+           {% if disabled %}disabled{% endif %}
+           {% if alpine_error %}:aria-invalid="!!{{ alpine_error }}" :aria-describedby="{{ alpine_error }} ? 'field-{{ name }}-error' : {% if help_text %}'field-{{ name }}-help'{% else %}null{% endif %}
+           "
+           {% elif error %}
+           aria-invalid="true"
+           aria-describedby="field-{{ name }}-error"
+           {% elif help_text %}
+           aria-describedby="field-{{ name }}-help"
+           {% endif %}
+           {% if submit_icon %}x-model="q"{% endif %}>
     {% if submit_icon %}
-    <button type="submit" class="field__submit" aria-label="{{ submit_label|default:'Submit' }}" :disabled="!q.trim()">
-      {% include "includes/icon.html" with icon_name=submit_icon icon_class="field__submit-icon" %}
-    </button>
+      <button type="submit"
+              class="field__submit"
+              aria-label="{{ submit_label|default:'Submit' }}"
+              :disabled="!q.trim()">
+        {% include "includes/icon.html" with icon_name=submit_icon icon_class="field__submit-icon" %}
+      </button>
     {% endif %}
   </div>
   {% if alpine_error %}
-  <p class="field__error" id="field-{{ name }}-error" role="alert" x-show="{{ alpine_error }}" x-text="{{ alpine_error }}" x-cloak aria-live="polite"></p>
-  {% if error %}
-  <p class="field__error" role="alert" aria-live="polite" x-show="false">{{ error }}</p>
-  {% endif %}
-  {% if help_text %}
-  <p class="field__help" id="field-{{ name }}-help" x-show="!{{ alpine_error }}"{% if error %} style="display:none"{% endif %}>{{ help_text }}</p>
-  {% endif %}
+    <p class="field__error"
+       id="field-{{ name }}-error"
+       role="alert"
+       x-show="{{ alpine_error }}"
+       x-text="{{ alpine_error }}"
+       x-cloak
+       aria-live="polite"></p>
+    {% if error %}<p class="field__error" role="alert" aria-live="polite" x-show="false">{{ error }}</p>{% endif %}
+    {% if help_text %}
+      <p class="field__help"
+         id="field-{{ name }}-help"
+         x-show="!{{ alpine_error }}"
+         {% if error %}style="display:none"{% endif %}>{{ help_text }}</p>
+    {% endif %}
   {% else %}
-  {% if error %}
-  <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
-  {% elif help_text %}
-  <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
-  {% endif %}
+    {% if error %}
+      <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
+    {% elif help_text %}
+      <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+    {% endif %}
   {% endif %}
 </div>

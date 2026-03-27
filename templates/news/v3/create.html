@@ -34,23 +34,21 @@
 
 {% block content %}
   <div class="create-post-section">
-      <div class="create-post-wrapper" x-data="createPostForm()" @field-change="handleFieldChange($event)">
-      <form
-        class="create-post-page"
-        enctype="multipart/form-data"
-        method="post"
-        :novalidate="true"
-        action="{% url 'v3-news-create' %}"
-        @submit="prepareSubmit"
-        data-create-post-form
-      >
+    <div class="create-post-wrapper"
+         x-data="createPostForm()"
+         @field-change="handleFieldChange($event)">
+      <form class="create-post-page"
+            enctype="multipart/form-data"
+            method="post"
+            :novalidate="true"
+            action="{% url 'v3-news-create' %}"
+            @submit="prepareSubmit"
+            data-create-post-form>
         {% csrf_token %}
 
         <div class="create-post-page__header">
           <h1 class="create-post-page__title">Create Post</h1>
-          <p class="create-post-page__subtitle">
-            Posts will be reviewed by the moderation team before they appear in the feed.
-          </p>
+          <p class="create-post-page__subtitle">Posts will be reviewed by the moderation team before they appear in the feed.</p>
         </div>
 
         <div class="create-post-page__card">
@@ -60,19 +58,31 @@
           {% include "v3/includes/_field_text.html" with name="title" label="Post title *" placeholder="Title" value=form.title.value|default_if_none:"" required=True alpine_error="errors.title" error=form.title.errors.0 %}
 
           {% comment %} Link (Video, Link): shown via :style binding; html.js CSS hides before Alpine init. {% endcomment %}
-          <div class="create-post-page__link-fields" :style="isLinkType ? 'display: flex' : 'display: none'">
+          <div class="create-post-page__link-fields"
+               :style="isLinkType ? 'display: flex' : 'display: none'">
             {% include "v3/includes/_field_text.html" with name="external_url" label="Link *" type="url" placeholder="https://..." value=form.external_url.value|default_if_none:"" alpine_error="errors.external_url" error=form.external_url.errors.0 help_text="Required for Video and Link post types." %}
           </div>
 
           {% comment %} Content (Blog, News): WYSIWYG editor. Description (Link, Video): plain textarea. Both use name="content". {% endcomment %}
-          <div class="field create-post-page__content-field" :style="isWriteUp ? 'display: flex' : 'display: none'" :class="{ 'field--error': errors.content }">
+          <div class="field create-post-page__content-field"
+               :style="isWriteUp ? 'display: flex' : 'display: none'"
+               :class="{ 'field--error': errors.content }">
             <label class="field__label" for="field-content">Content *</label>
             {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=form.content.value disabled_expr="isLinkType" %}
-            <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
-            <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
+            <p class="field__error"
+               id="field-content-error"
+               role="alert"
+               x-show="errors.content"
+               x-text="errors.content"
+               x-cloak
+               aria-live="polite"></p>
+            <p class="field__help" id="field-content-help" x-show="!errors.content">
+              This editor supports Markdown: headings, lists, code blocks, links, and more.
+            </p>
           </div>
 
-          <div class="field create-post-page__description-field" :style="isLinkType ? 'display:flex' : 'display: none'">
+          <div class="field create-post-page__description-field"
+               :style="isLinkType ? 'display:flex' : 'display: none'">
             {% include "v3/includes/_field_textarea.html" with name="content" field_id="description" label="Description" value=form.content.value|default_if_none:"" alpine_error="errors.content" error=form.content.errors.0 alpine_disabled_expr="isWriteUp" %}
           </div>
 
@@ -91,7 +101,7 @@
     </div>
   </div>
 
-    <script>
+  <script>
   document.addEventListener('alpine:init', () => {
     window.createPostForm = function () {
       return {
