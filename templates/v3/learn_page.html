@@ -29,13 +29,13 @@
     </div>
     <div class="card-masonry py-large">
       <div class="item-a">
-        {% with data=event_cards_data %}
-          {% include 'v3/includes/_event_cards_section.html' with section_heading=data.heading event_list=data.event_list primary_btn_url_url=data.primary_btn_url primary_btn_text=data.primary_btn_text variant='teal' %}
+        {% with data=post_cards_data %}
+          {% include 'v3/includes/_post_cards_v3.html' with heading=data.heading posts=data.posts view_all_url=data.view_all_url view_all_label=data.view_all_label theme='teal' variant="content-card" %}
         {% endwith %}
       </div>
       <div class="item-b">
         {% with data=boost_community_data %}
-          {% include 'v3/includes/_event_cards_section.html' with section_heading=data.heading event_list=data.event_list primary_btn_url_url=data.primary_btn_url primary_btn_text=data.primary_btn_text display='list' %}
+          {% include 'v3/includes/_post_cards_v3.html' with heading=data.heading posts=data.posts view_all_url=data.view_all_url view_all_label=data.view_all_label %}
         {% endwith %}
       </div>
       <div class="item-d">

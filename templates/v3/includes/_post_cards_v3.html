@@ -5,7 +5,7 @@
   No defaults for content; only output what is passed.
 {% endcomment %}
 {% if heading or posts or view_all_url or secondary_cta_url %}
-  <section class="post-cards post-cards--{{ variant|default:'default' }} post-cards--{{ theme|default:'neutral' }} post-cards--{{ layout|default:'vertical' }}">
+  <section class="post-cards post-cards--content post-cards--{{ variant|default:'default' }} post-cards--{{ theme|default:'neutral' }} post-cards--{{ layout|default:'vertical' }}">
     {% if heading %}
       <h2 class="post-cards__heading">
         {% if heading_url %}
