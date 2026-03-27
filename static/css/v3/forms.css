@@ -64,11 +64,11 @@
 }
 
 /* Overrides to handle collision with styles.css */
-.field__input[type=email] {
+.field__input[type='email'] {
   background: transparent;
 }
 
-.dark .field__input[type=email] {
+.dark .field__input[type='email'] {
   background: transparent;
 }
 
@@ -91,11 +91,11 @@
 
 .field__control:hover .field__icon,
 .field__control--hover .field__icon {
-  color: var(--color-text-link-accent, #00778B);
+  color: var(--color-text-link-accent, #00778b);
 }
 
 .field__control:focus-within .field__icon {
-  color: var(--color-text-link-accent, #00778B);
+  color: var(--color-text-link-accent, #00778b);
 }
 
 .field__submit {
@@ -186,7 +186,7 @@
 
 .field-wrapper--error .field .field__control {
   background-color: var(--color-surface-error-weak, #fdf2f2);
-  border-color: var(--color-stroke-error, #D53F3F33);
+  border-color: var(--color-stroke-error, #d53f3f33);
 }
 
 .field__control--disabled,
@@ -210,7 +210,7 @@
   cursor: pointer;
 }
 
-.field__input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+.field__input[type='datetime-local']::-webkit-calendar-picker-indicator {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -313,7 +313,7 @@
   border-color: var(--color-stroke-strong, #05081640);
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  border-bottom-color: var(--color-stroke-weak, #0508161A);
+  border-bottom-color: var(--color-stroke-weak, #0508161a);
 }
 
 .dropdown__panel {

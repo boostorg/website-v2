@@ -27,7 +27,6 @@ hr:first-of-type {
   @apply outline-none border-0 bg-transparent;
 }
 
-
 div.section:first-of-type,
 div.spirit-nav:first-of-type,
 div.copyright-footer:first-of-type,
@@ -37,12 +36,13 @@ div.book:first-of-type {
   @apply max-w-7xl px-3 md:px-6 mx-auto;
 }
 
-#avatar>div,
-#avatar>div>img {
+#avatar > div,
+#avatar > div > img {
   @apply rounded;
 }
 
-#userMenu, #guideMenu {
+#userMenu,
+#guideMenu {
   border: 1px solid #d1d5db;
 }
 
@@ -55,7 +55,7 @@ div.book:first-of-type {
   @apply !text-orange;
 }
 
-#avatar>div {
+#avatar > div {
   @apply bg-white text-slate rounded dark:text-white dark:bg-slate;
 }
 
@@ -98,9 +98,9 @@ div.book:first-of-type {
   padding-top: 3.25rem;
 }
 
-
 /* Unframed docs styles */
 
-body:not([class]), body:not([class]) #navbar-container {
+body:not([class]),
+body:not([class]) #navbar-container {
   max-width: 77rem;
 }

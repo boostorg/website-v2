@@ -11,7 +11,7 @@
   --header-control-radius: var(--header-radius);
   --header-control-bg: var(--color-surface-weak);
   padding: var(--space-large, 16px);
-  font-family: var(--Typefaces-Sans, "Mona Sans VF");
+  font-family: var(--Typefaces-Sans, 'Mona Sans VF');
   font-size: var(--Sizes-Small, 14px);
   font-style: normal;
   font-weight: 400;
@@ -135,7 +135,7 @@
   font-weight: 400;
   text-align: left;
   cursor: pointer;
-  font-family: var(--Typefaces-Sans, "Mona Sans VF");
+  font-family: var(--Typefaces-Sans, 'Mona Sans VF');
 }
 
 .header__search-input-trigger:focus-visible {
@@ -149,7 +149,7 @@
   height: 24px;
   padding: 8px;
   color: var(--color-text-primary, #050816);
-  font-family: var(--Typefaces-Sans, "Mona Sans VF");
+  font-family: var(--Typefaces-Sans, 'Mona Sans VF');
   font-size: var(--Sizes-XS, 12px);
   font-style: normal;
   font-weight: 400;
@@ -172,7 +172,7 @@
   font-size: var(--Sizes-Small, 14px);
   font-weight: 400;
   cursor: pointer;
-  font-family: var(--Typefaces-Sans, "Mona Sans VF");
+  font-family: var(--Typefaces-Sans, 'Mona Sans VF');
 }
 
 .header__search-btn:hover {
@@ -301,7 +301,7 @@ html.dark .header__icon--theme-moon {
   background: var(--color-surface-mid, #f7f7f8);
 }
 .header__user-trigger--open,
-.header__user-trigger[aria-expanded="true"] {
+.header__user-trigger[aria-expanded='true'] {
   border-color: var(--color-stroke-mid, rgba(5, 8, 22, 0.17));
   background: var(--color-surface-mid, #f7f7f8);
 }
@@ -328,7 +328,7 @@ html.dark .header__icon--theme-moon {
 .header__user-trigger .header__user-avatar-inner a {
   text-decoration: none;
 }
-.header__user-trigger .header__user-avatar-inner [class*="w-"] {
+.header__user-trigger .header__user-avatar-inner [class*='w-'] {
   width: 100% !important;
   height: 100% !important;
   min-width: 0;
@@ -343,7 +343,7 @@ html.dark .header__user-trigger:hover {
   border-color: var(--color-stroke-mid);
 }
 html.dark .header__user-trigger--open,
-html.dark .header__user-trigger[aria-expanded="true"] {
+html.dark .header__user-trigger[aria-expanded='true'] {
   border-color: var(--color-stroke-mid);
 }
 html.dark .header__user-trigger .header__user-avatar-inner > div {
@@ -489,7 +489,7 @@ html.dark .header__user-trigger .header__user-avatar-inner .fa-user {
   font-size: var(--Sizes-Small, 14px);
   font-weight: 400;
   cursor: pointer;
-  font-family: var(--Typefaces-Sans, "Mona Sans VF");
+  font-family: var(--Typefaces-Sans, 'Mona Sans VF');
 }
 
 .header__menu-btn .header__icon,

@@ -192,11 +192,11 @@ html.dark .code-block-card--grey {
   outline-offset: 2px;
 }
 
-.code-block__copy[data-copied="true"] {
+.code-block__copy[data-copied='true'] {
   color: var(--code-block-copy-icon-color-success);
 }
 
-.code-block__copy[data-copied="error"] {
+.code-block__copy[data-copied='error'] {
   color: var(--color-text-error, #d32f2f);
 }
 
@@ -348,10 +348,10 @@ html.dark .code-block-card--grey {
   display: none;
 }
 
-.code-block__copy[data-copied="true"] .code-block__copy-icon--copy {
+.code-block__copy[data-copied='true'] .code-block__copy-icon--copy {
   display: none;
 }
 
-.code-block__copy[data-copied="true"] .code-block__copy-icon--check {
+.code-block__copy[data-copied='true'] .code-block__copy-icon--check {
   display: inline-flex;
 }

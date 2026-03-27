@@ -242,7 +242,10 @@ html.dark .btn-icon-library:hover {
 
 /* ── Dark Mode ──────────────────────────────────── */
 html.dark {
-  :is(.btn-primary, .btn-green, .btn-yellow, .btn-teal):is(:hover, [data-hover]) {
+  :is(.btn-primary, .btn-green, .btn-yellow, .btn-teal):is(
+    :hover,
+    [data-hover]
+  ) {
     background-color: var(--color-secondary-dark-blue);
     border-color: var(--color-stroke-weak);
     color: var(--color-text-primary);
