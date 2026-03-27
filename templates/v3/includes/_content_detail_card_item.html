@@ -15,19 +15,19 @@
 {% endcomment %}
 <article class="content-detail-icon{% if icon_name %} content-detail-icon--has-icon{% endif %}{% if badge_count %} content-detail-icon--has-badge{% endif %}">
   {% if badge_count %}
-  <div class="content-detail-icon__badge-slot">
-    {% include "v3/includes/_badge_v3.html" with value=badge_count %}
-  </div>
+    <div class="content-detail-icon__badge-slot">{% include "v3/includes/_badge_v3.html" with value=badge_count %}</div>
   {% elif icon_name %}
-  <div class="content-detail-icon__icon" aria-hidden="true">
-    {% include "includes/icon.html" with icon_name=icon_name icon_class="content-detail-icon__icon-svg" icon_size=24 %}
-  </div>
+    <div class="content-detail-icon__icon" aria-hidden="true">
+      {% include "includes/icon.html" with icon_name=icon_name icon_class="content-detail-icon__icon-svg" icon_size=24 %}
+    </div>
   {% endif %}
   <h3 class="content-detail-icon__title">
-    {% if title_url %}<a href="{{ title_url }}" class="content-detail-icon__title-link">{% endif %}{{ title }}{% if title_url %}</a>{% endif %}
+    {% if title_url %}<a href="{{ title_url }}" class="content-detail-icon__title-link">{% endif %}
+      {{ title }}
+      {% if title_url %}</a>{% endif %}
   </h3>
   <p class="content-detail-icon__description">{{ description }}</p>
   {% if cta_label and cta_href %}
-  <a href="{{ cta_href }}" class="content-detail-icon__cta">{{ cta_label }}</a>
+    <a href="{{ cta_href }}" class="content-detail-icon__cta">{{ cta_label }}</a>
   {% endif %}
 </article>

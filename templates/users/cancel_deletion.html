@@ -8,9 +8,7 @@
     <form method="POST">
       {% csrf_token %}
       {% for field in form %}
-        <div>
-          {% include 'includes/_form_input.html' %}
-        </div>
+        <div>{% include 'includes/_form_input.html' %}</div>
       {% endfor %}
       <button class="py-2 px-3 text-sm text-white rounded bg-orange" type="submit">{% trans 'Confirm' %}</button>
     </form>

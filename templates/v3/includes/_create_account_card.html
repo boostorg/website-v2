@@ -12,9 +12,12 @@
   Usage:
     {% include "v3/includes/_create_account_card.html" with heading="Contribute to earn badges, track your progress and grow your impact" body_html=create_account_card_body_html preview_image_url=create_account_card_preview_url cta_url="#" cta_label="Start contributing" %}
 {% endcomment %}
-<section class="create-account-card card" aria-label="{{ heading|default:'Create account card' }}">
+<section class="create-account-card card"
+         aria-label="{{ heading|default:'Create account card' }}">
   <div class="card__header">
-    <h3 class="card__title">{{ heading|default:"Contribute to earn badges, track your progress and grow your impact" }}</h3>
+    <h3 class="card__title">
+      {{ heading|default:"Contribute to earn badges, track your progress and grow your impact" }}
+    </h3>
   </div>
   <hr class="card__hr">
 
@@ -34,7 +37,11 @@
     </div>
 
     {% if preview_image_url %}
-    <img class="create-account-card__preview" src="{{ preview_image_url }}" alt="{{ preview_image_alt|default:heading|default:'Card preview' }}" loading="lazy" decoding="async">
+      <img class="create-account-card__preview"
+           src="{{ preview_image_url }}"
+           alt="{{ preview_image_alt|default:heading|default:'Card preview' }}"
+           loading="lazy"
+           decoding="async">
     {% endif %}
   </div>
 

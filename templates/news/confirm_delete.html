@@ -10,7 +10,9 @@
 
     <form method="POST" action="{% url 'news-delete' entry.slug %}">
       {% csrf_token %}
-      <button type="submit" name="delete" class="py-2 px-3 text-white rounded-md bg-orange">{% translate 'Yes, Delete' %}</button>
+      <button type="submit"
+              name="delete"
+              class="py-2 px-3 text-white rounded-md bg-orange">{% translate 'Yes, Delete' %}</button>
     </form>
     <p>
       <a href="{% url 'news-detail' entry.slug %}">{% translate 'No, take me back!' %}</a>
