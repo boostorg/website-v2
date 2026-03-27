@@ -44,7 +44,8 @@
         </div>
         <div class="hero-library__text-block">
           {% if title %}
-          <h1 class="hero-library__title{% if is_flagship_lib %} hero-library__title--flagship{% endif %}">{{ title }}</h1>
+          <h1 class="hero-library__title{% if is_flagship_lib %} hero-library__title--flagship
+{% endif %}" style="margin-bottom: 0;">{{ title }}</h1>
           {% endif %}
           {% if description %}
           <p class="hero-library__description">{{ description }}</p>
