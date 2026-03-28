@@ -493,77 +493,40 @@ ul.slack-channels li div a:hover,
       {% endif %}
       {% with "img/release_report/bg1.png,img/release_report/bg4-rev.png,img/release_report/bg3-rev.png,img/release_report/bg1-rev.png,img/release_report/bg2.png,img/release_report/bg6-rev.png,img/release_report/bg3.png,img/release_report/bg4.png,img/release_report/bg5.png,img/release_report/bg6.png,img/release_report/bg2-rev.png" as bg_list_str %}
         {% with bg_list=bg_list_str|split:"," %}
-          {% for batch in batched_library_data %}
+          {# Flagship Library handling #}
+          {% for library in flagship_libraries %}
             {% with current_bg=bg_list|get_modulo_item:forloop.counter0 %}
               <div class="pdf-page flex flex-col {{ bg_color }}" style="background-image: url('{% static current_bg %}')">
-                {% for item in batch %}
-                  <div class="grid grid-cols-3 gap-x-8 w-full p-4 h-1/2" id="library-{{ item.library.display_name }}">
-                    <div class="col-span-2 flex flex-col gap-y-4">
-                      <div class="flex flex-col gap-y-4">
-                        <h2 class="text-orange mb-1 mt-0">{{ item.library.display_name }}</h2>
-                        <div>{{ item.library.description }}</div>
-                      </div>
-                      <div class="flex gap-x-8 items-center">
-                        {% if item.library.graphic %}
-                          <div class="max-w-[10rem]">
-                            <img src="{{ item.library.graphic.url }}" alt="" />
-                          </div>
-                        {% endif %}
-                        <div class="flex flex-col gap-y-1">
-                          <div>
-                            There
-                            {{ item.version_count.commit_count|pluralize:"was,were" }}
-                            <span class="font-bold">{{ item.version_count.commit_count }}</span>
-                            commit{{ item.version_count.commit_count|pluralize }}
-                            in release {{ report_configuration.display_name }}
-                          </div>
-                          {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
-                            <div>
-                              <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added, <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
-                            </div>
-                          {% endwith %}
-                          {% with count=item.new_contributors_count.count %}
-                            {% if count >= 1 %}
-                              <div>
-                                There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} for this release!
-                              </div>
-                            {% endif %}
-                          {% endwith %}
-                          <div>
-                            There {{ item.issues.opened|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.opened }}</span> issue{{ item.issues.opened|pluralize }} opened
-                            and {{ item.issues.closed|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.closed }}</span> issue{{ item.issues.closed|pluralize }} closed
-                          </div>
-                          {% if item.deps.added or item.deps.removed %}
-                            <div>
-                              There {{ item.deps.added|length|pluralize:"was,were" }} <span class="font-bold">{{ item.deps.added|length }}</span> dependenc{{ item.deps.added|length|pluralize:"y,ies" }} added
-                              and
-                              <span class="font-bold">{{ item.deps.removed|length }}</span> dependenc{{ item.deps.removed|length|pluralize:"y,ies" }} removed
-                            </div>
-                          {% endif %}
-                        </div>
-                      </div>
-                    </div>
-                    <div class="px-4">
-                      <div class="mx-auto mb-6">Top Contributors</div>
-                      <div class="m-auto grid grid-cols-1 gap-2">
-                      {% for author in item.top_contributors_release %}
-                        <div class="flex flex-row gap-y-2 w-40 items-center">
-                          {% avatar commitauthor=author %}
-                          <div class="w-full flex flex-col ml-2">
-                            <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
-                              {{ author.display_name }}
-                            </div>
-                            <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
-                          </div>
-                        </div>
-                      {% endfor %}
-                      </div>
-                    </div>
-                  </div>
+                {% include "./release_report_library_flagship.html" %}
+              </div>
+            {% endwith %}
+          {% endfor %}
+
+          {# Core Library handling #}
+          {% for library_batch in batched_core_libraries %}
+            {% with current_bg=bg_list|get_modulo_item:forloop.counter0 %}
+              <div class="pdf-page {{ bg_color }}" style="background-image: url('{% static current_bg %}')">
+              {% for library in library_batch %}
+                <div class="flex flex-col h-1/2">
+                  {%  include "./release_report_library_core.html" %}
+                </div>
               {% endfor %}
               </div>
             {% endwith %}
           {% endfor %}
+          {# Remaining Library handling #}
+          {% for library_batch in batched_deprecated_legacy_libraries %}
+            {% with current_bg=bg_list|get_modulo_item:forloop.counter0 %}
+              <div class="pdf-page {{ bg_color }}" style="background-image: url('{% static current_bg %}')">
+                <table>
+                {% for library in library_batch %}
+                  {%  include "./release_report_library_deprecated_legacy.html" %}
+                {% endfor %}
+                </table>
+              </div>
+            {% endwith %}
+          {% endfor %}
+
         {% endwith %}
       {% endwith %}
     </div>

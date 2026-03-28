@@ -290,6 +290,12 @@ def get_libraries_by_quality(version):
     )
 
 
+def get_libraries_by_tier(version):
+    # Returns libraries ordered by tier (flagship first), then by name.
+    library_qs = get_library_queryset_by_version(version, annotate_commit_count=True)
+    return library_qs.order_by("tier", "name")
+
+
 def get_library_version_counts(library_order, version):
     library_qs = get_library_queryset_by_version(version, annotate_commit_count=True)
     return sorted(
