@@ -4,6 +4,7 @@ import re
 import requests
 from django.utils import timezone
 
+from textwrap import dedent
 from urllib.parse import urljoin
 
 import structlog
@@ -1446,6 +1447,25 @@ class V3ComponentDemoView(TemplateView):
                 "action_url": "#",
             },
         ]
+        context["markdown_data"] = {
+            "title": "Markdown Block",
+            "markdown": dedent(
+                """
+
+            ######Insert anything Required
+
+            * Could
+            * be
+            * a
+            * list
+
+            Or **bold** and *italics* and whatever it needs to be formatted or [use links](https://www.example.com)!
+            """
+            ),
+            "button_url": "#",
+            "button_label": "Optional CTA Button",
+            "button_style": "primary",
+        }
 
         latest = Version.objects.most_recent()
         if latest:
