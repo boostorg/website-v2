@@ -31,6 +31,7 @@ from core.views import (
     TermsOfUseView,
     PrivacyPolicyView,
     V3ComponentDemoView,
+    V3HomepageView,
     ModernizedDocsView,
     RedirectToDocsView,
     RedirectToHTMLDocsView,
@@ -249,6 +250,11 @@ urlpatterns = (
             "v3/demo/components/",
             staff_member_required(V3ComponentDemoView.as_view()),
             name="v3-demo-components",
+        ),
+        path(
+            "v3/homepage/",
+            V3HomepageView.as_view(),
+            name="v3-homepage",
         ),
         path("libraries/", LibraryListDispatcher.as_view(), name="libraries"),
         path(

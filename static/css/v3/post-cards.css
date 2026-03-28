@@ -365,7 +365,7 @@
 }
 
 .post-cards--content-card .post-cards__list {
-  gap: var(--space-card);
+  gap: 4px;
 }
 
 .post-cards--content-card .content-detail-icon {
