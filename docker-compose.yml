@@ -49,6 +49,17 @@ services:
       - ../website2022/:/website
     stop_signal: SIGKILL
 
+  playwright:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.playwright
+    working_dir: /code/qa
+    volumes:
+      - .:/code
+    network_mode: host
+    profiles:
+      - qa
+
   # mailman-core:
   #   image: maxking/mailman-core
   #   stop_grace_period: 5s
