@@ -1,11 +1,8 @@
 {% comment %}
 The inner component of a testimonial card, should generally only be used by _testimonial_card
   inputs:
-    avatar_url: Url for the author avatar_url
-    name: Name of the author
     quote: Testimonial quote to be displayed
-    role: Author role (moderator, maintainer, contributer, etc.)
-    role_badge: url for an icon representing the role
+    author: Author object passed to _user_profile.html (see that template for fields)
 {% endcomment %}
 
 <div>
@@ -18,19 +15,4 @@ The inner component of a testimonial card, should generally only be used by _tes
     </svg>
   </div>
 </div>
-<div class="testimonial-card__author">
-  {% include "v3/includes/_avatar_v3.html" with src=avatar_url %}
-  <div class="testimonial-card__author-info">
-    {% if name %}
-      <span class="testimonial-card__author-name"><span class="testimonial-card__author-name-text">{{ name }}</span></span>
-    {% endif %}
-    <span class="testimonial-card__author-role">
-      {% if role %}
-        <span class="testimonial-card__author-role-text">{{ role }}</span>
-      {% endif %}
-      {% if role_badge %}
-        <span class="testimonial-card__author-role-badge"><img src="{{ role_badge }}" /></span>
-      {% endif %}
-    </span>
-  </div>
-</div>
+{% include "v3/includes/_user_profile.html" with author=author %}

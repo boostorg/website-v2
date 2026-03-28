@@ -56,6 +56,12 @@ html.dark .v3-examples-section__example-box {
   align-items: center;
 }
 
+.v3-examples-section__user-profile {
+  display: flex;
+  gap: var(--space-large);
+  flex-direction: column;
+}
+
 /* Avatar block – table presentation */
 
 .v3-examples-section__avatar-item {
