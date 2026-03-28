@@ -1,0 +1,44 @@
+{% comment %}
+  V3 file input field.
+  Variables:
+    name        (required) — input name attribute
+    label       (optional) — label text
+    accept      (optional) — accept attribute (e.g. "image/png,image/jpeg")
+    help_text   (optional) — help text below the field
+    error       (optional) — error message (activates error state)
+    required    (optional) — if truthy, adds required attribute
+    disabled    (optional) — if truthy, adds disabled attribute
+    extra_class (optional) — additional classes on the wrapper
+  Usage:
+    {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" help_text="PNG or JPEG, max 5MB" %}
+  Custom display: no native "No file chosen"; shows "Choose File" until a file is selected, then the file name.
+{% endcomment %}
+<div class="field field--file{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
+     x-data="{ jsReady: false, fileName: '' }"
+     x-init="jsReady = true; const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = '' })">
+  {% if label %}
+  <label class="field__label" for="field-{{ name }}">{{ label }}</label>
+  {% endif %}
+  <div class="field__control{% if disabled %} field__control--disabled{% endif %}" :class="jsReady && 'field__control--file'">
+    <span class="field__file-display" aria-hidden="true" x-show="jsReady" x-cloak>
+      <span x-show="!fileName" x-transition class="field__file-placeholder">Choose File</span>
+      <span x-show="fileName" x-cloak x-transition class="field__file-name" x-text="fileName"></span>
+    </span>
+    <input
+      class="field__input" :class="jsReady && 'field__input--file'"
+      type="file"
+      id="field-{{ name }}"
+      name="{{ name }}"
+      {% if accept %}accept="{{ accept }}"{% endif %}
+      {% if required %}required{% endif %}
+      {% if disabled %}disabled{% endif %}
+      x-on:change="fileName = $event.target.files.length ? $event.target.files[0].name : ''"
+      {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
+    >
+  </div>
+  {% if error %}
+  <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
+  {% elif help_text %}
+  <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+  {% endif %}
+</div>

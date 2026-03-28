@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+{% load waffle_tags %}
+{% load static %}
+
+{% block title %}Create Post{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  {% flag "v3" %}
+    <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
+  {% endflag %}
+{% endblock %}
+
+{% block content %}
+  {% flag "v3" %}
+  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+    <div class="mx-auto w-full" style="display: flex; justify-content: center;">
+  <noscript>
+    <style>
+      .create-post-page__content-field,
+      .create-post-page__link-fields { display: none !important; }
+      .create-post-page__card:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__content-field,
+      .create-post-page__card:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__content-field { display: flex !important; }
+      .create-post-page__card:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__link-fields,
+      .create-post-page__card:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__link-fields { display: flex !important; flex-direction: column; gap: var(--space-xlarge, 24px); }
+      .field--file .field__control { border: none; padding: 0; }
+      .field--file .field__input[type="file"] {
+        -webkit-appearance: auto;
+        appearance: auto;
+        width: 100%;
+        color: var(--color-text-secondary, #6b6d78);
+        font-family: var(--font-sans);
+        font-size: var(--font-size-small, 14px);
+      }
+      .field--file .field__input[type="file"]::file-selector-button {
+        background: var(--color-surface-mid, #f7f7f8);
+        border: 1px solid var(--color-stroke-weak, #0508161a);
+        border-radius: var(--border-radius-xl, 12px);
+        padding: var(--space-default, 8px) var(--space-large, 16px);
+        font-family: var(--font-sans);
+        font-size: var(--font-size-small, 14px);
+        color: var(--color-text-secondary, #6b6d78);
+        cursor: pointer;
+        margin-right: var(--space-default, 8px);
+      }
+    </style>
+  </noscript>
+  <div class="create-post-wrapper" x-data="createPostForm()" @field-change="handleFieldChange($event)">
+    <form
+      class="create-post-page"
+      enctype="multipart/form-data"
+      method="post"
+      :novalidate="true"
+      action="{{ blogpost_create_url }}"
+      :action="formAction"
+      @submit="prepareSubmit"
+      data-create-post-form
+    >
+      {% csrf_token %}
+
+      <div class="create-post-page__header">
+        <h1 class="create-post-page__title">Create Post</h1>
+        <p class="create-post-page__subtitle">
+          Posts will be reviewed by the moderation team before they appear in the feed.
+        </p>
+      </div>
+
+      <div class="create-post-page__card">
+        {% comment %} Post Type dropdown: Blog, News, Video, Link. Placeholder "Select Post Type". Controls conditional fields. {% endcomment %}
+        {% include "v3/includes/_field_dropdown.html" with name="post_type" label="Post type *" options=post_type_options placeholder="Select Post Type" required=True %}
+        <p class="field__error" id="post-type-error" role="alert" x-show="errors.post_type" x-text="errors.post_type" x-cloak></p>
+
+        <div class="field" :class="{ 'field--error': errors.title }">
+          <label class="field__label" for="field-title">Post title *</label>
+          <div class="field__control">
+            <input class="field__input" type="text" id="field-title" name="title" placeholder="Title" required
+                   :aria-invalid="!!errors.title"
+                   :aria-describedby="errors.title ? 'field-title-error' : null">
+
+          </div>
+          <p class="field__error" id="field-title-error" role="alert" x-show="errors.title" x-text="errors.title" x-cloak aria-live="polite"></p>
+        </div>
+
+        {% comment %} Write Up (Blog, News): Content required. WYSIWYG editor (Markdown). {% endcomment %}
+        <div class="field create-post-page__content-field" x-show="isWriteUp" :class="{ 'field--error': errors.content }">
+          <label class="field__label" for="field-content">Content *</label>
+          {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" %}
+          <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
+          <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
+        </div>
+
+        {% comment %} Link (Video, Link): Link (required) and Description (optional). {% endcomment %}
+        <div class="create-post-page__link-fields" x-show="isLinkType" x-cloak>
+          <div class="field" :class="{ 'field--error': errors.external_url }">
+            <label class="field__label" for="field-external_url">Link *</label>
+            <div class="field__control">
+              <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="text" icon_class="field__icon" %}</span>
+              <input class="field__input" type="url" id="field-external_url" name="external_url" placeholder="https://..."
+                     :aria-invalid="!!errors.external_url"
+                     :aria-describedby="errors.external_url ? 'field-external_url-error' : null">
+              <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="chevron-input" icon_class="field__icon" %}</span>
+            </div>
+            <p class="field__error" id="field-external_url-error" role="alert" x-show="errors.external_url" x-text="errors.external_url" x-cloak aria-live="polite"></p>
+          </div>
+          {% include "v3/includes/_field_textarea.html" with name="content_link" label="Description" placeholder="Optional description" rows=3 %}
+        </div>
+
+        <div class="field field--file field--file-narrow create-post-page__field-image" :class="{ 'field--error': errors.image }"
+             x-data="{ jsReady: false, fileName: '', previewUrl: '' }"
+             x-init="jsReady = true; const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = ''; if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = ''; } })">
+          <label class="field__label" for="field-image">Image</label>
+          <div class="field__control" :class="jsReady && 'field__control--file'" x-show="!previewUrl" x-transition>
+            <span class="field__file-display" aria-hidden="true" x-show="jsReady" x-cloak>
+              <span class="field__file-placeholder">Choose File</span>
+            </span>
+            <input x-ref="fileInput" class="field__input" :class="jsReady && 'field__input--file'" type="file" id="field-image" name="image" accept="image/png,image/jpeg"
+                 x-on:change="
+                   const file = $event.target.files && $event.target.files[0];
+                   if (previewUrl) {
+                     URL.revokeObjectURL(previewUrl);
+                     previewUrl = '';
+                   }
+                   if (file) {
+                     fileName = file.name;
+                     previewUrl = URL.createObjectURL(file);
+                   } else {
+                     fileName = '';
+                   }
+                 "
+                 :aria-invalid="!!errors.image"
+                 :aria-describedby="errors.image ? 'field-image-error' : 'field-image-help'">
+          </div>
+          <div class="field__image-preview-wrapper" x-show="previewUrl" x-cloak @click="previewUrl && $refs.fileInput.click()">
+            <img :src="previewUrl" alt="" class="field__image-preview">
+          </div>
+          <p class="field__error" id="field-image-error" role="alert" x-show="errors.image" x-text="errors.image" x-cloak aria-live="polite"></p>
+          <p class="field__help" id="field-image-help" x-show="!errors.image">This should be a PNG or JPEG format and no longer than 5MB</p>
+        </div>
+
+        {% include "v3/includes/_field_dropdown.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" %}
+
+        {% include "v3/includes/_field_text.html" with name="publish_at" label="Publish Date" type="datetime-local" value=publish_at_initial placeholder="Today at 10:00AM" %}
+
+        <div class="create-post-page__actions">
+          <a href="{% url 'news' %}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+    </form>
+  </div>
+    </div>
+  </div>
+  {% else %}
+  {# Non-v3: show legacy type selector #}
+  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
+    <div class="md:w-full">
+      <h1 class="text-3xl text-center capitalize">Create news</h1>
+      <p class="mt-0 text-center">Select the kind of news you would like to submit.</p>
+      <div class="divide-y divide-gray-300">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 py-5 w-[70%] mx-auto">
+          {% for item in items %}
+            {% if item.model_name != 'Poll' %}
+              <a href="{% url item.add_url_name %}" class="p-5 font-semibold text-center bg-white rounded-lg dark:text-white dark:text-slate hover:bg-white/60">
+                {% if item.model_name == 'BlogPost' %}<i class="mr-3 fas fa-comment"></i> Blog Post
+                {% elif item.model_name == 'Video' %}<i class="mr-3 fas fa-video"></i> Video
+                {% elif item.model_name == 'Link' %}<i class="mr-3 fas fa-link"></i> Link
+                {% elif item.model_name == 'News' %}<i class="mr-3 fas fa-newspaper"></i> News
+                {% else %}{{ item.model_name }}{% endif %}
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endflag %}
+  <script>
+  document.addEventListener('alpine:init', () => {
+    const createUrls = {
+      blog: '{{ blogpost_create_url }}',
+      news: '{{ news_create_url }}',
+      link: '{{ link_create_url }}',
+      video: '{{ video_create_url }}'
+    };
+    window.createPostForm = function() {
+      return {
+        postType: '',
+        errors: { post_type: '', title: '', content: '', external_url: '', image: '' },
+        get isWriteUp() { return this.postType === 'blog' || this.postType === 'news'; },
+        get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
+        get formAction() { return createUrls[this.postType] || ''; },
+        handleFieldChange(e) {
+          const { name, value } = e.detail;
+          if (name === 'post_type') this.setPostType(value);
+        },
+        setPostType(value) {
+          this.postType = value;
+          this.errors.post_type = '';
+          const form = this.$el.querySelector('[data-create-post-form]');
+          if (!form) return;
+          const contentInput = form.querySelector('textarea[name="content"]');
+          if (this.isWriteUp) {
+            const linkInput = form.querySelector('input[name="external_url"]');
+            const descInput = form.querySelector('textarea[name="content_link"]');
+            if (linkInput) linkInput.value = ''; if (linkInput) linkInput.removeAttribute('required');
+            if (descInput) descInput.value = '';
+          } else {
+            if (contentInput) contentInput.value = '';
+          }
+          if (contentInput && contentInput.id) {
+            contentInput.value = '';
+            import('/static/js/v3/wysiwyg-editor.js').then(m => { if (m.initWysiwyg) m.initWysiwyg(contentInput.id); });
+          }
+        },
+        prepareSubmit(e) {
+          this.errors = { post_type: '', title: '', content: '', external_url: '', image: '' };
+          const form = e.target;
+          const titleEl = form.querySelector('input[name="title"]');
+          const contentEl = form.querySelector('textarea[name="content"]');
+          const urlEl = form.querySelector('input[name="external_url"]');
+          const imageEl = form.querySelector('input[name="image"]');
+
+          if (!this.postType) {
+            this.errors.post_type = 'Please select a post type.';
+          }
+          if (!titleEl?.value?.trim()) {
+            this.errors.title = 'Post title is required.';
+          }
+          if (this.isWriteUp) {
+            if (!contentEl?.value?.trim()) {
+              this.errors.content = 'Content is required.';
+            }
+          } else {
+            if (!urlEl?.value?.trim()) {
+              this.errors.external_url = 'Link is required.';
+            } else {
+              try { new URL(urlEl.value); } catch (_) {
+                this.errors.external_url = 'Please enter a valid URL.';
+              }
+            }
+          }
+          if (imageEl?.files?.length) {
+            const file = imageEl.files[0];
+            const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+              this.errors.image = 'Please choose a PNG or JPEG image.';
+            } else {
+              const maxSize = 5 * 1024 * 1024;
+              if (file.size > maxSize) {
+                this.errors.image = 'Image must be 5MB or smaller.';
+              }
+            }
+          }
+
+          const hasErrors = Object.values(this.errors).some(function(v) { return v !== ''; });
+          if (hasErrors) {
+            e.preventDefault();
+            const firstId = this.errors.post_type ? 'field-post_type-label' :
+              this.errors.title ? 'field-title' : this.errors.content ? 'field-content' :
+              this.errors.external_url ? 'field-external_url' : this.errors.image ? 'field-image' : null;
+            const firstEl = firstId ? (this.$el.querySelector('#' + firstId) || form.querySelector('[name="' + firstId.replace('field-', '') + '"]')) : null;
+            if (firstEl) firstEl.focus();
+            return;
+          }
+
+          form.querySelector('input[name="post_type"]')?.setAttribute('disabled', 'disabled');
+          if (this.isWriteUp) {
+            form.querySelector('input[name="external_url"]')?.setAttribute('disabled', 'disabled');
+            form.querySelector('textarea[name="content_link"]')?.setAttribute('disabled', 'disabled');
+          } else {
+            form.querySelector('textarea[name="content"]')?.setAttribute('disabled', 'disabled');
+          }
+        }
+      };
+    };
+  });
+  </script>
+{% endblock %}

@@ -1,0 +1,83 @@
+/**
+ * Create post page layout (Django).
+ * BEM: .create-post-wrapper, .create-post-page, .create-post-page__*
+ */
+
+.create-post-wrapper {
+  width: 100%;
+  max-width: 694px;
+}
+
+.create-post-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+}
+
+.create-post-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large, 16px);
+}
+
+.create-post-page__title {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-2xl, 40px);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: 1;
+  letter-spacing: -1px;
+  color: var(--color-text-primary, #050816);
+  margin: 0;
+}
+
+.create-post-page__subtitle {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-large, 24px);
+  font-weight: var(--font-weight-regular, 400);
+  line-height: 1.33;
+  letter-spacing: -1px;
+  color: var(--color-text-secondary, #585a64);
+  padding: 0;
+}
+
+.create-post-page__card {
+  background: var(--color-surface-weak, #fff);
+  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  border-radius: 16px;
+  padding: var(--space-large, 16px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xlarge, 24px);
+}
+
+.create-post-page__link-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xlarge, 24px);
+}
+
+.create-post-page__actions {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-default, 8px);
+  flex-wrap: wrap;
+}
+
+.create-post-page__actions .btn {
+  flex: 1 1 0;
+  min-width: 128px;
+  justify-content: center;
+  text-decoration: none;
+}
+
+@media (max-width: 480px) {
+  .create-post-page__actions {
+    flex-direction: column;
+  }
+  .create-post-page__actions .btn {
+    min-width: 100%;
+  }
+}
