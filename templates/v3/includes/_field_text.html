@@ -40,6 +40,7 @@
       {% if disabled %}disabled{% endif %}
       {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
       {% if submit_icon %}x-model="q"{% endif %}
+      {% if type == "datetime-local" %}min="{% now "Y-m-d\TH:i" %}"{% endif %}
     >
     {% if icon_right %}
     <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="chevron-input" icon_class="field__icon" %}</span>
@@ -54,5 +55,26 @@
   <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
   {% elif help_text %}
   <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+  {% endif %}
+  {% if type == "datetime-local" %}
+  <script>
+    (function() {
+      var el = document.getElementById('field-{{ name }}');
+      if (!el) return;
+      function pad(n) { return n < 10 ? '0' + n : n; }
+      function nowLocal() {
+        var d = new Date();
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+      }
+      function setMin() { el.min = nowLocal(); }
+      setMin();
+      setInterval(setMin, 60000);
+      el.addEventListener('change', function() {
+        if (el.value && el.value < nowLocal()) {
+          el.value = nowLocal();
+        }
+      });
+    })();
+  </script>
   {% endif %}
 </div>
