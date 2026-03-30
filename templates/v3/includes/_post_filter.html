@@ -1,0 +1,27 @@
+{% comment %}
+  V3 Post Filter — toggleable filter pill group.
+  Uses styles from static/css/v3/post-filter.css.
+
+  Renders a row of checkbox-backed filter pills. The consumer is responsible
+  for wrapping in a <form> or reading checked values via JS.
+
+  Variables:
+    options      (required) — list of dicts: { "label": str, "value": str }
+    filter_name  (required) — name attribute for the checkbox group (e.g. "category")
+
+  Usage:
+    {% include "v3/includes/_post_filter.html" with options=my_options filter_name="category" %}
+{% endcomment %}
+<div class="post-filter" role="group" aria-label="Filter by {{ filter_name }}" data-post-filter>
+  {% for option in options %}
+    <input type="checkbox"
+           id="filter-{{ filter_name }}-{{ option.value }}"
+           name="{{ filter_name }}"
+           value="{{ option.value }}"
+           class="post-filter__input">
+    <label for="filter-{{ filter_name }}-{{ option.value }}"
+           class="post-filter__option">
+      {{ option.label }}
+    </label>
+  {% endfor %}
+</div>

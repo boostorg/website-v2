@@ -1211,6 +1211,17 @@ class V3ComponentDemoView(TemplateView):
 
         context["demo_badges_few"] = context["demo_badges"][:3]
 
+        context["post_filter_options"] = [
+            {"label": "All", "value": "all"},
+            {"label": "News", "value": "news"},
+            {"label": "Blog", "value": "blog"},
+            {"label": "Links", "value": "links"},
+            {"label": "Videos", "value": "videos"},
+            {"label": "Discussions", "value": "discussions"},
+            {"label": "Achievements", "value": "achievements"},
+            {"label": "Issues", "value": "issues"},
+        ]
+
         context["demo_posts"] = [
             {
                 "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
