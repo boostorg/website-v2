@@ -94,11 +94,9 @@
           <div class="field" :class="{ 'field--error': errors.external_url }">
             <label class="field__label" for="field-external_url">Link *</label>
             <div class="field__control">
-              <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="text" icon_class="field__icon" %}</span>
               <input class="field__input" type="url" id="field-external_url" name="external_url" placeholder="https://..."
                      :aria-invalid="!!errors.external_url"
                      :aria-describedby="errors.external_url ? 'field-external_url-error' : null">
-              <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="chevron-input" icon_class="field__icon" %}</span>
             </div>
             <p class="field__error" id="field-external_url-error" role="alert" x-show="errors.external_url" x-text="errors.external_url" x-cloak aria-live="polite"></p>
           </div>
