@@ -14,6 +14,10 @@
     flex-direction: row;
 }
 
+.learn-card__link-column {
+    gap: var(--space-s);
+}
+
 @media (max-width: 1280px) {
     .learn-card__row {
         flex-direction: column;

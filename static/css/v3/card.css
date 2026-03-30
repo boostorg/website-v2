@@ -134,7 +134,7 @@
     overflow:hidden;
 }
 
-.square-card-image img {
+.square-card-image img, picture {
     width: 100%;
     height: 100%;
     object-fit: cover;

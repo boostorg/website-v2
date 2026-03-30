@@ -18,7 +18,7 @@
     </div>
     <div class="card-row py-large">
       {% for data in learn_card_data %}
-        {% include 'v3/includes/_learn_card.html' with title=data.title text=data.text links=data.links image_src=data.image_src image_alt='Test Image' url=data.url label=data.label %}
+        {% include 'v3/includes/_learn_card.html' with title=data.title text=data.text links=data.links image_src=data.image_src mobile_image_src=data.mobile_image_src image_alt='Test Image' url=data.url label=data.label %}
       {% endfor %}
     </div>
     <div class="py-large three-column">

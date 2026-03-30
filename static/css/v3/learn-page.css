@@ -57,8 +57,6 @@
     ;
     row-gap: var(--space-card);
     column-gap: var(--space-card);
-    justify-items: start;
-    width: fit-content;
 }
 
 .card-masonry .item-a {
@@ -92,6 +90,14 @@
             "e d"
             ". d"
         ;
+    }
+
+    .card {
+        max-width: 100%;
+    }
+
+    .post-cards {
+        max-width: 100%;
     }
 
     .learn-page-header {

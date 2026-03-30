@@ -294,7 +294,8 @@ class LearnPageView(V3Mixin, TemplateView):
                 ],
                 "url": "https://www.example.com",
                 "label": "Learn more about Boost",
-                "image_src": "/static/img/v3/examples/Learn Card Image.png",
+                "image_src": f"{ settings.STATIC_URL }/img/v3/examples/Learn_Card_Image.png",
+                "mobile_image_src": f"{ settings.STATIC_URL }/img/v3/examples/Cheetah_Mobile.png",
             },
             {
                 "title": "I want to learn:",
@@ -309,7 +310,8 @@ class LearnPageView(V3Mixin, TemplateView):
                 ],
                 "url": "https://www.example.com",
                 "label": "Learn more about Boost",
-                "image_src": "/static/img/v3/examples/Learn Octopus.png",
+                "image_src": f"{ settings.STATIC_URL}img/v3/learn-page/Learn_Octopus.png",
+                "mobile_image_src": f"{ settings.STATIC_URL }/img/v3/examples/Octopus_Mobile.png",
             },
         ]
 
@@ -320,7 +322,7 @@ class LearnPageView(V3Mixin, TemplateView):
             "primary_button_label": "Primary Button",
             "secondary_button_url": "www.example.com",
             "secondary_button_label": "Secondary Button",
-            "image": "/static/img/v3/demo_page/Calendar.png",
+            "image": f"{ settings.STATIC_URL }/img/v3/demo_page/Calendar.png",
         }
 
         demo_cards = [
