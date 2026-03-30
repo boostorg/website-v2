@@ -280,7 +280,7 @@ class LearnPageView(V3Mixin, TemplateView):
 
     def get_v3_context_data(self, **kwargs):
         ctx = self.get_context_data(**kwargs)
-        ctx["learn_card_data"] = 2 * [
+        ctx["learn_card_data"] = [
             {
                 "title": "I want to learn:",
                 "text": "How to install Boost, use its libraries, build projects, and get help when you need it.",
@@ -295,7 +295,22 @@ class LearnPageView(V3Mixin, TemplateView):
                 "url": "https://www.example.com",
                 "label": "Learn more about Boost",
                 "image_src": "/static/img/v3/examples/Learn Card Image.png",
-            }
+            },
+            {
+                "title": "I want to learn:",
+                "text": "How to install Boost, use its libraries, build projects, and get help when you need it.",
+                "links": [
+                    {
+                        "label": "Explore common use cases",
+                        "url": "https://www.example.com",
+                    },
+                    {"label": "Build with CMake", "url": "https://www.example.com"},
+                    {"label": "Visit the FAQ", "url": "https://www.example.com"},
+                ],
+                "url": "https://www.example.com",
+                "label": "Learn more about Boost",
+                "image_src": "/static/img/v3/examples/Learn Octopus.png",
+            },
         ]
 
         example_card = {
@@ -403,7 +418,7 @@ class LearnPageView(V3Mixin, TemplateView):
                         "name": "Richard Thomson",
                         "role": "Contributor",
                         "show_badge": True,
-                        "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                     },
                 }
             ],
@@ -425,7 +440,7 @@ class LearnPageView(V3Mixin, TemplateView):
                         "name": "Richard Thomson",
                         "role": "Contributor",
                         "show_badge": True,
-                        "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                     },
                 }
             ],

@@ -9,7 +9,7 @@
 .learn-card__row {
     display: flex;
     align-items: flex-start;
-    gap: var(--space-large, 16px);
+    gap: var(--space-large);
     align-self: stretch;
     flex-direction: row;
 }
@@ -21,6 +21,7 @@
 
     .learn-card .square-card-image {
         flex: 1 0 auto;
+        aspect-ratio: 16/9;
     }
 
     .learn-card__link-column {
@@ -38,23 +39,23 @@
 }
 
 .learn-card__title {
-    color: var(--color-text-primary, #050816);
+    color: var(--color-text-primary);
 
     /* Display/Desktop/Medium/Large */
-    font-family: var(--font-display, "Mona Sans Display SemiCondensed");
-    font-size: var(--font-size-large, 24px);
+    font-family: var(--font-display);
+    font-size: var(--font-size-large);
     font-weight: var(--font-weight-medium);
-    line-height: var(--tight);
+    line-height: var(--line-height-tight);
     /* 24px */
     letter-spacing: -0.24px;
 }
 
 .learn-card__text {
-    color: var(--color-text-secondary, #585A64);
+    color: var(--color-text-secondary);
 
     /* Sans/Desktop/Regular/Base */
-    font-family: var(--font-sans, "Mona Sans VF");
-    font-size: var(--font-size-base, 16px);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-regular);
     /* 19.2px */
     letter-spacing: -0.16px;
@@ -64,7 +65,7 @@
     display: flex;
     min-width: 128px;
     align-items: center;
-    gap: var(--space-s, 4px);
+    gap: var(--space-s);
 }
 
 .learn-card__link-icon {
@@ -72,7 +73,7 @@
 }
 
 .learn-card__link {
-    font-size: var(--font-sizes-small, 14px);
+    font-size: var(--font-size-small);
     font-weight: var(--font-weight-medium);
     line-height: 124%;
     /* 17.36px */
