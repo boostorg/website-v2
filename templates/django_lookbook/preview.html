@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="v3">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wdth,wght@62.5..100,100..900&family=Noto+Sans:ital,wdth,wght@0,62.5..100,100..900;1,62.5..100,100..900&display=swap" rel="stylesheet">
+  <link href="{% static 'css/v3/components.css' %}" rel="stylesheet">
+  <script>
+    // Bridge script to sync django-lookbook's theme dropdown with project's theme system
+    // This must run BEFORE theme_handling.js to set the correct initial theme
+    (function() {
+      // Parse django-lookbook's display parameter which contains JSON with theme
+      function getThemeFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const displayParam = params.get('display');
+        if (displayParam) {
+          try {
+            const displayData = JSON.parse(decodeURIComponent(displayParam));
+            return displayData.theme;
+          } catch (e) {
+            console.error('Failed to parse display parameter:', e);
+          }
+        }
+        return null;
+      }
+
+      // Sync theme from URL to localStorage and apply it
+      function syncThemeFromUrl() {
+        const urlTheme = getThemeFromUrl();
+        if (urlTheme && (urlTheme === 'dark' || urlTheme === 'light')) {
+          const currentTheme = localStorage.getItem('colorMode');
+          if (currentTheme !== urlTheme) {
+            const oldTheme = currentTheme;
+            localStorage.setItem('colorMode', urlTheme);
+            // Dispatch proper StorageEvent so theme_handling.js picks it up
+            window.dispatchEvent(new StorageEvent('storage', {
+              key: 'colorMode',
+              oldValue: oldTheme,
+              newValue: urlTheme,
+              storageArea: localStorage
+            }));
+          }
+        }
+      }
+
+      // Set initial theme from URL before theme_handling.js runs
+      const initialTheme = getThemeFromUrl();
+      if (initialTheme) {
+        localStorage.setItem('colorMode', initialTheme);
+      }
+
+      // Monitor URL changes for theme updates (django-lookbook changes iframe src)
+      let lastUrl = window.location.href;
+      let lastTheme = initialTheme;
+
+      setInterval(() => {
+        const currentUrl = window.location.href;
+        const currentTheme = getThemeFromUrl();
+
+        if (currentUrl !== lastUrl || currentTheme !== lastTheme) {
+          lastUrl = currentUrl;
+          lastTheme = currentTheme;
+          syncThemeFromUrl();
+        }
+      }, 100);
+    })();
+  </script>
+  <script src="{% static 'js/theme_handling.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@ryangjchandler/alpine-clipboard@2.x.x/dist/alpine-clipboard.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js" defer></script>
+  <script src="//unpkg.com/alpinejs" defer></script>
+  <script src="{% static 'js/highlight.js' %}"></script>
+  <script src="{% static 'js/highlight-block.js' %}"></script>
+  <script src="{% static 'js/code-block.js' %}" defer></script>
+  <script src="{% static 'js/carousel.js' %}" defer></script>
+  <script src="{% static 'js/dialog.js' %}" defer></script>
+  <script src="{% static 'js/install-card.js' %}" defer></script>
+  <style>
+    body {
+      padding: var(--space-large, 24px);
+      background: var(--color-surface-page);
+      overflow-x: hidden;
+    }
+    /* Carousel needs to break out of body padding to avoid cropped nav buttons */
+    .cards-carousel {
+      margin-left: calc(-1 * var(--space-large, 24px));
+      margin-right: calc(-1 * var(--space-large, 24px));
+      padding-left: var(--space-large, 24px);
+      padding-right: var(--space-large, 24px);
+    }
+  </style>
+</head>
+<body class="v3">
+  {{ preview_html }}
+</body>
+</html>

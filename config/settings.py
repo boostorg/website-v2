@@ -89,6 +89,7 @@ INSTALLED_APPS += [
     "mptt",
     "haystack",
     "widget_tweaks",
+    "django_lookbook",
 ]
 
 # Wagtail Apps
@@ -692,3 +693,13 @@ WAGTAILMARKDOWN = {
     "extensions_settings_mode": "extend",  # optional. Possible values: "extend" or "override". Defaults to "extend".
     "tab_length": 4,  # optional. Sets the length of tabs used by python-markdown to render the output. This is the number of spaces used to replace with a tab character. Defaults to 4.
 }
+
+LOOKBOOK = {
+    # we will put previews in this directory later
+    "preview_base": ["previews"],
+    # show_previews is True by default
+    "show_previews": DEBUG,
+}
+
+# to make iframe work
+X_FRAME_OPTIONS = "SAMEORIGIN"

@@ -120,6 +120,7 @@ router.register(r"libraries", LibrarySearchView, basename="libraries")
 
 urlpatterns = (
     [
+        path("lookbook/", include("django_lookbook.urls")),
         path("", HomepageView.as_view(), name="home"),
         path("admin/", admin.site.urls),
         path("oauth2/", include("oauth2_provider.urls", namespace="oauth2_provider")),
