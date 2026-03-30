@@ -112,12 +112,15 @@
 /* Green accent (card variant only) */
 
 .user-card--green.card {
+  --user-card-cta-bg: var(--color-surface-strong-accent-green-default);
+  --user-card-cta-bg-hover: var(--color-surface-strong-accent-green-hover);
   background: var(--color-surface-weak-accent-green);
-  border-color: var(--color-accent-strong-green);
+  border-color: var(--color-stroke-weak);
 }
 
 html.dark .user-card--green.card {
-  border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
+  --user-card-cta-bg: var(--color-primary-grey-700);
+  --user-card-cta-bg-hover: var(--color-primary-grey-600);
 }
 
 /* ==========================================================================
@@ -142,11 +145,24 @@ html.dark .user-card--green.card {
 
 .user-card--compact .user-card__info {
   flex: 1 1 0;
-  gap: var(--space-default);
+  gap: var(--space-s);
 }
 
 .user-card--compact .user-card__username {
   font-size: var(--font-size-xl);
+}
+
+/* ==========================================================================
+   Dark mode — scoped overrides
+   ========================================================================== */
+
+.user-card--green .btn-green {
+  background-color: var(--user-card-cta-bg);
+}
+
+.user-card--green .btn-green:hover,
+.user-card--green .btn-green[data-hover] {
+  background-color: var(--user-card-cta-bg-hover);
 }
 
 /* ==========================================================================
@@ -169,24 +185,4 @@ html.dark .user-card--green.card {
     font-size: var(--font-size-large);
   }
 
-  .user-card--compact {
-    --user-card-avatar: 96px;
-  }
-
-  .user-card--compact.card {
-    gap: var(--space-card);
-  }
-
-  .user-card--compact .user-card__info {
-    gap: var(--space-s);
-  }
-
-  .user-card--compact .user-card__badge,
-  .user-card--compact .user-card__member-since,
-  .user-card--compact .user-card__role {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-default);
-    letter-spacing: -0.14px;
-  }
 }
