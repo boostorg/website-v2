@@ -23,7 +23,7 @@
   {% if label %}
   <label class="field__label" for="field-{{ name }}">{{ label }}</label>
   {% endif %}
-  <div class="field__control{% if disabled %} field__control--disabled{% endif %}"{% if submit_icon %} x-data="{ q: '' }"{% endif %}>
+  <div class="field__control{% if disabled %} field__control--disabled{% endif %}{% if type == "datetime-local" %} field__control--datetime{% endif %}"{% if submit_icon %} x-data="{ q: '' }"{% endif %}>
     {% if icon_left == "calendar" %}
     <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="calendar" icon_class="field__icon" %}</span>
     {% elif icon_left %}
@@ -74,6 +74,13 @@
           el.value = nowLocal();
         }
       });
+      var ctrl = el.closest('.field__control--datetime');
+      if (ctrl && el.showPicker) {
+        ctrl.addEventListener('click', function(e) {
+          if (e.target === el) return;
+          el.showPicker();
+        });
+      }
     })();
   </script>
   {% endif %}

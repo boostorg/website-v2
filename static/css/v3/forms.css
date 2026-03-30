@@ -200,6 +200,27 @@
   cursor: not-allowed;
 }
 
+/* ========== Datetime-local: hide native icon, full-area click ========== */
+.field__control--datetime {
+  position: relative;
+  cursor: pointer;
+}
+
+.field__control--datetime .field__input {
+  cursor: pointer;
+}
+
+.field__input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+
 /* ========== Dropdown ========== */
 .dropdown {
   position: relative;
