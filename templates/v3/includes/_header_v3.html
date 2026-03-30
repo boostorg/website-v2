@@ -22,10 +22,10 @@
     <div class="header__right">
       {% comment %} Desktop only: full search bar {% endcomment %}
       <div class="header__search-bar header__search-bar--full">
-        <span class="header__search-icon icon-brand-accent" aria-hidden="true">
-          {% include "includes/icon.html" with icon_name="search" icon_class="header__icon icon-brand-accent" icon_size=16 %}
-        </span>
-        <button type="button" id="gecko-search-button" class="header__search-input-trigger" data-current-boost-version="{{ current_version.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="sans-serif" aria-label="Search">
+        <button type="button" id="gecko-search-button" class="header__search-input-trigger" data-current-boost-version="{{ current_version.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="var(--font-sans)" aria-label="Search">
+          <span class="header__search-icon" aria-hidden="true">
+            {% include "includes/icon.html" with icon_name="search" icon_class="header__icon" icon_size=16 %}
+          </span>
           Search
         </button>
         <span class="header__search-kbd">CTRL+K</span>
@@ -63,11 +63,11 @@
         <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost" width="31" height="31">
       </a>
       <button type="button" class="header__menu-btn" aria-label="Open menu" :aria-expanded="mobileMenuOpen" aria-controls="header-drawer" @click="mobileMenuOpen = !mobileMenuOpen">
-        {% include "includes/icon.html" with icon_name="menu" icon_class="header__icon icon-brand-accent" %}
+        {% include "includes/icon.html" with icon_name="menu" icon_class="header__icon" icon_size=16 %}
         <span>Menu</span>
       </button>
       <button type="button" class="header__search-btn header__search-btn--mobile" aria-label="Search" onclick="document.getElementById('gecko-search-button').click()">
-        {% include "includes/icon.html" with icon_name="search" icon_class="header__icon icon-brand-accent" %}
+        {% include "includes/icon.html" with icon_name="search" icon_class="header__icon" icon_size=16 %}
         <span>Search</span>
       </button>
     </div>
