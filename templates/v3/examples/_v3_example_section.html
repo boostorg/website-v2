@@ -342,7 +342,7 @@
   <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
     <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge_icon_src=demo_user_card.badge_icon_src member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji size="lg" color="green" cta_url="#" cta_label="Create Post" %}
+      {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge_icon_src=demo_user_card.badge_icon_src member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji cta_url="#" cta_label="Create Post" %}
     </div>
   </div>
   {% endwith %}
@@ -351,7 +351,7 @@
   <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
     <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge_icon_src=demo_user_card.badge_icon_src member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji size="compact" %}
+      {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge_icon_src=demo_user_card.badge_icon_src member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji compact=True %}
     </div>
   </div>
   {% endwith %}

@@ -12,19 +12,17 @@
     flag_emoji      (string, optional)  - Country flag emoji, e.g. "🇺🇸". Omit to hide flag overlay.
     cta_url         (string, optional)  - CTA button target URL. Omit to hide button.
     cta_label       (string, optional)  - CTA button text. Defaults to "Create Post".
-    size            (string, optional)  - Card variant: lg|compact. Default "lg".
-    color           (string, optional)  - Card background accent: yellow|green|teal. Default none.
+    compact         (bool, optional)    - Render compact variant (no background, no CTA). Default false.
     extra_attrs     (string, optional)  - Extra HTML attributes for analytics (rendered raw)
 
   Usage:
-    Card (with background + CTA):
-      {% include "v3/includes/_user_card.html" with username="vinniefalco" avatar_url="/img/avatar.png" badge_name="Bug Catcher" badge_icon_src="/img/badge.png" member_since="2008" role="Board Member" flag_emoji="🇺🇸" size="lg" color="green" cta_url="/create-post/" %}
+    Normal (green background + CTA):
+      {% include "v3/includes/_user_card.html" with username="vinniefalco" avatar_url="/img/avatar.png" badge_name="Bug Catcher" badge_icon_src="/img/badge.png" member_since="2008" role="Board Member" flag_emoji="🇺🇸" cta_url="/create-post/" %}
 
     Compact (no background, no CTA):
-      {% include "v3/includes/_user_card.html" with username="vinniefalco" avatar_url="/img/avatar.png" size="compact" %}
+      {% include "v3/includes/_user_card.html" with username="vinniefalco" avatar_url="/img/avatar.png" compact=True %}
 {% endcomment %}
-{% with card_size=size|default:"lg" %}
-<section class="user-card user-card--{{ card_size }}{% if color %} user-card--{{ color }}{% endif %} card" aria-label="{{ username }}" {{ extra_attrs|safe }}>
+<section class="user-card {% if compact %}user-card--compact{% else %}user-card--lg user-card--green{% endif %} card" aria-label="{{ username }}" {{ extra_attrs|safe }}>
 
   {# Avatar with flag overlay #}
   <div class="user-card__avatar-wrapper">
@@ -59,9 +57,8 @@
   {# Optional CTA #}
   {% if cta_url %}
     <div class="btn-row">
-      {% include "v3/includes/_button.html" with url=cta_url label=cta_label|default:"Create Post" style="primary" extra_classes="btn-flex btn-"|add:color %}
+      {% include "v3/includes/_button.html" with url=cta_url label=cta_label|default:"Create Post" style="primary" extra_classes="btn-flex btn-green" %}
     </div>
   {% endif %}
 
 </section>
-{% endwith %}
