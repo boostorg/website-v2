@@ -265,7 +265,9 @@
   flex-shrink: 0;
 }
 
-/* Icon is swapped (IconChevronOpen) when open, no rotation */
+.dropdown--open .dropdown__chevron {
+  transform: rotate(180deg);
+}
 
 .dropdown--open .dropdown__trigger {
   background-color: var(--color-surface-mid, #f7f7f8);
