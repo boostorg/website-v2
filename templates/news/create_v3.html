@@ -247,9 +247,9 @@
             if (!validTypes.includes(file.type)) {
               this.errors.image = 'Please choose a PNG or JPEG image.';
             } else {
-              const maxSize = 5 * 1024 * 1024;
+              const maxSize = 1024 * 1024;
               if (file.size > maxSize) {
-                this.errors.image = 'Image must be 5MB or smaller.';
+                this.errors.image = 'Image must be 1MB or smaller.';
               }
             }
           }
