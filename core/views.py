@@ -1277,6 +1277,50 @@ class V3ComponentDemoView(TemplateView):
             "flag_emoji": "🇺🇸",
         }
 
+        context["library_filter_view_options"] = [
+            ("list", "List"),
+            ("grid", "Grid"),
+            ("category", "Category"),
+            ("grading", "Grading"),
+        ]
+        context["library_filter_grading_options"] = [
+            ("all", "All"),
+            ("flagship", "Flagship"),
+            ("core", "Core"),
+            ("deprecated", "Deprecated"),
+            ("legacy", "Legacy"),
+        ]
+        context["library_filter_cpp_options"] = [
+            ("all", "All"),
+            ("cpp03", "C++03"),
+            ("cpp11", "C++11"),
+            ("cpp14", "C++14"),
+            ("cpp17", "C++17"),
+            ("cpp20", "C++20"),
+            ("cpp23", "C++23"),
+        ]
+        context["library_filter_category_options"] = [
+            ("all", "All"),
+            ("algorithms", "Algorithms"),
+            ("asynchronous", "Asynchronous"),
+            ("awaitables", "Awaitables"),
+            ("containers", "Containers"),
+            ("coroutines", "Coroutines"),
+            ("correctness", "Correctness"),
+            # More dummy data to show scrollbar
+            ("data_processing", "Data processing"),
+            ("debugging", "Debugging"),
+            ("file_systems", "File systems"),
+            ("formatting", "Formatting"),
+            ("graphics", "Graphics"),
+        ]
+        context["library_filter_sort_options"] = [
+            ("alphabetical", "Alphabetical"),
+            ("popular", "Most Popular"),
+            ("updated", "Recently Updated"),
+            ("release", "Release Date"),
+        ]
+
         context["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/checker.png"
         )
