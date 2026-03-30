@@ -72,7 +72,13 @@ html.dark .v3-examples-section__example-box {
   text-align: center;
 }
 
+.v3-examples-section__avatar-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .v3-examples-section__avatar-table {
+  min-width: 36rem;
   width: 100%;
   border-collapse: collapse;
 }
