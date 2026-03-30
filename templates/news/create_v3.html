@@ -103,7 +103,7 @@
           {% include "v3/includes/_field_textarea.html" with name="content_link" label="Description" placeholder="Optional description" rows=3 %}
         </div>
 
-        <div class="field field--file field--file-narrow create-post-page__field-image" :class="{ 'field--error': errors.image }"
+        <div class="field field--file field--file-narrow create-post-page__field-image {% if form.errors.image %}field--error{% endif %}" :class="{ 'field--error': errors.image }"
              x-data="{ jsReady: false, fileName: '', previewUrl: '' }"
              x-init="jsReady = true; const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = ''; if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = ''; } })">
           <label class="field__label" for="field-image">Image</label>
@@ -132,7 +132,11 @@
             <img :src="previewUrl" alt="" class="field__image-preview">
           </div>
           <p class="field__error" id="field-image-error" role="alert" x-show="errors.image" x-text="errors.image" x-cloak aria-live="polite"></p>
-          <p class="field__help" id="field-image-help" x-show="!errors.image">This should be a PNG or JPEG format and no longer than 5MB</p>
+          {% if form.errors.image %}
+          <p class="field__error" role="alert" aria-live="polite" x-show="false">{{ form.errors.image.0 }}</p>
+          {% endif %}
+          <p class="field__help" id="field-image-help" x-show="!errors.image"
+             {% if form.errors.image %}style="display:none"{% endif %}>This should be a PNG or JPEG format and no longer than 5MB</p>
         </div>
 
         {% include "v3/includes/_field_dropdown.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" %}

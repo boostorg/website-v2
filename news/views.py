@@ -212,6 +212,31 @@ class EntryModerationMagicApproveView(View):
         return redirect(entry)
 
 
+def _v3_create_context():
+    """Shared context variables needed by the v3 create-post template."""
+    return {
+        "post_type_options": [
+            ("blog", _("Blog")),
+            ("news", _("News")),
+            ("video", _("Video")),
+            ("link", _("Link")),
+        ],
+        "related_libraries_options": [
+            ("", _("Select")),
+            ("asio", _("Asio")),
+            ("beast", _("Beast")),
+            ("filesystem", _("Filesystem")),
+            ("json", _("JSON")),
+            ("spirit", _("Spirit")),
+        ],
+        "publish_at_initial": localtime(now()).strftime("%Y-%m-%dT%H:%M"),
+        "blogpost_create_url": reverse_lazy("news-blogpost-create"),
+        "news_create_url": reverse_lazy("news-news-create"),
+        "link_create_url": reverse_lazy("news-link-create"),
+        "video_create_url": reverse_lazy("news-video-create"),
+    }
+
+
 class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = None
     form_class = None
@@ -219,6 +244,11 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     add_label = None
     add_url_name = None
     success_message = _("The news entry was successfully created.")
+
+    def get_template_names(self):
+        if flag_is_active(self.request, "v3"):
+            return ["news/create_v3.html"]
+        return [self.template_name]
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -234,6 +264,8 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         context["add_label"] = self.add_label
         context["add_url_name"] = self.add_url_name
         context["cancel_url"] = reverse_lazy("news")
+        if flag_is_active(self.request, "v3"):
+            context.update(_v3_create_context())
         return context
 
 
@@ -322,26 +354,7 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
             items.append(self.item_params(PollCreateView))
         context["items"] = items
         if flag_is_active(self.request, "v3"):
-            context["post_type_options"] = [
-                ("blog", _("Blog")),
-                ("news", _("News")),
-                ("video", _("Video")),
-                ("link", _("Link")),
-            ]
-            # Basic examples for the v3 create page selector.
-            context["related_libraries_options"] = [
-                ("", _("Select")),
-                ("asio", _("Asio")),
-                ("beast", _("Beast")),
-                ("filesystem", _("Filesystem")),
-                ("json", _("JSON")),
-                ("spirit", _("Spirit")),
-            ]
-            context["publish_at_initial"] = localtime(now()).strftime("%Y-%m-%dT%H:%M")
-            context["blogpost_create_url"] = reverse_lazy("news-blogpost-create")
-            context["news_create_url"] = reverse_lazy("news-news-create")
-            context["link_create_url"] = reverse_lazy("news-link-create")
-            context["video_create_url"] = reverse_lazy("news-video-create")
+            context.update(_v3_create_context())
         return context
 
 
