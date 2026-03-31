@@ -59,8 +59,7 @@
     display: inline-flex;
     align-items: center;
     gap: var(--space-default);
-    height: 32px;
-    padding: 0 var(--space-large);
+    padding: var(--space-default) var(--space-large);
     background-color: var(--color-surface-weak);
     border: 1px solid var(--color-stroke-weak);
     border-radius: var(--border-radius-l);
