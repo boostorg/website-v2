@@ -208,9 +208,13 @@
   border-color: var(--color-stroke-weak);
 }
 
-.dropdown__trigger:focus-within {
+.dropdown__trigger:has(:focus-visible) {
   outline: 2px solid var(--color-stroke-link-accent);
   background-color: var(--color-surface-mid);
+}
+
+.dropdown--combo .dropdown__trigger:has(.combo__search-input:focus) {
+  outline: none;
 }
 
 .dropdown__trigger-text {
@@ -266,6 +270,7 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--color-icon-primary) var(--color-surface-strong);
+  scrollbar-track-color: var(--color-surface-weak);
 }
 
 .dropdown__item {
