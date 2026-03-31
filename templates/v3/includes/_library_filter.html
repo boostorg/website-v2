@@ -6,22 +6,18 @@
   Mobile: "Filter" trigger button opens a fullscreen modal (CSS-only via hidden checkbox).
 
   Variables:
-    filter_id             (required) — unique ID for the modal (e.g. "library-filter")
-    view_options          (required) — list of (value, label) 2-tuples for View dropdown
-    grading_options       (required) — list of (value, label) 2-tuples for Grading dropdown
-    min_cpp_options       (required) — list of (value, label) 2-tuples for Min C++ Version dropdown
-    max_cpp_options       (required) — list of (value, label) 2-tuples for Max C++ Version dropdown
-    category_options      (required) — list of (value, label) 2-tuples for Category combo dropdown
-    sort_options          (required) — list of (value, label) 2-tuples for Sort By dropdown
-    selected_view         (optional) — pre-selected value for View. Default to "list" if not provided.
-    selected_grading      (optional) — pre-selected value for Grading. Default to "all" if not provided.
-    selected_min_cpp      (optional) — pre-selected value for Min C++ Version. Default to "all" if not provided.
-    selected_max_cpp      (optional) — pre-selected value for Max C++ Version. Default to "all" if not provided.
-    selected_category     (optional) — pre-selected value for Category. Default to "all" if not provided.
-    selected_sort         (optional) — pre-selected value for Sort By. Default to "alphabetical" if not provided.
+    filter_id  (required) — unique ID for the modal (e.g. "library-filter")
+    fields     (required) — list of field dicts, each with:
+      type        — "dropdown" or "combo"
+      name        — input name attribute
+      label       — label text
+      options     — list of (value, label) 2-tuples
+      selected    — pre-selected value
+      width       — "narrow" | "wide" (omit for default)
+      placeholder — placeholder text (combo type only)
 
   Usage:
-    {% include "v3/includes/_library_filter.html" with filter_id="library-filter" view_options=view_opts ... %}
+    {% include "v3/includes/_library_filter.html" with filter_id="library-filter" fields=filter_fields %}
 {% endcomment %}
 <div class="library-filter">
   {# Hidden checkbox drives open/close — no URL hash needed #}
@@ -47,12 +43,17 @@
       </label>
     </nav>
     <div class="library-filter__fields">
-      {% include "v3/includes/_field_dropdown.html" with name="view" label="View" options=view_options selected=selected_view|default:"list" extra_class="library-filter__field library-filter__field-narrow" %}
-      {% include "v3/includes/_field_dropdown.html" with name="grading" label="Grading" options=grading_options selected=selected_grading|default:"all" extra_class="library-filter__field library-filter__field-wide" %}
-      {% include "v3/includes/_field_dropdown.html" with name="min_cpp" label="Min. C++ Version" options=min_cpp_options selected=selected_min_cpp|default:"all" extra_class="library-filter__field library-filter__field-narrow" %}
-      {% include "v3/includes/_field_dropdown.html" with name="max_cpp" label="Max. C++ Version" options=max_cpp_options selected=selected_max_cpp|default:"all" extra_class="library-filter__field library-filter__field-narrow" %}
-      {% include "v3/includes/_field_combo.html" with name="category" label="Category" options=category_options selected=selected_category|default:"all" placeholder="Search" extra_class="library-filter__field library-filter__field-wide" %}
-      {% include "v3/includes/_field_dropdown.html" with name="sort" label="Sort by" options=sort_options selected=selected_sort|default:"alphabetical" extra_class="library-filter__field library-filter__field-default" %}
+      {% for field in fields %}
+        {% with width=field.width|default:"default" %}
+          {% with field_class="library-filter__field library-filter__field-"|add:width %}
+            {% if field.type == "combo" %}
+              {% include "v3/includes/_field_combo.html" with name=field.name label=field.label options=field.options selected=field.selected placeholder=field.placeholder extra_class=field_class %}
+            {% else %}
+              {% include "v3/includes/_field_dropdown.html" with name=field.name label=field.label options=field.options selected=field.selected extra_class=field_class %}
+            {% endif %}
+          {% endwith %}
+        {% endwith %}
+      {% endfor %}
     </div>
   </div>
 </div>

@@ -554,7 +554,7 @@
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
-        {% include "v3/includes/_library_filter.html" with filter_id="demo-library-filter" view_options=library_filter_view_options grading_options=library_filter_grading_options min_cpp_options=library_filter_cpp_options max_cpp_options=library_filter_cpp_options category_options=library_filter_category_options sort_options=library_filter_sort_options %}
+        {% include "v3/includes/_library_filter.html" with filter_id="demo-library-filter" fields=library_filter_fields %}
       </div>
     </div>
   {% endwith %}

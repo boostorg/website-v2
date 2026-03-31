@@ -1277,20 +1277,7 @@ class V3ComponentDemoView(TemplateView):
             "flag_emoji": "🇺🇸",
         }
 
-        context["library_filter_view_options"] = [
-            ("list", "List"),
-            ("grid", "Grid"),
-            ("category", "Category"),
-            ("grading", "Grading"),
-        ]
-        context["library_filter_grading_options"] = [
-            ("all", "All"),
-            ("flagship", "Flagship"),
-            ("core", "Core"),
-            ("deprecated", "Deprecated"),
-            ("legacy", "Legacy"),
-        ]
-        context["library_filter_cpp_options"] = [
+        cpp_options = [
             ("all", "All"),
             ("cpp03", "C++03"),
             ("cpp11", "C++11"),
@@ -1299,26 +1286,85 @@ class V3ComponentDemoView(TemplateView):
             ("cpp20", "C++20"),
             ("cpp23", "C++23"),
         ]
-        context["library_filter_category_options"] = [
-            ("all", "All"),
-            ("algorithms", "Algorithms"),
-            ("asynchronous", "Asynchronous"),
-            ("awaitables", "Awaitables"),
-            ("containers", "Containers"),
-            ("coroutines", "Coroutines"),
-            ("correctness", "Correctness"),
-            # More dummy data to show scrollbar
-            ("data_processing", "Data processing"),
-            ("debugging", "Debugging"),
-            ("file_systems", "File systems"),
-            ("formatting", "Formatting"),
-            ("graphics", "Graphics"),
-        ]
-        context["library_filter_sort_options"] = [
-            ("alphabetical", "Alphabetical"),
-            ("popular", "Most Popular"),
-            ("updated", "Recently Updated"),
-            ("release", "Release Date"),
+        context["library_filter_fields"] = [
+            {
+                "type": "dropdown",
+                "name": "view",
+                "label": "View",
+                "options": [
+                    ("list", "List"),
+                    ("grid", "Grid"),
+                    ("category", "Category"),
+                    ("grading", "Grading"),
+                ],
+                "selected": "list",
+                "width": "narrow",
+            },
+            {
+                "type": "dropdown",
+                "name": "grading",
+                "label": "Grading",
+                "options": [
+                    ("all", "All"),
+                    ("flagship", "Flagship"),
+                    ("core", "Core"),
+                    ("deprecated", "Deprecated"),
+                    ("legacy", "Legacy"),
+                ],
+                "selected": "all",
+                "width": "wide",
+            },
+            {
+                "type": "dropdown",
+                "name": "min_cpp",
+                "label": "Min. C++ Version",
+                "options": cpp_options,
+                "selected": "all",
+                "width": "narrow",
+            },
+            {
+                "type": "dropdown",
+                "name": "max_cpp",
+                "label": "Max. C++ Version",
+                "options": cpp_options,
+                "selected": "all",
+                "width": "narrow",
+            },
+            {
+                "type": "combo",
+                "name": "category",
+                "label": "Category",
+                "options": [
+                    ("all", "All"),
+                    ("algorithms", "Algorithms"),
+                    ("asynchronous", "Asynchronous"),
+                    ("awaitables", "Awaitables"),
+                    ("containers", "Containers"),
+                    ("coroutines", "Coroutines"),
+                    ("correctness", "Correctness"),
+                    # More dummy data to show scrollbar
+                    ("data_processing", "Data processing"),
+                    ("debugging", "Debugging"),
+                    ("file_systems", "File systems"),
+                    ("formatting", "Formatting"),
+                    ("graphics", "Graphics"),
+                ],
+                "selected": "all",
+                "width": "wide",
+                "placeholder": "Search",
+            },
+            {
+                "type": "dropdown",
+                "name": "sort",
+                "label": "Sort by",
+                "options": [
+                    ("alphabetical", "Alphabetical"),
+                    ("popular", "Most Popular"),
+                    ("updated", "Recently Updated"),
+                    ("release", "Release Date"),
+                ],
+                "selected": "alphabetical",
+            },
         ]
 
         context["create_account_card_preview_url"] = (
