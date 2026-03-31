@@ -23,26 +23,6 @@
       .create-post-page__card:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__content-field { display: flex !important; }
       .create-post-page__card:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__link-fields,
       .create-post-page__card:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__link-fields { display: flex !important; flex-direction: column; gap: var(--space-xlarge, 24px); }
-      .field--file .field__control { border: none; padding: 0; }
-      .field--file .field__input[type="file"] {
-        -webkit-appearance: auto;
-        appearance: auto;
-        width: 100%;
-        color: var(--color-text-secondary, #6b6d78);
-        font-family: var(--font-sans);
-        font-size: var(--font-size-small, 14px);
-      }
-      .field--file .field__input[type="file"]::file-selector-button {
-        background: var(--color-surface-mid, #f7f7f8);
-        border: 1px solid var(--color-stroke-weak, #0508161a);
-        border-radius: var(--border-radius-xl, 12px);
-        padding: var(--space-default, 8px) var(--space-large, 16px);
-        font-family: var(--font-sans);
-        font-size: var(--font-size-small, 14px);
-        color: var(--color-text-secondary, #6b6d78);
-        cursor: pointer;
-        margin-right: var(--space-default, 8px);
-      }
     </style>
   </noscript>
   <div class="create-post-wrapper" x-data="createPostForm()" @field-change="handleFieldChange($event)">
@@ -103,41 +83,7 @@
           {% include "v3/includes/_field_textarea.html" with name="content_link" label="Description" placeholder="Optional description" rows=3 %}
         </div>
 
-        <div class="field field--file field--file-narrow create-post-page__field-image {% if form.errors.image %}field--error{% endif %}" :class="{ 'field--error': errors.image }"
-             x-data="{ jsReady: false, fileName: '', previewUrl: '' }"
-             x-init="jsReady = true; const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = ''; if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = ''; } })">
-          <label class="field__label" for="field-image">Image</label>
-          <div class="field__control" :class="jsReady && 'field__control--file'" x-show="!previewUrl" x-transition>
-            <span class="field__file-display" aria-hidden="true" x-show="jsReady" x-cloak>
-              <span class="field__file-placeholder">Choose File</span>
-            </span>
-            <input x-ref="fileInput" class="field__input" :class="jsReady && 'field__input--file'" type="file" id="field-image" name="image" accept="image/png,image/jpeg"
-                 x-on:change="
-                   const file = $event.target.files && $event.target.files[0];
-                   if (previewUrl) {
-                     URL.revokeObjectURL(previewUrl);
-                     previewUrl = '';
-                   }
-                   if (file) {
-                     fileName = file.name;
-                     previewUrl = URL.createObjectURL(file);
-                   } else {
-                     fileName = '';
-                   }
-                 "
-                 :aria-invalid="!!errors.image"
-                 :aria-describedby="errors.image ? 'field-image-error' : 'field-image-help'">
-          </div>
-          <div class="field__image-preview-wrapper" x-show="previewUrl" x-cloak @click="previewUrl && $refs.fileInput.click()">
-            <img :src="previewUrl" alt="" class="field__image-preview">
-          </div>
-          <p class="field__error" id="field-image-error" role="alert" x-show="errors.image" x-text="errors.image" x-cloak aria-live="polite"></p>
-          {% if form.errors.image %}
-          <p class="field__error" role="alert" aria-live="polite" x-show="false">{{ form.errors.image.0 }}</p>
-          {% endif %}
-          <p class="field__help" id="field-image-help" x-show="!errors.image"
-             {% if form.errors.image %}style="display:none"{% endif %}>This should be a PNG or JPEG format and no longer than 5MB</p>
-        </div>
+        {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no longer than 5MB" extra_class="field--file-narrow create-post-page__field-image" %}
 
         {% include "v3/includes/_field_dropdown.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" %}
 
