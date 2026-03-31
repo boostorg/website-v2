@@ -5,9 +5,9 @@
 
 /* Active/focus state: single unified box */
 .wysiwyg-v3:focus-within {
-  border-radius: var(--xl, 12px);
-  border: 1px solid var(--Stroke-Strong, rgba(5, 8, 22, 0.25));
-  background: var(--Surface-Mid, #F7F7F8);
+  border-radius: var(--border-radius-xl);
+  border: 1px solid var(--color-stroke-strong);
+  background: var(--color-surface-mid);
   overflow: hidden;
 }
 
