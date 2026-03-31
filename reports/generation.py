@@ -26,6 +26,7 @@ from libraries.models import (
     Issue,
     Commit,
     Library,
+    Tier,
 )
 from libraries.utils import batched
 from mailing_list.models import EmailData
@@ -666,6 +667,52 @@ def get_libraries_for_index(
             )
         )
     return library_index_library_data
+
+
+def split_library_data_by_tier(library_data):
+    """Split library data into flagship, core, and other groups based on library tier."""
+    flagship = []
+    core = []
+    other = []
+    for item in library_data:
+        tier = item["library"].tier
+        if tier == Tier.FLAGSHIP:
+            flagship.append(item)
+        elif tier == Tier.CORE:
+            core.append(item)
+        else:
+            other.append(item)
+    return flagship, core, other
+
+
+def get_not_updated_libraries_by_tier(
+    library_data, version: Version, prior_version: Version | None = None
+):
+    """Get libraries that were NOT updated, grouped by tier.
+
+    Returns a dict with keys 'flagship', 'core', 'other', each a list of Library objects.
+    """
+    prior_version_library_ids = set()
+    if prior_version:
+        prior_version_library_ids = set(
+            LibraryVersion.objects.filter(version=prior_version).values_list(
+                "library_id", flat=True
+            )
+        )
+
+    updated_library_ids = {item["library"].id for item in library_data}
+
+    all_libraries = get_libraries_by_name(version)
+    not_updated = []
+    for library in all_libraries:
+        is_new = library.id not in prior_version_library_ids
+        if library.id not in updated_library_ids and not is_new:
+            not_updated.append(library)
+
+    flagship = [lib for lib in not_updated if lib.tier == Tier.FLAGSHIP]
+    core = [lib for lib in not_updated if lib.tier == Tier.CORE]
+    other = [lib for lib in not_updated if lib.tier not in (Tier.FLAGSHIP, Tier.CORE)]
+    return {"flagship": flagship, "core": core, "other": other}
 
 
 def get_slack_stats_for_channels(

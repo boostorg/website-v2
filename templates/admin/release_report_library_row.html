@@ -1,0 +1,16 @@
+{% load humanize %}
+<tr class="text-xs" style="height: 34px;">
+  <td class="px-2">{{ item.library.name }}</td>
+  <td class="px-2">
+    {% for author in item.top_contributors_release %}{{ author.display_name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+  </td>
+  <td class="px-2 whitespace-nowrap">
+    <span class="font-bold">{{ item.version_count.commit_count }}</span> commit{{ item.version_count.commit_count|pluralize }}
+  </td>
+  {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
+    <td class="px-2">
+      <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added,
+      <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
+    </td>
+  {% endwith %}
+</tr>
