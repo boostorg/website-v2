@@ -47,12 +47,12 @@
       </label>
     </nav>
     <div class="library-filter__fields">
-      {% include "v3/includes/_field_dropdown.html" with name="view" label="View" options=view_options selected=selected_view|default:"list" extra_class="library-filter__field library-filter__field--view" %}
-      {% include "v3/includes/_field_dropdown.html" with name="grading" label="Grading" options=grading_options selected=selected_grading|default:"all" extra_class="library-filter__field library-filter__field--grading" %}
-      {% include "v3/includes/_field_dropdown.html" with name="min_cpp" label="Min. C++ Version" options=min_cpp_options selected=selected_min_cpp|default:"all" extra_class="library-filter__field library-filter__field--cpp" %}
-      {% include "v3/includes/_field_dropdown.html" with name="max_cpp" label="Max. C++ Version" options=max_cpp_options selected=selected_max_cpp|default:"all" extra_class="library-filter__field library-filter__field--cpp" %}
-      {% include "v3/includes/_field_combo.html" with name="category" label="Category" options=category_options selected=selected_category|default:"all" placeholder="Search" extra_class="library-filter__field library-filter__field--category" %}
-      {% include "v3/includes/_field_dropdown.html" with name="sort" label="Sort by" options=sort_options selected=selected_sort|default:"alphabetical" extra_class="library-filter__field library-filter__field--sort" %}
+      {% include "v3/includes/_field_dropdown.html" with name="view" label="View" options=view_options selected=selected_view|default:"list" extra_class="library-filter__field library-filter__field-narrow" %}
+      {% include "v3/includes/_field_dropdown.html" with name="grading" label="Grading" options=grading_options selected=selected_grading|default:"all" extra_class="library-filter__field library-filter__field-wide" %}
+      {% include "v3/includes/_field_dropdown.html" with name="min_cpp" label="Min. C++ Version" options=min_cpp_options selected=selected_min_cpp|default:"all" extra_class="library-filter__field library-filter__field-narrow" %}
+      {% include "v3/includes/_field_dropdown.html" with name="max_cpp" label="Max. C++ Version" options=max_cpp_options selected=selected_max_cpp|default:"all" extra_class="library-filter__field library-filter__field-narrow" %}
+      {% include "v3/includes/_field_combo.html" with name="category" label="Category" options=category_options selected=selected_category|default:"all" placeholder="Search" extra_class="library-filter__field library-filter__field-wide" %}
+      {% include "v3/includes/_field_dropdown.html" with name="sort" label="Sort by" options=sort_options selected=selected_sort|default:"alphabetical" extra_class="library-filter__field library-filter__field-default" %}
     </div>
   </div>
 </div>

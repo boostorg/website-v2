@@ -6,7 +6,6 @@
 */
 
 /* ── Desktop: hide trigger & nav, show fields inline ── */
-
 .library-filter__toggle {
   display: none;
 }
@@ -27,29 +26,20 @@
 
 /* ── Field width modifiers ─────────────── */
 
-.library-filter__field--view {
-  width: 120px;
+.library-filter__field {
   flex-shrink: 0;
 }
 
-.library-filter__field--grading {
-  width: 200px;
-  flex-shrink: 0;
-}
-
-.library-filter__field--cpp {
+.library-filter__field-narrow {
   width: 104px;
-  flex-shrink: 0;
 }
 
-.library-filter__field--category {
-  width: 200px;
-  flex-shrink: 0;
-}
-
-.library-filter__field--sort {
+.library-filter__field-default {
   width: 160px;
-  flex-shrink: 0;
+}
+
+.library-filter__field-wide {
+  width: 200px;
 }
 
 /* ── Mobile: fullscreen modal ──────────── */
@@ -143,11 +133,7 @@
     padding: 0 var(--space-default);
   }
 
-  .library-filter__field--view,
-  .library-filter__field--grading,
-  .library-filter__field--cpp,
-  .library-filter__field--category,
-  .library-filter__field--sort {
+  .library-filter__field {
     width: 100%;
   }
 }
