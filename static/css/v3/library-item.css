@@ -1,0 +1,193 @@
+/* ==========================================================================
+   Library Item — list row and card variants
+   ========================================================================== */
+
+.library-item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.library-item {
+  box-sizing: border-box;
+}
+
+.library-item p {
+  margin: 0;
+  padding: 0;
+}
+
+/* ==========================================================================
+   List variant (horizontal row)
+   ========================================================================== */
+
+.library-item--list {
+  display: grid;
+  grid-template-columns: 205px 1fr 220px 220px auto;
+  max-width: 1408px;
+  align-items: flex-start;
+  row-gap: var(--space-large);
+  column-gap: var(--space-xl);
+  padding: var(--space-large);
+  padding-top: var(--space-default);
+  border-bottom: 1px solid var(--color-stroke-weak);
+}
+
+.library-item--list .library-item__header {
+  display: contents;
+}
+
+.library-item--list .library-item__description {
+  overflow: hidden;
+}
+
+.library-item--list .library-item__tags {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.library-item--list .library-item__contributor {
+  display: flex;
+  align-items: center;
+  gap: var(--space-default);
+}
+
+.library-item--list .library-item__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
+}
+
+.library-item .version-tag {
+  border-radius: var(--border-radius-xxl);
+}
+
+.library-item .version-tag--default:hover {
+  background: var(--color-tag-fill-hover);
+}
+
+.library-item .btn-icon-library {
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+/* ==========================================================================
+   Card variant (vertical stack)
+   ========================================================================== */
+
+.library-item--card {
+  display: flex;
+  flex-direction: column;
+  max-width: 320px;
+  width: 100%;
+  border-radius: var(--border-radius-xl);
+  border: 1px solid var(--color-stroke-weak);
+  background: var(--color-surface-weak);
+}
+
+.library-item--card .library-item__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+  padding: var(--space-large);
+}
+
+.library-item--card .library-item__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+  padding: 0 var(--space-large) var(--space-large);
+}
+
+.library-item--card .library-item__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-default);
+  padding: 0 var(--space-large) var(--space-large);
+}
+
+.library-item--card .library-item__contributor {
+  display: flex;
+  align-items: center;
+  gap: var(--space-default);
+  padding: var(--space-large);
+  border-top: 1px solid var(--color-stroke-weak);
+  margin-top: auto;
+}
+
+/* ==========================================================================
+   Shared element styles
+   ========================================================================== */
+
+.library-item__name {
+  font-family: var(--font-display);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-display-regular);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+a.library-item__name:hover {
+  text-decoration: underline;
+}
+
+.library-item__description {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.14px;
+  color: var(--color-text-secondary);
+}
+
+.library-item__contributor-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.library-item__contributor-name {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-default);
+  color: var(--color-text-primary);
+}
+
+.library-item__contributor-role {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  color: var(--color-text-secondary);
+}
+
+.library-item__contributor-badge {
+  flex-shrink: 0;
+}
+
+.library-item__contributor-badge img {
+  width: var(--space-large);
+  height: var(--space-large);
+}
+
+/* ==========================================================================
+   Mobile
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  .library-item--list {
+    grid-template-columns: 1fr;
+  }
+
+  .library-item--list .library-item__tags {
+    flex-wrap: wrap;
+  }
+}
