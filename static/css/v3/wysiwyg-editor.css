@@ -94,8 +94,8 @@
   flex: 1 1 auto; /* grow and shrink, allow wrapping to next row when needed */
 }
 .wysiwyg-editor__body code {
-  font-family: var(--font-mono);
-  color: var(--color-text-brand-accent-default, #050816);
+  font-family: var(--font-code);
+  color: var(--color-text-on-accent);
   font-size: var(--font-size-small, 14px);
   background: var(--color-surface-mid, #f7f7f8);
   padding: var(--space-default, 8px) var(--space-medium, 12px);
@@ -312,7 +312,7 @@
 
 .wysiwyg-editor__prose p code {
 
-  color: var(--color-text-brand-accent-default, #050816) !important;
+  color: var(--color-text-on-accent, #050816) !important;
 background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important; }
 
 .wysiwyg-editor__prose p:last-child {
