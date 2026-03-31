@@ -216,18 +216,18 @@ def _v3_create_context():
     """Shared context variables needed by the v3 create-post template."""
     return {
         "post_type_options": [
-            ("blog", _("Blog")),
-            ("news", _("News")),
-            ("video", _("Video")),
-            ("link", _("Link")),
+            ("blog", "Blog"),
+            ("news", "News"),
+            ("video", "Video"),
+            ("link", "Link"),
         ],
         "related_libraries_options": [
-            ("", _("Select")),
-            ("asio", _("Asio")),
-            ("beast", _("Beast")),
-            ("filesystem", _("Filesystem")),
-            ("json", _("JSON")),
-            ("spirit", _("Spirit")),
+            ("", "Select"),
+            ("asio", "Asio"),
+            ("beast", "Beast"),
+            ("filesystem", "Filesystem"),
+            ("json", "JSON"),
+            ("spirit", "Spirit"),
         ],
         "publish_at_initial": localtime(now()).strftime("%Y-%m-%dT%H:%M"),
         "blogpost_create_url": reverse_lazy("news-blogpost-create"),
