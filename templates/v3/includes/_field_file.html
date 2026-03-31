@@ -80,7 +80,7 @@
     >
   </div>
   {% if preview %}
-  <div class="field__image-preview-wrapper" x-show="previewUrl" x-cloak @click="previewUrl && $refs.fileInput.click()">
+  <div class="field__image-preview-wrapper" x-show="previewUrl" x-cloak tabindex="0" role="button" aria-label="Change file" @click="previewUrl && $refs.fileInput.click()" @keydown.enter.prevent="previewUrl && $refs.fileInput.click()" @keydown.space.prevent="previewUrl && $refs.fileInput.click()">
     <img :src="previewUrl" alt="" class="field__image-preview">
   </div>
   {% endif %}
