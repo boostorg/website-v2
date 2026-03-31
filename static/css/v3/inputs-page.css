@@ -161,7 +161,7 @@
   align-items: center;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1279px) {
   .inputs-page__three-col {
     grid-template-columns: 1fr;
   }
