@@ -12,14 +12,14 @@
 }
 
 .contributors-list.all-contributors .card__column div {
-    flex: 1 0 19%;
+    flex: 1 0 14%;
     min-width: 200px;
 }
 
 
 @media (max-width: 768px) {
     .contributors-list.all-contributors .card__column div {
-        flex-basis: 100%;
+        flex-basis: 51%;
     }
 
     .contributors-list {
