@@ -70,7 +70,3 @@ html.dark {
 @apply py-3 px-8 text-sm text-base font-medium text-white capitalize rounded-lg border md:py-1 md:px-4 md:text-lg text-orange border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md
 
 }
-
-.v3-background{
-    background-color: var(--color-bg-primary);
-}
