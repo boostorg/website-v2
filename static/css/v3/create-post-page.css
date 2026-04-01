@@ -73,7 +73,7 @@
   text-decoration: none;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 767px) {
   .create-post-page__actions {
     flex-direction: column;
   }
