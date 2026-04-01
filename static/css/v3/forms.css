@@ -270,7 +270,6 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--color-icon-primary) var(--color-surface-strong);
-  scrollbar-track-color: var(--color-surface-weak);
 }
 
 .dropdown__item {
