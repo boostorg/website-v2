@@ -43,7 +43,8 @@
       {% if type == "datetime-local" %}min="{% now "Y-m-d\TH:i" %}"{% endif %}
     >
     {% if icon_right %}
-    <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="chevron-input" icon_class="field__icon" %}</span>
+    <span class="field__icon" aria-hidden="true">
+      {% include "includes/icon.html" with icon_name="arrow-right"  icon_class="field__icon" %}</span>
     {% endif %}
     {% if submit_icon %}
     <button type="submit" class="field__submit" aria-label="{{ submit_label|default:'Submit' }}" :disabled="!q.trim()">
