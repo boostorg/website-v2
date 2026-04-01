@@ -435,7 +435,7 @@
 }
 
 .dropdown__trigger:focus-within .combo__search-icon {
-  color: var(--color-text-link-accent, #00778B);
+  color: var(--color-text-link-accent);
 }
 
 .combo__search-input {
