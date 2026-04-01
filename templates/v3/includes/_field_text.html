@@ -27,7 +27,8 @@
     {% if icon_left == "calendar" %}
     <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="calendar" icon_class="field__icon" %}</span>
     {% elif icon_left %}
-    <span class="field__icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="text" icon_class="field__icon" %}</span>
+    <span class="field__icon" aria-hidden="true">
+      {% include "includes/icon.html" with icon_name="search" icon_class="field__icon" %}</span>
     {% endif %}
     <input
       class="field__input"
