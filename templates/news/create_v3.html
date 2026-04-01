@@ -12,93 +12,91 @@
 {% endblock %}
 
 {% block content %}
-  <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
-    <div class="mx-auto w-full" style="display: flex; justify-content: center;">
-  <noscript>
-    <style>
-      .create-post-page__content-field,
-      .create-post-page__link-fields { display: none !important; }
-      .create-post-page__card:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__content-field,
-      .create-post-page__card:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__content-field { display: flex !important; }
-      .create-post-page__card:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__link-fields,
-      .create-post-page__card:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__link-fields { display: flex !important; flex-direction: column; gap: var(--space-xlarge, 24px); }
-    </style>
-  </noscript>
-  <div class="create-post-wrapper" x-data="createPostForm()" @field-change="handleFieldChange($event)">
-    <form
-      class="create-post-page"
-      enctype="multipart/form-data"
-      method="post"
-      :novalidate="true"
-      action="{{ blogpost_create_url }}"
-      :action="formAction"
-      @submit="prepareSubmit"
-      data-create-post-form
-    >
-      {% csrf_token %}
+  <div class="create-post-section">
+      <noscript>
+        <style>
+          .create-post-page__content-field,
+          .create-post-page__link-fields { display: none !important; }
+          .create-post-page__card:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__content-field,
+          .create-post-page__card:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__content-field { display: flex !important; }
+          .create-post-page__card:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__link-fields,
+          .create-post-page__card:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__link-fields { display: flex !important; flex-direction: column; gap: var(--space-xlarge, 24px); }
+        </style>
+      </noscript>
+      <div class="create-post-wrapper" x-data="createPostForm()" @field-change="handleFieldChange($event)">
+      <form
+        class="create-post-page"
+        enctype="multipart/form-data"
+        method="post"
+        :novalidate="true"
+        action="{{ blogpost_create_url }}"
+        :action="formAction"
+        @submit="prepareSubmit"
+        data-create-post-form
+      >
+        {% csrf_token %}
 
-      <div class="create-post-page__header">
-        <h1 class="create-post-page__title">Create Post</h1>
-        <p class="create-post-page__subtitle">
-          Posts will be reviewed by the moderation team before they appear in the feed.
-        </p>
-      </div>
-
-      <div class="create-post-page__card">
-        {% comment %} Post Type dropdown: Blog, News, Video, Link. Placeholder "Select Post Type". Controls conditional fields. {% endcomment %}
-        {% include "v3/includes/_field_dropdown.html" with name="post_type" label="Post type *" options=post_type_options placeholder="Select Post Type" required=True %}
-        <p class="field__error" id="post-type-error" role="alert" x-show="errors.post_type" x-text="errors.post_type" x-cloak></p>
-
-        <div class="field" :class="{ 'field--error': errors.title }">
-          <label class="field__label" for="field-title">Post title *</label>
-          <div class="field__control">
-            <input class="field__input" type="text" id="field-title" name="title" placeholder="Title" required
-                   :aria-invalid="!!errors.title"
-                   :aria-describedby="errors.title ? 'field-title-error' : null">
-
-          </div>
-          <p class="field__error" id="field-title-error" role="alert" x-show="errors.title" x-text="errors.title" x-cloak aria-live="polite"></p>
+        <div class="create-post-page__header">
+          <h1 class="create-post-page__title">Create Post</h1>
+          <p class="create-post-page__subtitle">
+            Posts will be reviewed by the moderation team before they appear in the feed.
+          </p>
         </div>
 
-        {% comment %} Write Up (Blog, News): Content required. WYSIWYG editor (Markdown). {% endcomment %}
-        <div class="field create-post-page__content-field" x-show="isWriteUp" :class="{ 'field--error': errors.content }">
-          <label class="field__label" for="field-content">Content *</label>
-          {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" %}
-          <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
-          <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
-        </div>
+        <div class="create-post-page__card">
+          {% comment %} Post Type dropdown: Blog, News, Video, Link. Placeholder "Select Post Type". Controls conditional fields. {% endcomment %}
+          {% include "v3/includes/_field_dropdown.html" with name="post_type" label="Post type *" options=post_type_options placeholder="Select Post Type" required=True %}
+          <p class="field__error" id="post-type-error" role="alert" x-show="errors.post_type" x-text="errors.post_type" x-cloak></p>
 
-        {% comment %} Link (Video, Link): Link (required) and Description (optional). {% endcomment %}
-        <div class="create-post-page__link-fields" x-show="isLinkType" x-cloak>
-          <div class="field" :class="{ 'field--error': errors.external_url }">
-            <label class="field__label" for="field-external_url">Link *</label>
+          <div class="field" :class="{ 'field--error': errors.title }">
+            <label class="field__label" for="field-title">Post title *</label>
             <div class="field__control">
-              <input class="field__input" type="url" id="field-external_url" name="external_url" placeholder="https://..."
-                     :aria-invalid="!!errors.external_url"
-                     :aria-describedby="errors.external_url ? 'field-external_url-error' : null">
+              <input class="field__input" type="text" id="field-title" name="title" placeholder="Title" required
+                     :aria-invalid="!!errors.title"
+                     :aria-describedby="errors.title ? 'field-title-error' : null">
+
             </div>
-            <p class="field__error" id="field-external_url-error" role="alert" x-show="errors.external_url" x-text="errors.external_url" x-cloak aria-live="polite"></p>
+            <p class="field__error" id="field-title-error" role="alert" x-show="errors.title" x-text="errors.title" x-cloak aria-live="polite"></p>
           </div>
-          {% include "v3/includes/_field_textarea.html" with name="content_link" label="Description" placeholder="Optional description" rows=3 %}
+
+          {% comment %} Write Up (Blog, News): Content required. WYSIWYG editor (Markdown). {% endcomment %}
+          <div class="field create-post-page__content-field" x-show="isWriteUp" :class="{ 'field--error': errors.content }">
+            <label class="field__label" for="field-content">Content *</label>
+            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" %}
+            <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
+            <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
+          </div>
+
+          {% comment %} Link (Video, Link): Link (required) and Description (optional). {% endcomment %}
+          <div class="create-post-page__link-fields" x-show="isLinkType" x-cloak>
+            <div class="field" :class="{ 'field--error': errors.external_url }">
+              <label class="field__label" for="field-external_url">Link *</label>
+              <div class="field__control">
+                <input class="field__input" type="url" id="field-external_url" name="external_url" placeholder="https://..."
+                       :aria-invalid="!!errors.external_url"
+                       :aria-describedby="errors.external_url ? 'field-external_url-error' : null">
+              </div>
+              <p class="field__error" id="field-external_url-error" role="alert" x-show="errors.external_url" x-text="errors.external_url" x-cloak aria-live="polite"></p>
+            </div>
+            {% include "v3/includes/_field_textarea.html" with name="content_link" label="Description" placeholder="Optional description" rows=3 %}
+          </div>
+
+          {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no longer than 5MB" extra_class="field--file-narrow create-post-page__field-image" %}
+
+          {% include "v3/includes/_field_dropdown.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" %}
+
+          {% include "v3/includes/_field_text.html" with name="publish_at" label="Publish Date" type="datetime-local" value=publish_at_initial %}
+
+          <div class="create-post-page__actions">
+            <a href="{% url 'news' %}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
         </div>
-
-        {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no longer than 5MB" extra_class="field--file-narrow create-post-page__field-image" %}
-
-        {% include "v3/includes/_field_dropdown.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" %}
-
-        {% include "v3/includes/_field_text.html" with name="publish_at" label="Publish Date" type="datetime-local" value=publish_at_initial %}
-
-        <div class="create-post-page__actions">
-          <a href="{% url 'news' %}" class="btn btn-secondary">Cancel</a>
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
-      </div>
-    </form>
-  </div>
+      </form>
     </div>
   </div>
 
-  <script>
+    <script>
   document.addEventListener('alpine:init', () => {
     const createUrls = {
       blog: '{{ blogpost_create_url }}',

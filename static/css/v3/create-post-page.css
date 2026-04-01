@@ -1,7 +1,14 @@
 /**
  * Create post page layout (Django).
- * BEM: .create-post-wrapper, .create-post-page, .create-post-page__*
  */
+
+.create-post-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  margin-bottom: 80px;
+}
 
 .create-post-wrapper {
   width: 100%;
@@ -74,6 +81,10 @@
 }
 
 @media (max-width: 767px) {
+  .create-post-section {
+    margin-top: 32px;
+    margin-bottom: 64px;
+  }
   .create-post-page__actions {
     flex-direction: column;
   }
