@@ -1,0 +1,24 @@
+{% comment %}
+  Vertical list showing all contributors to a library or release.
+  Has two variants: Contributors in release, or all contributors. The release variant is a single column,
+  all contributors is a differing number of columns depending on screen size.
+
+  Inputs:
+    - title: str, required - top title of card
+    - variant: str, required - choice of release or all, determines display layout
+    - contributors: list, required - List of contributors, matching the author input of _user_profile.html
+
+  Usage:
+    {% include "v3/includes/_contributors_list.html" with title="Contributors: This Release" variant="release" contributors=contributors %}
+{% endcomment %}
+<div class="basic-card card py-large contributors-list {% if variant == 'all' %} all-contributors {% endif %}">
+  <div class="card__header">
+    <span class="card__title">{{ title }}</span>
+  </div>
+  <hr class="card__hr" />
+  <div class="card__column px-large">
+    {% for contributor in contributors %}
+        {% include "v3/includes/_user_profile.html" with author=contributor only %}
+    {% endfor %}
+  </div>
+</div>

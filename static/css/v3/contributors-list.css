@@ -1,0 +1,29 @@
+.contributors-list .card__column {
+    gap: var(--space-medium)
+}
+
+.contributors-list.all-contributors {
+    max-width: 100%;
+}
+
+.contributors-list.all-contributors .card__column {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.contributors-list.all-contributors .card__column div {
+    flex: 1 0 19%;
+    min-width: 200px;
+}
+
+
+@media (max-width: 768px) {
+    .contributors-list.all-contributors .card__column div {
+        flex-basis: 100%;
+    }
+
+    .contributors-list {
+        max-height: 80vh;
+        overflow-y: scroll;
+    }
+}
