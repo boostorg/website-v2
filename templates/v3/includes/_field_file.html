@@ -12,8 +12,8 @@
     preview      (optional) — if truthy, enables clickable image preview after file selection
     alpine_error (optional) — Alpine expression for dynamic error binding (e.g. "errors.image")
   Usage:
-    {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" help_text="PNG or JPEG, max 5MB" %}
-    {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" help_text="PNG or JPEG, max 5MB" %}
+    {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" help_text="PNG or JPEG, max 1MB" %}
+    {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" help_text="PNG or JPEG, max 1MB" %}
   Custom display: no native "No file chosen"; shows "Choose File" until a file is selected, then the file name.
 {% endcomment %}
 <noscript>

@@ -81,7 +81,7 @@
             {% include "v3/includes/_field_textarea.html" with name="content_link" label="Description" placeholder="Optional description" rows=3 %}
           </div>
 
-          {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no longer than 5MB" extra_class="field--file-narrow create-post-page__field-image" %}
+          {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no longer than 1MB" extra_class="field--file-narrow create-post-page__field-image" %}
 
           {% include "v3/includes/_field_dropdown.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" %}
 
