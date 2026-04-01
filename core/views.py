@@ -310,89 +310,69 @@ class LearnPageView(V3Mixin, TemplateView):
                 ],
                 "url": "https://www.example.com",
                 "label": "Learn more about Boost",
-                "image_src": f"{ settings.STATIC_URL}img/v3/learn-page/Learn_Octopus.png",
+                "image_src": f"{ settings.STATIC_URL}img/v3/examples/Learn_Octopus.png",
                 "mobile_image_src": f"{ settings.STATIC_URL }/img/v3/examples/Octopus_Mobile.png",
             },
         ]
-
-        example_card = {
-            "title": "Found a Bug?",
-            "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole comm",
-            "primary_button_url": "www.example.com",
-            "primary_button_label": "Primary Button",
-            "secondary_button_url": "www.example.com",
-            "secondary_button_label": "Secondary Button",
-            "image": f"{ settings.STATIC_URL }/img/v3/demo_page/Calendar.png",
-        }
 
         demo_cards = [
             {
                 "title": "Get help",
                 "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
-                "icon_name": "info-box",
                 "cta_label": "Start here",
                 "cta_href": reverse("community"),
             },
             {
                 "title": "Documentation",
                 "description": "Browse library docs, examples, and release notes in one place.",
-                "icon_name": "link",
                 "cta_label": "View docs",
                 "cta_href": reverse("docs"),
             },
             {
                 "title": "Community",
                 "description": "Mailing lists, GitHub, and community guidelines for contributors.",
-                "icon_name": "human",
                 "cta_label": "Join",
                 "cta_href": reverse("community"),
             },
             {
                 "title": "Releases",
                 "description": "Latest releases, download links, and release notes.",
-                "icon_name": "info-box",
                 "cta_label": "Download",
                 "cta_href": reverse("releases-most-recent"),
             },
             {
                 "title": "Libraries",
                 "description": "Explore the full catalog of Boost C++ libraries with docs and metadata.",
-                "icon_name": "link",
                 "cta_label": "Browse libraries",
                 "cta_href": reverse("libraries"),
             },
             {
                 "title": "News",
                 "description": "Blog posts, announcements, and community news from the Boost project.",
-                "icon_name": "device-tv",
                 "cta_label": "Read news",
                 "cta_href": reverse("news"),
             },
             {
                 "title": "Getting started",
                 "description": "Step-by-step guides to build and use Boost in your projects.",
-                "icon_name": "bullseye-arrow",
                 "cta_label": "Get started",
                 "cta_href": reverse("getting-started"),
             },
             {
                 "title": "Resources",
                 "description": "Learning resources, books, and other materials for Boost users.",
-                "icon_name": "get-help",
                 "cta_label": "View resources",
                 "cta_href": reverse("resources"),
             },
             {
                 "title": "Calendar",
                 "description": "Community events, meetings, and review schedule.",
-                "icon_name": "info-box",
                 "cta_label": "View calendar",
                 "cta_href": reverse("calendar"),
             },
             {
                 "title": "Donate",
                 "description": "Support the Boost Software Foundation and open-source C++.",
-                "icon_name": "human",
                 "cta_label": "Donate",
                 "cta_href": reverse("donate"),
             },
@@ -400,8 +380,21 @@ class LearnPageView(V3Mixin, TemplateView):
 
         ctx["library_cards"] = demo_cards
         ctx["why_boost_cards"] = demo_cards[:6]
-        ctx["calendar_card"] = example_card
-        ctx["info_card"] = example_card
+        ctx["calendar_card"] = {
+            "title": "Boost is released three times a year",
+            "text": "Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process.",
+            "primary_button_url": "www.example.com",
+            "primary_button_label": "View the Release Calendar",
+            "secondary_button_url": "www.example.com",
+            "secondary_button_label": "Secondary Button",
+            "image": f"{ settings.STATIC_URL }/img/v3/demo_page/Calendar.png",
+        }
+        ctx["info_card"] = {
+            "title": "How we got here",
+            "text": "Since 1998, Boost has been where C++ innovation happens. What started with three developers has grown into the foundation of modern C++ development.",
+            "primary_button_url": "www.example.com",
+            "primary_button_label": "Explore Our History",
+        }
         ctx["post_cards_data"] = {
             "heading": "Posts from the Boost Community",
             "view_all_url": "#",

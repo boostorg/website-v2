@@ -45,23 +45,19 @@
 .learn-card__title {
     color: var(--color-text-primary);
 
-    /* Display/Desktop/Medium/Large */
     font-family: var(--font-display);
     font-size: var(--font-size-large);
     font-weight: var(--font-weight-medium);
     line-height: var(--line-height-tight);
-    /* 24px */
     letter-spacing: -0.24px;
 }
 
 .learn-card__text {
     color: var(--color-text-secondary);
 
-    /* Sans/Desktop/Regular/Base */
     font-family: var(--font-sans);
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-regular);
-    /* 19.2px */
     letter-spacing: -0.16px;
 }
 
@@ -80,15 +76,12 @@
     font-size: var(--font-size-small);
     font-weight: var(--font-weight-medium);
     line-height: 124%;
-    /* 17.36px */
     letter-spacing: -0.14px;
     text-decoration-line: underline;
     text-decoration-style: solid;
     text-decoration-skip-ink: auto;
     text-decoration-thickness: 7.5%;
-    /* 1.05px */
     text-underline-offset: 15.2%;
-    /* 2.128px */
     text-underline-position: from-font;
 }
 
