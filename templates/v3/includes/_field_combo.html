@@ -96,7 +96,7 @@
                  @keydown.arrow-down.prevent="activeIndex = Math.min(activeIndex + 1, filtered.length - 1)"
                  @keydown.arrow-up.prevent="activeIndex = activeIndex > 0 ? activeIndex - 1 : -1"
                  @keydown.enter.prevent="if (activeValue) choose(activeValue, filtered[activeIndex].label)"
-                 placeholder="Type to search..."
+                 placeholder="{{ placeholder|default:'Type to search...' }}"
                  aria-autocomplete="list"
                  aria-label="Search options"
                  :aria-activedescendant="activeValue ? 'field-{{ name }}-option-' + activeValue : null">
