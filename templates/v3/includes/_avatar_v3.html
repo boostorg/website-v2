@@ -1,27 +1,46 @@
 {% comment %}
-  Variables: src (optional; image URL), name (optional), variant (optional; yellow|green|teal, default yellow), size (optional; sm|md|lg|xl, default md).
-  Usage: {% include "v3/includes/_avatar_v3.html" with src=author.avatar_url name=author.name variant="yellow" size="md" %}
-  Image: {% include "v3/includes/_avatar_v3.html" with src="/static/images/avatar-demo.png" size="md" %}
-  Initials: {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="green" %}
-  Placeholder: {% include "v3/includes/_avatar_v3.html" %}
+  Avatar (v3)
+  Displays a user avatar as an image, initials, or placeholder.
+
+  Variables:
+    - src      (optional)  Image URL for the avatar
+    - name     (optional)  User's full name; used for alt text and initials fallback
+    - variant  (optional)  Background color: yellow | green | teal (default: yellow)
+    - size     (optional)  Avatar size: sm | md | lg | xl (default: md)
+
+  Rendering priority:
+    1. Image   — when `src` is provided
+    2. Initials — when `name` is provided (falls back to "?" if initials can't be derived)
+    3. Placeholder — generic "?" icon when neither `src` nor `name` is given
+
+  Accessibility:
+    - When `name` is provided, the avatar is announced to screen readers via aria-label.
+    - When `name` is absent, the avatar is treated as decorative (aria-hidden="true").
+    - Always pass `name` alongside `src` so the image has meaningful alt text.
+
+  Examples:
+    {% include "v3/includes/_avatar_v3.html" with src=author.avatar_url name=author.name variant="yellow" size="md" %}
+    {% include "v3/includes/_avatar_v3.html" with src="/static/images/avatar.png" name="Jane Doe" size="lg" %}
+    {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="green" %}
+    {% include "v3/includes/_avatar_v3.html" %}
 {% endcomment %}
 {% load avatar_tags %}
 {% with size=size|default:"md" variant=variant|default:"yellow" %}
   {% if src %}
-    <span class="avatar avatar--{{ size }}" aria-hidden>
+    <span class="avatar avatar--{{ size }}"{% if name %} role="img" aria-label="{{ name }}"{% else %} aria-hidden="true"{% endif %}>
       <img src="{{ src }}" alt="" class="avatar__img" width="{% if size == 'sm' %}32{% elif size == 'lg' %}44{% elif size == 'xl' %}48{% else %}40{% endif %}" height="{% if size == 'sm' %}32{% elif size == 'lg' %}44{% elif size == 'xl' %}48{% else %}40{% endif %}" loading="lazy" decoding="async">
     </span>
   {% elif name %}
     {% with inits=name|avatar_initials %}
       {% if inits == "?" %}
-        <span class="avatar avatar-placeholder avatar--{{ size }}" aria-hidden>?</span>
+        <span class="avatar avatar-placeholder avatar--{{ size }}" role="img" aria-label="{{ name }}">?</span>
       {% else %}
-        <span class="avatar avatar--{{ size }} avatar--{{ variant }}" aria-hidden>
-          <span class="avatar__initials">{{ inits }}</span>
+        <span class="avatar avatar--{{ size }} avatar--{{ variant }}" role="img" aria-label="{{ name }}">
+          <span class="avatar__initials" aria-hidden="true">{{ inits }}</span>
         </span>
       {% endif %}
     {% endwith %}
   {% else %}
-    <span class="avatar avatar-placeholder avatar--{{ size }}" aria-hidden>?</span>
+    <span class="avatar avatar-placeholder avatar--{{ size }}" aria-hidden="true">?</span>
   {% endif %}
 {% endwith %}
