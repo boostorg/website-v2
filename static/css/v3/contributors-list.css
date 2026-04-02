@@ -19,10 +19,10 @@ h2, h3, h4, h5, h6 {
 @media (max-width: 768px) {
     .contributors-list.all-contributors .card__column {
         grid-template-columns: 1fr;
+        overflow-y: auto;
     }
 
     .contributors-list {
         max-height: 80vh;
-        overflow-y: auto;
     }
 }
