@@ -61,14 +61,6 @@
             <p class="field__error" id="field-title-error" role="alert" x-show="errors.title" x-text="errors.title" x-cloak aria-live="polite"></p>
           </div>
 
-          {% comment %} Write Up (Blog, News): Content required. WYSIWYG editor (Markdown). {% endcomment %}
-          <div class="field create-post-page__content-field" x-show="isWriteUp" :class="{ 'field--error': errors.content }">
-            <label class="field__label" for="field-content">Content *</label>
-            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" %}
-            <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
-            <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
-          </div>
-
           {% comment %} Link (Video, Link): Link (required) and Description (optional). {% endcomment %}
           <div class="create-post-page__link-fields" x-show="isLinkType" x-cloak>
             <div class="field" :class="{ 'field--error': errors.external_url }">
@@ -80,7 +72,14 @@
               </div>
               <p class="field__error" id="field-external_url-error" role="alert" x-show="errors.external_url" x-text="errors.external_url" x-cloak aria-live="polite"></p>
             </div>
-            {% include "v3/includes/_field_textarea.html" with name="content_link" label="Description" placeholder="Optional description" rows=3 %}
+          </div>
+
+          {% comment %} Write Up (Blog, News): Content required. WYSIWYG editor (Markdown). {% endcomment %}
+          <div class="field create-post-page__content-field" :class="{ 'field--error': errors.content }">
+            <label class="field__label" for="field-content">Content *</label>
+            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" %}
+            <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
+            <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
           </div>
 
           {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no longer than 1MB" extra_class="field--file-narrow create-post-page__field-image" %}
