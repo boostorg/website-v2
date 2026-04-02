@@ -119,21 +119,6 @@
         setPostType(value) {
           this.postType = value;
           this.errors.post_type = '';
-          const form = this.$el.querySelector('[data-create-post-form]');
-          if (!form) return;
-          const contentInput = form.querySelector('textarea[name="content"]');
-          if (this.isWriteUp) {
-            const linkInput = form.querySelector('input[name="external_url"]');
-            const descInput = form.querySelector('textarea[name="content_link"]');
-            if (linkInput) linkInput.value = ''; if (linkInput) linkInput.removeAttribute('required');
-            if (descInput) descInput.value = '';
-          } else {
-            if (contentInput) contentInput.value = '';
-          }
-          if (contentInput && contentInput.id) {
-            contentInput.value = '';
-            import('/static/js/v3/wysiwyg-editor.js').then(m => { if (m.initWysiwyg) m.initWysiwyg(contentInput.id); });
-          }
         },
         prepareSubmit(e) {
           this.errors = { post_type: '', title: '', content: '', external_url: '', image: '' };
