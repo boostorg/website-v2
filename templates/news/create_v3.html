@@ -108,7 +108,7 @@
     window.createPostForm = function() {
       return {
         postType: '',
-        errors: { post_type: '', title: '', content: '', external_url: '', image: '' },
+        errors: { post_type: '', title: '{{ form.title.errors.0|default:""|escapejs }}', content: '{{ form.content.errors.0|default:""|escapejs }}', external_url: '{{ form.external_url.errors.0|default:""|escapejs }}', image: '{{ form.image.errors.0|default:""|escapejs }}' },
         get isWriteUp() { return this.postType === 'blog' || this.postType === 'news'; },
         get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
         get formAction() { return createUrls[this.postType] || ''; },

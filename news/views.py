@@ -2,6 +2,7 @@ from datetime import timedelta
 from functools import partial
 
 from django.conf import settings
+from django.db import IntegrityError
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -252,7 +253,17 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        result = super().form_valid(form)
+        try:
+            result = super().form_valid(form)
+        except IntegrityError as e:
+            if "slug" in str(e):
+                form.add_error(
+                    "title",
+                    "A post with this title already exists. Please choose a different title.",
+                )
+            else:
+                form.add_error(None, "An unexpected error occurred. Please try again.")
+            return self.form_invalid(form)
         if not form.instance.is_approved:
             send_email_news_needs_moderation(request=self.request, entry=form.instance)
         else:
