@@ -7,19 +7,13 @@
 }
 
 .contributors-list.all-contributors .card__column {
-    flex-direction: row;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 }
-
-.contributors-list.all-contributors .card__column .user-profile {
-    flex: 1 0 14%;
-    min-width: 200px;
-}
-
 
 @media (max-width: 768px) {
-    .contributors-list.all-contributors .card__column .user-profile {
-        flex-basis: 51%;
+    .contributors-list.all-contributors .card__column {
+        grid-template-columns: 1fr;
     }
 
     .contributors-list {
