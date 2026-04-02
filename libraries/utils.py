@@ -513,6 +513,7 @@ def build_library_intro_context(library_version, *, max_authors=3):
                     medals[len(author_dicts)] if len(author_dicts) < len(medals) else ""
                 ),
                 "bio": "",
+                "profile_url": "",
             }
         )
     for ca in top_contributors:
@@ -525,6 +526,7 @@ def build_library_intro_context(library_version, *, max_authors=3):
                     medals[len(author_dicts)] if len(author_dicts) < len(medals) else ""
                 ),
                 "bio": "",
+                "profile_url": "",
             }
         )
 

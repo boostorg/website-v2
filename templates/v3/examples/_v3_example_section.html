@@ -70,6 +70,7 @@
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
+        <div class="v3-examples-section__avatar-scroll">
         <table class="v3-examples-section__avatar-table">
           <tbody>
             <tr>
@@ -149,6 +150,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   {% endwith %}
@@ -196,21 +198,11 @@
             <a href="#" class="post-cards__heading-link">Posts from the Boost community</a>
           </h2>
           <ul class="post-cards__list">
+            {% for post in demo_posts %}
             <li class="post-cards__item">
-              {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Richard+Thomson&size=48" %}
-                {% include "v3/includes/_post_card_v3.html" %}
-              {% endwith %}
+              {% include "v3/includes/_post_card_v3.html" with post=post %}
             </li>
-            <li class="post-cards__item">
-              {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Peter Dimov" author_role="Maintainer" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Peter+Dimov&size=48" %}
-                {% include "v3/includes/_post_card_v3.html" %}
-              {% endwith %}
-            </li>
-            <li class="post-cards__item">
-              {% with post_title="Boost.Bind and modern C++: a quick overview" post_url="#" post_date="15/02/2025" post_category="Releases" post_tag="bind" author_name="Alex Morgan" author_role="Contributor" author_show_badge=False author_avatar_url="https://thispersondoesnotexist.com/" %}
-                {% include "v3/includes/_post_card_v3.html" %}
-              {% endwith %}
-            </li>
+            {% endfor %}
           </ul>
           <div class="card__cta_section">
             {% include "v3/includes/_button.html" with label="View all posts" url="#" %}
@@ -220,13 +212,11 @@
     </div>
   {% endwith %}
 
-  {% with section_title="Detail card" %}
+  {% with section_title="Post Card" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
-        {% with post_title="A talk by Richard Thomson at the Utah C++ Programmers Group" post_url="#" post_date="03/03/2025" post_category="Issues" post_tag="beast" author_name="Richard Thomson" author_role="Contributor" author_show_badge=True author_avatar_url="https://ui-avatars.com/api/?name=Richard+Thomson&size=48" %}
-          {% include "v3/includes/_post_card_v3.html" %}
-        {% endwith %}
+        {% include "v3/includes/_post_card_v3.html" with post=demo_post %}
       </div>
     </div>
   {% endwith %}
@@ -344,6 +334,24 @@
     <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_badges_card.html" with badges=demo_badges_few %}
+    </div>
+  </div>
+  {% endwith %}
+
+  {% with section_title="User Card (card)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge_icon_src=demo_user_card.badge_icon_src member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji cta_url="#" cta_label="Create Post" %}
+    </div>
+  </div>
+  {% endwith %}
+
+  {% with section_title="User Card (compact)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge_icon_src=demo_user_card.badge_icon_src member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji compact=True %}
     </div>
   </div>
   {% endwith %}
@@ -490,6 +498,15 @@
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">{% include "v3/includes/_mailing_list_card.html" %}</div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Markdown Card" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      {% with markdown_data as d %}
+      <div class="v3-examples-section__example-box">{% include "v3/includes/_markdown_card.html" with title=d.title markdown=d.markdown button_url=d.button_url button_label=d.button_label %}</div>
+      {% endwith %}
     </div>
   {% endwith %}
 
@@ -653,6 +670,19 @@
       <div class="v3-examples-section__example-box">
         <h4 class="py-large">Dialog Modal With Description</h4>
         <a href="#demo-dialog-with-desc" class="btn btn-primary">Open dialog</a>
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with authors=user_profile_data section_title="User Profile" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <div class="v3-examples-section__user-profile">
+          {% for author in authors %}
+            {% include "v3/includes/_user_profile.html" with author=author %}
+          {% endfor %}
+        </div>
       </div>
     </div>
   {% endwith %}

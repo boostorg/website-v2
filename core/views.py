@@ -1,9 +1,12 @@
+from datetime import date
+
 import os
 import re
 
 import requests
 from django.utils import timezone
 
+from textwrap import dedent
 from urllib.parse import urljoin
 
 import structlog
@@ -1214,6 +1217,61 @@ class V3ComponentDemoView(TemplateView):
 
         context["demo_badges_few"] = context["demo_badges"][:3]
 
+        context["demo_posts"] = [
+            {
+                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+                "url": "#",
+                "date": date(2025, 3, 3),
+                "category": "Issues",
+                "tag": "beast",
+                "author": {
+                    "name": "Richard Thomson",
+                    "profile_url": "#",
+                    "role": "Contributor",
+                    "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
+                    "badge_url": f"{badge_img}/badge-first-place.png",
+                },
+            },
+            {
+                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+                "url": "#",
+                "date": date(2025, 3, 3),
+                "category": "Issues",
+                "tag": "beast",
+                "author": {
+                    "name": "Peter Dimov",
+                    "profile_url": "#",
+                    "role": "Maintainer",
+                    "avatar_url": "https://ui-avatars.com/api/?name=Peter+Dimov&size=48",
+                    "badge_url": f"{badge_img}/badge-bronze.png",
+                },
+            },
+            {
+                "title": "Boost.Bind and modern C++: a quick overview",
+                "url": "#",
+                "date": date(2025, 2, 15),
+                "category": "Releases",
+                "tag": "bind",
+                "author": {
+                    "name": "Alex Morgan",
+                    "profile_url": "#",
+                    "role": "Contributor",
+                    "avatar_url": "https://thispersondoesnotexist.com/",
+                },
+            },
+        ]
+        context["demo_post"] = context["demo_posts"][0]
+
+        context["demo_user_card"] = {
+            "username": "vinniefalco",
+            "avatar_url": "https://avatars.githubusercontent.com/u/1503976",
+            "badge_name": "Bug Catcher",
+            "badge_icon_src": f"{badge_img}/badge-gold-medal.png",
+            "member_since": "2008",
+            "role": "C++ Alliance Board Member",
+            "flag_emoji": "🇺🇸",
+        }
+
         context["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/checker.png"
         )
@@ -1347,36 +1405,40 @@ class V3ComponentDemoView(TemplateView):
                     "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
                     "author": {
                         "name": "Name Surname",
+                        "profile_url": "#",
                         "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                         "role": "Contributor",
-                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
                     },
                 },
                 {
                     "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
                     "author": {
                         "name": "Name Surname",
+                        "profile_url": "#",
                         "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                         "role": "Contributor",
-                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
                     },
                 },
                 {
                     "quote": "I use Boost d1aily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
                     "author": {
                         "name": "Name Surname",
+                        "profile_url": "#",
                         "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                         "role": "Contributor",
-                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
                     },
                 },
                 {
                     "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
                     "author": {
                         "name": "Name Surname",
+                        "profile_url": "#",
                         "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                         "role": "Contributor",
-                        "role_badge": "/static/img/v3/demo_page/Badge.svg",
+                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
                     },
                 },
             ],
@@ -1450,6 +1512,64 @@ class V3ComponentDemoView(TemplateView):
                 "status_text": "Not connected",
                 "action_label": "Connect",
                 "action_url": "#",
+            },
+        ]
+        context["markdown_data"] = {
+            "title": "Markdown Block",
+            "markdown": dedent(
+                """
+
+            ######Insert anything Required
+
+            * Could
+            * be
+            * a
+            * list
+
+            Or **bold** and *italics* and whatever it needs to be formatted or [use links](https://www.example.com)!
+            """
+            ),
+            "button_url": "#",
+            "button_label": "Optional CTA Button",
+            "button_style": "primary",
+        }
+
+        context["user_profile_data"] = [
+            {
+                "name": "John Doe",
+                "profile_url": "#",
+                "role": "Author",
+                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-first-place.png",
+                "badge": "",
+                "bio": "",
+            },
+            {
+                "name": "Richard Thomson",
+                "profile_url": "#",
+                "role": "Contributor",
+                "avatar_url": "",
+                "badge_url": "",
+                "badge": "",
+                "bio": "",
+            },
+            {
+                "name": "Richard Thomson",
+                "profile_url": "#",
+                "role": "Contributor",
+                "avatar_url": "",
+                "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-bronze.png",
+                "badge": "",
+                "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
+            },
+            {
+                "name": "Richard Thomson",
+                "profile_url": "#",
+                "role": "Author",
+                "avatar_url": "",
+                "badge_url": "",
+                "badge": "",
+                "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
             },
         ]
 

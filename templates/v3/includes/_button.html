@@ -7,6 +7,7 @@
     - icon_name (optional; if set and icon_html is not, renders includes/icon.html),
     - icon_size (optional; defaults to 16 when using icon_name),
     - icon_viewbox (optional; forwarded to includes/icon.html when using icon_name),
+    - icon_position (optional): "left" or "right", defaults to "left"
     - type (optional): button type (e.g. "button", "submit"); defaults to "button" if url is not provided, otherwise "a"
     - style (optional): Choice between
         - primary (default)
@@ -25,26 +26,53 @@
   <a href="{{ url }}"
      class="{% if style == 'icon-library' %}btn-icon-library {{ extra_classes }}{% else %}btn btn-{{ style|default:"primary" }} {{ extra_classes }}{% endif %}"
      aria-label="{{aria_label|default:label}}">
-    {% if icon_html %}
-      {{ icon_html|safe }}
-    {% elif icon_name %}
-      <span class="btn-icon" aria-hidden>
-        {% include "includes/icon.html" with icon_name=icon_name icon_size=icon_size|default:16 icon_viewbox=icon_viewbox %}
-      </span>
+    {% if icon_position|default:'left' == 'left' %}
+      {% if icon_html %}
+        {{ icon_html|safe }}
+      {% elif icon_name %}
+        <span class="btn-icon" aria-hidden>
+          {% include "includes/icon.html" with icon_name=icon_name icon_size=icon_size|default:16 icon_viewbox=icon_viewbox %}
+        </span>
+      {% endif %}
     {% endif %}
-  {{ label }}</a>
+
+    {{ label }}
+
+    {% if icon_position == 'right' %}
+      {% if icon_html %}
+        {{ icon_html|safe }}
+      {% elif icon_name %}
+        <span class="btn-icon" aria-hidden>
+          {% include "includes/icon.html" with icon_name=icon_name icon_size=icon_size|default:16 icon_viewbox=icon_viewbox %}
+        </span>
+      {% endif %}
+    {% endif %}
+  </a>
 {% else %}
   <button type="{{ type|default:'button' }}"
           aria-label="{{ aria_label|default:label }}"
           class="{% if style == 'icon-library' %}btn-icon-library {{ extra_classes }}{% else %}btn btn-{{ style|default:"primary" }} {{ extra_classes }}{% endif %}"
           aria-label="{{aria_label|default:label}}">
-    {% if icon_html %}
-      {{ icon_html|safe }}
-    {% elif icon_name %}
-      <span class="btn-icon" aria-hidden>
-        {% include "includes/icon.html" with icon_name=icon_name icon_size=icon_size|default:16 icon_viewbox=icon_viewbox %}
-      </span>
+    {% if icon_position|default:'left' == 'left' %}
+      {% if icon_html %}
+        {{ icon_html|safe }}
+      {% elif icon_name %}
+        <span class="btn-icon" aria-hidden>
+          {% include "includes/icon.html" with icon_name=icon_name icon_size=icon_size|default:16 icon_viewbox=icon_viewbox %}
+        </span>
+      {% endif %}
     {% endif %}
+
     {{ label }}
+
+    {% if icon_position == 'right' %}
+      {% if icon_html %}
+        {{ icon_html|safe }}
+      {% elif icon_name %}
+        <span class="btn-icon" aria-hidden>
+          {% include "includes/icon.html" with icon_name=icon_name icon_size=icon_size|default:16 icon_viewbox=icon_viewbox %}
+        </span>
+      {% endif %}
+    {% endif %}
   </button>
 {% endif %}

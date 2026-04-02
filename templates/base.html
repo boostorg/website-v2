@@ -43,12 +43,14 @@
     <script src="{% static 'js/theme_handling.js' %}"></script>
     <script src="{% static 'js/scroll-to-link.js' %}" defer></script>
     <script src="{% static 'js/utils.js' %}"></script>
-    <script src="{% static 'js/boost-gecko/main.D1bdgn0u.js' %}" defer></script>
     {% flag "v3" %}
     <script src="{% static 'js/highlight.js' %}"></script>
     <script src="{% static 'js/highlight-block.js' %}"></script>
     <script src="{% static 'js/code-block.js' %}" defer></script>
+    <script src="{% static 'js/boost-gecko/main.CsWsx5SC.js' %}" defer></script>
     <script src="{% static 'js/install-card.js' %}" defer></script>
+    {% else %}
+    <script src="{% static 'js/boost-gecko/main.D1bdgn0u.js' %}" defer></script>
     {% endflag %}
     {% block extra_head %}
       <link href="{% static 'css/styles.css' %}" rel="stylesheet">
@@ -367,9 +369,9 @@
       {% include "v3/includes/_hero_home.html" with install_card_id="hero-home-2" hero_image_url=hero_image_url %}
       {% include "v3/includes/_hero_home.html" with install_card_id="hero-home-3" hero_image_url="" hero_image_url_light="" hero_image_url_dark="" %}
       <div class="v3-demo-heros-spacer" style="margin-top: 3rem;"></div>
-      {% include "v3/includes/_hero_library.html" with hero_background_image_url="" title="Boost.Beast" description="Portable HTTP, WebSocket, and network operations using only C++11 and Boost.Asio" doc_url="#" source_url="#" slack_url="#" github_url="#" version_tag="C++ 03" added_text="Added in 1.66.0" hero_image_url_light=hero_legacy_image_url_light hero_image_url_dark=hero_legacy_image_url_dark %}
+      {% include "v3/includes/_hero_library.html" with hero_background_image_url="" title="Boost.Beast" description="Portable HTTP, WebSocket, and network operations using only C++11 and Boost.Asio" doc_url="#" source_url="#" slack_url="#" github_url="#" version_tag="C++ 03" added_text="Added in 1.66.0" hero_image_url_light=hero_legacy_image_url_light hero_image_url_dark=hero_legacy_image_url_dark is_flagship_lib=True %}
       <div class="v3-demo-heros-spacer" style="margin-top: 3rem;"></div>
-      {% include "v3/includes/_hero_library.html" with title="Boost.Beast" description="Portable HTTP, WebSocket, and network operations using only C++11 and Boost.Asio" doc_url="#" source_url="#" slack_url="#" github_url="#" version_tag="C++ 03" added_text="Added in 1.66.0" hero_image_url=hero_image_url %}
+      {% include "v3/includes/_hero_library.html" with title="Boost.Beast" description="Portable HTTP, WebSocket, and network operations using only C++11 and Boost.Asio" doc_url="#" source_url="#" slack_url="#" github_url="#" version_tag="C++ 03" added_text="Added in 1.66.0" hero_image_url=hero_image_url is_flagship_lib=True %}
       {% include "v3/includes/_hero_library.html" with title="Boost.Beast" description="Portable HTTP, WebSocket, and network operations using only C++11 and Boost.Asio" doc_url="#" source_url="#" slack_url="#" github_url="#" version_tag="C++ 03" added_text="Added in 1.66.0" hero_image_url="" hero_image_url_light="" hero_image_url_dark="" %}
       {% endif %}
       {% endflag %}
@@ -428,6 +430,7 @@
     {% flag "v3" %}
     <script src="{% static 'js/carousel.js' %}" defer></script>
     <script src="{% static 'js/dialog.js' %}" defer></script>
+    <script src="{% static 'js/search-shortcut.js' %}" defer></script>
     {% endflag %}
 
     {% block footer_js %}{% endblock %}

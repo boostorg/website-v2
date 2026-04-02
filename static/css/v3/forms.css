@@ -39,7 +39,7 @@
 }
 
 .field__control:hover .field__input::placeholder {
-  color: var(--color-text-link-accent, #00778b);
+  color: var(--color-text-primary, #050816);
 }
 
 .field__control:focus-within {

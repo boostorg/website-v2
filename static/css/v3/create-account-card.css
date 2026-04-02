@@ -1,7 +1,6 @@
 .create-account-card {
   box-sizing: border-box;
   max-width: 459px;
-  padding: var(--space-large, 16px) 0;
 }
 
 .create-account-card__body {
