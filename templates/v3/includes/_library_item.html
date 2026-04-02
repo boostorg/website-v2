@@ -8,18 +8,15 @@
     description          (string, required)  - Short library description
     categories           (list, required)    - List of {label, url, variant} dicts for category tags
     cpp_version          (string, required)  - e.g. "C++ 14" — rendered as neutral tag
-    contributor_name     (string, required)  - Contributor display name
-    contributor_role     (string, optional)  - Contributor role, e.g. "Contributor". Omit to hide.
-    contributor_avatar_url (string, optional) - Avatar image URL
-    contributor_badge_url  (string, optional) - Badge icon image URL
+    author               (dict, required)    - Author object for _user_profile.html (name, role, avatar_url, badge_url)
     doc_url              (string, required)  - Documentation link URL
     extra_attrs          (string, optional)  - Extra HTML attributes for analytics
 
   Usage (list):
-    {% include "v3/includes/_library_item.html" with variant="list" library_name="Boost.Geometry" library_url="#" description="A library for solving geometry problems." categories=cats cpp_version="C++ 14" contributor_name="Barend Gehrels" contributor_avatar_url="/img/avatar.png" doc_url="/libs/geometry/doc/" %}
+    {% include "v3/includes/_library_item.html" with variant="list" library_name="Boost.Geometry" library_url="#" description="A library for solving geometry problems." categories=cats cpp_version="C++ 14" author=author doc_url="/libs/geometry/doc/" %}
 
   Usage (card):
-    {% include "v3/includes/_library_item.html" with variant="card" library_name="Boost.Asio" description="Portable networking and low-level I/O." categories=cats cpp_version="C++ 11" contributor_name="Christopher Kohlhoff" doc_url="/libs/asio/doc/" %}
+    {% include "v3/includes/_library_item.html" with variant="card" library_name="Boost.Asio" description="Portable networking and low-level I/O." categories=cats cpp_version="C++ 11" author=author doc_url="/libs/asio/doc/" %}
 {% endcomment %}
 {% if variant == "list" %}<li class="library-item library-item--list" {{ extra_attrs|safe }}>{% else %}<div class="library-item library-item--card" {{ extra_attrs|safe }}>{% endif %}
 
@@ -39,18 +36,7 @@
   </div>
 
   <div class="library-item__contributor">
-    {% include "v3/includes/_avatar_v3.html" with src=contributor_avatar_url name=contributor_name size="xl" %}
-    <div class="library-item__contributor-info">
-      <span class="library-item__contributor-name">{{ contributor_name }}</span>
-      {% if contributor_role %}
-        <span class="library-item__contributor-role">
-          {{ contributor_role }}
-          {% if contributor_badge_url %}
-            <img class="library-item__contributor-badge" src="{{ contributor_badge_url }}" alt="" width="16" height="16" aria-hidden="true" loading="lazy" decoding="async">
-          {% endif %}
-        </span>
-      {% endif %}
-    </div>
+    {% include "v3/includes/_user_profile.html" with author=author %}
   </div>
 
   <div class="library-item__actions">
