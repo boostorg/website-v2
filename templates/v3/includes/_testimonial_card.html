@@ -12,15 +12,15 @@
 {% endcomment %}
 
 {% with carousel_id='_testimonials_cards_carousel' %}
-<div class="card testimonial-card py-large" id="{{carousel_id}}" data-carousel>
+<div class="card testimonial-card py-large" id="{{carousel_id}}" data-carousel role="region" aria-labelledby="{{ carousel_id }}-heading">
   <div class="card__header">
-    <span class="card__title">{{ heading }}</span>
+    <h2 id="{{ carousel_id }}-heading" class="card__title">{{ heading }}</h2>
     {% include 'v3/includes/_carousel_buttons.html' with carousel_id=carousel_id %}
   </div>
   <hr class="card__hr" />
   <div class="cards-carousel__track">
     <section class="testimonial-card__post">
-      <ul class="testimonial-card__list" data-carousel-track>
+      <ul class="testimonial-card__list" data-carousel-track aria-label="Testimonials carousel">
           {% if testimonials %}
             {% for testimonial in testimonials %}
               <li class="testimonial-card__list-item" data-carousel-item>
