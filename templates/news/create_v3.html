@@ -85,7 +85,7 @@
 
           {% include "v3/includes/_field_dropdown.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" %}
 
-          {% include "v3/includes/_field_text.html" with name="publish_at" label="Publish Date" type="datetime-local" value=publish_at_initial %}
+          {% include "v3/includes/_field_datetime.html" with name="publish_at" label="Publish Date" value=publish_at_initial %}
 
           <div class="create-post-page__actions">
             <a href="{% url 'news' %}" class="btn btn-secondary">Cancel</a>
