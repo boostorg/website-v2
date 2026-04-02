@@ -1,6 +1,6 @@
 .learn-page-header {
     width: 100%;
-    max-width: 696px;
+    max-width: calc(50% - .5 * var(--space-card));
     display: flex;
     flex-direction: column;
     gap: var(--space-xl);
@@ -85,10 +85,11 @@
         grid-template-columns: repeat(2, 1fr);
         grid-template-areas:
             "a b"
-            "a c"
-            "e c"
-            "e d"
-            ". d"
+            "a d"
+            "c d"
+            "c d"
+            "c e"
+            "c ."
         ;
     }
 
@@ -98,10 +99,6 @@
 
     .post-cards {
         max-width: 100%;
-    }
-
-    .learn-page-header {
-        max-width: 488px;
     }
 }
 
