@@ -5,6 +5,7 @@
     flex-direction: column;
     gap: var(--space-xl);
     align-items: flex-start;
+    color: var(--text-primary);
 }
 
 .learn-page-header h1 {
