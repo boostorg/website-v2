@@ -21,10 +21,11 @@ from reports.generation import (
     get_download_links,
     determine_versions,
     get_libraries,
-    get_libraries_for_index,
     get_mailinglist_counts,
     get_slack_channels,
     get_slack_stats,
+    split_library_data_by_tier,
+    get_not_updated_libraries_by_tier,
 )
 from versions.models import Version, ReportConfiguration
 from .models import (
@@ -44,7 +45,7 @@ from .tasks import (
     count_commit_contributors_totals,
     get_new_contributors_count,
 )
-from .utils import conditional_batched
+from .utils import batched, conditional_batched
 
 logger = get_logger(__name__)
 
@@ -341,15 +342,29 @@ class CreateReportForm(CreateReportFullForm):
         library_data = get_library_data(library_order, prior_version.pk, version.pk)
         slack_stats = get_slack_stats(prior_version, version)
 
-        library_index_library_data = get_libraries_for_index(
+        # Split updated libraries by tier for ordered rendering
+        flagship_data, core_data, other_updated_data = split_library_data_by_tier(
+            library_data
+        )
+
+        # Core libraries: 2 per page (or 1 if many contributors).
+        # Sort so batchable libraries (few contributors) come first, ensuring
+        # they pair up before solo libraries are emitted.
+        def core_batchable(x):
+            return (
+                x.get("top_contributors_release").count()
+                <= RELEASE_REPORT_AUTHORS_PER_PAGE_THRESHOLD
+            )
+
+        core_data.sort(key=lambda x: (not core_batchable(x), x["library"].name))
+        batched_core_library_data = conditional_batched(core_data, 2, core_batchable)
+        # Other updated libraries: batched into pages of table rows
+        batched_other_updated = list(batched(other_updated_data, 20))
+        # Not-updated libraries grouped by tier
+        not_updated_by_tier = get_not_updated_libraries_by_tier(
             library_data, version, prior_version
         )
-        batched_library_data = conditional_batched(
-            library_data,
-            2,
-            lambda x: x.get("top_contributors_release").count()
-            <= RELEASE_REPORT_AUTHORS_PER_PAGE_THRESHOLD,
-        )
+
         git_graph_data = get_git_graph_data(prior_version, version)
         download = get_download_links(version)
         ### completed task handling ###
@@ -401,10 +416,12 @@ class CreateReportForm(CreateReportFullForm):
             "top_contributors_release_overall": top_contributors,
             "library_data": library_data,
             "new_libraries": new_libraries,
-            "batched_library_data": batched_library_data,
+            "flagship_library_data": flagship_data,
+            "batched_core_library_data": batched_core_library_data,
+            "batched_other_updated": batched_other_updated,
+            "not_updated_by_tier": not_updated_by_tier,
             "top_libraries_for_version": top_libraries_for_version,
             "library_count": libraries.count(),
-            "library_index_libraries": library_index_library_data,
             "added_library_count": new_libraries.count(),
             "removed_library_count": removed_library_count,
             "downloads": download,
@@ -465,15 +482,29 @@ class CreateReportForm(CreateReportFullForm):
         library_data = get_library_data(library_order, prior_version.pk, version.pk)
         slack_stats = get_slack_stats(prior_version, version)
 
-        library_index_library_data = get_libraries_for_index(
+        # Split updated libraries by tier for ordered rendering
+        flagship_data, core_data, other_updated_data = split_library_data_by_tier(
+            library_data
+        )
+
+        # Core libraries: 2 per page (or 1 if many contributors).
+        # Sort so batchable libraries (few contributors) come first, ensuring
+        # they pair up before solo libraries are emitted.
+        def core_batchable(x):
+            return (
+                x.get("top_contributors_release").count()
+                <= RELEASE_REPORT_AUTHORS_PER_PAGE_THRESHOLD
+            )
+
+        core_data.sort(key=lambda x: (not core_batchable(x), x["library"].name))
+        batched_core_library_data = conditional_batched(core_data, 2, core_batchable)
+        # Other updated libraries: batched into pages of table rows
+        batched_other_updated = list(batched(other_updated_data, 20))
+        # Not-updated libraries grouped by tier
+        not_updated_by_tier = get_not_updated_libraries_by_tier(
             library_data, version, prior_version
         )
-        batched_library_data = conditional_batched(
-            library_data,
-            2,
-            lambda x: x.get("top_contributors_release").count()
-            <= RELEASE_REPORT_AUTHORS_PER_PAGE_THRESHOLD,
-        )
+
         git_graph_data = get_git_graph_data(prior_version, version)
         download = get_download_links(version)
 
@@ -506,10 +537,12 @@ class CreateReportForm(CreateReportFullForm):
             "top_contributors_release_overall": top_contributors,
             "library_data": library_data,
             "new_libraries": new_libraries,
-            "batched_library_data": batched_library_data,
+            "flagship_library_data": flagship_data,
+            "batched_core_library_data": batched_core_library_data,
+            "batched_other_updated": batched_other_updated,
+            "not_updated_by_tier": not_updated_by_tier,
             "top_libraries_for_version": top_libraries_for_version,
             "library_count": libraries.count(),
-            "library_index_libraries": library_index_library_data,
             "added_library_count": new_libraries.count(),
             "removed_library_count": removed_library_count,
             "downloads": download,

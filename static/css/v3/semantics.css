@@ -86,7 +86,8 @@
   --color-syntax-comments: var(--color-syntax-strong-grey);
   --color-syntax-green: var(--color-syntax-strong-green);
   --color-syntax-pink: var(--color-syntax-strong-pink);
-  --color-syntax-text: var(--color-primary-black);
+  --color-syntax-cpp-text: var(--color-primary-black);
+  --color-syntax-hljs-text: var(--color-primary-black);
   --color-syntax-yellow: var(--color-syntax-strong-yellow);
 
   /* ============================================

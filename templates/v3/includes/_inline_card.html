@@ -1,0 +1,27 @@
+{% comment %}
+  Inline image and text card. A variation of the basic card which includes a title, space for text, cta button, and image.
+  The image will appear in line with the other content on desktop, but in between the text and button mobile.
+
+  Variables:
+    title - str, required: Text that appears at the top of the card
+    text - str, required: text that appears below the title and above the cta
+    image_url - str, required
+    image_alt - str, required
+    button_url - str, required
+    button_label - str, required
+{% endcomment %}
+
+<div class="basic-card card">
+    <div class="inline-card__row px-large">
+        <div class="inline-card__grid-layout">
+            <span class="card__title inline-card__title">{{ title }}</span>
+            <span class="inline-card__text">{{ text }}</span>
+            <div class="card__cta_section inline-card__button">
+                {% include "v3/includes/_button.html" with style="primary" url=button_url label=button_label only %}
+            </div>
+            <div class="square-card-image inline-card__image">
+                <img src="{{ image_url }}" alt="{{ image_alt }}" />
+            </div>
+        </div>
+    </div>
+</div>

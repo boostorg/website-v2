@@ -425,10 +425,14 @@
 
  .hero-library__title {
    color: var(--color-text-primary);
-  font-size: var(--font-size-3xl);
+   font-size: var(--font-size-2xl);
    line-height: 1;
    letter-spacing: -0.01em;
    font-weight: 400;
+ }
+
+ .hero-library__title--flagship {
+   font-size: var(--font-size-3xl);
  }
 
  /* When hero has background + center image, main title is white (light and dark mode) */
@@ -560,6 +564,10 @@
    }
 
    .hero-library__title {
+    font-size: var(--font-size-4xl);
+   }
+
+   .hero-library__title--flagship {
     font-size: var(--font-size-3xl);
    }
 

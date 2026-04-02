@@ -56,6 +56,12 @@ html.dark .v3-examples-section__example-box {
   align-items: center;
 }
 
+.v3-examples-section__user-profile {
+  display: flex;
+  gap: var(--space-large);
+  flex-direction: column;
+}
+
 /* Avatar block – table presentation */
 
 .v3-examples-section__avatar-item {
@@ -72,7 +78,13 @@ html.dark .v3-examples-section__example-box {
   text-align: center;
 }
 
+.v3-examples-section__avatar-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .v3-examples-section__avatar-table {
+  min-width: 36rem;
   width: 100%;
   border-collapse: collapse;
 }

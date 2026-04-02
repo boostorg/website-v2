@@ -42,7 +42,7 @@ a:hover .content-detail-icon:not(.content-detail-icon--contained) {
 
 .content-detail-icon__icon:hover {
   color: var(--color-icon-primary);
-  cursor: pointer;
+  cursor: default;
 }
 
 .content-detail-icon__icon svg {
