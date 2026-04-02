@@ -15,7 +15,6 @@
 @import "./inputs-page.css";
 @import "./testimonial-card.css";
 @import "./card.css";
-@import "./event-cards.css";
 @import "./content.css";
 @import "./why-boost-cards.css";
 @import "./stats.css";
@@ -42,6 +41,7 @@
 @import "./markdown-card.css";
 @import "./user-profile.css";
 @import "./user-card.css";
+@import "./card-group.css";
 @import "./post-filter.css";
 @import "./library-filter.css";
 @import "./contributors-list.css";

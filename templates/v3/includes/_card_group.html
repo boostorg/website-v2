@@ -1,0 +1,42 @@
+{% comment %}
+  Card Group — base template for themed card group containers.
+  Provides the shared shell (section, heading, CTAs). Consumers extend this
+  template and fill {% block card_list %} with their own item loop.
+
+  Variables:
+    heading             (string, required)  — section heading text
+    heading_url         (string, optional)  — if set, heading becomes a link
+    items               (list, required)    — list of item objects
+    variant             (string, optional)  — "list" (border-separated) or "card" (bg + radius), defaults to "list"
+    theme               (string, optional)  — only applicable to variant "card";
+      - 4 options are "default", "yellow", "green", "teal"
+    layout              (string, optional)  — "vertical" or "horizontal", defaults to "vertical"
+    primary_cta_label   (string, optional)  — primary CTA button label
+    primary_cta_url     (string, optional)  — primary CTA button URL
+    secondary_cta_label (string, optional)  — secondary CTA button label
+    secondary_cta_url   (string, optional)  — secondary CTA button URL
+
+  Usage:
+    Extend this template and override {% block card_list %} to render items.
+    See _event_card.html and _post_card.html for examples.
+{% endcomment %}
+{% if heading or items %}
+  <section class="card-group card-group--{{ variant|default:'list' }}{% if variant == 'card' %} card-group--{{ theme|default:'default' }}{% endif %} card-group--{{ layout|default:'vertical' }}"{% if heading %} aria-labelledby="card-group-{{ heading|slugify }}"{% endif %}>
+    {% if heading %}
+      <h2 class="card-group__heading" id="card-group-{{ heading|slugify }}">{% if heading_url %}<a href="{{ heading_url }}">{{ heading }}</a>{% else %}{{ heading }}{% endif %}</h2>
+    {% endif %}
+    {% block card_list %}
+      {# Consumers will fill this block with their item loop #}
+    {% endblock %}
+    {% if primary_cta_url or secondary_cta_url %}
+      <div class="card__cta_section">
+        {% if primary_cta_url %}
+          {% include "v3/includes/_button.html" with label=primary_cta_label url=primary_cta_url style=theme|default:"primary" only %}
+        {% endif %}
+        {% if secondary_cta_url %}
+          {% include "v3/includes/_button.html" with label=secondary_cta_label url=secondary_cta_url style="secondary" only %}
+        {% endif %}
+      </div>
+    {% endif %}
+  </section>
+{% endif %}
