@@ -1567,6 +1567,30 @@ class V3ComponentDemoView(TemplateView):
             },
         ]
 
+        context["contributor_data"] = 10 * [
+            {
+                "name": "John Doe",
+                "profile_url": "#",
+                "role": "Author",
+                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-first-place.png",
+                "badge": "",
+                "bio": "",
+            }
+        ] + 10 * [
+            {
+                "name": "Richard Thomson",
+                "profile_url": "#",
+                "role": "Contributor",
+                "avatar_url": "",
+                "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-bronze.png",
+                "badge": "",
+                "bio": "",
+            }
+        ]
+
+        context["release_contributor_data"] = context["contributor_data"][:8]
+
         latest = Version.objects.most_recent()
         if latest:
             lv = (
