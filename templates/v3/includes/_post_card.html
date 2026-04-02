@@ -1,0 +1,58 @@
+{% extends "v3/includes/_card_group.html" %}
+{% comment %}
+  Post Card — extends _card_group.html to render post items.
+
+  Variables (passed to _card_group.html):
+    heading             (string, optional)  — section heading text
+    heading_url         (string, optional)  — if set, heading becomes a link
+    items               (list, optional)    — list of post objects with:
+      - title           (string, optional)  — post title
+      - url             (string, optional)  — link URL
+      - date            (date/string, optional) — publish date
+      - category        (string, optional)  — e.g. "Issues", "Releases"
+      - tag             (string, optional)  — e.g. "beast"
+      - author          (object, optional)  — passed to _user_profile.html (see that template for fields)
+    variant             (string, optional)  — "list" or "card", defaults to "list"
+    theme               (string, optional)  — only for variant "card": "default", "grey", "yellow", "green", "teal"
+    layout              (string, optional)  — "vertical" or "horizontal", defaults to "vertical"
+    primary_cta_label   (string, optional)  — primary CTA button label
+    primary_cta_url     (string, optional)  — primary CTA button URL
+    secondary_cta_label (string, optional)  — secondary CTA button label
+    secondary_cta_url   (string, optional)  — secondary CTA button URL
+
+  Usage:
+    {% include "v3/includes/_post_card.html" with heading="Posts" items=posts variant="card" theme="teal" primary_cta_label="View all" primary_cta_url="/news/" %}
+{% endcomment %}
+{% block card_list %}
+  {% if items %}
+    <ul class="card-group__list">
+      {% for item in items %}
+        <li class="card-group__item">
+          {% if item.title or item.url or item.date or item.category or item.tag %}
+            <article class="post-card">
+                <div class="post-card__title-block">
+                  {% if item.title or item.url %}
+                    {% if item.url %}
+                      <a href="{{ item.url }}" class="post-card__title">{{ item.title }}</a>
+                    {% else %}
+                      <h3 class="post-card__title">{{ item.title }}</h3>
+                    {% endif %}
+                  {% endif %}
+                  {% if item.date or item.category or item.tag %}
+                    <div class="post-card__meta">
+                      {% if item.date %}<time datetime="{{ item.date|date:'c' }}">{{ item.date|date:"d/m/Y" }}</time>{% endif %}
+                      {% if item.category %}<span>{{ item.category }}</span>{% endif %}
+                      {% if item.tag %}<span>#{{ item.tag }}</span>{% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% if item.author and item.author.name %}
+                {% include "v3/includes/_user_profile.html" with author=item.author %}
+              {% endif %}
+            </article>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}

@@ -189,38 +189,6 @@
     </div>
   {% endwith %}
 
-  {% with section_title="Post cards list" %}
-    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-      <h3>{{ section_title }}</h3>
-      <div class="v3-examples-section__example-box">
-        <section class="post-cards post-cards--default post-cards--neutral post-cards--vertical">
-          <h2 class="post-cards__heading">
-            <a href="#" class="post-cards__heading-link">Posts from the Boost community</a>
-          </h2>
-          <ul class="post-cards__list">
-            {% for post in demo_posts %}
-            <li class="post-cards__item">
-              {% include "v3/includes/_post_card_v3.html" with post=post %}
-            </li>
-            {% endfor %}
-          </ul>
-          <div class="card__cta_section">
-            {% include "v3/includes/_button.html" with label="View all posts" url="#" %}
-          </div>
-        </section>
-      </div>
-    </div>
-  {% endwith %}
-
-  {% with section_title="Post Card" %}
-    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-      <h3>{{ section_title }}</h3>
-      <div class="v3-examples-section__example-box">
-        {% include "v3/includes/_post_card_v3.html" with post=demo_post %}
-      </div>
-    </div>
-  {% endwith %}
-
   {% with section_title="Search Card" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
@@ -560,10 +528,54 @@
     </div>
   {% endwith %}
 
-  {% with section_title="Event cards" %}
+  {% with section_title="Post Cards — list (this only have 1 theme)" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
-      <div class="v3-examples-section__example-box">{% include "v3/includes/_event_cards.html" %}</div>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_post_card.html" with heading="Posts from the Boost community" items=demo_posts variant="list" primary_cta_label="View all posts" primary_cta_url="#" %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Post Cards — card variant with different themes - default, teal, yellow, green" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box v3-examples-section-horizontal-container">
+        {% include "v3/includes/_post_card.html" with heading="Posts from the Boost community" items=demo_posts variant="card" primary_cta_label="View all posts" primary_cta_url="#" %}
+        {% include "v3/includes/_post_card.html" with heading="Posts from the Boost community" items=demo_posts variant="card" theme="teal" primary_cta_label="View all posts" primary_cta_url="#" %}
+        {% include "v3/includes/_post_card.html" with heading="Posts from the Boost community" items=demo_posts variant="card" theme="yellow" primary_cta_label="View all posts" primary_cta_url="#" %}
+        {% include "v3/includes/_post_card.html" with heading="Posts from the Boost community" items=demo_posts variant="card" theme="green" primary_cta_label="View all posts" primary_cta_url="#" %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Post Cards — card, teal, horizontal" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_post_card.html" with heading="Posts from the Boost community" items=demo_posts variant="card" theme="teal" layout="horizontal" primary_cta_label="View all posts" primary_cta_url="#" %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Event Cards — list (this only have 1 theme)" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=demo_events_with_links variant="list" primary_cta_label="Download latest release" primary_cta_url="#" secondary_cta_label="View events calendar" secondary_cta_url="#" %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Event Cards — card variants with different themes" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box v3-examples-section-horizontal-container">
+        {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=demo_events_with_links variant="card" primary_cta_label="View events" primary_cta_url="#" secondary_cta_label="View calendar" secondary_cta_url="#" %}
+        {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=demo_events_with_links variant="card" theme="yellow" primary_cta_label="View events" primary_cta_url="#" secondary_cta_label="View calendar" secondary_cta_url="#" %}
+        {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=demo_events_with_links variant="card" theme="green" primary_cta_label="View events" primary_cta_url="#" secondary_cta_label="View calendar" secondary_cta_url="#" %}
+        {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=demo_events_with_links variant="card" theme="teal" primary_cta_label="View events" primary_cta_url="#" secondary_cta_label="View calendar" secondary_cta_url="#" %}
+      </div>
     </div>
   {% endwith %}
 
@@ -575,58 +587,6 @@
         {% include "v3/includes/_achievement_card.html" %}
         <h4 class="py-large">Card with Achievements</h4>
         {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements primary_button_url="https://www.example.com" %}
-      </div>
-    </div>
-  {% endwith %}
-
-  {% with section_title="Content event list" %}
-    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-      <h3>{{ section_title }}</h3>
-      <div class="v3-examples-section__example-box">
-        <section class="post-cards post-cards--content post-cards--neutral post-cards--content-list"
-                 aria-labelledby="content-event-releases-links-list">
-          <h2 id="content-event-releases-links-list" class="post-cards__heading">
-            <a href="#" class="post-cards__heading-link">Releases</a>
-          </h2>
-          <ul class="post-cards__list">
-            <li class="post-cards__item">
-              {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" card_url="#event-0" card_aria_label="Boost 1.90.0 closed for major changes" event_card_wrapper=False %}
-            </li>
-            <li class="post-cards__item">
-              {% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15. Topics include modern C++, Boost libraries, and tooling." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=False %}
-            </li>
-            <li class="post-cards__item">
-              {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries. See release notes for details." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=False %}
-            </li>
-          </ul>
-          <div class="card__cta_section">{% include "v3/includes/_button.html" with label="View all" url="#" %}</div>
-        </section>
-      </div>
-    </div>
-  {% endwith %}
-
-  {% with section_title="Content event card" %}
-    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-      <h3>{{ section_title }}</h3>
-      <div class="v3-examples-section__example-box">
-        <section class="post-cards post-cards--content post-cards--neutral post-cards--content-card"
-                 aria-labelledby="content-event-releases-links-card">
-          <h2 id="content-event-releases-links-card" class="post-cards__heading">
-            <a href="#" class="post-cards__heading-link">Releases</a>
-          </h2>
-          <ul class="post-cards__list">
-            <li class="post-cards__item">
-              {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.90.0 closed for major changes" description="Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review." date="29/10/25" datetime="29/10/25" card_url="#event-0" card_aria_label="Boost 1.90.0 closed for major changes" event_card_wrapper=True %}
-            </li>
-            <li class="post-cards__item">
-              {% include "v3/includes/_content_event_card_item.html" with title="C++ Now 2025 call for submissions" description="C++ Now conference is accepting talk proposals until March 15. Topics include modern C++, Boost libraries, and tooling." date="12/02/25" datetime="12/02/25" card_url="#event-1" card_aria_label="C++ Now 2025 call for submissions" event_card_wrapper=True %}
-            </li>
-            <li class="post-cards__item">
-              {% include "v3/includes/_content_event_card_item.html" with title="Boost 1.89.0 released" description="Boost 1.89.0 is available with updates to Asio, Beast, and several other libraries. See release notes for details." date="15/01/25" datetime="15/01/25" card_url="#event-2" card_aria_label="Boost 1.89.0 released" event_card_wrapper=True %}
-            </li>
-          </ul>
-          <div class="card__cta_section">{% include "v3/includes/_button.html" with label="View all" url="#" %}</div>
-        </section>
       </div>
     </div>
   {% endwith %}

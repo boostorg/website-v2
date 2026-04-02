@@ -1,0 +1,50 @@
+{% extends "v3/includes/_card_group.html" %}
+{% comment %}
+  Event Card — extends _card_group.html to render event items.
+
+  Variables (passed to _card_group.html):
+    heading             (string, optional)  — section heading text
+    heading_url         (string, optional)  — if set, heading becomes a link
+    items               (list, optional)    — list of event objects with:
+      - title           (string, required)  — event title
+      - description     (string, required)  — event description
+      - date            (string, required)  — human-readable date (e.g. "29/10/25")
+      - datetime        (string, optional)  — value for <time datetime="...">
+      - card_url        (string, optional)  — if set, the card is wrapped in a link
+      - card_aria_label (string, optional)  — aria-label for the link; defaults to title
+    variant             (string, optional)  — "list" or "card", defaults to "list"
+    theme               (string, optional)  — only for variant "card": "default", "grey", "yellow", "green", "teal"
+    layout              (string, optional)  — "vertical" or "horizontal", defaults to "vertical"
+    primary_cta_label   (string, optional)  — primary CTA button label
+    primary_cta_url     (string, optional)  — primary CTA button URL
+    secondary_cta_label (string, optional)  — secondary CTA button label
+    secondary_cta_url   (string, optional)  — secondary CTA button URL
+
+  Usage:
+    {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=events variant="card" theme="teal" primary_cta_label="View events" primary_cta_url="/events/" %}
+{% endcomment %}
+{% block card_list %}
+{% if items %}
+  <ul class="card-group__list">
+    {% for item in items %}
+      <li class="card-group__item">
+        {% if item.card_url %}
+          <a href="{{ item.card_url }}"
+              class="card-group__item-link"
+              aria-label="{{ item.card_aria_label|default:item.title }}">
+          {% endif %}
+          <article class="content-card content-card--event">
+              <h3 class="content-card__title">{{ item.title }}</h3>
+              <p class="content-card__description">{{ item.description }}</p>
+              {% if item.datetime %}
+                  <time class="content-card__date" datetime="{{ item.datetime }}">{{ item.date }}</time>
+              {% else %}
+                  <span class="content-card__date">{{ item.date }}</span>
+              {% endif %}
+          </article>
+          {% if item.card_url %}</a>{% endif %}
+          </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endblock %}
