@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% load waffle_tags %}
+{% load static %}
+
+{% block title %}Create Post{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  {% flag "v3" %}
+    <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
+  {% endflag %}
+{% endblock %}
+
+{% block content %}
+  <div class="create-post-section">
+      <noscript>
+        <style>
+          .create-post-page__content-field,
+          .create-post-page__link-fields { display: none !important; }
+          .create-post-page__card:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__content-field,
+          .create-post-page__card:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__content-field { display: flex !important; }
+          .create-post-page__card:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__link-fields,
+          .create-post-page__card:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__link-fields { display: flex !important; flex-direction: column; gap: var(--space-xlarge, 24px); }
+        </style>
+      </noscript>
+      <div class="create-post-wrapper" x-data="createPostForm()" @field-change="handleFieldChange($event)">
+      <form
+        class="create-post-page"
+        enctype="multipart/form-data"
+        method="post"
+        :novalidate="true"
+        action="{{ blogpost_create_url }}"
+        :action="formAction"
+        @submit="prepareSubmit"
+        data-create-post-form
+      >
+        {% csrf_token %}
+
+        <div class="create-post-page__header">
+          <h1 class="create-post-page__title">Create Post</h1>
+          <p class="create-post-page__subtitle">
+            Posts will be reviewed by the moderation team before they appear in the feed.
+          </p>
+        </div>
+
+        <div class="create-post-page__card">
+          {% comment %} Post Type dropdown: Blog, News, Video, Link. Placeholder "Select Post Type". Controls conditional fields. {% endcomment %}
+          <div>
+            {% include "v3/includes/_field_dropdown.html" with name="post_type" label="Post type *" options=post_type_options placeholder="Select Post Type" required=True selected=post_type_selected %}
+            <p class="field__error" id="post-type-error" role="alert" x-show="errors.post_type" x-text="errors.post_type" x-cloak></p>
+          </div>
+
+          <div class="field" :class="{ 'field--error': errors.title }">
+            <label class="field__label" for="field-title">Post title *</label>
+            <div class="field__control">
+              <input class="field__input" type="text" id="field-title" name="title" placeholder="Title" required
+                     value="{{ form.title.value|default_if_none:"" }}"
+                     :aria-invalid="!!errors.title"
+                     :aria-describedby="errors.title ? 'field-title-error' : null">
+
+            </div>
+            <p class="field__error" id="field-title-error" role="alert" x-show="errors.title" x-text="errors.title" x-cloak aria-live="polite"></p>
+          </div>
+
+          {% comment %} Link (Video, Link): Link (required) and Description (optional). {% endcomment %}
+          <div class="create-post-page__link-fields" x-show="isLinkType" x-cloak>
+            <div class="field" :class="{ 'field--error': errors.external_url }">
+              <label class="field__label" for="field-external_url">Link *</label>
+              <div class="field__control">
+                <input class="field__input" type="url" id="field-external_url" name="external_url" placeholder="https://..."
+                       value="{{ form.external_url.value|default_if_none:"" }}"
+                       :aria-invalid="!!errors.external_url"
+                       :aria-describedby="errors.external_url ? 'field-external_url-error' : null">
+              </div>
+              <p class="field__error" id="field-external_url-error" role="alert" x-show="errors.external_url" x-text="errors.external_url" x-cloak aria-live="polite"></p>
+            </div>
+          </div>
+
+          {% comment %} Write Up (Blog, News): Content required. WYSIWYG editor (Markdown). {% endcomment %}
+          <div class="field create-post-page__content-field" :class="{ 'field--error': errors.content }">
+            <label class="field__label" for="field-content">Content *</label>
+            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=form.content.value %}
+            <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
+            <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
+          </div>
+
+          {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no longer than 1MB" extra_class="field--file-narrow create-post-page__field-image" %}
+
+          {% include "v3/includes/_field_dropdown.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" %}
+
+          {% include "v3/includes/_field_datetime.html" with name="publish_at" label="Publish Date" value=form.publish_at.value|default:publish_at_initial %}
+
+          <div class="create-post-page__actions">
+            <a href="{% url 'news' %}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+    <script>
+  document.addEventListener('alpine:init', () => {
+    const createUrls = {
+      blog: '{{ blogpost_create_url }}',
+      news: '{{ news_create_url }}',
+      link: '{{ link_create_url }}',
+      video: '{{ video_create_url }}'
+    };
+    window.createPostForm = function() {
+      return {
+        postType: '{{ post_type_selected|default:""|escapejs }}',
+        errors: { post_type: '', title: '{{ form.title.errors.0|default:""|escapejs }}', content: '{{ form.content.errors.0|default:""|escapejs }}', external_url: '{{ form.external_url.errors.0|default:""|escapejs }}', image: '{{ form.image.errors.0|default:""|escapejs }}' },
+        get isWriteUp() { return this.postType === 'blog' || this.postType === 'news'; },
+        get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
+        get formAction() { return createUrls[this.postType] || ''; },
+        handleFieldChange(e) {
+          const { name, value } = e.detail;
+          if (name === 'post_type') this.setPostType(value);
+        },
+        setPostType(value) {
+          this.postType = value;
+          this.errors.post_type = '';
+        },
+        prepareSubmit(e) {
+          this.errors = { post_type: '', title: '', content: '', external_url: '', image: '' };
+          const form = e.target;
+          const titleEl = form.querySelector('input[name="title"]');
+          const contentEl = form.querySelector('textarea[name="content"]');
+          const urlEl = form.querySelector('input[name="external_url"]');
+          const imageEl = form.querySelector('input[name="image"]');
+
+          if (!this.postType) {
+            this.errors.post_type = 'Please select a post type.';
+          }
+          if (!titleEl?.value?.trim()) {
+            this.errors.title = 'Post title is required.';
+          }
+          if (this.isWriteUp) {
+            if (!contentEl?.value?.trim()) {
+              this.errors.content = 'Content is required.';
+            }
+          } else {
+            if (!urlEl?.value?.trim()) {
+              this.errors.external_url = 'Link is required.';
+            } else {
+              try { new URL(urlEl.value); } catch (_) {
+                this.errors.external_url = 'Please enter a valid URL.';
+              }
+            }
+          }
+          if (imageEl?.files?.length) {
+            const file = imageEl.files[0];
+            const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+              this.errors.image = 'Please choose a PNG or JPEG image.';
+            } else {
+              const maxSize = 1024 * 1024;
+              if (file.size > maxSize) {
+                this.errors.image = 'Image must be 1MB or smaller.';
+              }
+            }
+          }
+
+          const hasErrors = Object.values(this.errors).some(function(v) { return v !== ''; });
+          if (hasErrors) {
+            e.preventDefault();
+            const firstId = this.errors.post_type ? 'field-post_type-label' :
+              this.errors.title ? 'field-title' : this.errors.content ? 'field-content' :
+              this.errors.external_url ? 'field-external_url' : this.errors.image ? 'field-image' : null;
+            const firstEl = firstId ? (this.$el.querySelector('#' + firstId) || form.querySelector('[name="' + firstId.replace('field-', '') + '"]')) : null;
+            if (firstEl) firstEl.focus();
+            return;
+          }
+
+          form.querySelector('input[name="post_type"]')?.setAttribute('disabled', 'disabled');
+          if (this.isWriteUp) {
+            form.querySelector('input[name="external_url"]')?.setAttribute('disabled', 'disabled');
+            form.querySelector('textarea[name="content_link"]')?.setAttribute('disabled', 'disabled');
+          } else {
+            form.querySelector('textarea[name="content"]')?.setAttribute('disabled', 'disabled');
+          }
+        }
+      };
+    };
+  });
+  </script>
+{% endblock %}

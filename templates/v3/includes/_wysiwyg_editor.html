@@ -12,14 +12,15 @@
     {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_content" textarea_name="content" %}
     {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_body" textarea_name="body" label="Body" %}
 {% endcomment %}
-<div class="wysiwyg-v3" data-wysiwyg="v3">
+<div class="wysiwyg-v3" data-wysiwyg="v3" x-data="{ jsReady: false }" x-init="jsReady = true">
   <textarea
     id="{{ textarea_id }}"
     name="{{ textarea_name }}"
     class="w-full min-h-[200px]"
     placeholder=""
-    aria-hidden="true"
-  ></textarea>
-  <div class="wysiwyg-editor__toolbar"></div>
-  <div class="wysiwyg-editor__body"></div>
+    x-show="!jsReady"
+    :aria-hidden="true"
+  >{{ value|default_if_none:"" }}</textarea>
+  <div class="wysiwyg-editor__toolbar" x-show="jsReady" x-cloak></div>
+  <div class="wysiwyg-editor__body" x-show="jsReady" x-cloak></div>
 </div>

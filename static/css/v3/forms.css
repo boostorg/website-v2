@@ -1,3 +1,10 @@
+/**
+ * Foundations – Inputs
+ * Matches Django v3 form structure: field, dropdown, combo, multiselect, checkbox, textarea, file.
+ * BEM: .field, .field__*, .dropdown, .dropdown__*, .combo__*, .checkbox, .checkbox__*, .multiselect__*
+ * Uses design tokens with fallbacks for compatibility.
+ */
+
 .field {
   display: flex;
   flex-direction: column;
@@ -82,6 +89,15 @@
   color: var(--color-icon-secondary, #6b6d78);
 }
 
+.field__control:hover .field__icon,
+.field__control--hover .field__icon {
+  color: var(--color-text-link-accent, #00778B);
+}
+
+.field__control:focus-within .field__icon {
+  color: var(--color-text-link-accent, #00778B);
+}
+
 .field__submit {
   display: flex;
   align-items: center;
@@ -159,6 +175,20 @@
   color: var(--color-text-error, #d32f2f);
 }
 
+.field--error .field__control .field__icon {
+  color: var(--color-text-error, #d32f2f);
+}
+
+/* Wrapper error state (e.g. for conditional fields with client-side validation) */
+.field-wrapper--error .field .field__label {
+  color: var(--color-text-error, #d32f2f);
+}
+
+.field-wrapper--error .field .field__control {
+  background-color: var(--color-surface-error-weak, #fdf2f2);
+  border-color: var(--color-stroke-error, #D53F3F33);
+}
+
 .field__control--disabled,
 .field__control--disabled:hover,
 .field__control--disabled:focus-within {
@@ -170,6 +200,28 @@
   cursor: not-allowed;
 }
 
+/* ========== Datetime-local: hide native icon, full-area click ========== */
+.field__control--datetime {
+  position: relative;
+  cursor: pointer;
+}
+
+.field__control--datetime .field__input {
+  cursor: pointer;
+}
+
+.field__input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+
+/* ========== Dropdown ========== */
 .dropdown {
   position: relative;
 }
@@ -228,6 +280,12 @@
   transition: transform 0.15s ease;
 }
 
+.dropdown__chevron-icon {
+  width: 100%;
+  height: 100%;
+  flex-shrink: 0;
+}
+
 .dropdown--open .dropdown__chevron {
   transform: rotate(180deg);
 }
@@ -237,6 +295,16 @@
   border-color: var(--color-stroke-weak);
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+}
+
+/* Combo: trigger when open shows search row; same active look */
+.dropdown--combo.dropdown--open .dropdown__trigger,
+.dropdown__trigger--active {
+  background-color: var(--color-surface-mid, #f7f7f8);
+  border-color: var(--color-stroke-strong, #05081640);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: var(--color-stroke-weak, #0508161A);
 }
 
 .dropdown__panel {
@@ -254,6 +322,12 @@
   box-shadow: 0 1px 4px rgba(5, 8, 22, 0.04);
   z-index: 50;
   overflow: hidden;
+}
+
+/* Ensure open panels overlay (never push layout) */
+.dropdown .dropdown__panel {
+  position: absolute;
+  z-index: 1000;
 }
 
 .dropdown__list {
@@ -285,6 +359,11 @@
   color: var(--color-text-secondary);
   cursor: pointer;
   transition: background-color 0.1s ease;
+  border-bottom: 1px solid var(--color-stroke-subtle, #05081614);
+}
+
+.dropdown__item:last-child {
+  border-bottom: none;
 }
 
 .dropdown__item:not(:first-of-type) {
@@ -315,10 +394,19 @@
   border-color: var(--color-stroke-error, #d53f3f33);
 }
 
+.field--error .dropdown__trigger .dropdown__chevron-icon {
+  color: var(--color-text-error, #d32f2f);
+}
+
 .field--error .dropdown__trigger:hover {
   border-color: var(--color-stroke-error, #d53f3f33);
 }
 
+.field--error .combo__search-icon {
+  color: var(--color-text-error, #d32f2f);
+}
+
+/* ========== Combo (search + dropdown) ========== */
 .combo__search-row {
   display: flex;
   align-items: center;
@@ -344,6 +432,10 @@
   height: 16px;
   flex-shrink: 0;
   color: var(--color-icon-secondary, #6b6d78);
+}
+
+.dropdown__trigger:focus-within .combo__search-icon {
+  color: var(--color-text-link-accent);
 }
 
 .combo__search-input {
@@ -381,6 +473,7 @@
   color: var(--color-text-tertiary, #6b6d78);
 }
 
+/* ========== Multiselect ========== */
 .multiselect__item {
   display: flex;
   align-items: center;
@@ -440,6 +533,7 @@
   white-space: nowrap;
 }
 
+/* ========== Checkbox ========== */
 .checkbox {
   display: inline-flex;
   align-items: center;
@@ -507,4 +601,123 @@
 .checkbox--disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* ========== Textarea variant ========== */
+.field--textarea .field__control--textarea {
+  min-height: 120px;
+  height: auto;
+  align-items: flex-start;
+  padding: var(--space-medium, 12px) var(--space-large, 16px);
+}
+
+.field__input--textarea {
+  resize: vertical;
+  min-height: 96px;
+  padding: 0;
+  line-height: 1.4;
+}
+
+/* ========== File input variant ========== */
+.field__control--file {
+  cursor: pointer;
+  position: relative;
+}
+
+.field__file-display {
+  text-align: center;
+  position: relative;
+  z-index: 0;
+  pointer-events: none;
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  font-weight: var(--font-weight-regular, 400);
+  line-height: var(--line-height-relaxed, 1.24);
+}
+
+.field__file-placeholder {
+  color: var(--color-text-secondary, #6b6d78);
+}
+
+.field__file-name {
+  color: var(--color-text-primary, #050816);
+}
+
+.field__image-preview-wrapper {
+  margin-top: var(--space-medium, 12px);
+  cursor: pointer;
+}
+
+.field__image-preview {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+.field__input--file {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.field__input--file::-webkit-file-upload-button,
+.field__input--file::file-selector-button {
+  display: none;
+}
+
+.field--file-narrow .field__control--file {
+  align-self: flex-start;
+  width: auto;
+  min-width: 180px;
+  max-width: 280px;
+}
+.field--file-narrow .field__input--file {
+  flex: 0 1 auto;
+}
+
+/* ========== No-JS fallback: native <select> ========== */
+.field__select {
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--space-large, 16px);
+  background-color: var(--color-surface-weak, #fff);
+  border: 1px solid var(--color-stroke-weak, #0508161a);
+  border-radius: var(--border-radius-xl, 12px);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small, 14px);
+  font-weight: var(--font-weight-regular, 400);
+  color: var(--color-text-primary, #050816);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.field__select:hover {
+  border-color: var(--color-stroke-mid, #0508162b);
+}
+
+.field__select:focus {
+  background-color: var(--color-surface-mid, #f7f7f8);
+  border-color: var(--color-stroke-strong, #05081640);
+  outline: none;
+}
+
+.field--error .field__select {
+  background-color: var(--color-surface-error-weak, #fdf2f2);
+  border-color: var(--color-stroke-error, #d53f3f33);
 }

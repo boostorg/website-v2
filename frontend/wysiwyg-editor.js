@@ -880,20 +880,22 @@ export const initWysiwyg = (textareaId) => {
   textarea.tabIndex = -1;
 
   const form = wrapper.closest("form");
+  const syncTextarea = () => {
+    if (state.mode === "markdown") {
+      textarea.value = state.markdownText;
+    } else {
+      textarea.value = turndown.turndown(editor.getHTML());
+    }
+  };
   if (form) {
-    form.addEventListener("submit", () => {
-      if (state.mode === "markdown") {
-        textarea.value = state.markdownText;
-      } else {
-        textarea.value = turndown.turndown(editor.getHTML());
-      }
-    });
+    form.addEventListener("submit", syncTextarea, true);
   }
 
   editorInstances.set(textareaId, {
     editor,
     cleanup: () => {
       document.removeEventListener("click", handleDocClick);
+      if (form) form.removeEventListener("submit", syncTextarea, true);
     },
   });
   return editor;

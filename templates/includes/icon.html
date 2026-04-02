@@ -1,8 +1,8 @@
 {% comment %}
-  This is TBD!!
   Icon component – Pixel Art Icons (pixelarticons, same as @iconify-icons/pixelarticons).
   Usage: {% include "includes/icon.html" with icon_name="search" icon_class="header__icon icon-brand-accent" %}
   icon_name: required, e.g. "search", "chevron-down"
+    - "github" / "google" / "alert": auth and alert icons (own viewBox)
   icon_class: optional, default "icon" (for size/color utilities)
   icon_size: optional, default 24 (viewBox is 24 for all)
   icon_viewbox: optional, default "0 0 24 24" (use "0 0 16 16" for 16px icons)
@@ -34,7 +34,9 @@
      aria-hidden="true"
      {% if x_show %}x-show="{{ x_show }}"{% endif %}
      {% if x_cloak %}x-cloak{% endif %}>
-  {% if icon_name == "search" %}
+  {% if icon_name == "calendar" %}
+    <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+  {% elif icon_name == "search" %}
     <path d="M6 2h8v2H6V2zM4 6V4h2v2H4zm0 8H2V6h2v8zm2 2H4v-2h2v2zm8 0v2H6v-2h8zm2-2h-2v2h2v2h2v2h2v2h2v-2h-2v-2h-2v-2h-2v-2zm0-8h2v8h-2V6zm0 0V4h-2v2h2z" />
   {% elif icon_name == "chevron-down" %}
     <path d="M7 8H5v2h2v2h2v2h2v2h2v-2h2v-2h2v-2h2V8h-2v2h-2v2h-2v2h-2v-2H9v-2H7V8z" />
