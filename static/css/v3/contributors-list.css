@@ -1,4 +1,4 @@
-.contributors-list h2, h3, h4, h5, h6 {
+.contributors-list :is(h2, h3, h4, h5, h6) {
     margin: 0;
 }
 
@@ -12,8 +12,8 @@
 
 .contributors-list.all-contributors .card__column {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--space-medium)
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-medium);
 }
 
 @media (max-width: 768px) {
