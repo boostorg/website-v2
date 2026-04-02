@@ -1256,6 +1256,16 @@ class V3ComponentDemoView(TemplateView):
         ]
         context["demo_post"] = context["demo_posts"][0]
 
+        context["demo_user_card"] = {
+            "username": "vinniefalco",
+            "avatar_url": "https://avatars.githubusercontent.com/u/1503976",
+            "badge_name": "Bug Catcher",
+            "badge_icon_src": f"{badge_img}/badge-gold-medal.png",
+            "member_since": "2008",
+            "role": "C++ Alliance Board Member",
+            "flag_emoji": "🇺🇸",
+        }
+
         context["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/checker.png"
         )
