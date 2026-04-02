@@ -47,7 +47,7 @@
                   {% endif %}
                 </div>
               {% if item.author and item.author.name %}
-                {% include "v3/includes/_user_profile.html" with author=item.author %}
+                {% include "v3/includes/_user_profile.html" with author=item.author only %}
               {% endif %}
             </article>
           {% endif %}

@@ -1,0 +1,48 @@
+/*
+  Event Card
+  Individual event card item styles used within card-group containers.
+*/
+
+.event-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-medium);
+  padding: var(--space-card);
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.event-card__title {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.16px;
+  color: var(--color-text-primary);
+}
+
+.event-card__description {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.12px;
+  color: var(--color-text-secondary);
+}
+
+.event-card__date {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.12px;
+  color: var(--color-text-secondary);
+}

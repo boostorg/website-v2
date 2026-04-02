@@ -71,7 +71,7 @@
   white-space: break-spaces !important;
 }
 
-/* CTA button in card – same look as .post-cards__cta .btn-secondary-grey */
+/* CTA button in card */
 .code-block-card .btn {
   flex: 1 1 0;
   min-width: 128px;
