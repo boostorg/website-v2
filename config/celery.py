@@ -118,3 +118,15 @@ def setup_periodic_tasks(sender, **kwargs):
         crontab(day_of_week="sun", hour=2, minute=0),
         app.signature("asciidoctor_sandbox.tasks.cleanup_old_sandbox_documents"),
     )
+
+    # Update user badges available. Executes daily at 7:35 AM, after the github updates.
+    sender.add_periodic_task(
+        crontab(hour=7, minute=35),
+        app.signature("badges.tasks.update_badges"),
+    )
+
+    # # Award user badges to users. Executes daily at 7:45 AM, after the github updates.
+    # sender.add_periodic_task(
+    #     crontab(hour=7, minute=45),
+    #     app.signature("badges.tasks.award_badges"),
+    # )
