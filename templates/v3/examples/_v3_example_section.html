@@ -243,6 +243,30 @@
     {% endwith %}
   {% endif %}
 
+  {% with section_title="Library Item (List)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
+    <div class="v3-examples-section__example-box">
+      <ul class="library-item-list">
+        {% for item in demo_library_items %}
+          {% include "v3/includes/_library_item.html" with variant="list" library_name=item.library_name library_url=item.library_url description=item.description categories=item.categories cpp_version=item.cpp_version author=item.author doc_url=item.doc_url %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endwith %}
+
+  {% with section_title="Library Item (Card)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
+    <div class="v3-examples-section__example-box" style="display: flex; gap: 16px; flex-wrap: wrap;">
+      {% for item in demo_library_items %}
+        {% include "v3/includes/_library_item.html" with variant="card" library_name=item.library_name library_url=item.library_url description=item.description categories=item.categories cpp_version=item.cpp_version author=item.author doc_url=item.doc_url %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endwith %}
+
   {% if example_library_choices %}
     {% with section_title="Commits per release" %}
       <div class="v3-examples-section__block" id="{{ section_title|slugify }}">

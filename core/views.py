@@ -1622,4 +1622,58 @@ class V3ComponentDemoView(TemplateView):
         else:
             context["example_library_not_found"] = library_slug
             context["example_library_slug"] = library_slug
+
+        demo_library_items = []
+        demo_libs_qs = Library.objects.filter(
+            slug__in=["accumulators", "filesystem", "asio", "geometry", "beast"]
+        ).prefetch_related("categories", "authors")
+        for lib in demo_libs_qs:
+            lv = (
+                LibraryVersion.objects.filter(version=latest, library=lib).first()
+                if latest
+                else None
+            )
+            cats = [
+                {"label": cat.name, "url": "#", "variant": "neutral"}
+                for cat in lib.categories.all()[:3]
+            ]
+            author = lib.authors.first()
+            demo_library_items.append(
+                {
+                    "library_name": lib.display_name_short,
+                    "library_url": reverse(
+                        "library-detail",
+                        kwargs={
+                            "version_slug": "latest",
+                            "library_slug": lib.slug,
+                        },
+                    ),
+                    "description": lib.description or "",
+                    "categories": cats,
+                    "cpp_version": (
+                        lv.get_cpp_standard_minimum_display()
+                        if lv and lv.cpp_standard_minimum
+                        else "C++03"
+                    ),
+                    "author": {
+                        "name": author.display_name if author else "Unknown",
+                        "role": "Contributor",
+                        "avatar_url": (
+                            f"https://github.com/{author.github_username}.png"
+                            if author and author.github_username
+                            else f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png"
+                        ),
+                        "badge_url": f"{badge_img}/badge-first-place.png",
+                    },
+                    "doc_url": reverse(
+                        "library-detail",
+                        kwargs={
+                            "version_slug": "latest",
+                            "library_slug": lib.slug,
+                        },
+                    ),
+                }
+            )
+        context["demo_library_items"] = demo_library_items
+
         return context
