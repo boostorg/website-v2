@@ -244,6 +244,7 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     template_name = "news/form.html"
     add_label = None
     add_url_name = None
+    post_type_selected = ""
     success_message = _("The news entry was successfully created.")
 
     def get_template_names(self):
@@ -277,6 +278,7 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         context["cancel_url"] = reverse_lazy("news")
         if flag_is_active(self.request, "v3"):
             context.update(_v3_create_context())
+            context["post_type_selected"] = self.post_type_selected
         return context
 
 
@@ -285,6 +287,7 @@ class BlogPostCreateView(EntryCreateView):
     form_class = BlogPostForm
     add_label = _("Create Blog Post")
     add_url_name = "news-blogpost-create"
+    post_type_selected = "blog"
 
 
 class LinkCreateView(EntryCreateView):
@@ -292,6 +295,7 @@ class LinkCreateView(EntryCreateView):
     form_class = LinkForm
     add_label = _("Create Link")
     add_url_name = "news-link-create"
+    post_type_selected = "link"
 
 
 class NewsCreateView(EntryCreateView):
@@ -299,6 +303,7 @@ class NewsCreateView(EntryCreateView):
     form_class = NewsForm
     add_label = _("Create News")
     add_url_name = "news-news-create"
+    post_type_selected = "news"
 
 
 class PollCreateView(EntryCreateView):
@@ -313,6 +318,7 @@ class VideoCreateView(EntryCreateView):
     form_class = VideoForm
     add_label = _("Upload a Video")
     add_url_name = "news-video-create"
+    post_type_selected = "video"
 
 
 class AllTypesCreateView(LoginRequiredMixin, TemplateView):

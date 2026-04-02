@@ -46,7 +46,7 @@
         <div class="create-post-page__card">
           {% comment %} Post Type dropdown: Blog, News, Video, Link. Placeholder "Select Post Type". Controls conditional fields. {% endcomment %}
           <div>
-            {% include "v3/includes/_field_dropdown.html" with name="post_type" label="Post type *" options=post_type_options placeholder="Select Post Type" required=True %}
+            {% include "v3/includes/_field_dropdown.html" with name="post_type" label="Post type *" options=post_type_options placeholder="Select Post Type" required=True selected=post_type_selected %}
             <p class="field__error" id="post-type-error" role="alert" x-show="errors.post_type" x-text="errors.post_type" x-cloak></p>
           </div>
 
@@ -54,6 +54,7 @@
             <label class="field__label" for="field-title">Post title *</label>
             <div class="field__control">
               <input class="field__input" type="text" id="field-title" name="title" placeholder="Title" required
+                     value="{{ form.title.value|default_if_none:"" }}"
                      :aria-invalid="!!errors.title"
                      :aria-describedby="errors.title ? 'field-title-error' : null">
 
@@ -67,6 +68,7 @@
               <label class="field__label" for="field-external_url">Link *</label>
               <div class="field__control">
                 <input class="field__input" type="url" id="field-external_url" name="external_url" placeholder="https://..."
+                       value="{{ form.external_url.value|default_if_none:"" }}"
                        :aria-invalid="!!errors.external_url"
                        :aria-describedby="errors.external_url ? 'field-external_url-error' : null">
               </div>
@@ -77,7 +79,7 @@
           {% comment %} Write Up (Blog, News): Content required. WYSIWYG editor (Markdown). {% endcomment %}
           <div class="field create-post-page__content-field" :class="{ 'field--error': errors.content }">
             <label class="field__label" for="field-content">Content *</label>
-            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" %}
+            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=form.content.value %}
             <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
             <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
           </div>
@@ -86,7 +88,7 @@
 
           {% include "v3/includes/_field_dropdown.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" %}
 
-          {% include "v3/includes/_field_datetime.html" with name="publish_at" label="Publish Date" value=publish_at_initial %}
+          {% include "v3/includes/_field_datetime.html" with name="publish_at" label="Publish Date" value=form.publish_at.value|default:publish_at_initial %}
 
           <div class="create-post-page__actions">
             <a href="{% url 'news' %}" class="btn btn-secondary">Cancel</a>
@@ -107,7 +109,7 @@
     };
     window.createPostForm = function() {
       return {
-        postType: '',
+        postType: '{{ post_type_selected|default:""|escapejs }}',
         errors: { post_type: '', title: '{{ form.title.errors.0|default:""|escapejs }}', content: '{{ form.content.errors.0|default:""|escapejs }}', external_url: '{{ form.external_url.errors.0|default:""|escapejs }}', image: '{{ form.image.errors.0|default:""|escapejs }}' },
         get isWriteUp() { return this.postType === 'blog' || this.postType === 'news'; },
         get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
