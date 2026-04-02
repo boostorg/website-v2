@@ -1,5 +1,5 @@
 .contributors-list .card__column {
-    gap: var(--space-medium)
+    gap: var(--space-medium);
 }
 
 .contributors-list.all-contributors {
@@ -11,19 +11,19 @@
     flex-wrap: wrap;
 }
 
-.contributors-list.all-contributors .card__column div {
+.contributors-list.all-contributors .card__column .user-profile {
     flex: 1 0 14%;
     min-width: 200px;
 }
 
 
 @media (max-width: 768px) {
-    .contributors-list.all-contributors .card__column div {
+    .contributors-list.all-contributors .card__column .user-profile {
         flex-basis: 51%;
     }
 
     .contributors-list {
         max-height: 80vh;
-        overflow-y: scroll;
+        overflow-y: auto;
     }
 }
