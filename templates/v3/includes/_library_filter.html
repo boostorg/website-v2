@@ -8,13 +8,14 @@
   Variables:
     filter_id  (required) — unique ID for the modal (e.g. "library-filter")
     fields     (required) — list of field dicts, each with:
-      type        — "dropdown" or "combo"
-      name        — input name attribute
-      label       — label text
-      options     — list of (value, label) 2-tuples
-      selected    — pre-selected value
-      width       — "narrow" | "wide" (omit for default)
-      placeholder — placeholder text (combo type only)
+      type            — "dropdown" (default), "combo", or "combo_multi"
+      name            — input name attribute
+      label           — label text
+      options         — list of (value, label) 2-tuples
+      selected        — pre-selected value (dropdown/combo)
+      selected_values — list of pre-selected values (combo_multi)
+      width           — "narrow" | "wide" (omit for default)
+      placeholder     — placeholder text for search bar (combo/combo_multi only)
 
   Usage:
     {% include "v3/includes/_library_filter.html" with filter_id="library-filter" fields=filter_fields %}
@@ -46,7 +47,9 @@
       {% for field in fields %}
         {% with width=field.width|default:"default" %}
           {% with field_class="library-filter__field library-filter__field-"|add:width %}
-            {% if field.type == "combo" %}
+            {% if field.type == "combo_multi" %}
+              {% include "v3/includes/_field_combo_multi.html" with name=field.name label=field.label options=field.options selected_values=field.selected_values placeholder=field.placeholder extra_class=field_class %}
+            {% elif field.type == "combo" %}
               {% include "v3/includes/_field_combo.html" with name=field.name label=field.label options=field.options selected=field.selected placeholder=field.placeholder extra_class=field_class %}
             {% else %}
               {% include "v3/includes/_field_dropdown.html" with name=field.name label=field.label options=field.options selected=field.selected extra_class=field_class %}

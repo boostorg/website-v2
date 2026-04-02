@@ -1168,6 +1168,15 @@ class V3ComponentDemoView(TemplateView):
             ("math", "Math & Numerics"),
             ("networking", "Networking"),
         ]
+        context["demo_combo_multi_tags"] = [
+            ("algorithms", "Algorithms"),
+            ("containers", "Containers"),
+            ("io", "I/O"),
+            ("math", "Math & Numerics"),
+            ("networking", "Networking"),
+            ("testing", "Testing"),
+            ("concurrency", "Concurrency"),
+        ]
         badge_img = f"{settings.STATIC_URL}img/v3/badges"
         context["badge_icon_srcs"] = [
             f"{badge_img}/badge-first-place.png",
@@ -1331,11 +1340,10 @@ class V3ComponentDemoView(TemplateView):
                 "width": "narrow",
             },
             {
-                "type": "combo",
+                "type": "combo_multi",
                 "name": "category",
                 "label": "Category",
                 "options": [
-                    ("all", "All"),
                     ("algorithms", "Algorithms"),
                     ("asynchronous", "Asynchronous"),
                     ("awaitables", "Awaitables"),
@@ -1349,7 +1357,6 @@ class V3ComponentDemoView(TemplateView):
                     ("formatting", "Formatting"),
                     ("graphics", "Graphics"),
                 ],
-                "selected": "all",
                 "width": "wide",
                 "placeholder": "Search",
             },
