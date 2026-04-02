@@ -1757,7 +1757,7 @@ class V3ComponentDemoView(TemplateView):
 
         demo_library_items = []
         demo_libs_qs = Library.objects.filter(
-            slug__in=["geometry", "asio", "filesystem"]
+            slug__in=["accumulators", "filesystem", "asio", "geometry", "beast"]
         ).prefetch_related("categories", "authors")
         for lib in demo_libs_qs:
             lv = (
@@ -1787,10 +1787,16 @@ class V3ComponentDemoView(TemplateView):
                         if lv and lv.cpp_standard_minimum
                         else "C++03"
                     ),
-                    "contributor_name": author.display_name if author else "Unknown",
-                    "contributor_role": "Contributor",
-                    "contributor_avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                    "contributor_badge_url": f"{badge_img}/badge-first-place.png",
+                    "author": {
+                        "name": author.display_name if author else "Unknown",
+                        "role": "Contributor",
+                        "avatar_url": (
+                            f"https://github.com/{author.github_username}.png"
+                            if author and author.github_username
+                            else f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png"
+                        ),
+                        "badge_url": f"{badge_img}/badge-first-place.png",
+                    },
                     "doc_url": reverse(
                         "library-detail",
                         kwargs={
