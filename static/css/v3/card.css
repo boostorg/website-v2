@@ -20,6 +20,7 @@
   background: var(--color-surface-weak);
   padding-top: var(--space-large);
   padding-bottom: var(--space-large);
+  height: fit-content;
 }
 
 .basic-card {
@@ -133,7 +134,7 @@
     overflow:hidden;
 }
 
-.square-card-image img {
+.square-card-image img, picture {
     width: 100%;
     height: 100%;
     object-fit: cover;
