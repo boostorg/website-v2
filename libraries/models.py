@@ -341,7 +341,7 @@ class Library(models.Model):
         """
         content = None
         # File paths/names where description data might be stored.
-        files = ["doc/library-detail.adoc", "README.md"]
+        files = ["doc/library-detail.adoc", "README.md", "README.adoc"]
 
         # Try to get the content from the cache first
         static_content_cache = caches["static_content"]
