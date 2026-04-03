@@ -27,13 +27,12 @@
       <span class="library-item__name">{{ library_name }}</span>
     {% endif %}
     <p class="library-item__description">{{ description }}</p>
-  </div>
-
-  <div class="library-item__tags">
-    {% for cat in categories %}
-      {% include "v3/includes/_category_tag.html" with tag_label=cat.label url=cat.url variant=cat.variant %}
-    {% endfor %}
-    <span class="version-tag version-tag--default library-item__cpp-version">{{ cpp_version }}</span>
+    <div class="library-item__tags">
+      {% for cat in categories %}
+        {% include "v3/includes/_category_tag.html" with tag_label=cat.label url=cat.url variant=cat.variant %}
+      {% endfor %}
+      <span class="version-tag version-tag--default library-item__cpp-version">{{ cpp_version }}</span>
+    </div>
   </div>
 
   <div class="library-item__contributor">
@@ -42,7 +41,7 @@
 
   <div class="library-item__actions">
     <span class="version-tag version-tag--default library-item__cpp-version--desktop">{{ cpp_version }}</span>
-    {% include "v3/includes/_button.html" with url=doc_url label="" icon_name="documentation" icon_size=16 style="icon-library" aria_label="View documentation for "|add:library_name %}
+    {% include "v3/includes/_button.html" with url=doc_url label="" icon_name="documentation" icon_size=32 icon_viewbox="0 0 16 16" style="icon-library" aria_label="View documentation for "|add:library_name %}
   </div>
 
 {% if variant == "list" %}</li>{% else %}</div>{% endif %}

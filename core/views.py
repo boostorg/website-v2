@@ -1991,9 +1991,25 @@ class V3ComponentDemoView(TemplateView):
             context["example_library_slug"] = library_slug
 
         demo_library_items = []
-        demo_libs_qs = Library.objects.filter(
-            slug__in=["accumulators", "mysql", "asio", "geometry", "beast"]
-        ).prefetch_related("categories", "authors")
+        demo_libs_qs = (
+            Library.objects.filter(
+                slug__in=[
+                    "accumulators",
+                    "algorithm",
+                    "align",
+                    "any",
+                    "array",
+                    "asio",
+                    "assign",
+                    "atomic",
+                    "beast",
+                    "bimap",
+                    "bind",
+                ]
+            )
+            .prefetch_related("categories", "authors")
+            .order_by("name")
+        )
         for lib in demo_libs_qs:
             lv = (
                 LibraryVersion.objects.filter(version=latest, library=lib).first()
