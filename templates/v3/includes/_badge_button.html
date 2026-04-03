@@ -1,0 +1,9 @@
+{% comment %}
+{% endcomment %}
+{% load core_tags %}
+
+{% generate_uuid as uuid %}
+<div class="badge-button">
+<input class="badge-button__radio" type="radio" name="{{name}}" value="{{value}}" id="{{id|default:uuid}}" {% if checked %}checked{% endif %} />
+<label for="{{id|default:uuid}}"><img src="{{ icon_src }}" alt="" width="32" height="32"></label>
+</div>
