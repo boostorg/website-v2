@@ -1,29 +1,44 @@
 {% comment %}
-  Standalone testimonial card
-  Context:
-    -Testimonials, a list of testimonial objects, each containing text and an author.
-    -Heading, the title that should be displayed at the top of the card
-  Renders only when there is content, only displays fields for which content is provided
+  Testimonial Card — displays a carousel of testimonial quotes with author profiles.
+
+  Variables:
+    heading        (string, optional)  — title displayed at the top of the card
+    testimonials   (list, optional)    — list of testimonial objects with:
+      - quote      (string, optional)  — testimonial text to display
+      - author     (object, optional)  — passed to _user_profile.html (see that template for fields)
+
+  Usage:
+    {% include "v3/includes/_testimonial_card.html" with heading="Testimonials" testimonials=testimonials %}
 {% endcomment %}
 
 {% with carousel_id='_testimonials_cards_carousel' %}
-<div class="card testimonial-card py-large" id="{{carousel_id}}" data-carousel>
+<div class="card testimonial-card py-large" id="{{carousel_id}}" data-carousel role="region" aria-labelledby="{{ carousel_id }}-heading">
   <div class="card__header">
-    <span class="card__title">{{ heading }}</span>
+    <h2 id="{{ carousel_id }}-heading" class="card__title">{{ heading }}</h2>
     {% include 'v3/includes/_carousel_buttons.html' with carousel_id=carousel_id %}
   </div>
   <hr class="card__hr" />
   <div class="cards-carousel__track">
-    <section class="testimonial-card__post post-cards post-cards--content post-cards--content-card post-cards--horizontal ">
-      <ul class="post-cards__list" data-carousel-track>
-        {% if testimonials %}
-        {% for testimonial in testimonials %}
-        <li class="post-cards__item" data-carousel-item>
-          {% include 'v3/includes/_testimonial_card_quote.html' with quote=testimonial.quote author=testimonial.author only %}
-        </li>
-        {% endfor %}
-        {% endif %}
-      </ul>
+    <section class="testimonial-card__post">
+      <ul class="testimonial-card__list" data-carousel-track aria-label="Testimonials carousel">
+          {% if testimonials %}
+            {% for testimonial in testimonials %}
+              <li class="testimonial-card__list-item" data-carousel-item>
+                <div>
+                  <div class="testimonial-card__text-wrapper">
+                    <div class="testimonial-card__text">{{ testimonial.quote }}</div>
+                  </div>
+                  <div class="testimonial-card__tail-wrapper mb-large">
+                    <svg width="32" height="30" viewBox="0 0 32 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path class="testimonial-card__text-tail" d="M0 0H32L3.41421 28.5858C2.15428 29.8457 0 28.9534 0 27.1716V0Z" />
+                    </svg>
+                  </div>
+                </div>
+                {% include "v3/includes/_user_profile.html" with author=testimonial.author only %}
+              </li>
+            {% endfor %}
+          {% endif %}
+        </ul>
     </section>
   </div>
 </div>
