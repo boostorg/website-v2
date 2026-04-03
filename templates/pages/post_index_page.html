@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% load news_tags %}
+{% load avatar_tags %}
+{% load text_helpers %}
+
+{% block title %}
+    {{self.title}}
+{% endblock title %}
+
+{% block content %}
+    <div class="py-0 px-0 md:px-4 mt-4 mb-0 w-full md:mb-2">
+    <div class="md:w-full">
+      <h1 class="text-3xl px-3 md:px-0">
+        Latest Stories
+        <a href="{% url 'news_feed_rss' %}" title="RSS feed" class="whitespace-nowrap ml-3 text-base text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"><i class="fa-solid fa-rss"></i></a>
+      </h1>
+
+      <div class="md:flex md:space-x-16 px-3 md:px-0">
+        <div class="md:w-1/2 w-full">
+          <p class="mt-0 text-justify">
+            Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, polls, and user-created content.
+            {% if user.is_authenticated %}
+            Or, <a href="{% url 'news-create' %}" class="whitespace-nowrap text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">Create a Post</a> to include in the feed (posts are reviewed before publication).
+            {% else %}
+            Signed-in users may submit items to include in the feed (posts are reviewed before publication).
+            {% endif %}
+          </p>
+        </div>
+
+        <!-- General filters, by news type -->
+        <div class="md:w-1/2 w-full pt-2 md:pt-6">
+          <div class="grid grid-cols-3 justify-center place-items-center space-y-1 space-x-1 {% if is_moderator %}sm:grid-cols-6{% else %}sm:grid-cols-5{% endif %} sm:space-y-0">
+
+            {% for type in filters %}
+            <a href="{% querystring type=type.filter_name %}" class="w-20 p-1 text-center rounded-lg cursor-pointer hover:bg-gray-100 group dark:hover:bg-slate text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange{% if request.path == target_url %} bg-gray-100 dark:bg-slate text-orange dark:text-orange{% endif %}">
+              <h6 class="pb-1 text-base">{{type.content_type}}</h6>
+              <i class="fa fa-{{type.icon_name}}"></i>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+    </div>
+
+    <div class="my-5">
+      <div class="mx-auto w-full">
+        {% for entry in posts %}
+        <div class="md:flex md:space-x-3">
+          <div class="hidden mt-6 text-sm text-left capitalize md:block min-w-[120px] whitespace-nowrap">
+            <a href="{{ entry.specific.get_listing_url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ entry.first_published_at|date:"M jS, Y" }}&nbsp;&nbsp;</a>
+          </div>
+          <div class="hidden pt-6 border-l-2 border-white md:block min-w-[50px] dark:border-slate">
+              <a href="{% querystring type=entry.specific.filter_name %}" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
+                <i class="fas fa-{{entry.specific.icon_name}}"></i>
+              </a>
+          </div>
+          <div class="hidden pt-2 mt-4 text-xs text-left md:block min-w-[70px] relative group">
+            {% avatar user=entry.owner %}
+            <span class="group-hover:opacity-100 transition-opacity bg-slate px-1 text-xs text-gray-100 rounded-sm absolute top-5 left-1/2 -translate-x-1/2 translate-y-full opacity-0 m-0 mx-auto w-auto">{{ entry.author.display_name }}</span>
+          </div>
+          <div class="block p-6 mb-3 md:mb-10 w-full bg-white md:rounded-lg md:shadow-lg md:ml-6 dark:bg-charcoal overflow-hidden">
+            <div class="flex">
+              <div class="flex-grow-1">
+              <h2 class="py-0 my-0 text-xl font-semibold mr-4">
+                <a class="link-header" {% if entry.specific.filter_name == "link" %}target="_blank"{% endif %} href="{{entry.specific.get_listing_url}}">
+                  {{ entry.title }}
+                </a>
+              </h2>
+            </div>
+              <div class="md:block text-xs hidden ml-auto text-right w-[150px]">
+                {{ entry.owner.display_name }}<br />
+                <span class="text-xs">{{ entry.first_published_at|date:"M jS, Y" }}</span>
+              </div>
+            </div>
+            {% if entry.specific.visible_content %}
+              <div>
+                <div class="text-base text-gray-500 dark:text-white/70">{{ entry.specific.visible_content }}</div>
+                {% if entry.specific.use_summary %}
+                    <a href="{{ entry.specific.get_url }}" class="inline-block text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange mt-2">Read more&#8230;</a>
+                  {% endif %}
+              </div>
+            {% endif %}
+
+            <!-- footer of cards only for mobile devices -->
+            <div class="flex border-t mt-4 border-gray-300 md:hidden">
+              <div class="mt-6 w-1/3 text-xs text-left capitalize">
+                {{ entry.owner.display_name }}<br />
+                {{ entry.first_published_at }}
+              </div>
+              <div class="pt-6 w-1/3 text-center md:border-l-2 border-white dark:border-slate">
+                  <a href="{% querystring type=entry.specific.filter_name %}" title="{{entry.specific.filter_name}}" class="px-2 -ml-4 bg-white rounded-full dark:text-gray-300 w-[30px] h-[30px] dark:bg-slate">
+                    <i class="fas fa-{{entry.specific.icon_name}}"></i>
+                  </a>
+              </div>
+              <div class="pt-2 mt-4 w-1/3 text-xs text-right">
+                {% if entry.owner.image %}
+                  <span class="inline-block h-[36px] w-[36px] overflow-hidden rounded-lg  ">
+                    <img src="{{ entry.owner.image.url }}" alt="{{ entry.owner.display_name }}" class="h-full w-full object-cover">
+                  </span>
+                {% else %}
+                  <span class="inline-block h-[36px] w-[36px] bg-white rounded-lg dark:text-white dark:bg-slate border">
+                    <i class="text-2xl fas fa-user mr-1" title="{{ entry.owner.display_name }}"></i>
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+            <!-- end footer -->
+          </div>
+        </div>
+        {% empty %}
+          {% if  user.is_authenticated %}
+            <p class="text-center">No news yet; consider submitting something!</p>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+
+  </div>
+
+{% endblock content %}
