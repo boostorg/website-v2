@@ -335,9 +335,9 @@ class Library(models.Model):
     def get_description(self, client, tag="develop"):
         """Get description from the appropriate file on GitHub.
 
-        For more recent versions, that will be `/doc/library-details.adoc`.
+        For more recent versions, that will be `/doc/library-detail.adoc`.
         For older versions, or libraries that have not adopted the adoc file,
-        that will be `/README.md`.
+        that will be `/README.md` or `/README.adoc`.
         """
         content = None
         # File paths/names where description data might be stored.

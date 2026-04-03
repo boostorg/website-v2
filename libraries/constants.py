@@ -348,7 +348,7 @@ VERSION_DOCS_MISSING = ["boost-1.33.0"]
 
 # This constant is for library-versions missing a README
 README_MISSING = (
-    "⚠️ This library has no README.md or library-details.adoc; "
+    "⚠️ This library has no README file or library-detail.adoc; "
     "consider contributing one."
 )
 
