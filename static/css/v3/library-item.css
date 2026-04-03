@@ -2,12 +2,21 @@
    Library Item — list row and card variants
    ========================================================================== */
 
+/* Demo only: provides a contrasting background for the list variant in
+   Lookbook/examples so the item surface colours are visible. Remove when
+   the component is used on a real page with its own background. */
+.v3-examples-section__example-box:has(.library-item-list) {
+  background: #F7FDFE;
+}
+
+/* ---------- Base / reset ---------- */
+
 .library-item-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: 160px 3fr minmax(180px, 2fr) minmax(180px, 2fr) auto;
+  grid-template-columns: 160px 3fr minmax(180px, 2fr) minmax(180px, 2fr) auto auto;
   column-gap: var(--space-xl);
   max-width: 1408px;
   width: 100%;
@@ -22,16 +31,63 @@
   padding: 0;
 }
 
+/* ---------- Shared element styles ---------- */
+
+.library-item__name {
+  font-family: var(--font-display);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-display-regular);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+a.library-item__name:hover {
+  text-decoration: underline;
+}
+
+.library-item__description {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.14px; /* no matching design token available */
+  color: var(--color-text-secondary);
+}
+
+.library-item .btn-icon-library {
+  padding: 0;
+  border: none;
+  background: none;
+  width: var(--space-large);
+}
+
+.library-item .btn-icon-library .btn-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Version tag visibility — desktop shows the tag inside .library-item__actions,
+   mobile/card shows the tag inline with category tags. */
+.library-item__cpp-version {
+  display: none;
+}
+
+.library-item__cpp-version--desktop {
+  display: inline-flex;
+}
+
 /* ==========================================================================
-   List variant (horizontal row)
+   List variant — horizontal row (desktop)
    ========================================================================== */
 
 .library-item--list {
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
-  align-items: flex-start;
+  align-items: start;
   row-gap: var(--space-large);
+  column-gap: var(--space-large);
   padding: var(--space-large);
   padding-top: var(--space-default);
   background: var(--color-surface-weak);
@@ -56,45 +112,36 @@
 }
 
 .library-item--list .library-item__actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-xl);
-  min-width: 120px;
+  display: contents;
 }
 
-/* Show desktop version tag in actions, hide mobile one in tags */
-.library-item__cpp-version {
-  display: none;
+/* Right-align the doc button with extra spacing from version tag */
+.library-item--list .library-item__actions > .btn-icon-library {
+  justify-self: end;
+  margin-left: var(--space-xl);
 }
 
-.library-item__cpp-version--desktop {
-  display: inline-flex;
-}
+/* ---------- Card grid — equal-width columns, equal-height rows ---------- */
 
-.library-item .btn-icon-library {
-  padding: 0;
-  border: none;
-  background: none;
-}
-
-.library-item .btn-icon-library .btn-icon svg {
-  width: var(--space-xl);
-  height: var(--space-xl);
+.library-item-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-large);
 }
 
 /* ==========================================================================
-   Card layout — used by card variant and mobile list variant
+   Card variant — vertical stack
    ========================================================================== */
 
 .library-item--card {
   display: grid;
   grid-template-columns: 1fr auto;
-  max-width: 320px;
+  column-gap: var(--space-large);
   width: 100%;
   border-radius: var(--border-radius-xl);
   border: 1px solid var(--color-stroke-weak);
   background: var(--color-surface-weak);
+  padding: var(--space-large);
 }
 
 .library-item--card .library-item__header {
@@ -102,19 +149,15 @@
   grid-row: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-default);
-  padding: var(--space-large);
-  padding-bottom: 0;
+  gap: var(--space-large);
 }
 
 .library-item--card .library-item__actions {
   grid-column: 2;
   grid-row: 1;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: var(--space-large);
-  padding-bottom: 0;
+  align-items: start;
+  justify-content: end;
 }
 
 .library-item--card .library-item__cpp-version--desktop {
@@ -126,66 +169,42 @@
 }
 
 .library-item--card .library-item__tags {
-  grid-column: 1 / -1;
-  grid-row: 2;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-s);
-  padding: var(--space-large);
 }
 
 .library-item--card .library-item__contributor {
   grid-column: 1 / -1;
-  grid-row: 3;
+  grid-row: 2;
   display: flex;
   align-items: center;
   gap: var(--space-default);
-  padding: var(--space-large);
   margin-top: auto;
+  padding-top: var(--space-large);
 }
-
 
 /* ==========================================================================
-   Shared element styles
-   ========================================================================== */
-
-.library-item__name {
-  font-family: var(--font-display);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-display-regular);
-  color: var(--color-text-primary);
-  text-decoration: none;
-}
-
-a.library-item__name:hover {
-  text-decoration: underline;
-}
-
-.library-item__description {
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-default);
-  letter-spacing: -0.14px;
-  color: var(--color-text-secondary);
-}
-
-
-/* ==========================================================================
-   Tablet
+   Tablet (≤ 1024px)
    ========================================================================== */
 
 @media (max-width: 1024px) {
   .library-item-list {
-    grid-template-columns: 120px 2fr minmax(100px, 1fr) minmax(140px, 1fr) auto;
+    grid-template-columns: 120px 2fr minmax(100px, 1fr) minmax(140px, 1fr) min-content auto;
+    /* Figma specifies --space-large here, but long descriptions cause overflow
+       at tablet widths. Using --space-default until content constraints are
+       defined. */
     column-gap: var(--space-default);
+  }
+
+  .library-item--list .library-item__actions > .btn-icon-library {
+    margin-left: var(--space-default);
   }
 }
 
 /* ==========================================================================
-   Mobile
+   Mobile (≤ 767px) — list items switch to card-like layout
    ========================================================================== */
 
 @media (max-width: 767px) {
@@ -194,13 +213,14 @@ a.library-item__name:hover {
     flex-direction: column;
   }
 
+  /* Container — stacked cards with shared borders */
   .library-item--list {
     display: grid;
     grid-template-columns: 1fr auto;
     border-bottom: 1px solid var(--color-stroke-weak);
     border-radius: 0;
     background: var(--color-surface-weak);
-    padding: 0;
+    padding: var(--space-large);
   }
 
   .library-item--list:first-child {
@@ -216,27 +236,29 @@ a.library-item__name:hover {
     border-radius: var(--border-radius-xl);
   }
 
+  /* Header — name + description, left column */
   .library-item--list .library-item__header {
     grid-column: 1;
     grid-row: 1;
     display: flex;
     flex-direction: column;
     gap: var(--space-default);
-    padding: var(--space-large);
+
     padding-bottom: 0;
   }
 
+  /* Actions — doc icon only, top-right */
   .library-item--list .library-item__actions {
     grid-column: 2;
     grid-row: 1;
     display: flex;
-    align-items: flex-start;
-    justify-content: flex-end;
+    align-items: start;
+    justify-content: end;
     min-width: unset;
-    padding: var(--space-large);
-    padding-bottom: 0;
+    padding: 0;
   }
 
+  /* Version tag swap — hide desktop, show mobile (inline with tags) */
   .library-item--list .library-item__cpp-version--desktop {
     display: none;
   }
@@ -245,6 +267,7 @@ a.library-item__name:hover {
     display: inline-flex;
   }
 
+  /* Tags — category tags + C++ version, full width */
   .library-item--list .library-item__tags {
     grid-column: 1 / -1;
     grid-row: 2;
@@ -252,9 +275,10 @@ a.library-item__name:hover {
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-s);
-    padding: var(--space-large);
+
   }
 
+  /* Contributor — full width, bottom */
   .library-item--list .library-item__contributor {
     grid-column: 1 / -1;
     grid-row: 3;
@@ -262,7 +286,23 @@ a.library-item__name:hover {
     align-items: center;
     gap: var(--space-default);
     border-top: none;
-    padding: var(--space-large);
+
     margin-top: auto;
   }
+
+  /* ---------- Card variant — mobile overrides ---------- */
+
+  .library-item--card {
+    max-width: none;
+    padding: var(--space-large);
+    gap: var(--space-large);
+  }
+
+  .library-item--card .library-item__header,
+  .library-item--card .library-item__actions,
+  .library-item--card .library-item__tags,
+  .library-item--card .library-item__contributor {
+    padding: 0;
+  }
+
 }
