@@ -1168,6 +1168,15 @@ class V3ComponentDemoView(TemplateView):
             ("math", "Math & Numerics"),
             ("networking", "Networking"),
         ]
+        context["demo_combo_multi_tags"] = [
+            ("algorithms", "Algorithms"),
+            ("containers", "Containers"),
+            ("io", "I/O"),
+            ("math", "Math & Numerics"),
+            ("networking", "Networking"),
+            ("testing", "Testing"),
+            ("concurrency", "Concurrency"),
+        ]
         badge_img = f"{settings.STATIC_URL}img/v3/badges"
         context["badge_icon_srcs"] = [
             f"{badge_img}/badge-first-place.png",
@@ -1210,6 +1219,17 @@ class V3ComponentDemoView(TemplateView):
         ]
 
         context["demo_badges_few"] = context["demo_badges"][:3]
+
+        context["post_filter_options"] = [
+            {"label": "All", "value": "all"},
+            {"label": "News", "value": "news"},
+            {"label": "Blog", "value": "blog"},
+            {"label": "Links", "value": "links"},
+            {"label": "Videos", "value": "videos"},
+            {"label": "Discussions", "value": "discussions"},
+            {"label": "Achievements", "value": "achievements"},
+            {"label": "Issues", "value": "issues"},
+        ]
 
         context["demo_posts"] = [
             {
@@ -1265,6 +1285,94 @@ class V3ComponentDemoView(TemplateView):
             "role": "C++ Alliance Board Member",
             "flag_emoji": "🇺🇸",
         }
+
+        cpp_options = [
+            ("all", "All"),
+            ("cpp03", "C++03"),
+            ("cpp11", "C++11"),
+            ("cpp14", "C++14"),
+            ("cpp17", "C++17"),
+            ("cpp20", "C++20"),
+            ("cpp23", "C++23"),
+        ]
+        context["library_filter_fields"] = [
+            {
+                "type": "dropdown",
+                "name": "view",
+                "label": "View",
+                "options": [
+                    ("list", "List"),
+                    ("grid", "Grid"),
+                    ("category", "Category"),
+                    ("grading", "Grading"),
+                ],
+                "selected": "list",
+                "width": "narrow",
+            },
+            {
+                "type": "dropdown",
+                "name": "grading",
+                "label": "Grading",
+                "options": [
+                    ("all", "All"),
+                    ("flagship", "Flagship"),
+                    ("core", "Core"),
+                    ("deprecated", "Deprecated"),
+                    ("legacy", "Legacy"),
+                ],
+                "selected": "all",
+                "width": "wide",
+            },
+            {
+                "type": "dropdown",
+                "name": "min_cpp",
+                "label": "Min. C++ Version",
+                "options": cpp_options,
+                "selected": "all",
+                "width": "narrow",
+            },
+            {
+                "type": "dropdown",
+                "name": "max_cpp",
+                "label": "Max. C++ Version",
+                "options": cpp_options,
+                "selected": "all",
+                "width": "narrow",
+            },
+            {
+                "type": "combo_multi",
+                "name": "category",
+                "label": "Category",
+                "options": [
+                    ("algorithms", "Algorithms"),
+                    ("asynchronous", "Asynchronous"),
+                    ("awaitables", "Awaitables"),
+                    ("containers", "Containers"),
+                    ("coroutines", "Coroutines"),
+                    ("correctness", "Correctness"),
+                    # More dummy data to show scrollbar
+                    ("data_processing", "Data processing"),
+                    ("debugging", "Debugging"),
+                    ("file_systems", "File systems"),
+                    ("formatting", "Formatting"),
+                    ("graphics", "Graphics"),
+                ],
+                "width": "wide",
+                "placeholder": "Search",
+            },
+            {
+                "type": "dropdown",
+                "name": "sort",
+                "label": "Sort by",
+                "options": [
+                    ("alphabetical", "Alphabetical"),
+                    ("popular", "Most Popular"),
+                    ("updated", "Recently Updated"),
+                    ("release", "Release Date"),
+                ],
+                "selected": "alphabetical",
+            },
+        ]
 
         context["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/checker.png"
