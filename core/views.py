@@ -1992,7 +1992,7 @@ class V3ComponentDemoView(TemplateView):
 
         demo_library_items = []
         demo_libs_qs = Library.objects.filter(
-            slug__in=["accumulators", "filesystem", "asio", "geometry", "beast"]
+            slug__in=["accumulators", "mysql", "asio", "geometry", "beast"]
         ).prefetch_related("categories", "authors")
         for lib in demo_libs_qs:
             lv = (
@@ -2004,7 +2004,11 @@ class V3ComponentDemoView(TemplateView):
                 {"label": cat.name, "url": "#", "variant": "neutral"}
                 for cat in lib.categories.all()[:3]
             ]
-            author = lib.authors.first()
+            author = (
+                lib.authors.exclude(email__startswith="deleted-")
+                .exclude(github_username="")
+                .first()
+            ) or lib.authors.exclude(email__startswith="deleted-").first()
             demo_library_items.append(
                 {
                     "library_name": lib.display_name_short,
