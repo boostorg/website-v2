@@ -1,5 +1,5 @@
-# Prettier: reformat JS and CSS files
-bf8b7566034a03bf2a164fa7c1c4eb6a28992e96
+# chore: reformat JS and CSS files with Prettier
+3d793f4145fcd5c5f9b2502faaa13f16914aa65f
 
-# djlint: reformat HTML templates
-47b65f64d9640d9d7eb9a331ca008bd7bc0f12f0
+# chore: reformat HTML templates with djlint
+c9a4c0995a4fa306453244bac19965250c7b2347
