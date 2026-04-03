@@ -13,13 +13,11 @@
     {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_body" textarea_name="body" label="Body" %}
 {% endcomment %}
 <div class="wysiwyg-v3" data-wysiwyg="v3">
-  <textarea
-    id="{{ textarea_id }}"
-    name="{{ textarea_name }}"
-    class="w-full min-h-[200px]"
-    placeholder=""
-    aria-hidden="true"
-  ></textarea>
+  <textarea id="{{ textarea_id }}"
+            name="{{ textarea_name }}"
+            class="w-full min-h-[200px]"
+            placeholder=""
+            aria-hidden="true"></textarea>
   <div class="wysiwyg-editor__toolbar"></div>
   <div class="wysiwyg-editor__body"></div>
 </div>

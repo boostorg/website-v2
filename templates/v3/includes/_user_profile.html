@@ -11,7 +11,9 @@
   Usage:
     {% include "v3/includes/_user_profile.html" with author=author %}
 {% endcomment %}
-<div class="user-profile{% if author.bio %} user-profile--has-bio{% endif %}" role="group" aria-label="{{ author.name }}">
+<div class="user-profile{% if author.bio %} user-profile--has-bio{% endif %}"
+     role="group"
+     aria-label="{{ author.name }}">
   {% if author.profile_url %}
     <a href="{{ author.profile_url }}" class="user-profile__avatar-link">
       {% include "v3/includes/_avatar_v3.html" with src=author.avatar_url name=author.name size="xl" %}
@@ -29,17 +31,13 @@
           <span class="user-profile__name">{{ author.name }}</span>
         {% endif %}
       {% endif %}
-      {% if author.role %}
-        <span class="user-profile__role">{{ author.role }}</span>
-      {% endif %}
+      {% if author.role %}<span class="user-profile__role">{{ author.role }}</span>{% endif %}
       {% if author.badge_url %}
         <span aria-hidden="true">
           <img src="{{ author.badge_url }}" alt="" width="16" height="16">
         </span>
       {% endif %}
     </div>
-    {% if author.bio %}
-      <p class="user-profile__bio">{{ author.bio }}</p>
-    {% endif %}
+    {% if author.bio %}<p class="user-profile__bio">{{ author.bio }}</p>{% endif %}
   </div>
 </div>

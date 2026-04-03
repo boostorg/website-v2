@@ -1,8 +1,8 @@
 .thread-archive-card img {
-    width: 100%;
-    aspect-ratio: 16/9;
+  width: 100%;
+  aspect-ratio: 16/9;
 }
 
 .thread-archive-card .card__column {
-    width: 100%;
+  width: 100%;
 }

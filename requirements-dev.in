@@ -1,3 +1,4 @@
 -c requirements.txt
 django-debug-toolbar
+djlint
 pydevd-pycharm==253.29346.308  # pinned to appropriate version for current pycharm

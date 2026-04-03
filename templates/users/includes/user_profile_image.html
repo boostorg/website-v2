@@ -1,7 +1,11 @@
 {% if user.image %}
-  <img src="{{ user.image.url }}" alt="user" class="inline -mt-1 rounded-sm cursor-pointer w-[30px]" @click="userOpen = !userOpen" />
+  <img src="{{ user.image.url }}"
+       alt="user"
+       class="inline -mt-1 rounded-sm cursor-pointer w-[30px]"
+       @click="userOpen = !userOpen" />
 {% else %}
-  <i class="inline mr-2 cursor-pointer fas fa-user text-charcoal dark:text-white/60" @click="userOpen = !userOpen"></i>
+  <i class="inline mr-2 cursor-pointer fas fa-user text-charcoal dark:text-white/60"
+     @click="userOpen = !userOpen"></i>
 {% endif %}
 
 <div x-show="userOpen"
@@ -19,8 +23,9 @@
      aria-orientation="vertical"
      aria-labelledby="user-menu-button"
      tabindex="-1"
-     style="display: none;"
->
-  <a href="#" class="block py-2 text-xs font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">My Profile</a>
-  <a href="/accounts/logout/" class="block py-2 text-xs font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">Log Out</a>
+     style="display: none">
+  <a href="#"
+     class="block py-2 text-xs font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">My Profile</a>
+  <a href="/accounts/logout/"
+     class="block py-2 text-xs font-medium dark:text-white text-charcoal dark:hover:text-orange hover:text-orange">Log Out</a>
 </div>

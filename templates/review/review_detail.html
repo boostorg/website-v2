@@ -15,9 +15,15 @@
   <div class="flex py-0 px-3 mb-3 md:py-6 md:px-0">
     <div class="hidden w-1/6 md:block">
       <ul class="py-8 space-y-4">
-        <li><a href="#overview" class="text-orange">Overview</a></li>
-        <li><a href="#accepted">Accepted</a></li>
-        <li><a href="#pending">Pending</a></li>
+        <li>
+          <a href="#overview" class="text-orange">Overview</a>
+        </li>
+        <li>
+          <a href="#accepted">Accepted</a>
+        </li>
+        <li>
+          <a href="#pending">Pending</a>
+        </li>
       </ul>
     </div>
     <div class="w-5/6">
@@ -45,9 +51,7 @@
             <li>Lambda2 provides its own placeholders instead of importing the standard ones.</li>
           </ul>
 
-          <p>
-            The review discussion touched on these pros and cons:
-          </p>
+          <p>The review discussion touched on these pros and cons:</p>
 
           <p>Pros:</p>
           <ul class="ml-5 list-disc">
@@ -59,21 +63,27 @@
           <p>Cons:</p>
           <ul class="ml-5 list-disc">
             <li>lambda and phoenix library have much larger functionality</li>
-            <li>For complex lambda expressions, native C++ lambdas are more "future-proof"
-            than boost::lambda2 expressions because you have the full range of the language available.</li>
-            <li>Having to write using-declarations for each operator in each scope that they
-            are intended to be used defeats the purpose.</li>
+            <li>
+              For complex lambda expressions, native C++ lambdas are more "future-proof"
+              than boost::lambda2 expressions because you have the full range of the language available.
+            </li>
+            <li>
+              Having to write using-declarations for each operator in each scope that they
+              are intended to be used defeats the purpose.
+            </li>
           </ul>
 
 
           <p>In the end, the pros outweighed the cons.</p>
 
-          <p>There was also the concern that boost::lambda2 does not and cannot do short-circuiting
+          <p>
+            There was also the concern that boost::lambda2 does not and cannot do short-circuiting
             of the && and || operators. I suggest writing a rationale and make it clear in the
             documentation. I think this is a major flaw.
           </p>
 
-          <p>But the most glaring issue has to do with ADL: That Boost.Lambda2 defines the operators
+          <p>
+            But the most glaring issue has to do with ADL: That Boost.Lambda2 defines the operators
             that should belong to namespace std::placeholders. Hence, the condition that Lambda2
             provides its own placeholders instead of importing the standard ones.
           </p>
@@ -90,7 +100,8 @@
           </p>
 
           <p>
-            Regards,<br />
+            Regards,
+            <br />
             Joel
           </p>
 
@@ -102,8 +113,10 @@
             The Boost formal review of the Lambda2, authored by Peter Dimov, starts Monday, March 22, 2021 to March 31, 2021 (inclusive).
           </p>
 
-          <p>Documentation: https://pdimov.github.io/lambda2/doc/html/lambda2.html <br/>
-              Source: https://github.com/pdimov/lambda2/
+          <p>
+            Documentation: https://pdimov.github.io/lambda2/doc/html/lambda2.html
+            <br />
+            Source: https://github.com/pdimov/lambda2/
           </p>
 
           <p>
@@ -120,19 +133,21 @@
             Boost library. Please be explicit about your decision (ACCEPT or REJECT).
           </p>
 
-          <p>
-            Some other questions you might want to consider answering:
-          </p>
+          <p>Some other questions you might want to consider answering:</p>
 
           <ul class="ml-5 list-disc">
             <li>What is your evaluation of the design?</li>
             <li>What is your evaluation of the implementation?</li>
             <li>What is your evaluation of the documentation?</li>
             <li>What is your evaluation of the potential usefulness of the library?</li>
-            <li>Did you try to use the library? With which compiler(s)? Did you
-            have any problems?</li>
-            <li>How much effort did you put into your evaluation? A glance? A quick
-            reading? In-depth study?</li>
+            <li>
+              Did you try to use the library? With which compiler(s)? Did you
+              have any problems?
+            </li>
+            <li>
+              How much effort did you put into your evaluation? A glance? A quick
+              reading? In-depth study?
+            </li>
             <li>Are you knowledgeable about the problem domain?</li>
           </ul>
 
@@ -160,7 +175,8 @@
           </p>
 
           <p>
-            Cheers,<br />
+            Cheers,
+            <br />
             Joel de Guzman
           </p>
         </div>

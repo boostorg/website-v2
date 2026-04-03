@@ -1,7 +1,17 @@
-<div class="relative" x-data="{'showSearch': false}" x-on:keydown.escape="showSearch=false">
+<div class="relative"
+     x-data="{'showSearch': false}"
+     x-on:keydown.escape="showSearch=false">
   <span class="flex absolute top-2 right-3 items-center pl-2">
     <button type="submit" class="p-1 focus:outline-none focus:shadow-outline">
-      <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-4 h-4"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      <svg fill="none"
+           stroke="currentColor"
+           stroke-linecap="round"
+           stroke-linejoin="round"
+           stroke-width="2"
+           viewBox="0 0 24 24"
+           class="w-4 h-4">
+        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
     </button>
   </span>
   <input @click="showSearch = true;"
@@ -15,8 +25,7 @@
          hx-trigger="keyup changed delay:500ms, search"
          hx-target="#search_results"
          hx-indicator=".htmx-indicator"
-         x-on:click.away="showSearch = false"
-  />
+         x-on:click.away="showSearch = false" />
   <div x-show="showSearch"
        x-on:click.away="showSearch = false"
        class="absolute z-50 top-10 left-1.5 right-1.5 rounded-md rounded-t-none shadow-sm shadow-charcoal/50 dark:shadow-white/20 overflow-y-auto max-h-96 text-sm divide-y divide-gray-200 dark:divide-white/10"

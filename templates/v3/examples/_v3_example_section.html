@@ -36,7 +36,8 @@
   {% comment %}Table of contents – generated via JS from the section h3 headings.{% endcomment %}
   <nav class="v3-examples-section__toc" aria-label="Table of contents">
     <h3 class="v3-examples-section__toc-heading">Table of Contents</h3>
-    <ul class="v3-examples-section__toc-list"></ul>
+    <ul class="v3-examples-section__toc-list">
+    </ul>
   </nav>
 
   {% with section_title="Buttons" %}
@@ -71,92 +72,93 @@
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
         <div class="v3-examples-section__avatar-scroll">
-        <table class="v3-examples-section__avatar-table">
-          <tbody>
-            <tr>
-              <th scope="row">Variants</th>
-              <td>
-                <div class="v3-examples-section__avatar-item">
-                  {% include "v3/includes/_avatar_v3.html" with src="https://thispersondoesnotexist.com/" size="md" %}
-                  <span class="v3-examples-section__avatar-label">Example photo</span>
-                </div>
-              </td>
-              <td>
-                <div class="v3-examples-section__avatar-item">
-                  {% with user_avatar_url=request.user.get_thumbnail_url %}
-                    {% if user_avatar_url %}
-                      {% include "v3/includes/_avatar_v3.html" with src=user_avatar_url size="md" %}
-                    {% elif request.user.is_authenticated %}
-                      {% include "v3/includes/_avatar_v3.html" with name=request.user.display_name size="md" %}
-                    {% else %}
-                      {% include "v3/includes/_avatar_v3.html" with size="md" %}
-                    {% endif %}
-                  {% endwith %}
-                  <span class="v3-examples-section__avatar-label">You</span>
-                </div>
-              </td>
-              <td>
-                <div class="v3-examples-section__avatar-item">
-                  {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="yellow" %}
-                  <span class="v3-examples-section__avatar-label">Yellow</span>
-                </div>
-              </td>
-              <td>
-                <div class="v3-examples-section__avatar-item">
-                  {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="green" %}
-                  <span class="v3-examples-section__avatar-label">Green</span>
-                </div>
-              </td>
-              <td>
-                <div class="v3-examples-section__avatar-item">
-                  {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="teal" %}
-                  <span class="v3-examples-section__avatar-label">Teal</span>
-                </div>
-              </td>
-              <td>
-                <div class="v3-examples-section__avatar-item">
-                  {% include "v3/includes/_avatar_v3.html" %}
-                  <span class="v3-examples-section__avatar-label">Placeholder</span>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Sizes</th>
-              <td>
-                <div class="v3-examples-section__avatar-item">
-                  {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="sm" %}
-                  <span class="v3-examples-section__avatar-label">sm</span>
-                </div>
-              </td>
-              <td>
-                <div class="v3-examples-section__avatar-item">
-                  {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="md" %}
-                  <span class="v3-examples-section__avatar-label">md</span>
-                </div>
-              </td>
-              <td>
-                <div class="v3-examples-section__avatar-item">
-                  {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="lg" %}
-                  <span class="v3-examples-section__avatar-label">lg</span>
-                </div>
-              </td>
-              <td>
-                <div class="v3-examples-section__avatar-item">
-                  {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="xl" %}
-                  <span class="v3-examples-section__avatar-label">xl</span>
-                </div>
-              </td>
-              <td colspan="2"></td>
-            </tr>
-          </tbody>
-        </table>
+          <table class="v3-examples-section__avatar-table">
+            <tbody>
+              <tr>
+                <th scope="row">Variants</th>
+                <td>
+                  <div class="v3-examples-section__avatar-item">
+                    {% include "v3/includes/_avatar_v3.html" with src="https://thispersondoesnotexist.com/" size="md" %}
+                    <span class="v3-examples-section__avatar-label">Example photo</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="v3-examples-section__avatar-item">
+                    {% with user_avatar_url=request.user.get_thumbnail_url %}
+                      {% if user_avatar_url %}
+                        {% include "v3/includes/_avatar_v3.html" with src=user_avatar_url size="md" %}
+                      {% elif request.user.is_authenticated %}
+                        {% include "v3/includes/_avatar_v3.html" with name=request.user.display_name size="md" %}
+                      {% else %}
+                        {% include "v3/includes/_avatar_v3.html" with size="md" %}
+                      {% endif %}
+                    {% endwith %}
+                    <span class="v3-examples-section__avatar-label">You</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="v3-examples-section__avatar-item">
+                    {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="yellow" %}
+                    <span class="v3-examples-section__avatar-label">Yellow</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="v3-examples-section__avatar-item">
+                    {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="green" %}
+                    <span class="v3-examples-section__avatar-label">Green</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="v3-examples-section__avatar-item">
+                    {% include "v3/includes/_avatar_v3.html" with name="Jane Doe" variant="teal" %}
+                    <span class="v3-examples-section__avatar-label">Teal</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="v3-examples-section__avatar-item">
+                    {% include "v3/includes/_avatar_v3.html" %}
+                    <span class="v3-examples-section__avatar-label">Placeholder</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Sizes</th>
+                <td>
+                  <div class="v3-examples-section__avatar-item">
+                    {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="sm" %}
+                    <span class="v3-examples-section__avatar-label">sm</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="v3-examples-section__avatar-item">
+                    {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="md" %}
+                    <span class="v3-examples-section__avatar-label">md</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="v3-examples-section__avatar-item">
+                    {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="lg" %}
+                    <span class="v3-examples-section__avatar-label">lg</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="v3-examples-section__avatar-item">
+                    {% include "v3/includes/_avatar_v3.html" with name="JD" variant="yellow" size="xl" %}
+                    <span class="v3-examples-section__avatar-label">xl</span>
+                  </div>
+                </td>
+                <td colspan="2"></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   {% endwith %}
 
   {% with section_title="Carousel buttons" %}
-    <div class="v3-examples-section__block v3-examples-section__block--carousel" id="{{ section_title|slugify }}">
+    <div class="v3-examples-section__block v3-examples-section__block--carousel"
+         id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">{% include "v3/includes/_carousel_buttons.html" %}</div>
     </div>
@@ -199,14 +201,10 @@
           </h2>
           <ul class="post-cards__list">
             {% for post in demo_posts %}
-            <li class="post-cards__item">
-              {% include "v3/includes/_post_card_v3.html" with post=post %}
-            </li>
+              <li class="post-cards__item">{% include "v3/includes/_post_card_v3.html" with post=post %}</li>
             {% endfor %}
           </ul>
-          <div class="card__cta_section">
-            {% include "v3/includes/_button.html" with label="View all posts" url="#" %}
-          </div>
+          <div class="card__cta_section">{% include "v3/includes/_button.html" with label="View all posts" url="#" %}</div>
         </section>
       </div>
     </div>
@@ -215,9 +213,7 @@
   {% with section_title="Post Card" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
-      <div class="v3-examples-section__example-box">
-        {% include "v3/includes/_post_card_v3.html" with post=demo_post %}
-      </div>
+      <div class="v3-examples-section__example-box">{% include "v3/includes/_post_card_v3.html" with post=demo_post %}</div>
     </div>
   {% endwith %}
 
@@ -302,58 +298,58 @@
   {% include "v3/examples/_v3_example_section_wysiwyg.html" %}
 
   {% with section_title="Badges Card (empty with CTA)" %}
-  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-    <h3>{{ section_title }}</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
+      </div>
     </div>
-  </div>
   {% endwith %}
 
 
   {% with section_title="Badges Card (empty without CTA)" %}
-  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-    <h3>{{ section_title }}</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with empty_icon_srcs=badge_icon_srcs %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_badges_card.html" with empty_icon_srcs=badge_icon_srcs %}
+      </div>
     </div>
-  </div>
   {% endwith %}
 
   {% with section_title="Badges Card (filled — 6 badges)" %}
-  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-    <h3>{{ section_title }}</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with badges=demo_badges %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_badges_card.html" with badges=demo_badges %}
+      </div>
     </div>
-  </div>
   {% endwith %}
 
   {% with section_title="Badges Card (filled — 3 badges)" %}
-  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-    <h3>{{ section_title }}</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with badges=demo_badges_few %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_badges_card.html" with badges=demo_badges_few %}
+      </div>
     </div>
-  </div>
   {% endwith %}
 
   {% with section_title="User Card (card)" %}
-  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-    <h3>{{ section_title }}</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge_icon_src=demo_user_card.badge_icon_src member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji cta_url="#" cta_label="Create Post" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge_icon_src=demo_user_card.badge_icon_src member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji cta_url="#" cta_label="Create Post" %}
+      </div>
     </div>
-  </div>
   {% endwith %}
 
   {% with section_title="User Card (compact)" %}
-  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
-    <h3>{{ section_title }}</h3>
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge_icon_src=demo_user_card.badge_icon_src member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji compact=True %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge_icon_src=demo_user_card.badge_icon_src member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji compact=True %}
+      </div>
     </div>
-  </div>
   {% endwith %}
 
   {% with section_title="Create Account Card" %}
@@ -366,14 +362,14 @@
   {% endwith %}
 
   {% with section_title="Inline Card" %}
-  <div class="v3-examples-section__block" id="{{section_title|slugify}}">
-    <h3>{{ section_title }}</h3>
-    {% with horizontal_card_data as card %}
-    <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_inline_card.html" with title=card.title text=card.text image_url=card.image_url image_alt=card.image_alt button_url=card.button_url button_label=card.button_label %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      {% with horizontal_card_data as card %}
+        <div class="v3-examples-section__example-box">
+          {% include "v3/includes/_inline_card.html" with title=card.title text=card.text image_url=card.image_url image_alt=card.image_alt button_url=card.button_url button_label=card.button_label %}
+        </div>
+      {% endwith %}
     </div>
-    {% endwith %}
-  </div>
   {% endwith %}
 
   {% with section_title="Form inputs" %}
@@ -503,7 +499,9 @@
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
       {% with markdown_data as d %}
-      <div class="v3-examples-section__example-box">{% include "v3/includes/_markdown_card.html" with title=d.title markdown=d.markdown button_url=d.button_url button_label=d.button_label %}</div>
+        <div class="v3-examples-section__example-box">
+          {% include "v3/includes/_markdown_card.html" with title=d.title markdown=d.markdown button_url=d.button_url button_label=d.button_label %}
+        </div>
       {% endwith %}
     </div>
   {% endwith %}
