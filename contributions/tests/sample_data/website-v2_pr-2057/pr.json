@@ -1,0 +1,83 @@
+{
+  "number": 2057,
+  "title": "Slack admin interface",
+  "body": "Slack data doesn't seem to have updated yesterday even though the management command ran, adding a readonly admin interface to make data visible.",
+  "createdAt": "2026-01-13T19:31:11Z",
+  "state": "MERGED",
+  "author": {
+    "databaseId": 2774608,
+    "login": "daveoconnor"
+  },
+  "timelineItems": {
+    "nodes": [
+      {
+        "__typename": "MergedEvent",
+        "id": "ME_lADOGLg2EM7jHBmqzwAAAAUg-08b",
+        "createdAt": "2026-01-13T21:31:56Z",
+        "actor": {
+          "databaseId": 2774608,
+          "login": "daveoconnor"
+        }
+      },
+      {
+        "__typename": "ClosedEvent",
+        "id": "CE_lADOGLg2EM7jHBmqzwAAAAUg-08w",
+        "createdAt": "2026-01-13T21:31:56Z",
+        "actor": {
+          "databaseId": 2774608,
+          "login": "daveoconnor"
+        }
+      }
+    ]
+  },
+  "reviews": {
+    "nodes": [
+      {
+        "id": "PRR_kwDOGLg2EM7aBAos",
+        "body": "LGTM - one small tweak requested.",
+        "state": "APPROVED",
+        "submittedAt": "2026-01-13T20:03:18Z",
+        "author": {
+          "databaseId": 11154227,
+          "login": "gregjkal"
+        }
+      }
+    ]
+  },
+  "reviewThreads": {
+    "nodes": [
+      {
+        "comments": {
+          "nodes": [
+            {
+              "__typename": "PullRequestReviewComment",
+              "id": "PRRC_kwDOGLg2EM6gNnJx",
+              "body": "We should probably make this a property on the model or something at some point.",
+              "createdAt": "2026-01-13T19:55:38Z",
+              "author": {
+                "databaseId": 11154227,
+                "login": "gregjkal"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "comments": {
+          "nodes": [
+            {
+              "__typename": "PullRequestReviewComment",
+              "id": "PRRC_kwDOGLg2EM6gNt2h",
+              "body": "This isn't adding any value.\n\n\n```suggestion\n```",
+              "createdAt": "2026-01-13T20:02:04Z",
+              "author": {
+                "databaseId": 11154227,
+                "login": "gregjkal"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
