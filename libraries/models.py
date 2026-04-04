@@ -25,7 +25,7 @@ from core.validators import image_validator, max_file_size_validator
 from libraries.managers import IssueManager
 from mailing_list.models import EmailData
 from versions.models import ReportConfiguration
-from .constants import LIBRARY_GITHUB_URL_OVERRIDES
+from .constants import DESCRIPTION_FILES, LIBRARY_GITHUB_URL_OVERRIDES
 
 from .utils import (
     generate_random_string,
@@ -340,8 +340,7 @@ class Library(models.Model):
         that will be `/README.md` or `/README.adoc`.
         """
         content = None
-        # File paths/names where description data might be stored.
-        files = ["doc/library-detail.adoc", "README.md", "README.adoc"]
+        files = DESCRIPTION_FILES
 
         # Try to get the content from the cache first
         static_content_cache = caches["static_content"]

@@ -7,6 +7,7 @@ from django.db.models import Sum
 from model_bakery import baker
 
 from core.models import RenderedContent
+from libraries.constants import DESCRIPTION_FILES
 from libraries.models import CommitAuthor
 from mailing_list.models import EmailData
 
@@ -145,9 +146,6 @@ def test_library_version_first_boost_version_property(library):
     assert library.first_boost_version == version_3
 
 
-DESCRIPTION_FILES = ["doc/library-detail.adoc", "README.md", "README.adoc"]
-
-
 @pytest.mark.parametrize(
     "first_available, expected",
     [(0, "<p>adoc</p>"), (1, "<p>md</p>"), (2, "<p>adoc</p>"), (None, None)],
@@ -157,22 +155,22 @@ DESCRIPTION_FILES = ["doc/library-detail.adoc", "README.md", "README.adoc"]
 @patch("libraries.models.write_content_to_tempfile")
 @patch("libraries.models.convert_adoc_to_html", return_value="<p>adoc</p>")
 def test_get_description_file_priority(
-    mock_adoc, mock_tempfile, mock_md, library, first_available, expected
+    _adoc, mock_tempfile, _md, library, first_available, expected
 ):
     """Files are tried in order; the first available file wins."""
     caches["static_content"].clear()
     RenderedContent.objects.all().delete()
     mock_tempfile.return_value.name = "/tmp/fake"
 
-    available = {
-        f: b"content" if first_available is not None and i >= first_available else None
-        for i, f in enumerate(DESCRIPTION_FILES)
-    }
+    available = dict.fromkeys(DESCRIPTION_FILES)
+    if first_available is not None:
+        for f in DESCRIPTION_FILES[first_available:]:
+            available[f] = b"content"
+
     client = MagicMock()
     client.get_file_content.side_effect = (
         lambda repo_slug, tag, file_path: available.get(file_path)
     )
-
     assert library.get_description(client) == expected
 
 
