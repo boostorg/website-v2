@@ -56,7 +56,7 @@
 
 .event-card {
   background: var(--color-card-bg);
-  border-radius: var(--card-radius);
+  border-radius: var(--border-radius-l);
   margin: 0 var(--space-card);
 }
 

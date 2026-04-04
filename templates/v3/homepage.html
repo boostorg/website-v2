@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load waffle_tags %}
+
+{% block title %}Boost C++ Libraries{% endblock %}
+
+{% block content %}
+{% flag "v3" %}
+<main class="v3-homepage" aria-label="Homepage content">
+  <div class="v3-homepage__content">
+    <div class="v3-homepage__row v3-homepage__row--top">
+      <div class="v3-homepage__col v3-homepage__col--left">
+        {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="/libraries/latest/browse/" popular_terms=popular_terms %}
+        {% include "v3/includes/_event_cards.html" with section_heading="Upcoming Events" event_list=event_list variant="white" primary_btn_text=event_primary_btn_text primary_btn_url=event_primary_btn_url secondary_btn_text=event_secondary_btn_text secondary_btn_url=event_secondary_btn_url %}
+      </div>
+      <div class="v3-homepage__col v3-homepage__col--middle">
+        {% include "v3/includes/_post_cards_v3.html" with heading="Posts from the Boost community" posts=homepage_posts view_all_url=homepage_posts_view_all_url view_all_label="View all posts" variant="default" theme="teal" %}
+      </div>
+      <div class="v3-homepage__col v3-homepage__col--right">
+        {% include "v3/includes/_code_block_card.html" with heading="Get started with our libraries" code=code_demo_hello language="cpp" button_text="Explore examples" button_url="/libraries/latest/browse/" %}
+        <section class="post-cards post-cards--content event-cards--yellow post-cards--content-card v3-homepage__join-card" aria-labelledby="join-developers-heading">
+          <h2 id="join-developers-heading" class="post-cards__heading">Join developers building the future of C++</h2>
+          <ul class="post-cards__list">
+            {% for card in community_cards %}
+              <li class="post-cards__item">
+                <a href="{{ card.cta_href }}" class="content-card-link" aria-label="{{ card.title }}">
+                  <div class="event-card" aria-hidden="true">
+                  {% include "v3/includes/_content_detail_card_item.html" with title=card.title description=card.description icon_name=card.icon_name cta_label=card.cta_label cta_as_span=True %}
+                </div>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+          <div class="card__cta_section">
+            <a href="{{ community_cta_url }}" class="btn btn-yellow">Explore the community</a>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="v3-homepage__row v3-homepage__row--why">
+      {% include "v3/includes/_why_boost_cards.html" with section_heading="Why Boost?" why_boost_cards=why_boost_cards %}
+    </div>
+
+    <div class="v3-homepage__row v3-homepage__row--stats">
+      {% include "v3/includes/_stats_in_numbers.html" with heading="Boost in numbers" description="Some detail about a graph in here" bars=stats_bars theme="default" primary_cta_label="Boost Org on GitHub" primary_cta_url="https://github.com/boostorg" %}
+      {% include "v3/includes/_testimonial_card.html" with heading=testimonial_data.heading testimonials=testimonial_data.testimonials %}
+    </div>
+
+    <div class="v3-homepage__row v3-homepage__row--bottom">
+      {% if library_intro %}
+      <div class="v3-homepage__col v3-homepage__col--library">
+        {% include "v3/includes/_library_intro_card.html" with library_name=library_intro.library_name description=library_intro.description authors=library_intro.authors cta_url=library_intro.cta_url %}
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</main>
+{% endflag %}
+{% endblock %}

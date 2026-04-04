@@ -20,6 +20,10 @@
   max-width: var(--header-width);
   margin: 0 auto;
   color: var(--color-text-primary, var(--text-color));
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  right: 0;
 }
 
 @media (min-width: 1440px) {
