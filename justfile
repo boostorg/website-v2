@@ -89,6 +89,9 @@ alias shell := console
 @test_pytest_lf:  ## runs last failed pytest tests
     -docker compose run --rm -e DEBUG_TOOLBAR="False" web pytest -s --create-db --lf
 
+@qa *args:  ## runs Playwright QA tests against staging (pass --env=production for prod)
+    docker compose run --rm playwright pytest --env=staging -v {{ args }}
+
 @test_pytest_asciidoctor:  ## runs asciidoctor tests
     -docker compose run --rm -e DEBUG_TOOLBAR="False" web pytest -m asciidoctor -s --create-db
 

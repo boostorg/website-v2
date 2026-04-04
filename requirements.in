@@ -65,6 +65,7 @@ pytest
 pytest-cov
 pytest-django
 pytest-mock
+pytest-playwright
 responses
 
 # Packaging
