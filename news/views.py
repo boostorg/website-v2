@@ -26,7 +26,6 @@ from django.views.generic import (
 )
 from django.views.generic.detail import SingleObjectMixin
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
-from waffle import flag_is_active
 
 from .acl import can_approve
 from .constants import NEWS_APPROVAL_SALT, MAGIC_LINK_EXPIRATION
@@ -231,10 +230,10 @@ def _v3_create_context():
             ("spirit", "Spirit"),
         ],
         "publish_at_initial": localtime(now()).strftime("%Y-%m-%dT%H:%M"),
-        "blogpost_create_url": reverse_lazy("news-blogpost-create"),
-        "news_create_url": reverse_lazy("news-news-create"),
-        "link_create_url": reverse_lazy("news-link-create"),
-        "video_create_url": reverse_lazy("news-video-create"),
+        "blogpost_create_url": reverse_lazy("v3-news-blogpost-create"),
+        "news_create_url": reverse_lazy("v3-news-news-create"),
+        "link_create_url": reverse_lazy("v3-news-link-create"),
+        "video_create_url": reverse_lazy("v3-news-video-create"),
     }
 
 
@@ -246,11 +245,6 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     add_url_name = None
     post_type_selected = ""
     success_message = _("The news entry was successfully created.")
-
-    def get_template_names(self):
-        if flag_is_active(self.request, "v3"):
-            return ["news/create_v3.html"]
-        return [self.template_name]
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -276,9 +270,6 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         context["add_label"] = self.add_label
         context["add_url_name"] = self.add_url_name
         context["cancel_url"] = reverse_lazy("news")
-        if flag_is_active(self.request, "v3"):
-            context.update(_v3_create_context())
-            context["post_type_selected"] = self.post_type_selected
         return context
 
 
@@ -353,11 +344,6 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get_template_names(self):
-        if flag_is_active(self.request, "v3"):
-            return ["news/create_v3.html"]
-        return ["news/create.html"]
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         items = [
@@ -370,8 +356,64 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
         if can_approve(self.request.user):
             items.append(self.item_params(PollCreateView))
         context["items"] = items
-        if flag_is_active(self.request, "v3"):
-            context.update(_v3_create_context())
+        return context
+
+
+class V3EntryCreateView(EntryCreateView):
+    template_name = "news/v3/create.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(_v3_create_context())
+        context["post_type_selected"] = self.post_type_selected
+        return context
+
+
+class V3BlogPostCreateView(V3EntryCreateView):
+    model = BlogPost
+    form_class = BlogPostForm
+    add_label = _("Create Blog Post")
+    add_url_name = "v3-news-blogpost-create"
+    post_type_selected = "blog"
+
+
+class V3LinkCreateView(V3EntryCreateView):
+    model = Link
+    form_class = LinkForm
+    add_label = _("Create Link")
+    add_url_name = "v3-news-link-create"
+    post_type_selected = "link"
+
+
+class V3NewsCreateView(V3EntryCreateView):
+    model = News
+    form_class = NewsForm
+    add_label = _("Create News")
+    add_url_name = "v3-news-news-create"
+    post_type_selected = "news"
+
+
+class V3PollCreateView(V3EntryCreateView):
+    model = Poll
+    form_class = PollForm
+    add_label = _("Create a Poll")
+    add_url_name = "v3-news-poll-create"
+
+
+class V3VideoCreateView(V3EntryCreateView):
+    model = Video
+    form_class = VideoForm
+    add_label = _("Upload a Video")
+    add_url_name = "v3-news-video-create"
+    post_type_selected = "video"
+
+
+class V3AllTypesCreateView(AllTypesCreateView):
+    template_name = "news/v3/create.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(_v3_create_context())
         return context
 
 
