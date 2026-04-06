@@ -1,28 +1,17 @@
 {% extends "base.html" %}
-{% load waffle_tags %}
 {% load static %}
 
 {% block title %}Create Post{% endblock %}
 
 {% block extra_head %}
   {{ block.super }}
-  {% flag "v3" %}
-    <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
-  {% endflag %}
+  <script>document.documentElement.classList.add('js')</script>
+  <style>@layer base { html:not(.js) .create-post-page__link-fields { display: flex !important; } }</style>
+  <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
 {% endblock %}
 
 {% block content %}
   <div class="create-post-section">
-      <noscript>
-        <style>
-          .create-post-page__content-field,
-          .create-post-page__link-fields { display: none !important; }
-          .create-post-page__card:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__content-field,
-          .create-post-page__card:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__content-field { display: flex !important; }
-          .create-post-page__card:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__link-fields,
-          .create-post-page__card:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__link-fields { display: flex !important; flex-direction: column; gap: var(--space-xlarge, 24px); }
-        </style>
-      </noscript>
       <div class="create-post-wrapper" x-data="createPostForm()" @field-change="handleFieldChange($event)">
       <form
         class="create-post-page"
@@ -61,10 +50,10 @@
             <p class="field__error" id="field-title-error" role="alert" x-show="errors.title" x-text="errors.title" x-cloak aria-live="polite"></p>
           </div>
 
-          {% comment %} Link (Video, Link): Link (required) and Description (optional). {% endcomment %}
+          {% comment %} Link (Video, Link): shown by x-show with JS; noscript override keeps it visible without JS. {% endcomment %}
           <div class="create-post-page__link-fields" x-show="isLinkType" x-cloak>
             <div class="field" :class="{ 'field--error': errors.external_url }">
-              <label class="field__label" for="field-external_url">Link *</label>
+              <label class="field__label" for="field-external_url">Link <span x-cloak>*</span></label>
               <div class="field__control">
                 <input class="field__input" type="url" id="field-external_url" name="external_url" placeholder="https://..."
                        value="{{ form.external_url.value|default_if_none:"" }}"
@@ -72,6 +61,7 @@
                        :aria-describedby="errors.external_url ? 'field-external_url-error' : null">
               </div>
               <p class="field__error" id="field-external_url-error" role="alert" x-show="errors.external_url" x-text="errors.external_url" x-cloak aria-live="polite"></p>
+              <noscript><p class="field__help">Required for Video and Link post types.</p></noscript>
             </div>
           </div>
 
