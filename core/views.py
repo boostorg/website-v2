@@ -1071,6 +1071,23 @@ class V3ComponentDemoView(TemplateView):
 
     template_name = "base.html"
 
+    @staticmethod
+    def _get_author_avatar(author):
+        """Return the best available avatar URL for a library author (User).
+
+        Returns empty string when no image is available so the avatar
+        template falls back to a colored initials circle.
+        """
+        if not author:
+            return ""
+        url = author.get_thumbnail_url()
+        if url:
+            return url
+        ca = getattr(author, "commitauthor", None)
+        if ca and getattr(ca, "avatar_url", None):
+            return ca.avatar_url
+        return ""
+
     def get_context_data(self, **kwargs):
         from django.urls import reverse
         from libraries.models import Library, LibraryVersion
@@ -1078,6 +1095,7 @@ class V3ComponentDemoView(TemplateView):
             build_library_intro_context,
             get_commit_data_by_release_for_library,
             commit_data_to_stats_bars,
+            patch_commit_authors,
         )
 
         CODE_DEMO_BEAST = """int main()
@@ -1775,6 +1793,18 @@ class V3ComponentDemoView(TemplateView):
             .prefetch_related("categories", "authors")
             .order_by("name")
         )
+        # Collect one author per demo library and patch CommitAuthor data
+        demo_authors = {}
+        for lib in demo_libs_qs:
+            author = (
+                lib.authors.exclude(email__startswith="deleted-")
+                .exclude(github_username="")
+                .first()
+            ) or lib.authors.exclude(email__startswith="deleted-").first()
+            if author:
+                demo_authors[lib.pk] = author
+        patch_commit_authors(list(demo_authors.values()))
+
         for lib in demo_libs_qs:
             lv = (
                 LibraryVersion.objects.filter(version=latest, library=lib).first()
@@ -1785,11 +1815,7 @@ class V3ComponentDemoView(TemplateView):
                 {"label": cat.name, "url": "#", "variant": "neutral"}
                 for cat in lib.categories.all()[:3]
             ]
-            author = (
-                lib.authors.exclude(email__startswith="deleted-")
-                .exclude(github_username="")
-                .first()
-            ) or lib.authors.exclude(email__startswith="deleted-").first()
+            author = demo_authors.get(lib.pk)
             demo_library_items.append(
                 {
                     "library_name": lib.display_name_short,
@@ -1810,11 +1836,7 @@ class V3ComponentDemoView(TemplateView):
                     "author": {
                         "name": author.display_name if author else "Unknown",
                         "role": "Contributor",
-                        "avatar_url": (
-                            f"https://github.com/{author.github_username}.png"
-                            if author and author.github_username
-                            else f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png"
-                        ),
+                        "avatar_url": self._get_author_avatar(author),
                         "badge_url": f"{badge_img}/badge-first-place.png",
                     },
                     "doc_url": reverse(
