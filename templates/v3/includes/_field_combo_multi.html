@@ -1,58 +1,66 @@
 {% comment %}
-  V3 combo (searchable dropdown) field.
+  V3 combo multi-select (searchable dropdown with multi-selection).
   Variables:
-    name        (required) — input name attribute
-    label       (optional) — label text
-    placeholder (optional) — placeholder text when nothing selected
-    options     (required) — list of (value, label) 2-tuples (e.g. from TextChoices.choices)
-    selected    (optional) — value of the pre-selected option
-    help_text   (optional) — help text below the field
-    error       (optional) — error message (activates error state)
-    required    (optional) — if truthy, adds required attribute
-    extra_class (optional) — additional classes on the wrapper
+    name            (required) — input name attribute (submitted as multiple values via getlist)
+    label           (optional) — label text
+    placeholder     (optional) — placeholder text when nothing selected / search input hint
+    options         (required) — list of (value, label) 2-tuples (e.g. from TextChoices.choices)
+    selected_values (optional) — list of pre-selected values, e.g. ["a","b"]
+    help_text       (optional) — help text below the field
+    error           (optional) — error message (activates error state)
+    required        (optional) — if truthy, adds required attribute
+    extra_class     (optional) — additional classes on the wrapper
   Usage:
-    {% include "v3/includes/_field_combo.html" with name="country" label="Country" options=country_options placeholder="Search countries..." %}
+    {% include "v3/includes/_field_combo_multi.html" with name="tags" label="Tags" options=tags_options placeholder="Search tags..." %}
 {% endcomment %}
 {% load text_helpers %}
 <script type="application/json" id="field-{{ name }}-options">{{ options|to_json }}</script>
+{% if selected_values %}
+  <script type="application/json" id="field-{{ name }}-selected">{{ selected_values|to_json }}</script>
+{% endif %}
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
   {# djlint:off #}
      x-data="{
        jsReady: false,
        open: false,
        query: '',
-       selected: '{{ selected|default:'' }}',
-       selectedLabel: '',
+       selectedValues: [],
        options: [],
-       activeIndex: -1,
-       get activeValue() { return this.filtered[this.activeIndex]?.value ?? null; },
        get filtered() {
          if (!this.query) return this.options;
          const q = this.query.toLowerCase();
          return this.options.filter(o => o.label.toLowerCase().includes(q));
        },
+       get displayText() {
+         if (this.selectedValues.length === 0) return '';
+         return this.options
+           .filter(o => this.selectedValues.includes(o.value))
+           .map(o => o.label)
+           .join(', ');
+       },
        init() {
          this.jsReady = true;
          this.options = JSON.parse(document.getElementById('field-{{ name }}-options').textContent);
-         if (this.selected) {
-           const match = this.options.find(o => o.value === this.selected);
-           if (match) this.selectedLabel = match.label;
+         const selEl = document.getElementById('field-{{ name }}-selected');
+         if (selEl) this.selectedValues = JSON.parse(selEl.textContent);
+       },
+       toggle(value) {
+         const idx = this.selectedValues.indexOf(value);
+         if (idx === -1) {
+           this.selectedValues.push(value);
+         } else {
+           this.selectedValues.splice(idx, 1);
          }
        },
-       choose(value, label) {
-         this.selected = value;
-         this.selectedLabel = label;
-         this.query = '';
-         this.activeIndex = -1;
-         this.open = false;
-         setTimeout(() => this.$refs.chevronBtn.focus());
+       isSelected(value) {
+         return this.selectedValues.includes(value);
        },
-       toggle() {
+       toggleOpen() {
          if (this.open) {
            this.open = false;
          } else {
            this.open = true;
-           this.activeIndex = -1;
+           this.query = '';
            this.$nextTick(() => this.$refs.searchInput.focus());
          }
        }
@@ -60,27 +68,29 @@
   {# djlint:on #}
   {% if label %}<label class="field__label" id="field-{{ name }}-label">{{ label }}</label>{% endif %}
   <select class="field__select"
+          multiple
           name="{{ name }}"
           {% if required %}required{% endif %}
           {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
           {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
           x-show="!jsReady"
           :disabled="jsReady">
-    {% if placeholder %}<option value="">{{ placeholder }}</option>{% endif %}
     {% for value, label in options %}
-      <option value="{{ value }}"{% if value == selected %} selected{% endif %}>{{ label }}</option>
+      <option value="{{ value }}"{% if value in selected_values %} selected{% endif %}>{{ label }}</option>
     {% endfor %}
   </select>
   <div class="dropdown dropdown--combo" :class="{ 'dropdown--open': open }" x-cloak>
     <div class="dropdown__trigger"
          :class="{ 'dropdown__trigger--active': open }"
-         @click="if (!open) toggle()"
+         @click="if (!open) toggleOpen()"
          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}>
-      <!-- Closed state: show selected value or placeholder -->
+      <!-- Closed state: show selected values or placeholder -->
       <template x-if="!open">
-        <span class="dropdown__trigger-text"
-              :class="{ 'dropdown__trigger-placeholder': !selected }">
-          <span x-text="selected ? selectedLabel : '{{ placeholder|default:"Search..." }}'"></span>
+        <span class="multiselect__trigger-text">
+          <span x-show="selectedValues.length > 0"
+                x-text="displayText"></span>
+          <span class="dropdown__trigger-placeholder"
+                x-show="selectedValues.length === 0">{{ placeholder|default:"Search..." }}</span>
         </span>
       </template>
       <!-- Open state: show search icon + input -->
@@ -91,22 +101,18 @@
                  class="combo__search-input"
                  x-ref="searchInput"
                  x-model="query"
-                 @input="activeIndex = -1"
                  @keydown.escape.prevent="open = false; setTimeout(() => $refs.chevronBtn.focus())"
-                 @keydown.arrow-down.prevent="activeIndex = Math.min(activeIndex + 1, filtered.length - 1)"
-                 @keydown.arrow-up.prevent="activeIndex = activeIndex > 0 ? activeIndex - 1 : -1"
-                 @keydown.enter.prevent="if (activeValue) choose(activeValue, filtered[activeIndex].label)"
+                 @keydown.arrow-down.prevent="$refs.list.querySelector('[role=option]')?.focus()"
                  placeholder="{{ placeholder|default:'Type to search...' }}"
                  aria-autocomplete="list"
-                 aria-label="Search options"
-                 :aria-activedescendant="activeValue ? 'field-{{ name }}-option-' + activeValue : null">
+                 aria-label="Search options">
         </span>
       </template>
       <!-- Chevron: always present, animates via .dropdown--open -->
       <button type="button"
               class="combo__chevron-btn"
               x-ref="chevronBtn"
-              @click.stop="toggle()"
+              @click.stop="toggleOpen()"
               :aria-expanded="open"
               aria-label="Toggle search">
         {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
@@ -123,31 +129,36 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
          style="display: none"
-         role="combobox"
+         role="listbox"
+         aria-multiselectable="true"
          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}>
-      <div class="dropdown__list" role="listbox">
+      <div class="dropdown__list" x-ref="list">
         <template x-for="option in filtered" :key="option.value">
-          <div class="dropdown__item"
-               :id="'field-{{ name }}-option-' + option.value"
-               :class="{ 'dropdown__item--selected': selected === option.value, 'dropdown__item--active': activeValue === option.value }"
+          <div class="multiselect__item"
                role="option"
-               :aria-selected="selected === option.value"
-               @click="choose(option.value, option.label)"
-               @keydown.enter.prevent="choose(option.value, option.label)"
-               @keydown.space.prevent="choose(option.value, option.label)"
-               tabindex="0"
-               x-text="option.label"></div>
+               :aria-selected="isSelected(option.value)"
+               :data-value="option.value"
+               @click="toggle(option.value)"
+               @keydown.enter.prevent="toggle(option.value)"
+               @keydown.space.prevent="toggle(option.value)"
+               @keydown.arrow-down.prevent="$el.nextElementSibling?.focus()"
+               @keydown.arrow-up.prevent="$el.previousElementSibling?.hasAttribute('data-value') ? $el.previousElementSibling.focus() : $refs.searchInput.focus()"
+               tabindex="0">
+            <span class="multiselect__check"
+                  :class="{ 'multiselect__check--active': isSelected(option.value) }">
+              {% include "includes/icon.html" with icon_name="check" icon_class="multiselect__check-icon" x_show="isSelected(option.value)" x_cloak="true" %}
+            </span>
+            <span x-text="option.label"></span>
+          </div>
         </template>
         <div class="dropdown__empty" x-show="filtered.length === 0">No results found</div>
       </div>
     </div>
   </div>
-  <input type="hidden"
-         name="{{ name }}"
-         :value="selected"
-         disabled
-         :disabled="!jsReady"
-         {% if required %}required{% endif %}>
+  <!-- Hidden inputs for form submission -->
+  <template x-for="val in selectedValues" :key="val">
+    <input type="hidden" :name="'{{ name }}'" :value="val">
+  </template>
   {% if error %}
     <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
   {% elif help_text %}

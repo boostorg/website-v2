@@ -1,0 +1,139 @@
+/*
+  Library Filter
+  Horizontal row of filter dropdowns (desktop) with fullscreen modal (mobile).
+  Mobile open/close is CSS-only via a hidden checkbox toggle.
+  Depends on: primitives.css, semantics.css, forms.css
+*/
+
+/* ── Desktop: hide trigger & nav, show fields inline ── */
+.library-filter__toggle {
+  display: none;
+}
+
+.library-filter__trigger {
+  display: none;
+}
+
+.library-filter__nav {
+  display: none;
+}
+
+.library-filter__fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-medium);
+}
+
+/* ── Field width modifiers ─────────────── */
+
+.library-filter__field {
+  flex-shrink: 0;
+}
+
+.library-filter__field-narrow {
+  width: 104px;
+}
+
+.library-filter__field-default {
+  width: 160px;
+}
+
+.library-filter__field-wide {
+  width: 200px;
+}
+
+/* ── Mobile: fullscreen modal ──────────── */
+
+@media (max-width: 767px) {
+  .library-filter__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-default);
+    padding: var(--space-default) var(--space-large);
+    background-color: var(--color-surface-weak);
+    border: 1px solid var(--color-stroke-weak);
+    border-radius: var(--border-radius-l);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .library-filter__trigger-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Modal: hidden by default, shown when checkbox is checked */
+  .library-filter__modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    flex-direction: column;
+    gap: var(--space-xl);
+    background-color: var(--color-surface-page);
+    overflow-y: auto;
+  }
+
+  /* When the hidden checkbox is checked, show the modal and hide page content behind it */
+  .library-filter__toggle:checked ~ .library-filter__modal {
+    display: flex;
+  }
+
+  .library-filter__toggle:checked ~ .library-filter__modal ~ * {
+    display: none;
+  }
+
+  /* Prevent background scroll while the modal is open */
+  body:has(.library-filter__toggle:checked) {
+    overflow: hidden;
+  }
+
+  /* Nav bar with close button */
+  .library-filter__nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--space-medium);
+    padding: var(--space-medium);
+    height: 64px;
+    box-sizing: border-box;
+  }
+
+  .library-filter__close {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-default);
+    height: 100%;
+    padding: 0 var(--space-large);
+    background-color: var(--color-surface-weak);
+    border: 1px solid var(--color-stroke-weak);
+    border-radius: var(--border-radius-xl);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-primary);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .library-filter__close-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--color-icon-brand-accent);
+  }
+
+  /* Fields stack vertically */
+  .library-filter__fields {
+    flex-direction: column;
+    gap: var(--space-large);
+    padding: 0 var(--space-default);
+  }
+
+  .library-filter__field {
+    width: 100%;
+  }
+}

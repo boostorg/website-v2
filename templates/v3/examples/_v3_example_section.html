@@ -390,6 +390,7 @@
           {% include "v3/includes/_field_dropdown.html" with name="ex_type" label="Dropdown" options=demo_dropdown_options placeholder="Select type..." %}
           {% include "v3/includes/_field_combo.html" with name="ex_library" label="Combo (searchable)" placeholder="Search libraries..." options=demo_libs %}
           {% include "v3/includes/_field_multiselect.html" with name="ex_categories" label="Multi-select" placeholder="Select categories..." options=demo_cats %}
+          {% include "v3/includes/_field_combo_multi.html" with name="ex_combo_multi" label="Combo multi-select (searchable)" placeholder="Search and select..." options=demo_combo_multi_tags %}
         </div>
       </div>
     </div>
@@ -540,6 +541,24 @@
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
         {% include "v3/includes/_category_cards.html" with show_version_tags=True %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Post Filter" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_post_filter.html" with options=post_filter_options filter_name="demo-filter" %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Library Filter" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_library_filter.html" with filter_id="demo-library-filter" fields=library_filter_fields %}
       </div>
     </div>
   {% endwith %}
