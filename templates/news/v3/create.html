@@ -10,6 +10,12 @@
     html.js .create-post-page__link-fields,
     html.js .create-post-page__content-field { display: none; }
     html.js .create-post-page__link-help { display: none; }
+
+    html:not(.js) form:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__content-field,
+    html:not(.js) form:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__content-field { display: none; }
+
+    html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__link-fields,
+    html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__link-fields { display: none; }
   </style>
   <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
 {% endblock %}
