@@ -9,7 +9,6 @@
   <style>
     html.js .create-post-page__link-fields,
     html.js .create-post-page__content-field { display: none; }
-    html.js .create-post-page__link-help { display: none; }
 
     html:not(.js) .field--file .field__control { cursor: pointer; }
 
@@ -45,36 +44,13 @@
 
         <div class="create-post-page__card">
           {% comment %} Post Type dropdown: Blog, News, Video, Link. Placeholder "Select Post Type". Controls conditional fields. {% endcomment %}
-          <div>
-            {% include "v3/includes/_field_dropdown.html" with name="post_type" label="Post type *" options=post_type_options placeholder="Select Post Type" required=True selected=post_type_selected %}
-            <p class="field__error" id="post-type-error" role="alert" x-show="errors.post_type" x-text="errors.post_type" x-cloak></p>
-          </div>
+          {% include "v3/includes/_field_dropdown.html" with name="post_type" label="Post type *" options=post_type_options placeholder="Select Post Type" required=True selected=post_type_selected alpine_error="errors.post_type" %}
 
-          <div class="field" :class="{ 'field--error': errors.title }">
-            <label class="field__label" for="field-title">Post title *</label>
-            <div class="field__control">
-              <input class="field__input" type="text" id="field-title" name="title" placeholder="Title" required
-                     value="{{ form.title.value|default_if_none:"" }}"
-                     :aria-invalid="!!errors.title"
-                     :aria-describedby="errors.title ? 'field-title-error' : null">
-
-            </div>
-            <p class="field__error" id="field-title-error" role="alert" x-show="errors.title" x-text="errors.title" x-cloak aria-live="polite"></p>
-          </div>
+          {% include "v3/includes/_field_text.html" with name="title" label="Post title *" placeholder="Title" value=form.title.value|default_if_none:"" required=True alpine_error="errors.title" error=form.title.errors.0 %}
 
           {% comment %} Link (Video, Link): shown via :style binding; html.js CSS hides before Alpine init. {% endcomment %}
           <div class="create-post-page__link-fields" :style="isLinkType ? 'display: flex' : 'display: none'">
-            <div class="field" :class="{ 'field--error': errors.external_url }">
-              <label class="field__label" for="field-external_url">Link <span x-cloak>*</span></label>
-              <div class="field__control">
-                <input class="field__input" type="url" id="field-external_url" name="external_url" placeholder="https://..."
-                       value="{{ form.external_url.value|default_if_none:"" }}"
-                       :aria-invalid="!!errors.external_url"
-                       :aria-describedby="errors.external_url ? 'field-external_url-error' : null">
-              </div>
-              <p class="field__error" id="field-external_url-error" role="alert" x-show="errors.external_url" x-text="errors.external_url" x-cloak aria-live="polite"></p>
-              <p class="field__help create-post-page__link-help">Required for Video and Link post types.</p>
-            </div>
+            {% include "v3/includes/_field_text.html" with name="external_url" label="Link *" type="url" placeholder="https://..." value=form.external_url.value|default_if_none:"" alpine_error="errors.external_url" error=form.external_url.errors.0 help_text="Required for Video and Link post types." %}
           </div>
 
           {% comment %} Write Up (Blog, News): Content required. WYSIWYG editor (Markdown). {% endcomment %}
