@@ -29,8 +29,7 @@
         enctype="multipart/form-data"
         method="post"
         :novalidate="true"
-        action="{{ blogpost_create_url }}"
-        :action="formAction"
+        action="{% url 'v3-news-create' %}"
         @submit="prepareSubmit"
         data-create-post-form
       >
@@ -101,19 +100,12 @@
 
     <script>
   document.addEventListener('alpine:init', () => {
-    const createUrls = {
-      blog: '{{ blogpost_create_url }}',
-      news: '{{ news_create_url }}',
-      link: '{{ link_create_url }}',
-      video: '{{ video_create_url }}'
-    };
     window.createPostForm = function() {
       return {
         postType: '{{ post_type_selected|default:""|escapejs }}',
         errors: { post_type: '', title: '{{ form.title.errors.0|default:""|escapejs }}', content: '{{ form.content.errors.0|default:""|escapejs }}', external_url: '{{ form.external_url.errors.0|default:""|escapejs }}', image: '{{ form.image.errors.0|default:""|escapejs }}' },
         get isWriteUp() { return this.postType === 'blog' || this.postType === 'news'; },
         get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
-        get formAction() { return createUrls[this.postType] || ''; },
         handleFieldChange(e) {
           const { name, value } = e.detail;
           if (name === 'post_type') this.setPostType(value);
@@ -170,15 +162,6 @@
               this.errors.external_url ? 'field-external_url' : this.errors.image ? 'field-image' : null;
             const firstEl = firstId ? (this.$el.querySelector('#' + firstId) || form.querySelector('[name="' + firstId.replace('field-', '') + '"]')) : null;
             if (firstEl) firstEl.focus();
-            return;
-          }
-
-          form.querySelector('input[name="post_type"]')?.setAttribute('disabled', 'disabled');
-          if (this.isWriteUp) {
-            form.querySelector('input[name="external_url"]')?.setAttribute('disabled', 'disabled');
-            form.querySelector('textarea[name="content_link"]')?.setAttribute('disabled', 'disabled');
-          } else {
-            form.querySelector('textarea[name="content"]')?.setAttribute('disabled', 'disabled');
           }
         }
       };

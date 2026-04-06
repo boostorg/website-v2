@@ -230,10 +230,6 @@ def _v3_create_context():
             ("spirit", "Spirit"),
         ],
         "publish_at_initial": localtime(now()).strftime("%Y-%m-%dT%H:%M"),
-        "blogpost_create_url": reverse_lazy("v3-news-blogpost-create"),
-        "news_create_url": reverse_lazy("v3-news-news-create"),
-        "link_create_url": reverse_lazy("v3-news-link-create"),
-        "video_create_url": reverse_lazy("v3-news-video-create"),
     }
 
 
@@ -393,13 +389,6 @@ class V3NewsCreateView(V3EntryCreateView):
     post_type_selected = "news"
 
 
-class V3PollCreateView(V3EntryCreateView):
-    model = Poll
-    form_class = PollForm
-    add_label = _("Create a Poll")
-    add_url_name = "v3-news-poll-create"
-
-
 class V3VideoCreateView(V3EntryCreateView):
     model = Video
     form_class = VideoForm
@@ -410,11 +399,58 @@ class V3VideoCreateView(V3EntryCreateView):
 
 class V3AllTypesCreateView(AllTypesCreateView):
     template_name = "news/v3/create.html"
+    http_method_names = ["get", "post"]
+
+    _POST_TYPE_MAP = {
+        "blog": (BlogPost, BlogPostForm),
+        "news": (News, NewsForm),
+        "link": (Link, LinkForm),
+        "video": (Video, VideoForm),
+    }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(_v3_create_context())
         return context
+
+    def post(self, request, *args, **kwargs):
+        post_type = request.POST.get("post_type", "")
+        type_config = self._POST_TYPE_MAP.get(post_type)
+
+        if type_config is None:
+            context = self.get_context_data(post_type_selected=post_type)
+            return self.render_to_response(context)
+
+        model_class, form_class = type_config
+        form = form_class(request.POST, request.FILES)
+
+        if form.is_valid():
+            form.instance.author = request.user
+            try:
+                entry = form.save()
+            except IntegrityError as e:
+                if "slug" in str(e):
+                    form.add_error(
+                        "title",
+                        "A post with this title already exists. Please choose a different title.",
+                    )
+                else:
+                    form.add_error(
+                        None, "An unexpected error occurred. Please try again."
+                    )
+                context = self.get_context_data(form=form, post_type_selected=post_type)
+                return self.render_to_response(context)
+
+            if not entry.is_approved:
+                send_email_news_needs_moderation(request=request, entry=entry)
+            else:
+                send_email_news_posted(request=request, entry=entry)
+
+            messages.success(request, _("The news entry was successfully created."))
+            return redirect(entry)
+
+        context = self.get_context_data(form=form, post_type_selected=post_type)
+        return self.render_to_response(context)
 
 
 class EntryApproveView(
