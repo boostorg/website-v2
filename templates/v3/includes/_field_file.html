@@ -16,39 +16,6 @@
     {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" help_text="PNG or JPEG, max 1MB" %}
   Custom display: no native "No file chosen"; shows "Choose File" until a file is selected, then the file name.
 {% endcomment %}
-<noscript>
-  <style>
-    .field--file .field__file-display[x-cloak] { display: inline !important; }
-    .field--file .field__control,
-    .field--file .field__control:hover,
-    .field--file .field__control:focus-within {
-      cursor: pointer;
-      position: relative;
-      border: none;
-      padding: 0;
-      background: transparent;
-    }
-    .field--file .field__input[type="file"] {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      margin: 0;
-      padding: 0;
-      border: none;
-      background: transparent;
-      outline: none;
-      font-size: 0;
-      cursor: pointer;
-      z-index: 1;
-    }
-    .field--file .field__input[type="file"]::-webkit-file-upload-button,
-    .field--file .field__input[type="file"]::file-selector-button {
-      display: none;
-    }
-  </style>
-</noscript>
 <div class="field field--file{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
      {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
      x-data="{ jsReady: false, fileName: ''{% if preview %}, previewUrl: ''{% endif %} }"
