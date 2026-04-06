@@ -93,70 +93,69 @@
 
     <script>
   document.addEventListener('alpine:init', () => {
-    window.createPostForm = function() {
+    window.createPostForm = function () {
       return {
         postType: '{{ post_type_selected|default:""|escapejs }}',
-        errors: { post_type: '', title: '{{ form.title.errors.0|default:""|escapejs }}', content: '{{ form.content.errors.0|default:""|escapejs }}', external_url: '{{ form.external_url.errors.0|default:""|escapejs }}', image: '{{ form.image.errors.0|default:""|escapejs }}' },
+        errors: {
+          post_type:    '',
+          title:        '{{ form.title.errors.0|default:""|escapejs }}',
+          content:      '{{ form.content.errors.0|default:""|escapejs }}',
+          external_url: '{{ form.external_url.errors.0|default:""|escapejs }}',
+          image:        '{{ form.image.errors.0|default:""|escapejs }}',
+        },
+
         get isWriteUp() { return this.postType === 'blog' || this.postType === 'news'; },
         get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
+
         handleFieldChange(e) {
           const { name, value } = e.detail;
-          if (name === 'post_type') this.setPostType(value);
-        },
-        setPostType(value) {
+          if (name !== 'post_type') return;
           this.postType = value;
           this.errors.post_type = '';
         },
+
         prepareSubmit(e) {
           this.errors = { post_type: '', title: '', content: '', external_url: '', image: '' };
           const form = e.target;
-          const titleEl = form.querySelector('input[name="title"]');
+          const titleEl   = form.querySelector('input[name="title"]');
           const contentEl = form.querySelector('textarea[name="content"]');
-          const urlEl = form.querySelector('input[name="external_url"]');
-          const imageEl = form.querySelector('input[name="image"]');
+          const urlEl     = form.querySelector('input[name="external_url"]');
+          const imageEl   = form.querySelector('input[name="image"]');
 
-          if (!this.postType) {
-            this.errors.post_type = 'Please select a post type.';
-          }
-          if (!titleEl?.value?.trim()) {
-            this.errors.title = 'Post title is required.';
-          }
+          if (!this.postType) this.errors.post_type = 'Please select a post type.';
+          if (!titleEl?.value?.trim()) this.errors.title = 'Post title is required.';
+
           if (this.isWriteUp) {
-            if (!contentEl?.value?.trim()) {
-              this.errors.content = 'Content is required.';
-            }
+            if (!contentEl?.value?.trim()) this.errors.content = 'Content is required.';
           } else {
-            if (!urlEl?.value?.trim()) {
+            const url = urlEl?.value?.trim();
+            if (!url) {
               this.errors.external_url = 'Link is required.';
             } else {
-              try { new URL(urlEl.value); } catch (_) {
+              try { new URL(url); } catch (_) {
                 this.errors.external_url = 'Please enter a valid URL.';
               }
             }
           }
-          if (imageEl?.files?.length) {
-            const file = imageEl.files[0];
+
+          const file = imageEl?.files?.[0];
+          if (file) {
             const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-            if (!validTypes.includes(file.type)) {
-              this.errors.image = 'Please choose a PNG or JPEG image.';
-            } else {
-              const maxSize = 1024 * 1024;
-              if (file.size > maxSize) {
-                this.errors.image = 'Image must be 1MB or smaller.';
-              }
-            }
+            if (!validTypes.includes(file.type)) this.errors.image = 'Please choose a PNG or JPEG image.';
+            else if (file.size > 1024 * 1024) this.errors.image = 'Image must be 1MB or smaller.';
           }
 
-          const hasErrors = Object.values(this.errors).some(function(v) { return v !== ''; });
-          if (hasErrors) {
+          if (Object.values(this.errors).some(v => v)) {
             e.preventDefault();
-            const firstId = this.errors.post_type ? 'field-post_type-label' :
-              this.errors.title ? 'field-title' : this.errors.content ? 'field-content' :
-              this.errors.external_url ? 'field-external_url' : this.errors.image ? 'field-image' : null;
-            const firstEl = firstId ? (this.$el.querySelector('#' + firstId) || form.querySelector('[name="' + firstId.replace('field-', '') + '"]')) : null;
-            if (firstEl) firstEl.focus();
+            const order = ['post_type', 'title', 'content', 'external_url', 'image'];
+            const firstKey = order.find(k => this.errors[k]);
+            if (firstKey) {
+              const id = firstKey === 'post_type' ? 'field-post_type-label' : `field-${firstKey}`;
+              const el = this.$el.querySelector(`#${id}`) || form.querySelector(`[name="${firstKey}"]`);
+              el?.focus();
+            }
           }
-        }
+        },
       };
     };
   });
