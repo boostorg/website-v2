@@ -24,8 +24,10 @@
         name="{{name}}"
         value="{{value}}"
         id="{{id|default:uuid}}"
+        aria-labelledby="{{id|default:uuid}}_label"
         aria-checked="{{radio_checked|yesno:"true,false"|default:"false"}}"
+        aria-pressed="{{radio_checked|yesno:"true,false"|default:"false"}}"
         {% if radio_checked %} checked {% endif %}
     />
-    <label for="{{id|default:uuid}}"><img src="{{ icon_src }}" alt="" width="32" height="32"></label>
+    <label id="{{id|default:uuid}}_label" for="{{id|default:uuid}}"><img src="{{ icon_src }}" alt="" width="32" height="32"></label>
 </div>
