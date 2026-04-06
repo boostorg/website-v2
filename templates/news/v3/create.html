@@ -7,7 +7,8 @@
   {{ block.super }}
   <script>document.documentElement.classList.add('js')</script>
   <style>
-    @layer base { html:not(.js) .create-post-page__link-fields { display: flex !important; } }
+    html.js .create-post-page__link-fields,
+    html.js .create-post-page__content-field { display: none; }
     html.js .create-post-page__link-help { display: none; }
   </style>
   <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
@@ -53,8 +54,8 @@
             <p class="field__error" id="field-title-error" role="alert" x-show="errors.title" x-text="errors.title" x-cloak aria-live="polite"></p>
           </div>
 
-          {% comment %} Link (Video, Link): shown by x-show with JS; noscript override keeps it visible without JS. {% endcomment %}
-          <div class="create-post-page__link-fields" x-show="isLinkType" x-cloak>
+          {% comment %} Link (Video, Link): shown via :style binding; html.js CSS hides before Alpine init. {% endcomment %}
+          <div class="create-post-page__link-fields" :style="isLinkType ? 'display: flex' : 'display: none'">
             <div class="field" :class="{ 'field--error': errors.external_url }">
               <label class="field__label" for="field-external_url">Link <span x-cloak>*</span></label>
               <div class="field__control">
@@ -69,7 +70,7 @@
           </div>
 
           {% comment %} Write Up (Blog, News): Content required. WYSIWYG editor (Markdown). {% endcomment %}
-          <div class="field create-post-page__content-field" :class="{ 'field--error': errors.content }">
+          <div class="field create-post-page__content-field" :style="isWriteUp ? 'display: flex' : 'display: none'" :class="{ 'field--error': errors.content }">
             <label class="field__label" for="field-content">Content *</label>
             {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=form.content.value %}
             <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
