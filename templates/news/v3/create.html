@@ -6,7 +6,10 @@
 {% block extra_head %}
   {{ block.super }}
   <script>document.documentElement.classList.add('js')</script>
-  <style>@layer base { html:not(.js) .create-post-page__link-fields { display: flex !important; } }</style>
+  <style>
+    @layer base { html:not(.js) .create-post-page__link-fields { display: flex !important; } }
+    html.js .create-post-page__link-help { display: none; }
+  </style>
   <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
 {% endblock %}
 
@@ -61,7 +64,7 @@
                        :aria-describedby="errors.external_url ? 'field-external_url-error' : null">
               </div>
               <p class="field__error" id="field-external_url-error" role="alert" x-show="errors.external_url" x-text="errors.external_url" x-cloak aria-live="polite"></p>
-              <noscript><p class="field__help">Required for Video and Link post types.</p></noscript>
+              <p class="field__help create-post-page__link-help">Required for Video and Link post types.</p>
             </div>
           </div>
 
