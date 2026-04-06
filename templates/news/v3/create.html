@@ -8,12 +8,18 @@
   <script>document.documentElement.classList.add('js')</script>
   <style>
     html.js .create-post-page__link-fields,
-    html.js .create-post-page__content-field { display: none; }
+    html.js .create-post-page__content-field,
+    html.js .create-post-page__description-field { display: none; }
 
+    html:not(.js) .create-post-page__content-field,
+    html:not(.js) .create-post-page__description-field { display: none; }
     html:not(.js) .field--file .field__control { cursor: pointer; }
 
-    html:not(.js) form:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__content-field,
-    html:not(.js) form:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__content-field { display: none; }
+    html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__content-field,
+    html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__content-field { display: block; }
+
+    html:not(.js) form:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__description-field,
+    html:not(.js) form:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__description-field { display: block; }
 
     html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__link-fields,
     html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__link-fields { display: none; }
@@ -53,12 +59,16 @@
             {% include "v3/includes/_field_text.html" with name="external_url" label="Link *" type="url" placeholder="https://..." value=form.external_url.value|default_if_none:"" alpine_error="errors.external_url" error=form.external_url.errors.0 help_text="Required for Video and Link post types." %}
           </div>
 
-          {% comment %} Write Up (Blog, News): Content required. WYSIWYG editor (Markdown). {% endcomment %}
+          {% comment %} Content (Blog, News): WYSIWYG editor. Description (Link, Video): plain textarea. Both use name="content". {% endcomment %}
           <div class="field create-post-page__content-field" :style="isWriteUp ? 'display: flex' : 'display: none'" :class="{ 'field--error': errors.content }">
             <label class="field__label" for="field-content">Content *</label>
-            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=form.content.value %}
+            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=form.content.value disabled_expr="isLinkType" %}
             <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
             <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
+          </div>
+
+          <div class="create-post-page__description-field" :style="isLinkType ? '' : 'display: none'">
+            {% include "v3/includes/_field_textarea.html" with name="content" field_id="description" label="Description" value=form.content.value|default_if_none:"" alpine_error="errors.content" error=form.content.errors.0 alpine_disabled_expr="isWriteUp" %}
           </div>
 
           {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no longer than 1MB" extra_class="field--file-narrow create-post-page__field-image" %}
@@ -103,7 +113,9 @@
           this.errors = { post_type: '', title: '', content: '', external_url: '', image: '' };
           const form = e.target;
           const titleEl   = form.querySelector('input[name="title"]');
-          const contentEl = form.querySelector('textarea[name="content"]');
+          const contentEl = this.isWriteUp
+            ? form.querySelector('#field-content')
+            : form.querySelector('#field-description');
           const urlEl     = form.querySelector('input[name="external_url"]');
           const imageEl   = form.querySelector('input[name="image"]');
 

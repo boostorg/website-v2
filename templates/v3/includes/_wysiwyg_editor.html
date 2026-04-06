@@ -6,7 +6,8 @@
     textarea_name — name attribute for form submission (e.g. "content")
 
   Optional variables:
-    label — label text (default: "Content")
+    label        — label text (default: "Content")
+    disabled_expr — Alpine expression to conditionally disable the textarea for form submission
 
   Usage:
     {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="id_content" textarea_name="content" %}
@@ -20,6 +21,7 @@
     placeholder=""
     x-show="!jsReady"
     :aria-hidden="true"
+    {% if disabled_expr %}:disabled="{{ disabled_expr }}"{% endif %}
   >{{ value|default_if_none:"" }}</textarea>
   <div class="wysiwyg-editor__toolbar" x-show="jsReady" x-cloak></div>
   <div class="wysiwyg-editor__body" x-show="jsReady" x-cloak></div>
