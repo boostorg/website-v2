@@ -355,48 +355,6 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class V3EntryCreateView(EntryCreateView):
-    template_name = "news/v3/create.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(_v3_create_context())
-        context["post_type_selected"] = self.post_type_selected
-        return context
-
-
-class V3BlogPostCreateView(V3EntryCreateView):
-    model = BlogPost
-    form_class = BlogPostForm
-    add_label = _("Create Blog Post")
-    add_url_name = "v3-news-blogpost-create"
-    post_type_selected = "blog"
-
-
-class V3LinkCreateView(V3EntryCreateView):
-    model = Link
-    form_class = LinkForm
-    add_label = _("Create Link")
-    add_url_name = "v3-news-link-create"
-    post_type_selected = "link"
-
-
-class V3NewsCreateView(V3EntryCreateView):
-    model = News
-    form_class = NewsForm
-    add_label = _("Create News")
-    add_url_name = "v3-news-news-create"
-    post_type_selected = "news"
-
-
-class V3VideoCreateView(V3EntryCreateView):
-    model = Video
-    form_class = VideoForm
-    add_label = _("Upload a Video")
-    add_url_name = "v3-news-video-create"
-    post_type_selected = "video"
-
-
 class V3AllTypesCreateView(AllTypesCreateView):
     template_name = "news/v3/create.html"
     http_method_names = ["get", "post"]
