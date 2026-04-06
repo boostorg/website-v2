@@ -15,6 +15,11 @@
     height: fit-content;
     padding: 2px;
     display: inline-block;
+    cursor: pointer;
+}
+
+.badge-button input, img, label {
+    cursor: pointer;
 }
 
 .badge-button:has(.badge-button__radio:checked)  {
