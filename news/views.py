@@ -239,22 +239,11 @@ class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     template_name = "news/form.html"
     add_label = None
     add_url_name = None
-    post_type_selected = ""
     success_message = _("The news entry was successfully created.")
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        try:
-            result = super().form_valid(form)
-        except IntegrityError as e:
-            if "slug" in str(e):
-                form.add_error(
-                    "title",
-                    "A post with this title already exists. Please choose a different title.",
-                )
-            else:
-                form.add_error(None, "An unexpected error occurred. Please try again.")
-            return self.form_invalid(form)
+        result = super().form_valid(form)
         if not form.instance.is_approved:
             send_email_news_needs_moderation(request=self.request, entry=form.instance)
         else:
@@ -376,7 +365,11 @@ class V3AllTypesCreateView(AllTypesCreateView):
         type_config = self._POST_TYPE_MAP.get(post_type)
 
         if type_config is None:
-            context = self.get_context_data(post_type_selected=post_type)
+            messages.error(
+                request,
+                _("Invalid post type selected. Please choose a valid post type."),
+            )
+            context = self.get_context_data()
             return self.render_to_response(context)
 
         model_class, form_class = type_config
