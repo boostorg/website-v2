@@ -3,9 +3,7 @@
 ## Summary & Context
 <!-- *1-2 sentences describing what this PR does and why* -->
 
-- **Figma links**:
-  - ML Figma:
-  - CPPA Figma:
+- **Figma link**: <!-- Add link to relevant Figma design here -->
 - **Link to components/page:** <!-- e.g. localhost:8000/news/add -->
 
 ## Changes
