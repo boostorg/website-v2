@@ -38,10 +38,10 @@
         <tbody>
           {% for review in object_list %}
             <tr>
-              <td class="p-3 break-words border border-r-0 {% if not forloop.last %}border-b-0{% endif %}border-gray-400 dark:border-slate">
+              <td class="p-3 break-words border border-r-0 {% if not forloop.last %}border-b-0{% endif %} border-gray-400 dark:border-slate">
                 <span class="font-bold md:hidden">Submission:</span> {{ review.submission }}
               </td>
-              <td class="p-3 border border-r-0 {% if not forloop.last %}border-b-0{% endif %}border-gray-400 dark:border-slate">
+              <td class="p-3 border border-r-0 {% if not forloop.last %}border-b-0{% endif %} border-gray-400 dark:border-slate">
                 <span class="font-bold md:hidden">Submitter:</span>
                 {% for submitter in review.submitters.all %}
                   {% avatar commitauthor=submitter avatar_type="with_name" %}
@@ -50,7 +50,7 @@
                   {{ review.submitter_raw|default:"-" }}
                 {% endfor %}
               </td>
-              <td class="p-3 border border-r-0 {% if not forloop.last %}border-b-0{% endif %}border-gray-400 dark:border-slate">
+              <td class="p-3 border border-r-0 {% if not forloop.last %}border-b-0{% endif %} border-gray-400 dark:border-slate">
                 <span class="font-bold md:hidden">Review Manager:</span>
                 {% if review.review_manager %}
                   {% avatar commitauthor=review.review_manager avatar_type="with_name" %}
@@ -58,10 +58,10 @@
                   {{ review.review_manager_raw|default:"-" }}
                 {% endif %}
               </td>
-              <td class="p-3 border border-r-0 {% if not forloop.last %}border-b-0{% endif %}border-gray-400 dark:border-slate">
+              <td class="p-3 border border-r-0 {% if not forloop.last %}border-b-0{% endif %} border-gray-400 dark:border-slate">
                 <span class="font-bold md:hidden">Review Dates:</span> {{ review.review_dates }}
               </td>
-              <td class="p-3 border {% if not forloop.last %}border-b-0{% endif %}border-gray-400 dark:border-slate">
+              <td class="p-3 border {% if not forloop.last %}border-b-0{% endif %} border-gray-400 dark:border-slate">
                 <span class="font-bold md:hidden">Result:</span>
                 {% for result in review.results.all %}
                   <p class="p-1">

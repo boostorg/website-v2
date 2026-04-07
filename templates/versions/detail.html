@@ -126,16 +126,16 @@
                         {% if forloop.first %}
                           <th scope="row"
                               rowspan="{{ download_files|length }}"
-                              class="p-2 h-14 whitespace-normal border border-r-0 {% if not forloop.parentloop.last %}border-b-0{% endif %}border-gray-400 dark:border-slate dark:bg-charcoal text-center">
+                              class="p-2 h-14 whitespace-normal border border-r-0 {% if not forloop.parentloop.last %}border-b-0{% endif %} border-gray-400 dark:border-slate dark:bg-charcoal text-center">
                             <i class="fab fa-{% if os == 'Unix' %}linux{% else %}windows{% endif %}"></i> {{ os }}
                           </th>
                         {% endif %}
-                        <td class="p-2 border border-r-0 {% if not forloop.last or not forloop.parentloop.last %}border-b-0{% endif %}border-gray-400 dark:border-slate">
+                        <td class="p-2 border border-r-0 {% if not forloop.last or not forloop.parentloop.last %}border-b-0{% endif %} border-gray-400 dark:border-slate">
                           <a href="{{ download.url }}"
                              class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ download.display_name }}</a>
                         </td>
                         <td width="30"
-                            class="p-2 mx-1 text-center align-bottom whitespace-nowrap border border-r-0 {% if not forloop.last or not forloop.parentloop.last %}border-b-0{% endif %}border-gray-400 dark:border-slate">
+                            class="p-2 mx-1 text-center align-bottom whitespace-nowrap border border-r-0 {% if not forloop.last or not forloop.parentloop.last %}border-b-0{% endif %} border-gray-400 dark:border-slate">
                           <button class="justify-center items-center w-4 h-full font-semibold shadow"
                                   @click="$clipboard($el.parentElement.nextSibling.nextSibling.title)">
                             <svg class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange fill-current"
@@ -145,7 +145,7 @@
                             </svg>
                           </button>
                         </td>
-                        <td class="border pr-2 text-xs {% if not forloop.last or not forloop.parentloop.last %}border-b-0{% endif %}border-l-0 border-gray-400 dark:border-slate truncCell dark:bg-charcoal"
+                        <td class="border pr-2 text-xs {% if not forloop.last or not forloop.parentloop.last %}border-b-0{% endif %} border-l-0 border-gray-400 dark:border-slate truncCell dark:bg-charcoal"
                             title="{{ download.checksum }}">
                           <span class="hidden xl:block">{{ download.checksum }}</span>
                           <span class="hidden md:block xl:hidden">{{ download.checksum|truncate_middle:20 }}</span>
