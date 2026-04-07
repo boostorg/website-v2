@@ -99,7 +99,7 @@
 /* Dark theme: use semantic variables from themes.css only (no raw primitives) */
 html.dark .category-tag--neutral {
   background: var(--color-tag-neutral-bg);
-  border-color: var(--color-tag-stroke);
+  border-color: var(--color-tag-neutral-border);
   color: var(--color-text-secondary);
 }
 
