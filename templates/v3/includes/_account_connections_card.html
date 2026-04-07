@@ -23,14 +23,16 @@
   <hr class="card__hr" />
   <ul class="account-connections__items">
     {% for conn in connections %}
-    <li class="account-connections__item">
-      <div class="account-connections__platform">
-        {% include "includes/icon.html" with icon_name=conn.platform icon_class="account-connections__platform-icon" icon_size=16 %}
-        <span class="account-connections__platform-name">{{ conn.label }}</span>
-      </div>
-      <span class="account-connections__status">{{ conn.status_text }}</span>
-      <a href="{{ conn.action_url }}" class="btn {% if conn.connected %}btn-secondary{% else %}btn-primary{% endif %}" aria-label="{{ conn.action_label }} {{ conn.label }}">{{ conn.action_label }}</a>
-    </li>
+      <li class="account-connections__item">
+        <div class="account-connections__platform">
+          {% include "includes/icon.html" with icon_name=conn.platform icon_class="account-connections__platform-icon" icon_size=16 %}
+          <span class="account-connections__platform-name">{{ conn.label }}</span>
+        </div>
+        <span class="account-connections__status">{{ conn.status_text }}</span>
+        <a href="{{ conn.action_url }}"
+           class="btn {% if conn.connected %}btn-secondary{% else %}btn-primary{% endif %}"
+           aria-label="{{ conn.action_label }} {{ conn.label }}">{{ conn.action_label }}</a>
+      </li>
     {% endfor %}
   </ul>
 </div>

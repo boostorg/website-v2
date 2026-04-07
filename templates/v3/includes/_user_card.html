@@ -22,14 +22,14 @@
     Compact (no background, no CTA):
       {% include "v3/includes/_user_card.html" with username="vinniefalco" avatar_url="/img/avatar.png" compact=True %}
 {% endcomment %}
-<section class="user-card {% if compact %}user-card--compact{% else %}user-card--lg user-card--green{% endif %} card" aria-label="{{ username }}" {{ extra_attrs|safe }}>
+<section class="user-card {% if compact %}user-card--compact{% else %}user-card--lg user-card--green{% endif %} card"
+         aria-label="{{ username }}"
+         {{ extra_attrs|safe }}>
 
   {# Avatar with flag overlay #}
   <div class="user-card__avatar-wrapper">
     {% include "v3/includes/_avatar_v3.html" with src=avatar_url name=username variant=avatar_variant|default:"yellow" size="md" %}
-    {% if flag_emoji %}
-      <span class="user-card__flag" aria-hidden="true">{{ flag_emoji }}</span>
-    {% endif %}
+    {% if flag_emoji %}<span class="user-card__flag" aria-hidden="true">{{ flag_emoji }}</span>{% endif %}
   </div>
 
   {# User info #}
@@ -37,21 +37,24 @@
     <span class="user-card__username">{{ username }}</span>
 
     {% if badge_name %}
-    <span class="user-card__badge">
-      {{ badge_name }}
-      {% if badge_icon_src %}
-        <img src="{{ badge_icon_src }}" alt="" class="user-card__badge-icon" width="16" height="16" aria-hidden="true" loading="lazy" decoding="async">
-      {% endif %}
-    </span>
+      <span class="user-card__badge">
+        {{ badge_name }}
+        {% if badge_icon_src %}
+          <img src="{{ badge_icon_src }}"
+               alt=""
+               class="user-card__badge-icon"
+               width="16"
+               height="16"
+               aria-hidden="true"
+               loading="lazy"
+               decoding="async">
+        {% endif %}
+      </span>
     {% endif %}
 
-    {% if member_since %}
-      <span class="user-card__member-since">Member Since {{ member_since }}</span>
-    {% endif %}
+    {% if member_since %}<span class="user-card__member-since">Member Since {{ member_since }}</span>{% endif %}
 
-    {% if role %}
-      <span class="user-card__role">{{ role }}</span>
-    {% endif %}
+    {% if role %}<span class="user-card__role">{{ role }}</span>{% endif %}
   </div>
 
   {# Optional CTA #}

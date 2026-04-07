@@ -7,24 +7,26 @@
 {% endcomment %}
 
 {% with carousel_id='_testimonials_cards_carousel' %}
-<div class="card testimonial-card py-large" id="{{carousel_id}}" data-carousel>
-  <div class="card__header">
-    <span class="card__title">{{ heading }}</span>
-    {% include 'v3/includes/_carousel_buttons.html' with carousel_id=carousel_id %}
+  <div class="card testimonial-card py-large"
+       id="{{ carousel_id }}"
+       data-carousel>
+    <div class="card__header">
+      <span class="card__title">{{ heading }}</span>
+      {% include 'v3/includes/_carousel_buttons.html' with carousel_id=carousel_id %}
+    </div>
+    <hr class="card__hr" />
+    <div class="cards-carousel__track">
+      <section class="testimonial-card__post post-cards post-cards--content post-cards--content-card post-cards--horizontal ">
+        <ul class="post-cards__list" data-carousel-track>
+          {% if testimonials %}
+            {% for testimonial in testimonials %}
+              <li class="post-cards__item" data-carousel-item>
+                {% include 'v3/includes/_testimonial_card_quote.html' with quote=testimonial.quote author=testimonial.author only %}
+              </li>
+            {% endfor %}
+          {% endif %}
+        </ul>
+      </section>
+    </div>
   </div>
-  <hr class="card__hr" />
-  <div class="cards-carousel__track">
-    <section class="testimonial-card__post post-cards post-cards--content post-cards--content-card post-cards--horizontal ">
-      <ul class="post-cards__list" data-carousel-track>
-        {% if testimonials %}
-        {% for testimonial in testimonials %}
-        <li class="post-cards__item" data-carousel-item>
-          {% include 'v3/includes/_testimonial_card_quote.html' with quote=testimonial.quote author=testimonial.author only %}
-        </li>
-        {% endfor %}
-        {% endif %}
-      </ul>
-    </section>
-  </div>
-</div>
 {% endwith %}

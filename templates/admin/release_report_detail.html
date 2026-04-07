@@ -5,8 +5,8 @@
 
 {% load static %}
 {% block css %}
-{{ block.super }}
-<style>
+  {{ block.super }}
+  <style>
 {% include "includes/_css_variables.css" %}
 body {
   -webkit-print-color-adjust:exact !important;
@@ -54,83 +54,99 @@ ul.slack-channels li div a:hover,
   border-radius: 8px;
 }
 
-</style>
+  </style>
 {% endblock css %}
 {% block content %}
-  <script src="{% static 'js/highlight.js' %}"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/jsvectormap.min.css" />
+  <script src="{% static 'js/vendor/highlight/highlight.js' %}"></script>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/jsvectormap.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
 
   {% now "F j, Y" as today %}
   {% with bg_color='' %}
     <div>
-      <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}')">
+      <div class="pdf-page grid grid-cols-2 gap-x-4 items-center justify-items-center {{ bg_color }}"
+           style="background-image: url('{% static 'img/release_report/bg6.png' %}')">
         <div class="flex flex-col h-full justify-between">
           <div class="flex flex-col gap-y-2">
             <h1 class="flex mb-0">
-              <img
-                class="mt-[3px]"
-                style="width:3.3rem; margin-right:.5rem;" src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
-              >
+              <img class="mt-[3px]"
+                   style="width:3.3rem;
+                          margin-right:.5rem"
+                   src="{% static 'img/Boost_Symbol_Transparent.svg' %}">
               <span class="font-bold">Boost</span>&nbsp;<span class="text-[2.75rem] self-end mb-[2px]">{{ report_configuration.display_name }}</span>
             </h1>
             <div class="flex gap-x-12 link-icons my-4 text-2xl justify-between">
               {% include "includes/_social_icon_links.html" %}
             </div>
             <div class="mb-2" class="font-bold">{% firstof version.release_date today %}</div>
-            <div><span class="font-bold">{{ commit_count|intcomma }}</span> commit{{ commit_count|pluralize }} up through {{ report_configuration.display_name }}</div>
-            <div><span class="font-bold">{{ lines_added|intcomma }}</span> line{{ lines_added|pluralize }} added, <span class="font-bold">{{ lines_removed|intcomma }}</span> line{{ lines_removed|pluralize }} removed</div>
-            <div><span class="font-bold">{{ version_commit_count|intcomma }}</span> new commit{{ version_commit_count|pluralize }} in all library repositories</div>
-            <div><span class="font-bold">{{ commit_contributors_release_count }}</span> commit contributors, <span class="font-bold">{{ commit_contributors_new_count }}</span> new</div>
-            <div><span class="font-bold">{{ opened_issues_count|intcomma }}</span> issues opened, <span class="font-bold">{{ closed_issues_count|intcomma }}</span> closed</div>
-            <div><span class="font-bold">{{ mailinglist_total|intcomma }}</span> posts to the developer's mailing list</div>
-            <div><span class="font-bold">{{ mailinglist_contributor_release_count }}</span> unique mailing list users, <span class="font-bold">{{ mailinglist_contributor_new_count }}</span> new</div>
+            <div>
+              <span class="font-bold">{{ commit_count|intcomma }}</span> commit{{ commit_count|pluralize }} up through {{ report_configuration.display_name }}
+            </div>
+            <div>
+              <span class="font-bold">{{ lines_added|intcomma }}</span> line{{ lines_added|pluralize }} added, <span class="font-bold">{{ lines_removed|intcomma }}</span> line{{ lines_removed|pluralize }} removed
+            </div>
+            <div>
+              <span class="font-bold">{{ version_commit_count|intcomma }}</span> new commit{{ version_commit_count|pluralize }} in all library repositories
+            </div>
+            <div>
+              <span class="font-bold">{{ commit_contributors_release_count }}</span> commit contributors, <span class="font-bold">{{ commit_contributors_new_count }}</span> new
+            </div>
+            <div>
+              <span class="font-bold">{{ opened_issues_count|intcomma }}</span> issues opened, <span class="font-bold">{{ closed_issues_count|intcomma }}</span> closed
+            </div>
+            <div>
+              <span class="font-bold">{{ mailinglist_total|intcomma }}</span> posts to the developer's mailing list
+            </div>
+            <div>
+              <span class="font-bold">{{ mailinglist_contributor_release_count }}</span> unique mailing list users, <span class="font-bold">{{ mailinglist_contributor_new_count }}</span> new
+            </div>
             {% if added_library_count %}
-              <div><span class="font-bold">{{ added_library_count }}</span> librar{{ added_library_count|pluralize:"y,ies" }} added</div>
+              <div>
+                <span class="font-bold">{{ added_library_count }}</span> librar{{ added_library_count|pluralize:"y,ies" }} added
+              </div>
             {% endif %}
             {% if removed_library_count %}
-              <div><span class="font-bold">{{ removed_library_count }}</span> librar{{ removed_library_count|pluralize:"y,ies" }} removed</div>
+              <div>
+                <span class="font-bold">{{ removed_library_count }}</span> librar{{ removed_library_count|pluralize:"y,ies" }} removed
+              </div>
             {% endif %}
           </div>
           {% if downloads %}
-          <table class="p-0 m-0 mt-1 w-full text-xs text-left border-0 border-separate table-auto border-spacing-0 text-slate">
-            <tbody>
-              <tr>
-                <th scope="col"
-                    colspan="2"
-                    class="p-1 text-sm border border-b-0 border-gray-400 text-center">
-                  Download Now!
-                </th>
-              </tr>
+            <table class="p-0 m-0 mt-1 w-full text-xs text-left border-0 border-separate table-auto border-spacing-0 text-slate">
+              <tbody>
+                <tr>
+                  <th scope="col"
+                      colspan="2"
+                      class="p-1 text-sm border border-b-0 border-gray-400 text-center">Download Now!</th>
+                </tr>
                 {% for os, download_files in downloads.items %}
                   {% for download in download_files %}
                     <tr>
                       {% if forloop.first %}
                         <th scope="row"
                             rowspan="{{ download_files|length }}"
-                            class="p-2 h-14 whitespace-nowrap border border-r-0 {% if not forloop.parentloop.last %}border-b-0 {% endif %}border-gray-400 text-center">
+                            class="p-2 h-14 whitespace-nowrap border border-r-0 {% if not forloop.parentloop.last %}border-b-0{% endif %} border-gray-400 text-center">
                           <i class="fab fa-{% if os == 'Unix' %}linux{% else %}windows{% endif %}"></i> {{ os }}
                         </th>
                       {% endif %}
-                      <td class="p-[.33rem] border {% if not forloop.last or not forloop.parentloop.last %}border-b-0 {% endif %}border-gray-400">
+                      <td class="p-[.33rem] border {% if not forloop.last or not forloop.parentloop.last %}border-b-0{% endif %} border-gray-400">
                         <a href="{{ download.url }}" class="text-sky-600 hover:text-orange">{{ download.display_name }}</a>
                       </td>
                     </tr>
                   {% endfor %}
                 {% endfor %}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
           {% endif %}
         </div>
         <div class="flex flex-col h-full justify-between">
 
           {% if report_configuration.release_report_cover_image and report_configuration.release_report_cover_image.url %}
-            <img
-              class="max-h-[60%]"
-              src="{{ report_configuration.release_report_cover_image.url|strip_query_string }}"
-              alt="release report cover image"
-            >
+            <img class="max-h-[60%]"
+                 src="{{ report_configuration.release_report_cover_image.url|strip_query_string }}"
+                 alt="release report cover image">
           {% endif %}
 
           {% if contribution_box_graph %}
@@ -140,34 +156,30 @@ ul.slack-channels li div a:hover,
                 {% for week in contribution_box_graph.weeks %}
                   <div class="flex flex-col gap-y-1">
                     <div class="h-4 relative">
-                      {% ifchanged week.days.0.date.month  %}
+                      {% ifchanged week.days.0.date.month %}
                         {% if forloop.counter0 != 0 %}
-                          <div class="absolute top-0 left-[-10px] text-sm font-bold">
-                            {{ week.days.0.date|date:"M" }}
-                          </div>
+                          <div class="absolute top-0 left-[-10px] text-sm font-bold">{{ week.days.0.date|date:"M" }}</div>
                         {% endif %}
                       {% endifchanged %}
                     </div>
                     {% for day in week.days %}
-                      <div
-                        class="w-4 h-4 rounded-sm"
-                        {% if day.date >= prior_version.release_date %}
-                          style="background-color: {{ day.color }};"
-                        {% endif %}
-                        title="{{ day.count }} commit{{ day.count|pluralize }} on {{ day.date }}"
-                      >
-                      </div>
+                      <div class="w-4 h-4 rounded-sm"
+                           {% if day.date >= prior_version.release_date %}style="background-color: {{ day.color }};"{% endif %}
+                           title="{{ day.count }} commit{{ day.count|pluralize }} on {{ day.date }}"></div>
                     {% endfor %}
                   </div>
                 {% endfor %}
               </div>
               <div class="flex gap-x-1 text-sm mx-auto">
-                <div class="mr-1"><span class="font-bold">0</span> commits</div>
+                <div class="mr-1">
+                  <span class="font-bold">0</span> commits
+                </div>
                 {% for color in contribution_box_graph.colors %}
-                  <div class="h-4 w-4 rounded-sm" style="background-color: {{ color }}">
-                  </div>
+                  <div class="h-4 w-4 rounded-sm" style="background-color: {{ color }}"></div>
                 {% endfor %}
-                <div class="ml-1"><span class="font-bold">{{ contribution_box_graph.max }}</span> commits</div>
+                <div class="ml-1">
+                  <span class="font-bold">{{ contribution_box_graph.max }}</span> commits
+                </div>
               </div>
             </div>
           {% endif %}
@@ -175,42 +187,45 @@ ul.slack-channels li div a:hover,
       </div>
 
       {% if report_configuration.sponsor_message %}
-        <div id="fiscal_committee_page" class="pdf-page !p-8 {{ bg_color }} bg-gray-200 relative">
+        <div id="fiscal_committee_page"
+             class="pdf-page !p-8 {{ bg_color }} bg-gray-200 relative">
           <h2 class="mt-0">From the Fiscal Sponsorship Committee</h2>
           <div class="flex flex-col w-full h-[85%] sponsor-message relative">
-          <svg
-            class="absolute overflow-visible pointer-events-none z-10"
-            version="1.1"
-            id="bubble_background"
-            xmlns="http://www.w3.org/2000/svg"
-            xmlns:svg="http://www.w3.org/2000/svg"
-          >
-            <path
-               id="bubble"
-               style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.896533"
-               d="M 28.068153,0 H 471.93339 c 17.18711,0 28.0676,10.63409 28.0674,26.12903 l -8e-4,56.64968 c 0,16.63468 -9.6004,26.12907 -28.0674,26.12907 -144.5008,3.63566 -356.11545,0.75984 -445.23187,0 -15.3824,0 -26.70095,-10.79719 -26.70074,-26.12907 l 7.8e-4,-56.64968 c 1.8e-4,-13.27403 12.64918,-26.12903 28.06737,-26.12903 z"
-            />
-          </svg>
-          <div class="sponsor_message_copy dynamic-text p-[30px] mr-24 absolute z-20 max-h-[400px]">{{ report_configuration.sponsor_message|safe|linebreaks }}</div>
-          <div class="committee_members flex flex-wrap mt-2 text-sm text-center absolute" style="">
-            {% for user in committee_members|dictsort:"display_name" %}
-              <figure class="w-32 m-2">
-                {% avatar user=user is_link=False image_size="w-32 h-32" icon_size="text-8xl" use_user_hq_image=True %}
-                <figcaption class="p-1">{{user.display_name}}</figcaption>
-              </figure>
-            {% endfor %}
-           </div>
+            <svg class="absolute overflow-visible pointer-events-none z-10"
+                 version="1.1"
+                 id="bubble_background"
+                 xmlns="http://www.w3.org/2000/svg"
+                 xmlns:svg="http://www.w3.org/2000/svg">
+              <path id="bubble" style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.896533" d="M 28.068153,0 H 471.93339 c 17.18711,0 28.0676,10.63409 28.0674,26.12903 l -8e-4,56.64968 c 0,16.63468 -9.6004,26.12907 -28.0674,26.12907 -144.5008,3.63566 -356.11545,0.75984 -445.23187,0 -15.3824,0 -26.70095,-10.79719 -26.70074,-26.12907 l 7.8e-4,-56.64968 c 1.8e-4,-13.27403 12.64918,-26.12903 28.06737,-26.12903 z" />
+            </svg>
+            <div class="sponsor_message_copy dynamic-text p-[30px] mr-24 absolute z-20 max-h-[400px]">
+              {{ report_configuration.sponsor_message|safe|linebreaks }}
+            </div>
+            <div class="committee_members flex flex-wrap mt-2 text-sm text-center absolute"
+                 style="">
+              {% for user in committee_members|dictsort:"display_name" %}
+                <figure class="w-32 m-2">
+                  {% avatar user=user is_link=False image_size="w-32 h-32" icon_size="text-8xl" use_user_hq_image=True %}
+                  <figcaption class="p-1">{{ user.display_name }}</figcaption>
+                </figure>
+              {% endfor %}
+            </div>
           </div>
         </div>
       {% endif %}
 
-      <div class="flex flex-col pdf-page items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg3.png' %}')">
+      <div class="flex flex-col pdf-page items-center justify-items-center {{ bg_color }}"
+           style="background-image: url('{% static 'img/release_report/bg3.png' %}')">
 
         <div class="flex flex-col mb-4">
           <h2 class="mx-auto my-1">Git activity for this release</h2>
-          <div class="mx-auto"><span class="font-bold">{{ version_commit_count|intcomma }}</span> Commit{{ version_commit_count|pluralize }} Across <span class="font-bold">{{ library_count }}</span> Repositories</div>
+          <div class="mx-auto">
+            <span class="font-bold">{{ version_commit_count|intcomma }}</span> Commit{{ version_commit_count|pluralize }} Across <span class="font-bold">{{ library_count }}</span> Repositories
+          </div>
           {% if global_contributors_new_count %}
-            <div class="mx-auto"><span class="font-bold">{{ global_contributors_new_count|intcomma }}</span> First-time Contributor{{ global_contributors_new_count|pluralize }}</div>
+            <div class="mx-auto">
+              <span class="font-bold">{{ global_contributors_new_count|intcomma }}</span> First-time Contributor{{ global_contributors_new_count|pluralize }}
+            </div>
           {% endif %}
         </div>
 
@@ -218,17 +233,19 @@ ul.slack-channels li div a:hover,
           <div class="px-4">
             <div class="mx-auto mb-6">Top Contributors</div>
             <div class="m-auto grid grid-cols-1 gap-2">
-            {% for author in top_contributors_release_overall %}
-              <div class="flex flex-row gap-y-2 w-40 items-center">
-                {% avatar commitauthor=author %}
-                <div class="w-full flex flex-col ml-2">
-                  <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
-                    {{ author.display_name }}
+              {% for author in top_contributors_release_overall %}
+                <div class="flex flex-row gap-y-2 w-40 items-center">
+                  {% avatar commitauthor=author %}
+                  <div class="w-full flex flex-col ml-2">
+                    <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
+                      {{ author.display_name }}
+                    </div>
+                    <div class="text-[0.7rem]">
+                      <span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}
+                    </div>
                   </div>
-                  <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
                 </div>
-              </div>
-            {% endfor %}
+              {% endfor %}
             </div>
           </div>
 
@@ -240,23 +257,26 @@ ul.slack-channels li div a:hover,
 
       </div>
 
-      <div class="pdf-page flex {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}');">
+      <div class="pdf-page flex {{ bg_color }}"
+           style="background-image: url('{% static 'img/release_report/bg6.png' %}')">
 
         <div class="flex gap-x-8 w-full">
           <div class="px-4">
             <div class="mx-auto mb-6 mt-[4.75rem]">Top Contributors</div>
             <div class="m-auto grid grid-cols-1 gap-2">
-            {% for item in mailinglist_counts %}
-              <div class="flex flex-row gap-y-2 w-40 items-center">
-                {% avatar commitauthor=item %}
-                <div class="w-full flex flex-col ml-2">
-                  <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
-                    {{ item.display_name|default:item.name }}
+              {% for item in mailinglist_counts %}
+                <div class="flex flex-row gap-y-2 w-40 items-center">
+                  {% avatar commitauthor=item %}
+                  <div class="w-full flex flex-col ml-2">
+                    <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
+                      {{ item.display_name|default:item.name }}
+                    </div>
+                    <div class="text-[0.7rem]">
+                      <span class="font-bold">{{ item.total_count }}</span> post{{ item.total_count|pluralize }}
+                    </div>
                   </div>
-                  <div class="text-[0.7rem]"><span class="font-bold">{{ item.total_count }}</span> post{{ item.total_count|pluralize }}</div>
                 </div>
-              </div>
-            {% endfor %}
+              {% endfor %}
             </div>
           </div>
 
@@ -274,146 +294,236 @@ ul.slack-channels li div a:hover,
               poster{{ mailinglist_contributor_release_count|pluralize }}
               in this version. (<span class="font-bold">{{ mailinglist_contributor_new_count }}</span> New)
             </div>
-          <div class="text-center my-2">Weekly mailing list posts from {{prior_version.release_date}} to {% firstof version.release_date today %} on the Boost Developers mailing list.</div>
-          <div id="release_post_stats" class="mt-10 mx-4"></div>
+            <div class="text-center my-2">
+              Weekly mailing list posts from {{ prior_version.release_date }} to {% firstof version.release_date today %} on the Boost Developers mailing list.
+            </div>
+            <div id="release_post_stats" class="mt-10 mx-4"></div>
           </div>
         </div>
       </div>
 
-      <div class="pdf-page flex {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}');">
+      <div class="pdf-page flex {{ bg_color }}"
+           style="background-image: url('{% static 'img/release_report/bg6.png' %}')">
         <div class="flex flex-col h-full mx-auto w-full">
           <h2 class="mx-auto mb-10">Mailing List New Subscribers</h2>
-          <div class="text-center my-2">Mailing list new subscribers from from {{prior_version.release_date}} to {% firstof version.release_date today %} on the Boost Developers mailing list.</div>
+          <div class="text-center my-2">
+            Mailing list new subscribers from from {{ prior_version.release_date }} to {% firstof version.release_date today %} on the Boost Developers mailing list.
+          </div>
 
           <div id="subscriptions_stats"></div>
         </div>
       </div>
 
 
-      <div class="pdf-page flex {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}');">
+      <div class="pdf-page flex {{ bg_color }}"
+           style="background-image: url('{% static 'img/release_report/bg6.png' %}')">
         <div class="flex flex-col h-full mx-auto w-full">
           <h2 class="mx-auto mb-10">Mailing List Top 200 Most Frequently Used Words</h2>
           <div class="flex flex-col flex-wrap gap-x-4 gap-y-1 text-xs h-5/6">
-            {% for word in mailinglist_wordcloud_frequencies %}
-              <div class="max-w-[10rem]">
-                {{ word }}
-              </div>
-            {% endfor %}
+            {% for word in mailinglist_wordcloud_frequencies %}<div class="max-w-[10rem]">{{ word }}</div>{% endfor %}
           </div>
         </div>
       </div>
       {% if mailinglist_wordcloud_base64 %}
-        <div class="pdf-page flex {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6.png' %}');">
+        <div class="pdf-page flex {{ bg_color }}"
+             style="background-image: url('{% static 'img/release_report/bg6.png' %}')">
           <div class="flex flex-col mx-auto">
             <h2 class="mx-auto mb-10">Mailing List Word Cloud</h2>
             <div class="flex mx-auto">
-              <img src="data:image/png;base64,{{ mailinglist_wordcloud_base64 }}" alt="Mailing List Word Cloud" class="w-full">
+              <img src="data:image/png;base64,{{ mailinglist_wordcloud_base64 }}"
+                   alt="Mailing List Word Cloud"
+                   class="w-full">
             </div>
           </div>
         </div>
       {% endif %}
 
       {% if slack %}
-       {% for slack_channel_group in slack_channels %}
-        <div class="pdf-page flex items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg4-rev.png' %}');">
-          <div class="flex flex-col h-full mx-auto w-full">
-            {% if forloop.first %}
-              <h2 class="mx-auto">Slack Channels</h2>
-            {% endif %}
-            <ul class="flex flex-row flex-wrap mx-auto w-full flex-wrap text-sm slack-channels">
-              {% for channel in slack_channel_group %}
-                <li class="w-1/2 p-2">
-                  <strong>#{{channel.name}}</strong>
-                  {% if channel.purpose %}
-                    <div class="mx-auto">{{channel.purpose|safe}}</div>
-                  {% endif %}
-                </li>
-              {% endfor %}
+        {% for slack_channel_group in slack_channels %}
+          <div class="pdf-page flex items-center justify-items-center {{ bg_color }}"
+               style="background-image: url('{% static 'img/release_report/bg4-rev.png' %}')">
+            <div class="flex flex-col h-full mx-auto w-full">
+              {% if forloop.first %}<h2 class="mx-auto">Slack Channels</h2>{% endif %}
+              <ul class="flex flex-row flex-wrap mx-auto w-full flex-wrap text-sm slack-channels">
+                {% for channel in slack_channel_group %}
+                  <li class="w-1/2 p-2">
+                    <strong>#{{ channel.name }}</strong>
+                    {% if channel.purpose %}<div class="mx-auto">{{ channel.purpose|safe }}</div>{% endif %}
+                  </li>
+                {% endfor %}
               </ul>
             </div>
           </div>
         </div>
-        {% endfor %}
-        {% for slack_group in slack %}
-          <div class="pdf-page flex justify-items-center {{ bg_color }}"  style="background-image: url('{% static 'img/release_report/bg4-rev.png' %}');">
-            <div class="flex flex-col mx-auto">
-              <div class="flex gap-x-[6rem]">
-                {% for slack_item in slack_group %}
-                  <div class="flex flex-col mx-auto gap-y-2 w-96">
-                    <h2 class="my-2">#{{slack_item.channel.name}}</h2>
-                    <div>
-                      <div class="mx-auto">
-                        <span class="font-bold">{{ slack_item.total|intcomma }}</span>
-                        slack message{{ slack_item.total|pluralize }} in #{{ slack_item.channel.name }}
-                      </div>
-                      <div class="mx-auto">
-                        <span class="font-bold">{{ slack_item.user_count }}</span>
-                        {{ slack_item.user_count|pluralize:"person,people" }}
-                        were active for this release. (<span class="font-bold">{{ slack_item.new_user_count }}</span> New)
-                      </div>
+      {% endfor %}
+      {% for slack_group in slack %}
+        <div class="pdf-page flex justify-items-center {{ bg_color }}"
+             style="background-image: url('{% static 'img/release_report/bg4-rev.png' %}')">
+          <div class="flex flex-col mx-auto">
+            <div class="flex gap-x-[6rem]">
+              {% for slack_item in slack_group %}
+                <div class="flex flex-col mx-auto gap-y-2 w-96">
+                  <h2 class="my-2">#{{ slack_item.channel.name }}</h2>
+                  <div>
+                    <div class="mx-auto">
+                      <span class="font-bold">{{ slack_item.total|intcomma }}</span>
+                      slack message{{ slack_item.total|pluralize }} in #{{ slack_item.channel.name }}
                     </div>
-                    <div class="flex gap-x-2">
-                      <div>
-                        <div class="font-bold">
-                          Top Contributors
-                        </div>
-                        <div class="m-auto grid grid-cols-1 gap-2 mt-4">
-                          {% for item in slack_item.users %}
-                            <div class="flex flex-row gap-y-2 w-40 items-center">
-                              {% base_avatar image_url=item.image_48 name=item.real_name href=None %}
-                              <div class="w-full flex flex-col ml-2">
-                                <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
-                                  {{ item.real_name }}
-                                </div>
-                                <div class="text-[0.7rem]"><span class="font-bold">{{ item.total }}</span> message{{ item.total|pluralize }}</div>
+                    <div class="mx-auto">
+                      <span class="font-bold">{{ slack_item.user_count }}</span>
+                      {{ slack_item.user_count|pluralize:"person,people" }}
+                      were active for this release. (<span class="font-bold">{{ slack_item.new_user_count }}</span> New)
+                    </div>
+                  </div>
+                  <div class="flex gap-x-2">
+                    <div>
+                      <div class="font-bold">Top Contributors</div>
+                      <div class="m-auto grid grid-cols-1 gap-2 mt-4">
+                        {% for item in slack_item.users %}
+                          <div class="flex flex-row gap-y-2 w-40 items-center">
+                            {% base_avatar image_url=item.image_48 name=item.real_name href=None %}
+                            <div class="w-full flex flex-col ml-2">
+                              <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
+                                {{ item.real_name }}
+                              </div>
+                              <div class="text-[0.7rem]">
+                                <span class="font-bold">{{ item.total }}</span> message{{ item.total|pluralize }}
                               </div>
                             </div>
-                          {% endfor %}
-                        </div>
+                          </div>
+                        {% endfor %}
                       </div>
                     </div>
                   </div>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-        {% endfor %}
-      {% endif %}
-      {% if search_wordcloud_base64 %}
-        <div class="pdf-page flex flex-col {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg3.png' %}');">
-          <h2 class="mx-auto mb-10">Website Searches</h2>
-          <div class="flex flex-col mx-auto">
-            <div class="flex flex-row w-full h-1/2 p-4">
-              <div id="search_stats_map" class="w-1/2"></div>
-              <div class="w-1/2">
-                <div><strong>{{ search_stats.total_searches }}</strong> website searches.</div>
-                <div class="my-2">
-                  <div class="py-1">Top <strong>{{search_stats.top_countries|length}}</strong> countries:</div>
-                  <ul>
-                    {% for code, count in search_stats.top_countries %}
-                      {% get_country code as country %}
-                      <li>{{ country.name }}: <strong>{{ count }}</strong> search{{ count|pluralize:"es" }}</li>
-                    {% endfor %}
-                  </ul>
                 </div>
-              </div>
-            </div>
-            <div class="w-full h-1/2 p-4">
-              <div class="flex mx-auto">
-                <img src="data:image/png;base64,{{ search_wordcloud_base64 }}" alt="Search Word Cloud" class="w-full">
-              </div>
+              {% endfor %}
             </div>
           </div>
         </div>
-      {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% if search_wordcloud_base64 %}
+      <div class="pdf-page flex flex-col {{ bg_color }}"
+           style="background-image: url('{% static 'img/release_report/bg3.png' %}')">
+        <h2 class="mx-auto mb-10">Website Searches</h2>
+        <div class="flex flex-col mx-auto">
+          <div class="flex flex-row w-full h-1/2 p-4">
+            <div id="search_stats_map" class="w-1/2"></div>
+            <div class="w-1/2">
+              <div>
+                <strong>{{ search_stats.total_searches }}</strong> website searches.
+              </div>
+              <div class="my-2">
+                <div class="py-1">
+                  Top <strong>{{ search_stats.top_countries|length }}</strong> countries:
+                </div>
+                <ul>
+                  {% for code, count in search_stats.top_countries %}
+                    {% get_country code as country %}
+                    <li>
+                      {{ country.name }}: <strong>{{ count }}</strong> search{{ count|pluralize:"es" }}
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="w-full h-1/2 p-4">
+            <div class="flex mx-auto">
+              <img src="data:image/png;base64,{{ search_wordcloud_base64 }}"
+                   alt="Search Word Cloud"
+                   class="w-full">
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
 
-      {# 1. Flagship libraries that were updated: one library per page #}
-      {% with "img/release_report/bg1.png,img/release_report/bg4-rev.png,img/release_report/bg3-rev.png,img/release_report/bg1-rev.png,img/release_report/bg2.png,img/release_report/bg6-rev.png,img/release_report/bg3.png,img/release_report/bg4.png,img/release_report/bg5.png,img/release_report/bg6.png,img/release_report/bg2-rev.png" as bg_list_str %}
-        {% with bg_list=bg_list_str|split:"," %}
-          {% for item in flagship_library_data %}
-            {% with current_bg=bg_list|get_modulo_item:forloop.counter0 %}
-              <div class="pdf-page flex flex-col {{ bg_color }}" style="background-image: url('{% static current_bg %}')">
-                <div class="grid grid-cols-3 gap-x-8 w-full p-4 h-full" id="library-{{ item.library.display_name }}">
+    {# 1. Flagship libraries that were updated: one library per page #}
+    {% with "img/release_report/bg1.png,img/release_report/bg4-rev.png,img/release_report/bg3-rev.png,img/release_report/bg1-rev.png,img/release_report/bg2.png,img/release_report/bg6-rev.png,img/release_report/bg3.png,img/release_report/bg4.png,img/release_report/bg5.png,img/release_report/bg6.png,img/release_report/bg2-rev.png" as bg_list_str %}
+      {% with bg_list=bg_list_str|split:"," %}
+        {% for item in flagship_library_data %}
+          {% with current_bg=bg_list|get_modulo_item:forloop.counter0 %}
+            <div class="pdf-page flex flex-col {{ bg_color }}"
+                 style="background-image: url('{% static current_bg %}')">
+              <div class="grid grid-cols-3 gap-x-8 w-full p-4 h-full"
+                   id="library-{{ item.library.display_name }}">
+                <div class="col-span-2 flex flex-col gap-y-4">
+                  <div class="flex flex-col gap-y-4">
+                    <h2 class="text-orange mb-1 mt-0">{{ item.library.display_name }}</h2>
+                    <div>{{ item.library.description }}</div>
+                  </div>
+                  <div class="flex gap-x-8 items-center">
+                    {% if item.library.graphic %}
+                      <div class="max-w-[10rem]">
+                        <img src="{{ item.library.graphic.url }}" alt="" />
+                      </div>
+                    {% endif %}
+                    <div class="flex flex-col gap-y-1">
+                      <div>
+                        There
+                        {{ item.version_count.commit_count|pluralize:"was,were" }}
+                        <span class="font-bold">{{ item.version_count.commit_count }}</span>
+                        commit{{ item.version_count.commit_count|pluralize }}
+                        in release {{ report_configuration.display_name }}
+                      </div>
+                      {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
+                        <div>
+                          <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added, <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
+                        </div>
+                      {% endwith %}
+                      {% with count=item.new_contributors_count.count %}
+                        {% if count >= 1 %}
+                          <div>
+                            There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} for this release!
+                          </div>
+                        {% endif %}
+                      {% endwith %}
+                      <div>
+                        There {{ item.issues.opened|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.opened }}</span> issue{{ item.issues.opened|pluralize }} opened
+                        and {{ item.issues.closed|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.closed }}</span> issue{{ item.issues.closed|pluralize }} closed
+                      </div>
+                      {% if item.deps.added or item.deps.removed %}
+                        <div>
+                          There {{ item.deps.added|length|pluralize:"was,were" }} <span class="font-bold">{{ item.deps.added|length }}</span> dependenc{{ item.deps.added|length|pluralize:"y,ies" }} added
+                          and
+                          <span class="font-bold">{{ item.deps.removed|length }}</span> dependenc{{ item.deps.removed|length|pluralize:"y,ies" }} removed
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+                <div class="px-4">
+                  <div class="mx-auto mb-6">Top Contributors</div>
+                  <div class="m-auto grid grid-cols-1 gap-2">
+                    {% for author in item.top_contributors_release %}
+                      <div class="flex flex-row gap-y-2 w-40 items-center">
+                        {% avatar commitauthor=author %}
+                        <div class="w-full flex flex-col ml-2">
+                          <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
+                            {{ author.display_name }}
+                          </div>
+                          <div class="text-[0.7rem]">
+                            <span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}
+                          </div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endwith %}
+        {% endfor %}
+
+        {# 2. Core libraries that were updated: two per page #}
+        {% for batch in batched_core_library_data %}
+          {% with current_bg=bg_list|get_modulo_item:forloop.counter0 %}
+            <div class="pdf-page flex flex-col {{ bg_color }}"
+                 style="background-image: url('{% static current_bg %}')">
+              {% for item in batch %}
+                <div class="grid grid-cols-3 gap-x-8 w-full p-4 h-1/2"
+                     id="library-{{ item.library.display_name }}">
                   <div class="col-span-2 flex flex-col gap-y-4">
                     <div class="flex flex-col gap-y-4">
                       <h2 class="text-orange mb-1 mt-0">{{ item.library.display_name }}</h2>
@@ -462,78 +572,6 @@ ul.slack-channels li div a:hover,
                   <div class="px-4">
                     <div class="mx-auto mb-6">Top Contributors</div>
                     <div class="m-auto grid grid-cols-1 gap-2">
-                    {% for author in item.top_contributors_release %}
-                      <div class="flex flex-row gap-y-2 w-40 items-center">
-                        {% avatar commitauthor=author %}
-                        <div class="w-full flex flex-col ml-2">
-                          <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
-                            {{ author.display_name }}
-                          </div>
-                          <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
-                        </div>
-                      </div>
-                    {% endfor %}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            {% endwith %}
-          {% endfor %}
-
-          {# 2. Core libraries that were updated: two per page #}
-          {% for batch in batched_core_library_data %}
-            {% with current_bg=bg_list|get_modulo_item:forloop.counter0 %}
-              <div class="pdf-page flex flex-col {{ bg_color }}" style="background-image: url('{% static current_bg %}')">
-                {% for item in batch %}
-                  <div class="grid grid-cols-3 gap-x-8 w-full p-4 h-1/2" id="library-{{ item.library.display_name }}">
-                    <div class="col-span-2 flex flex-col gap-y-4">
-                      <div class="flex flex-col gap-y-4">
-                        <h2 class="text-orange mb-1 mt-0">{{ item.library.display_name }}</h2>
-                        <div>{{ item.library.description }}</div>
-                      </div>
-                      <div class="flex gap-x-8 items-center">
-                        {% if item.library.graphic %}
-                          <div class="max-w-[10rem]">
-                            <img src="{{ item.library.graphic.url }}" alt="" />
-                          </div>
-                        {% endif %}
-                        <div class="flex flex-col gap-y-1">
-                          <div>
-                            There
-                            {{ item.version_count.commit_count|pluralize:"was,were" }}
-                            <span class="font-bold">{{ item.version_count.commit_count }}</span>
-                            commit{{ item.version_count.commit_count|pluralize }}
-                            in release {{ report_configuration.display_name }}
-                          </div>
-                          {% with insertions=item.library_version.insertions deletions=item.library_version.deletions %}
-                            <div>
-                              <span class="font-bold">{{ insertions|intcomma }}</span> line{{ insertions|pluralize }} added, <span class="font-bold">{{ deletions|intcomma }}</span> line{{ deletions|pluralize }} removed
-                            </div>
-                          {% endwith %}
-                          {% with count=item.new_contributors_count.count %}
-                            {% if count >= 1 %}
-                              <div>
-                                There {{ count|pluralize:"was,were" }} <span class="font-bold">{{ count }}</span> new contributor{{ count|pluralize }} for this release!
-                              </div>
-                            {% endif %}
-                          {% endwith %}
-                          <div>
-                            There {{ item.issues.opened|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.opened }}</span> issue{{ item.issues.opened|pluralize }} opened
-                            and {{ item.issues.closed|pluralize:"was,were" }} <span class="font-bold">{{ item.issues.closed }}</span> issue{{ item.issues.closed|pluralize }} closed
-                          </div>
-                          {% if item.deps.added or item.deps.removed %}
-                            <div>
-                              There {{ item.deps.added|length|pluralize:"was,were" }} <span class="font-bold">{{ item.deps.added|length }}</span> dependenc{{ item.deps.added|length|pluralize:"y,ies" }} added
-                              and
-                              <span class="font-bold">{{ item.deps.removed|length }}</span> dependenc{{ item.deps.removed|length|pluralize:"y,ies" }} removed
-                            </div>
-                          {% endif %}
-                        </div>
-                      </div>
-                    </div>
-                    <div class="px-4">
-                      <div class="mx-auto mb-6">Top Contributors</div>
-                      <div class="m-auto grid grid-cols-1 gap-2">
                       {% for author in item.top_contributors_release %}
                         <div class="flex flex-row gap-y-2 w-40 items-center">
                           {% avatar commitauthor=author %}
@@ -541,70 +579,75 @@ ul.slack-channels li div a:hover,
                             <div class="text-[0.8rem] font-semibold overflow-ellipsis overflow-hidden whitespace-nowrap w-full">
                               {{ author.display_name }}
                             </div>
-                            <div class="text-[0.7rem]"><span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}</div>
+                            <div class="text-[0.7rem]">
+                              <span class="font-bold">{{ author.commit_count }}</span> commit{{ author.commit_count|pluralize }}
+                            </div>
                           </div>
                         </div>
                       {% endfor %}
-                      </div>
                     </div>
                   </div>
+                </div>
               {% endfor %}
-              </div>
-            {% endwith %}
-          {% endfor %}
-          {# 3. Other updated libraries: compact table rows, batched across pages #}
-          {% for page_batch in batched_other_updated %}
-            {% with current_bg=bg_list|get_modulo_item:forloop.counter0 %}
-              <div class="pdf-page {{ bg_color }}" style="background-image: url('{% static current_bg %}')">
-                {% if forloop.first %}<h2 class="mx-auto">Other Updated Libraries</h2>{% endif %}
-                <table class="w-full">
-                  {% for item in page_batch %}
-                    {% include "./release_report_library_row.html" %}
-                  {% endfor %}
-                </table>
-              </div>
-            {% endwith %}
-          {% endfor %}
+            </div>
+          {% endwith %}
+        {% endfor %}
+        {# 3. Other updated libraries: compact table rows, batched across pages #}
+        {% for page_batch in batched_other_updated %}
+          {% with current_bg=bg_list|get_modulo_item:forloop.counter0 %}
+            <div class="pdf-page {{ bg_color }}"
+                 style="background-image: url('{% static current_bg %}')">
+              {% if forloop.first %}<h2 class="mx-auto">Other Updated Libraries</h2>{% endif %}
+              <table class="w-full">
+                {% for item in page_batch %}
+                  {% include "./release_report_library_row.html" %}
+                {% endfor %}
+              </table>
+            </div>
+          {% endwith %}
+        {% endfor %}
 
-        {% endwith %}
       {% endwith %}
+    {% endwith %}
 
-      {# 4. Not-updated libraries: listed on a single page, grouped by tier #}
-      {% if not_updated_by_tier.flagship or not_updated_by_tier.core or not_updated_by_tier.other %}
-        <div class="pdf-page flex items-center justify-items-center {{ bg_color }}" style="background-image: url('{% static 'img/release_report/bg6-rev.png' %}');">
-          <div class="flex flex-col h-full mx-auto w-full">
-            <h2 class="mx-auto">Libraries Not Updated</h2>
-            <ul id="library_index" class="flex flex-col flex-wrap gap-x-4 gap-y-2 text-xs h-5/6">
-              {% if not_updated_by_tier.flagship %}
-                <li class="max-w-[10rem] font-bold mt-2">Flagship</li>
-                {% for library in not_updated_by_tier.flagship %}
-                  <li class="max-w-[10rem] flex gap-x-1 items-center">
-                    <span>{{ library.name }}</span>
-                  </li>
-                {% endfor %}
-              {% endif %}
-              {% if not_updated_by_tier.core %}
-                <li class="max-w-[10rem] font-bold mt-2">Core</li>
-                {% for library in not_updated_by_tier.core %}
-                  <li class="max-w-[10rem] flex gap-x-1 items-center">
-                    <span>{{ library.name }}</span>
-                  </li>
-                {% endfor %}
-              {% endif %}
-              {% if not_updated_by_tier.other %}
-                <li class="max-w-[10rem] font-bold mt-2">Other</li>
-                {% for library in not_updated_by_tier.other %}
-                  <li class="max-w-[10rem] flex gap-x-1 items-center">
-                    <span>{{ library.name }}</span>
-                  </li>
-                {% endfor %}
-              {% endif %}
-            </ul>
-          </div>
+    {# 4. Not-updated libraries: listed on a single page, grouped by tier #}
+    {% if not_updated_by_tier.flagship or not_updated_by_tier.core or not_updated_by_tier.other %}
+      <div class="pdf-page flex items-center justify-items-center {{ bg_color }}"
+           style="background-image: url('{% static 'img/release_report/bg6-rev.png' %}')">
+        <div class="flex flex-col h-full mx-auto w-full">
+          <h2 class="mx-auto">Libraries Not Updated</h2>
+          <ul id="library_index"
+              class="flex flex-col flex-wrap gap-x-4 gap-y-2 text-xs h-5/6">
+            {% if not_updated_by_tier.flagship %}
+              <li class="max-w-[10rem] font-bold mt-2">Flagship</li>
+              {% for library in not_updated_by_tier.flagship %}
+                <li class="max-w-[10rem] flex gap-x-1 items-center">
+                  <span>{{ library.name }}</span>
+                </li>
+              {% endfor %}
+            {% endif %}
+            {% if not_updated_by_tier.core %}
+              <li class="max-w-[10rem] font-bold mt-2">Core</li>
+              {% for library in not_updated_by_tier.core %}
+                <li class="max-w-[10rem] flex gap-x-1 items-center">
+                  <span>{{ library.name }}</span>
+                </li>
+              {% endfor %}
+            {% endif %}
+            {% if not_updated_by_tier.other %}
+              <li class="max-w-[10rem] font-bold mt-2">Other</li>
+              {% for library in not_updated_by_tier.other %}
+                <li class="max-w-[10rem] flex gap-x-1 items-center">
+                  <span>{{ library.name }}</span>
+                </li>
+              {% endfor %}
+            {% endif %}
+          </ul>
         </div>
-      {% endif %}
-    </div>
-    <script>
+      </div>
+    {% endif %}
+  </div>
+  <script>
       const generalGraphOptions = {
         chart: {
           height: 400,
@@ -862,6 +905,6 @@ ul.slack-channels li div a:hover,
         await drawBubble();
         await drawSearchStatsMap();
       });
-    </script>
-  {% endwith %}
+  </script>
+{% endwith %}
 {% endblock content %}

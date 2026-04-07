@@ -10,10 +10,6 @@
 
   <body>
 
-    {% block content %}
-        <div>
-        {{ content|safe }}
-        </div>
-    {% endblock %}
+    {% block content %}<div>{{ content|safe }}</div>{% endblock %}
   </body>
 </html>
