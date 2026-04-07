@@ -39,13 +39,13 @@ jobs:
         with:
           python-version: 3.13
 
-      - uses: actions/cache@v4
+      - id: cache
+        uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/base.txt') }}
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
-            ${{ runner.os }}-
+            ${{ runner.os }}-uv-
 
       - name: Install dependencies
         run: |
