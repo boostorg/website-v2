@@ -74,8 +74,8 @@ jobs:
       - name: Install Node dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Check formatting with Prettier, Djlint, and Black
-        run: yarn format:check
+      - name: Check formatting with Prettier
+        run: yarn prettier:check
 
       - name: Lints with pre-commit
         run: |
