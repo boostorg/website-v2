@@ -1466,6 +1466,28 @@ class V3ComponentDemoView(TemplateView):
             "flag_emoji": "🇺🇸",
         }
 
+        context["button_badge_data"] = {
+            "group_label": "button badges",
+            "group_name": "button-badge-select",
+            "badge_buttons": 2
+            * [
+                {
+                    "value": "gold",
+                    "icon_src": f"{badge_img}/badge-gold-medal.png",
+                    "icon_alt": "Gold Medal",
+                    "checked": False,
+                }
+            ]
+            + [
+                {
+                    "value": "gold",
+                    "icon_src": f"{badge_img}/badge-gold-medal.png",
+                    "icon_alt": "Gold Medal",
+                    "checked": True,
+                }
+            ],
+        }
+
         cpp_options = [
             ("all", "All"),
             ("cpp03", "C++03"),
