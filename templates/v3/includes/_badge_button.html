@@ -5,6 +5,7 @@
         name: str, required: group name for the radios. Should be the same for all components
         value: str, required: radio value for selection
         icon_src: str, required: full src link for icon for badge
+        icon_alt: str, required: meaninful description of icon for screen readers
         id: str, optional: id for linking the label to the radio button. Will be auto generated if not provided
         radio_checked: bool, optional: Set to true if the value should be preselected
 
@@ -29,5 +30,5 @@
         aria-pressed="{{radio_checked|yesno:"true,false"|default:"false"}}"
         {% if radio_checked %} checked {% endif %}
     />
-    <label id="{{id|default:uuid}}_label" for="{{id|default:uuid}}"><img src="{{ icon_src }}" alt="" width="32" height="32"></label>
+    <label id="{{id|default:uuid}}_label" for="{{id|default:uuid}}"><img src="{{ icon_src }}" alt="{{ icon_alt }}" width="28" height="28"></label>
 </div>

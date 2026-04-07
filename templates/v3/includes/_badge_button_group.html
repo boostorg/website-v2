@@ -1,0 +1,15 @@
+{% comment %}
+    Fieldset grouping of _badge_buttons, to allow for easier usage
+    Inputs:
+        badge_buttons: list, required - List of badge buttons. Each contains the required values for a badge button, see _badge_button.html
+        group_label: str, required - Aria label for the fieldset
+        group_name: str, required - name of the button group
+    Example usage
+        {% include "v3/includes/_badge_button_group.html" with group_label=data.group_label group_name=data.group_name badge_buttons=data.badge_buttons only  %}
+{% endcomment %}
+
+<fieldset aria-label="{{ group_label }}" role="radiogroup">
+    {% for button in badge_buttons %}
+        {% include "v3/includes/_badge_button.html" with name=group_name value=button.value icon_src=button.icon_src icon_alt=button.icon_alt radio_checked=button.checked only %}
+    {% endfor %}
+</fieldset>

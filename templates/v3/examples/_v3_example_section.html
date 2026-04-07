@@ -70,11 +70,10 @@
   {% with section_title="Badge Buttons" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
-      {% static "img/v3/badges/badge-gold-medal.png" as icon_src %}
       <div class="v3-examples-section__example-box">
-        {% include "v3/includes/_badge_button.html" with name="badge-select" value="gold" icon_src=icon_src only %}
-        {% include "v3/includes/_badge_button.html" with name="badge-select" value="gold" icon_src=icon_src radio_checked=True only %}
-        {% include "v3/includes/_badge_button.html" with name="badge-select" value="gold" icon_src=icon_src only %}
+        {% with button_badge_data as data %}
+        {% include "v3/includes/_badge_button_group.html" with group_label=data.group_label group_name=data.group_name badge_buttons=data.badge_buttons only  %}
+        {% endwith %}
       </div>
     </div>
   {% endwith %}
