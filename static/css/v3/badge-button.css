@@ -42,5 +42,6 @@
 
 
 .badge-button:has(.badge-button__radio:focus-visible) {
-    outline: auto;
+    outline: auto Highlight;
+    outline: auto -webkit-focus-ring-color;
 }
