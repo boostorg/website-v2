@@ -1,7 +1,13 @@
 import datetime
+from unittest.mock import MagicMock, patch
+
+import pytest
+from django.core.cache import caches
 from django.db.models import Sum
 from model_bakery import baker
 
+from core.models import RenderedContent
+from libraries.constants import DESCRIPTION_FILES
 from libraries.models import CommitAuthor
 from mailing_list.models import EmailData
 
@@ -138,6 +144,34 @@ def test_library_version_first_boost_version_property(library):
     version_3.save()
     del library.first_boost_version
     assert library.first_boost_version == version_3
+
+
+@pytest.mark.parametrize(
+    "first_available, expected",
+    [(0, "<p>adoc</p>"), (1, "<p>md</p>"), (2, "<p>adoc</p>"), (None, None)],
+    ids=["library-detail.adoc", "README.md-fallback", "README.adoc-fallback", "none"],
+)
+@patch("libraries.models.process_md", return_value=("", "<p>md</p>"))
+@patch("libraries.models.write_content_to_tempfile")
+@patch("libraries.models.convert_adoc_to_html", return_value="<p>adoc</p>")
+def test_get_description_file_priority(
+    _adoc, mock_tempfile, _md, library, first_available, expected
+):
+    """Files are tried in order; the first available file wins."""
+    caches["static_content"].clear()
+    RenderedContent.objects.all().delete()
+    mock_tempfile.return_value.name = "/tmp/fake"
+
+    available = dict.fromkeys(DESCRIPTION_FILES)
+    if first_available is not None:
+        for f in DESCRIPTION_FILES[first_available:]:
+            available[f] = b"content"
+
+    client = MagicMock()
+    client.get_file_content.side_effect = (
+        lambda repo_slug, tag, file_path: available.get(file_path)
+    )
+    assert library.get_description(client) == expected
 
 
 def test_merge_author_deletes_author():
