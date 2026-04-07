@@ -8,6 +8,7 @@
   font-size: var(--font-size-large);
   font-weight: var(--font-weight-medium);
   font-family: var(--font-display);
+  line-height: var(--line-height-tight);
 }
 
 .why-boost-cards__grid {
