@@ -16,7 +16,9 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils import dateparse, timezone
 
+from contributions.models import ContributionType
 from versions.models import Version
+from . import constants
 from .constants import CATEGORY_OVERRIDES
 from .models import (
     Category,
@@ -59,6 +61,48 @@ class ParsedCommit:
 
 
 @dataclass
+class ParsedGithubUser:
+    user_id: int
+    username: str
+
+    @classmethod
+    def from_graphql(cls, user_data: dict | None) -> "ParsedGithubUser | None":
+        """
+        Parse a GraphQL user/author/actor object.
+
+        Returns None if:
+        - user_data is None
+        - databaseId is not an integer (bots, deleted users, etc.)
+
+        Args:
+            user_data: GraphQL response containing 'databaseId' and 'login' fields
+
+        Returns:
+            ParsedGithubUser or None if invalid
+        """
+        if not user_data:
+            return None
+
+        if not isinstance(user_data.get("databaseId"), int):
+            return None
+
+        return cls(
+            user_id=user_data["databaseId"],
+            username=user_data["login"],
+        )
+
+
+@dataclass
+class ParsedGithubContribution:
+    user: ParsedGithubUser
+    repo: str
+    type: ContributionType
+    info: str  # pr or issue number
+    comment: str | None
+    contributed_at: timezone.datetime
+
+
+@dataclass
 class VersionDiffStat:
     version: str
     files_changed: int
@@ -73,6 +117,7 @@ def get_commit_data_for_repo_versions(key, min_version=""):
     to and from patches or beta versions are ignored.
 
     """
+    logger.info(f"get_commit_data_for_repo_versions {key=}")
     library = Library.objects.get(key=key)
     parser = re.compile(
         r"^commit (?P<sha>\w+)(?:\n(?P<merge>Merge).*)?\nAuthor: (?P<name>[^\<]+)"
@@ -184,25 +229,10 @@ class LibraryUpdater:
         self.logger = structlog.get_logger()
 
         # Modules we need to skip as they are not really Boost Libraries
-        self.skip_modules = [
-            "inspect",
-            "boostbook",
-            "bcp",
-            "build",
-            "quickbook",
-            "litre",
-            "auto_index",
-            "boostdep",
-            "check_build",
-            "headers",
-            "boost_install",
-            "docca",
-            "cmake",
-            "more",
-        ]
+        self.skip_modules = constants.SKIP_MODULES
         # Libraries to skip that are not "modules", but appear as child-libraries
         # of other modules. Identified by the key used in the libraries.json file.
-        self.skip_libraries = ["chrono/stopwatch"]
+        self.skip_libraries = constants.SKIP_LIBRARIES
 
     def get_library_list(self, gitmodules):
         """
@@ -365,7 +395,7 @@ class LibraryUpdater:
         self.logger.info("updating_repo_issues")
 
         issues_data = self.client.get_repo_issues(
-            self.client.owner, library.github_repo, state="all", issues_only=True
+            library.github_repo, state="all", owner=self.client.owner, issues_only=True
         )
         for issue_dict in issues_data:
             # Get the date information

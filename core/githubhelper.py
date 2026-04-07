@@ -4,6 +4,7 @@ from collections import defaultdict
 from datetime import datetime
 from socket import gaierror
 import time
+from typing import Iterable, Optional
 from urllib.error import URLError
 from io import BytesIO
 from zipfile import ZipFile
@@ -21,6 +22,14 @@ from fastcore.net import (
 )
 from fastcore.xtras import obj2dict
 from ghapi.all import GhApi, paged
+
+from config.settings import GITHUB_API_GRAPHQL_URL, GITHUB_API_REST_URL
+from contributions.models import GitRepoETag
+from core.github_graphql_queries import (
+    PR_CONTRIBUTIONS_QUERY,
+    ISSUE_CONTRIBUTIONS_QUERY,
+    ISSUE_CONTRIBUTIONS_QUERY_WITH_FILTER,
+)
 
 logger = structlog.get_logger()
 
@@ -48,6 +57,7 @@ class GithubAPIClient:
         self.ref = ref
         self.repo_slug = repo_slug
         self.logger = structlog.get_logger()
+        self.rate_limit_hits = 0
 
         # Modules we need to skip as they are not really Boost Libraries
         self.skip_modules = [
@@ -136,48 +146,88 @@ class GithubAPIClient:
             lambda: self.api.repos.get_commit(owner=self.owner, repo=repo_slug, ref=ref)
         )
 
+    def _check_etag_for_changes(
+        self, repo_slug: str, branch: str
+    ) -> tuple[bool, str | None] | None:
+        """Check if repository has changes using stored ETag.
+
+        We use this because checking the stored etag (or any etag in the case of
+        "initial-sync") is free with the github api, while checking for commits with
+        just a "since" value counts as a request.
+
+        :param repo_slug: str, the repository slug
+        :param branch: str, the branch name
+        :return: tuple of (has_changes: bool, etag: str|None)
+                 - has_changes: True if changes detected, False if no changes (304)
+                 - etag: The fresh ETag from response if available, None on error
+        """
+        stored_etag = GitRepoETag.objects.filter(repo=repo_slug).first()
+        check_url = f"{GITHUB_API_REST_URL}/{self.owner}/{repo_slug}/commits"
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "If-None-Match": stored_etag.etag if stored_etag else '"initial-sync"',
+        }
+        params = {"sha": branch, "per_page": 1}
+        response = requests.get(check_url, headers=headers, params=params)
+
+        if response.status_code == 304:
+            self.logger.debug(f"No new commits for {repo_slug} (ETag 304 Not Modified)")
+            return False, None
+
+        if response.status_code == 200 and "ETag" in response.headers:
+            msg = "Changes detected" if stored_etag else "First sync"
+            self.logger.debug(f"{msg} for {repo_slug}, fetching commits")
+            return True, response.headers["ETag"]
+
+    def _update_etag(self, repo_slug: str, etag: str | None):
+        """Update stored ETag after successful commit fetch.
+
+        :param repo_slug: str, the repository slug
+        :param etag: str|None, fresh ETag from check request to store
+        """
+        if not etag:
+            self.logger.debug(f"No etag update for {repo_slug=}")
+            return
+
+        GitRepoETag.objects.update_or_create(repo=repo_slug, defaults={"etag": etag})
+        self.logger.debug(f"Updated ETag for {repo_slug}")
+
     def get_commits(
         self,
         repo_slug: str = None,
         branch: str = "master",
         since: datetime = None,
         until: datetime = None,
-    ) -> list:
-        """Get all commits to the specified branch of a repo.
-
+    ) -> Iterable[dict] | None:
+        """
         :param repo_slug: str, the repository slug. If not provided, the class
             instance's repo_slug will be used.
         :param branch: str, the branch name. Defaults to 'master'.
-        :param since: datetime, only return commits after this date.
+        :param since: datetime, only return commits after this date (triggers ETag check).
         :param until: datetime, only return commits before this date.
-        :return: List[Commit], list of all commits in the branch.
+        :return: Iterable[dict], commits from the branch.
         """
         repo_slug = repo_slug or self.repo_slug
 
-        # Get the commits
+        has_changes, fresh_etag = self._check_etag_for_changes(repo_slug, branch)
+        if not has_changes:
+            logger.info(f"{repo_slug=} etag check indicates no changes")
+            return  # No changes, generator returns empty
+
+        logger.info(f"{repo_slug=} etag check indicated changes")
+        args = {"per_page": 100, "owner": self.owner, "repo": repo_slug, "sha": branch}
+        if since:
+            args["since"] = since.isoformat()
+        if until:
+            args["until"] = until.isoformat()
+
         try:
-            pages = list(
-                paged(
-                    self.api.repos.list_commits,
-                    owner=self.owner,
-                    repo=repo_slug,
-                    sha=branch,
-                    since=since,
-                    until=until,
-                    per_page=100,
-                )
-            )
-            all_commits = []
-            for page in pages:
-                all_commits.extend(page)
-
+            for page in paged(self.api.repos.list_commits, **args):
+                for commit in page:
+                    yield commit
+            self._update_etag(repo_slug, fresh_etag)
         except Exception as e:
-            self.logger.exception(
-                "get_all_commits_failed", repo=repo_slug, exc_msg=str(e)
-            )
-            return []
-
-        return all_commits
+            self.logger.exception(f"get_all_commits_failed {repo_slug} {str(e)}")
 
     def compare(
         self,
@@ -396,7 +446,11 @@ class GithubAPIClient:
             return
 
     def get_repo_issues(
-        self, owner: str, repo_slug: str, state: str = "all", issues_only: bool = True
+        self,
+        repo_slug: str,
+        state: str = "all",
+        owner: str = None,
+        issues_only: bool = True,
     ):
         """
         Get all issues for a repo.
@@ -407,11 +461,12 @@ class GithubAPIClient:
         Note: GhApi() returns results as AttrDict objects:
         https://fastcore.fast.ai/basics.html#attrdict
         """
+        owner = owner or self.owner
         pages = list(
             self.with_retry(
                 lambda: paged(
                     self.api.issues.list_for_repo,
-                    owner=self.owner,
+                    owner=owner,
                     repo=repo_slug,
                     state=state,
                     per_page=100,
@@ -441,12 +496,14 @@ class GithubAPIClient:
         https://fastcore.fast.ai/basics.html#attrdict
         """
         pages = list(
-            paged(
-                self.api.pulls.list,
-                owner=self.owner,
-                repo=repo_slug,
-                state=state,
-                per_page=100,
+            self.with_retry(
+                lambda: paged(
+                    self.api.pulls.list,
+                    owner=self.owner,
+                    repo=repo_slug,
+                    state=state,
+                    per_page=100,
+                )
             )
         )
         # Concatenate all pages into a single list
@@ -553,6 +610,136 @@ class GithubAPIClient:
         myzip = ZipFile(BytesIO(resp.content))
         with myzip.open(myzip.filelist[0]) as f:
             return f.read().decode()
+
+    def _is_http_rate_limit_error(self, response):
+        return (
+            response.status_code in (403, 429) and "rate limit" in response.text.lower()
+        )
+
+    def _is_graphql_rate_limit_error(self, errors: list) -> bool:
+        return any(
+            error.get("type") in ("RATE_LIMIT", "RATE_LIMITED")
+            or error.get("code") == "graphql_rate_limit"
+            or "rate limit" in error.get("message", "").lower()
+            for error in errors
+        )
+
+    def _handle_rate_limit_sleep(self, response, rate_limit_hits: int):
+        reset_time = int(response.headers.get("X-RateLimit-Reset", time.time() + 3600))
+        sleep_duration = max(reset_time - time.time() + 5, 60)
+
+        self.logger.warning(
+            f"GraphQL rate limit hit (count: {rate_limit_hits}). "
+            f"Sleeping for {sleep_duration:.0f} seconds until {datetime.fromtimestamp(reset_time)}"
+        )
+        time.sleep(sleep_duration)
+
+    def execute_graphql(self, query: str, gql_vars: Optional[dict] = None) -> dict:
+        """
+        Execute a GraphQL query against GitHub's GraphQL API with rate limit handling.
+
+        :param query: str, the GraphQL query string
+        :param gql_vars: dict, optional variables for the query
+        :return: dict, the response data
+
+        Note: Will retry indefinitely on rate limit errors until query succeeds.
+        """
+        headers = {
+            "Authorization": f"Bearer {self.token}",
+            "Content-Type": "application/json",
+        }
+        payload: dict[str, str | dict] = {"query": query}
+        if gql_vars:
+            payload["variables"] = gql_vars
+
+        while True:
+            response = requests.post(
+                GITHUB_API_GRAPHQL_URL, json=payload, headers=headers
+            )
+
+            # check for HTTP-level rate limiting
+            if self._is_http_rate_limit_error(response):
+                self.rate_limit_hits += 1
+                self._handle_rate_limit_sleep(response, self.rate_limit_hits)
+                continue
+
+            response.raise_for_status()
+            result = response.json()
+
+            if "errors" in result:
+                # check for GraphQL-level rate limiting
+                if self._is_graphql_rate_limit_error(result["errors"]):
+                    self.rate_limit_hits += 1
+                    self._handle_rate_limit_sleep(response, self.rate_limit_hits)
+                    continue
+                # other graphql errors
+                raise ValueError(f"GraphQL errors: {result['errors']}")
+
+            # Success - reset counter and return
+            return result
+
+    def get_prs_graphql(
+        self, repo_slug: str = None, since: datetime = None
+    ) -> Iterable[dict]:
+        """
+        Note: GitHub's GraphQL API does not support filterBy on pullRequests field,
+        so we fetch all PRs and filter client-side if `since` is provided.
+
+        :param repo_slug: str, the repository slug
+        :param since: datetime, filter PRs updated after this time (client-side filtering)
+        :return: Iterable[dict], PRs with nested timeline, reviews, and review threads
+        """
+        repo_slug = repo_slug or self.repo_slug
+        variables = {"owner": self.owner, "repo": repo_slug}
+
+        cursor = None
+        has_next_page = True
+
+        while has_next_page:
+            variables["cursor"] = cursor
+            result = self.execute_graphql(PR_CONTRIBUTIONS_QUERY, variables)
+
+            data = result["data"]["repository"]["pullRequests"]
+            has_next_page = data["pageInfo"]["hasNextPage"]
+            cursor = data["pageInfo"]["endCursor"]
+
+            for pr in data["nodes"]:
+                if since:
+                    pr_updated_at = datetime.fromisoformat(pr["updatedAt"])
+                    if pr_updated_at < since:
+                        continue
+                yield pr
+
+    def get_issues_graphql(
+        self, repo_slug: str = None, since: datetime = None
+    ) -> Iterable[dict]:
+        """
+        Get all issues for a repo with full contribution data.
+
+        :param repo_slug: str, the repository slug
+        :param since: datetime, only fetch issues updated after this time (for incremental sync)
+        :return: Iterable[dict], issues with nested timeline and comments
+        """
+        repo_slug = repo_slug or self.repo_slug
+        variables = {"owner": self.owner, "repo": repo_slug}
+        query = ISSUE_CONTRIBUTIONS_QUERY
+        if since:
+            query = ISSUE_CONTRIBUTIONS_QUERY_WITH_FILTER
+            variables["since"] = since.isoformat()
+
+        cursor = None
+        has_next_page = True
+
+        while has_next_page:
+            variables["cursor"] = cursor
+            result = self.execute_graphql(query, variables)
+
+            data = result["data"]["repository"]["issues"]
+            has_next_page = data["pageInfo"]["hasNextPage"]
+            cursor = data["pageInfo"]["endCursor"]
+
+            for issue in data["nodes"]:
+                yield issue
 
 
 class GithubDataParser:
