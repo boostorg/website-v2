@@ -8,6 +8,7 @@
   justify-content: center;
   margin-top: 40px;
   margin-bottom: 80px;
+  box-sizing: border-box;
 }
 
 .create-post-wrapper {
@@ -84,6 +85,8 @@
   .create-post-section {
     margin-top: 32px;
     margin-bottom: 64px;
+    padding-right: 12px;
+    padding-left: 12px;
   }
   .create-post-page__actions {
     flex-direction: column;
