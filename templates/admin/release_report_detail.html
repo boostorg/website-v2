@@ -127,11 +127,11 @@ ul.slack-channels li div a:hover,
                       {% if forloop.first %}
                         <th scope="row"
                             rowspan="{{ download_files|length }}"
-                            class="p-2 h-14 whitespace-nowrap border border-r-0 {% if not forloop.parentloop.last %}border-b-0{% endif %}border-gray-400 text-center">
+                            class="p-2 h-14 whitespace-nowrap border border-r-0 {% if not forloop.parentloop.last %}border-b-0{% endif %} border-gray-400 text-center">
                           <i class="fab fa-{% if os == 'Unix' %}linux{% else %}windows{% endif %}"></i> {{ os }}
                         </th>
                       {% endif %}
-                      <td class="p-[.33rem] border {% if not forloop.last or not forloop.parentloop.last %}border-b-0{% endif %}border-gray-400">
+                      <td class="p-[.33rem] border {% if not forloop.last or not forloop.parentloop.last %}border-b-0{% endif %} border-gray-400">
                         <a href="{{ download.url }}" class="text-sky-600 hover:text-orange">{{ download.display_name }}</a>
                       </td>
                     </tr>
