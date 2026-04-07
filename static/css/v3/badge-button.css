@@ -33,9 +33,14 @@
 }
 
 .badge-button:hover,
-.badge-button:focus-visible {
+.badge-button:has(.badge-button__radio:focus-visible) {
     border-radius: var(--border-radius-m);
     border: 1px solid var(--color-stroke-strong);
     background: var(--color-surface-mid);
     padding: 1px;
+}
+
+
+.badge-button:has(.badge-button__radio:focus-visible) {
+    outline: auto;
 }
