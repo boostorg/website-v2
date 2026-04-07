@@ -12,7 +12,7 @@
     {% include "v3/includes/_stats_benchmarks.html" with heading="Benchmark (custom)" sets=stats_benchmark_sets theme="teal" %}
 {% endcomment %}
 {% if sized_by_parent %}<div class="stats-wrap stats-wrap--fill-benchmarks">{% endif %}
-  <section class="stats stats--benchmarks {% if sized_by_parent %}stats--fill{% endif %}stats--{{ theme|default:'default' }}"
+  <section class="stats stats--benchmarks {% if sized_by_parent %}stats--fill{% endif %} stats--{{ theme|default:'default' }}"
            aria-labelledby="stats-benchmarks-heading-{{ theme|default:'default' }}">
     <hr class="stats__separator" aria-hidden>
     <h2 id="stats-benchmarks-heading-{{ theme|default:'default' }}"
