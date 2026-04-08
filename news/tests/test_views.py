@@ -3,7 +3,6 @@ import uuid
 from datetime import date, timedelta
 from io import BytesIO
 
-from PIL import Image
 import pytest
 from django.conf import settings
 from django.contrib.messages import get_messages
@@ -365,33 +364,18 @@ def test_news_create_multiplexer(tp, user_type, request):
 
 
 @pytest.mark.parametrize(
-    "has_image, has_display_name, should_redirect",
+    "has_display_name, should_redirect",
     [
-        (True, True, False),  # Has image, display name
-        (False, True, True),  # Missing image
-        (True, False, True),  # Missing names
-        (False, False, True),  # Missing everything
+        (True, False),  # Has display name
+        (False, True),  # Missing names
     ],
 )
-def test_news_create_requirements(
-    tp, user, has_image, has_display_name, should_redirect
-):
-    """Users must have a profile photo and at least one of the names: first or last."""
+def test_news_create_requirements(tp, user, has_display_name, should_redirect):
+    """Users must have at least one of the names: first or last."""
     url_name = "news-create"
     url = tp.reverse(url_name)
 
     # Setup user based on parameters
-    if has_image:
-        file = BytesIO()
-        filename = "test_image.jpg"
-        file.name = filename
-        image = Image.new("RGB", size=(100, 100), color=(155, 0, 0))
-        image.save(file, "jpeg")
-        file.seek(0)
-        user.profile_image.save(filename, file)
-    else:
-        user.profile_image = None
-
     user.display_name = "Test User" if has_display_name else ""
     user.save()
 
