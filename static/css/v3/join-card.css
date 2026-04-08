@@ -1,0 +1,49 @@
+/*
+  Join Card
+  Individual join-card item styles.
+  For card group containers, see card-group.css.
+*/
+
+.join-card {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-default);
+  padding: var(--space-large);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 97px;
+}
+
+.join-card__title-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+  flex: 1;
+}
+
+.join-card__description {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.14px;
+  color: var(--color-text-secondary);
+  min-height: 34px;
+  padding: 0;
+}
+
+.join-card__title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.16px;
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.join-card__title:hover {
+  text-decoration: none;
+}
