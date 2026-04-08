@@ -35,14 +35,14 @@ A relationship diagram mapping the Boostlook.CSS pipeline end to end: sources, d
 ## CSS File Relationships
 
 ```
-static/css/boostlook.css (73KB, vanilla CSS, from boostorg/boostlook repo)
+static/css/boostlook.css (vanilla CSS, from boostorg/boostlook repo)
 │
 |-- Root Variables -------- Light/dark theme tokens (colors, spacing, fonts)
 |-- Font-Face ------------ Noto Sans, Monaspace Neon/Xenon
 │                          Sources (fallback chain):
-│                            1. ../font/*.ttf (local project)
-│                            2. /static/font/*.woff2 (deployed)
-│                            3. ../../../../tools/boostlook/*.woff2 (boostlook repo)
+│                            1. ../font/*.ttf (local dev)
+│                            2. /static/font/*.woff2 (deployed/production)
+│                            3. ../../../../tools/boostlook/*.woff2 (local boostlook repo)
 │                            4. https://cppalliance.org/fonts/*.ttf (CDN fallback)
 |-- CSS Reset
 |-- Global .boostlook ---- Cross-template base styles
@@ -65,7 +65,7 @@ Supporting CSS files:
 ```
 templates/base.html
 │
-|-- <link href="{% static 'css/boostlook.css' %}" rel="stylesheet">  (line 57)
+|-- <link href="{% static 'css/boostlook.css' %}" rel="stylesheet">
 │   +-- Loaded globally on every page
 │
 |-- templates/original_docs.html ---- Wrapper for legacy docs
@@ -77,10 +77,10 @@ templates/base.html
 |-- templates/docs_libs_placeholder.html -- Preload hint for boostlook.css
 │
 |-- templates/libraries/detail.html -- Library detail page
-│   +-- <section class="boostlook"> wrapping README content (line 204)
+│   +-- <section class="boostlook"> wrapping README content
 │
 +-- templates/versions/detail.html --- Version/release page
-    +-- <section class="boostlook"> wrapping release notes (line 166)
+    +-- <section class="boostlook"> wrapping release notes
 ```
 
 ---
@@ -198,17 +198,21 @@ Three lists control which processing path a library takes:
 │                                                               │
 │ array, assert, bloom, charconv, cobalt, compat,               │
 │ container_hash, describe, endian, exception, hash2, io,       │
-│ lambda2, leaf, mp11, predef, process, property_map_parallel,  │
-│ qvm, redis, smart_ptr, system, throw_exception, unordered,    │
-│ uuid, variant2                                                │
+│ lambda2, leaf, mp11, predef, process (libs/ and doc/html/),   │
+│ property_map_parallel, qvm, redis, smart_ptr, system,         │
+│ throw_exception, unordered, uuid, variant2                    │
 +---------------------------------------------------------------+
 
 +---------------------------------------------------------------+
 │ FULLY_MODERNIZED_LIB_VERSIONS (version-specific)              │
 │ Use Antora/modern rendering with source-docs-antora class     │
 │                                                               │
-│ charconv (1.87+), redis (1.89+), url (doc/antora/url),        │
-│ tools/ (all versions)                                         │
+│ charconv (1.87, 1.88, 1.89, latest, develop, master),         │
+│ redis (1.89, latest, develop, master),                        │
+│ url (doc/antora/url), tools/ (all versions)                   │
+│                                                               │
+│ Note: versions are explicitly enumerated, not range-matched.  │
+│ New versions must be added to the list manually.              │
 +---------------------------------------------------------------+
 
 +---------------------------------------------------------------+
@@ -281,7 +285,7 @@ Step 3: boostorg/website-v2
 
 | File                                 | Role in Pipeline                                                                                    |
 |--------------------------------------|-----------------------------------------------------------------------------------------------------|
-| `static/css/boostlook.css`           | Core CSS framework (73KB vanilla CSS)                                                               |
+| `static/css/boostlook.css`           | Core CSS framework (vanilla CSS)                                                                    |
 | `static/css/preprocessing_fixes.css` | Frameset layout overrides                                                                           |
 | `core/constants.py`                  | Library classification lists (`NO_PROCESS_LIBS`, `NO_WRAPPER_LIBS`, `FULLY_MODERNIZED_LIB_VERSIONS`) |
 | `core/htmlhelper.py`                 | HTML transformation functions (`modernize_legacy_page()`, `remove_library_boostlook()`, etc.)       |
@@ -289,7 +293,7 @@ Step 3: boostorg/website-v2
 | `core/boostrenderer.py`              | S3 content fetching (`get_content_from_s3()`, `get_s3_keys()`)                                      |
 | `core/models.py`                     | `RenderedContent` database cache model                                                              |
 | `core/asciidoc.py`                   | AsciiDoc to HTML conversion via Asciidoctor                                                         |
-| `templates/base.html`                | Global `<link>` to boostlook.css (line 57)                                                          |
+| `templates/base.html`                | Global `<link>` to boostlook.css                                                                    |
 | `templates/original_docs.html`       | Legacy docs wrapper template                                                                        |
 | `templates/docsiframe.html`          | Fully modernized docs wrapper template                                                              |
 | `templates/libraries/detail.html`    | Library page (applies `.boostlook` to README section)                                               |
