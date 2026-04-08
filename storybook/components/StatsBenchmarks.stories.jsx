@@ -35,32 +35,47 @@ export default {
 export const Default = (args) => (
   <Pattern
     template="v3/includes/_stats_benchmarks.html"
-    context={{
-      heading: "Performance benchmarks",
-      sets: sampleSets,
-      theme: args.theme,
-    }}
+    context={args}
   />
 );
-Default.args = { theme: "default" };
+Default.args = {
+  heading: "Performance benchmarks",
+  sets: sampleSets,
+  theme: "default",
+};
 
-export const Yellow = () => (
+export const Yellow = (args) => (
   <Pattern
     template="v3/includes/_stats_benchmarks.html"
-    context={{ heading: "Performance benchmarks", sets: sampleSets, theme: "yellow" }}
+    context={args}
   />
 );
+Yellow.args = {
+  heading: "Performance benchmarks",
+  sets: sampleSets,
+  theme: "yellow",
+};
 
-export const Green = () => (
+export const Green = (args) => (
   <Pattern
     template="v3/includes/_stats_benchmarks.html"
-    context={{ heading: "Performance benchmarks", sets: sampleSets, theme: "green" }}
+    context={args}
   />
 );
+Green.args = {
+  heading: "Performance benchmarks",
+  sets: sampleSets,
+  theme: "green",
+};
 
-export const Teal = () => (
+export const Teal = (args) => (
   <Pattern
     template="v3/includes/_stats_benchmarks.html"
-    context={{ heading: "Performance benchmarks", sets: sampleSets, theme: "teal" }}
+    context={args}
   />
 );
+Teal.args = {
+  heading: "Performance benchmarks",
+  sets: sampleSets,
+  theme: "teal",
+};

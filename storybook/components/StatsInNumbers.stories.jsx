@@ -27,58 +27,61 @@ export default {
 export const Default = (args) => (
   <Pattern
     template="v3/includes/_stats_in_numbers.html"
-    context={{
-      heading: "Commits per release",
-      description: "Commit count by Boost release for this library.",
-      bars: sampleBars,
-      theme: args.theme,
-      primary_cta_label: "View library",
-      primary_cta_url: "#",
-    }}
+    context={args}
   />
 );
-Default.args = { theme: "default" };
+Default.args = {
+  heading: "Commits per release",
+  description: "Commit count by Boost release for this library.",
+  theme: "default",
+  primary_cta_label: "View library",
+  primary_cta_url: "#",
+  bars: sampleBars
+};
 
-export const Yellow = () => (
+export const Yellow = (args) => (
   <Pattern
     template="v3/includes/_stats_in_numbers.html"
-    context={{
-      heading: "Commits per release",
-      description: "Commit count by Boost release for this library.",
-      bars: sampleBars,
-      theme: "yellow",
-      primary_cta_label: "View library",
-      primary_cta_url: "#",
-    }}
+    context={args}
   />
 );
+Yellow.args = {
+  heading: "Commits per release",
+  description: "Commit count by Boost release for this library.",
+  theme: "yellow",
+  primary_cta_label: "View library",
+  primary_cta_url: "#",
+  bars: sampleBars
+};
 
-export const Green = () => (
+export const Green = (args) => (
   <Pattern
     template="v3/includes/_stats_in_numbers.html"
-    context={{
-      heading: "Commits per release",
-      description: "Commit count by Boost release for this library.",
-      bars: sampleBars,
-      theme: "green",
-      primary_cta_label: "View library",
-      primary_cta_url: "#",
-      secondary_cta_label: "View all libraries",
-      secondary_cta_url: "#",
-    }}
+    context={args}
   />
 );
+Green.args = {
+  heading: "Commits per release",
+  description: "Commit count by Boost release for this library.",
+  theme: "green",
+  primary_cta_label: "View library",
+  primary_cta_url: "#",
+  secondary_cta_label: "View all libraries",
+  secondary_cta_url: "#",
+  bars: sampleBars
+};
 
-export const Teal = () => (
+export const Teal = (args) => (
   <Pattern
     template="v3/includes/_stats_in_numbers.html"
-    context={{
-      heading: "Commits per release",
-      description: "Commit count by Boost release for this library.",
-      bars: sampleBars,
-      theme: "teal",
-      primary_cta_label: "View library",
-      primary_cta_url: "#",
-    }}
+    context={args}
   />
 );
+Teal.args = {
+  heading: "Commits per release",
+  description: "Commit count by Boost release for this library.",
+  theme: "teal",
+  primary_cta_label: "View library",
+  primary_cta_url: "#",
+  bars: sampleBars
+};

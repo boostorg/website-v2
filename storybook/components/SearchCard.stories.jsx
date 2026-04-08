@@ -13,34 +13,27 @@ export default {
 export const Default = (args) => (
   <Pattern
     template="v3/includes/_search_card.html"
-    context={{
-      heading: args.heading,
-      action_url: args.action_url,
-      placeholder: args.placeholder,
-      popular_terms: [
-        { label: "Networking" },
-        { label: "Math" },
-        { label: "Data processing" },
-        { label: "Concurrency" },
-        { label: "File systems" },
-        { label: "Testing" },
-      ],
-    }}
+    context={args}
   />
 );
 Default.args = {
   heading: "What are you trying to find?",
   action_url: "#",
   placeholder: "Search libraries, docs, examples",
+  popular_terms: [
+    { label: "Networking" },
+    { label: "Math" },
+    { label: "Data processing" },
+    { label: "Concurrency" },
+    { label: "File systems" },
+    { label: "Testing" },
+  ],
 };
 
 export const WithoutPopularTerms = (args) => (
   <Pattern
     template="v3/includes/_search_card.html"
-    context={{
-      heading: args.heading,
-      action_url: args.action_url,
-    }}
+    context={args}
   />
 );
 WithoutPopularTerms.args = {
