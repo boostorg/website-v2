@@ -8,10 +8,8 @@
     items               (list, optional)    — list of objects with:
       - title           (string, optional)  — title
       - url             (string, optional)  — link URL
-      - date            (date/string, optional) — publish date
-      - category        (string, optional)  — e.g. "Issues", "Releases"
-      - tag             (string, optional)  — e.g. "beast"
-      - author          (object, optional)  — passed to _user_profile.html (see that template for fields)
+      - description     (string, optional)  — link description
+      - icon_name       (string, optional)  — optional icon
     variant             (string, optional)  — "list" or "card", defaults to "list"
     theme               (string, optional)  — only for variant "card": "default", "grey", "yellow", "green", "teal"
     layout              (string, optional)  — "vertical" or "horizontal", defaults to "vertical"
@@ -28,21 +26,26 @@
     <ul class="card-group__list">
       {% for item in items %}
         <li class="card-group__item">
-            <article class="join-card">
-                <div class="join-card__title-block">
-                  {% if item.title and item.url %}
-                      <a href="{{ item.url }}" class="join-card__title">{{ item.title }}</a>
-                    {% elif item.title %}
-                      <h3 class="join-card__title">{{ item.title }}</h3>
-                    {% endif %}
-                  {% if item.description %}
-                    <p class="join-card__description">{{ item.description }}</p>
-                  {% endif %}
-                </div>
-                {% if item.icon_name %}
-                    {% include 'includes/icon.html' with icon_name=item.icon_name icon_size=16 %}
+          <article class="join-card">
+            <div class="join-card__content">
+              <div class="join-card__title-block">
+                {% if item.title and item.url %}
+                  <a href="{{ item.url }}" class="join-card__title">{{ item.title }}</a>
+                {% elif item.title %}
+                  <h3 class="join-card__title">{{ item.title }}</h3>
                 {% endif %}
-            </article>
+                {% if item.description %}
+                  <p class="join-card__description">{{ item.description }}</p>
+                {% endif %}
+              </div>
+              {% if item.icon_name %}
+                {% include 'includes/icon.html' with icon_name=item.icon_name icon_size=16 %}
+              {% endif %}
+            </div>
+            {% if item.url %}
+              <a href="{{ item.url }}" class="join-card__start-here">Start here</a>
+            {% endif %}
+          </article>
         </li>
       {% endfor %}
     </ul>

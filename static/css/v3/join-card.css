@@ -6,12 +6,31 @@
 
 .join-card {
   display: flex;
-  flex-direction: row;
-  gap: var(--space-default);
+  flex-direction: column;
   padding: var(--space-large);
   box-sizing: border-box;
   width: 100%;
-  min-height: 97px;
+  min-height: 125px;
+  gap: var(--space-large);
+}
+
+.join-card__content {
+  display: flex;
+  flex-direction: row;
+}
+
+.join-card__start-here {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  font-style: normal;
+  line-height: 100%;
+  letter-spacing: -0.12px;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: none;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
 }
 
 .join-card__title-block {
@@ -19,6 +38,7 @@
   flex-direction: column;
   gap: var(--space-default);
   flex: 1;
+  padding-right: var(--space-large);
 }
 
 .join-card__description {
