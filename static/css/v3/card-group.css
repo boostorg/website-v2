@@ -1,0 +1,149 @@
+/*
+  Card Group
+  Shared themed container for groups of cards (posts, events, etc.).
+  Structure: heading + list of items + CTA section.
+  Dependencies: card.css (card__cta_section), tokens
+*/
+
+.card-group {
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-card);
+  padding: var(--space-card) 0;
+  max-width: 458px;
+  flex-shrink: 0;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border-radius: var(--border-radius-xl);
+  border: 1px solid var(--color-stroke-weak);
+  background: var(--color-surface-weak);
+}
+
+/* ── Theme variants ────────────────────────── */
+
+.card-group--default {
+  background: var(--color-surface-weak);
+  border-color: var(--color-stroke-weak);
+}
+
+.card-group--card.card-group--default {
+  background: var(--color-surface-mid);
+  border-color: var(--color-stroke-weak);
+}
+
+.card-group--yellow {
+  background: var(--color-surface-weak-accent-yellow);
+  border-color: var(--color-accent-strong-yellow);
+}
+
+.card-group--green {
+  background: var(--color-surface-weak-accent-green);
+  border-color: var(--color-accent-strong-green);
+}
+
+.card-group--teal {
+  background: var(--color-surface-weak-accent-teal);
+  border-color: var(--color-accent-strong-teal);
+}
+
+/* ── Heading ───────────────────────────────── */
+
+.card-group__heading {
+  margin: 0;
+  padding: 0 var(--space-card);
+  font-family: var(--font-display);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  letter-spacing: -0.24px;
+  color: var(--color-text-primary);
+}
+
+/* ── List ──────────────────────────────────── */
+
+.card-group__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Item ──────────────────────────────────── */
+
+.card-group__item {
+  list-style: none;
+  border-top: 1px solid var(--color-stroke-weak);
+  min-width: 0;
+}
+
+.card-group__item:last-child {
+  border-bottom: 1px solid var(--color-stroke-weak);
+}
+
+.card-group__item:has(.card-group__item-link:hover) {
+  background-color: var(--color-surface-mid);
+}
+
+/* ── Variant: card ─────────────────────────── */
+
+.card-group--card .card-group__list {
+  gap: var(--space-s);
+  padding: 0 var(--space-card);
+}
+
+.card-group--card .card-group__item {
+  border: none;
+  background: var(--color-surface-weak);
+  border-radius: var(--border-radius-l);
+}
+
+.card-group--card .card-group__item:last-child {
+  border-bottom: none;
+}
+
+/* ── Layout: horizontal ────────────────────── */
+
+.card-group--horizontal {
+  max-width: 933px;
+}
+
+.card-group--horizontal .card-group__list {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: var(--space-s);
+  min-width: 0;
+
+}
+
+.card-group--horizontal .card-group__item {
+  border: none;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.card-group--horizontal .card-group__item:last-child {
+  border-bottom: none;
+}
+
+/* ── Responsive ─────────────────────────────── */
+
+@media (max-width: 767px) {
+  .card-group--horizontal .card-group__list {
+    flex-direction: column;
+  }
+}
+
+/* ── Dark mode ─────────────────────────────── */
+html.dark {
+  .card-group {
+    border-color: var(--color-stroke-weak);
+  }
+
+  .card-group--default {
+    background: var(--color-primary-grey-850);
+  }
+}

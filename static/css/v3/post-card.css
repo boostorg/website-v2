@@ -1,0 +1,53 @@
+/*
+  Post Card
+  Individual post-card item styles.
+  For card group containers, see card-group.css.
+*/
+
+.post-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-medium);
+  padding: var(--space-card);
+}
+
+.post-card__title-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+}
+
+.post-card__title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.16px;
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.post-card__title:hover {
+  text-decoration: none;
+}
+
+.post-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.12px;
+  color: var(--color-text-secondary);
+}
+
+.post-card__meta > :not(:first-child)::before {
+  content: "•";
+  color: var(--color-text-secondary);
+  user-select: none;
+  margin-right: 6px;
+}

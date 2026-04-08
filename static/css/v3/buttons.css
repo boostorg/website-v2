@@ -69,8 +69,8 @@
 
 .btn-secondary:hover,
 .btn-secondary[data-hover] {
-  border-color: var(--color-secondary-dark-blue);
-  color: var(--color-secondary-dark-blue);
+  border-color: var(--color-stroke-link-accent);
+  color: var(--color-text-link-accent);
 }
 
 .btn-green {
@@ -238,4 +238,17 @@ html.dark .btn-icon-library:hover {
 .btn-icon-library .btn-icon {
   width: 24px;
   height: 24px;
+}
+
+/* ── Dark Mode ──────────────────────────────────── */
+html.dark {
+  :is(.btn-primary, .btn-green, .btn-yellow, .btn-teal):is(:hover, [data-hover]) {
+    background-color: var(--color-secondary-dark-blue);
+    border-color: var(--color-stroke-weak);
+    color: var(--color-text-primary);
+  }
+
+  .btn.btn-hero.btn-primary:is(:hover, [data-hover]) {
+    color: var(--color-text-on-accent);
+  }
 }

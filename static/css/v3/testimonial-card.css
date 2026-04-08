@@ -78,13 +78,37 @@
 }
 
 .testimonial-card__post {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.testimonial-card__list {
+    list-style: none;
+    margin: 0;
     padding: 0;
-    border: none;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: var(--space-card);
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
     min-width: 0;
 }
 
-.testimonial-card__post .post-cards__item {
+.testimonial-card__list-item {
+    list-style: none;
+    flex: 0 0 auto;
+    min-width: 0;
     max-width: 100%;
+    border: none;
+    padding: 0;
 }
 
 .testimonial-card__author-role-text {
