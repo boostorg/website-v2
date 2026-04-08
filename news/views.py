@@ -318,9 +318,6 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
             if not request.user.display_name:
                 missing_data.append("your name")
 
-            if not request.user.profile_image:
-                missing_data.append("a profile photo")
-
             if missing_data:
                 messages.warning(
                     request, f"Please add {' and '.join(missing_data)} first."
