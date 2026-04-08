@@ -1245,23 +1245,6 @@ class V3ComponentDemoView(TemplateView):
 
     template_name = "base.html"
 
-    @staticmethod
-    def _get_author_avatar(author):
-        """Return the best available avatar URL for a library author (User).
-
-        Returns empty string when no image is available so the avatar
-        template falls back to a colored initials circle.
-        """
-        if not author:
-            return ""
-        url = author.get_thumbnail_url()
-        if url:
-            return url
-        ca = getattr(author, "commitauthor", None)
-        if ca and getattr(ca, "avatar_url", None):
-            return ca.avatar_url
-        return ""
-
     def get_context_data(self, **kwargs):
         from django.urls import reverse
         from libraries.models import Library, LibraryVersion
@@ -2071,7 +2054,7 @@ class V3ComponentDemoView(TemplateView):
                     "author": {
                         "name": author.display_name if author else "Unknown",
                         "role": "Contributor",
-                        "avatar_url": self._get_author_avatar(author),
+                        "avatar_url": author.get_avatar_url() if author else "",
                         "badge_url": f"{badge_img}/badge-first-place.png",
                     },
                     "doc_url": reverse(
