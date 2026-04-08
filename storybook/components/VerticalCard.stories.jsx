@@ -1,15 +1,15 @@
 import React from "react";
-import { Pattern } from "storybook-django/src/react";
+import {Pattern} from "storybook-django/src/react";
 
 export default {
   title: "Components/Vertical Card",
   argTypes: {
-    title: { control: "text" },
-    text: { control: "text" },
-    image_url: { control: "text" },
-    primary_button_url: { control: "text" },
-    primary_button_label: { control: "text" },
-    primary_style: { control: "text" },
+    title: {control: "text"},
+    text: {control: "text"},
+    image_url: {control: "text"},
+    primary_button_url: {control: "text"},
+    primary_button_label: {control: "text"},
+    primary_style: {control: "text"},
   },
 };
 

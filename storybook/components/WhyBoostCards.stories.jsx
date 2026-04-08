@@ -63,9 +63,11 @@ const CARDS_DATA = [
   },
 ];
 
-export const Grid = () => (
+export const Default = (args) => (
   <Pattern
     template="v3/includes/_why_boost_cards.html"
-    context={{ why_boost_cards: CARDS_DATA }}
+    context={args}
   />
 );
+
+Default.args = { why_boost_cards: CARDS_DATA }

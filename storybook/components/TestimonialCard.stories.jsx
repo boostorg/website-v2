@@ -5,10 +5,14 @@ export default {
   title: "Components/Testimonial Card",
 };
 
-export const Default = () => (
+export const Default = (args) => (
   <Pattern
     template="v3/includes/_testimonial_card.html"
-    context={{
+    context={args}
+  />
+);
+
+Default.args = {
       heading: "What Engineers are saying",
       testimonials: [
         {
@@ -52,6 +56,4 @@ export const Default = () => (
           },
         },
       ],
-    }}
-  />
-);
+    }
