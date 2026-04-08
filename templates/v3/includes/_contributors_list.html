@@ -1,0 +1,35 @@
+{% comment %}
+  Vertical list showing all contributors to a library or release.
+  Has two variants: Contributors in release, or all contributors. The release variant is a single column,
+  all contributors is a differing number of columns depending on screen size.
+
+  Inputs:
+    - title: str, required - top title of card
+    - variant: str, required - choice of release or all, determines display layout
+    - contributors: list, required - List of contributors, matching the author input of _user_profile.html
+    - heading_level: int, optional - Set the semantic leve of the heading, defaults to 2, does not allow for h1
+
+  Usage:
+    {% include "v3/includes/_contributors_list.html" with title="Contributors: This Release" variant="release" contributors=contributors %}
+{% endcomment %}
+<div class="basic-card card py-large contributors-list {% if variant == 'all' %} all-contributors {% endif %}">
+  <div class="card__header">
+    {% if heading_level == '2' or not heading_level %}
+      <h2 class="card__title">{{ title }}</h2>
+    {% elif heading_level == '3'  %}
+      <h3 class="card__title">{{ title }}</h3>
+    {% elif heading_level == '4'  %}
+      <h4 class="card__title">{{ title }}</h4>
+    {% elif heading_level == '5'  %}
+      <h5 class="card__title">{{ title }}</h5>
+    {% elif heading_level == '6'  %}
+      <h6 class="card__title">{{ title }}</h6>
+    {% endif %}
+  </div>
+  <hr class="card__hr" />
+  <div class="card__column px-large">
+    {% for contributor in contributors %}
+        {% include "v3/includes/_user_profile.html" with author=contributor only %}
+    {% endfor %}
+  </div>
+</div>

@@ -387,6 +387,7 @@
           {% include "v3/includes/_field_checkbox.html" with name="ex_agree" label="I agree to the terms and conditions" %}
           {% include "v3/includes/_field_combo.html" with name="ex_library" label="Combo (searchable)" placeholder="Search libraries..." options=demo_libs %}
           {% include "v3/includes/_field_multiselect.html" with name="ex_categories" label="Multi-select" placeholder="Select categories..." options=demo_cats %}
+          {% include "v3/includes/_field_combo_multi.html" with name="ex_combo_multi" label="Combo multi-select (searchable)" placeholder="Search and select..." options=demo_combo_multi_tags %}
         </div>
       </div>
     </div>
@@ -541,6 +542,24 @@
     </div>
   {% endwith %}
 
+  {% with section_title="Post Filter" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_post_filter.html" with options=post_filter_options filter_name="demo-filter" %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Library Filter" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_library_filter.html" with filter_id="demo-library-filter" fields=library_filter_fields %}
+      </div>
+    </div>
+  {% endwith %}
+
   {% with section_title="Event cards" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
@@ -680,6 +699,24 @@
             {% include "v3/includes/_user_profile.html" with author=author %}
           {% endfor %}
         </div>
+      </div>
+    </div>
+  {% endwith %}
+
+   {% with contributors=release_contributor_data section_title="Contributors List (release)" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_contributors_list.html" with title="Contributors: This Release" variant="release" contributors=contributors %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with contributors=contributor_data section_title="Contributors List (all)" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% include "v3/includes/_contributors_list.html" with title="All Contributors" variant="all" contributors=contributors %}
       </div>
     </div>
   {% endwith %}
