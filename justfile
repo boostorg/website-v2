@@ -196,3 +196,6 @@ alias shell := console
     else \
         echo "Bucket name invalid."; \
     fi
+
+@upload_images:
+    scripts/upload-images.sh;
