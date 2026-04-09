@@ -67,7 +67,7 @@
             <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
           </div>
 
-          <div class="create-post-page__description-field" :style="isLinkType ? '' : 'display: none'">
+          <div class="field create-post-page__description-field" :style="isLinkType ? 'display:flex' : 'display: none'">
             {% include "v3/includes/_field_textarea.html" with name="content" field_id="description" label="Description" value=form.content.value|default_if_none:"" alpine_error="errors.content" error=form.content.errors.0 alpine_disabled_expr="isWriteUp" %}
           </div>
 
