@@ -1,10 +1,10 @@
 @import "./fonts.css";
 @import "./foundations.css";
 @import "./button-tooltip.css";
-@import "./post-cards.css";
 @import "./buttons.css";
 @import "./avatar.css";
 @import "./carousel-buttons.css";
+@import "./cards-carousel.css";
 @import "./badge.css";
 @import "./v3-examples-section.css";
 @import "./header.css";
@@ -15,7 +15,6 @@
 @import "./inputs-page.css";
 @import "./testimonial-card.css";
 @import "./card.css";
-@import "./event-cards.css";
 @import "./content.css";
 @import "./why-boost-cards.css";
 @import "./stats.css";
@@ -45,3 +44,6 @@
 @import "./post-filter.css";
 @import "./library-filter.css";
 @import "./contributors-list.css";
+@import "./card-group.css";
+@import "./post-card.css";
+@import "./event-card.css";

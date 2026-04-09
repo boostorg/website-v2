@@ -1374,6 +1374,39 @@ class V3ComponentDemoView(TemplateView):
             },
         ]
 
+        context["demo_events"] = [
+            {
+                "title": "Boost 1.90.0 closed for major changes",
+                "description": "Release closed for major code changes. "
+                "Still open for serious problem fixes.",
+                "date": "29/10/25",
+                "datetime": "2025-10-29",
+            },
+            {
+                "title": "C++ Now 2025 call for submissions",
+                "description": "C++ Now conference is accepting talk proposals "
+                "until March 15.",
+                "date": "12/02/25",
+                "datetime": "2025-02-12",
+            },
+            {
+                "title": "Boost 1.89.0 released",
+                "description": "Boost 1.89.0 is available with updates to Asio, "
+                "Beast, and several other libraries.",
+                "date": "15/01/25",
+                "datetime": "2025-01-15",
+            },
+        ]
+
+        context["demo_events_with_links"] = [
+            {
+                **event,
+                "card_url": f"#event-{i}",
+                "card_aria_label": event["title"],
+            }
+            for i, event in enumerate(context["demo_events"])
+        ]
+
         context["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/checker.png"
         )

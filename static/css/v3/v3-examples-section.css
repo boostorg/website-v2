@@ -153,17 +153,6 @@ html.dark .v3-examples-section__example-box {
   flex-shrink: 0;
 }
 
-.v3-examples-section .post-cards--carousel .post-cards__list {
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.v3-examples-section
-  .post-cards--carousel
-  .post-cards__list::-webkit-scrollbar {
-  display: none;
-}
-
 .v3-examples-section .category-cards .category-cards__gallery-block {
   margin-bottom: var(--space-large);
 }
@@ -281,6 +270,12 @@ html.dark .v3-examples-section__toc {
 
 .v3-examples-section__toc-link:hover {
   text-decoration: underline;
+}
+
+.v3-examples-section-horizontal-container {
+  display: flex;
+  gap: var(--space-xl);
+  overflow-x: auto;
 }
 
 /* ── Scroll offset for anchor links ────────────── */

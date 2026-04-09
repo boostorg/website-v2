@@ -65,6 +65,7 @@
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-display-regular);
+  margin: 0;
 }
 
 .card__hr {
