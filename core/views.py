@@ -327,6 +327,43 @@ int main()
         },
     ]
 
+    library_intro = {
+        "library_name": "Boost.Core.",
+        "description": "Lightweight utilities that power dozens of other Boost libraries",
+        "authors": [
+            {
+                "name": "Vinnie Falco",
+                "role": "Author",
+                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
+                "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
+            },
+            {
+                "name": "Alex Wells",
+                "role": "Contributor",
+                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "bio": "C++ enthusiast who has worked at Intel and Microsoft.",
+            },
+            {
+                "name": "Dave Abrahams",
+                "role": "Maintainer",
+                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
+                "bio": "Contributor to Boost since 2009.",
+            },
+        ],
+        "cta_url": "#",
+    }
+
+    build_anything_with_boost = {
+        "title": "Build anything with Boost",
+        "text": "Use, modify, and distribute Boost libraries freely. No binary attribution needed.",
+        "image_url": f"{settings.STATIC_URL}img/checker.png",
+        "image_alt": "This is a placeholder image",
+        "button_url": "#",
+        "button_label": "See license details",
+    }
+
 
 def BSLView(request):
     file_path = os.path.join(settings.BASE_DIR, "static/license.txt")
@@ -1569,14 +1606,7 @@ class V3ComponentDemoView(TemplateView):
             "image": "/static/img/v3/demo_page/Calendar.png",
         }
 
-        context["horizontal_card_data"] = {
-            "title": "Build anything with Boost",
-            "text": "Use, modify, and distribute Boost libraries freely. No binary attribution needed.",
-            "image_url": f"{settings.STATIC_URL}img/checker.png",
-            "image_alt": "This is a placeholder image",
-            "button_url": "#",
-            "button_label": "See license details",
-        }
+        context["horizontal_card_data"] = SharedResources.build_anything_with_boost
 
         context["demo_cards_carousel_cards"] = [
             {
@@ -2023,31 +2053,7 @@ class V3HomepageView(TemplateView):
         #                 },
         #             ],
         #         }
-        #         context["library_intro"] = {
-        #             "library_name": "Boost.Core.",
-        #             "description": "Lightweight utilities that power dozens of other Boost libraries",
-        #             "authors": [
-        #                 {
-        #                     "name": "Vinnie Falco",
-        #                     "role": "Author",
-        #                     "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-        #                     "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
-        #                     "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
-        #                 },
-        #                 {
-        #                     "name": "Alex Wells",
-        #                     "role": "Contributor",
-        #                     "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-        #                     "bio": "C++ enthusiast who has worked at Intel and Microsoft.",
-        #                 },
-        #                 {
-        #                     "name": "Dave Abrahams",
-        #                     "role": "Maintainer",
-        #                     "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-        #                     "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
-        #                     "bio": "Contributor to Boost since 2009.",
-        #                 },
-        #             ],
+
         #             "cta_url": reverse(
         #                 "library-detail",
         #                 kwargs={"version_slug": "latest", "library_slug": "core"},
@@ -2145,5 +2151,9 @@ class V3HomepageView(TemplateView):
             "example_library_commits_bars": SharedResources.example_library_commits_bars
         }
         ctx["testimonial_data"] = {"testimonials": SharedResources.testimonials}
+
+        ctx["library_intro"] = SharedResources.library_intro
+
+        ctx["build_anything_with_boost"] = SharedResources.build_anything_with_boost
 
         return ctx

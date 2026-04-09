@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-  <div class="px-large">
+  <div class="homepage-container">
   {% include "v3/includes/_hero_home.html" with install_card_id="hero-home-3" hero_image_url="" hero_image_url_light="" hero_image_url_dark="" %}
   <div class="card-masonry-top py-large">
     <div class="item-a">
@@ -42,17 +42,19 @@
         {% endwith %}
       </div>
       <div class="item-b">
-        {% with card=calendar_card %}
-          {% include 'v3/includes/_vertical_card.html' with title=card.title text=card.text primary_button_url=card.primary_button_url primary_button_label=card.primary_button_label primary_style='secondary-grey' image_url=card.image %}
-        {% endwith %}
+        {% with data=library_intro %}
+            {% include "v3/includes/_library_intro_card.html" with library_name=data.library_name description=data.description authors=data.authors cta_url=data.cta_url %}
+          {% endwith %}
       </div>
       <div class="item-c">
         {% with data=testimonial_data %}
           {% include "v3/includes/_testimonial_card.html" with heading="What engineers" testimonials=data.testimonials %}
         {% endwith %}
       </div>
-      <div class="item-d">
-        {% include 'v3/includes/_mailing_list_card.html' %}
+      <div class="item-d license-card">
+        {% with data=build_anything_with_boost %}
+          {% include "v3/includes/_horizontal_card.html" with title=data.title text=data.text image_url=data.image_url button_url=data.button_url button_label=data.button_label image_alt=data.image_alt %}
+        {% endwith %}
       </div>
     </div>
   </div>

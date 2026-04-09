@@ -1,3 +1,9 @@
+.homepage-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--space-default, 8px);
+}
+
 .four-column .why-boost-cards__grid {
     grid-template-columns: repeat(4, 1fr);
 }
@@ -98,4 +104,14 @@
 
 .card-masonry-bottom .item-d {
     grid-area: d;
+}
+
+.license-card .horizontal-card {
+  max-width: 100%;
+  min-height: 358px;
+}
+
+.license-card .horizontal-card .horizontal-card__image {
+  flex: 0 0 205px; /* Fixed width for the image container */
+  aspect-ratio: 1 / 1;
 }
