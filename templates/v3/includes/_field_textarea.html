@@ -1,0 +1,55 @@
+{% comment %}
+  V3 textarea field.
+  Variables:
+    name                 (required) — input name attribute
+    field_id             (optional) — override for the generated id suffix, default: value of name
+    label                (optional) — label text
+    placeholder          (optional) — placeholder text
+    value                (optional) — pre-filled value
+    rows                 (optional) — number of rows, default 4
+    help_text            (optional) — help text below the field
+    error                (optional) — error message (activates error state)
+    alpine_error         (optional) — Alpine expression for dynamic error binding (e.g. "errors.content")
+    alpine_disabled_expr (optional) — Alpine expression to conditionally disable the textarea
+    required             (optional) — if truthy, adds required attribute
+    disabled             (optional) — if truthy, adds disabled attribute
+    extra_class          (optional) — additional classes on the wrapper
+  Usage:
+    {% include "v3/includes/_field_textarea.html" with name="content" label="Content" placeholder="What would you like to write?" %}
+{% endcomment %}
+{% with fid=field_id|default:name %}
+<div class="field field--textarea{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
+     {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}>
+  {% if label %}
+  <label class="field__label" for="field-{{ fid }}">{{ label }}</label>
+  {% endif %}
+  <div class="field__control field__control--textarea{% if disabled %} field__control--disabled{% endif %}">
+    <textarea
+      class="field__input field__input--textarea"
+      id="field-{{ fid }}"
+      name="{{ name }}"
+      rows="{{ rows|default:4 }}"
+      {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+      {% if required %}required{% endif %}
+      {% if disabled %}disabled{% endif %}
+      {% if alpine_disabled_expr %}:disabled="{{ alpine_disabled_expr }}"{% endif %}
+      {% if alpine_error %}:aria-invalid="!!{{ alpine_error }}" :aria-describedby="{{ alpine_error }} ? 'field-{{ fid }}-error' : {% if help_text %}'field-{{ fid }}-help'{% else %}null{% endif %}"{% elif error %}aria-invalid="true" aria-describedby="field-{{ fid }}-error"{% elif help_text %}aria-describedby="field-{{ fid }}-help"{% endif %}
+    >{% if value %}{{ value }}{% endif %}</textarea>
+  </div>
+  {% if alpine_error %}
+  <p class="field__error" id="field-{{ fid }}-error" role="alert" x-show="{{ alpine_error }}" x-text="{{ alpine_error }}" x-cloak aria-live="polite"></p>
+  {% if error %}
+  <p class="field__error" role="alert" aria-live="polite" x-show="false">{{ error }}</p>
+  {% endif %}
+  {% if help_text %}
+  <p class="field__help" id="field-{{ fid }}-help" x-show="!{{ alpine_error }}"{% if error %} style="display:none"{% endif %}>{{ help_text }}</p>
+  {% endif %}
+  {% else %}
+  {% if error %}
+  <p class="field__error" id="field-{{ fid }}-error" role="alert">{{ error }}</p>
+  {% elif help_text %}
+  <p class="field__help" id="field-{{ fid }}-help">{{ help_text }}</p>
+  {% endif %}
+  {% endif %}
+</div>
+{% endwith %}

@@ -365,10 +365,13 @@
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
         <div class="v3-examples-section__forms">
+          {% include "v3/includes/_field_textarea.html" with name="ex_content" label="Textarea" placeholder="What would you like to write?" help_text="This text field supports Markdown." rows=4 %}
+          {% include "v3/includes/_field_file.html" with name="ex_image" label="File upload" accept="image/png,image/jpeg" help_text="PNG or JPEG, max 1MB" %}
           {% include "v3/includes/_field_text.html" with name="ex_basic" label="Text field" placeholder="Enter text..." %}
           {% include "v3/includes/_field_text.html" with name="ex_search" label="With icon" placeholder="Search..." icon_left="search" %}
           {% include "v3/includes/_field_text.html" with name="ex_error" label="Error state" placeholder="Enter value" error="This field is required." %}
           {% include "v3/includes/_field_checkbox.html" with name="ex_agree" label="I agree to the terms and conditions" %}
+          {% include "v3/includes/_field_dropdown.html" with name="ex_type" label="Dropdown" options=demo_dropdown_options placeholder="Select type..." %}
           {% include "v3/includes/_field_combo.html" with name="ex_library" label="Combo (searchable)" placeholder="Search libraries..." options=demo_libs %}
           {% include "v3/includes/_field_multiselect.html" with name="ex_categories" label="Multi-select" placeholder="Select categories..." options=demo_cats %}
           {% include "v3/includes/_field_combo_multi.html" with name="ex_combo_multi" label="Combo multi-select (searchable)" placeholder="Search and select..." options=demo_combo_multi_tags %}
@@ -596,6 +599,18 @@
   {% endwith %}
 
   {% with section_title="Event Cards — list (this only have 1 theme)" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box v3-examples-section-horizontal-container">
+        {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=demo_events_with_links variant="card" primary_cta_label="View events" primary_cta_url="#" secondary_cta_label="View calendar" secondary_cta_url="#" %}
+        {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=demo_events_with_links variant="card" theme="yellow" primary_cta_label="View events" primary_cta_url="#" secondary_cta_label="View calendar" secondary_cta_url="#" %}
+        {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=demo_events_with_links variant="card" theme="green" primary_cta_label="View events" primary_cta_url="#" secondary_cta_label="View calendar" secondary_cta_url="#" %}
+        {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=demo_events_with_links variant="card" theme="teal" primary_cta_label="View events" primary_cta_url="#" secondary_cta_label="View calendar" secondary_cta_url="#" %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Achievement cards" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">

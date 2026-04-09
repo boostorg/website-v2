@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Create Post{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/create-post-page.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <script>document.documentElement.classList.add('js')</script>
+  <style>
+    html.js .create-post-page__link-fields,
+    html.js .create-post-page__content-field,
+    html.js .create-post-page__description-field { display: none; }
+
+    html:not(.js) .create-post-page__content-field,
+    html:not(.js) .create-post-page__description-field { display: none; }
+    html:not(.js) .field--file .field__control { cursor: pointer; }
+
+    html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__content-field,
+    html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__content-field { display: block; }
+
+    html:not(.js) form:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__description-field,
+    html:not(.js) form:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__description-field { display: block; }
+
+    html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__link-fields,
+    html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__link-fields { display: none; }
+  </style>
+  <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  <div class="create-post-section">
+      <div class="create-post-wrapper" x-data="createPostForm()" @field-change="handleFieldChange($event)">
+      <form
+        class="create-post-page"
+        enctype="multipart/form-data"
+        method="post"
+        :novalidate="true"
+        action="{% url 'v3-news-create' %}"
+        @submit="prepareSubmit"
+        data-create-post-form
+      >
+        {% csrf_token %}
+
+        <div class="create-post-page__header">
+          <h1 class="create-post-page__title">Create Post</h1>
+          <p class="create-post-page__subtitle">
+            Posts will be reviewed by the moderation team before they appear in the feed.
+          </p>
+        </div>
+
+        <div class="create-post-page__card">
+          {% comment %} Post Type dropdown: Blog, News, Video, Link. Placeholder "Select Post Type". Controls conditional fields. {% endcomment %}
+          {% include "v3/includes/_field_dropdown.html" with name="post_type" label="Post type *" options=post_type_options placeholder="Select Post Type" required=True selected=post_type_selected alpine_error="errors.post_type" %}
+
+          {% include "v3/includes/_field_text.html" with name="title" label="Post title *" placeholder="Title" value=form.title.value|default_if_none:"" required=True alpine_error="errors.title" error=form.title.errors.0 %}
+
+          {% comment %} Link (Video, Link): shown via :style binding; html.js CSS hides before Alpine init. {% endcomment %}
+          <div class="create-post-page__link-fields" :style="isLinkType ? 'display: flex' : 'display: none'">
+            {% include "v3/includes/_field_text.html" with name="external_url" label="Link *" type="url" placeholder="https://..." value=form.external_url.value|default_if_none:"" alpine_error="errors.external_url" error=form.external_url.errors.0 help_text="Required for Video and Link post types." %}
+          </div>
+
+          {% comment %} Content (Blog, News): WYSIWYG editor. Description (Link, Video): plain textarea. Both use name="content". {% endcomment %}
+          <div class="field create-post-page__content-field" :style="isWriteUp ? 'display: flex' : 'display: none'" :class="{ 'field--error': errors.content }">
+            <label class="field__label" for="field-content">Content *</label>
+            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=form.content.value disabled_expr="isLinkType" %}
+            <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
+            <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
+          </div>
+
+          <div class="field create-post-page__description-field" :style="isLinkType ? 'display:flex' : 'display: none'">
+            {% include "v3/includes/_field_textarea.html" with name="content" field_id="description" label="Description" value=form.content.value|default_if_none:"" alpine_error="errors.content" error=form.content.errors.0 alpine_disabled_expr="isWriteUp" %}
+          </div>
+
+          {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no longer than 1MB" extra_class="field--file-narrow create-post-page__field-image" %}
+
+          {% include "v3/includes/_field_dropdown.html" with name="related_libraries" label="Related Libraries" options=related_libraries_options placeholder="Select" selected=form.data.related_libraries %}
+
+          {% include "v3/includes/_field_datetime.html" with name="publish_at" label="Publish Date *" value=form.publish_at.value|default:publish_at_initial %}
+
+          <div class="create-post-page__actions">
+            <a href="{% url 'news' %}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+    <script>
+  document.addEventListener('alpine:init', () => {
+    window.createPostForm = function () {
+      return {
+        postType: '{{ post_type_selected|default:""|escapejs }}',
+        errors: {
+          post_type:    '',
+          title:        '{{ form.title.errors.0|default:""|escapejs }}',
+          content:      '{{ form.content.errors.0|default:""|escapejs }}',
+          external_url: '{{ form.external_url.errors.0|default:""|escapejs }}',
+          image:        '{{ form.image.errors.0|default:""|escapejs }}',
+        },
+
+        get isWriteUp() { return this.postType === 'blog' || this.postType === 'news'; },
+        get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
+
+        handleFieldChange(e) {
+          const { name, value } = e.detail;
+          if (name !== 'post_type') return;
+          this.postType = value;
+          this.errors.post_type = '';
+        },
+
+        prepareSubmit(e) {
+          this.errors = { post_type: '', title: '', content: '', external_url: '', image: '' };
+          const form = e.target;
+          const titleEl   = form.querySelector('input[name="title"]');
+          const contentEl = this.isWriteUp
+            ? form.querySelector('#field-content')
+            : form.querySelector('#field-description');
+          const urlEl     = form.querySelector('input[name="external_url"]');
+          const imageEl   = form.querySelector('input[name="image"]');
+
+          if (!this.postType) this.errors.post_type = 'Please select a post type.';
+          if (!titleEl?.value?.trim()) this.errors.title = 'Post title is required.';
+
+          if (this.isWriteUp) {
+            if (!contentEl?.value?.trim()) this.errors.content = 'Content is required.';
+          } else {
+            const url = urlEl?.value?.trim();
+            if (!url) {
+              this.errors.external_url = 'Link is required.';
+            } else {
+              try { new URL(url); } catch (_) {
+                this.errors.external_url = 'Please enter a valid URL.';
+              }
+            }
+          }
+
+          const file = imageEl?.files?.[0];
+          if (file) {
+            const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+            if (!validTypes.includes(file.type)) this.errors.image = 'Please choose a PNG or JPEG image.';
+            else if (file.size > 1024 * 1024) this.errors.image = 'Image must be 1MB or smaller.';
+          }
+
+          if (Object.values(this.errors).some(v => v)) {
+            e.preventDefault();
+            const order = ['post_type', 'title', 'content', 'external_url', 'image'];
+            const firstKey = order.find(k => this.errors[k]);
+            if (firstKey) {
+              const id = firstKey === 'post_type' ? 'field-post_type-label' : `field-${firstKey}`;
+              const el = this.$el.querySelector(`#${id}`) || form.querySelector(`[name="${firstKey}"]`);
+              el?.focus();
+            }
+          }
+        },
+      };
+    };
+  });
+  </script>
+{% endblock %}

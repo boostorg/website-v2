@@ -1,0 +1,24 @@
+/**
+
+  Global Style Overrides for v3
+
+  When dealing with CSS, many classes are being globally applied in legacy content.
+  These sources cannot be directly updated, as that would change the behavior of the website that's
+  still in production.
+
+  The goal of this file is to centralize global style overrides for v3.
+
+  For the sake of example, the selector `.dark textarea` below aims to override a background color
+  definition that's being set in `frontend/styles.css`.
+
+  This CSS file is then loaded at the end of all other CSS files to ensure that it takes precedence over
+  any conflicting styles. That's in `templates/base.html`, under a v3 flag check.
+
+  After we release the v3 website, this file should not longer exist, and the overrides here should
+  be moved to the appropriate component-specific CSS files or replace the styles they're overriding.
+
+ */
+
+.dark textarea {
+  background-color: var(--color-surface-weak);
+}

@@ -1405,6 +1405,12 @@ class V3ComponentDemoView(TemplateView):
             ("math", "Math & Numerics"),
             ("networking", "Networking"),
         ]
+        context["demo_dropdown_options"] = [
+            ("blog", "Blog"),
+            ("link", "Link"),
+            ("news", "News"),
+            ("video", "Video"),
+        ]
         context["demo_combo_multi_tags"] = [
             ("algorithms", "Algorithms"),
             ("containers", "Containers"),

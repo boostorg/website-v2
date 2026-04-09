@@ -7,13 +7,15 @@
     options     (required) — list of (value, label) 2-tuples (e.g. from TextChoices.choices)
     selected    (optional) — value of the pre-selected option
     help_text   (optional) — help text below the field
-    error       (optional) — error message (activates error state)
+    error        (optional) — error message (activates error state)
+    alpine_error (optional) — Alpine expression for dynamic error binding (e.g. "errors.post_type")
     required    (optional) — if truthy, adds required attribute
     extra_class (optional) — additional classes on the wrapper
   Usage:
     {% include "v3/includes/_field_dropdown.html" with name="country" label="Country" options=country_options placeholder="Select a country" %}
 {% endcomment %}
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
+     {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
   {# djlint:off #}
      x-data="{
        jsReady: false,
@@ -34,6 +36,7 @@
          this.selectedLabel = label;
          this.open = false;
          this.$refs.trigger.focus();
+         this.$dispatch('field-change', { name: '{{ name }}', value, label });
        }
      }">
   {# djlint:on #}
@@ -44,7 +47,8 @@
           {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
           {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
           x-show="!jsReady"
-          :disabled="jsReady">
+          :disabled="jsReady"
+          @change="$dispatch('field-change', { name: '{{ name }}', value: $event.target.value, label: $event.target.options[$event.target.selectedIndex].text })">
     {% if placeholder %}<option value="">{{ placeholder }}</option>{% endif %}
     {% for value, label in options %}
       <option value="{{ value }}"{% if value == selected %} selected{% endif %}>{{ label }}</option>
@@ -106,9 +110,19 @@
          disabled
          :disabled="!jsReady"
          {% if required %}required{% endif %}>
+  {% if alpine_error %}
+  <p class="field__error" id="field-{{ name }}-error" role="alert" x-show="{{ alpine_error }}" x-text="{{ alpine_error }}" x-cloak aria-live="polite"></p>
   {% if error %}
-    <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
+  <p class="field__error" role="alert" aria-live="polite" x-show="false">{{ error }}</p>
+  {% endif %}
+  {% if help_text %}
+  <p class="field__help" id="field-{{ name }}-help" x-show="!{{ alpine_error }}"{% if error %} style="display:none"{% endif %}>{{ help_text }}</p>
+  {% endif %}
+  {% else %}
+  {% if error %}
+  <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
   {% elif help_text %}
-    <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+  <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+  {% endif %}
   {% endif %}
 </div>
