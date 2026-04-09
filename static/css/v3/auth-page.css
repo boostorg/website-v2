@@ -123,6 +123,23 @@ body:has(.auth-page) .header {
   background: var(--color-surface-weak);
 }
 
+/* ── Forgot Password Link ──────────────────── */
+.auth-page__forgot-link {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: 120%;
+  letter-spacing: -0.12px;
+  color: var(--color-text-primary);
+  text-decoration: underline;
+  text-decoration-skip-ink: auto;
+  text-underline-offset: auto;
+}
+
+.auth-page__forgot-link:hover {
+  color: var(--color-text-link-accent);
+}
+
 /* ── Divider ───────────────────────────────── */
 .auth-page__divider {
   font-family: var(--font-display);

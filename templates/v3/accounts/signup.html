@@ -7,6 +7,7 @@
   Context variables:
     page_title          (string) — passed to auth_page.html
     illustration_url    (string) — passed to auth_page.html
+    login_url           (string) — URL for the login page, used in the "Already have an account?" link
 {% endcomment %}
 {% load static %}
 
@@ -34,6 +35,6 @@
   <div class="auth-page__social-card">
     {% include "v3/includes/_button.html" with label="Continue with GitHub" url="#" icon_name="github" style="secondary" %}
     {% include "v3/includes/_button.html" with label="Continue with Google" url="#" icon_name="google" style="secondary" %}
-    {% include "v3/includes/_button.html" with label="Already have an account? Sign in →" url="/account/login/" style="primary" %}
+    {% include "v3/includes/_button.html" with label="Already have an account? Sign in →" url=login_url style="primary" %}
   </div>
 {% endblock %}

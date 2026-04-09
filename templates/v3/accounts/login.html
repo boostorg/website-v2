@@ -1,0 +1,38 @@
+{% extends "v3/accounts/auth_page.html" %}
+{% comment %}
+  Login (Sign In) Page — extends the auth page layout.
+  Renders the login form with email, password, forgot password link,
+  and social login options.
+
+  Context variables:
+    page_title          (string) — passed to auth_page.html
+    illustration_url    (string) — passed to auth_page.html
+    signup_url          (string) — URL for the sign-up page, used in the "Don't have an account?" link
+    password_reset_url  (string) — URL for the password reset page, used in the "Forgot password" link
+{% endcomment %}
+{% load static %}
+
+{% block auth_content %}
+  <div class="auth-page__header">
+    <h1 class="auth-page__title">Login to your account</h1>
+    <p class="auth-page__subtitle">
+      Lorem ipsum dolor sit amet consectetur penatibus dictumst.
+    </p>
+  </div>
+
+  <form class="auth-page__card" method="post" action="{% url 'account_login' %}" novalidate>
+    {% csrf_token %}
+    {% include "v3/includes/_field_text.html" with name="login" type="email" label="Email Address*" placeholder="Email Address" required=True validate_type="email" validate_error="That doesn't look quite right, please double-check your email and try again." %}
+    {% include "v3/includes/_field_password.html" with name="password" label="Password*" placeholder="Password" required=True %}
+    <a class="auth-page__forgot-link" href="{{ password_reset_url }}">Forgot password</a>
+    {% include "v3/includes/_button.html" with label="Sign in" type="submit" style="primary" %}
+  </form>
+
+  <p class="auth-page__divider">OR</p>
+
+  <div class="auth-page__social-card">
+    {% include "v3/includes/_button.html" with label="Continue with GitHub" url="#" icon_name="github" style="secondary" %}
+    {% include "v3/includes/_button.html" with label="Continue with Google" url="#" icon_name="google" style="secondary" %}
+    {% include "v3/includes/_button.html" with label="Don't have an account? Sign up →" url=signup_url style="primary" %}
+  </div>
+{% endblock %}
