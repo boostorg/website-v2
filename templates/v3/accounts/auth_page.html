@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% comment %}
+  Auth Page Layout — two-column layout for sign-up and sign-in pages.
+  Left panel: full-height illustration image.
+  Right panel: centered form content via {% block auth_content %}.
+
+  Context variables:
+    page_title          (string, optional) — browser tab title
+    illustration_url    (string, optional) — URL for the left panel image
+{% endcomment %}
+
+{% load static %}
+
+{% block title %}{{ page_title|default:"Account" }} | Boost{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/auth-page.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main_content_wrapper %}<div class="auth-page">{% endblock %}
+
+{% block content_header %}{% endblock %}
+
+{% block messages %}{% endblock %}
+
+{% block content %}
+  <main class="auth-page__wrapper">
+    <div class="auth-page__illustration">
+      <img src="{{ illustration_url|default:'' }}" alt="" loading="eager">
+    </div>
+    <div class="auth-page__content">
+      <div class="auth-page__content-inner">
+        {% block auth_content %}{% endblock %}
+      </div>
+    </div>
+  </main>
+{% endblock %}

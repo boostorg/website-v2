@@ -1,0 +1,39 @@
+{% extends "v3/accounts/auth_page.html" %}
+{% comment %}
+  Sign Up (Create Account) Page — extends the auth page layout.
+  Renders the account creation form with email, password, username,
+  mailing list checkbox, and social login options.
+
+  Context variables:
+    page_title          (string) — passed to auth_page.html
+    illustration_url    (string) — passed to auth_page.html
+{% endcomment %}
+{% load static %}
+
+{% block auth_content %}
+  <div class="auth-page__header">
+    <h1 class="auth-page__title">Create an account</h1>
+    <p class="auth-page__subtitle">
+      Advance your career, learn from experts, and help shape the future of Boost and C++.
+    </p>
+  </div>
+
+  <form class="auth-page__card" method="post" action="" novalidate
+        {% comment %} Using submit-prevent to trigger validation on all fields with data-validate {% endcomment %}
+        @submit.prevent="$el.querySelectorAll('[data-validate]').forEach(el => el.dispatchEvent(new Event('validate')))">
+    {% csrf_token %}
+    {% include "v3/includes/_field_text.html" with name="email" type="email" label="Email Address*" placeholder="Email Address" required=True validate_type="email" validate_error="That doesn't look quite right, please double-check your email and try again." %}
+    {% include "v3/includes/_field_password.html" with name="password" label="Password*" placeholder="Password" required=True %}
+    {% include "v3/includes/_field_text.html" with name="username" label="Username" placeholder="Username" %}
+    {% include "v3/includes/_field_checkbox.html" with name="mailing_list" label="Also join the Boost Developers Mailing List" %}
+    {% include "v3/includes/_button.html" with label="Create Account" type="submit" style="primary" %}
+  </form>
+
+  <p class="auth-page__divider">OR</p>
+
+  <div class="auth-page__social-card">
+    {% include "v3/includes/_button.html" with label="Continue with GitHub" url="#" icon_name="github" style="secondary" %}
+    {% include "v3/includes/_button.html" with label="Continue with Google" url="#" icon_name="google" style="secondary" %}
+    {% include "v3/includes/_button.html" with label="Already have an account? Sign in →" url="/account/login/" style="primary" %}
+  </div>
+{% endblock %}

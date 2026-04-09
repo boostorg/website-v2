@@ -30,6 +30,7 @@ from .forms import (
     DeleteAccountForm,
 )
 from .models import User
+from .password_rules import build_password_rules
 from .permissions import CustomUserPermissions
 from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
 from . import tasks
@@ -293,6 +294,29 @@ class CustomEmailVerificationSentView(EmailVerificationSentView):
         context["EMAIL_CONFIRMATION_EXPIRE_DAYS"] = (
             app_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS
         )
+        return context
+
+
+class V3AuthContextMixin:
+    """Shared context for all V3 auth pages (signup, login, password reset, etc.)."""
+
+    page_title = "Account"
+    illustration_url = "/static/img/v3/auth-page/cheetah.png"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["page_title"] = self.page_title
+        context["illustration_url"] = self.illustration_url
+        return context
+
+
+class V3SignupView(V3AuthContextMixin, TemplateView):
+    template_name = "v3/accounts/signup.html"
+    page_title = "Create An Account"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["password_rules"] = build_password_rules()
         return context
 
 
