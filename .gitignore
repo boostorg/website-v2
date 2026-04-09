@@ -208,3 +208,6 @@ test-logs.txt
 smoke-logs.txt
 extract_links.py.py
 extract_links.py
+
+# Large static images
+static/static-large/*

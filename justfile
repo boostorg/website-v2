@@ -2,6 +2,8 @@ set dotenv-load := false
 COMPOSE_FILE := "docker-compose.yml"
 ENV_FILE := ".env"
 DJANGO_VERSION := "5.2"
+VALID_BUCKETS := "boost.org.v2 stage.boost.org.v2 boost.org-cppal-dev-v2"
+
 
 @_default:
     just --list
@@ -180,3 +182,12 @@ alias shell := console
 
 @manage +args:
     docker compose run --rm web python manage.py {{ args }}
+
+# Static File Management
+@down_sync_images BUCKET='stage.boost.org.v2': ## syncs all items from specified bucket to static/static-large for local development
+    if echo {{VALID_BUCKETS}} | grep -q -w '{{BUCKET}}'; then \
+        aws s3 sync s3://{{BUCKET}}/static/  static/static-large/; \
+        echo "All missing or outdated static items synced."; \
+    else \
+        echo "Bucket name invalid."; \
+    fi
