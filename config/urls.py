@@ -71,6 +71,7 @@ from news.views import (
     NewsListView,
     PollCreateView,
     PollListView,
+    V3AllTypesCreateView,
     VideoCreateView,
     VideoListView,
 )
@@ -308,6 +309,7 @@ urlpatterns = (
         path("news/add/link/", LinkCreateView.as_view(), name="news-link-create"),
         path("news/add/poll/", PollCreateView.as_view(), name="news-poll-create"),
         path("news/add/video/", VideoCreateView.as_view(), name="news-video-create"),
+        path("v3/news/add/", V3AllTypesCreateView.as_view(), name="v3-news-create"),
         path("news/moderate/", EntryModerationListView.as_view(), name="news-moderate"),
         path(
             "news/moderate/<slug:slug>/",

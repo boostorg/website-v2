@@ -58,6 +58,7 @@
       {% comment %} <link rel="preload" as="style" href="{% static 'css/fonts.css' %}" rel="stylesheet"> {% endcomment %}
       <link href="{% static 'css/boostlook.css' %}" rel="stylesheet">
       {% flag "v3" %}
+      <link href="{% static 'css/v3/v3-style-overrides.css' %}" rel="stylesheet">
       <link href="{% static 'css/v3/components.css' %}" rel="stylesheet">
       {% endflag %}
     {% endblock %}
@@ -357,7 +358,7 @@
               el.setAttribute('content', el.getAttribute('data-' + m));
             });
         }"
-        class="h-screen bg-gray-200 dark:bg-black{% if DEBUG %} DEBUG{% endif %}{% flag "v3" %} v3{% endflag %}" {% block body_id %}{% endblock %}>
+        class="h-screen {% flag "v3" %}v3{% else %}bg-gray-200 dark:bg-black{% endflag %}{% if DEBUG %} DEBUG{% endif %}" {% block body_id %}{% endblock %}>
          <div class="modal-overlay" id="modalOverlay"><div class="modal-content"><iframe id="modalFrame" class="w-full h-full rounded-xl m-0 p-0"></iframe><div class="modal-close" id="modalClose" onclick="closeModal()"><i class="fa-solid fa-xmark fa-lg"></i></div></div></div>
       {% flag "v3" %}
       <div class="bg-slate text-white text-center py-2 font-semibold">v3 flag enabled</div>

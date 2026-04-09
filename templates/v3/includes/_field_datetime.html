@@ -1,0 +1,63 @@
+{% comment %}
+  V3 datetime-local input field.
+  Variables:
+    name         (required) — input name attribute
+    label        (optional) — label text
+    value        (optional) — pre-filled value
+    help_text    (optional) — help text below the field
+    error        (optional) — error message (activates error state)
+    required     (optional) — if truthy, adds required attribute
+    disabled     (optional) — if truthy, adds disabled attribute
+    extra_class  (optional) — additional classes on the wrapper
+  Usage:
+    {% include "v3/includes/_field_datetime.html" with name="publish_at" label="Publish Date" value=publish_at_initial %}
+{% endcomment %}
+<div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}">
+  {% if label %}
+  <label class="field__label" for="field-{{ name }}">{{ label }}</label>
+  {% endif %}
+  <div class="field__control{% if disabled %} field__control--disabled{% endif %} field__control--datetime">
+    <input
+      class="field__input"
+      type="datetime-local"
+      id="field-{{ name }}"
+      name="{{ name }}"
+      {% if value %}value="{{ value }}"{% endif %}
+      {% if required %}required{% endif %}
+      {% if disabled %}disabled{% endif %}
+      {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
+      min="{% now "Y-m-d\TH:i" %}"
+    >
+  </div>
+  {% if error %}
+  <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
+  {% elif help_text %}
+  <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+  {% endif %}
+  <script>
+    (function() {
+      var el = document.getElementById('field-{{ name }}');
+      if (!el) return;
+      function pad(n) { return n < 10 ? '0' + n : n; }
+      function nowLocal() {
+        var d = new Date();
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+      }
+      function setMin() { el.min = nowLocal(); }
+      setMin();
+      setInterval(setMin, 60000);
+      el.addEventListener('change', function() {
+        if (el.value && el.value < nowLocal()) {
+          el.value = nowLocal();
+        }
+      });
+      var ctrl = el.closest('.field__control--datetime');
+      if (ctrl && el.showPicker) {
+        ctrl.addEventListener('click', function(e) {
+          if (e.target === el) return;
+          el.showPicker();
+        });
+      }
+    })();
+  </script>
+</div>

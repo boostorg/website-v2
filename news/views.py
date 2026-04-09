@@ -2,6 +2,7 @@ from datetime import timedelta
 from functools import partial
 
 from django.conf import settings
+from django.db import IntegrityError
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -12,7 +13,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template.defaultfilters import date as datefilter
 from django.urls import reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.timezone import now
+from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 from django.views.generic import (
     CreateView,
@@ -211,6 +212,27 @@ class EntryModerationMagicApproveView(View):
         return redirect(entry)
 
 
+def _v3_create_context():
+    """Shared context variables needed by the v3 create-post template."""
+    return {
+        "post_type_options": [
+            ("blog", "Blog"),
+            ("news", "News"),
+            ("video", "Video"),
+            ("link", "Link"),
+        ],
+        "related_libraries_options": [
+            ("", "Select"),
+            ("asio", "Asio"),
+            ("beast", "Beast"),
+            ("filesystem", "Filesystem"),
+            ("json", "JSON"),
+            ("spirit", "Spirit"),
+        ],
+        "publish_at_initial": localtime(now()).strftime("%Y-%m-%dT%H:%M"),
+    }
+
+
 class EntryCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = None
     form_class = None
@@ -241,6 +263,7 @@ class BlogPostCreateView(EntryCreateView):
     form_class = BlogPostForm
     add_label = _("Create Blog Post")
     add_url_name = "news-blogpost-create"
+    post_type_selected = "blog"
 
 
 class LinkCreateView(EntryCreateView):
@@ -248,6 +271,7 @@ class LinkCreateView(EntryCreateView):
     form_class = LinkForm
     add_label = _("Create Link")
     add_url_name = "news-link-create"
+    post_type_selected = "link"
 
 
 class NewsCreateView(EntryCreateView):
@@ -255,6 +279,7 @@ class NewsCreateView(EntryCreateView):
     form_class = NewsForm
     add_label = _("Create News")
     add_url_name = "news-news-create"
+    post_type_selected = "news"
 
 
 class PollCreateView(EntryCreateView):
@@ -269,6 +294,7 @@ class VideoCreateView(EntryCreateView):
     form_class = VideoForm
     add_label = _("Upload a Video")
     add_url_name = "news-video-create"
+    post_type_selected = "video"
 
 
 class AllTypesCreateView(LoginRequiredMixin, TemplateView):
@@ -292,9 +318,6 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
             if not request.user.display_name:
                 missing_data.append("your name")
 
-            if not request.user.profile_image:
-                missing_data.append("a profile photo")
-
             if missing_data:
                 messages.warning(
                     request, f"Please add {' and '.join(missing_data)} first."
@@ -316,6 +339,66 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
             items.append(self.item_params(PollCreateView))
         context["items"] = items
         return context
+
+
+class V3AllTypesCreateView(AllTypesCreateView):
+    template_name = "news/v3/create.html"
+    http_method_names = ["get", "post"]
+
+    _POST_TYPE_MAP = {
+        "blog": (BlogPost, BlogPostForm),
+        "news": (News, NewsForm),
+        "link": (Link, LinkForm),
+        "video": (Video, VideoForm),
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(_v3_create_context())
+        return context
+
+    def post(self, request, *args, **kwargs):
+        post_type = request.POST.get("post_type", "")
+        type_config = self._POST_TYPE_MAP.get(post_type)
+
+        if type_config is None:
+            messages.error(
+                request,
+                _("Invalid post type selected. Please choose a valid post type."),
+            )
+            context = self.get_context_data()
+            return self.render_to_response(context)
+
+        model_class, form_class = type_config
+        form = form_class(request.POST, request.FILES)
+
+        if form.is_valid():
+            form.instance.author = request.user
+            try:
+                entry = form.save()
+            except IntegrityError as e:
+                if "slug" in str(e):
+                    form.add_error(
+                        "title",
+                        "A post with this title already exists. Please choose a different title.",
+                    )
+                else:
+                    form.add_error(
+                        None, "An unexpected error occurred. Please try again."
+                    )
+                context = self.get_context_data(form=form, post_type_selected=post_type)
+                return self.render_to_response(context)
+
+            if not entry.is_approved:
+                send_email_news_needs_moderation(request=request, entry=entry)
+            else:
+                send_email_news_posted(request=request, entry=entry)
+
+            messages.success(request, _("The news entry was successfully created."))
+            return redirect(entry)
+
+        context = self.get_context_data(form=form, post_type_selected=post_type)
+        return self.render_to_response(context)
 
 
 class EntryApproveView(
