@@ -83,7 +83,249 @@ from .tasks import (
     save_rendered_content,
 )
 
+from libraries.models import Library, LibraryVersion
+from libraries.utils import (
+    build_library_intro_context,
+    get_commit_data_by_release_for_library,
+    commit_data_to_stats_bars,
+)
+
 logger = structlog.get_logger()
+
+
+class SharedResources:
+    badge_img = f"{settings.STATIC_URL}img/v3/badges"
+
+    demo_posts = [
+        {
+            "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+            "url": "#",
+            "date": date(2025, 3, 3),
+            "category": "Issues",
+            "tag": "beast",
+            "author": {
+                "name": "Richard Thomson",
+                "profile_url": "#",
+                "role": "Contributor",
+                "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
+                "badge_url": f"{badge_img}/badge-first-place.png",
+            },
+        },
+        {
+            "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+            "url": "#",
+            "date": date(2025, 3, 3),
+            "category": "Issues",
+            "tag": "beast",
+            "author": {
+                "name": "Peter Dimov",
+                "profile_url": "#",
+                "role": "Maintainer",
+                "avatar_url": "https://ui-avatars.com/api/?name=Peter+Dimov&size=48",
+                "badge_url": f"{badge_img}/badge-bronze.png",
+            },
+        },
+        {
+            "title": "Boost.Bind and modern C++: a quick overview",
+            "url": "#",
+            "date": date(2025, 2, 15),
+            "category": "Releases",
+            "tag": "bind",
+            "author": {
+                "name": "Alex Morgan",
+                "profile_url": "#",
+                "role": "Contributor",
+                "avatar_url": "https://thispersondoesnotexist.com/",
+            },
+        },
+        {
+            "title": "Boost.Bind and modern C++: a quick overview again",
+            "url": "#",
+            "date": date(2025, 2, 15),
+            "category": "Releases",
+            "tag": "bind",
+            "author": {
+                "name": "Alex Morgan",
+                "profile_url": "#",
+                "role": "Contributor",
+                "avatar_url": "https://thispersondoesnotexist.com/",
+            },
+        },
+        {
+            "title": "utility::string_view and core::detail::string_view",
+            "url": "#",
+            "date": date(2025, 2, 15),
+            "category": "Releases",
+            "tag": "bind",
+            "author": {
+                "name": "Alex Morgan",
+                "profile_url": "#",
+                "role": "Contributor",
+                "avatar_url": "https://thispersondoesnotexist.com/",
+            },
+        },
+    ]
+
+    install_card_pkg_managers = [
+        {"label": "Conan", "value": "conan", "command": "conan install boost"},
+        {"label": "Vcpkg", "value": "vcpkg", "command": "vcpkg install boost"},
+    ]
+
+    install_card_system_install = [
+        {
+            "label": "Ubuntu",
+            "value": "ubuntu",
+            "command": "sudo apt install libboost-all-dev",
+        },
+        {
+            "label": "Fedora",
+            "value": "fedora",
+            "command": "sudo dnf install boost-devel",
+        },
+        {
+            "label": "CentOS",
+            "value": "centos",
+            "command": "sudo yum install boost-devel",
+        },
+        {"label": "Arch", "value": "arch", "command": "sudo pacman -S boost"},
+        {"label": "Homebrew", "value": "homebrew", "command": "brew install boost"},
+    ]
+
+    popular_terms = [
+        {"label": "Networking"},
+        {"label": "Math"},
+        {"label": "Data processing"},
+        {"label": "Concurrency"},
+        {"label": "File systems"},
+        {"label": "Testing"},
+    ]
+
+    demo_events = [
+        {
+            "title": "Boost 1.90.0 closed for major changes",
+            "description": "Release closed for major code changes. "
+            "Still open for serious problem fixes.",
+            "date": "29/10/25",
+            "datetime": "2025-10-29",
+        },
+        {
+            "title": "C++ Now 2025 call for submissions",
+            "description": "C++ Now conference is accepting talk proposals "
+            "until March 15.",
+            "date": "12/02/25",
+            "datetime": "2025-02-12",
+        },
+        {
+            "title": "Boost 1.89.0 released",
+            "description": "Boost 1.89.0 is available with updates to Asio, "
+            "Beast, and several other libraries.",
+            "date": "15/01/25",
+            "datetime": "2025-01-15",
+        },
+        {
+            "title": "Boost 1.89.0 released",
+            "description": "Boost 1.89.0 is available with updates to Asio, "
+            "Beast, and several other libraries.",
+            "date": "15/01/25",
+            "datetime": "2025-01-15",
+        },
+    ]
+
+    demo_events_with_links = [
+        {
+            **event,
+            "card_url": f"#event-{i}",
+            "card_aria_label": event["title"],
+        }
+        for i, event in enumerate(demo_events)
+    ]
+
+    code_demo_hello = """#include <iostream>
+int main()
+{
+    std::cout << "Hello, Boost.";
+}"""
+
+    demo_join_community_links = 4 * [
+        {
+            "title": "Get help",
+            "url": "#",
+            "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
+            "icon_name": "github",
+        }
+    ]
+
+    example_commit_data = [
+        {"release": "1.71.0", "commit_count": 106},
+        {"release": "1.72.0", "commit_count": 70},
+        {"release": "1.73.0", "commit_count": 65},
+        {"release": "1.74.0", "commit_count": 60},
+        {"release": "1.75.0", "commit_count": 36},
+        {"release": "1.76.0", "commit_count": 31},
+        {"release": "1.77.0", "commit_count": 15},
+        {"release": "1.78.0", "commit_count": 17},
+        {"release": "1.79.0", "commit_count": 22},
+        {"release": "1.80.0", "commit_count": 2},
+        {"release": "1.81.0", "commit_count": 76},
+        {"release": "1.82.0", "commit_count": 32},
+        {"release": "1.83.0", "commit_count": 3},
+        {"release": "1.84.0", "commit_count": 35},
+        {"release": "1.85.0", "commit_count": 41},
+        {"release": "1.86.0", "commit_count": 42},
+        {"release": "1.87.0", "commit_count": 27},
+        {"release": "1.88.0", "commit_count": 28},
+        {"release": "1.89.0", "commit_count": 15},
+        {"release": "1.90.0", "commit_count": 18},
+    ]
+
+    example_library_commits_bars = commit_data_to_stats_bars(
+        example_commit_data[-10:]
+        if len(example_commit_data) > 10
+        else example_commit_data
+    )
+
+    testimonials = [
+        {
+            "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+            "author": {
+                "name": "Name Surname",
+                "profile_url": "#",
+                "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                "role": "Contributor",
+                "badge_url": "/static/img/v3/demo_page/Badge.svg",
+            },
+        },
+        {
+            "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+            "author": {
+                "name": "Name Surname",
+                "profile_url": "#",
+                "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                "role": "Contributor",
+                "badge_url": "/static/img/v3/demo_page/Badge.svg",
+            },
+        },
+        {
+            "quote": "I use Boost d1aily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+            "author": {
+                "name": "Name Surname",
+                "profile_url": "#",
+                "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                "role": "Contributor",
+                "badge_url": "/static/img/v3/demo_page/Badge.svg",
+            },
+        },
+        {
+            "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+            "author": {
+                "name": "Name Surname",
+                "profile_url": "#",
+                "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                "role": "Contributor",
+                "badge_url": "/static/img/v3/demo_page/Badge.svg",
+            },
+        },
+    ]
 
 
 def BSLView(request):
@@ -1072,13 +1314,6 @@ class V3ComponentDemoView(TemplateView):
     template_name = "base.html"
 
     def get_context_data(self, **kwargs):
-        from django.urls import reverse
-        from libraries.models import Library, LibraryVersion
-        from libraries.utils import (
-            build_library_intro_context,
-            get_commit_data_by_release_for_library,
-            commit_data_to_stats_bars,
-        )
 
         CODE_DEMO_BEAST = """int main()
         {
@@ -1100,12 +1335,6 @@ class V3ComponentDemoView(TemplateView):
             std::cout << res << std::endl;
         }"""
 
-        CODE_DEMO_HELLO = """#include <iostream>
-        int main()
-        {
-            std::cout << "Hello, Boost.";
-        }"""
-
         CODE_DEMO_INSTALL = """brew install openssl
 
         export OPENSSL_ROOT=$(brew --prefix openssl)
@@ -1113,47 +1342,18 @@ class V3ComponentDemoView(TemplateView):
         # Install bjam tool user config: https://www.bfgroup.xyz/b2/manual/release/index.html
         cp ./libs/beast/tools/user-config.jam $HOME"""
 
-        INSTALL_CARD_PKG_MANAGERS = [
-            {"label": "Conan", "value": "conan", "command": "conan install boost"},
-            {"label": "Vcpkg", "value": "vcpkg", "command": "vcpkg install boost"},
-        ]
-        INSTALL_CARD_SYSTEM_INSTALL = [
-            {
-                "label": "Ubuntu",
-                "value": "ubuntu",
-                "command": "sudo apt install libboost-all-dev",
-            },
-            {
-                "label": "Fedora",
-                "value": "fedora",
-                "command": "sudo dnf install boost-devel",
-            },
-            {
-                "label": "CentOS",
-                "value": "centos",
-                "command": "sudo yum install boost-devel",
-            },
-            {"label": "Arch", "value": "arch", "command": "sudo pacman -S boost"},
-            {"label": "Homebrew", "value": "homebrew", "command": "brew install boost"},
-        ]
-
         context = super().get_context_data(**kwargs)
         context["code_demo_beast"] = CODE_DEMO_BEAST
-        context["code_demo_hello"] = CODE_DEMO_HELLO
+        context["code_demo_hello"] = SharedResources.code_demo_hello
         context["code_demo_install"] = CODE_DEMO_INSTALL
         context["install_card_title"] = (
             "Install Boost and get started in your terminal."
         )
-        context["install_card_pkg_managers"] = INSTALL_CARD_PKG_MANAGERS
-        context["install_card_system_install"] = INSTALL_CARD_SYSTEM_INSTALL
-        context["popular_terms"] = [
-            {"label": "Networking"},
-            {"label": "Math"},
-            {"label": "Data processing"},
-            {"label": "Concurrency"},
-            {"label": "File systems"},
-            {"label": "Testing"},
-        ]
+        context["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
+        context["install_card_system_install"] = (
+            SharedResources.install_card_system_install
+        )
+        context["popular_terms"] = SharedResources.popular_terms
         context["demo_libs"] = [
             ("asio", "Asio"),
             ("beast", "Beast"),
@@ -1231,50 +1431,10 @@ class V3ComponentDemoView(TemplateView):
             {"label": "Issues", "value": "issues"},
         ]
 
-        context["demo_posts"] = [
-            {
-                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
-                "url": "#",
-                "date": date(2025, 3, 3),
-                "category": "Issues",
-                "tag": "beast",
-                "author": {
-                    "name": "Richard Thomson",
-                    "profile_url": "#",
-                    "role": "Contributor",
-                    "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
-                    "badge_url": f"{badge_img}/badge-first-place.png",
-                },
-            },
-            {
-                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
-                "url": "#",
-                "date": date(2025, 3, 3),
-                "category": "Issues",
-                "tag": "beast",
-                "author": {
-                    "name": "Peter Dimov",
-                    "profile_url": "#",
-                    "role": "Maintainer",
-                    "avatar_url": "https://ui-avatars.com/api/?name=Peter+Dimov&size=48",
-                    "badge_url": f"{badge_img}/badge-bronze.png",
-                },
-            },
-            {
-                "title": "Boost.Bind and modern C++: a quick overview",
-                "url": "#",
-                "date": date(2025, 2, 15),
-                "category": "Releases",
-                "tag": "bind",
-                "author": {
-                    "name": "Alex Morgan",
-                    "profile_url": "#",
-                    "role": "Contributor",
-                    "avatar_url": "https://thispersondoesnotexist.com/",
-                },
-            },
-        ]
-        context["demo_post"] = context["demo_posts"][0]
+        context["demo_posts"] = SharedResources.demo_posts
+        context["demo_post"] = SharedResources.demo_posts[0]
+
+        context["demo_join_community_links"] = SharedResources.demo_join_community_links
 
         context["demo_user_card"] = {
             "username": "vinniefalco",
@@ -1374,38 +1534,9 @@ class V3ComponentDemoView(TemplateView):
             },
         ]
 
-        context["demo_events"] = [
-            {
-                "title": "Boost 1.90.0 closed for major changes",
-                "description": "Release closed for major code changes. "
-                "Still open for serious problem fixes.",
-                "date": "29/10/25",
-                "datetime": "2025-10-29",
-            },
-            {
-                "title": "C++ Now 2025 call for submissions",
-                "description": "C++ Now conference is accepting talk proposals "
-                "until March 15.",
-                "date": "12/02/25",
-                "datetime": "2025-02-12",
-            },
-            {
-                "title": "Boost 1.89.0 released",
-                "description": "Boost 1.89.0 is available with updates to Asio, "
-                "Beast, and several other libraries.",
-                "date": "15/01/25",
-                "datetime": "2025-01-15",
-            },
-        ]
+        context["demo_events"] = SharedResources.demo_events
 
-        context["demo_events_with_links"] = [
-            {
-                **event,
-                "card_url": f"#event-{i}",
-                "card_aria_label": event["title"],
-            }
-            for i, event in enumerate(context["demo_events"])
-        ]
+        context["demo_events_with_links"] = SharedResources.demo_events_with_links[:3]
 
         context["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/checker.png"
@@ -1535,48 +1666,7 @@ class V3ComponentDemoView(TemplateView):
 
         context["testimonial_data"] = {
             "heading": "What Engineers are saying",
-            "testimonials": [
-                {
-                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
-                    "author": {
-                        "name": "Name Surname",
-                        "profile_url": "#",
-                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
-                        "role": "Contributor",
-                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
-                    },
-                },
-                {
-                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
-                    "author": {
-                        "name": "Name Surname",
-                        "profile_url": "#",
-                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
-                        "role": "Contributor",
-                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
-                    },
-                },
-                {
-                    "quote": "I use Boost d1aily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
-                    "author": {
-                        "name": "Name Surname",
-                        "profile_url": "#",
-                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
-                        "role": "Contributor",
-                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
-                    },
-                },
-                {
-                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
-                    "author": {
-                        "name": "Name Surname",
-                        "profile_url": "#",
-                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
-                        "role": "Contributor",
-                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
-                    },
-                },
-            ],
+            "testimonials": SharedResources.testimonials,
         }
 
         context["achievements_data"] = {
@@ -1796,147 +1886,182 @@ class V3HomepageView(TemplateView):
     template_name = "v3/homepage.html"
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        ctx = super().get_context_data(**kwargs)
         # Keep the hero background + centered image consistent with the v3 demos.
-        context["hero_background_image_url"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/home-page-background.png"
-        )
-        context["hero_image_url"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
-        )
-        context["hero_image_url_light"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
-        )
-        context["hero_image_url_dark"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
-        )
+        #         context["hero_background_image_url"] = (
+        #             f"{settings.STATIC_URL}img/v3/home-page/home-page-background.png"
+        #         )
+        #         context["hero_image_url"] = (
+        #             f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
+        #         )
+        #         context["hero_image_url_light"] = (
+        #             f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
+        #         )
+        #         context["hero_image_url_dark"] = (
+        #             f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
+        #         )
+        #
+        #         # Install card data (used by v3/includes/_hero_home.html -> _install_card.html)
+        #         context["install_card_title"] = (
+        #             "Install Boost and get started in your terminal."
+        #         )
+        ctx["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
+        ctx["install_card_system_install"] = SharedResources.install_card_system_install
+        #         context["event_list"] = [
+        #             {
+        #                 "title": "Boost 1.90.0 closed for major changes",
+        #                 "description": "Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review.",
+        #                 "date": "29/10/25",
+        #                 "datetime": "2025-10-29",
+        #             },
+        #             {
+        #                 "title": "Boost 1.90.0 closed for beta",
+        #                 "description": "Release closed for all changes",
+        #                 "date": "29/10/25",
+        #                 "datetime": "2025-10-29",
+        #             },
+        #         ]
+        #         context["event_primary_btn_text"] = "Download latest release"
+        #         context["event_primary_btn_url"] = reverse("releases-most-recent")
+        #         context["event_secondary_btn_text"] = "View events calendar"
+        #         context["event_secondary_btn_url"] = reverse("calendar")
+        #         from datetime import date
+        #
+        #         avatar_url = f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png"
+        #         badge_url = f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg"
+        #         context["homepage_posts"] = [
+        #             {
+        #                 "title": "Chaotic Attractors with Boost.OdeInt, a talk by Richard Thomson at the Utah C++ Programmers Group",
+        #                 "url": "#",
+        #                 "date": date(2025, 3, 3),
+        #                 "category": "Issues",
+        #                 "tag": "beast",
+        #                 "author": {
+        #                     "name": "Christopher Kormanyos",
+        #                     "role": "Contributor",
+        #                     "avatar_url": avatar_url,
+        #                     "role_badge": badge_url,
+        #                     "show_badge": True,
+        #                 },
+        #             },
+        #             {
+        #                 "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+        #                 "url": "#",
+        #                 "date": date(2025, 3, 3),
+        #                 "category": "Issues",
+        #                 "tag": "beast",
+        #                 "author": {
+        #                     "name": "Dave Abrahams",
+        #                     "role": "Contributor",
+        #                     "avatar_url": avatar_url,
+        #                     "role_badge": badge_url,
+        #                     "show_badge": True,
+        #                 },
+        #             },
+        #         ]
+        #         context["homepage_posts_view_all_url"] = reverse("news")
+        #         context[
+        #             "code_demo_hello"
+        #         ] = """#include <iostream>
+        # int main() {
+        #   std::cout << "Hello, Boost.";
+        # }"""
+        #         context["community_cards"] = [
+        #             {
+        #                 "title": "Get help",
+        #                 "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
+        #                 "icon_name": "info-box",
+        #                 "cta_label": "Start here",
+        #                 "cta_href": reverse("community"),
+        #             },
+        #             {
+        #                 "title": "Contribute",
+        #                 "description": "Learn how to test or evaluate library submissions, or submit your own.",
+        #                 "icon_name": "bullseye-arrow",
+        #                 "cta_label": "Start here",
+        #                 "cta_href": reverse("community"),
+        #             },
+        #             {
+        #                 "title": "Stay updated",
+        #                 "description": "Get updates on the latest releases, fixes and announcements.",
+        #                 "icon_name": "device-tv",
+        #                 "cta_label": "Start here",
+        #                 "cta_href": reverse("releases-most-recent"),
+        #             },
+        #             {
+        #                 "title": "Find work",
+        #                 "description": "See who's looking for the C++ skills you've got.",
+        #                 "icon_name": "human",
+        #                 "cta_label": "Start here",
+        #                 "cta_href": "#",
+        #             },
+        #         ]
+        #         context["community_cta_url"] = reverse("community")
+        #         context["stats_bars"] = [
+        #             {"label": "1.70.0", "height_px": 78},
+        #             {"label": "1.71.0", "height_px": 121},
+        #             {"label": "1.72.0", "height_px": 74},
+        #             {"label": "1.73.0", "height_px": 86},
+        #             {"label": "1.74.0", "height_px": 100},
+        #             {"label": "1.75.0", "height_px": 86},
+        #             {"label": "1.76.0", "height_px": 36},
+        #             {"label": "1.77.0", "height_px": 21},
+        #             {"label": "1.78.0", "height_px": 98},
+        #             {"label": "1.79.0", "height_px": 61},
+        #         ]
+        #         context["testimonial_data"] = {
+        #             "heading": "What engineers are saying",
+        #             "testimonials": [
+        #                 {
+        #                     "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+        #                     "author": {
+        #                         "name": "Christopher Kormanyos",
+        #                         "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+        #                         "role": "Author",
+        #                         "role_badge": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
+        #                     },
+        #                 },
+        #             ],
+        #         }
+        #         context["library_intro"] = {
+        #             "library_name": "Boost.Core.",
+        #             "description": "Lightweight utilities that power dozens of other Boost libraries",
+        #             "authors": [
+        #                 {
+        #                     "name": "Vinnie Falco",
+        #                     "role": "Author",
+        #                     "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+        #                     "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
+        #                     "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
+        #                 },
+        #                 {
+        #                     "name": "Alex Wells",
+        #                     "role": "Contributor",
+        #                     "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+        #                     "bio": "C++ enthusiast who has worked at Intel and Microsoft.",
+        #                 },
+        #                 {
+        #                     "name": "Dave Abrahams",
+        #                     "role": "Maintainer",
+        #                     "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+        #                     "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
+        #                     "bio": "Contributor to Boost since 2009.",
+        #                 },
+        #             ],
+        #             "cta_url": reverse(
+        #                 "library-detail",
+        #                 kwargs={"version_slug": "latest", "library_slug": "core"},
+        #             ),
+        #         }
+        #         context["build_anything_card"] = {
+        #             "title": "Build anything with boost",
+        #             "description": "Use, modify, and distribute Boost libraries freely. No binary attribution needed.",
+        #             "image_url": f"{settings.STATIC_URL}img/v3/solo-images/beaver-computer-blow-up.png",
+        #             "cta_label": "See license details",
+        #             "cta_url": "https://www.boost.org/users/license.html",
+        #         }
 
-        # Install card data (used by v3/includes/_hero_home.html -> _install_card.html)
-        context["install_card_title"] = (
-            "Install Boost and get started in your terminal."
-        )
-        context["install_card_pkg_managers"] = [
-            {"label": "Conan", "value": "conan", "command": "conan install boost"},
-            {"label": "Vcpkg", "value": "vcpkg", "command": "vcpkg install boost"},
-        ]
-        context["install_card_system_install"] = [
-            {
-                "label": "Ubuntu",
-                "value": "ubuntu",
-                "command": "sudo apt install libboost-all-dev",
-            },
-            {
-                "label": "Fedora",
-                "value": "fedora",
-                "command": "sudo dnf install boost-devel",
-            },
-            {
-                "label": "CentOS",
-                "value": "centos",
-                "command": "sudo yum install boost-devel",
-            },
-            {"label": "Arch", "value": "arch", "command": "sudo pacman -S boost"},
-            {"label": "Homebrew", "value": "homebrew", "command": "brew install boost"},
-        ]
-        context["popular_terms"] = [
-            {"label": "Networking"},
-            {"label": "Math"},
-            {"label": "Data processing"},
-            {"label": "Concurrency"},
-            {"label": "File systems"},
-            {"label": "Testing"},
-        ]
-        context["event_list"] = [
-            {
-                "title": "Boost 1.90.0 closed for major changes",
-                "description": "Release closed for major code changes. Still open for serious problem fixes and docs changes without release manager review.",
-                "date": "29/10/25",
-                "datetime": "2025-10-29",
-            },
-            {
-                "title": "Boost 1.90.0 closed for beta",
-                "description": "Release closed for all changes",
-                "date": "29/10/25",
-                "datetime": "2025-10-29",
-            },
-        ]
-        context["event_primary_btn_text"] = "Download latest release"
-        context["event_primary_btn_url"] = reverse("releases-most-recent")
-        context["event_secondary_btn_text"] = "View events calendar"
-        context["event_secondary_btn_url"] = reverse("calendar")
-        from datetime import date
-
-        avatar_url = f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png"
-        badge_url = f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg"
-        context["homepage_posts"] = [
-            {
-                "title": "Chaotic Attractors with Boost.OdeInt, a talk by Richard Thomson at the Utah C++ Programmers Group",
-                "url": "#",
-                "date": date(2025, 3, 3),
-                "category": "Issues",
-                "tag": "beast",
-                "author": {
-                    "name": "Christopher Kormanyos",
-                    "role": "Contributor",
-                    "avatar_url": avatar_url,
-                    "role_badge": badge_url,
-                    "show_badge": True,
-                },
-            },
-            {
-                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
-                "url": "#",
-                "date": date(2025, 3, 3),
-                "category": "Issues",
-                "tag": "beast",
-                "author": {
-                    "name": "Dave Abrahams",
-                    "role": "Contributor",
-                    "avatar_url": avatar_url,
-                    "role_badge": badge_url,
-                    "show_badge": True,
-                },
-            },
-        ]
-        context["homepage_posts_view_all_url"] = reverse("news")
-        context[
-            "code_demo_hello"
-        ] = """#include <iostream>
-int main() {
-  std::cout << "Hello, Boost.";
-}"""
-        context["community_cards"] = [
-            {
-                "title": "Get help",
-                "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
-                "icon_name": "info-box",
-                "cta_label": "Start here",
-                "cta_href": reverse("community"),
-            },
-            {
-                "title": "Contribute",
-                "description": "Learn how to test or evaluate library submissions, or submit your own.",
-                "icon_name": "bullseye-arrow",
-                "cta_label": "Start here",
-                "cta_href": reverse("community"),
-            },
-            {
-                "title": "Stay updated",
-                "description": "Get updates on the latest releases, fixes and announcements.",
-                "icon_name": "device-tv",
-                "cta_label": "Start here",
-                "cta_href": reverse("releases-most-recent"),
-            },
-            {
-                "title": "Find work",
-                "description": "See who's looking for the C++ skills you've got.",
-                "icon_name": "human",
-                "cta_label": "Start here",
-                "cta_href": "#",
-            },
-        ]
-        context["community_cta_url"] = reverse("community")
-        context["why_boost_cards"] = [
+        demo_cards = [
             {
                 "title": "Performant",
                 "description": "Optimized for production at any scale, Boost outperforms many standard benchmarks.",
@@ -1978,67 +2103,47 @@ int main() {
                 "icon_name": "bullseye-arrow",
             },
         ]
-        context["stats_bars"] = [
-            {"label": "1.70.0", "height_px": 78},
-            {"label": "1.71.0", "height_px": 121},
-            {"label": "1.72.0", "height_px": 74},
-            {"label": "1.73.0", "height_px": 86},
-            {"label": "1.74.0", "height_px": 100},
-            {"label": "1.75.0", "height_px": 86},
-            {"label": "1.76.0", "height_px": 36},
-            {"label": "1.77.0", "height_px": 21},
-            {"label": "1.78.0", "height_px": 98},
-            {"label": "1.79.0", "height_px": 61},
-        ]
-        context["testimonial_data"] = {
-            "heading": "What engineers are saying",
-            "testimonials": [
-                {
-                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
-                    "author": {
-                        "name": "Christopher Kormanyos",
-                        "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                        "role": "Author",
-                        "role_badge": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
-                    },
-                },
-            ],
+
+        ctx["library_cards"] = demo_cards
+        ctx["why_boost_cards"] = demo_cards[:8]
+        ctx["calendar_card"] = {
+            "title": "Boost is released three times a year",
+            "text": "Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process.",
+            "primary_button_url": "www.example.com",
+            "primary_button_label": "View the Release Calendar",
+            "secondary_button_url": "www.example.com",
+            "secondary_button_label": "Secondary Button",
+            "image": f"{settings.STATIC_URL}/img/v3/demo_page/Calendar.png",
         }
-        context["library_intro"] = {
-            "library_name": "Boost.Core.",
-            "description": "Lightweight utilities that power dozens of other Boost libraries",
-            "authors": [
-                {
-                    "name": "Vinnie Falco",
-                    "role": "Author",
-                    "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                    "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
-                    "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
-                },
-                {
-                    "name": "Alex Wells",
-                    "role": "Contributor",
-                    "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                    "bio": "C++ enthusiast who has worked at Intel and Microsoft.",
-                },
-                {
-                    "name": "Dave Abrahams",
-                    "role": "Maintainer",
-                    "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                    "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
-                    "bio": "Contributor to Boost since 2009.",
-                },
-            ],
-            "cta_url": reverse(
-                "library-detail",
-                kwargs={"version_slug": "latest", "library_slug": "core"},
-            ),
+        ctx["info_card"] = {
+            "title": "How we got here",
+            "text": "Since 1998, Boost has been where C++ innovation happens. What started with three developers has grown into the foundation of modern C++ development.",
+            "primary_button_url": "www.example.com",
+            "primary_button_label": "Explore Our History",
         }
-        context["build_anything_card"] = {
-            "title": "Build anything with boost",
-            "description": "Use, modify, and distribute Boost libraries freely. No binary attribution needed.",
-            "image_url": f"{settings.STATIC_URL}img/v3/solo-images/beaver-computer-blow-up.png",
-            "cta_label": "See license details",
-            "cta_url": "https://www.boost.org/users/license.html",
+        ctx["posts_from_the_boost_community"] = {
+            "heading": "Posts from the Boost Community",
+            "primary_cta_label": "View all posts",
+            "primary_cta_url": "#",
+            "variant": "card",
+            "theme": "teal",
+            "items": SharedResources.demo_posts[:5],
         }
-        return context
+        ctx["join_developers_building_the_future_of_cpp"] = {
+            "items": SharedResources.demo_join_community_links[:5]
+        }
+        ctx["boost_community_data"] = {
+            "heading": "The Boost community",
+            "view_all_url": "#",
+            "view_all_label": "Explore the community",
+            "posts": SharedResources.demo_posts,
+        }
+        ctx["popular_terms"] = SharedResources.popular_terms
+        ctx["demo_events_with_links"] = SharedResources.demo_events_with_links[:4]
+        ctx["code_demo_hello"] = SharedResources.code_demo_hello
+        ctx["stats_in_numbers"] = {
+            "example_library_commits_bars": SharedResources.example_library_commits_bars
+        }
+        ctx["testimonial_data"] = {"testimonials": SharedResources.testimonials}
+
+        return ctx
