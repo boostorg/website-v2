@@ -43,37 +43,6 @@
 }
 
 
-@media (max-width: 1280px) {
-    .card-masonry-top {
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-areas:
-            "a b"
-            "a d"
-            "c d"
-            "c d"
-            "c e"
-            "c ."
-        ;
-    }
-}
-
-@media (max-width: 768px) {
-    .four-column .why-boost-cards__grid {
-        grid-template-columns: repeat(1, 1fr);
-    }
-
-    .card-masonry {
-        grid-template-columns: 1fr;
-        grid-template-areas:
-            "a"
-            "b"
-            "c"
-            "d"
-            "e"
-        ;
-    }
-}
-
 
 .card-masonry-bottom {
     display: grid;
@@ -90,6 +59,75 @@
   width: 100%;
 }
 
+.license-card .horizontal-card {
+  max-width: 100%;
+  min-height: 358px;
+}
+
+.license-card .horizontal-card .horizontal-card__image {
+  flex: 0 0 205px; /* Fixed width for the image container */
+  aspect-ratio: 1 / 1;
+}
+
+
+
+@media (min-width: 768px) and (max-width: 1280px) {
+    .homepage-container {
+      max-width: 1024px;
+    }
+
+    .search-card {
+      max-width: 100%;
+    }
+
+    .homepage-join-card .card-group {
+      max-width: 100%;
+    }
+
+    .card-masonry-top {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-areas:
+            "a c"
+            "d c"
+            "e c"
+            "e c"
+            "e b"
+            "e b"
+        ;
+    }
+}
+
+@media (max-width: 767px) {
+    .homepage-container {
+      max-width: 390px;
+    }
+
+    .four-column .why-boost-cards__grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .card-masonry-top {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "a"
+            "c"
+            "d"
+            "b"
+            "e"
+        ;
+    }
+
+    .card-masonry-bottom {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "a"
+            "c"
+            "b"
+            "d"
+        ;
+    }
+}
+
 .card-masonry-bottom .item-a {
     grid-area: a;
 }
@@ -104,14 +142,4 @@
 
 .card-masonry-bottom .item-d {
     grid-area: d;
-}
-
-.license-card .horizontal-card {
-  max-width: 100%;
-  min-height: 358px;
-}
-
-.license-card .horizontal-card .horizontal-card__image {
-  flex: 0 0 205px; /* Fixed width for the image container */
-  aspect-ratio: 1 / 1;
 }
