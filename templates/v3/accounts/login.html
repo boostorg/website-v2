@@ -16,14 +16,18 @@
   <div class="auth-page__header">
     <h1 class="auth-page__title">Login to your account</h1>
     <p class="auth-page__subtitle">
-      Lorem ipsum dolor sit amet consectetur penatibus dictumst.
+      Sign in to continue your journey with the Boost and C++ community.
     </p>
   </div>
 
-  <form class="auth-page__card" method="post" action="{% url 'account_login' %}" novalidate>
+  <form class="auth-page__card" method="post" action="" novalidate>
     {% csrf_token %}
     {% include "v3/includes/_field_text.html" with name="login" type="email" label="Email Address*" placeholder="Email Address" required=True validate_type="email" validate_error="That doesn't look quite right, please double-check your email and try again." %}
     {% include "v3/includes/_field_password.html" with name="password" label="Password*" placeholder="Password" required=True %}
+    {% if login_error %}
+      <p class="field__error" role="alert">The email and/or password you entered does not match our records</p>
+    {% endif %}
+    {% include "v3/includes/_field_checkbox.html" with name="remember" label="Remember me" %}
     <a class="auth-page__forgot-link" href="{{ password_reset_url }}">Forgot password</a>
     {% include "v3/includes/_button.html" with label="Sign in" type="submit" style="primary" %}
   </form>

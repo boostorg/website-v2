@@ -301,12 +301,14 @@ class V3AuthContextMixin:
     """Shared context for all V3 auth pages (signup, login, password reset, etc.)."""
 
     page_title = "Account"
-    illustration_url = "/static/img/v3/auth-page/cheetah.png"
+    foreground_image_url = "/static/img/v3/auth-page/foreground.png"
+    background_image_url = "/static/img/v3/auth-page/background.png"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["page_title"] = self.page_title
-        context["illustration_url"] = self.illustration_url
+        context["foreground_image_url"] = self.foreground_image_url
+        context["background_image_url"] = self.background_image_url
         context["login_url"] = reverse_lazy("v3-login")
         context["signup_url"] = reverse_lazy("v3-signup")
 
@@ -328,6 +330,11 @@ class V3SignupView(V3AuthContextMixin, TemplateView):
 class V3LoginView(V3AuthContextMixin, TemplateView):
     template_name = "v3/accounts/login.html"
     page_title = "Login"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["login_error"] = self.request.GET.get("error") == "1"
+        return context
 
 
 class UserAvatar(TemplateView):

@@ -5,8 +5,9 @@
   Right panel: centered form content via {% block auth_content %}.
 
   Context variables:
-    page_title          (string, optional) — browser tab title
-    illustration_url    (string, optional) — URL for the left panel image
+    page_title              (string, optional) — browser tab title
+    foreground_image_url    (string, optional) — URL for the left panel image
+    background_image_url    (string, optional) — URL for the left panel background image
 {% endcomment %}
 
 {% load static %}
@@ -27,7 +28,8 @@
 {% block content %}
   <main class="auth-page__wrapper">
     <div class="auth-page__illustration">
-      <img src="{{ illustration_url|default:'' }}" alt="" loading="eager">
+      <img class="auth-page__illustration-foreground" src="{{ foreground_image_url|default:'' }}" alt="" loading="eager">
+      <img class="auth-page__illustration-background" src="{{ background_image_url|default:'' }}" alt="" loading="eager">
     </div>
     <div class="auth-page__content">
       <div class="auth-page__content-inner">
