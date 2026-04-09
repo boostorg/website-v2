@@ -31,6 +31,9 @@
           {% include "v3/includes/_join_card.html" with heading="Join developers building the future of C++" items=data.items variant="card" theme="yellow" primary_cta_label="Explore the community" primary_cta_url="#" %}
         {% endwith %}
       </div>
+      <div class="item-f">
+        {% include "v3/includes/_install_card.html" with title=install_card_title|default:"Install Boost and get started in your terminal." card_id=install_card_id|default:"hero-home-install" %}
+      </div>
     </div>
     <div class="py-large four-column">
       {% include 'v3/includes/_why_boost_cards.html' with why_boost_cards=why_boost_cards %}
