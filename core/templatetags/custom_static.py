@@ -6,6 +6,12 @@ register = template.Library()
 
 @register.simple_tag
 def large_static(file_path: str):
+    """
+    Automatically handles serving large static content based on development vs. production.
+
+    Serves specified content from the local large static file is LOCAL_DEVELOPMENT is True, else serves
+    from the static content in S3.
+    """
     # Strip any leading slashes to avoid footguns
     file_path = file_path.lstrip("/")
     if settings.LOCAL_DEVELOPMENT:
