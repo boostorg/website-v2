@@ -72,8 +72,9 @@
   width: 100%;
   min-height: 360px;
   height: 360px;
-  container-type: size;
+  container-type: inline-size;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .stats--in-numbers .stats__description {

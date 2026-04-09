@@ -126,6 +126,10 @@
             "d"
         ;
     }
+
+    .card-masonry-bottom > div {
+        min-width: 0;
+    }
 }
 
 .card-masonry-bottom .item-a {
