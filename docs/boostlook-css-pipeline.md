@@ -21,13 +21,19 @@ A relationship diagram mapping the Boostlook.CSS pipeline end to end: sources, d
 │                                                               +-- constants.py     │
 +------------------------------------------------------------------------------------+
         │                               │                            │
-        │ deploy-website.sh             │                            │
-        │ (merge develop -> master)     │                            │
+        │  sync-boostlook-css.yml       │                            │
+        │  (on develop push)            │                            │
         v                               v                            v
-+--------------+   5-min wait   +-----------------+            +--------------+
-│  boostlook   │--------------->│ website-v2-docs │----------->│  website-v2  │
-│  CI/CD       │   for GHA      │ CI/CD           │            │  CI/CD       │
 +--------------+                +-----------------+            +--------------+
+│  boostlook   │──css copy────> │  website-v2     │            │  website-v2  │
+│  develop CI  │                │  develop branch │            │  CI-GCP      │
+│              │──workflow_     +-----------------+            │  (master     │
+│              │  dispatch────> │ website-v2-docs │            │   deploy)    │
++--------------+                │ ui-release +    │            +--------------+
+                                │ publish         │
+                                +-----------------+
+
+deploy-website.sh: merges develop -> master (ff-only) across all three repos
 ```
 
 ---
@@ -72,7 +78,7 @@ templates/base.html
 │   +-- Renders modernized content with .boostlook class
 │
 |-- templates/docsiframe.html ------- Wrapper for fully modernized (Antora) docs
-│   +-- Renders content with .source-docs-antora class
+│   +-- Renders content inside an <iframe srcdoc="..."> with .source-docs-antora class
 │
 |-- templates/docs_libs_placeholder.html -- Preload hint for boostlook.css
 │
@@ -87,80 +93,82 @@ templates/base.html
 
 ## Documentation Rendering Pipeline
 
-This is the core decision tree in `ModernizedDocsView` (`core/views.py`). When a user visits a documentation URL (e.g., `/doc/libs/1_87_0/libs/filesystem/index.html`):
+This is the core decision tree in `DocLibsTemplateView.process_content()` (`core/views.py`). When a user visits a documentation URL (e.g., `/doc/libs/1_87_0/libs/filesystem/index.html`):
+
+Note: `ModernizedDocsView` is a separate, special-case view only for Boost.Preprocessor sub-pages with frameset handling.
 
 ```
-                        Incoming request
-                              │
-                              v
-                    +-- Check RenderedContent -+
-                    │   database cache         │
-                    │   (core/models.py)       │
-                    +--------------------------+
-                   Cache hit │           │ Cache miss
-                             │           │
-                             v           v
-                   Return cached    Fetch from S3
-                   HTML             (core/boostrenderer.py)
-                                         │
-                                         v
-                              Parse HTML with BeautifulSoup
-                                         │
-                                         v
-                    +----------------------------------------+
-                    │  Which processing path? (constants.py) │
-                    +----------------------------------------+
-                             │
-          +------------------┼-------------------------------------+
-          │                  │                  │                  │
-          v                  v                  v                  v
-   NO_PROCESS_LIBS   FULLY_MODERNIZED   NO_WRAPPER_LIBS    Standard
-   (8 libraries)     _LIB_VERSIONS      (25+ libraries)   (everything
-                     (charconv, redis,                      else)
-                      url, tools/)
-          │                  │                  │                  │
-          v                  v                  v                  v
-   Pass-through       _fully_modernize   Header only,      Full legacy
-   Minimal changes    _content()         no body wrapper    modernization
-   (canonical link,     │                  │                │
-    required tags)      │                  │                │
-                        │                  │                │
-                        v                  │                │
-              +-- Antora path? --+         │                │
-              │                  │         │                │
-              v                  v         │                │
-      source-docs-     AsciiDoc path       │                │
-      antora class     (currently          │                │
-      docsiframe.html  unused, kept        │                │
-                       for possible        │                │
-                       reactivation)       │                │
-                                           │                │
-                                           v                v
-                                  +--  modernize_legacy_page() --------+
-                                  │    (core/htmlhelper.py)            │
-                                  │                                    │
-                                  │  1. Remove CSS classes             │
-                                  │  2. convert_name_to_id()           │
-                                  │  3. remove_library_boostlook()     │
-                                  │     (strip per-lib boostlook.css   │
-                                  │      links, use site-wide instead) │
-                                  │  4. remove_embedded_boostlook()    │
-                                  │     (strip inline <style> with     │
-                                  │      .boostlook selectors)         │
-                                  │  5. Inject modern <head>           │
-                                  │  6. Wrap body with .boostlook class│
-                                  │  7. Rewrite boost.org -> local URLs│
-                                  +------------------------------------+
-                                                 │
-                                                 v
-                                        original_docs.html
-                                        template renders
-                                                 │
-                                                 v
-                                  Store in RenderedContent cache
-                                                 │
-                                                 v
-                                  Return HTML with cache headers
+                          Incoming request
+                                │
+                                v
+                      +-- Check RenderedContent -+
+                      │   database cache         │
+                      │   (core/models.py)       │
+                      +--------------------------+
+                     Cache hit │           │ Cache miss
+                               │           │
+                               v           v
+                     Return cached    Fetch from S3
+                     HTML             (core/boostrenderer.py)
+                                           │
+                                           v
+                                Parse HTML with BeautifulSoup
+                                           │
+                  +------- NO_PROCESS_LIBS? -------+
+                  │ yes                            │ no
+                  v                                v
+           Pass-through                     remove_unwanted()
+           Minimal changes                  (_required_modernization_changes)
+           (canonical link,                        │
+            required tags)          +--------------+---------------+
+                                    │                              │
+                                    v                              v
+                  FULLY_MODERNIZED_LIB_VERSIONS              NO_WRAPPER_LIBS (~27)
+                  (charconv, redis, url, tools/)             + "Standard" libraries (~150)
+                                    │                              |
+                                    v                              │
+                    _fully_modernize_content()                     │
+                                    │                              │
+                           +-- Source type? --+                    │
+                           │                  │                    │
+                           v                  v                    │
+                         Antora          AsciiDoc                  │
+                           |                |                      │
+                           v                v                      │
+              +-------------------------------+                    │
+              │ modernize_legacy_page()       │                    │
+              │ (core/htmlhelper.py)          │                    │
+              │                               │                    │
+              │ 1. Remove CSS classes         │                    │
+              │ 2. convert_name_to_id()       │                    │
+              │ 3. remove_library_boostlook() │                    │
+              │    (strip per-lib links, use  │                    │
+              │     site-wide instead)        │                    │
+              │ 4. remove_embedded_boostlook()│                    │
+              │    (strip inline .boostlook   │                    │
+              │     <style> blocks)           │                    │
+              │ 5. Inject modern <head>       │                    │
+              │ 6. Wrap body with             │                    │
+              │    .boostlook class           │                    │
+              +-------------------------------+                    │
+                           │                                       │
+                           +---------------------------------------+
+                                               │
+                                               v
+                            _required_content_string_changes()
+                           (minimize_uris: boost.org -> local URLs)
+                                               │
+                                               v
+                                      Template renders
+                   FULLY_MODERNIZED: `docsiframe.html`
+                   NO_WRAPPER: `original_docs.html` (header, no body wrap)
+                   Standard: `original_docs.html` (header, body with margin)
+                                               │
+                                               v
+                                 Store in RenderedContent cache
+                                               │
+                                               v
+                                 Return HTML with cache headers
 ```
 
 ---
@@ -169,7 +177,7 @@ This is the core decision tree in `ModernizedDocsView` (`core/views.py`). When a
 
 | Documentation Type | CSS Classes Applied | Selector Target in boostlook.css | Processing Function | Example Libraries |
 |---|---|---|---|---|
-| **Legacy HTML / Quickbook** | `.boostlook` | `.boostlook:not(:has(.doc))` | `modernize_legacy_page()` | accumulators, iterator, spirit |
+| **Legacy HTML / Quickbook** | `.boostlook` (from source HTML) | `.boostlook:not(:has(.doc))` | `remove_unwanted()` + template wrapping | accumulators, iterator, spirit |
 | **Antora (modern)** | `.boostlook`, `.source-docs-antora` | `div.source-docs-antora.boostlook`, `article.doc` | `modernize_legacy_page()` with `SourceDocType.ANTORA` | charconv (1.87+), redis (1.89+), url |
 | **AsciiDoc files** | `.boostlook` | `.boostlook` (general) | `convert_adoc_to_html()` via Asciidoctor | Library READMEs in `.adoc` format |
 | **Markdown files** | `.boostlook` | `section#libraryReadMe` | `process_md()` via Mistletoe | Library READMEs in `.md` format |
@@ -181,7 +189,7 @@ This is the core decision tree in `ModernizedDocsView` (`core/views.py`). When a
 
 ## Library Classification (core/constants.py)
 
-Three lists control which processing path a library takes:
+Three lists control which processing path a library takes. Library membership changes over time; consult `core/constants.py` for current values.
 
 ```
 +---------------------------------------------------------------+
@@ -217,7 +225,8 @@ Three lists control which processing path a library takes:
 
 +---------------------------------------------------------------+
 │ Everything else (~150 libraries)                              │
-│ Full legacy modernization with .boostlook wrapper             │
+│ Header injection + body wrapper via original_docs.html        │
+│ (no modernize_legacy_page; .boostlook from source HTML)       │
 +---------------------------------------------------------------+
 ```
 
@@ -225,26 +234,35 @@ Three lists control which processing path a library takes:
 
 ## Deployment Pipeline
 
-The deploy script (`scripts/deploy-website.sh`) orchestrates deployment of all three repos in a specific order:
+CSS changes flow through two separate mechanisms: an automated develop-branch sync, and a manual production deploy script.
+
+### Development-time CSS Sync (automatic)
+
+When `boostlook.css` is pushed to the boostlook repo's `develop` branch, the `sync-boostlook-css.yml` workflow fires:
+
+```
+boostorg/boostlook (develop push, boostlook.css changed)
+   │
+   │  sync-boostlook-css.yml
+   │
+   ├──> Copy boostlook.css into website-v2's develop branch
+   │    (direct commit via PAT)
+   │
+   ├──> gh workflow run ui-release.yml on website-v2-docs (develop)
+   │
+   └──> gh workflow run publish.yml on website-v2-docs (develop)
+```
+
+This keeps the downstream `develop` branches in sync automatically.
+
+### Production Deploy (`scripts/deploy-website.sh`)
+
+The deploy script merges `develop -> master` (ff-only) across all three repos in order:
 
 ```
 Step 1: boostorg/boostlook
    │  git merge develop -> master (ff-only)
    │  git push to master
-   │
-   │  -- 5 minute wait --
-   │  Pushing master triggers GitHub Actions defined
-   │  in the boostorg/boostlook repo itself (repository_dispatch
-   |  and workflow_dispatch events targeting website-v2-docs
-   |  and website-v2).
-   │
-   │  In website-v2, the CI-GCP workflow
-   │  (actions-gcp.yaml) fires on master push:
-   │    - Builds a new Docker image
-   │    - Deploys to GKE (production namespace)
-   │  This workflow includes a step that installs
-   │  boostlook.css into the Docker image, so the
-   │  new CSS is picked up automatically.
    │
    v
 Step 2: boostorg/website-v2-docs
@@ -259,7 +277,7 @@ Step 3: boostorg/website-v2
         which builds and deploys to GKE production
 ```
 
-**Why the 5-minute wait after boostlook?** Pushing to `boostorg/boostlook` master triggers GitHub Actions (defined in the boostlook repo) that propagate the updated CSS to downstream repos. The wait ensures those Actions complete before the next repos are deployed, preventing a deployment uses stale CSS. The specific workflows triggered are configured in the `boostorg/boostlook` repository's `.github/workflows/` directory. It may be worth trying to automate observing the github actions and moving on once they've succeeded, rather than this somewhat arbitrary wait.
+By the time the deploy script runs, `boostlook.css` is already in website-v2's `develop` branch (via the automatic sync above). The deploy script simply fast-forwards each repo's `master` to match `develop`.
 
 ---
 
@@ -289,7 +307,7 @@ Step 3: boostorg/website-v2
 | `static/css/preprocessing_fixes.css` | Frameset layout overrides                                                                           |
 | `core/constants.py`                  | Library classification lists (`NO_PROCESS_LIBS`, `NO_WRAPPER_LIBS`, `FULLY_MODERNIZED_LIB_VERSIONS`) |
 | `core/htmlhelper.py`                 | HTML transformation functions (`modernize_legacy_page()`, `remove_library_boostlook()`, etc.)       |
-| `core/views.py`                      | `ModernizedDocsView` rendering decision tree                                                        |
+| `core/views.py`                      | `DocLibsTemplateView` rendering decision tree (+ `ModernizedDocsView` for preprocessor framesets)   |
 | `core/boostrenderer.py`              | S3 content fetching (`get_content_from_s3()`, `get_s3_keys()`)                                      |
 | `core/models.py`                     | `RenderedContent` database cache model                                                              |
 | `core/asciidoc.py`                   | AsciiDoc to HTML conversion via Asciidoctor                                                         |

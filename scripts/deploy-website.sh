@@ -93,11 +93,6 @@ for repo in ${list_of_repos}; do
     echo "Running 'git push' from the master branch"
     git push
 
-    if [ "$repo" = "${github_organization}/boostlook" ]; then
-        echo "Deployed boostlook. Waiting 5 minutes before proceeding, since that triggers github actions on other repos."
-        echo "This step may be adjusted later."
-        sleep 300
-    fi
 
 done
 
