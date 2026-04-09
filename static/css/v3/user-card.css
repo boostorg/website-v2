@@ -153,6 +153,53 @@ html.dark .user-card--green.card {
 }
 
 /* ==========================================================================
+   Logged-out variant (heading + description + Sign up CTA)
+   ========================================================================== */
+
+.user-card--logged-out.card {
+  max-width: 340px;
+  padding: 0;
+  gap: var(--space-card);
+  background-color: var(--color-surface-weak-accent-teal);
+}
+
+.user-card--logged-out .user-card__heading,
+.user-card--logged-out .user-card__description,
+.user-card--logged-out .btn-row {
+  padding-left: var(--space-card);
+  padding-right: var(--space-card);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.user-card--logged-out .user-card__heading {
+  padding-top: var(--space-card);
+}
+
+.user-card--logged-out .btn-row {
+  padding-bottom: var(--space-card);
+}
+
+.user-card--logged-out .user-card__heading {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-display-regular);
+  margin: 0;
+}
+
+.user-card--logged-out .user-card__description {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.16px;
+  margin: 0;
+}
+
+/* ==========================================================================
    Dark mode — scoped overrides
    ========================================================================== */
 
@@ -163,6 +210,16 @@ html.dark .user-card--green.card {
 .user-card--green .btn-green:hover,
 .user-card--green .btn-green[data-hover] {
   background-color: var(--user-card-cta-bg-hover);
+}
+
+/* ==========================================================================
+   Tablet
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .user-card--logged-out.card {
+    max-width: 234px;
+  }
 }
 
 /* ==========================================================================
@@ -183,6 +240,14 @@ html.dark .user-card--green.card {
 
   .user-card--lg .user-card__username {
     font-size: var(--font-size-large);
+  }
+
+  .user-card--logged-out.card {
+    max-width: 100%;
+  }
+
+  .user-card--logged-out .btn {
+    font-size: var(--font-size-small);
   }
 
 }
