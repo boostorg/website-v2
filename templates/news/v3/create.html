@@ -3,6 +3,11 @@
 
 {% block title %}Create Post{% endblock %}
 
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/create-post-page.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block extra_head %}
   {{ block.super }}
   <script>document.documentElement.classList.add('js')</script>
