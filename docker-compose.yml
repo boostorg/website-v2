@@ -132,6 +132,25 @@ services:
       - .:/code
     stop_signal: SIGKILL
 
+  storybook:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.storybook
+    depends_on:
+      - web
+    environment:
+      - "DJANGO_ORIGIN=http://web:8000"
+    networks:
+      - backend
+      - frontend
+    ports:
+      - "6006:6006"
+    volumes:
+      - ./.storybook:/code/.storybook
+      - ./storybook:/code/storybook
+      - ./templates:/code/templates
+      - ./static:/code/static
+
   maildev:
     image: maildev/maildev
     init: true

@@ -511,4 +511,12 @@ urlpatterns = (
     ]
 )
 
+# Pattern library (for Storybook) — only when django-pattern-library is installed
+try:
+    from pattern_library import urls as pattern_library_urls
+
+    urlpatterns.insert(0, path("pattern-library/", include(pattern_library_urls)))
+except ImportError:
+    pass
+
 handler404 = "ak.views.custom_404_view"
