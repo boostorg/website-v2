@@ -7,23 +7,37 @@
     value            (optional) — pre-filled value
     type             (optional) — input type, default "text"
     help_text        (optional) — help text below the field
-    error            (optional) — error message (activates error state)
-    alpine_error     (optional) — Alpine expression for dynamic error binding (e.g. "errors.title")
+    error            (optional) — static server-side error message, rendered on page load
+    alpine_error     (optional) — Alpine expression that resolves to an error string for dynamic
+                       server-driven errors without a page reload (e.g. "errors.title")
+    validate_type    (optional) — client-side validation before submit, currently supports "email"
+    validate_error   (optional) — error message shown when validate_type check fails
     icon_left        (optional) — icon name for left slot (e.g. "search")
     submit_icon      (optional) — icon name for a submit button in the right slot (e.g. "arrow-right")
     submit_label     (optional) — aria-label for the submit button, default "Submit"
     required         (optional) — if truthy, adds required attribute
     disabled         (optional) — if truthy, adds disabled attribute
     extra_class      (optional) — additional classes on the wrapper
-    validate_type    (optional) — "email" for client-side email format validation
-    validate_error   (optional) — error message shown when client-side validation fails
+
+  Error handling:
+    error is the base layer for server-side validation and can be combined with either
+    alpine_error or validate_type. Choose one of the latter per field, not both.
+
   Usage:
-    {% include "v3/includes/_field_text.html" with name="email" label="Email" placeholder="Enter email" %}
-    {% include "v3/includes/_field_text.html" with name="q" placeholder="Search..." submit_icon="arrow-right" submit_label="Search" %}
+  Static server error:
+    {% include "v3/includes/_field_text.html" with name="email" label="Email" placeholder="Enter email" error=form.email.errors.0 %}
+
+  Dynamic Alpine error:
+    {% include "v3/includes/_field_text.html" with name="title" label="Title" alpine_error="errors.title" %}
+
+  Client-side email validation:
     {% include "v3/includes/_field_text.html" with name="email" type="email" validate_type="email" validate_error="Invalid email" %}
+
+    Search field (no error handling):
+    {% include "v3/includes/_field_text.html" with name="q" placeholder="Search..." submit_icon="arrow-right" submit_label="Search" %}
 {% endcomment %}
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
-    {# djlint:off #}
+  {# djlint:off #}
     {% if validate_type == "email" %}
     data-validate
     x-data="{
@@ -39,50 +53,65 @@
     :class="{ 'field--error': isInvalid || isEmpty }"
     @validate="touched = true"
     {% elif alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}>
-    {# djlint:on #}
-  {% if label %}
-  <label class="field__label" for="field-{{ name }}">{{ label }}</label>
-  {% endif %}
-  <div class="field__control{% if disabled %} field__control--disabled{% endif %}"{% if submit_icon %} x-data="{ q: '' }"{% endif %}>
+  {# djlint:on #}
+  {% if label %}<label class="field__label" for="field-{{ name }}">{{ label }}</label>{% endif %}
+  <div class="field__control{% if disabled %} field__control--disabled{% endif %}"
+       {% if submit_icon %}x-data="{ q: '' }"{% endif %}>
     {% if icon_left %}
-    <span class="field__icon" aria-hidden="true">
-      {% include "includes/icon.html" with icon_name=icon_left icon_class="field__icon" %}</span>
+      <span class="field__icon" aria-hidden="true">
+        {% include "includes/icon.html" with icon_name=icon_left icon_class="field__icon" %}
+      </span>
     {% endif %}
-    <input
-      class="field__input"
-      type="{{ type|default:'text' }}"
-      id="field-{{ name }}"
-      name="{{ name }}"
-      {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
-      {% if value %}value="{{ value }}"{% endif %}
-      {% if required %}required{% endif %}
-      {% if disabled %}disabled{% endif %}
-      {% if alpine_error %}:aria-invalid="!!{{ alpine_error }}" :aria-describedby="{{ alpine_error }} ? 'field-{{ name }}-error' : {% if help_text %}'field-{{ name }}-help'{% else %}null{% endif %}"{% elif error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
-      {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q"{% endif %}
-    >
+    <input class="field__input"
+           type="{{ type|default:'text' }}"
+           id="field-{{ name }}"
+           name="{{ name }}"
+           {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+           {% if value %}value="{{ value }}"{% endif %}
+           {% if required %}required{% endif %}
+           {% if disabled %}disabled{% endif %}
+           {% if alpine_error %}:aria-invalid="!!{{ alpine_error }}" :aria-describedby="{{ alpine_error }} ? 'field-{{ name }}-error' : {% if help_text %}'field-{{ name }}-help'{% else %}null{% endif %}
+           "
+           {% elif error %}
+           aria-invalid="true"
+           aria-describedby="field-{{ name }}-error"
+           {% elif help_text %}
+           aria-describedby="field-{{ name }}-help"
+           {% endif %}
+           {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q"{% endif %}>
     {% if submit_icon %}
-    <button type="submit" class="field__submit" aria-label="{{ submit_label|default:'Submit' }}" :disabled="!q.trim()">
-      {% include "includes/icon.html" with icon_name=submit_icon icon_class="field__submit-icon" %}
-    </button>
+      <button type="submit"
+              class="field__submit"
+              aria-label="{{ submit_label|default:'Submit' }}"
+              :disabled="!q.trim()">
+        {% include "includes/icon.html" with icon_name=submit_icon icon_class="field__submit-icon" %}
+      </button>
     {% endif %}
   </div>
   {% if validate_error %}
-  <p class="field__error" x-cloak x-show="isInvalid" role="alert">{{ validate_error }}</p>
-  <p class="field__error" x-cloak x-show="isEmpty" role="alert">This field is required.</p>
+    <p class="field__error" x-cloak x-show="isInvalid" role="alert">{{ validate_error }}</p>
+    <p class="field__error" x-cloak x-show="isEmpty" role="alert">This field is required.</p>
   {% endif %}
   {% if alpine_error %}
-  <p class="field__error" id="field-{{ name }}-error" role="alert" x-show="{{ alpine_error }}" x-text="{{ alpine_error }}" x-cloak aria-live="polite"></p>
-  {% if error %}
-  <p class="field__error" role="alert" aria-live="polite" x-show="false">{{ error }}</p>
-  {% endif %}
-  {% if help_text %}
-  <p class="field__help" id="field-{{ name }}-help" x-show="!{{ alpine_error }}"{% if error %} style="display:none"{% endif %}>{{ help_text }}</p>
-  {% endif %}
+    <p class="field__error"
+       id="field-{{ name }}-error"
+       role="alert"
+       x-show="{{ alpine_error }}"
+       x-text="{{ alpine_error }}"
+       x-cloak
+       aria-live="polite"></p>
+    {% if error %}<p class="field__error" role="alert" aria-live="polite" x-show="false">{{ error }}</p>{% endif %}
+    {% if help_text %}
+      <p class="field__help"
+         id="field-{{ name }}-help"
+         x-show="!{{ alpine_error }}"
+         {% if error %}style="display:none"{% endif %}>{{ help_text }}</p>
+    {% endif %}
   {% else %}
-  {% if error %}
-  <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
-  {% elif help_text %}
-  <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
-  {% endif %}
+    {% if error %}
+      <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
+    {% elif help_text %}
+      <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+    {% endif %}
   {% endif %}
 </div>
