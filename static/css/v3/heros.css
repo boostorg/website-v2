@@ -55,7 +55,7 @@
  .hero-home__block {
    width: 100%;
    max-width: 1440px;
-   min-height: 299px;
+   min-height: auto;
    position: relative;
    display: flex;
    flex-direction: row;
@@ -79,7 +79,7 @@
    font-weight: 400;
    margin: 0;
    align-self: stretch;
-   letter-spacing: -4px;
+   letter-spacing: -0.64px;
  }
 
  /* When hero has background + center image, main headline is white (light and dark mode) */
@@ -123,6 +123,10 @@
 
 /* Hide card on tablet and mobile; only show on desktop */
  @media (max-width: 1024px) {
+   .hero-home__content {
+     width: 100%;
+   }
+
    .hero-home__card {
      display: none;
    }
@@ -239,16 +243,12 @@
    mix-blend-mode: screen;
  }
 
-  /* ----- Hero home: mobile ----- */
-  @media (max-width: 1000px) {
-    .hero-home__actions{
+ /* ----- Hero home: mobile ----- */
+ @media (max-width: 767px) {
+   .hero-home__actions{
       flex-direction: column;
     }
 
-    }
-
- /* ----- Hero home: mobile ----- */
- @media (max-width: 700px) {
    .hero-home__block {
      height: auto;
      min-height: 600px;
@@ -496,7 +496,7 @@
  }
 
  /* ----- Hero library: mobile ----- */
- @media (max-width: 700px) {
+ @media (max-width: 767px) {
 
    .hero-library__block {
      height: 600px;
