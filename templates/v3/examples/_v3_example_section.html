@@ -1,3 +1,4 @@
+{% load custom_static %}
 {% comment %}
   V3 Component Demo Page
   ======================
@@ -722,12 +723,10 @@
   {% endwith %}
 
   {% with section_title="Image Handling Example" %}
-    {% load custom_static %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
-        {% large_static '/img/v3/learn-page/Learn_Octopus.png' as img_url %}
-        <img src="{{img_url}}" />
+        <img src="{% large_static 'img/v3/learn-page/Learn_Octopus.png' %}" alt="Large Media Example" />
       </div>
     </div>
   {% endwith %}
