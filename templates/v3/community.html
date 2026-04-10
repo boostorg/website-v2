@@ -1,0 +1,102 @@
+{% extends "base.html" %} {% load static %} {% block title %} Boost Community {% endblock %} {% block content %}
+{# ── Hero ────────────────────────────────────────────────────── #}
+<section class="community-hero" aria-label="Community hero">
+  <div class="community-hero__inner">
+    <div class="community-hero__content">
+      <h1 class="community-hero__headline">
+        A community built to help you go further
+      </h1>
+      <p class="community-hero__subtitle">
+        For newcomers and experienced engineers alike, Boost is a place to build
+        real libraries, learn from experts and make contributions that matter.
+      </p>
+    </div>
+    <div class="community-hero__image">
+      <img
+        src="{% static 'img/v3/Community-page/community-foreground.png' %}"
+        alt="Boost community illustration"
+        class="community-hero__img"
+        loading="eager"
+        decoding="async"
+      />
+    </div>
+  </div>
+</section>
+
+{# ── Help options ────────────────────────────────────────────── #}
+<div class="community-help-wrapper">
+  <section class="community-help" aria-label="What do you need help with?">
+    <h2 class="community-help__heading">What do you need help with?</h2>
+    <hr class="card__hr" />
+    <div class="community-help__grid">
+      {% for option in help_options %}
+      <article class="help-card">
+        <div class="help-card__bubble">
+          <p class="help-card__title">"{{ option.title }}"</p>
+        </div>
+        <div class="help-card__user">
+          <div class="help-card__avatar">
+            {% if option.user_avatar %}
+            <img src="{{ option.user_avatar }}" alt="" width="40" height="40" />
+            {% else %}
+            <span class="help-card__avatar-placeholder"></span>
+            {% endif %}
+          </div>
+          <div class="help-card__user-info">
+            <span class="help-card__user-name">{{ option.user_name }}</span>
+            <span class="help-card__user-role">{{ option.user_role }}</span>
+          </div>
+        </div>
+        <p class="help-card__description">{{ option.description }}</p>
+        <a href="{{ option.cta_url }}" class="help-card__cta"
+          >{{ option.cta_text }}</a
+        >
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
+{# ── Three-column content grid ───────────────────────────────── #}
+<div class="community-grid">
+  {# ── Left column ──────────────────────────────────────────── #}
+  <div class="community-grid__left">
+    {% include "v3/includes/_install_card.html" with card_id="community-install" install_card_pkg_managers=install_card_pkg_managers install_card_system_install=install_card_system_install %}
+
+    {% include "v3/includes/_slack_preview.html" with slack_url="https://cppalliance.org/slack/" slack_image_url="/static/img/v3/Community-page/community-placeholder.png" slack_member_count=slack_member_count %}
+    {% include "v3/includes/_create_account_card.html" with heading="Contribute to earn badges, track your progress and grow your impact" body_html=create_account_card_body_html preview_image_url=create_account_card_preview_url cta_url="#" cta_label="Start contributing" %}
+
+  </div>
+
+  {# ── Center column ────────────────────────────────────────── #}
+  <div class="community-grid__center">
+    <section class="community-libraries" aria-label="Discover libraries">
+      <h2 class="community-libraries__heading">
+        Discover a library that meets your needs
+      </h2>
+      {% for lib in libraries %}
+        <div class="community-libraries__item">
+          <h3 class="community-libraries__name">{{ lib.name }}</h3>
+          <p class="community-libraries__description">{{ lib.description }}</p>
+          <div class="community-libraries__tags">
+            {% for cat in lib.categories %}
+              {% include "v3/includes/_category_tag.html" with tag_label=cat variant="neutral" size="default" %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+      <div class="community-libraries__cta">
+        {% include "v3/includes/_button.html" with label="See all libraries" url="/libs/" style="primary" extra_classes="btn-flex" only %}
+      </div>
+    </section>
+
+    {% include "v3/includes/_thread_archive_card.html" %}
+  </div>
+
+  {# ── Right column ─────────────────────────────────────────── #}
+  <div class="community-grid__right">
+    {% include "v3/includes/_post_card.html" with heading="Posts from the Boost community" items=posts variant="card" theme="teal" primary_cta_label="View all posts" primary_cta_url="#" %}
+    {% include "v3/includes/_mailing_list_card.html" %}
+  </div>
+</div>
+{% endblock %}

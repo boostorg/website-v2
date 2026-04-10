@@ -1,0 +1,35 @@
+{% comment %}
+  Slack Preview card component.
+  Shows a preview of the Boost C++ Slack workspace with an invite CTA.
+
+  Variables:
+    slack_url        (string, required)  - URL for the Slack invite/join page
+    slack_image_url  (string, required)  - URL for the Slack workspace preview image
+    slack_member_count (string, optional) - Display text for member count; defaults to "30,000"
+
+  Dependencies:
+    CSS: card.css, slack-preview.css, buttons.css
+
+  Usage:
+    {% include "v3/includes/_slack_preview.html" with slack_url="https://cpplang.slack.com" slack_image_url="/static/img/slack-preview.png" %}
+{% endcomment %}
+<section class="slack-preview card" aria-label="Slack community">
+  <div class="card__header">
+    <h2 class="card__title">Join the discussion on Slack</h2>
+  </div>
+  <hr class="card__hr">
+  <div class="slack-preview__image-wrapper">
+    <img class="slack-preview__image"
+         src="{{ slack_image_url }}"
+         alt="Preview of the Boost C++ Slack workspace"
+         loading="lazy">
+  </div>
+  <hr class="card__hr">
+  <div class="card__cta_section">
+    {% with member_count=slack_member_count|default:"30,000" %}
+      {% with cta_label="Chat with "|add:member_count|add:" members" %}
+        {% include "v3/includes/_button.html" with url=slack_url label=cta_label style="primary" extra_classes="btn-flex" only %}
+      {% endwith %}
+    {% endwith %}
+  </div>
+</section>
