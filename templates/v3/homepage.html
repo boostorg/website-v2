@@ -2,6 +2,7 @@
 {% load static %}
 {% load waffle_tags %}
 
+{% block main_content_wrapper %}<div class="homepage-v3">{% endblock %}
 {% block title %}Boost C++ Homepage{% endblock %}
 {% block extra_head %}
   {{ block.super }}
@@ -10,7 +11,7 @@
 
 {% block content %}
   <div class="homepage-container">
-    {% include "v3/includes/_hero_home.html" with install_card_id="hero-home-3" hero_image_url="" hero_image_url_light="" hero_image_url_dark="" %}
+      {% include "v3/includes/_hero_home.html" with hero_background_image_url="" install_card_id="hero-home-1" hero_image_url_light=hero_legacy_image_url_light hero_image_url_dark=hero_legacy_image_url_dark %}
     <div class="card-masonry-top">
       <div class="item-a">
         {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="#" popular_terms=popular_terms %}

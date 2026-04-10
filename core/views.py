@@ -364,6 +364,20 @@ int main()
         "button_label": "See license details",
     }
 
+    hero_legacy_image_url_light = f"{settings.STATIC_URL}img/v3/home-page/heros.png"
+
+    hero_legacy_image_url_dark = (
+        f"{settings.STATIC_URL}img/v3/home-page/heros_light.png"
+    )
+
+    hero_image_url = f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
+    hero_image_url_light = (
+        f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
+    )
+    hero_image_url_dark = (
+        f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
+    )
+
 
 def BSLView(request):
     file_path = os.path.join(settings.BASE_DIR, "static/license.txt")
@@ -1588,20 +1602,14 @@ class V3ComponentDemoView(TemplateView):
             f"{settings.STATIC_URL}img/v3/home-page/home-page-background.png"
         )
         context["hero_legacy_image_url_light"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/heros.png"
+            SharedResources.hero_legacy_image_url_light
         )
         context["hero_legacy_image_url_dark"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/heros_light.png"
+            SharedResources.hero_legacy_image_url_dark
         )
-        context["hero_image_url"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
-        )
-        context["hero_image_url_light"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
-        )
-        context["hero_image_url_dark"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
-        )
+        context["hero_image_url"] = SharedResources.hero_image_url
+        context["hero_image_url_light"] = SharedResources.hero_image_url_light
+        context["hero_image_url_dark"] = SharedResources.hero_image_url_dark
         context["basic_card_data"] = {
             "title": "Found a Bug?",
             "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole comm",
@@ -2162,4 +2170,9 @@ class V3HomepageView(TemplateView):
 
         ctx["build_anything_with_boost"] = SharedResources.build_anything_with_boost
 
+        ctx["hero_legacy_image_url_light"] = SharedResources.hero_legacy_image_url_light
+        ctx["hero_legacy_image_url_dark"] = SharedResources.hero_legacy_image_url_dark
+        ctx["hero_image_url"] = SharedResources.hero_image_url
+        ctx["hero_image_url_light"] = SharedResources.hero_image_url_light
+        ctx["hero_image_url_dark"] = SharedResources.hero_image_url_dark
         return ctx
