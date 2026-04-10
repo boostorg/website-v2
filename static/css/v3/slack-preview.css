@@ -1,0 +1,25 @@
+/*
+  Slack Preview card
+  Shows a Slack workspace preview image with a join CTA.
+
+  slack-preview              - card wrapper (extends .card)
+  slack-preview__image-wrapper - padded container for the preview image
+  slack-preview__image       - the workspace screenshot
+*/
+
+.slack-preview {
+  max-width: 458px;
+}
+
+.slack-preview__image-wrapper {
+  width: 100%;
+  padding: 0 var(--space-large, 16px);
+}
+
+.slack-preview__image {
+  width: 100%;
+  aspect-ratio: 854 / 481;
+  object-fit: cover;
+  border-radius: var(--border-radius-l, 8px);
+  display: block;
+}

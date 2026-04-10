@@ -118,6 +118,168 @@ class BoostDevelopmentView(CalendarView):
     template_name = "boost_development.html"
 
 
+class CommunityView(V3Mixin, TemplateView):
+    template_name = "community.html"
+    v3_template_name = "v3/community.html"
+
+    def get_v3_context_data(self, **kwargs):
+        ctx = super().get_v3_context_data(**kwargs)
+        ctx["help_options"] = [
+            {
+                "title": "I'm stuck on an error",
+                "description": "Visit the CPPLang Slack for fast responses, quick debugging and real-time conversation",
+                "cta_text": "Join Slack 24,000+ members",
+                "cta_url": "https://cppalliance.org/slack/",
+                "user_name": "Character Name",
+                "user_role": "Role",
+                "user_avatar": "",
+            },
+            {
+                "title": "I have a proposal for a new feature",
+                "description": "Propose libraries, participate in the formal review and submit major features on the mailing list",
+                "cta_text": "Subscribe now",
+                "cta_url": "https://lists.boost.org/mailman3/lists/boost.lists.boost.org/",
+                "user_name": "Character Name",
+                "user_role": "Role",
+                "user_avatar": "",
+            },
+            {
+                "title": "I found a bug",
+                "description": "Find the library you're looking for on GitHub, follow the reporting template and let the author know",
+                "cta_text": "Report it on GitHub",
+                "cta_url": "https://github.com/boostorg",
+                "user_name": "Character Name",
+                "user_role": "Role",
+                "user_avatar": "",
+            },
+            {
+                "title": "I have a general question",
+                "description": "Post on Reddit and engage in casual chat with fellow Boost enthusiasts",
+                "cta_text": "Visit Reddit",
+                "cta_url": "https://www.reddit.com/r/boost/",
+                "user_name": "Character Name",
+                "user_role": "Role",
+                "user_avatar": "",
+            },
+        ]
+        ctx["libraries"] = [
+            {
+                "name": "Boost.Asio",
+                "description": "Portable networking and low-level I/O.",
+                "categories": ["Networking", "Concurrency"],
+            },
+            {
+                "name": "Boost.Beast",
+                "description": "HTTP and WebSocket built on Boost.Asio.",
+                "categories": ["Networking", "HTTP"],
+            },
+            {
+                "name": "Boost.JSON",
+                "description": "A portable C++ library for JSON parsing and serialization.",
+                "categories": ["Data", "Parsing"],
+            },
+            {
+                "name": "Boost.URL",
+                "description": "A portable C++ library for URL parsing and manipulation.",
+                "categories": ["Networking", "Parsing"],
+            },
+            {
+                "name": "Boost.Multiprecision",
+                "description": "Extended precision arithmetic types.",
+                "categories": ["Math", "Numerics"],
+            },
+        ]
+        ctx["posts"] = [
+            {
+                "title": "Chaotic Attractors with Boost.Odeint, a talk by Richard Thomson at the Utah C++ Programmers Group",
+                "url": "#",
+                "date": date(2025, 3, 3),
+                "category": "Issues",
+                "tag": "beast",
+                "author": {
+                    "name": "Christopher Kiamenya",
+                    "role": "Contributor",
+                    "avatar_url": "https://ui-avatars.com/api/?name=Christopher+Kiamenya&size=48",
+                    "badge_url": "/static/img/v3/solo-images/badge-first-place.png",
+                },
+            },
+            {
+                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+                "url": "#",
+                "date": date(2025, 3, 3),
+                "category": "Issues",
+                "tag": "beast",
+                "author": {
+                    "name": "Dave Abrahams",
+                    "role": "Contributor",
+                    "avatar_url": "https://ui-avatars.com/api/?name=Dave+Abrahams&size=48",
+                    "badge_url": "/static/img/v3/solo-images/badge-first-place.png",
+                },
+            },
+            {
+                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+                "url": "#",
+                "date": date(2025, 3, 3),
+                "category": "Issues",
+                "tag": "beast",
+                "author": {
+                    "name": "Alex Wells",
+                    "role": "Contributor",
+                    "avatar_url": "https://ui-avatars.com/api/?name=Alex+Wells&size=48",
+                    "badge_url": "/static/img/v3/solo-images/badge-first-place.png",
+                },
+            },
+            {
+                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+                "url": "#",
+                "date": date(2025, 3, 3),
+                "category": "Issues",
+                "tag": "beast",
+                "author": {
+                    "name": "Peter Edwards",
+                    "role": "Contributor",
+                    "avatar_url": "https://ui-avatars.com/api/?name=Peter+Edwards&size=48",
+                    "badge_url": "/static/img/v3/solo-images/badge-first-place.png",
+                },
+            },
+        ]
+        ctx["slack_member_count"] = "30,000"
+        ctx["install_card_pkg_managers"] = [
+            {"label": "Conan", "value": "conan", "command": "conan install boost"},
+            {"label": "Vcpkg", "value": "vcpkg", "command": "vcpkg install boost"},
+        ]
+        ctx["install_card_system_install"] = [
+            {
+                "label": "Ubuntu",
+                "value": "ubuntu",
+                "command": "sudo apt install libboost-all-dev",
+            },
+            {
+                "label": "Fedora",
+                "value": "fedora",
+                "command": "sudo dnf install boost-devel",
+            },
+            {
+                "label": "CentOS",
+                "value": "centos",
+                "command": "sudo yum install boost-devel",
+            },
+            {"label": "Arch", "value": "arch", "command": "sudo pacman -S boost"},
+            {
+                "label": "Homebrew",
+                "value": "homebrew",
+                "command": "brew install boost",
+            },
+        ]
+        ctx["mailing_list"] = {
+            "name": "Boost Developers",
+            "url": "https://lists.boost.org/mailman3/lists/boost.lists.boost.org/",
+            "archives_url": "https://lists.boost.org/archives/list/boost@lists.boost.org/latest",
+            "description": "The primary mailing list for Boost library development discussions.",
+        }
+        return ctx
+
+
 class ClearCacheView(UserPassesTestMixin, View):
     http_method_names = ["get"]
     login_url = "/login/"

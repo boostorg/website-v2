@@ -361,9 +361,6 @@
         class="h-screen {% flag "v3" %}v3{% else %}bg-gray-200 dark:bg-black{% endflag %}{% if DEBUG %} DEBUG{% endif %}" {% block body_id %}{% endblock %}>
          <div class="modal-overlay" id="modalOverlay"><div class="modal-content"><iframe id="modalFrame" class="w-full h-full rounded-xl m-0 p-0"></iframe><div class="modal-close" id="modalClose" onclick="closeModal()"><i class="fa-solid fa-xmark fa-lg"></i></div></div></div>
       {% flag "v3" %}
-      <div class="bg-slate text-white text-center py-2 font-semibold">v3 flag enabled</div>
-      {% endflag %}
-      {% flag "v3" %}
       {% include "v3/includes/_header_v3.html" %}
       {% if request.resolver_match.url_name == 'v3-demo-components' %}
       {% include "v3/includes/_hero_home.html" with install_card_id="hero-home-1" hero_background_image_url="" hero_image_url_light=hero_legacy_image_url_light hero_image_url_dark=hero_legacy_image_url_dark %}
