@@ -1,0 +1,134 @@
+.learn-page-header {
+    width: 100%;
+    max-width: calc(50% - .5 * var(--space-card));
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    align-items: flex-start;
+    color: var(--text-primary);
+}
+
+.learn-page-header h1 {
+    /* Sans/Desktop/Regular/3XL */
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-tight);
+    color: var(--color-text-primary);
+    /* 64px */
+    letter-spacing: -0.64px;
+    margin: 0;
+    align-self: stretch;
+}
+
+.learn-page-header p {
+    padding: 0;
+    color: var(--color-text-secondary);
+
+    /* Sans/Desktop/Regular/Large/Loose */
+    font-size: var(--font-size-large);
+
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-loose-alt);
+    /* 31.92px */
+    letter-spacing: -0.24px;
+}
+
+.card-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-card);
+}
+
+.three-column .why-boost-cards__grid {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.three-column .content-detail-icon {
+    height: 100%;
+}
+
+.card-masonry {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-areas:
+        "a b c"
+        "a b e"
+        "a d e"
+        ". d e"
+        ". d ."
+    ;
+    row-gap: var(--space-card);
+    column-gap: var(--space-card);
+}
+
+.card-masonry .item-a {
+    grid-area: a;
+}
+
+.card-masonry .item-b {
+    grid-area: b;
+}
+
+.card-masonry .item-c {
+    grid-area: c;
+}
+
+.card-masonry .item-d {
+    grid-area: d;
+}
+
+.card-masonry .item-e {
+    grid-area: e;
+}
+
+
+@media (max-width: 1280px) {
+    .card-masonry {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-areas:
+            "a b"
+            "a d"
+            "c d"
+            "c d"
+            "c e"
+            "c ."
+        ;
+    }
+
+    .card {
+        max-width: 100%;
+    }
+
+    .post-cards {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .card-row {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .three-column .why-boost-cards__grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .card-masonry {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "a"
+            "b"
+            "c"
+            "d"
+            "e"
+        ;
+    }
+
+    .learn-page-header {
+        max-width: none;
+    }
+
+    .mobile-d-none {
+        display: none;
+    }
+}
