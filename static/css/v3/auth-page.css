@@ -1,0 +1,197 @@
+/*
+  Auth Page
+  Two-column layout for sign-up and sign-in pages.
+  Left: illustration image. Right: centered form content.
+  Dependencies: foundations, forms, buttons.
+*/
+
+/* ── Header overlay on auth pages ─────────── */
+body:has(.auth-page) .header {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  right: 0;
+}
+
+/* ── Page-level flex column ───────────────── */
+.auth-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Reset base.html intermediate wrappers ──── */
+.auth-page .w-full,
+.auth-page .md\:px-0 {
+  min-height: auto;
+  padding: 0;
+  width: 100%;
+}
+
+.auth-page .min-vh-110 {
+  min-height: auto;
+  padding: 0;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-page p {
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Two-column grid layout ───────────────── */
+.auth-page__wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  max-width: 1440px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+/* ── Illustration Panel ────────────────────── */
+.auth-page__illustration {
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-page__illustration-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.auth-page__illustration-foreground {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 1;
+}
+
+/* ── Content Panel ─────────────────────────── */
+.auth-page__content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-xlarge);
+  margin-top: 80px; /* This is the size of the header navbar, added so that the content will not be hidden behind it */
+}
+
+.auth-page__content-inner {
+  max-width: 458px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+}
+
+/* ── Header ────────────────────────────────── */
+.auth-page__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-medium);
+}
+
+.auth-page__title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.auth-page__subtitle {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.01em;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ── Card ──────────────────────────────────── */
+.auth-page__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+  padding: var(--space-large);
+  border: 1px solid var(--color-stroke-weak);
+  border-radius: var(--border-radius-xxl);
+  background: var(--color-surface-weak);
+}
+
+/* ── Forgot Password Link ──────────────────── */
+.auth-page__forgot-link {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: 120%;
+  letter-spacing: -0.12px;
+  color: var(--color-text-primary);
+  text-decoration: underline;
+  text-decoration-skip-ink: auto;
+  text-underline-offset: auto;
+  width: fit-content;
+}
+
+.auth-page__forgot-link:hover {
+  color: var(--color-text-link-accent);
+}
+
+/* ── Divider ───────────────────────────────── */
+.auth-page__divider {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+  text-align: center;
+  margin: 0;
+}
+
+/* ── Social Card ───────────────────────────── */
+.auth-page__social-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+  padding: var(--space-large);
+  border: 1px solid var(--color-stroke-weak);
+  border-radius: var(--border-radius-xxl);
+  background: var(--color-surface-weak);
+}
+
+/* ── Responsive ────────────────────────────── */
+@media (max-width: 767px) {
+  .auth-page {
+    min-height: auto;
+  }
+
+  .auth-page__wrapper {
+    grid-template-columns: 1fr;
+    flex: none;
+  }
+
+  .auth-page__illustration {
+    height: 368px;
+  }
+
+  .auth-page__content {
+    padding: var(--space-medium);
+    align-items: flex-start;
+    margin-top: 0;
+  }
+}

@@ -17,6 +17,8 @@
         - teal
         - error
         - icon-library (uses btn-icon-library styles; ignores btn + btn-* classes)
+    - disabled (optional): if truthy, adds disabled attribute to button
+    - alpine_disabled (optional): Alpine.js expression for dynamic disabled binding (e.g. "hasErrors")
     - extra_classes (optional) : Any extra classes that the button should have, as a string
     - aria_label (optional): An optional label for assistive technology. Defaults to the button label
   Icon must be wrapped in <span class="btn-icon" aria-hidden>...</span>.
@@ -52,7 +54,9 @@
   <button type="{{ type|default:'button' }}"
           aria-label="{{ aria_label|default:label }}"
           class="{% if style == 'icon-library' %}btn-icon-library {{ extra_classes }}{% else %}btn btn-{{ style|default:"primary" }} {{ extra_classes }}{% endif %}"
-          aria-label="{{aria_label|default:label}}">
+          aria-label="{{aria_label|default:label}}"
+          {% if disabled %}disabled{% endif %}
+          {% if alpine_disabled %}:disabled="{{ alpine_disabled }}"{% endif %}>
     {% if icon_position|default:'left' == 'left' %}
       {% if icon_html %}
         {{ icon_html|safe }}

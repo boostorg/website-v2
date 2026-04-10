@@ -1,0 +1,67 @@
+{% extends "v3/accounts/auth_page.html" %}
+{% comment %}
+  Sign Up (Create Account) Page — extends the auth page layout.
+  Renders the account creation form with email, password fields,
+  mailing list checkbox, and social login options. Inherits from
+  allauth's SignupView for full registration handling.
+
+  This form triggers client-side validation on all fields, then submits natively if no errors.
+
+  Context variables:
+    page_title            (string) — passed to auth_page.html
+    foreground_image_url  (string) — passed to auth_page.html
+    background_image_url  (string) — passed to auth_page.html
+    login_url             (string) — URL for the login page
+    form                  (SignupForm) — allauth signup form with .email, .password1, .password2 fields and .errors
+    redirect_field_name   (string) — name of the redirect query parameter
+    redirect_field_value  (string) — URL to redirect to after signup
+    password_rules        (list) — rule objects for password validation checklist
+{% endcomment %}
+{% load static %}
+{% block auth_content %}
+  <div class="auth-page__header">
+    <h1 class="auth-page__title">Create an account</h1>
+    <p class="auth-page__subtitle">Advance your career, learn from experts, and help shape the future of Boost and C++.</p>
+  </div>
+  <form class="auth-page__card"
+    method="post"
+    action=""
+    novalidate
+    {# djlint:off #}
+      x-data="{ hasErrors: false }"
+      @input.debounce.150ms="hasErrors = !!$el.querySelector('.field--error')"
+      @submit.prevent="
+        $el.querySelectorAll('[data-validate]').forEach(el =>
+          el.dispatchEvent(new Event('validate'))
+        );
+        $nextTick(() => {
+          hasErrors = !!$el.querySelector('.field--error');
+          if (!hasErrors) {
+            HTMLFormElement.prototype.submit.call($el);
+          }
+        });
+      "
+    {# djlint:on #}
+    >
+    {% csrf_token %}
+    {% include "v3/includes/_field_text.html" with name="email" type="email" label="Email Address*" placeholder="Email Address" required=True validate_type="email" validate_error="That doesn't look quite right, please double-check your email and try again." error=form.email.errors.0 %}
+    {% include "v3/includes/_field_password.html" with name="password1" label="Password*" placeholder="Password" required=True password_rules=password_rules %}
+    {% include "v3/includes/_field_password.html" with name="password2" label="Re-enter Password*" placeholder="Password" required=True error=form.password2.errors.0 password_rules="" validate_match="#field-password1" validate_match_error="Passwords do not match, please try again." %}
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}<p class="field__error" role="alert">{{ error }}</p>{% endfor %}
+    {% endif %}
+    {% include "v3/includes/_field_checkbox.html" with name="mailing_list" label="Also join the Boost Developers Mailing List" %}
+    {% if redirect_field_value %}
+      <input type="hidden"
+             name="{{ redirect_field_name }}"
+             value="{{ redirect_field_value }}">
+    {% endif %}
+    {% include "v3/includes/_button.html" with label="Create Account" type="submit" style="primary" alpine_disabled="hasErrors" %}
+  </form>
+  <p class="auth-page__divider">OR</p>
+  <div class="auth-page__social-card">
+    {% include "v3/includes/_button.html" with label="Continue with GitHub" url="#" icon_name="github" style="secondary" %}
+    {% include "v3/includes/_button.html" with label="Continue with Google" url="#" icon_name="google-colored" style="secondary" %}
+    {% include "v3/includes/_button.html" with label="Already have an account? Sign in →" url=login_url style="primary" %}
+  </div>
+{% endblock %}

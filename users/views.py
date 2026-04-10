@@ -30,6 +30,7 @@ from .forms import (
     DeleteAccountForm,
 )
 from .models import User
+from .password_rules import build_password_rules
 from .permissions import CustomUserPermissions
 from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializer
 from . import tasks
@@ -294,6 +295,41 @@ class CustomEmailVerificationSentView(EmailVerificationSentView):
             app_settings.EMAIL_CONFIRMATION_EXPIRE_DAYS
         )
         return context
+
+
+class V3AuthContextMixin:
+    """Shared context for all V3 auth pages (signup, login, password reset, etc.)."""
+
+    page_title = "Account"
+    foreground_image_url = "/static/img/v3/auth-page/foreground.png"
+    background_image_url = "/static/img/v3/auth-page/background.png"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["page_title"] = self.page_title
+        context["foreground_image_url"] = self.foreground_image_url
+        context["background_image_url"] = self.background_image_url
+        context["login_url"] = reverse_lazy("v3-login")
+        context["signup_url"] = reverse_lazy("v3-signup")
+
+        # Needs to be updated to V3 password reset page when that is created
+        context["password_reset_url"] = reverse_lazy("account_reset_password")
+        return context
+
+
+class V3SignupView(V3AuthContextMixin, TemplateView):
+    template_name = "v3/accounts/signup.html"
+    page_title = "Create An Account"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["password_rules"] = build_password_rules()
+        return context
+
+
+class V3LoginView(V3AuthContextMixin, TemplateView):
+    template_name = "v3/accounts/login.html"
+    page_title = "Login"
 
 
 class UserAvatar(TemplateView):
