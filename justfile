@@ -2,6 +2,8 @@ set dotenv-load := false
 COMPOSE_FILE := "docker-compose.yml"
 ENV_FILE := ".env"
 DJANGO_VERSION := "5.2"
+VALID_BUCKETS := "boost.org.v2 stage.boost.org.v2 boost.org-cppal-dev-v2"
+
 
 @_default:
     just --list
@@ -180,3 +182,20 @@ alias shell := console
 
 @manage +args:
     docker compose run --rm web python manage.py {{ args }}
+
+# Static File Management
+@down_sync_images BUCKET='stage.boost.org.v2': ## syncs all items from specified bucket to static/static-large for local development. See scripts/upload-images.sh for required vars.
+    if ! command -v aws &>/dev/null; then \
+        echo "awscli is required. Please install it from https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"; \
+        exit 1; \
+    fi
+
+    if echo {{VALID_BUCKETS}} | grep -q -w '{{BUCKET}}'; then \
+        aws s3 sync s3://{{BUCKET}}/static/  static/static-large/ --profile 'upload-images'; \
+        echo "All missing or outdated static items synced."; \
+    else \
+        echo "Bucket name invalid."; \
+    fi
+
+@upload_images:
+    scripts/upload-images.sh;
