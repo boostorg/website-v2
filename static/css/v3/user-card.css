@@ -212,6 +212,15 @@ html.dark .user-card--green.card {
   background-color: var(--user-card-cta-bg-hover);
 }
 
+html.dark .user-card--logged-out .btn-teal {
+  background-color: var(--color-primary-grey-700);
+}
+
+html.dark .user-card--logged-out .btn-teal:hover,
+html.dark .user-card--logged-out .btn-teal[data-hover] {
+  background-color: var(--color-primary-grey-600);
+}
+
 /* ==========================================================================
    Tablet
    ========================================================================== */
