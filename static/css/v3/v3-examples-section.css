@@ -45,6 +45,20 @@
   border-radius: 8px;
 }
 
+.v3-examples-section__example-box--full-width {
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  box-sizing: border-box;
+}
+
 html.dark .v3-examples-section__example-box {
   background: var(--color-surface-mid);
 }
