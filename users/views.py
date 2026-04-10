@@ -331,11 +331,6 @@ class V3LoginView(V3AuthContextMixin, TemplateView):
     template_name = "v3/accounts/login.html"
     page_title = "Login"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["login_error"] = self.request.GET.get("error") == "1"
-        return context
-
 
 class UserAvatar(TemplateView):
     """

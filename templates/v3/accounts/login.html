@@ -5,10 +5,15 @@
   and social login options.
 
   Context variables:
-    page_title          (string) — passed to auth_page.html
-    illustration_url    (string) — passed to auth_page.html
-    signup_url          (string) — URL for the sign-up page, used in the "Don't have an account?" link
-    password_reset_url  (string) — URL for the password reset page, used in the "Forgot password" link
+    page_title                            (string) — passed to auth_page.html
+    foreground_image_url                  (string) — passed to auth_page.html
+    background_image_url                  (string) — passed to auth_page.html
+    signup_url                            (string) — URL for the sign-up page
+    password_reset_url                    (string) — URL for the password reset page
+    form                                  (LoginForm) — allauth login form with .login, .password fields and .errors
+    redirect_field_name                   (string) — name of the redirect query parameter
+    redirect_field_value                  (string) — URL to redirect to after login
+    contributor_account_redirect_message  (string, optional) — message for pre-created author/maintainer accounts
 {% endcomment %}
 {% load static %}
 
@@ -22,13 +27,23 @@
 
   <form class="auth-page__card" method="post" action="" novalidate>
     {% csrf_token %}
-    {% include "v3/includes/_field_text.html" with name="login" type="email" label="Email Address*" placeholder="Email Address" required=True validate_type="email" validate_error="That doesn't look quite right, please double-check your email and try again." %}
-    {% include "v3/includes/_field_password.html" with name="password" label="Password*" placeholder="Password" required=True %}
-    {% if login_error %}
-      <p class="field__error" role="alert">The email and/or password you entered does not match our records</p>
+    {% include "v3/includes/_field_text.html" with name="login" type="email" label="Email Address*" placeholder="Email Address" required=True validate_type="email" validate_error="That doesn't look quite right, please double-check your email and try again." error=form.login.errors.0 %}
+    {% include "v3/includes/_field_password.html" with name="password" label="Password*" placeholder="Password" required=True error=form.password.errors.0 %}
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+        <p class="field__error" role="alert">{{ error }}</p>
+      {% endfor %}
+    {% endif %}
+    {% if contributor_account_redirect_message %}
+      <div class="auth-page__alert" role="alert">
+        <p>{{ contributor_account_redirect_message }}</p>
+      </div>
     {% endif %}
     {% include "v3/includes/_field_checkbox.html" with name="remember" label="Remember me" %}
     <a class="auth-page__forgot-link" href="{{ password_reset_url }}">Forgot password</a>
+    {% if redirect_field_value %}
+      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+    {% endif %}
     {% include "v3/includes/_button.html" with label="Sign in" type="submit" style="primary" %}
   </form>
 
@@ -36,7 +51,7 @@
 
   <div class="auth-page__social-card">
     {% include "v3/includes/_button.html" with label="Continue with GitHub" url="#" icon_name="github" style="secondary" %}
-    {% include "v3/includes/_button.html" with label="Continue with Google" url="#" icon_name="google" style="secondary" %}
+    {% include "v3/includes/_button.html" with label="Continue with Google" url="#" icon_name="google-colored" style="secondary" %}
     {% include "v3/includes/_button.html" with label="Don't have an account? Sign up →" url=signup_url style="primary" %}
   </div>
-{% endblock %}
+{% endblock auth_content %}
