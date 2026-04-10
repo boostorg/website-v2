@@ -27,6 +27,7 @@
 @import "./learn-cards.css";
 @import "./terms-of-use.css";
 @import "./thread-archive-card.css";
+@import "./v3-homepage.css";
 @import "./tab.css";
 @import "./install-card.css";
 @import "./banner.css";
@@ -45,3 +46,4 @@
 @import "./card-group.css";
 @import "./post-card.css";
 @import "./event-card.css";
+@import "./join-card.css";

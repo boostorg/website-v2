@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+{% load waffle_tags %}
+
+{% block title %}Boost C++ Homepage{% endblock %}
+{% block extra_head %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/v3-homepage.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+  <div class="homepage-container">
+    {% include "v3/includes/_hero_home.html" with install_card_id="hero-home-3" hero_image_url="" hero_image_url_light="" hero_image_url_dark="" %}
+    <div class="card-masonry-top">
+      <div class="item-a">
+        {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="#" popular_terms=popular_terms %}
+      </div>
+      <div class="item-b">
+        {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=demo_events_with_links variant="list" primary_cta_label="Download latest release" primary_cta_url="#" secondary_cta_label="View events calendar" secondary_cta_url="#" %}
+      </div>
+      <div class="item-c">
+        {% with data=posts_from_the_boost_community %}
+          {% include "v3/includes/_post_card.html" with heading=data.heading items=data.items variant=data.variant theme=data.theme primary_cta_label=data.primary_cta_label primary_cta_url=data.primary_cta_url %}
+        {% endwith %}
+      </div>
+      <div class="item-d">
+        {% include "v3/includes/_code_block_card.html" with heading="Get started with our libraries" code=code_demo_hello block_variant="grey-bg" button_text="Explore examples" language="cpp" button_aria_label="Explore examples" %}
+      </div>
+      <div class="item-e homepage-join-card">
+        {% with data=join_developers_building_the_future_of_cpp %}
+          {% include "v3/includes/_join_card.html" with heading="Join developers building the future of C++" items=data.items variant="card" theme="yellow" primary_cta_label="Explore the community" primary_cta_url="#" %}
+        {% endwith %}
+      </div>
+      <div class="item-f">
+        {% include "v3/includes/_install_card.html" with title=install_card_title|default:"Install Boost and get started in your terminal." card_id=install_card_id|default:"hero-home-install" %}
+      </div>
+    </div>
+    <div class="py-large four-column">
+      {% include 'v3/includes/_why_boost_cards.html' with why_boost_cards=why_boost_cards %}
+    </div>
+    <div class="card-masonry-bottom py-large">
+      <div class="item-a">
+        {% with data=stats_in_numbers %}
+          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=data.example_library_commits_bars theme="default" primary_cta_label="View library" primary_cta_url="#" %}
+        {% endwith %}
+      </div>
+      <div class="item-b">
+        {% with data=library_intro %}
+          {% include "v3/includes/_library_intro_card.html" with library_name=data.library_name description=data.description authors=data.authors cta_url=data.cta_url %}
+        {% endwith %}
+      </div>
+      <div class="item-c">
+        {% with data=testimonial_data %}
+          {% include "v3/includes/_testimonial_card.html" with heading="What engineers" testimonials=data.testimonials %}
+        {% endwith %}
+      </div>
+      <div class="item-d license-card">
+        {% with data=build_anything_with_boost %}
+          {% include "v3/includes/_horizontal_card.html" with title=data.title text=data.text image_url=data.image_url button_url=data.button_url button_label=data.button_label image_alt=data.image_alt %}
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

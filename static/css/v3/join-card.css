@@ -1,0 +1,69 @@
+/*
+  Join Card
+  Individual join-card item styles.
+  For card group containers, see card-group.css.
+*/
+
+.join-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-large);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 125px;
+  gap: var(--space-large);
+}
+
+.join-card__content {
+  display: flex;
+  flex-direction: row;
+}
+
+.join-card__start-here {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  font-style: normal;
+  line-height: 100%;
+  letter-spacing: -0.12px;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: none;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
+}
+
+.join-card__title-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+  flex: 1;
+  padding-right: var(--space-large);
+}
+
+.join-card__description {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.14px;
+  color: var(--color-text-secondary);
+  min-height: 34px;
+  padding: 0;
+}
+
+.join-card__title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.16px;
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.join-card__title:hover {
+  text-decoration: none;
+}

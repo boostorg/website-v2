@@ -55,13 +55,14 @@
  .hero-home__block {
    width: 100%;
    max-width: 1440px;
-   height: 480px;
+   min-height: 480px;
    position: relative;
    display: flex;
    align-items: center;
    flex-direction: row;
   padding: calc(var(--space-medium) + var(--space-default));
    align-items: end;
+   padding-top: 60px;
  }
 
 .hero-home--no-image .hero-home__block {
@@ -133,6 +134,10 @@
 
 /* Hide card on tablet and mobile; only show on desktop */
  @media (max-width: 1024px) {
+   .hero-home__content {
+     width: 100%;
+   }
+
    .hero-home__card {
      display: none;
    }
@@ -258,7 +263,7 @@
     }
 
  /* ----- Hero home: mobile ----- */
- @media (max-width: 700px) {
+ @media (max-width: 767px) {
    .hero-home__block {
      height: auto;
      min-height: 600px;
@@ -362,7 +367,7 @@
  .hero-library__block {
    width: 100%;
    max-width: 1440px;
-   height: 480px;
+   min-height: 480px;
    display: flex;
    align-items: center;
    justify-content: space-between;
@@ -507,7 +512,7 @@
  }
 
  /* ----- Hero library: mobile ----- */
- @media (max-width: 700px) {
+ @media (max-width: 767px) {
 
    .hero-library__block {
      height: 600px;

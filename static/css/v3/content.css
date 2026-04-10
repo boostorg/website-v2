@@ -1,9 +1,15 @@
+.content-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
 .content-detail-icon {
   font-family: var(--font-sans);
   color: var(--color-text-primary);
   margin: 0;
   padding: var(--space-card);
-  border-radius: var(--border-radius-xxl);
+  border-radius: var(--border-radius-l);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   display: flex;
@@ -13,6 +19,7 @@
   box-sizing: border-box;
   align-self: start;
   transition: background-color 0.2s ease, border-color 0.2s ease;
+  height: 100%;
 }
 
 a:hover .content-detail-icon:not(.content-detail-icon--contained) {
