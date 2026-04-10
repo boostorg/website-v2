@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% comment %}
-  Auth Page Layout — two-column layout for sign-up and sign-in pages.
+  Auth Page Layout — two-column layout for auth-related pages (sign up, log in, reset password, etc).
   Left panel: full-height illustration image.
   Right panel: centered form content via {% block auth_content %}.
+
+  Consumers page (e.g. sign-up and log-in pages) should extend this template and fill in the `auth_content` block with the appropriate form.
+  See accounts/signup.html for an example.
 
   Context variables:
     page_title              (string, optional) — browser tab title

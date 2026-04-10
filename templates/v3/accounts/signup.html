@@ -24,10 +24,25 @@
     <p class="auth-page__subtitle">Advance your career, learn from experts, and help shape the future of Boost and C++.</p>
   </div>
   <form class="auth-page__card"
-        method="post"
-        action=""
-        novalidate
-        @submit.prevent=" $el.querySelectorAll('[data-validate]').forEach(el => el.dispatchEvent(new Event('validate'))); $nextTick(() => { if (!$el.querySelector('.field--error')) HTMLFormElement.prototype.submit.call($el); }) ">
+    method="post"
+    action=""
+    novalidate
+    {# djlint:off #}
+      x-data="{ hasErrors: false }"
+      @input.debounce.150ms="hasErrors = !!$el.querySelector('.field--error')"
+      @submit.prevent="
+        $el.querySelectorAll('[data-validate]').forEach(el =>
+          el.dispatchEvent(new Event('validate'))
+        );
+        $nextTick(() => {
+          hasErrors = !!$el.querySelector('.field--error');
+          if (!hasErrors) {
+            HTMLFormElement.prototype.submit.call($el);
+          }
+        });
+      "
+    {# djlint:on #}
+    >
     {% csrf_token %}
     {% include "v3/includes/_field_text.html" with name="email" type="email" label="Email Address*" placeholder="Email Address" required=True validate_type="email" validate_error="That doesn't look quite right, please double-check your email and try again." error=form.email.errors.0 %}
     {% include "v3/includes/_field_password.html" with name="password1" label="Password*" placeholder="Password" required=True password_rules=password_rules %}
@@ -41,7 +56,7 @@
              name="{{ redirect_field_name }}"
              value="{{ redirect_field_value }}">
     {% endif %}
-    {% include "v3/includes/_button.html" with label="Create Account" type="submit" style="primary" %}
+    {% include "v3/includes/_button.html" with label="Create Account" type="submit" style="primary" alpine_disabled="hasErrors" %}
   </form>
   <p class="auth-page__divider">OR</p>
   <div class="auth-page__social-card">
