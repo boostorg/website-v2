@@ -1,5 +1,5 @@
-{% if user.image %}
-  <img src="{{ user.image.url }}" alt="user" class="inline -mt-1 rounded-sm cursor-pointer w-[30px]" @click="userOpen = !userOpen" />
+{% if user.profile_image %}
+  <img src="{{ user.profile_image.url }}" alt="user" class="inline -mt-1 rounded-sm cursor-pointer w-[30px]" @click="userOpen = !userOpen" />
 {% else %}
   <i class="inline mr-2 cursor-pointer fas fa-user text-charcoal dark:text-white/60" @click="userOpen = !userOpen"></i>
 {% endif %}
