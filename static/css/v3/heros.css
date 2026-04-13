@@ -133,7 +133,7 @@
  }
 
 /* Hide card on tablet and mobile; only show on desktop */
- @media (max-width: 1024px) {
+ @media (max-width: 1279px) {
    .hero-home__content {
      width: 100%;
    }

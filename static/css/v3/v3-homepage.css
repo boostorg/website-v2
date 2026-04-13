@@ -91,7 +91,7 @@ body:has(.homepage-v3) .header {
   aspect-ratio: 1 / 1;
 }
 
-@media (min-width: 768px) and (max-width: 1024px) {
+@media (min-width: 768px) and (max-width: 1279px) {
     .homepage-container {
       max-width: 1024px;
     }
