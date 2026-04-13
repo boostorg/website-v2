@@ -184,18 +184,8 @@ alias shell := console
     docker compose run --rm web python manage.py {{ args }}
 
 # Static File Management
-@down_sync_images BUCKET='stage.boost.org.v2': ## syncs all items from specified bucket to static/static-large for local development. See scripts/upload-images.sh for required vars.
-    if ! command -v aws &>/dev/null; then \
-        echo "awscli is required. Please install it from https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"; \
-        exit 1; \
-    fi
-
-    if echo {{VALID_BUCKETS}} | grep -q -w '{{BUCKET}}'; then \
-        aws s3 sync s3://{{BUCKET}}/static/  static/static-large/ --profile 'upload-images' --delete; \
-        echo "All missing or outdated static items synced."; \
-    else \
-        echo "Bucket name invalid."; \
-    fi
+@down_sync_images:
+    scripts/upload-images.sh --down-sync;
 
 @upload_images:
-    scripts/upload-images.sh;
+    scripts/upload-images.sh --up-sync;
