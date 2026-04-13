@@ -300,15 +300,15 @@ class CustomEmailVerificationSentView(EmailVerificationSentView):
 class V3AuthContextMixin:
     """Shared context for all V3 auth pages (signup, login, password reset, etc.)."""
 
-    page_title = "Account"
-    foreground_image_url = "/static/img/v3/auth-page/foreground.png"
-    background_image_url = "/static/img/v3/auth-page/background.png"
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["page_title"] = self.page_title
-        context["foreground_image_url"] = self.foreground_image_url
-        context["background_image_url"] = self.background_image_url
+        context["page_title"] = "Account"
+        context["foreground_image_url"] = (
+            f"{settings.STATIC_URL}img/v3/auth-page/auth-page-foreground.png"
+        )
+        context["background_image_url"] = (
+            f"{settings.STATIC_URL}img/v3/auth-page/auth-page-background.png"
+        )
         context["login_url"] = reverse_lazy("v3-login")
         context["signup_url"] = reverse_lazy("v3-signup")
 
