@@ -191,7 +191,7 @@ alias shell := console
     fi
 
     if echo {{VALID_BUCKETS}} | grep -q -w '{{BUCKET}}'; then \
-        aws s3 sync s3://{{BUCKET}}/static/  static/static-large/ --profile 'upload-images'; \
+        aws s3 sync s3://{{BUCKET}}/static/  static/static-large/ --profile 'upload-images' --delete; \
         echo "All missing or outdated static items synced."; \
     else \
         echo "Bucket name invalid."; \
