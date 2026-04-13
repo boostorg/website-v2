@@ -118,6 +118,10 @@ body:has(.homepage-v3) .header {
       display: none;
     }
 
+    .card-masonry-top .item-b .card-group__item:nth-child(3) {
+      border-bottom: 1px solid var(--color-stroke-weak);
+    }
+
     .card-masonry-top .item-c .card-group__item:nth-child(n+3) {
       display: none;
     }
