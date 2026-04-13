@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from textwrap import dedent
 from urllib.parse import urljoin
+from waffle import flag_is_active
 
 import structlog
 from bs4 import BeautifulSoup
@@ -560,6 +561,179 @@ class PrivacyPolicyView(V3Mixin, MarkdownTemplateView):
 
     def get_v3_context_data(self, **kwargs):
         return {"last_updated": "2024-02-17"}
+
+
+class LearnPageView(V3Mixin, TemplateView):
+    v3_template_name = "v3/learn_page.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not flag_is_active(request, "v3"):
+            return HttpResponseNotFound()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_v3_context_data(self, **kwargs):
+        ctx = self.get_context_data(**kwargs)
+        ctx["learn_card_data"] = [
+            {
+                "title": "I want to learn:",
+                "text": "How to install Boost, use its libraries, build projects, and get help when you need it.",
+                "links": [
+                    {
+                        "label": "Explore common use cases",
+                        "url": "https://www.example.com",
+                    },
+                    {"label": "Build with CMake", "url": "https://www.example.com"},
+                    {"label": "Visit the FAQ", "url": "https://www.example.com"},
+                ],
+                "url": "https://www.example.com",
+                "label": "Learn more about Boost",
+                "image_src": f"{ settings.STATIC_URL }/img/v3/examples/Learn_Card_Image.png",
+                "mobile_image_src": f"{ settings.STATIC_URL }/img/v3/examples/Cheetah_Mobile.png",
+            },
+            {
+                "title": "I want to learn:",
+                "text": "How to install Boost, use its libraries, build projects, and get help when you need it.",
+                "links": [
+                    {
+                        "label": "Explore common use cases",
+                        "url": "https://www.example.com",
+                    },
+                    {"label": "Build with CMake", "url": "https://www.example.com"},
+                    {"label": "Visit the FAQ", "url": "https://www.example.com"},
+                ],
+                "url": "https://www.example.com",
+                "label": "Learn more about Boost",
+                "image_src": f"{ settings.STATIC_URL}img/v3/examples/Learn_Octopus.png",
+                "mobile_image_src": f"{ settings.STATIC_URL }/img/v3/examples/Octopus_Mobile.png",
+            },
+        ]
+
+        demo_cards = [
+            {
+                "title": "Get help",
+                "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
+                "cta_label": "Start here",
+                "cta_href": reverse("community"),
+            },
+            {
+                "title": "Documentation",
+                "description": "Browse library docs, examples, and release notes in one place.",
+                "cta_label": "View docs",
+                "cta_href": reverse("docs"),
+            },
+            {
+                "title": "Community",
+                "description": "Mailing lists, GitHub, and community guidelines for contributors.",
+                "cta_label": "Join",
+                "cta_href": reverse("community"),
+            },
+            {
+                "title": "Releases",
+                "description": "Latest releases, download links, and release notes.",
+                "cta_label": "Download",
+                "cta_href": reverse("releases-most-recent"),
+            },
+            {
+                "title": "Libraries",
+                "description": "Explore the full catalog of Boost C++ libraries with docs and metadata.",
+                "cta_label": "Browse libraries",
+                "cta_href": reverse("libraries"),
+            },
+            {
+                "title": "News",
+                "description": "Blog posts, announcements, and community news from the Boost project.",
+                "cta_label": "Read news",
+                "cta_href": reverse("news"),
+            },
+            {
+                "title": "Getting started",
+                "description": "Step-by-step guides to build and use Boost in your projects.",
+                "cta_label": "Get started",
+                "cta_href": reverse("getting-started"),
+            },
+            {
+                "title": "Resources",
+                "description": "Learning resources, books, and other materials for Boost users.",
+                "cta_label": "View resources",
+                "cta_href": reverse("resources"),
+            },
+            {
+                "title": "Calendar",
+                "description": "Community events, meetings, and review schedule.",
+                "cta_label": "View calendar",
+                "cta_href": reverse("calendar"),
+            },
+            {
+                "title": "Donate",
+                "description": "Support the Boost Software Foundation and open-source C++.",
+                "cta_label": "Donate",
+                "cta_href": reverse("donate"),
+            },
+        ]
+
+        ctx["library_cards"] = demo_cards
+        ctx["why_boost_cards"] = demo_cards[:6]
+        ctx["calendar_card"] = {
+            "title": "Boost is released three times a year",
+            "text": "Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process.",
+            "primary_button_url": "www.example.com",
+            "primary_button_label": "View the Release Calendar",
+            "secondary_button_url": "www.example.com",
+            "secondary_button_label": "Secondary Button",
+            "image": f"{ settings.STATIC_URL }/img/v3/demo_page/Calendar.png",
+        }
+        ctx["info_card"] = {
+            "title": "How we got here",
+            "text": "Since 1998, Boost has been where C++ innovation happens. What started with three developers has grown into the foundation of modern C++ development.",
+            "primary_button_url": "www.example.com",
+            "primary_button_label": "Explore Our History",
+        }
+        ctx["post_cards_data"] = {
+            "heading": "Posts from the Boost Community",
+            "view_all_url": "#",
+            "view_all_label": "View All Posts",
+            "variant": "Content Card",
+            "posts": 4
+            * [
+                {
+                    "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+                    "url": "#",
+                    "description": "Lorem Ispum Sum Delores",
+                    "date": "03/03/2025",
+                    "category": "Issues",
+                    "tag": "beast",
+                    "author": {
+                        "name": "Richard Thomson",
+                        "role": "Contributor",
+                        "show_badge": True,
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                    },
+                }
+            ],
+        }
+        ctx["boost_community_data"] = {
+            "heading": "The Boost community",
+            "view_all_url": "#",
+            "view_all_label": "Explore the community",
+            "posts": 3
+            * [
+                {
+                    "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+                    "description": "Lorem Ispum Sum Delores",
+                    "url": "#",
+                    "date": "03/03/2025",
+                    "category": "Issues",
+                    "tag": "beast",
+                    "author": {
+                        "name": "Richard Thomson",
+                        "role": "Contributor",
+                        "show_badge": True,
+                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                    },
+                }
+            ],
+        }
+        return ctx
 
 
 class ContentNotFoundException(Exception):

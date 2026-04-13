@@ -5,9 +5,10 @@
 
 .why-boost-cards__heading {
   margin: 0 0 var(--space-large);
-  font-size: var(--font-size-medium);
+  font-size: var(--font-size-large);
   font-weight: var(--font-weight-medium);
   font-family: var(--font-display);
+  line-height: var(--line-height-tight);
 }
 
 .why-boost-cards__grid {
