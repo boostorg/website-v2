@@ -188,4 +188,7 @@ alias shell := console
     scripts/sync-large-static-images.sh --down-sync;
 
 @up_sync_images:
+    scripts/sync-large-static-images.sh --up-sync;
+
+@up_sync_images_all_buckets:
     scripts/sync-large-static-images.sh --up-sync --all-buckets;
