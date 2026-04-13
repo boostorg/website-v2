@@ -167,25 +167,6 @@ upload_images() {
     exit 1
   fi
 
-  # ─────────────────────────────────────────────
-  # 7. OFFER TO DELETE LOCAL TMP FILES
-  # ─────────────────────────────────────────────
-  echo "The files uploaded successfully."
-  echo ""
-  printf "We recommend deleting the local files in %s to clear them out for next time.  Delete local tmp files? [Y/n]: " "$SOURCE_DIR"
-  read -r del_choice
-
-  case "${del_choice:-Y}" in
-    [nN])
-      echo "Skipping deletion. Local files remain in $SOURCE_DIR."
-      ;;
-    *)
-      echo "Deleting files in $SOURCE_DIR..."
-      find "$SOURCE_DIR" -maxdepth 1 -mindepth 1 -type f -delete
-      echo "Local files deleted."
-      ;;
-  esac
-
   echo ""
   echo "Done."
 }
