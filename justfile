@@ -185,7 +185,7 @@ alias shell := console
 
 # Static File Management
 @down_sync_images:
-    scripts/upload-images.sh --down-sync;
+    scripts/sync-large-static-images.sh --down-sync;
 
-@upload_images:
-    scripts/upload-images.sh --up-sync;
+@up_sync_images:
+    scripts/sync-large-static-images.sh --up-sync --all-buckets;

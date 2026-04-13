@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# upload-images.sh — Upload local images to S3 buckets
+# sync-large-static-images.sh — Upload local images to S3 buckets
 
 set -euo pipefail
 
-S3_BUCKETS="boost.org.v2 stage.boost.org.v2 boost.org-cppal-dev-v2"
+DEFAULT_BUCKET="stage.boost.org.v2"
+S3_BUCKETS="boost.org.v2 boost.org-cppal-dev-v2 ${DEFAULT_BUCKET}"
+AWS_PROFILE='upload-images'
+DEFAULT_DEST="/static/img/v3"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_DIR="$(dirname "$SCRIPT_DIR")/static/static-large/"
 
-DEFAULT_DEST="/static/img/v3"
 # ─────────────────────────────────────────────
 # 0. PARSE COMMAND-LINE OPTIONS
 # ─────────────────────────────────────────────
@@ -19,16 +21,16 @@ Usage: $0 [OPTION]
 Upload or download image files and other static assets to/from the website S3 buckets.
 
 Options:
-  --up-sync      Upload files from /tmp/upload-images to S3 buckets.
-  --down-sync    Download files from S3 stage bucket to local static directory.
-  --help         Display this help and exit.
+  --up-sync        Upload files from the default source dir (${SOURCE_DIR}) to S3 buckets.
+  --down-sync      Download files from S3 stage bucket to local static directory (${SOURCE_DIR}).
+  --all-buckets    When used with --up-sync, upload to all buckets instead of the default bucket.
+  --help           Display this help and exit.
 
 Configuration:
-  The source folder for upload is /tmp/upload-images.
   The default destination for upload is /static/img/v3.
   In your .aws/credentials file, add a set of credentials:
 
-  [upload-images]
+  [${AWS_PROFILE}]
   aws_access_key_id = <your_key_id>
   aws_secret_access_key = <your_secret_key>
 EOF
@@ -42,21 +44,14 @@ validate_dependencies() {
 }
 
 upload_images() {
+  local all_buckets="${1:-false}"
   # ─────────────────────────────────────────────
   # 1. CHECK FOR AWS CLI
   # ─────────────────────────────────────────────
   validate_dependencies
 
   # ─────────────────────────────────────────────
-  # 2. ENSURE SOURCE FOLDER EXISTS
-  # ─────────────────────────────────────────────
-  if [[ ! -d "$SOURCE_DIR" ]]; then
-    echo "Source folder $SOURCE_DIR does not exist. Creating it..."
-    mkdir -p "$SOURCE_DIR"
-  fi
-
-  # ─────────────────────────────────────────────
-  # 3. WAIT FOR FILES IN SOURCE FOLDER
+  # 3. CHECK SOURCE FOLDER
   # ─────────────────────────────────────────────
   check_source_files() {
     # Returns 0 if files exist, 1 if empty
@@ -67,24 +62,10 @@ upload_images() {
     fi
   }
 
-  while ! check_source_files; do
-    echo ""
-    echo "The source folder $SOURCE_DIR is empty.  Please place files there."
-    printf "Press y to continue, n to cancel: "
-    read -r choice
-    case "$choice" in
-      [yY])
-        # Re-check happens at the top of the while loop
-        ;;
-      [nN])
-        echo "Cancelled."
-        exit 0
-        ;;
-      *)
-        echo "Please enter y or n."
-        ;;
-    esac
-  done
+  if ! check_source_files; then
+    echo "Error: The source folder $SOURCE_DIR is empty. Please place files there before uploading."
+    exit 1
+  fi
 
   echo ""
   echo "Source files found in $SOURCE_DIR:"
@@ -126,11 +107,16 @@ upload_images() {
   echo "Destination path: $DEST_PATH"
 
   # ─────────────────────────────────────────────
-  # 5. UPLOAD TO EACH BUCKET
+  # 5. UPLOAD TO BUCKETS
   # ─────────────────────────────────────────────
   UPLOAD_FAILED=0
 
-  for bucket in $S3_BUCKETS; do
+  BUCKETS_TO_UPLOAD="$DEFAULT_BUCKET"
+  if [[ "$all_buckets" == "true" ]]; then
+    BUCKETS_TO_UPLOAD="$S3_BUCKETS"
+  fi
+
+  for bucket in $BUCKETS_TO_UPLOAD; do
     S3_DEST="s3://${bucket}${DEST_PATH}"
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -139,7 +125,7 @@ upload_images() {
 
     # Capture exit code; show stdout+stderr live via tee to /dev/null trick
     set +e
-    aws s3 sync --profile upload-images "$SOURCE_DIR" "$S3_DEST" 2>&1
+    aws s3 sync --profile "${AWS_PROFILE}" "$SOURCE_DIR" "$S3_DEST" 2>&1
     EXIT_CODE=$?
     set -e
 
@@ -172,29 +158,31 @@ upload_images() {
 }
 
 download_images() {
-  BUCKET='stage.boost.org.v2'
-
   validate_dependencies
 
-  if echo "${S3_BUCKETS}" | grep -q -w "${BUCKET}"; then
-      aws s3 sync "s3://${BUCKET}/static/"  "${SOURCE_DIR}" --profile 'upload-images';
+  if echo "${S3_BUCKETS}" | grep -q -w "${DEFAULT_BUCKET}"; then
+      aws s3 sync "s3://${DEFAULT_BUCKET}/static/"  "${SOURCE_DIR}" --profile "${AWS_PROFILE}";
       echo "All missing or outdated static items synced.";
   else
-      echo "Bucket name invalid.";
+      echo "Bucket name invalid: ${DEFAULT_BUCKET}";
       exit 1;
   fi
 }
 
 
 
+ALL_BUCKETS=false
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --help)
       usage
       exit 0
       ;;
+    --all-buckets)
+      ALL_BUCKETS=true
+      ;;
     --up-sync)
-      upload_images
+      upload_images "$ALL_BUCKETS"
       exit $?
       ;;
     --down-sync)
