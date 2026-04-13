@@ -1,0 +1,3 @@
+FROM mcr.microsoft.com/playwright/python:v1.58.0-noble
+
+RUN pip install --quiet --root-user-action=ignore pytest-playwright
