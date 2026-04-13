@@ -177,6 +177,11 @@ body:has(.homepage-v3) .header {
 
 .card-masonry-bottom .item-a {
     grid-area: a;
+    display: flex;
+}
+
+.card-masonry-bottom .item-a .stats {
+    flex: 1;
 }
 
 .card-masonry-bottom .item-b {

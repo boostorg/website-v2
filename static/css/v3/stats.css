@@ -71,7 +71,6 @@
   --stats-bar-gap: 2px;
   width: 100%;
   min-height: 360px;
-  height: 360px;
   container-type: inline-size;
   box-sizing: border-box;
   overflow: hidden;
