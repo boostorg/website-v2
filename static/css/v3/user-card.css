@@ -119,7 +119,7 @@
 }
 
 html.dark .user-card--green.card {
-  --user-card-cta-bg: var(--color-primary-grey-700);
+  --user-card-cta-bg: var(--color-primary-grey-800);
   --user-card-cta-bg-hover: var(--color-primary-grey-600);
 }
 
@@ -157,10 +157,17 @@ html.dark .user-card--green.card {
    ========================================================================== */
 
 .user-card--logged-out.card {
+  --user-card-cta-bg: var(--color-surface-strong-accent-teal-default);
+  --user-card-cta-bg-hover: var(--color-surface-strong-accent-teal-hover);
   max-width: 340px;
   padding: 0;
   gap: var(--space-card);
   background-color: var(--color-surface-weak-accent-teal);
+}
+
+html.dark .user-card--logged-out.card {
+  --user-card-cta-bg: var(--color-primary-grey-800);
+  --user-card-cta-bg-hover: var(--color-primary-grey-600);
 }
 
 .user-card--logged-out .user-card__heading,
@@ -203,22 +210,16 @@ html.dark .user-card--green.card {
    Dark mode — scoped overrides
    ========================================================================== */
 
-.user-card--green .btn-green {
+.user-card--green .btn-green,
+.user-card--logged-out .btn-teal {
   background-color: var(--user-card-cta-bg);
 }
 
 .user-card--green .btn-green:hover,
-.user-card--green .btn-green[data-hover] {
+.user-card--green .btn-green[data-hover],
+.user-card--logged-out .btn-teal:hover,
+.user-card--logged-out .btn-teal[data-hover] {
   background-color: var(--user-card-cta-bg-hover);
-}
-
-html.dark .user-card--logged-out .btn-teal {
-  background-color: var(--color-primary-grey-700);
-}
-
-html.dark .user-card--logged-out .btn-teal:hover,
-html.dark .user-card--logged-out .btn-teal[data-hover] {
-  background-color: var(--color-primary-grey-600);
 }
 
 /* ==========================================================================
