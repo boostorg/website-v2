@@ -1,0 +1,36 @@
+"""V3 migration status enum.
+
+This is scaffolding for the V3 redesign migration. Each V3 view declares
+its `v3_status` as a class attribute (see core/views.py, news/views.py).
+
+`core/tests/test_v3_registry.py` iterates those views and checks that
+declared templates exist and that `V3Mixin` usage matches the status.
+
+When the migration finishes, delete this module, the `v3_status`
+attributes on views, and the registry test. See `config/v3_urls.py` for
+the full teardown procedure.
+"""
+
+from __future__ import annotations
+
+from enum import Enum
+
+
+class V3Status(Enum):
+    """Migration status for a URL route.
+
+    LEGACY_ONLY   — default; no V3 work started.
+
+    V3_OPTIONAL   — legacy template by default, V3 template via waffle flag
+                    (i.e. the view uses `V3Mixin`).
+
+    V3_PARALLEL   — a distinct V3 view lives at a `/v3/` URL alongside the
+                    legacy view at its legacy URL.
+
+    V3_ONLY       — V3 is the only implementation; no legacy counterpart.
+    """
+
+    LEGACY_ONLY = "legacy_only"
+    V3_OPTIONAL = "v3_optional"
+    V3_PARALLEL = "v3_parallel"
+    V3_ONLY = "v3_only"
