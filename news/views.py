@@ -27,6 +27,8 @@ from django.views.generic import (
 from django.views.generic.detail import SingleObjectMixin
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
 
+from core.v3_registry import V3Status
+
 from .acl import can_approve
 from .constants import NEWS_APPROVAL_SALT, MAGIC_LINK_EXPIRATION
 from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
@@ -344,6 +346,7 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
 class V3AllTypesCreateView(AllTypesCreateView):
     template_name = "news/v3/create.html"
     http_method_names = ["get", "post"]
+    v3_status = V3Status.V3_PARALLEL
 
     _POST_TYPE_MAP = {
         "blog": (BlogPost, BlogPostForm),

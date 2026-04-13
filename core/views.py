@@ -44,6 +44,7 @@ from libraries.utils import (
 from versions.models import Version, docs_path_to_boost_name
 
 from .mixins import V3Mixin
+from .v3_registry import V3Status
 from .asciidoc import convert_adoc_to_html
 from .boostrenderer import (
     convert_img_paths,
@@ -108,6 +109,7 @@ def BSLView(request):
 class CalendarView(V3Mixin, TemplateView):
     template_name = "calendar.html"
     v3_template_name = "v3/calendar.html"
+    v3_status = V3Status.V3_OPTIONAL
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -263,6 +265,7 @@ class TermsOfUseView(V3Mixin, MarkdownTemplateView):
     """Renders the v3 Terms of Use page when the v3 flag is active, else markdown template."""
 
     v3_template_name = "v3/terms_of_use.html"
+    v3_status = V3Status.V3_OPTIONAL
 
     def get_v3_context_data(self, **kwargs):
         return {"last_updated": "2024-02-22"}
@@ -272,6 +275,7 @@ class PrivacyPolicyView(V3Mixin, MarkdownTemplateView):
     """Renders the v3 Privacy Policy page when the v3 flag is active, else markdown template."""
 
     v3_template_name = "v3/privacy_policy.html"
+    v3_status = V3Status.V3_OPTIONAL
 
     def get_v3_context_data(self, **kwargs):
         return {"last_updated": "2024-02-17"}
@@ -279,6 +283,7 @@ class PrivacyPolicyView(V3Mixin, MarkdownTemplateView):
 
 class LearnPageView(V3Mixin, TemplateView):
     v3_template_name = "v3/learn_page.html"
+    v3_status = V3Status.V3_OPTIONAL
 
     def dispatch(self, request, *args, **kwargs):
         if not flag_is_active(request, "v3"):
@@ -1251,6 +1256,7 @@ class V3ComponentDemoView(TemplateView):
     """Demo page for V3 design system components."""
 
     template_name = "base.html"
+    v3_status = V3Status.V3_ONLY
 
     def get_context_data(self, **kwargs):
         from django.urls import reverse
