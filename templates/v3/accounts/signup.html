@@ -8,14 +8,15 @@
   This form triggers client-side validation on all fields, then submits natively if no errors.
 
   Context variables:
-    page_title            (string) — passed to auth_page.html
-    foreground_image_url  (string) — passed to auth_page.html
-    background_image_url  (string) — passed to auth_page.html
-    login_url             (string) — URL for the login page
-    form                  (SignupForm) — allauth signup form with .email, .password1, .password2 fields and .errors
-    redirect_field_name   (string) — name of the redirect query parameter
-    redirect_field_value  (string) — URL to redirect to after signup
-    password_rules        (list) — rule objects for password validation checklist
+    page_title            (string, optional, default "Account") — passed to auth_page.html
+    foreground_image_url  (string, optional, default "") — passed to auth_page.html
+    background_image_url  (string, optional, default "") — passed to auth_page.html
+
+    login_url             (string, required) — URL for the login page
+    form                  (SignupForm, required) — allauth signup form with .email, .password1, .password2 fields and .errors
+    redirect_field_name   (string, optional, default unset) — name of the redirect query parameter; hidden input omitted when redirect_field_value is unset
+    redirect_field_value  (string, optional, default unset) — URL to redirect to after signup; hidden input omitted when unset
+    password_rules        (list, optional, default unset) — rule objects for password validation checklist
 {% endcomment %}
 {% load static %}
 {% block auth_content %}
@@ -64,4 +65,4 @@
     {% include "v3/includes/_button.html" with label="Continue with Google" url="#" icon_name="google-colored" style="secondary" %}
     {% include "v3/includes/_button.html" with label="Already have an account? Sign in →" url=login_url style="primary" %}
   </div>
-{% endblock %}
+{% endblock auth_content %}

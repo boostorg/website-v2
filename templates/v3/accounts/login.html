@@ -5,15 +5,16 @@
   and social login options.
 
   Context variables:
-    page_title                            (string) — passed to auth_page.html
-    foreground_image_url                  (string) — passed to auth_page.html
-    background_image_url                  (string) — passed to auth_page.html
-    signup_url                            (string) — URL for the sign-up page
-    password_reset_url                    (string) — URL for the password reset page
-    form                                  (LoginForm) — allauth login form with .login, .password fields and .errors
-    redirect_field_name                   (string) — name of the redirect query parameter
-    redirect_field_value                  (string) — URL to redirect to after login
-    contributor_account_redirect_message  (string, optional) — message for pre-created author/maintainer accounts
+    page_title                            (string, optional, default "Account") — passed to auth_page.html
+    foreground_image_url                  (string, optional, default "") — passed to auth_page.html
+    background_image_url                  (string, optional, default "") — passed to auth_page.html
+
+    signup_url                            (string, required) — URL for the sign-up page
+    password_reset_url                    (string, required) — URL for the password reset page
+    form                                  (LoginForm, required) — allauth login form with .login, .password fields and .errors
+    redirect_field_name                   (string, optional, default unset) — name of the redirect query parameter; hidden input omitted when redirect_field_value is unset
+    redirect_field_value                  (string, optional, default unset) — URL to redirect to after login; hidden input omitted when unset
+    contributor_account_redirect_message  (string, optional, default unset) — message for pre-created author/maintainer accounts; alert omitted when unset
 {% endcomment %}
 {% load static %}
 
