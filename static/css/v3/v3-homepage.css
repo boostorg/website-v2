@@ -20,7 +20,7 @@ body:has(.homepage-v3) .header {
 .homepage-container {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 var(--space-default, 8px);
+  padding: 0 var(--space-large);
 }
 
 .four-column .why-boost-cards__grid {
