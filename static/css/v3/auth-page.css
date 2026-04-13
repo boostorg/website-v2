@@ -70,12 +70,13 @@ body:has(.auth-page) .header {
 }
 
 .auth-page__illustration-foreground {
+  margin-top: 80px; /* This is the size of the header navbar, added so that the content will not be hidden behind it */
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 100%;
   object-fit: contain;
   z-index: 1;
+  align-self: center;
 }
 
 /* ── Content Panel ─────────────────────────── */
@@ -174,8 +175,8 @@ body:has(.auth-page) .header {
   background: var(--color-surface-weak);
 }
 
-/* ── Responsive ────────────────────────────── */
-@media (max-width: 767px) {
+/* ── Responsive (Tablet) ────────────────────────────── */
+@media (max-width: 1279px) {
   .auth-page {
     min-height: auto;
   }
@@ -186,12 +187,27 @@ body:has(.auth-page) .header {
   }
 
   .auth-page__illustration {
-    height: 368px;
+    height: 592px;
+  }
+
+  .auth-page__illustration-foreground {
+    height: 500px;
   }
 
   .auth-page__content {
     padding: var(--space-medium);
     align-items: flex-start;
     margin-top: 0;
+  }
+}
+
+/* ── Responsive (Mobile) ────────────────────────────── */
+@media (max-width: 767px) {
+  .auth-page__illustration {
+    height: 368px;
+  }
+
+  .auth-page__illustration-foreground {
+    height: 280px;
   }
 }
