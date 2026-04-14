@@ -133,6 +133,21 @@ body:has(.homepage-v3) .header {
       display: flex;
       grid-area: f;
     }
+
+    .card-masonry-bottom {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-areas:
+            "a c"
+            "b d";
+    }
+
+    .card-masonry-bottom > div {
+        min-width: 0;
+    }
+
+    .card-masonry-bottom > div > * {
+        max-width: 100%;
+    }
 }
 
 @media (max-width: 767px) {
