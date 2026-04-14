@@ -7,6 +7,7 @@ DEFAULT_BUCKET="stage.boost.org.v2"
 S3_BUCKETS="boost.org.v2 boost.org-cppal-dev-v2 ${DEFAULT_BUCKET}"
 AWS_PROFILE='sync-boost-images'
 DEFAULT_DEST="/static/"
+DEST_PATH=${DEFAULT_DEST}
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_DIR="$(dirname "$SCRIPT_DIR")/static/static-large/"
@@ -53,39 +54,6 @@ upload_images() {
   echo ""
   echo "Source files found in $SOURCE_DIR:"
   ls -1 "$SOURCE_DIR"
-
-  # ─────────────────────────────────────────────
-  # PROMPT FOR DESTINATION PATH
-  # ─────────────────────────────────────────────
-  is_valid_dest() {
-    local dest="$1"
-    # Must be exactly /static/ or start with /static/ followed by more path
-    if [[ "$dest" == "/static/" ]] || [[ "$dest" == /static/* ]]; then
-      return 0
-    else
-      return 1
-    fi
-  }
-
-  DEST_PATH=""
-  while true; do
-    echo ""
-    printf "Enter the S3 destination path [default: %s]: " "$DEFAULT_DEST"
-    read -r user_dest
-
-    # Use default if user just pressed ENTER
-    if [[ -z "$user_dest" ]]; then
-      DEST_PATH="$DEFAULT_DEST"
-    else
-      DEST_PATH="$user_dest"
-    fi
-
-    if is_valid_dest "$DEST_PATH"; then
-      break
-    else
-      echo "The upload destination should be a subfolder of /static/ (e.g. /static/img/v3).  Please try again."
-    fi
-  done
 
   echo "Destination path: $DEST_PATH"
 
