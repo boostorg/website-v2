@@ -28,7 +28,7 @@ Options:
   --help           Display this help and exit.
 
 Configuration:
-  The default destination for upload is /static/img/v3.
+  The default destination for upload is ${DEFAULT_DEST}.
   In your .aws/credentials file, add a set of credentials:
 
   [${AWS_PROFILE}]
