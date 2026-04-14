@@ -12,15 +12,21 @@
 {% endcomment %}
 
 {% with carousel_id='_testimonials_cards_carousel' %}
-<div class="card testimonial-card py-large" id="{{carousel_id}}" data-carousel role="region" aria-labelledby="{{ carousel_id }}-heading">
-  <div class="card__header">
-    <h2 id="{{ carousel_id }}-heading" class="card__title">{{ heading }}</h2>
-    {% include 'v3/includes/_carousel_buttons.html' with carousel_id=carousel_id %}
-  </div>
-  <hr class="card__hr" />
-  <div class="cards-carousel__track">
-    <section class="testimonial-card__post">
-      <ul class="testimonial-card__list" data-carousel-track aria-label="Testimonials carousel">
+  <div class="card testimonial-card py-large"
+       id="{{ carousel_id }}"
+       data-carousel
+       role="region"
+       aria-labelledby="{{ carousel_id }}-heading">
+    <div class="card__header">
+      <h2 id="{{ carousel_id }}-heading" class="card__title">{{ heading }}</h2>
+      {% include 'v3/includes/_carousel_buttons.html' with carousel_id=carousel_id %}
+    </div>
+    <hr class="card__hr" />
+    <div class="cards-carousel__track">
+      <section class="testimonial-card__post">
+        <ul class="testimonial-card__list"
+            data-carousel-track
+            aria-label="Testimonials carousel">
           {% if testimonials %}
             {% for testimonial in testimonials %}
               <li class="testimonial-card__list-item" data-carousel-item>
@@ -29,7 +35,11 @@
                     <div class="testimonial-card__text">{{ testimonial.quote }}</div>
                   </div>
                   <div class="testimonial-card__tail-wrapper mb-large">
-                    <svg width="32" height="30" viewBox="0 0 32 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="32"
+                         height="30"
+                         viewBox="0 0 32 30"
+                         fill="none"
+                         xmlns="http://www.w3.org/2000/svg">
                       <path class="testimonial-card__text-tail" d="M0 0H32L3.41421 28.5858C2.15428 29.8457 0 28.9534 0 27.1716V0Z" />
                     </svg>
                   </div>
@@ -39,7 +49,7 @@
             {% endfor %}
           {% endif %}
         </ul>
-    </section>
+      </section>
+    </div>
   </div>
-</div>
 {% endwith %}

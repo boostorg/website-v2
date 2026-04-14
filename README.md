@@ -192,7 +192,7 @@ We use [pre-commit hooks](https://pre-commit.com/) to check code for style, synt
 | --------------- | ----------- |
 | [Black](https://github.com/psf/black) | Formats Python code using the `black` code formatter |
 | [Ruff](https://github.com/charliermarsh/ruff) | Wrapper around `flake8` and `isort`, among other linters |
-| [Djhtml](https://github.com/rtts/djhtml) | Auto-formats Django templates |
+| [djlint](https://www.djlint.com/) | Formats and lints Django HTML templates |
 
 Example commands for running specific hooks:
 
@@ -200,4 +200,46 @@ Example commands for running specific hooks:
 | --------------- | --------------- |
 | Black | `pre-commit run black` |
 | Ruff | `pre-commit run ruff` |
-| Djhtml | `pre-commit run djhtml` |
+| djlint | `pre-commit run djlint-reformat-django` |
+
+## Formatting
+
+We use [Prettier](https://prettier.io/) for JS/CSS and [djlint](https://www.djlint.com/) for HTML templates. Both are checked in CI via `yarn format:check`.
+
+| Command | Description |
+| ------- | ----------- |
+| `just format` | Format all JS, CSS, and HTML files |
+| `just format-check` | Check formatting without modifying files |
+| `just prettier` | Format JS and CSS only |
+| `just djlint` | Format HTML templates only |
+
+### djlint quirks
+
+1. **Multi-line Alpine.js attributes:** djlint will mangle multi-line `x-data`, `x-init`, or similar Alpine.js attributes that contain JavaScript objects or functions. Wrap them with `{# djlint:off #}` / `{# djlint:on #}` to preserve formatting:
+
+```html
+<div class="my-component"
+  {# djlint:off #}
+  x-data="{
+    open: false,
+    toggle() { this.open = !this.open }
+  }"
+  {# djlint:on #}
+>
+```
+
+Simple single-line attributes like `x-data="{ show: true }"` do not need wrapping.
+
+2. **`<style>` inside `{% comment %}` blocks:** djlint parses `<style>` tags even inside Django `{% comment %}` blocks, which breaks indentation for the rest of the file. Avoid writing `<style>` in comment blocks — use backticks (e.g. `` `style` ``) or plain text instead.
+
+### Vendor JS
+
+Third-party libraries and generated bundles live in `static/js/vendor/` and are excluded from Prettier. Only custom project JS files at `static/js/*.js` are formatted. When adding a new vendor library or generated bundle, place it in its own subfolder under `static/js/vendor/`.
+
+### Git blame
+
+Bulk formatting commits are listed in `.git-blame-ignore-revs` so they don't show up in `git blame`. To enable this locally:
+
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```

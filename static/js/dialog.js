@@ -32,13 +32,14 @@
       'textarea:not([disabled])',
       'input:not([disabled])',
       'select:not([disabled])',
-      '[tabindex]:not([tabindex="-1"])'
+      '[tabindex]:not([tabindex="-1"])',
     ].join(', ');
 
-    return Array.from(container.querySelectorAll(focusableSelectors))
-      .filter(function (el) {
+    return Array.from(container.querySelectorAll(focusableSelectors)).filter(
+      function (el) {
         return el.offsetWidth > 0 || el.offsetHeight > 0;
-      });
+      }
+    );
   }
 
   // On Tab: wraps focus from last → first element. On Shift+Tab: first → last.
@@ -54,12 +55,16 @@
 
     const currentIndex = focusableElements.indexOf(activeElement);
 
-    const isForbiddenElement = currentIndex === -1 || !dialog.contains(activeElement);
+    const isForbiddenElement =
+      currentIndex === -1 || !dialog.contains(activeElement);
 
     if (e.shiftKey && (activeElement === firstElement || isForbiddenElement)) {
       e.preventDefault();
       lastElement.focus();
-    } else if (!e.shiftKey && (activeElement === lastElement || isForbiddenElement)) {
+    } else if (
+      !e.shiftKey &&
+      (activeElement === lastElement || isForbiddenElement)
+    ) {
       e.preventDefault();
       firstElement.focus();
     }
@@ -83,7 +88,9 @@
     // Checkbox-based modals (library filter)
     var toggle = document.querySelector('.library-filter__toggle:checked');
     if (toggle) {
-      var sibling = toggle.parentElement.querySelector('.library-filter__modal');
+      var sibling = toggle.parentElement.querySelector(
+        '.library-filter__modal'
+      );
       if (sibling) return sibling;
     }
     return null;
@@ -117,7 +124,11 @@
   window.addEventListener('hashchange', function () {
     // Clean up #_ from the URL after a hash-based modal closes
     if (window.location.hash === '#_') {
-      history.replaceState(null, '', window.location.pathname + window.location.search);
+      history.replaceState(
+        null,
+        '',
+        window.location.pathname + window.location.search
+      );
       return;
     }
 
@@ -133,7 +144,9 @@
     if (e.target.matches('.library-filter__toggle') && e.target.checked) {
       var dialog = getActiveDialog();
       if (dialog) {
-        triggerElement = e.target.parentElement.querySelector('.library-filter__trigger');
+        triggerElement = e.target.parentElement.querySelector(
+          '.library-filter__trigger'
+        );
         setInitialFocus(dialog);
       }
     }

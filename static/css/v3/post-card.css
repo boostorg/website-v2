@@ -46,7 +46,7 @@
 }
 
 .post-card__meta > :not(:first-child)::before {
-  content: "•";
+  content: '•';
   color: var(--color-text-secondary);
   user-select: none;
   margin-right: 6px;

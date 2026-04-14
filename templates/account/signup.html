@@ -9,9 +9,7 @@
   {% trans 'Sign Up' %}
 {% endblock %}
 
-{% block body_id %}
-  id="authpages"
-{% endblock %}
+{% block body_id %}id="authpages"{% endblock %}
 
 {% block content %}
   <style lang="css">
@@ -48,10 +46,16 @@
         </p>
         <div id="jsvalidation" class="flex justify-center w-full pb-1 hidden">
           <p class="flex items-center font-bold">
-            <input type="checkbox" class="border-2 border-solid text-sky-600 dark:text-sky-300" id="readTOS" onclick="accepted()" />
+            <input type="checkbox"
+                   class="border-2 border-solid text-sky-600 dark:text-sky-300"
+                   id="readTOS"
+                   onclick="accepted()" />
             <label for="readTOS">
               I have read and accepted the
-              <a href="terms-of-use" target="_blank" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange mx-1" onclick="displayModal('70vh','70vw', '../../terms-of-use/?=noheader')">Terms of Use</a>
+              <a href="terms-of-use"
+                 target="_blank"
+                 class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange mx-1"
+                 onclick="displayModal('70vh','70vw', '../../terms-of-use/?=noheader')">Terms of Use</a>
               for this service. <span class="required" title="required">*</span>
             </label>
           </p>
@@ -59,7 +63,9 @@
         <div id="jsfallback" class="flex justify-center w-full pb-1">
           <p class="flex items-center font-bold">
             By joining this site, you agree to the
-            <a href="terms-of-use" target="_blank" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange mx-1">Terms of Use</a>
+            <a href="terms-of-use"
+               target="_blank"
+               class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange mx-1">Terms of Use</a>
             for this website.
           </p>
         </div>
@@ -84,30 +90,34 @@
 
                 <!-- Display non-field errors -->
                 {% if form.non_field_errors %}
-                  {% for error in form.non_field_errors %}
-                    <div class="py-1 px-3 text-white bg-red-600">{{ error }}</div>
-                  {% endfor %}
+                  {% for error in form.non_field_errors %}<div class="py-1 px-3 text-white bg-red-600">{{ error }}</div>{% endfor %}
                 {% endif %}
                 {% for field in form.visible_fields %}
                   {% if field.errors %}
-                    {% for error in field.errors %}
-                      <div class="text-red-600">{{ error }}</div>
-                    {% endfor %}
+                    {% for error in field.errors %}<div class="text-red-600">{{ error }}</div>{% endfor %}
                   {% endif %}
                   <div>
-                    <label class="text-xs uppercase text-slate dark:text-white/70">{{ field.label }} {% render_field field placeholder='' %}</label>
+                    <label class="text-xs uppercase text-slate dark:text-white/70">
+                      {{ field.label }} {% render_field field placeholder='' %}
+                    </label>
 
-                    {% if field.help_text %}
-                      <small>{{ field.help_text }}</small>
-                    {% endif %}
+                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
                   </div>
-                {% endfor %} {% if redirect_field_value %}
-                  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                {% endfor %}
+
+                {% if redirect_field_value %}
+                  <input type="hidden"
+                         name="{{ redirect_field_name }}"
+                         value="{{ redirect_field_value }}" />
                 {% endif %}
               </div>
 
               <div class="my-3 text-center">
-                <button type="submit" id="signup" class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">{% trans 'Sign Up' %}</button>
+                <button type="submit"
+                        id="signup"
+                        class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">
+                  {% trans 'Sign Up' %}
+                </button>
               </div>
             </form>
           </div>

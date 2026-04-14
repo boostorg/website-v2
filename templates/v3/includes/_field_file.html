@@ -17,53 +17,91 @@
   Custom display: no native "No file chosen"; shows "Choose File" until a file is selected, then the file name.
 {% endcomment %}
 <div class="field field--file{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
-     {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
-     x-data="{ jsReady: false, fileName: ''{% if preview %}, previewUrl: ''{% endif %} }"
-     x-init="jsReady = true; const form = $el.closest('form'); if (form) form.addEventListener('reset', () => { fileName = '';{% if preview %} if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = ''; }{% endif %} })">
-  {% if label %}
-  <label class="field__label" for="field-{{ name }}">{{ label }}</label>
-  {% endif %}
-  <div class="field__control{% if disabled %} field__control--disabled{% endif %}" :class="jsReady && 'field__control--file'"{% if preview %} x-show="!previewUrl" x-transition{% endif %}>
-    <span class="field__file-display" aria-hidden="true" x-show="jsReady" x-cloak>
+  {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
+  {# djlint:off #}
+  x-data="{
+    jsReady: false,
+    fileName: ''{% if preview %}, previewUrl: ''{% endif %} }"
+  x-init="
+    jsReady = true;
+    const form = $el.closest('form');
+    if (form) form.addEventListener('reset', () => {
+      fileName = '';
+      {% if preview %}
+        if (previewUrl) {
+          URL.revokeObjectURL(previewUrl);
+          previewUrl = '';
+        }
+      {% endif %}
+    })">
+  {# djlint:on #}
+  {% if label %}<label class="field__label" for="field-{{ name }}">{{ label }}</label>{% endif %}
+  <div class="field__control{% if disabled %} field__control--disabled{% endif %}"
+       :class="jsReady && 'field__control--file'"
+       {% if preview %}x-show="!previewUrl" x-transition{% endif %}>
+    <span class="field__file-display"
+          aria-hidden="true"
+          x-show="jsReady"
+          x-cloak>
       <span x-show="!fileName" x-transition class="field__file-placeholder">Choose File</span>
-      <span x-show="fileName" x-cloak x-transition class="field__file-name" x-text="fileName"></span>
+      <span x-show="fileName"
+            x-cloak
+            x-transition
+            class="field__file-name"
+            x-text="fileName"></span>
     </span>
-    <input
-      {% if preview %}x-ref="fileInput"{% endif %}
-      class="field__input" :class="jsReady && 'field__input--file'"
-      type="file"
-      id="field-{{ name }}"
-      name="{{ name }}"
-      {% if accept %}accept="{{ accept }}"{% endif %}
-      {% if required %}required{% endif %}
-      {% if disabled %}disabled{% endif %}
-      {% if preview %}x-on:change="
-        const file = $event.target.files && $event.target.files[0];
-        if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = ''; }
-        if (file) { fileName = file.name; previewUrl = URL.createObjectURL(file); } else { fileName = ''; }
-      "{% else %}x-on:change="fileName = $event.target.files.length ? $event.target.files[0].name : ''"{% endif %}
-      {% if alpine_error %}:aria-invalid="!!{{ alpine_error }}" :aria-describedby="{{ alpine_error }} ? 'field-{{ name }}-error' : {% if help_text %}'field-{{ name }}-help'{% else %}null{% endif %}"
-      {% elif error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}
-    >
+    <input {% if preview %}x-ref="fileInput"{% endif %}
+           class="field__input"
+           :class="jsReady && 'field__input--file'"
+           type="file"
+           id="field-{{ name }}"
+           name="{{ name }}"
+           {% if accept %}accept="{{ accept }}"{% endif %}
+           {% if required %}required{% endif %}
+           {% if disabled %}disabled{% endif %}
+           {% if preview %}x-on:change=" const file = $event.target.files && $event.target.files[0]; if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = ''; } if (file) { fileName = file.name; previewUrl = URL.createObjectURL(file); } else { fileName = ''; } "{% else %}x-on:change="fileName = $event.target.files.length ? $event.target.files[0].name : ''"{% endif %}
+           {% if alpine_error %}:aria-invalid="!!{{ alpine_error }}" :aria-describedby="{{ alpine_error }} ? 'field-{{ name }}-error' : {% if help_text %}'field-{{ name }}-help'{% else %}null{% endif %}
+           "
+           {% elif error %}
+           aria-invalid="true"
+           aria-describedby="field-{{ name }}-error"
+           {% elif help_text %}
+           aria-describedby="field-{{ name }}-help"
+           {% endif %}>
   </div>
   {% if preview %}
-  <div class="field__image-preview-wrapper" x-show="previewUrl" x-cloak tabindex="0" role="button" aria-label="Change file" @click="previewUrl && $refs.fileInput.click()" @keydown.enter.prevent="previewUrl && $refs.fileInput.click()" @keydown.space.prevent="previewUrl && $refs.fileInput.click()">
-    <img :src="previewUrl" alt="" class="field__image-preview">
-  </div>
+    <div class="field__image-preview-wrapper"
+         x-show="previewUrl"
+         x-cloak
+         tabindex="0"
+         role="button"
+         aria-label="Change file"
+         @click="previewUrl && $refs.fileInput.click()"
+         @keydown.enter.prevent="previewUrl && $refs.fileInput.click()"
+         @keydown.space.prevent="previewUrl && $refs.fileInput.click()">
+      <img :src="previewUrl" alt="" class="field__image-preview">
+    </div>
   {% endif %}
   {% if alpine_error %}
-  <p class="field__error" id="field-{{ name }}-error" role="alert" x-show="{{ alpine_error }}" x-text="{{ alpine_error }}" x-cloak aria-live="polite"></p>
-  {% if error %}
-  <p class="field__error" role="alert" aria-live="polite" x-show="false">{{ error }}</p>
-  {% endif %}
-  {% if help_text %}
-  <p class="field__help" id="field-{{ name }}-help" x-show="!{{ alpine_error }}"{% if error %} style="display:none"{% endif %}>{{ help_text }}</p>
-  {% endif %}
+    <p class="field__error"
+       id="field-{{ name }}-error"
+       role="alert"
+       x-show="{{ alpine_error }}"
+       x-text="{{ alpine_error }}"
+       x-cloak
+       aria-live="polite"></p>
+    {% if error %}<p class="field__error" role="alert" aria-live="polite" x-show="false">{{ error }}</p>{% endif %}
+    {% if help_text %}
+      <p class="field__help"
+         id="field-{{ name }}-help"
+         x-show="!{{ alpine_error }}"
+         {% if error %}style="display:none"{% endif %}>{{ help_text }}</p>
+    {% endif %}
   {% else %}
-  {% if error %}
-  <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
-  {% elif help_text %}
-  <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
-  {% endif %}
+    {% if error %}
+      <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
+    {% elif help_text %}
+      <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+    {% endif %}
   {% endif %}
 </div>

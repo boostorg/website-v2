@@ -77,7 +77,9 @@
 }
 
 /* When in markdown mode, hide all formatting controls except the MD toggle */
-.wysiwyg-editor__toolbar--markdown .wysiwyg-toolbar__left > :not(.wysiwyg-toolbar__btn--md) {
+.wysiwyg-editor__toolbar--markdown
+  .wysiwyg-toolbar__left
+  > :not(.wysiwyg-toolbar__btn--md) {
   display: none;
 }
 
@@ -116,7 +118,9 @@
   color: var(--color-icon-primary, #050816);
   font-size: var(--font-size-small, 14px);
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .wysiwyg-toolbar__btn:hover {
@@ -131,12 +135,15 @@
 }
 
 .wysiwyg-toolbar__btn--active {
-  background: var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard));
+  background: var(
+    --color-surface-brand-accent-default,
+    var(--color-primary-orange-mustard)
+  );
   color: var(--color-icon-on-accent, #050816);
 }
 
 .wysiwyg-toolbar__btn--active:hover {
-  background: var(--color-surface-brand-accent-hovered, #FFA000BF);
+  background: var(--color-surface-brand-accent-hovered, #ffa000bf);
 }
 
 /* Toolbar separator */
@@ -160,7 +167,7 @@
 }
 
 .wysiwyg-toolbar__lang-select:hover:not(:disabled) {
-  border-color: var(--color-stroke-mid, #0508162B);
+  border-color: var(--color-stroke-mid, #0508162b);
 }
 
 .wysiwyg-toolbar__lang-select:disabled {
@@ -210,12 +217,17 @@
   border-radius: 3px;
   background: var(--color-surface-weak, #fff);
   cursor: pointer;
-  transition: background-color 0.1s ease, border-color 0.1s ease;
+  transition:
+    background-color 0.1s ease,
+    border-color 0.1s ease;
 }
 
 .wysiwyg-table-grid__cell:hover,
 .wysiwyg-table-grid__cell--active {
-  background: var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard, #FFA000));
+  background: var(
+    --color-surface-brand-accent-default,
+    var(--color-primary-orange-mustard, #ffa000)
+  );
   border-color: rgba(255, 160, 0, 0.5);
 }
 
@@ -250,7 +262,10 @@
 }
 
 .wysiwyg-table-context__btn:hover {
-  background: var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard, #FFA000));
+  background: var(
+    --color-surface-brand-accent-default,
+    var(--color-primary-orange-mustard, #ffa000)
+  );
 }
 
 .wysiwyg-table-context__btn--danger {
@@ -311,26 +326,29 @@
 }
 
 .wysiwyg-editor__prose p code {
-
   color: var(--color-text-on-accent, #050816) !important;
-background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important; }
+  background-color: var(
+    --color-surface-brand-accent-default,
+    #f7f7f8
+  ) !important;
+}
 
 .wysiwyg-editor__prose p:last-child {
   margin-bottom: 0;
 }
 
 /* Bullet and ordered lists – ensure markers are visible */
-.wysiwyg-editor__prose ul:not([data-type="taskList"]),
+.wysiwyg-editor__prose ul:not([data-type='taskList']),
 .wysiwyg-editor__prose ol {
   margin: 0 0 4px;
   padding-left: var(--space-xl, 24px);
 }
 
-.wysiwyg-editor__prose ul:not([data-type="taskList"]) {
+.wysiwyg-editor__prose ul:not([data-type='taskList']) {
   list-style-type: disc;
 }
 
-.wysiwyg-editor__prose ul:not([data-type="taskList"]) li,
+.wysiwyg-editor__prose ul:not([data-type='taskList']) li,
 .wysiwyg-editor__prose ol li {
   margin: 2px 0;
   display: list-item;
@@ -366,7 +384,11 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
 .wysiwyg-editor__prose blockquote {
   margin: var(--space-default, 8px) 0;
   padding: var(--space-default, 8px) var(--space-large, 16px);
-  border-left: 3px solid var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard, #FFA000));
+  border-left: 3px solid
+    var(
+      --color-surface-brand-accent-default,
+      var(--color-primary-orange-mustard, #ffa000)
+    );
   color: var(--color-text-secondary, #6b6d78);
   background: var(--color-surface-mid, #f7f7f8);
   border-radius: 0 var(--border-radius-l, 8px) var(--border-radius-l, 8px) 0;
@@ -406,20 +428,20 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
 }
 
 /* Task / checkbox lists */
-.wysiwyg-editor__prose ul[data-type="taskList"] {
+.wysiwyg-editor__prose ul[data-type='taskList'] {
   list-style: none;
   padding-left: 0;
   margin: 4px 0;
 }
 
-.wysiwyg-editor__prose ul[data-type="taskList"] li {
+.wysiwyg-editor__prose ul[data-type='taskList'] li {
   display: flex;
   align-items: baseline;
   gap: 6px;
   margin: 2px 0;
 }
 
-.wysiwyg-editor__prose ul[data-type="taskList"] li > label {
+.wysiwyg-editor__prose ul[data-type='taskList'] li > label {
   flex-shrink: 0;
   cursor: pointer;
   display: inline-flex;
@@ -428,16 +450,19 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
   top: 1px;
 }
 
-.wysiwyg-editor__prose ul[data-type="taskList"] li input[type="checkbox"] {
+.wysiwyg-editor__prose ul[data-type='taskList'] li input[type='checkbox'] {
   width: 1em;
   height: 1em;
   margin: 0;
   cursor: pointer;
-  accent-color: var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard));
+  accent-color: var(
+    --color-surface-brand-accent-default,
+    var(--color-primary-orange-mustard)
+  );
   flex-shrink: 0;
 }
 
-.wysiwyg-editor__prose ul[data-type="taskList"] li > div {
+.wysiwyg-editor__prose ul[data-type='taskList'] li > div {
   flex: 1;
   min-width: 0;
 }
@@ -445,7 +470,15 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
 /* Inline code – visible on-brand highlight */
 .wysiwyg-editor__prose code {
   padding: 0.2em 0.45em;
-  font-family: var(--font-code, ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace);
+  font-family: var(
+    --font-code,
+    ui-monospace,
+    SFMono-Regular,
+    'SF Mono',
+    Menlo,
+    Consolas,
+    monospace
+  );
   font-size: 0.85em;
   background: rgba(255, 160, 0, 0.15);
   border: 1px solid rgba(255, 160, 0, 0.3);
@@ -462,7 +495,15 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
   background: var(--code-block-bg, #f6f8fa);
   border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
   border-radius: var(--border-radius-l, 8px);
-  font-family: var(--font-code, ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace);
+  font-family: var(
+    --font-code,
+    ui-monospace,
+    SFMono-Regular,
+    'SF Mono',
+    Menlo,
+    Consolas,
+    monospace
+  );
   font-size: var(--font-size-small, 14px);
   line-height: var(--line-height-code, 1.5);
 }
@@ -532,7 +573,7 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
 }
 
 .wysiwyg-editor__prose a {
-  color: var(--color-stroke-link-accent, #0077B8);
+  color: var(--color-stroke-link-accent, #0077b8);
   text-decoration: underline;
 }
 
@@ -589,7 +630,15 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
   border: none;
   border-right: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
   padding: var(--space-medium, 12px) var(--space-large, 16px);
-  font-family: var(--font-code, ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace);
+  font-family: var(
+    --font-code,
+    ui-monospace,
+    SFMono-Regular,
+    'SF Mono',
+    Menlo,
+    Consolas,
+    monospace
+  );
   font-size: var(--font-size-small, 14px);
   line-height: 1.5;
   color: var(--color-text-primary, #050816);
@@ -677,7 +726,10 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
 }
 
 .wysiwyg-modal__input:focus {
-  border-color: var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard, #FFA000));
+  border-color: var(
+    --color-surface-brand-accent-default,
+    var(--color-primary-orange-mustard, #ffa000)
+  );
   box-shadow: 0 0 0 2px rgba(255, 160, 0, 0.2);
 }
 
@@ -708,10 +760,13 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
 }
 
 .wysiwyg-modal__btn--insert {
-  background: var(--color-surface-brand-accent-default, var(--color-primary-orange-mustard, #FFA000));
+  background: var(
+    --color-surface-brand-accent-default,
+    var(--color-primary-orange-mustard, #ffa000)
+  );
   color: var(--color-icon-on-accent, #050816);
 }
 
 .wysiwyg-modal__btn--insert:hover {
-  background: var(--color-surface-brand-accent-hovered, #FFA000BF);
+  background: var(--color-surface-brand-accent-hovered, #ffa000bf);
 }

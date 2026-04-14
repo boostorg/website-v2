@@ -1,25 +1,25 @@
 .card__column.markdown-content {
-    gap: var(--space-medium);
+  gap: var(--space-medium);
 }
 
 .markdown-content ul {
-    list-style: inside;
+  list-style: inside;
 }
 
 .markdown-content a {
-    text-decoration: underline;
-    text-decoration-skip-ink: none;
-    text-underline-position: from-font;
+  text-decoration: underline;
+  text-decoration-skip-ink: none;
+  text-underline-position: from-font;
 }
 
 .markdown-content {
-    color: var(--color-text-secondary);
-    padding: 0 var(--space-large);
-    font-size: var(--font-size-small);
-    font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-default);
-    /* 16.8px */
-    letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-secondary);
+  padding: 0 var(--space-large);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  /* 16.8px */
+  letter-spacing: var(--letter-spacing-tight);
 }
 
 .markdown-content h1,
@@ -30,10 +30,10 @@ h5,
 h6,
 b,
 strong {
-    color: var(--color-text-primary);
-    font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
 }
 
 .markdown-card p {
-    padding: 0;
+  padding: 0;
 }

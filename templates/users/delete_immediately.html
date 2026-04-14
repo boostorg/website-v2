@@ -8,11 +8,10 @@
     <form method="POST">
       {% csrf_token %}
       {% for field in form %}
-        <div class="mb-4">
-          {% include 'includes/_form_input.html' %}
-        </div>
+        <div class="mb-4">{% include 'includes/_form_input.html' %}</div>
       {% endfor %}
-      <button class="py-2 px-3 mr-4 text-sm text-white rounded bg-orange" type="submit">{% trans 'Confirm' %}</button>
+      <button class="py-2 px-3 mr-4 text-sm text-white rounded bg-orange"
+              type="submit">{% trans 'Confirm' %}</button>
       <a href="{% url 'profile-account' %}">{% trans 'Cancel' %}</a>
     </form>
   </div>

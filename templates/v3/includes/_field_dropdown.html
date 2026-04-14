@@ -15,7 +15,7 @@
     {% include "v3/includes/_field_dropdown.html" with name="country" label="Country" options=country_options placeholder="Select a country" %}
 {% endcomment %}
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
-     {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
+  {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
   {# djlint:off #}
      x-data="{
        jsReady: false,
@@ -55,74 +55,77 @@
     {% endfor %}
   </select>
   <div class="dropdown" :class="{ 'dropdown--open': open }" x-cloak>
-    <button type="button"
-            class="dropdown__trigger"
-            x-ref="trigger"
-            @click="open = !open"
-            @keydown.escape.prevent="open = false"
-            @keydown.arrow-down.prevent="open = true; $nextTick(() => $refs.list.querySelector('[role=option]')?.focus())"
-            :aria-expanded="open"
-            aria-haspopup="listbox"
-            {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
-            {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}>
-      <span class="dropdown__trigger-text"
-            x-show="selected"
-            x-text="selectedLabel"
-            x-cloak></span>
-      <span class="dropdown__trigger-text dropdown__trigger-placeholder"
-            x-show="!selected">{{ placeholder|default:"Select..." }}</span>
-      {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
-    </button>
-    <div class="dropdown__panel"
-         x-show="open"
-         @click.away="open = false"
-         @keydown.escape.prevent="open = false; $refs.trigger.focus()"
-         x-transition:enter="transition ease-out duration-100"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-75"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         style="display: none"
-         role="listbox"
-         {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}>
-      <div class="dropdown__list" x-ref="list">
-        {% for value, label in options %}
-          <div class="dropdown__item"
-               :class="{ 'dropdown__item--selected': selected === '{{ value }}' }"
-               role="option"
-               :aria-selected="selected === '{{ value }}'"
-               data-value="{{ value }}"
-               data-label="{{ label }}"
-               @click="choose('{{ value }}', '{{ label }}')"
-               @keydown.enter.prevent="choose('{{ value }}', '{{ label }}')"
-               @keydown.space.prevent="choose('{{ value }}', '{{ label }}')"
-               @keydown.arrow-down.prevent="$el.nextElementSibling?.focus()"
-               @keydown.arrow-up.prevent="$el.previousElementSibling?.hasAttribute('data-value') ? $el.previousElementSibling.focus() : $refs.trigger.focus()"
-               tabindex="0">{{ label }}</div>
-        {% endfor %}
+    <button type="button" class="dropdown__trigger" x-ref="trigger" @click="open = !open" @keydown.escape.prevent="open = false" @keydown.arrow-down.prevent="open = true; $nextTick(() => $refs.list.querySelector('[role=option]')?.focus())" :aria-expanded="open" aria-haspopup="listbox"
+      {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
+        {% if error %}
+          aria-invalid="true" aria-describedby="field-{{ name }}-error"
+        {% elif help_text %}
+          aria-describedby="field-{{ name }}-help" {% endif %}>
+          <span class="dropdown__trigger-text"
+                x-show="selected"
+                x-text="selectedLabel"
+                x-cloak></span>
+          <span class="dropdown__trigger-text dropdown__trigger-placeholder"
+                x-show="!selected">{{ placeholder|default:"Select..." }}</span>
+          {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
+        </button>
+        <div class="dropdown__panel"
+             x-show="open"
+             @click.away="open = false"
+             @keydown.escape.prevent="open = false; $refs.trigger.focus()"
+             x-transition:enter="transition ease-out duration-100"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-75"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             style="display: none"
+             role="listbox"
+             {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}>
+          <div class="dropdown__list" x-ref="list">
+            {% for value, label in options %}
+              <div class="dropdown__item"
+                   :class="{ 'dropdown__item--selected': selected === '{{ value }}' }"
+                   role="option"
+                   :aria-selected="selected === '{{ value }}'"
+                   data-value="{{ value }}"
+                   data-label="{{ label }}"
+                   @click="choose('{{ value }}', '{{ label }}')"
+                   @keydown.enter.prevent="choose('{{ value }}', '{{ label }}')"
+                   @keydown.space.prevent="choose('{{ value }}', '{{ label }}')"
+                   @keydown.arrow-down.prevent="$el.nextElementSibling?.focus()"
+                   @keydown.arrow-up.prevent="$el.previousElementSibling?.hasAttribute('data-value') ? $el.previousElementSibling.focus() : $refs.trigger.focus()"
+                   tabindex="0">{{ label }}</div>
+            {% endfor %}
+          </div>
+        </div>
       </div>
+      <input type="hidden"
+             name="{{ name }}"
+             :value="selected"
+             disabled
+             :disabled="!jsReady"
+             {% if required %}required{% endif %}>
+      {% if alpine_error %}
+        <p class="field__error"
+           id="field-{{ name }}-error"
+           role="alert"
+           x-show="{{ alpine_error }}"
+           x-text="{{ alpine_error }}"
+           x-cloak
+           aria-live="polite"></p>
+        {% if error %}<p class="field__error" role="alert" aria-live="polite" x-show="false">{{ error }}</p>{% endif %}
+        {% if help_text %}
+          <p class="field__help"
+             id="field-{{ name }}-help"
+             x-show="!{{ alpine_error }}"
+             {% if error %}style="display:none"{% endif %}>{{ help_text }}</p>
+        {% endif %}
+      {% else %}
+        {% if error %}
+          <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
+        {% elif help_text %}
+          <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
+        {% endif %}
+      {% endif %}
     </div>
-  </div>
-  <input type="hidden"
-         name="{{ name }}"
-         :value="selected"
-         disabled
-         :disabled="!jsReady"
-         {% if required %}required{% endif %}>
-  {% if alpine_error %}
-  <p class="field__error" id="field-{{ name }}-error" role="alert" x-show="{{ alpine_error }}" x-text="{{ alpine_error }}" x-cloak aria-live="polite"></p>
-  {% if error %}
-  <p class="field__error" role="alert" aria-live="polite" x-show="false">{{ error }}</p>
-  {% endif %}
-  {% if help_text %}
-  <p class="field__help" id="field-{{ name }}-help" x-show="!{{ alpine_error }}"{% if error %} style="display:none"{% endif %}>{{ help_text }}</p>
-  {% endif %}
-  {% else %}
-  {% if error %}
-  <p class="field__error" id="field-{{ name }}-error" role="alert">{{ error }}</p>
-  {% elif help_text %}
-  <p class="field__help" id="field-{{ name }}-help">{{ help_text }}</p>
-  {% endif %}
-  {% endif %}
-</div>

@@ -20,9 +20,7 @@
   </div>
   {% for author in authors %}
     <hr class="library-intro-card__divider">
-    <div class="library-intro-card__author">
-      {% include "v3/includes/_user_profile.html" with author=author %}
-    </div>
+    <div class="library-intro-card__author">{% include "v3/includes/_user_profile.html" with author=author %}</div>
   {% endfor %}
   {% if cta_url %}
     <hr class="card__hr">

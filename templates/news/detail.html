@@ -3,9 +3,7 @@
 {% load static %}
 {% load text_helpers %}
 
-{% block title %}
-  {{ entry.title }}
-{% endblock %}
+{% block title %}{{ entry.title }}{% endblock %}
 
 {% block content %}
   <!-- end breadcrumb -->
@@ -13,29 +11,35 @@
     <div class="py-8 md:mx-auto md:w-3/4">
       <!-- Author or Moderator Actions -->
       <div class="space-x-3 text-right">
-        {%  if entry.deleted_at %}
-          <div class="mb-2 p-4 bg-red-600 text-white text-sm rounded-md">Entry deleted on {{ entry.deleted_at }} by {{ entry.deleted_by.display_name }}.</div>
+        {% if entry.deleted_at %}
+          <div class="mb-2 p-4 bg-red-600 text-white text-sm rounded-md">
+            Entry deleted on {{ entry.deleted_at }} by {{ entry.deleted_by.display_name }}.
+          </div>
         {% endif %}
         {% if not entry.is_approved and not entry.deleted_at %}
           <div class="py-2">
             {% if user_can_approve %}
               <form method="POST" action="{% url 'news-approve' entry.slug %}">
                 {% csrf_token %}
-                <button type="submit" name="approve" class="py-1 px-2 mb-3 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75">{% translate 'Approve' %}</button>
-                {% if next_url %}
-                  <input type="hidden" name="next" value="{{ next_url }}" />
-                {% endif %}
+                <button type="submit"
+                        name="approve"
+                        class="py-1 px-2 mb-3 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75">
+                  {% translate 'Approve' %}
+                </button>
+                {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}" />{% endif %}
               </form>
             {% else %}
               <strong class="text-base text-red-500">{% translate 'Pending Moderation' %}</strong>
             {% endif %}
           </div>
         {% endif %}
-        {% if user_can_delete and not entry.deleted_at%}
-          <a href="{% url 'news-delete' entry.slug %}" class="float-right inline-block items-center dark:text-white/50 dark:hover:text-orange text-sm ml-3 mt-2"><i class="fas fa-trash-alt"></i></a>
+        {% if user_can_delete and not entry.deleted_at %}
+          <a href="{% url 'news-delete' entry.slug %}"
+             class="float-right inline-block items-center dark:text-white/50 dark:hover:text-orange text-sm ml-3 mt-2"><i class="fas fa-trash-alt"></i></a>
         {% endif %}
         {% if user_can_edit and not entry.deleted_at %}
-          <a href="{% url 'news-update' entry.slug %}" class="float-right inline-block items-center dark:text-white/50 dark:hover:text-orange text-sm ml-3 mt-2"><i class="fas fa-edit"></i></a>
+          <a href="{% url 'news-update' entry.slug %}"
+             class="float-right inline-block items-center dark:text-white/50 dark:hover:text-orange text-sm ml-3 mt-2"><i class="fas fa-edit"></i></a>
         {% endif %}
       </div>
       <!-- End Actions -->
@@ -53,20 +57,25 @@
             <i class="fas fa-video" title="Video"></i>
           {% endif %}
         </span>
-        {{ entry.title }}</h1>
+        {{ entry.title }}
+      </h1>
       <div class="space-x-3 mt-3 flex items-center">
         {% if entry.author.image %}
           <span class="inline-block h-[30px] w-[30px] overflow-hidden rounded border border-gray-400 dark:border-gray-500">
-            <img src="{{ entry.author.image_thumbnail.url }}" alt="{{ entry.author.display_name }}" class="h-full w-full object-cover">
+            <img src="{{ entry.author.image_thumbnail.url }}"
+                 alt="{{ entry.author.display_name }}"
+                 class="h-full w-full object-cover">
           </span>
         {% else %}
           <span class="inline-block h-[30px] w-[30px] bg-white rounded dark:text-white dark:bg-slate border border-gray-400 dark:border-gray-500">
-            <i class="text-2xl fas fa-user ml-1" title="{{ entry.author.display_name }}"></i>
+            <i class="text-2xl fas fa-user ml-1"
+               title="{{ entry.author.display_name }}"></i>
           </span>
         {% endif %}
         {% if entry.author.display_name %}
           <div class="inline-block p-0 m-0">
-            {{ entry.author.display_name }}<br />
+            {{ entry.author.display_name }}
+            <br />
             <span class="block py-0 text-xs">{{ entry.publish_at|date:'M jS, Y' }}</span>
           </div>
         {% endif %}
@@ -75,11 +84,14 @@
       <div class="block px-6 py-4 my-6 w-full bg-white rounded-lg dark:bg-charcoal md:flex justify-between">
         <div class="flex-1 break-words">
           {% if entry.external_url %}
-            <p>{{ entry.external_url|escape|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange' }}</p>
+            <p>
+              {{ entry.external_url|escape|urlize|url_target_blank:'text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange' }}
+            </p>
           {% endif %}
 
           {% if entry.news.attachment %}
-            <a href="{{ entry.news.attachment.url }}" class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ entry.news.attachment_filename }}</a>
+            <a href="{{ entry.news.attachment.url }}"
+               class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange">{{ entry.news.attachment_filename }}</a>
           {% endif %}
           {% with content_to_display=entry.content|default:entry.visible_content %}
             {% if content_to_display %}
@@ -90,7 +102,8 @@
 
         {% if entry.image %}
           <div class="items-start">
-            <img src="{{ entry.image.url }}" class="block mb-2 w-full md:w-[300px] md:ml-5 md:mt-1 border border-black flex-shrink-0" />
+            <img src="{{ entry.image.url }}"
+                 class="block mb-2 w-full md:w-[300px] md:ml-5 md:mt-1 border border-black flex-shrink-0" />
           </div>
         {% endif %}
       </div>
@@ -100,12 +113,14 @@
       <div class="flex my-4 md:mx-auto md:w-3/4">
         <div class="w-1/2 text-left">
           {% if next %}
-            <a href="{{ next.get_absolute_url }}" class="py-1 px-2 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75 dark:hover:text-orange">Newer Entry</a>
+            <a href="{{ next.get_absolute_url }}"
+               class="py-1 px-2 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75 dark:hover:text-orange">Newer Entry</a>
           {% endif %}
         </div>
         <div class="w-1/2 text-right">
           {% if prev %}
-            <a href="{{ prev.get_absolute_url }}" class="py-1 px-2 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75 dark:hover:text-orange">Older Entry</a>
+            <a href="{{ prev.get_absolute_url }}"
+               class="py-1 px-2 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75 dark:hover:text-orange">Older Entry</a>
           {% endif %}
         </div>
       </div>
@@ -115,12 +130,14 @@
       <div class="flex my-4 md:mx-auto md:w-3/4">
         <div class="w-1/2 text-left">
           {% if next_in_category %}
-            <a href="{{ next_in_category.get_absolute_url }}" class="py-1 px-2 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75 dark:hover:text-orange">Newer {{ entry.tag|title }} Entry</a>
+            <a href="{{ next_in_category.get_absolute_url }}"
+               class="py-1 px-2 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75 dark:hover:text-orange">Newer {{ entry.tag|title }} Entry</a>
           {% endif %}
         </div>
         <div class="w-1/2 text-right">
           {% if prev_in_category %}
-            <a href="{{ prev_in_category.get_absolute_url }}" class="py-1 px-2 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75 dark:hover:text-orange">Older {{ entry.tag|title }} Entry</a>
+            <a href="{{ prev_in_category.get_absolute_url }}"
+               class="py-1 px-2 text-xs text-white rounded-md border md:text-sm border-orange bg-orange hover:bg-orange/75 dark:bg-charcoal dark:hover:bg-charcoal/75 dark:hover:text-orange">Older {{ entry.tag|title }} Entry</a>
           {% endif %}
         </div>
       </div>

@@ -76,10 +76,13 @@
           x-show="!jsReady"
           :disabled="jsReady">
     {% for value, label in options %}
-      <option value="{{ value }}"{% if value in selected_values %} selected{% endif %}>{{ label }}</option>
+      <option value="{{ value }}"
+              {% if value in selected_values %}selected{% endif %}>{{ label }}</option>
     {% endfor %}
   </select>
-  <div class="dropdown dropdown--combo" :class="{ 'dropdown--open': open }" x-cloak>
+  <div class="dropdown dropdown--combo"
+       :class="{ 'dropdown--open': open }"
+       x-cloak>
     <div class="dropdown__trigger"
          :class="{ 'dropdown__trigger--active': open }"
          @click="if (!open) toggleOpen()"
@@ -87,8 +90,7 @@
       <!-- Closed state: show selected values or placeholder -->
       <template x-if="!open">
         <span class="multiselect__trigger-text">
-          <span x-show="selectedValues.length > 0"
-                x-text="displayText"></span>
+          <span x-show="selectedValues.length > 0" x-text="displayText"></span>
           <span class="dropdown__trigger-placeholder"
                 x-show="selectedValues.length === 0">{{ placeholder|default:"Search..." }}</span>
         </span>
@@ -118,20 +120,9 @@
         {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
       </button>
     </div>
-    <div class="dropdown__panel"
-         x-show="open"
-         @click.away="open = false"
-         @keydown.escape.prevent="open = false; setTimeout(() => $refs.chevronBtn.focus())"
-         x-transition:enter="transition ease-out duration-100"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-75"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         style="display: none"
-         role="listbox"
-         aria-multiselectable="true"
-         {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}>
+    <div class="dropdown__panel" x-show="open" @click.away="open = false" @keydown.escape.prevent="open = false; setTimeout(() => $refs.chevronBtn.focus())" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" style="display: none" role="listbox" aria-multiselectable="true"
+      {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
+      >
       <div class="dropdown__list" x-ref="list">
         <template x-for="option in filtered" :key="option.value">
           <div class="multiselect__item"

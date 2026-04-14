@@ -22,10 +22,16 @@
 {% endcomment %}
 <div class="library-filter">
   {# Hidden checkbox drives open/close — no URL hash needed #}
-  <input type="checkbox" id="{{ filter_id }}-toggle" class="library-filter__toggle" hidden>
+  <input type="checkbox"
+         id="{{ filter_id }}-toggle"
+         class="library-filter__toggle"
+         hidden>
 
   {# Mobile trigger — hidden on desktop #}
-  <label class="library-filter__trigger" for="{{ filter_id }}-toggle" role="button" tabindex="0">
+  <label class="library-filter__trigger"
+         for="{{ filter_id }}-toggle"
+         role="button"
+         tabindex="0">
     Filter
     {% include "includes/icon.html" with icon_name="expand" icon_class="library-filter__trigger-icon" icon_size=16 icon_viewbox="0 0 16 16" %}
   </label>
@@ -38,7 +44,11 @@
        :aria-modal="mobile ? 'true' : null"
        aria-label="Filter libraries">
     <nav class="library-filter__nav">
-      <label class="library-filter__close" for="{{ filter_id }}-toggle" role="button" tabindex="0" aria-label="Close filters">
+      <label class="library-filter__close"
+             for="{{ filter_id }}-toggle"
+             role="button"
+             tabindex="0"
+             aria-label="Close filters">
         {% include "includes/icon.html" with icon_name="close" icon_class="library-filter__close-icon" icon_size=16 icon_viewbox="0 0 24 24" %}
         Close
       </label>
