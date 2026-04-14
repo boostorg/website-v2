@@ -55,7 +55,7 @@ upload_images() {
   # ─────────────────────────────────────────────
   check_source_files() {
     # Returns 0 if files exist, 1 if empty
-    if [[ -n "$(find "$SOURCE_DIR" -maxdepth 1 -mindepth 1 -type f 2>/dev/null)" ]]; then
+    if [[ -n "$(find "$SOURCE_DIR" -maxdepth 1 -mindepth 1 2>/dev/null)" ]]; then
       return 0
     else
       return 1
