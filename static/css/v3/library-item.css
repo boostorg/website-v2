@@ -24,13 +24,13 @@
 
 .library-item-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--space-large);
 }
 
 @media (max-width: 1024px) {
   .library-item-card-grid {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -287,6 +287,7 @@ a.library-item__name:hover {
 
 @media (max-width: 767px) {
   .library-item-card-grid {
+    grid-template-columns: 1fr;
     gap: var(--space-medium);
   }
 
