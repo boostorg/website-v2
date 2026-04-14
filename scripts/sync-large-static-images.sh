@@ -12,7 +12,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_DIR="$(dirname "$SCRIPT_DIR")/static/static-large/"
 
 # ─────────────────────────────────────────────
-# 0. PARSE COMMAND-LINE OPTIONS
+# PARSE COMMAND-LINE OPTIONS
 # ─────────────────────────────────────────────
 usage() {
   cat <<EOF
@@ -46,33 +46,16 @@ validate_dependencies() {
 upload_images() {
   local all_buckets="${1:-false}"
   # ─────────────────────────────────────────────
-  # 1. CHECK FOR AWS CLI
+  # CHECK FOR AWS CLI
   # ─────────────────────────────────────────────
   validate_dependencies
-
-  # ─────────────────────────────────────────────
-  # 3. CHECK SOURCE FOLDER
-  # ─────────────────────────────────────────────
-  check_source_files() {
-    # Returns 0 if files exist, 1 if empty
-    if [[ -n "$(find "$SOURCE_DIR" -maxdepth 1 -mindepth 1 2>/dev/null)" ]]; then
-      return 0
-    else
-      return 1
-    fi
-  }
-
-  if ! check_source_files; then
-    echo "Error: The source folder $SOURCE_DIR is empty. Please place files there before uploading."
-    exit 1
-  fi
 
   echo ""
   echo "Source files found in $SOURCE_DIR:"
   ls -1 "$SOURCE_DIR"
 
   # ─────────────────────────────────────────────
-  # 4. PROMPT FOR DESTINATION PATH
+  # PROMPT FOR DESTINATION PATH
   # ─────────────────────────────────────────────
   is_valid_dest() {
     local dest="$1"
@@ -107,7 +90,7 @@ upload_images() {
   echo "Destination path: $DEST_PATH"
 
   # ─────────────────────────────────────────────
-  # 5. UPLOAD TO BUCKETS
+  # UPLOAD TO BUCKETS
   # ─────────────────────────────────────────────
   UPLOAD_FAILED=0
 
@@ -142,7 +125,7 @@ upload_images() {
   done
 
   # ─────────────────────────────────────────────
-  # 6. POST-UPLOAD SUMMARY
+  # POST-UPLOAD SUMMARY
   # ─────────────────────────────────────────────
   echo ""
   if [[ $UPLOAD_FAILED -ne 0 ]]; then
