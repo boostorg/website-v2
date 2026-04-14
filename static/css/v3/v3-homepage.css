@@ -83,10 +83,13 @@ body:has(.homepage-v3) .header {
 
 .license-card .horizontal-card {
   max-width: 100%;
-  min-height: 358px;
 }
 
 @media (min-width: 768px) {
+  .license-card .horizontal-card {
+    min-height: 358px;
+  }
+
   .license-card .horizontal-card .horizontal-card__image {
     flex: 0 0 205px;
     aspect-ratio: 1 / 1;
