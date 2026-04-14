@@ -1,3 +1,4 @@
+from django.http import Http404
 from waffle import flag_is_active
 
 
@@ -11,6 +12,9 @@ class V3Mixin:
         v3_template_name: str — template to render when v3 is active
 
     And override get_v3_context_data() to supply view-specific context.
+
+    When the flag is off and no legacy template_name exists (i.e. a
+    V3-only view), dispatch returns 404.
     """
 
     v3_template_name = None
@@ -20,6 +24,8 @@ class V3Mixin:
             self._v3_active = True
             return self.render_v3_response()
         self._v3_active = False
+        if not getattr(self, "template_name", None):
+            raise Http404
         return super().dispatch(request, *args, **kwargs)
 
     def get_v3_context_data(self, **kwargs):
