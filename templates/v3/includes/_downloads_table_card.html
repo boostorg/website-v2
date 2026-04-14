@@ -10,13 +10,6 @@
     {% include "v3/includes/_downloads_table_card.html" with downloads=downloads %}
 {% endcomment %}
 {% if downloads %}
-<div class="card downloads-table-card">
-  {% if heading %}
-    <div class="card__header">
-      <span class="card__title">{{ heading }}</span>
-    </div>
-    <hr class="card__hr" />
-  {% endif %}
   <div class="downloads-table-card__wrapper">
     <table class="downloads-table-card__table">
       <thead>
@@ -60,5 +53,4 @@
       </tbody>
     </table>
   </div>
-</div>
 {% endif %}
