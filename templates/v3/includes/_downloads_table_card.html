@@ -1,0 +1,64 @@
+{% comment %}
+  Downloads Table Card — a card containing the platform downloads table.
+  Follows the card pattern (border, radius, padding) but with table content.
+
+  Variables:
+    downloads   (dict, required) — dict of {os_name: [download_file, ...]} grouped by operating system
+    heading     (string, optional) — card heading, defaults to none
+
+  Usage:
+    {% include "v3/includes/_downloads_table_card.html" with downloads=downloads %}
+{% endcomment %}
+{% if downloads %}
+<div class="card downloads-table-card">
+  {% if heading %}
+    <div class="card__header">
+      <span class="card__title">{{ heading }}</span>
+    </div>
+    <hr class="card__hr" />
+  {% endif %}
+  <div class="downloads-table-card__wrapper">
+    <table class="downloads-table-card__table">
+      <thead>
+        <tr>
+          <th class="downloads-table-card__th">Platform</th>
+          <th class="downloads-table-card__th">File</th>
+          <th class="downloads-table-card__th downloads-table-card__th--hash">SHA256 Hash</th>
+          <th class="downloads-table-card__th downloads-table-card__th--copy"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for os, download_files in downloads.items %}
+          {% for download in download_files %}
+            <tr class="downloads-table-card__tr">
+              {% if forloop.first %}
+                <td class="downloads-table-card__td downloads-table-card__td--platform" rowspan="{{ download_files|length }}">
+                  {% if 'Unix' in os %}
+                    <span class="downloads-table-card__os-icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="linux" icon_size=16 icon_viewbox="0 0 16 16" %}</span>
+                  {% elif 'Windows' in os or 'Binary' in os %}
+                    <span class="downloads-table-card__os-icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="windows" icon_size=16 icon_viewbox="0 0 16 16" %}</span>
+                  {% endif %}
+                  {{ os }}
+                </td>
+              {% endif %}
+              <td class="downloads-table-card__td downloads-table-card__td--file">
+                <a href="{{ download.url }}" class="downloads-table-card__file-link">{{ download.display_name }}</a>
+              </td>
+              <td class="downloads-table-card__td downloads-table-card__td--hash" title="{{ download.checksum }}">
+                <span class="downloads-table-card__hash-text">{{ download.checksum }}</span>
+              </td>
+              <td class="downloads-table-card__td downloads-table-card__td--copy">
+                <button class="downloads-table-card__copy-btn"
+                        aria-label="Copy checksum"
+                        data-copy-text="{{ download.checksum }}">
+                  {% include "includes/icon.html" with icon_name="copy-to-clipboard" icon_size=16 icon_viewbox="0 0 16 16" %}
+                </button>
+              </td>
+            </tr>
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}

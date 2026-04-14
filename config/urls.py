@@ -99,6 +99,7 @@ from versions.views import (
     PastReviewListView,
     ScheduledReviewListView,
     VersionDetail,
+    V3VersionDetail,
     ReportPreviewView,
     ReportPreviewGenerateView,
 )
@@ -268,6 +269,16 @@ urlpatterns = (
             "v3/accounts/login/",
             V3LoginView.as_view(),
             name="v3-login",
+        ),
+        path(
+            "v3/releases/",
+            V3VersionDetail.as_view(),
+            name="v3-releases-most-recent",
+        ),
+        path(
+            "v3/releases/<boostversionslug:version_slug>/",
+            V3VersionDetail.as_view(),
+            name="v3-release-detail",
         ),
         path("libraries/", LibraryListDispatcher.as_view(), name="libraries"),
         path(

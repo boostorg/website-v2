@@ -1,0 +1,307 @@
+/* ============================================
+   Release Detail Page — v3
+   ============================================ */
+
+body:has(.releases-v3) .header {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  right: 0;
+}
+
+/* Hero background color override for release pages */
+body:has(.releases-v3) .hero-library--no-image {
+  background: var(--color-surface-weak-accent-yellow);
+}
+
+.release-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  padding: 0 var(--space-large);
+}
+
+/* ── Cards row (highlights + downloads side by side) ── */
+.release-detail__cards-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-large);
+  align-items: start;
+}
+
+.release-detail__cards-row .card-group {
+  max-width: 100%;
+}
+
+/* Remove last-child bottom border in release highlights */
+.release-detail__cards-row .card-group__item:last-child {
+  border-bottom: none;
+}
+
+/* ── Release Highlight item (used inside _release_highlights_card.html) ── */
+.release-highlight {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-medium);
+  padding: var(--space-card);
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+}
+
+.release-highlight__title {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.14px;
+  color: var(--color-text-primary);
+}
+
+.release-highlight__description {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: -0.12px;
+  color: var(--color-text-secondary);
+}
+
+/* ── Downloads Table Card ── */
+.downloads-table-card {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.downloads-table-card__wrapper {
+  overflow-x: auto;
+  padding: 0 var(--space-large);
+}
+
+.downloads-table-card__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-primary);
+}
+
+.downloads-table-card__th {
+  font-family: var(--font-display);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.14px;
+  color: var(--color-text-primary);
+  text-align: left;
+  padding: var(--space-default) var(--space-medium);
+  border-bottom: 1px solid var(--color-stroke-weak);
+  white-space: nowrap;
+}
+
+.downloads-table-card__th--hash {
+  min-width: 120px;
+}
+
+.downloads-table-card__th--copy {
+  width: 32px;
+  padding: var(--space-default) var(--space-s);
+}
+
+.downloads-table-card__tr {
+  border-bottom: 1px solid var(--color-stroke-weak);
+}
+
+.downloads-table-card__tr:last-child {
+  border-bottom: none;
+}
+
+.downloads-table-card__td {
+  padding: var(--space-default) var(--space-medium);
+  vertical-align: middle;
+  font-size: var(--font-size-xs);
+  line-height: 1.2;
+  letter-spacing: -0.1px;
+}
+
+.downloads-table-card__td--platform {
+  white-space: nowrap;
+  font-weight: var(--font-weight-medium);
+  vertical-align: middle;
+}
+
+.downloads-table-card__os-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-right: var(--space-default);
+}
+
+.downloads-table-card__td--file {
+  word-break: break-all;
+}
+
+.downloads-table-card__file-link {
+  color: var(--color-text-link-accent);
+  text-decoration: underline;
+  text-decoration-skip-ink: auto;
+  font-size: var(--font-size-xs);
+}
+
+.downloads-table-card__file-link:hover {
+  color: var(--color-text-primary);
+}
+
+.downloads-table-card__td--hash {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-link-accent);
+  font-size: var(--font-size-xs);
+}
+
+.downloads-table-card__hash-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.downloads-table-card__td--copy {
+  width: 32px;
+  padding: var(--space-default) var(--space-s);
+}
+
+.downloads-table-card__copy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-icon-secondary);
+  padding: 0;
+  border-radius: var(--border-radius-s);
+  transition: color 0.15s ease;
+}
+
+.downloads-table-card__copy-btn:hover {
+  color: var(--color-text-link-accent);
+}
+
+.downloads-table-card__copy-btn.copied {
+  color: var(--color-accent-strong-green);
+}
+
+/* ── Release Notes card ── */
+.release-detail__release-notes {
+  max-width: 100%;
+}
+
+.release-detail__release-notes-body {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.release-detail__release-notes-body h1,
+.release-detail__release-notes-body h2,
+.release-detail__release-notes-body h3,
+.release-detail__release-notes-body h4 {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  margin: var(--space-large) 0 var(--space-default);
+}
+
+.release-detail__release-notes-body h1 { font-size: var(--font-size-large); }
+.release-detail__release-notes-body h2 { font-size: var(--font-size-medium); }
+.release-detail__release-notes-body h3 { font-size: var(--font-size-base); }
+
+.release-detail__release-notes-body p,
+.release-detail__release-notes-body li {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.release-detail__release-notes-body a {
+  color: var(--color-text-link-accent);
+}
+
+.release-detail__release-notes-body ul,
+.release-detail__release-notes-body ol {
+  padding-left: var(--space-xlarge);
+  margin: var(--space-default) 0;
+}
+
+/* ── Contribute card (green accent) ── */
+.release-detail__contribute-card {
+  max-width: 458px;
+  background: var(--color-surface-weak-accent-green);
+  border-color: var(--color-stroke-weak);
+}
+
+/* ── Bottom cards row ── */
+.release-detail__bottom-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-large);
+  align-items: start;
+}
+
+.release-detail__bottom-cards .card {
+  max-width: 100%;
+}
+
+/* ============================================
+   Tablet (≤ 1024px)
+   ============================================ */
+@media (max-width: 1024px) {
+  .release-detail__cards-row {
+    grid-template-columns: 1fr;
+  }
+
+  .release-detail__bottom-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .release-detail__bottom-cards > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ============================================
+   Mobile (≤ 767px)
+   ============================================ */
+@media (max-width: 767px) {
+  .release-detail {
+    padding: 0 var(--space-default);
+    gap: var(--space-large);
+  }
+
+  .release-detail__cards-row {
+    grid-template-columns: 1fr;
+  }
+
+  .release-detail__bottom-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .release-detail__bottom-cards > :last-child {
+    grid-column: auto;
+  }
+
+  .downloads-table-card__td--hash {
+    max-width: 100px;
+  }
+}

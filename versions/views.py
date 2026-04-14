@@ -244,3 +244,76 @@ class ReportPreviewGenerateView(BoostVersionMixin, View):
         )
         messages.success(request, "Report generation queued.")
         return redirect("release-report-preview", version_slug=version_name)
+
+
+class V3VersionDetail(VersionDetail):
+    """V3 release detail page rendered at /v3/releases/<slug>/."""
+
+    template_name = "v3/release_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        obj = context.get("selected_version") or self.get_object()
+
+        # Hero context
+        context["hero_title"] = (
+            f"{context.get('heading', 'Release')} ({obj.display_name})"
+        )
+        # Sentinel list: the hero template's {% for %}{% empty %} renders
+        # default tags when the list is empty.  A single blank-label entry
+        # makes the loop iterate once but produces an invisible tag.
+        context["hide_tags"] = [{"label": "", "url": ""}]
+
+        # What's new highlights
+        context["whats_new_heading"] = f"What's new in {obj.display_name}"
+        context["whats_new_items"] = [
+            {
+                "title": "Asio: Major Executor & Reactor Overhaul",
+                "description": "New inline executor model, improved cancellation, expanded epoll configuration, and numerous correctness + performance fixes.",
+            },
+            {
+                "title": "Container: Complete deque Rebuild",
+                "description": "A modern, faster, drastically smaller deque implementation that simplifies future optimizations and resolves multiple long-standing issues.",
+            },
+            {
+                "title": "Redis: Major Redesign of Cancellation & Connection Behavior",
+                "description": "True per-operation cancellation, deprecated old mechanisms, smarter health checking, and guaranteed Valkey compatibility.",
+            },
+            {
+                "title": "Math: Brand-New Reverse-Mode Automatic Differentiation Library",
+                "description": "Adds full AD capabilities to Boost.Math, enabling modern ML/scientific workflows directly within Boost.",
+            },
+            {
+                "title": "Geometry: New is_valid for Polyhedral Surfaces + Performance Fixes",
+                "description": "A major algorithm addition, improved conversion support, and fixes to reduce compile times and avoid stack overflows.",
+            },
+        ]
+
+        # v3-compatible contributor list
+        if context.get("top_contributors_release"):
+            context["v3_contributors"] = [
+                {
+                    "name": author.display_name,
+                    "avatar_url": author.avatar_url or "",
+                    "profile_url": author.github_profile_url or "",
+                    "role": "Contributor",
+                }
+                for author in context["top_contributors_release"]
+            ]
+        return context
+
+    def dispatch(self, request, *args, **kwargs):
+        version_slug = self.kwargs.get("version_slug")
+        if not version_slug:
+            return redirect(
+                "v3-release-detail", version_slug=LATEST_RELEASE_URL_PATH_STR
+            )
+        self.object = self.get_object()
+        self.set_extra_context(request)
+        context = self.get_context_data()
+        response = self.render_to_response(context)
+        set_selected_boost_version(version_slug, response)
+        return response
+
+    def get_template_names(self):
+        return [self.template_name]
