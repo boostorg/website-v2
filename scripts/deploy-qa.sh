@@ -145,9 +145,21 @@ cd "${WORK_DIR}"
 PR_REF="refs/pull/${PR_NUMBER}/head"
 LOCAL_PR_BRANCH="pr/${PR_NUMBER}"
 
-echo "==> Switching to '${TARGET_BRANCH}' before fetching …"
+echo "==> Switching to '${TARGET_BRANCH}' before fetching ..."
 if git show-ref --quiet "refs/heads/${TARGET_BRANCH}"; then
     eval "git checkout \"${TARGET_BRANCH}\" ${ERR_REDIRECT}"
+
+    # Check if local branch has diverged from remote (rebased scenario)
+    if git ls-remote --exit-code origin "refs/heads/${TARGET_BRANCH}" &>/dev/null; then
+        # Get the commit SHAs for comparison
+        LOCAL_SHA=$(git rev-parse "HEAD")
+        REMOTE_SHA=$(git rev-parse "origin/${TARGET_BRANCH}" 2>/dev/null || echo "")
+
+        if [[ -n "$REMOTE_SHA" && "$LOCAL_SHA" != "$REMOTE_SHA" ]]; then
+            echo "==> Local branch has diverged from remote (likely rebased). Resetting to remote..."
+            eval "git reset --hard \"origin/${TARGET_BRANCH}\" ${ERR_REDIRECT}"
+        fi
+    fi
 else
     if git ls-remote --exit-code origin "refs/heads/${TARGET_BRANCH}" &>/dev/null; then
         eval "git checkout -b \"${TARGET_BRANCH}\" \"origin/${TARGET_BRANCH}\" ${ERR_REDIRECT}"
