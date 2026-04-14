@@ -6,7 +6,7 @@ set -euo pipefail
 DEFAULT_BUCKET="stage.boost.org.v2"
 S3_BUCKETS="boost.org.v2 boost.org-cppal-dev-v2 ${DEFAULT_BUCKET}"
 AWS_PROFILE='sync-boost-images'
-DEFAULT_DEST="/static/img/v3"
+DEFAULT_DEST="/static/"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_DIR="$(dirname "$SCRIPT_DIR")/static/static-large/"
