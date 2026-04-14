@@ -19,8 +19,8 @@
 <div class="field field--file{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
   {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
   {# djlint:off #}
-  x-data="{ 
-    jsReady: false, 
+  x-data="{
+    jsReady: false,
     fileName: ''{% if preview %}, previewUrl: ''{% endif %} }"
   x-init="
     jsReady = true;
@@ -28,8 +28,8 @@
     if (form) form.addEventListener('reset', () => {
       fileName = '';
       {% if preview %}
-        if (previewUrl) { 
-          URL.revokeObjectURL(previewUrl); 
+        if (previewUrl) {
+          URL.revokeObjectURL(previewUrl);
           previewUrl = '';
         }
       {% endif %}
