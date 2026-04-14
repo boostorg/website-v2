@@ -1,8 +1,5 @@
 # chore: reformat JS and CSS files with Prettier
-53ad786b2c25c3ae786251f8097ec698206c1a38
+bef90bd7ed1cb22f85d3d4246ce9aab56f08823f
 
 # chore: reformat HTML templates with djlint
-e5144798216a5e0c28acfaf8282449088d866abe
-
-# fix: run djlint on new files coming from develop after the rebase
-a7622857f6e31c4b9b14a8e0754310f16103c14a
+9b9d1228ff52fbd920db176930f31c94e665aad9
