@@ -123,52 +123,87 @@ struct ContentView: View {
         logs = "Starting deployment for PR #\(sanitizedPR)...\n\n"
 
         let script = #"""
+        set -euo pipefail
         export PATH=/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin
-        export PROJECT_DIR="$HOME/projects/cpp_alliance/qa"
-        export REPO_DIR="$PROJECT_DIR/website-v2"
 
-        # --- THE HEADLESS GIT AUTHENTICATION FIX ---
-        # 1. Prevent Git from trying to open a terminal prompt (which crashes the app)
+        # --- GIT AUTHENTICATION ---
         export GIT_TERMINAL_PROMPT=0
-
-        # 2. Inject configuration securely via environment variables (inherited by deploy-qa.sh)
         export GIT_CONFIG_COUNT=4
-        # Rewrite all GitHub URLs to use the Token automatically
         export GIT_CONFIG_KEY_0="url.https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/.insteadOf"
         export GIT_CONFIG_VALUE_0="https://github.com/"
-        # Completely disable the macOS Keychain credential helper so it ignores revoked tokens
         export GIT_CONFIG_KEY_1="credential.helper"
         export GIT_CONFIG_VALUE_1=""
-        # Set committer info just in case a rebase/merge is triggered
         export GIT_CONFIG_KEY_2="user.name"
         export GIT_CONFIG_VALUE_2="${GITHUB_USERNAME}"
         export GIT_CONFIG_KEY_3="user.email"
         export GIT_CONFIG_VALUE_3="${GITHUB_USERNAME}@users.noreply.github.com"
-        # ---------------------------------------------
 
-        mkdir -p "$PROJECT_DIR"
+        # --- Configuration ---
+        MAIN_ORG="boostorg"
+        MAIN_REPO="website-v2"
+        MY_ORG="cppalliance"
+        MY_REPO="website-v2-qa"
+        TARGET_BRANCH="cppal-dev"
+        MAIN_REMOTE_NAME="upstream"
+        MY_REMOTE_URL="https://github.com/${MY_ORG}/${MY_REPO}.git"
+        MAIN_REMOTE_URL="https://github.com/${MAIN_ORG}/${MAIN_REPO}.git"
+        QA_ROOT="$HOME/qa-automation"
+        WORK_DIR="${QA_ROOT}/${MY_ORG}/${MY_REPO}"
+        PR_NUMBER="\#(sanitizedPR)"
 
-        # Check for the .git folder specifically. If they still have the old unzipped version, trash it.
-        if [ ! -d "$REPO_DIR/.git" ]; then
-            echo "Cleaning up legacy unzipped folder..."
-            rm -rf "$REPO_DIR"
-            echo "Cloning 'develop' branch natively..."
-            # The env vars above automatically handle the authentication for this!
-            git clone -b develop "https://github.com/boostorg/website-v2.git" "$REPO_DIR"
-        else
-            echo "Repository already exists. Updating..."
-            cd "$REPO_DIR" || exit 1
-            git checkout develop
-            git pull origin develop
-        fi
-
-        cd "$REPO_DIR/scripts" || { echo "Error: scripts directory not found."; exit 1; }
-
-        echo "Executing: ./deploy-qa.sh \"\#(sanitizedPR)\" --yes --verbose"
+        echo "Deploying PR #${PR_NUMBER} ..."
         echo "----------------------------------------"
 
-        # Run the deployment script natively. All inner git commands will inherit the Auth Env Vars.
-        ./deploy-qa.sh "\#(sanitizedPR)" --yes --verbose 2>&1
+        # --- Ensure the QA repo is cloned ---
+        mkdir -p "$QA_ROOT"
+        if [[ ! -d "${WORK_DIR}/.git" ]]; then
+            echo "==> Cloning ${MY_ORG}/${MY_REPO} into ${WORK_DIR} …"
+            mkdir -p "$(dirname "${WORK_DIR}")"
+            git clone "${MY_REMOTE_URL}" "${WORK_DIR}"
+        fi
+        cd "${WORK_DIR}"
+
+        if ! git remote get-url "${MAIN_REMOTE_NAME}" &>/dev/null; then
+            echo "==> Adding remote '${MAIN_REMOTE_NAME}' → ${MAIN_REMOTE_URL}"
+            git remote add "${MAIN_REMOTE_NAME}" "${MAIN_REMOTE_URL}"
+        fi
+
+        # --- Fetch PR and deploy ---
+        PR_REF="refs/pull/${PR_NUMBER}/head"
+        LOCAL_PR_BRANCH="pr/${PR_NUMBER}"
+
+        echo "==> Switching to '${TARGET_BRANCH}' before fetching ..."
+        if git show-ref --quiet "refs/heads/${TARGET_BRANCH}"; then
+            git checkout "${TARGET_BRANCH}"
+            if git ls-remote --exit-code origin "refs/heads/${TARGET_BRANCH}" &>/dev/null; then
+                LOCAL_SHA=$(git rev-parse "HEAD")
+                REMOTE_SHA=$(git rev-parse "origin/${TARGET_BRANCH}" 2>/dev/null || echo "")
+                if [[ -n "$REMOTE_SHA" && "$LOCAL_SHA" != "$REMOTE_SHA" ]]; then
+                    echo "==> Local branch has diverged from remote. Resetting to remote..."
+                    git reset --hard "origin/${TARGET_BRANCH}"
+                fi
+            fi
+        else
+            if git ls-remote --exit-code origin "refs/heads/${TARGET_BRANCH}" &>/dev/null; then
+                git checkout -b "${TARGET_BRANCH}" "origin/${TARGET_BRANCH}"
+            else
+                git checkout -b "${TARGET_BRANCH}"
+            fi
+        fi
+
+        echo "==> Fetching PR #${PR_NUMBER} from ${MAIN_REMOTE_NAME} …"
+        git fetch "${MAIN_REMOTE_NAME}" "${PR_REF}:${LOCAL_PR_BRANCH}"
+
+        PR_SHA=$(git rev-parse "${LOCAL_PR_BRANCH}")
+        echo "    PR commit SHA: ${PR_SHA}"
+
+        echo "==> Hard-resetting '${TARGET_BRANCH}' to PR commit ${PR_SHA} …"
+        git reset --hard "${PR_SHA}"
+
+        echo "==> Force-pushing to origin/${TARGET_BRANCH} …"
+        git push --force origin "${TARGET_BRANCH}"
+
+        echo "Done."
         """#
 
         DispatchQueue.global(qos: .userInitiated).async {
