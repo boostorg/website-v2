@@ -52,7 +52,6 @@
   font-family: var(--font-sans);
   color: var(--color-text-primary);
   border-radius: var(--code-block-card-radius);
-  box-shadow: var(--card-shadow-value);
 }
 
 .code-block-card .code-block {
