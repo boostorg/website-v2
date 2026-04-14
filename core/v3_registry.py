@@ -21,16 +21,14 @@ class V3Status(Enum):
 
     LEGACY_ONLY   — default; no V3 work started.
 
-    V3_OPTIONAL   — legacy template by default, V3 template via waffle flag
-                    (i.e. the view uses `V3Mixin`).
-
-    V3_PARALLEL   — a distinct V3 view lives at a `/v3/` URL alongside the
-                    legacy view at its legacy URL.
+    V3_OPTIONAL   — legacy template by default, V3 template via waffle flag.
+                    The view has both `template_name` (legacy) and
+                    `v3_template_name` (V3).
 
     V3_ONLY       — V3 is the only implementation; no legacy counterpart.
+                    Returns 404 when the `v3` flag is off.
     """
 
     LEGACY_ONLY = "legacy_only"
     V3_OPTIONAL = "v3_optional"
-    V3_PARALLEL = "v3_parallel"
     V3_ONLY = "v3_only"

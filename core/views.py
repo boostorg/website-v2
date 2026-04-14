@@ -6,7 +6,6 @@ from django.utils import timezone
 
 from textwrap import dedent
 from urllib.parse import urljoin
-from waffle import flag_is_active
 
 import structlog
 from bs4 import BeautifulSoup
@@ -283,12 +282,7 @@ class PrivacyPolicyView(V3Mixin, MarkdownTemplateView):
 
 class LearnPageView(V3Mixin, TemplateView):
     v3_template_name = "v3/learn_page.html"
-    v3_status = V3Status.V3_OPTIONAL
-
-    def dispatch(self, request, *args, **kwargs):
-        if not flag_is_active(request, "v3"):
-            return HttpResponseNotFound()
-        return super().dispatch(request, *args, **kwargs)
+    v3_status = V3Status.V3_ONLY
 
     def get_v3_context_data(self, **kwargs):
         ctx = self.get_context_data(**kwargs)
@@ -1252,10 +1246,10 @@ class QRCodeView(View):
         return HttpResponseRedirect(redirect_path)
 
 
-class V3ComponentDemoView(TemplateView):
+class V3ComponentDemoView(V3Mixin, TemplateView):
     """Demo page for V3 design system components."""
 
-    template_name = "base.html"
+    v3_template_name = "base.html"
     v3_status = V3Status.V3_ONLY
 
     def get_context_data(self, **kwargs):
