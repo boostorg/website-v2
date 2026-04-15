@@ -1539,6 +1539,11 @@ class V3ComponentDemoView(TemplateView):
     template_name = "base.html"
 
     def get_context_data(self, **kwargs):
+        from django.urls import reverse
+        from libraries.utils import (
+            commit_data_to_stats_bars,
+            patch_commit_authors,
+        )
 
         CODE_DEMO_BEAST = """int main()
         {
@@ -1675,6 +1680,28 @@ class V3ComponentDemoView(TemplateView):
             "member_since": "2008",
             "role": "C++ Alliance Board Member",
             "flag_emoji": "🇺🇸",
+        }
+
+        context["button_badge_data"] = {
+            "group_label": "button badges",
+            "group_name": "button-badge-select",
+            "badge_buttons": 2
+            * [
+                {
+                    "value": "gold",
+                    "icon_src": f"{badge_img}/badge-gold-medal.png",
+                    "icon_alt": "Gold Medal",
+                    "checked": False,
+                }
+            ]
+            + [
+                {
+                    "value": "gold",
+                    "icon_src": f"{badge_img}/badge-gold-medal.png",
+                    "icon_alt": "Gold Medal",
+                    "checked": True,
+                }
+            ],
         }
 
         cpp_options = [
@@ -2095,6 +2122,84 @@ class V3ComponentDemoView(TemplateView):
         else:
             context["example_library_not_found"] = library_slug
             context["example_library_slug"] = library_slug
+
+        demo_library_items = []
+        demo_libs_qs = (
+            Library.objects.filter(
+                slug__in=[
+                    "accumulators",
+                    "algorithm",
+                    "align",
+                    "any",
+                    "array",
+                    "asio",
+                    "assign",
+                    "atomic",
+                    "beast",
+                    "bimap",
+                    "bind",
+                ]
+            )
+            .prefetch_related("categories", "authors")
+            .order_by("name")
+        )
+        # Collect one author per demo library and patch CommitAuthor data
+        demo_authors = {}
+        for lib in demo_libs_qs:
+            author = (
+                lib.authors.exclude(email__startswith="deleted-")
+                .exclude(github_username="")
+                .first()
+            ) or lib.authors.exclude(email__startswith="deleted-").first()
+            if author:
+                demo_authors[lib.pk] = author
+        patch_commit_authors(list(demo_authors.values()))
+
+        for lib in demo_libs_qs:
+            lv = (
+                LibraryVersion.objects.filter(version=latest, library=lib).first()
+                if latest
+                else None
+            )
+            cats = [
+                {"label": cat.name, "url": "#", "variant": "neutral"}
+                for cat in lib.categories.all()[:3]
+            ]
+            author = demo_authors.get(lib.pk)
+            demo_library_items.append(
+                {
+                    "library_name": lib.display_name_short,
+                    "library_url": reverse(
+                        "library-detail",
+                        kwargs={
+                            "version_slug": "latest",
+                            "library_slug": lib.slug,
+                        },
+                    ),
+                    "description": lib.description or "",
+                    "categories": cats,
+                    "cpp_version": (
+                        lv.get_cpp_standard_minimum_display()
+                        if lv and lv.cpp_standard_minimum
+                        else "C++03"
+                    ),
+                    "author": {
+                        "name": author.display_name if author else "Unknown",
+                        "role": "Contributor",
+                        "avatar_url": author.get_avatar_url() if author else "",
+                        "badge_url": f"{badge_img}/badge-first-place.png",
+                    },
+                    "doc_url": reverse(
+                        "library-detail",
+                        kwargs={
+                            "version_slug": "latest",
+                            "library_slug": lib.slug,
+                        },
+                    ),
+                }
+            )
+        context["demo_library_items"] = demo_library_items
+
         return context
 
 

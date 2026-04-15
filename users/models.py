@@ -289,6 +289,22 @@ class User(BaseUser):
             with suppress(AttributeError, MissingSource):
                 return getattr(self.image_thumbnail, "url", None)
 
+    def get_avatar_url(self):
+        """Return the best available avatar URL.
+
+        Tries the profile image thumbnail first, then falls back to
+        the linked CommitAuthor avatar. Returns empty string when no
+        image is available so the avatar template falls back to a
+        colored initials circle.
+        """
+        if url := self.get_thumbnail_url():
+            return url
+        if (ca := getattr(self, "commitauthor", None)) and getattr(
+            ca, "avatar_url", None
+        ):
+            return ca.avatar_url
+        return ""
+
     def get_hq_image_url(self):
         # convenience method for templates
         if self.hq_image and self.hq_image_render:

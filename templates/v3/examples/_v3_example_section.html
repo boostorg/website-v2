@@ -30,6 +30,7 @@
   - Styles: static/css/v3/v3-examples-section.css — h3 headings inside
     __block are styled via the structural selector (no class needed).
 {% endcomment %}
+{% load static %}
 <section class="v3-examples-section" aria-labelledby="v3-examples-heading">
   <h2 id="v3-examples-heading" class="v3-examples-section__heading">V3 Examples for testing</h2>
 
@@ -78,6 +79,17 @@
           {% include "v3/includes/_button_tooltip_v3.html" with label="Left" position="left" %}
           {% include "v3/includes/_button_tooltip_v3.html" with label="Icon only tooltip" position="bottom" %}
         </div>
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Badge Buttons" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        {% with button_badge_data as data %}
+        {% include "v3/includes/_badge_button_group.html" with group_label=data.group_label group_name=data.group_name badge_buttons=data.badge_buttons only  %}
+        {% endwith %}
       </div>
     </div>
   {% endwith %}
@@ -227,6 +239,30 @@
     {% endwith %}
   {% endif %}
 
+  {% with section_title="Library Item (List)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
+    <div class="v3-examples-section__example-box">
+      <ul class="library-item-list">
+        {% for item in demo_library_items %}
+          {% include "v3/includes/_library_item.html" with variant="list" library_name=item.library_name library_url=item.library_url description=item.description categories=item.categories cpp_version=item.cpp_version author=item.author doc_url=item.doc_url %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endwith %}
+
+  {% with section_title="Library Item (Card)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
+    <div class="v3-examples-section__example-box library-item-card-grid">
+      {% for item in demo_library_items %}
+        {% include "v3/includes/_library_item.html" with variant="card" library_name=item.library_name library_url=item.library_url description=item.description categories=item.categories cpp_version=item.cpp_version author=item.author doc_url=item.doc_url %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endwith %}
+
   {% if example_library_choices %}
     {% with section_title="Commits per release" %}
       <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
@@ -336,6 +372,15 @@
     <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
       {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge_icon_src=demo_user_card.badge_icon_src member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji compact=True %}
+    </div>
+  </div>
+  {% endwith %}
+
+  {% with section_title="User Card (logged out)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_user_card.html" with logged_out=True cta_url="#" %}
     </div>
   </div>
   {% endwith %}

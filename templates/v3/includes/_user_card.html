@@ -13,6 +13,9 @@
     cta_url         (string, optional)  - CTA button target URL. Omit to hide button.
     cta_label       (string, optional)  - CTA button text. Defaults to "Create Post".
     compact         (bool, optional)    - Render compact variant (no background, no CTA). Default false.
+    logged_out      (bool, optional)    - Render logged-out variant (heading, description, Sign up CTA). Default false.
+    heading         (string, optional)  - Heading text for logged-out variant.
+    description     (string, optional)  - Description text for logged-out variant.
     extra_attrs     (string, optional)  - Extra HTML attributes for analytics (rendered raw)
 
   Usage:
@@ -21,7 +24,23 @@
 
     Compact (no background, no CTA):
       {% include "v3/includes/_user_card.html" with username="vinniefalco" avatar_url="/img/avatar.png" compact=True %}
+
+    Logged out (heading, description, Sign up CTA):
+      {% include "v3/includes/_user_card.html" with logged_out=True heading="Join the Boost Community" description="Sign up to create posts, earn badges, and contribute to the community." cta_url="/sign-up/" cta_label="Sign Up" %}
 {% endcomment %}
+{% if logged_out %}
+<section class="user-card user-card--logged-out card" aria-label="{{ heading|default:"Create an account" }}" {{ extra_attrs|safe }}>
+  <h3 class="user-card__heading">{{ heading|default:"Create an account" }}</h3>
+  <hr class="card__hr">
+  <p class="user-card__description">{{ description|default:"Advance your career, learn from experts, and help shape the future of Boost and C++." }}</p>
+  {% if cta_url %}
+    <hr class="card__hr">
+    <div class="btn-row">
+      {% include "v3/includes/_button.html" with url=cta_url label=cta_label|default:"Sign up now" style="teal" extra_classes="btn-flex" %}
+    </div>
+  {% endif %}
+</section>
+{% else %}
 <section class="user-card {% if compact %}user-card--compact{% else %}user-card--lg user-card--green{% endif %} card" aria-label="{{ username }}" {{ extra_attrs|safe }}>
 
   {# Avatar with flag overlay #}
@@ -62,3 +81,4 @@
   {% endif %}
 
 </section>
+{% endif %}

@@ -1,0 +1,47 @@
+{% comment %}
+  Library Item — displays a Boost library in list or card layout.
+
+  Variables:
+    variant              (string, required)  - "list" | "card"
+    library_name         (string, required)  - Library display name, e.g. "Boost.Geometry"
+    library_url          (string, optional)  - Link for the library name
+    description          (string, required)  - Short library description
+    categories           (list, required)    - List of {label, url, variant} dicts for category tags
+    cpp_version          (string, required)  - e.g. "C++ 14" — rendered as neutral tag
+    author               (dict, required)    - Author object for _user_profile.html (name, role, avatar_url, badge_url)
+    doc_url              (string, required)  - Documentation link URL
+    extra_attrs          (string, optional)  - Extra HTML attributes for analytics
+
+  Usage (list):
+    {% include "v3/includes/_library_item.html" with variant="list" library_name="Boost.Geometry" library_url="#" description="A library for solving geometry problems." categories=cats cpp_version="C++ 14" author=author doc_url="/libs/geometry/doc/" %}
+
+  Usage (card):
+    {% include "v3/includes/_library_item.html" with variant="card" library_name="Boost.Asio" description="Portable networking and low-level I/O." categories=cats cpp_version="C++ 11" author=author doc_url="/libs/asio/doc/" %}
+{% endcomment %}
+{% if variant == "list" %}<li class="library-item library-item--list" {{ extra_attrs|safe }}>{% else %}<div class="library-item library-item--card" {{ extra_attrs|safe }}>{% endif %}
+
+  <div class="library-item__header">
+    {% if library_url %}
+      <a href="{{ library_url }}" class="library-item__name">{{ library_name }}</a>
+    {% else %}
+      <span class="library-item__name">{{ library_name }}</span>
+    {% endif %}
+    <p class="library-item__description">{{ description }}</p>
+    <div class="library-item__tags">
+      {% for cat in categories %}
+        {% include "v3/includes/_category_tag.html" with tag_label=cat.label url=cat.url variant=cat.variant %}
+      {% endfor %}
+      <span class="version-tag version-tag--default library-item__cpp-version">C++ {{ cpp_version|cut:"C++" }}</span>
+    </div>
+  </div>
+
+  <div class="library-item__contributor">
+    {% include "v3/includes/_user_profile.html" with author=author only %}
+  </div>
+
+  <div class="library-item__actions">
+    <span class="version-tag version-tag--default library-item__cpp-version--desktop">C++ {{ cpp_version|cut:"C++" }}</span>
+    {% include "v3/includes/_button.html" with url=doc_url label="" icon_name="documentation" icon_size=32 icon_viewbox="0 0 16 16" style="icon-library" aria_label="View documentation for "|add:library_name %}
+  </div>
+
+{% if variant == "list" %}</li>{% else %}</div>{% endif %}
