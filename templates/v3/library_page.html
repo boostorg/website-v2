@@ -16,7 +16,7 @@
       <div class="hero-home__content">
         <h1 class="hero-home__headline">Find a battle-tested library for the problem you're solving right now.</h1>
         <div class="hero-home__actions">
-          {% include 'v3/includes/_field_text.html' with label='search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' %}
+          {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' %}
         </div>
       </div>
       <div class="hero-library__image">
@@ -24,5 +24,15 @@
       </div>
     </div>
   </section>
-  {% include 'v3/includes/_library_filter.html' with filter_id='demo-library-filter' fields=library_filter_fields %}
+  {% include 'v3/includes/_library_filter.html' with filter_id='library-page-filter' fields=library_filter_fields %}
+{% endblock %}
+
+{% block footer_js %}
+{{ block.super }}
+<script>
+    const filterSection = document.getElementById("library-page-filter");
+    console.log(filterSection)
+    //const viewInput = filterSection.querySelector("input[name='view']");
+    //console.log(viewInput)
+</script>
 {% endblock %}
