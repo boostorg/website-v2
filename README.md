@@ -181,7 +181,7 @@ Large static images and other assets are stored in S3 buckets rather than in the
 ### Prerequisites
 
 - `awscli` must be installed.
-- Configure a set of credentials in your `~/.aws/credentials` file with the profile name `upload-images`:
+- Configure a set of credentials in your `~/.aws/credentials` file with the profile name `sync-boost-images`:
 
   ```ini
   [sync-boost-images]
@@ -207,8 +207,6 @@ To upload to all S3 buckets:
 $ just up_sync_images_all_buckets
 ```
 
-*Note: The script will prompt you for the S3 destination path, defaulting to `/static/img/v3`.*
-
 #### Downloading
 
 To download missing or outdated static items from the staging bucket to your local directory:
@@ -221,11 +219,11 @@ $ just down_sync_images
 
 ## Deploying
 
-TDB
+TBD
 
 ## Production Environment Considerations
 
-TDB
+TBD
 
 ---
 

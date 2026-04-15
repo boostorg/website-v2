@@ -2,7 +2,6 @@ set dotenv-load := false
 COMPOSE_FILE := "docker-compose.yml"
 ENV_FILE := ".env"
 DJANGO_VERSION := "5.2"
-VALID_BUCKETS := "boost.org.v2 stage.boost.org.v2 boost.org-cppal-dev-v2"
 
 
 @_default:

@@ -6,8 +6,7 @@ set -euo pipefail
 DEFAULT_BUCKET="stage.boost.org.v2"
 S3_BUCKETS="boost.org.v2 boost.org-cppal-dev-v2 ${DEFAULT_BUCKET}"
 AWS_PROFILE='sync-boost-images'
-DEFAULT_DEST="/static/"
-DEST_PATH=${DEFAULT_DEST}
+DEST_PATH="/static/"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE_DIR="$(dirname "$SCRIPT_DIR")/static/static-large/"
@@ -28,7 +27,7 @@ Options:
   --help           Display this help and exit.
 
 Configuration:
-  The default destination for upload is ${DEFAULT_DEST}.
+  The default destination for upload is ${DEST_PATH}.
   In your .aws/credentials file, add a set of credentials:
 
   [${AWS_PROFILE}]
@@ -123,6 +122,8 @@ download_images() {
 
 
 ALL_BUCKETS=false
+UPLOAD_COMMAND=false
+DOWNLOAD_COMMAND=false
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --help)
@@ -133,12 +134,10 @@ while [[ $# -gt 0 ]]; do
       ALL_BUCKETS=true
       ;;
     --up-sync)
-      upload_images "$ALL_BUCKETS"
-      exit $?
+      UPLOAD_COMMAND=true
       ;;
     --down-sync)
-      download_images
-      exit $?
+      DOWNLOAD_COMMAND=true
       ;;
     *)
       echo "Unknown option: $1"
@@ -148,3 +147,18 @@ while [[ $# -gt 0 ]]; do
   esac
   shift
 done
+
+if [ "${UPLOAD_COMMAND}" == true ] && [ "${DOWNLOAD_COMMAND}" == true ]; then
+  echo "Uploading and downloading must be done seperately. Exiting.";
+  exit 0;
+elif [ "${UPLOAD_COMMAND}" == true ]; then
+  upload_images "$ALL_BUCKETS";
+  exit $?;
+elif [ "${DOWNLOAD_COMMAND}" == true ]; then
+  download_images;
+  exit $?;
+else
+  echo "Unknown command";
+  usage;
+  exit 1;
+fi
