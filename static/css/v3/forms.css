@@ -597,6 +597,7 @@
   font-size: var(--font-size-small, 14px);
   font-weight: var(--font-weight-regular, 400);
   line-height: var(--line-height-relaxed, 1.24);
+  letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-primary, #050816);
 }
 

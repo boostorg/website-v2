@@ -48,6 +48,7 @@
     {% include "v3/includes/_field_text.html" with name="email" type="email" label="Email Address*" placeholder="Email Address" required=True validate_type="email" validate_error="That doesn't look quite right, please double-check your email and try again." error=form.email.errors.0 %}
     {% include "v3/includes/_field_password.html" with name="password1" label="Password*" placeholder="Password" required=True password_rules=password_rules %}
     {% include "v3/includes/_field_password.html" with name="password2" label="Re-enter Password*" placeholder="Password" required=True error=form.password2.errors.0 password_rules="" validate_match="#field-password1" validate_match_error="Passwords do not match, please try again." %}
+    {% include "v3/includes/_field_text.html" with name="username" label="Username" placeholder="Username" %}
     {% if form.non_field_errors %}
       {% for error in form.non_field_errors %}<p class="field__error" role="alert">{{ error }}</p>{% endfor %}
     {% endif %}
