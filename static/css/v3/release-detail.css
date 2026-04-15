@@ -87,19 +87,12 @@ body:has(.releases-v3) .hero-library--no-image {
   margin: var(--space-default) 0;
 }
 
-/* ── Contribute card (green accent) ── */
-.release-detail__contribute-card {
-  max-width: 458px;
-  background: var(--color-surface-weak-accent-green);
-  border-color: var(--color-stroke-weak);
-}
-
 /* ── Bottom cards row ── */
 .release-detail__bottom-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-large);
-  align-items: start;
+  align-items: stretch;
 }
 
 .release-detail__bottom-cards .card {

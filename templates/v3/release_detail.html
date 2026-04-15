@@ -40,21 +40,9 @@
     <section class="release-detail__bottom-cards">
       {% include "v3/includes/_mailing_list_card.html" %}
 
-      <div class="release-detail__contribute-card card">
-        <div class="card__header">
-          <span class="card__title">Want to fix bugs, review code, maintain libraries, and propose new features?</span>
-        </div>
-        <hr class="card__hr" />
-        <div class="card__column px-large">
-          <span class="text-secondary">Read our contributors guide and join the Boost community.</span>
-        </div>
-        <hr class="card__hr" />
-        <div class="card__cta_section">
-          {% include "v3/includes/_button.html" with style="green" url="/contribute" label="Start here" only %}
-        </div>
-      </div>
+      {% include "v3/includes/_promo_card.html" with title="Want to fix bugs, review code, maintain libraries, and propose new features?" text="Read our contributors guide and join the Boost community." button_url="/contribute" button_label="Start here" theme="green" %}
 
-      {% include "v3/includes/_horizontal_card.html" with title="" text="Boost is publicly released three times a year in April, August, and December. Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process." button_url="/releases" button_label="Read release process" button_style="primary" image_url="/static/img/v3/home-page/heros.png" %}
+      {% include "v3/includes/_media_text_card.html" with text="Boost is publicly released three times a year in April, August, and December. Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process." image_url="/static/img/v3/home-page/heros.png" button_url="/releases" button_label="Read release process" %}
     </section>
 
   </div>
