@@ -1,5 +1,8 @@
 .library-page-hero .hero-home__block {
     padding: 0;
+    height: fit-content;
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-xl);
 }
 
 .library-page-hero .hero-home__actions {
