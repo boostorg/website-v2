@@ -13,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, FormView, TemplateView
 
 from core.githubhelper import GithubAPIClient
+from core.mixins import V3Mixin
 from versions.exceptions import BoostImportedDataException
 from versions.models import Version
 
@@ -64,15 +65,108 @@ class LibraryListDispatcher(View):
         return view(request, *args, **self.kwargs)  # , *args, **kwargs)
 
 
-class LibraryListBase(BoostVersionMixin, VersionAlertMixin, ListView):
+class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
     """Based on LibraryVersion, list all of our libraries in grid format for a specific
     Boost version, or default to the current version."""
 
     queryset = LibraryVersion.objects.prefetch_related(
         "authors", "library", "library__categories"
     ).defer("data")
+    object_list = queryset
     ordering = "library__name"
     template_name = "libraries/grid_list.html"
+    v3_template_name = "v3/library_page.html"
+
+    def get_v3_context_data(self, **kwargs):
+        context = {}
+        cpp_options = [
+            ("all", "All"),
+            ("cpp03", "C++03"),
+            ("cpp11", "C++11"),
+            ("cpp14", "C++14"),
+            ("cpp17", "C++17"),
+            ("cpp20", "C++20"),
+            ("cpp23", "C++23"),
+        ]
+        context["library_filter_fields"] = [
+            {
+                "type": "dropdown",
+                "name": "view",
+                "label": "View",
+                "options": [
+                    ("list", "List"),
+                    ("grid", "Grid"),
+                    ("category", "Category"),
+                    ("grading", "Grading"),
+                ],
+                "selected": "list",
+                "width": "narrow",
+            },
+            {
+                "type": "dropdown",
+                "name": "grading",
+                "label": "Grading",
+                "options": [
+                    ("all", "All"),
+                    ("flagship", "Flagship"),
+                    ("core", "Core"),
+                    ("deprecated", "Deprecated"),
+                    ("legacy", "Legacy"),
+                ],
+                "selected": "all",
+                "width": "wide",
+            },
+            {
+                "type": "dropdown",
+                "name": "min_cpp",
+                "label": "Min. C++ Version",
+                "options": cpp_options,
+                "selected": "all",
+                "width": "narrow",
+            },
+            {
+                "type": "dropdown",
+                "name": "max_cpp",
+                "label": "Max. C++ Version",
+                "options": cpp_options,
+                "selected": "all",
+                "width": "narrow",
+            },
+            {
+                "type": "combo_multi",
+                "name": "category",
+                "label": "Category",
+                "options": [
+                    ("algorithms", "Algorithms"),
+                    ("asynchronous", "Asynchronous"),
+                    ("awaitables", "Awaitables"),
+                    ("containers", "Containers"),
+                    ("coroutines", "Coroutines"),
+                    ("correctness", "Correctness"),
+                    # More dummy data to show scrollbar
+                    ("data_processing", "Data processing"),
+                    ("debugging", "Debugging"),
+                    ("file_systems", "File systems"),
+                    ("formatting", "Formatting"),
+                    ("graphics", "Graphics"),
+                ],
+                "width": "wide",
+                "placeholder": "Search",
+            },
+            {
+                "type": "dropdown",
+                "name": "sort",
+                "label": "Sort by",
+                "options": [
+                    ("alphabetical", "Alphabetical"),
+                    ("popular", "Most Popular"),
+                    ("updated", "Recently Updated"),
+                    ("release", "Release Date"),
+                ],
+                "selected": "alphabetical",
+            },
+        ]
+        return context
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -104,7 +198,7 @@ class LibraryListBase(BoostVersionMixin, VersionAlertMixin, ListView):
         return queryset.filter(**version_filter_args)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**self.kwargs)
+        context = super().get_context_data(**kwargs)
         context["categories"] = self.get_categories(context["selected_version"])
         # todo: add tests for sort order
         if self.kwargs.get("category_slug"):
