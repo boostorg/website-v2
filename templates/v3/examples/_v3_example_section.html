@@ -336,6 +336,15 @@
   </div>
   {% endwith %}
 
+  {% with section_title="User Card (logged out)" %}
+  <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+    <h3>{{ section_title }}</h3>
+    <div class="v3-examples-section__example-box">
+      {% include "v3/includes/_user_card.html" with logged_out=True cta_url="#" %}
+    </div>
+  </div>
+  {% endwith %}
+
   {% with section_title="Create Account Card" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
