@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 import structlog
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models.query import QuerySet
@@ -288,6 +290,22 @@ class V3VersionDetail(VersionDetail):
                 "description": "A major algorithm addition, improved conversion support, and fixes to reduce compile times and avoid stack overflows.",
             },
         ]
+
+        context["release_notes"] = {
+            "title": "Release notes version 1.90.0",
+            "markdown": dedent(
+                """
+            ######Insert anything Required
+
+            * Could
+            * be
+            * a
+            * list
+
+            Or **bold** and *italics* and whatever it needs to be formatted or [use links](https://www.example.com)!
+            """
+            ),
+        }
 
         # v3-compatible contributor list
         if context.get("top_contributors_release"):

@@ -19,6 +19,12 @@ body:has(.releases-v3) .hero-library--no-image {
   flex-direction: column;
   gap: var(--space-xl);
   padding: var(--space-xlarge) var(--space-large);
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.release-detail .card {
+  min-width: 100%;
 }
 
 /* ── Cards row (highlights + downloads side by side) ── */

@@ -15,12 +15,10 @@
 {% block content %}
   {% if selected_version %}
 
-  {# ── Hero ── #}
-  {% include "v3/includes/_hero_library.html" with title=hero_title category_tags=hide_tags doc_url=documentation_url source_url=version.github_url github_url="https://github.com/boostorg/boost/issues" only %}
+  {% include "v3/includes/_hero_library.html" with title=hero_title doc_url=documentation_url source_url=version.github_url github_url="https://github.com/boostorg/boost/issues" only %}
 
   <div class="release-detail">
 
-    {# ── What's new + Downloads Table (side by side) ── #}
     <div class="release-detail__cards-row">
       {% include "v3/includes/_release_highlights_card.html" with heading=whats_new_heading items=whats_new_items %}
       {% include "v3/includes/_downloads_table_card.html" with downloads=downloads %}
@@ -28,17 +26,9 @@
 
     {# ── Release notes full ── #}
     {% if release_notes %}
-      <section class="release-detail__release-notes card">
-        <div class="card__header">
-          <h2 class="card__title">Release notes version {{ version.display_name }}</h2>
-        </div>
-        <hr class="card__hr" />
-        <div class="card__column px-large">
-          <div class="release-detail__release-notes-body boostlook">
-            {{ release_notes|safe }}
-          </div>
-        </div>
-      </section>
+        {% with release_notes as d %}
+          {% include "v3/includes/_markdown_card.html" with title=d.title markdown=d.markdown %}
+        {% endwith %}
     {% endif %}
 
     {# ── Contributors ── #}
@@ -64,7 +54,7 @@
         </div>
       </div>
 
-      {% include "v3/includes/_horizontal_card.html" with title="" text="Boost is publicly released three times a year in April, August, and December. Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process." button_url="/releases" button_label="Read release process" button_style="primary" %}
+      {% include "v3/includes/_horizontal_card.html" with title="" text="Boost is publicly released three times a year in April, August, and December. Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process." button_url="/releases" button_label="Read release process" button_style="primary" image_url="/static/img/v3/home-page/heros.png" %}
     </section>
 
   </div>
