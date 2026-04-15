@@ -1,0 +1,34 @@
+{% comment %}
+  Header Avatar — user avatar trigger with dropdown menu.
+  CSS-only toggle via checkbox; no JS required to open/close.
+
+  Variables:
+    avatar_id  (string, required)    — unique ID prefix, e.g. "desktop-user-menu"
+    request    (HttpRequest, required) — Django request object (for user avatar/name)
+
+  Usage:
+    {% include "v3/includes/header/_header_avatar.html" with avatar_id="desktop-user-menu" %}
+{% endcomment %}
+<div class="header__user-menu">
+  <input type="checkbox" id="{{ avatar_id }}-toggle" class="header__user-toggle" aria-label="User menu" aria-controls="{{ avatar_id }}-menu" aria-haspopup="menu">
+  <label for="{{ avatar_id }}-toggle" class="header__user-trigger" aria-hidden="true">
+    <span class="header__user-avatar-inner">
+      {% with user_avatar_url=request.user.get_thumbnail_url %}
+        {% if user_avatar_url %}
+          {% include "v3/includes/_avatar_v3.html" with src=user_avatar_url size="xl" %}
+        {% else %}
+          {% include "v3/includes/_avatar_v3.html" with name=request.user.display_name size="xl" %}
+        {% endif %}
+      {% endwith %}
+    </span>
+  </label>
+  <div id="{{ avatar_id }}-menu"
+       role="menu"
+       aria-orientation="vertical"
+       aria-labelledby="{{ avatar_id }}-toggle"
+       class="header__user-dropdown">
+    <a href="{% url 'account_logout' %}" class="header__user-dropdown-link" role="menuitem">Logout</a>
+    <a href="{% url 'profile-account' %}" class="header__user-dropdown-link" role="menuitem">My Profile</a>
+    <a href="{% url 'profile-account' %}" class="header__user-dropdown-link" role="menuitem">Edit Profile</a>
+  </div>
+</div>

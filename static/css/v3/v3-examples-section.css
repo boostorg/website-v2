@@ -6,6 +6,13 @@
   color: var(--color-text-primary);
 }
 
+body:has(.v3-examples-section) header {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  right: 0;
+}
+
 .v3-examples-section__heading {
   font-size: var(--font-size-xl, 20px);
   font-weight: var(--font-weight-medium, 500);

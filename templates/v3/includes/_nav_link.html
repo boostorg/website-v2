@@ -1,0 +1,24 @@
+{% comment %}
+  Nav Link — a single primary navigation link with four visual states.
+
+  States:
+    default   — base appearance
+    unread    — displays a notification dot after the label
+    selected  — highlights the currently active page
+    hover     — handled via CSS
+
+  Variables:
+    url        (string, required)               — link href
+    label      (string, required)               — link text
+    nav_id     (string, optional, default unset) — if set, compared to `active_nav_item` context to apply selected state
+    is_active  (bool, optional, default false)   — explicitly applies selected state (overrides nav_id check)
+    is_unread  (bool, optional, default false)   — shows notification dot
+
+  Usage:
+    {% include "v3/includes/_nav_link.html" with url="/libraries/" label="Libraries" nav_id="libraries" %}
+    {% include "v3/includes/_nav_link.html" with url="/news/" label="Posts" nav_id="news" is_unread=True %}
+    {% include "v3/includes/_nav_link.html" with url="#" label="Selected" is_active=True %}
+{% endcomment %}
+<a href="{{ url }}" class="nav-link{% if is_active or nav_id and active_nav_item == nav_id %} nav-link--active{% endif %}{% if is_unread %} nav-link--unread{% endif %}"{% if is_active or nav_id and active_nav_item == nav_id %} aria-current="page"{% endif %}>
+  {{ label }}{% if is_unread %}<span class="nav-link__sr-hint"> (new)</span><span class="nav-link__dot" aria-hidden="true"></span>{% endif %}
+</a>

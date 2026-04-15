@@ -1,0 +1,58 @@
+/*
+  Nav Link
+  Primary navigation link with default, unread, selected, and hover states.
+*/
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-size: var(--font-size-small);
+  font-weight: 400;
+  font-family: var(--font-sans);
+  line-height: var(--line-height-relaxed);
+  letter-spacing: var(--letter-spacing-tight);
+  padding: 0 var(--space-large);
+  height: 32px;
+  width: fit-content;
+  border-radius: var(--border-radius-m);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+/* ── Hover ─────────────────────────────────────── */
+
+.nav-link:hover, .nav-link[data-hover] {
+  color: var(--color-text-primary);
+  background: var(--color-navigation-hover);
+}
+
+/* ── Selected ──────────────────────────────────── */
+
+.nav-link--active {
+  text-decoration: underline !important;
+}
+
+/* ── Unread (notification dot) ─────────────────── */
+
+.nav-link--unread {
+  position: relative;
+}
+
+.nav-link__sr-hint {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.nav-link__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  margin-left: var(--space-s);
+  background: var(--color-surface-brand-accent-default);
+}

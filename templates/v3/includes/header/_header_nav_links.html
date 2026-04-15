@@ -1,0 +1,11 @@
+{% comment %}
+  Header Nav Links — the 6 primary navigation links shared between desktop and mobile.
+
+  Expects url variables (libraries_url, learn_url, etc.) resolved by the parent template.
+{% endcomment %}
+{% include "v3/includes/_nav_link.html" with url=libraries_url label="Libraries" nav_id="libraries" %}
+{% include "v3/includes/_nav_link.html" with url="#" label="Use Cases" %}
+{% include "v3/includes/_nav_link.html" with url=learn_url label="Learn" nav_id="learn" %}
+{% include "v3/includes/_nav_link.html" with url=community_url label="Community" nav_id="community" %}
+{% include "v3/includes/_nav_link.html" with url=news_url label="Posts" nav_id="news" is_unread=True %}
+{% include "v3/includes/_nav_link.html" with url=releases_url label="Download" nav_id="releases" %}
