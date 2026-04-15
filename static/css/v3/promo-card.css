@@ -83,3 +83,10 @@
 .promo-card__btn {
   width: 100%;
 }
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+  .promo-card__body {
+    flex: 0 0 auto;
+  }
+}

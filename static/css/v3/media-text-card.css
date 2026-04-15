@@ -68,13 +68,13 @@
   width: 100%;
 }
 
-/* ── Responsive ── */
+/* ── Mobile ── */
 @media (max-width: 767px) {
   .media-text-card__body {
-    flex-direction: column;
+    padding: var(--space-large) var(--space-medium);
   }
 
-  .media-text-card__text {
-    max-width: 100%;
+  .media-text-card__cta {
+    padding: 0 var(--space-medium) var(--space-medium);
   }
 }

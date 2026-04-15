@@ -258,9 +258,7 @@ class V3VersionDetail(VersionDetail):
         obj = context.get("selected_version") or self.get_object()
 
         # Hero context
-        context["hero_title"] = (
-            f"{context.get('heading', 'Release')} ({obj.display_name})"
-        )
+        context["hero_title"] = f"Latest release ({obj.display_name})"
         # Sentinel list: the hero template's {% for %}{% empty %} renders
         # default tags when the list is empty.  A single blank-label entry
         # makes the loop iterate once but produces an invisible tag.
@@ -292,18 +290,36 @@ class V3VersionDetail(VersionDetail):
         ]
 
         context["release_notes"] = {
-            "title": "Release notes version 1.90.0",
+            "title": f"Release notes version {obj.display_name}",
             "markdown": dedent(
-                """
-            ######Insert anything Required
+                """\
+                ## Dependencies
 
-            * Could
-            * be
-            * a
-            * list
+                There was 1 dependency added (in 1 library) and 16 dependencies removed (in 10 libraries) this release.
 
-            Or **bold** and *italics* and whatever it needs to be formatted or [use links](https://www.example.com)!
-            """
+                - [Official Site](https://www.boost.org)
+                - [Documentation (master branch)](https://www.boost.org/doc/libs/master/)
+                - [Autobahn|Testsuite WebSocket Results](https://www.boost.org)
+
+                ## New Libraries
+
+                **OpenMethod:**
+                - Open-(multi-)methods in C++17 and above, from Jean-Louis Leroy.
+
+                ## Updated Libraries
+
+                **Asio**
+                - Added the execution::inline_exception_handling property to describe what exception handling guarantees are made when execution occurs inline.
+                - Added inline_executor, which always executes the submitted function inline.
+                - Changed the default candidate executor for associated_executor from system_executor to inline_executor.
+                - Added the inline_or_executor<> adapter and inline_or() helper, which will execute inline if possible and otherwise delegate to another executor.
+                - Added overloads of dispatch, post and defer that take a function object to be run on the target executor, and deliver the result to the completion handler.
+                - Added the redirect_disposition completion token adapter, as a generic counterpart for redirect_error.
+                - Annotated deprecated items with the [[deprecated]] attribute.
+                - Added a new configuration parameter "reactor" / "reset_edge_on_partial_read", which determines whether a partial read consumes the edge when using epoll.
+                - Added new configuration parameters "reactor" / "use_eventfd" and "reactor" / "use_timerfd" that are used to determine whether the epoll backend uses eventfd and timerfd respectively.
+                - Added the missing preprocessor check for BOOST_ASIO_DISABLE_TIMERFD.
+                - Implemented a compile-time feature detection mechanism for io_uring."""
             ),
         }
 

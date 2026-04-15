@@ -112,3 +112,14 @@
 .downloads-table-card__copy-btn.copied {
   color: var(--color-accent-strong-green);
 }
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+  .downloads-table-card__wrapper {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .downloads-table-card__table {
+    min-width: 600px;
+  }
+}
