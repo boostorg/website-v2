@@ -128,15 +128,17 @@ body:has(.homepage-v3) .header {
         grid-template-columns: repeat(2, 1fr);
         grid-template-areas:
             "a f"
+            "a c"
             "d c"
             "e c"
+            "e b"
             "e b"
             "e ."
         ;
     }
 
     .card-masonry-top .item-f {
-      display: flex;
+      display: contents;
       grid-area: f;
     }
 
@@ -197,7 +199,7 @@ body:has(.homepage-v3) .header {
     }
 
     .card-masonry-top .item-f {
-      display: flex;
+      display: contents;
       grid-area: f;
     }
 }
