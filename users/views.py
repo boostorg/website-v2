@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import auth
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseNotFound, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, FormView
 from django.views.generic.base import TemplateView
@@ -21,7 +21,9 @@ from allauth.socialaccount.views import SignupView as SocialSignupView
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from waffle import flag_is_active
 
+from core.mixins import V3Mixin
 from libraries.models import CommitAuthorEmail
 from .forms import (
     PreferencesForm,
@@ -297,12 +299,17 @@ class CustomEmailVerificationSentView(EmailVerificationSentView):
         return context
 
 
-class V3AuthContextMixin:
+class V3AuthContextMixin(V3Mixin):
     """Shared context for all V3 auth pages (signup, login, password reset, etc.)."""
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["page_title"] = "Account"
+    def dispatch(self, request, *args, **kwargs):
+        if not flag_is_active(request, "v3"):
+            return HttpResponseNotFound()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_v3_context_data(self, **kwargs):
+        context = super().get_v3_context_data(**kwargs)
+        context["page_title"] = getattr(self, "page_title", "Account")
         context["foreground_image_url"] = (
             f"{settings.STATIC_URL}img/v3/auth-page/auth-page-foreground.png"
         )
@@ -318,17 +325,17 @@ class V3AuthContextMixin:
 
 
 class V3SignupView(V3AuthContextMixin, TemplateView):
-    template_name = "v3/accounts/signup.html"
+    v3_template_name = "v3/accounts/signup.html"
     page_title = "Create An Account"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_v3_context_data(self, **kwargs):
+        context = super().get_v3_context_data(**kwargs)
         context["password_rules"] = build_password_rules()
         return context
 
 
 class V3LoginView(V3AuthContextMixin, TemplateView):
-    template_name = "v3/accounts/login.html"
+    v3_template_name = "v3/accounts/login.html"
     page_title = "Login"
 
 
