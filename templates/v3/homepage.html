@@ -17,10 +17,10 @@
         {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="#" popular_terms=popular_terms %}
       </div>
       <div class="item-b">
-        <div class="homepage-desktop-only">
+        <div class="not-tablet">
           {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=demo_events_with_links variant="list" primary_cta_label="Download latest release" primary_cta_url="#" secondary_cta_label="View events calendar" secondary_cta_url="#" %}
         </div>
-        <div class="homepage-compact-only">
+        <div class="not-mobile not-desktop">
           {% with compact_events=demo_events_with_links|slice:":3" %}
             {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=compact_events variant="list" primary_cta_label="Download latest release" primary_cta_url="#" secondary_cta_label="View events calendar" secondary_cta_url="#" %}
           {% endwith %}
@@ -28,10 +28,10 @@
       </div>
       <div class="item-c">
         {% with data=posts_from_the_boost_community %}
-          <div class="homepage-desktop-only">
+          <div class="not-tablet">
             {% include "v3/includes/_post_card.html" with heading=data.heading items=data.items variant=data.variant theme=data.theme primary_cta_label=data.primary_cta_label primary_cta_url=data.primary_cta_url %}
           </div>
-          <div class="homepage-compact-only">
+          <div class="not-mobile not-desktop">
             {% with compact_items=data.items|slice:":2" %}
               {% include "v3/includes/_post_card.html" with heading=data.heading items=compact_items variant=data.variant theme=data.theme primary_cta_label=data.primary_cta_label primary_cta_url=data.primary_cta_url %}
             {% endwith %}
@@ -56,10 +56,10 @@
     <div class="card-masonry-bottom py-large">
       <div class="item-a">
         {% with data=stats_in_numbers %}
-          <div class="homepage-desktop-only">
+          <div class="not-tablet not-mobile">
             {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=data.example_library_commits_bars theme="default" primary_cta_label="View library" primary_cta_url="#" %}
           </div>
-          <div class="homepage-compact-only">
+          <div class="not-desktop">
             {% with compact_bars=data.example_library_commits_bars|slice:":5" %}
               {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=compact_bars theme="default" primary_cta_label="View library" primary_cta_url="#" %}
             {% endwith %}

@@ -66,14 +66,6 @@ body:has(.homepage-v3) .header {
     display: none;
 }
 
-.homepage-desktop-only {
-    display: contents;
-}
-
-.homepage-compact-only {
-    display: none;
-}
-
 .card-masonry-bottom {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -91,6 +83,21 @@ body:has(.homepage-v3) .header {
 
 .license-card .horizontal-card {
   max-width: 100%;
+}
+
+@media (min-width: 1280px) {
+  .not-desktop { display: none !important; }
+  .not-tablet, .not-mobile { display: contents; }
+}
+
+@media (min-width: 768px) and (max-width: 1279px) {
+  .not-tablet { display: none !important; }
+  .not-desktop, .not-mobile { display: contents; }
+}
+
+@media (max-width: 767px) {
+  .not-mobile { display: none !important; }
+  .not-desktop, .not-tablet { display: contents; }
 }
 
 @media (min-width: 768px) {
@@ -128,14 +135,6 @@ body:has(.homepage-v3) .header {
         ;
     }
 
-    .homepage-desktop-only {
-        display: none;
-    }
-
-    .homepage-compact-only {
-        display: contents;
-    }
-
     .card-masonry-top .item-f {
       display: flex;
       grid-area: f;
@@ -158,15 +157,6 @@ body:has(.homepage-v3) .header {
 }
 
 @media (max-width: 767px) {
-
-    .homepage-desktop-only {
-        display: none;
-    }
-
-    .homepage-compact-only {
-        display: contents;
-    }
-
     .homepage-container .hero-home {
       padding-left: var(--space-default);
       padding-right: var(--space-default);
