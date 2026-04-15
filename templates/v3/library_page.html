@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  Library
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/library-page.css' %}" rel="stylesheet" />
+{% endblock %}
+
+  {% block content %}
+  <section class="library-page-hero hero-home hero-home--no-image" aria-label="Hero">
+    <div class="hero-home__block">
+      <div class="hero-home__content">
+        <h1 class="hero-home__headline">Find a battle-tested library for the problem you're solving right now.</h1>
+        <div class="hero-home__actions">
+          {% include 'v3/includes/_field_text.html' with label='search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' %}
+        </div>
+      </div>
+      <div class="hero-library__image">
+        <img alt="" class="hero-library__img" src="{% static 'img/v3/solo-images/beaver-black-and-white.png' %}" loading="lazy" decoding="async" />
+      </div>
+    </div>
+  </section>
+  {% include 'v3/includes/_library_filter.html' with filter_id='demo-library-filter' fields=library_filter_fields %}
+{% endblock %}

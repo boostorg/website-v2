@@ -1,0 +1,20 @@
+.library-page-hero .hero-home__block {
+    padding: 0;
+}
+
+.library-page-hero .hero-home__actions {
+    width: 100%;
+}
+
+.library-page-hero .hero-home__actions .field {
+    width: 75%;
+}
+
+.library-page-hero .hero-home__content {
+    margin: 0;
+}
+
+.library-page-hero .hero-library__image {
+    height: auto;
+    width: autos;
+}
