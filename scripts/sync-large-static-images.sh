@@ -73,7 +73,6 @@ upload_images() {
     echo "Uploading to: $S3_DEST"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-    # Capture exit code; show stdout+stderr live via tee to /dev/null trick
     set +e
     aws s3 sync --profile "${AWS_PROFILE}" "$SOURCE_DIR" "$S3_DEST" 2>&1
     EXIT_CODE=$?
@@ -149,8 +148,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ "${UPLOAD_COMMAND}" == true ] && [ "${DOWNLOAD_COMMAND}" == true ]; then
-  echo "Uploading and downloading must be done seperately. Exiting.";
-  exit 0;
+  echo "Uploading and downloading must be done separately. Exiting.";
+  exit 1;
 elif [ "${UPLOAD_COMMAND}" == true ]; then
   upload_images "$ALL_BUCKETS";
   exit $?;
