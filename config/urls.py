@@ -32,7 +32,6 @@ from core.views import (
     PrivacyPolicyView,
     V3ComponentDemoView,
     LearnPageView,
-    V3HomepageView,
     ModernizedDocsView,
     RedirectToDocsView,
     RedirectToHTMLDocsView,
@@ -257,11 +256,6 @@ urlpatterns = (
             "v3/demo/learn-page/",
             staff_member_required(LearnPageView.as_view()),
             name="v3-learn-page",
-        ),
-        path(
-            "v3/homepage/",
-            V3HomepageView.as_view(),
-            name="v3-homepage",
         ),
         path("libraries/", LibraryListDispatcher.as_view(), name="libraries"),
         path(
