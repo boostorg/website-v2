@@ -307,10 +307,7 @@ Arguments:
 
 Options:
   --bundle           Build the DeployQA macOS GUI app and exit.
-  --merge            Perform a standard merge and regular git push.
-                     Without this flag the script hard-resets '${TARGET_QA_BRANCH}'
-                     to the PR's commit SHA and performs a force push instead.
-  --yes              Skip the confirmation prompt before pushing.
+  --yes              Skip the confirmation prompt before force-pushing.
   --verbose          Show Git error/warning messages (suppressed by default).
   --help             Show this help message and exit.
 
@@ -318,15 +315,12 @@ Workflow:
   1. Ensures \$HOME/qa-automation directory structure exists and the repo is cloned.
   2. Fetches the PR from ${MAIN_ORG}/${MAIN_REPO} into a local tracking branch.
   3. Switches to '${TARGET_QA_BRANCH}'.
-  4. Without --merge: hard-resets '${TARGET_QA_BRANCH}' to the PR commit SHA,
-     then force-pushes to origin.
-     With    --merge: merges the PR branch into '${TARGET_QA_BRANCH}',
-     then pushes normally to origin.
-  5. Prompts before any push so you stay in control.
+  4. Hard-resets '${TARGET_QA_BRANCH}' to the PR commit SHA, then force-pushes
+     to origin.
+  5. Prompts before force-pushing so you stay in control.
 
 Examples:
   $(basename "$0") 42              # Hard-reset + force-push PR #42
-  $(basename "$0") --merge 42      # Merge + push PR #42
   $(basename "$0") --bundle        # Build the DeployQA macOS app
 EOF
 }
@@ -334,7 +328,6 @@ EOF
 # ---------------------------------------------------------------------------
 # Parse arguments
 # ---------------------------------------------------------------------------
-DO_MERGE=false
 PUSH_AUTO=false
 VERBOSE=false
 PR_NUMBER=""
@@ -344,10 +337,6 @@ while [[ $# -gt 0 ]]; do
         --help|-h)
             usage
             exit 0
-            ;;
-        --merge)
-            DO_MERGE=true
-            shift
             ;;
         --yes)
             PUSH_AUTO=true
@@ -453,54 +442,24 @@ eval "git fetch \"${MAIN_REMOTE_NAME}\" \"${PR_REF}:${LOCAL_PR_BRANCH}\" ${ERR_R
 PR_SHA=$(git rev-parse "${LOCAL_PR_BRANCH}")
 echo "    PR commit SHA: ${PR_SHA}"
 
-if [[ "$DO_MERGE" == true ]]; then
-    # -----------------------------------------------------------------------
-    # MERGE mode: standard merge then normal push
-    # -----------------------------------------------------------------------
-    echo "==> Merging '${LOCAL_PR_BRANCH}' into '${TARGET_QA_BRANCH}' …"
-    eval "git merge \"${LOCAL_PR_BRANCH}\" --no-edit ${ERR_REDIRECT}"
+echo "==> Hard-resetting '${TARGET_QA_BRANCH}' to PR commit ${PR_SHA} …"
+eval "git reset --hard \"${PR_SHA}\" ${ERR_REDIRECT}"
 
-    SHOULD_PUSH=false
-    if [[ "$PUSH_AUTO" == true ]]; then
-        SHOULD_PUSH=true
-    else
-        printf "\nPush the PR to the branch '%s'? (y/n) " "${TARGET_QA_BRANCH}"
-        read -r ANSWER
-        if [[ "$ANSWER" =~ ^[Yy]$ ]]; then
-            SHOULD_PUSH=true
-        fi
-    fi
-
-    if [[ "$SHOULD_PUSH" == true ]]; then
-        echo "==> Pushing to origin/${TARGET_QA_BRANCH} …"
-        eval "git push origin \"${TARGET_QA_BRANCH}\" ${ERR_REDIRECT}"
-        echo "Done."
-    else
-        echo "Push skipped."
-    fi
+SHOULD_PUSH=false
+if [[ "$PUSH_AUTO" == true ]]; then
+    SHOULD_PUSH=true
 else
-    # -----------------------------------------------------------------------
-    # FORCE-PUSH mode: hard-reset TARGET_QA_BRANCH to the PR SHA, then force-push
-    # -----------------------------------------------------------------------
-    echo "==> Hard-resetting '${TARGET_QA_BRANCH}' to PR commit ${PR_SHA} …"
-    eval "git reset --hard \"${PR_SHA}\" ${ERR_REDIRECT}"
-
-    SHOULD_PUSH=false
-    if [[ "$PUSH_AUTO" == true ]]; then
+    printf "\nForce push the PR to the branch '%s'? (y/n) " "${TARGET_QA_BRANCH}"
+    read -r ANSWER
+    if [[ "$ANSWER" =~ ^[Yy]$ ]]; then
         SHOULD_PUSH=true
-    else
-        printf "\nForce push the PR to the branch '%s'? (y/n) " "${TARGET_QA_BRANCH}"
-        read -r ANSWER
-        if [[ "$ANSWER" =~ ^[Yy]$ ]]; then
-            SHOULD_PUSH=true
-        fi
     fi
+fi
 
-    if [[ "$SHOULD_PUSH" == true ]]; then
-        echo "==> Force-pushing to origin/${TARGET_QA_BRANCH} …"
-        eval "git push --force origin \"${TARGET_QA_BRANCH}\" ${ERR_REDIRECT}"
-        echo "Done."
-    else
-        echo "Force push skipped."
-    fi
+if [[ "$SHOULD_PUSH" == true ]]; then
+    echo "==> Force-pushing to origin/${TARGET_QA_BRANCH} …"
+    eval "git push --force origin \"${TARGET_QA_BRANCH}\" ${ERR_REDIRECT}"
+    echo "Done."
+else
+    echo "Force push skipped."
 fi
