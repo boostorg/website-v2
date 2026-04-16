@@ -11,7 +11,7 @@
 {% endcomment %}
 {% if downloads %}
   <div class="downloads-table-card__wrapper">
-    <table class="downloads-table-card__table">
+    <table class="downloads-table-card__table" aria-label="Downloads">
       <thead>
         <tr>
           <th class="downloads-table-card__th">Platform</th>
@@ -38,7 +38,7 @@
               </td>
               <td class="downloads-table-card__td">
                 <div class="downloads-table-card__hash-wrapper">
-                  <input type="text" readonly class="downloads-table-card__hash-link" value="{{ download.checksum }}" title="{{ download.checksum }}" />
+                  <input type="text" readonly class="downloads-table-card__hash-link" value="{{ download.checksum }}" title="{{ download.checksum }}" aria-label="SHA256 checksum for {{ download.display_name }}" />
                   <button class="downloads-table-card__copy-btn"
                           aria-label="Copy checksum"
                           data-copy-text="{{ download.checksum }}">

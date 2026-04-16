@@ -11,12 +11,12 @@
   <div class="card__header">
     <span class="card__title">{{ title }}</span>
   </div>
-  <hr class="card__hr" />
+  <hr class="card__hr" aria-hidden="true" />
   <div class="card__column markdown-content">
     {{ markdown|markdown }}
   </div>
   {% if button_url and button_label %}
-  <hr class="card__hr" />
+  <hr class="card__hr" aria-hidden="true" />
   <div class="card__cta_section">
     {% include "v3/includes/_button.html" with url=button_url label=button_label only %}
   </div>

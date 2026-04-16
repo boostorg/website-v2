@@ -18,13 +18,13 @@
     <div class="promo-card__title-wrap">
       <span class="promo-card__title">{{ title }}</span>
     </div>
-    <hr class="promo-card__hr" />
+    <hr class="promo-card__hr" aria-hidden="true" />
     <div class="promo-card__text-wrap">
       <p class="promo-card__text">{{ text }}</p>
     </div>
   </div>
   {% if button_url and button_label %}
-    <hr class="promo-card__hr" />
+    <hr class="promo-card__hr" aria-hidden="true" />
     <div class="promo-card__cta">
       {% include "v3/includes/_button.html" with style=button_style|default:"green" url=button_url label=button_label extra_classes="promo-card__btn" only %}
     </div>

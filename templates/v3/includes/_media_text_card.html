@@ -18,7 +18,7 @@
     <p class="media-text-card__text">{{ text }}</p>
     {% if image_url %}
       <div class="media-text-card__image">
-        <img src="{{ image_url }}" alt="{{ image_alt|default:'' }}" />
+        <img src="{{ image_url }}" alt="{{ image_alt|default:'Decorative illustration' }}" />
       </div>
     {% endif %}
   </div>
