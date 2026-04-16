@@ -89,8 +89,13 @@
   letter-spacing: -0.12px;
 }
 
+.downloads-table-card__hash-link {
+  user-select: all;
+  -webkit-user-select: all;
+}
+
 .downloads-table-card__copy-btn {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: 24px;
@@ -102,6 +107,10 @@
   padding: 0;
   border-radius: var(--border-radius-s);
   flex-shrink: 0;
+}
+
+.js-copy-enabled .downloads-table-card__copy-btn {
+  display: flex;
 }
 
 /* ── Mobile ── */
