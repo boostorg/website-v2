@@ -101,16 +101,7 @@
   color: var(--color-icon-secondary);
   padding: 0;
   border-radius: var(--border-radius-s);
-  transition: color 0.15s ease;
   flex-shrink: 0;
-}
-
-.downloads-table-card__copy-btn:hover {
-  color: var(--color-text-link-accent);
-}
-
-.downloads-table-card__copy-btn.copied {
-  color: var(--color-accent-strong-green);
 }
 
 /* ── Mobile ── */

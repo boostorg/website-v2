@@ -52,20 +52,11 @@
 {% block footer_js %}
 <script>
 (function () {
-  var FEEDBACK_MS = 2000;
   document.querySelectorAll('.downloads-table-card__copy-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var text = btn.getAttribute('data-copy-text');
-      if (!text) return;
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(function () {
-          btn.classList.add('copied');
-          btn.setAttribute('aria-label', 'Copied');
-          setTimeout(function () {
-            btn.classList.remove('copied');
-            btn.setAttribute('aria-label', 'Copy checksum');
-          }, FEEDBACK_MS);
-        });
+      if (text && navigator.clipboard) {
+        navigator.clipboard.writeText(text);
       }
     });
   });
