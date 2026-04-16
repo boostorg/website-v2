@@ -84,16 +84,13 @@ struct ContentView: View {
             .padding()
             .background(Color(NSColor.windowBackgroundColor))
 
-            // MIDDLE: Real-time logs
-            ScrollView {
-                Text(logs)
-                    .font(.system(.caption, design: .monospaced))
-                    .frame(maxWidth: .infinity, alignment: .topLeading)
-                    .padding()
-            }
-            .background(Color.black.opacity(0.85))
-            .foregroundColor(.green)
-            .frame(minHeight: 250)
+            // MIDDLE: Real-time logs (selectable/copyable)
+            TextEditor(text: .constant(logs))
+                .font(.system(.caption, design: .monospaced))
+                .foregroundColor(.green)
+                .scrollContentBackground(.hidden)
+                .background(Color.black.opacity(0.85))
+                .frame(minHeight: 250)
 
             // BOTTOM: Actions
             if deploymentFinished {
@@ -140,7 +137,7 @@ struct ContentView: View {
         DispatchQueue.global(qos: .userInitiated).async {
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/bin/bash")
-            process.arguments = [scriptURL.path, "--yes", sanitizedPR]
+            process.arguments = [scriptURL.path, "--yes", "--verbose", sanitizedPR]
 
             // Inject credentials and git auth config into the environment
             var env = ProcessInfo.processInfo.environment
@@ -437,7 +434,7 @@ else
 fi
 
 echo "==> Fetching PR #${PR_NUMBER} from ${MAIN_REMOTE_NAME} …"
-eval "git fetch \"${MAIN_REMOTE_NAME}\" \"${PR_REF}:${LOCAL_PR_BRANCH}\" ${ERR_REDIRECT}"
+eval "git fetch \"${MAIN_REMOTE_NAME}\" \"+${PR_REF}:${LOCAL_PR_BRANCH}\" ${ERR_REDIRECT}"
 
 PR_SHA=$(git rev-parse "${LOCAL_PR_BRANCH}")
 echo "    PR commit SHA: ${PR_SHA}"
