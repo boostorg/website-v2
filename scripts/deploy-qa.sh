@@ -281,16 +281,16 @@ fi
 # =============================================================================
 MAIN_ORG="boostorg"
 MAIN_REPO="website-v2"
-MY_ORG="cppalliance"
-MY_REPO="website-v2-qa"
-TARGET_BRANCH="cppal-dev"            # the important branch we merge/reset into
+QA_ORG="cppalliance"
+QA_REPO="website-v2-qa"
+TARGET_QA_BRANCH="cppal-dev"            # the important branch we merge/reset into
 
 MAIN_REMOTE_NAME="upstream"   # name given to the mainorg/mainrepo remote locally
-MY_REMOTE_URL="https://github.com/${MY_ORG}/${MY_REPO}.git"
+QA_REMOTE_URL="https://github.com/${QA_ORG}/${QA_REPO}.git"
 MAIN_REMOTE_URL="https://github.com/${MAIN_ORG}/${MAIN_REPO}.git"
 
 QA_ROOT="${HOME}/qa-automation"
-WORK_DIR="${QA_ROOT}/${MY_ORG}/${MY_REPO}"
+WORK_DIR="${QA_ROOT}/${QA_ORG}/${QA_REPO}"
 # =============================================================================
 
 usage() {
@@ -298,7 +298,7 @@ usage() {
 Usage: $(basename "$0") [OPTIONS] <PR_NUMBER>
 
 Check out a pull request from ${MAIN_ORG}/${MAIN_REPO} and apply it to the
-local '${TARGET_BRANCH}' branch in ${MY_ORG}/${MY_REPO}.
+local '${TARGET_QA_BRANCH}' branch in ${QA_ORG}/${QA_REPO}.
 
 Arguments:
   PR_NUMBER          The pull request number from ${MAIN_ORG}/${MAIN_REPO}
@@ -306,7 +306,7 @@ Arguments:
 Options:
   --bundle           Build the DeployQA macOS GUI app and exit.
   --merge            Perform a standard merge and regular git push.
-                     Without this flag the script hard-resets '${TARGET_BRANCH}'
+                     Without this flag the script hard-resets '${TARGET_QA_BRANCH}'
                      to the PR's commit SHA and performs a force push instead.
   --yes              Skip the confirmation prompt before pushing.
   --verbose          Show Git error/warning messages (suppressed by default).
@@ -315,10 +315,10 @@ Options:
 Workflow:
   1. Ensures \$HOME/qa-automation directory structure exists and the repo is cloned.
   2. Fetches the PR from ${MAIN_ORG}/${MAIN_REPO} into a local tracking branch.
-  3. Switches to '${TARGET_BRANCH}'.
-  4. Without --merge: hard-resets '${TARGET_BRANCH}' to the PR commit SHA,
+  3. Switches to '${TARGET_QA_BRANCH}'.
+  4. Without --merge: hard-resets '${TARGET_QA_BRANCH}' to the PR commit SHA,
      then force-pushes to origin.
-     With    --merge: merges the PR branch into '${TARGET_BRANCH}',
+     With    --merge: merges the PR branch into '${TARGET_QA_BRANCH}',
      then pushes normally to origin.
   5. Prompts before any push so you stay in control.
 
@@ -399,9 +399,9 @@ ensure_repo() {
     mkdir -p "${QA_ROOT}"
 
     if [[ ! -d "${WORK_DIR}/.git" ]]; then
-        echo "==> Cloning ${MY_ORG}/${MY_REPO} into ${WORK_DIR} …"
+        echo "==> Cloning ${QA_ORG}/${QA_REPO} into ${WORK_DIR} …"
         mkdir -p "$(dirname "${WORK_DIR}")"
-        eval "git clone \"${MY_REMOTE_URL}\" \"${WORK_DIR}\" ${ERR_REDIRECT}"
+        eval "git clone \"${QA_REMOTE_URL}\" \"${WORK_DIR}\" ${ERR_REDIRECT}"
     fi
 
     cd "${WORK_DIR}"
@@ -422,26 +422,26 @@ cd "${WORK_DIR}"
 PR_REF="refs/pull/${PR_NUMBER}/head"
 LOCAL_PR_BRANCH="pr/${PR_NUMBER}"
 
-echo "==> Switching to '${TARGET_BRANCH}' before fetching ..."
-if git show-ref --quiet "refs/heads/${TARGET_BRANCH}"; then
-    eval "git checkout \"${TARGET_BRANCH}\" ${ERR_REDIRECT}"
+echo "==> Switching to '${TARGET_QA_BRANCH}' before fetching ..."
+if git show-ref --quiet "refs/heads/${TARGET_QA_BRANCH}"; then
+    eval "git checkout \"${TARGET_QA_BRANCH}\" ${ERR_REDIRECT}"
 
     # Check if local branch has diverged from remote (rebased scenario)
-    if git ls-remote --exit-code origin "refs/heads/${TARGET_BRANCH}" &>/dev/null; then
+    if git ls-remote --exit-code origin "refs/heads/${TARGET_QA_BRANCH}" &>/dev/null; then
         # Get the commit SHAs for comparison
         LOCAL_SHA=$(git rev-parse "HEAD")
-        REMOTE_SHA=$(git rev-parse "origin/${TARGET_BRANCH}" 2>/dev/null || echo "")
+        REMOTE_SHA=$(git rev-parse "origin/${TARGET_QA_BRANCH}" 2>/dev/null || echo "")
 
         if [[ -n "$REMOTE_SHA" && "$LOCAL_SHA" != "$REMOTE_SHA" ]]; then
             echo "==> Local branch has diverged from remote (likely rebased). Resetting to remote..."
-            eval "git reset --hard \"origin/${TARGET_BRANCH}\" ${ERR_REDIRECT}"
+            eval "git reset --hard \"origin/${TARGET_QA_BRANCH}\" ${ERR_REDIRECT}"
         fi
     fi
 else
-    if git ls-remote --exit-code origin "refs/heads/${TARGET_BRANCH}" &>/dev/null; then
-        eval "git checkout -b \"${TARGET_BRANCH}\" \"origin/${TARGET_BRANCH}\" ${ERR_REDIRECT}"
+    if git ls-remote --exit-code origin "refs/heads/${TARGET_QA_BRANCH}" &>/dev/null; then
+        eval "git checkout -b \"${TARGET_QA_BRANCH}\" \"origin/${TARGET_QA_BRANCH}\" ${ERR_REDIRECT}"
     else
-        eval "git checkout -b \"${TARGET_BRANCH}\" ${ERR_REDIRECT}"
+        eval "git checkout -b \"${TARGET_QA_BRANCH}\" ${ERR_REDIRECT}"
     fi
 fi
 
@@ -455,14 +455,14 @@ if [[ "$DO_MERGE" == true ]]; then
     # -----------------------------------------------------------------------
     # MERGE mode: standard merge then normal push
     # -----------------------------------------------------------------------
-    echo "==> Merging '${LOCAL_PR_BRANCH}' into '${TARGET_BRANCH}' …"
+    echo "==> Merging '${LOCAL_PR_BRANCH}' into '${TARGET_QA_BRANCH}' …"
     eval "git merge \"${LOCAL_PR_BRANCH}\" --no-edit ${ERR_REDIRECT}"
 
     SHOULD_PUSH=false
     if [[ "$PUSH_AUTO" == true ]]; then
         SHOULD_PUSH=true
     else
-        printf "\nPush the PR to the branch '%s'? (y/n) " "${TARGET_BRANCH}"
+        printf "\nPush the PR to the branch '%s'? (y/n) " "${TARGET_QA_BRANCH}"
         read -r ANSWER
         if [[ "$ANSWER" =~ ^[Yy]$ ]]; then
             SHOULD_PUSH=true
@@ -470,24 +470,24 @@ if [[ "$DO_MERGE" == true ]]; then
     fi
 
     if [[ "$SHOULD_PUSH" == true ]]; then
-        echo "==> Pushing to origin/${TARGET_BRANCH} …"
-        eval "git push origin \"${TARGET_BRANCH}\" ${ERR_REDIRECT}"
+        echo "==> Pushing to origin/${TARGET_QA_BRANCH} …"
+        eval "git push origin \"${TARGET_QA_BRANCH}\" ${ERR_REDIRECT}"
         echo "Done."
     else
         echo "Push skipped."
     fi
 else
     # -----------------------------------------------------------------------
-    # FORCE-PUSH mode: hard-reset TARGET_BRANCH to the PR SHA, then force-push
+    # FORCE-PUSH mode: hard-reset TARGET_QA_BRANCH to the PR SHA, then force-push
     # -----------------------------------------------------------------------
-    echo "==> Hard-resetting '${TARGET_BRANCH}' to PR commit ${PR_SHA} …"
+    echo "==> Hard-resetting '${TARGET_QA_BRANCH}' to PR commit ${PR_SHA} …"
     eval "git reset --hard \"${PR_SHA}\" ${ERR_REDIRECT}"
 
     SHOULD_PUSH=false
     if [[ "$PUSH_AUTO" == true ]]; then
         SHOULD_PUSH=true
     else
-        printf "\nForce push the PR to the branch '%s'? (y/n) " "${TARGET_BRANCH}"
+        printf "\nForce push the PR to the branch '%s'? (y/n) " "${TARGET_QA_BRANCH}"
         read -r ANSWER
         if [[ "$ANSWER" =~ ^[Yy]$ ]]; then
             SHOULD_PUSH=true
@@ -495,8 +495,8 @@ else
     fi
 
     if [[ "$SHOULD_PUSH" == true ]]; then
-        echo "==> Force-pushing to origin/${TARGET_BRANCH} …"
-        eval "git push --force origin \"${TARGET_BRANCH}\" ${ERR_REDIRECT}"
+        echo "==> Force-pushing to origin/${TARGET_QA_BRANCH} …"
+        eval "git push --force origin \"${TARGET_QA_BRANCH}\" ${ERR_REDIRECT}"
         echo "Done."
     else
         echo "Force push skipped."
