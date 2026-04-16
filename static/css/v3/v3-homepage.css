@@ -85,21 +85,6 @@ body:has(.homepage-v3) .header {
   max-width: 100%;
 }
 
-@media (min-width: 1280px) {
-  .not-desktop { display: none !important; }
-  .not-tablet, .not-mobile { display: contents; }
-}
-
-@media (min-width: 768px) and (max-width: 1279px) {
-  .not-tablet { display: none !important; }
-  .not-desktop, .not-mobile { display: contents; }
-}
-
-@media (max-width: 767px) {
-  .not-mobile { display: none !important; }
-  .not-desktop, .not-tablet { display: contents; }
-}
-
 @media (min-width: 768px) {
   .license-card .horizontal-card {
     min-height: 358px;
@@ -111,7 +96,22 @@ body:has(.homepage-v3) .header {
   }
 }
 
+@media (max-width: 1279px) {
+  .responsive-limit-5-items .stats__bar-wrap:nth-child(n+6) {
+    display: none;
+  }
+}
+
+
 @media (min-width: 768px) and (max-width: 1279px) {
+    .responsive-limit-3-items .card-group__item:nth-child(n+4) {
+        display: none;
+    }
+
+    .responsive-limit-2-items .card-group__item:nth-child(n+3) {
+        display: none;
+    }
+
     .homepage-container {
       max-width: 1024px;
     }
