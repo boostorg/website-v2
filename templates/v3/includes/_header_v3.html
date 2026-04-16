@@ -16,13 +16,12 @@
 {% url 'community' as community_url %}
 {% url 'news' as news_url %}
 {% url 'releases-most-recent' as releases_url %}
-<header class="header" role="banner">
+<header class="header">
   <div class="header__inner">
     {% comment %} Desktop & tablet nav (hidden on mobile) {% endcomment %}
     <nav class="header__nav header__nav--desktop" aria-label="Main navigation">
       <a href="{% url 'home' %}"
          class="header__logo"
-         title="Boost Home"
          aria-label="Boost Home">
         <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
              alt="Boost"
@@ -31,39 +30,9 @@
       </a>
       {% include "v3/includes/header/_header_nav_links.html" %}
     </nav>
-    {% comment %} Search — responsive: full bar on desktop, button on mobile {% endcomment %}
-    <div class="header__search-bar">
-      <button type="button"
-              id="gecko-search-button"
-              class="header__search-input-trigger"
-              data-current-boost-version="{{ current_version.stripped_boost_url_slug }}"
-              data-theme-mode="light"
-              data-font-family="var(--font-sans)"
-              aria-label="Search">
-        <span class="header__search-icon" aria-hidden="true">
-          {% include "includes/icon.html" with icon_name="search" icon_class="header__icon" icon_size=16 %}
-        </span>
-        Search
-      </button>
-      <span class="header__search-kbd" aria-hidden="true">CTRL+K</span>
-    </div>
-    {% comment %} Desktop & tablet utilities (hidden on mobile) {% endcomment %}
-    <div class="header__right">
-      {% include "v3/includes/header/_header_utilities.html" with avatar_id="desktop-user-menu" %}
-    </div>
+
     {% comment %} Mobile only: logo, menu toggle, and drawer (hidden on desktop) {% endcomment %}
     <div class="header__mobile-actions">
-      {% comment %} Logo {% endcomment %}
-      <a href="{% url 'home' %}"
-         class="header__mobile-logo"
-         title="Boost Home"
-         aria-label="Boost Home">
-        <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
-             alt="Boost"
-             width="31"
-             height="31">
-      </a>
-
       {% comment %} Menu toggle (checkbox hack) {% endcomment %}
       <input type="checkbox"
              id="mobile-menu-toggle"
@@ -79,7 +48,6 @@
         </span>
         <span>Menu</span>
       </label>
-
       {% comment %} Drawer (hidden by default, shown when toggle is checked) {% endcomment %}
       <div class="header__drawer" id="header-drawer">
         <nav class="header__drawer-nav" aria-label="Mobile navigation">
@@ -87,6 +55,27 @@
         </nav>
         {% include "v3/includes/header/_header_utilities.html" with avatar_id="mobile-user-menu" %}
       </div>
+    </div>
+
+    {% comment %} Search — responsive: full bar on desktop, button on mobile {% endcomment %}
+    <search class="header__search-bar">
+      <button type="button"
+              id="gecko-search-button"
+              class="header__search-input-trigger"
+              data-current-boost-version="{{ current_version.stripped_boost_url_slug }}"
+              data-theme-mode="light"
+              data-font-family="var(--font-sans)">
+        <span class="header__search-icon" aria-hidden="true">
+          {% include "includes/icon.html" with icon_name="search" icon_class="header__icon" icon_size=16 %}
+        </span>
+        Search
+      </button>
+      <span class="header__search-kbd" aria-hidden="true">CTRL+K</span>
+    </search>
+
+    {% comment %} Desktop & tablet utilities (hidden on mobile) {% endcomment %}
+    <div class="header__right">
+      {% include "v3/includes/header/_header_utilities.html" with avatar_id="desktop-user-menu" %}
     </div>
   </div>
 </header>
