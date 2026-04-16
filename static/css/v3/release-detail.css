@@ -99,9 +99,6 @@ body:has(.releases-v3) .hero-library--no-image {
   max-width: 100%;
 }
 
-/* ============================================
-   Tablet (≤ 1024px)
-   ============================================ */
 @media (max-width: 1024px) {
   .release-detail__cards-row {
     grid-template-columns: 1fr;
@@ -116,9 +113,6 @@ body:has(.releases-v3) .hero-library--no-image {
   }
 }
 
-/* ============================================
-   Mobile (≤ 767px)
-   ============================================ */
 @media (max-width: 767px) {
   .release-detail {
     padding: 0 var(--space-default);
