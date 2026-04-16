@@ -1,6 +1,7 @@
 /* ==========================================================================
    Header
    Site-wide header: desktop nav, search, utilities, and mobile drawer.
+   This component has a custom responsive breakpoint at 990px to accommodate its content and design.
    ========================================================================== */
 
 /* ── Root & resets ──────────────────────────────── */
@@ -29,10 +30,13 @@
 .header__icon-btn,
 .header__mobile-logo,
 .header__menu-btn,
-.header__drawer-nav {
+.header__drawer-nav,
+.header__nav-btn,
+.header__user-trigger {
   border: var(--header-border);
   border-radius: var(--header-radius);
   background: var(--header-bg);
+  height: var(--header-height);
 }
 
 /* ── Inner layout ──────────────────────────────── */
@@ -54,7 +58,6 @@
   flex-shrink: 0;
   align-items: center;
   gap: var(--space-s) var(--space-medium);
-  height: var(--header-height);
   padding: var(--space-s) var(--space-default);
   min-width: fit-content;
 }
@@ -80,7 +83,6 @@
   align-items: center;
   gap: var(--space-default);
   flex: 1;
-  height: var(--header-height);
   padding: 0 var(--space-medium);
 }
 
@@ -126,9 +128,7 @@
 .header__search-kbd {
   display: flex;
   align-items: center;
-  gap: 2px;
-  height: 24px;
-  padding: 8px;
+  padding: var(--space-default);
   font-size: var(--font-size-xs);
   line-height: 120%;
   letter-spacing: -0.12px;
@@ -144,12 +144,25 @@
   gap: var(--space-s);
 }
 
+.header__utilities-latest:hover,
+.header__nav-btn:hover,
+.header__icon-btn:hover,
+.header__user-trigger:hover {
+  background: var(--color-surface-mid);
+  border-color: var(--color-stroke-strong);
+}
+
+.header__nav-btn:active,
+.header__icon-btn:active {
+  background: var(--color-surface-mid);
+  border-color: var(--color-stroke-weak);
+}
+
 .header__utilities-latest {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: var(--space-s);
-  height: var(--header-height);
   padding: 0 var(--space-large);
 }
 
@@ -159,9 +172,12 @@
   flex-shrink: 0;
 }
 
-.header__utilities-latest:hover {
-  background: var(--color-surface-mid);
-  border-color: var(--color-stroke-strong);
+.header__nav-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: fit-content;
+  padding: 0 var(--space-large);
 }
 
 /* Mobile Drawer context: equal-width card layout */
@@ -185,15 +201,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: var(--header-height);
   min-width: fit-content;
   padding: var(--space-large);
   color: var(--color-icon-primary);
-}
-
-.header__icon-btn:hover {
-  background: var(--color-surface-mid);
-  border-color: var(--color-stroke-strong);
 }
 
 .header__icon--theme {
@@ -258,20 +268,12 @@ html.dark .header__icon--theme-moon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: var(--header-height);
   aspect-ratio: 1 / 1;
   padding: 0;
-  border-radius: var(--header-radius);
-  border: var(--header-border);
-  background: var(--header-bg);
   cursor: pointer;
   overflow: hidden;
 }
 
-.header__user-trigger:hover {
-  border-color: var(--color-stroke-strong);
-  background: var(--color-surface-mid);
-}
 .header__user-trigger > .avatar {
   width: 100%;
   height: 100%;
@@ -323,7 +325,6 @@ html.dark .header__icon--theme-moon {
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  height: var(--header-height);
   padding: 0 var(--space-large);
 }
 
@@ -334,7 +335,6 @@ html.dark .header__icon--theme-moon {
   gap: var(--space-medium);
   flex: 1;
   min-width: 0;
-  height: var(--header-height);
   padding: var(--space-s) var(--space-medium);
   cursor: pointer;
 }
@@ -356,13 +356,13 @@ html.dark .header__icon--theme-moon {
    Responsive
    ========================================================================== */
 
-@media (min-width: 992px) {
+@media (min-width: 991px) {
   .header__mobile-actions {
     display: none;
   }
 }
 
-@media (max-width: 991px) {
+@media (max-width: 990px) {
   .header__nav--desktop {
     padding: 0;
   }
@@ -420,7 +420,7 @@ html.dark .header__icon--theme-moon {
   display: inline-flex;
 }
 
-@media (max-width: 991px) {
+@media (max-width: 990px) {
   .header:has(.header__menu-toggle:checked) .header__drawer {
     display: flex;
   }
@@ -442,4 +442,5 @@ html.dark .header__icon--theme-moon {
   flex-direction: column;
   gap: var(--space-default);
   padding: var(--space-medium);
+  height: fit-content;
 }
