@@ -29,7 +29,6 @@ class V3Mixin:
     def render_v3_response(self):
         """Render the v3 template through Django's standard TemplateView pipeline."""
         context = self.get_context_data(**self.get_v3_context_data())
-        print(context["library_filter_fields"])
         return self.render_to_response(context)
 
     def get_template_names(self):
