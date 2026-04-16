@@ -9,6 +9,8 @@
   Usage:
     {% include "v3/includes/header/_header_avatar.html" with avatar_id="desktop-user-menu" %}
 {% endcomment %}
+{% url 'account_logout' as logout_url %}
+{% url 'profile-account' as profile_url %}
 <div class="header__user-menu">
   <input type="checkbox" id="{{ avatar_id }}-toggle" class="header__user-toggle" aria-label="User menu" aria-controls="{{ avatar_id }}-menu" aria-haspopup="menu">
   <label for="{{ avatar_id }}-toggle" class="header__user-trigger" aria-hidden="true">
@@ -19,8 +21,8 @@
        aria-orientation="vertical"
        aria-labelledby="{{ avatar_id }}-toggle"
        class="header__user-dropdown">
-    <a href="{% url 'account_logout' %}" class="header__user-dropdown-link" role="menuitem">Logout</a>
-    <a href="{% url 'profile-account' %}" class="header__user-dropdown-link" role="menuitem">My Profile</a>
-    <a href="{% url 'profile-account' %}" class="header__user-dropdown-link" role="menuitem">Edit Profile</a>
+    {% include "v3/includes/_nav_link.html" with url=logout_url label="Logout" %}
+    {% include "v3/includes/_nav_link.html" with url=profile_url label="My Profile" %}
+    {% include "v3/includes/_nav_link.html" with url=profile_url label="Edit Profile" %}
   </div>
 </div>
