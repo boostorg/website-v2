@@ -39,11 +39,6 @@ body:has(.releases-v3) .hero-library--no-image {
   max-width: 100%;
 }
 
-/* Remove last-child bottom border in release highlights */
-.release-detail__cards-row .card-group__item:last-child {
-  border-bottom: none;
-}
-
 /* ── Release Notes card ── */
 .release-detail__release-notes {
   max-width: 100%;

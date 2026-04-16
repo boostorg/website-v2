@@ -28,3 +28,11 @@
   letter-spacing: -0.12px;
   color: var(--color-text-secondary);
 }
+
+.card-group__item:last-child .release-highlight {
+  padding-bottom: 0;
+}
+
+.card-group__item:last-child:has(.release-highlight) {
+  border-bottom: none;
+}
