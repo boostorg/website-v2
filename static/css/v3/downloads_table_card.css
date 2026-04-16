@@ -82,16 +82,15 @@
   white-space: nowrap;
   color: var(--color-text-link-accent);
   font-size: var(--font-size-xs);
-
   font-style: normal;
   font-weight: 400;
   line-height: 120%;
   letter-spacing: -0.12px;
-}
-
-.downloads-table-card__hash-link {
-  user-select: all;
-  -webkit-user-select: all;
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  cursor: text;
 }
 
 .downloads-table-card__copy-btn {

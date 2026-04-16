@@ -38,7 +38,7 @@
               </td>
               <td class="downloads-table-card__td">
                 <div class="downloads-table-card__hash-wrapper">
-                  <span class="downloads-table-card__hash-link" title="{{ download.checksum }}">{{ download.checksum }}</span>
+                  <input type="text" readonly class="downloads-table-card__hash-link" value="{{ download.checksum }}" title="{{ download.checksum }}" />
                   <button class="downloads-table-card__copy-btn"
                           aria-label="Copy checksum"
                           data-copy-text="{{ download.checksum }}">
