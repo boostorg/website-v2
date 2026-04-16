@@ -6,7 +6,8 @@
     library_name         (string, required)  - Library display name, e.g. "Boost.Geometry"
     library_url          (string, optional)  - Link for the library name
     description          (string, required)  - Short library description
-    categories           (list, required)    - List of {label, url, variant} dicts for category tags
+    categories           (list, required)    - List of {label, slug, variant} dicts for category tags
+    version_str          (string, required)  - String representation of the vesion, used for url construction
     cpp_version          (string, required)  - e.g. "C++ 14" — rendered as neutral tag
     author               (dict, required)    - Author object for _user_profile.html (name, role, avatar_url, badge_url)
     doc_url              (string, required)  - Documentation link URL
@@ -29,7 +30,8 @@
     <p class="library-item__description">{{ description }}</p>
     <div class="library-item__tags">
       {% for cat in categories %}
-        {% include "v3/includes/_category_tag.html" with tag_label=cat.label url=cat.url variant=cat.variant %}
+        {% url 'libraries-list' category_slug=cat.slug library_view_str=variant version_slug=version_str as cat_url %}
+        {% include "v3/includes/_category_tag.html" with tag_label=cat.label url=cat_url variant=cat.variant only %}
       {% endfor %}
       <span class="version-tag version-tag--default library-item__cpp-version">C++ {{ cpp_version|cut:"C++" }}</span>
     </div>

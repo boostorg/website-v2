@@ -72,7 +72,6 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
     queryset = LibraryVersion.objects.prefetch_related(
         "authors", "library", "library__categories"
     ).defer("data")
-    object_list = queryset
     ordering = "library__name"
     template_name = "libraries/grid_list.html"
     v3_template_name = "v3/library_page.html"
@@ -96,10 +95,10 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "options": [
                     ("list", "List"),
                     ("grid", "Grid"),
-                    ("category", "Category"),
+                    ("categorized", "Category"),
                     ("grading", "Grading"),
                 ],
-                "selected": "list",
+                "selected": self.kwargs.get("library_view_str"),
                 "width": "narrow",
             },
             {
@@ -166,7 +165,15 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "selected": "alphabetical",
             },
         ]
+        context["library_view_str"] = self.kwargs.get("library_view_str")
         return context
+
+    def render_v3_response(self):
+        """Render the v3 template through Django's standard TemplateView pipeline."""
+        context = self.get_context_data(
+            **self.get_v3_context_data(), object_list=self.get_queryset()
+        )
+        return self.render_to_response(context)
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -205,11 +212,6 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
             context["category"] = Category.objects.get(
                 slug=self.kwargs.get("category_slug")
             )
-
-        from pprint import PrettyPrinter
-
-        pp = PrettyPrinter()
-        pp.pprint(context)
 
         return context
 

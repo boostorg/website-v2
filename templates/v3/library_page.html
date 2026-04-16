@@ -10,7 +10,7 @@
   <link href="{% static 'css/v3/library-page.css' %}" rel="stylesheet" />
 {% endblock %}
 
-  {% block content %}
+{% block content %}
   <section class="library-page-hero hero-home hero-home--no-image" aria-label="Hero">
     <div class="hero-home__block">
       <div class="hero-home__content">
@@ -24,30 +24,53 @@
       </div>
     </div>
   </section>
-  <div id="library-page-filter-container">
+  <div id="library-page-filter-container" class="mb-xl">
     {% include 'v3/includes/_library_filter.html' with filter_id='library-page-filter' fields=library_filter_fields %}
   </div>
+  {% if library_view_str == 'list' %}
+    <ul class="library-item-list">
+      {% for item in object_list %}
+        {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+      {% endfor %}
+    </ul>
+  {% elif library_view_str == 'grid' %}
+    <div class="library-item-card-grid">
+      {% for item in object_list %}
+        {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+      {% endfor %}
+    </div>
+  {% elif library_view_str == 'categorized' %}
+    {% for result in library_versions_by_category %}
+      <h2>{{result.category}}</h2>
+      <ul class="library-item-list">
+        {% for item in result.library_version_list %}
+          {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+        {% endfor %}
+      </ul>
+    {% endfor %}
+  {% endif %}
 {% endblock %}
 
 {% block footer_js %}
-{{ block.super }}
-<script>
-    const filterSection = document.getElementById("library-page-filter-container");
-    const viewInput = filterSection.querySelector("input[name='view']");
-    console.log(viewInput)
-    viewInput.addEventListener("change", function (event) {
-      const value = event.target.value;
+  {{ block.super }}
+  <script>
+    const filterSection = document.getElementById('library-page-filter-container')
+    filterSection.addEventListener('field-change', function (event) {
       console.log(event)
-      {% comment %} switch (value) {
-        case "grid":
-          window.location.href("{% url 'libraries-list' version_slug=version_str library_view_str='grid'  %}");
-          break;
-        case "list":
-          window.location.href("{% url 'libraries-list' version_slug=version_str library_view_str='list'  %}");
-          break;
+      const value = event.detail.value
+      switch (value) {
+        case 'grid':
+          window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='grid'  %}")
+          break
+        case 'list':
+          window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='list'  %}")
+          break
+        case 'categorized':
+          window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='categorized'  %}")
+          break
         default:
           console.error(`Value ${value} is unknown, please reload the page.`)
-      } {% endcomment %}
+      }
     })
   </script>
 {% endblock %}
