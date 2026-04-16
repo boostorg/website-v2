@@ -104,6 +104,10 @@ body:has(.releases-v3) .hero-library--no-image {
   height: 100%;
 }
 
+.release-detail__bottom-cards .promo-card {
+  background: var(--color-surface-mid);
+}
+
 .release-detail__bottom-cards .media-text-card__body {
   flex: 1;
   min-height: 0;
