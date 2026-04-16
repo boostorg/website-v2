@@ -86,3 +86,39 @@
     </div>
   </div>
 </header>
+
+<script>
+/**
+ * Header dismiss – closes CSS-only checkbox menus (avatar dropdown, mobile drawer)
+ * when the user clicks or tabs outside their container.
+ */
+(function () {
+  'use strict';
+
+  function dismissOpenMenus(target) {
+    var openUserToggles = document.querySelectorAll('.header__user-toggle:checked');
+    openUserToggles.forEach(function (toggle) {
+      var menu = toggle.closest('.header__user-menu');
+      if (menu && !menu.contains(target)) {
+        toggle.checked = false;
+      }
+    });
+
+    var drawerToggle = document.querySelector('.header__menu-toggle:checked');
+    if (drawerToggle) {
+      var mobileActions = drawerToggle.closest('.header__mobile-actions');
+      if (mobileActions && !mobileActions.contains(target)) {
+        drawerToggle.checked = false;
+      }
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    dismissOpenMenus(e.target);
+  });
+
+  document.addEventListener('focusin', function (e) {
+    dismissOpenMenus(e.target);
+  });
+})();
+</script>
