@@ -36,7 +36,7 @@
 
 .testimonial-card__tail-wrapper {
     display: flex;
-    padding: 0 var(--Chat-bubble-tail-left-padding, 60px);
+    padding: 0 var(--space-xxl);
     align-items: center;
 }
 
@@ -100,6 +100,8 @@
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     min-width: 0;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .testimonial-card__list-item {

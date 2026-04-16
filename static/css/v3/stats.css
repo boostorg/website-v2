@@ -71,9 +71,9 @@
   --stats-bar-gap: 2px;
   width: 100%;
   min-height: 360px;
-  height: 360px;
-  container-type: size;
+  container-type: inline-size;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .stats--in-numbers .stats__description {
@@ -140,7 +140,7 @@
 .stats__cta {
   display: flex;
   gap: var(--space-default);
-  padding: var(--stats-space);
+  padding: var(--space-large);
   flex-shrink: 0;
 }
 

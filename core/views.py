@@ -1,5 +1,3 @@
-from datetime import date
-
 import os
 import re
 
@@ -83,6 +81,15 @@ from .tasks import (
     refresh_content_from_s3,
     save_rendered_content,
 )
+
+from libraries.models import Library, LibraryVersion
+from libraries.utils import (
+    build_library_intro_context,
+    get_commit_data_by_release_for_library,
+    commit_data_to_stats_bars,
+)
+
+from .mock_data import SharedResources  # noqa: F401
 
 logger = structlog.get_logger()
 
@@ -1247,11 +1254,7 @@ class V3ComponentDemoView(TemplateView):
 
     def get_context_data(self, **kwargs):
         from django.urls import reverse
-        from libraries.models import Library, LibraryVersion
         from libraries.utils import (
-            build_library_intro_context,
-            get_commit_data_by_release_for_library,
-            commit_data_to_stats_bars,
             patch_commit_authors,
         )
 
@@ -1275,12 +1278,6 @@ class V3ComponentDemoView(TemplateView):
             std::cout << res << std::endl;
         }"""
 
-        CODE_DEMO_HELLO = """#include <iostream>
-        int main()
-        {
-            std::cout << "Hello, Boost.";
-        }"""
-
         CODE_DEMO_INSTALL = """brew install openssl
 
         export OPENSSL_ROOT=$(brew --prefix openssl)
@@ -1288,47 +1285,18 @@ class V3ComponentDemoView(TemplateView):
         # Install bjam tool user config: https://www.bfgroup.xyz/b2/manual/release/index.html
         cp ./libs/beast/tools/user-config.jam $HOME"""
 
-        INSTALL_CARD_PKG_MANAGERS = [
-            {"label": "Conan", "value": "conan", "command": "conan install boost"},
-            {"label": "Vcpkg", "value": "vcpkg", "command": "vcpkg install boost"},
-        ]
-        INSTALL_CARD_SYSTEM_INSTALL = [
-            {
-                "label": "Ubuntu",
-                "value": "ubuntu",
-                "command": "sudo apt install libboost-all-dev",
-            },
-            {
-                "label": "Fedora",
-                "value": "fedora",
-                "command": "sudo dnf install boost-devel",
-            },
-            {
-                "label": "CentOS",
-                "value": "centos",
-                "command": "sudo yum install boost-devel",
-            },
-            {"label": "Arch", "value": "arch", "command": "sudo pacman -S boost"},
-            {"label": "Homebrew", "value": "homebrew", "command": "brew install boost"},
-        ]
-
         context = super().get_context_data(**kwargs)
         context["code_demo_beast"] = CODE_DEMO_BEAST
-        context["code_demo_hello"] = CODE_DEMO_HELLO
+        context["code_demo_hello"] = SharedResources.code_demo_hello
         context["code_demo_install"] = CODE_DEMO_INSTALL
         context["install_card_title"] = (
             "Install Boost and get started in your terminal."
         )
-        context["install_card_pkg_managers"] = INSTALL_CARD_PKG_MANAGERS
-        context["install_card_system_install"] = INSTALL_CARD_SYSTEM_INSTALL
-        context["popular_terms"] = [
-            {"label": "Networking"},
-            {"label": "Math"},
-            {"label": "Data processing"},
-            {"label": "Concurrency"},
-            {"label": "File systems"},
-            {"label": "Testing"},
-        ]
+        context["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
+        context["install_card_system_install"] = (
+            SharedResources.install_card_system_install
+        )
+        context["popular_terms"] = SharedResources.popular_terms
         context["demo_libs"] = [
             ("asio", "Asio"),
             ("beast", "Beast"),
@@ -1412,50 +1380,10 @@ class V3ComponentDemoView(TemplateView):
             {"label": "Issues", "value": "issues"},
         ]
 
-        context["demo_posts"] = [
-            {
-                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
-                "url": "#",
-                "date": date(2025, 3, 3),
-                "category": "Issues",
-                "tag": "beast",
-                "author": {
-                    "name": "Richard Thomson",
-                    "profile_url": "#",
-                    "role": "Contributor",
-                    "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
-                    "badge_url": f"{badge_img}/badge-first-place.png",
-                },
-            },
-            {
-                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
-                "url": "#",
-                "date": date(2025, 3, 3),
-                "category": "Issues",
-                "tag": "beast",
-                "author": {
-                    "name": "Peter Dimov",
-                    "profile_url": "#",
-                    "role": "Maintainer",
-                    "avatar_url": "https://ui-avatars.com/api/?name=Peter+Dimov&size=48",
-                    "badge_url": f"{badge_img}/badge-bronze.png",
-                },
-            },
-            {
-                "title": "Boost.Bind and modern C++: a quick overview",
-                "url": "#",
-                "date": date(2025, 2, 15),
-                "category": "Releases",
-                "tag": "bind",
-                "author": {
-                    "name": "Alex Morgan",
-                    "profile_url": "#",
-                    "role": "Contributor",
-                    "avatar_url": "https://thispersondoesnotexist.com/",
-                },
-            },
-        ]
-        context["demo_post"] = context["demo_posts"][0]
+        context["demo_posts"] = SharedResources.demo_posts
+        context["demo_post"] = SharedResources.demo_posts[0]
+
+        context["demo_join_community_links"] = SharedResources.demo_join_community_links
 
         context["demo_user_card"] = {
             "username": "vinniefalco",
@@ -1577,38 +1505,9 @@ class V3ComponentDemoView(TemplateView):
             },
         ]
 
-        context["demo_events"] = [
-            {
-                "title": "Boost 1.90.0 closed for major changes",
-                "description": "Release closed for major code changes. "
-                "Still open for serious problem fixes.",
-                "date": "29/10/25",
-                "datetime": "2025-10-29",
-            },
-            {
-                "title": "C++ Now 2025 call for submissions",
-                "description": "C++ Now conference is accepting talk proposals "
-                "until March 15.",
-                "date": "12/02/25",
-                "datetime": "2025-02-12",
-            },
-            {
-                "title": "Boost 1.89.0 released",
-                "description": "Boost 1.89.0 is available with updates to Asio, "
-                "Beast, and several other libraries.",
-                "date": "15/01/25",
-                "datetime": "2025-01-15",
-            },
-        ]
+        context["demo_events"] = SharedResources.demo_events
 
-        context["demo_events_with_links"] = [
-            {
-                **event,
-                "card_url": f"#event-{i}",
-                "card_aria_label": event["title"],
-            }
-            for i, event in enumerate(context["demo_events"])
-        ]
+        context["demo_events_with_links"] = SharedResources.demo_events_with_links[:3]
 
         context["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/checker.png"
@@ -1617,20 +1516,14 @@ class V3ComponentDemoView(TemplateView):
             f"{settings.STATIC_URL}img/v3/home-page/home-page-background.png"
         )
         context["hero_legacy_image_url_light"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/heros.png"
+            SharedResources.hero_legacy_image_url_light
         )
         context["hero_legacy_image_url_dark"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/heros_light.png"
+            SharedResources.hero_legacy_image_url_dark
         )
-        context["hero_image_url"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
-        )
-        context["hero_image_url_light"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
-        )
-        context["hero_image_url_dark"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
-        )
+        context["hero_image_url"] = SharedResources.hero_image_url
+        context["hero_image_url_light"] = SharedResources.hero_image_url_light
+        context["hero_image_url_dark"] = SharedResources.hero_image_url_dark
         context["basic_card_data"] = {
             "title": "Found a Bug?",
             "text": "We rely on developers like you to keep Boost solid. Here's how to report issues that help the whole comm",
@@ -1641,14 +1534,7 @@ class V3ComponentDemoView(TemplateView):
             "image": "/static/img/v3/demo_page/Calendar.png",
         }
 
-        context["horizontal_card_data"] = {
-            "title": "Build anything with Boost",
-            "text": "Use, modify, and distribute Boost libraries freely. No binary attribution needed.",
-            "image_url": f"{settings.STATIC_URL}img/checker.png",
-            "image_alt": "This is a placeholder image",
-            "button_url": "#",
-            "button_label": "See license details",
-        }
+        context["horizontal_card_data"] = SharedResources.build_anything_with_boost
 
         context["demo_cards_carousel_cards"] = [
             {
@@ -1738,48 +1624,7 @@ class V3ComponentDemoView(TemplateView):
 
         context["testimonial_data"] = {
             "heading": "What Engineers are saying",
-            "testimonials": [
-                {
-                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
-                    "author": {
-                        "name": "Name Surname",
-                        "profile_url": "#",
-                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
-                        "role": "Contributor",
-                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
-                    },
-                },
-                {
-                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
-                    "author": {
-                        "name": "Name Surname",
-                        "profile_url": "#",
-                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
-                        "role": "Contributor",
-                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
-                    },
-                },
-                {
-                    "quote": "I use Boost d1aily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
-                    "author": {
-                        "name": "Name Surname",
-                        "profile_url": "#",
-                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
-                        "role": "Contributor",
-                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
-                    },
-                },
-                {
-                    "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
-                    "author": {
-                        "name": "Name Surname",
-                        "profile_url": "#",
-                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
-                        "role": "Contributor",
-                        "badge_url": "/static/img/v3/demo_page/Badge.svg",
-                    },
-                },
-            ],
+            "testimonials": SharedResources.testimonials,
         }
 
         context["achievements_data"] = {
