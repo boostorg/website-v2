@@ -99,7 +99,6 @@ from versions.views import (
     PastReviewListView,
     ScheduledReviewListView,
     VersionDetail,
-    V3VersionDetail,
     ReportPreviewView,
     ReportPreviewGenerateView,
 )

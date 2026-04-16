@@ -16,6 +16,9 @@ from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
+from waffle import flag_is_active
+
+from core.mixins import V3Mixin
 from core.models import RenderedContent
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import VersionAlertMixin, BoostVersionMixin
@@ -33,11 +36,12 @@ logger = structlog.get_logger()
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class VersionDetail(BoostVersionMixin, VersionAlertMixin, DetailView):
+class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
     """Web display of list of Versions"""
 
     model = Version
     template_name = "versions/detail.html"
+    v3_template_name = "v3/release_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -143,9 +147,100 @@ class VersionDetail(BoostVersionMixin, VersionAlertMixin, DetailView):
         else:
             return "Development Branch"
 
+    def get_v3_context_data(self, **kwargs):
+        obj = self.object
+        ctx = {}
+        ctx["hero_title"] = f"Latest release ({obj.display_name})"
+        ctx["hide_tags"] = [{"label": "", "url": ""}]
+        ctx["whats_new_heading"] = f"What's new in {obj.display_name}"
+        ctx["whats_new_items"] = [
+            {
+                "title": "Asio: Major Executor & Reactor Overhaul",
+                "description": "New inline executor model, improved cancellation, expanded epoll configuration, and numerous correctness + performance fixes.",
+            },
+            {
+                "title": "Container: Complete deque Rebuild",
+                "description": "A modern, faster, drastically smaller deque implementation that simplifies future optimizations and resolves multiple long-standing issues.",
+            },
+            {
+                "title": "Redis: Major Redesign of Cancellation & Connection Behavior",
+                "description": "True per-operation cancellation, deprecated old mechanisms, smarter health checking, and guaranteed Valkey compatibility.",
+            },
+            {
+                "title": "Math: Brand-New Reverse-Mode Automatic Differentiation Library",
+                "description": "Adds full AD capabilities to Boost.Math, enabling modern ML/scientific workflows directly within Boost.",
+            },
+            {
+                "title": "Geometry: New is_valid for Polyhedral Surfaces + Performance Fixes",
+                "description": "A major algorithm addition, improved conversion support, and fixes to reduce compile times and avoid stack overflows.",
+            },
+        ]
+        ctx["release_notes"] = {
+            "title": f"Release notes version {obj.display_name}",
+            "markdown": dedent(
+                """\
+                ## Dependencies
+
+                There was 1 dependency added (in 1 library) and 16 dependencies removed (in 10 libraries) this release.
+
+                - [Official Site](https://www.boost.org)
+                - [Documentation (master branch)](https://www.boost.org/doc/libs/master/)
+                - [Autobahn|Testsuite WebSocket Results](https://www.boost.org)
+
+                ## New Libraries
+
+                **OpenMethod:**
+                - Open-(multi-)methods in C++17 and above, from Jean-Louis Leroy.
+
+                ## Updated Libraries
+
+                **Asio**
+                - Added the execution::inline_exception_handling property to describe what exception handling guarantees are made when execution occurs inline.
+                - Added inline_executor, which always executes the submitted function inline.
+                - Changed the default candidate executor for associated_executor from system_executor to inline_executor.
+                - Added the inline_or_executor<> adapter and inline_or() helper, which will execute inline if possible and otherwise delegate to another executor.
+                - Added overloads of dispatch, post and defer that take a function object to be run on the target executor, and deliver the result to the completion handler.
+                - Added the redirect_disposition completion token adapter, as a generic counterpart for redirect_error.
+                - Annotated deprecated items with the [[deprecated]] attribute.
+                - Added a new configuration parameter "reactor" / "reset_edge_on_partial_read", which determines whether a partial read consumes the edge when using epoll.
+                - Added new configuration parameters "reactor" / "use_eventfd" and "reactor" / "use_timerfd" that are used to determine whether the epoll backend uses eventfd and timerfd respectively.
+                - Added the missing preprocessor check for BOOST_ASIO_DISABLE_TIMERFD.
+                - Implemented a compile-time feature detection mechanism for io_uring."""
+            ),
+        }
+        top_contributors = self.get_top_contributors_release(obj)
+        if top_contributors:
+            ctx["v3_contributors"] = [
+                {
+                    "name": author.display_name,
+                    "avatar_url": author.avatar_url or "",
+                    "profile_url": author.github_profile_url or "",
+                    "role": "Contributor",
+                }
+                for author in top_contributors
+            ]
+        return ctx
+
     def dispatch(self, request, *args, **kwargs):
-        response = super().dispatch(request, *args, **kwargs)
         version_slug = self.kwargs.get("version_slug")
+
+        if self.v3_template_name and flag_is_active(request, "v3"):
+            self._v3_active = True
+            if not version_slug:
+                return redirect(
+                    "release-detail",
+                    version_slug=LATEST_RELEASE_URL_PATH_STR,
+                )
+            self.object = self.get_object()
+            self.set_extra_context(request)
+            context = self.get_context_data()
+            context.update(self.get_v3_context_data())
+            response = self.render_to_response(context)
+            set_selected_boost_version(version_slug, response)
+            return response
+
+        self._v3_active = False
+        response = super().dispatch(request, *args, **kwargs)
         # if set in kwargs, update the cookie
         if version_slug:
             set_selected_boost_version(version_slug, response)
@@ -246,108 +341,3 @@ class ReportPreviewGenerateView(BoostVersionMixin, View):
         )
         messages.success(request, "Report generation queued.")
         return redirect("release-report-preview", version_slug=version_name)
-
-
-class V3VersionDetail(VersionDetail):
-    """V3 release detail page rendered at /v3/releases/<slug>/."""
-
-    template_name = "v3/release_detail.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        obj = context.get("selected_version") or self.get_object()
-
-        # Hero context
-        context["hero_title"] = f"Latest release ({obj.display_name})"
-        # Sentinel list: the hero template's {% for %}{% empty %} renders
-        # default tags when the list is empty.  A single blank-label entry
-        # makes the loop iterate once but produces an invisible tag.
-        context["hide_tags"] = [{"label": "", "url": ""}]
-
-        # What's new highlights
-        context["whats_new_heading"] = f"What's new in {obj.display_name}"
-        context["whats_new_items"] = [
-            {
-                "title": "Asio: Major Executor & Reactor Overhaul",
-                "description": "New inline executor model, improved cancellation, expanded epoll configuration, and numerous correctness + performance fixes.",
-            },
-            {
-                "title": "Container: Complete deque Rebuild",
-                "description": "A modern, faster, drastically smaller deque implementation that simplifies future optimizations and resolves multiple long-standing issues.",
-            },
-            {
-                "title": "Redis: Major Redesign of Cancellation & Connection Behavior",
-                "description": "True per-operation cancellation, deprecated old mechanisms, smarter health checking, and guaranteed Valkey compatibility.",
-            },
-            {
-                "title": "Math: Brand-New Reverse-Mode Automatic Differentiation Library",
-                "description": "Adds full AD capabilities to Boost.Math, enabling modern ML/scientific workflows directly within Boost.",
-            },
-            {
-                "title": "Geometry: New is_valid for Polyhedral Surfaces + Performance Fixes",
-                "description": "A major algorithm addition, improved conversion support, and fixes to reduce compile times and avoid stack overflows.",
-            },
-        ]
-
-        context["release_notes"] = {
-            "title": f"Release notes version {obj.display_name}",
-            "markdown": dedent(
-                """\
-                ## Dependencies
-
-                There was 1 dependency added (in 1 library) and 16 dependencies removed (in 10 libraries) this release.
-
-                - [Official Site](https://www.boost.org)
-                - [Documentation (master branch)](https://www.boost.org/doc/libs/master/)
-                - [Autobahn|Testsuite WebSocket Results](https://www.boost.org)
-
-                ## New Libraries
-
-                **OpenMethod:**
-                - Open-(multi-)methods in C++17 and above, from Jean-Louis Leroy.
-
-                ## Updated Libraries
-
-                **Asio**
-                - Added the execution::inline_exception_handling property to describe what exception handling guarantees are made when execution occurs inline.
-                - Added inline_executor, which always executes the submitted function inline.
-                - Changed the default candidate executor for associated_executor from system_executor to inline_executor.
-                - Added the inline_or_executor<> adapter and inline_or() helper, which will execute inline if possible and otherwise delegate to another executor.
-                - Added overloads of dispatch, post and defer that take a function object to be run on the target executor, and deliver the result to the completion handler.
-                - Added the redirect_disposition completion token adapter, as a generic counterpart for redirect_error.
-                - Annotated deprecated items with the [[deprecated]] attribute.
-                - Added a new configuration parameter "reactor" / "reset_edge_on_partial_read", which determines whether a partial read consumes the edge when using epoll.
-                - Added new configuration parameters "reactor" / "use_eventfd" and "reactor" / "use_timerfd" that are used to determine whether the epoll backend uses eventfd and timerfd respectively.
-                - Added the missing preprocessor check for BOOST_ASIO_DISABLE_TIMERFD.
-                - Implemented a compile-time feature detection mechanism for io_uring."""
-            ),
-        }
-
-        # v3-compatible contributor list
-        if context.get("top_contributors_release"):
-            context["v3_contributors"] = [
-                {
-                    "name": author.display_name,
-                    "avatar_url": author.avatar_url or "",
-                    "profile_url": author.github_profile_url or "",
-                    "role": "Contributor",
-                }
-                for author in context["top_contributors_release"]
-            ]
-        return context
-
-    def dispatch(self, request, *args, **kwargs):
-        version_slug = self.kwargs.get("version_slug")
-        if not version_slug:
-            return redirect(
-                "v3-release-detail", version_slug=LATEST_RELEASE_URL_PATH_STR
-            )
-        self.object = self.get_object()
-        self.set_extra_context(request)
-        context = self.get_context_data()
-        response = self.render_to_response(context)
-        set_selected_boost_version(version_slug, response)
-        return response
-
-    def get_template_names(self):
-        return [self.template_name]
