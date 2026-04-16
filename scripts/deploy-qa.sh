@@ -8,13 +8,19 @@ if [[ "${1:-}" == "--bundle" ]]; then
     APP_NAME="DeployQA"
     APP_DIR="${APP_NAME}.app"
     MACOS_DIR="${APP_DIR}/Contents/MacOS"
+    RESOURCES_DIR="${APP_DIR}/Contents/Resources"
+    SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 
     echo "Building $APP_NAME..."
 
     # 1. Create the standard macOS app directory structure
-    mkdir -p "$MACOS_DIR"
+    mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
 
-    # 2. Write the SwiftUI code to a temporary file
+    # 2. Embed this script into the app bundle so the Swift app can call it
+    cp "$SCRIPT_PATH" "$RESOURCES_DIR/deploy-qa.sh"
+    chmod +x "$RESOURCES_DIR/deploy-qa.sh"
+
+    # 3. Write the SwiftUI code to a temporary file
     cat << 'SWIFT_EOF' > DeployApp.swift
 import SwiftUI
 import AppKit
@@ -122,99 +128,33 @@ struct ContentView: View {
         let sanitizedPR = prNumber.replacingOccurrences(of: "#", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
         logs = "Starting deployment for PR #\(sanitizedPR)...\n\n"
 
-        let script = #"""
-        set -euo pipefail
-        export PATH=/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin
-
-        # --- GIT AUTHENTICATION ---
-        export GIT_TERMINAL_PROMPT=0
-        export GIT_CONFIG_COUNT=4
-        export GIT_CONFIG_KEY_0="url.https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/.insteadOf"
-        export GIT_CONFIG_VALUE_0="https://github.com/"
-        export GIT_CONFIG_KEY_1="credential.helper"
-        export GIT_CONFIG_VALUE_1=""
-        export GIT_CONFIG_KEY_2="user.name"
-        export GIT_CONFIG_VALUE_2="${GITHUB_USERNAME}"
-        export GIT_CONFIG_KEY_3="user.email"
-        export GIT_CONFIG_VALUE_3="${GITHUB_USERNAME}@users.noreply.github.com"
-
-        # --- Configuration ---
-        MAIN_ORG="boostorg"
-        MAIN_REPO="website-v2"
-        MY_ORG="cppalliance"
-        MY_REPO="website-v2-qa"
-        TARGET_BRANCH="cppal-dev"
-        MAIN_REMOTE_NAME="upstream"
-        MY_REMOTE_URL="https://github.com/${MY_ORG}/${MY_REPO}.git"
-        MAIN_REMOTE_URL="https://github.com/${MAIN_ORG}/${MAIN_REPO}.git"
-        QA_ROOT="$HOME/qa-automation"
-        WORK_DIR="${QA_ROOT}/${MY_ORG}/${MY_REPO}"
-        PR_NUMBER="\#(sanitizedPR)"
-
-        echo "Deploying PR #${PR_NUMBER} ..."
-        echo "----------------------------------------"
-
-        # --- Ensure the QA repo is cloned ---
-        mkdir -p "$QA_ROOT"
-        if [[ ! -d "${WORK_DIR}/.git" ]]; then
-            echo "==> Cloning ${MY_ORG}/${MY_REPO} into ${WORK_DIR} …"
-            mkdir -p "$(dirname "${WORK_DIR}")"
-            git clone "${MY_REMOTE_URL}" "${WORK_DIR}"
-        fi
-        cd "${WORK_DIR}"
-
-        if ! git remote get-url "${MAIN_REMOTE_NAME}" &>/dev/null; then
-            echo "==> Adding remote '${MAIN_REMOTE_NAME}' → ${MAIN_REMOTE_URL}"
-            git remote add "${MAIN_REMOTE_NAME}" "${MAIN_REMOTE_URL}"
-        fi
-
-        # --- Fetch PR and deploy ---
-        PR_REF="refs/pull/${PR_NUMBER}/head"
-        LOCAL_PR_BRANCH="pr/${PR_NUMBER}"
-
-        echo "==> Switching to '${TARGET_BRANCH}' before fetching ..."
-        if git show-ref --quiet "refs/heads/${TARGET_BRANCH}"; then
-            git checkout "${TARGET_BRANCH}"
-            if git ls-remote --exit-code origin "refs/heads/${TARGET_BRANCH}" &>/dev/null; then
-                LOCAL_SHA=$(git rev-parse "HEAD")
-                REMOTE_SHA=$(git rev-parse "origin/${TARGET_BRANCH}" 2>/dev/null || echo "")
-                if [[ -n "$REMOTE_SHA" && "$LOCAL_SHA" != "$REMOTE_SHA" ]]; then
-                    echo "==> Local branch has diverged from remote. Resetting to remote..."
-                    git reset --hard "origin/${TARGET_BRANCH}"
-                fi
-            fi
-        else
-            if git ls-remote --exit-code origin "refs/heads/${TARGET_BRANCH}" &>/dev/null; then
-                git checkout -b "${TARGET_BRANCH}" "origin/${TARGET_BRANCH}"
-            else
-                git checkout -b "${TARGET_BRANCH}"
-            fi
-        fi
-
-        echo "==> Fetching PR #${PR_NUMBER} from ${MAIN_REMOTE_NAME} …"
-        git fetch "${MAIN_REMOTE_NAME}" "${PR_REF}:${LOCAL_PR_BRANCH}"
-
-        PR_SHA=$(git rev-parse "${LOCAL_PR_BRANCH}")
-        echo "    PR commit SHA: ${PR_SHA}"
-
-        echo "==> Hard-resetting '${TARGET_BRANCH}' to PR commit ${PR_SHA} …"
-        git reset --hard "${PR_SHA}"
-
-        echo "==> Force-pushing to origin/${TARGET_BRANCH} …"
-        git push --force origin "${TARGET_BRANCH}"
-
-        echo "Done."
-        """#
+        // Locate the bundled deploy-qa.sh inside the app's Resources
+        guard let scriptURL = Bundle.main.url(forResource: "deploy-qa", withExtension: "sh") else {
+            logs += "Error: Could not find bundled deploy-qa.sh\n"
+            isDeploying = false
+            return
+        }
 
         DispatchQueue.global(qos: .userInitiated).async {
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/bin/bash")
-            process.arguments = ["-c", script]
+            process.arguments = [scriptURL.path, "--yes", sanitizedPR]
 
-            // Inject the credentials securely into the script's environment
+            // Inject credentials and git auth config into the environment
             var env = ProcessInfo.processInfo.environment
+            env["PATH"] = "/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
             env["GITHUB_USERNAME"] = self.githubUsername
             env["GITHUB_TOKEN"] = self.githubToken
+            env["GIT_TERMINAL_PROMPT"] = "0"
+            env["GIT_CONFIG_COUNT"] = "4"
+            env["GIT_CONFIG_KEY_0"] = "url.https://\(self.githubUsername):\(self.githubToken)@github.com/.insteadOf"
+            env["GIT_CONFIG_VALUE_0"] = "https://github.com/"
+            env["GIT_CONFIG_KEY_1"] = "credential.helper"
+            env["GIT_CONFIG_VALUE_1"] = ""
+            env["GIT_CONFIG_KEY_2"] = "user.name"
+            env["GIT_CONFIG_VALUE_2"] = self.githubUsername
+            env["GIT_CONFIG_KEY_3"] = "user.email"
+            env["GIT_CONFIG_VALUE_3"] = "\(self.githubUsername)@users.noreply.github.com"
             process.environment = env
 
             let pipe = Pipe()
@@ -303,11 +243,11 @@ struct SettingsView: View {
 }
 SWIFT_EOF
 
-    # 3. Compile the Swift code into the app bundle executable
+    # 4. Compile the Swift code into the app bundle executable
     swiftc DeployApp.swift -parse-as-library -o "$MACOS_DIR/$APP_NAME" || { echo "Compilation failed! Aborting."; rm DeployApp.swift; exit 1; }
     rm DeployApp.swift
 
-    # 4. Create an Info.plist so macOS recognizes it as a real GUI application
+    # 5. Create an Info.plist so macOS recognizes it as a real GUI application
     cat << 'PLIST_EOF' > "${APP_DIR}/Contents/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -329,7 +269,7 @@ SWIFT_EOF
 </plist>
 PLIST_EOF
 
-    # 5. Zip it for distribution
+    # 6. Zip it for distribution
     zip -r -q "${APP_NAME}.zip" "${APP_DIR}"
 
     echo "Done! You can now send ${APP_NAME}.zip to the QA team."
