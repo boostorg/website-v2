@@ -206,6 +206,11 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 slug=self.kwargs.get("category_slug")
             )
 
+        from pprint import PrettyPrinter
+
+        pp = PrettyPrinter()
+        pp.pprint(context)
+
         return context
 
     def get_categories(self, version=None):

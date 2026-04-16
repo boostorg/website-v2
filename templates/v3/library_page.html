@@ -24,15 +24,30 @@
       </div>
     </div>
   </section>
-  {% include 'v3/includes/_library_filter.html' with filter_id='library-page-filter' fields=library_filter_fields %}
+  <div id="library-page-filter-container">
+    {% include 'v3/includes/_library_filter.html' with filter_id='library-page-filter' fields=library_filter_fields %}
+  </div>
 {% endblock %}
 
 {% block footer_js %}
 {{ block.super }}
 <script>
-    const filterSection = document.getElementById("library-page-filter");
-    console.log(filterSection)
-    //const viewInput = filterSection.querySelector("input[name='view']");
-    //console.log(viewInput)
-</script>
+    const filterSection = document.getElementById("library-page-filter-container");
+    const viewInput = filterSection.querySelector("input[name='view']");
+    console.log(viewInput)
+    viewInput.addEventListener("change", function (event) {
+      const value = event.target.value;
+      console.log(event)
+      {% comment %} switch (value) {
+        case "grid":
+          window.location.href("{% url 'libraries-list' version_slug=version_str library_view_str='grid'  %}");
+          break;
+        case "list":
+          window.location.href("{% url 'libraries-list' version_slug=version_str library_view_str='list'  %}");
+          break;
+        default:
+          console.error(`Value ${value} is unknown, please reload the page.`)
+      } {% endcomment %}
+    })
+  </script>
 {% endblock %}
