@@ -101,7 +101,7 @@
   background: var(--color-surface-strong);
 }
 
-.header__search-bar:has(:focus-visible) {
+.header__search-bar:focus-within {
   outline: 2px solid var(--color-stroke-link-accent);
 }
 
@@ -391,7 +391,7 @@ html.dark .header__icon--theme-moon {
 
 /* ==========================================================================
    Mobile drawer
-   CSS-only toggle via hidden checkbox + :has() selector.
+   CSS-only toggle via hidden checkbox + sibling combinator.
    ========================================================================== */
 
 .header__menu-toggle {
@@ -411,16 +411,16 @@ html.dark .header__icon--theme-moon {
   display: none;
 }
 
-.header:has(.header__menu-toggle:checked) .header__menu-icon--open {
+.header__menu-toggle:checked ~ .header__menu-btn .header__menu-icon--open {
   display: none;
 }
 
-.header:has(.header__menu-toggle:checked) .header__menu-icon--close {
+.header__menu-toggle:checked ~ .header__menu-btn .header__menu-icon--close {
   display: inline-flex;
 }
 
 @media (max-width: 990px) {
-  .header:has(.header__menu-toggle:checked) .header__drawer {
+  .header__menu-toggle:checked ~ .header__drawer {
     display: flex;
   }
 }
