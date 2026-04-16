@@ -156,6 +156,23 @@ body:has(.homepage-v3) .header {
     .card-masonry-bottom > div > * {
         max-width: 100%;
     }
+
+    .four-column .why-boost-cards__grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .four-column .why-boost-cards__grid > * {
+        grid-column: span 2;
+    }
+
+    .four-column .why-boost-cards__grid > :nth-last-child(2):nth-child(3n+1),
+    .four-column .why-boost-cards__grid > :last-child:nth-child(3n+2) {
+        grid-column: span 3;
+    }
+
+    .four-column .why-boost-cards__grid > :last-child:nth-child(3n+1) {
+        grid-column: span 6;
+    }
 }
 
 @media (max-width: 767px) {
