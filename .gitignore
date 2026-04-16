@@ -210,3 +210,6 @@ test-logs.txt
 smoke-logs.txt
 extract_links.py.py
 extract_links.py
+
+# deploy-qa.sh --bundle output
+scripts/build/

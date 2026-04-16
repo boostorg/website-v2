@@ -6,10 +6,12 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 if [[ "${1:-}" == "--bundle" ]]; then
     APP_NAME="DeployQA"
-    APP_DIR="${APP_NAME}.app"
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+    BUILD_DIR="${SCRIPT_DIR}/build"
+    APP_DIR="${BUILD_DIR}/${APP_NAME}.app"
     MACOS_DIR="${APP_DIR}/Contents/MacOS"
     RESOURCES_DIR="${APP_DIR}/Contents/Resources"
-    SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+    SCRIPT_PATH="${SCRIPT_DIR}/$(basename "$0")"
 
     echo "Building $APP_NAME..."
 
@@ -21,7 +23,7 @@ if [[ "${1:-}" == "--bundle" ]]; then
     chmod +x "$RESOURCES_DIR/deploy-qa.sh"
 
     # 3. Write the SwiftUI code to a temporary file
-    cat << 'SWIFT_EOF' > DeployApp.swift
+    cat << 'SWIFT_EOF' > "${BUILD_DIR}/DeployApp.swift"
 import SwiftUI
 import AppKit
 
@@ -244,8 +246,8 @@ struct SettingsView: View {
 SWIFT_EOF
 
     # 4. Compile the Swift code into the app bundle executable
-    swiftc DeployApp.swift -parse-as-library -o "$MACOS_DIR/$APP_NAME" || { echo "Compilation failed! Aborting."; rm DeployApp.swift; exit 1; }
-    rm DeployApp.swift
+    swiftc "${BUILD_DIR}/DeployApp.swift" -parse-as-library -o "$MACOS_DIR/$APP_NAME" || { echo "Compilation failed! Aborting."; rm "${BUILD_DIR}/DeployApp.swift"; exit 1; }
+    rm "${BUILD_DIR}/DeployApp.swift"
 
     # 5. Create an Info.plist so macOS recognizes it as a real GUI application
     cat << 'PLIST_EOF' > "${APP_DIR}/Contents/Info.plist"
@@ -270,9 +272,9 @@ SWIFT_EOF
 PLIST_EOF
 
     # 6. Zip it for distribution
-    zip -r -q "${APP_NAME}.zip" "${APP_DIR}"
+    (cd "${BUILD_DIR}" && zip -r -q "${APP_NAME}.zip" "${APP_NAME}.app")
 
-    echo "Done! You can now send ${APP_NAME}.zip to the QA team."
+    echo "Done! You can now send scripts/build/${APP_NAME}.zip to the QA team."
     exit 0
 fi
 
