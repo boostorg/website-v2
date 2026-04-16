@@ -140,7 +140,7 @@
 .stats__cta {
   display: flex;
   gap: var(--space-default);
-  padding: var(--stats-space);
+  padding: var(--space-large);
   flex-shrink: 0;
 }
 
