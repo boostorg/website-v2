@@ -139,6 +139,16 @@ body:has(.releases-v3) .hero-library--no-image {
     grid-column: auto;
   }
 
+  body:has(.releases-v3) .hero-library--no-image .hero-library__block {
+    height: 520px;
+    padding: 80px 0 0 0;
+    justify-content: flex-start;
+  }
+
+  body:has(.releases-v3) .hero-library--no-image .hero-library__content {
+    margin: 0;
+  }
+
   .downloads-table-card__td--hash {
     max-width: 100px;
   }
