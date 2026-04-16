@@ -10,7 +10,6 @@
   padding: var(--space-large);
   box-sizing: border-box;
   width: 100%;
-  min-height: 125px;
   gap: var(--space-large);
 }
 
