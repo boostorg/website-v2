@@ -23,19 +23,16 @@
       {% include "v3/includes/_downloads_table_card.html" with downloads=downloads %}
     </div>
 
-    {# ── Release notes full ── #}
     {% if release_notes %}
         {% with release_notes as d %}
           {% include "v3/includes/_markdown_card.html" with title=d.title markdown=d.markdown %}
         {% endwith %}
     {% endif %}
 
-    {# ── Contributors ── #}
     {% if v3_contributors %}
       {% include "v3/includes/_contributors_list.html" with title="All Contributors" variant="all" contributors=v3_contributors %}
     {% endif %}
 
-    {# ── Bottom cards row ── #}
     <section class="release-detail__bottom-cards" aria-label="Community and resources">
       {% include "v3/includes/_mailing_list_card.html" %}
 
