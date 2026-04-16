@@ -11,7 +11,7 @@
     request                  (HttpRequest, required)         — Django request object (for auth state)
 
   Note: Subcomponents inherit the full parent context. Specifically:
-    _nav_link.html           uses: url, label, nav_id, is_unread, active_nav_item
+    _header_nav_link.html    uses: url, label, nav_id, is_unread, active_nav_item
     _header_utilities.html   uses: releases_url, disable_theme_switcher, request, avatar_id
 
   Usage:
@@ -30,7 +30,7 @@
       </a>
       {% comment %} Nav links {% endcomment %}
       {% for item in nav_links %}
-        {% include "v3/includes/_nav_link.html" with url=item.url label=item.label nav_id=item.nav_id is_unread=item.is_unread %}
+        {% include "v3/includes/header/_header_nav_link.html" with url=item.url label=item.label nav_id=item.nav_id is_unread=item.is_unread %}
       {% endfor %}
     </nav>
 
@@ -57,7 +57,7 @@
       <div class="header__drawer" id="header-drawer">
         <nav class="header__drawer-nav" aria-label="Mobile navigation">
           {% for item in nav_links %}
-            {% include "v3/includes/_nav_link.html" with url=item.url label=item.label nav_id=item.nav_id is_unread=item.is_unread %}
+            {% include "v3/includes/header/_header_nav_link.html" with url=item.url label=item.label nav_id=item.nav_id is_unread=item.is_unread %}
           {% endfor %}
         </nav>
         {% include "v3/includes/header/_header_utilities.html" with avatar_id="mobile-user-menu" %}

@@ -76,6 +76,62 @@
   display: block;
 }
 
+/* ── Header Nav Link with default, unread, selected, and hover states. ── */
+
+.header__nav-link {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-size: var(--font-size-small);
+  font-weight: 400;
+  font-family: var(--font-sans);
+  line-height: var(--line-height-relaxed);
+  letter-spacing: var(--letter-spacing-tight);
+  padding: 0 var(--space-large);
+  height: 32px;
+  width: fit-content;
+  border-radius: var(--border-radius-m);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+/* ── Hover ─────────────────────────────────────── */
+
+.header__nav-link:hover, .header__nav-link[data-hover] {
+  color: var(--color-text-primary);
+  background: var(--color-navigation-hover);
+}
+
+/* ── Selected ──────────────────────────────────── */
+
+.header__nav-link--active {
+  text-decoration: underline !important;
+}
+
+/* ── Unread (notification dot) ─────────────────── */
+
+.header__nav-link--unread {
+  position: relative;
+}
+
+.header__nav-link-sr-hint {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.header__nav-link-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  margin-left: var(--space-s);
+  background: var(--color-surface-brand-accent-default);
+}
+
 /* ── Search ────────────────────────────────────── */
 
 .header__search-bar {
@@ -297,7 +353,7 @@ html.dark .header__icon--theme-moon {
   z-index: 1000;
 }
 
-.header__user-dropdown .nav-link {
+.header__user-dropdown .header__nav-link {
   padding: 0 var(--space-s);
   width: 100%;
 }
@@ -370,7 +426,7 @@ html.dark .header__icon--theme-moon {
     border-radius: var(--header-radius);
   }
 
-  .header__nav--desktop > .nav-link,
+  .header__nav--desktop > .header__nav-link,
   .header__right,
   .header__search-kbd {
     display: none;

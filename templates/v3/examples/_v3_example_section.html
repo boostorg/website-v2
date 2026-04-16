@@ -808,14 +808,14 @@
     </div>
   {% endwith %}
 
-  {% with section_title="Nav Link" %}
+  {% with section_title="Header Nav Link" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
         <div style="display: flex; flex-direction: column; gap: var(--space-default); max-width: 200px;">
-          {% include "v3/includes/_nav_link.html" with url="#" label="Default" %}
-          {% include "v3/includes/_nav_link.html" with url="#" label="Unread" is_unread=True %}
-          {% include "v3/includes/_nav_link.html" with url="#" label="Selected" is_active=True %}
+          {% include "v3/includes/header/_header_nav_link.html" with url="#" label="Default" %}
+          {% include "v3/includes/header/_header_nav_link.html" with url="#" label="Unread" is_unread=True %}
+          {% include "v3/includes/header/_header_nav_link.html" with url="#" label="Selected" is_active=True %}
         </div>
       </div>
     </div>
