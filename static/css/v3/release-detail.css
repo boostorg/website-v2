@@ -91,12 +91,17 @@ body:has(.releases-v3) .hero-library--no-image {
 .release-detail__bottom-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 237px;
   gap: var(--space-large);
   align-items: stretch;
 }
 
 .release-detail__bottom-cards .card {
   max-width: 100%;
+}
+
+.release-detail__bottom-cards .basic-card {
+  height: 100%;
 }
 
 @media (max-width: 1024px) {
