@@ -1,9 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load i18n %}
 
-{% block title %}{% blocktrans with version_name=version.display_name %}Boost {{ version_name }}{% endblocktrans %}{% endblock %}
-{% block description %}{% blocktrans with version_name=version.display_name %}Discover what's new in Boost {{ version_name }}{% endblocktrans %}{% endblock %}
+{% block title %}Boost {{ version.display_name }}{% endblock %}
+{% block description %}Discover what's new in Boost {{ version.display_name }}{% endblock %}
 
 {% block extra_head %}
   {{ block.super }}
