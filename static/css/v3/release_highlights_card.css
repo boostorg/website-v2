@@ -24,7 +24,7 @@
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-default);
+  line-height: var(--line-height-relaxed);
   letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-secondary);
 }
