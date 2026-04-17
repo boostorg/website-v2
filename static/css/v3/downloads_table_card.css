@@ -76,7 +76,7 @@
 
 .downloads-table-card__hash-link {
   display: block;
-  max-width: 200px;
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
