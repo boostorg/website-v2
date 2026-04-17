@@ -1,7 +1,7 @@
 .release-highlight {
   display: flex;
   flex-direction: column;
-  gap: var(--space-medium);
+  gap: var(--space-default);
   padding: var(--space-card);
   font-family: var(--font-sans);
   color: var(--color-text-primary);
@@ -22,7 +22,7 @@
   margin: 0;
   padding: 0;
   font-family: var(--font-sans);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-small);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-relaxed);
   letter-spacing: var(--letter-spacing-tight);
