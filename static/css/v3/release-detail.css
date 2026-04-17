@@ -173,8 +173,8 @@ body:has(.releases-v3) .hero-library--no-image {
   }
 }
 
-.dark .release-detail__bottom-cards .basic-card--green,
-.dark .release-detail__bottom-cards .basic-card--yellow,
-.dark .release-detail__bottom-cards .basic-card--teal {
+html.dark .release-detail__bottom-cards .basic-card--green,
+html.dark .release-detail__bottom-cards .basic-card--yellow,
+html.dark .release-detail__bottom-cards .basic-card--teal {
   background: var(--color-surface-mid);
 }
