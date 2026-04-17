@@ -1,7 +1,6 @@
 .release-highlight {
   display: flex;
   flex-direction: column;
-  gap: var(--space-default);
   padding: var(--space-card);
   font-family: var(--font-sans);
   color: var(--color-text-primary);
