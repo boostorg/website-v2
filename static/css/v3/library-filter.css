@@ -42,6 +42,12 @@
   width: 200px;
 }
 
+/* -- Button for js less submit ----------- */
+.library-filter .btn-primary {
+  height: 40px;
+  align-self: end;
+}
+
 /* ── Mobile: fullscreen modal ──────────── */
 
 @media (max-width: 767px) {

@@ -568,3 +568,25 @@ def get_s3_client() -> BaseClient:
         aws_secret_access_key=settings.STATIC_CONTENT_AWS_SECRET_ACCESS_KEY,
         region_name=settings.STATIC_CONTENT_REGION,
     )
+
+
+def group_libraries_by_tier(libraries):
+    """Group libraries into flagship, core, and other lists based on tier.
+
+    Works with any objects that have a .tier attribute (Library instances, etc.).
+    Returns (flagship, core, other) tuple.
+    """
+
+    from libraries.models import Tier
+
+    flagship = []
+    core = []
+    other = []
+    for lib in libraries:
+        if lib.tier == Tier.FLAGSHIP:
+            flagship.append(lib)
+        elif lib.tier == Tier.CORE:
+            core.append(lib)
+        else:
+            other.append(lib)
+    return flagship, core, other
