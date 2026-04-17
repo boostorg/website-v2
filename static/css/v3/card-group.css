@@ -57,8 +57,8 @@
   font-family: var(--font-display);
   font-size: var(--font-size-large);
   font-weight: var(--font-weight-medium);
-  line-height: 1;
-  letter-spacing: -0.24px;
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-primary);
 }
 
@@ -144,6 +144,6 @@ html.dark {
   }
 
   .card-group--default {
-    background: var(--color-primary-grey-850);
+    background: var(--color-surface-mid);
   }
 }
