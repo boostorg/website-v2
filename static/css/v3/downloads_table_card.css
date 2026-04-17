@@ -17,7 +17,7 @@
 .downloads-table-card__th,
 .downloads-table-card__td {
   border: 1px solid var(--color-stroke-weak);
-  padding: var(--space-default) var(--space-medium);
+  padding: var(--space-default) var(--space-large);
   text-align: left;
   vertical-align: middle;
 }
