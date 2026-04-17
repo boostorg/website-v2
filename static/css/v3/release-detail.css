@@ -104,10 +104,6 @@ body:has(.releases-v3) .hero-library--no-image {
   height: 100%;
 }
 
-.release-detail__bottom-cards .promo-card {
-  background: var(--color-surface-mid);
-}
-
 .release-detail__bottom-cards .media-text-card__body {
   flex: 1;
   min-height: 0;
@@ -166,4 +162,8 @@ body:has(.releases-v3) .hero-library--no-image {
   .downloads-table-card__td--hash {
     max-width: 100px;
   }
+}
+
+.dark .release-detail__bottom-cards .promo-card {
+  background: var(--color-surface-mid);
 }
