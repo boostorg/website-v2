@@ -118,7 +118,7 @@ body:has(.releases-v3) .hero-library--no-image {
   overflow: hidden;
 }
 
-@media (max-width: 1310px) {
+@media (min-width: 768px) and (max-width: 1310px) {
   .release-detail__cards-row {
     grid-template-columns: 1fr;
   }
@@ -129,6 +129,12 @@ body:has(.releases-v3) .hero-library--no-image {
 
   .release-detail__bottom-cards > :last-child {
     grid-column: 1 / -1;
+  }
+
+  .release-detail__bottom-cards .media-text-card__image {
+    max-width: 160px;
+    max-height: 160px;
+    flex: 0 0 auto;
   }
 }
 
