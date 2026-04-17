@@ -33,8 +33,8 @@
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-regular);
-  line-height: 1.2;
-  letter-spacing: -0.16px;
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-secondary);
   flex: 0 0 auto;
   max-width: 50%;
