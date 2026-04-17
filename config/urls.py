@@ -208,9 +208,7 @@ urlpatterns = (
             name="community",
         ),
         # Boost community calendar
-        path(
-            "calendar/", CalendarView.as_view(), name="calendar"
-        ),  # V3 via waffle flag
+        path("calendar/", CalendarView.as_view(), name="calendar"),
         path(
             "boost-development/",
             BoostDevelopmentView.as_view(),
@@ -360,13 +358,13 @@ urlpatterns = (
             PrivacyPolicyView.as_view(),
             name="privacy",
             kwargs={"markdown_local": "privacy-policy"},
-        ),  # V3 via waffle flag
+        ),
         path(
             "terms-of-use/",
             TermsOfUseView.as_view(),
             name="terms-of-use",
             kwargs={"markdown_local": "terms-of-use"},
-        ),  # V3 via waffle flag
+        ),
         path(
             "moderators/",
             TemplateView.as_view(
