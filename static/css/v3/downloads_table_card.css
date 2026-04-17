@@ -35,6 +35,7 @@
 .downloads-table-card__td--platform {
   font-weight: var(--font-weight-medium);
   white-space: nowrap;
+  color: var(--color-text-secondary);
 }
 
 .downloads-table-card__os-icon {
@@ -44,7 +45,8 @@
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-  margin-right: var(--space-default);
+  margin-right: var(--space-s);
+  color: var(--color-text-primary);
 }
 
 .downloads-table-card__td--file {
