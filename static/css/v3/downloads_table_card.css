@@ -27,7 +27,7 @@
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
-  letter-spacing: -0.14px;
+  letter-spacing: var(--letter-spacing-tight);
   background-color: var(--color-surface-mid);
   white-space: nowrap;
 }
@@ -60,8 +60,8 @@
   font-size: var(--font-size-xs);
   font-style: normal;
   font-weight: var(--font-weight-regular);
-  line-height: 120%;
-  letter-spacing: -0.12px;
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
   text-decoration-style: solid;
   text-decoration-skip-ink: auto;
   text-decoration-thickness: auto;
@@ -85,9 +85,9 @@
   color: var(--color-text-link-accent);
   font-size: var(--font-size-xs);
   font-style: normal;
-  font-weight: 400;
-  line-height: 120%;
-  letter-spacing: -0.12px;
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
   background: none;
   border: none;
   outline: none;
