@@ -2,12 +2,12 @@
 V3 URL Registry
 ===============
 
-This file contains all URLs with the explicit `/v3/` prefix.
+All URLs with the explicit `/v3/` prefix live here.
 
 All V3 views inherit from `V3Mixin` (see `core/mixins.py`). The test
-`core/tests/test_v3_registry.py` auto-discovers all `V3Mixin` subclasses
-via the URL resolver and verifies their templates exist — no manual
-registration needed.
+`core/tests/test_v3_registry.py` auto-discovers all `V3Mixin`
+subclasses via the URL resolver and verifies their templates exist — no
+manual registration needed.
 
 `V3Mixin` handles two cases based on class attributes:
 
@@ -18,45 +18,32 @@ registration needed.
 
 Full-migration procedure
 ------------------------
-The `v3` waffle flag and `V3Mixin` are migration scaffolding. "Fully
-migrating" means deleting the scaffolding, not leaving the flag on
-forever. Order matters — do steps in this sequence to keep the site
-working at every commit.
+The `v3` waffle flag and `V3Mixin` are migration scaffolding. Order
+matters — do steps in this sequence to keep the site working at every
+commit.
 
-A. Make V3 the only path (per view that has both templates)
-   For each view with both `template_name` and `v3_template_name`:
-     1. Set `template_name` to the v3 template path.
-     2. Fold any logic from `get_v3_context_data` into `get_context_data`.
+A. Convert each view that has both templates
+     1. Set `template_name` to the V3 template path.
+     2. Fold `get_v3_context_data` into `get_context_data`.
      3. Remove `V3Mixin` from the class bases.
      4. Remove `v3_template_name` and `get_v3_context_data`.
-   Then delete the legacy templates (e.g. calendar.html, the markdown
-   sources for privacy / terms-of-use).
+     5. Delete the legacy template.
 
-B. Resolve each explicit /v3/ route
-   - `/v3/news/add/` → replace `/news/add/` (config/urls.py:309). Swap
-     `AllTypesCreateView` for `V3AllTypesCreateView`, then either rename
-     the V3 class to take over the original name or keep both.
-   - `/v3/demo/learn-page/` → delete once a permanent learn-page URL
-     exists from step A.5.
-   - `/v3/demo/components/` → keep as a permanent dev styleguide OR
-     delete. No production users depend on it.
+B. Promote each `/v3/` route
+   For each route in this file, move it into `config/urls.py` to
+   replace the legacy route (or create a permanent route if none
+   exists). Delete or rename the V3 view class as appropriate.
 
 C. Remove the flag from templates and JS
-   Unwrap every `{% flag "v3" %}…{% endflag %}` block (templates/base.html,
-   templates/news/form.html, templates/libraries/detail.html, the v3
-   wysiwyg includes). Drop the matching JS gates in static/js/v3/ and
-   frontend/.
+   Unwrap every `{% flag "v3" %}` block and drop matching JS gates.
 
 D. Delete the scaffolding
-   1. Delete `V3Mixin` from core/mixins.py.
-   2. Delete core/tests/test_v3_registry.py.
-   3. Delete the `v3` waffle flag record from the database/admin.
-   4. Update tests that reference the flag (libraries/tests/test_views.py).
-   5. Delete this file (config/v3_urls.py) and the
-      `from config.v3_urls import v3_urlpatterns` line in config/urls.py.
-   6. Remove the `# V3 via waffle flag` inline comments in config/urls.py.
+     1. `V3Mixin` from `core/mixins.py`.
+     2. `core/tests/test_v3_registry.py`.
+     3. The `v3` waffle flag record from the database.
+     4. This file and its import in `config/urls.py`.
 
-See docs/django-waffle-v3-flag.md for additional flag context.
+See `docs/django-waffle-v3-flag.md` for additional flag context.
 """
 
 from django.contrib.admin.views.decorators import staff_member_required
