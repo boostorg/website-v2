@@ -2,26 +2,19 @@
 V3 URL Registry
 ===============
 
-This file contains all URLs with the explicit `/v3/` prefix. Every V3
-view declares its migration status via a ``v3_status`` class attribute
-(see ``core/v3_registry.py`` for the enum). The canonical list of V3
-view classes lives in ``core/tests/test_v3_registry.py`` as ``V3_VIEWS``
-— add new V3 views there when you land them; the tests will verify the
-declared template exists and that ``V3Mixin`` / ``v3_status`` stay in
-sync.
+This file contains all URLs with the explicit `/v3/` prefix.
 
-All V3 views inherit from `V3Mixin` (see `core/mixins.py`) and declare
-their migration status via `v3_status` (see `core/v3_registry.py`):
+All V3 views inherit from `V3Mixin` (see `core/mixins.py`). The test
+`core/tests/test_v3_registry.py` auto-discovers all `V3Mixin` subclasses
+via the URL resolver and verifies their templates exist — no manual
+registration needed.
 
-* `V3_OPTIONAL` — has both a legacy and V3 template; the `v3` waffle
-  flag toggles between them. To go live, flip the flag.
-* `V3_ONLY` — V3 template only; returns 404 when the flag is off.
+`V3Mixin` handles two cases based on class attributes:
 
-The test `core/tests/test_v3_registry.py` auto-discovers all `V3Mixin`
-subclasses via the URL resolver and verifies templates exist and
-`v3_status` is set. To see the current set:
-
-    grep -rn "v3_status = " core/ news/
+* **Both templates** (`template_name` + `v3_template_name`) — legacy
+  template by default, V3 template when the `v3` waffle flag is active.
+* **V3 template only** (`v3_template_name`, no `template_name`) —
+  returns 404 when the flag is off.
 
 Full-migration procedure
 ------------------------
@@ -30,12 +23,12 @@ migrating" means deleting the scaffolding, not leaving the flag on
 forever. Order matters — do steps in this sequence to keep the site
 working at every commit.
 
-A. Make V3 the only path (per V3_OPTIONAL view)
-   For each view with `v3_status = V3Status.V3_OPTIONAL`:
+A. Make V3 the only path (per view that has both templates)
+   For each view with both `template_name` and `v3_template_name`:
      1. Set `template_name` to the v3 template path.
      2. Fold any logic from `get_v3_context_data` into `get_context_data`.
      3. Remove `V3Mixin` from the class bases.
-     4. Remove `v3_template_name`, `get_v3_context_data`, and `v3_status`.
+     4. Remove `v3_template_name` and `get_v3_context_data`.
    Then delete the legacy templates (e.g. calendar.html, the markdown
    sources for privacy / terms-of-use).
 
@@ -56,13 +49,12 @@ C. Remove the flag from templates and JS
 
 D. Delete the scaffolding
    1. Delete `V3Mixin` from core/mixins.py.
-   2. Delete `V3Status` enum from core/v3_registry.py.
-   3. Delete core/tests/test_v3_registry.py.
-   4. Delete the `v3` waffle flag record from the database/admin.
-   5. Update tests that reference the flag (libraries/tests/test_views.py).
-   6. Delete this file (config/v3_urls.py) and the
+   2. Delete core/tests/test_v3_registry.py.
+   3. Delete the `v3` waffle flag record from the database/admin.
+   4. Update tests that reference the flag (libraries/tests/test_views.py).
+   5. Delete this file (config/v3_urls.py) and the
       `from config.v3_urls import v3_urlpatterns` line in config/urls.py.
-   7. Remove the `# V3 via waffle flag` inline comments in config/urls.py.
+   6. Remove the `# V3 via waffle flag` inline comments in config/urls.py.
 
 See docs/django-waffle-v3-flag.md for additional flag context.
 """
