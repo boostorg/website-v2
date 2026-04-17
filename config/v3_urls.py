@@ -18,9 +18,7 @@ manual registration needed.
 
 Full-migration procedure
 ------------------------
-The `v3` waffle flag and `V3Mixin` are migration scaffolding. Order
-matters — do steps in this sequence to keep the site working at every
-commit.
+The `v3` waffle flag and `V3Mixin` are migration scaffolding.
 
 A. Convert each view that has both templates
      1. Set `template_name` to the V3 template path.
