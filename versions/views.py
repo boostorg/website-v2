@@ -190,11 +190,13 @@ class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
                 ## New Libraries
 
                 **OpenMethod:**
+
                 - Open-(multi-)methods in C++17 and above, from Jean-Louis Leroy.
 
                 ## Updated Libraries
 
                 **Asio**
+
                 - Added the execution::inline_exception_handling property to describe what exception handling guarantees are made when execution occurs inline.
                 - Added inline_executor, which always executes the submitted function inline.
                 - Changed the default candidate executor for associated_executor from system_executor to inline_executor.
@@ -203,7 +205,6 @@ class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
                 - Added the redirect_disposition completion token adapter, as a generic counterpart for redirect_error.
                 - Annotated deprecated items with the [[deprecated]] attribute.
                 - Added a new configuration parameter "reactor" / "reset_edge_on_partial_read", which determines whether a partial read consumes the edge when using epoll.
-                - Added new configuration parameters "reactor" / "use_eventfd" and "reactor" / "use_timerfd" that are used to determine whether the epoll backend uses eventfd and timerfd respectively.
                 - Added the missing preprocessor check for BOOST_ASIO_DISABLE_TIMERFD.
                 - Implemented a compile-time feature detection mechanism for io_uring."""
             ),

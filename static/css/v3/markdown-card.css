@@ -23,17 +23,32 @@
 }
 
 .markdown-content h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-b,
-strong {
-    color: var(--color-text-primary);
-    font-weight: var(--font-weight-medium);
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  margin: var(--space-default) 0 0;
+}
+
+.markdown-content h1 { font-size: var(--font-size-large); }
+.markdown-content h2 { font-size: var(--font-size-medium); }
+.markdown-content h3 { font-size: var(--font-size-base); }
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 { font-size: var(--font-size-small); }
+
+.markdown-content b,
+.markdown-content strong {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
 }
 
 .markdown-card p {
-    padding: 0;
+  padding: 0;
+  margin: 0;
 }
