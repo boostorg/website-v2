@@ -91,7 +91,6 @@ body:has(.releases-v3) .hero-library--no-image {
 .release-detail__bottom-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: 237px;
   gap: var(--space-large);
   align-items: stretch;
 }
@@ -115,7 +114,7 @@ body:has(.releases-v3) .hero-library--no-image {
   overflow: hidden;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1310px) {
   .release-detail__cards-row {
     grid-template-columns: 1fr;
   }
