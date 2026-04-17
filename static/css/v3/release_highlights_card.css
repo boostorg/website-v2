@@ -14,7 +14,7 @@
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-default);
-  letter-spacing: -0.14px;
+  letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-primary);
 }
 
@@ -25,7 +25,7 @@
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-default);
-  letter-spacing: -0.12px;
+  letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-secondary);
 }
 
