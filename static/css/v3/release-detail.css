@@ -103,6 +103,10 @@ body:has(.releases-v3) .hero-library--no-image {
   height: 100%;
 }
 
+.release-detail__bottom-cards .basic-card .card__column {
+  flex: 1;
+}
+
 .release-detail__bottom-cards .media-text-card__body {
   flex: 1;
   min-height: 0;
@@ -163,6 +167,8 @@ body:has(.releases-v3) .hero-library--no-image {
   }
 }
 
-.dark .release-detail__bottom-cards .promo-card {
+.dark .release-detail__bottom-cards .basic-card--green,
+.dark .release-detail__bottom-cards .basic-card--yellow,
+.dark .release-detail__bottom-cards .basic-card--teal {
   background: var(--color-surface-mid);
 }

@@ -27,6 +27,21 @@
   max-width: 458px;
 }
 
+.basic-card--green {
+  background: var(--color-surface-weak-accent-green);
+  overflow: clip;
+}
+
+.basic-card--yellow {
+  background: var(--color-surface-weak-accent-yellow);
+  overflow: clip;
+}
+
+.basic-card--teal {
+  background: var(--color-surface-weak-accent-teal);
+  overflow: clip;
+}
+
 .wide-card {
     max-width: 696px;
 }

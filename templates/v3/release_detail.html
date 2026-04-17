@@ -19,7 +19,7 @@
   <div class="release-detail">
 
     <div class="release-detail__cards-row">
-      {% include "v3/includes/_release_highlights_card.html" with heading=whats_new_heading items=whats_new_items %}
+      {% include "v3/includes/_release_highlights_card.html" with heading=whats_new_heading items=whats_new_items only %}
       {% include "v3/includes/_downloads_table_card.html" with downloads=downloads %}
     </div>
 
@@ -36,7 +36,7 @@
     <section class="release-detail__bottom-cards" aria-label="Community and resources">
       {% include "v3/includes/_mailing_list_card.html" %}
 
-      {% include "v3/includes/_promo_card.html" with title="Want to fix bugs, review code, maintain libraries, and propose new features?" text="Read our contributors guide and join the Boost community." button_url="/contribute" button_label="Start here" theme="green" %}
+      {% include "v3/includes/_basic_card.html" with title="Want to fix bugs, review code, maintain libraries, and propose new features?" text="Read our contributors guide and join the Boost community." primary_button_url="/contribute" primary_button_label="Start here" primary_button_style="green" theme="green" only %}
 
       {% include "v3/includes/_media_text_card.html" with text="Boost is publicly released three times a year in April, August, and December. Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process." image_url="/static/img/v3/home-page/heros.png" button_url="/releases" button_label="Read release process" %}
     </section>
