@@ -144,6 +144,6 @@ html.dark {
   }
 
   .card-group--default {
-    background: var(--color-surface-mid);
+    background: var(--color-primary-grey-850);
   }
 }
