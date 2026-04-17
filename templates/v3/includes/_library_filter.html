@@ -57,6 +57,18 @@
           {% endwith %}
         {% endwith %}
       {% endfor %}
+      <button
+        type="submit"
+        class="btn btn-primary"
+        x-show="!jsReady"
+        :disabled="jsReady"
+      >
+        <span
+          class="btn-icon"
+          aria-hidden
+        >{% include "includes/icon.html" with icon_name="arrow-right" icon_size=16 %}</span>
+          Filter
+      </button>
     </div>
   </div>
 </div>

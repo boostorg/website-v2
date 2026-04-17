@@ -11,44 +11,65 @@
 {% endblock %}
 
 {% block content %}
-  <section class="library-page-hero hero-home hero-home--no-image" aria-label="Hero">
-    <div class="hero-home__block">
-      <div class="hero-home__content">
-        <h1 class="hero-home__headline">Find a battle-tested library for the problem you're solving right now.</h1>
-        <div class="hero-home__actions">
-          {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' %}
+  <div class="library-page__container">
+    <section class="library-page-hero hero-home hero-home--no-image" aria-label="Hero">
+      <div class="hero-home__block">
+        <div class="hero-home__content">
+          <h1 class="hero-home__headline">Find a battle-tested library for the problem you're solving right now.</h1>
+          <div class="hero-home__actions">
+            {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' %}
+          </div>
+        </div>
+        <div class="hero-library__image">
+          <img alt="" class="hero-library__img" src="{% static 'img/v3/solo-images/beaver-black-and-white.png' %}" loading="lazy" decoding="async" />
         </div>
       </div>
-      <div class="hero-library__image">
-        <img alt="" class="hero-library__img" src="{% static 'img/v3/solo-images/beaver-black-and-white.png' %}" loading="lazy" decoding="async" />
+    </section>
+    <form action="" method="get">
+      <div id="library-page-filter-container" class="mb-xl">
+        {% include 'v3/includes/_library_filter.html' with filter_id='library-page-filter' fields=library_filter_fields %}
       </div>
-    </div>
-  </section>
-  <div id="library-page-filter-container" class="mb-xl">
-    {% include 'v3/includes/_library_filter.html' with filter_id='library-page-filter' fields=library_filter_fields %}
-  </div>
-  {% if library_view_str == 'list' %}
-    <ul class="library-item-list">
-      {% for item in object_list %}
-        {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
-      {% endfor %}
-    </ul>
-  {% elif library_view_str == 'grid' %}
-    <div class="library-item-card-grid">
-      {% for item in object_list %}
-        {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
-      {% endfor %}
-    </div>
-  {% elif library_view_str == 'categorized' %}
-    {% for result in library_versions_by_category %}
-      <h2>{{result.category}}</h2>
+    </form>
+    {% if library_view_str == 'list' %}
       <ul class="library-item-list">
-        {% for item in result.library_version_list %}
-          {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+        <li class="library-page__list-header library-item--list">
+          <div>Library name</div>
+          <div>Description</div>
+          <div>Category</div>
+          <div>Author</div>
+          <div style="justify-self: center;">Version</div>
+          <div></div>
+        </li>
+        {% for item in object_list %}
+          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
         {% endfor %}
       </ul>
-    {% endfor %}
-  {% endif %}
+    {% elif library_view_str == 'grid' %}
+      <div class="library-item-card-grid">
+        {% for item in object_list %}
+          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+        {% endfor %}
+      </div>
+    {% elif library_view_str == 'categorized' %}
+      {% for result in library_versions_by_category %}
+        <ul class="library-item-list grouped">
+          <h2 class="library-page__category-header">{{ result.category }}</h2>
+          {% for item in result.library_version_list %}
+            {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+          {% endfor %}
+        </ul>
+      {% endfor %}
+    {% elif library_view_str == 'grading' %}
+      {% for result in library_versions_by_category %}
+        <ul class="library-item-list grouped">
+          <h2 class="library-page__category-header">{{ result.category }}</h2>
+          {% for item in result.library_version_list %}
+            {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+          {% endfor %}
+        </ul>
+      {% endfor %}
+    {% endif %}
+  </div>
 {% endblock %}
 
 {% block footer_js %}
@@ -58,18 +79,24 @@
     filterSection.addEventListener('field-change', function (event) {
       console.log(event)
       const value = event.detail.value
-      switch (value) {
-        case 'grid':
-          window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='grid'  %}")
-          break
-        case 'list':
-          window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='list'  %}")
-          break
-        case 'categorized':
-          window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='categorized'  %}")
-          break
-        default:
-          console.error(`Value ${value} is unknown, please reload the page.`)
+      const name = event.detail.name
+      if (name == 'view') {
+        switch (value) {
+          case 'grid':
+            window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='grid'  %}")
+            break
+          case 'list':
+            window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='list'  %}")
+            break
+          case 'categorized':
+            window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='categorized'  %}")
+            break
+          case 'grading':
+            window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='grading'  %}")
+            break
+          default:
+            console.error(`Value ${value} is unknown, please reload the page.`)
+        }
       }
     })
   </script>

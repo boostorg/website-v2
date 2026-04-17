@@ -6,6 +6,7 @@ from django.db.models import Prefetch
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -25,6 +26,7 @@ from .models import (
     Library,
     LibraryVersion,
     CommitAuthorEmail,
+    Tier,
 )
 from .utils import (
     get_view_from_cookie,
@@ -46,11 +48,23 @@ logger = structlog.get_logger()
 
 class LibraryListDispatcher(View):
     def dispatch(self, request, *args, **kwargs):
+        if view_str := request.GET.get("view", None):
+            return redirect(
+                reverse(
+                    "libraries-list",
+                    kwargs={
+                        "version_slug": self.kwargs.get("version_slug"),
+                        "library_view_str": view_str,
+                    },
+                )
+            )
         view_str = self.kwargs.get("library_view_str")
         if view_str == "list":
             view = LibraryVertical.as_view()
         elif view_str == "categorized":
             view = LibraryCategorized.as_view()
+        elif view_str == "grading":
+            view = LibraryByTier.as_view()
         else:
             # covers both /libraries and /libraries/.../grid[/...]
             view = LibraryListBase.as_view()
@@ -313,6 +327,46 @@ class LibraryCategorized(LibraryListBase):
             results_by_category.append(
                 {"category": category, "library_version_list": library_versions}
             )
+        return results_by_category
+
+
+class LibraryByTier(LibraryListBase):
+    """List all libraries sorted by Tier/Grade"""
+
+    template_name = "libraries/categorized_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["library_versions_by_category"] = self.get_results_by_tier(
+            version=context.get("selected_version")
+        )
+        return context
+
+    def get_results_by_tier(self, version: Version | None):
+        libraries = Library.objects.order_by("name").prefetch_related(
+            Prefetch(
+                "library_version",
+                queryset=self.get_queryset(),
+                to_attr="prefetched_library_versions",
+            )
+        )
+
+        results_by_category = []
+        for tier in [Tier.FLAGSHIP, Tier.CORE, None]:
+            library_versions = []
+            for library in libraries.filter(tier=tier):
+                prefetched_versions = getattr(
+                    library, "prefetched_library_versions", []
+                )
+                library_versions.extend(prefetched_versions)
+
+            results_by_category.append(
+                {
+                    "category": tier.label if tier else "Other",
+                    "library_version_list": library_versions,
+                }
+            )
+
         return results_by_category
 
 
