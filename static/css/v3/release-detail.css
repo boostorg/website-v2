@@ -37,6 +37,11 @@ body:has(.releases-v3) .hero-library--no-image {
 
 .release-detail__cards-row .card-group {
   max-width: 100%;
+  border-radius: var(--border-radius-l);
+}
+
+.release-detail .markdown-card {
+  border-radius: var(--border-radius-l);
 }
 
 /* ── Release Notes card ── */
