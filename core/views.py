@@ -23,7 +23,7 @@ from django.http import (
 )
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
-from django.urls import reverse
+from django.urls import URLPattern, URLResolver, get_resolver, reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
@@ -1906,5 +1906,37 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 }
             )
         context["demo_library_items"] = demo_library_items
+
+        # V3 paths registry
+        v3_paths = []
+
+        def walk(patterns):
+            for entry in patterns:
+                if isinstance(entry, URLResolver):
+                    walk(entry.url_patterns)
+                elif isinstance(entry, URLPattern):
+                    callback = entry.callback
+                    while callback is not None:
+                        view_class = getattr(callback, "view_class", None)
+                        if view_class is not None:
+                            break
+                        callback = getattr(callback, "__wrapped__", None)
+                    if view_class and issubclass(view_class, V3Mixin):
+                        has_legacy = getattr(view_class, "template_name", None)
+                        v3_paths.append(
+                            {
+                                "class_name": view_class.__name__,
+                                "url": f"/{entry.pattern}",
+                                "url_name": entry.name or "",
+                                "v3_template": getattr(
+                                    view_class, "v3_template_name", ""
+                                ),
+                                "has_legacy_template": bool(has_legacy),
+                            }
+                        )
+
+        walk(get_resolver().url_patterns)
+        v3_paths.sort(key=lambda p: p["class_name"])
+        context["v3_paths"] = v3_paths
 
         return context
