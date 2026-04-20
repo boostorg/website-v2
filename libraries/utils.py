@@ -481,6 +481,7 @@ def build_library_intro_context(library_version, *, max_authors=3):
 
         top_contributors = (
             CommitAuthor.objects.filter(commit__library_version=library_version)
+            .exclude_bots()
             .exclude(id__in=exclude_commit_author_ids)
             .annotate(count=Count("commit"))
             .order_by("-count")[:remaining]

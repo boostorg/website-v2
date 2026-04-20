@@ -98,7 +98,8 @@ class CommitAuthorEmailInline(admin.TabularInline):
 
 @admin.register(CommitAuthor)
 class CommitAuthorAdmin(admin.ModelAdmin):
-    list_display = ["name", "emails"]
+    list_display = ["name", "emails", "is_bot"]
+    list_filter = ["is_bot"]
     search_fields = ["name", "commitauthoremail__email"]
     actions = ["merge_authors"]
     inlines = [CommitAuthorEmailInline]

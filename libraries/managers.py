@@ -4,6 +4,14 @@ from django.db import models
 from django.db.models import Q, Count
 
 
+class CommitAuthorQuerySet(models.QuerySet):
+    def exclude_bots(self):
+        return self.exclude(is_bot=True)
+
+
+CommitAuthorManager = models.Manager.from_queryset(CommitAuthorQuerySet)
+
+
 class IssueQuerySet(models.QuerySet):
     def closed_during_release(self, version, prior_version):
         """Get the issues that were closed during a specific version.

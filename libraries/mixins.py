@@ -266,6 +266,7 @@ class ContributorMixin:
             qs = CommitAuthor.objects.filter(
                 commit__library_version__library=self.object
             )
+        qs = qs.exclude_bots()
         if exclude:
             qs = qs.exclude(id__in=exclude)
         qs = qs.annotate(count=Count("commit")).order_by("-count")
@@ -280,6 +281,7 @@ class ContributorMixin:
         )
         qs = (
             CommitAuthor.objects.filter(commit__library_version__in=library_versions)
+            .exclude_bots()
             .annotate(count=Count("commit"))
             .order_by("-count")
         )
