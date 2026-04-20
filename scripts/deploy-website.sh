@@ -12,14 +12,22 @@
 #
 # Run the script -
 #
-# ./deploy-website.sh
+#   ./deploy-website.sh          # deploys 'develop' (default)
+#   ./deploy-website.sh r123     # deploys tag 'r123' where available
+#
+# If a tag argument is provided, it will be used as the merge source for
+# repos where that tag exists. Repos that do not contain the tag will
+# fall back to 'develop'.
 #
 
 set -e
 
+deploy_tag="${1:-develop}"
+
 base_folder=$HOME/github-automation
 github_organization="boostorg"
 list_of_repos="${github_organization}/boostlook ${github_organization}/website-v2-docs ${github_organization}/website-v2"
+list_of_repos_verify_tag="${github_organization}/website-v2"
 
 mkdir -p ${base_folder}/${github_organization}
 cd ${base_folder}/${github_organization}
@@ -87,8 +95,34 @@ for repo in ${list_of_repos}; do
         exit 1
     fi
 
-    echo "Running 'git merge --ff-only develop'"
-    git merge --ff-only develop
+    # Determine the merge source: use the deploy tag if it exists in this repo,
+    # otherwise fall back to 'develop'.
+    merge_source="refs/heads/develop"
+    if [ "${deploy_tag}" != "develop" ]; then
+        if git rev-parse "${deploy_tag}" > /dev/null 2>&1 ; then
+            merge_source="refs/tags/${deploy_tag}"
+            echo "Tag '${deploy_tag}' found in this repo. Using it as the merge source."
+        else
+            if echo "${list_of_repos_verify_tag}" | grep -qw "${repo}"; then
+                echo ""
+                echo "WARNING: Tag '${deploy_tag}' not found in this repo. Falling back to 'develop'."
+                echo ""
+                echo "This is very likely a problem since you specified a tag, but we do not see it in the repo."
+                echo ""
+                read -r -p "Proceed? [yN] " response
+                response="${response:-N}"
+                if [[ ! "${response}" =~ ^[Yy]$ ]]; then
+                    echo "Not proceeding. Exiting."
+                    exit 1
+                fi
+            else
+                echo "Tag '${deploy_tag}' not found in this repo. Falling back to 'develop'."
+            fi
+        fi
+    fi
+
+    echo "Running 'git merge --ff-only ${merge_source}'"
+    git merge --ff-only "${merge_source}"
 
     echo "Running 'git push' from the master branch"
     git push
