@@ -1,8 +1,11 @@
 from unittest.mock import MagicMock
 
 import pytest
+from django.contrib.admin.sites import AdminSite
+from django.test import RequestFactory
 from model_bakery import baker
 
+from libraries.admin import CommitAuthorAdmin
 from libraries.bots import is_bot_name
 from libraries.github import LibraryUpdater
 from libraries.mixins import ContributorMixin
@@ -70,6 +73,19 @@ def test_humans_manager_excludes_bots():
     assert human in CommitAuthor.humans.all()
     assert bot not in CommitAuthor.humans.all()
     assert {human, bot}.issubset(set(CommitAuthor.objects.all()))
+
+
+@pytest.mark.django_db
+def test_commit_author_admin_queryset_includes_bots():
+    """Admins must be able to see and toggle bot-flagged authors in the changelist."""
+    human = baker.make(CommitAuthor, name="Jane Doe", is_bot=False)
+    bot = baker.make(CommitAuthor, name="some-tool[bot]", is_bot=True)
+
+    model_admin = CommitAuthorAdmin(CommitAuthor, AdminSite())
+    request = RequestFactory().get("/admin/libraries/commitauthor/")
+    qs = model_admin.get_queryset(request)
+
+    assert {human, bot}.issubset(set(qs))
 
 
 @pytest.mark.django_db
