@@ -37,6 +37,9 @@ from .notifications import (
     send_email_news_posted,
 )
 
+from core.mixins import V3Mixin
+from libraries.models import Library
+
 User = get_user_model()
 
 
@@ -76,12 +79,49 @@ def display_publish_at(publish_at, since=None):
     return humanize.naturaltime(truncated).replace("\xa0", " ")
 
 
-class EntryListView(ListView):
+class EntryListView(V3Mixin, ListView):
     model = Entry
     template_name = "news/list.html"
+    v3_template_name = "v3/news_list.html"
     ordering = ["-publish_at"]
     paginate_by = None  #  XXX: use pagination in the template! Issue #377
     context_object_name = "entry_list"  # Ensure children use the same name
+
+    def render_v3_response(self):
+        """Render the v3 template through Django's standard TemplateView pipeline."""
+        context = self.get_context_data(
+            **self.get_v3_context_data(), object_list=self.get_queryset()
+        )
+        return self.render_to_response(context)
+
+    def get_v3_context_data(self, **kwargs):
+        return {
+            "filter_terms": [
+                {
+                    "label": "All",
+                    "url": reverse_lazy("news"),
+                },
+                {
+                    "label": "News",
+                    "url": reverse_lazy("news-news-list"),
+                },
+                {
+                    "label": "Blogs",
+                    "url": reverse_lazy("news-blogpost-list"),
+                },
+                {
+                    "label": "Links",
+                    "url": reverse_lazy("news-link-list"),
+                },
+                {
+                    "label": "Videos",
+                    "url": reverse_lazy("news-video-list"),
+                },
+            ],
+            "libraries": [
+                (x.slug, x.name) for x in Library.objects.all().order_by("name")
+            ],
+        }
 
     def get_queryset(self):
         result = (
