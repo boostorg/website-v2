@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% comment %}TODO: Documentation{% endcomment %}
+{% load static %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/news-list.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+  <h1>Posts</h1>
+  <div class="post-content-layout">
+    <div>
+      <p class="subheading">Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, and user-created content.</p>
+      {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' %}
+      <p class="field__label filter__tags-label">Filter</p>
+      <div class="filter__tags">
+        {% for term in filter_terms %}
+          <a href="{{ term.url }}" class="filter__tag {% if request.path == term.url %}active{% endif %}">{{ term.label }}</a>
+        {% endfor %}
+      </div>
+      {% include 'v3/includes/_field_dropdown.html' with name='ex_type' label='Library' options=libraries placeholder='All' %}
+    </div>
+    <div></div>
+    <div>
+      {% if request.user %}
+        {% with u=request.user %}
+          {% include 'v3/includes/_user_card.html' with username=u.display_name avatar_url=u.get_avatar_url badge_name='Bug Catcher' badge_icon_src=u.badge_icon_src member_since=u.year_joined role='Contributor' flag_emoji='🇺🇸' cta_url='#' cta_label='Create Post' %}
+        {% endwith %}
+      {% else %}
+        {% include 'v3/includes/_user_card.html' with logged_out=True cta_url='#' cta_label='Create Post' %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
