@@ -600,11 +600,20 @@ class LibraryUpdater:
                 )
                 continue
             if gh_author := commit["author"]:
+                update_fields = []
                 if gh_author["avatar_url"]:
                     author.avatar_url = gh_author["avatar_url"]
+                    update_fields.append("avatar_url")
                 if gh_author["html_url"]:
                     author.github_profile_url = gh_author["html_url"]
-                author.save(update_fields=["avatar_url", "github_profile_url"])
+                    update_fields.append("github_profile_url")
+                # GitHub's authoritative signal beats name-based detection; only
+                # flip to True so admin overrides to False aren't clobbered.
+                if gh_author.get("type") == "Bot" and not author.is_bot:
+                    author.is_bot = True
+                    update_fields.append("is_bot")
+                if update_fields:
+                    author.save(update_fields=update_fields)
 
     def fetch_most_recent_boost_dep_artifact_content(self, owner=""):
         # get artifacts with the name "boost-dep-artifact"
