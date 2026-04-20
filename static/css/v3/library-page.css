@@ -28,6 +28,7 @@
 
 .library-page-hero .hero-home__headline {
     font-size: var(--font-size-2xl);
+    letter-spacing: -0.4px;
 }
 
 .library-item-list {
