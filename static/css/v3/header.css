@@ -24,7 +24,7 @@
 
 @media (min-width: 1440px) {
   .header {
-    min-width: var(--header-width);
+    max-width: var(--header-width);
   }
 }
 
