@@ -1,3 +1,9 @@
+{% comment %}
+Template for the V3 version of the library page.
+Inputs:
+  - object_list:      list, required - List of LibraryVersion Ojbects to be displayed. Determined using the selected version as determined by the URL. Defaults to Latest
+  - library_view_str: str, required  - Determines which View of libraries to display. Determined by the URL, defaults to List, or the last selected view if the user has changed it.
+{% endcomment %}
 {% extends 'base.html' %}
 {% load static %}
 
