@@ -33,7 +33,7 @@
         {% url 'libraries-list' category_slug=cat.slug library_view_str=variant version_slug=version_str as cat_url %}
         {% include "v3/includes/_category_tag.html" with tag_label=cat.label url=cat_url variant=cat.variant only %}
       {% endfor %}
-      <span class="version-tag version-tag--default library-item__cpp-version">C++ {{ cpp_version|cut:"C++" }}</span>
+      <span class="version-tag version-tag--default library-item__cpp-version">C++ {{ cpp_version|default:"03"|cut:"C++" }}</span>
     </div>
   </div>
 
@@ -42,7 +42,7 @@
   </div>
 
   <div class="library-item__actions">
-    <span class="version-tag version-tag--default library-item__cpp-version--desktop">C++ {{ cpp_version|cut:"C++" }}</span>
+    <span class="version-tag version-tag--default library-item__cpp-version--desktop">C++ {{ cpp_version|default:"03"|cut:"C++" }}</span>
     {% include "v3/includes/_button.html" with url=doc_url label="" icon_name="documentation" icon_size=32 icon_viewbox="0 0 16 16" style="icon-library" aria_label="View documentation for "|add:library_name %}
   </div>
 
