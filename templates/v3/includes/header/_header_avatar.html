@@ -12,15 +12,17 @@
 {% url 'account_logout' as logout_url %}
 {% url 'profile-account' as profile_url %}
 <div class="header__user-menu">
-  <input type="checkbox" id="{{ avatar_id }}-toggle" class="header__user-toggle" aria-label="User menu" aria-controls="{{ avatar_id }}-menu" aria-haspopup="menu">
-  <label for="{{ avatar_id }}-toggle" class="header__user-trigger" aria-hidden="true">
+  <input type="checkbox"
+         id="{{ avatar_id }}-toggle"
+         class="header__user-toggle"
+         aria-label="User account"
+         aria-controls="{{ avatar_id }}-menu">
+  <label for="{{ avatar_id }}-toggle"
+         class="header__user-trigger"
+         aria-hidden="true">
     {% include "v3/includes/_avatar_v3.html" with src=request.user.get_thumbnail_url name=request.user.display_name size="xl" %}
   </label>
-  <div id="{{ avatar_id }}-menu"
-       role="menu"
-       aria-orientation="vertical"
-       aria-labelledby="{{ avatar_id }}-toggle"
-       class="header__user-dropdown">
+  <div id="{{ avatar_id }}-menu" role="group" class="header__user-dropdown">
     {% include "v3/includes/header/_header_nav_link.html" with url=logout_url label="Logout" %}
     {% include "v3/includes/header/_header_nav_link.html" with url=profile_url label="My Profile" %}
     {% include "v3/includes/header/_header_nav_link.html" with url=profile_url label="Edit Profile" %}

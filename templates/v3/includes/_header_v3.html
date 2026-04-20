@@ -89,11 +89,14 @@
 
 <script>
 /**
- * Header dismiss – closes CSS-only checkbox menus (avatar dropdown, mobile drawer)
- * when the user clicks or tabs outside their container.
+ * Header progressive enhancements for CSS-only checkbox menus:
+ *   - Dismiss open menus on outside click or focus.
+ *   - Toggle menus on Enter (checkboxes only respond to Space natively).
  */
 (function () {
   'use strict';
+
+  var TOGGLE_SELECTOR = '.header__user-toggle, .header__menu-toggle';
 
   function dismissOpenMenus(target) {
     var openUserToggles = document.querySelectorAll('.header__user-toggle:checked');
@@ -119,6 +122,15 @@
 
   document.addEventListener('focusin', function (e) {
     dismissOpenMenus(e.target);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var toggle = e.target;
+    if (toggle.matches && toggle.matches(TOGGLE_SELECTOR)) {
+      e.preventDefault();
+      toggle.checked = !toggle.checked;
+    }
   });
 })();
 </script>
