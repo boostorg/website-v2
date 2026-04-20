@@ -3,13 +3,27 @@ from datetime import date
 from django.db import models
 from django.db.models import Q, Count
 
+from libraries.bots import is_bot_name
+
 
 class CommitAuthorQuerySet(models.QuerySet):
     def exclude_bots(self):
         return self.exclude(is_bot=True)
 
+    def bulk_create(self, objs, *args, **kwargs):
+        # Mirror CommitAuthor.save()'s auto-flag, which bulk_create bypasses.
+        for obj in objs:
+            if not obj.is_bot and is_bot_name(obj.name):
+                obj.is_bot = True
+        return super().bulk_create(objs, *args, **kwargs)
+
 
 CommitAuthorManager = models.Manager.from_queryset(CommitAuthorQuerySet)
+
+
+class HumanCommitAuthorManager(CommitAuthorManager):
+    def get_queryset(self):
+        return super().get_queryset().exclude_bots()
 
 
 class IssueQuerySet(models.QuerySet):

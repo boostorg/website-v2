@@ -23,7 +23,11 @@ from core.models import RenderedContent
 from core.asciidoc import convert_adoc_to_html
 from core.validators import image_validator, max_file_size_validator
 from libraries.bots import is_bot_name
-from libraries.managers import CommitAuthorManager, IssueManager
+from libraries.managers import (
+    CommitAuthorManager,
+    HumanCommitAuthorManager,
+    IssueManager,
+)
 from mailing_list.models import EmailData
 from versions.models import ReportConfiguration
 from .constants import LIBRARY_GITHUB_URL_OVERRIDES
@@ -72,6 +76,7 @@ class CommitAuthor(models.Model):
     )
 
     objects = CommitAuthorManager()
+    humans = HumanCommitAuthorManager()
 
     def save(self, *args, **kwargs):
         # On create, seed is_bot from the name so any creation path (import,

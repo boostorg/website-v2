@@ -142,7 +142,7 @@ class CreateReportFullForm(Form):
 
     def _get_top_contributors_overall(self):
         return (
-            CommitAuthor.objects.all()
+            CommitAuthor.humans.all()
             .annotate(
                 commit_count=Count(
                     "commit",
@@ -159,7 +159,7 @@ class CreateReportFullForm(Form):
         top_contributors_library = []
         for library_id in library_order:
             top_contributors_library.append(
-                CommitAuthor.objects.filter(
+                CommitAuthor.humans.filter(
                     commit__library_version__library_id=library_id
                 )
                 .annotate(commit_count=Count("commit"))

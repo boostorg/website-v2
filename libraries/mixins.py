@@ -250,7 +250,7 @@ class ContributorMixin:
             prev_versions = Version.objects.minor_versions().filter(
                 version_array__lt=library_version.version.cleaned_version_parts_int
             )
-            qs = CommitAuthor.objects.filter(
+            qs = CommitAuthor.humans.filter(
                 commit__library_version=library_version
             ).annotate(
                 is_new=~Exists(
@@ -263,10 +263,9 @@ class ContributorMixin:
                 )
             )
         else:
-            qs = CommitAuthor.objects.filter(
+            qs = CommitAuthor.humans.filter(
                 commit__library_version__library=self.object
             )
-        qs = qs.exclude_bots()
         if exclude:
             qs = qs.exclude(id__in=exclude)
         qs = qs.annotate(count=Count("commit")).order_by("-count")
@@ -280,8 +279,7 @@ class ContributorMixin:
             ),
         )
         qs = (
-            CommitAuthor.objects.filter(commit__library_version__in=library_versions)
-            .exclude_bots()
+            CommitAuthor.humans.filter(commit__library_version__in=library_versions)
             .annotate(count=Count("commit"))
             .order_by("-count")
         )
