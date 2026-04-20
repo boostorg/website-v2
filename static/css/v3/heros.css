@@ -85,8 +85,8 @@
  .hero-home__headline {
    color: var(--color-text-primary);
   font-size: var(--font-size-3xl);
-   line-height: 1;
-   font-weight: 400;
+   line-height: var(--line-height-tight);
+   font-weight: var(--font-weight-regular);
    margin: 0;
    align-self: stretch;
    letter-spacing: -4px;
