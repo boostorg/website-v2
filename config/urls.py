@@ -83,6 +83,8 @@ from users.views import (
     CustomLoginView,
     CustomSignupView,
     CustomSocialSignupViewView,
+    V3LoginView,
+    V3SignupView,
     UserViewSet,
     UserAvatar,
     DeleteUserView,
@@ -256,6 +258,16 @@ urlpatterns = (
             "v3/demo/learn-page/",
             staff_member_required(LearnPageView.as_view()),
             name="v3-learn-page",
+        ),
+        path(
+            "v3/accounts/signup/",
+            V3SignupView.as_view(),
+            name="v3-signup",
+        ),
+        path(
+            "v3/accounts/login/",
+            V3LoginView.as_view(),
+            name="v3-login",
         ),
         path("libraries/", LibraryListDispatcher.as_view(), name="libraries"),
         path(
