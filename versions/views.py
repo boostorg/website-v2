@@ -113,7 +113,7 @@ class VersionDetail(BoostVersionMixin, VersionAlertMixin, DetailView):
     def get_top_contributors_release(self, version: Version):
         version_commits = Commit.objects.filter(library_version__version=version)
         qs = (
-            CommitAuthor.objects.annotate(
+            CommitAuthor.humans.annotate(
                 count=Count("commit", filter=Q(commit__in=version_commits)),
             )
             .filter(count__gte=1)

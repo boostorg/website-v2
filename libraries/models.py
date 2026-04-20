@@ -22,7 +22,12 @@ from core.markdown import process_md
 from core.models import RenderedContent
 from core.asciidoc import convert_adoc_to_html
 from core.validators import image_validator, max_file_size_validator
-from libraries.managers import IssueManager
+from libraries.bots import is_bot_name
+from libraries.managers import (
+    CommitAuthorManager,
+    HumanCommitAuthorManager,
+    IssueManager,
+)
 from mailing_list.models import EmailData
 from versions.models import ReportConfiguration
 from .constants import LIBRARY_GITHUB_URL_OVERRIDES
@@ -64,6 +69,22 @@ class CommitAuthor(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True
     )
+    is_bot = models.BooleanField(
+        default=False,
+        help_text="Exclude from contributor lists. Auto-set on import for "
+        "known bot names; editable here for anything detected later.",
+    )
+
+    objects = CommitAuthorManager()
+    humans = HumanCommitAuthorManager()
+
+    def save(self, *args, **kwargs):
+        # On create, seed is_bot from the name so any creation path (import,
+        # shell, admin) gets the same detection as the main commit importer.
+        # Skipped on update to preserve admin overrides.
+        if self._state.adding and not self.is_bot and is_bot_name(self.name):
+            self.is_bot = True
+        super().save(*args, **kwargs)
 
     @property
     def display_name(self):

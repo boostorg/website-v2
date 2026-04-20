@@ -238,13 +238,13 @@ def global_new_contributors(version):
     )
 
     prior_version_author_ids = (
-        CommitAuthor.objects.filter(commit__library_version__version__in=version_lt)
+        CommitAuthor.humans.filter(commit__library_version__version__in=version_lt)
         .distinct()
         .values_list("id", flat=True)
     )
 
     version_author_ids = (
-        CommitAuthor.objects.filter(
+        CommitAuthor.humans.filter(
             commit__library_version__version__in=version_lt + [version.id]
         )
         .distinct()
@@ -314,7 +314,7 @@ def get_top_contributors_for_library_version(library_order, version):
     top_contributors_release = []
     for library_id in library_order:
         top_contributors_release.append(
-            CommitAuthor.objects.filter(
+            CommitAuthor.humans.filter(
                 commit__library_version=LibraryVersion.objects.get(
                     version=version, library_id=library_id
                 )
@@ -393,7 +393,7 @@ def get_top_contributors_for_version(version):
     from libraries.forms import CreateReportFullForm
 
     return (
-        CommitAuthor.objects.filter(commit__library_version__version=version)
+        CommitAuthor.humans.filter(commit__library_version__version=version)
         .annotate(
             commit_count=Count(
                 "commit",

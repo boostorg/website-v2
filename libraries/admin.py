@@ -98,7 +98,8 @@ class CommitAuthorEmailInline(admin.TabularInline):
 
 @admin.register(CommitAuthor)
 class CommitAuthorAdmin(admin.ModelAdmin):
-    list_display = ["name", "emails"]
+    list_display = ["name", "emails", "is_bot"]
+    list_filter = ["is_bot"]
     search_fields = ["name", "commitauthoremail__email"]
     actions = ["merge_authors"]
     inlines = [CommitAuthorEmailInline]
@@ -502,7 +503,7 @@ class LibraryAdmin(admin.ModelAdmin):
 
     def get_commits_per_author(self, pk):
         return (
-            CommitAuthor.objects.filter(commit__library_version__library_id=pk)
+            CommitAuthor.humans.filter(commit__library_version__library_id=pk)
             .annotate(count=Count("commit"))
             .order_by("-count")[:20]
         )
@@ -510,7 +511,7 @@ class LibraryAdmin(admin.ModelAdmin):
     def get_commits_per_author_release(self, pk):
         return (
             LibraryVersion.objects.filter(library_id=pk)
-            .filter(commit__author__isnull=False)
+            .filter(commit__author__isnull=False, commit__author__is_bot=False)
             .annotate(
                 count=Count("commit"),
                 row_number=Window(
@@ -534,7 +535,7 @@ class LibraryAdmin(admin.ModelAdmin):
                 library_id=pk, version__in=Version.objects.minor_versions()
             )
             .annotate(
-                up_to_count=CommitAuthor.objects.filter(
+                up_to_count=CommitAuthor.humans.filter(
                     commit__library_version__version__name__lte=OuterRef(
                         "version__name"
                     ),
@@ -543,7 +544,7 @@ class LibraryAdmin(admin.ModelAdmin):
                 .values("commit__library_version__library")
                 .annotate(count=Count("id", distinct=True))
                 .values("count")[:1],
-                before_count=CommitAuthor.objects.filter(
+                before_count=CommitAuthor.humans.filter(
                     commit__library_version__version__name__lt=OuterRef(
                         "version__name"
                     ),
