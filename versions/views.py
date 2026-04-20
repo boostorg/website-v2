@@ -177,36 +177,34 @@ class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
         ]
         ctx["release_notes"] = {
             "title": f"Release notes version {obj.display_name}",
-            "markdown": dedent(
+            "html": dedent(
                 """\
-                ## Dependencies
-
-                There was 1 dependency added (in 1 library) and 16 dependencies removed (in 10 libraries) this release.
-
-                - [Official Site](https://www.boost.org)
-                - [Documentation (master branch)](https://www.boost.org/doc/libs/master/)
-                - [Autobahn|Testsuite WebSocket Results](https://www.boost.org)
-
-                ## New Libraries
-
-                **OpenMethod:**
-
-                - Open-(multi-)methods in C++17 and above, from Jean-Louis Leroy.
-
-                ## Updated Libraries
-
-                **Asio**
-
-                - Added the execution::inline_exception_handling property to describe what exception handling guarantees are made when execution occurs inline.
-                - Added inline_executor, which always executes the submitted function inline.
-                - Changed the default candidate executor for associated_executor from system_executor to inline_executor.
-                - Added the inline_or_executor<> adapter and inline_or() helper, which will execute inline if possible and otherwise delegate to another executor.
-                - Added overloads of dispatch, post and defer that take a function object to be run on the target executor, and deliver the result to the completion handler.
-                - Added the redirect_disposition completion token adapter, as a generic counterpart for redirect_error.
-                - Annotated deprecated items with the [[deprecated]] attribute.
-                - Added a new configuration parameter "reactor" / "reset_edge_on_partial_read", which determines whether a partial read consumes the edge when using epoll.
-                - Added the missing preprocessor check for BOOST_ASIO_DISABLE_TIMERFD.
-                - Implemented a compile-time feature detection mechanism for io_uring."""
+                <h2>Dependencies</h2>
+                <p>There was 1 dependency added (in 1 library) and 16 dependencies removed (in 10 libraries) this release.</p>
+                <ul>
+                <li><a href="https://www.boost.org">Official Site</a></li>
+                <li><a href="https://www.boost.org/doc/libs/master/">Documentation (master branch)</a></li>
+                <li><a href="https://www.boost.org">Autobahn|Testsuite WebSocket Results</a></li>
+                </ul>
+                <h2>New Libraries</h2>
+                <p><strong>OpenMethod:</strong></p>
+                <ul>
+                <li>Open-(multi-)methods in C++17 and above, from Jean-Louis Leroy.</li>
+                </ul>
+                <h2>Updated Libraries</h2>
+                <p><strong>Asio</strong></p>
+                <ul>
+                <li>Added the execution::inline_exception_handling property to describe what exception handling guarantees are made when execution occurs inline.</li>
+                <li>Added inline_executor, which always executes the submitted function inline.</li>
+                <li>Changed the default candidate executor for associated_executor from system_executor to inline_executor.</li>
+                <li>Added the inline_or_executor&lt;&gt; adapter and inline_or() helper, which will execute inline if possible and otherwise delegate to another executor.</li>
+                <li>Added overloads of dispatch, post and defer that take a function object to be run on the target executor, and deliver the result to the completion handler.</li>
+                <li>Added the redirect_disposition completion token adapter, as a generic counterpart for redirect_error.</li>
+                <li>Annotated deprecated items with the [[deprecated]] attribute.</li>
+                <li>Added a new configuration parameter "reactor" / "reset_edge_on_partial_read", which determines whether a partial read consumes the edge when using epoll.</li>
+                <li>Added the missing preprocessor check for BOOST_ASIO_DISABLE_TIMERFD.</li>
+                <li>Implemented a compile-time feature detection mechanism for io_uring.</li>
+                </ul>"""
             ),
         }
         top_contributors = self.get_top_contributors_release(obj)
