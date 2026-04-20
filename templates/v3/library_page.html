@@ -58,8 +58,9 @@ Inputs:
       </div>
     {% elif library_view_str == 'categorized' %}
       {% for result in library_versions_by_category %}
+      <section>
+        <h2 class="library-page__category-header">{{ result.category }}</h2>
         <ul class="library-item-list grouped">
-          <h2 class="library-page__category-header">{{ result.category }}</h2>
           {% for item in result.library_version_list %}
             {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
           {% endfor %}
@@ -67,12 +68,14 @@ Inputs:
       {% endfor %}
     {% elif library_view_str == 'grading' %}
       {% for result in library_versions_by_category %}
+      <section>
+        <h2 class="library-page__category-header">{{ result.category }}</h2>
         <ul class="library-item-list grouped">
-          <h2 class="library-page__category-header">{{ result.category }}</h2>
           {% for item in result.library_version_list %}
             {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
           {% endfor %}
         </ul>
+      </section>
       {% endfor %}
     {% endif %}
   </div>
@@ -83,7 +86,6 @@ Inputs:
   <script>
     const filterSection = document.getElementById('library-page-filter-container')
     filterSection.addEventListener('field-change', function (event) {
-      console.log(event)
       const value = event.detail.value
       const name = event.detail.name
       if (name == 'view') {
