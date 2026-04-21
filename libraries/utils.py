@@ -590,3 +590,25 @@ def group_libraries_by_tier(libraries):
         else:
             other.append(lib)
     return flagship, core, other
+
+
+def group_library_version_by_tier(library_versions):
+    """
+    Group Library Versions by tier. Requires a special function, since the tier
+    is located on the library itself, not the version
+    """
+
+    from libraries.models import Tier
+
+    flagship = []
+    core = []
+    other = []
+    for libver in library_versions:
+        tier = libver.library.tier
+        if tier == Tier.FLAGSHIP:
+            flagship.append(libver)
+        elif tier == Tier.CORE:
+            core.append(libver)
+        else:
+            other.append(libver)
+    return flagship, core, other

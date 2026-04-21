@@ -39,11 +39,11 @@ Inputs:
     {% if library_view_str == 'list' %}
       <ul class="library-item-list">
         <li class="library-page__list-header library-item--list">
-          <div>Library name</div>
-          <div>Description</div>
-          <div>Category</div>
-          <div>Author</div>
-          <div style="justify-self: center;">Version</div>
+          <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Library name</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
+          <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Description</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
+          <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Category</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
+          <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Author</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
+          <div class="library-page__list-header-flex library-page_list-header-justify"><span class="library-page__list-header-text">Version</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
           <div></div>
         </li>
         {% for item in object_list %}
@@ -56,7 +56,7 @@ Inputs:
           {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
         {% endfor %}
       </div>
-    {% elif library_view_str == 'categorized' %}
+    {% elif library_view_str == 'categorized' or 'grading' %}
       {% for result in library_versions_by_category %}
       <section>
         <h2 class="library-page__category-header">{{ result.category }}</h2>
@@ -65,17 +65,6 @@ Inputs:
             {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
           {% endfor %}
         </ul>
-      {% endfor %}
-    {% elif library_view_str == 'grading' %}
-      {% for result in library_versions_by_category %}
-      <section>
-        <h2 class="library-page__category-header">{{ result.category }}</h2>
-        <ul class="library-item-list grouped">
-          {% for item in result.library_version_list %}
-            {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
-          {% endfor %}
-        </ul>
-      </section>
       {% endfor %}
     {% endif %}
   </div>
