@@ -62,11 +62,6 @@
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-default);
   letter-spacing: var(--letter-spacing-tight);
-  text-decoration-style: solid;
-  text-decoration-skip-ink: auto;
-  text-decoration-thickness: auto;
-  text-underline-offset: auto;
-  text-underline-position: from-font;
 }
 
 .downloads-table-card__hash-wrapper {
