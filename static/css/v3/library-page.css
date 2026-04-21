@@ -4,6 +4,7 @@
     margin-top: var(--space-xl);
     margin-bottom: var(--space-xl);
     position: relative;
+    min-height: fit-content;
 }
 
 .library-page-hero .hero-home__actions {
