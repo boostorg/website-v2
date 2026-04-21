@@ -140,7 +140,7 @@ body:has(.releases-v3) .hero-library--no-image {
 
 @media (max-width: 767px) {
   .release-detail {
-    padding: 0 var(--space-default);
+    padding: 0 var(--space-medium);
     padding-top: var(--space-xl);
     padding-bottom: 74px;
     gap: var(--space-large);
