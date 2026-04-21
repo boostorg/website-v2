@@ -105,7 +105,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--color-icon-secondary);
+  color: var(--color-icon-primary);
   padding: 0;
   border-radius: var(--border-radius-s);
   flex-shrink: 0;
