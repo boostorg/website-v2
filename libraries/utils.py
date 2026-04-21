@@ -3,6 +3,7 @@ import string
 import re
 from itertools import islice
 from types import SimpleNamespace
+from typing import TYPE_CHECKING
 
 import boto3
 import structlog
@@ -14,7 +15,7 @@ from dateutil.relativedelta import relativedelta
 
 from dateutil.parser import ParserError, parse
 from django.conf import settings
-from django.db.models import Count, F
+from django.db.models import Count, F, QuerySet
 from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils.text import slugify
@@ -34,6 +35,9 @@ logger = structlog.get_logger()
 
 STATS_COMMITS_BAR_HEIGHT_MAX_PX = 120
 STATS_COMMITS_BAR_HEIGHT_MIN_PX = 8
+
+if TYPE_CHECKING:
+    from libraries.models import Library, LibraryVersion
 
 
 def get_commit_data_by_release_for_library(library, limit=20):
@@ -570,45 +574,32 @@ def get_s3_client() -> BaseClient:
     )
 
 
-def group_libraries_by_tier(libraries):
-    """Group libraries into flagship, core, and other lists based on tier.
+def group_libraries_by_tier(
+    libraries: QuerySet["LibraryVersion"] | QuerySet["Library"],
+):
+    """Group libraries or library versions into flagship, core, and other lists based on tier.
 
-    Works with any objects that have a .tier attribute (Library instances, etc.).
     Returns (flagship, core, other) tuple.
     """
 
-    from libraries.models import Tier
+    from libraries.models import Tier, Library, LibraryVersion
 
     flagship = []
     core = []
     other = []
     for lib in libraries:
-        if lib.tier == Tier.FLAGSHIP:
+        if isinstance(lib, Library):
+            tier = lib.tier
+        elif isinstance(lib, LibraryVersion):
+            tier = lib.library.tier
+        else:
+            raise TypeError("Invalid Queryset passed")
+
+        if tier == Tier.FLAGSHIP:
             flagship.append(lib)
-        elif lib.tier == Tier.CORE:
+        elif tier == Tier.CORE:
             core.append(lib)
         else:
             other.append(lib)
-    return flagship, core, other
 
-
-def group_library_version_by_tier(library_versions):
-    """
-    Group Library Versions by tier. Requires a special function, since the tier
-    is located on the library itself, not the version
-    """
-
-    from libraries.models import Tier
-
-    flagship = []
-    core = []
-    other = []
-    for libver in library_versions:
-        tier = libver.library.tier
-        if tier == Tier.FLAGSHIP:
-            flagship.append(libver)
-        elif tier == Tier.CORE:
-            core.append(libver)
-        else:
-            other.append(libver)
     return flagship, core, other
