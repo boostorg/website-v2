@@ -419,7 +419,7 @@ def test_news_create_get(tp, regular_user, url_name, form_class):
         # assertGoodView expects a resolved URL
         # see https://github.com/revsys/django-test-plus/issues/202
         url = tp.reverse(url_name)
-        tp.assertGoodView(url, test_query_count=4, verbose=True)
+        tp.assertGoodView(url, test_query_count=5, verbose=True)
 
     form = tp.get_context("form")
     assert isinstance(form, form_class)

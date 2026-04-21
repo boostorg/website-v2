@@ -1,3 +1,5 @@
+from typing import NamedTuple
+
 from django.db import models
 from django.db.models import Func, Value, Count, Q
 from django.db.models.functions import Replace
@@ -7,6 +9,14 @@ from libraries.constants import (
     MASTER_RELEASE_URL_PATH_STR,
     DEVELOP_RELEASE_URL_PATH_STR,
 )
+
+
+class HeaderVersionData(NamedTuple):
+    """Consolidated data needed to render the navbar version dropdown."""
+
+    options: list
+    most_recent: "Version | None"  # noqa: F821
+    most_recent_beta: "Version | None"  # noqa: F821
 
 
 class VersionQuerySet(models.QuerySet):
@@ -165,6 +175,49 @@ class VersionManager(models.Manager):
             )
 
         return queryset.order_by(order_by)
+
+    def get_header_dropdown_data(self) -> HeaderVersionData:
+        """Single-query fetch for the navbar version dropdown.
+
+        Replaces the 3-4 queries from calling `most_recent()`,
+        `most_recent_beta()`, and `get_dropdown_versions()` separately. Dropdown
+        list matches `get_dropdown_versions()` for the header's use case only —
+        no develop/master, no library filtering.
+        """
+        name_exclusions = [
+            "head",
+            MASTER_RELEASE_URL_PATH_STR,
+            DEVELOP_RELEASE_URL_PATH_STR,
+        ]
+        versions = list(
+            self.active()
+            .filter(Q(full_release=True) | Q(beta=True))
+            .exclude(name__in=name_exclusions)
+            .defer("data")
+            .order_by("-name")
+        )
+
+        most_recent = next((v for v in versions if not v.beta and v.full_release), None)
+        most_recent_beta = next((v for v in versions if v.beta), None)
+
+        include_beta = (
+            most_recent_beta is not None
+            and most_recent is not None
+            and most_recent_beta.cleaned_version_parts
+            > most_recent.cleaned_version_parts
+        )
+        if include_beta:
+            options = [
+                v for v in versions if not v.beta or v.name == most_recent_beta.name
+            ]
+        else:
+            options = [v for v in versions if not v.beta]
+
+        return HeaderVersionData(
+            options=options,
+            most_recent=most_recent,
+            most_recent_beta=most_recent_beta,
+        )
 
 
 class VersionFileQuerySet(models.QuerySet):
