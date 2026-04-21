@@ -3,16 +3,16 @@
   Header (v3) — site-wide header with desktop nav, mobile drawer, search, and user menu.
 
   Context Variables:
-    current_version          (object, required)              — current Boost release
+    current_version          (object, required)              — current Boost release (from context processor)
+    selected_version_label   (string, required)              — button label for version dropdown (from context processor)
     active_nav_item          (string, required)              — active nav key: "libraries"|"learn"|"news"|"community"|"releases"|"home"
     nav_links                (list[NavLink], required)       — header navigation links
-    releases_url             (string, required)              — resolved URL for releases page
     disable_theme_switcher   (bool, optional, default false) — hides the light/dark toggle
     request                  (HttpRequest, required)         — Django request object (for auth state)
 
   Note: Subcomponents inherit the full parent context. Specifically:
     _header_nav_link.html    uses: url, label, nav_id, is_unread, active_nav_item
-    _header_utilities.html   uses: releases_url, disable_theme_switcher, request, avatar_id
+    _header_utilities.html   uses: disable_theme_switcher, request, avatar_id, version_menu_id
 
   Usage:
     {% include "v3/includes/_header_v3.html" %}
@@ -60,7 +60,7 @@
             {% include "v3/includes/header/_header_nav_link.html" with url=item.url label=item.label nav_id=item.nav_id is_unread=item.is_unread %}
           {% endfor %}
         </nav>
-        {% include "v3/includes/header/_header_utilities.html" with avatar_id="mobile-user-menu" %}
+        {% include "v3/includes/header/_header_utilities.html" with avatar_id="mobile-user-menu" version_menu_id="mobile-version-menu" %}
       </div>
     </div>
 
@@ -79,10 +79,9 @@
     </button>
     <span class="header__search-kbd" aria-hidden="true">CTRL+K</span>
     </search>
-
     {% comment %} Desktop & tablet utilities (hidden on mobile) {% endcomment %}
     <div class="header__right">
-      {% include "v3/includes/header/_header_utilities.html" with avatar_id="desktop-user-menu" %}
+      {% include "v3/includes/header/_header_utilities.html" with avatar_id="desktop-user-menu" version_menu_id="desktop-version-menu" %}
     </div>
   </div>
 </header>
@@ -96,12 +95,20 @@
 (function () {
   'use strict';
 
-  var TOGGLE_SELECTOR = '.header__user-toggle, .header__menu-toggle';
+  var TOGGLE_SELECTOR = '.header__user-toggle, .header__menu-toggle, .header__version-toggle';
 
   function dismissOpenMenus(target) {
     var openUserToggles = document.querySelectorAll('.header__user-toggle:checked');
     openUserToggles.forEach(function (toggle) {
       var menu = toggle.closest('.header__user-menu');
+      if (menu && !menu.contains(target)) {
+        toggle.checked = false;
+      }
+    });
+
+    var openVersionToggles = document.querySelectorAll('.header__version-toggle:checked');
+    openVersionToggles.forEach(function (toggle) {
+      var menu = toggle.closest('.header__version-menu');
       if (menu && !menu.contains(target)) {
         toggle.checked = false;
       }
@@ -131,6 +138,53 @@
       e.preventDefault();
       toggle.checked = !toggle.checked;
     }
+  });
+
+  /**
+   * Progressive enhancement for the cookie-mode version dropdown: send the
+   * POST via fetch and update the UI in place, avoiding a full page reload.
+   * Falls back to a normal form submit on any error.
+   */
+  document.addEventListener('submit', function (e) {
+    var form = e.target;
+    if (!form.matches || !form.matches('.header__version-form')) return;
+    e.preventDefault();
+
+    var formData = new FormData(form);
+    var submitBtn = form.querySelector('button[type="submit"]');
+    var newLabel = submitBtn ? submitBtn.textContent.trim() : '';
+    var selectedValue = formData.get('version');
+
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      credentials: 'same-origin',
+      redirect: 'manual'
+    }).then(function (response) {
+      if (!(response.type === 'opaqueredirect' || response.ok)) {
+        form.submit();
+        return;
+      }
+      document.querySelectorAll('.header__version-menu').forEach(function (menu) {
+        var label = menu.querySelector('.header__version-label');
+        if (label) label.textContent = newLabel;
+
+        menu.querySelectorAll('.header__version-option').forEach(function (opt) {
+          var optForm = opt.closest('.header__version-form');
+          var optInput = optForm && optForm.querySelector('input[name="version"]');
+          if (optInput && optInput.value === selectedValue) {
+            opt.setAttribute('aria-current', 'true');
+          } else {
+            opt.removeAttribute('aria-current');
+          }
+        });
+
+        var toggle = menu.querySelector('.header__version-toggle');
+        if (toggle) toggle.checked = false;
+      });
+    }).catch(function () {
+      form.submit();
+    });
   });
 })();
 </script>

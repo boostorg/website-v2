@@ -26,7 +26,7 @@
 
 .header__nav--desktop,
 .header__search-bar,
-.header__utilities-latest,
+.header__version-trigger,
 .header__icon-btn,
 .header__menu-btn,
 .header__drawer-nav,
@@ -198,7 +198,7 @@
   gap: var(--space-s);
 }
 
-.header__utilities-latest:hover,
+.header__version-trigger:hover,
 .header__nav-btn:hover,
 .header__icon-btn:hover,
 .header__user-trigger:hover {
@@ -210,20 +210,6 @@
 .header__icon-btn:active {
   background: var(--color-surface-mid);
   border-color: var(--color-stroke-weak);
-}
-
-.header__utilities-latest {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--space-s);
-  padding: 0 var(--space-large);
-}
-
-.header__utilities-latest .header__icon--chevron {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
 }
 
 .header__nav-btn {
@@ -282,6 +268,90 @@ html.dark .header__icon--theme-sun {
 
 html.dark .header__icon--theme-moon {
   display: none;
+}
+
+/* ── Version menu ──────────────────────────────── */
+
+.header__version-menu {
+  position: relative;
+}
+
+.header__version-toggle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.header__version-toggle:checked ~ .header__version-dropdown {
+  display: flex;
+}
+
+.header__version-toggle:checked ~ .header__version-trigger {
+  border-color: var(--color-stroke-mid);
+  background: var(--color-surface-mid);
+}
+
+.header__version-toggle:focus-visible ~ .header__version-trigger {
+  outline: 2px solid var(--color-stroke-link-accent);
+}
+
+.header__version-trigger {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-s);
+  padding: 0 var(--space-large);
+  cursor: pointer;
+}
+
+.header__version-trigger .header__icon--chevron {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.header__version-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + var(--space-s));
+  right: 0;
+  flex-direction: column;
+  width: max-content;
+  min-width: 100%;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: var(--space-default) var(--space-medium);
+  gap: var(--space-s);
+  border-radius: var(--header-radius);
+  border: 1px solid var(--color-stroke-mid);
+  background: var(--color-surface-weak);
+  z-index: 1000;
+}
+
+.header__version-dropdown .header__nav-link {
+  padding: 0 var(--space-s);
+  width: 100%;
+}
+
+/* Forms wrap individual options; `display: contents` lets the inner button
+   inherit the dropdown's flex layout directly. */
+.header__version-form {
+  display: contents;
+}
+
+.header__version-dropdown button.header__nav-link {
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.header__version-option[aria-current="true"] {
+  font-weight: var(--font-weight-bold);
 }
 
 /* ── User menu & avatar ────────────────────────── */
