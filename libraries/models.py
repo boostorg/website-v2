@@ -528,7 +528,7 @@ class LibraryVersion(models.Model):
         return reverse(
             "library-detail",
             kwargs={
-                "version_slug": "latest",
+                "version_slug": self.version.slug,
                 "library_slug": self.library.slug,
             },
         )

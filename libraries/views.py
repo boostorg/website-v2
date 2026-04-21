@@ -26,7 +26,6 @@ from .models import (
     Library,
     LibraryVersion,
     CommitAuthorEmail,
-    Tier,
 )
 from .utils import (
     get_view_from_cookie,
@@ -40,6 +39,7 @@ from .utils import (
     get_version_from_cookie,
     get_commit_data_by_release_for_library,
     commit_data_to_stats_bars,
+    group_library_version_by_tier,
 )
 from .constants import LATEST_RELEASE_URL_PATH_STR
 
@@ -343,31 +343,30 @@ class LibraryByTier(LibraryListBase):
         return context
 
     def get_results_by_tier(self, version: Version | None):
-        libraries = Library.objects.order_by("name").prefetch_related(
-            Prefetch(
-                "library_version",
-                queryset=self.get_queryset(),
-                to_attr="prefetched_library_versions",
-            )
+        if not version:
+            version = Version.objects.latest()
+        library_versions = (
+            LibraryVersion.objects.order_by("library__name")
+            .filter(version=version)
+            .prefetch_related("library")
         )
 
-        results_by_category = []
-        for tier in [Tier.FLAGSHIP, Tier.CORE, None]:
-            library_versions = []
-            for library in libraries.filter(tier=tier):
-                prefetched_versions = getattr(
-                    library, "prefetched_library_versions", []
-                )
-                library_versions.extend(prefetched_versions)
+        flagship, core, other = group_library_version_by_tier(library_versions)
 
-            results_by_category.append(
-                {
-                    "category": tier.label if tier else "Other",
-                    "library_version_list": library_versions,
-                }
-            )
-
-        return results_by_category
+        return [
+            {
+                "category": "Flagship",
+                "library_version_list": flagship,
+            },
+            {
+                "category": "Core",
+                "library_version_list": core,
+            },
+            {
+                "category": "Other",
+                "library_version_list": other,
+            },
+        ]
 
 
 @method_decorator(csrf_exempt, name="dispatch")
