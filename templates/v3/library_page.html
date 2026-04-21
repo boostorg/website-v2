@@ -56,7 +56,7 @@ Inputs:
           {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
         {% endfor %}
       </div>
-    {% elif library_view_str == 'categorized' or 'grading' %}
+    {% elif library_view_str == 'categorized' or library_view_str == 'grading' %}
       {% for result in library_versions_by_category %}
       <section>
         <h2 class="library-page__category-header">{{ result.category }}</h2>
