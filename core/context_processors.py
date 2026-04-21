@@ -9,9 +9,20 @@ from libraries.utils import get_version_from_cookie
 from versions.models import Version
 
 
+def _get_header_version_data(request):
+    """Per-request shared accessor so `current_version` and `selected_version`
+    share one DB fetch within a single request."""
+    cached = getattr(request, "_header_version_data", None)
+    if cached is not None:
+        return cached
+    data = Version.objects.get_header_dropdown_data()
+    request._header_version_data = data
+    return data
+
+
 def current_version(request):
     """Custom context processor that adds the current release to the context"""
-    return {"current_version": Version.objects.most_recent()}
+    return {"current_version": _get_header_version_data(request).most_recent}
 
 
 def selected_version(request):
@@ -65,12 +76,17 @@ def selected_version(request):
     is_url_driven = bool(url_version_slug)
     cookie_slug = get_version_from_cookie(request)
 
+    header_data = _get_header_version_data(request)
+    options = list(header_data.options)
+
     resolved_slug = url_version_slug or cookie_slug
     version = None
     if resolved_slug and resolved_slug != LATEST_RELEASE_URL_PATH_STR:
-        version = Version.objects.filter(slug=resolved_slug).first()
+        version = next((v for v in options if v.slug == resolved_slug), None)
+        if version is None:
+            version = Version.objects.filter(slug=resolved_slug).first()
     if version is None:
-        version = Version.objects.most_recent()
+        version = header_data.most_recent
 
     is_explicit_non_latest_url = bool(
         url_version_slug and url_version_slug != LATEST_RELEASE_URL_PATH_STR
@@ -83,9 +99,6 @@ def selected_version(request):
     is_explicit = is_explicit_non_latest_url or is_explicit_cookie
 
     label = version.display_name if (is_explicit and version) else "Latest"
-
-    # Materialize: _annotate_option_hrefs mutates each option with a `.href`.
-    options = list(Version.objects.get_dropdown_versions())
 
     latest_href = ""
     if is_url_driven and resolver_match and resolver_match.view_name:
