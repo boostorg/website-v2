@@ -25,12 +25,14 @@
             <tr class="downloads-table-card__tr">
               {% if forloop.first %}
                 <td class="downloads-table-card__td downloads-table-card__td--platform" rowspan="{{ download_files|length }}">
-                  {% if 'Unix' in os %}
-                    <span class="downloads-table-card__os-icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="linux" icon_size=16 icon_viewbox="0 0 16 16" %}</span>
-                  {% elif 'Windows' in os or 'Binary' in os %}
-                    <span class="downloads-table-card__os-icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="windows" icon_size=16 icon_viewbox="0 0 16 16" %}</span>
-                  {% endif %}
-                  {{ os }}
+                  <div class="downloads-table-card__platform-wrapper">
+                    {% if 'Unix' in os %}
+                      <span class="downloads-table-card__os-icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="linux" icon_size=16 icon_viewbox="0 0 16 16" %}</span>
+                    {% elif 'Windows' in os or 'Binary' in os %}
+                      <span class="downloads-table-card__os-icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="windows" icon_size=16 icon_viewbox="0 0 16 16" %}</span>
+                    {% endif %}
+                    <span>{{ os }}</span>
+                  </div>
                 </td>
               {% endif %}
               <td class="downloads-table-card__td downloads-table-card__td--file">
