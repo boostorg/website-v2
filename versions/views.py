@@ -151,7 +151,6 @@ class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
         obj = self.object
         ctx = {}
         ctx["hero_title"] = f"Latest release ({obj.display_name})"
-        ctx["hide_tags"] = [{"label": "", "url": ""}]
         ctx["whats_new_heading"] = f"What's new in {obj.display_name}"
         ctx["whats_new_items"] = [
             {
