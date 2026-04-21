@@ -20,10 +20,9 @@
     .contributors-list.all-contributors .card__column {
         grid-template-columns: 1fr;
         overflow-y: auto;
-        max-height: 340px;
     }
 
     .contributors-list {
-        max-height: none;
+        max-height: min(340px, 80vh);
     }
 }
