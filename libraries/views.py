@@ -219,6 +219,8 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         return queryset.filter(**version_filter_args)
 
     def get_context_data(self, **kwargs):
+        # combine context_data kwargs and view kwargs for creating template context
+        kwargs = kwargs | self.kwargs
         context = super().get_context_data(**kwargs)
         context["categories"] = self.get_categories(context["selected_version"])
         # todo: add tests for sort order
