@@ -313,6 +313,8 @@ html.dark .header__icon--theme-moon {
 }
 
 .header__version-dropdown {
+  --dropdown-item-height: 40px;
+
   display: none;
   position: absolute;
   top: calc(100% + var(--space-s));
@@ -320,38 +322,57 @@ html.dark .header__icon--theme-moon {
   flex-direction: column;
   width: max-content;
   min-width: 100%;
-  max-height: 60vh;
+  max-height: calc(var(--dropdown-item-height) * 7); /* Show up to 7 items, then scroll */
   overflow-y: auto;
-  padding: var(--space-default) var(--space-medium);
-  gap: var(--space-s);
   border-radius: var(--header-radius);
-  border: 1px solid var(--color-stroke-mid);
+  border: 1px solid var(--color-stroke-weak);
   background: var(--color-surface-weak);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-icon-primary) var(--color-surface-strong);
   z-index: 1000;
 }
 
-.header__version-dropdown .header__nav-link {
-  padding: 0 var(--space-s);
+.header__version-dropdown .header__version-option {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
   width: 100%;
-}
-
-/* Forms wrap individual options; `display: contents` lets the inner button
-   inherit the dropdown's flex layout directly. */
-.header__version-form {
-  display: contents;
-}
-
-.header__version-dropdown button.header__nav-link {
+  height: var(--dropdown-item-height);
+  padding: 0 var(--space-large);
   border: none;
+  border-radius: 0;
   background: transparent;
-  font: inherit;
-  color: inherit;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
   text-align: left;
+  text-decoration: none;
   cursor: pointer;
+  transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.header__version-dropdown .header__version-option + .header__version-option {
+  border-top: 1px solid var(--color-stroke-subtle);
+}
+
+.header__version-dropdown .header__version-option:hover,
+.header__version-dropdown .header__version-option:focus {
+  background-color: var(--color-surface-mid);
+  color: var(--color-text-link-accent);
+  outline: none;
+}
+
+.header__version-dropdown .header__version-option:focus-visible {
+  outline: 2px solid var(--color-text-link-accent);
+  outline-offset: -2px;
 }
 
 .header__version-option[aria-current="true"] {
-  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
 }
 
 /* ── User menu & avatar ────────────────────────── */

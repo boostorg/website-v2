@@ -26,52 +26,52 @@
          class="header__version-toggle"
          aria-label="Select Boost version"
          aria-controls="{{ version_menu_id }}-dropdown">
-  <label for="{{ version_menu_id }}-toggle" class="header__version-trigger" aria-hidden="true">
+  <label for="{{ version_menu_id }}-toggle"
+         class="header__version-trigger"
+         aria-hidden="true">
     <span class="header__version-label">{{ selected_version_label }}</span>
     <span class="icon-brand-accent">
       {% include "includes/icon.html" with icon_name="chevron-down" icon_class="header__icon header__icon--chevron" icon_size=16 %}
     </span>
   </label>
-  <div id="{{ version_menu_id }}-dropdown" role="group" class="header__version-dropdown">
+  <div id="{{ version_menu_id }}-dropdown"
+       role="group"
+       class="header__version-dropdown">
     {% if selected_version_is_url_driven %}
       {% if latest_href %}
         <a href="{{ latest_href }}"
-           class="header__nav-link header__version-option"
-           {% if not selected_version_is_non_latest %}aria-current="true"{% endif %}>
-          Latest
-        </a>
+           class="header__version-option"
+           {% if not selected_version_is_non_latest %}aria-current="true"{% endif %}>Latest</a>
       {% endif %}
       {% for v in version_dropdown_options %}
         {% if v.href %}
           <a href="{{ v.href }}"
-             class="header__nav-link header__version-option"
-             {% if selected_version and v.slug == selected_version.slug %}aria-current="true"{% endif %}>
+             class="header__version-option"
+             {% if selected_version_is_non_latest and selected_version and v.slug == selected_version.slug %}aria-current="true"{% endif %}>
             {{ v.display_name }}
           </a>
         {% endif %}
       {% endfor %}
-
     {% else %}
-      <form method="post" action="{% url 'set-version' %}" class="header__version-form">
+      <form method="post"
+            action="{% url 'set-version' %}"
+            class="header__version-form">
         {% csrf_token %}
-        <input type="hidden" name="version" value="latest">
         <button type="submit"
-                class="header__nav-link header__version-option"
-                {% if not selected_version_is_non_latest %}aria-current="true"{% endif %}>
-          Latest
-        </button>
-      </form>
-      {% for v in version_dropdown_options %}
-        <form method="post" action="{% url 'set-version' %}" class="header__version-form">
-          {% csrf_token %}
-          <input type="hidden" name="version" value="{{ v.slug }}">
+                name="version"
+                value="latest"
+                class="header__version-option"
+                {% if not selected_version_is_non_latest %}aria-current="true"{% endif %}>Latest</button>
+        {% for v in version_dropdown_options %}
           <button type="submit"
-                  class="header__nav-link header__version-option"
-                  {% if selected_version and v.slug == selected_version.slug %}aria-current="true"{% endif %}>
+                  name="version"
+                  value="{{ v.slug }}"
+                  class="header__version-option"
+                  {% if selected_version_is_non_latest and selected_version and v.slug == selected_version.slug %}aria-current="true"{% endif %}>
             {{ v.display_name }}
           </button>
-        </form>
-      {% endfor %}
+        {% endfor %}
+      </form>
     {% endif %}
   </div>
 </div>

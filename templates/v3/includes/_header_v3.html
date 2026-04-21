@@ -148,12 +148,17 @@
   document.addEventListener('submit', function (e) {
     var form = e.target;
     if (!form.matches || !form.matches('.header__version-form')) return;
+
+    // The clicked option button carries name="version" value="<slug>".
+    // FormData(form) doesn't include the submitter's name/value, so append it.
+    var submitter = e.submitter;
+    if (!submitter || submitter.name !== 'version') return;
     e.preventDefault();
 
+    var selectedValue = submitter.value;
+    var newLabel = submitter.textContent.trim();
     var formData = new FormData(form);
-    var submitBtn = form.querySelector('button[type="submit"]');
-    var newLabel = submitBtn ? submitBtn.textContent.trim() : '';
-    var selectedValue = formData.get('version');
+    formData.set('version', selectedValue);
 
     fetch(form.action, {
       method: 'POST',
@@ -170,9 +175,7 @@
         if (label) label.textContent = newLabel;
 
         menu.querySelectorAll('.header__version-option').forEach(function (opt) {
-          var optForm = opt.closest('.header__version-form');
-          var optInput = optForm && optForm.querySelector('input[name="version"]');
-          if (optInput && optInput.value === selectedValue) {
+          if (opt.value === selectedValue) {
             opt.setAttribute('aria-current', 'true');
           } else {
             opt.removeAttribute('aria-current');
