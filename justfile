@@ -3,6 +3,7 @@ COMPOSE_FILE := "docker-compose.yml"
 ENV_FILE := ".env"
 DJANGO_VERSION := "5.2"
 
+
 @_default:
     just --list
 
@@ -180,3 +181,13 @@ alias shell := console
 
 @manage +args:
     docker compose run --rm web python manage.py {{ args }}
+
+# Static File Management
+@down_sync_images:
+    scripts/sync-large-static-images.sh --down-sync;
+
+@up_sync_images:
+    scripts/sync-large-static-images.sh --up-sync;
+
+@up_sync_images_all_buckets:
+    scripts/sync-large-static-images.sh --up-sync --all-buckets;

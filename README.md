@@ -174,13 +174,56 @@ To work with mailinglist data locally, the django application expects to be
 able to query a copy of the hyperkitty database from HYPERKITTY_DATABASE_NAME.
 Then, `just manage sync_mailinglist_stats` management command can be run.
 
+## Syncing Large Static Images
+
+Large static images and other assets are stored in S3 buckets rather than in the repository. Use the `scripts/sync-large-static-images.sh` script to manage these files.
+
+### Prerequisites
+
+- `awscli` must be installed.
+- Configure a set of credentials in your `~/.aws/credentials` file with the profile name `sync-boost-images`:
+
+  ```ini
+  [sync-boost-images]
+  aws_access_key_id = <your_key_id>
+  aws_secret_access_key = <your_secret_key>
+  ```
+
+### Usage
+
+The script supports both uploading and downloading files.
+
+#### Uploading
+
+To upload files from your local directory (`static/static-large/`) to the default S3 bucket:
+
+```shell
+$ just up_sync_images
+```
+
+To upload to all S3 buckets:
+
+```shell
+$ just up_sync_images_all_buckets
+```
+
+#### Downloading
+
+To download missing or outdated static items from the staging bucket to your local directory:
+
+```shell
+$ just down_sync_images
+```
+
+---
+
 ## Deploying
 
-TDB
+TBD
 
 ## Production Environment Considerations
 
-TDB
+TBD
 
 ---
 

@@ -1,3 +1,4 @@
+{% load custom_static %}
 {% comment %}
   V3 Component Demo Page
   ======================
@@ -774,6 +775,15 @@
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
         {% include "v3/includes/_contributors_list.html" with title="All Contributors" variant="all" contributors=contributors %}
+      </div>
+    </div>
+  {% endwith %}
+
+  {% with section_title="Image Handling Example" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <img src="{% large_static 'img/v3/learn-page/learn_octopus.png' %}" alt="Large Media Example" />
       </div>
     </div>
   {% endwith %}
