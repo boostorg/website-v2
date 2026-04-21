@@ -15,7 +15,7 @@
   Context Variables (from `core.context_processors.selected_version`):
     selected_version                 (Version)  — resolved active version
     selected_version_is_url_driven   (bool)     — true on version-aware pages (/releases/, /libraries/, /library/)
-    selected_version_is_explicit     (bool)     — drives whether the button label shows a version number or "Latest"
+    selected_version_is_non_latest   (bool)     — drives whether the button label shows a version number or "Latest"
     selected_version_label           (str)      — pre-resolved button label
     version_dropdown_options         (list[Version]) — each has `.href` when URL-driven
     latest_href                      (str)      — URL for the "Latest" option when URL-driven
@@ -37,7 +37,7 @@
       {% if latest_href %}
         <a href="{{ latest_href }}"
            class="header__nav-link header__version-option"
-           {% if not selected_version_is_explicit %}aria-current="true"{% endif %}>
+           {% if not selected_version_is_non_latest %}aria-current="true"{% endif %}>
           Latest
         </a>
       {% endif %}
@@ -57,7 +57,7 @@
         <input type="hidden" name="version" value="latest">
         <button type="submit"
                 class="header__nav-link header__version-option"
-                {% if not selected_version_is_explicit %}aria-current="true"{% endif %}>
+                {% if not selected_version_is_non_latest %}aria-current="true"{% endif %}>
           Latest
         </button>
       </form>

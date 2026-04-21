@@ -20,6 +20,19 @@ def _get_header_version_data(request):
     return data
 
 
+def _is_non_latest_version(url_version_slug, cookie_slug):
+    """Whether the user's active version is a specific, non-latest one.
+
+    Drives the dropdown button label: non-latest → show version number,
+    otherwise → show "Latest". URL wins over cookie.
+    """
+    if url_version_slug:
+        return url_version_slug != LATEST_RELEASE_URL_PATH_STR
+    if cookie_slug:
+        return cookie_slug != LATEST_RELEASE_URL_PATH_STR
+    return False
+
+
 def current_version(request):
     """Custom context processor that adds the current release to the context"""
     return {"current_version": _get_header_version_data(request).most_recent}
@@ -42,7 +55,7 @@ def selected_version(request):
     GET /releases/1.88.0/  (no cookie)
         selected_version               -> Version(slug="boost-1-88-0")
         selected_version_is_url_driven -> True       (URL mode: render <a>s)
-        selected_version_is_explicit   -> True       (button reads "1.88.0")
+        selected_version_is_non_latest -> True       (button reads "1.88.0")
         selected_version_label         -> "1.88.0"
         version_dropdown_options[i]    -> Version with `.href` attached,
                                           e.g. "/releases/1.89.0/"
@@ -51,7 +64,7 @@ def selected_version(request):
     GET /  (cookie boost_version="boost-1-87-0")
         selected_version               -> Version(slug="boost-1-87-0")
         selected_version_is_url_driven -> False      (cookie mode: render <form>s)
-        selected_version_is_explicit   -> True       (button reads "1.87.0")
+        selected_version_is_non_latest -> True       (button reads "1.87.0")
         selected_version_label         -> "1.87.0"
         version_dropdown_options[i]    -> Version (no `.href` needed)
         latest_href                    -> ""
@@ -59,7 +72,7 @@ def selected_version(request):
     GET /  (no cookie)
         selected_version               -> Version.objects.most_recent()
         selected_version_is_url_driven -> False
-        selected_version_is_explicit   -> False      (button reads "Latest")
+        selected_version_is_non_latest -> False      (button reads "Latest")
         selected_version_label         -> "Latest"
 
     GET /library/1.88.0/foo/  (target version "boost-1-70-0" predates "foo")
@@ -88,17 +101,8 @@ def selected_version(request):
     if version is None:
         version = header_data.most_recent
 
-    is_explicit_non_latest_url = bool(
-        url_version_slug and url_version_slug != LATEST_RELEASE_URL_PATH_STR
-    )
-    is_explicit_cookie = bool(
-        not url_version_slug
-        and cookie_slug
-        and cookie_slug != LATEST_RELEASE_URL_PATH_STR
-    )
-    is_explicit = is_explicit_non_latest_url or is_explicit_cookie
-
-    label = version.display_name if (is_explicit and version) else "Latest"
+    is_non_latest = _is_non_latest_version(url_version_slug, cookie_slug)
+    label = version.display_name if (is_non_latest and version) else "Latest"
 
     latest_href = ""
     if is_url_driven and resolver_match and resolver_match.view_name:
@@ -111,7 +115,7 @@ def selected_version(request):
     return {
         "selected_version": version,
         "selected_version_is_url_driven": is_url_driven,
-        "selected_version_is_explicit": is_explicit,
+        "selected_version_is_non_latest": is_non_latest,
         "selected_version_label": label,
         "version_dropdown_options": options,
         "latest_href": latest_href,
