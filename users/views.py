@@ -339,6 +339,41 @@ class V3LoginView(V3AuthContextMixin, TemplateView):
     page_title = "Login"
 
 
+class V3PasswordResetBase(V3AuthContextMixin, TemplateView):
+    def get_v3_context_data(self, **kwargs):
+        context = super().get_v3_context_data(**kwargs)
+        context["foreground_image_url"] = ""
+        context["background_image_url"] = (
+            f"{settings.STATIC_URL}img/v3/auth-page/cheetah-expanded.png"
+        )
+        return context
+
+
+class V3PasswordResetView(V3PasswordResetBase):
+    v3_template_name = "v3/accounts/password_reset.html"
+    page_title = "Reset Password"
+
+
+class V3PasswordResetDoneView(V3PasswordResetBase):
+    v3_template_name = "v3/accounts/password_reset_done.html"
+    page_title = "Check Your Email"
+
+
+class V3PasswordResetFromKeyView(V3PasswordResetBase):
+    v3_template_name = "v3/accounts/password_reset_from_key.html"
+    page_title = "Change Password"
+
+    def get_v3_context_data(self, **kwargs):
+        context = super().get_v3_context_data(**kwargs)
+        context["password_rules"] = build_password_rules()
+        return context
+
+
+class V3PasswordResetFromKeyDoneView(V3PasswordResetBase):
+    v3_template_name = "v3/accounts/password_reset_from_key_done.html"
+    page_title = "Password Changed"
+
+
 class UserAvatar(TemplateView):
     """
     Returns the template for the user's avatar in the header from the htmx request.
