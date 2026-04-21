@@ -65,6 +65,7 @@ Inputs:
             {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
           {% endfor %}
         </ul>
+      </section>
       {% endfor %}
     {% endif %}
   </div>
