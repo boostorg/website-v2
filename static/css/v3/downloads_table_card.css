@@ -109,6 +109,15 @@
   padding: 0;
   border-radius: var(--border-radius-s);
   flex-shrink: 0;
+  transition: color 0.3s ease;
+}
+
+.downloads-table-card__copy-btn.is-copied {
+  color: var(--color-text-link-accent);
+}
+
+.downloads-table-card__copy-btn.is-error {
+  color: var(--color-text-error);
 }
 
 .js-copy-enabled .downloads-table-card__copy-btn {

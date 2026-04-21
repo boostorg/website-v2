@@ -55,3 +55,33 @@
     </table>
   </div>
 {% endif %}
+
+{% block footer_js %}
+<script>
+(function () {
+  document.querySelectorAll('.downloads-table-card__wrapper').forEach(function (wrapper) {
+    wrapper.classList.add('js-copy-enabled');
+  });
+  document.querySelectorAll('.downloads-table-card__copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const text = btn.getAttribute('data-copy-text');
+      if (!text) return;
+
+      function showFeedback(className) {
+        btn.classList.add(className);
+        setTimeout(function () {
+          btn.classList.remove(className);
+        }, 2000);
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(
+          function () { showFeedback('is-copied'); },
+          function () { showFeedback('is-error'); }
+        );
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}
