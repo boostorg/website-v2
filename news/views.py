@@ -82,7 +82,7 @@ def display_publish_at(publish_at, since=None):
 class EntryListView(V3Mixin, ListView):
     model = Entry
     template_name = "news/list.html"
-    v3_template_name = "v3/news_list.html"
+    v3_template_name = "v3/posts_list.html"
     ordering = ["-publish_at"]
     paginate_by = None  #  XXX: use pagination in the template! Issue #377
     context_object_name = "entry_list"  # Ensure children use the same name
