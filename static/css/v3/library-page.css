@@ -67,9 +67,8 @@
 
 .library-page__list-header-text {
     color: var(--color-text-secondary);
-
     font-family: var(--font-sans);
-    font-size: var(--font-sizes-small);
+    font-size: var(--font-size-small);
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-relaxed);
     letter-spacing: var(--letter-spacing-tight);

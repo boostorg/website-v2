@@ -39,7 +39,7 @@ from .utils import (
     get_version_from_cookie,
     get_commit_data_by_release_for_library,
     commit_data_to_stats_bars,
-    group_library_version_by_tier,
+    group_libraries_by_tier,
 )
 from .constants import LATEST_RELEASE_URL_PATH_STR
 
@@ -339,21 +339,12 @@ class LibraryByTier(LibraryListBase):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["library_versions_by_category"] = self.get_results_by_tier(
-            version=context.get("selected_version")
-        )
+        context["library_versions_by_category"] = self.get_results_by_tier()
         return context
 
-    def get_results_by_tier(self, version: Version | None):
-        if not version:
-            version = Version.objects.latest()
-        library_versions = (
-            LibraryVersion.objects.order_by("library__name")
-            .filter(version=version)
-            .prefetch_related("library")
-        )
-
-        flagship, core, other = group_library_version_by_tier(library_versions)
+    def get_results_by_tier(self):
+        library_versions = self.get_queryset()
+        flagship, core, other = group_libraries_by_tier(library_versions)
 
         return [
             {
