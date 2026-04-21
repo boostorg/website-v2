@@ -82,18 +82,30 @@ h1 {
     outline-offset: 2px;
 }
 
-.post-list-card {
+.card-group {
     max-width: 100%;
 }
 
 .post-title {
     color: var(--color-text-primary);
-
     font-family: var(--font-sans);
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-medium);
     line-height: var(--line-height-default);
     letter-spacing: var(--letter-spacing-tight);
-
     padding: 0;
+}
+
+.post-card__summary {
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--fonts-size-xs);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.post-card__row {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-medium);
 }

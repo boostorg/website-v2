@@ -22,22 +22,7 @@
       {% include 'v3/includes/_field_dropdown.html' with name='ex_type' label='Library' options=libraries placeholder='All' %}
     </div>
     <div>
-      <div class="basic-card card post-list-card">
-        <div class="card__header">
-          <span class="card__title">Latest Posts</span>
-        </div>
-        <hr class="card__hr" />
-        <div class="card__column">
-          {% for item in object_list %}
-            <a href="{{ item.get_absolute_url }}">
-              <div class="px-large py-large">
-                <p class="post-title">{{ item.title }}</p>
-              </div>
-            </a>
-            <hr class="card__hr" />
-          {% endfor %}
-        </div>
-      </div>
+      {% include "v3/includes/_post_list_card.html" with heading="Latest Posts" items=object_list %}
     </div>
     <div>
       {% if request.user %}
