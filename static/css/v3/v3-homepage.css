@@ -182,7 +182,7 @@ body:has(.homepage-v3) .header {
     }
 
     .homepage-container {
-      max-width: 500px;
+      max-width: 485px;
       padding: 0 var(--space-medium);
     }
 
