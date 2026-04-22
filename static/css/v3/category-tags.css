@@ -4,7 +4,7 @@
   justify-content: center;
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
-  line-height: var(--line-height-default);
+  line-height: var(--line-height-tight);
   font-weight: var(--font-weight-regular);
   border-radius: var(--border-radius-s);
   text-decoration: none;
@@ -130,6 +130,6 @@ html.dark .category-tag--green.category-tag--hover-state,
 html.dark .category-tag--yellow.category-tag--hover-state,
 html.dark .category-tag--teal.category-tag--hover-state {
   background: var(--color-tag-colored-bg-hover);
-  border-color: var(--color-tag-colored-border);
+  border-color: transparent;
   color: var(--color-tag-colored-text);
 }

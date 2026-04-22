@@ -81,7 +81,7 @@ html.dark {
   --color-tag-neutral-bg-hover: var(--color-primary-grey-800);
   --color-tag-neutral-border: var(--color-tag-stroke);
   --color-tag-colored-bg: var(--color-primary-grey-800);
-  --color-tag-colored-bg-hover: var(--color-primary-grey-850);
+  --color-tag-colored-bg-hover: var(--color-primary-grey-700);
   --color-tag-colored-border: var(--color-primary-grey-800);
   --color-tag-colored-text: var(--color-text-primary);
 
