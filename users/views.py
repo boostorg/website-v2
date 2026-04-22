@@ -339,27 +339,17 @@ class V3LoginView(V3AuthContextMixin, TemplateView):
     page_title = "Login"
 
 
-class V3PasswordResetBase(V3AuthContextMixin, TemplateView):
-    def get_v3_context_data(self, **kwargs):
-        context = super().get_v3_context_data(**kwargs)
-        context["foreground_image_url"] = ""
-        context["background_image_url"] = (
-            f"{settings.STATIC_URL}img/v3/auth-page/cheetah-expanded.png"
-        )
-        return context
-
-
-class V3PasswordResetView(V3PasswordResetBase):
+class V3PasswordResetView(V3AuthContextMixin, TemplateView):
     v3_template_name = "v3/accounts/password_reset.html"
     page_title = "Reset Password"
 
 
-class V3PasswordResetDoneView(V3PasswordResetBase):
+class V3PasswordResetDoneView(V3AuthContextMixin, TemplateView):
     v3_template_name = "v3/accounts/password_reset_done.html"
     page_title = "Check Your Email"
 
 
-class V3PasswordResetFromKeyView(V3PasswordResetBase):
+class V3PasswordResetFromKeyView(V3AuthContextMixin, TemplateView):
     v3_template_name = "v3/accounts/password_reset_from_key.html"
     page_title = "Change Password"
 
@@ -369,7 +359,7 @@ class V3PasswordResetFromKeyView(V3PasswordResetBase):
         return context
 
 
-class V3PasswordResetFromKeyDoneView(V3PasswordResetBase):
+class V3PasswordResetFromKeyDoneView(V3AuthContextMixin, TemplateView):
     v3_template_name = "v3/accounts/password_reset_from_key_done.html"
     page_title = "Password Changed"
 
