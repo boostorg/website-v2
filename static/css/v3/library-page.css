@@ -1,38 +1,65 @@
-.library-page-hero .hero-home__block {
-    padding: 0;
-    height: fit-content;
+/*
+=============================================
+=            Hero Styling                   =
+=============================================
+*/
+
+.library-page-hero {
     margin-top: var(--space-xl);
     margin-bottom: var(--space-xl);
     position: relative;
-    min-height: fit-content;
+    display: grid;
+    grid-template-columns: 574px 1fr auto;
+    gap: var(--space-xl);
+    align-items: center;
+    grid-template-areas:
+        "a . c"
+        "b . c"
+    ;
 }
 
-.library-page-hero .hero-home__actions {
-    width: 100%;
-}
-
-.library-page-hero .hero-home__actions .field {
+.library-page-hero .hero-search-bar {
+    grid-area: b;
     width: 75%;
 }
 
-.library-page-hero .hero-home__content {
-    margin: 0;
+.library-page-hero .hero-image {
+    grid-area: c;
 }
 
-.library-page-hero .hero-library__image {
+.library-page-hero .hero-image,
+.library-page-hero .hero-image img {
     height: 160px;
     width: auto;
 }
 
-.library-page-hero .hero-home__headline {
+.library-page-hero .hero-title {
+    grid-area: a;
+    margin: 0;
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
     font-size: var(--font-size-2xl);
-    letter-spacing: -0.4px;
+    font-style: normal;
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-tight);
 }
+
+/*
+======================================
+=            List Styling            =
+======================================
+*/
 
 .library-item-list {
     border: 1px solid var(--color-stroke-weak);
     border-radius: var(--border-radius-xl);
     overflow: hidden;
+    margin-bottom: var(--space-xxl);
+}
+
+.library-item-card-grid {
+    margin-bottom: var(--space-xxl);
 }
 
 .library-item-list .library-item--list:last-child {
@@ -74,6 +101,12 @@
     letter-spacing: var(--letter-spacing-tight);
 }
 
+/*
+=================================================
+=           Category Display Styling            =
+=================================================
+*/
+
 .library-page__category-header {
     grid-column: 1 / -1;
     padding: var(--space-large);
@@ -82,6 +115,11 @@
     width: 100%;
     margin: 0;
     max-width: 1408px;
+    font-weight: var(--font-weight-medium);
+    letter-spacing: var(--letter-spacing-tight);
+    line-height: var(--line-height-tight);
+    font-size: var(--font-size-large);
+    font-family: var(--font-display);
     border-top-left-radius: var(--border-radius-xl);
     border-top-right-radius: var(--border-radius-xl);
     border: 1px solid var(--color-stroke-weak);
@@ -98,8 +136,18 @@
         display: none;
     }
 
-    .library-page-hero .hero-home__actions .field {
+    .library-page-hero .hero-search-bar {
         width: 100%;
+    }
+
+    .library-page-hero {
+        grid-template-areas:
+            "c"
+            "a"
+            "b"
+        ;
+        grid-template-columns: 100%;
+        justify-items: start;
     }
 
     .library-page__container {
