@@ -1,4 +1,5 @@
 {% extends "v3/includes/_card_group.html" %}
+{% load wagtailimages_tags %}
 {% comment %}
   Post Card — extends _card_group.html to render post items for the posts_list page
 
@@ -37,11 +38,15 @@
                         {% include "v3/includes/_user_profile.html" with author=item.author only %}
                     {% endif %}
                     </div>
-                    {{item.thumbnail}}
-                    {% if item.thumbnail %}
-                    <div>
-                        Challenge
-                    </div>
+                    {% if item.video_thumbnail %}
+                    <a href="{{ item.get_absolute_url }}">
+                      <div class="post-card__thumbnail">
+                        {% image item.video_thumbnail fill-180x100 %}
+                        <div class="icon_background">
+                          {% include "includes/icon.html" with icon_name="play_button" icon_size=16 only %}
+                        </div>
+                      </div>
+                    </a>
                     {% endif %}
                 </div>
             </article>
