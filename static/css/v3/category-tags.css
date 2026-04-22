@@ -46,7 +46,6 @@
 .category-tag--green:hover,
 .category-tag--green.category-tag--hover-state {
   background: var(--color-surface-strong-accent-green-hover);
-  color: var(--color-text-secondary);
 }
 
 .category-tag--yellow {
@@ -56,7 +55,6 @@
 .category-tag--yellow:hover,
 .category-tag--yellow.category-tag--hover-state {
   background: var(--color-surface-strong-accent-yellow-hover);
-  color: var(--color-text-secondary);
 }
 
 .category-tag--teal {
@@ -66,7 +64,6 @@
 .category-tag--teal:hover,
 .category-tag--teal.category-tag--hover-state {
   background: var(--color-surface-strong-accent-teal-hover);
-  color: var(--color-text-secondary);
 }
 
 .version-tag {
@@ -88,6 +85,8 @@
 
 .version-tag--hover {
   background: var(--color-tag-fill-hover);
+  color: var(--color-text-primary);
+  border-color: var(--color-stroke-strong);
 }
 
 .category-cards {
@@ -119,7 +118,7 @@ html.dark .category-tag--green,
 html.dark .category-tag--yellow,
 html.dark .category-tag--teal {
   background: var(--color-tag-colored-bg);
-  border-color: var(--color-tag-colored-border);
+  border-color: transparent;
   color: var(--color-tag-colored-text);
 }
 
