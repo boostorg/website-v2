@@ -86,6 +86,7 @@ class EntryListView(V3Mixin, ListView):
     ordering = ["-publish_at"]
     paginate_by = None  #  XXX: use pagination in the template! Issue #377
     context_object_name = "entry_list"  # Ensure children use the same name
+    header_text = "Latest Posts"
 
     def render_v3_response(self):
         """Render the v3 template through Django's standard TemplateView pipeline."""
@@ -117,10 +118,23 @@ class EntryListView(V3Mixin, ListView):
                     "label": "Videos",
                     "url": reverse_lazy("news-video-list"),
                 },
+                {
+                    "label": "Discussions",
+                    "url": reverse_lazy("news") + "?discussions",
+                },
+                {
+                    "label": "Achievements",
+                    "url": reverse_lazy("news") + "?achievements",
+                },
+                {
+                    "label": "Issues",
+                    "url": reverse_lazy("news") + "?issues",
+                },
             ],
             "libraries": [
                 (x.slug, x.name) for x in Library.objects.all().order_by("name")
             ],
+            "header_text": self.header_text,
         }
 
     def get_queryset(self):
@@ -145,22 +159,27 @@ class EntryListView(V3Mixin, ListView):
 
 
 class BlogPostListView(EntryListView):
+    header_text = "Blogs"
     model = BlogPost
 
 
 class LinkListView(EntryListView):
+    header_text = "Links"
     model = Link
 
 
 class NewsListView(EntryListView):
+    header_text = "News"
     model = News
 
 
 class PollListView(EntryListView):
+    header_text = "Polls"
     model = Poll
 
 
 class VideoListView(EntryListView):
+    header_text = "Videos"
     model = Video
 
 
