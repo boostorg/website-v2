@@ -80,8 +80,6 @@ from users.views import (
     CustomLoginView,
     CustomSignupView,
     CustomSocialSignupViewView,
-    V3LoginView,
-    V3SignupView,
     UserViewSet,
     UserAvatar,
     DeleteUserView,
@@ -245,16 +243,6 @@ urlpatterns = (
             "style-guide/",
             TemplateView.as_view(template_name="style_guide.html"),
             name="style-guide",
-        ),
-        path(
-            "v3/accounts/signup/",
-            V3SignupView.as_view(),
-            name="v3-signup",
-        ),
-        path(
-            "v3/accounts/login/",
-            V3LoginView.as_view(),
-            name="v3-login",
         ),
         path("libraries/", LibraryListDispatcher.as_view(), name="libraries"),
         path(
