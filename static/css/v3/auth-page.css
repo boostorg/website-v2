@@ -79,13 +79,6 @@ body:has(.auth-page) .header {
   align-self: center;
 }
 
-/* Hide the foreground img when it has no src (e.g. password reset pages
-   that use only the background illustration). */
-.auth-page__illustration-foreground:not([src]),
-.auth-page__illustration-foreground[src=""] {
-  display: none;
-}
-
 /* ── Content Panel ─────────────────────────── */
 .auth-page__content {
   display: flex;
