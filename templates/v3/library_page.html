@@ -18,19 +18,13 @@ Inputs:
 
 {% block content %}
   <div class="library-page__container">
-    <section class="library-page-hero hero-home hero-home--no-image" aria-label="Hero">
-      <div class="hero-home__block">
-        <div class="hero-home__content">
-          <h1 class="hero-home__headline">Find a battle-tested library for the problem you're solving right now.</h1>
-          <div class="hero-home__actions">
+    <section class="library-page-hero" aria-label="Hero">
+          <h1 class="hero-title">Find a battle-tested library for the problem you're solving right now.</h1>
+          <div class="hero-search-bar">
             {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' %}
           </div>
-        </div>
-        <div class="hero-library__image">
-          <img alt="" class="hero-library__img" src="{% static 'img/v3/solo-images/beaver-black-and-white.png' %}" loading="lazy" decoding="async" />
-        </div>
-      </div>
-    </section>
+          <img alt="Excited Cartoon Mascot" class="hero-image" src="{% static 'img/v3/solo-images/beaver-black-and-white.png' %}" loading="lazy" decoding="async" />
+      </section>
     <form action="" method="get">
       <div id="library-page-filter-container" class="mb-xl">
         {% include 'v3/includes/_library_filter.html' with filter_id='library-page-filter' fields=library_filter_fields %}
