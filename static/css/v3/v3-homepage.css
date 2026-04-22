@@ -182,7 +182,8 @@ body:has(.homepage-v3) .header {
     }
 
     .homepage-container {
-      max-width: 390px;
+      max-width: 500px;
+      padding: 0 var(--space-medium);
     }
 
     .four-column .why-boost-cards__grid {
