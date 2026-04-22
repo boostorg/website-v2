@@ -1,6 +1,7 @@
 import os
 
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import UploadedFile
 from django import forms
 
 from allauth.account.forms import ResetPasswordKeyForm
@@ -136,29 +137,34 @@ class UserProfilePhotoForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
-        # Temporarily store the old image
         old_image = self.instance.profile_image
+        old_image_name = old_image.name if old_image else None
+        new_image_data = self.cleaned_data.get("profile_image")
+        has_new_upload = isinstance(new_image_data, UploadedFile)
+
         # Save the new image
         user = super().save(commit=False)
         if not old_image:
             # reset image on image delete checked
             user.image_uploaded = False
-        elif self.cleaned_data["profile_image"] != old_image:
-            # Delete the old image file if there's a new image being uploaded
-            old_image.delete(save=False)
+        elif has_new_upload and old_image_name:
+            # Delete the old file directly from storage (not via FieldFile.delete(),
+            # which closes file handles and interferes with the pending upload)
+            old_image.storage.delete(old_image_name)
 
-        if new_image := self.cleaned_data.get("profile_image"):
-            _, file_extension = os.path.splitext(new_image.name)
-
-            # Strip the leading period from the file extension.
+        if has_new_upload:
+            _, file_extension = os.path.splitext(new_image_data.name)
             file_extension = file_extension.lstrip(".")
-
-            new_image.name = f"{user.profile_image_filename_root}.{file_extension}"
-            user.profile_image = new_image
+            new_image_data.name = f"{user.profile_image_filename_root}.{file_extension}"
+            user.profile_image = new_image_data
             user.image_uploaded = True
 
         if commit:
             user.save()
+
+        # Invalidate the cached thumbnail so ImageKit regenerates it
+        if has_new_upload:
+            user.delete_cached_thumbnail()
 
         return user
 

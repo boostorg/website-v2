@@ -10,8 +10,8 @@ onclick="handleCardClick(event, '{% url 'library-detail' library_slug=library_ve
       {% include "libraries/includes/_documentation_link_icon.html" %}
     </div>
       {% for author in library.authors.all %}
-        {% if author.image %}
-          <img src="{{ author.image.url }}" class="inline float-right rounded w-[30px] ml-1" alt="{{ author.display_name }}" />
+        {% if author.profile_image %}
+          <img src="{{ author.profile_image.url }}" class="inline float-right rounded w-[30px] ml-1" alt="{{ author.display_name }}" />
         {% endif %}
       {% endfor %}
     </h3>

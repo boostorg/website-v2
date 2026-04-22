@@ -264,9 +264,24 @@ class User(BaseUser):
     # elapsed.
     delete_permanently_at = models.DateTimeField(null=True, editable=False)
 
+    def delete_cached_thumbnail(self):
+        """Delete the cached ImageKit thumbnail so it regenerates on next access."""
+        if not self.profile_image:
+            return
+        try:
+            from imagekit.cachefiles.backends import CacheFileState
+
+            thumb = self.image_thumbnail
+            if thumb.name:
+                thumb.storage.delete(thumb.name)
+            thumb.cachefile_backend.set_state(thumb, CacheFileState.DOES_NOT_EXIST)
+        except (OSError, AttributeError):
+            logger.debug("Failed to invalidate thumbnail cache", exc_info=True)
+
     def save_image_from_provider(self, avatar_url):
         from django.core.files.base import ContentFile
 
+        self.delete_cached_thumbnail()
         response = requests.get(avatar_url)
         filename = f"{self.profile_image_filename_root}.png"
         self.profile_image.save(filename, ContentFile(response.content), save=True)
@@ -286,7 +301,7 @@ class User(BaseUser):
     def get_thumbnail_url(self):
         # convenience method for templates
         if self.profile_image and self.image_thumbnail:
-            with suppress(AttributeError, MissingSource):
+            with suppress(AttributeError, MissingSource, FileNotFoundError, OSError):
                 return getattr(self.image_thumbnail, "url", None)
 
     def get_avatar_url(self):
@@ -308,7 +323,7 @@ class User(BaseUser):
     def get_hq_image_url(self):
         # convenience method for templates
         if self.hq_image and self.hq_image_render:
-            with suppress(AttributeError, MissingSource):
+            with suppress(AttributeError, MissingSource, FileNotFoundError, OSError):
                 return getattr(self.hq_image_render, "url", None)
 
     @property
@@ -340,10 +355,10 @@ class User(BaseUser):
         self.last_name = "Doe"
         self.display_name = "John Doe"
         self.email = "deleted-{}@example.com".format(uuid.uuid4())
+        self.delete_cached_thumbnail()
         image = self.profile_image
         transaction.on_commit(lambda: image.delete())
         self.profile_image = None
-        self.image_thumbnail = None
         self.delete_permanently_at = None
         self.save()
 
