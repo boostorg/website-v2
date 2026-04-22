@@ -5,7 +5,7 @@
     - profile_url (string) — URL to user profile
     - role       (string) — e.g. "Contributor", "Maintainer"
     - avatar_url (string) — URL to avatar image
-    - badge_url  (string, optional) — URL to badge image
+    - badge      (string, optional) — Icon component token, e.g. "badge-gold", "star-bronze"
     - bio        (string, optional) — short bio
 
   Usage:
@@ -32,10 +32,13 @@
       {% if author.role %}
         <span class="user-profile__role">{{ author.role }}</span>
       {% endif %}
-      {% if author.badge_url %}
+      {% if author.badge %}
         <span aria-hidden="true">
-          <img src="{{ author.badge_url }}" alt="" width="16" height="16">
+          {% include "includes/icon.html" with icon_name=author.badge icon_size=16 icon_alt=" " only %}
         </span>
+      {% endif %}
+      {% if author.achievement_count %}
+        {% include "includes/icon.html" with icon_name="achievement-count" icon_count=author.achievement_count icon_size=24 only %}
       {% endif %}
     </div>
     {% if author.bio %}
