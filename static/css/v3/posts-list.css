@@ -74,6 +74,7 @@ h1 {
     line-height: var(--line-height-tight);
     letter-spacing: var(--letter-spacing-tight);
     color: var(--color-text-primary);
+    border: 1px solid var(--color-stroke-mid);
     text-decoration: none;
     cursor: pointer;
     transition: background 0.15s ease;
@@ -82,6 +83,7 @@ h1 {
 .filter__tag.active {
     background: var(--color-surface-brand-accent-default);
     transition: background 0.15s ease;
+    border: none;
 }
 
 .filter__tag.active:hover {
@@ -176,7 +178,7 @@ h1 {
     }
 
     .filter__tag {
-        padding: var(--space-medium) var(--space-default);
+        padding: var(--space-card) var(--space-medium);
     }
 
 }
