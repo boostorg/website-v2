@@ -201,7 +201,6 @@ urlpatterns = (
         ),
         path("health/", include("health_check.urls")),
         path("asciidoctor_sandbox/", include("asciidoctor_sandbox.urls")),
-        # Community page (v3 uses CommunityView for mock data + template switching)
         path(
             "community/",
             CommunityView.as_view(),

@@ -2,7 +2,6 @@ import os
 import re
 
 import requests
-from datetime import date
 from django.utils import timezone
 
 from textwrap import dedent
@@ -171,119 +170,57 @@ class CommunityView(V3Mixin, TemplateView):
         ]
         ctx["libraries"] = [
             {
-                "name": "Boost.Asio",
-                "description": "Portable networking and low-level I/O.",
-                "categories": ["Networking", "Concurrency"],
+                "name": "Beast",
+                "description": "A collection of useful generic algorithms.",
+                "categories": ["Concurrent", "IO"],
+                "cpp_version": "C++ 11",
             },
             {
-                "name": "Boost.Beast",
-                "description": "HTTP and WebSocket built on Boost.Asio.",
-                "categories": ["Networking", "HTTP"],
+                "name": "Cobalt",
+                "description": "Coroutines. Basic Algorithms & Types",
+                "categories": [
+                    "Concurrent",
+                    "Coroutines",
+                    "Awaitables",
+                    "Asynchronous",
+                ],
+                "cpp_version": "C++ 20",
             },
             {
-                "name": "Boost.JSON",
-                "description": "A portable C++ library for JSON parsing and serialization.",
-                "categories": ["Data", "Parsing"],
+                "name": "JSON",
+                "description": "JSON parsing, serialization, and DOM",
+                "categories": ["Containers", "Data", "IO"],
+                "cpp_version": "C++ 11",
             },
             {
-                "name": "Boost.URL",
-                "description": "A portable C++ library for URL parsing and manipulation.",
-                "categories": ["Networking", "Parsing"],
+                "name": "Lib Name",
+                "description": "Lib Description",
+                "categories": ["Containers", "Data", "IO"],
+                "cpp_version": "C++ 11",
             },
             {
-                "name": "Boost.Multiprecision",
-                "description": "Extended precision arithmetic types.",
-                "categories": ["Math", "Numerics"],
+                "name": "Lib Name",
+                "description": "Lib Description",
+                "categories": ["Containers", "Data", "IO"],
+                "cpp_version": "C++ 11",
             },
         ]
-        ctx["posts"] = [
-            {
-                "title": "Chaotic Attractors with Boost.Odeint, a talk by Richard Thomson at the Utah C++ Programmers Group",
-                "url": "#",
-                "date": date(2025, 3, 3),
-                "category": "Issues",
-                "tag": "beast",
-                "author": {
-                    "name": "Christopher Kiamenya",
-                    "role": "Contributor",
-                    "avatar_url": "https://ui-avatars.com/api/?name=Christopher+Kiamenya&size=48",
-                    "badge_url": "/static/img/v3/solo-images/badge-first-place.png",
-                },
-            },
-            {
-                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
-                "url": "#",
-                "date": date(2025, 3, 3),
-                "category": "Issues",
-                "tag": "beast",
-                "author": {
-                    "name": "Dave Abrahams",
-                    "role": "Contributor",
-                    "avatar_url": "https://ui-avatars.com/api/?name=Dave+Abrahams&size=48",
-                    "badge_url": "/static/img/v3/solo-images/badge-first-place.png",
-                },
-            },
-            {
-                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
-                "url": "#",
-                "date": date(2025, 3, 3),
-                "category": "Issues",
-                "tag": "beast",
-                "author": {
-                    "name": "Alex Wells",
-                    "role": "Contributor",
-                    "avatar_url": "https://ui-avatars.com/api/?name=Alex+Wells&size=48",
-                    "badge_url": "/static/img/v3/solo-images/badge-first-place.png",
-                },
-            },
-            {
-                "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
-                "url": "#",
-                "date": date(2025, 3, 3),
-                "category": "Issues",
-                "tag": "beast",
-                "author": {
-                    "name": "Peter Edwards",
-                    "role": "Contributor",
-                    "avatar_url": "https://ui-avatars.com/api/?name=Peter+Edwards&size=48",
-                    "badge_url": "/static/img/v3/solo-images/badge-first-place.png",
-                },
-            },
-        ]
+        ctx["posts"] = SharedResources.demo_posts[:4]
         ctx["slack_member_count"] = "30,000"
-        ctx["install_card_pkg_managers"] = [
-            {"label": "Conan", "value": "conan", "command": "conan install boost"},
-            {"label": "Vcpkg", "value": "vcpkg", "command": "vcpkg install boost"},
-        ]
-        ctx["install_card_system_install"] = [
-            {
-                "label": "Ubuntu",
-                "value": "ubuntu",
-                "command": "sudo apt install libboost-all-dev",
-            },
-            {
-                "label": "Fedora",
-                "value": "fedora",
-                "command": "sudo dnf install boost-devel",
-            },
-            {
-                "label": "CentOS",
-                "value": "centos",
-                "command": "sudo yum install boost-devel",
-            },
-            {"label": "Arch", "value": "arch", "command": "sudo pacman -S boost"},
-            {
-                "label": "Homebrew",
-                "value": "homebrew",
-                "command": "brew install boost",
-            },
-        ]
-        ctx["mailing_list"] = {
-            "name": "Boost Developers",
-            "url": "https://lists.boost.org/mailman3/lists/boost.lists.boost.org/",
-            "archives_url": "https://lists.boost.org/archives/list/boost@lists.boost.org/latest",
-            "description": "The primary mailing list for Boost library development discussions.",
-        }
+        ctx["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
+        ctx["install_card_system_install"] = SharedResources.install_card_system_install
+        ctx["create_account_card_body_html"] = (
+            "<p>Your contribution badges appear on your Boost profile with:</p>"
+            "<ul>"
+            "<li>Contribution statistics</li>"
+            "<li>Progress towards next badge</li>"
+            "<li>Recent activity feed</li>"
+            "</ul>"
+        )
+        ctx["create_account_card_preview_url"] = (
+            f"{settings.STATIC_URL}img/v3/Community-page/"
+            "community-create-account-preview.png"
+        )
         return ctx
 
 
