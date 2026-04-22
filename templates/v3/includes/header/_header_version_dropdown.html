@@ -37,41 +37,43 @@
   <div id="{{ version_menu_id }}-dropdown"
        role="group"
        class="header__version-dropdown">
-    {% if selected_version_is_url_driven %}
-      {% if latest_href %}
-        <a href="{{ latest_href }}"
-           class="header__version-option"
-           {% if not selected_version_is_non_latest %}aria-current="true"{% endif %}>Latest</a>
-      {% endif %}
-      {% for v in version_dropdown_options %}
-        {% if v.href %}
-          <a href="{{ v.href }}"
+    <div class="header__version-dropdown-scroll">
+      {% if selected_version_is_url_driven %}
+        {% if latest_href %}
+          <a href="{{ latest_href }}"
              class="header__version-option"
-             {% if selected_version_is_non_latest and selected_version and v.slug == selected_version.slug %}aria-current="true"{% endif %}>
-            {{ v.display_name }}
-          </a>
+             {% if not selected_version_is_non_latest %}aria-current="true"{% endif %}>Latest</a>
         {% endif %}
-      {% endfor %}
-    {% else %}
-      <form method="post"
-            action="{% url 'set-version' %}"
-            class="header__version-form">
-        {% csrf_token %}
-        <button type="submit"
-                name="version"
-                value="latest"
-                class="header__version-option"
-                {% if not selected_version_is_non_latest %}aria-current="true"{% endif %}>Latest</button>
         {% for v in version_dropdown_options %}
+          {% if v.href %}
+            <a href="{{ v.href }}"
+               class="header__version-option"
+               {% if selected_version_is_non_latest and selected_version and v.slug == selected_version.slug %}aria-current="true"{% endif %}>
+              {{ v.display_name }}
+            </a>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <form method="post"
+              action="{% url 'set-version' %}"
+              class="header__version-form">
+          {% csrf_token %}
           <button type="submit"
                   name="version"
-                  value="{{ v.slug }}"
+                  value="latest"
                   class="header__version-option"
-                  {% if selected_version_is_non_latest and selected_version and v.slug == selected_version.slug %}aria-current="true"{% endif %}>
-            {{ v.display_name }}
-          </button>
-        {% endfor %}
-      </form>
-    {% endif %}
+                  {% if not selected_version_is_non_latest %}aria-current="true"{% endif %}>Latest</button>
+          {% for v in version_dropdown_options %}
+            <button type="submit"
+                    name="version"
+                    value="{{ v.slug }}"
+                    class="header__version-option"
+                    {% if selected_version_is_non_latest and selected_version and v.slug == selected_version.slug %}aria-current="true"{% endif %}>
+              {{ v.display_name }}
+            </button>
+          {% endfor %}
+        </form>
+      {% endif %}
+    </div>
   </div>
 </div>
