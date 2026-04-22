@@ -21,3 +21,29 @@
   color: var(--color-text-on-accent);
   pointer-events: none;
 }
+
+/**
+ * Achievement counter – rendered by icon.html with icon_name="achievement-count".
+ * Width/height set inline from icon_size (Figma default: 24px).
+ */
+.icon-achievement-count {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-default);
+  flex-shrink: 0;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  padding: var(--space-s) var(--space-xs);
+  border-radius: var(--border-radius-s);
+  background: var(--color-icon-brand-accent);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  text-align: center;
+  margin: 0;
+  color: var(--color-text-on-accent);
+  pointer-events: none;
+}

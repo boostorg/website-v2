@@ -1716,7 +1716,14 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "profile_url": "#",
                 "role": "Author",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-first-place.png",
+                "badge": "badge-gold",
+                "bio": "",
+            },
+            {
+                "name": "Richard Thomson",
+                "profile_url": "#",
+                "role": "Contributor",
+                "avatar_url": "",
                 "badge": "",
                 "bio": "",
             },
@@ -1725,17 +1732,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "profile_url": "#",
                 "role": "Contributor",
                 "avatar_url": "",
-                "badge_url": "",
-                "badge": "",
-                "bio": "",
-            },
-            {
-                "name": "Richard Thomson",
-                "profile_url": "#",
-                "role": "Contributor",
-                "avatar_url": "",
-                "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-bronze.png",
-                "badge": "",
+                "badge": "badge-bronze",
                 "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
             },
             {
@@ -1743,7 +1740,6 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "profile_url": "#",
                 "role": "Author",
                 "avatar_url": "",
-                "badge_url": "",
                 "badge": "",
                 "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
             },
@@ -1755,8 +1751,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "profile_url": "#",
                 "role": "Author",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-first-place.png",
-                "badge": "",
+                "badge": "badge-gold",
                 "bio": "",
             }
         ] + 10 * [
@@ -1765,8 +1760,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "profile_url": "#",
                 "role": "Contributor",
                 "avatar_url": "",
-                "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-bronze.png",
-                "badge": "",
+                "badge": "badge-bronze",
                 "bio": "",
             }
         ]
@@ -1934,7 +1928,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                         "name": author.display_name if author else "Unknown",
                         "role": "Contributor",
                         "avatar_url": author.get_avatar_url() if author else "",
-                        "badge_url": f"{badge_img}/badge-first-place.png",
+                        "badge": "badge-gold",
                     },
                     "doc_url": reverse(
                         "library-detail",
