@@ -49,6 +49,7 @@ from django.urls import path
 
 from core.views import LearnPageView, V3ComponentDemoView
 from news.views import V3AllTypesCreateView
+from users.views import V3LoginView, V3SignupView
 
 v3_urlpatterns = [
     path(
@@ -65,5 +66,15 @@ v3_urlpatterns = [
         "v3/news/add/",
         V3AllTypesCreateView.as_view(),
         name="v3-news-create",
+    ),
+    path(
+        "v3/accounts/signup/",
+        V3SignupView.as_view(),
+        name="v3-signup",
+    ),
+    path(
+        "v3/accounts/login/",
+        V3LoginView.as_view(),
+        name="v3-login",
     ),
 ]
