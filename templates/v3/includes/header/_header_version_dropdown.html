@@ -1,0 +1,79 @@
+{% comment %}
+  Header Version Dropdown — always-visible Boost version selector.
+
+  On version-aware pages (/releases/, /libraries/, /library/), the options are
+  <a> links that swap the version segment of the current URL and trigger navigation.
+
+  Elsewhere, the options are POST forms that write the cookie via
+  `set-version` and redirect back — no visible navigation.
+
+  The dropdown is a CSS-only toggle via hidden checkbox; works with JS disabled.
+
+  Variables:
+    version_menu_id  (string, required) — unique ID prefix, e.g. "desktop-version-menu"
+
+  Context Variables (from `core.context_processors.selected_version`):
+    selected_version                 (Version)  — resolved active version
+    selected_version_is_url_driven   (bool)     — true on version-aware pages (/releases/, /libraries/, /library/)
+    selected_version_is_non_latest   (bool)     — drives whether the button label shows a version number or "Latest"
+    selected_version_label           (str)      — pre-resolved button label
+    version_dropdown_options         (list[Version]) — each has `.href` when URL-driven
+    latest_href                      (str)      — URL for the "Latest" option when URL-driven
+{% endcomment %}
+<div class="header__version-menu">
+  <input type="checkbox"
+         id="{{ version_menu_id }}-toggle"
+         class="header__version-toggle"
+         aria-label="Select Boost version"
+         aria-controls="{{ version_menu_id }}-dropdown">
+  <label for="{{ version_menu_id }}-toggle"
+         class="header__version-trigger"
+         aria-hidden="true">
+    <span class="header__version-label">{{ selected_version_label }}</span>
+    <span class="icon-brand-accent">
+      {% include "includes/icon.html" with icon_name="chevron-down" icon_class="header__icon header__icon--chevron" icon_size=16 %}
+    </span>
+  </label>
+  <div id="{{ version_menu_id }}-dropdown"
+       role="group"
+       class="header__version-dropdown">
+    <div class="header__version-dropdown-scroll">
+      {% if selected_version_is_url_driven %}
+        {% if latest_href %}
+          <a href="{{ latest_href }}"
+             class="header__version-option"
+             {% if not selected_version_is_non_latest %}aria-current="true"{% endif %}>Latest</a>
+        {% endif %}
+        {% for v in version_dropdown_options %}
+          {% if v.href %}
+            <a href="{{ v.href }}"
+               class="header__version-option"
+               {% if selected_version_is_non_latest and selected_version and v.slug == selected_version.slug %}aria-current="true"{% endif %}>
+              {{ v.display_name }}
+            </a>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <form method="post"
+              action="{% url 'set-version' %}"
+              class="header__version-form">
+          {% csrf_token %}
+          <button type="submit"
+                  name="version"
+                  value="latest"
+                  class="header__version-option"
+                  {% if not selected_version_is_non_latest %}aria-current="true"{% endif %}>Latest</button>
+          {% for v in version_dropdown_options %}
+            <button type="submit"
+                    name="version"
+                    value="{{ v.slug }}"
+                    class="header__version-option"
+                    {% if selected_version_is_non_latest and selected_version and v.slug == selected_version.slug %}aria-current="true"{% endif %}>
+              {{ v.display_name }}
+            </button>
+          {% endfor %}
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</div>

@@ -101,6 +101,7 @@ from versions.views import (
     VersionDetail,
     ReportPreviewView,
     ReportPreviewGenerateView,
+    set_version,
 )
 
 djdt_urls = []
@@ -218,6 +219,7 @@ urlpatterns = (
             name="boost-development",
         ),
         # Boost versions views
+        path("set-version/", set_version, name="set-version"),
         path("releases/", VersionDetail.as_view(), name="releases-most-recent"),
         path(
             "releases/boost-in-progress/",
