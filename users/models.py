@@ -346,6 +346,15 @@ class User(BaseUser):
         return self.get_avatar_url
 
     @cached_property
+    def badge_url(self):
+        """
+        This is a placeholder value
+
+        TODO: Replace this value
+        """
+        return f"{settings.STATIC_URL}img/v3/badges/badge-gold-medal.png"
+
+    @cached_property
     def role(self):
         """
         TODO: This is currently dummy data for testing
