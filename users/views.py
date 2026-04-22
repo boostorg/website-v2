@@ -318,9 +318,7 @@ class V3AuthContextMixin(V3Mixin):
         )
         context["login_url"] = reverse_lazy("v3-login")
         context["signup_url"] = reverse_lazy("v3-signup")
-
-        # Needs to be updated to V3 password reset page when that is created
-        context["password_reset_url"] = reverse_lazy("account_reset_password")
+        context["password_reset_url"] = reverse_lazy("v3-password-reset")
         return context
 
 
