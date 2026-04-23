@@ -343,6 +343,28 @@ SUB_LIBRARIES = {
     "bind/mem_fn": "bind",
 }
 
+# Modules we need to skip as they are not really Boost Libraries
+SKIP_MODULES = [
+    "inspect",
+    "boostbook",
+    "bcp",
+    "build",
+    "quickbook",
+    "litre",
+    "auto_index",
+    "boostdep",
+    "check_build",
+    "headers",
+    "boost_install",
+    "docca",
+    "cmake",
+    "more",
+]
+
+# Libraries to skip that are not "modules", but appear as child-libraries
+# of other modules. Identified by the key used in the libraries.json file.
+SKIP_LIBRARIES = ["chrono/stopwatch"]
+
 # List of versions for which we know docs are missing
 VERSION_DOCS_MISSING = ["boost-1.33.0"]
 
