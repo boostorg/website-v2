@@ -269,16 +269,6 @@ urlpatterns = (
             V3LoginView.as_view(),
             name="v3-login",
         ),
-        path(
-            "v3/releases/",
-            V3VersionDetail.as_view(),
-            name="v3-releases-most-recent",
-        ),
-        path(
-            "v3/releases/<boostversionslug:version_slug>/",
-            V3VersionDetail.as_view(),
-            name="v3-release-detail",
-        ),
         path("libraries/", LibraryListDispatcher.as_view(), name="libraries"),
         path(
             "libraries/<boostversionslug:version_slug>/<str:library_view_str>/",
