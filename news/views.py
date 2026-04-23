@@ -87,9 +87,23 @@ class EntryListView(V3Mixin, ListView):
     paginate_by = None  #  XXX: use pagination in the template! Issue #377
     context_object_name = "entry_list"  # Ensure children use the same name
     header_text = "Latest Posts"
+    filter_value = "all"
 
     def render_v3_response(self):
         """Render the v3 template through Django's standard TemplateView pipeline."""
+        if post_filter := self.request.GET.get("post-filter"):
+            match post_filter:
+                case "all":
+                    return HttpResponseRedirect(reverse_lazy("news"))
+                case "blogpost":
+                    return HttpResponseRedirect(reverse_lazy("news-blogpost-list"))
+                case "video":
+                    return HttpResponseRedirect(reverse_lazy("news-video-list"))
+                case "news":
+                    return HttpResponseRedirect(reverse_lazy("news-news-list"))
+                case "link":
+                    return HttpResponseRedirect(reverse_lazy("news-link-list"))
+
         context = self.get_context_data(
             **self.get_v3_context_data(), object_list=self.get_queryset()
         )
@@ -100,41 +114,42 @@ class EntryListView(V3Mixin, ListView):
             "filter_terms": [
                 {
                     "label": "All",
-                    "url": reverse_lazy("news"),
+                    "value": "all",
                 },
                 {
                     "label": "News",
-                    "url": reverse_lazy("news-news-list"),
+                    "value": "news",
                 },
                 {
                     "label": "Blogs",
-                    "url": reverse_lazy("news-blogpost-list"),
+                    "value": "blogpost",
                 },
                 {
                     "label": "Links",
-                    "url": reverse_lazy("news-link-list"),
+                    "value": "link",
                 },
                 {
                     "label": "Videos",
-                    "url": reverse_lazy("news-video-list"),
+                    "value": "video",
                 },
                 {
                     "label": "Discussions",
-                    "url": reverse_lazy("news") + "?discussions",
+                    "value": "discussions",
                 },
                 {
                     "label": "Achievements",
-                    "url": reverse_lazy("news") + "?achievements",
+                    "value": "achievements",
                 },
                 {
                     "label": "Issues",
-                    "url": reverse_lazy("news") + "?issues",
+                    "value": "issues",
                 },
             ],
             "libraries": [
                 (x.slug, x.name) for x in Library.objects.all().order_by("name")
             ],
             "header_text": self.header_text,
+            "filter_value": self.filter_value,
         }
 
     def get_queryset(self):
@@ -161,16 +176,19 @@ class EntryListView(V3Mixin, ListView):
 class BlogPostListView(EntryListView):
     header_text = "Blogs"
     model = BlogPost
+    filter_value = "blogpost"
 
 
 class LinkListView(EntryListView):
     header_text = "Links"
     model = Link
+    filter_value = "link"
 
 
 class NewsListView(EntryListView):
     header_text = "News"
     model = News
+    filter_value = "news"
 
 
 class PollListView(EntryListView):
@@ -181,6 +199,7 @@ class PollListView(EntryListView):
 class VideoListView(EntryListView):
     header_text = "Videos"
     model = Video
+    filter_value = "video"
 
 
 class EntryModerationListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
