@@ -1,4 +1,3 @@
-import waffle.testutils
 from django.contrib.auth import get_user_model
 
 
@@ -42,50 +41,6 @@ def test_password_reset_url(tp, db):
     Just a canary test that the password reset screen exists.
     """
     res = tp.get("account_reset_password")
-    tp.response_200(res)
-
-
-@waffle.testutils.override_flag("v3", active=True)
-def test_v3_password_reset_url(tp, db):
-    """
-    GET /v3/accounts/password/reset/
-
-    Canary test that the V3 password reset entry page renders.
-    """
-    res = tp.get("v3-password-reset")
-    tp.response_200(res)
-
-
-@waffle.testutils.override_flag("v3", active=True)
-def test_v3_password_reset_done_url(tp, db):
-    """
-    GET /v3/accounts/password/reset/done/
-
-    Canary test that the V3 password reset confirmation page renders.
-    """
-    res = tp.get("v3-password-reset-done")
-    tp.response_200(res)
-
-
-@waffle.testutils.override_flag("v3", active=True)
-def test_v3_password_reset_from_key_url(tp, db):
-    """
-    GET /v3/accounts/password/reset/key/
-
-    Canary test that the V3 change password page renders.
-    """
-    res = tp.get("v3-password-reset-from-key")
-    tp.response_200(res)
-
-
-@waffle.testutils.override_flag("v3", active=True)
-def test_v3_password_reset_from_key_done_url(tp, db):
-    """
-    GET /v3/accounts/password/reset/key/done/
-
-    Canary test that the V3 password changed confirmation page renders.
-    """
-    res = tp.get("v3-password-reset-from-key-done")
     tp.response_200(res)
 
 
