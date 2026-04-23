@@ -75,13 +75,16 @@ body:has(.is_flagship) .library-subpage-container {
 .card-masonry-bottom {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-areas: "a a b";
+  grid-template-areas:
+    "d d d"
+    "a a b";
   row-gap: var(--space-card);
   column-gap: var(--space-card);
 }
 
 .card-masonry-bottom .item-a { grid-area: a; }
 .card-masonry-bottom .item-b { grid-area: b; }
+.card-masonry-bottom .item-d { grid-area: d; }
 
 /* ── Card max-width overrides ────────────────────────────────────────────── */
 
