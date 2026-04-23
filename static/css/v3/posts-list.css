@@ -9,6 +9,7 @@ h1 {
 }
 
 .post-content-container {
+    margin-top: var(--space-xl);
     padding-left: var(--space-large);
     padding-right: var(--space-large);
 }
@@ -25,8 +26,29 @@ h1 {
     grid-template-columns: 25% 1fr 25%;
     gap: var(--space-large);
     margin-bottom: var(--space-xxl);
+    grid-template-areas:
+    "a b c"
+    "d b c"
+    ". b ."
+    ;
 }
 
+
+.subheading {
+    grid-area: a
+}
+
+.post-content__filter_column {
+    grid-area: d;
+}
+
+.post-content__content_column {
+    grid-area: b;
+}
+
+.post-content__user_card_column {
+    grid-area: c;
+}
 
 /*
 #####################################################
@@ -42,7 +64,7 @@ h1 {
     line-height: var(--line-height-default);
     letter-spacing: var(--letter-spacing-tight);
     padding: 0;
-    margin-bottom: var(--space-avatar);
+    margin-bottom: var(--space-large);
 }
 
 .filter__tags-label {
@@ -52,54 +74,9 @@ h1 {
 }
 
 .filter__tags {
-    display: flex;
-    flex-wrap: wrap;
-    align-content: center;
-    align-items: center;
-    gap: var(--space-s, 4px);
     margin-bottom: var(--space-xlarge);
 }
 
-.filter__tag {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-default);
-    background: var(--color-surface-weak);
-    border: none;
-    border-radius: var(--border-radius-s);
-    font-family: var(--font-sans), sans-serif;
-    font-size: var(--font-size-xs, 12px);
-    font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-tight);
-    letter-spacing: var(--letter-spacing-tight);
-    color: var(--color-text-primary);
-    border: 1px solid var(--color-stroke-mid);
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.15s ease;
-}
-
-.filter__tag.active {
-    background: var(--color-surface-brand-accent-default);
-    transition: background 0.15s ease;
-    border: none;
-}
-
-.filter__tag.active:hover {
-    background: var(--color-surface-brand-accent-hovered);
-    text-decoration: none;
-}
-
-.filter__tag:hover {
-    background: var(--color-tag-fill-hover);
-    text-decoration: none;
-}
-
-.filter__tag:focus-visible {
-    outline: 2px solid var(--color-stroke-link-accent);
-    outline-offset: 2px;
-}
 
 /*
 #################################################
@@ -171,14 +148,30 @@ h1 {
 @media (max-width: 768px) {
     .post-content-layout {
         grid-template-columns: 100%;
+        grid-template-areas:
+        "a"
+        "c"
+        "d"
+        "b"
+        ;
     }
 
-    .filter__tags {
-        gap: var(--space-s, 4px);
+    .post-content__user_card_column {
+        margin-bottom: var(--space-xl);
     }
 
-    .filter__tag {
-        padding: var(--space-card) var(--space-medium);
+    .post-content__filter_column {
+        margin-bottom: var(--space-xl);
     }
+}
 
+
+/*
+##########################
+#   Filter Submit Button #
+##########################
+*/
+
+.filter-submit-button {
+    margin: var(--space-large) 0;
 }
