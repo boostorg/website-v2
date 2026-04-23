@@ -289,3 +289,144 @@ int main()
     hero_image_url_dark = (
         f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
     )
+
+    library_about_code = (
+        "int main()\n"
+        "{\n"
+        "    net::io_context ioc;\n"
+        "    tcp::resolver resolver(ioc);\n"
+        "    beast::tcp_stream stream(ioc);\n"
+        "\n"
+        '    stream.connect(resolver.resolve("example.com", "80"));\n'
+        "\n"
+        '    http::request<http::empty_body> req{http::verb::get, "/", 11};\n'
+        '    req.set(http::field::host, "example.com");\n'
+        "\n"
+        "    http::write(stream, req);\n"
+        "\n"
+        "    beast::flat_buffer buffer;\n"
+        "    http::response<http::string_body> res;\n"
+        "    http::read(stream, buffer, res);\n"
+        "\n"
+        "    std::cout << res << std::endl;\n"
+        "}"
+    )
+
+    library_install_code = (
+        "brew install openssl\n"
+        "export OPENSSL_ROOT=$(brew --prefix openssl)\n"
+        "# install bjam tool user specific configuration file to read OPENSSL_ROOT\n"
+        "# see https://www.bfgroup.xyz/b2/manual/release/index.html\n"
+        "cp ./libs/beast/tools/user-config.jam $HOME"
+    )
+
+    library_release_contributors = [
+        {
+            "name": "Eric Niebler",
+            "profile_url": "#",
+            "role": "Author",
+            "avatar_url": "https://ui-avatars.com/api/?name=Eric+Niebler&size=48",
+            "badge_url": f"{badge_img}/badge-second-place.png",
+        },
+        {
+            "name": "Marshall Clow",
+            "profile_url": "#",
+            "role": "Maintainer",
+            "avatar_url": "https://ui-avatars.com/api/?name=Marshall+Clow&size=48",
+            "badge_url": f"{badge_img}/badge-first-place.png",
+        },
+        {
+            "name": "Glen Fernandes",
+            "profile_url": "#",
+            "role": "New Contributor",
+            "avatar_url": "https://ui-avatars.com/api/?name=Glen+Fernandes&size=48",
+            "badge_url": f"{badge_img}/badge-military-star.png",
+        },
+        {
+            "name": "Frank Little",
+            "profile_url": "#",
+            "role": "New Contributor",
+            "avatar_url": "https://ui-avatars.com/api/?name=Frank+Little&size=48",
+            "badge_url": f"{badge_img}/badge-second-place.png",
+        },
+        {
+            "name": "Mike Leslie",
+            "profile_url": "#",
+            "role": "Contributor",
+            "avatar_url": "https://ui-avatars.com/api/?name=Mike+Leslie&size=48",
+            "badge_url": f"{badge_img}/badge-bronze.png",
+        },
+        {
+            "name": "Peter Dimov",
+            "profile_url": "#",
+            "role": "Author",
+            "avatar_url": "https://ui-avatars.com/api/?name=Peter+Dimov&size=48",
+            "badge_url": f"{badge_img}/badge-military-star.png",
+        },
+        {
+            "name": "Andrew Jameson",
+            "profile_url": "#",
+            "role": "Contributor",
+            "avatar_url": "https://ui-avatars.com/api/?name=Andrew+Jameson&size=48",
+            "badge_url": f"{badge_img}/badge-bronze.png",
+        },
+    ]
+
+    library_all_contributors = [
+        {
+            "name": "Eric Niebler",
+            "profile_url": "#",
+            "role": "Author",
+            "avatar_url": "https://ui-avatars.com/api/?name=Eric+Niebler&size=48",
+            "badge_url": f"{badge_img}/badge-first-place.png",
+        },
+        {
+            "name": "Peter Dimov",
+            "profile_url": "#",
+            "role": "Author",
+            "avatar_url": "https://ui-avatars.com/api/?name=Peter+Dimov&size=48",
+            "badge_url": f"{badge_img}/badge-first-place.png",
+        },
+        {
+            "name": "Vinnie Falco",
+            "profile_url": "#",
+            "role": "Author",
+            "avatar_url": "https://ui-avatars.com/api/?name=Vinnie+Falco&size=48",
+            "badge_url": f"{badge_img}/badge-second-place.png",
+        },
+        {
+            "name": "Marshall Clow",
+            "profile_url": "#",
+            "role": "Maintainer",
+            "avatar_url": "https://ui-avatars.com/api/?name=Marshall+Clow&size=48",
+            "badge_url": f"{badge_img}/badge-first-place.png",
+        },
+        {
+            "name": "Andrew Jameson",
+            "profile_url": "#",
+            "role": "Contributor",
+            "avatar_url": "https://ui-avatars.com/api/?name=Andrew+Jameson&size=48",
+            "badge_url": f"{badge_img}/badge-military-star.png",
+        },
+        {
+            "name": "Glen Fernandes",
+            "profile_url": "#",
+            "role": "New Contributor",
+            "avatar_url": "https://ui-avatars.com/api/?name=Glen+Fernandes&size=48",
+            "badge_url": f"{badge_img}/badge-first-place.png",
+        },
+        {
+            "name": "Frank Little",
+            "profile_url": "#",
+            "role": "New Contributor",
+            "avatar_url": "https://ui-avatars.com/api/?name=Frank+Little&size=48",
+            "badge_url": f"{badge_img}/badge-first-place.png",
+        },
+        {
+            "name": "Mike Leslie",
+            "profile_url": "#",
+            "role": "Contributor",
+            "avatar_url": "https://ui-avatars.com/api/?name=Mike+Leslie&size=48",
+            "badge_url": f"{badge_img}/badge-second-place.png",
+        },
+    ]

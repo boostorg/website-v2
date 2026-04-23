@@ -1,0 +1,149 @@
+/*
+  Library Subpage layout — nested flex columns (independent column heights).
+
+  Three breakpoints:
+    Mobile  < 768px    — single stacked column
+    Tablet  768–1279px — two columns (col-1 + col-2 visible; col-3 hidden)
+    Desktop ≥ 1280px   — three columns (col-3 visible; tablet duplicates hidden)
+
+  Masonry-top columns:
+    col-1 : About  (+ Contributors at tablet only)
+    col-2 : Quick Start, Install  (+ Dependencies at tablet only)
+    col-3 : Contributors, Dependencies  (desktop only)
+
+  Contributors and Dependencies are intentionally duplicated in the DOM so each
+  breakpoint can render them in the correct column while keeping each column's
+  height independent (avoids grid row-stretching gaps when About is very tall).
+
+  Masonry-bottom: posts 2/3, mailing 1/3 at tablet and desktop.
+
+  All widths, gaps, and spacing derive from design tokens.
+*/
+
+/* ── Page wrapper ─────────────────────────────────────────────────────────── */
+
+body:has(.library-subpage) .header {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  right: 0;
+}
+
+.library-subpage {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Outer container with page-level centering */
+.library-subpage-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+  padding: 0 var(--space-large) var(--space-xlarge) var(--space-large);
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+body:has(.is_flagship) .library-subpage-container {
+  padding: var(--space-xlarge) var(--space-large);
+}
+
+/* ── Top card masonry ────────────────────────────────────────────────────── */
+
+/* Outer row: flex so each column gets independent height (no row stretching). */
+.card-masonry-top {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-card);
+}
+
+/* Each column: flex-column stack of cards, equal width, cards pack to top. */
+.card-masonry-top > .masonry-col {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-card);
+}
+
+/* ── Bottom card row (desktop/tablet: posts 2/3, mailing 1/3) ────────────── */
+
+.card-masonry-bottom {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-areas: "a a b";
+  row-gap: var(--space-card);
+  column-gap: var(--space-card);
+}
+
+.card-masonry-bottom .item-a { grid-area: a; }
+.card-masonry-bottom .item-b { grid-area: b; }
+
+/* ── Card max-width overrides ────────────────────────────────────────────── */
+
+/* Cards should fill their wrapper, ignoring their own max-width. */
+.card-masonry-top .card,
+.card-masonry-top .basic-card,
+.card-masonry-top .dependencies-card,
+.card-masonry-top .code-block-card,
+.card-masonry-top .contributors-list,
+.card-masonry-top .markdown-card,
+.card-masonry-top .quick-start-card,
+.card-masonry-bottom > div > .card,
+.card-masonry-bottom > div > .basic-card,
+.card-masonry-bottom > div > .card-group,
+.card-masonry-bottom > div > .post-card,
+.library-subpage__all-contributors > .contributors-list {
+  max-width: 100%;
+  width: 100%;
+}
+
+/* ── Desktop (≥ 1280px): show col-3, hide tablet-only duplicates ─────────── */
+
+@media (min-width: 1280px) {
+  .item-d--tablet,
+  .item-e--tablet {
+    display: none;
+  }
+}
+
+/* ── Tablet (768px – 1279px): hide col-3 and its desktop-only duplicates ─── */
+
+@media (min-width: 768px) and (max-width: 1279px) {
+  .card-masonry-top > .masonry-col--3 {
+    display: none;
+  }
+}
+
+/* ── Mobile (< 768px): stack columns vertically, hide col-3 duplicates ───── */
+
+@media (max-width: 767px) {
+  .library-subpage-container {
+    padding: 0 var(--space-default) var(--space-xlarge) var(--space-default);
+    gap: var(--space-large);
+  }
+
+  body:has(.is_flagship) .library-subpage-container {
+    padding: var(--space-large) var(--space-default);
+  }
+
+  .card-masonry-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .card-masonry-top > .masonry-col--3 {
+    display: none;
+  }
+
+  .card-masonry-bottom {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "a"
+      "b";
+  }
+}
