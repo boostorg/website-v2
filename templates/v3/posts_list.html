@@ -1,5 +1,12 @@
 {% extends 'base.html' %}
-{% comment %}TODO: Documentation{% endcomment %}
+{% comment %}
+  V3 Implemenation of the News Feed, renamed to posts page
+  Inputs:
+    filter_terms -  list, req - list of terms to be passed to _post_filters.html. See that include for more info
+    libraries    -  list, req - List of libraries, used to filter posts
+    header_text  -  str,  req - Text that appears at the top of the central column, determined by filter type
+    entry_list   -  list, req - List of news posts to be displayed in the central column
+{% endcomment %}
 {% load static %}
 
 {% block extra_head %}
@@ -11,21 +18,22 @@
   <div class="post-content-container">
     <h1>Posts</h1>
     <div class="post-content-layout">
-      <div>
-        <p class="subheading">Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, and user-created content.</p>
+      <p class="subheading">Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, and user-created content.</p>
+      <div class="post-content__filter_column">
         {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' %}
         <p class="field__label filter__tags-label">Filter</p>
+        <form>
         <div class="filter__tags">
-          {% for term in filter_terms %}
-            <a href="{{ term.url }}" class="filter__tag {% if request.path == term.url %}active{% endif %}">{{ term.label }}</a>
-          {% endfor %}
+            {% include "v3/includes/_post_filter.html" with options=filter_terms filter_name="post-filter" default=filter_value %}
         </div>
         {% include 'v3/includes/_field_dropdown.html' with name='ex_type' label='Library' options=libraries placeholder='All' %}
+        {% include "v3/includes/_button.html" with label="Filter" icon_position="right" icon_name="arrow-right" icon_size=16 type="submit" js_disabled=True extra_classes="filter-submit-button" only %}
+        </form>
       </div>
-      <div>
+      <div class="post-content__content_column">
         {% include 'v3/includes/_post_list_card.html' with heading=header_text items=entry_list %}
       </div>
-      <div>
+      <div class="post-content__user_card_column">
         {% if request.user %}
           {% with u=request.user %}
             {% include 'v3/includes/_user_card.html' with username=u.display_name avatar_url=u.avatar_url badge_name='Bug Catcher' badge_icon_src=u.badge_url member_since=u.year_joined role='Contributor' flag_emoji='🇺🇸' cta_url='#' cta_label='Create Post' %}
@@ -37,3 +45,40 @@
     </div>
   </div>
 {% endblock %}
+
+{% block footer_js %}
+<script>
+   const inputs = document.querySelectorAll("input[name=post-filter]")
+    inputs.forEach(
+      function(el) {
+        el.addEventListener('change', function (event) {
+          const value = event.target.value
+          const name = event.target.name
+          if (name == 'post-filter') {
+            switch (value) {
+              case 'all':
+                window.location.assign("{% url 'news' %}")
+                break
+              case 'blogpost':
+                window.location.assign("{% url 'news-blogpost-list' %}")
+                break
+              case 'video':
+                window.location.assign("{% url 'news-video-list' %}")
+                break
+              case 'news':
+                window.location.assign("{% url 'news-news-list' %}")
+                break
+              case 'link':
+                window.location.assign("{% url 'news-link-list' %}")
+                break
+              default:
+                console.error(`Value ${value} is unknown, please reload the page.`)
+            }
+
+          }
+        })
+      }
+    );
+  </script>
+
+{% endblock footer_js %}
