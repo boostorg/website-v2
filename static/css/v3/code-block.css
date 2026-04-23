@@ -138,6 +138,7 @@ html.dark .code-block-card--grey {
   padding: 0 var(--space-card) var(--space-card) var(--space-card);
   font-size: var(--font-size-large);
   font-weight: var(--font-weight-medium);
+  line-height: 100%;
   font-family: var(--font-display);
   color: var(--color-text-primary);
 }
