@@ -4,14 +4,14 @@
   justify-content: center;
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
-  line-height: var(--line-height-default);
+  line-height: var(--line-height-tight);
   font-weight: var(--font-weight-regular);
   border-radius: var(--border-radius-s);
   text-decoration: none;
   cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   color: var(--color-text-secondary);
-  border: 1px solid var(--color-tag-stroke);
+  border: 1px solid transparent;
 }
 
 .category-tag--default {
@@ -24,6 +24,7 @@
 
 .category-tag--neutral {
   background: var(--color-tag-fill);
+  border-color: var(--color-tag-stroke);
 }
 
 .category-tag--neutral:hover,
@@ -32,45 +33,46 @@
   color: var(--color-text-secondary);
 }
 
+.category-tag--green,
+.category-tag--yellow,
+.category-tag--teal {
+  color: var(--color-text-primary);
+}
+
 .category-tag--green {
   background: var(--color-surface-strong-accent-green-default);
-  color: var(--color-text-primary);
 }
 
 .category-tag--green:hover,
 .category-tag--green.category-tag--hover-state {
   background: var(--color-surface-strong-accent-green-hover);
-  color: var(--color-text-secondary);
 }
 
 .category-tag--yellow {
   background: var(--color-surface-strong-accent-yellow-default);
-  color: var(--color-text-primary);
 }
 
 .category-tag--yellow:hover,
 .category-tag--yellow.category-tag--hover-state {
   background: var(--color-surface-strong-accent-yellow-hover);
-  color: var(--color-text-secondary);
 }
 
 .category-tag--teal {
   background: var(--color-surface-strong-accent-teal-default);
-  color: var(--color-text-primary);
 }
 
 .category-tag--teal:hover,
 .category-tag--teal.category-tag--hover-state {
   background: var(--color-surface-strong-accent-teal-hover);
-  color: var(--color-text-secondary);
 }
 
 .version-tag {
   display: inline-flex;
   align-items: center;
-  padding: var(--space-default) var(--space-default);
+  padding: var(--space-default);
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
   color: var(--color-text-secondary);
   border: 1px solid var(--color-tag-stroke);
   border-radius: var(--border-radius-xl);
@@ -83,6 +85,8 @@
 
 .version-tag--hover {
   background: var(--color-tag-fill-hover);
+  color: var(--color-text-primary);
+  border-color: var(--color-stroke-strong);
 }
 
 .category-cards {
@@ -114,7 +118,7 @@ html.dark .category-tag--green,
 html.dark .category-tag--yellow,
 html.dark .category-tag--teal {
   background: var(--color-tag-colored-bg);
-  border-color: var(--color-tag-colored-border);
+  border-color: transparent;
   color: var(--color-tag-colored-text);
 }
 
@@ -125,6 +129,6 @@ html.dark .category-tag--green.category-tag--hover-state,
 html.dark .category-tag--yellow.category-tag--hover-state,
 html.dark .category-tag--teal.category-tag--hover-state {
   background: var(--color-tag-colored-bg-hover);
-  border-color: var(--color-tag-colored-border);
+  border-color: transparent;
   color: var(--color-tag-colored-text);
 }
