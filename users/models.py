@@ -292,6 +292,11 @@ class User(BaseUser):
         Does not include the file extension."""
         return f"profile-{self.pk}"
 
+    @cached_property
+    def year_joined(self):
+        """Returns user year joined for display on profiles"""
+        return self.date_joined.year
+
     def claim(self):
         """Claim the user"""
         if not self.claimed:
@@ -331,6 +336,30 @@ class User(BaseUser):
         if not self.github_username:
             return None
         return f"https://github.com/{self.github_username}"
+
+    @cached_property
+    def name(self):
+        return self.display_name
+
+    @cached_property
+    def avatar_url(self):
+        return self.get_avatar_url
+
+    @cached_property
+    def badge_url(self):
+        """
+        This is a placeholder value
+
+        TODO: Replace this value
+        """
+        return f"{settings.STATIC_URL}img/v3/badges/badge-gold-medal.png"
+
+    @cached_property
+    def role(self):
+        """
+        TODO: This is currently dummy data for testing
+        """
+        return "Contributor"
 
     @staticmethod
     def get_user_by_github_url(url: str):

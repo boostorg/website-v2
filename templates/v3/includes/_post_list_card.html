@@ -1,0 +1,55 @@
+{% extends "v3/includes/_card_group.html" %}
+{% load wagtailimages_tags %}
+{% comment %}
+  Post Card — extends _card_group.html to render post items for the posts_list page
+
+  Variables (passed to _card_group.html):
+    heading             (string, optional)  — section heading text
+    items               (list, optional)    — list of post objects with:
+      - title           (string, optional)  — post title
+      - url             (string, optional)  — link URL
+      - date            (date/string, optional) — publish date
+      - category        (string, optional)  — e.g. "Issues", "Releases"
+      - tag             (string, optional)  — e.g. "beast"
+      - author          (object, optional)  — passed to _user_profile.html (see that template for fields)
+  Usage:
+    {% include "v3/includes/_post_card.html" with heading="Posts" items=posts %}
+{% endcomment %}
+{% block card_list %}
+  {% if items %}
+    <ul class="card-group__list">
+      {% for item in items %}
+        <li class="card-group__item">
+          <article class="post-card">
+            <div class="post-card__row">
+                <div class="card__column">
+                    <div class="post-card__title-block">
+                      <a href="{{ item.get_absolute_url }}" class="post-card__title">{{ item.title }}</a>
+                      {% if item.summary %}
+                        <div class="post-card__summary">{{item.summary}}</div>
+                      {% endif %}
+                      <div class="post-card__meta">
+                        <time datetime="{{ item.created_at|date:'c' }}">{{ item.created_at|date:"d/m/Y" }}</time>
+                        {% if item.determined_news_type %}<span>{{ item.determined_news_type|capfirst }}</span>{% endif %}
+                        {% if item.tag %}<span>#{{ item.tag }}</span>{% endif %}
+                      </div>
+                    </div>
+                {% if item.author and item.author.name %}
+                    {% include "v3/includes/_user_profile.html" with author=item.author only %}
+                {% endif %}
+                </div>
+                {% if item.video_thumbnail %}
+                <a  class="post-card__thumbnail" href="{{ item.get_absolute_url }}">
+                  {% image item.video_thumbnail fill-180x100 %}
+                  <div class="icon_background">
+                    {% include "includes/icon.html" with icon_name="play_button" icon_size=16 only %}
+                  </div>
+                </a>
+                {% endif %}
+            </div>
+          </article>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}
