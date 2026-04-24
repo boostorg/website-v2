@@ -108,8 +108,7 @@ body:has(.is_flagship) .library-subpage-container {
 /* ── Desktop (≥ 1280px): show col-3, hide tablet-only duplicates ─────────── */
 
 @media (min-width: 1280px) {
-  .item-d--tablet,
-  .item-e--tablet {
+  .item-d--tablet {
     display: none;
   }
 }
