@@ -12,10 +12,66 @@
 {% endcomment %}
 
 {% with carousel_id='_testimonials_cards_carousel' %}
-<div class="card testimonial-card py-large" id="{{carousel_id}}" data-carousel role="region" aria-labelledby="{{ carousel_id }}-heading">
+<noscript>
+  <style>
+    /* No-JS fallback: the track switches to transform-based positioning so
+       clicking a label shifts the visible item without any scroll. Items are
+       `flex: 0 0 100%` and the track's rendered width equals one item's
+       width (children overflow the flex container), so translateX(-100%) =
+       one item shift. Touch/swipe is lost here (overflow: hidden), but
+       arrow buttons work without page scroll. */
+    /* Let the `.testimonial-card__post` parent clip (it already has
+       overflow: hidden). Setting overflow: hidden on the ul itself would
+       clip its own children — items past the first would be hidden even
+       after transform. Gap is zeroed out because translateX(-100%) steps by
+       item width only; the default gap would offset the snap position. */
+    .testimonial-card__list { overflow: visible !important; gap: 0 !important; transition: transform 0.3s ease; }
+    .testimonial-card:has(.testimonial-card__state[data-state-index="0"]:checked) .testimonial-card__list { transform: translateX(0%); }
+    .testimonial-card:has(.testimonial-card__state[data-state-index="1"]:checked) .testimonial-card__list { transform: translateX(-100%); }
+    .testimonial-card:has(.testimonial-card__state[data-state-index="2"]:checked) .testimonial-card__list { transform: translateX(-200%); }
+    .testimonial-card:has(.testimonial-card__state[data-state-index="3"]:checked) .testimonial-card__list { transform: translateX(-300%); }
+    .testimonial-card:has(.testimonial-card__state[data-state-index="4"]:checked) .testimonial-card__list { transform: translateX(-400%); }
+    .testimonial-card:has(.testimonial-card__state[data-state-index="5"]:checked) .testimonial-card__list { transform: translateX(-500%); }
+    .testimonial-card:has(.testimonial-card__state[data-state-index="6"]:checked) .testimonial-card__list { transform: translateX(-600%); }
+    .testimonial-card:has(.testimonial-card__state[data-state-index="7"]:checked) .testimonial-card__list { transform: translateX(-700%); }
+    .testimonial-card:has(.testimonial-card__state[data-state-index="8"]:checked) .testimonial-card__list { transform: translateX(-800%); }
+    .testimonial-card:has(.testimonial-card__state[data-state-index="9"]:checked) .testimonial-card__list { transform: translateX(-900%); }
+  </style>
+</noscript>
+<div class="card testimonial-card py-large" id="{{carousel_id}}" data-carousel data-carousel-radios role="region" aria-labelledby="{{ carousel_id }}-heading">
+  {% if testimonials %}
+    {% for testimonial in testimonials %}
+      <input type="radio" class="testimonial-card__state" name="{{ carousel_id }}-state" id="{{ carousel_id }}-state-{{ forloop.counter0 }}" data-state-index="{{ forloop.counter0 }}" {% if forloop.first %}checked{% endif %}>
+    {% endfor %}
+  {% endif %}
   <div class="card__header">
     <h2 id="{{ carousel_id }}-heading" class="card__title">{{ heading }}</h2>
-    {% include 'v3/includes/_carousel_buttons.html' with carousel_id=carousel_id %}
+    {% if testimonials %}
+      <div class="testimonial-card__controls" id="{{ carousel_id }}-controls" role="group" aria-label="Carousel navigation">
+        {% for testimonial in testimonials %}
+          <div class="carousel-buttons testimonial-card__nav-set" data-nav-index="{{ forloop.counter0 }}">
+            {% if forloop.first %}
+              <span class="btn btn-carousel" aria-disabled="true" aria-label="Previous" data-carousel-prev>
+                <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=12 %}</span>
+              </span>
+            {% else %}
+              <label class="btn btn-carousel" for="{{ carousel_id }}-state-{{ forloop.counter0|add:"-1" }}" aria-label="Previous" data-carousel-prev tabindex="0">
+                <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=12 %}</span>
+              </label>
+            {% endif %}
+            {% if forloop.last %}
+              <span class="btn btn-carousel" aria-disabled="true" aria-label="Next" data-carousel-next>
+                <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=12 %}</span>
+              </span>
+            {% else %}
+              <label class="btn btn-carousel" for="{{ carousel_id }}-state-{{ forloop.counter }}" aria-label="Next" data-carousel-next tabindex="0">
+                <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=12 %}</span>
+              </label>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
   </div>
   <hr class="card__hr" />
   <div class="cards-carousel__track">
@@ -23,7 +79,7 @@
       <ul class="testimonial-card__list" data-carousel-track aria-label="Testimonials carousel">
           {% if testimonials %}
             {% for testimonial in testimonials %}
-              <li class="testimonial-card__list-item" data-carousel-item>
+              <li class="testimonial-card__list-item" data-carousel-item data-item-index="{{ forloop.counter0 }}">
                 <div>
                   <div class="testimonial-card__text-wrapper">
                     <div class="testimonial-card__text">{{ testimonial.quote }}</div>
