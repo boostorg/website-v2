@@ -2,18 +2,19 @@
   Badges Card component.
 
   Variables:
-    badges          (list, optional)    - List of badge objects. Each badge has: icon_src, name, earned_date.
+    badges          (list, optional)    - List of badge objects. Each badge has: icon, name, earned_date.
+                                          `icon` is an Icon component token (e.g. "badge-gold", "star-silver", "boost-day").
                                           Empty or undefined triggers the empty state.
     cta_url         (string, optional)  - CTA target URL (empty state). Omit to hide the CTA button.
     cta_label       (string, optional)  - CTA button text (empty state)
-    empty_icon_srcs (list, optional)    - List of image URLs for the decorative icon row in empty state
+    empty_icons     (list, optional)    - List of Icon component tokens for the decorative row in empty state
 
   Usage:
     Empty state with CTA:
-      {% include "v3/includes/_badges_card.html" with cta_url="/badges" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
+      {% include "v3/includes/_badges_card.html" with cta_url="/badges" cta_label="Explore available badges and how to earn them" empty_icons=badge_icons %}
 
     Empty state without CTA:
-      {% include "v3/includes/_badges_card.html" with empty_icon_srcs=badge_icon_srcs %}
+      {% include "v3/includes/_badges_card.html" with empty_icons=badge_icons %}
 
     Filled state:
       {% include "v3/includes/_badges_card.html" with badges=user_badges %}
@@ -30,7 +31,7 @@
       {% for badge in badges %}
         <li class="badges-card__entry" aria-label="{{ badge.name }}, earned {{ badge.earned_date }}">
           <span class="badges-card__icon" aria-hidden="true">
-            {% if badge.icon_src %}<img src="{{ badge.icon_src }}" alt="" width="32" height="32">{% endif %}
+            {% if badge.icon %}{% include "includes/icon.html" with icon_name=badge.icon icon_size=32 icon_alt=" " only %}{% endif %}
           </span>
           <div class="badges-card__text">
             <span class="badges-card__name">{{ badge.name }}</span>
@@ -43,8 +44,8 @@
     {# Empty state #}
     <div class="badges-card__empty">
       <div class="badges-card__icon-row" aria-hidden="true">
-        {% for src in empty_icon_srcs %}
-          <img src="{{ src }}" alt="" width="32" height="32">
+        {% for icon in empty_icons %}
+          {% include "includes/icon.html" with icon_name=icon icon_size=32 icon_alt=" " only %}
         {% endfor %}
       </div>
       <p class="badges-card__description">Badges highlight specific skills, roles, or areas of contribution</p>

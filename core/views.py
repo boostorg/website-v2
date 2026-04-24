@@ -1326,44 +1326,49 @@ class V3ComponentDemoView(TemplateView):
             ("testing", "Testing"),
             ("concurrency", "Concurrency"),
         ]
-        badge_img = f"{settings.STATIC_URL}img/v3/badges"
-        context["badge_icon_srcs"] = [
-            f"{badge_img}/badge-first-place.png",
-            f"{badge_img}/badge-second-place.png",
-            f"{badge_img}/badge-bronze.png",
-            f"{badge_img}/badge-gold-medal.png",
-            f"{badge_img}/badge-military-star.png",
+        context["badge_icons"] = [
+            "badge-gold",
+            "badge-silver",
+            "badge-bronze",
+            "badge-platinum",
+            "badge-diamond",
+            "boost-day",
         ]
         context["demo_badges"] = [
             {
-                "icon_src": f"{badge_img}/badge-first-place.png",
+                "icon": "badge-gold",
                 "name": "Patch Wizard",
                 "earned_date": "08/08/2025",
             },
             {
-                "icon_src": f"{badge_img}/badge-gold-medal.png",
+                "icon": "badge-platinum",
                 "name": "Standard Bearer",
                 "earned_date": "03/07/2025",
             },
             {
-                "icon_src": f"{badge_img}/badge-military-star.png",
+                "icon": "star-gold",
                 "name": "Review Hawk",
                 "earned_date": "03/06/2025",
             },
             {
-                "icon_src": f"{badge_img}/badge-second-place.png",
+                "icon": "badge-silver",
                 "name": "Library Alchemist",
                 "earned_date": "03/04/2025",
             },
             {
-                "icon_src": f"{badge_img}/badge-first-place.png",
+                "icon": "badge-diamond",
                 "name": "Bug Catcher",
                 "earned_date": "02/04/2025",
             },
             {
-                "icon_src": f"{badge_img}/badge-bronze.png",
+                "icon": "badge-bronze",
                 "name": "Code Whisperer",
                 "earned_date": "01/01/2025",
+            },
+            {
+                "icon": "boost-day",
+                "name": "Boost Day",
+                "earned_date": "12/12/2024",
             },
         ]
 
@@ -1389,7 +1394,7 @@ class V3ComponentDemoView(TemplateView):
             "username": "vinniefalco",
             "avatar_url": "https://avatars.githubusercontent.com/u/1503976",
             "badge_name": "Bug Catcher",
-            "badge_icon_src": f"{badge_img}/badge-gold-medal.png",
+            "badge": "badge-gold",
             "member_since": "2008",
             "role": "C++ Alliance Board Member",
             "flag_emoji": "🇺🇸",
@@ -1398,22 +1403,73 @@ class V3ComponentDemoView(TemplateView):
         context["button_badge_data"] = {
             "group_label": "button badges",
             "group_name": "button-badge-select",
-            "badge_buttons": 2
-            * [
+            "badge_buttons": [
                 {
-                    "value": "gold",
-                    "icon_src": f"{badge_img}/badge-gold-medal.png",
-                    "icon_alt": "Gold Medal",
+                    "value": "bronze",
+                    "icon": "badge-bronze",
+                    "icon_alt": "Bronze badge",
                     "checked": False,
-                }
-            ]
-            + [
+                },
+                {
+                    "value": "silver",
+                    "icon": "badge-silver",
+                    "icon_alt": "Silver badge",
+                    "checked": False,
+                },
                 {
                     "value": "gold",
-                    "icon_src": f"{badge_img}/badge-gold-medal.png",
-                    "icon_alt": "Gold Medal",
+                    "icon": "badge-gold",
+                    "icon_alt": "Gold badge",
                     "checked": True,
-                }
+                },
+                {
+                    "value": "platinum",
+                    "icon": "badge-platinum",
+                    "icon_alt": "Platinum badge",
+                    "checked": False,
+                },
+                {
+                    "value": "diamond",
+                    "icon": "badge-diamond",
+                    "icon_alt": "Diamond badge",
+                    "checked": False,
+                },
+                {
+                    "value": "star-bronze",
+                    "icon": "star-bronze",
+                    "icon_alt": "Bronze star",
+                    "checked": False,
+                },
+                {
+                    "value": "star-silver",
+                    "icon": "star-silver",
+                    "icon_alt": "Silver star",
+                    "checked": False,
+                },
+                {
+                    "value": "star-gold",
+                    "icon": "star-gold",
+                    "icon_alt": "Gold star",
+                    "checked": False,
+                },
+                {
+                    "value": "star-platinum",
+                    "icon": "star-platinum",
+                    "icon_alt": "Platinum star",
+                    "checked": False,
+                },
+                {
+                    "value": "star-diamond",
+                    "icon": "star-diamond",
+                    "icon_alt": "Diamond star",
+                    "checked": False,
+                },
+                {
+                    "value": "boost-day",
+                    "icon": "boost-day",
+                    "icon_alt": "Boost Day",
+                    "checked": False,
+                },
             ],
         }
 
@@ -1749,6 +1805,24 @@ class V3ComponentDemoView(TemplateView):
                 "avatar_url": "",
                 "badge": "",
                 "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
+            },
+            {
+                "name": "Peter Dimov",
+                "profile_url": "#",
+                "role": "Maintainer",
+                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "badge": "star-platinum",
+                "achievement_count": 22,
+                "bio": "",
+            },
+            {
+                "name": "Vinnie Falco",
+                "profile_url": "#",
+                "role": "Author",
+                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "badge": "boost-day",
+                "achievement_count": 7,
+                "bio": "Boost Day contributor.",
             },
         ]
 

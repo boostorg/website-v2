@@ -95,6 +95,44 @@
     </div>
   {% endwith %}
 
+  {% with section_title="Achievement Badges & Counter" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <h4 class="py-large">Tier badges (24px)</h4>
+        <div class="v3-examples-section__tools">
+          {% include "includes/icon.html" with icon_name="badge-bronze" icon_size=24 %}
+          {% include "includes/icon.html" with icon_name="badge-silver" icon_size=24 %}
+          {% include "includes/icon.html" with icon_name="badge-gold" icon_size=24 %}
+          {% include "includes/icon.html" with icon_name="badge-platinum" icon_size=24 %}
+          {% include "includes/icon.html" with icon_name="badge-diamond" icon_size=24 %}
+        </div>
+        <h4 class="py-large">Tenure stars (24px)</h4>
+        <div class="v3-examples-section__tools">
+          {% include "includes/icon.html" with icon_name="star-bronze" icon_size=24 %}
+          {% include "includes/icon.html" with icon_name="star-silver" icon_size=24 %}
+          {% include "includes/icon.html" with icon_name="star-gold" icon_size=24 %}
+          {% include "includes/icon.html" with icon_name="star-platinum" icon_size=24 %}
+          {% include "includes/icon.html" with icon_name="star-diamond" icon_size=24 %}
+        </div>
+        <h4 class="py-large">Boost Day (16 / 24 / 32 / 48)</h4>
+        <div class="v3-examples-section__tools">
+          {% include "includes/icon.html" with icon_name="boost-day" icon_size=16 %}
+          {% include "includes/icon.html" with icon_name="boost-day" icon_size=24 %}
+          {% include "includes/icon.html" with icon_name="boost-day" icon_size=32 %}
+          {% include "includes/icon.html" with icon_name="boost-day" icon_size=48 %}
+        </div>
+        <h4 class="py-large">Achievement counter</h4>
+        <div class="v3-examples-section__tools">
+          {% include "includes/icon.html" with icon_name="achievement-count" icon_count=1 icon_size=24 %}
+          {% include "includes/icon.html" with icon_name="achievement-count" icon_count=7 icon_size=24 %}
+          {% include "includes/icon.html" with icon_name="achievement-count" icon_count=22 icon_size=24 %}
+          {% include "includes/icon.html" with icon_name="achievement-count" icon_count=99 icon_size=24 %}
+        </div>
+      </div>
+    </div>
+  {% endwith %}
+
   {% with section_title="Avatar" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
@@ -326,7 +364,7 @@
   <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
     <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
+      {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icons=badge_icons %}
     </div>
   </div>
   {% endwith %}
@@ -336,7 +374,7 @@
   <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
     <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with empty_icon_srcs=badge_icon_srcs %}
+      {% include "v3/includes/_badges_card.html" with empty_icons=badge_icons %}
     </div>
   </div>
   {% endwith %}
@@ -363,7 +401,7 @@
   <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
     <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge_icon_src=demo_user_card.badge_icon_src member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji cta_url="#" cta_label="Create Post" %}
+      {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge=demo_user_card.badge member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji cta_url="#" cta_label="Create Post" %}
     </div>
   </div>
   {% endwith %}
@@ -372,7 +410,7 @@
   <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
     <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge_icon_src=demo_user_card.badge_icon_src member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji compact=True %}
+      {% include "v3/includes/_user_card.html" with username=demo_user_card.username avatar_url=demo_user_card.avatar_url badge_name=demo_user_card.badge_name badge=demo_user_card.badge member_since=demo_user_card.member_since role=demo_user_card.role flag_emoji=demo_user_card.flag_emoji compact=True %}
     </div>
   </div>
   {% endwith %}
