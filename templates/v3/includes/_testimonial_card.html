@@ -55,7 +55,7 @@
                 <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=12 %}</span>
               </span>
             {% else %}
-              <label class="btn btn-carousel" for="{{ carousel_id }}-state-{{ forloop.counter0|add:"-1" }}" aria-label="Previous" data-carousel-prev tabindex="0">
+              <label class="btn btn-carousel" for="{{ carousel_id }}-state-{{ forloop.counter0|add:"-1" }}" aria-label="Previous" data-carousel-prev>
                 <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=12 %}</span>
               </label>
             {% endif %}
@@ -64,7 +64,7 @@
                 <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=12 %}</span>
               </span>
             {% else %}
-              <label class="btn btn-carousel" for="{{ carousel_id }}-state-{{ forloop.counter }}" aria-label="Next" data-carousel-next tabindex="0">
+              <label class="btn btn-carousel" for="{{ carousel_id }}-state-{{ forloop.counter }}" aria-label="Next" data-carousel-next>
                 <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=12 %}</span>
               </label>
             {% endif %}

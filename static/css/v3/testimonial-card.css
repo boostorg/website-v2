@@ -183,6 +183,19 @@
     pointer-events: none;
 }
 
+/* Focus mirroring: the radios are visually hidden but remain keyboard-focusable
+   (arrow keys move between them natively). When that happens we reflect focus
+   onto the currently-visible nav-set wrapper so keyboard users see where they
+   are. Outlining the wrapper (not each button) avoids two outlines colliding
+   on the adjacent prev/next pills. Only the nav-set matching the checked
+   radio is `display: inline-flex`; the others are `display: none`, so a
+   single rule suffices. */
+.testimonial-card:has(.testimonial-card__state:focus-visible) .testimonial-card__nav-set {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
 /* Scroll-snap: align items when the user swipes. JS uses smooth scroll on
    arrow-click so we don't need scroll-behavior here.
    `flex: 0 0 100%` forces each item to exactly the flex container width so
