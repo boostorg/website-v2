@@ -15,37 +15,12 @@ from __future__ import annotations
 import pytest
 from django.template import TemplateDoesNotExist
 from django.template.loader import get_template
-from django.urls import URLPattern, URLResolver, get_resolver
 
-from core.mixins import V3Mixin
+from core.mixins import iter_v3_views
 
 
 def _get_v3_view_classes() -> set[type]:
-    """Find all `V3Mixin` subclasses registered in the URL conf.
-
-    Django's URL resolver imports every view module when it resolves
-    routes, so this is guaranteed to find all wired-up V3 views —
-    no manual registration needed.
-    """
-    classes: set[type] = set()
-
-    def walk(patterns):
-        for entry in patterns:
-            if isinstance(entry, URLResolver):
-                walk(entry.url_patterns)
-            elif isinstance(entry, URLPattern):
-                # Unwrap decorators like staff_member_required
-                callback = entry.callback
-                while callback is not None:
-                    view_class = getattr(callback, "view_class", None)
-                    if view_class is not None:
-                        break
-                    callback = getattr(callback, "__wrapped__", None)
-                if view_class and issubclass(view_class, V3Mixin):
-                    classes.add(view_class)
-
-    walk(get_resolver().url_patterns)
-    return classes
+    return {view_class for _, view_class in iter_v3_views()}
 
 
 @pytest.fixture(scope="session")
