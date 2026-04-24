@@ -21,6 +21,7 @@
 
 .badge-button input,
 .badge-button img,
+.badge-button .icon,
 .badge-button label {
     cursor: pointer;
 }
