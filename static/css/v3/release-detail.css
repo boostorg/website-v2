@@ -17,7 +17,7 @@ body:has(.releases-v3) .hero-library--no-image {
 .release-detail {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-xlarge);
   padding: var(--space-xlarge) var(--space-large);
   max-width: 1440px;
   margin: 0 auto;
@@ -119,6 +119,10 @@ body:has(.releases-v3) .hero-library--no-image {
 }
 
 @media (min-width: 768px) and (max-width: 1279px) {
+  .release-detail {
+    gap: var(--space-card);
+  }
+
   .release-detail__cards-row {
     grid-template-columns: 1fr;
   }
