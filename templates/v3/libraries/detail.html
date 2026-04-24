@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static waffle_tags %}
+
+{% block main_content_wrapper %}<div class="library-subpage {% if is_flagship_lib %}is_flagship{% endif %}">{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/library-subpage.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+  {% with cpp_ver=library_version.get_cpp_standard_minimum_display|default:"C++03" %}
+    {% with added_text=object.first_boost_version.display_name %}
+      {% if is_flagship_lib %}
+        {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver added_text=added_text doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url is_flagship_lib=True hero_image_url_light=library_hero_image_url_light hero_image_url_dark=library_hero_image_url_dark %}
+      {% else %}
+        {% include "v3/includes/_hero_library.html" with title=object.display_name description=library_version.description|default:object.description category_tags=category_tags_v3 version_tag=cpp_ver added_text=added_text doc_url=documentation_url source_url=github_url slack_url=slack_url github_url=object.github_issues_url %}
+      {% endif %}
+    {% endwith %}
+  {% endwith %}
+
+  <div class="library-subpage-container">
+    <div class="card-masonry-top">
+      <div class="masonry-col masonry-col--1">
+        <div class="item-a">
+          {% include "v3/includes/_code_block_card.html" with heading="About "|add:object.display_name description=library_version.description|default:object.description code=library_about_code language="cpp" card_variant="neutral" button_text="Explore examples" button_url=documentation_url|default:"#" button_aria_label="Explore examples for "|add:object.display_name %}
+        </div>
+      </div>
+      <div class="masonry-col masonry-col--2">
+        <div class="item-b">
+          {% include "v3/includes/_quick_start_card.html" with heading="Quick Start" links=quick_start_links %}
+        </div>
+        <div class="item-c">
+          {% include "v3/includes/_code_block_card.html" with heading="Install" description="Get started with header-only libraries" code=library_install_code language="bash" card_variant="teal" %}
+        </div>
+        <div class="item-e">
+          {% include "v3/includes/_dependencies_card.html" with dependencies=dependencies_list %}
+        </div>
+      </div>
+      <div class="masonry-col masonry-col--3" aria-hidden="true">
+        <div class="item-d item-d--desktop">
+          {% include "v3/includes/_contributors_list.html" with title="Contributors: This Release" variant="release" contributors=this_release_contributors heading_level="2" %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card-masonry-bottom">
+      <div class="item-d item-d--tablet">
+        {% include "v3/includes/_contributors_list.html" with title="Contributors: This Release" variant="all" contributors=this_release_contributors heading_level="2" %}
+      </div>
+      <div class="item-a">
+        {% include "v3/includes/_post_card.html" with heading="Latest "|add:object.display_name|add:" posts" items=library_posts variant="card" theme="teal" layout="horizontal" primary_cta_label="View all posts" primary_cta_url="/news/" %}
+      </div>
+      <div class="item-b">
+        {% include "v3/includes/_mailing_list_card.html" %}
+      </div>
+    </div>
+
+    {% if all_time_contributors %}
+      <div class="library-subpage__all-contributors">
+        {% include "v3/includes/_contributors_list.html" with title="All Contributors" variant="all" contributors=all_time_contributors heading_level="2" %}
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
