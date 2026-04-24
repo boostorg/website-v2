@@ -1326,44 +1326,49 @@ class V3ComponentDemoView(TemplateView):
             ("testing", "Testing"),
             ("concurrency", "Concurrency"),
         ]
-        badge_img = f"{settings.STATIC_URL}img/v3/badges"
-        context["badge_icon_srcs"] = [
-            f"{badge_img}/badge-first-place.png",
-            f"{badge_img}/badge-second-place.png",
-            f"{badge_img}/badge-bronze.png",
-            f"{badge_img}/badge-gold-medal.png",
-            f"{badge_img}/badge-military-star.png",
+        context["badge_icons"] = [
+            "badge-tier-3",
+            "badge-tier-2",
+            "badge-tier-1",
+            "badge-tier-5",
+            "badge-tier-4",
+            "boost-day",
         ]
         context["demo_badges"] = [
             {
-                "icon_src": f"{badge_img}/badge-first-place.png",
+                "icon": "badge-tier-3",
                 "name": "Patch Wizard",
                 "earned_date": "08/08/2025",
             },
             {
-                "icon_src": f"{badge_img}/badge-gold-medal.png",
+                "icon": "badge-tier-5",
                 "name": "Standard Bearer",
                 "earned_date": "03/07/2025",
             },
             {
-                "icon_src": f"{badge_img}/badge-military-star.png",
+                "icon": "star-tier-3",
                 "name": "Review Hawk",
                 "earned_date": "03/06/2025",
             },
             {
-                "icon_src": f"{badge_img}/badge-second-place.png",
+                "icon": "badge-tier-2",
                 "name": "Library Alchemist",
                 "earned_date": "03/04/2025",
             },
             {
-                "icon_src": f"{badge_img}/badge-first-place.png",
+                "icon": "badge-tier-4",
                 "name": "Bug Catcher",
                 "earned_date": "02/04/2025",
             },
             {
-                "icon_src": f"{badge_img}/badge-bronze.png",
+                "icon": "badge-tier-1",
                 "name": "Code Whisperer",
                 "earned_date": "01/01/2025",
+            },
+            {
+                "icon": "boost-day",
+                "name": "Boost Day",
+                "earned_date": "12/12/2024",
             },
         ]
 
@@ -1389,7 +1394,7 @@ class V3ComponentDemoView(TemplateView):
             "username": "vinniefalco",
             "avatar_url": "https://avatars.githubusercontent.com/u/1503976",
             "badge_name": "Bug Catcher",
-            "badge_icon_src": f"{badge_img}/badge-gold-medal.png",
+            "badge": "badge-tier-3",
             "member_since": "2008",
             "role": "C++ Alliance Board Member",
             "flag_emoji": "🇺🇸",
@@ -1398,22 +1403,73 @@ class V3ComponentDemoView(TemplateView):
         context["button_badge_data"] = {
             "group_label": "button badges",
             "group_name": "button-badge-select",
-            "badge_buttons": 2
-            * [
+            "badge_buttons": [
                 {
-                    "value": "gold",
-                    "icon_src": f"{badge_img}/badge-gold-medal.png",
-                    "icon_alt": "Gold Medal",
+                    "value": "bronze",
+                    "icon": "badge-tier-1",
+                    "icon_alt": "Bronze badge",
                     "checked": False,
-                }
-            ]
-            + [
+                },
+                {
+                    "value": "silver",
+                    "icon": "badge-tier-2",
+                    "icon_alt": "Silver badge",
+                    "checked": False,
+                },
                 {
                     "value": "gold",
-                    "icon_src": f"{badge_img}/badge-gold-medal.png",
-                    "icon_alt": "Gold Medal",
+                    "icon": "badge-tier-3",
+                    "icon_alt": "Gold badge",
                     "checked": True,
-                }
+                },
+                {
+                    "value": "platinum",
+                    "icon": "badge-tier-5",
+                    "icon_alt": "Platinum badge",
+                    "checked": False,
+                },
+                {
+                    "value": "diamond",
+                    "icon": "badge-tier-4",
+                    "icon_alt": "Diamond badge",
+                    "checked": False,
+                },
+                {
+                    "value": "star-tier-1",
+                    "icon": "star-tier-1",
+                    "icon_alt": "Bronze star",
+                    "checked": False,
+                },
+                {
+                    "value": "star-tier-2",
+                    "icon": "star-tier-2",
+                    "icon_alt": "Silver star",
+                    "checked": False,
+                },
+                {
+                    "value": "star-tier-3",
+                    "icon": "star-tier-3",
+                    "icon_alt": "Gold star",
+                    "checked": False,
+                },
+                {
+                    "value": "star-tier-5",
+                    "icon": "star-tier-5",
+                    "icon_alt": "Platinum star",
+                    "checked": False,
+                },
+                {
+                    "value": "star-tier-4",
+                    "icon": "star-tier-4",
+                    "icon_alt": "Diamond star",
+                    "checked": False,
+                },
+                {
+                    "value": "boost-day",
+                    "icon": "boost-day",
+                    "icon_alt": "Boost Day",
+                    "checked": False,
+                },
             ],
         }
 
@@ -1723,7 +1779,14 @@ class V3ComponentDemoView(TemplateView):
                 "profile_url": "#",
                 "role": "Author",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-first-place.png",
+                "badge": "badge-tier-3",
+                "bio": "",
+            },
+            {
+                "name": "Richard Thomson",
+                "profile_url": "#",
+                "role": "Contributor",
+                "avatar_url": "",
                 "badge": "",
                 "bio": "",
             },
@@ -1732,17 +1795,7 @@ class V3ComponentDemoView(TemplateView):
                 "profile_url": "#",
                 "role": "Contributor",
                 "avatar_url": "",
-                "badge_url": "",
-                "badge": "",
-                "bio": "",
-            },
-            {
-                "name": "Richard Thomson",
-                "profile_url": "#",
-                "role": "Contributor",
-                "avatar_url": "",
-                "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-bronze.png",
-                "badge": "",
+                "badge": "badge-tier-1",
                 "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
             },
             {
@@ -1750,9 +1803,26 @@ class V3ComponentDemoView(TemplateView):
                 "profile_url": "#",
                 "role": "Author",
                 "avatar_url": "",
-                "badge_url": "",
                 "badge": "",
                 "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
+            },
+            {
+                "name": "Peter Dimov",
+                "profile_url": "#",
+                "role": "Maintainer",
+                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "badge": "star-tier-5",
+                "achievement_count": 22,
+                "bio": "",
+            },
+            {
+                "name": "Vinnie Falco",
+                "profile_url": "#",
+                "role": "Author",
+                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "badge": "boost-day",
+                "achievement_count": 7,
+                "bio": "Boost Day contributor.",
             },
         ]
 
@@ -1762,8 +1832,7 @@ class V3ComponentDemoView(TemplateView):
                 "profile_url": "#",
                 "role": "Author",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-first-place.png",
-                "badge": "",
+                "badge": "badge-tier-3",
                 "bio": "",
             }
         ] + 10 * [
@@ -1772,8 +1841,7 @@ class V3ComponentDemoView(TemplateView):
                 "profile_url": "#",
                 "role": "Contributor",
                 "avatar_url": "",
-                "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-bronze.png",
-                "badge": "",
+                "badge": "badge-tier-1",
                 "bio": "",
             }
         ]
@@ -1900,7 +1968,7 @@ class V3ComponentDemoView(TemplateView):
                         "name": author.display_name if author else "Unknown",
                         "role": "Contributor",
                         "avatar_url": author.get_avatar_url() if author else "",
-                        "badge_url": f"{badge_img}/badge-first-place.png",
+                        "badge": "badge-tier-3",
                     },
                     "doc_url": reverse(
                         "library-detail",
