@@ -495,7 +495,7 @@ def build_library_intro_context(library_version, *, max_authors=3):
             return url
         return getattr(user.commitauthor, "avatar_url", "") or ""
 
-    medals = ["badge-gold", "badge-silver", "badge-bronze"]
+    medals = ["badge-tier-3", "badge-tier-2", "badge-tier-1"]
 
     author_dicts = []
     for user in combined:

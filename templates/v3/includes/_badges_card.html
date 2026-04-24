@@ -3,11 +3,11 @@
 
   Variables:
     badges          (list, optional)    - List of badge objects. Each badge has: icon, name, earned_date.
-                                          `icon` is an Icon component token (e.g. "badge-gold", "star-silver", "boost-day").
+                                          `icon` is a Badge component token (e.g. "badge-tier-3", "star-tier-2", "boost-day").
                                           Empty or undefined triggers the empty state.
     cta_url         (string, optional)  - CTA target URL (empty state). Omit to hide the CTA button.
     cta_label       (string, optional)  - CTA button text (empty state)
-    empty_icons     (list, optional)    - List of Icon component tokens for the decorative row in empty state
+    empty_icons     (list, optional)    - List of Badge component tokens for the decorative row in empty state
 
   Usage:
     Empty state with CTA:
@@ -30,8 +30,8 @@
     <ul class="badges-card__grid" role="list">
       {% for badge in badges %}
         <li class="badges-card__entry" aria-label="{{ badge.name }}, earned {{ badge.earned_date }}">
-          <span class="badges-card__icon" aria-hidden="true">
-            {% if badge.icon %}{% include "includes/icon.html" with icon_name=badge.icon icon_size=32 icon_alt=" " only %}{% endif %}
+          <span class="badges-card__icon">
+            {% if badge.icon %}{% include "v3/includes/_badge_v3.html" with token=badge.icon label=badge.name size=32 only %}{% endif %}
           </span>
           <div class="badges-card__text">
             <span class="badges-card__name">{{ badge.name }}</span>
@@ -43,9 +43,9 @@
   {% else %}
     {# Empty state #}
     <div class="badges-card__empty">
-      <div class="badges-card__icon-row" aria-hidden="true">
+      <div class="badges-card__icon-row">
         {% for icon in empty_icons %}
-          {% include "includes/icon.html" with icon_name=icon icon_size=32 icon_alt=" " only %}
+          {% include "v3/includes/_badge_v3.html" with token=icon size=32 only %}
         {% endfor %}
       </div>
       <p class="badges-card__description">Badges highlight specific skills, roles, or areas of contribution</p>

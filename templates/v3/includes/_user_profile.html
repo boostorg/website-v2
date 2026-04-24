@@ -5,8 +5,11 @@
     - profile_url (string) — URL to user profile
     - role       (string) — e.g. "Contributor", "Maintainer"
     - avatar_url (string) — URL to avatar image
-    - badge      (string, optional) — Icon component token, e.g. "badge-gold", "star-bronze"
-    - bio        (string, optional) — short bio
+    - badge              (string, optional) — Badge component token, e.g. "badge-tier-3", "star-tier-1", "boost-day"
+    - badge_label        (string, optional) — Hover label for badge; defaults to tier + type
+    - achievement_count  (int, optional)    — If set, renders the achievement counter
+    - achievement_label  (string, optional) — Hover label for achievement counter
+    - bio                (string, optional) — short bio
 
   Usage:
     {% include "v3/includes/_user_profile.html" with author=author %}
@@ -33,12 +36,10 @@
         <span class="user-profile__role">{{ author.role }}</span>
       {% endif %}
       {% if author.badge %}
-        <span aria-hidden="true">
-          {% include "includes/icon.html" with icon_name=author.badge icon_size=16 icon_alt=" " only %}
-        </span>
+        {% include "v3/includes/_badge_v3.html" with token=author.badge label=author.badge_label size=16 only %}
       {% endif %}
       {% if author.achievement_count %}
-        {% include "includes/icon.html" with icon_name="achievement-count" icon_count=author.achievement_count icon_size=24 only %}
+        {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=author.achievement_count label=author.achievement_label size=24 only %}
       {% endif %}
     </div>
     {% if author.bio %}

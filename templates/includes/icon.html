@@ -1,25 +1,19 @@
-{% load static %}
 {% comment %}
-  Icon component – Pixel Art Icons (pixelarticons, same as @iconify-icons/pixelarticons)
-  plus image-based badge/star/boost-day icons and a numeric achievement counter.
+  Icon component – Pixel Art Icons (pixelarticons, same as @iconify-icons/pixelarticons).
+
+  For achievement badges, tenure stars, Boost Day and the achievement counter,
+  use v3/includes/_badge_v3.html instead (richer spec, contextual hover label,
+  image assets).
 
   Usage:
     {% include "includes/icon.html" with icon_name="search" icon_class="header__icon icon-brand-accent" %}
-    {% include "includes/icon.html" with icon_name="badge-gold" icon_size=32 icon_alt="Gold badge" %}
-    {% include "includes/icon.html" with icon_name="achievement-count" icon_count=22 icon_alt="22 achievements" %}
 
   icon_name: required.
     - Pixelarticons: "search", "chevron-down", etc.
     - Auth / alert: "github", "google", "google-colored", "alert"
-    - Achievement badges: "badge-bronze", "badge-silver", "badge-gold", "badge-diamond", "badge-platinum"
-    - Tenure stars: "star-bronze", "star-silver", "star-gold", "star-diamond", "star-platinum"
-    - Boost Day: "boost-day"
-    - Achievement counter: "achievement-count" (pass icon_count)
   icon_class: optional, default "icon" (for size/color utilities)
   icon_size: optional, default 24 (viewBox is 24 for all)
   icon_viewbox: optional, default "0 0 24 24" (use "0 0 16 16" for 16px icons)
-  icon_alt: optional, img alt / aria-label for image-based and achievement-count icons
-  icon_count: required for "achievement-count" — the number to display
   x-show: optional, Alpine directive to conditionally show the icon
   x-cloak: optional, Alpine directive to prevent flash of unstyled icon when using x-show
 {% endcomment %}
@@ -45,30 +39,6 @@
 <svg class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <path d="M8.6665 0.666687H7.33317V2.00002H5.99984V3.33335H4.6665V4.66669H3.33317V6.00002H1.99984V7.33335H0.666504V8.66669H1.99984V10H3.33317V11.3334H4.6665V12.6667H5.99984V14H7.33317V15.3334H8.6665V14H9.99984V12.6667H11.3332V11.3334H12.6665V10H13.9998V8.66669H15.3332V7.33335H13.9998V6.00002H12.6665V4.66669H11.3332V3.33335H9.99984V2.00002H8.6665V0.666687ZM8.6665 2.00002V3.33335H9.99984V4.66669H11.3332V6.00002H12.6665V7.33335H13.9998V8.66669H12.6665V10H11.3332V11.3334H9.99984V12.6667H8.6665V14H7.33317V12.6667H5.99984V11.3334H4.6665V10H3.33317V8.66669H1.99984V7.33335H3.33317V6.00002H4.6665V4.66669H5.99984V3.33335H7.33317V2.00002H8.6665ZM8.6665 4.66669H7.33317V8.66669H8.6665V4.66669ZM8.6665 10H7.33317V11.3334H8.6665V10Z"/>
 </svg>
-{% elif icon_name == "badge-bronze" %}
-<img class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" src="{% static 'img/v3/badges/bronze.png' %}" alt="{{ icon_alt|default:'Bronze badge' }}">
-{% elif icon_name == "badge-silver" %}
-<img class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" src="{% static 'img/v3/badges/silver.png' %}" alt="{{ icon_alt|default:'Silver badge' }}">
-{% elif icon_name == "badge-gold" %}
-<img class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" src="{% static 'img/v3/badges/gold.png' %}" alt="{{ icon_alt|default:'Gold badge' }}">
-{% elif icon_name == "badge-diamond" %}
-<img class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" src="{% static 'img/v3/badges/diamond.png' %}" alt="{{ icon_alt|default:'Diamond badge' }}">
-{% elif icon_name == "badge-platinum" %}
-<img class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" src="{% static 'img/v3/badges/platinum.png' %}" alt="{{ icon_alt|default:'Platinum badge' }}">
-{% elif icon_name == "star-bronze" %}
-<img class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" src="{% static 'img/v3/badges/star-bronze.png' %}" alt="{{ icon_alt|default:'Bronze star' }}">
-{% elif icon_name == "star-silver" %}
-<img class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" src="{% static 'img/v3/badges/star-silver.png' %}" alt="{{ icon_alt|default:'Silver star' }}">
-{% elif icon_name == "star-gold" %}
-<img class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" src="{% static 'img/v3/badges/star-gold.png' %}" alt="{{ icon_alt|default:'Gold star' }}">
-{% elif icon_name == "star-diamond" %}
-<img class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" src="{% static 'img/v3/badges/star-diamond.png' %}" alt="{{ icon_alt|default:'Diamond star' }}">
-{% elif icon_name == "star-platinum" %}
-<img class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" src="{% static 'img/v3/badges/star-platinum.png' %}" alt="{{ icon_alt|default:'Platinum star' }}">
-{% elif icon_name == "boost-day" %}
-<img class="{{ icon_class|default:'icon' }}" width="{{ icon_size|default:24 }}" height="{{ icon_size|default:24 }}" src="{% static 'img/v3/badges/boost_day.png' %}" alt="{{ icon_alt|default:'Boost Day' }}">
-{% elif icon_name == "achievement-count" %}
-<span class="{{ icon_class|default:'icon-achievement-count' }}" style="width: {{ icon_size|default:24 }}px; height: {{ icon_size|default:24 }}px;" role="img" aria-label="{{ icon_alt|default:icon_count }}">{{ icon_count }}</span>
 {% else %}
 <svg class="{{ icon_class|default:'icon' }}"
      width="{{ icon_size|default:24 }}"

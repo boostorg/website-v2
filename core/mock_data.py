@@ -18,7 +18,7 @@ class SharedResources:
                 "profile_url": "#",
                 "role": "Contributor",
                 "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
-                "badge": "badge-gold",
+                "badge": "badge-tier-3",
             },
         },
         {
@@ -32,7 +32,7 @@ class SharedResources:
                 "profile_url": "#",
                 "role": "Maintainer",
                 "avatar_url": "https://ui-avatars.com/api/?name=Peter+Dimov&size=48",
-                "badge": "badge-bronze",
+                "badge": "badge-tier-1",
             },
         },
         {
@@ -202,7 +202,7 @@ int main()
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                 "role": "Contributor",
-                "badge": "badge-gold",
+                "badge": "badge-tier-3",
             },
         },
         {
@@ -212,7 +212,7 @@ int main()
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                 "role": "Contributor",
-                "badge": "badge-gold",
+                "badge": "badge-tier-3",
             },
         },
         {
@@ -222,7 +222,7 @@ int main()
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                 "role": "Contributor",
-                "badge": "badge-gold",
+                "badge": "badge-tier-3",
             },
         },
         {
@@ -232,7 +232,7 @@ int main()
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                 "role": "Contributor",
-                "badge": "badge-gold",
+                "badge": "badge-tier-3",
             },
         },
     ]
@@ -245,7 +245,7 @@ int main()
                 "name": "Vinnie Falco",
                 "role": "Author",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                "badge": "badge-gold",
+                "badge": "badge-tier-3",
                 "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
             },
             {
@@ -258,7 +258,7 @@ int main()
                 "name": "Dave Abrahams",
                 "role": "Maintainer",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                "badge": "badge-gold",
+                "badge": "badge-tier-3",
                 "bio": "Contributor to Boost since 2009.",
             },
         ],
