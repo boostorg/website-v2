@@ -6,6 +6,7 @@ from django.db.models import Prefetch
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -13,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, FormView, TemplateView
 
 from core.githubhelper import GithubAPIClient
+from core.mixins import V3Mixin
 from versions.exceptions import BoostImportedDataException
 from versions.models import Version
 
@@ -37,6 +39,7 @@ from .utils import (
     get_version_from_cookie,
     get_commit_data_by_release_for_library,
     commit_data_to_stats_bars,
+    group_libraries_by_tier,
 )
 from .constants import LATEST_RELEASE_URL_PATH_STR
 
@@ -45,11 +48,23 @@ logger = structlog.get_logger()
 
 class LibraryListDispatcher(View):
     def dispatch(self, request, *args, **kwargs):
+        if view_str := request.GET.get("view", None):
+            return redirect(
+                reverse(
+                    "libraries-list",
+                    kwargs={
+                        "version_slug": self.kwargs.get("version_slug"),
+                        "library_view_str": view_str,
+                    },
+                )
+            )
         view_str = self.kwargs.get("library_view_str")
         if view_str == "list":
             view = LibraryVertical.as_view()
         elif view_str == "categorized":
             view = LibraryCategorized.as_view()
+        elif view_str == "grading":
+            view = LibraryByTier.as_view()
         else:
             # covers both /libraries and /libraries/.../grid[/...]
             view = LibraryListBase.as_view()
@@ -64,7 +79,7 @@ class LibraryListDispatcher(View):
         return view(request, *args, **self.kwargs)  # , *args, **kwargs)
 
 
-class LibraryListBase(BoostVersionMixin, VersionAlertMixin, ListView):
+class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
     """Based on LibraryVersion, list all of our libraries in grid format for a specific
     Boost version, or default to the current version."""
 
@@ -73,6 +88,106 @@ class LibraryListBase(BoostVersionMixin, VersionAlertMixin, ListView):
     ).defer("data")
     ordering = "library__name"
     template_name = "libraries/grid_list.html"
+    v3_template_name = "v3/library_page.html"
+
+    def get_v3_context_data(self, **kwargs):
+        context = {}
+        cpp_options = [
+            ("all", "All"),
+            ("cpp03", "C++03"),
+            ("cpp11", "C++11"),
+            ("cpp14", "C++14"),
+            ("cpp17", "C++17"),
+            ("cpp20", "C++20"),
+            ("cpp23", "C++23"),
+        ]
+        context["library_filter_fields"] = [
+            {
+                "type": "dropdown",
+                "name": "view",
+                "label": "View",
+                "options": [
+                    ("list", "List"),
+                    ("grid", "Grid"),
+                    ("categorized", "Category"),
+                    ("grading", "Grading"),
+                ],
+                "selected": self.kwargs.get("library_view_str"),
+                "width": "narrow",
+            },
+            {
+                "type": "dropdown",
+                "name": "grading",
+                "label": "Grading",
+                "options": [
+                    ("all", "All"),
+                    ("flagship", "Flagship"),
+                    ("core", "Core"),
+                    ("deprecated", "Deprecated"),
+                    ("legacy", "Legacy"),
+                ],
+                "selected": "all",
+                "width": "wide",
+            },
+            {
+                "type": "dropdown",
+                "name": "min_cpp",
+                "label": "Min. C++ Version",
+                "options": cpp_options,
+                "selected": "all",
+                "width": "narrow",
+            },
+            {
+                "type": "dropdown",
+                "name": "max_cpp",
+                "label": "Max. C++ Version",
+                "options": cpp_options,
+                "selected": "all",
+                "width": "narrow",
+            },
+            {
+                "type": "combo_multi",
+                "name": "category",
+                "label": "Category",
+                "options": [
+                    ("algorithms", "Algorithms"),
+                    ("asynchronous", "Asynchronous"),
+                    ("awaitables", "Awaitables"),
+                    ("containers", "Containers"),
+                    ("coroutines", "Coroutines"),
+                    ("correctness", "Correctness"),
+                    # More dummy data to show scrollbar
+                    ("data_processing", "Data processing"),
+                    ("debugging", "Debugging"),
+                    ("file_systems", "File systems"),
+                    ("formatting", "Formatting"),
+                    ("graphics", "Graphics"),
+                ],
+                "width": "wide",
+                "placeholder": "Search",
+            },
+            {
+                "type": "dropdown",
+                "name": "sort",
+                "label": "Sort by",
+                "options": [
+                    ("alphabetical", "Alphabetical"),
+                    ("popular", "Most Popular"),
+                    ("updated", "Recently Updated"),
+                    ("release", "Release Date"),
+                ],
+                "selected": "alphabetical",
+            },
+        ]
+        context["library_view_str"] = self.kwargs.get("library_view_str")
+        return context
+
+    def render_v3_response(self):
+        """Render the v3 template through Django's standard TemplateView pipeline."""
+        context = self.get_context_data(
+            **self.get_v3_context_data(), object_list=self.get_queryset()
+        )
+        return self.render_to_response(context)
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -104,7 +219,9 @@ class LibraryListBase(BoostVersionMixin, VersionAlertMixin, ListView):
         return queryset.filter(**version_filter_args)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**self.kwargs)
+        # combine context_data kwargs and view kwargs for creating template context
+        kwargs = kwargs | self.kwargs
+        context = super().get_context_data(**kwargs)
         context["categories"] = self.get_categories(context["selected_version"])
         # todo: add tests for sort order
         if self.kwargs.get("category_slug"):
@@ -213,6 +330,36 @@ class LibraryCategorized(LibraryListBase):
                 {"category": category, "library_version_list": library_versions}
             )
         return results_by_category
+
+
+class LibraryByTier(LibraryListBase):
+    """List all libraries sorted by Tier/Grade"""
+
+    template_name = "libraries/categorized_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["library_versions_by_category"] = self.get_results_by_tier()
+        return context
+
+    def get_results_by_tier(self):
+        library_versions = self.get_queryset()
+        flagship, core, other = group_libraries_by_tier(library_versions)
+
+        return [
+            {
+                "category": "Flagship",
+                "library_version_list": flagship,
+            },
+            {
+                "category": "Core",
+                "library_version_list": core,
+            },
+            {
+                "category": "Other",
+                "library_version_list": other,
+            },
+        ]
 
 
 @method_decorator(csrf_exempt, name="dispatch")

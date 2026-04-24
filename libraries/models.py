@@ -454,6 +454,17 @@ class Library(models.Model):
             f"https://github.com/{self.github_owner}/{self.github_repo}/issues",
         )
 
+    @cached_property
+    def category_tags(self):
+        return [
+            {
+                "label": x.name,
+                "slug": x.slug,
+                "variant": "neutral",
+            }
+            for x in self.categories.all()
+        ]
+
 
 class LibraryVersion(models.Model):
     version = models.ForeignKey(
@@ -511,6 +522,26 @@ class LibraryVersion(models.Model):
             raise ValueError("Invalid data for library version")
 
         return f"{self.library.github_url}/tree/{self.version.name}"
+
+    @cached_property
+    def library_detail_url_for_version(self):
+        return reverse(
+            "library-detail",
+            kwargs={
+                "version_slug": self.version.slug,
+                "library_slug": self.library.slug,
+            },
+        )
+
+    @cached_property
+    def author_details(self):
+        author = self.authors.first()
+        return {
+            "name": author.display_name if author else "Unknown",
+            "role": "Author",
+            "avatar_url": author.get_avatar_url() if author else "",
+            "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-first-place.png",
+        }
 
     def get_cpp_standard_minimum_display(self):
         """Returns the display name for the C++ standard, or the value if not found.

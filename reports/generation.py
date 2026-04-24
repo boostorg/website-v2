@@ -28,7 +28,7 @@ from libraries.models import (
     Library,
     Tier,
 )
-from libraries.utils import batched
+from libraries.utils import batched, group_libraries_by_tier
 from mailing_list.models import EmailData
 from reports.constants import WORDCLOUD_FONT
 from slack.models import Channel, SlackActivityBucket, SlackUser
@@ -667,25 +667,6 @@ def get_libraries_for_index(
             )
         )
     return library_index_library_data
-
-
-def group_libraries_by_tier(libraries):
-    """Group libraries into flagship, core, and other lists based on tier.
-
-    Works with any objects that have a .tier attribute (Library instances, etc.).
-    Returns (flagship, core, other) tuple.
-    """
-    flagship = []
-    core = []
-    other = []
-    for lib in libraries:
-        if lib.tier == Tier.FLAGSHIP:
-            flagship.append(lib)
-        elif lib.tier == Tier.CORE:
-            core.append(lib)
-        else:
-            other.append(lib)
-    return flagship, core, other
 
 
 def split_library_data_by_tier(library_data):

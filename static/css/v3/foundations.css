@@ -127,3 +127,13 @@ html.v3 code {
 .border-default { border-color: var(--color-border); }
 .border-error { border-color: var(--color-stroke-error); }
 .border-link-accent { border-color: var(--color-stroke-link-accent); }
+
+/* Container for v3 content */
+.v3-container {
+  width: 100%;
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left:var(--space-large);
+  padding-right:var(--space-large);
+}
