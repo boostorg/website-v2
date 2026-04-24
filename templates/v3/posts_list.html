@@ -34,7 +34,7 @@
         {% include 'v3/includes/_post_list_card.html' with heading=header_text items=entry_list %}
       </div>
       <div class="post-content__user_card_column">
-        {% if request.user %}
+        {% if request.user.is_authenticated %}
           {% with u=request.user %}
             {% include 'v3/includes/_user_card.html' with username=u.display_name avatar_url=u.avatar_url badge_name='Bug Catcher' badge_icon_src=u.badge_url member_since=u.year_joined role='Contributor' flag_emoji='🇺🇸' cta_url='#' cta_label='Create Post' %}
           {% endwith %}
