@@ -145,6 +145,7 @@ body:has(.is_flagship) .library-subpage-container {
   .card-masonry-bottom {
     grid-template-columns: 1fr;
     grid-template-areas:
+      "d"
       "a"
       "b";
   }
