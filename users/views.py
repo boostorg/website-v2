@@ -318,9 +318,7 @@ class V3AuthContextMixin(V3Mixin):
         )
         context["login_url"] = reverse_lazy("v3-login")
         context["signup_url"] = reverse_lazy("v3-signup")
-
-        # Needs to be updated to V3 password reset page when that is created
-        context["password_reset_url"] = reverse_lazy("account_reset_password")
+        context["password_reset_url"] = reverse_lazy("v3-password-reset")
         return context
 
 
@@ -337,6 +335,31 @@ class V3SignupView(V3AuthContextMixin, TemplateView):
 class V3LoginView(V3AuthContextMixin, TemplateView):
     v3_template_name = "v3/accounts/login.html"
     page_title = "Login"
+
+
+class V3PasswordResetView(V3AuthContextMixin, TemplateView):
+    v3_template_name = "v3/accounts/password_reset.html"
+    page_title = "Reset Password"
+
+
+class V3PasswordResetDoneView(V3AuthContextMixin, TemplateView):
+    v3_template_name = "v3/accounts/password_reset_done.html"
+    page_title = "Check Your Email"
+
+
+class V3PasswordResetFromKeyView(V3AuthContextMixin, TemplateView):
+    v3_template_name = "v3/accounts/password_reset_from_key.html"
+    page_title = "Change Password"
+
+    def get_v3_context_data(self, **kwargs):
+        context = super().get_v3_context_data(**kwargs)
+        context["password_rules"] = build_password_rules()
+        return context
+
+
+class V3PasswordResetFromKeyDoneView(V3AuthContextMixin, TemplateView):
+    v3_template_name = "v3/accounts/password_reset_from_key_done.html"
+    page_title = "Password Changed"
 
 
 class UserAvatar(TemplateView):
