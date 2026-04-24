@@ -31,7 +31,7 @@
                     {% elif 'Windows' in os or 'Binary' in os %}
                       <span class="downloads-table-card__os-icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="windows" icon_size=16 icon_viewbox="0 0 16 16" %}</span>
                     {% endif %}
-                    <span>{{ os }}</span>
+                    <span class="downloads-table-card__os-name">{{ os }}</span>
                   </div>
                 </td>
               {% endif %}

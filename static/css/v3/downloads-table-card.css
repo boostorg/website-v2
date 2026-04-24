@@ -55,6 +55,14 @@
   color: var(--color-text-primary);
 }
 
+.downloads-table-card__os-name {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 100%;
+  letter-spacing: -0.12px;
+}
+
 .downloads-table-card__td--file {
   word-break: break-all;
 }
@@ -124,8 +132,18 @@
   display: flex;
 }
 
+@media (max-width: 1279px) {
+  .downloads-table-card__os-name {
+    font-size: 10px;
+    line-height: 10px;
+    letter-spacing: -0.1px;
+  }
+}
+
 /* ── Mobile ── */
 @media (max-width: 767px) {
+
+
   .downloads-table-card__wrapper {
     -webkit-overflow-scrolling: touch;
   }
