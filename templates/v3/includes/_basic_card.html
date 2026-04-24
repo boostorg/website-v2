@@ -1,27 +1,52 @@
 {% comment %}
-  Basic implementation of a card. Can be used on its own, or extended to make other cards
-  Inputs:
-    Title: Required, text that appears bolded at the top of the card
-    Text: Required, text that appears in the middle of the card
-    Theme: Optional, "green", "yellow", or "teal" — applies an accent background colour
-    Primary Button Url, Label, and Style: Optional. Url is the destination of the button, label is the text of the button, style is from the style list
-    Secondary Button Url, Label, and Style: Optional, same use as primary
+  Basic Card — base template for simple header + body + CTA cards.
+  Can be used directly via {% include %} for a title/text/buttons card,
+  or extended via {% extends %} + block overrides for a custom body.
+
+  Variables (used by default block content):
+    title                  (string, required for default header)
+    text                   (string, required for default body)
+    theme                  (string, optional) — "green", "yellow", or "teal" — applies an accent background colour
+    primary_button_url     (string, optional) — when url+label are both set, renders a primary button in the footer
+    primary_button_label   (string, optional)
+    secondary_button_url   (string, optional) — when url+label are both set, renders a secondary button in the footer
+    secondary_button_label (string, optional)
+
+  Blocks (override when extending):
+    extra_classes   — appended to outer `<div class="basic-card card ...">`; include a leading space
+    header_content  — everything inside `.card__header`; override to swap the title tag (e.g. <h2>)
+    card_title      — title text only; keeps the default `<span class="card__title">` wrapper
+    body_classes    — replaces `.card__column` modifier classes; default: "px-large"
+    body            — content inside the body column; default: <span>{{ text }}</span>
+
+  Usage (direct include):
+    {% include "v3/includes/_basic_card.html" with title="..." text="..." primary_button_url="..." primary_button_label="..." %}
+
+  Usage (extend):
+    {% extends "v3/includes/_basic_card.html" %}
+    {% block body %}<img src="..." alt="">{% endblock %}
 {% endcomment %}
-<div class="basic-card card{% if theme %} basic-card--{{ theme }}{% endif %}">
+<div class="basic-card card {% if theme %}basic-card--{{ theme }}{% endif %} {% block extra_classes %}{% endblock %}">
   <div class="card__header">
-    <span class="card__title">{{ title }}</span>
+    {% block header_content %}
+      <span class="card__title">
+        {% block card_title %}{{ title }}{% endblock %}
+      </span>
+    {% endblock %}
   </div>
-  <hr class="card__hr" />
-  <div class="card__column px-large">
-    <span>{{ text }}</span>
+  <hr class="card__hr" aria-hidden="true" />
+  <div class="card__column {% block body_classes %}px-large{% endblock %}">
+    {% block body %}<span>{{ text }}</span>{% endblock %}
   </div>
-  <hr class="card__hr" />
-  <div class="card__cta_section">
-    {% if primary_button_url and primary_button_label %}
-      {% include "v3/includes/_button.html" with style=primary_button_style|default:"primary" url=primary_button_url label=primary_button_label only %}
-    {% endif %}
-    {% if secondary_button_url and secondary_button_label %}
-      {% include "v3/includes/_button.html" with style="secondary" url=secondary_button_url label=secondary_button_label only %}
-    {% endif %}
-  </div>
+  {% if primary_button_url and primary_button_label or secondary_button_url and secondary_button_label %}
+    <hr class="card__hr" aria-hidden="true" />
+    <div class="card__cta_section">
+      {% if primary_button_url and primary_button_label %}
+        {% include "v3/includes/_button.html" with style=primary_button_style|default:"primary" url=primary_button_url label=primary_button_label only %}
+      {% endif %}
+      {% if secondary_button_url and secondary_button_label %}
+        {% include "v3/includes/_button.html" with style="secondary" url=secondary_button_url label=secondary_button_label only %}
+      {% endif %}
+    </div>
+  {% endif %}
 </div>

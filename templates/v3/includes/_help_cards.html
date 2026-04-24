@@ -1,0 +1,42 @@
+{% comment %}
+  Help cards — a section with a grid of speech-bubble cards, each showing a
+  user quote, name/role, description, and CTA link.
+
+  Variables:
+    heading        (string, required)  — section heading text.
+    items          (list, required)    — list of card dicts with:
+      - quote         (string, required)  — quote shown in the speech bubble.
+      - description   (string, required)  — body text under the user info.
+      - author        (object, required)  — passed to _user_profile.html (see that template for fields).
+      - cta_text      (string, required)  — link label.
+      - cta_url       (string, required)  — link URL.
+    extra_classes  (string, optional)  — extra classes on the outer section (e.g. grid placement).
+    aria_label     (string, optional)  — defaults to heading.
+
+  Usage:
+    {% include "v3/includes/_help_cards.html" with heading="What do you need help with?" items=help_options extra_classes="community-masonry__help" %}
+{% endcomment %}
+<section class="community-help{% if extra_classes %} {{ extra_classes }}{% endif %}"
+         aria-label="{{ aria_label|default:heading }}">
+  <h2 class="community-help__heading">{{ heading }}</h2>
+  <hr class="card__hr" aria-hidden="true"/>
+  <div class="community-help__grid">
+    {% for option in items %}
+      <article class="help-card">
+        <div class="help-card__bubble-wrap">
+          <div class="help-card__bubble">
+            <p class="help-card__quote">“{{ option.quote }}”</p>
+          </div>
+          <div class="help-card__tail-wrapper">
+            <svg width="32" height="30" viewBox="0 0 32 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path class="help-card__tail" d="M0 0H32L3.41421 28.5858C2.15428 29.8457 0 28.9534 0 27.1716V0Z" />
+            </svg>
+          </div>
+        </div>
+        {% include "v3/includes/_user_profile.html" with author=option.author only %}
+        <p class="help-card__description">{{ option.description }}</p>
+        <a href="{{ option.cta_url }}" class="help-card__cta">{{ option.cta_text }}</a>
+      </article>
+    {% endfor %}
+  </div>
+</section>

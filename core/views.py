@@ -132,40 +132,48 @@ class CommunityView(V3Mixin, TemplateView):
         ctx = super().get_v3_context_data(**kwargs)
         ctx["help_options"] = [
             {
-                "title": "I'm stuck on an error",
+                "quote": "I'm stuck on an error",
                 "description": "Visit the CPPLang Slack for fast responses, quick debugging and real-time conversation",
                 "cta_text": "Join Slack 24,000+ members",
                 "cta_url": "https://cppalliance.org/slack/",
-                "user_name": "Character Name",
-                "user_role": "Role",
-                "user_avatar": "",
+                "author": {
+                    "name": "Character Name",
+                    "role": "Role",
+                    "avatar_url": "/static/img/v3/community-page/avatar-beaver-character.png",
+                },
             },
             {
-                "title": "I have a proposal for a new feature",
+                "quote": "I have a proposal for a new feature",
                 "description": "Propose libraries, participate in the formal review and submit major features on the mailing list",
                 "cta_text": "Subscribe now",
                 "cta_url": "https://lists.boost.org/mailman3/lists/boost.lists.boost.org/",
-                "user_name": "Character Name",
-                "user_role": "Role",
-                "user_avatar": "",
+                "author": {
+                    "name": "Character Name",
+                    "role": "Role",
+                    "avatar_url": "/static/img/v3/community-page/avatar-mouse-character.png",
+                },
             },
             {
-                "title": "I found a bug",
+                "quote": "I found a bug",
                 "description": "Find the library you're looking for on GitHub, follow the reporting template and let the author know",
                 "cta_text": "Report it on GitHub",
                 "cta_url": "https://github.com/boostorg",
-                "user_name": "Character Name",
-                "user_role": "Role",
-                "user_avatar": "",
+                "author": {
+                    "name": "Character Name",
+                    "role": "Role",
+                    "avatar_url": "/static/img/v3/community-page/avatar-cheetah-character.png",
+                },
             },
             {
-                "title": "I have a general question",
+                "quote": "I have a general question",
                 "description": "Post on Reddit and engage in casual chat with fellow Boost enthusiasts",
                 "cta_text": "Visit Reddit",
                 "cta_url": "https://www.reddit.com/r/boost/",
-                "user_name": "Character Name",
-                "user_role": "Role",
-                "user_avatar": "",
+                "author": {
+                    "name": "Character Name",
+                    "role": "Role",
+                    "avatar_url": "/static/img/v3/community-page/avatar-fish-character.png",
+                },
             },
         ]
         ctx["libraries"] = [

@@ -46,10 +46,11 @@
 @import "./post-card.css";
 @import "./event-card.css";
 @import "./join-card.css";
+@import "./library-discovery-card.css";
 @import "./badge-button.css";
 @import "./library-item.css";
 @import "downloads-table-card.css";
 @import "release-highlights-card.css";
 @import "./media-text-card.css";
-@import "./slack-preview.css";
+@import "./help-cards.css";
 @import "./community.css";
