@@ -7,18 +7,33 @@
   const DEFAULT_AUTOPLAY_MS = 4000;
   const CAROUSEL_ITEM_SELECTOR = '[data-carousel-item]';
 
-  function updateArrowState(track, prevBtn, nextBtn) {
-    if (!track || !prevBtn || !nextBtn) return;
-    const maxScroll = track.scrollWidth - track.clientWidth;
-    if (maxScroll <= 0) {
-      prevBtn.disabled = true;
-      nextBtn.disabled = true;
-      return;
+  function setDisabled(btn, disabled) {
+    if (!btn) return;
+    if (btn.tagName === 'BUTTON') {
+      btn.disabled = disabled;
+    } else {
+      if (disabled) {
+        btn.setAttribute('aria-disabled', 'true');
+      } else {
+        btn.removeAttribute('aria-disabled');
+      }
     }
-    const atStart = track.scrollLeft <= 0;
-    const atEnd = track.scrollLeft >= maxScroll - SCROLL_END_EPSILON;
-    prevBtn.disabled = atStart;
-    nextBtn.disabled = atEnd;
+  }
+
+  function isDisabled(btn) {
+    if (!btn) return true;
+    if (btn.tagName === 'BUTTON') return btn.disabled;
+    return btn.getAttribute('aria-disabled') === 'true';
+  }
+
+  function updateArrowState(track, prevBtns, nextBtns) {
+    if (!track) return;
+    const maxScroll = track.scrollWidth - track.clientWidth;
+    const noScroll = maxScroll <= 0;
+    const atStart = !noScroll && track.scrollLeft <= 0;
+    const atEnd = !noScroll && track.scrollLeft >= maxScroll - SCROLL_END_EPSILON;
+    prevBtns.forEach(function (b) { setDisabled(b, noScroll || atStart); });
+    nextBtns.forEach(function (b) { setDisabled(b, noScroll || atEnd); });
   }
 
   function getStepPx(track) {
@@ -100,11 +115,12 @@
     });
 
     const controls = document.getElementById(root.id + '-controls');
-    const prevBtn = controls && controls.querySelector('[data-carousel-prev]');
-    const nextBtn = controls && controls.querySelector('[data-carousel-next]');
+    const prevBtns = controls ? controls.querySelectorAll('[data-carousel-prev]') : [];
+    const nextBtns = controls ? controls.querySelectorAll('[data-carousel-next]') : [];
 
-    if (prevBtn) {
-      prevBtn.addEventListener('click', function () {
+    prevBtns.forEach(function (prevBtn) {
+      prevBtn.addEventListener('click', function (e) {
+        e.preventDefault();
         if (track.scrollLeft < step) {
           scrollResetInProgress = true;
           track.scrollLeft = setWidth;
@@ -116,13 +132,14 @@
           scrollCarousel(track, 'prev', true);
         }
       });
-    }
+    });
 
-    if (nextBtn) {
-      nextBtn.addEventListener('click', function () {
+    nextBtns.forEach(function (nextBtn) {
+      nextBtn.addEventListener('click', function (e) {
+        e.preventDefault();
         scrollCarousel(track, 'next', true);
       });
-    }
+    });
 
     const autoplayDelay = root.getAttribute('data-carousel-autoplay');
     if (autoplayDelay) {
@@ -139,34 +156,73 @@
     }
   }
 
+  function setupRadioCarousel(root, track) {
+    const radios = root.querySelectorAll('input[type="radio"].testimonial-card__state');
+    if (radios.length === 0) return;
+    const items = track.querySelectorAll(CAROUSEL_ITEM_SELECTOR);
+
+    let scrolling = false;
+    let scrollTimeout = null;
+
+    radios.forEach(function (radio, idx) {
+      radio.addEventListener('change', function () {
+        if (!radio.checked) return;
+        const target = items[idx];
+        if (!target) return;
+        scrolling = true;
+        target.scrollIntoView({ inline: 'start', block: 'nearest', behavior: 'smooth' });
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(function () { scrolling = false; }, 400);
+      });
+    });
+
+    track.addEventListener('scroll', function () {
+      if (scrolling) return;
+      const first = items[0];
+      if (!first) return;
+      const itemWidth = first.offsetWidth;
+      if (itemWidth === 0) return;
+      const idx = Math.round(track.scrollLeft / itemWidth);
+      const radio = radios[Math.max(0, Math.min(radios.length - 1, idx))];
+      if (radio && !radio.checked) radio.checked = true;
+    }, { passive: true });
+  }
+
   function initCarousel(root) {
     if (!root || !root.id) return;
     const track = root.querySelector('[data-carousel-track]');
     const controls = document.getElementById(root.id + '-controls');
     if (!track || !controls) return;
 
+    if (root.hasAttribute('data-carousel-radios')) {
+      setupRadioCarousel(root, track);
+      return;
+    }
+
     if (root.hasAttribute('data-carousel-infinite')) {
       setupInfiniteCarousel(root, track);
       return;
     }
 
-    const prevBtn = controls.querySelector('[data-carousel-prev]');
-    const nextBtn = controls.querySelector('[data-carousel-next]');
-    if (prevBtn) {
-      prevBtn.addEventListener('click', function () {
-        if (prevBtn.disabled) return;
+    const prevBtns = controls.querySelectorAll('[data-carousel-prev]');
+    const nextBtns = controls.querySelectorAll('[data-carousel-next]');
+    prevBtns.forEach(function (prevBtn) {
+      prevBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (isDisabled(prevBtn)) return;
         scrollCarousel(track, 'prev', true);
       });
-    }
-    if (nextBtn) {
-      nextBtn.addEventListener('click', function () {
-        if (nextBtn.disabled) return;
+    });
+    nextBtns.forEach(function (nextBtn) {
+      nextBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (isDisabled(nextBtn)) return;
         scrollCarousel(track, 'next', true);
       });
-    }
+    });
 
     const syncArrows = function () {
-      updateArrowState(track, prevBtn, nextBtn);
+      updateArrowState(track, prevBtns, nextBtns);
     };
     requestAnimationFrame(syncArrows);
     track.addEventListener('scroll', syncArrows, { passive: true });

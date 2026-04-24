@@ -126,3 +126,85 @@
 .testimonial-card__cards {
     max-width: 100%;
 }
+
+/*
+ * Carousel navigation uses hidden radios + <label> arrows so clicking an arrow
+ * doesn't change the URL or trigger scrollIntoView (which would scroll the
+ * page). The nav pair matching the currently-:checked radio is the only one
+ * shown. The track keeps `overflow-x: auto` so touch/swipe still works; JS
+ * syncs radio <-> scroll position. In no-JS mode the track is switched to
+ * `overflow: hidden` + CSS transform (see the <noscript> block in
+ * _testimonial_card.html), which trades touch scroll for a working arrow UI.
+ */
+.testimonial-card__state {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.testimonial-card__controls {
+    display: contents;
+}
+
+.testimonial-card .testimonial-card__nav-set {
+    display: none;
+}
+
+.testimonial-card:has(.testimonial-card__state[data-state-index="0"]:checked) .testimonial-card__nav-set[data-nav-index="0"] { display: inline-flex; }
+.testimonial-card:has(.testimonial-card__state[data-state-index="1"]:checked) .testimonial-card__nav-set[data-nav-index="1"] { display: inline-flex; }
+.testimonial-card:has(.testimonial-card__state[data-state-index="2"]:checked) .testimonial-card__nav-set[data-nav-index="2"] { display: inline-flex; }
+.testimonial-card:has(.testimonial-card__state[data-state-index="3"]:checked) .testimonial-card__nav-set[data-nav-index="3"] { display: inline-flex; }
+.testimonial-card:has(.testimonial-card__state[data-state-index="4"]:checked) .testimonial-card__nav-set[data-nav-index="4"] { display: inline-flex; }
+.testimonial-card:has(.testimonial-card__state[data-state-index="5"]:checked) .testimonial-card__nav-set[data-nav-index="5"] { display: inline-flex; }
+.testimonial-card:has(.testimonial-card__state[data-state-index="6"]:checked) .testimonial-card__nav-set[data-nav-index="6"] { display: inline-flex; }
+.testimonial-card:has(.testimonial-card__state[data-state-index="7"]:checked) .testimonial-card__nav-set[data-nav-index="7"] { display: inline-flex; }
+.testimonial-card:has(.testimonial-card__state[data-state-index="8"]:checked) .testimonial-card__nav-set[data-nav-index="8"] { display: inline-flex; }
+.testimonial-card:has(.testimonial-card__state[data-state-index="9"]:checked) .testimonial-card__nav-set[data-nav-index="9"] { display: inline-flex; }
+
+.carousel-buttons label.btn-carousel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.carousel-buttons .btn-carousel[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Focus mirroring: the radios are visually hidden but remain keyboard-focusable
+   (arrow keys move between them natively). When that happens we reflect focus
+   onto the currently-visible nav-set wrapper so keyboard users see where they
+   are. Outlining the wrapper (not each button) avoids two outlines colliding
+   on the adjacent prev/next pills. Only the nav-set matching the checked
+   radio is `display: inline-flex`; the others are `display: none`, so a
+   single rule suffices. */
+.testimonial-card:has(.testimonial-card__state:focus-visible) .testimonial-card__nav-set {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+/* Scroll-snap: align items when the user swipes. JS uses smooth scroll on
+   arrow-click so we don't need scroll-behavior here.
+   `flex: 0 0 100%` forces each item to exactly the flex container width so
+   both native scroll and the no-JS transform math land on item boundaries. */
+.testimonial-card__list {
+    scroll-snap-type: x mandatory;
+}
+
+.testimonial-card__list-item {
+    scroll-snap-align: start;
+    flex: 0 0 100%;
+}
