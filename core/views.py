@@ -6,7 +6,6 @@ from django.utils import timezone
 
 from textwrap import dedent
 from urllib.parse import urljoin
-from waffle import flag_is_active
 
 import structlog
 from bs4 import BeautifulSoup
@@ -43,7 +42,7 @@ from libraries.utils import (
 )
 from versions.models import Version, docs_path_to_boost_name
 
-from .mixins import V3Mixin
+from .mixins import V3Mixin, iter_v3_views
 from .asciidoc import convert_adoc_to_html
 from .boostrenderer import (
     convert_img_paths,
@@ -279,11 +278,6 @@ class PrivacyPolicyView(V3Mixin, MarkdownTemplateView):
 
 class LearnPageView(V3Mixin, TemplateView):
     v3_template_name = "v3/learn_page.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        if not flag_is_active(request, "v3"):
-            return HttpResponseNotFound()
-        return super().dispatch(request, *args, **kwargs)
 
     def get_v3_context_data(self, **kwargs):
         ctx = self.get_context_data(**kwargs)
@@ -1247,10 +1241,10 @@ class QRCodeView(View):
         return HttpResponseRedirect(redirect_path)
 
 
-class V3ComponentDemoView(TemplateView):
+class V3ComponentDemoView(V3Mixin, TemplateView):
     """Demo page for V3 design system components."""
 
-    template_name = "base.html"
+    v3_template_name = "base.html"
 
     def get_context_data(self, **kwargs):
         from django.urls import reverse
@@ -1912,5 +1906,19 @@ class V3ComponentDemoView(TemplateView):
                 }
             )
         context["demo_library_items"] = demo_library_items
+
+        # V3 paths registry
+        v3_paths = [
+            {
+                "class_name": view_class.__name__,
+                "url": f"/{entry.pattern}",
+                "url_name": entry.name or "",
+                "v3_template": getattr(view_class, "v3_template_name", ""),
+                "has_legacy_template": bool(getattr(view_class, "template_name", None)),
+            }
+            for entry, view_class in iter_v3_views()
+        ]
+        v3_paths.sort(key=lambda p: p["class_name"])
+        context["v3_paths"] = v3_paths
 
         return context
