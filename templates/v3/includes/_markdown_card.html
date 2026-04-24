@@ -1,9 +1,10 @@
 {% load wagtailmarkdown %}
 {% comment %}
-  Markdown card component. Accepts markdown content and displays it in a card layout.
+  Markdown card component. Accepts content and displays it in a card layout.
   Inputs:
     title: str, required - text that appears bolded at the top of the card
-    markdown: str, required - markdown formatted text that appears in the body of the card. The card handles transforming the text
+    html: str, optional - pre-rendered HTML string rendered via |safe (takes priority over markdown)
+    markdown: str, optional - markdown text rendered via the |markdown filter
     button_url: str, optional - url that the button should link to. If not provided, button is not shown
     button_label: str, optional - label for the optional cta button. If not provided, button is not shown.
 {% endcomment %}
@@ -11,12 +12,12 @@
   <div class="card__header">
     <span class="card__title">{{ title }}</span>
   </div>
-  <hr class="card__hr" />
+  <hr class="card__hr" aria-hidden="true" />
   <div class="card__column markdown-content">
-    {{ markdown|markdown }}
+    {% if html %}{{ html|safe }}{% else %}{{ markdown|markdown }}{% endif %}
   </div>
   {% if button_url and button_label %}
-  <hr class="card__hr" />
+  <hr class="card__hr" aria-hidden="true" />
   <div class="card__cta_section">
     {% include "v3/includes/_button.html" with url=button_url label=button_label only %}
   </div>

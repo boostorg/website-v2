@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Boost {{ version.display_name }}{% endblock %}
+{% block description %}Discover what's new in Boost {{ version.display_name }}{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/release-detail.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block main_content_wrapper %}<div class="releases-v3">{% endblock %}
+
+{% block content %}
+  {% if selected_version %}
+
+  {% include "v3/includes/_hero_library.html" with title=hero_title doc_url=documentation_url slack_url="#" source_url=version.github_url github_url="https://github.com/boostorg/boost/issues" only %}
+
+  <div class="release-detail">
+
+    <div class="release-detail__cards-row">
+      {% include "v3/includes/_release_highlights_card.html" with heading=whats_new_heading items=whats_new_items only %}
+      {% include "v3/includes/_downloads_table_card.html" with downloads=downloads %}
+    </div>
+
+    {% if release_notes %}
+        {% with release_notes as d %}
+          {% include "v3/includes/_markdown_card.html" with title=d.title html=d.html %}
+        {% endwith %}
+    {% endif %}
+
+    {% if v3_contributors %}
+      {% include "v3/includes/_contributors_list.html" with title="All Contributors" variant="all" contributors=v3_contributors %}
+    {% endif %}
+
+    <section class="release-detail__bottom-cards" aria-label="Community and resources">
+      {% include "v3/includes/_mailing_list_card.html" %}
+
+      {% include "v3/includes/_basic_card.html" with title="Want to fix bugs, review code, maintain libraries, and propose new features?" text="Read our contributors guide and join the Boost community." primary_button_url="/contribute" primary_button_label="Start here" primary_button_style="green" theme="green" only %}
+
+      {% include "v3/includes/_media_text_card.html" with text="Boost is publicly released three times a year in April, August, and December. Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process." image_url="/static/img/v3/home-page/heros.png" button_url="/releases" button_label="Read release process" %}
+    </section>
+
+  </div>
+  {% endif %}
+{% endblock %}

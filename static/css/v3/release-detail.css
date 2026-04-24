@@ -1,0 +1,178 @@
+/* ============================================
+   Release Detail Page — v3
+   ============================================ */
+
+body:has(.releases-v3) .header {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  right: 0;
+}
+
+/* Hero background color override for release pages */
+body:has(.releases-v3) .hero-library--no-image {
+  background: var(--color-surface-weak-accent-yellow);
+}
+
+.release-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xlarge);
+  padding: var(--space-xlarge) var(--space-large);
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.release-detail .card {
+  min-width: 100%;
+}
+
+/* ── Cards row (highlights + downloads side by side) ── */
+.release-detail__cards-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-large);
+  align-items: start;
+}
+
+.release-detail__cards-row .card-group {
+  max-width: 100%;
+  border-radius: var(--border-radius-l);
+}
+
+.release-detail .markdown-card {
+  border-radius: var(--border-radius-l);
+}
+
+/* ── Release Notes card ── */
+.release-detail__release-notes {
+  max-width: 100%;
+}
+
+.release-detail__release-notes-body {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.release-detail__release-notes-body h1,
+.release-detail__release-notes-body h2,
+.release-detail__release-notes-body h3,
+.release-detail__release-notes-body h4 {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  margin: var(--space-large) 0 var(--space-default);
+}
+
+.release-detail__release-notes-body h1 { font-size: var(--font-size-large); }
+.release-detail__release-notes-body h2 { font-size: var(--font-size-medium); }
+.release-detail__release-notes-body h3 { font-size: var(--font-size-base); }
+
+.release-detail__release-notes-body p,
+.release-detail__release-notes-body li {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.release-detail__release-notes-body a {
+  color: var(--color-text-link-accent);
+}
+
+.release-detail__release-notes-body ul,
+.release-detail__release-notes-body ol {
+  padding-left: var(--space-xlarge);
+  margin: var(--space-default) 0;
+}
+
+/* ── Bottom cards row ── */
+.release-detail__bottom-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-large);
+  align-items: stretch;
+}
+
+.release-detail__bottom-cards .card {
+  max-width: 100%;
+}
+
+.release-detail__bottom-cards .basic-card {
+  height: 100%;
+}
+
+.release-detail__bottom-cards .basic-card .card__column {
+  flex: 1;
+}
+
+.release-detail__bottom-cards .media-text-card__body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.release-detail__bottom-cards .media-text-card__image {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) and (max-width: 1279px) {
+  .release-detail {
+    gap: var(--space-card);
+  }
+
+  .release-detail__cards-row {
+    grid-template-columns: 1fr;
+  }
+
+  .release-detail__bottom-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .release-detail__bottom-cards > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  .release-detail__bottom-cards .media-text-card__image {
+    max-width: 160px;
+    max-height: 160px;
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .release-detail {
+    padding: 0 var(--space-medium);
+    padding-top: var(--space-xl);
+    padding-bottom: 74px;
+    gap: var(--space-large);
+  }
+
+  .release-detail__cards-row {
+    grid-template-columns: 1fr;
+  }
+
+  .release-detail__bottom-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .release-detail__bottom-cards > :last-child {
+    grid-column: auto;
+  }
+
+  body:has(.releases-v3) .hero-library--no-image .hero-library__block {
+    height: 520px;
+    padding: 80px 0 0 0;
+    justify-content: flex-start;
+  }
+
+  body:has(.releases-v3) .hero-library--no-image .hero-library__content {
+    margin: 0;
+  }
+
+  .downloads-table-card__td--hash {
+    max-width: 100px;
+  }
+}

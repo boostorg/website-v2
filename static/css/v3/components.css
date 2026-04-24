@@ -48,3 +48,6 @@
 @import "./join-card.css";
 @import "./badge-button.css";
 @import "./library-item.css";
+@import "downloads-table-card.css";
+@import "release-highlights-card.css";
+@import "./media-text-card.css";

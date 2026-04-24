@@ -23,6 +23,6 @@
     }
 
     .contributors-list {
-        max-height: 80vh;
+        max-height: min(340px, 80vh);
     }
 }

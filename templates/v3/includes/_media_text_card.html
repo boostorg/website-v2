@@ -1,0 +1,30 @@
+{% comment %}
+  Media Text Card — card with side-by-side text and image, plus a full-width CTA button.
+  No header or title — just body text alongside an image, with an optional button at bottom.
+
+  Variables:
+    text            (string, required)  — body/description text
+    image_url       (string, optional)  — URL of the image
+    image_alt       (string, optional)  — alt text for image, defaults to ""
+    button_url      (string, optional)  — CTA link destination
+    button_label    (string, optional)  — CTA button text
+    button_style    (string, optional)  — button style variant, defaults to "primary"
+
+  Usage:
+    {% include "v3/includes/_media_text_card.html" with text="Description here." image_url="/static/img/example.png" button_url="#" button_label="Learn more" %}
+{% endcomment %}
+<div class="media-text-card">
+  <div class="media-text-card__body">
+    <p class="media-text-card__text">{{ text }}</p>
+    {% if image_url %}
+      <div class="media-text-card__image">
+        <img src="{{ image_url }}" alt="{{ image_alt|default:'Decorative illustration' }}" />
+      </div>
+    {% endif %}
+  </div>
+  {% if button_url and button_label %}
+    <div class="media-text-card__cta">
+      {% include "v3/includes/_button.html" with style=button_style|default:"primary" url=button_url label=button_label extra_classes="media-text-card__btn" only %}
+    </div>
+  {% endif %}
+</div>
