@@ -1,3 +1,7 @@
+.library-page__container {
+    padding: 0 var(--space-large);
+}
+
 /*
 =============================================
 =            Hero Styling                   =
@@ -9,7 +13,7 @@
     margin-bottom: var(--space-xl);
     position: relative;
     display: grid;
-    grid-template-columns: 574px 1fr auto;
+    grid-template-columns: fit-content(574px) 1fr fit-content(40%);
     gap: var(--space-xl);
     align-items: center;
     grid-template-areas:
@@ -23,7 +27,7 @@
     width: 75%;
 }
 
-.library-page-hero .hero-image {
+.library-page-hero .hero-image-container {
     grid-area: c;
 }
 

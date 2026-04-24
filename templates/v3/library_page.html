@@ -23,7 +23,9 @@ Inputs:
           <div class="hero-search-bar">
             {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' %}
           </div>
-          <img alt="Excited Cartoon Mascot" class="hero-image" src="{% static 'img/v3/solo-images/beaver-black-and-white.png' %}" loading="lazy" decoding="async" />
+          <div class="hero-image-container">
+            <img alt="Excited Cartoon Mascot" class="hero-image" src="{% static 'img/v3/solo-images/beaver-black-and-white.png' %}" loading="lazy" decoding="async" />
+          </div>
       </section>
     <form action="" method="get">
       <div id="library-page-filter-container" class="mb-xl">
