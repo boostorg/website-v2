@@ -180,6 +180,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "core.context_processors.current_version",
                 "core.context_processors.active_nav_item",
+                "core.context_processors.header_context",
                 "core.context_processors.debug",
             ],
             "loaders": [

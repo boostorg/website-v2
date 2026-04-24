@@ -1,102 +1,136 @@
 {% load static %}
-{% load account socialaccount %}
-<header class="header" role="banner" x-data="{ mobileMenuOpen: false, userOpen: false }">
-  <div class="header__inner">
+{% comment %}
+  Header (v3) — site-wide header with desktop nav, mobile drawer, search, and user menu.
 
+  Context Variables:
+    current_version          (object, required)              — current Boost release
+    active_nav_item          (string, required)              — active nav key: "libraries"|"learn"|"news"|"community"|"releases"|"home"
+    nav_links                (list[NavLink], required)       — header navigation links
+    releases_url             (string, required)              — resolved URL for releases page
+    disable_theme_switcher   (bool, optional, default false) — hides the light/dark toggle
+    request                  (HttpRequest, required)         — Django request object (for auth state)
+
+  Note: Subcomponents inherit the full parent context. Specifically:
+    _header_nav_link.html    uses: url, label, nav_id, is_unread, active_nav_item
+    _header_utilities.html   uses: releases_url, disable_theme_switcher, request, avatar_id
+
+  Usage:
+    {% include "v3/includes/_header_v3.html" %}
+{% endcomment %}
+<header class="header">
+  <div class="header__inner">
     {% comment %} Desktop & tablet nav (hidden on mobile) {% endcomment %}
     <nav class="header__nav header__nav--desktop" aria-label="Main navigation">
-      <a href="{% url 'home' %}" class="header__link header__logo" title="Boost Home" aria-label="Boost Home">
-        <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost" width="31" height="31">
+      {% comment %} Logo link {% endcomment %}
+      <a href="{% url 'home' %}" class="header__logo" aria-label="Boost Home">
+        <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}"
+             alt="Boost"
+             width="31"
+             height="31">
       </a>
-
-      <a href="{% url 'libraries' %}" class="header__link">Libraries</a>
-      <a href="#" class="header__link">Use Cases</a>
-      <a href="{% url 'docs' %}" class="header__link">Learn</a>
-      <a href="{% url 'community' %}" class="header__link">Community</a>
-      <a href="{% url 'news' %}" class="header__link header__link--posts">
-        Posts<span class="header__dot" aria-hidden="true"></span>
-      </a>
-      <a href="{% url 'releases-most-recent' %}" class="header__link header__link--btn">Download</a>
+      {% comment %} Nav links {% endcomment %}
+      {% for item in nav_links %}
+        {% include "v3/includes/header/_header_nav_link.html" with url=item.url label=item.label nav_id=item.nav_id is_unread=item.is_unread %}
+      {% endfor %}
     </nav>
 
-    <div class="header__right">
-      {% comment %} Desktop only: full search bar {% endcomment %}
-      <div class="header__search-bar header__search-bar--full">
-        <button type="button" id="gecko-search-button" class="header__search-input-trigger" data-current-boost-version="{{ current_version.stripped_boost_url_slug }}" data-theme-mode="light" data-font-family="var(--font-sans)" aria-label="Search">
-          <span class="header__search-icon" aria-hidden="true">
-            {% include "includes/icon.html" with icon_name="search" icon_class="header__icon" icon_size=16 %}
-          </span>
-          Search
-        </button>
-        <span class="header__search-kbd">CTRL+K</span>
-      </div>
-
-      {% comment %} Tablet only: compact search button (hidden on desktop and mobile via CSS) {% endcomment %}
-      <div class="header__search-compact">
-        <button type="button" class="header__search-btn" aria-label="Search" onclick="document.getElementById('gecko-search-button').click()">
-          {% include "includes/icon.html" with icon_name="search" icon_class="header__icon icon-brand-accent" %}
-          <span class="header__search-btn-label">Search</span>
-        </button>
-      </div>
-
-      <div class="header__utilities">
-        <div class="header__latest">
-          <a href="{% url 'releases-most-recent' %}" class="header__latest-trigger">Latest {% include "includes/icon.html" with icon_name="chevron-down" icon_class="header__icon header__icon--chevron icon-brand-accent" %}</a>
-        </div>
-        {% if not disable_theme_switcher %}
-        <button type="button" id="light-dark" class="header__icon-btn" aria-label="Toggle theme" onclick="changeTheme()">
-          <span class="header__icon--theme-sun">{% include "includes/icon.html" with icon_name="sun-alt" icon_class="header__icon header__icon--theme" icon_size=16 %}</span>
-          <span class="header__icon--theme-moon">{% include "includes/icon.html" with icon_name="moon" icon_class="header__icon header__icon--theme" icon_size=16 %}</span>
-        </button>
-        {% endif %}
-        {% if request.user.is_authenticated %}
-        <span class="header__user">{% include "v3/users/includes/header_avatar_v3.html" %}</span>
-        {% else %}
-        <a href="{% url 'account_login' %}" class="btn btn-primary header__nav-btn">Log In</a>
-        {% endif %}
-      </div>
-    </div>
-
-    {% comment %} Mobile only: logo, menu and search (full-width buttons) {% endcomment %}
+    {% comment %} Mobile only: menu toggle and drawer (hidden on desktop) {% endcomment %}
     <div class="header__mobile-actions">
-      <a href="{% url 'home' %}" class="header__mobile-logo" title="Boost Home" aria-label="Boost Home">
-        <img src="{% static 'img/Boost_Symbol_Transparent.svg' %}" alt="Boost" width="31" height="31">
-      </a>
-      <button type="button" class="header__menu-btn" aria-label="Open menu" :aria-expanded="mobileMenuOpen" aria-controls="header-drawer" @click="mobileMenuOpen = !mobileMenuOpen">
-        {% include "includes/icon.html" with icon_name="menu" icon_class="header__icon" icon_size=16 %}
+
+      {% comment %} Menu toggle (checkbox hack) {% endcomment %}
+      <input type="checkbox"
+             id="mobile-menu-toggle"
+             class="header__menu-toggle"
+             aria-label="Toggle menu"
+             aria-controls="header-drawer">
+      <label for="mobile-menu-toggle" class="header__menu-btn" aria-hidden="true">
+        <span class="header__menu-icon--open">
+          {% include "includes/icon.html" with icon_name="menu" icon_class="header__icon" icon_size=16 %}
+        </span>
+        <span class="header__menu-icon--close">
+          {% include "includes/icon.html" with icon_name="close" icon_class="header__icon" icon_size=16 %}
+        </span>
         <span>Menu</span>
-      </button>
-      <button type="button" class="header__search-btn header__search-btn--mobile" aria-label="Search" onclick="document.getElementById('gecko-search-button').click()">
+      </label>
+
+      {% comment %} Drawer (hidden by default, shown when toggle is checked) {% endcomment %}
+      <div class="header__drawer" id="header-drawer">
+        <nav class="header__drawer-nav" aria-label="Mobile navigation">
+          {% for item in nav_links %}
+            {% include "v3/includes/header/_header_nav_link.html" with url=item.url label=item.label nav_id=item.nav_id is_unread=item.is_unread %}
+          {% endfor %}
+        </nav>
+        {% include "v3/includes/header/_header_utilities.html" with avatar_id="mobile-user-menu" %}
+      </div>
+    </div>
+
+    {% comment %} Search — responsive: full bar on desktop, button on mobile {% endcomment %}
+    <search class="header__search-bar">
+    <button type="button"
+            id="gecko-search-button"
+            class="header__search-input-trigger"
+            data-current-boost-version="{{ current_version.stripped_boost_url_slug }}"
+            data-theme-mode="light"
+            data-font-family="var(--font-sans)">
+      <span class="header__search-icon" aria-hidden="true">
         {% include "includes/icon.html" with icon_name="search" icon_class="header__icon" icon_size=16 %}
-        <span>Search</span>
-      </button>
+      </span>
+      Search
+    </button>
+    <span class="header__search-kbd" aria-hidden="true">CTRL+K</span>
+    </search>
+
+    {% comment %} Desktop & tablet utilities (hidden on mobile) {% endcomment %}
+    <div class="header__right">
+      {% include "v3/includes/header/_header_utilities.html" with avatar_id="desktop-user-menu" %}
     </div>
   </div>
-
-  {% comment %} Mobile drawer {% endcomment %}
-  <div class="header__drawer" id="header-drawer" x-show="mobileMenuOpen" x-cloak x-transition role="dialog" aria-label="Mobile menu">
-    <nav class="header__drawer-nav" aria-label="Mobile navigation">
-      <a href="{% url 'libraries' %}" class="header__drawer-link">Libraries</a>
-      <a href="#" class="header__drawer-link">Use Cases</a>
-      <a href="{% url 'docs' %}" class="header__drawer-link">Learn</a>
-      <a href="{% url 'community' %}" class="header__drawer-link">Community</a>
-      <a href="{% url 'news' %}" class="header__drawer-link">Posts</a>
-      <a href="{% url 'releases-most-recent' %}" class="header__drawer-link">Download</a>
-      <a href="{% url 'releases-most-recent' %}" class="header__drawer-link">Latest</a>
-      {% if not request.user.is_authenticated %}
-      <a href="{% url 'account_login' %}" class="header__drawer-link">Log In</a>
-      {% endif %}
-    </nav>
-    <div class="header__drawer-utilities">
-
-      {% if not disable_theme_switcher %}
-      <button type="button" class="header__icon-btn" aria-label="Toggle theme" onclick="changeTheme()">
-        <span class="header__icon--theme-sun">{% include "includes/icon.html" with icon_name="sun-alt" icon_class="header__icon header__icon--theme" icon_size=16 %}</span>
-        <span class="header__icon--theme-moon">{% include "includes/icon.html" with icon_name="moon" icon_class="header__icon header__icon--theme" icon_size=16 %}</span>
-      </button>
-      {% endif %}
-
-    </div>
-  </div>
-  <div class="header__backdrop" x-show="mobileMenuOpen" x-cloak x-transition @click="mobileMenuOpen = false" aria-hidden="true"></div>
 </header>
+
+<script>
+/**
+ * Header progressive enhancements for CSS-only checkbox menus:
+ *   - Dismiss open menus on outside click or focus.
+ *   - Toggle menus on Enter (checkboxes only respond to Space natively).
+ */
+(function () {
+  'use strict';
+
+  var TOGGLE_SELECTOR = '.header__user-toggle, .header__menu-toggle';
+
+  function dismissOpenMenus(target) {
+    var openUserToggles = document.querySelectorAll('.header__user-toggle:checked');
+    openUserToggles.forEach(function (toggle) {
+      var menu = toggle.closest('.header__user-menu');
+      if (menu && !menu.contains(target)) {
+        toggle.checked = false;
+      }
+    });
+
+    var drawerToggle = document.querySelector('.header__menu-toggle:checked');
+    if (drawerToggle) {
+      var mobileActions = drawerToggle.closest('.header__mobile-actions');
+      if (mobileActions && !mobileActions.contains(target)) {
+        drawerToggle.checked = false;
+      }
+    }
+  }
+
+  document.addEventListener('click', function (e) {
+    dismissOpenMenus(e.target);
+  });
+
+  document.addEventListener('focusin', function (e) {
+    dismissOpenMenus(e.target);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var toggle = e.target;
+    if (toggle.matches && toggle.matches(TOGGLE_SELECTOR)) {
+      e.preventDefault();
+      toggle.checked = !toggle.checked;
+    }
+  });
+})();
+</script>

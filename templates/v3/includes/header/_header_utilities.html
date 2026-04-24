@@ -1,0 +1,44 @@
+{% load account socialaccount %}
+{% comment %}
+  Header Utilities — Latest link, theme toggle, and auth.
+  Shared between desktop and mobile drawer.
+  Visual differences are handled by CSS based on parent context (.header__right vs .header__drawer).
+
+  Context Variables:
+    releases_url            (string, required)              — resolved URL for releases page
+    disable_theme_switcher  (bool, optional, default false) — hides the theme toggle
+    request                 (HttpRequest, required)         — Django request object (for auth state)
+    avatar_id               (string, required)              — unique ID prefix for avatar component, e.g. "desktop-user-menu"
+{% endcomment %}
+<div class="header__utilities">
+  {% comment %} Latest Dropdown {% endcomment %}
+  <a href="{{ releases_url }}" class="header__utilities-latest">
+    Latest
+    <span class="icon-brand-accent">
+      {% include "includes/icon.html" with icon_name="chevron-down" icon_class="header__icon header__icon--chevron" icon_size=16 %}
+    </span>
+  </a>
+
+  {% comment %} Theme Toggle {% endcomment %}
+  {% if not disable_theme_switcher %}
+    <button type="button"
+            class="header__icon-btn"
+            aria-label="Toggle theme"
+            onclick="changeTheme()">
+      <span class="header__icon--theme-sun">
+        {% include "includes/icon.html" with icon_name="sun-alt" icon_class="header__icon header__icon--theme" icon_size=16 %}
+      </span>
+      <span class="header__icon--theme-moon">
+        {% include "includes/icon.html" with icon_name="moon" icon_class="header__icon header__icon--theme" icon_size=16 %}
+      </span>
+    </button>
+  {% endif %}
+
+  {% comment %} Auth (Login or Avatar) {% endcomment %}
+  {% if request.user.is_authenticated %}
+    <span class="header__user">{% include "v3/includes/header/_header_avatar.html" with avatar_id=avatar_id %}</span>
+  {% else %}
+    <a href="{% url 'account_login' %}"
+       class="header__nav-btn">Log In</a>
+  {% endif %}
+</div>
