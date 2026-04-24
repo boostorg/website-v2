@@ -1,49 +1,105 @@
 /**
- * V3 Badge – small non-clickable badge (e.g. count on carousel cards).
- * Uses Icon/Brand Accent background and Text/On Accent for text.
+ * V3 Badge — achievement / tier / tenure / counter icons with contextual
+ * hover label. Pair with v3/includes/_badge_v3.html.
+ *
+ * Works without JavaScript: label is revealed via :hover / :focus-within.
  */
 
 .badge-v3 {
-  width: 16px;
-  height: 16px;
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1 / 1;
-  box-sizing: border-box;
-  border-radius: var(--s, 4px);
-  background: var(--Icon-Brand-Accent, #FFA000);
-  font-size: 10px;
-  line-height: 1;
-  text-align: center;
-  padding: 0;
-  margin: 0;
-  color: var(--color-text-on-accent);
-  pointer-events: none;
+  width: var(--badge-v3-size, 24px);
+  height: var(--badge-v3-size, 24px);
+  flex-shrink: 0;
+  line-height: 0;
+  outline-offset: 2px;
+}
+
+.badge-v3__image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
 }
 
 /**
- * Achievement counter – rendered by icon.html with icon_name="achievement-count".
- * Width/height set inline from icon_size (Figma default: 24px).
+ * Achievement counter: pill with the compact numeric value.
+ * Visual spec matches Icon/Brand Accent background + Text/On Accent text.
  */
-.icon-achievement-count {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-default);
-  flex-shrink: 0;
+.badge-v3--achievement-count {
   aspect-ratio: 1 / 1;
   box-sizing: border-box;
   padding: var(--space-s) var(--space-xs);
   border-radius: var(--border-radius-s);
   background: var(--color-icon-brand-accent);
+  color: var(--color-text-on-accent);
+}
+
+.badge-v3__counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-tight);
   text-align: center;
-  margin: 0;
-  color: var(--color-text-on-accent);
+}
+
+/**
+ * Contextual hover label — pure-CSS tooltip anchored to the bottom of the icon.
+ * Styling mirrors .tooltip-label (button-tooltip.css) so the look stays
+ * consistent across the system, but positioning is scoped to .badge-v3.
+ */
+.badge-v3__label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, 8px);
+  padding: var(--space-s, 4px) var(--space-default, 8px);
+  background: var(--color-primary-grey-900, #2f313d);
+  color: var(--color-text-reversed, #fff);
+  font-size: var(--font-size-xs, 12px);
+  font-weight: var(--font-weight-regular, 400);
+  line-height: 1.25;
+  border-radius: var(--border-radius-s, 4px);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
   pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+  transition-delay: 0s;
+}
+
+.badge-v3__label::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border: 5px solid transparent;
+  border-bottom-color: var(--color-primary-grey-900, #2f313d);
+}
+
+.badge-v3:hover .badge-v3__label,
+.badge-v3:focus-visible .badge-v3__label,
+.badge-v3:focus-within .badge-v3__label {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0.1s;
+}
+
+html.dark .badge-v3__label {
+  background: #ffffff;
+  color: #050816;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+html.dark .badge-v3__label::after {
+  border-bottom-color: #ffffff;
 }

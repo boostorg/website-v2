@@ -1,10 +1,76 @@
-{% comment %}
-  V3 Badge – small non-clickable count/label badge.
-  Variables:
-    value (required) — number or text to show. Numbers >= 1000 are shown compact (e.g. 2.3k, 33k).
-  Usage:
-    {% include "v3/includes/_badge_v3.html" with value=1 %}
-    {% include "v3/includes/_badge_v3.html" with value=count %}
-{% endcomment %}
+{% load static %}
 {% load number_filters %}
-<span class="badge-v3" aria-hidden="true">{{ value|compact_number }}</span>
+{% comment %}
+  V3 Badge – achievement/tier/tenure/counter icons with a contextual hover label.
+
+  Tier numbering (matches Figma):
+    tier-1 = bronze   (entry / 2 years)
+    tier-2 = silver   (5 years)
+    tier-3 = gold     (10 years)
+    tier-4 = diamond  (15 years)
+    tier-5 = platinum (20+ years / top)
+
+  Props:
+    token       (required) — one of:
+                  "badge-tier-1" | "badge-tier-2" | "badge-tier-3" | "badge-tier-4" | "badge-tier-5"
+                  "star-tier-1"  | "star-tier-2"  | "star-tier-3"  | "star-tier-4"  | "star-tier-5"
+                  "boost-day"
+                  "achievement-count"  (requires `count`)
+    label       (optional) — hover label text. Defaults:
+                  badge-tier-N:       "Tier N badge"
+                  star-tier-N:        "Tier N star"
+                  boost-day:          "Boost Day"
+                  achievement-count:  "<count> achievements"
+                  Callers should override with contextual copy — the AC asks
+                  for the achievement/tenure name (e.g. "Patch Wizard",
+                  "10 years") or the achievement name for the counter.
+    count       (required for achievement-count) — integer, formatted per spec:
+                  1..999 as-is, 1000+ as compact K (1K, 5.5K, 10K, ...).
+    size        (optional) — px square. Default 24.
+    extra_class (optional) — extra class on the wrapper.
+
+  A11y / no-JS:
+    - Wrapper carries role="img" + aria-label with the resolved hover label.
+    - Hover label is rendered as a sibling <span role="tooltip"> shown via
+      :hover / :focus-within (pure CSS, no JS).
+    - Wrapper is focusable (tabindex="0") so keyboard users can reveal it.
+{% endcomment %}
+{% with s=size|default:24 %}
+{% if token == "boost-day" %}
+  {% with tip=label|default:"Boost Day" %}
+  <span class="badge-v3 badge-v3--boost-day {{ extra_class }}" style="--badge-v3-size:{{ s }}px" role="img" aria-label="{{ tip }}" tabindex="0">
+    <img class="badge-v3__image" width="{{ s }}" height="{{ s }}" src="{% static 'img/v3/badges/boost_day.png' %}" alt="">
+    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+  </span>
+  {% endwith %}
+
+{% elif token == "achievement-count" %}
+  {% with default_tip=count|stringformat:"s"|add:" achievements" %}
+  {% with tip=label|default:default_tip %}
+  <span class="badge-v3 badge-v3--achievement-count {{ extra_class }}" style="--badge-v3-size:{{ s }}px" role="img" aria-label="{{ tip }}" tabindex="0">
+    <span class="badge-v3__counter" aria-hidden="true">{{ count|k_count }}</span>
+    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+  </span>
+  {% endwith %}{% endwith %}
+
+{% elif token|slice:":6" == "badge-" %}
+  {% with tier=token|slice:"6:" %}
+  {% with default_tip="Tier "|add:tier|cut:"tier-"|add:" badge" src_path="img/v3/badges/"|add:tier|add:".png" %}
+  {% with tip=label|default:default_tip %}
+  <span class="badge-v3 badge-v3--badge badge-v3--{{ tier }} {{ extra_class }}" style="--badge-v3-size:{{ s }}px" role="img" aria-label="{{ tip }}" tabindex="0">
+    <img class="badge-v3__image" width="{{ s }}" height="{{ s }}" src="{% static src_path %}" alt="">
+    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+  </span>
+  {% endwith %}{% endwith %}{% endwith %}
+
+{% elif token|slice:":5" == "star-" %}
+  {% with tier=token|slice:"5:" %}
+  {% with default_tip="Tier "|add:tier|cut:"tier-"|add:" star" src_path="img/v3/badges/star-"|add:tier|add:".png" %}
+  {% with tip=label|default:default_tip %}
+  <span class="badge-v3 badge-v3--star badge-v3--{{ tier }} {{ extra_class }}" style="--badge-v3-size:{{ s }}px" role="img" aria-label="{{ tip }}" tabindex="0">
+    <img class="badge-v3__image" width="{{ s }}" height="{{ s }}" src="{% static src_path %}" alt="">
+    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+  </span>
+  {% endwith %}{% endwith %}{% endwith %}
+{% endif %}
+{% endwith %}
