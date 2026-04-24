@@ -3,6 +3,7 @@ import io
 import json
 import logging
 import random
+import re
 from dataclasses import dataclass, field
 from datetime import timedelta, date
 from functools import cached_property
@@ -13,6 +14,7 @@ import psycopg2
 from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.db.models import OuterRef, Q, F, Case, When, Value, Sum, Count
+from django.urls import reverse
 from matplotlib import pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 from algoliasearch.analytics.client import AnalyticsClientSync
@@ -613,13 +615,63 @@ def get_issues_counts(prior_version: Version, version: Version):
 
 
 def get_download_links(version: Version):
-    return {
+    from versions.models import OperatingSystems
+
+    r_dict = {
         k: list(v)
         for k, v in groupby(
-            version.downloads.all().order_by("operating_system"),
+            version.downloads.all().order_by("operating_system", "display_name"),
             key=attrgetter("operating_system"),
         )
     }
+    win_bin_d = r_dict[OperatingSystems.WINDOWS_BIN]
+    # Attempt to match version name, in shape of Boost version - msvc - msvc version - bit.exe
+    # e.g. boost_1_91_0_b1-msvc-14.5-64.exe
+    # and return major and minor msvc version
+
+    v_reg = re.compile(
+        "[^-]*-msvc-(?P<major_version>[\d]*).(?P<minor_version>[\d]*)-[\d.\w]"
+    )
+    major_vers = []
+    minor_vers = []
+    updated_win_dls = []
+    for dl in win_bin_d:
+        match = v_reg.match(dl.display_name)
+        if not match:
+            # If our regex does not match, we have found an "all" file, so add it to the list
+            updated_win_dls.append(dl)
+            win_bin_d.remove(dl)
+            continue
+        major_vers.append(match.groupdict().get("major_version"))
+        minor_vers.append(match.groupdict().get("minor_version"))
+
+    # Remove dupes and sort
+    major_vers = list(set(major_vers))
+    minor_vers = list(set(minor_vers))
+    major_vers.sort()
+    minor_vers.sort()
+
+    m_ver = major_vers[-1]
+    mi_ver = minor_vers[-1]
+
+    pref_reg = re.compile(f"[^-]*-msvc-{m_ver}.{mi_ver}-[\d.\w]")
+
+    for dl in win_bin_d:
+        match = pref_reg.match(dl.display_name)
+        if not match:
+            continue
+        else:
+            updated_win_dls.append(dl)
+
+    updated_win_dls.append(
+        {
+            "display_name": "To see other windows versions, click here",
+            "url": f"{settings.ALLOWED_HOSTS[0]}{reverse("release-detail", kwargs={"version_slug":version.slug})}",
+        }
+    )
+
+    r_dict[OperatingSystems.WINDOWS_BIN] = updated_win_dls
+    return r_dict
 
 
 def get_mailinglist_msg_counts(version: Version) -> tuple[int, int]:
