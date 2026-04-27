@@ -17,7 +17,8 @@ body:has(.community-v3) .header {
 .community-container {
   max-width: 1440px;
   margin: 0 auto;
-  padding: var(--space-large, 16px) var(--space-large, 16px) var(--space-xxl, 48px);
+  padding: var(--space-large, 16px) var(--space-large, 16px)
+    var(--space-xxl, 48px);
 }
 
 /* ── Masonry layout ───────────────────────────────────────────── */
@@ -27,7 +28,6 @@ body:has(.community-v3) .header {
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-large);
   align-items: start;
-
 }
 
 .community-masonry__help {
@@ -38,53 +38,6 @@ body:has(.community-v3) .header {
   display: flex;
   flex-direction: column;
   gap: var(--space-large);
-}
-
-
-.community-masonry .btn {
-  text-decoration: none;
-}
-
-/* ── Contribute section ────────────────────────────────────── */
-
-.community-contribute {
-  display: flex;
-  flex-direction: column;
-}
-
-.community-contribute__heading {
-  font-family: var(--font-display, "DM Serif Display", serif);
-  font-size: var(--font-size-large, 20px);
-  font-weight: var(--font-weight-regular, 400);
-  line-height: var(--line-height-default, 1.5);
-  color: var(--color-text-primary, #050816);
-  margin: 0;
-}
-
-.community-contribute__text {
-  font-size: var(--font-size-small, 14px);
-  color: var(--color-text-secondary, #3C3C43);
-  margin: 0;
-}
-
-.community-contribute__list {
-  font-size: var(--font-size-small, 14px);
-  color: var(--color-text-secondary, #3C3C43);
-  margin: 0;
-  padding-left: var(--space-large, 16px);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs, 4px);
-}
-
-/* Nested cards inside contribute: remove double card chrome */
-.community-contribute.card > .card,
-.community-contribute.card > section.card {
-  border: none;
-  padding-top: 0;
-  padding-bottom: 0;
-  background: transparent;
-  border-radius: 0;
 }
 
 /* ── Responsive: tablet (2-col) ────────────────────────────── */
@@ -110,22 +63,42 @@ body:has(.community-v3) .header {
     display: none;
   }
 
-  .card, .card-group {
+  .card,
+  .card-group {
     max-width: var(--community-col-width);
     width: 100%;
   }
+
   /* Flatten cols so cells become direct grid children (reshuffled via areas) */
   .community-masonry__col {
     display: contents;
   }
-  .community-masonry__help             { grid-area: A; max-width: calc(var(--community-col-width) * 2 + var(--space-large)); }
-  .community-masonry__cell--install    { grid-area: B; }
-  .community-masonry__cell--libraries  { grid-area: C; }
-  .community-masonry__cell--posts      { grid-area: D; }
-  .community-masonry__cell--slack      { grid-area: E; }
-  .community-masonry__cell--contribute { grid-area: F; }
-  .community-masonry__cell--mailing    { grid-area: G; }
-  .community-masonry__cell--threads    { grid-area: H; }
+
+  .community-masonry__help {
+    grid-area: A;
+    max-width: calc(var(--community-col-width) * 2 + var(--space-large));
+  }
+  .community-masonry__cell--install {
+    grid-area: B;
+  }
+  .community-masonry__cell--libraries {
+    grid-area: C;
+  }
+  .community-masonry__cell--posts {
+    grid-area: D;
+  }
+  .community-masonry__cell--slack {
+    grid-area: E;
+  }
+  .community-masonry__cell--contribute {
+    grid-area: F;
+  }
+  .community-masonry__cell--mailing {
+    grid-area: G;
+  }
+  .community-masonry__cell--threads {
+    grid-area: H;
+  }
 }
 
 /* ── Responsive: mobile (1-col) ────────────────────────────── */
