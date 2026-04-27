@@ -276,7 +276,10 @@ def generate_release_report(user_id, params, base_uri=None, stats_results=None):
         return None
 
     if stats_results:
-        html = form.render_with_stats(stats_results, base_uri=base_uri)
+        html = form.render_with_stats(
+            stats_results,
+            base_uri=base_uri,
+        )
     else:
         html = form.cache_html(base_uri=base_uri)
 

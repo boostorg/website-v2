@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from datetime import timedelta, date
 from functools import cached_property
 from itertools import chain, groupby
-from operator import attrgetter
+from operator import attrgetter, itemgetter
 
 import psycopg2
 from django.conf import settings
@@ -614,7 +614,7 @@ def get_issues_counts(prior_version: Version, version: Version):
     return opened_issues_count, closed_issues_count
 
 
-def get_download_links(version: Version):
+def get_download_links(version: Version, base_uri: str = None):
     from versions.models import OperatingSystems
 
     r_dict = {
@@ -624,51 +624,55 @@ def get_download_links(version: Version):
             key=attrgetter("operating_system"),
         )
     }
-    win_bin_d = r_dict[OperatingSystems.WINDOWS_BIN]
+
+    # Some Version of Boost have no windows binaries, so we can return
+    win_bin_d = r_dict.get(OperatingSystems.WINDOWS_BIN, None)
+    if not win_bin_d or len(win_bin_d) < 1:
+        return r_dict
+
     # Attempt to match version name, in shape of Boost version - msvc - msvc version - bit.exe
     # e.g. boost_1_91_0_b1-msvc-14.5-64.exe
     # and return major and minor msvc version
 
     v_reg = re.compile(
-        "[^-]*-msvc-(?P<major_version>[\d]*).(?P<minor_version>[\d]*)-[\d.\w]"
+        r"^[^-]*-msvc-(?P<major_version>[\d]+)\.(?P<minor_version>[\d]+)-[\d.\w]+$"
     )
-    major_vers = []
-    minor_vers = []
+
     updated_win_dls = []
+    msvc_versions = []
+    version_files = {}
+
+    # Iterate over our files, group them by major and minor msvc version
     for dl in win_bin_d:
         match = v_reg.match(dl.display_name)
         if not match:
             # If our regex does not match, we have found an "all" file, so add it to the list
             updated_win_dls.append(dl)
-            win_bin_d.remove(dl)
             continue
-        major_vers.append(match.groupdict().get("major_version"))
-        minor_vers.append(match.groupdict().get("minor_version"))
+        msvc_version = (
+            int(match.groupdict().get("major_version")),
+            int(match.groupdict().get("minor_version")),
+        )
+        msvc_versions.append(msvc_version)
+        if msvc_version not in version_files:
+            version_files[msvc_version] = []
+        version_files[msvc_version].append(dl)
 
     # Remove dupes and sort
-    major_vers = list(set(major_vers))
-    minor_vers = list(set(minor_vers))
-    major_vers.sort()
-    minor_vers.sort()
+    msvc_versions = list(set(msvc_versions))
+    msvc_versions.sort(key=itemgetter(0, 1))
+    selected_version = msvc_versions[-1]
 
-    m_ver = major_vers[-1]
-    mi_ver = minor_vers[-1]
+    updated_win_dls += version_files.get(selected_version, [])
 
-    pref_reg = re.compile(f"[^-]*-msvc-{m_ver}.{mi_ver}-[\d.\w]")
-
-    for dl in win_bin_d:
-        match = pref_reg.match(dl.display_name)
-        if not match:
-            continue
-        else:
-            updated_win_dls.append(dl)
-
-    updated_win_dls.append(
-        {
-            "display_name": "To see other windows versions, click here",
-            "url": f"{settings.ALLOWED_HOSTS[0]}{reverse("release-detail", kwargs={"version_slug":version.slug})}",
-        }
-    )
+    # If we have passed a base_uri, use it to create a link to the release detail page
+    if base_uri:
+        updated_win_dls.append(
+            {
+                "display_name": "To see other windows versions, click here",
+                "url": f"{base_uri}{reverse("release-detail", kwargs={"version_slug":version.slug})}",
+            }
+        )
 
     r_dict[OperatingSystems.WINDOWS_BIN] = updated_win_dls
     return r_dict
