@@ -343,7 +343,6 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
 
 
 class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
-    template_name = None
     v3_template_name = "news/v3/create.html"
     http_method_names = ["get", "post"]
 
@@ -353,6 +352,13 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
         "link": (Link, LinkForm),
         "video": (Video, VideoForm),
     }
+
+    def dispatch(self, request, *args, **kwargs):
+        # Run AllTypesCreateView's profile-completeness guard before V3Mixin takes over.
+        response = AllTypesCreateView.dispatch(self, request, *args, **kwargs)
+        if response.status_code != 200:
+            return response
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
