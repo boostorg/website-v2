@@ -1,11 +1,11 @@
 /**
- * Help cards: section wrapper with a grid of speech-bubble user cards.
- * Rendered by templates/v3/includes/_help_cards.html.
+ * Help card: section wrapper with a grid of speech-bubble user cards.
+ * Rendered by templates/v3/includes/_help_card.html.
  */
 
 /* ── Section wrapper ───────────────────────────────────────── */
 
-.community-help {
+.help-card-section {
   --chat-bubble-tail-padding: 60px;
 
   display: flex;
@@ -17,7 +17,7 @@
   border-radius: var(--border-radius-xl);
 }
 
-.community-help__heading {
+.help-card-section__heading {
   font-family: var(--font-display);
   font-size: var(--font-size-large);
   font-weight: var(--font-weight-medium);
@@ -29,7 +29,7 @@
   line-height: var(--line-height-tight);
 }
 
-.community-help__grid {
+.help-card-section__grid {
   display: grid;
   gap: var(--space-large);
   padding: var(--space-large);
@@ -102,12 +102,12 @@
 /* ── Responsive ────────────────────────────────────────────── */
 
 @media (max-width: 767px) {
-  .community-help {
+  .help-card-section {
     --chat-bubble-tail-padding: 48px;
     max-width: 458px;
   }
 
-  .community-help__grid {
+  .help-card-section__grid {
     grid-template-columns: 1fr;
     grid-template-rows: none;
     row-gap: calc(var(--space-large) * 2);

@@ -4,6 +4,7 @@
     Title: Required, text that appears bolded at the top of the card
     Text: optional, text that appears in the middle of the card
     image_url: optional, url of an image that should appear in the card
+    image_alt: optional, alt text for the image (defaults to "" — image treated as decorative)
     Primary Button Url, Label, and Style: Optional. Url is the destination of the button, label is the text of the button, style is from the style list
     Secondary Button Url, Label, and Style: Optional, same use as primary
 {% endcomment %}
@@ -14,7 +15,7 @@
   <hr class="card__hr" />
   <div class="card__column px-large">
     {% if text %}<span>{{ text }}</span>{% endif %}
-    {% if image_url %}<img class="card__image" src="{{ image_url }}" />{% endif %}
+    {% if image_url %}<img class="card__image" src="{{ image_url }}" alt="{{ image_alt|default:'' }}">{% endif %}
   </div>
   <hr class="card__hr" />
   <div class="card__cta_section">
