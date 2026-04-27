@@ -16,7 +16,7 @@
           </div>
           <div class="community-masonry__cell community-masonry__cell--slack">
             {% with member_count=slack_member_count|default:"30,000" %}
-              {% include "v3/includes/_vertical_card.html" with title="Join the discussion on Slack" image_url="/static/img/v3/Community-page/community-placeholder.png" primary_button_url="https://cppalliance.org/slack/" primary_button_label="Chat with "|add:member_count|add:" members" only %}
+              {% include "v3/includes/_vertical_card.html" with title="Join the discussion on Slack" image_url="/static/img/v3/Community-page/community-slack-preview.png" primary_button_url="https://cppalliance.org/slack/" primary_button_label="Chat with "|add:member_count|add:" members" only %}
             {% endwith %}
           </div>
           <div class="community-masonry__cell community-masonry__cell--contribute">

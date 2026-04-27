@@ -63,7 +63,7 @@
   padding: 0 var(--chat-bubble-tail-padding);
   align-items: center;
   margin-top: calc(-1 * var(--space-large));
-  margin-bottom: 26px;
+  margin-bottom: var(--space-s);
 }
 
 .help-card__tail {
@@ -96,6 +96,7 @@
   letter-spacing: -0.12px;
   margin-top: auto;
   text-decoration: underline;
+  width: fit-content;
 }
 
 /* ── Responsive ────────────────────────────────────────────── */

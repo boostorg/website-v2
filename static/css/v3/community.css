@@ -22,9 +22,6 @@ body:has(.community-v3) .header {
 
 /* ── Masonry layout ───────────────────────────────────────────── */
 
-/* Single grid: help spans the full row, then 3 independent flex-stack
-   columns pack their cards tightly without shared row heights. */
-
 .community-masonry {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -90,49 +87,45 @@ body:has(.community-v3) .header {
   border-radius: 0;
 }
 
-/* ── Post cards teal theme ─────────────────────────────────── */
-
-section.post-cards.post-cards--teal {
-  background: var(--color-surface-weak-accent-teal);
-  border-color: var(--color-stroke-weak);
-}
-
 /* ── Responsive: tablet (2-col) ────────────────────────────── */
 
 @media (max-width: 1279px) {
-  .community-masonry__cell--libraries .card-group__item:nth-child(n + 4) {
-    display: none;
-  }
   .community-masonry {
+    --community-col-width: 458px;
+
     grid-template-columns: repeat(2, 1fr);
     grid-template-areas:
-      "help       help"
-      "install    libraries"
-      "posts      libraries"
-      "posts      slack"
-      "posts      slack"
-      "contribute mailing"
-      "contribute threads";
+      "A A"
+      "B C"
+      "D C"
+      "D E"
+      "D E"
+      "F G"
+      "F H";
     max-width: fit-content;
     margin-inline: auto;
   }
 
+  .community-masonry__cell--libraries .card-group__item:nth-child(n + 4) {
+    display: none;
+  }
+
   .card, .card-group {
-    max-width: 458px;
+    max-width: var(--community-col-width);
     width: 100%;
   }
   /* Flatten cols so cells become direct grid children (reshuffled via areas) */
   .community-masonry__col {
     display: contents;
   }
-  .community-masonry__help             { grid-area: help; max-width: 992px; }
-  .community-masonry__cell--install    { grid-area: install; }
-  .community-masonry__cell--slack      { grid-area: slack; }
-  .community-masonry__cell--contribute { grid-area: contribute; }
-  .community-masonry__cell--libraries  { grid-area: libraries; }
-  .community-masonry__cell--threads    { grid-area: threads; }
-  .community-masonry__cell--posts      { grid-area: posts; }
-  .community-masonry__cell--mailing    { grid-area: mailing; }
+  .community-masonry__help             { grid-area: A; max-width: calc(var(--community-col-width) * 2 + var(--space-large)); }
+  .community-masonry__cell--install    { grid-area: B; }
+  .community-masonry__cell--libraries  { grid-area: C; }
+  .community-masonry__cell--posts      { grid-area: D; }
+  .community-masonry__cell--slack      { grid-area: E; }
+  .community-masonry__cell--contribute { grid-area: F; }
+  .community-masonry__cell--mailing    { grid-area: G; }
+  .community-masonry__cell--threads    { grid-area: H; }
 }
 
 /* ── Responsive: mobile (1-col) ────────────────────────────── */
@@ -141,13 +134,17 @@ section.post-cards.post-cards--teal {
   .community-masonry {
     grid-template-columns: 1fr;
     grid-template-areas:
-      "help"
-      "install"
-      "libraries"
-      "posts"
-      "slack"
-      "contribute"
-      "mailing"
-      "threads";
+      "A"
+      "B"
+      "C"
+      "D"
+      "E"
+      "F"
+      "G"
+      "H";
+  }
+
+  .community-masonry__help {
+    max-width: var(--community-col-width);
   }
 }
