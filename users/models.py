@@ -343,7 +343,7 @@ class User(BaseUser):
 
     @cached_property
     def avatar_url(self):
-        return self.get_avatar_url
+        return self.get_avatar_url()
 
     @cached_property
     def badge_url(self):
@@ -360,6 +360,13 @@ class User(BaseUser):
         TODO: This is currently dummy data for testing
         """
         return "Contributor"
+
+    @cached_property
+    def flag_emoji(self):
+        """
+        TODO: This is currently dummy data for testing
+        """
+        return "🇺🇸"
 
     @staticmethod
     def get_user_by_github_url(url: str):

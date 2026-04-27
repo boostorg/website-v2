@@ -20,26 +20,27 @@
     <div class="post-content-layout">
       <p class="subheading">Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, and user-created content.</p>
       <div class="post-content__filter_column">
-        {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' %}
+        {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' only %}
         <p class="field__label filter__tags-label">Filter</p>
         <form>
         <div class="filter__tags">
-            {% include "v3/includes/_post_filter.html" with options=filter_terms filter_name="post-filter" default=filter_value %}
+            {% include "v3/includes/_post_filter.html" with options=filter_terms filter_name="post-filter" default=filter_value only %}
         </div>
-        {% include 'v3/includes/_field_dropdown.html' with name='ex_type' label='Library' options=libraries placeholder='All' %}
+        {% include 'v3/includes/_field_dropdown.html' with name='ex_type' label='Library' options=libraries placeholder='All' only %}
         {% include "v3/includes/_button.html" with label="Filter" icon_position="right" icon_name="arrow-right" icon_size=16 type="submit" js_disabled=True extra_classes="filter-submit-button" only %}
         </form>
       </div>
       <div class="post-content__content_column">
-        {% include 'v3/includes/_post_list_card.html' with heading=header_text items=entry_list %}
+        {% include 'v3/includes/_post_list_card.html' with heading=header_text items=entry_list only %}
       </div>
       <div class="post-content__user_card_column">
         {% if request.user.is_authenticated %}
           {% with u=request.user %}
-            {% include 'v3/includes/_user_card.html' with username=u.display_name avatar_url=u.avatar_url badge_name='Bug Catcher' badge_icon_src=u.badge_url member_since=u.year_joined role='Contributor' flag_emoji='🇺🇸' cta_url='#' cta_label='Create Post' %}
+            {% url 'v3-news-create' as create_url %}
+            {% include 'v3/includes/_user_card.html' with username=u.display_name avatar_url=u.avatar_url badge_name='Bug Catcher' badge_icon_src=u.badge_url member_since=u.year_joined role='Contributor' flag_emoji=u.flag_emoji cta_url=create_url cta_label='Create Post' only %}
           {% endwith %}
         {% else %}
-          {% include 'v3/includes/_user_card.html' with logged_out=True cta_url='#' cta_label='Create Post' %}
+          {% include 'v3/includes/_user_card.html' with logged_out=True cta_url='#' cta_label='Create Post' only %}
         {% endif %}
       </div>
     </div>

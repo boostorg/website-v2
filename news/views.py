@@ -12,6 +12,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
 from django.template.defaultfilters import date as datefilter
 from django.urls import reverse_lazy
+from django.utils.functional import cached_property
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
@@ -89,6 +90,10 @@ class EntryListView(V3Mixin, ListView):
     header_text = "Latest Posts"
     filter_value = "all"
 
+    @cached_property
+    def libary_values(self):
+        return [(x.slug, x.name) for x in Library.objects.all().order_by("name")]
+
     def render_v3_response(self):
         """Render the v3 template through Django's standard TemplateView pipeline."""
         if post_filter := self.request.GET.get("post-filter"):
@@ -145,9 +150,7 @@ class EntryListView(V3Mixin, ListView):
                     "value": "issues",
                 },
             ],
-            "libraries": [
-                (x.slug, x.name) for x in Library.objects.all().order_by("name")
-            ],
+            "libraries": self.libary_values,
             "header_text": self.header_text,
             "filter_value": self.filter_value,
         }
