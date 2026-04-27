@@ -24,6 +24,7 @@ def to_url(value):
 
 
 class BoostVersionSlugConverter:
+    URL_TYPE_NAME = "boostversionslug"
     regex = r"[a-zA-Z0-9\-\.]+"
 
     def to_python(self, value):

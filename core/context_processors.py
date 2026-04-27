@@ -6,7 +6,13 @@ from django.urls import NoReverseMatch, reverse
 
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.utils import get_version_from_cookie
+from versions.converters import BoostVersionSlugConverter
 from versions.models import Version
+
+
+_BOOST_VERSION_SLUG_ROUTE_TOKEN = (
+    f"<{BoostVersionSlugConverter.URL_TYPE_NAME}:version_slug>"
+)
 
 
 def _get_header_version_data(request):
@@ -83,7 +89,9 @@ def selected_version(request):
     """
     url_version_slug = None
     resolver_match = getattr(request, "resolver_match", None)
-    if resolver_match:
+    if resolver_match and _BOOST_VERSION_SLUG_ROUTE_TOKEN in (
+        resolver_match.route or ""
+    ):
         url_version_slug = resolver_match.kwargs.get("version_slug")
 
     is_url_driven = bool(url_version_slug)
