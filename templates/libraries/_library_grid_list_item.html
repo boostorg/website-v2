@@ -43,11 +43,9 @@
     </div>
     {#  <div class="w-1/6 tracking-wider text-charcoal dark:text-white/60">{% if library_version.library.first_boost_version %}{{ library_version.library.first_boost_version.release_date|years_since }} yrs{% endif %}</div>#}
     <div class="w-auto md:w-5/6 pl-2 text-right mr-2 font-bold capitalize  text-sky-600 dark:text-sky-300">
-      {% for c in library_version.library.categories.all %}
-        <a href="{% url 'libraries-list' library_view_str='grid' category_slug=c.slug version_slug=version_str %}"
-           class="hover:text-orange">{{ c.name }}</a>
-        {% if not forloop.last %},{% endif %}
-      {% endfor %}
+      {# djlint:off #}
+      {% for c in library_version.library.categories.all %}<a href="{% url 'libraries-list' library_view_str='grid' category_slug=c.slug version_slug=version_str %}" class="hover:text-orange">{{ c.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+      {# djlint:on #}
     </div>
   </div>
 </div>
