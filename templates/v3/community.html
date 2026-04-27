@@ -2,6 +2,11 @@
 {% load static %}
 {% block title %}Boost Community{% endblock %}
 
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/community.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block main_content_wrapper %}<div class="community-v3">{% endblock %}
   {% block content %}
     {% include "v3/includes/_hero_library.html" with title="A community built to help you go further" description="For newcomers and experienced engineers alike, Boost is a place to build real libraries, learn from experts and make contributions that matter." hero_image_url="/static/img/v3/Community-page/community-foreground.png" %}
