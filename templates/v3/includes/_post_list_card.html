@@ -13,7 +13,7 @@
       - tag             (string, optional)  — e.g. "beast"
       - author          (object, optional)  — passed to _user_profile.html (see that template for fields)
   Usage:
-    {% include "v3/includes/_post_card.html" with heading="Posts" items=posts %}
+    {% include "v3/includes/_post_list_card.html" with heading="Posts" items=posts %}
 {% endcomment %}
 {% block card_list %}
   {% if items %}
@@ -41,7 +41,7 @@
                 {% if item.video_thumbnail %}
                 <a  class="post-card__thumbnail" href="{{ item.get_absolute_url }}">
                   {% image item.video_thumbnail fill-180x100 %}
-                  <div class="icon_background">
+                  <div class="post-card__play-icon">
                     {% include "includes/icon.html" with icon_name="play_button" icon_size=16 only %}
                   </div>
                 </a>

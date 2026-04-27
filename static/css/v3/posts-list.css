@@ -1,4 +1,4 @@
-h1 {
+.post-content-container h1 {
     color: var(--color-text-primary);
     font-family: var(--font-sans);
     font-size: var(--font-size-2xl);
@@ -92,20 +92,10 @@ h1 {
     border-bottom: none;
 }
 
-.post-title {
-    color: var(--color-text-primary);
-    font-family: var(--font-sans);
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-medium);
-    line-height: var(--line-height-default);
-    letter-spacing: var(--letter-spacing-tight);
-    padding: 0;
-}
-
 .post-card__summary {
     color: var(--color-text-secondary);
     font-family: var(--font-sans);
-    font-size: var(--fonts-size-xs);
+    font-size: var(--font-size-xs);
     line-height: var(--line-height-default);
     letter-spacing: var(--letter-spacing-tight);
 }
@@ -122,7 +112,7 @@ h1 {
     position: relative;
 }
 
-.icon_background {
+.post-card__play-icon {
     display: flex;
     width: 24px;
     height: 24px;
