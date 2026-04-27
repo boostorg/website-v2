@@ -54,6 +54,7 @@ from libraries.views import (
     CommitEmailResendView,
 )
 from news.feeds import AtomNewsFeed, RSSNewsFeed
+from news.views import V3AllTypesCreateView
 from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
@@ -290,6 +291,7 @@ urlpatterns = (
             name="library-docs-redirect",
         ),
         path("news/", include("news.urls")),
+        path("v3/news/add/", V3AllTypesCreateView.as_view(), name="v3-news-create"),
         path(
             "people/detail/",
             TemplateView.as_view(template_name="boost/people_detail.html"),
