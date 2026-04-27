@@ -179,12 +179,14 @@ class CommunityView(V3Mixin, TemplateView):
         ctx["libraries"] = [
             {
                 "name": "Beast",
+                "url": "/library/latest/beast/",
                 "description": "A collection of useful generic algorithms.",
                 "categories": ["Concurrent", "IO"],
                 "cpp_version": "C++ 11",
             },
             {
                 "name": "Cobalt",
+                "url": "/library/latest/cobalt/",
                 "description": "Coroutines. Basic Algorithms & Types",
                 "categories": [
                     "Concurrent",
@@ -196,18 +198,21 @@ class CommunityView(V3Mixin, TemplateView):
             },
             {
                 "name": "JSON",
+                "url": "/library/latest/json/",
                 "description": "JSON parsing, serialization, and DOM",
                 "categories": ["Containers", "Data", "IO"],
                 "cpp_version": "C++ 11",
             },
             {
                 "name": "Lib Name",
+                "url": "#",
                 "description": "Lib Description",
                 "categories": ["Containers", "Data", "IO"],
                 "cpp_version": "C++ 11",
             },
             {
                 "name": "Lib Name",
+                "url": "#",
                 "description": "Lib Description",
                 "categories": ["Containers", "Data", "IO"],
                 "cpp_version": "C++ 11",

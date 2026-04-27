@@ -7,6 +7,7 @@
     heading_url         (string, optional)  — if set, heading becomes a link
     items               (list, optional)    — list of library objects with:
       - name            (string, required)  — library name
+      - url             (string, optional)  — if set, name renders as a link to the library page
       - description     (string, optional)  — short description
       - categories      (list, optional)    — list of category label strings
     variant             (string, optional)  — "list" or "card", defaults to "list"
@@ -26,7 +27,11 @@
       {% for item in items %}
         <li class="card-group__item">
           <article class="library-discovery-card">
-            <h3 class="library-discovery-card__name">{{ item.name }}</h3>
+            {% if item.url %}
+              <a href="{{ item.url }}" class="library-discovery-card__name">{{ item.name }}</a>
+            {% else %}
+              <h3 class="library-discovery-card__name">{{ item.name }}</h3>
+            {% endif %}
             {% if item.description %}
               <p class="library-discovery-card__description">{{ item.description }}</p>
             {% endif %}
