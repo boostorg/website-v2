@@ -39,12 +39,6 @@
   background: var(--color-surface-weak-accent-teal);
 }
 
-html.dark .basic-card--green,
-html.dark .basic-card--yellow,
-html.dark .basic-card--teal {
-  background: var(--color-surface-mid);
-}
-
 .wide-card {
     max-width: 696px;
 }
