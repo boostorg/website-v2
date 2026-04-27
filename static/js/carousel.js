@@ -164,9 +164,20 @@
     let scrolling = false;
     let scrollTimeout = null;
 
+    function syncInert(activeIdx) {
+      items.forEach(function (item, i) {
+        if (i === activeIdx) item.removeAttribute('inert');
+        else item.setAttribute('inert', '');
+      });
+    }
+
+    const initialIdx = Array.prototype.findIndex.call(radios, function (r) { return r.checked; });
+    syncInert(initialIdx >= 0 ? initialIdx : 0);
+
     radios.forEach(function (radio, idx) {
       radio.addEventListener('change', function () {
         if (!radio.checked) return;
+        syncInert(idx);
         const target = items[idx];
         if (!target) return;
         scrolling = true;
@@ -184,7 +195,10 @@
       if (itemWidth === 0) return;
       const idx = Math.round(track.scrollLeft / itemWidth);
       const radio = radios[Math.max(0, Math.min(radios.length - 1, idx))];
-      if (radio && !radio.checked) radio.checked = true;
+      if (radio && !radio.checked) {
+        radio.checked = true;
+        syncInert(idx);
+      }
     }, { passive: true });
   }
 

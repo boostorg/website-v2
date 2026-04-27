@@ -1,3 +1,4 @@
+{% load static %}
 {% comment %}
   Testimonial Card — displays a carousel of testimonial quotes with author profiles.
 
@@ -13,30 +14,7 @@
 
 {% with carousel_id='_testimonials_cards_carousel' %}
 <noscript>
-  <style>
-    /* No-JS fallback: the track switches to transform-based positioning so
-       clicking a label shifts the visible item without any scroll. Items are
-       `flex: 0 0 100%` and the track's rendered width equals one item's
-       width (children overflow the flex container), so translateX(-100%) =
-       one item shift. Touch/swipe is lost here (overflow: hidden), but
-       arrow buttons work without page scroll. */
-    /* Let the `.testimonial-card__post` parent clip (it already has
-       overflow: hidden). Setting overflow: hidden on the ul itself would
-       clip its own children — items past the first would be hidden even
-       after transform. Gap is zeroed out because translateX(-100%) steps by
-       item width only; the default gap would offset the snap position. */
-    .testimonial-card__list { overflow: visible !important; gap: 0 !important; transition: transform 0.3s ease; }
-    .testimonial-card:has(.testimonial-card__state[data-state-index="0"]:checked) .testimonial-card__list { transform: translateX(0%); }
-    .testimonial-card:has(.testimonial-card__state[data-state-index="1"]:checked) .testimonial-card__list { transform: translateX(-100%); }
-    .testimonial-card:has(.testimonial-card__state[data-state-index="2"]:checked) .testimonial-card__list { transform: translateX(-200%); }
-    .testimonial-card:has(.testimonial-card__state[data-state-index="3"]:checked) .testimonial-card__list { transform: translateX(-300%); }
-    .testimonial-card:has(.testimonial-card__state[data-state-index="4"]:checked) .testimonial-card__list { transform: translateX(-400%); }
-    .testimonial-card:has(.testimonial-card__state[data-state-index="5"]:checked) .testimonial-card__list { transform: translateX(-500%); }
-    .testimonial-card:has(.testimonial-card__state[data-state-index="6"]:checked) .testimonial-card__list { transform: translateX(-600%); }
-    .testimonial-card:has(.testimonial-card__state[data-state-index="7"]:checked) .testimonial-card__list { transform: translateX(-700%); }
-    .testimonial-card:has(.testimonial-card__state[data-state-index="8"]:checked) .testimonial-card__list { transform: translateX(-800%); }
-    .testimonial-card:has(.testimonial-card__state[data-state-index="9"]:checked) .testimonial-card__list { transform: translateX(-900%); }
-  </style>
+  <link rel="stylesheet" href="{% static 'css/v3/testimonial-card-nojs.css' %}">
 </noscript>
 <div class="card testimonial-card py-large" id="{{carousel_id}}" data-carousel data-carousel-radios role="region" aria-labelledby="{{ carousel_id }}-heading">
   {% if testimonials %}
