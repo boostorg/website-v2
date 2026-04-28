@@ -16,6 +16,27 @@
       <div class="user-profile__profile-card-row">
         {% include 'v3/includes/_user_card.html' with username=user.display_name avatar_url=user.get_avatar_url badge_name='Bug Catcher' badge_icon_src='/img/badge.png' member_since='2008' role='Board Member' flag_emoji='🇺🇸' compact=True %}
       </div>
+      <div class="user-profile__profile-content-area">
+        <div class="user-profile__profile-content-column--left">
+          <div class="user-profile__bio">
+            {% include 'v3/includes/_basic_card.html' with title='Bio' text='Lorem Ipsum' only %}
+          </div>
+          <div class="user-profile__achievements"></div>
+          <div class="user-profile__badges"></div>
+          <div class="user-profile__github">
+            {% with github_activity_card_data as data %}
+            {% include "v3/includes/_markdown_card.html" with title=data.title markdown=data.markdown_text button_url=data.button_url button_label=data.button_label %}
+            {% endwith %}
+          </div>
+          <div class="user-profile__posts"></div>
+          <div class="user-profile__mailing-list"></div>
+        </div>
+        <div class="user-profile__profile-content-column--right">
+          <div class="user-profile__achievements"></div>
+          <div class="user-profile__badges"></div>
+          <div class="user-profile__posts"></div>
+        </div>
+      </div>
     {% endwith %}
   </div>
 {% endblock %}

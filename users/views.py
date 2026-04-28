@@ -1,4 +1,5 @@
 import datetime
+from textwrap import dedent
 
 from allauth.account import app_settings
 from django.contrib import messages
@@ -95,6 +96,38 @@ class CurrentUserProfileView(
     success_message = "Your profile was successfully updated."
     success_url = reverse_lazy("profile-account")
     v3_template_name = "v3/user_profile_page.html"
+
+    def get_v3_context_data(self, **kwargs):
+        return {
+            "github_activity_card_data": {
+                "title": "Latest Boost Github activity",
+                "markdown_text": dedent(
+                    """
+                    * Created 24 Commits in [7 repositories](https://www.example.com)
+                    * Created [1 repository](https://www.example.com)
+                    * Created a pull request in cppalliance/buffers that received [6 comments](https://www.example.com)
+                    * Opened 17 other pull requests in [6 repositories](https://www.example.com)
+                    * Reviewed 3 pull requests in [3 repositories](https://www.example.com)
+                """
+                ),
+                "button_url": "https://www.github.com",
+                "button_label": "View on Github",
+            },
+            "mail_list_card_data": {
+                "title": "Mailing List Activity",
+                "markdown_text": dedent(
+                    """
+                    * Created 24 Commits in [7 repositories](https://www.example.com)
+                    * Created [1 repository](https://www.example.com)
+                    * Created a pull request in cppalliance/buffers that received [6 comments](https://www.example.com)
+                    * Opened 17 other pull requests in [6 repositories](https://www.example.com)
+                    * Reviewed 3 pull requests in [3 repositories](https://www.example.com)
+                """
+                ),
+                "button_url": "https://www.example.com.com",
+                "button_label": "View all activity",
+            },
+        }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

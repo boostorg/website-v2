@@ -14,6 +14,7 @@
   <div class="card__column px-large">
     <span>{{ text }}</span>
   </div>
+  {% if primary_button_url or secondary_button_url %}
   <hr class="card__hr" />
   <div class="card__cta_section">
     {% if primary_button_url and primary_button_label %}
@@ -23,4 +24,5 @@
       {% include "v3/includes/_button.html" with style="secondary" url=secondary_button_url label=secondary_button_label only %}
     {% endif %}
   </div>
+  {% endif %}
 </div>
