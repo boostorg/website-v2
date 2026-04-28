@@ -30,7 +30,7 @@ from libraries.managers import (
 )
 from mailing_list.models import EmailData
 from versions.models import ReportConfiguration
-from .constants import LIBRARY_GITHUB_URL_OVERRIDES
+from .constants import DESCRIPTION_FILES, LIBRARY_GITHUB_URL_OVERRIDES
 
 from .utils import (
     generate_random_string,
@@ -356,13 +356,12 @@ class Library(models.Model):
     def get_description(self, client, tag="develop"):
         """Get description from the appropriate file on GitHub.
 
-        For more recent versions, that will be `/doc/library-details.adoc`.
+        For more recent versions, that will be `/doc/library-detail.adoc`.
         For older versions, or libraries that have not adopted the adoc file,
-        that will be `/README.md`.
+        that will be `/README.md` or `/README.adoc`.
         """
         content = None
-        # File paths/names where description data might be stored.
-        files = ["doc/library-detail.adoc", "README.md"]
+        files = DESCRIPTION_FILES
 
         # Try to get the content from the cache first
         static_content_cache = caches["static_content"]
