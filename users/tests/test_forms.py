@@ -159,12 +159,14 @@ def test_user_profile_form(user):
     assert set(form.fields.keys()) == {
         "display_name",
         "email",
+        "bio",
         "indicate_last_login_method",
         "is_commit_author_name_overridden",
     }
     assert form.initial == {
         "display_name": user.display_name,
         "email": user.email,
+        "bio": user.bio,
         "indicate_last_login_method": user.indicate_last_login_method,
         "is_commit_author_name_overridden": user.is_commit_author_name_overridden,
     }

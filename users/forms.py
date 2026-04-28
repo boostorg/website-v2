@@ -92,6 +92,7 @@ class UserProfileForm(forms.ModelForm):
         fields = [
             "email",
             "display_name",
+            "bio",
             "indicate_last_login_method",
             "is_commit_author_name_overridden",
         ]
@@ -105,6 +106,7 @@ class UserProfileForm(forms.ModelForm):
         )
         help_texts = {
             "display_name": "Your name as it will be displayed across the site.",
+            "bio": "Short bio shown alongside your name on library cards.",
             "is_commit_author_name_overridden": override_msg,
         }
 

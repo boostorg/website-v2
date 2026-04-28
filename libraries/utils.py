@@ -482,6 +482,7 @@ def build_library_intro_context(library_version, *, max_authors=3):
         top_contributors = (
             CommitAuthor.humans.filter(commit__library_version=library_version)
             .exclude(id__in=exclude_commit_author_ids)
+            .select_related("user")
             .annotate(count=Count("commit"))
             .order_by("-count")[:remaining]
         )
@@ -512,11 +513,12 @@ def build_library_intro_context(library_version, *, max_authors=3):
                 "badge_url": (
                     medals[len(author_dicts)] if len(author_dicts) < len(medals) else ""
                 ),
-                "bio": "",
+                "bio": user.bio,
                 "profile_url": "",
             }
         )
     for ca in top_contributors:
+        bio = ca.user.bio if ca.user_id else ""
         author_dicts.append(
             {
                 "name": ca.display_name,
@@ -525,7 +527,7 @@ def build_library_intro_context(library_version, *, max_authors=3):
                 "badge_url": (
                     medals[len(author_dicts)] if len(author_dicts) < len(medals) else ""
                 ),
-                "bio": "",
+                "bio": bio,
                 "profile_url": "",
             }
         )

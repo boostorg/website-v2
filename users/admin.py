@@ -15,6 +15,7 @@ class EmailUserAdmin(UserAdmin):
                 "fields": (
                     "display_name",
                     "github_username",
+                    "bio",
                     "valid_email",
                     "claimed",
                 )

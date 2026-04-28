@@ -2,8 +2,10 @@ import os
 import pytest
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from model_bakery import baker
 
 from libraries.utils import (
+    build_library_intro_context,
     conditional_batched,
     decode_content,
     generate_fake_email,
@@ -406,3 +408,79 @@ def test_modernize_boost_slug():
     old_slug = "1_81_0"
     new_slug = "boost-1-81-0"
     assert new_slug == modernize_boost_slug(old_slug)
+
+
+@pytest.mark.django_db
+def test_build_library_intro_context_passes_user_bio_for_author(library_version):
+    author = baker.make(
+        "users.User",
+        email="author@example.com",
+        display_name="Library Author",
+        bio="Maintains the multi-array module.",
+    )
+    library_version.authors.add(author)
+
+    ctx = build_library_intro_context(library_version)
+
+    assert len(ctx["authors"]) == 1
+    assert ctx["authors"][0]["role"] == "Author"
+    assert ctx["authors"][0]["bio"] == "Maintains the multi-array module."
+
+
+@pytest.mark.django_db
+def test_build_library_intro_context_bio_empty_when_user_has_none(library_version):
+    author = baker.make(
+        "users.User",
+        email="author@example.com",
+        display_name="No Bio Author",
+        bio="",
+    )
+    library_version.authors.add(author)
+
+    ctx = build_library_intro_context(library_version)
+
+    assert ctx["authors"][0]["bio"] == ""
+
+
+@pytest.mark.django_db
+def test_build_library_intro_context_top_contributor_bio_from_linked_user(
+    library_version,
+):
+    user = baker.make(
+        "users.User",
+        email="contrib@example.com",
+        display_name="Top Contrib",
+        bio="Lots of commits.",
+    )
+    ca = baker.make(
+        "libraries.CommitAuthor",
+        name="Top Contrib",
+        user=user,
+        is_bot=False,
+    )
+    baker.make("libraries.Commit", author=ca, library_version=library_version)
+
+    ctx = build_library_intro_context(library_version)
+
+    contributors = [a for a in ctx["authors"] if a["role"] == "Contributor"]
+    assert len(contributors) == 1
+    assert contributors[0]["bio"] == "Lots of commits."
+
+
+@pytest.mark.django_db
+def test_build_library_intro_context_top_contributor_bio_empty_when_no_user(
+    library_version,
+):
+    ca = baker.make(
+        "libraries.CommitAuthor",
+        name="Anon Contrib",
+        user=None,
+        is_bot=False,
+    )
+    baker.make("libraries.Commit", author=ca, library_version=library_version)
+
+    ctx = build_library_intro_context(library_version)
+
+    contributors = [a for a in ctx["authors"] if a["role"] == "Contributor"]
+    assert len(contributors) == 1
+    assert contributors[0]["bio"] == ""

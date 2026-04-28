@@ -260,6 +260,12 @@ class User(BaseUser):
         default=False,
         help_text="Indicate on the login page the last login method used.",
     )
+    bio = models.CharField(
+        _("bio"),
+        max_length=255,
+        blank=True,
+        help_text=_("Short bio shown alongside the user on library cards."),
+    )
     # If non-null, the user has requested deletion but the grace period has not
     # elapsed.
     delete_permanently_at = models.DateTimeField(null=True, editable=False)
