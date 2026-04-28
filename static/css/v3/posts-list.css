@@ -171,6 +171,8 @@
 
     .post-card__thumbnail img {
         width: 100%;
+        object-fit: cover;
+        max-height: 197px;
     }
 
     .post-card__play-icon {
