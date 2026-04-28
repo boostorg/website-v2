@@ -52,24 +52,6 @@ logger = structlog.get_logger()
 # ── V3 context helpers ─────────────────────────────────────────────────────
 
 
-def _format_users_for_v3(users, role):
-    """Convert User objects to the dict format expected by _user_profile.html."""
-    result = []
-    for user in users:
-        result.append(
-            {
-                "name": getattr(user, "display_name", None) or str(user),
-                "profile_url": None,
-                "role": role,
-                "avatar_url": (
-                    user.get_avatar_url() if hasattr(user, "get_avatar_url") else ""
-                ),
-                "badge_url": None,
-            }
-        )
-    return result
-
-
 def _format_commit_authors_for_v3(authors, role):
     """Convert CommitAuthor objects to the dict format expected by _user_profile.html."""
     result = []
@@ -423,8 +405,11 @@ class LibraryDetail(
         ]
 
         this_release = (
-            _format_users_for_v3(base_context.get("authors", []), "Author")
-            + _format_users_for_v3(base_context.get("maintainers", []), "Maintainer")
+            [u.to_v3_profile_dict("Author") for u in base_context.get("authors", [])]
+            + [
+                u.to_v3_profile_dict("Maintainer")
+                for u in base_context.get("maintainers", [])
+            ]
             + _format_commit_authors_for_v3(
                 list(base_context.get("top_contributors_release_new", [])),
                 "New Contributor",
