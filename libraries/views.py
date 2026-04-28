@@ -52,23 +52,6 @@ logger = structlog.get_logger()
 # ── V3 context helpers ─────────────────────────────────────────────────────
 
 
-def _format_commit_authors_for_v3(authors, role):
-    """Convert CommitAuthor objects to the dict format expected by _user_profile.html."""
-    result = []
-    for author in authors:
-        result.append(
-            {
-                "name": getattr(author, "display_name", None)
-                or getattr(author, "name", str(author)),
-                "profile_url": getattr(author, "github_profile_url", None),
-                "role": role,
-                "avatar_url": getattr(author, "avatar_url", "") or "",
-                "badge_url": None,
-            }
-        )
-    return result
-
-
 def _build_quick_start_links(documentation_url, github_url, github_issues_url):
     """Build the quick-start links list for the V3 library hero card."""
     links = []
@@ -410,22 +393,23 @@ class LibraryDetail(
                 u.to_v3_profile_dict("Maintainer")
                 for u in base_context.get("maintainers", [])
             ]
-            + _format_commit_authors_for_v3(
-                list(base_context.get("top_contributors_release_new", [])),
-                "New Contributor",
-            )
-            + _format_commit_authors_for_v3(
-                list(base_context.get("top_contributors_release_old", [])),
-                "Contributor",
-            )
+            + [
+                a.to_v3_profile_dict("New Contributor")
+                for a in base_context.get("top_contributors_release_new", [])
+            ]
+            + [
+                a.to_v3_profile_dict("Contributor")
+                for a in base_context.get("top_contributors_release_old", [])
+            ]
         )
         context["this_release_contributors"] = (
             this_release or SharedResources.library_release_contributors
         )
 
-        all_time = _format_commit_authors_for_v3(
-            list(base_context.get("previous_contributors", [])), "Contributor"
-        )
+        all_time = [
+            a.to_v3_profile_dict("Contributor")
+            for a in base_context.get("previous_contributors", [])
+        ]
         context["all_time_contributors"] = (
             all_time or SharedResources.library_all_contributors
         )

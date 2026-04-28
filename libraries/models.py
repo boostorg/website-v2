@@ -99,6 +99,15 @@ class CommitAuthor(models.Model):
     def __str__(self):
         return self.name
 
+    def to_v3_profile_dict(self, role):
+        return {
+            "name": self.display_name or self.name,
+            "profile_url": self.github_profile_url,
+            "role": role,
+            "avatar_url": self.avatar_url or "",
+            "badge_url": None,
+        }
+
     @transaction.atomic
     def merge_author(self, other: Self):
         """Update references to `other` to point to `self`.
