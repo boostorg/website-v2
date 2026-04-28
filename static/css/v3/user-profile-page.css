@@ -9,3 +9,63 @@
     justify-content: space-between;
     margin-bottom: var(--space-large);
 }
+
+.user-profile__profile-content-area {
+    display: grid;
+    grid-template-columns: repeat(2, 50%);
+    margin-bottom: var(--space-xl);
+}
+
+.user-profile__profile-content-area .card {
+    max-width: 100%;
+}
+
+.user-profile__profile-content-column--left {
+    display: grid;
+    gap: var(--space-medium);
+    grid-template-areas:
+        "bio"
+        "github"
+        "mailing-list"
+    ;
+}
+
+.user-profile__profile-content-column--right {
+    display: grid;
+    grid-template-areas:
+        "achievements"
+        "badges"
+        "posts"
+    ;
+}
+
+.user-profile__profile-content-column .user-profile__bio {
+    grid-area: bio;
+}
+
+.user-profile__profile-content-column .user-profile__achievements {
+    grid-area: achievements;
+}
+
+.user-profile__profile-content-column .user-profile__badges {
+    grid-area: badges;
+}
+
+.user-profile__profile-content-column .user-profile__github {
+    grid-area: github;
+}
+
+.user-profile__profile-content-column .user-profile__posts {
+    grid-area: posts;
+}
+
+.user-profile__profile-content-column .user-profile__mailing-list {
+    grid-area: mailing-list;
+}
+
+
+.user-profile__profile-content-column--left .user-profile__achievements,
+.user-profile__profile-content-column--left .user-profile__badges,
+.user-profile__profile-content-column--left .user-profile__posts {
+    display: none;
+}
