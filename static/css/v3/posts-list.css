@@ -110,6 +110,13 @@
     flex: 1 0 auto;
     align-self: center;
     position: relative;
+    border-radius: var(--border-radius-s);
+    overflow: hidden;
+}
+
+.post-card__thumbnail img {
+    width: 160px;
+    height: auto;
 }
 
 .post-card__play-icon {
@@ -152,6 +159,30 @@
 
     .post-content__filter_column {
         margin-bottom: var(--space-xl);
+    }
+
+    .post-card__row {
+        flex-direction: column;
+    }
+
+    .post-card__thumbnail {
+        width: 100%;
+    }
+
+    .post-card__thumbnail img {
+        width: 100%;
+    }
+
+    .post-card__play-icon {
+        height: 32px;
+        width: 32px;
+    }
+}
+
+
+@media (max-width: 1279px) {
+    .post-card__thumbnail {
+        align-self: flex-start;
     }
 }
 

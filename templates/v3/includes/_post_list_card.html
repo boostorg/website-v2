@@ -40,10 +40,14 @@
                 </div>
                 {% if item.video_thumbnail %}
                 <a  class="post-card__thumbnail" href="{{ item.get_absolute_url }}">
-                  {% image item.video_thumbnail fill-180x100 %}
+                  {% image item.video_thumbnail fill-360x200 %}
                   <div class="post-card__play-icon">
                     {% include "includes/icon.html" with icon_name="play_button" icon_size=16 only %}
                   </div>
+                </a>
+                {% elif item.image %}
+                <a  class="post-card__thumbnail" href="{{ item.get_absolute_url }}">
+                    <img src="{{item.image.url}}" />
                 </a>
                 {% endif %}
             </div>
