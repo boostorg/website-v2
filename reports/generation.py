@@ -627,7 +627,7 @@ def get_download_links(version: Version, base_uri: str = None):
 
     # Some Version of Boost have no windows binaries, so we can return
     win_bin_d = r_dict.get(OperatingSystems.WINDOWS_BIN, None)
-    if not win_bin_d or len(win_bin_d) < 1:
+    if not bool(win_bin_d):
         return r_dict
 
     # Attempt to match version name, in shape of Boost version - msvc - msvc version - bit.exe
@@ -661,8 +661,14 @@ def get_download_links(version: Version, base_uri: str = None):
     # Remove dupes and sort
     msvc_versions = list(set(msvc_versions))
     msvc_versions.sort(key=itemgetter(0, 1))
-    selected_version = msvc_versions[-1]
 
+    # If we somehow didn't generate anyversions, return to avoid an error
+    # This might occure if all versions are "all" versions, or if the regex fails
+    # in the future
+    if not bool(msvc_versions):
+        return r_dict
+
+    selected_version = msvc_versions[-1]
     updated_win_dls += version_files.get(selected_version, [])
 
     # If we have passed a base_uri, use it to create a link to the release detail page
