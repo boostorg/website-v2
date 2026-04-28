@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  User Profile
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/user-profile-page.css' %}" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+  <div class="user-profile__container">
+    {% with user=request.user %}
+      <div class="user-profile__profile-card-row">
+        {% include 'v3/includes/_user_card.html' with username=user.display_name avatar_url=user.get_avatar_url badge_name='Bug Catcher' badge_icon_src='/img/badge.png' member_since='2008' role='Board Member' flag_emoji='🇺🇸' compact=True %}
+      </div>
+    {% endwith %}
+  </div>
+{% endblock %}
