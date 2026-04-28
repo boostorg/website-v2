@@ -284,7 +284,7 @@ class CreateReportForm(CreateReportFullForm):
         report_configuration = self.cleaned_data["report_configuration"]
         return f"release-report-{lib_string}-{report_configuration.version}"
 
-    def get_stats(self):
+    def get_stats(self, base_uri: str = None):
         report_configuration = self.cleaned_data["report_configuration"]
         committee_members = report_configuration.financial_committee_members.all()
         # NOTE TO FUTURE DEVS: remember to account for the fact that a report
@@ -366,7 +366,7 @@ class CreateReportForm(CreateReportFullForm):
         )
 
         git_graph_data = get_git_graph_data(prior_version, version)
-        download = get_download_links(version)
+        download = get_download_links(version, base_uri)
         ### completed task handling ###
         (mailinglist_contributor_release_count, mailinglist_contributor_new_count) = (
             mailing_list_contributors_task.get()
@@ -431,7 +431,10 @@ class CreateReportForm(CreateReportFullForm):
         }
 
     def generate_context(
-        self, report_configuration: ReportConfiguration, stats_results: dict
+        self,
+        report_configuration: ReportConfiguration,
+        stats_results: dict,
+        base_uri: str = None,
     ):
         committee_members = report_configuration.financial_committee_members.all()
 
@@ -506,7 +509,7 @@ class CreateReportForm(CreateReportFullForm):
         )
 
         git_graph_data = get_git_graph_data(prior_version, version)
-        download = get_download_links(version)
+        download = get_download_links(version, base_uri)
 
         return {
             "committee_members": committee_members,
@@ -554,7 +557,7 @@ class CreateReportForm(CreateReportFullForm):
     def render_with_stats(self, stats_results, base_uri=None):
         """Render HTML with pre-computed stats results"""
         context = self.generate_context(
-            self.cleaned_data["report_configuration"], stats_results
+            self.cleaned_data["report_configuration"], stats_results, base_uri
         )
         if base_uri:
             context["base_uri"] = base_uri

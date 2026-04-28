@@ -3,16 +3,18 @@ import io
 import json
 import logging
 import random
+import re
 from dataclasses import dataclass, field
 from datetime import timedelta, date
 from functools import cached_property
 from itertools import chain, groupby
-from operator import attrgetter
+from operator import attrgetter, itemgetter
 
 import psycopg2
 from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.db.models import OuterRef, Q, F, Case, When, Value, Sum, Count
+from django.urls import reverse
 from matplotlib import pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 from algoliasearch.analytics.client import AnalyticsClientSync
@@ -612,14 +614,74 @@ def get_issues_counts(prior_version: Version, version: Version):
     return opened_issues_count, closed_issues_count
 
 
-def get_download_links(version: Version):
-    return {
+def get_download_links(version: Version, base_uri: str = None):
+    from versions.models import OperatingSystems
+
+    r_dict = {
         k: list(v)
         for k, v in groupby(
-            version.downloads.all().order_by("operating_system"),
+            version.downloads.all().order_by("operating_system", "display_name"),
             key=attrgetter("operating_system"),
         )
     }
+
+    # Some Version of Boost have no windows binaries, so we can return
+    win_bin_d = r_dict.get(OperatingSystems.WINDOWS_BIN, None)
+    if not bool(win_bin_d):
+        return r_dict
+
+    # Attempt to match version name, in shape of Boost version - msvc - msvc version - bit.exe
+    # e.g. boost_1_91_0_b1-msvc-14.5-64.exe
+    # and return major and minor msvc version
+
+    v_reg = re.compile(
+        r"^[^-]*-msvc-(?P<major_version>[\d]+)\.(?P<minor_version>[\d]+)-[\d.\w]+$"
+    )
+
+    updated_win_dls = []
+    msvc_versions = []
+    version_files = {}
+
+    # Iterate over our files, group them by major and minor msvc version
+    for dl in win_bin_d:
+        match = v_reg.match(dl.display_name)
+        if not match:
+            # If our regex does not match, we have found an "all" file, so add it to the list
+            updated_win_dls.append(dl)
+            continue
+        msvc_version = (
+            int(match.groupdict().get("major_version")),
+            int(match.groupdict().get("minor_version")),
+        )
+        msvc_versions.append(msvc_version)
+        if msvc_version not in version_files:
+            version_files[msvc_version] = []
+        version_files[msvc_version].append(dl)
+
+    # Remove dupes and sort
+    msvc_versions = list(set(msvc_versions))
+    msvc_versions.sort(key=itemgetter(0, 1))
+
+    # If we somehow didn't generate anyversions, return to avoid an error
+    # This might occure if all versions are "all" versions, or if the regex fails
+    # in the future
+    if not bool(msvc_versions):
+        return r_dict
+
+    selected_version = msvc_versions[-1]
+    updated_win_dls += version_files.get(selected_version, [])
+
+    # If we have passed a base_uri, use it to create a link to the release detail page
+    if base_uri:
+        updated_win_dls.append(
+            {
+                "display_name": "To see other windows versions, click here",
+                "url": f"{base_uri}{reverse("release-detail", kwargs={"version_slug":version.slug})}",
+            }
+        )
+
+    r_dict[OperatingSystems.WINDOWS_BIN] = updated_win_dls
+    return r_dict
 
 
 def get_mailinglist_msg_counts(version: Version) -> tuple[int, int]:
