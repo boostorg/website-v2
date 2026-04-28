@@ -88,10 +88,13 @@ class ProfileView(DetailView):
         return context
 
 
-class CurrentUserProfileView(LoginRequiredMixin, SuccessMessageMixin, TemplateView):
+class CurrentUserProfileView(
+    V3Mixin, LoginRequiredMixin, SuccessMessageMixin, TemplateView
+):
     template_name = "users/profile.html"
     success_message = "Your profile was successfully updated."
     success_url = reverse_lazy("profile-account")
+    v3_template_name = "v3/user_profile_page.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

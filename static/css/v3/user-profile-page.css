@@ -1,0 +1,11 @@
+.user-profile__container {
+    margin-top: var(--space-xl);
+    padding: 0 var(--space-large)
+}
+
+.user-profile__profile-card-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: var(--space-large);
+}
