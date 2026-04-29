@@ -48,11 +48,11 @@
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-default);
-  transition: background-color 0.15s ease;
+  transition: color 0.15s ease;
 }
 
 .quick-start-card__link:hover {
-  background-color: var(--color-surface-page);
+  color: var(--color-text-link-accent);
 }
 
 .quick-start-card__link-text {
