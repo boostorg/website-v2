@@ -12,6 +12,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
 from django.template.defaultfilters import date as datefilter
 from django.urls import reverse_lazy
+from django.utils.functional import cached_property
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
@@ -36,6 +37,9 @@ from .notifications import (
     send_email_news_needs_moderation,
     send_email_news_posted,
 )
+
+from core.mixins import V3Mixin
+from libraries.models import Library
 
 User = get_user_model()
 
@@ -76,12 +80,80 @@ def display_publish_at(publish_at, since=None):
     return humanize.naturaltime(truncated).replace("\xa0", " ")
 
 
-class EntryListView(ListView):
+class EntryListView(V3Mixin, ListView):
     model = Entry
     template_name = "news/list.html"
+    v3_template_name = "v3/posts_list.html"
     ordering = ["-publish_at"]
     paginate_by = None  #  XXX: use pagination in the template! Issue #377
     context_object_name = "entry_list"  # Ensure children use the same name
+    header_text = "Latest Posts"
+    filter_value = "all"
+
+    @cached_property
+    def libary_values(self):
+        return [(x.slug, x.name) for x in Library.objects.all().order_by("name")]
+
+    def render_v3_response(self):
+        """Render the v3 template through Django's standard TemplateView pipeline."""
+        if post_filter := self.request.GET.get("post-filter"):
+            match post_filter:
+                case "all":
+                    return HttpResponseRedirect(reverse_lazy("news"))
+                case "blogpost":
+                    return HttpResponseRedirect(reverse_lazy("news-blogpost-list"))
+                case "video":
+                    return HttpResponseRedirect(reverse_lazy("news-video-list"))
+                case "news":
+                    return HttpResponseRedirect(reverse_lazy("news-news-list"))
+                case "link":
+                    return HttpResponseRedirect(reverse_lazy("news-link-list"))
+
+        context = self.get_context_data(
+            **self.get_v3_context_data(), object_list=self.get_queryset()
+        )
+        return self.render_to_response(context)
+
+    def get_v3_context_data(self, **kwargs):
+        return {
+            "filter_terms": [
+                {
+                    "label": "All",
+                    "value": "all",
+                },
+                {
+                    "label": "News",
+                    "value": "news",
+                },
+                {
+                    "label": "Blogs",
+                    "value": "blogpost",
+                },
+                {
+                    "label": "Links",
+                    "value": "link",
+                },
+                {
+                    "label": "Videos",
+                    "value": "video",
+                },
+                {
+                    "label": "Discussions",
+                    "value": "discussions",
+                },
+                {
+                    "label": "Achievements",
+                    "value": "achievements",
+                },
+                {
+                    "label": "Issues",
+                    "value": "issues",
+                },
+            ],
+            "libraries": self.libary_values,
+            "header_text": self.header_text,
+            "filter_value": self.filter_value,
+        }
 
     def get_queryset(self):
         result = (
@@ -105,23 +177,32 @@ class EntryListView(ListView):
 
 
 class BlogPostListView(EntryListView):
+    header_text = "Blogs"
     model = BlogPost
+    filter_value = "blogpost"
 
 
 class LinkListView(EntryListView):
+    header_text = "Links"
     model = Link
+    filter_value = "link"
 
 
 class NewsListView(EntryListView):
+    header_text = "News"
     model = News
+    filter_value = "news"
 
 
 class PollListView(EntryListView):
+    header_text = "Polls"
     model = Poll
 
 
 class VideoListView(EntryListView):
+    header_text = "Videos"
     model = Video
+    filter_value = "video"
 
 
 class EntryModerationListView(LoginRequiredMixin, UserPassesTestMixin, ListView):

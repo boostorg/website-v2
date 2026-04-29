@@ -126,6 +126,14 @@ class Entry(models.Model):
     def is_published(self):
         return self.is_approved and self.publish_at <= now()
 
+    @property
+    def video_thumbnail(self):
+        try:
+            result = self.video.thumbnail
+        except Video.DoesNotExist:
+            result = None
+        return result
+
     @cached_property
     def tag(self):
         return getattr(self, "_tag", self.news_type)
