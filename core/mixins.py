@@ -1,3 +1,5 @@
+from django.http import Http404
+from django.urls import URLPattern, URLResolver, get_resolver
 from waffle import flag_is_active
 
 
@@ -11,6 +13,9 @@ class V3Mixin:
         v3_template_name: str — template to render when v3 is active
 
     And override get_v3_context_data() to supply view-specific context.
+
+    When the flag is off and no legacy template_name exists (i.e. a
+    V3-only view), dispatch returns 404.
     """
 
     v3_template_name = None
@@ -20,6 +25,8 @@ class V3Mixin:
             self._v3_active = True
             return self.render_v3_response()
         self._v3_active = False
+        if not getattr(self, "template_name", None):
+            raise Http404
         return super().dispatch(request, *args, **kwargs)
 
     def get_v3_context_data(self, **kwargs):
@@ -35,3 +42,24 @@ class V3Mixin:
         if getattr(self, "_v3_active", False):
             return [self.v3_template_name]
         return super().get_template_names()
+
+
+def iter_v3_views():
+    """Yield (URLPattern, view_class) for every V3Mixin view in the URL conf."""
+
+    def walk(patterns):
+        for entry in patterns:
+            if isinstance(entry, URLResolver):
+                yield from walk(entry.url_patterns)
+            elif isinstance(entry, URLPattern):
+                callback = entry.callback
+                view_class = None
+                while callback is not None:
+                    view_class = getattr(callback, "view_class", None)
+                    if view_class is not None:
+                        break
+                    callback = getattr(callback, "__wrapped__", None)
+                if view_class and issubclass(view_class, V3Mixin):
+                    yield entry, view_class
+
+    yield from walk(get_resolver().url_patterns)

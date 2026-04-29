@@ -1,7 +1,6 @@
 import logging
 
 from django.conf import settings
-from django.contrib.admin.views.decorators import staff_member_required
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path, register_converter, reverse_lazy
@@ -20,6 +19,7 @@ from ak.views import (
     OKView,
 )
 from config.settings import DEBUG_TOOLBAR
+from config.v3_urls import v3_urlpatterns
 from core.views import (
     BSLView,
     BoostDevelopmentView,
@@ -30,8 +30,6 @@ from core.views import (
     MarkdownTemplateView,
     TermsOfUseView,
     PrivacyPolicyView,
-    V3ComponentDemoView,
-    LearnPageView,
     ModernizedDocsView,
     RedirectToDocsView,
     RedirectToHTMLDocsView,
@@ -72,7 +70,6 @@ from news.views import (
     NewsListView,
     PollCreateView,
     PollListView,
-    V3AllTypesCreateView,
     VideoCreateView,
     VideoListView,
 )
@@ -83,8 +80,6 @@ from users.views import (
     CustomLoginView,
     CustomSignupView,
     CustomSocialSignupViewView,
-    V3LoginView,
-    V3SignupView,
     UserViewSet,
     UserAvatar,
     DeleteUserView,
@@ -251,26 +246,6 @@ urlpatterns = (
             TemplateView.as_view(template_name="style_guide.html"),
             name="style-guide",
         ),
-        path(
-            "v3/demo/components/",
-            staff_member_required(V3ComponentDemoView.as_view()),
-            name="v3-demo-components",
-        ),
-        path(
-            "v3/demo/learn-page/",
-            staff_member_required(LearnPageView.as_view()),
-            name="v3-learn-page",
-        ),
-        path(
-            "v3/accounts/signup/",
-            V3SignupView.as_view(),
-            name="v3-signup",
-        ),
-        path(
-            "v3/accounts/login/",
-            V3LoginView.as_view(),
-            name="v3-login",
-        ),
         path("libraries/", LibraryListDispatcher.as_view(), name="libraries"),
         path(
             "libraries/<boostversionslug:version_slug>/<str:library_view_str>/",
@@ -329,7 +304,6 @@ urlpatterns = (
         path("news/add/link/", LinkCreateView.as_view(), name="news-link-create"),
         path("news/add/poll/", PollCreateView.as_view(), name="news-poll-create"),
         path("news/add/video/", VideoCreateView.as_view(), name="news-video-create"),
-        path("v3/news/add/", V3AllTypesCreateView.as_view(), name="v3-news-create"),
         path("news/moderate/", EntryModerationListView.as_view(), name="news-moderate"),
         path(
             "news/moderate/<slug:slug>/",
@@ -448,6 +422,7 @@ urlpatterns = (
         # Custom Django views (must come before Wagtail catch-all)
         path("testimonials/", include("testimonials.urls")),
     ]
+    + v3_urlpatterns
     + [
         re_path(
             r"^lib/(?P<library_slug>[^/]+)/?$",

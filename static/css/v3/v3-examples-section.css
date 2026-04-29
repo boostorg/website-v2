@@ -2,15 +2,8 @@
   max-width: 80rem;
   margin-left: auto;
   margin-right: auto;
-  padding: 10% var(--space-default, 8px);
+  padding: var(--space-default, 8px);
   color: var(--color-text-primary);
-}
-
-body:has(.v3-examples-section) header {
-  position: absolute;
-  z-index: 10;
-  left: 0;
-  right: 0;
 }
 
 .v3-examples-section__heading {
@@ -297,6 +290,39 @@ html.dark .v3-examples-section__toc {
   display: flex;
   gap: var(--space-xl);
   overflow-x: auto;
+}
+
+/* ── V3 Paths Registry table ──────────────────── */
+
+.v3-examples-section__registry-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-small);
+}
+
+.v3-examples-section__registry-table th,
+.v3-examples-section__registry-table td {
+  padding: var(--space-default) var(--space-l);
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.v3-examples-section__registry-table th {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.v3-examples-section__registry-table td:first-child {
+  font-weight: var(--font-weight-medium);
+}
+
+.v3-examples-section__registry-table code {
+  font-size: var(--font-size-xs);
+}
+
+.v3-examples-section__registry-table a {
+  color: var(--color-text-link-accent);
 }
 
 /* ── Scroll offset for anchor links ────────────── */

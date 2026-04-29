@@ -27,6 +27,7 @@ from django.views.generic import (
 from django.views.generic.detail import SingleObjectMixin
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
 
+from core.mixins import V3Mixin
 from .acl import can_approve
 from .constants import NEWS_APPROVAL_SALT, MAGIC_LINK_EXPIRATION
 from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
@@ -341,8 +342,8 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class V3AllTypesCreateView(AllTypesCreateView):
-    template_name = "news/v3/create.html"
+class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
+    v3_template_name = "news/v3/create.html"
     http_method_names = ["get", "post"]
 
     _POST_TYPE_MAP = {
@@ -351,6 +352,13 @@ class V3AllTypesCreateView(AllTypesCreateView):
         "link": (Link, LinkForm),
         "video": (Video, VideoForm),
     }
+
+    def dispatch(self, request, *args, **kwargs):
+        # Run AllTypesCreateView's profile-completeness guard before V3Mixin takes over.
+        response = AllTypesCreateView.dispatch(self, request, *args, **kwargs)
+        if response.status_code != 200:
+            return response
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
