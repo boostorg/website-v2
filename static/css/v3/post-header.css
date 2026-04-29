@@ -1,0 +1,35 @@
+/* ==========================================================================
+   Post Header — title, meta row, and author block at the top of a post.
+   ========================================================================== */
+
+.post-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-medium);
+}
+
+.post-header__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-display-regular);
+  color: var(--color-text-primary);
+}
+
+.post-header__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.post-header__meta > :not(:first-child)::before {
+  content: "•";
+  color: var(--color-text-secondary);
+  user-select: none;
+  margin-right: 6px;
+}
