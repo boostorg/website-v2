@@ -59,7 +59,7 @@
     <span class="user-card__badge">
       {{ badge_name }}
       {% if badge %}
-        {% include "v3/includes/_badge_v3.html" with token=badge label=badge_name size=16 extra_class="user-card__badge-icon" only %}
+        {% include "v3/includes/_badge_v3.html" with token=badge label=badge_name size="small" extra_class="user-card__badge-icon" only %}
       {% endif %}
     </span>
     {% endif %}

@@ -26,7 +26,7 @@
                   "10 years") or the achievement name for the counter.
     count       (required for achievement-count) — integer, formatted per spec:
                   1..999 as-is, 1000+ as compact K (1K, 5.5K, 10K, ...).
-    size        (optional) — px square. Default 24.
+    size        (optional) — "small" (16px) | "medium" (24px, default) | "large" (32px).
     extra_class (optional) — extra class on the wrapper.
 
   A11y / no-JS:
@@ -35,42 +35,4 @@
       :hover / :focus-within (pure CSS, no JS).
     - Wrapper is focusable (tabindex="0") so keyboard users can reveal it.
 {% endcomment %}
-{% with s=size|default:24 %}
-{% if token == "boost-day" %}
-  {% with tip=label|default:"Boost Day" %}
-  <span class="badge-v3 badge-v3--boost-day {{ extra_class }}" style="--badge-v3-size:{{ s }}px" role="img" aria-label="{{ tip }}" tabindex="0">
-    <img class="badge-v3__image" width="{{ s }}" height="{{ s }}" src="{% static 'img/v3/badges/boost_day.png' %}" alt="">
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
-  </span>
-  {% endwith %}
-
-{% elif token == "achievement-count" %}
-  {% with default_tip=count|stringformat:"s"|add:" achievements" %}
-  {% with tip=label|default:default_tip %}
-  <span class="badge-v3 badge-v3--achievement-count {{ extra_class }}" style="--badge-v3-size:{{ s }}px" role="img" aria-label="{{ tip }}" tabindex="0">
-    <span class="badge-v3__counter" aria-hidden="true">{{ count|k_count }}</span>
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
-  </span>
-  {% endwith %}{% endwith %}
-
-{% elif token|slice:":6" == "badge-" %}
-  {% with tier=token|slice:"6:" %}
-  {% with default_tip="Tier "|add:tier|cut:"tier-"|add:" badge" src_path="img/v3/badges/"|add:tier|add:".png" %}
-  {% with tip=label|default:default_tip %}
-  <span class="badge-v3 badge-v3--badge badge-v3--{{ tier }} {{ extra_class }}" style="--badge-v3-size:{{ s }}px" role="img" aria-label="{{ tip }}" tabindex="0">
-    <img class="badge-v3__image" width="{{ s }}" height="{{ s }}" src="{% static src_path %}" alt="">
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
-  </span>
-  {% endwith %}{% endwith %}{% endwith %}
-
-{% elif token|slice:":5" == "star-" %}
-  {% with tier=token|slice:"5:" %}
-  {% with default_tip="Tier "|add:tier|cut:"tier-"|add:" star" src_path="img/v3/badges/star-"|add:tier|add:".png" %}
-  {% with tip=label|default:default_tip %}
-  <span class="badge-v3 badge-v3--star badge-v3--{{ tier }} {{ extra_class }}" style="--badge-v3-size:{{ s }}px" role="img" aria-label="{{ tip }}" tabindex="0">
-    <img class="badge-v3__image" width="{{ s }}" height="{{ s }}" src="{% static src_path %}" alt="">
-    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
-  </span>
-  {% endwith %}{% endwith %}{% endwith %}
-{% endif %}
-{% endwith %}
+{% if size == "small" %}{% with px=16 size_class="badge-v3--small" %}{% include "v3/includes/_badge_v3_render.html" %}{% endwith %}{% elif size == "large" %}{% with px=32 size_class="badge-v3--large" %}{% include "v3/includes/_badge_v3_render.html" %}{% endwith %}{% else %}{% with px=24 size_class="" %}{% include "v3/includes/_badge_v3_render.html" %}{% endwith %}{% endif %}

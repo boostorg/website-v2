@@ -17,7 +17,7 @@
 <article class="content-detail-icon{% if icon_name %} content-detail-icon--has-icon{% endif %}{% if badge_count %} content-detail-icon--has-badge{% endif %}">
   {% if badge_count %}
   <div class="content-detail-icon__badge-slot">
-    {% include "v3/includes/_count_badge.html" with value=badge_count %}
+    {% include "v3/includes/_count_badge.html" with value=badge_count size="small" %}
   </div>
   {% elif icon_name %}
   <div class="content-detail-icon__icon" aria-hidden="true">

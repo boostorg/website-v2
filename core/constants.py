@@ -1,10 +1,30 @@
 import re
-from enum import Enum
+from enum import Enum, StrEnum
 
 
 class SourceDocType(Enum):
     ASCIIDOC = "asciidoc"
     ANTORA = "antora"
+
+
+class BadgeToken(StrEnum):
+    """Tokens accepted by templates/v3/includes/_badge_v3.html.
+
+    Keep in sync with the conditional branches in that template.
+    """
+
+    TIER_1 = "badge-tier-1"
+    TIER_2 = "badge-tier-2"
+    TIER_3 = "badge-tier-3"
+    TIER_4 = "badge-tier-4"
+    TIER_5 = "badge-tier-5"
+    STAR_TIER_1 = "star-tier-1"
+    STAR_TIER_2 = "star-tier-2"
+    STAR_TIER_3 = "star-tier-3"
+    STAR_TIER_4 = "star-tier-4"
+    STAR_TIER_5 = "star-tier-5"
+    BOOST_DAY = "boost-day"
+    ACHIEVEMENT_COUNT = "achievement-count"
 
 
 SLACK_URL = "https://cpplang.slack.com"

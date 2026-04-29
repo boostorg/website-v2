@@ -11,10 +11,13 @@
 }
 
 .badge-button {
-    width: fit-content;
-    height: fit-content;
+    width: 32px;
+    height: 32px;
+    box-sizing: border-box;
     padding: 1px;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     border: 1px solid transparent;
 }

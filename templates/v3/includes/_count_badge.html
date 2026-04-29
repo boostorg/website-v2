@@ -2,9 +2,10 @@
   V3 Count Badge – small non-clickable count/label badge (e.g. count on carousel cards).
   Variables:
     value (required) — number or text to show. Numbers >= 1000 are shown compact (e.g. 2.3k, 33k).
+    size  (optional) — "small" (16px) | "medium" (24px, default) | "large" (32px).
   Usage:
     {% include "v3/includes/_count_badge.html" with value=1 %}
-    {% include "v3/includes/_count_badge.html" with value=count %}
+    {% include "v3/includes/_count_badge.html" with value=count size="small" %}
 {% endcomment %}
 {% load number_filters %}
-<span class="count-badge" aria-hidden="true">{{ value|compact_number }}</span>
+<span class="count-badge{% if size == 'small' %} count-badge--small{% elif size == 'large' %} count-badge--large{% endif %}">{{ value|compact_number }}</span>
