@@ -17,8 +17,7 @@ body:has(.community-v3) .header {
 .community-container {
   max-width: 1440px;
   margin: 0 auto;
-  padding: var(--space-large, 16px) var(--space-large, 16px)
-    var(--space-xxl, 48px);
+  padding: var(--space-large) var(--space-large) var(--space-xxl);
 }
 
 /* ── Masonry layout ───────────────────────────────────────────── */

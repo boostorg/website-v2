@@ -93,7 +93,7 @@
   font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
   line-height: var(--line-height-default);
-  letter-spacing: -0.12px;
+  letter-spacing: var(--letter-spacing-tight);
   margin-top: auto;
   text-decoration: underline;
   width: fit-content;
