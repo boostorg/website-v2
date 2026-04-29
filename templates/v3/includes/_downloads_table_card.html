@@ -1,0 +1,87 @@
+{% comment %}
+  Downloads Table Card — a card containing the platform downloads table.
+  Follows the card pattern (border, radius, padding) but with table content.
+
+  Variables:
+    downloads   (dict, required) — dict of {os_name: [download_file, ...]} grouped by operating system
+    heading     (string, optional) — card heading, defaults to none
+
+  Usage:
+    {% include "v3/includes/_downloads_table_card.html" with downloads=downloads %}
+{% endcomment %}
+{% if downloads %}
+  <div class="downloads-table-card__wrapper">
+    <table class="downloads-table-card__table" aria-label="Downloads">
+      <thead>
+        <tr>
+          <th class="downloads-table-card__th">Platform</th>
+          <th class="downloads-table-card__th">File</th>
+          <th class="downloads-table-card__th">SHA256 Hash</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for os, download_files in downloads.items %}
+          {% for download in download_files %}
+            <tr class="downloads-table-card__tr">
+              {% if forloop.first %}
+                <td class="downloads-table-card__td downloads-table-card__td--platform" rowspan="{{ download_files|length }}">
+                  <div class="downloads-table-card__platform-wrapper">
+                    {% if 'Unix' in os %}
+                      <span class="downloads-table-card__os-icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="linux" icon_size=16 icon_viewbox="0 0 16 16" %}</span>
+                    {% elif 'Windows' in os or 'Binary' in os %}
+                      <span class="downloads-table-card__os-icon" aria-hidden="true">{% include "includes/icon.html" with icon_name="windows" icon_size=16 icon_viewbox="0 0 16 16" %}</span>
+                    {% endif %}
+                    <span class="downloads-table-card__os-name">{{ os }}</span>
+                  </div>
+                </td>
+              {% endif %}
+              <td class="downloads-table-card__td downloads-table-card__td--file">
+                <a href="{{ download.url }}" class="downloads-table-card__file-link">{{ download.display_name }}</a>
+              </td>
+              <td class="downloads-table-card__td">
+                <div class="downloads-table-card__hash-wrapper">
+                  <input type="text" readonly class="downloads-table-card__hash-link" value="{{ download.checksum }}" title="{{ download.checksum }}" aria-label="SHA256 checksum for {{ download.display_name }}" />
+                  <button class="downloads-table-card__copy-btn"
+                          aria-label="Copy checksum"
+                          data-copy-text="{{ download.checksum }}">
+                    {% include "includes/icon.html" with icon_name="copy" icon_size=16 icon_viewbox="0 0 16 16" %}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+
+{% block footer_js %}
+<script>
+(function () {
+  document.querySelectorAll('.downloads-table-card__wrapper').forEach(function (wrapper) {
+    wrapper.classList.add('js-copy-enabled');
+  });
+  document.querySelectorAll('.downloads-table-card__copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const text = btn.getAttribute('data-copy-text');
+      if (!text) return;
+
+      function showFeedback(className) {
+        btn.classList.add(className);
+        setTimeout(function () {
+          btn.classList.remove(className);
+        }, 2000);
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(
+          function () { showFeedback('is-copied'); },
+          function () { showFeedback('is-error'); }
+        );
+      }
+    });
+  });
+})();
+</script>
+{% endblock %}

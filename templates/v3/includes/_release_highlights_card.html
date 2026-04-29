@@ -1,0 +1,36 @@
+{% extends "v3/includes/_card_group.html" %}
+{% comment %}
+  Release Highlights Card — extends _card_group.html to render release highlight items.
+  Follows the same pattern as _event_card.html and _post_card.html but for release
+  changelog entries (title + description, no dates or buttons).
+
+  Variables (passed to _card_group.html):
+    heading             (string, optional)  — section heading text
+    items               (list, optional)    — list of highlight objects with:
+      - title           (string, required)  — library or feature name
+      - description     (string, optional)  — short summary of the change
+    variant             (string, optional)  — "list" or "card", defaults to "list"
+    theme               (string, optional)  — only for variant "card": "default", "grey", "yellow", "green", "teal"
+    layout              (string, optional)  — "vertical" or "horizontal", defaults to "vertical"
+    primary_cta_label   (string, optional)  — primary CTA button label
+    primary_cta_url     (string, optional)  — primary CTA button URL
+
+  Usage:
+    {% include "v3/includes/_release_highlights_card.html" with heading="What's new in 1.90.0" items=highlights %}
+{% endcomment %}
+{% block card_list %}
+{% if items %}
+  <ul class="card-group__list">
+    {% for item in items %}
+      <li class="card-group__item">
+        <article class="release-highlight">
+          <h3 class="release-highlight__title">{{ item.title }}</h3>
+          {% if item.description %}
+            <p class="release-highlight__description">{{ item.description }}</p>
+          {% endif %}
+        </article>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endblock %}

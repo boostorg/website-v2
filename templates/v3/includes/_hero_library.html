@@ -25,6 +25,7 @@
   <div class="hero-library__block">
     <div class="hero-library__content">
       <div class="hero-library__meta">
+      {% if category_tags %}
         <div class="hero-library__tags">
           {% for tag in category_tags %}
           {% include "v3/includes/_category_tag.html" with tag_label=tag.label url=tag.url|default:"#" variant="neutral" size="default" %}
@@ -42,6 +43,7 @@
           </div>
           {% endif %}
         </div>
+      {% endif %}
         <div class="hero-library__text-block">
           {% if title %}
           <h1 class="hero-library__title{% if is_flagship_lib %} hero-library__title--flagship
