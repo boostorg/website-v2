@@ -53,6 +53,7 @@ from .boostrenderer import (
     get_s3_client,
 )
 from .constants import (
+    BadgeToken,
     SourceDocType,
     BOOST_LIB_PATH_RE,
     BOOST_VERSION_REGEX,
@@ -1326,47 +1327,39 @@ class V3ComponentDemoView(TemplateView):
             ("testing", "Testing"),
             ("concurrency", "Concurrency"),
         ]
-        context["badge_icons"] = [
-            "badge-tier-3",
-            "badge-tier-2",
-            "badge-tier-1",
-            "badge-tier-5",
-            "badge-tier-4",
-            "boost-day",
-        ]
         context["demo_badges"] = [
             {
-                "icon": "badge-tier-3",
+                "icon": BadgeToken.TIER_3,
                 "name": "Patch Wizard",
                 "earned_date": "08/08/2025",
             },
             {
-                "icon": "badge-tier-5",
+                "icon": BadgeToken.TIER_5,
                 "name": "Standard Bearer",
                 "earned_date": "03/07/2025",
             },
             {
-                "icon": "star-tier-3",
+                "icon": BadgeToken.STAR_TIER_3,
                 "name": "Review Hawk",
                 "earned_date": "03/06/2025",
             },
             {
-                "icon": "badge-tier-2",
+                "icon": BadgeToken.TIER_2,
                 "name": "Library Alchemist",
                 "earned_date": "03/04/2025",
             },
             {
-                "icon": "badge-tier-4",
+                "icon": BadgeToken.TIER_4,
                 "name": "Bug Catcher",
                 "earned_date": "02/04/2025",
             },
             {
-                "icon": "badge-tier-1",
+                "icon": BadgeToken.TIER_1,
                 "name": "Code Whisperer",
                 "earned_date": "01/01/2025",
             },
             {
-                "icon": "boost-day",
+                "icon": BadgeToken.BOOST_DAY,
                 "name": "Boost Day",
                 "earned_date": "12/12/2024",
             },
@@ -1394,7 +1387,7 @@ class V3ComponentDemoView(TemplateView):
             "username": "vinniefalco",
             "avatar_url": "https://avatars.githubusercontent.com/u/1503976",
             "badge_name": "Bug Catcher",
-            "badge": "badge-tier-3",
+            "badge": BadgeToken.TIER_3,
             "member_since": "2008",
             "role": "C++ Alliance Board Member",
             "flag_emoji": "🇺🇸",
@@ -1406,67 +1399,67 @@ class V3ComponentDemoView(TemplateView):
             "badge_buttons": [
                 {
                     "value": "bronze",
-                    "icon": "badge-tier-1",
+                    "icon": BadgeToken.TIER_1,
                     "icon_alt": "Bronze badge",
                     "checked": False,
                 },
                 {
                     "value": "silver",
-                    "icon": "badge-tier-2",
+                    "icon": BadgeToken.TIER_2,
                     "icon_alt": "Silver badge",
                     "checked": False,
                 },
                 {
                     "value": "gold",
-                    "icon": "badge-tier-3",
+                    "icon": BadgeToken.TIER_3,
                     "icon_alt": "Gold badge",
                     "checked": True,
                 },
                 {
                     "value": "platinum",
-                    "icon": "badge-tier-5",
+                    "icon": BadgeToken.TIER_5,
                     "icon_alt": "Platinum badge",
                     "checked": False,
                 },
                 {
                     "value": "diamond",
-                    "icon": "badge-tier-4",
+                    "icon": BadgeToken.TIER_4,
                     "icon_alt": "Diamond badge",
                     "checked": False,
                 },
                 {
                     "value": "star-tier-1",
-                    "icon": "star-tier-1",
+                    "icon": BadgeToken.STAR_TIER_1,
                     "icon_alt": "Bronze star",
                     "checked": False,
                 },
                 {
                     "value": "star-tier-2",
-                    "icon": "star-tier-2",
+                    "icon": BadgeToken.STAR_TIER_2,
                     "icon_alt": "Silver star",
                     "checked": False,
                 },
                 {
                     "value": "star-tier-3",
-                    "icon": "star-tier-3",
+                    "icon": BadgeToken.STAR_TIER_3,
                     "icon_alt": "Gold star",
                     "checked": False,
                 },
                 {
                     "value": "star-tier-5",
-                    "icon": "star-tier-5",
+                    "icon": BadgeToken.STAR_TIER_5,
                     "icon_alt": "Platinum star",
                     "checked": False,
                 },
                 {
                     "value": "star-tier-4",
-                    "icon": "star-tier-4",
+                    "icon": BadgeToken.STAR_TIER_4,
                     "icon_alt": "Diamond star",
                     "checked": False,
                 },
                 {
                     "value": "boost-day",
-                    "icon": "boost-day",
+                    "icon": BadgeToken.BOOST_DAY,
                     "icon_alt": "Boost Day",
                     "checked": False,
                 },
@@ -1779,7 +1772,7 @@ class V3ComponentDemoView(TemplateView):
                 "profile_url": "#",
                 "role": "Author",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                "badge": "badge-tier-3",
+                "badge": BadgeToken.TIER_3,
                 "bio": "",
             },
             {
@@ -1795,7 +1788,7 @@ class V3ComponentDemoView(TemplateView):
                 "profile_url": "#",
                 "role": "Contributor",
                 "avatar_url": "",
-                "badge": "badge-tier-1",
+                "badge": BadgeToken.TIER_1,
                 "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
             },
             {
@@ -1811,7 +1804,7 @@ class V3ComponentDemoView(TemplateView):
                 "profile_url": "#",
                 "role": "Maintainer",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                "badge": "star-tier-5",
+                "badge": BadgeToken.STAR_TIER_5,
                 "achievement_count": 22,
                 "bio": "",
             },
@@ -1820,7 +1813,7 @@ class V3ComponentDemoView(TemplateView):
                 "profile_url": "#",
                 "role": "Author",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                "badge": "boost-day",
+                "badge": BadgeToken.BOOST_DAY,
                 "achievement_count": 7,
                 "bio": "Boost Day contributor.",
             },
@@ -1832,7 +1825,7 @@ class V3ComponentDemoView(TemplateView):
                 "profile_url": "#",
                 "role": "Author",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                "badge": "badge-tier-3",
+                "badge": BadgeToken.TIER_3,
                 "bio": "",
             }
         ] + 10 * [
@@ -1841,7 +1834,7 @@ class V3ComponentDemoView(TemplateView):
                 "profile_url": "#",
                 "role": "Contributor",
                 "avatar_url": "",
-                "badge": "badge-tier-1",
+                "badge": BadgeToken.TIER_1,
                 "bio": "",
             }
         ]
@@ -1968,7 +1961,7 @@ class V3ComponentDemoView(TemplateView):
                         "name": author.display_name if author else "Unknown",
                         "role": "Contributor",
                         "avatar_url": author.get_avatar_url() if author else "",
-                        "badge": "badge-tier-3",
+                        "badge": BadgeToken.TIER_3,
                     },
                     "doc_url": reverse(
                         "library-detail",

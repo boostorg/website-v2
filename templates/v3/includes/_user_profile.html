@@ -36,10 +36,10 @@
         <span class="user-profile__role">{{ author.role }}</span>
       {% endif %}
       {% if author.badge %}
-        {% include "v3/includes/_badge_v3.html" with token=author.badge label=author.badge_label size=16 only %}
+        {% include "v3/includes/_badge_v3.html" with token=author.badge label=author.badge_label size="small" only %}
       {% endif %}
       {% if author.achievement_count %}
-        {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=author.achievement_count label=author.achievement_label size=24 only %}
+        {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=author.achievement_count label=author.achievement_label size="medium" only %}
       {% endif %}
     </div>
     {% if author.bio %}

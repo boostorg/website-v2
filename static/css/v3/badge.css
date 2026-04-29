@@ -3,6 +3,8 @@
  * hover label. Pair with v3/includes/_badge_v3.html.
  *
  * Works without JavaScript: label is revealed via :hover / :focus-within.
+ *
+ * Sizes are discrete (matches Figma): 16 / 24 / 32 px.
  */
 
 .badge-v3 {
@@ -10,11 +12,21 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--badge-v3-size, 24px);
-  height: var(--badge-v3-size, 24px);
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
   line-height: 0;
   outline-offset: 2px;
+}
+
+.badge-v3--small {
+  width: 16px;
+  height: 16px;
+}
+
+.badge-v3--large {
+  width: 32px;
+  height: 32px;
 }
 
 .badge-v3__image {
@@ -50,26 +62,27 @@
 
 /**
  * Contextual hover label — pure-CSS tooltip anchored to the bottom of the icon.
- * Styling mirrors .tooltip-label (button-tooltip.css) so the look stays
- * consistent across the system, but positioning is scoped to .badge-v3.
+ * Background and color use semantic tokens that auto-invert in dark mode
+ * (--color-text-primary maps to black/white; --color-text-reversed maps to
+ * white/black).
  */
 .badge-v3__label {
   position: absolute;
   top: 100%;
   left: 50%;
   transform: translate(-50%, 8px);
-  padding: var(--space-s, 4px) var(--space-default, 8px);
-  background: var(--color-primary-grey-900, #2f313d);
-  color: var(--color-text-reversed, #fff);
-  font-size: var(--font-size-xs, 12px);
-  font-weight: var(--font-weight-regular, 400);
-  line-height: 1.25;
-  border-radius: var(--border-radius-s, 4px);
+  padding: var(--space-s) var(--space-default);
+  background: var(--color-text-primary);
+  color: var(--color-text-reversed);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-loose);
+  border-radius: var(--border-radius-s);
   white-space: nowrap;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  z-index: 10;
+  z-index: 100;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
   transition-delay: 0s;
@@ -82,7 +95,7 @@
   left: 50%;
   margin-left: -5px;
   border: 5px solid transparent;
-  border-bottom-color: var(--color-primary-grey-900, #2f313d);
+  border-bottom-color: var(--color-text-primary);
 }
 
 .badge-v3:hover .badge-v3__label,
@@ -91,15 +104,4 @@
   opacity: 1;
   visibility: visible;
   transition-delay: 0.1s;
-}
-
-html.dark .badge-v3__label {
-  background: #ffffff;
-  color: #050816;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-}
-
-html.dark .badge-v3__label::after {
-  border-bottom-color: #ffffff;
 }

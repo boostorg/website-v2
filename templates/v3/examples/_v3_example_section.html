@@ -99,38 +99,37 @@
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
-        <h4 class="py-large">Tier badges (24px) — hover to see contextual label</h4>
+        <h4 class="py-large">Tier badges — hover to see contextual label</h4>
         <div class="v3-examples-section__tools">
-          {% include "v3/includes/_badge_v3.html" with token="badge-tier-1" label="Code Whisperer" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="badge-tier-2" label="Library Alchemist" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="badge-tier-3" label="Patch Wizard" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="badge-tier-4" label="Bug Catcher" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="badge-tier-5" label="Standard Bearer" size=24 %}
+          {% include "v3/includes/_badge_v3.html" with token="badge-tier-1" label="Code Whisperer" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="badge-tier-2" label="Library Alchemist" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="badge-tier-3" label="Patch Wizard" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="badge-tier-4" label="Bug Catcher" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="badge-tier-5" label="Standard Bearer" size="medium" %}
         </div>
-        <h4 class="py-large">Tenure stars (24px) — hover to see tenure</h4>
+        <h4 class="py-large">Tenure stars — hover to see tenure</h4>
         <div class="v3-examples-section__tools">
-          {% include "v3/includes/_badge_v3.html" with token="star-tier-1" label="2 years" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="star-tier-2" label="5 years" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="star-tier-3" label="10 years" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="star-tier-4" label="15 years" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="star-tier-5" label="20+ years" size=24 %}
+          {% include "v3/includes/_badge_v3.html" with token="star-tier-1" label="2 years" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="star-tier-2" label="5 years" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="star-tier-3" label="10 years" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="star-tier-4" label="15 years" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="star-tier-5" label="20+ years" size="medium" %}
         </div>
-        <h4 class="py-large">Boost Day (16 / 24 / 32 / 48) — hover to see label</h4>
+        <h4 class="py-large">Boost Day (small / medium / large) — hover to see label</h4>
         <div class="v3-examples-section__tools">
-          {% include "v3/includes/_badge_v3.html" with token="boost-day" size=16 %}
-          {% include "v3/includes/_badge_v3.html" with token="boost-day" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="boost-day" size=32 %}
-          {% include "v3/includes/_badge_v3.html" with token="boost-day" size=48 %}
+          {% include "v3/includes/_badge_v3.html" with token="boost-day" size="small" %}
+          {% include "v3/includes/_badge_v3.html" with token="boost-day" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="boost-day" size="large" %}
         </div>
         <h4 class="py-large">Achievement counter — hover to see achievement name</h4>
         <div class="v3-examples-section__tools">
-          {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=1 label="Patch Wizard" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=7 label="Bug Catcher" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=22 label="Library Alchemist" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=99 label="Standard Bearer" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=999 label="Review Hawk" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=1550 label="Review Hawk" size=24 %}
-          {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=10000 label="Review Hawk" size=24 %}
+          {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=1 label="Patch Wizard" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=7 label="Bug Catcher" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=22 label="Library Alchemist" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=99 label="Standard Bearer" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=999 label="Review Hawk" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=1550 label="Review Hawk" size="medium" %}
+          {% include "v3/includes/_badge_v3.html" with token="achievement-count" count=10000 label="Review Hawk" size="medium" %}
         </div>
       </div>
     </div>
@@ -367,7 +366,7 @@
   <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
     <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icons=badge_icons %}
+      {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" %}
     </div>
   </div>
   {% endwith %}
@@ -377,7 +376,7 @@
   <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
     <h3>{{ section_title }}</h3>
     <div class="v3-examples-section__example-box">
-      {% include "v3/includes/_badges_card.html" with empty_icons=badge_icons %}
+      {% include "v3/includes/_badges_card.html" %}
     </div>
   </div>
   {% endwith %}

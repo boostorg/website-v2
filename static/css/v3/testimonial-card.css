@@ -85,7 +85,6 @@
     max-width: 100%;
     box-sizing: border-box;
     flex-shrink: 0;
-    overflow: hidden;
 }
 
 .testimonial-card__list {
@@ -125,4 +124,23 @@
 
 .testimonial-card__cards {
     max-width: 100%;
+}
+
+/**
+ * The carousel list (.testimonial-card__list) needs overflow-y: hidden
+ * to keep horizontal scroll behavior, which clips the badge tooltip when it
+ * renders below the badge. Flip the tooltip above the badge inside testimonial
+ * cards so it escapes the clip.
+ */
+.testimonial-card .badge-v3__label {
+    top: auto;
+    bottom: 100%;
+    transform: translate(-50%, -8px);
+}
+
+.testimonial-card .badge-v3__label::after {
+    bottom: auto;
+    top: 100%;
+    border-bottom-color: transparent;
+    border-top-color: var(--color-text-primary);
 }

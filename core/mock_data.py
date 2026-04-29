@@ -2,6 +2,7 @@ from datetime import date
 
 from django.conf import settings
 
+from core.constants import BadgeToken
 from libraries.utils import commit_data_to_stats_bars
 
 
@@ -18,7 +19,7 @@ class SharedResources:
                 "profile_url": "#",
                 "role": "Contributor",
                 "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
-                "badge": "badge-tier-3",
+                "badge": BadgeToken.TIER_3,
             },
         },
         {
@@ -32,7 +33,7 @@ class SharedResources:
                 "profile_url": "#",
                 "role": "Maintainer",
                 "avatar_url": "https://ui-avatars.com/api/?name=Peter+Dimov&size=48",
-                "badge": "badge-tier-1",
+                "badge": BadgeToken.TIER_1,
             },
         },
         {
@@ -202,7 +203,7 @@ int main()
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                 "role": "Contributor",
-                "badge": "badge-tier-3",
+                "badge": BadgeToken.TIER_3,
             },
         },
         {
@@ -212,7 +213,7 @@ int main()
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                 "role": "Contributor",
-                "badge": "badge-tier-3",
+                "badge": BadgeToken.TIER_3,
             },
         },
         {
@@ -222,7 +223,7 @@ int main()
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                 "role": "Contributor",
-                "badge": "badge-tier-3",
+                "badge": BadgeToken.TIER_3,
             },
         },
         {
@@ -232,7 +233,7 @@ int main()
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                 "role": "Contributor",
-                "badge": "badge-tier-3",
+                "badge": BadgeToken.TIER_3,
             },
         },
     ]
@@ -245,7 +246,7 @@ int main()
                 "name": "Vinnie Falco",
                 "role": "Author",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                "badge": "badge-tier-3",
+                "badge": BadgeToken.TIER_3,
                 "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
             },
             {
@@ -258,7 +259,7 @@ int main()
                 "name": "Dave Abrahams",
                 "role": "Maintainer",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                "badge": "badge-tier-3",
+                "badge": BadgeToken.TIER_3,
                 "bio": "Contributor to Boost since 2009.",
             },
         ],
