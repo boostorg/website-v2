@@ -7,13 +7,15 @@ from itertools import groupby
 from operator import attrgetter
 
 from django.db.models import Q, Count
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views import View
+from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, TemplateView, ListView
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 from django.conf import settings
 from django.utils.decorators import method_decorator
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_exempt
 
 from waffle import flag_is_active
@@ -33,6 +35,29 @@ from versions.exceptions import BoostImportedDataException
 from versions.models import Review, Version
 
 logger = structlog.get_logger()
+
+
+@require_POST
+def set_version(request):
+    """Writes the selected version cookie, then redirects back to the referring page.
+
+    Used by the navbar version dropdown on pages that are not version-aware
+    (i.e. everything except `/releases/`, `/libraries/`, `/library/`). Validation
+    and cookie semantics are delegated to `set_selected_boost_version`.
+    """
+    version_slug = request.POST.get("version", "")
+    referer = request.headers.get("referer", "")
+    if referer and url_has_allowed_host_and_scheme(
+        url=referer,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        next_url = referer
+    else:
+        next_url = "/"
+    response = HttpResponseRedirect(next_url, status=303)
+    set_selected_boost_version(version_slug, response)
+    return response
 
 
 @method_decorator(csrf_exempt, name="dispatch")

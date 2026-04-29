@@ -1,7 +1,16 @@
+from types import SimpleNamespace
+
 import pytest
 from django.test import RequestFactory
+from django.urls import ResolverMatch
 
-from core.context_processors import current_version, active_nav_item
+from core.context_processors import (
+    active_nav_item,
+    current_version,
+    selected_version,
+)
+from libraries.constants import SELECTED_BOOST_VERSION_COOKIE_NAME
+from versions.managers import HeaderVersionData
 
 
 def test_current_version_context(
@@ -42,3 +51,99 @@ def test_active_nav_item(path, expected_nav_item):
     request = RequestFactory().get(path)
     context = active_nav_item(request)
     assert context["active_nav_item"] == expected_nav_item
+
+
+def _stub_header_data(request):
+    most_recent = SimpleNamespace(slug="boost-1-88-0", display_name="1.88.0")
+    older = SimpleNamespace(slug="boost-1-87-0", display_name="1.87.0")
+    request._header_version_data = HeaderVersionData(
+        options=[most_recent, older],
+        most_recent=most_recent,
+        most_recent_beta=None,
+    )
+    return most_recent, older
+
+
+def _attach_resolver(request, *, route, kwargs, view_name=""):
+    request.resolver_match = ResolverMatch(
+        func=lambda r: None,
+        args=(),
+        kwargs=kwargs,
+        url_name=view_name or None,
+        route=route,
+    )
+
+
+def test_selected_version_url_driven_for_boost_route(rf):
+    request = rf.get("/releases/1.88.0/")
+    most_recent, older = _stub_header_data(request)
+    _attach_resolver(
+        request,
+        route="releases/<boostversionslug:version_slug>/",
+        kwargs={"version_slug": "boost-1-88-0"},
+        view_name="release-detail",
+    )
+    ctx = selected_version(request)
+    assert ctx["selected_version_is_url_driven"] is True
+    assert ctx["selected_version_is_non_latest"] is True
+    assert ctx["selected_version_label"] == "1.88.0"
+    assert ctx["selected_version"] is most_recent
+    assert ctx["latest_href"] == "/releases/latest/"
+    assert most_recent.href == "/releases/1.88.0/"
+    assert older.href == "/releases/1.87.0/"
+
+
+def test_selected_version_url_driven_with_latest_slug(rf):
+    """`/releases/latest/` is URL-driven but the label should still read
+    'Latest' and the version should fall back to most_recent."""
+    request = rf.get("/releases/latest/")
+    most_recent, _ = _stub_header_data(request)
+    _attach_resolver(
+        request,
+        route="releases/<boostversionslug:version_slug>/",
+        kwargs={"version_slug": "latest"},
+        view_name="release-detail",
+    )
+    ctx = selected_version(request)
+    assert ctx["selected_version_is_url_driven"] is True
+    assert ctx["selected_version_is_non_latest"] is False
+    assert ctx["selected_version_label"] == "Latest"
+    assert ctx["selected_version"] is most_recent
+
+
+def test_selected_version_cookie_driven(rf):
+    """Cookie mode: no URL slug, cookie picks the version, dropdown renders
+    POST forms (no `latest_href`, no per-option `.href`)."""
+    request = rf.get("/")
+    request.COOKIES[SELECTED_BOOST_VERSION_COOKIE_NAME] = "boost-1-87-0"
+    _, older = _stub_header_data(request)
+    ctx = selected_version(request)
+    assert ctx["selected_version_is_url_driven"] is False
+    assert ctx["selected_version_is_non_latest"] is True
+    assert ctx["selected_version_label"] == "1.87.0"
+    assert ctx["selected_version"] is older
+    assert ctx["latest_href"] == ""
+
+
+def test_selected_version_ignores_foreign_route_with_same_kwarg(rf):
+    """A route declaring `version_slug` via a different converter must NOT be
+    treated as URL-driven — the guard against silent coupling."""
+    request = rf.get("/elsewhere/anything/")
+    _stub_header_data(request)
+    _attach_resolver(
+        request,
+        route="elsewhere/<str:version_slug>/",
+        kwargs={"version_slug": "anything"},
+        view_name="some-other-view",
+    )
+    ctx = selected_version(request)
+    assert ctx["selected_version_is_url_driven"] is False
+    assert ctx["selected_version_label"] == "Latest"
+
+
+def test_selected_version_no_resolver_match(rf):
+    request = rf.get("/")
+    _stub_header_data(request)
+    ctx = selected_version(request)
+    assert ctx["selected_version_is_url_driven"] is False
+    assert ctx["selected_version_label"] == "Latest"

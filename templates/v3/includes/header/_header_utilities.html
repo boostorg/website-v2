@@ -1,23 +1,18 @@
 {% load account socialaccount %}
 {% comment %}
-  Header Utilities — Latest link, theme toggle, and auth.
+  Header Utilities — Version dropdown, theme toggle, and auth.
   Shared between desktop and mobile drawer.
   Visual differences are handled by CSS based on parent context (.header__right vs .header__drawer).
 
   Context Variables:
-    releases_url            (string, required)              — resolved URL for releases page
     disable_theme_switcher  (bool, optional, default false) — hides the theme toggle
     request                 (HttpRequest, required)         — Django request object (for auth state)
     avatar_id               (string, required)              — unique ID prefix for avatar component, e.g. "desktop-user-menu"
+    version_menu_id         (string, required)              — unique ID prefix for version menu, e.g. "desktop-version-menu"
 {% endcomment %}
 <div class="header__utilities">
-  {% comment %} Latest Dropdown {% endcomment %}
-  <a href="{{ releases_url }}" class="header__utilities-latest">
-    Latest
-    <span class="icon-brand-accent">
-      {% include "includes/icon.html" with icon_name="chevron-down" icon_class="header__icon header__icon--chevron" icon_size=16 %}
-    </span>
-  </a>
+  {% comment %} Version Dropdown {% endcomment %}
+  {% include "v3/includes/header/_header_version_dropdown.html" with version_menu_id=version_menu_id %}
 
   {% comment %} Theme Toggle {% endcomment %}
   {% if not disable_theme_switcher %}
