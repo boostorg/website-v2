@@ -259,7 +259,7 @@ class LibraryDetail(
 
     model = Library
     template_name = "libraries/detail.html"
-    v3_template_name = "v3/libraries/detail.html"
+    v3_template_name = "v3/libraries/library-subpage.html"
     redirect_to_docs = False
     slug_url_kwarg = "library_slug"
 
