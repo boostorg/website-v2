@@ -1,0 +1,26 @@
+{% comment %}
+  V3 Post Header – header block for a single post: title, meta row
+  (publish date + optional category tag), and an author profile block.
+
+  Variables:
+    title         (string, required)
+    publish_date  (datetime, required)
+    tag           (string, optional)   — short label rendered as plain text
+    author        (dict, optional)     — passed verbatim to _user_profile.html
+
+  Usage:
+    {% include "v3/includes/_post_header.html" with title=object.title publish_date=object.publish_at tag=object.tag author=post_author %}
+{% endcomment %}
+<header class="post-header">
+  <h1 class="post-header__title">{{ title }}</h1>
+  <div class="post-header__meta">
+    <time class="post-header__date" datetime="{{ publish_date|date:'c' }}">{{ publish_date|date:"d/m/Y" }}</time>
+    {% if tag %}
+      <span class="post-header__tag">{{ tag|capfirst }}</span>
+
+    {% endif %}
+  </div>
+  {% if author %}
+    {% include "v3/includes/_user_profile.html" with author=author only %}
+  {% endif %}
+</header>

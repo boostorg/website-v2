@@ -1,0 +1,95 @@
+/* ==========================================================================
+   Post Detail — single-post page layout.
+   Layout: content-centered column with sibling sections below (Next Post,
+   Related Posts). Single column across all breakpoints per ticket #2296.
+   ========================================================================== */
+
+.post-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  max-width: 696px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-large);
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+}
+
+.post-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+}
+
+.post-detail__figure {
+  margin: 0;
+}
+
+.post-detail__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-l);
+}
+
+.post-detail__body {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-primary);
+}
+
+.post-detail__body > * + * {
+  margin-top: var(--space-medium);
+}
+
+.post-detail__body a {
+  color: var(--color-text-link-accent);
+  text-decoration: underline;
+}
+
+.post-detail__body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-m);
+}
+
+.post-detail__body pre,
+.post-detail__body code {
+  font-family: var(--font-mono, monospace);
+  font-size: var(--font-size-small);
+}
+
+.post-detail__body pre {
+  padding: var(--space-medium);
+  border-radius: var(--border-radius-m);
+  background: var(--color-surface-mid);
+  overflow-x: auto;
+}
+
+.post-detail__next,
+.post-detail__related {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Related posts render in a single column across all breakpoints (AC). */
+.post-detail__related .card-group__list {
+  grid-template-columns: 1fr;
+}
+
+/* ---------- Breakpoints ---------- */
+
+/* Tablet and desktop: add vertical breathing room */
+@media (min-width: 768px) {
+  .post-detail-page {
+    padding: var(--space-xxl) var(--space-large);
+  }
+}
+
+/* Mobile: tighter gaps */
+@media (max-width: 767px) {
+  .post-detail-page {
+    gap: var(--space-large);
+    padding: var(--space-large);
+  }
+}

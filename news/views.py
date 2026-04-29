@@ -11,7 +11,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
 from django.template.defaultfilters import date as datefilter
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
@@ -340,6 +340,62 @@ class AllTypesCreateView(LoginRequiredMixin, TemplateView):
             items.append(self.item_params(PollCreateView))
         context["items"] = items
         return context
+
+
+class V3PostDetailView(V3Mixin, TemplateView):
+    v3_template_name = "news/v3/detail.html"
+
+    TAG_LABELS = {"blogpost": "blog"}
+
+    def get_v3_context_data(self, **kwargs):
+        entry = get_object_or_404(Entry, slug=self.kwargs["slug"])
+        if not entry.can_view(self.request.user):
+            raise Http404()
+
+        next_entry = (
+            Entry.objects.published()
+            .select_related("author")
+            .filter(publish_at__gt=entry.publish_at)
+            .exclude(pk=entry.pk)
+            .order_by("publish_at")
+            .first()
+        )
+        related_qs = (
+            Entry.objects.published().select_related("author").exclude(pk=entry.pk)
+        )
+        if next_entry is not None:
+            related_qs = related_qs.exclude(pk=next_entry.pk)
+
+        return {
+            "object": entry,
+            "post_author": self._author_card(entry.author),
+            "post_tag": self.TAG_LABELS.get(entry.tag, entry.tag),
+            "next_post_items": (
+                [self._post_card_item(next_entry)] if next_entry else []
+            ),
+            "related_posts": [
+                self._post_card_item(e) for e in related_qs.order_by("-publish_at")[:3]
+            ],
+        }
+
+    @staticmethod
+    def _author_card(author):
+        return {
+            "name": author.display_name,
+            "profile_url": author.github_profile_url or "",
+            "role": "Contributor",
+            "avatar_url": author.get_avatar_url(),
+        }
+
+    @classmethod
+    def _post_card_item(cls, entry):
+        return {
+            "title": entry.title,
+            "url": reverse("v3-news-detail", args=[entry.slug]),
+            "date": entry.publish_at,
+            "tag": entry.tag,
+            "author": cls._author_card(entry.author),
+        }
 
 
 class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):

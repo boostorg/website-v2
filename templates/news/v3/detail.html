@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ object.title }}{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/post-header.css' %}" rel="stylesheet"/>
+  <link href="{% static 'css/v3/post-detail.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+  <div class="post-detail-page">
+    <article class="post-detail">
+      {% include "v3/includes/_post_header.html" with title=object.title publish_date=object.publish_at tag=post_tag author=post_author %}
+
+      {% if object.image %}
+        <figure class="post-detail__figure">
+          <img src="{{ object.image.url }}" alt="" class="post-detail__image">
+        </figure>
+      {% endif %}
+
+      <div class="post-detail__body">
+        {% if object.external_url %}
+          <p class="post-detail__external-url">
+            <a href="{{ object.external_url }}" rel="noopener noreferrer" target="_blank">{{ object.external_url }}</a>
+          </p>
+        {% endif %}
+        {% with body=object.content|default:object.visible_content %}
+          {% if body %}{{ body|urlize|linebreaks }}{% endif %}
+        {% endwith %}
+      </div>
+    </article>
+
+    {% if next_post_items %}
+      <section class="post-detail__next">
+        {% include "v3/includes/_post_card.html" with heading="Next Post" items=next_post_items variant="card" theme="default" %}
+      </section>
+    {% endif %}
+
+    {% if related_posts %}
+      <section class="post-detail__related">
+        {% include "v3/includes/_post_card.html" with heading="Related Post" items=related_posts variant="card" theme="default" %}
+      </section>
+    {% endif %}
+  </div>
+{% endblock %}
