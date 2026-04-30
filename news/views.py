@@ -413,6 +413,7 @@ class V3PostDetailView(V3Mixin, TemplateView):
     def _post_card_item(cls, entry):
         return {
             "title": entry.title,
+            "description": entry.summary or "",
             "url": reverse("v3-news-detail", args=[entry.slug]),
             "date": entry.publish_at,
             "tag": entry.tag,
