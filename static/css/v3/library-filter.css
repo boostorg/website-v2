@@ -24,6 +24,11 @@
   gap: var(--space-medium);
 }
 
+.library-filter__fields div:has(.btn) {
+  height: fit-content;
+  align-self: flex-end;
+}
+
 /* ── Field width modifiers ─────────────── */
 
 .library-filter__field {
