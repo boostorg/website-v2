@@ -138,7 +138,7 @@ class CommunityView(V3Mixin, TemplateView):
                 "cta_url": "https://cppalliance.org/slack/",
                 "author": {
                     "name": "Character Name",
-                    "role": "Role",
+                    "role": "Contributor",
                     "avatar_url": "/static/img/v3/community-page/avatar-beaver-character.png",
                 },
             },
@@ -149,7 +149,7 @@ class CommunityView(V3Mixin, TemplateView):
                 "cta_url": "https://lists.boost.org/mailman3/lists/boost.lists.boost.org/",
                 "author": {
                     "name": "Character Name",
-                    "role": "Role",
+                    "role": "Author",
                     "avatar_url": "/static/img/v3/community-page/avatar-mouse-character.png",
                 },
             },
@@ -160,7 +160,7 @@ class CommunityView(V3Mixin, TemplateView):
                 "cta_url": "https://github.com/boostorg",
                 "author": {
                     "name": "Character Name",
-                    "role": "Role",
+                    "role": "Maintainer",
                     "avatar_url": "/static/img/v3/community-page/avatar-cheetah-character.png",
                 },
             },
@@ -171,7 +171,7 @@ class CommunityView(V3Mixin, TemplateView):
                 "cta_url": "https://www.reddit.com/r/boost/",
                 "author": {
                     "name": "Character Name",
-                    "role": "Role",
+                    "role": "Contributor",
                     "avatar_url": "/static/img/v3/community-page/avatar-fish-character.png",
                 },
             },
