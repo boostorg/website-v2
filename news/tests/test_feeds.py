@@ -6,16 +6,64 @@ from ..feeds import RSSNewsFeed, AtomNewsFeed
 
 def test_items(make_entry):
     earlier = now() - timedelta(days=30)
-    published_entry = make_entry(moderator=baker.make("users.User"), approved_at=now())
-    earlier_entry = make_entry(moderator=baker.make("users.User"), approved_at=earlier)
+    newer_entry = make_entry(
+        moderator=baker.make("users.User"), approved_at=now(), publish_at=now()
+    )
+    earlier_entry = make_entry(
+        moderator=baker.make("users.User"), approved_at=earlier, publish_at=earlier
+    )
     # Unpublished entry
     make_entry(moderator=baker.make("users.User"), approved_at=None)
     feed = RSSNewsFeed()
     items = feed.items()
     assert len(items) == 2
-    # Assert sorting
-    assert items[0] == published_entry
+    # Newest first
+    assert items[0] == newer_entry
     assert items[1] == earlier_entry
+
+
+def test_items_returns_newest_when_more_than_limit(make_entry):
+    """Regression test for boostorg/website-v2#2362.
+
+    With ascending order + [:100] slice, the feed permanently locked onto the
+    100 oldest entries once total count exceeded 100. Confirm newest-first.
+    """
+    base = now() - timedelta(days=200)
+    entries = [
+        make_entry(
+            moderator=baker.make("users.User"),
+            approved_at=base + timedelta(days=i),
+            publish_at=base + timedelta(days=i),
+        )
+        for i in range(101)
+    ]
+    feed = RSSNewsFeed()
+    items = list(feed.items())
+    assert len(items) == 100
+    assert items[0] == entries[-1]
+    assert entries[0] not in items
+
+
+def test_items_excludes_soft_deleted(make_entry):
+    live_entry = make_entry(moderator=baker.make("users.User"), approved_at=now())
+    make_entry(
+        moderator=baker.make("users.User"),
+        approved_at=now(),
+        deleted_at=now(),
+    )
+    feed = RSSNewsFeed()
+    items = list(feed.items())
+    assert items == [live_entry]
+
+
+def test_items_excludes_unpublished_even_when_not_deleted(make_entry):
+    make_entry(
+        moderator=baker.make("users.User"),
+        approved_at=None,
+        deleted_at=None,
+    )
+    feed = RSSNewsFeed()
+    assert list(feed.items()) == []
 
 
 def test_item_pubdate(make_entry):
