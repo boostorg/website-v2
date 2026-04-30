@@ -14,7 +14,7 @@
 <header class="post-header">
   <h1 class="post-header__title">{{ title }}</h1>
   <div class="post-header__meta">
-    <time class="post-header__date" datetime="{{ publish_date|date:'c' }}">{{ publish_date|date:"d/m/Y" }}</time>
+    <time class="post-header__date" datetime="{{ publish_date|date:'c' }}">{{ publish_date|date:"m/d/Y" }}</time>
     {% if tag %}
       <span class="post-header__tag">{{ tag|capfirst }}</span>
 
