@@ -2,3 +2,4 @@ apiVersion: v1
 description: boost.revsys.dev website
 name: boost
 version: v1.0.3
+icon: https://raw.githubusercontent.com/boostorg/website-v2/master/static/img/favicon.svg
