@@ -13,6 +13,7 @@
     validate_type    (optional) — client-side validation before submit, currently supports "email"
     validate_error   (optional) — error message shown when validate_type check fails
     icon_left        (optional) — icon name for left slot (e.g. "search")
+    icon_right       (optional) — icon name for a decorative right-slot icon (non-interactive); mutually exclusive with submit_icon
     submit_icon      (optional) — icon name for a submit button in the right slot (e.g. "arrow-right")
     submit_label     (optional) — aria-label for the submit button, default "Submit"
     required         (optional) — if truthy, adds required attribute
@@ -86,6 +87,10 @@
               :disabled="!q.trim()">
         {% include "includes/icon.html" with icon_name=submit_icon icon_class="field__submit-icon" %}
       </button>
+    {% elif icon_right %}
+      <span class="field__icon" aria-hidden="true">
+        {% include "includes/icon.html" with icon_name=icon_right icon_class="field__icon" %}
+      </span>
     {% endif %}
   </div>
   {% if validate_error %}

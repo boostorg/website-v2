@@ -25,6 +25,7 @@ from core.views import (
     BoostDevelopmentView,
     CalendarView,
     ClearCacheView,
+    CommunityView,
     DocLibsTemplateView,
     ImageView,
     MarkdownTemplateView,
@@ -200,10 +201,9 @@ urlpatterns = (
         ),
         path("health/", include("health_check.urls")),
         path("asciidoctor_sandbox/", include("asciidoctor_sandbox.urls")),
-        # temp page for community until mailman is done.
         path(
             "community/",
-            TemplateView.as_view(template_name="community.html"),
+            CommunityView.as_view(),
             name="community",
         ),
         # Boost community calendar

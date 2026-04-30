@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Boost Community{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/community.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block main_content_wrapper %}<div class="community-v3">{% endblock %}
+  {% block content %}
+    {% include "v3/includes/_hero_library.html" with title="A community built to help you go further" description="For newcomers and experienced engineers alike, Boost is a place to build real libraries, learn from experts and make contributions that matter." hero_image_url="/static/img/v3/community-page/community-foreground.png" %}
+    <div class="community-container">
+      <div class="community-masonry">
+        {% include "v3/includes/_help_card.html" with heading="What do you need help with?" items=help_options extra_classes="community-masonry__help" %}
+        <div class="community-masonry__col">
+          <div class="community-masonry__cell community-masonry__cell--install">
+            {% include "v3/includes/_install_card.html" with card_id="community-install" install_card_pkg_managers=install_card_pkg_managers install_card_system_install=install_card_system_install %}
+          </div>
+          <div class="community-masonry__cell community-masonry__cell--slack">
+            {% include "v3/includes/_join_slack_card.html" %}
+          </div>
+          <div class="community-masonry__cell community-masonry__cell--contribute">
+            {% include "v3/includes/_create_account_card.html" with heading="Contribute to earn badges, track your progress and grow your impact" body_html=create_account_card_body_html preview_image_url=create_account_card_preview_url cta_url="#" cta_label="Start contributing" %}
+          </div>
+        </div>
+        <div class="community-masonry__col">
+          <div class="community-masonry__cell community-masonry__cell--libraries">
+            {% url 'libraries' as libraries_url %}
+            {% include "v3/includes/_library_discovery_card.html" with heading="Discover a library that meets your needs" items=libraries primary_cta_label="See all libraries" primary_cta_url=libraries_url %}
+          </div>
+          <div class="community-masonry__cell community-masonry__cell--threads">
+            {% include "v3/includes/_thread_archive_card.html" %}
+          </div>
+        </div>
+        <div class="community-masonry__col">
+          <div class="community-masonry__cell community-masonry__cell--posts">
+            {% include "v3/includes/_post_card.html" with heading="Posts from the Boost community" items=posts variant="card" theme="teal" primary_cta_label="View all posts" primary_cta_url="#" %}
+          </div>
+          <div class="community-masonry__cell community-masonry__cell--mailing">
+            {% include "v3/includes/_mailing_list_card.html" %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endblock %}

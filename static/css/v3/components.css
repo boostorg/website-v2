@@ -26,7 +26,6 @@
 @import "./library-intro-card.css";
 @import "./learn-cards.css";
 @import "./terms-of-use.css";
-@import "./thread-archive-card.css";
 @import "./tab.css";
 @import "./install-card.css";
 @import "./banner.css";
@@ -51,3 +50,5 @@
 @import "downloads-table-card.css";
 @import "release-highlights-card.css";
 @import "./media-text-card.css";
+@import "./library-discovery-card.css";
+@import "./help-card.css";

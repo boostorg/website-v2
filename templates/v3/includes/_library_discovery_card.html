@@ -1,0 +1,53 @@
+{% extends "v3/includes/_card_group.html" %}
+{% comment %}
+  Library Discovery Card — extends _card_group.html to render library items.
+
+  Variables (passed to _card_group.html):
+    heading             (string, optional)  — section heading text
+    heading_url         (string, optional)  — if set, heading becomes a link
+    items               (list, optional)    — list of library objects with:
+      - name            (string, required)  — library name
+      - url             (string, optional)  — if set, name renders as a link to the library page
+      - description     (string, optional)  — short description
+      - categories      (list, optional)    — list of category label strings
+    variant             (string, optional)  — "list" or "card", defaults to "list"
+    theme               (string, optional)  — only for variant "card": "default", "yellow", "green", "teal"
+    layout              (string, optional)  — "vertical" or "horizontal", defaults to "vertical"
+    primary_cta_label   (string, optional)  — primary CTA button label
+    primary_cta_url     (string, optional)  — primary CTA button URL
+    secondary_cta_label (string, optional)  — secondary CTA button label
+    secondary_cta_url   (string, optional)  — secondary CTA button URL
+
+  Usage:
+    {% include "v3/includes/_library_discovery_card.html" with heading="Discover a library that meets your needs" items=libraries primary_cta_label="See all libraries" primary_cta_url="/libs/" %}
+{% endcomment %}
+{% block card_list %}
+  {% if items %}
+    <ul class="card-group__list">
+      {% for item in items %}
+        <li class="card-group__item">
+          <article class="library-discovery-card">
+            {% if item.url %}
+              <a href="{{ item.url }}" class="library-discovery-card__name">{{ item.name }}</a>
+            {% else %}
+              <h3 class="library-discovery-card__name">{{ item.name }}</h3>
+            {% endif %}
+            {% if item.description %}
+              <p class="library-discovery-card__description">{{ item.description }}</p>
+            {% endif %}
+            {% if item.categories or item.cpp_version %}
+              <div class="library-discovery-card__tags">
+                {% for cat in item.categories %}
+                  {% include "v3/includes/_category_tag.html" with tag_label=cat variant="neutral" size="default" %}
+                {% endfor %}
+                {% if item.cpp_version %}
+                  <span class="version-tag version-tag--default">{{ item.cpp_version }}</span>
+                {% endif %}
+              </div>
+            {% endif %}
+          </article>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,35 @@
+/*
+  Library Discovery Card
+  Individual library-discovery-card item styles.
+  For card group containers, see card-group.css.
+*/
+
+.library-discovery-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-card);
+}
+
+.library-discovery-card__name {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-default);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-s);
+}
+
+.library-discovery-card__description {
+  margin: 0;
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  padding: 0;
+  margin-bottom: var(--space-large);
+}
+
+.library-discovery-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+}

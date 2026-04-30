@@ -123,6 +123,119 @@ class BoostDevelopmentView(CalendarView):
     template_name = "boost_development.html"
 
 
+class CommunityView(V3Mixin, TemplateView):
+    template_name = "community.html"
+    v3_template_name = "v3/community.html"
+
+    def get_v3_context_data(self, **kwargs):
+        ctx = super().get_v3_context_data(**kwargs)
+        ctx["help_options"] = [
+            {
+                "quote": "I'm stuck on an error",
+                "description": "Visit the CPPLang Slack for fast responses, quick debugging and real-time conversation",
+                "cta_text": "Join Slack 24,000+ members",
+                "cta_url": "https://cppalliance.org/slack/",
+                "author": {
+                    "name": "Character Name",
+                    "role": "Contributor",
+                    "avatar_url": "/static/img/v3/community-page/avatar-beaver-character.png",
+                },
+            },
+            {
+                "quote": "I have a proposal for a new feature",
+                "description": "Propose libraries, participate in the formal review and submit major features on the mailing list",
+                "cta_text": "Subscribe now",
+                "cta_url": "https://lists.boost.org/mailman3/lists/boost.lists.boost.org/",
+                "author": {
+                    "name": "Character Name",
+                    "role": "Author",
+                    "avatar_url": "/static/img/v3/community-page/avatar-mouse-character.png",
+                },
+            },
+            {
+                "quote": "I found a bug",
+                "description": "Find the library you're looking for on GitHub, follow the reporting template and let the author know",
+                "cta_text": "Report it on GitHub",
+                "cta_url": "https://github.com/boostorg",
+                "author": {
+                    "name": "Character Name",
+                    "role": "Maintainer",
+                    "avatar_url": "/static/img/v3/community-page/avatar-cheetah-character.png",
+                },
+            },
+            {
+                "quote": "I have a general question",
+                "description": "Post on Reddit and engage in casual chat with fellow Boost enthusiasts",
+                "cta_text": "Visit Reddit",
+                "cta_url": "https://www.reddit.com/r/boost/",
+                "author": {
+                    "name": "Character Name",
+                    "role": "Contributor",
+                    "avatar_url": "/static/img/v3/community-page/avatar-fish-character.png",
+                },
+            },
+        ]
+        ctx["libraries"] = [
+            {
+                "name": "Beast",
+                "url": "/library/latest/beast/",
+                "description": "A collection of useful generic algorithms.",
+                "categories": ["Concurrent", "IO"],
+                "cpp_version": "C++ 11",
+            },
+            {
+                "name": "Cobalt",
+                "url": "/library/latest/cobalt/",
+                "description": "Coroutines. Basic Algorithms & Types",
+                "categories": [
+                    "Concurrent",
+                    "Coroutines",
+                    "Awaitables",
+                    "Asynchronous",
+                ],
+                "cpp_version": "C++ 20",
+            },
+            {
+                "name": "JSON",
+                "url": "/library/latest/json/",
+                "description": "JSON parsing, serialization, and DOM",
+                "categories": ["Containers", "Data", "IO"],
+                "cpp_version": "C++ 11",
+            },
+            {
+                "name": "Lib Name",
+                "url": "#",
+                "description": "Lib Description",
+                "categories": ["Containers", "Data", "IO"],
+                "cpp_version": "C++ 11",
+            },
+            {
+                "name": "Lib Name",
+                "url": "#",
+                "description": "Lib Description",
+                "categories": ["Containers", "Data", "IO"],
+                "cpp_version": "C++ 11",
+            },
+        ]
+        ctx["posts"] = SharedResources.demo_posts[:4]
+        ctx["slack_member_count"] = "30,000"
+        ctx["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
+        ctx["install_card_system_install"] = SharedResources.install_card_system_install
+        ctx["create_account_card_body_html"] = (
+            "<p>Your contribution badges appear on your Boost profile with:</p>"
+            "<ul>"
+            "<li>Contribution statistics</li>"
+            "<li>Progress towards next badge</li>"
+            "<li>Recent activity feed</li>"
+            "</ul>"
+        )
+        ctx["create_account_card_preview_url"] = (
+            f"{settings.STATIC_URL}img/v3/community-page/"
+            "community-create-account-preview.png"
+        )
+        return ctx
+
+
 class ClearCacheView(UserPassesTestMixin, View):
     http_method_names = ["get"]
     login_url = "/login/"

@@ -101,6 +101,13 @@
   flex: 1 0 0;
 }
 
+.card img {
+  display: block;
+  border-radius: var(--border-radius-l);
+  object-fit: cover;
+  width: 100%;
+}
+
 /* Horizontal card — text + image side by side */
 
 .horizontal-card {
