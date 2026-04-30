@@ -18,6 +18,8 @@
   color: var(--color-text-primary);
 }
 
+/* Meta row spacing is a Figma-spec value (6px) with no exact token
+   equivalent (--space-s = 4px, --space-default = 8px desktop). */
 .post-header__meta {
   display: flex;
   flex-wrap: wrap;
@@ -27,9 +29,15 @@
   color: var(--color-text-secondary);
 }
 
+/* Inline separator dot. Width/height are glyph metrics, not layout
+   spacing, so they don't map to a space-* token. */
 .post-header__meta > :not(:first-child)::before {
-  content: "•";
-  color: var(--color-text-secondary);
-  user-select: none;
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--color-text-secondary);
   margin-right: 6px;
+  vertical-align: middle;
 }
