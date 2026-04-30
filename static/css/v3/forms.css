@@ -13,10 +13,11 @@
 
 .field__label {
   font-family: var(--font-sans);
-  font-size: var(--font-size-xs, 12px);
-  font-weight: var(--font-weight-medium, 500);
-  line-height: var(--line-height-relaxed, 1.24);
-  color: var(--color-text-primary, #050816);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-relaxed);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-primary);
 }
 
 .field__control {
