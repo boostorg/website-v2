@@ -19,22 +19,38 @@
       <div class="user-profile__profile-content-area">
         <div class="user-profile__profile-content-column--left">
           <div class="user-profile__bio">
-            {% include 'v3/includes/_basic_card.html' with title='Bio' text='Lorem Ipsum' only %}
+            {% include 'v3/includes/_markdown_card.html' with title='Bio' markdown='Add a short bio to tell the community who you are, what you work on, or what you’re passionate about.' only %}
           </div>
-          <div class="user-profile__achievements"></div>
-          <div class="user-profile__badges"></div>
+          <div class="user-profile__achievements">
+            {% include "v3/includes/_achievement_card.html" %}
+          </div>
+          <div class="user-profile__badges">
+            {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
+          </div>
           <div class="user-profile__github">
-            {% with github_activity_card_data as data %}
-            {% include "v3/includes/_markdown_card.html" with title=data.title markdown=data.markdown_text button_url=data.button_url button_label=data.button_label %}
+            {% with data=github_activity_card_data %}
+              {% include 'v3/includes/_markdown_card.html' with title=data.title markdown=data.markdown_text button_url=data.button_url button_label=data.button_label %}
             {% endwith %}
           </div>
-          <div class="user-profile__posts"></div>
-          <div class="user-profile__mailing-list"></div>
+          <div class="user-profile__posts">
+            {% include "v3/includes/_post_card.html" with heading="Posts" items=posts variant="card" theme="teal" primary_cta_label="Create a post" primary_cta_url="#" %}
+          </div>
+          <div class="user-profile__mailing-list">
+            {% with data=mailing_list_activity_card_data %}
+              {% include 'v3/includes/_mailing_list_activity_card.html' with title=data.title mailing_list_items=data.mailing_list_items %}
+            {% endwith %}
+          </div>
         </div>
         <div class="user-profile__profile-content-column--right">
-          <div class="user-profile__achievements"></div>
-          <div class="user-profile__badges"></div>
-          <div class="user-profile__posts"></div>
+          <div class="user-profile__achievements">
+            {% include "v3/includes/_achievement_card.html" %}
+          </div>
+          <div class="user-profile__badges">
+            {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
+          </div>
+          <div class="user-profile__posts">
+            {% include "v3/includes/_post_card.html" with heading="Posts" items=posts variant="card" theme="teal" primary_cta_label="Create a post" primary_cta_url="#" %}
+          </div>
         </div>
       </div>
     {% endwith %}

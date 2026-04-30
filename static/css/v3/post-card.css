@@ -45,6 +45,15 @@
   color: var(--color-text-secondary);
 }
 
+.post-card__summary {
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
 .post-card__meta > :not(:first-child)::before {
   content: "•";
   color: var(--color-text-secondary);

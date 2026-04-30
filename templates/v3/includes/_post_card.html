@@ -46,6 +46,9 @@
                     </div>
                   {% endif %}
                 </div>
+              {% if item.summary %}
+                <div class="post-card__summary">{{item.summary}}</div>
+              {% endif %}
               {% if item.author and item.author.name %}
                 {% include "v3/includes/_user_profile.html" with author=item.author only %}
               {% endif %}
