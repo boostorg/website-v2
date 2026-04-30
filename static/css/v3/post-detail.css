@@ -1,0 +1,219 @@
+/* ==========================================================================
+   Post Detail — single-post page layout.
+   Layout: content-centered column with sibling sections below (Next Post,
+   Related Posts).
+   ========================================================================== */
+
+.post-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  max-width: 696px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-large);
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+}
+
+.post-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.post-detail__figure {
+  margin: 0;
+}
+
+.post-detail__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-l);
+}
+
+.post-detail__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-loose);
+  color: var(--color-text-secondary);
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--color-stroke-weak);
+}
+
+.post-detail__body p {
+  padding-top: 0;
+  padding-bottom: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-loose);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.post-detail__body a {
+  color: var(--color-text-link-accent);
+  text-decoration: underline;
+}
+
+.post-detail__external-url a {
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+  text-underline-position: from-font;
+}
+
+.post-detail__body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-m);
+}
+
+.post-detail__body pre,
+.post-detail__body code {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-small);
+}
+
+.post-detail__body pre {
+  padding: var(--space-medium);
+  border-radius: var(--border-radius-m);
+  background: var(--color-surface-mid);
+  overflow-x: auto;
+}
+
+.post-detail__next,
+.post-detail__related {
+  display: flex;
+  flex-direction: column;
+}
+
+/* The first section after the article gets an extra 32px of top spacing
+   on top of the page-level 32px gap, totaling 64px (Figma spec). The
+   subsequent section (next -> related) keeps the plain 32px gap. */
+.post-detail-page > .post-detail + section {
+  margin-top: var(--space-xl);
+}
+
+/* Inner card-group defaults to max-width: 458px, a tinted background,
+   a border, and vertical padding; none of those belong in the
+   post-detail context. */
+.post-detail__next .card-group,
+.post-detail__related .card-group {
+  max-width: none;
+  background: none;
+  border: none;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.post-detail__next .card-group__heading,
+.post-detail__related .card-group__heading {
+  padding-left: 0;
+}
+
+/* Specificity bumped by chaining .card-group--card to beat the
+   `.card-group--card .card-group__list { padding: 0 var(--space-card) }`
+   rule in card-group.css. */
+.post-detail__next .card-group--card .card-group__list,
+.post-detail__related .card-group--card .card-group__list {
+  padding: 0;
+  gap: 0;
+}
+
+/* `.card-group--card .card-group__item` (card-group.css) gives each
+   item its own background and border-radius. The per-item radius is
+   what creates the apparent "indented hairline" between stacked cards
+   (rounded corners notch into each other). Strip both so the post-card
+   inside controls the visual. */
+.post-detail__next .card-group--card .card-group__item,
+.post-detail__related .card-group--card .card-group__item {
+  background: none;
+  border-radius: 0;
+}
+
+.post-detail__next .post-card,
+.post-detail__related .post-card {
+  background: var(--color-surface-weak);
+  border: 1px solid var(--color-stroke-weak);
+}
+
+/* Collapse adjacent borders so stacked cards share a single hairline. */
+.post-detail__next .card-group__item:not(:first-child) .post-card,
+.post-detail__related .card-group__item:not(:first-child) .post-card {
+  border-top: none;
+}
+
+/* Stacked post-cards: square by default; only the outer two corners of
+   the stack are rounded. Single-item lists (e.g. Next Post) end up
+   fully rounded since :first-child and :last-child both match. */
+.post-detail__next .post-card,
+.post-detail__related .post-card {
+  border-radius: 0;
+}
+
+.post-detail__next .card-group__item:first-child .post-card,
+.post-detail__related .card-group__item:first-child .post-card {
+  border-top-left-radius: var(--border-radius-xl);
+  border-top-right-radius: var(--border-radius-xl);
+}
+
+.post-detail__next .card-group__item:last-child .post-card,
+.post-detail__related .card-group__item:last-child .post-card {
+  border-bottom-left-radius: var(--border-radius-xl);
+  border-bottom-right-radius: var(--border-radius-xl);
+}
+
+/* Related posts render in a single column across all breakpoints. */
+.post-detail__related .card-group__list {
+  grid-template-columns: 1fr;
+}
+
+/* ---------- Dark mode ---------- */
+
+/* card-group.css applies a grey background in dark mode via
+   `html.dark .card-group--default`. That selector is more specific than
+   our base override, so we re-strip it here for the post-detail
+   sections. */
+html.dark .post-detail__next .card-group,
+html.dark .post-detail__related .card-group {
+  background: none;
+}
+
+/* ---------- Breakpoints ---------- */
+
+/* Tablet and desktop: add vertical breathing room */
+@media (min-width: 768px) {
+  .post-detail-page {
+    padding-top: var(--space-xxl);
+    padding-bottom: var(--space-xxl);
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* Tablet only */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .post-header {
+    gap: var(--space-large);
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .post-header {
+    gap: var(--space-large);
+  }
+  .post-detail-page {
+    gap: var(--space-large);
+    padding: var(--space-large);
+    padding-bottom: 64px;
+  }
+  /* Total gap between article body and the first sibling section is
+     64px on mobile (Figma spec). Subtracts the page-level flex gap so
+     gap + margin-top = 64. */
+  .post-detail-page > .post-detail + section {
+    margin-top: calc(64px - var(--space-large));
+  }
+}
