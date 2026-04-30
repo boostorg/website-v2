@@ -43,7 +43,8 @@
   color: var(--color-secondary-dark-blue, #0077B8);
 }
 
-.carousel-buttons .btn-carousel:disabled {
+.carousel-buttons .btn-carousel:disabled,
+.carousel-buttons .btn-carousel[aria-disabled="true"] {
   opacity: 0.5;
   cursor: not-allowed;
 }

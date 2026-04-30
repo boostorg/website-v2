@@ -2120,6 +2120,251 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
             )
         context["demo_library_items"] = demo_library_items
 
+        raw_content_modal_items = [
+            {
+                "title": (
+                    "Powering Cognitive Communications Engine for NASA with Boost"
+                ),
+                "subtitle": (
+                    "By Prof. Sven G. Bilén, Ph.D., Timothy M. Hackett, Ph.D."
+                ),
+                "content": """
+<h2>The Challenge: Building a Cognitive Engine for Space</h2>
+<p>Our research team at Penn State, in collaboration with Worcester
+Polytechnic Institute and NASA's John H. Glenn Research Center, set out to
+build something that had never been deployed in a real space system before:
+a multi-objective reinforcement-learning cognitive engine capable of
+autonomously optimizing radio communications aboard the International Space
+Station. The engine used deep neural network ensembles to manage radio
+resource allocation in real time, adjusting modulation and coding schemes,
+roll-off factors, and transmit power to simultaneously optimize six
+competing objectives: bit error rate, throughput, occupied bandwidth,
+spectral efficiency, transmit power efficiency, and DC power consumption.</p>
+<p>We wrote the engine in C++11 for maximum portability between ground-based
+and space-based radio platforms. Unlike our original MATLAB prototypes, C++
+does not come equipped with high-level constructs for networking,
+serialization, or matrix algebra. We needed production-quality libraries
+that could handle real-time UDP communications with commercial DVB-S2
+satellite modems and allow us to save and restore the complete state of a
+learning system between orbital passes, all while meeting the strict
+licensing constraints imposed by ITAR and export control regulations.</p>
+
+<h2>Why Boost: Licensing, Reliability, and Portability</h2>
+<p>Choosing the right software libraries was one of the most consequential
+decisions in the entire project. Because our export-controlled software was
+destined for redistribution on NASA's STRS (Space Telecommunications Radio
+System) Repository, we required libraries with permissive, non-copyleft
+licenses. GPL and LGPL libraries were off the table. This constraint alone
+eliminated the majority of candidates.</p>
+<p>Boost stood out immediately. Its permissive license meant we could
+integrate it into our cognitive engine and contribute the code to the STRS
+Repository without any risk of violating redistribution requirements. But
+licensing was only the starting point. What truly set Boost apart was the
+maturity and reliability of its libraries. When you are building a system
+that will operate on the International Space Station, you cannot afford to
+debug flaky networking or unreliable serialization code. Boost gave us
+battle-tested components that worked.</p>
+
+<h2>Boost.Asio: The Communications Backbone</h2>
+<p>Our cognitive engine communicates with multiple external modems
+simultaneously. The ViaSat DVB-S2 receiver sends real-time signal quality
+telemetry over UDP, while the ML605 transmitter modem requires raw Ethernet
+frames to embed action tuples into Advanced Orbiting Systems (AOS) frames
+for uplink to the ISS. Each interface has different protocol requirements,
+different timing constraints, and different failure modes.</p>
+<p>Boost.Asio handled all of this elegantly. Its asynchronous I/O model
+allowed us to manage concurrent UDP listeners and transmitters without
+resorting to low-level socket programming or platform-specific APIs. The
+abstraction layer meant that the same networking code we developed on our
+ground workstations could be ported to different target platforms with
+minimal modification. For a system that must operate reliably within a
+40-millisecond round-trip time window between ground and orbit, the
+deterministic performance of Boost.Asio was critical.</p>
+
+<h2>Boost.Serialization: Preserving Learned Intelligence Across Orbital Passes</h2>
+<p>One of the key research questions in our experiment was whether a
+cognitive engine that retains its learned neural network weights from a
+previous ground station pass outperforms one that must relearn from scratch
+at the beginning of every contact window. Each ISS pass over a ground
+station lasts only minutes, and every second spent relearning is a second
+of suboptimal communications performance.</p>
+<p>Boost.Serialization made it possible to archive and restore the complete
+state of our reinforcement-learning system, including all neural network
+weights, the training buffer contents, and application-specific parameters,
+to human-readable text files. When the engine restarts for a new pass, it
+can load the serialized state and resume with full knowledge of what it
+previously learned. This capability is foundational to the entire concept
+of persistent cognitive communications: a radio that gets smarter over
+time, pass after pass. The library's ability to serialize complex, nested
+C++ object hierarchies transparently saved us weeks of development time
+that would otherwise have been spent writing custom persistence code.</p>
+
+<h2>Boost as Part of the Broader Ecosystem</h2>
+<p>Boost's influence on our project extended beyond the two libraries we
+used directly. MLPack, the machine learning library we selected for our
+neural network implementation, uses Boost internally. Armadillo, our matrix
+algebra library, also integrates with the Boost ecosystem. This meant that
+our entire software stack shared a common foundation, which simplified the
+build process, reduced dependency conflicts, and made the system more
+maintainable. When multiple critical libraries in your project all trust
+Boost as their own dependency, that tells you something important about
+its quality and standing in the C++ community.</p>
+
+<h2>Impact and Results</h2>
+<p>Our implemented cognitive engine completed on-orbit experiments with the
+ISS via the SCaN Testbed in May 2017. The cognitive engine was tested
+through a total of 20 flight passes over NASA Glenn Research Center's
+ground station providing performance results across a variety of link
+profiles. To the best of our knowledge, this marked one of the first
+published experiments of using a cognitive engine with a space-based asset
+and demonstrated that reinforcement learning-based multi-objective
+optimization is both feasible as well as useful for satellite
+communications.</p>
+<p>The modular, object-oriented architecture we built was designed so that
+only the application-specific module needs to be swapped to adapt the
+engine for entirely different missions or optimization objectives. This
+reusability was central to NASA's vision for cognitive communications:
+systems that can be deployed across diverse missions without requiring a
+complete software rewrite each time.</p>
+<p>Boost helped our small academic-government research team to punch well
+above our weight. Instead of spending months building and testing
+networking and serialization infrastructure from scratch, we were able to
+focus on what made our project unique: the cognitive algorithms themselves.
+For any team building mission-critical C++ systems under tight timelines
+and strict licensing constraints, Boost is not just a convenience, it is a
+force multiplier.</p>
+
+<blockquote>
+<p>When you're building software that needs to operate flawlessly with the
+limited flight pass opportunities of the International Space Station, you
+need libraries you can rely on. Boost delivered production-grade tools with
+licensing compliant to NASA requirements, enabling our team to prioritize
+the science.</p>
+<p>&mdash; Prof. Sven G. Bilén, The Pennsylvania State University</p>
+</blockquote>
+""",
+            },
+            {
+                "title": "The use of Boost C++ libraries in drug discovery",
+                "subtitle": "By Oleg Trott, PhD",
+                "content": """
+<p><a href="https://vina.scripps.edu/">AutoDock Vina</a> is the most popular
+molecular docking program, with
+<a href="https://scholar.google.com/citations?user=4BD7MkgAAAAJ">40,000
+citations</a>, as of this writing. It is used widely to look for treatments
+for various diseases from cardiovascular and infectious ones to cancer. I
+created AutoDock Vina back when I was a postdoc at The Scripps Research
+Institute. And Boost C++ libraries were of great help.</p>
+
+<p>The mechanisms of action of various drugs are different in each case,
+but what they have in common is that the drug (typically a small molecule
+consisting of dozens of atoms) binds a huge molecule, like a protein
+(consisting of thousands of atoms). This binding is normally non-covalent
+(think "physics", not "chemistry"). It is also quite specific &ndash; the
+shape and other properties of the drug have to be complementary to the
+protein, not unlike a lock and key. This binding interferes with the normal
+operation of the protein in question, and this may have some desired
+biological effect.</p>
+
+<p>Modeling this binding process computationally is challenging, but, if
+done well, it can predict which small molecules would be promising as
+drugs.</p>
+
+<p>When I got hired by The Scripps Research Institute almost 20 years ago,
+they had already been developing a molecular docking program, which they
+called "AutoDock", for many years. AutoDock was being used widely,
+including in huge efforts like the IBM World Community Grid, where
+volunteers contributed their personal compute to do docking calculations.
+In one such project, AutoDock was being used to look for new anti-HIV
+drugs. I estimated that in that single project, millions of dollars were
+being spent just on electricity (a cost borne by the volunteers). So
+performance was important.</p>
+
+<p>Initially, my plan was to contribute to AutoDock, but after a few weeks
+on the job, I realized that the best path forward would be to write a new
+docking program instead. I thought I could re-implement the same or
+equivalent algorithm in a fraction of the lines of code, using modern (at
+the time) C++, employing STL and Boost.</p>
+
+<p>While I didn't get fired right away, I'll say this: If you set out to do
+something ambitious in academia, the clock starts ticking for you, because
+while you are busy working on your new high-effort and high-risk project,
+you are probably not publishing some low-effort and low-risk work that is
+encouraged in academia. And what if your project fails? Rather perilous
+for your career.</p>
+
+<p>To make matters worse, during this rewrite, my ambitions grew much
+further. I was no longer content with just a rewrite and started
+experimenting with alternative algorithms and scoring functions. (The
+scoring function tells us which binding is better.) Long story short,
+after 1.5 years, I released a new docking program and called it "VINA"
+(short for "VINA Is Not AutoDock"). It was superior to AutoDock:</p>
+
+<ul>
+<li>It was roughly 60 times faster, when using a single thread (potentially
+saving many millions in electricity and compute)</li>
+<li>Additionally, it supported parallelism across multiple CPU cores
+seamlessly</li>
+<li>It was significantly more accurate in its binding pose predictions, on
+average</li>
+<li>It supported all major platforms directly (AutoDock required a Unix-like
+environment)</li>
+<li>The code was a few times smaller</li>
+</ul>
+
+<p>Later, I was asked to change the name to "AutoDock Vina". "AutoDock"
+became a brand, rather than the name of a particular program. Sadly, this
+is causing confusion to this day. Many people think that "Vina" was a new
+version of old software, but it was brand-new and simpler code implementing
+a more complex algorithm.</p>
+
+<p>Boost C++ libraries were quite useful to me in cutting down on the
+development time, which as I mentioned was important. In particular, I
+used</p>
+
+<ul>
+<li>Boost.Thread &ndash; it enabled parallelism in a platform-independent way</li>
+<li>Boost.Serialization &ndash; for object persistence</li>
+<li>Boost.Math &ndash; for quaternions, which are used to represent 3D rotations
+conveniently (Boost.QVM would have been more appropriate, but I don't
+think it was part of Boost back then)</li>
+<li>Boost.ProgramOptions &ndash; for parsing command line options and
+configuration files, as well as to display the help message</li>
+<li>Boost.Filesystem &ndash; for handling files in a platform-independent way</li>
+<li>Boost.PointerContainer &ndash; for containers of pointers to objects</li>
+<li>Boost.Array &ndash; for "vectors" of statically known length</li>
+<li>Boost.Optional &ndash; for objects that may or may not be there</li>
+<li>Boost.LexicalCast &ndash; for parsing numbers, mostly</li>
+<li>Boost.Random &ndash; for thread-safe random number generation</li>
+<li>Boost.Timer &ndash; to show the users a progress bar, while they are waiting
+for the results</li>
+</ul>
+
+<p>Since then, some of these libraries made it into the C++ standard, I
+believe.</p>
+
+<p>What I really liked about Boost was that the libraries are peer-reviewed,
+raising expectations about quality and security. And I don't think I
+encountered a single bug in any of the Boost libraries I used. My thanks
+to the developers!</p>
+""",
+            },
+        ]
+        from django.utils.text import slugify
+
+        modal_slugs = [slugify(it["title"]) for it in raw_content_modal_items]
+        context["content_modal_items"] = [
+            {
+                **it,
+                "slug": modal_slugs[i],
+                "prev_url": f"#{modal_slugs[i - 1]}" if i > 0 else "",
+                "next_url": (
+                    f"#{modal_slugs[i + 1]}" if i < len(modal_slugs) - 1 else ""
+                ),
+            }
+            for i, it in enumerate(raw_content_modal_items)
+        ]
+
         # V3 paths registry
         v3_paths = [
             {

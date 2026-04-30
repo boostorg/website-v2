@@ -828,6 +828,16 @@
     </div>
   {% endwith %}
 
+  {% with section_title="Content Modal" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <h4 class="py-large">Full-screen content modal with prev/next pagination</h4>
+        <a href="#{{ content_modal_items.0.slug }}" class="btn btn-primary">Open content modal</a>
+      </div>
+    </div>
+  {% endwith %}
+
   {% with authors=user_profile_data section_title="User Profile" %}
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
@@ -943,3 +953,4 @@ Table of Contents generator – runs after all section blocks have been parsed.
 
 {% comment %}Dialogs placed outside section to avoid position:fixed containment issues{% endcomment %}
 {% include "v3/includes/_dialog.html" with dialog_id="demo-dialog-with-desc" title="Title of Dialog" description="Description that can go inside of Dialog" primary_url="#_" secondary_url="#_" primary_label="Button" secondary_label="Button" %}
+{% include "v3/includes/_content_modal_group.html" with items=content_modal_items %}

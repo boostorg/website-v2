@@ -1,0 +1,15 @@
+{% comment %}
+  Content Modal Group — renders a sequence of Content Modals wired together
+  via :target. Place once on the page; trigger the first modal with
+  <a href="#{{ items.0.slug }}">…</a>.
+
+  Variables:
+    items     (required): list of dicts with keys: slug, title, content,
+                          subtitle (optional), prev_url, next_url.
+                          Caller is responsible for slug stability and for
+                          setting prev_url / next_url to "" at endpoints.
+    close_url (optional): close target. Defaults to "#_".
+{% endcomment %}
+{% for item in items %}
+  {% include "v3/includes/_content_modal.html" with modal_id=item.slug title=item.title subtitle=item.subtitle content=item.content prev_url=item.prev_url next_url=item.next_url close_url=close_url only %}
+{% endfor %}

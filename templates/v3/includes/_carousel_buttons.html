@@ -1,13 +1,42 @@
 {% comment %}
-  Variables: carousel_id (optional, for JS), prev_label, next_label (defaults: Previous, Next).
-  Usage: {% include "v3/includes/_carousel_buttons.html" %}
-  For JS: use data-carousel-prev / data-carousel-next or wrap in a carousel container with carousel_id.
+  Variables:
+    carousel_id (optional, for JS): wraps with id="{carousel_id}-controls"
+    prev_label, next_label (optional): aria-labels (defaults: "Previous", "Next")
+    as_links (optional, default False): when True, renders <a href> controls so the
+      buttons work without JS (e.g. for :target-driven modals).
+    prev_url, next_url (used when as_links=True): destination URLs.
+      Pass an empty string ("") to render the disabled visual for an endpoint
+      (e.g. prev_url="" on the first item, next_url="" on the last).
+
+  Usage (JS-driven carousel): {% include "v3/includes/_carousel_buttons.html" with carousel_id="my-carousel" %}
+  Usage (no-JS, anchor-based): {% include "v3/includes/_carousel_buttons.html" with as_links=True prev_url="#item-1" next_url="#item-3" %}
 {% endcomment %}
 <div class="carousel-buttons" {% if carousel_id %}id="{{ carousel_id }}-controls"{% endif %} role="group" aria-label="Carousel navigation">
-  <button type="button" class="btn btn-carousel" aria-label="{{ prev_label|default:'Previous' }}" data-carousel-prev>
-    <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=16 %}</span>
-  </button>
-  <button type="button" class="btn btn-carousel" aria-label="{{ next_label|default:'Next' }}" data-carousel-next>
-    <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=16 %}</span>
-  </button>
+  {% if as_links %}
+    {% if prev_url %}
+      <a class="btn btn-carousel" href="{{ prev_url }}" aria-label="{{ prev_label|default:'Previous' }}">
+        <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=16 %}</span>
+      </a>
+    {% else %}
+      <span class="btn btn-carousel" role="link" aria-disabled="true" aria-label="{{ prev_label|default:'Previous' }}">
+        <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=16 %}</span>
+      </span>
+    {% endif %}
+    {% if next_url %}
+      <a class="btn btn-carousel" href="{{ next_url }}" aria-label="{{ next_label|default:'Next' }}">
+        <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=16 %}</span>
+      </a>
+    {% else %}
+      <span class="btn btn-carousel" role="link" aria-disabled="true" aria-label="{{ next_label|default:'Next' }}">
+        <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=16 %}</span>
+      </span>
+    {% endif %}
+  {% else %}
+    <button type="button" class="btn btn-carousel" aria-label="{{ prev_label|default:'Previous' }}" data-carousel-prev>
+      <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=16 %}</span>
+    </button>
+    <button type="button" class="btn btn-carousel" aria-label="{{ next_label|default:'Next' }}" data-carousel-next>
+      <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=16 %}</span>
+    </button>
+  {% endif %}
 </div>

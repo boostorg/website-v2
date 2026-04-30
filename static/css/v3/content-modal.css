@@ -1,0 +1,298 @@
+/**
+ * Content Modal — centered card for long-form reading.
+ *
+ * Reuses the .dialog-modal root class so static/js/dialog.js (focus trap,
+ * ESC, initial focus, focus return) applies for free. Open/close is CSS-only
+ * via the :target pseudo-class — no JavaScript required.
+ *
+ * Structure:
+ *   .dialog-modal.content-modal       — full-screen overlay (hidden by default)
+ *   .dialog-modal__backdrop           — close link covering the overlay
+ *   .content-modal__container         — centered card (role="dialog")
+ *   .content-modal__header            — top row: prev/next + title + close
+ *   .content-modal__header-main       — left cluster (carousel buttons + title)
+ *   .content-modal__title             — heading text
+ *   .content-modal__close             — close (×) link, top-right of card
+ *   .content-modal__subtitle          — byline / secondary text row
+ *   .content-modal__divider           — horizontal rule between subtitle and body
+ *   .content-modal__body              — scrollable rich-content region
+ */
+
+/* ============================================
+   CONTAINER (centered card, max 916px wide)
+   ============================================ */
+.content-modal__container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+  width: 916px;
+  max-width: calc(100vw - 2 * var(--space-large));
+  max-height: calc(100vh - 2 * var(--space-xl));
+  padding: var(--space-xlarge) 0;
+  background-color: var(--color-surface-weak);
+  border: 1px solid var(--color-stroke-weak);
+  border-radius: var(--border-radius-xl);
+  overflow: hidden;
+}
+
+/* ============================================
+   HEADER (prev/next + title on the left, close on the right)
+   ============================================ */
+.content-modal__header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-large);
+  padding: 0 var(--space-large);
+}
+
+.content-modal__header-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-large);
+  min-width: 0;
+}
+
+.content-modal__title {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-display-regular);
+  color: var(--color-text-primary);
+  min-width: 0;
+}
+
+/* ============================================
+   CLOSE LINK (×) — top-right of the card header
+   ============================================ */
+.content-modal__close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background-color: var(--color-surface-strong);
+  border-radius: var(--border-radius-l);
+  color: var(--color-icon-primary);
+  text-decoration: none;
+}
+
+.content-modal__close:hover {
+  color: var(--color-icon-secondary);
+}
+
+.content-modal__close svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+/* ============================================
+   SUBTITLE (byline / secondary text)
+   The 56px left padding aligns subtitle text under the title text,
+   past the close icon on its left.
+   ============================================ */
+.content-modal__subtitle {
+  flex: 0 0 auto;
+  padding: 0 var(--space-large) 0 56px;
+  font-family: var(--font-display);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-display-regular);
+  color: var(--color-text-secondary);
+}
+
+/* ============================================
+   DIVIDER between header/subtitle and the scrollable body
+   ============================================ */
+.content-modal__divider {
+  flex: 0 0 auto;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--color-stroke-weak);
+}
+
+/* ============================================
+   BODY (scrollable rich-content region)
+   ============================================ */
+.content-modal__body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--space-s) var(--space-large);
+  outline: none;
+}
+
+/* ============================================
+   PROSE — rich-content styling, isolated to the modal.
+   Self-contained so no shared `.markdown-content` rules apply.
+   ============================================ */
+.content-modal__prose {
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.content-modal__prose h2,
+.content-modal__prose h3,
+.content-modal__prose h4,
+.content-modal__prose h5,
+.content-modal__prose h6 {
+  margin: var(--space-xlarge) 0 var(--space-large);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-display-regular);
+}
+
+.content-modal__prose h2 { font-size: var(--font-size-large); }
+.content-modal__prose h3 { font-size: var(--font-size-base); }
+.content-modal__prose h4,
+.content-modal__prose h5,
+.content-modal__prose h6 { font-size: var(--font-size-small); }
+
+/* The first child of the prose body should sit flush with the top —
+   skip the heading/paragraph top margin in that one case. */
+.content-modal__prose > :first-child {
+  margin-top: 0;
+}
+
+.content-modal__prose p {
+  margin: var(--space-default) 0;
+  padding: 0;
+}
+
+.content-modal__prose b,
+.content-modal__prose strong {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.content-modal__prose a {
+  color: var(--color-text-link-accent);
+  text-decoration: underline;
+  text-decoration-skip-ink: none;
+  text-underline-position: from-font;
+}
+
+.content-modal__prose ul,
+.content-modal__prose ol {
+  margin: var(--space-default) 0;
+  padding-left: var(--space-large);
+}
+
+.content-modal__prose ul { list-style: disc; }
+.content-modal__prose ol { list-style: decimal; }
+
+.content-modal__prose li {
+  margin: var(--space-xs) 0;
+}
+
+.content-modal__prose table {
+  width: 100%;
+  margin: var(--space-default) 0;
+  border-collapse: collapse;
+  font-size: var(--font-size-small);
+}
+
+.content-modal__prose th,
+.content-modal__prose td {
+  padding: var(--space-default) var(--space-medium);
+  border-bottom: 1px solid var(--color-stroke-weak);
+  text-align: left;
+  vertical-align: top;
+}
+
+.content-modal__prose th {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  border-bottom-color: var(--color-stroke-mid);
+}
+
+.content-modal__prose code {
+  font-family: var(--font-code);
+  font-size: 0.9em;
+  background-color: var(--color-surface-strong);
+  border-radius: var(--border-radius-s);
+  padding: 0 var(--space-xs);
+}
+
+.content-modal__prose pre {
+  margin: var(--space-default) 0;
+  padding: var(--space-large);
+  background-color: var(--color-surface-strong);
+  border-radius: var(--border-radius-l);
+  overflow-x: auto;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-code);
+}
+
+.content-modal__prose pre code {
+  padding: 0;
+  background-color: transparent;
+  border-radius: 0;
+  font-size: 1em;
+}
+
+.content-modal__prose img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: var(--space-default) 0;
+  border-radius: var(--border-radius-l);
+}
+
+.content-modal__prose figure {
+  margin: var(--space-default) 0;
+}
+
+.content-modal__prose figcaption {
+  margin-top: var(--space-default);
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.content-modal__prose blockquote {
+  margin: var(--space-large) 0;
+  padding: var(--space-default) var(--space-large);
+  border-left: 3px solid var(--color-stroke-mid);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.content-modal__prose blockquote p {
+  margin: var(--space-default) 0;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 767px) {
+  .content-modal__container {
+    width: auto;
+    max-width: calc(100vw - 2 * var(--space-default));
+    max-height: calc(100vh - 2 * var(--space-large));
+    border-radius: var(--border-radius-l);
+    gap: var(--space-default);
+  }
+
+  .content-modal__title {
+    font-size: var(--font-size-medium);
+  }
+
+  .content-modal__subtitle {
+    padding-left: var(--space-large);
+    font-size: var(--font-size-small);
+  }
+}
