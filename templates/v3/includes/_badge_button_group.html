@@ -10,6 +10,6 @@
 
 <fieldset aria-label="{{ group_label }}" role="radiogroup">
     {% for button in badge_buttons %}
-        {% include "v3/includes/_badge_button.html" with name=group_name value=button.value icon_src=button.icon_src icon_alt=button.icon_alt radio_checked=button.checked only %}
+        {% include "v3/includes/_badge_button.html" with name=group_name value=button.value icon=button.icon icon_alt=button.icon_alt radio_checked=button.checked only %}
     {% endfor %}
 </fieldset>

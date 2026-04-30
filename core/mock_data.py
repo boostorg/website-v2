@@ -2,12 +2,11 @@ from datetime import date
 
 from django.conf import settings
 
+from core.constants import BadgeToken
 from libraries.utils import commit_data_to_stats_bars
 
 
 class SharedResources:
-    badge_img = f"{settings.STATIC_URL}img/v3/badges"
-
     demo_posts = [
         {
             "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
@@ -20,7 +19,7 @@ class SharedResources:
                 "profile_url": "#",
                 "role": "Contributor",
                 "avatar_url": "https://ui-avatars.com/api/?name=Richard+Thomson&size=48",
-                "badge_url": f"{badge_img}/badge-first-place.png",
+                "badge": BadgeToken.TIER_3,
             },
         },
         {
@@ -34,7 +33,7 @@ class SharedResources:
                 "profile_url": "#",
                 "role": "Maintainer",
                 "avatar_url": "https://ui-avatars.com/api/?name=Peter+Dimov&size=48",
-                "badge_url": f"{badge_img}/badge-bronze.png",
+                "badge": BadgeToken.TIER_1,
             },
         },
         {
@@ -204,7 +203,7 @@ int main()
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                 "role": "Contributor",
-                "badge_url": "/static/img/v3/demo_page/Badge.svg",
+                "badge": BadgeToken.TIER_3,
             },
         },
         {
@@ -214,7 +213,7 @@ int main()
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                 "role": "Contributor",
-                "badge_url": "/static/img/v3/demo_page/Badge.svg",
+                "badge": BadgeToken.TIER_3,
             },
         },
         {
@@ -224,7 +223,7 @@ int main()
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                 "role": "Contributor",
-                "badge_url": "/static/img/v3/demo_page/Badge.svg",
+                "badge": BadgeToken.TIER_3,
             },
         },
         {
@@ -234,7 +233,7 @@ int main()
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                 "role": "Contributor",
-                "badge_url": "/static/img/v3/demo_page/Badge.svg",
+                "badge": BadgeToken.TIER_3,
             },
         },
     ]
@@ -247,7 +246,7 @@ int main()
                 "name": "Vinnie Falco",
                 "role": "Author",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
+                "badge": BadgeToken.TIER_3,
                 "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
             },
             {
@@ -260,7 +259,7 @@ int main()
                 "name": "Dave Abrahams",
                 "role": "Maintainer",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                "badge_url": f"{settings.STATIC_URL}img/v3/demo_page/Badge.svg",
+                "badge": BadgeToken.TIER_3,
                 "bio": "Contributor to Boost since 2009.",
             },
         ],

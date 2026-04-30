@@ -1,0 +1,44 @@
+{% load static %}
+{% load number_filters %}
+{% comment %}
+  Internal partial for _badge_v3.html. Receives `token`, `label`, `count`,
+  `extra_class`, plus precomputed `px` (numeric) and `size_class` (CSS class).
+  Do not include this directly from app code — call _badge_v3.html instead.
+{% endcomment %}
+{% if token == "boost-day" %}
+  {% with tip=label|default:"Boost Day" %}
+  <span class="badge-v3 badge-v3--boost-day {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+    <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% static 'img/v3/badges/boost_day.png' %}" alt="">
+    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+  </span>
+  {% endwith %}
+
+{% elif token == "achievement-count" %}
+  {% with default_tip=count|stringformat:"s"|add:" achievements" %}
+  {% with tip=label|default:default_tip %}
+  <span class="badge-v3 badge-v3--achievement-count {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+    <span class="badge-v3__counter" aria-hidden="true">{{ count|k_count }}</span>
+    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+  </span>
+  {% endwith %}{% endwith %}
+
+{% elif token|slice:":6" == "badge-" %}
+  {% with tier=token|slice:"6:" %}
+  {% with default_tip="Tier "|add:tier|cut:"tier-"|add:" badge" src_path="img/v3/badges/"|add:tier|add:".png" %}
+  {% with tip=label|default:default_tip %}
+  <span class="badge-v3 badge-v3--badge badge-v3--{{ tier }} {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+    <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% static src_path %}" alt="">
+    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+  </span>
+  {% endwith %}{% endwith %}{% endwith %}
+
+{% elif token|slice:":5" == "star-" %}
+  {% with tier=token|slice:"5:" %}
+  {% with default_tip="Tier "|add:tier|cut:"tier-"|add:" star" src_path="img/v3/badges/star-"|add:tier|add:".png" %}
+  {% with tip=label|default:default_tip %}
+  <span class="badge-v3 badge-v3--star badge-v3--{{ tier }} {{ size_class }} {{ extra_class }}" role="img" aria-label="{{ tip }}" tabindex="0">
+    <img class="badge-v3__image" width="{{ px }}" height="{{ px }}" src="{% static src_path %}" alt="">
+    <span class="badge-v3__label" role="tooltip">{{ tip }}</span>
+  </span>
+  {% endwith %}{% endwith %}{% endwith %}
+{% endif %}

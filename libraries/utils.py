@@ -19,6 +19,7 @@ from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils.text import slugify
 
+from core.constants import BadgeToken
 from libraries.constants import (
     DEFAULT_LIBRARIES_LANDING_VIEW,
     SELECTED_BOOST_VERSION_COOKIE_NAME,
@@ -495,12 +496,7 @@ def build_library_intro_context(library_version, *, max_authors=3):
             return url
         return getattr(user.commitauthor, "avatar_url", "") or ""
 
-    badge_img = f"{settings.STATIC_URL}img/v3/badges"
-    medals = [
-        f"{badge_img}/badge-first-place.png",
-        f"{badge_img}/badge-second-place.png",
-        f"{badge_img}/badge-bronze.png",
-    ]
+    medals = [BadgeToken.TIER_3, BadgeToken.TIER_2, BadgeToken.TIER_1]
 
     author_dicts = []
     for user in combined:
@@ -509,7 +505,7 @@ def build_library_intro_context(library_version, *, max_authors=3):
                 "name": user.display_name or user.get_full_name(),
                 "role": roles[user.id],
                 "avatar_url": get_avatar(user),
-                "badge_url": (
+                "badge": (
                     medals[len(author_dicts)] if len(author_dicts) < len(medals) else ""
                 ),
                 "bio": "",
@@ -522,7 +518,7 @@ def build_library_intro_context(library_version, *, max_authors=3):
                 "name": ca.display_name,
                 "role": "Contributor",
                 "avatar_url": ca.avatar_url or "",
-                "badge_url": (
+                "badge": (
                     medals[len(author_dicts)] if len(author_dicts) < len(medals) else ""
                 ),
                 "bio": "",
