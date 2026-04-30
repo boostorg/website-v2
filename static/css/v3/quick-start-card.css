@@ -1,0 +1,67 @@
+/*
+  Quick Start Card — a card with a heading and a list of arrow-linked navigation items.
+  Used on the library subpage to surface key documentation and resource links.
+
+  quick-start-card            — extends .card base
+  quick-start-card__heading   — card title
+  quick-start-card__links     — flex-column list of link rows
+  quick-start-card__link      — individual link row (icon + text)
+  quick-start-card__link-text — link label
+*/
+
+.quick-start-card {
+  padding: var(--space-large);
+  gap: var(--space-large);
+  background: var(--color-surface-mid);
+}
+
+.quick-start-card__heading {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-display-regular);
+  margin: 0;
+}
+
+.quick-start-card__links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  width: 100%;
+}
+
+.quick-start-card__link {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-default);
+  height: calc(var(--space-xl) + var(--space-s));
+  padding: 0 var(--space-medium);
+  border-radius: var(--border-radius-m);
+  background: var(--color-surface-weak);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-default);
+  transition: color 0.15s ease;
+}
+
+.quick-start-card__link:hover {
+  color: var(--color-text-link-accent);
+}
+
+.quick-start-card__link-text {
+  flex: 1;
+}
+
+.quick-start-card__link-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--color-icon-primary);
+}

@@ -6,13 +6,18 @@ from django.db.models import Prefetch
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, FormView, TemplateView
 
+from core.constants import SLACK_URL
 from core.githubhelper import GithubAPIClient
+from core.mixins import V3Mixin
+from core.mock_data import SharedResources
+from news.models import Entry
 from versions.exceptions import BoostImportedDataException
 from versions.models import Version
 
@@ -24,6 +29,7 @@ from .models import (
     Library,
     LibraryVersion,
     CommitAuthorEmail,
+    Tier,
 )
 from .utils import (
     get_view_from_cookie,
@@ -41,6 +47,36 @@ from .utils import (
 from .constants import LATEST_RELEASE_URL_PATH_STR
 
 logger = structlog.get_logger()
+
+
+# ── V3 context helpers ─────────────────────────────────────────────────────
+
+
+def _build_quick_start_links(documentation_url, github_url, github_issues_url):
+    """Build the quick-start links list for the V3 library hero card."""
+    links = []
+    if documentation_url:
+        links.append({"label": "Documentation", "url": documentation_url})
+    if github_url:
+        links.append({"label": "Source Code", "url": github_url})
+    if github_issues_url:
+        links.append({"label": "GitHub Issues", "url": github_issues_url})
+    return links
+
+
+def _build_dependencies_list(current_dependencies, version_str):
+    """Build the dependencies list for the V3 dependencies card."""
+    result = []
+    for dep in current_dependencies:
+        try:
+            url = reverse(
+                "library-detail",
+                kwargs={"version_slug": version_str, "library_slug": dep.slug},
+            )
+        except Exception:
+            url = "#"
+        result.append({"name": dep.name, "url": url})
+    return result
 
 
 class LibraryListDispatcher(View):
@@ -216,13 +252,23 @@ class LibraryCategorized(LibraryListBase):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class LibraryDetail(VersionAlertMixin, BoostVersionMixin, ContributorMixin, DetailView):
+class LibraryDetail(
+    V3Mixin, VersionAlertMixin, BoostVersionMixin, ContributorMixin, DetailView
+):
     """Display a single Library in insolation"""
 
     model = Library
     template_name = "libraries/detail.html"
+    v3_template_name = "v3/libraries/library-subpage.html"
     redirect_to_docs = False
     slug_url_kwarg = "library_slug"
+
+    def render_v3_response(self):
+        self.set_extra_context(self.request)
+        self.object = self.get_object()
+        context = self.get_context_data()
+        context.update(self.get_v3_context_data(base_context=context))
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         """Set the form action to the main libraries page"""
@@ -232,6 +278,7 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, ContributorMixin, Deta
         context["LATEST_RELEASE_URL_PATH_NAME"] = LATEST_RELEASE_URL_PATH_STR
         if not self.object:
             raise Http404("No library found matching the query")
+
         try:
             library_version = LibraryVersion.objects.get(
                 library=self.object, version=context["selected_version"]
@@ -267,6 +314,120 @@ class LibraryDetail(VersionAlertMixin, BoostVersionMixin, ContributorMixin, Deta
             self.object.get_description(client, tag=context["selected_version"].name)
             or README_MISSING
         )
+
+        return context
+
+    def get_v3_context_data(self, base_context=None, **kwargs):
+        context = super().get_v3_context_data(**kwargs)
+        base_context = base_context or {}
+
+        version_str = base_context.get("version_str") or LATEST_RELEASE_URL_PATH_STR
+
+        context["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
+        context["install_card_system_install"] = (
+            SharedResources.install_card_system_install
+        )
+        context["library_about_code"] = SharedResources.library_about_code
+        context["library_install_code"] = SharedResources.library_install_code
+        context["slack_url"] = SLACK_URL
+
+        context["category_tags_v3"] = [
+            {
+                "label": cat.name,
+                "url": (
+                    reverse(
+                        "libraries-list",
+                        kwargs={
+                            "version_slug": version_str,
+                            "library_view_str": "grid",
+                            "category_slug": cat.slug,
+                        },
+                    )
+                    if cat.slug
+                    else "#"
+                ),
+            }
+            for cat in self.object.categories.all().order_by("name")
+        ]
+
+        context["quick_start_links"] = _build_quick_start_links(
+            base_context.get("documentation_url"),
+            base_context.get("github_url") or self.object.github_url,
+            getattr(self.object, "github_issues_url", None),
+        )
+
+        dep_diff = base_context.get("dependency_diff", {})
+        context["dependencies_list"] = _build_dependencies_list(
+            dep_diff.get("current_dependencies") or [],
+            version_str,
+        )
+
+        context["library_posts"] = [
+            {
+                "title": entry.title,
+                "url": entry.get_absolute_url(),
+                "date": entry.publish_at,
+                "category": entry.determined_news_type or "news",
+                "tag": "",
+                "author": {
+                    "name": getattr(entry.author, "display_name", None)
+                    or str(entry.author),
+                    "profile_url": None,
+                    "role": "Author",
+                    "avatar_url": (
+                        entry.author.get_avatar_url()
+                        if hasattr(entry.author, "get_avatar_url")
+                        else ""
+                    ),
+                    "badge_url": None,
+                },
+            }
+            for entry in Entry.objects.published()
+            .select_related("author")
+            .order_by("-publish_at")[:3]
+        ]
+
+        this_release = (
+            [u.to_v3_profile_dict("Author") for u in base_context.get("authors", [])]
+            + [
+                u.to_v3_profile_dict("Maintainer")
+                for u in base_context.get("maintainers", [])
+            ]
+            + [
+                a.to_v3_profile_dict("New Contributor")
+                for a in base_context.get("top_contributors_release_new", [])
+            ]
+            + [
+                a.to_v3_profile_dict("Contributor")
+                for a in base_context.get("top_contributors_release_old", [])
+            ]
+        )
+        context["this_release_contributors"] = (
+            this_release or SharedResources.library_release_contributors
+        )
+
+        all_time = [
+            a.to_v3_profile_dict("Contributor")
+            for a in base_context.get("previous_contributors", [])
+        ]
+        context["all_time_contributors"] = (
+            all_time or SharedResources.library_all_contributors
+        )
+
+        context["is_flagship_lib"] = self.object.tier == Tier.FLAGSHIP
+        if context["is_flagship_lib"]:
+            context["library_hero_image_url_light"] = (
+                SharedResources.hero_legacy_image_url_light
+            )
+            context["library_hero_image_url_dark"] = (
+                SharedResources.hero_legacy_image_url_dark
+            )
+            context["hero_image_url"] = SharedResources.hero_legacy_image_url_dark
+        else:
+            context["library_hero_image_url_light"] = ""
+            context["library_hero_image_url_dark"] = ""
+            context["hero_image_url"] = ""
+
         return context
 
     def get_dependency_diff(self, library_version):
