@@ -347,21 +347,32 @@ class V3PostDetailView(V3Mixin, TemplateView):
 
     TAG_LABELS = {"blogpost": "blog"}
 
+    AUTHOR_PREFETCH = ("author__badges", "author__maintainers")
+
     def get_v3_context_data(self, **kwargs):
-        entry = get_object_or_404(Entry, slug=self.kwargs["slug"])
+        entry = get_object_or_404(
+            Entry.objects.select_related("author").prefetch_related(
+                *self.AUTHOR_PREFETCH
+            ),
+            slug=self.kwargs["slug"],
+        )
         if not entry.can_view(self.request.user):
             raise Http404()
 
         next_entry = (
             Entry.objects.published()
             .select_related("author")
+            .prefetch_related(*self.AUTHOR_PREFETCH)
             .filter(publish_at__gt=entry.publish_at)
             .exclude(pk=entry.pk)
             .order_by("publish_at")
             .first()
         )
         related_qs = (
-            Entry.objects.published().select_related("author").exclude(pk=entry.pk)
+            Entry.objects.published()
+            .select_related("author")
+            .prefetch_related(*self.AUTHOR_PREFETCH)
+            .exclude(pk=entry.pk)
         )
         if next_entry is not None:
             related_qs = related_qs.exclude(pk=next_entry.pk)
@@ -380,11 +391,22 @@ class V3PostDetailView(V3Mixin, TemplateView):
 
     @staticmethod
     def _author_card(author):
+        # Truthiness checks (rather than .exists() / .first() with kwargs)
+        # so prefetch_related caches are reused — see queryset setup below.
+        is_maintainer = bool(author.maintainers.all())
+        badges = list(author.badges.all())
+        badge = badges[0] if badges else None
+        badge_url = (
+            f"{settings.STATIC_URL}img/v3/badges/badge-{badge.name}.png"
+            if badge and badge.name
+            else ""
+        )
         return {
             "name": author.display_name,
             "profile_url": author.github_profile_url or "",
-            "role": "Contributor",
+            "role": "Maintainer" if is_maintainer else "Contributor",
             "avatar_url": author.get_avatar_url(),
+            "badge_url": badge_url,
         }
 
     @classmethod
