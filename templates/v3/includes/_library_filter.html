@@ -57,7 +57,9 @@
           {% endwith %}
         {% endwith %}
       {% endfor %}
-      {% include "v3/includes/_button.html" with label="Filter" icon_position="right" icon_name="arrow-right" icon_size=16 type="submit" js_disabled=True only %}
+      <noscript>
+        {% include "v3/includes/_button.html" with label="Filter" icon_position="right" icon_name="arrow-right" icon_size=16 type="submit" js_disabled=True only %}
+      </noscript>
     </div>
   </div>
 </div>
