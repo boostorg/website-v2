@@ -1,4 +1,3 @@
-{% load static %}
 {% comment %}
   Testimonial Card — displays a carousel of testimonial quotes with author profiles.
 
@@ -13,9 +12,36 @@
 {% endcomment %}
 
 {% with carousel_id='_testimonials_cards_carousel' %}
-<noscript>
-  <link rel="stylesheet" href="{% static 'css/v3/testimonial-card-nojs.css' %}">
-</noscript>
+{% comment %}
+  Per-index visibility rules generated from the testimonials list (the count is
+  data-driven, so they can't live as static rules in the CSS). The first <style>
+  block runs in both JS and no-JS modes; only the nav-set for the checked radio
+  is shown. The <noscript> block additionally switches the track to a CSS
+  transform-based carousel: items are flex: 0 0 100% with gap: 0, so
+  translateX(-N00%) shifts by exactly one item per radio. visibility: hidden on
+  non-current items mirrors the JS-mode `inert` behavior so off-screen author
+  links can't receive tab focus. Touch-swipe is lost in no-JS mode (the parent
+  `.testimonial-card__post` clips with overflow: hidden) but arrow buttons work
+  without scrolling the page.
+{% endcomment %}
+{% if testimonials %}
+  <style>
+    {% for testimonial in testimonials %}
+      .testimonial-card:has(.testimonial-card__state[data-state-index="{{ forloop.counter0 }}"]:checked) .testimonial-card__nav-set[data-nav-index="{{ forloop.counter0 }}"] { display: inline-flex; }
+    {% endfor %}
+  </style>
+  <noscript>
+    <style>
+      .testimonial-card__list { overflow: visible !important; gap: 0 !important; transition: transform 0.3s ease; }
+      .testimonial-card__list-item { visibility: hidden; }
+
+      {% for testimonial in testimonials %}
+        .testimonial-card:has(.testimonial-card__state[data-state-index="{{ forloop.counter0 }}"]:checked) .testimonial-card__list { transform: translateX(-{{ forloop.counter0 }}00%); }
+        .testimonial-card:has(.testimonial-card__state[data-state-index="{{ forloop.counter0 }}"]:checked) .testimonial-card__list-item[data-item-index="{{ forloop.counter0 }}"] { visibility: visible; }
+      {% endfor %}
+    </style>
+  </noscript>
+{% endif %}
 <div class="card testimonial-card py-large" id="{{carousel_id}}" data-carousel data-carousel-radios role="region" aria-labelledby="{{ carousel_id }}-heading">
   {% if testimonials %}
     {% for testimonial in testimonials %}

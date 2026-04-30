@@ -157,18 +157,9 @@
     display: none;
 }
 
-.testimonial-card:has(.testimonial-card__state[data-state-index="0"]:checked) .testimonial-card__nav-set[data-nav-index="0"],
-.testimonial-card:has(.testimonial-card__state[data-state-index="1"]:checked) .testimonial-card__nav-set[data-nav-index="1"],
-.testimonial-card:has(.testimonial-card__state[data-state-index="2"]:checked) .testimonial-card__nav-set[data-nav-index="2"],
-.testimonial-card:has(.testimonial-card__state[data-state-index="3"]:checked) .testimonial-card__nav-set[data-nav-index="3"],
-.testimonial-card:has(.testimonial-card__state[data-state-index="4"]:checked) .testimonial-card__nav-set[data-nav-index="4"],
-.testimonial-card:has(.testimonial-card__state[data-state-index="5"]:checked) .testimonial-card__nav-set[data-nav-index="5"],
-.testimonial-card:has(.testimonial-card__state[data-state-index="6"]:checked) .testimonial-card__nav-set[data-nav-index="6"],
-.testimonial-card:has(.testimonial-card__state[data-state-index="7"]:checked) .testimonial-card__nav-set[data-nav-index="7"],
-.testimonial-card:has(.testimonial-card__state[data-state-index="8"]:checked) .testimonial-card__nav-set[data-nav-index="8"],
-.testimonial-card:has(.testimonial-card__state[data-state-index="9"]:checked) .testimonial-card__nav-set[data-nav-index="9"] {
-    display: inline-flex;
-}
+/* Per-index `display: inline-flex` overrides for the checked radio's nav-set
+   are generated in _testimonial_card.html (the testimonials count is
+   data-driven, so the rule set is rendered inline by the template). */
 
 .carousel-buttons label.btn-carousel {
     display: inline-flex;
