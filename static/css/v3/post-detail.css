@@ -193,10 +193,27 @@ html.dark .post-detail__related .card-group {
   }
 }
 
-/* Mobile: tighter gaps */
+/* Tablet only */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .post-header {
+    gap: var(--space-large);
+  }
+}
+
+/* Mobile */
 @media (max-width: 767px) {
+  .post-header {
+    gap: var(--space-large);
+  }
   .post-detail-page {
     gap: var(--space-large);
     padding: var(--space-large);
+    padding-bottom: 64px;
+  }
+  /* Total gap between article body and the first sibling section is
+     64px on mobile (Figma spec). Subtracts the page-level flex gap so
+     gap + margin-top = 64. */
+  .post-detail-page > .post-detail + section {
+    margin-top: calc(64px - var(--space-large));
   }
 }
