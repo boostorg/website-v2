@@ -25,6 +25,65 @@ from versions.releases import (
 logger = structlog.get_logger()
 
 
+def _import_missing_versions(
+    delete_versions=False, new_versions_only=False, token=None
+):
+    """
+    Imports missing Boost releases from github and updates the local database.
+
+    Retrieves the boost release tags from the main github repo, excluding beta releases and release candidates.
+
+    It then creates or updates a Version instance for each tag, then returns those tags for additional task processing.
+
+    Args:
+        delete_versions (bool): If True, deletes all existing Version instances before
+            importing.
+        new_versions_only (bool): If True, only imports versions that do not already
+            exist in the database.
+        token (str): Github API token, if you need to use something other than the
+            setting.
+    """
+
+    if delete_versions:
+        Version.objects.with_partials().all().delete()
+        logger.info("import_versions_deleted_all_versions")
+
+    # delete any versions that were only partially imported so they are re-imported
+    Version.objects.with_partials().filter(fully_imported=False).delete()
+
+    # Get all Boost tags from Github
+    client = GithubAPIClient(token=token)
+    tags = client.get_tags()
+
+    r_tags = []
+    for tag in tags:
+        name = tag["name"]
+
+        if skip_tag(name, new_versions_only):
+            continue
+
+        logger.info(f"import_versions importing version {name=}")
+        # Save the response we got from Github, if present
+        if tag:
+            data = obj2dict(tag)
+        else:
+            data = {}
+
+        base_url = ("https://github.com/boostorg/boost/releases/tag/",)
+        Version.objects.with_partials().update_or_create(
+            name=name,
+            defaults={
+                "github_url": f"{base_url}{name}",
+                "beta": False,
+                "full_release": True,
+                "data": data,
+            },
+        )
+        r_tags.append(tag)
+
+    return r_tags
+
+
 @app.task
 def import_versions(
     delete_versions=False, new_versions_only=False, token=None, purge_after=True
@@ -46,25 +105,16 @@ def import_versions(
         purge_after (bool): If True, call purge_fastly_release_cache after the version
             imports are finished.
     """
-    if delete_versions:
-        Version.objects.with_partials().all().delete()
-        logger.info("import_versions_deleted_all_versions")
 
-    # delete any versions that were only partially imported so they are re-imported
-    Version.objects.with_partials().filter(fully_imported=False).delete()
-
-    # Get all Boost tags from Github
-    client = GithubAPIClient(token=token)
-    tags = client.get_tags()
+    tags = _import_missing_versions(
+        delete_versions=delete_versions,
+        new_versions_only=new_versions_only,
+        token=token,
+    )
 
     import_version_task_group = []
     for tag in tags:
         name = tag["name"]
-
-        if skip_tag(name, new_versions_only):
-            continue
-
-        logger.info(f"import_versions importing version {name=}")
         import_version_task_group.append(import_version.s(name, tag=tag, token=token))
 
     if import_version_task_group:
