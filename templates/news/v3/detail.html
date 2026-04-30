@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load news_tags %}
 
 {% block title %}{{ object.title }}{% endblock %}
 
@@ -27,7 +28,7 @@
           </p>
         {% endif %}
         {% with body=object.content|default:object.visible_content %}
-          {% if body %}{{ body|urlize|linebreaks }}{% endif %}
+          {% if body %}{{ body|text_paragraphs }}{% endif %}
         {% endwith %}
       </div>
     </article>
