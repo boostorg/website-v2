@@ -231,7 +231,7 @@ class CommunityView(V3Mixin, TemplateView):
             "</ul>"
         )
         ctx["create_account_card_preview_url"] = (
-            f"{settings.STATIC_URL}img/v3/Community-page/"
+            f"{settings.STATIC_URL}img/v3/community-page/"
             "community-create-account-preview.png"
         )
         return ctx
