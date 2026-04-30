@@ -73,10 +73,13 @@
           aria-label="{{ aria_label|default:label }}"
           class="{% if style == 'icon-library' %}btn-icon-library {{ extra_classes }}{% else %}btn btn-{{ style|default:"primary" }} {{ extra_classes }}{% endif %}"
           aria-label="{{aria_label|default:label}}"
+          x-data="{
+            jsReady: false;
+          }"
           {% if disabled %}disabled{% endif %}
           {% if alpine_disabled %}:disabled="{{ alpine_disabled }}"{% endif %}
           {% if js_disabled %}
-            x-show="!jsReady"
+            x-show="jsReady"
             :disabled="jsReady"
           {% endif %}
         >
