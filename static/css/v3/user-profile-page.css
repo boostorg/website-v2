@@ -14,9 +14,11 @@
     display: grid;
     grid-template-columns: repeat(2, 50%);
     margin-bottom: var(--space-xl);
+    gap: var(--space-medium);
 }
 
-.user-profile__profile-content-area .card {
+.user-profile__profile-content-area .card,
+.user-profile__profile-content-area .card-group {
     max-width: 100%;
 }
 
@@ -28,15 +30,19 @@
         "github"
         "mailing-list"
     ;
+    height: fit-content;
 }
 
 .user-profile__profile-content-column--right {
     display: grid;
+    grid-template-rows: auto auto auto;
+    gap: var(--space-medium);
     grid-template-areas:
         "achievements"
         "badges"
         "posts"
     ;
+    height: fit-content;
 }
 
 .user-profile__profile-content-column .user-profile__bio {
@@ -68,4 +74,35 @@
 .user-profile__profile-content-column--left .user-profile__badges,
 .user-profile__profile-content-column--left .user-profile__posts {
     display: none;
+}
+
+@media (max-width: 768px) {
+
+    .user-profile__profile-content-column--left .user-profile__achievements,
+    .user-profile__profile-content-column--left .user-profile__badges,
+    .user-profile__profile-content-column--left .user-profile__posts {
+        display: block;
+    }
+
+    .user-profile__profile-content-area {
+        grid-template-columns: 100%;
+    }
+
+    .user-profile__profile-content-column--right {
+        display: none;
+    }
+
+    .user-profile__profile-content-column--left {
+        display: grid;
+        gap: var(--space-medium);
+        grid-template-areas:
+            "bio"
+            "achievements"
+            "badges"
+            "github"
+            "posts"
+            "mailing-list"
+        ;
+        height: fit-content;
+    }
 }

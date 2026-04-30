@@ -1,0 +1,24 @@
+.mailing-list-activity-card__mailing-items {
+    display: grid;
+    grid-template-columns: auto 1fr fit-content(568px);
+    width: 100%;
+    gap: var(--space-large);
+}
+
+.mailing-list-activity-card__date {
+    color: var(--color-text-secondary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-default);
+    letter-spacing: var(--letter-spacing-tight);
+}
+
+.mailing-list-activity-card__headline {
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-relaxed);
+    letter-spacing: var(--letter-spacing-tight);
+}

@@ -1,0 +1,25 @@
+{% comment %}
+    Card that displays the latest mailing list activity
+    Inputs:
+        title: str, required - text that appears bolded at the top of the card
+        mailing_list_items: list, required - list of dicts, each with the values (date, headline, url) for linking the mailing list items
+{% endcomment %}
+<div class="basic-card card">
+  <div class="card__header">
+    <span class="card__title">{{ title }}</span>
+  </div>
+  <hr class="card__hr" />
+  <div class="card__column px-large">
+      <div class="mailing-list-activity-card__mailing-items">
+            {% for it in mailing_list_items %}
+                <span class="mailing-list-activity-card__date">{{ it.date|date:"n/d/y" }}</span>
+                <span></span>
+                <a class="mailing-list-activity-card__headline" href="{{it.url}}">{{ it.headline }}</a>
+            {% endfor %}
+      </div>
+  </div>
+    <hr class="card__hr" />
+    <div class="card__cta_section">
+      {% include 'v3/includes/_button.html' with style='primary' url=primary_button_url label='View all activity' only %}
+    </div>
+</div>
