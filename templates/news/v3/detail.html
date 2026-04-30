@@ -24,7 +24,7 @@
       <div class="post-detail__body">
         {% if object.external_url %}
           <p class="post-detail__external-url">
-            <a href="{{ object.external_url }}" rel="noopener noreferrer" target="_blank">{{ object.external_url }}</a>
+            <a href="{{ object.external_url }}" rel="noopener noreferrer" target="_blank" aria-label="Read full article: {{ object.title }} (opens in new tab)">{{ object.external_url }}</a>
           </p>
         {% endif %}
         {% with body=object.content|default:object.visible_content %}
