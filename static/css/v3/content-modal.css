@@ -139,11 +139,7 @@
   letter-spacing: var(--letter-spacing-tight);
 }
 
-.content-modal__prose h2,
-.content-modal__prose h3,
-.content-modal__prose h4,
-.content-modal__prose h5,
-.content-modal__prose h6 {
+.content-modal__prose :is(h2, h3, h4, h5, h6) {
   margin: var(--space-xlarge) 0 var(--space-large);
   color: var(--color-text-primary);
   font-size: var(--font-size-large);
@@ -152,11 +148,17 @@
   letter-spacing: var(--letter-spacing-display-regular);
 }
 
-.content-modal__prose h2 { font-size: var(--font-size-large); }
-.content-modal__prose h3 { font-size: var(--font-size-base); }
-.content-modal__prose h4,
-.content-modal__prose h5,
-.content-modal__prose h6 { font-size: var(--font-size-small); }
+.content-modal__prose h2 {
+  font-size: var(--font-size-large);
+}
+
+.content-modal__prose h3 {
+  font-size: var(--font-size-base);
+}
+
+.content-modal__prose :is(h4, h5, h6) {
+  font-size: var(--font-size-small);
+}
 
 /* Sit flush with the top — no leading margin on the first prose element. */
 .content-modal__prose > :first-child {
@@ -166,108 +168,6 @@
 .content-modal__prose p {
   margin: var(--space-default) 0;
   padding: 0;
-}
-
-.content-modal__prose b,
-.content-modal__prose strong {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-medium);
-}
-
-.content-modal__prose a {
-  color: var(--color-text-link-accent);
-  text-decoration: underline;
-  text-decoration-skip-ink: none;
-  text-underline-position: from-font;
-}
-
-.content-modal__prose ul,
-.content-modal__prose ol {
-  margin: var(--space-default) 0;
-  padding-left: var(--space-large);
-}
-
-.content-modal__prose ul { list-style: disc; }
-.content-modal__prose ol { list-style: decimal; }
-
-.content-modal__prose li {
-  margin: var(--space-xs) 0;
-}
-
-.content-modal__prose table {
-  width: 100%;
-  margin: var(--space-default) 0;
-  border-collapse: collapse;
-  font-size: var(--font-size-small);
-}
-
-.content-modal__prose th,
-.content-modal__prose td {
-  padding: var(--space-default) var(--space-medium);
-  border-bottom: 1px solid var(--color-stroke-weak);
-  text-align: left;
-  vertical-align: top;
-}
-
-.content-modal__prose th {
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-medium);
-  border-bottom-color: var(--color-stroke-mid);
-}
-
-.content-modal__prose code {
-  font-family: var(--font-code);
-  font-size: 0.9em;
-  background-color: var(--color-surface-strong);
-  border-radius: var(--border-radius-s);
-  padding: 0 var(--space-xs);
-}
-
-.content-modal__prose pre {
-  margin: var(--space-default) 0;
-  padding: var(--space-large);
-  background-color: var(--color-surface-strong);
-  border-radius: var(--border-radius-l);
-  overflow-x: auto;
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-code);
-}
-
-.content-modal__prose pre code {
-  padding: 0;
-  background-color: transparent;
-  border-radius: 0;
-  font-size: 1em;
-}
-
-.content-modal__prose img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  margin: var(--space-default) 0;
-  border-radius: var(--border-radius-l);
-}
-
-.content-modal__prose figure {
-  margin: var(--space-default) 0;
-}
-
-.content-modal__prose figcaption {
-  margin-top: var(--space-default);
-  font-size: var(--font-size-small);
-  color: var(--color-text-secondary);
-}
-
-.content-modal__prose blockquote {
-  margin: var(--space-large) 0;
-  padding: var(--space-default) var(--space-large);
-  border-left: 3px solid var(--color-stroke-mid);
-  color: var(--color-text-secondary);
-  font-style: italic;
-}
-
-.content-modal__prose blockquote p {
-  margin: var(--space-default) 0;
 }
 
 /* ============================================

@@ -177,7 +177,6 @@
 /* Per-state rules (track translation, active nav/dot/CTA, focus ring) are
    emitted by the Django template's inline <style> in `_testimonial_card.html`
    so they scale with the testimonial count. */
-
 .testimonial-card__nav {
     display: none;
 }
