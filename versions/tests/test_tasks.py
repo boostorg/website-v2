@@ -1,8 +1,11 @@
 from datetime import datetime
 from unittest.mock import MagicMock, patch
+from versions.models import Version
 from versions.tasks import get_release_date_for_version, skip_tag
+from libraries.management.commands.release_tasks import ReleaseTasksManager
 
 import pytest
+import time
 
 
 @pytest.fixture
@@ -51,8 +54,37 @@ def test_skip_tag(version):
     assert skip_tag("sample") is False
 
 
-def test_import_version_race_condition(version):
+@pytest.mark.celery(CELERY_TASK_ALWAYS_EAGER=True)
+@pytest.mark.django_db
+@patch("versions.tasks.import_version.run")
+@patch("versions.tasks.import_release_notes.run")
+@patch("versions.tasks.mark_fully_completed.run")
+@patch("versions.tasks.GithubAPIClient.get_tags")
+def test_import_version_race_condition(tag_mock: MagicMock, *args):
     """
     Test that when run synchronously the get_versions task does all deletion and creation
     of versions before returning
     """
+    tag_mock.return_value = [{"name": "boost-1.91.0", "data": {}}]
+    # This object is not competely imported, so should be deleted during import
+    v, _ = Version.objects.with_partials().update_or_create(
+        name="boost-1.91.0",
+        defaults={
+            "github_url": "",
+            "beta": False,
+            "full_release": True,
+            "data": {},
+        },
+    )
+    rm = ReleaseTasksManager("", "")
+    # Ensure that a newly created manager has no latest version
+    assert rm.latest_version is None
+    rm.import_versions()
+    rm_latest_version = rm.latest_version
+    # Ensure that we have a latest version
+    assert rm.latest_version is not None
+    # Ensure that that latest version is not our previously created version
+    assert rm.latest_version != v
+    time.sleep(1)
+    # Make sure the version doesn't change mid task run
+    assert rm.latest_version == rm_latest_version

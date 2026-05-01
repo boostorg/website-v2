@@ -56,6 +56,7 @@ def _import_missing_versions(
     tags = client.get_tags()
 
     r_tags = []
+    base_url = "https://github.com/boostorg/boost/releases/tag/"
     for tag in tags:
         name = tag["name"]
 
@@ -69,7 +70,6 @@ def _import_missing_versions(
         else:
             data = {}
 
-        base_url = "https://github.com/boostorg/boost/releases/tag/"
         Version.objects.with_partials().update_or_create(
             name=name,
             defaults={
