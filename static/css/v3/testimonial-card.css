@@ -18,6 +18,25 @@
     background: var(--color-surface-mid, #F7F7F8);
 }
 
+/* Quote bubble becomes a link when the testimonial has a slug — clicking
+   anywhere in the bubble opens the matching Content Modal. */
+.testimonial-card__quote-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.testimonial-card__quote-link:hover .testimonial-card__text-wrapper,
+.testimonial-card__quote-link:focus-visible .testimonial-card__text-wrapper {
+    background: var(--color-surface-strong);
+}
+
+.testimonial-card__quote-link:hover .testimonial-card__text-tail,
+.testimonial-card__quote-link:focus-visible .testimonial-card__text-tail {
+    fill: var(--color-surface-strong);
+}
+
 .testimonial-card__text {
     color: var(--color-text-primary, #050816);
     font-family: var(--font-sans);

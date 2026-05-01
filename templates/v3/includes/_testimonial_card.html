@@ -6,6 +6,9 @@
     testimonials   (list, optional)    — list of testimonial objects with:
       - quote      (string, optional)  — testimonial text to display
       - author     (object, optional)  — passed to _user_profile.html (see that template for fields)
+      - slug       (string, optional)  — when set, the quote bubble becomes a
+                                         link to "#{slug}", opening a matching
+                                         Content Modal via :target.
 
   Usage:
     {% include "v3/includes/_testimonial_card.html" with heading="Testimonials" testimonials=testimonials %}
@@ -84,7 +87,7 @@
           {% if testimonials %}
             {% for testimonial in testimonials %}
               <li class="testimonial-card__list-item" data-carousel-item data-item-index="{{ forloop.counter0 }}">
-                <div>
+                {% if testimonial.slug %}<a class="testimonial-card__quote-link" href="#{{ testimonial.slug }}">{% else %}<div>{% endif %}
                   <div class="testimonial-card__text-wrapper">
                     <div class="testimonial-card__text">{{ testimonial.quote }}</div>
                   </div>
@@ -93,7 +96,7 @@
                       <path class="testimonial-card__text-tail" d="M0 0H32L3.41421 28.5858C2.15428 29.8457 0 28.9534 0 27.1716V0Z" />
                     </svg>
                   </div>
-                </div>
+                {% if testimonial.slug %}</a>{% else %}</div>{% endif %}
                 {% include "v3/includes/_user_profile.html" with author=testimonial.author only %}
               </li>
             {% endfor %}
@@ -102,4 +105,12 @@
     </section>
   </div>
 </div>
+{% comment %}
+  Bundle the matching Content Modals as a sibling of the card. Each
+  testimonial that carries `content` gets a modal rendered here,
+  so clicking its quote bubble opens the modal via :target.
+{% endcomment %}
+{% if testimonials.0.content %}
+  {% include "v3/includes/_content_modal_group.html" with items=testimonials only %}
+{% endif %}
 {% endwith %}
