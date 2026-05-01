@@ -21,6 +21,7 @@ from libraries.tasks import update_commits, generate_release_report
 from reports.models import WebsiteStatReport
 from slack.management.commands.fetch_slack_activity import get_my_channels, locked
 from versions.models import Version, ReportConfiguration
+from versions.tasks import import_versions as import_versions_task
 
 User = get_user_model()
 
@@ -64,7 +65,14 @@ class ReleaseTasksManager(ActionsManager):
         ]
 
     def import_versions(self):
-        call_command("import_versions")
+        import_versions_task.apply(
+            kwargs={
+                "delete_versions": False,
+                "new_versions_only": True,
+                "token": None,
+                "purge_after": True,
+            }
+        )
         self.latest_version = Version.objects.with_partials().most_recent()
 
     def import_library_versions(self):
