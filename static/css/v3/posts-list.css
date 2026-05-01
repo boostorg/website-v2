@@ -180,6 +180,10 @@
         height: 32px;
         width: 32px;
     }
+
+    .post-content__user_card_column .user-card {
+        max-width: 100%;
+    }
 }
 
 

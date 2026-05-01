@@ -1,5 +1,5 @@
 {% extends "v3/includes/_card_group.html" %}
-{% load wagtailimages_tags %}
+{% load wagtailimages_tags news_tags text_helpers %}
 {% comment %}
   Post Card — extends _card_group.html to render post items for the posts_list page
 
@@ -25,8 +25,8 @@
                 <div class="card__column">
                     <div class="post-card__title-block">
                       <a href="{{ item.get_absolute_url }}" class="post-card__title">{{ item.title }}</a>
-                      {% if item.summary %}
-                        <div class="post-card__summary">{{item.summary}}</div>
+                      {% if item.visible_content %}
+                        <div class="post-card__summary">{{item.visible_content|urlize|url_target_blank:''|linebreaksbr|multi_truncate_middle:30}}</div>
                       {% endif %}
                       <div class="post-card__meta">
                         <time datetime="{{ item.created_at|date:'c' }}">{{ item.created_at|date:"d/m/Y" }}</time>
