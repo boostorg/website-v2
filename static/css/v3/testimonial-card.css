@@ -5,15 +5,6 @@
     overflow: hidden;
 }
 
-.testimonial-card__carousel {
-    display: flex;
-    padding: 0 var(--space-large);
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-large);
-    align-self: stretch;
-}
-
 .testimonial-card__text-wrapper {
     display: flex;
     padding: var(--space-xl);
@@ -21,8 +12,6 @@
     background: var(--color-surface-mid);
 }
 
-/* Quote bubble becomes a link when the testimonial has a slug — clicking
-   anywhere in the bubble opens the matching Content Modal. */
 .testimonial-card__quote-link {
     display: block;
     color: inherit;
@@ -40,9 +29,8 @@
     fill: var(--color-surface-strong);
 }
 
-/* Suppress the default outline on the link itself — it stretches the full
-   slide width and would bleed into the neighboring slide. Render the focus
-   ring on the bubble with a negative offset so it stays inside the bubble. */
+/* Default link outline would bleed into the neighboring slide; render the
+   focus ring inside the bubble instead (see rule below). */
 .testimonial-card__quote-link:focus-visible {
     outline: none;
 }
@@ -60,7 +48,7 @@
     line-height: var(--line-height-tight);
     letter-spacing: var(--letter-spacing-tight);
 
-    /* Cap at 3 lines and truncate with an ellipsis on overflow. */
+    /* 3-line clamp with ellipsis. */
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
@@ -95,14 +83,11 @@
     align-items: flex-start;
     gap: var(--space-s);
 
-
-    /* Sans/Desktop/Regular/XS/Default */
     font-family: var(--font-sans);
     font-size: var(--font-size-xs);
     font-style: normal;
     font-weight: 400;
     line-height: 120%;
-    /* 14.4px */
     letter-spacing: -0.12px;
 }
 
@@ -152,10 +137,10 @@
     display: flex;
     flex-direction: column;
 
-    /* Hide off-screen slides from the tab order and accessibility tree.
-       Delayed transition keeps the outgoing slide visible during the
-       0.3s carousel slide animation. The active slide overrides this
-       in the inline <style> block emitted per-testimonial. */
+    /* Hide off-screen slides from tab order. The 0.3s delay matches the
+       slide animation so the outgoing slide stays visible until it has
+       fully translated out. Active slide overrides this in the inline
+       <style> block emitted per-testimonial. */
     visibility: hidden;
     transition: visibility 0s linear 0.3s;
 }
@@ -172,12 +157,11 @@
 }
 
 /* ============================================
-   CSS-only carousel state — driven by hidden radios.
-   The radios are at the start of .testimonial-card; sibling selectors
-   translate the track and toggle nav/dot active states accordingly.
+   CSS-only carousel state — hidden radios at the top of .testimonial-card
+   drive everything via sibling :checked selectors.
    ============================================ */
 
-/* Hide the radios visually but keep them keyboard-accessible. */
+/* Visually hidden but keyboard-accessible. */
 .testimonial-card__radio {
     position: absolute;
     width: 1px;
@@ -190,34 +174,23 @@
     border: 0;
 }
 
-/* All per-state rules (track translation, active nav block, active dot,
-   active CTA, focus ring) are emitted by the Django template via an inline
-   <style> block in `_testimonial_card.html`, so they scale with the actual
-   testimonial count instead of being hardcoded. */
+/* Per-state rules (track translation, active nav/dot/CTA, focus ring) are
+   emitted by the Django template's inline <style> in `_testimonial_card.html`
+   so they scale with the testimonial count. */
 
-/* Per-state prev/next nav blocks are hidden by default; the inline <style>
-   block reveals only the one matching the active radio. */
 .testimonial-card__nav {
     display: none;
 }
 
-/* The carousel-buttons labels need cursor:pointer because <label> isn't
-   a button by default. */
 .testimonial-card__nav .btn-carousel {
     cursor: pointer;
 }
 
-/* ============================================
-   PAGINATION DOTS
-   Absolutely positioned to the right of the card so they sit on the
-   same visual row as the user profile (which is at the bottom-left of
-   each slide). Lifted off the card's bottom edge to clear the divider
-   and the Read-more CTA below.
-   ============================================ */
+/* Pagination dots — sit on the same visual row as the user profile,
+   above the divider and Read-more CTA. */
 .testimonial-card__dots {
     position: absolute;
-    /* Card padding-bottom + CTA height (~36px) + small gap + hr-area
-       spacing. Tweak if the button height or surrounding gaps change. */
+    /* Card padding + CTA height (~36px) + gap. Re-tune if button size changes. */
     bottom: calc(3 * var(--space-large) + 36px);
     right: var(--space-large);
     display: flex;
@@ -240,14 +213,7 @@
     background-color: var(--color-text-secondary);
 }
 
-/* The active dot's `opacity: 1` highlight is emitted by the inline <style>
-   in the template (per-state rules). */
-
-/* ============================================
-   READ-MORE CTA — full-width primary button, in flow.
-   Hidden by default; the inline <style> in the template shows only the
-   one matching the active radio.
-   ============================================ */
+/* Read-more CTA — full-width primary button. */
 .testimonial-card__cta {
     display: none;
     width: calc(100% - 2 * var(--space-large));

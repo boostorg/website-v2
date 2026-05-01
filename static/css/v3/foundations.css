@@ -19,19 +19,14 @@ body.v3 * {
   scrollbar-width: thin;
 }
 
-/* Reserve the scrollbar gutter permanently so any state that toggles the
-   scrollbar (e.g. dialog scroll-lock in dialog.css) doesn't reflow the
-   page horizontally. */
-html {
+/* Reserve the scrollbar gutter so dialog scroll-lock doesn't reflow the page. */
+html.v3 {
   scrollbar-gutter: stable;
 }
 
-/* Third-party scroll-lock libraries (e.g. Boost Gecko search widget) add
-   inline padding-right to <body> to compensate for a disappearing
-   scrollbar. The scrollbar-gutter rule above already reserves that space,
-   so the third-party compensation is double-padding and shifts the page.
-   Force body padding-right to zero to neutralise it. */
-body {
+/* Neutralise third-party scroll-lock libs (e.g. Boost Gecko search) that
+   add inline body padding-right — our gutter above already reserves it. */
+body.v3 {
   padding-right: 0 !important;
 }
 

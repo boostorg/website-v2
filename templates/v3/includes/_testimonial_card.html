@@ -21,46 +21,34 @@
 
 {% with carousel_id='_testimonials_cards_carousel' total=testimonials|length %}
 {% comment %}
-  Per-state rules generated from the testimonials loop so the rule count
-  scales with the actual data. Each radio's id is unique, so we target it
-  directly instead of using :nth-of-type. Covers: track translation,
-  per-state prev/next nav visibility, active dot highlight, per-state CTA
-  visibility, and focus ring on the active nav button.
+  Per-state rules emitted from the testimonials loop so the rule count
+  scales with the data. Each radio's id is unique, so we target it directly
+  rather than using :nth-of-type.
 {% endcomment %}
 <style>
   {% for testimonial in testimonials %}
-    /* When this slide's radio is the :checked one, shift the slide track
-       horizontally so this slide lands in view. forloop.counter0 maps
-       slide 1 -> 0%, slide 2 -> -100%, slide 3 -> -200%, and so on. */
+    /* Shift the track to bring this slide into view (-N00% per zero-indexed slide). */
     #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .cards-carousel__track .testimonial-card__list {
       transform: translateX(-{{ forloop.counter0 }}00%);
     }
-    /* When this slide is active, reveal its matching prev/next nav block
-       inside the card header. All nav blocks are display:none by default
-       (see .testimonial-card__nav in testimonial-card.css). */
+    /* Reveal this slide's nav block (others are display:none in testimonial-card.css). */
     #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .card__header .testimonial-card__nav--{{ forloop.counter }} {
       display: inline-flex;
     }
-    /* When this slide is active, bring the matching pagination dot to
-       full opacity. Inactive dots remain at the base dimmed opacity */
+    /* Highlight the active dot; inactive dots stay dimmed via the base rule. */
     #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .testimonial-card__dots .testimonial-card__dot:nth-child({{ forloop.counter }}) {
       opacity: 1;
     }
-    /* When this slide is active, show its matching Read-more CTA. All
-       CTAs are display:none by default (see .testimonial-card__cta). */
+    /* Show this slide's CTA (others are display:none). */
     #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .testimonial-card__cta--{{ forloop.counter }} {
       display: flex;
     }
-    /* When this slide is active, restore visibility on its list-item so
-       its quote-link and user-profile links re-enter the keyboard tab
-       order. Inactive slides stay visibility:hidden via the base rule. */
+    /* Restore the active slide's visibility so its tab targets re-enter the tab order. */
     #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .cards-carousel__track .testimonial-card__list .testimonial-card__list-item:nth-child({{ forloop.counter }}) {
       visibility: visible;
       transition-delay: 0s;
     }
-    /* The radios are visually hidden, so when the user keyboard-focuses
-       one (Tab + arrow keys), surface a visible focus ring on the
-       matching prev/next nav wrapper in the card header. */
+    /* Mirror the hidden radio's focus onto the visible nav wrapper. */
     #{{ carousel_id }}-{{ forloop.counter }}:focus-visible ~ .card__header .testimonial-card__nav--{{ forloop.counter }} {
       outline: 2px solid var(--color-stroke-link-accent);
     }
@@ -68,11 +56,7 @@
 </style>
 
 <section class="card testimonial-card" id="{{ carousel_id }}" role="region" aria-labelledby="{{ carousel_id }}-heading">
-  {% comment %}
-    Hidden radios drive carousel state without JS. Sibling selectors on
-    `.testimonial-card__radio:nth-of-type(N):checked` translate the track,
-    highlight the active dot, and reveal the matching prev/next nav block.
-  {% endcomment %}
+  {% comment %} Hidden radios drive all carousel state via the per-state rules above. {% endcomment %}
   {% for testimonial in testimonials %}
     <input type="radio"
            name="{{ carousel_id }}-state"
@@ -86,10 +70,7 @@
   <div class="card__header">
     <h2 id="{{ carousel_id }}-heading" class="card__title">{{ heading }}</h2>
 
-    {% comment %}
-      Per-state prev/next: one block per testimonial; CSS shows only the
-      block matching the currently-checked radio. Wraps cyclically.
-    {% endcomment %}
+    {% comment %} One nav block per slide; prev/next wrap cyclically (first ↔ last). {% endcomment %}
     {% for testimonial in testimonials %}
       <div class="carousel-buttons testimonial-card__nav testimonial-card__nav--{{ forloop.counter }}" role="group" aria-label="Carousel navigation">
         {% if forloop.first %}
@@ -110,7 +91,7 @@
     {% endfor %}
   </div>
 
-  <hr class="card__hr" aria-hidden="True" />
+  <hr class="card__hr" aria-hidden="true" />
 
   {% if total > 1 %}
     <div class="testimonial-card__dots" aria-label="Testimonial pagination">
@@ -146,13 +127,9 @@
     </section>
   </div>
 
-  <hr class="card__hr" aria-hidden="True" />
+  <hr class="card__hr" aria-hidden="true" />
 
-  {% comment %}
-    Per-state "Read more" CTA: one button per testimonial, sits below the
-    divider at the bottom of the card. CSS shows only the one matching the
-    active radio. Targets the same modal slug as the quote-bubble link.
-  {% endcomment %}
+  {% comment %} One CTA per slide; targets the same modal slug as the quote-bubble link. {% endcomment %}
   {% for testimonial in testimonials %}
     {% if testimonial.slug %}
       <a href="#{{ testimonial.slug }}"
@@ -164,11 +141,7 @@
   {% endfor %}
 </section>
 
-{% comment %}
-  Bundle the matching Content Modals as a sibling of the card. Each
-  testimonial that carries `content` gets a modal rendered here,
-  so clicking its quote bubble opens the modal via :target.
-{% endcomment %}
+{% comment %} Modals rendered as siblings of the card so :target wires up the quote-bubble links. {% endcomment %}
 {% if testimonials.0.content %}
   {% include "v3/includes/_content_modal_group.html" with items=testimonials only %}
 {% endif %}

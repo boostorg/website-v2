@@ -158,8 +158,7 @@
 .content-modal__prose h5,
 .content-modal__prose h6 { font-size: var(--font-size-small); }
 
-/* The first child of the prose body should sit flush with the top —
-   skip the heading/paragraph top margin in that one case. */
+/* Sit flush with the top — no leading margin on the first prose element. */
 .content-modal__prose > :first-child {
   margin-top: 0;
 }

@@ -1,15 +1,20 @@
 {% comment %}
-  Variables:
-    carousel_id (optional, for JS): wraps with id="{carousel_id}-controls"
-    prev_label, next_label (optional): aria-labels (defaults: "Previous", "Next")
-    as_links (optional, default False): when True, renders <a href> controls so the
-      buttons work without JS (e.g. for :target-driven modals).
-    prev_url, next_url (used when as_links=True): destination URLs.
-      Pass an empty string ("") to render the disabled visual for an endpoint
-      (e.g. prev_url="" on the first item, next_url="" on the last).
+  Carousel Buttons — prev/next control pair.
+  Renders <button>s for JS-driven carousels or <a>s for no-JS :target/anchor flows.
 
-  Usage (JS-driven carousel): {% include "v3/includes/_carousel_buttons.html" with carousel_id="my-carousel" %}
-  Usage (no-JS, anchor-based): {% include "v3/includes/_carousel_buttons.html" with as_links=True prev_url="#item-1" next_url="#item-3" %}
+  Variables:
+    carousel_id   (string, optional, default unset)       — when set, wraps controls in <div id="{carousel_id}-controls"> for JS targeting
+    prev_label    (string, optional, default "Previous")  — aria-label for the prev control
+    next_label    (string, optional, default "Next")      — aria-label for the next control
+    as_links      (bool,   optional, default false)       — when true, renders <a href> controls (e.g. for :target-driven modals)
+    prev_url      (string, optional, default "")          — destination when as_links=true; "" renders the disabled visual (endpoint)
+    next_url      (string, optional, default "")          — destination when as_links=true; "" renders the disabled visual (endpoint)
+
+  Usage (JS-driven carousel):
+    {% include "v3/includes/_carousel_buttons.html" with carousel_id="my-carousel" %}
+
+  Usage (no-JS, anchor-based):
+    {% include "v3/includes/_carousel_buttons.html" with as_links=True prev_url="#item-1" next_url="#item-3" %}
 {% endcomment %}
 <div class="carousel-buttons" {% if carousel_id %}id="{{ carousel_id }}-controls"{% endif %} role="group" aria-label="Carousel navigation">
   {% if as_links %}

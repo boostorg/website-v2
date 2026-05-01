@@ -1,6 +1,5 @@
 /**
  * Carousel buttons – single block with prev/next controls.
- * Wrapper uses Surface-Strong background; inner buttons are borderless, icon turns blue on hover.
  */
 
 .carousel-buttons {
@@ -12,7 +11,7 @@
   width: 44px;
   height: 24px;
   border-radius: 8px;
-  background: var(--color-surface-strong, #EFEFF1);
+  background: var(--color-surface-strong);
 }
 
 .carousel-buttons .btn-carousel {
@@ -36,11 +35,11 @@
 }
 
 .carousel-buttons .btn-carousel:hover:not(:disabled) {
-  color: var(--color-secondary-dark-blue, #0077B8);
+  color: var(--color-secondary-dark-blue);
 }
 
 .carousel-buttons .btn-carousel[data-hover]:not(:disabled) {
-  color: var(--color-secondary-dark-blue, #0077B8);
+  color: var(--color-secondary-dark-blue);
 }
 
 .carousel-buttons .btn-carousel:disabled,

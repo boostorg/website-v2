@@ -39,13 +39,8 @@
   display: flex !important;
 }
 
-/* Lock background page scroll while any dialog is open. CSS-only via :has(),
-   so it works without JavaScript. Covers both hash-based dialogs
-   (.dialog-modal:target) and checkbox-based ones (library filter).
-   Relies on `scrollbar-gutter: stable` in foundations.css so removing the
-   scrollbar here doesn't reflow the page horizontally. */
-html:has(.dialog-modal:target),
-html:has(.library-filter__toggle:checked) {
+/* Lock background page scroll while any dialog is open. */
+html:has(.dialog-modal:target) {
   overflow: hidden;
 }
 
@@ -68,7 +63,7 @@ html:has(.library-filter__toggle:checked) {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-large, 16px);
+  gap: var(--space-large);
   width: 695px;
   max-width: calc(100vw - 2 * var(--space-large));
   background-color: var(--color-surface-page);
