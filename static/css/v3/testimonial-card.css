@@ -7,18 +7,18 @@
 
 .testimonial-card__carousel {
     display: flex;
-    padding: 0 var(--space-large, 16px);
+    padding: 0 var(--space-large);
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--space-large, 16px);
+    gap: var(--space-large);
     align-self: stretch;
 }
 
 .testimonial-card__text-wrapper {
     display: flex;
-    padding: var(--space-xl, 32px);
-    border-radius: var(--space-xl, 32px);
-    background: var(--color-surface-mid, #F7F7F8);
+    padding: var(--space-xl);
+    border-radius: var(--space-xl);
+    background: var(--color-surface-mid);
 }
 
 /* Quote bubble becomes a link when the testimonial has a slug — clicking
@@ -53,9 +53,9 @@
 }
 
 .testimonial-card__text {
-    color: var(--color-text-primary, #050816);
+    color: var(--color-text-primary);
     font-family: var(--font-sans);
-    font-size: var(--font-size-xl, 32px);
+    font-size: var(--font-size-xl);
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-tight);
     letter-spacing: var(--letter-spacing-tight);
@@ -71,9 +71,9 @@
 
 .testimonial-card__text-tail {
     width: 32px;
-    height: var(--space-xl, 32px);
+    height: var(--space-xl);
     aspect-ratio: 1/1;
-    fill: var(--color-surface-mid, #F7F7F8);
+    fill: var(--color-surface-mid);
 }
 
 .testimonial-card__tail-wrapper {
@@ -85,7 +85,7 @@
 .testimonial-card__author {
     display: flex;
     align-items: center;
-    gap: var(--space-medium, 12px);
+    gap: var(--space-medium);
 }
 
 .testimonial-card__author-info {
@@ -93,12 +93,12 @@
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    gap: var(--space-s, 4px);
+    gap: var(--space-s);
 
 
     /* Sans/Desktop/Regular/XS/Default */
     font-family: var(--font-sans);
-    font-size: var(--font-size-xs, 12px);
+    font-size: var(--font-size-xs);
     font-style: normal;
     font-weight: 400;
     line-height: 120%;
@@ -108,12 +108,12 @@
 
 
 .testimonial-card__author-name-text {
-    color: var(--color-text-primary, #050816);
+    color: var(--color-text-primary);
 }
 
 .testimonial-card__author-role {
     height: 16px;
-    gap: var(--space-default, 8px);
+    gap: var(--space-default);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -250,7 +250,7 @@
 }
 
 .testimonial-card__author-role-text {
-    color: var(--color-text-secondary, #585A64);
+    color: var(--color-text-secondary);
 }
 
 .testimonial-card__author-role-badge {
