@@ -7,6 +7,23 @@ from core.constants import BadgeToken
 from libraries.utils import commit_data_to_stats_bars
 
 
+def _with_carousel_nav(items, slug_key="title"):
+    """Annotate each item with `slug`, `prev_url`, `next_url` for in-page
+    carousel/modal navigation. `prev_url` is empty on the first item and
+    `next_url` is empty on the last.
+    """
+    slugs = [slugify(item[slug_key]) for item in items]
+    return [
+        {
+            **item,
+            "slug": slugs[i],
+            "prev_url": f"#{slugs[i - 1]}" if i > 0 else "",
+            "next_url": f"#{slugs[i + 1]}" if i < len(slugs) - 1 else "",
+        }
+        for i, item in enumerate(items)
+    ]
+
+
 class SharedResources:
     demo_posts = [
         {
@@ -335,142 +352,29 @@ the science.</p>
 """,
         },
         {
-            "title": "The use of Boost C++ libraries in drug discovery",
-            "subtitle": "By Oleg Trott, PhD",
-            "quote": (
-                "What I really liked about Boost was that the libraries are "
-                "peer-reviewed, raising expectations about quality and "
-                "security. And I don't think I encountered a single bug in any of the Boost libraries I used. "
-            ),
+            "title": "Lorem ipsum dolor sit amet",
+            "subtitle": "By Ipsum Loremson",
+            "quote": "Lorem ipsum content to test short testimonial",
             "author": {
-                "name": "Oleg Trott, PhD",
+                "name": "Ipsum Loremson",
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
-                "role": "Creator of AutoDock Vina",
+                "role": "Lorem Ipsum Industries",
                 "badge": BadgeToken.TIER_3,
             },
             "content": """
-<p><a href="https://vina.scripps.edu/">AutoDock Vina</a> is the most popular
-molecular docking program, with
-<a href="https://scholar.google.com/citations?user=4BD7MkgAAAAJ">40,000
-citations</a>, as of this writing. It is used widely to look for treatments
-for various diseases from cardiovascular and infectious ones to cancer. I
-created AutoDock Vina back when I was a postdoc at The Scripps Research
-Institute. And Boost C++ libraries were of great help.</p>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+consequat.</p>
 
-<p>The mechanisms of action of various drugs are different in each case,
-but what they have in common is that the drug (typically a small molecule
-consisting of dozens of atoms) binds a huge molecule, like a protein
-(consisting of thousands of atoms). This binding is normally non-covalent
-(think "physics", not "chemistry"). It is also quite specific &ndash; the
-shape and other properties of the drug have to be complementary to the
-protein, not unlike a lock and key. This binding interferes with the normal
-operation of the protein in question, and this may have some desired
-biological effect.</p>
-
-<p>Modeling this binding process computationally is challenging, but, if
-done well, it can predict which small molecules would be promising as
-drugs.</p>
-
-<p>When I got hired by The Scripps Research Institute almost 20 years ago,
-they had already been developing a molecular docking program, which they
-called "AutoDock", for many years. AutoDock was being used widely,
-including in huge efforts like the IBM World Community Grid, where
-volunteers contributed their personal compute to do docking calculations.
-In one such project, AutoDock was being used to look for new anti-HIV
-drugs. I estimated that in that single project, millions of dollars were
-being spent just on electricity (a cost borne by the volunteers). So
-performance was important.</p>
-
-<p>Initially, my plan was to contribute to AutoDock, but after a few weeks
-on the job, I realized that the best path forward would be to write a new
-docking program instead. I thought I could re-implement the same or
-equivalent algorithm in a fraction of the lines of code, using modern (at
-the time) C++, employing STL and Boost.</p>
-
-<p>While I didn't get fired right away, I'll say this: If you set out to do
-something ambitious in academia, the clock starts ticking for you, because
-while you are busy working on your new high-effort and high-risk project,
-you are probably not publishing some low-effort and low-risk work that is
-encouraged in academia. And what if your project fails? Rather perilous
-for your career.</p>
-
-<p>To make matters worse, during this rewrite, my ambitions grew much
-further. I was no longer content with just a rewrite and started
-experimenting with alternative algorithms and scoring functions. (The
-scoring function tells us which binding is better.) Long story short,
-after 1.5 years, I released a new docking program and called it "VINA"
-(short for "VINA Is Not AutoDock"). It was superior to AutoDock:</p>
-
-<ul>
-<li>It was roughly 60 times faster, when using a single thread (potentially
-saving many millions in electricity and compute)</li>
-<li>Additionally, it supported parallelism across multiple CPU cores
-seamlessly</li>
-<li>It was significantly more accurate in its binding pose predictions, on
-average</li>
-<li>It supported all major platforms directly (AutoDock required a Unix-like
-environment)</li>
-<li>The code was a few times smaller</li>
-</ul>
-
-<p>Later, I was asked to change the name to "AutoDock Vina". "AutoDock"
-became a brand, rather than the name of a particular program. Sadly, this
-is causing confusion to this day. Many people think that "Vina" was a new
-version of old software, but it was brand-new and simpler code implementing
-a more complex algorithm.</p>
-
-<p>Boost C++ libraries were quite useful to me in cutting down on the
-development time, which as I mentioned was important. In particular, I
-used</p>
-
-<ul>
-<li>Boost.Thread &ndash; it enabled parallelism in a platform-independent way</li>
-<li>Boost.Serialization &ndash; for object persistence</li>
-<li>Boost.Math &ndash; for quaternions, which are used to represent 3D rotations
-conveniently (Boost.QVM would have been more appropriate, but I don't
-think it was part of Boost back then)</li>
-<li>Boost.ProgramOptions &ndash; for parsing command line options and
-configuration files, as well as to display the help message</li>
-<li>Boost.Filesystem &ndash; for handling files in a platform-independent way</li>
-<li>Boost.PointerContainer &ndash; for containers of pointers to objects</li>
-<li>Boost.Array &ndash; for "vectors" of statically known length</li>
-<li>Boost.Optional &ndash; for objects that may or may not be there</li>
-<li>Boost.LexicalCast &ndash; for parsing numbers, mostly</li>
-<li>Boost.Random &ndash; for thread-safe random number generation</li>
-<li>Boost.Timer &ndash; to show the users a progress bar, while they are waiting
-for the results</li>
-</ul>
-
-<p>Since then, some of these libraries made it into the C++ standard, I
-believe.</p>
-
-<p>What I really liked about Boost was that the libraries are peer-reviewed,
-raising expectations about quality and security. And I don't think I
-encountered a single bug in any of the Boost libraries I used. My thanks
-to the developers!</p>
+<p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
+dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 """,
         },
     ]
-    # Note: built with a regular for-loop instead of a comprehension because
-    # comprehensions inside a class body cannot read sibling class-level
-    # names from their body (Python class-scope quirk).
-    _testimonial_slugs = [slugify(_t["title"]) for _t in _raw_testimonials]
-    testimonials = []
-    for _i, _t in enumerate(_raw_testimonials):
-        testimonials.append(
-            {
-                **_t,
-                "slug": _testimonial_slugs[_i],
-                "prev_url": (f"#{_testimonial_slugs[_i - 1]}" if _i > 0 else ""),
-                "next_url": (
-                    f"#{_testimonial_slugs[_i + 1]}"
-                    if _i < len(_testimonial_slugs) - 1
-                    else ""
-                ),
-            }
-        )
-    del _i, _t
+    testimonials = _with_carousel_nav(_raw_testimonials)
 
     library_intro = {
         "library_name": "Boost.Core.",

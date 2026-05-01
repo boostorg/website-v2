@@ -149,6 +149,8 @@
     border: none;
     padding: 0;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 
     /* Hide off-screen slides from the tab order and accessibility tree.
        Delayed transition keeps the outgoing slide visible during the
@@ -156,6 +158,10 @@
        in the inline <style> block emitted per-testimonial. */
     visibility: hidden;
     transition: visibility 0s linear 0.3s;
+}
+
+.testimonial-card__list-item > .user-profile {
+    margin-top: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {

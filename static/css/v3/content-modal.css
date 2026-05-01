@@ -28,7 +28,7 @@
   flex-direction: column;
   gap: var(--space-large);
   width: 916px;
-  max-width: calc(100vw - 2 * var(--space-large));
+  max-width: calc(100vw - 2 * 54px);
   max-height: calc(100vh - 2 * var(--space-xl));
   padding: var(--space-xlarge) 0;
   background-color: var(--color-surface-weak);
@@ -277,7 +277,7 @@
 @media (max-width: 767px) {
   .content-modal__container {
     width: auto;
-    max-width: calc(100vw - 2 * var(--space-default));
+    max-width: calc(100vw - 2 * var(--space-medium));
     max-height: calc(100vh - 2 * var(--space-large));
     border-radius: var(--border-radius-l);
     gap: var(--space-large);
