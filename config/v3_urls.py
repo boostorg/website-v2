@@ -49,7 +49,14 @@ from django.urls import path
 
 from core.views import LearnPageView, V3ComponentDemoView
 from news.views import V3AllTypesCreateView
-from users.views import V3LoginView, V3SignupView
+from users.views import (
+    V3LoginView,
+    V3PasswordResetDoneView,
+    V3PasswordResetFromKeyDoneView,
+    V3PasswordResetFromKeyView,
+    V3PasswordResetView,
+    V3SignupView,
+)
 
 v3_urlpatterns = [
     path(
@@ -76,5 +83,25 @@ v3_urlpatterns = [
         "v3/accounts/login/",
         V3LoginView.as_view(),
         name="v3-login",
+    ),
+    path(
+        "v3/accounts/password/reset/",
+        V3PasswordResetView.as_view(),
+        name="v3-password-reset",
+    ),
+    path(
+        "v3/accounts/password/reset/done/",
+        V3PasswordResetDoneView.as_view(),
+        name="v3-password-reset-done",
+    ),
+    path(
+        "v3/accounts/password/reset/key/",
+        V3PasswordResetFromKeyView.as_view(),
+        name="v3-password-reset-from-key",
+    ),
+    path(
+        "v3/accounts/password/reset/key/done/",
+        V3PasswordResetFromKeyDoneView.as_view(),
+        name="v3-password-reset-from-key-done",
     ),
 ]
