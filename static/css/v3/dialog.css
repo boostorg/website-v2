@@ -39,6 +39,29 @@
   display: flex !important;
 }
 
+/* Reserve the scrollbar gutter permanently so removing the scrollbar (via
+   the scroll-lock rule below) doesn't reflow the page horizontally. */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Third-party scroll-lock libraries (e.g.Boost Gecko search widget)
+   add inline padding-right to <body> to compensate for a
+   disappearing scrollbar. Our html-level scrollbar-gutter already reserves
+   that space, so the third-party compensation is double-padding and shifts
+   the page. Force body padding-right to zero to neutralise it. */
+body {
+  padding-right: 0 !important;
+}
+
+/* Lock background page scroll while any dialog is open. CSS-only via :has(),
+   so it works without JavaScript. Covers both hash-based dialogs
+   (.dialog-modal:target) and checkbox-based ones (library filter). */
+html:has(.dialog-modal:target),
+html:has(.library-filter__toggle:checked) {
+  overflow: hidden;
+}
+
 /* ============================================
    BACKDROP CLOSE LINK
    Fills the overlay; clicking outside the container closes the dialog.

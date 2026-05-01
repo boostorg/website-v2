@@ -24,15 +24,13 @@
        aria-modal="true"
        aria-labelledby="{{ modal_id }}-title">
     <div class="content-modal__header">
-      <div class="content-modal__header-main">
-        <a class="content-modal__close"
-           role="button"
-           href="{{ close_url|default:'#_' }}"
-           aria-label="Close">
-          {% include "includes/icon.html" with icon_name="close" icon_class="content-modal__close-icon" icon_size=24 %}
-        </a>
-        <h2 class="content-modal__title" id="{{ modal_id }}-title">{{ title }}</h2>
-      </div>
+      <a class="content-modal__close"
+         role="button"
+         href="{{ close_url|default:'#_' }}"
+         aria-label="Close">
+        {% include "includes/icon.html" with icon_name="close" icon_class="content-modal__close-icon" icon_size=24 %}
+      </a>
+      <h2 class="content-modal__title" id="{{ modal_id }}-title">{{ title }}</h2>
       {% include "v3/includes/_carousel_buttons.html" with as_links=True prev_url=prev_url|default:"" next_url=next_url|default:"" only %}
     </div>
     {% if subtitle %}

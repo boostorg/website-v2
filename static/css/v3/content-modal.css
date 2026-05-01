@@ -9,8 +9,8 @@
  *   .dialog-modal.content-modal       — full-screen overlay (hidden by default)
  *   .dialog-modal__backdrop           — close link covering the overlay
  *   .content-modal__container         — centered card (role="dialog")
- *   .content-modal__header            — top row: prev/next + title + close
- *   .content-modal__header-main       — left cluster (carousel buttons + title)
+ *   .content-modal__header            — top row: close + title + prev/next
+ *                                       (title wraps to its own row on mobile)
  *   .content-modal__title             — heading text
  *   .content-modal__close             — close (×) link, top-right of card
  *   .content-modal__subtitle          — byline / secondary text row
@@ -38,26 +38,19 @@
 }
 
 /* ============================================
-   HEADER (prev/next + title on the left, close on the right)
+   HEADER (close on the left, title in the middle, prev/next on the right)
    ============================================ */
 .content-modal__header {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-large);
   padding: 0 var(--space-large);
 }
 
-.content-modal__header-main {
-  display: flex;
-  align-items: center;
-  gap: var(--space-large);
-  min-width: 0;
-}
-
 .content-modal__title {
-  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0 var(--space-large);
   padding: 0;
   font-family: var(--font-display);
   font-size: var(--font-size-large);
@@ -65,7 +58,10 @@
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-display-regular);
   color: var(--color-text-primary);
-  min-width: 0;
+}
+
+.content-modal__header .carousel-buttons {
+  flex-shrink: 0;
 }
 
 /* ============================================
@@ -284,11 +280,28 @@
     max-width: calc(100vw - 2 * var(--space-default));
     max-height: calc(100vh - 2 * var(--space-large));
     border-radius: var(--border-radius-l);
-    gap: var(--space-default);
+    gap: var(--space-large);
+  }
+
+  /* Wrap the title onto its own row, leaving close + carousel on row 1.
+     `order: 1` pushes it after both siblings; `flex-basis: 100%` forces a wrap.
+     Negative horizontal margin lets the divider above the title span the
+     full container width past the header's left/right padding. */
+  .content-modal__header {
+    flex-wrap: wrap;
+    row-gap: var(--space-large);
+  }
+
+  .content-modal__header .carousel-buttons {
+    margin-left: auto;
   }
 
   .content-modal__title {
-    font-size: var(--font-size-medium);
+    order: 1;
+    flex-basis: 100%;
+    margin: 0 calc(-1 * var(--space-large));
+    padding: var(--space-large) var(--space-large) 0;
+    border-top: 1px solid var(--color-stroke-weak);
   }
 
   .content-modal__subtitle {
