@@ -1,5 +1,8 @@
 .testimonial-card {
     max-width: 696px;
+    position: relative;
+    padding: var(--space-large) 0 !important;
+    overflow: hidden;
 }
 
 .testimonial-card__carousel {
@@ -37,6 +40,18 @@
     fill: var(--color-surface-strong);
 }
 
+/* Suppress the default outline on the link itself — it stretches the full
+   slide width and would bleed into the neighboring slide. Render the focus
+   ring on the bubble with a negative offset so it stays inside the bubble. */
+.testimonial-card__quote-link:focus-visible {
+    outline: none;
+}
+
+.testimonial-card__quote-link:focus-visible .testimonial-card__text-wrapper {
+    outline: 2px solid var(--color-stroke-link-accent);
+    outline-offset: -2px;
+}
+
 .testimonial-card__text {
     color: var(--color-text-primary, #050816);
     font-family: var(--font-sans);
@@ -44,6 +59,14 @@
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-tight);
     letter-spacing: var(--letter-spacing-tight);
+
+    /* Cap at 3 lines and truncate with an ellipsis on overflow. */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .testimonial-card__text-tail {
@@ -113,22 +136,117 @@
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    gap: var(--space-card);
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
     min-width: 0;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    transition: transform 0.3s ease;
+    will-change: transform;
 }
 
 .testimonial-card__list-item {
     list-style: none;
-    flex: 0 0 auto;
+    flex: 0 0 100%;
     min-width: 0;
     max-width: 100%;
     border: none;
     padding: 0;
+    box-sizing: border-box;
+
+    /* Hide off-screen slides from the tab order and accessibility tree.
+       Delayed transition keeps the outgoing slide visible during the
+       0.3s carousel slide animation. The active slide overrides this
+       in the inline <style> block emitted per-testimonial. */
+    visibility: hidden;
+    transition: visibility 0s linear 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .testimonial-card__list,
+    .testimonial-card__list-item {
+        transition: none;
+    }
+}
+
+/* ============================================
+   CSS-only carousel state — driven by hidden radios.
+   The radios are at the start of .testimonial-card; sibling selectors
+   translate the track and toggle nav/dot active states accordingly.
+   ============================================ */
+
+/* Hide the radios visually but keep them keyboard-accessible. */
+.testimonial-card__radio {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* All per-state rules (track translation, active nav block, active dot,
+   active CTA, focus ring) are emitted by the Django template via an inline
+   <style> block in `_testimonial_card.html`, so they scale with the actual
+   testimonial count instead of being hardcoded. */
+
+/* Per-state prev/next nav blocks are hidden by default; the inline <style>
+   block reveals only the one matching the active radio. */
+.testimonial-card__nav {
+    display: none;
+}
+
+/* The carousel-buttons labels need cursor:pointer because <label> isn't
+   a button by default. */
+.testimonial-card__nav .btn-carousel {
+    cursor: pointer;
+}
+
+/* ============================================
+   PAGINATION DOTS
+   Absolutely positioned to the right of the card so they sit on the
+   same visual row as the user profile (which is at the bottom-left of
+   each slide). Lifted off the card's bottom edge to clear the divider
+   and the Read-more CTA below.
+   ============================================ */
+.testimonial-card__dots {
+    position: absolute;
+    /* Card padding-bottom + CTA height (~36px) + small gap + hr-area
+       spacing. Tweak if the button height or surrounding gaps change. */
+    bottom: calc(3 * var(--space-large) + 36px);
+    right: var(--space-large);
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    z-index: 1;
+}
+
+.testimonial-card__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    background-color: var(--color-icon-secondary);
+    opacity: 0.2;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.testimonial-card__dot:hover {
+    background-color: var(--color-text-secondary);
+}
+
+/* The active dot's `opacity: 1` highlight is emitted by the inline <style>
+   in the template (per-state rules). */
+
+/* ============================================
+   READ-MORE CTA — full-width primary button, in flow.
+   Hidden by default; the inline <style> in the template shows only the
+   one matching the active radio.
+   ============================================ */
+.testimonial-card__cta {
+    display: none;
+    width: calc(100% - 2 * var(--space-large));
+    margin: 0 var(--space-large);
+    box-sizing: border-box;
 }
 
 .testimonial-card__author-role-text {
