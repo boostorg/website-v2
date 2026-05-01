@@ -49,3 +49,10 @@ def test_skip_tag(version):
 
     # Assert a random tag name is not skipped
     assert skip_tag("sample") is False
+
+
+def test_import_version_race_condition(version):
+    """
+    Test that when run synchronously the get_versions task does all deletion and creation
+    of versions before returning
+    """
