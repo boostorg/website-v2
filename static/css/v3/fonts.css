@@ -7,8 +7,8 @@
 @font-face {
   font-family: 'Mona Sans VF';
   font-style: normal;
-  font-weight: 200 900;
-  font-stretch: 75% 125%;
+  font-weight: 400 500;
+  font-stretch: 95%;
   font-display: swap;
   src: url('/static/font/v3/mona-sans/mona-sans-vf.ttf') format('truetype');
 }
@@ -16,8 +16,8 @@
 @font-face {
   font-family: 'Mona Sans VF';
   font-style: italic;
-  font-weight: 200 900;
-  font-stretch: 75% 125%;
+  font-weight: 400 500;
+  font-stretch: 95%;
   font-display: swap;
   src: url('/static/font/v3/mona-sans/mona-sans-vf-italic.ttf') format('truetype');
 }
@@ -44,7 +44,7 @@
 @font-face {
   font-family: 'Monaspace Neon';
   font-style: normal;
-  font-weight: 100 900;
+  font-weight: 400;
   font-stretch: 100%;
   font-display: swap;
   src: url('/static/font/MonaspaceNeon-Var.woff2') format('woff2');
@@ -63,7 +63,7 @@
 @font-face {
   font-family: 'Monaspace Xenon';
   font-style: normal;
-  font-weight: 100 900;
+  font-weight: 400;
   font-stretch: 100%;
   font-display: swap;
   src: url('/static/font/MonaspaceXenon-Var.woff2') format('woff2');
