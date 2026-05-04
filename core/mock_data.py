@@ -9,16 +9,18 @@ from libraries.utils import commit_data_to_stats_bars
 
 def _with_carousel_nav(items, slug_key="title"):
     """Annotate each item with `slug`, `prev_url`, `next_url` for in-page
-    carousel/modal navigation. `prev_url` is empty on the first item and
-    `next_url` is empty on the last.
+    carousel/modal navigation. Navigation wraps cyclically: the first item's
+    `prev_url` points to the last item, and the last item's `next_url`
+    points to the first.
     """
     slugs = [slugify(item[slug_key]) for item in items]
+    n = len(items)
     return [
         {
             **item,
             "slug": slugs[i],
-            "prev_url": f"#{slugs[i - 1]}" if i > 0 else "",
-            "next_url": f"#{slugs[i + 1]}" if i < len(slugs) - 1 else "",
+            "prev_url": f"#{slugs[(i - 1) % n]}",
+            "next_url": f"#{slugs[(i + 1) % n]}",
         }
         for i, item in enumerate(items)
     ]
