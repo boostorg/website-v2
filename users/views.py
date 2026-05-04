@@ -120,7 +120,7 @@ class CurrentUserProfileView(
             "role": "Contributor",
         }
 
-        # Data shared between filled versions, Boost Github and Mailing List activity
+        # Data shared between both versions, Boost Github and Mailing List activity
         ctx = {
             "github_activity_card_data": {
                 "title": "Latest Boost Github activity",
