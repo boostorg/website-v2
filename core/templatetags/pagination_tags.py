@@ -3,6 +3,26 @@ from django import template
 register = template.Library()
 
 
+@register.simple_tag(takes_context=True)
+def resolve_pagination(context, current=None, total=None, param=None):
+    """Return a dict with current, total, and param resolved from context or explicit overrides.
+
+    When used in an isolated/demo context, pass current/total/param explicitly.
+    When used inside a Django ListView, they are read from page_obj and paginator.
+    """
+    page_obj = context.get("page_obj")
+    paginator = context.get("paginator")
+    return {
+        "current": (
+            current if current is not None else (page_obj.number if page_obj else 1)
+        ),
+        "total": (
+            total if total is not None else (paginator.num_pages if paginator else 0)
+        ),
+        "param": param or "page",
+    }
+
+
 @register.simple_tag
 def pagination_range(current_page, num_pages):
     """Compute the list of page items to display in a paginator.
