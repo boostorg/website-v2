@@ -39,7 +39,6 @@ from .notifications import (
     send_email_news_posted,
 )
 
-from core.mixins import V3Mixin
 from libraries.models import Library
 
 User = get_user_model()
