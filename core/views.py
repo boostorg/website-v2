@@ -2185,7 +2185,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "anchor": "pag-pg3a",
             },
             {
-                "label": "1 page — hidden (nothing renders)",
+                "label": "1 page — single page, both chevrons disabled",
                 "current": 1,
                 "total": 1,
                 "param": "pg1a",

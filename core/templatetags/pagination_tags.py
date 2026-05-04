@@ -32,8 +32,10 @@ def pagination_range(current_page, num_pages):
     - An integer (page number, clickable)
     - The string '...' (ellipsis, decorative)
     """
-    if num_pages <= 1:
+    if num_pages < 1:
         return []
+    if num_pages == 1:
+        return [1]
 
     window_start = max(2, current_page - 2)
     window_end = min(num_pages - 1, current_page + 2)

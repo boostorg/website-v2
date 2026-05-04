@@ -17,7 +17,7 @@
 {% endcomment %}
 
 {% resolve_pagination pagination_current pagination_total pagination_page_param pagination_anchor as pag %}
-{% if pag.total > 1 %}
+{% if pag.total >= 1 %}
   {% pagination_range pag.current pag.total as pages %}
 
   {% if pag.current > 1 %}
