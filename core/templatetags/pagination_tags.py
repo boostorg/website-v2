@@ -14,10 +14,14 @@ def resolve_pagination(context, current=None, total=None, param=None, anchor=Non
     paginator = context.get("paginator")
     return {
         "current": (
-            current if current is not None else (page_obj.number if page_obj else 1)
+            current
+            if isinstance(current, int)
+            else (page_obj.number if page_obj else 1)
         ),
         "total": (
-            total if total is not None else (paginator.num_pages if paginator else 0)
+            total
+            if isinstance(total, int)
+            else (paginator.num_pages if paginator else 0)
         ),
         "param": param or "page",
         "anchor": anchor or "",

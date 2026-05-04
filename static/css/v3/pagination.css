@@ -28,6 +28,7 @@
   justify-content: center;
   height: 40px;
   padding: 0 var(--space-large);
+  border: 1px solid transparent;
   border-radius: var(--border-radius-xl);
   font-family: var(--font-sans);
   font-size: var(--font-size-small);
@@ -42,11 +43,13 @@
 
 .pagination__link:hover {
   background-color: var(--color-surface-mid);
+  border-color: var(--color-stroke-weak);
   color: var(--color-text-primary);
 }
 
 .pagination__link--active {
   background-color: var(--color-surface-weak);
+  border-color: var(--color-stroke-weak);
   color: var(--color-text-primary);
   pointer-events: none;
 }
@@ -69,12 +72,11 @@
 /* ── Chevron navigation ── */
 
 .pagination__chevron {
-  padding: 0 var(--space-default);
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
   color: var(--color-icon-primary);
-}
-
-.pagination__chevron:hover {
-  background-color: var(--color-surface-mid);
 }
 
 .pagination__chevron--disabled {
