@@ -198,9 +198,9 @@ int main()
 
     testimonials = [
         {
-            "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+            "quote": "1 — I use Boost daily. I absolutely love it. It's wonderful. I could not do my job without it. Much of it is in the new C++11 standard too.",
             "author": {
-                "name": "Name Surname",
+                "name": "Ada Lovelace",
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                 "role": "Contributor",
@@ -208,29 +208,29 @@ int main()
             },
         },
         {
-            "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+            "quote": "2 — Boost.Asio changed how I write networked services. The async model is elegant, the docs are thorough, and the community is incredibly responsive.",
             "author": {
-                "name": "Name Surname",
+                "name": "Grace Hopper",
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
-                "role": "Contributor",
+                "role": "Maintainer",
                 "badge_url": "/static/img/v3/demo_page/Badge.svg",
             },
         },
         {
-            "quote": "I use Boost d1aily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+            "quote": "3 — Every serious C++ codebase I've worked on has leaned on Boost in some way. It's the proving ground where tomorrow's standard library takes shape.",
             "author": {
-                "name": "Name Surname",
+                "name": "Linus Torvalds",
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
-                "role": "Contributor",
+                "role": "Reviewer",
                 "badge_url": "/static/img/v3/demo_page/Badge.svg",
             },
         },
         {
-            "quote": "I use Boost daily. I absolutely love it. It's wonderful. I could not do my job w/o it. Much of it is in the new C++11 standard too.",
+            "quote": "4 — Contributing to Boost taught me more about writing portable, peer-reviewed C++ than any textbook ever could.",
             "author": {
-                "name": "Name Surname",
+                "name": "Margaret Hamilton",
                 "profile_url": "#",
                 "avatar_url": "/static/img/v3/demo_page/Avatar.png",
                 "role": "Contributor",

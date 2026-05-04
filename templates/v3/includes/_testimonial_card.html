@@ -12,10 +12,70 @@
 {% endcomment %}
 
 {% with carousel_id='_testimonials_cards_carousel' %}
-<div class="card testimonial-card py-large" id="{{carousel_id}}" data-carousel role="region" aria-labelledby="{{ carousel_id }}-heading">
+{% comment %}
+  Per-index visibility rules generated from the testimonials list (the count is
+  data-driven, so they can't live as static rules in the CSS). The first <style>
+  block runs in both JS and no-JS modes; only the nav-set for the checked radio
+  is shown. The <noscript> block additionally switches the track to a CSS
+  transform-based carousel: items are flex: 0 0 100% with gap: 0, so
+  translateX(-N00%) shifts by exactly one item per radio. visibility: hidden on
+  non-current items mirrors the JS-mode `inert` behavior so off-screen author
+  links can't receive tab focus. Touch-swipe is lost in no-JS mode (the parent
+  `.testimonial-card__post` clips with overflow: hidden) but arrow buttons work
+  without scrolling the page.
+{% endcomment %}
+{% if testimonials %}
+  <style>
+    {% for testimonial in testimonials %}
+      .testimonial-card:has(.testimonial-card__state[data-state-index="{{ forloop.counter0 }}"]:checked) .testimonial-card__nav-set[data-nav-index="{{ forloop.counter0 }}"] { display: inline-flex; }
+    {% endfor %}
+  </style>
+  <noscript>
+    <style>
+      .testimonial-card__list { overflow: visible !important; gap: 0 !important; transition: transform 0.3s ease; }
+      .testimonial-card__list-item { visibility: hidden; }
+
+      {% for testimonial in testimonials %}
+        .testimonial-card:has(.testimonial-card__state[data-state-index="{{ forloop.counter0 }}"]:checked) .testimonial-card__list { transform: translateX(-{{ forloop.counter0 }}00%); }
+        .testimonial-card:has(.testimonial-card__state[data-state-index="{{ forloop.counter0 }}"]:checked) .testimonial-card__list-item[data-item-index="{{ forloop.counter0 }}"] { visibility: visible; }
+      {% endfor %}
+    </style>
+  </noscript>
+{% endif %}
+<div class="card testimonial-card py-large" id="{{carousel_id}}" data-carousel data-carousel-radios role="region" aria-labelledby="{{ carousel_id }}-heading">
+  {% if testimonials %}
+    {% for testimonial in testimonials %}
+      <input type="radio" class="testimonial-card__state" name="{{ carousel_id }}-state" id="{{ carousel_id }}-state-{{ forloop.counter0 }}" data-state-index="{{ forloop.counter0 }}" {% if forloop.first %}checked{% endif %}>
+    {% endfor %}
+  {% endif %}
   <div class="card__header">
     <h2 id="{{ carousel_id }}-heading" class="card__title">{{ heading }}</h2>
-    {% include 'v3/includes/_carousel_buttons.html' with carousel_id=carousel_id %}
+    {% if testimonials %}
+      <div class="testimonial-card__controls" id="{{ carousel_id }}-controls" role="group" aria-label="Carousel navigation">
+        {% for testimonial in testimonials %}
+          <div class="carousel-buttons testimonial-card__nav-set" data-nav-index="{{ forloop.counter0 }}">
+            {% if forloop.first %}
+              <span class="btn btn-carousel" aria-disabled="true" aria-label="Previous" data-carousel-prev>
+                <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=12 %}</span>
+              </span>
+            {% else %}
+              <label class="btn btn-carousel" for="{{ carousel_id }}-state-{{ forloop.counter0|add:"-1" }}" aria-label="Previous" data-carousel-prev>
+                <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=12 %}</span>
+              </label>
+            {% endif %}
+            {% if forloop.last %}
+              <span class="btn btn-carousel" aria-disabled="true" aria-label="Next" data-carousel-next>
+                <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=12 %}</span>
+              </span>
+            {% else %}
+              <label class="btn btn-carousel" for="{{ carousel_id }}-state-{{ forloop.counter }}" aria-label="Next" data-carousel-next>
+                <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=12 %}</span>
+              </label>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
   </div>
   <hr class="card__hr" />
   <div class="cards-carousel__track">
@@ -23,7 +83,7 @@
       <ul class="testimonial-card__list" data-carousel-track aria-label="Testimonials carousel">
           {% if testimonials %}
             {% for testimonial in testimonials %}
-              <li class="testimonial-card__list-item" data-carousel-item>
+              <li class="testimonial-card__list-item" data-carousel-item data-item-index="{{ forloop.counter0 }}">
                 <div>
                   <div class="testimonial-card__text-wrapper">
                     <div class="testimonial-card__text">{{ testimonial.quote }}</div>
