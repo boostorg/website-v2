@@ -11,7 +11,13 @@
     "build": "NODE_ENV=production tailwindcss -i frontend/styles.css -o static/css/styles.css --minify",
     "builddocs": "NODE_ENV=production tailwindcss -c ./docstailwind.config.js -i frontend/docsstyles.css -o static/css/docsstyles.css --minify",
     "builduserguide": "NODE_ENV=production tailwindcss -c ./userguidetailwind.config.js -i frontend/userguidestyles.css -o static/css/userguidestyles.css --minify",
-    "build:wysiwyg": "esbuild frontend/wysiwyg-editor.js --bundle --minify --format=esm --outfile=static/js/v3/wysiwyg-editor.js --external:mermaid"
+    "build:wysiwyg": "esbuild frontend/wysiwyg-editor.js --bundle --minify --format=esm --outfile=static/js/vendor/wysiwyg-editor/wysiwyg-editor.js --external:mermaid",
+    "prettier": "prettier --write 'frontend/**/*.css' 'static/**/*.css' 'static/js/*.js' 'static/wagtail/*.js'",
+    "prettier:check": "prettier --check 'frontend/**/*.css' 'static/**/*.css' 'static/js/*.js' 'static/wagtail/*.js'",
+    "djlint": "djlint templates/ users/templates/ reports/templates/ --reformat",
+    "djlint:check": "djlint templates/ users/templates/ reports/templates/ --check",
+    "format": "yarn run prettier && yarn run djlint",
+    "format:check": "yarn run prettier:check && yarn run djlint:check"
   },
   "dependencies": {
     "@svgdotjs/svg.js": "^3.2.4",
@@ -43,6 +49,7 @@
     "turndown-plugin-gfm": "^1.0.2"
   },
   "devDependencies": {
-    "esbuild": "^0.24.0"
+    "esbuild": "^0.24.0",
+    "prettier": "^3.8.1"
   }
 }

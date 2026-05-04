@@ -19,13 +19,13 @@
 
 {% generate_uuid as uuid %}
 <div class="badge-button">
-    <input
-        class="badge-button__radio"
-        type="radio"
-        name="{{name}}"
-        value="{{value}}"
-        id="{{id|default:uuid}}"
-        {% if radio_checked %} checked {% endif %}
-    />
-    <label id="{{id|default:uuid}}_label" for="{{id|default:uuid}}"><img src="{{ icon_src }}" alt="{{ icon_alt }}" width="28" height="28"></label>
+  <input class="badge-button__radio"
+         type="radio"
+         name="{{ name }}"
+         value="{{ value }}"
+         id="{{ id|default:uuid }}"
+         {% if radio_checked %}checked{% endif %} />
+  <label id="{{ id|default:uuid }}_label" for="{{ id|default:uuid }}">
+    <img src="{{ icon_src }}" alt="{{ icon_alt }}" width="28" height="28">
+  </label>
 </div>

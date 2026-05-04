@@ -2,12 +2,19 @@
 {% load i18n admin_urls %}
 
 {% block object-tools %}
-<ul class="object-tools">
+  <ul class="object-tools">
     {% block object-tools-items %}
-        {{ block.super }}
-        <li><a href="{% url 'admin:update_libraries' %}" class="addlink">{% trans "Update Library Data" %}</a></li>
-        <li><a href="{% url 'admin:update_authors_and_maintainers' %}" class="addlink">{% trans "Update Authors & Maintainers" %}</a></li>
-        <li><a href="{% url 'admin:library_report_full' %}" class="addlink">{% trans "Get Library Report" %}</a></li>
+      {{ block.super }}
+      <li>
+        <a href="{% url 'admin:update_libraries' %}" class="addlink">{% trans "Update Library Data" %}</a>
+      </li>
+      <li>
+        <a href="{% url 'admin:update_authors_and_maintainers' %}"
+           class="addlink">{% trans "Update Authors & Maintainers" %}</a>
+      </li>
+      <li>
+        <a href="{% url 'admin:library_report_full' %}" class="addlink">{% trans "Get Library Report" %}</a>
+      </li>
     {% endblock %}
-</ul>
+  </ul>
 {% endblock %}

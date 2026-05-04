@@ -18,12 +18,12 @@
   <h3 class="card__title">{{ heading|default:"Dependencies" }}</h3>
 
   {% if dependencies %}
-  <div class="dependencies-card__tags">
-    {% for dep in dependencies %}
-      {% include "v3/includes/_category_tag.html" with tag_label=dep.name url=dep.url variant="yellow" size="tight" aria_label=dep.name %}
-    {% endfor %}
-  </div>
+    <div class="dependencies-card__tags">
+      {% for dep in dependencies %}
+        {% include "v3/includes/_category_tag.html" with tag_label=dep.name url=dep.url variant="yellow" size="tight" aria_label=dep.name %}
+      {% endfor %}
+    </div>
   {% else %}
-  <p class="dependencies-card__empty">No dependencies</p>
+    <p class="dependencies-card__empty">No dependencies</p>
   {% endif %}
 </div>

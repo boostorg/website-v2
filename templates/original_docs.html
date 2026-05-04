@@ -6,9 +6,12 @@
   <head>
     <meta charset="utf-8">
     <link href="{% static 'css/header.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <script defer data-domain="boost.org" src="https://plausible.io/js/script.manual.js"></script>
-    <script src="{% static 'js/boost-gecko/main.D1bdgn0u.js' %}" defer></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <script defer
+            data-domain="boost.org"
+            src="https://plausible.io/js/script.manual.js"></script>
+    <script src="{% static 'js/vendor/boost-gecko/main.D1bdgn0u.js' %}" defer></script>
     {% if canonical_uri %}<link rel="canonical" href="{{ canonical_uri }}">{% endif %}
   </head>
   <style>
@@ -238,18 +241,12 @@
   </style>
 
   {% if no_wrapper %}
-    <div id="injected-header">
-    {% include "includes/_legacy_docs_header.html" %}
-    </div>
+    <div id="injected-header">{% include "includes/_legacy_docs_header.html" %}</div>
     {{ content|safe }}
   {% else %}
     <body style="margin: 0; padding: 0; max-width: unset;">
-      <div id="injected-header">
-      {% include "includes/_legacy_docs_header.html" %}
-      </div>
-      <div style="margin: 1em;">
-        {{ content|safe }}
-      </div>
+      <div id="injected-header">{% include "includes/_legacy_docs_header.html" %}</div>
+      <div style="margin: 1em;">{{ content|safe }}</div>
     </body>
   {% endif %}
 </html>

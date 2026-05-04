@@ -2,13 +2,18 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{% trans "Support" %}{% endblock %}
+{% block title %}
+  {% trans "Support" %}
+{% endblock %}
 
 {% block subnav %}
   <div class="py-8 px-4 space-y-4 text-sm uppercase border-b md:py-2 md:px-0 md:space-x-10 border-slate">
-    <a href="{% url 'support' %}" class="block md:inline md:py-1 md:border-b text-orange md:border-orange">Support</a>
+    <a href="{% url 'support' %}"
+       class="block md:inline md:py-1 md:border-b text-orange md:border-orange">Support</a>
     <a href="{% url 'getting-started' %}" class="block md:inline">Getting Started</a>
-    <a href="https://cppalliance.org/slack/" target="_blank" class="block md:inline">Join Slack</a>
+    <a href="https://cppalliance.org/slack/"
+       target="_blank"
+       class="block md:inline">Join Slack</a>
   </div>
 {% endblock %}
 
@@ -17,9 +22,7 @@
 
     <div class="py-16 w-full">
       <h1 class="text-3xl text-center">Support</h1>
-      <p class="mt-0 text-center">
-        We are here for you! If you need us, we are a click away!
-      </p>
+      <p class="mt-0 text-center">We are here for you! If you need us, we are a click away!</p>
     </div>
 
     <div class="pb-6 mb-8 border-b border-slate">
@@ -34,7 +37,8 @@
             comfortable with the contents of a Boost distribution and how to go about using it.
           </p>
           <div class="my-3">
-            <a href="#" class="py-2 px-4 text-sm uppercase rounded-md border text-orange border-slate">Start Now</a>
+            <a href="#"
+               class="py-2 px-4 text-sm uppercase rounded-md border text-orange border-slate">Start Now</a>
           </div>
         </div>
       </div>
@@ -50,10 +54,12 @@
             make a new friend in the community!
           </p>
           <div class="my-3">
-            <a href="https://cppalliance.org/slack/" target="_blank" class="py-2 px-4 text-sm uppercase rounded-md border text-orange border-slate">Learn More</a>
+            <a href="https://cppalliance.org/slack/"
+               target="_blank"
+               class="py-2 px-4 text-sm uppercase rounded-md border text-orange border-slate">Learn More</a>
           </div>
         </div>
 
       </div>
     </div>
-{% endblock %}
+  {% endblock %}

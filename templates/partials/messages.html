@@ -1,13 +1,17 @@
-<div id="messages" class="w-full text-center transition-opacity" x-data="{show: true}">
+<div id="messages"
+     class="w-full text-center transition-opacity"
+     x-data="{show: true}">
   {% if messages %}
     {% for message in messages %}
-      <div x-show="show" class="w-2/3 mx-auto text-left items-center text-slate dark:text-white rounded text-base px-3 py-2 {% if 'error' in message.tags %}bg-red-500{% else %}bg-green/70{% endif %} fade show">
+      <div x-show="show"
+           class="w-2/3 mx-auto text-left items-center text-slate dark:text-white rounded text-base px-3 py-2 {% if 'error' in message.tags %}bg-red-500{% else %}bg-green/70{% endif %} fade show">
         <button type="button"
                 class="float-right"
                 data-dismiss="alert"
                 aria-hidden="true"
-                x-on:click="show = ! show"
-        ><i class="fas fa-times-circle"></i></button>
+                x-on:click="show = ! show">
+          <i class="fas fa-times-circle"></i>
+        </button>
         {{ message }}
       </div>
     {% endfor %}

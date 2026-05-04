@@ -82,7 +82,6 @@
   padding: 0 var(--space-large);
 }
 
-
 @media (max-width: 480px) {
   .badges-card__grid {
     grid-template-columns: 1fr;

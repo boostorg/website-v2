@@ -19,17 +19,17 @@ function applyScrollOffset(targetId, offset) {
       targetElement.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({
       top: offsetPosition,
-      behavior: "smooth",
+      behavior: 'smooth',
     });
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
   if (!isUserInLibDoc()) return;
 
   function handleScroll(event) {
-    const linkHref = this.getAttribute("href");
-    const [baseUrl, targetId] = linkHref.split("#");
+    const linkHref = this.getAttribute('href');
+    const [baseUrl, targetId] = linkHref.split('#');
 
     if (targetId && (!baseUrl || window.location.pathname.includes(baseUrl))) {
       event.preventDefault();
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const scollToLinks = document.querySelectorAll('.section a[href*="#"]');
   scollToLinks.forEach((link) => {
-    link.addEventListener("click", handleScroll);
+    link.addEventListener('click', handleScroll);
   });
 
   if (window.location.hash) {
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-window.addEventListener("load", () => {
+window.addEventListener('load', () => {
   if (window.location.hash) {
     const targetId = window.location.hash.substring(1);
     applyScrollOffset(targetId, NAVBAR_OFFSET);

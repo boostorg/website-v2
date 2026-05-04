@@ -24,29 +24,27 @@
     {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=events variant="card" theme="teal" primary_cta_label="View events" primary_cta_url="/events/" %}
 {% endcomment %}
 {% block card_list %}
-{% if items %}
-  <ul class="card-group__list">
-    {% for item in items %}
-      <li class="card-group__item">
-        {% if item.card_url %}
-          <a href="{{ item.card_url }}"
-              class="card-group__item-link"
-              aria-label="{{ item.card_aria_label|default:item.title }}">
-          {% endif %}
-          <article class="event-card">
+  {% if items %}
+    <ul class="card-group__list">
+      {% for item in items %}
+        <li class="card-group__item">
+          {% if item.card_url %}
+            <a href="{{ item.card_url }}"
+               class="card-group__item-link"
+               aria-label="{{ item.card_aria_label|default:item.title }}">
+            {% endif %}
+            <article class="event-card">
               <h3 class="event-card__title">{{ item.title }}</h3>
-              {% if item.description %}
-                <p class="event-card__description">{{ item.description }}</p>
-              {% endif %}
+              {% if item.description %}<p class="event-card__description">{{ item.description }}</p>{% endif %}
               {% if item.datetime %}
                 <time class="event-card__date" datetime="{{ item.datetime }}">{{ item.date }}</time>
               {% else %}
                 <span class="event-card__date">{{ item.date }}</span>
               {% endif %}
-          </article>
-          {% if item.card_url %}</a>{% endif %}
-          </li>
-        {% endfor %}
+            </article>
+            {% if item.card_url %}</a>{% endif %}
+        </li>
+      {% endfor %}
     </ul>
-{% endif %}
+  {% endif %}
 {% endblock %}

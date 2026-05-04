@@ -1,7 +1,7 @@
 /* Library Intro Card Component */
 
 .library-intro-card {
-  font-family: var(--font-sans, "Mona Sans VF"), sans-serif;
+  font-family: var(--font-sans, 'Mona Sans VF'), sans-serif;
   display: flex;
   flex-direction: column;
   max-width: 458px;
@@ -34,7 +34,7 @@
   align-items: center;
   gap: 4px;
   font-family:
-    var(--font-display, "Mona Sans Display SemiCondensed"), sans-serif;
+    var(--font-display, 'Mona Sans Display SemiCondensed'), sans-serif;
   font-size: var(--font-size-large, 24px);
   font-weight: var(--font-weight-medium, 500);
   line-height: var(--line-height-tight, 1);

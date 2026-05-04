@@ -10,10 +10,15 @@
 
 :root {
   /* Typeface */
-  --font-sans: 'Mona Sans VF', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-display: 'Mona Sans Display SemiCondensed', 'Mona Sans VF', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-code: 'Monaspace Neon', 'Space Mono', 'Monaco', 'Courier New', monospace;
-  --font-comments: 'Monaspace Xenon', 'Space Mono', 'Monaco', 'Courier New', monospace;
+  --font-sans:
+    'Mona Sans VF', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display:
+    'Mona Sans Display SemiCondensed', 'Mona Sans VF', -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-code:
+    'Monaspace Neon', 'Space Mono', 'Monaco', 'Courier New', monospace;
+  --font-comments:
+    'Monaspace Xenon', 'Space Mono', 'Monaco', 'Courier New', monospace;
 
   /* Weight */
   --font-weight-regular: 400;

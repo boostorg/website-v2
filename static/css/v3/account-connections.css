@@ -51,7 +51,7 @@
   font-weight: var(--font-weight-medium, 500);
   line-height: var(--line-height-default, 1.2);
   letter-spacing: var(--letter-spacing-tight, -0.01em);
-  color: var(--color-text-secondary, #585A64);
+  color: var(--color-text-secondary, #585a64);
   white-space: nowrap;
 }
 
@@ -62,5 +62,5 @@
   font-weight: var(--font-weight-regular, 400);
   line-height: var(--line-height-default, 1.2);
   letter-spacing: var(--letter-spacing-tight, -0.01em);
-  color: var(--color-text-secondary, #585A64);
+  color: var(--color-text-secondary, #585a64);
 }

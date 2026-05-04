@@ -19,31 +19,37 @@
   Usage (card):
     {% include "v3/includes/_library_item.html" with variant="card" library_name="Boost.Asio" description="Portable networking and low-level I/O." categories=cats cpp_version="C++ 11" author=author doc_url="/libs/asio/doc/" %}
 {% endcomment %}
-{% if variant == "list" %}<li class="library-item library-item--list" {{ extra_attrs|safe }}>{% else %}<div class="library-item library-item--card" {{ extra_attrs|safe }}>{% endif %}
-
-  <div class="library-item__header">
-    {% if library_url %}
-      <a href="{{ library_url }}" class="library-item__name">{{ library_name }}</a>
-    {% else %}
-      <span class="library-item__name">{{ library_name }}</span>
+{% if variant == "list" %}
+  <li class="library-item library-item--list" {{ extra_attrs|safe }}>
+  {% else %}
+    <div class="library-item library-item--card" {{ extra_attrs|safe }}>
     {% endif %}
-    <p class="library-item__description">{{ description }}</p>
-    <div class="library-item__tags">
-      {% for cat in categories %}
-        {% url 'libraries-list' category_slug=cat.slug library_view_str=variant version_slug=version_str as cat_url %}
-        {% include "v3/includes/_category_tag.html" with tag_label=cat.label url=cat_url variant=cat.variant only %}
-      {% endfor %}
-      <span class="version-tag version-tag--default library-item__cpp-version">C++ {{ cpp_version|default:"03"|cut:"C++" }}</span>
+
+    <div class="library-item__header">
+      {% if library_url %}
+        <a href="{{ library_url }}" class="library-item__name">{{ library_name }}</a>
+      {% else %}
+        <span class="library-item__name">{{ library_name }}</span>
+      {% endif %}
+      <p class="library-item__description">{{ description }}</p>
+      <div class="library-item__tags">
+        {% for cat in categories %}
+          {% url 'libraries-list' category_slug=cat.slug library_view_str=variant version_slug=version_str as cat_url %}
+          {% include "v3/includes/_category_tag.html" with tag_label=cat.label url=cat_url variant=cat.variant only %}
+        {% endfor %}
+        <span class="version-tag version-tag--default library-item__cpp-version">C++ {{ cpp_version|default:"03"|cut:"C++" }}</span>
+      </div>
     </div>
-  </div>
 
-  <div class="library-item__contributor">
-    {% include "v3/includes/_user_profile.html" with author=author only %}
-  </div>
+    <div class="library-item__contributor">{% include "v3/includes/_user_profile.html" with author=author only %}</div>
 
-  <div class="library-item__actions">
-    <span class="version-tag version-tag--default library-item__cpp-version--desktop">C++ {{ cpp_version|default:"03"|cut:"C++" }}</span>
-    {% include "v3/includes/_button.html" with url=doc_url label="" icon_name="documentation" icon_size=32 icon_viewbox="0 0 16 16" style="icon-library" aria_label="View documentation for "|add:library_name %}
-  </div>
+    <div class="library-item__actions">
+      <span class="version-tag version-tag--default library-item__cpp-version--desktop">C++ {{ cpp_version|default:"03"|cut:"C++" }}</span>
+      {% include "v3/includes/_button.html" with url=doc_url label="" icon_name="documentation" icon_size=32 icon_viewbox="0 0 16 16" style="icon-library" aria_label="View documentation for "|add:library_name %}
+    </div>
 
-{% if variant == "list" %}</li>{% else %}</div>{% endif %}
+    {% if variant == "list" %}
+    </li>
+  {% else %}
+  </div>
+{% endif %}

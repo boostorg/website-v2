@@ -34,17 +34,13 @@
                 {% elif item.title %}
                   <h3 class="join-card__title">{{ item.title }}</h3>
                 {% endif %}
-                {% if item.description %}
-                  <p class="join-card__description">{{ item.description }}</p>
-                {% endif %}
+                {% if item.description %}<p class="join-card__description">{{ item.description }}</p>{% endif %}
               </div>
               {% if item.icon_name %}
                 {% include 'includes/icon.html' with icon_name=item.icon_name icon_size=16 %}
               {% endif %}
             </div>
-            {% if item.url %}
-              <a href="{{ item.url }}" class="join-card__start-here">Start here</a>
-            {% endif %}
+            {% if item.url %}<a href="{{ item.url }}" class="join-card__start-here">Start here</a>{% endif %}
           </article>
         </li>
       {% endfor %}

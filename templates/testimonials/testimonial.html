@@ -1,9 +1,7 @@
 {% extends "base.html" %}
 {% load static wagtailcore_tags %}
 
-{% block title %}
-  {{ page.author }} - Testimonial
-{% endblock %}
+{% block title %}{{ page.author }} - Testimonial{% endblock %}
 
 {% block css %}
   <link rel="stylesheet" href="{% static 'css/testimonial-style.css' %}" />
@@ -18,14 +16,12 @@
         {% if page.author_url %}
           <a href="{{ page.author_url }}" class="text-orange hover:underline">{{ page.author }}</a>
         {% else %}
-           {{ page.author }}
+          {{ page.author }}
         {% endif %}
       </h3>
 
       <div class="bg-white dark:bg-charcoal rounded-lg p-6">
-        <div class="prose dark:prose-invert max-w-none">
-          {{ page.body }}
-        </div>
+        <div class="prose dark:prose-invert max-w-none">{{ page.body }}</div>
       </div>
     </div>
   </div>

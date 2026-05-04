@@ -27,7 +27,9 @@ a.home-link {
   @apply dark:bg-white/40 rounded dark:hover:bg-orange;
 }
 
-footer, .components, .footer a {
+footer,
+.components,
+.footer a {
   @apply dark:bg-black dark:!text-white;
 }
 
@@ -35,7 +37,8 @@ footer, .components, .footer a {
   @apply dark:text-white;
 }
 
-.breadcrumbs a, .edit-this-page a {
+.breadcrumbs a,
+.edit-this-page a {
   @apply dark:!text-white dark:hover:!text-orange;
 }
 
@@ -43,11 +46,22 @@ footer, .components, .footer a {
   @apply pt-6 dark:text-white;
 }
 
-.doc table.stripes-even>tbody>tr:nth-of-type(2n) {
+.doc table.stripes-even > tbody > tr:nth-of-type(2n) {
   @apply dark:bg-slate;
 }
 
-.doc h1,.doc h2,.doc h3,.doc h4,.doc h5,.doc h6, .doc p, .title, .version, .toc-menu, .toc .toc-menu h3, table {
+.doc h1,
+.doc h2,
+.doc h3,
+.doc h4,
+.doc h5,
+.doc h6,
+.doc p,
+.title,
+.version,
+.toc-menu,
+.toc .toc-menu h3,
+table {
   @apply dark:!text-white;
 }
 
@@ -69,8 +83,10 @@ footer, .components, .footer a {
 
 .doc .listingblock pre:not(.highlight),
 .doc .literalblock pre,
-.tablist>ul li, .tabpanel,
-.tabs.is-loading .tablist li:not(:first-child), .tabs:not(.is-loading) .tablist li:not(.is-selected) {
+.tablist > ul li,
+.tabpanel,
+.tabs.is-loading .tablist li:not(:first-child),
+.tabs:not(.is-loading) .tablist li:not(.is-selected) {
   @apply dark:bg-slate;
 }
 
@@ -99,7 +115,7 @@ body.article {
 }
 
 #headblock {
- @apply border-0;
+  @apply border-0;
 }
 
 aside.nav,
@@ -119,12 +135,13 @@ hr:first-of-type {
   @apply outline-none border-0 bg-transparent;
 }
 
-select, #search-input {
+select,
+#search-input {
   @apply dark:bg-charcoal dark:text-white dark:border-slate;
 }
 
-#avatar>div,
-#avatar>div>img {
+#avatar > div,
+#avatar > div > img {
   @apply rounded;
 }
 
@@ -132,6 +149,7 @@ select, #search-input {
   @apply whitespace-nowrap;
 }
 
-#userMenu, #guideMenu {
+#userMenu,
+#guideMenu {
   border: 1px solid #d1d5db;
 }

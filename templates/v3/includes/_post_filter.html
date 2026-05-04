@@ -14,7 +14,10 @@
   Usage:
     {% include "v3/includes/_post_filter.html" with options=my_options filter_name="category" default="all" %}
 {% endcomment %}
-<div class="post-filter" role="radiogroup" aria-label="Filter by {{ filter_name }}" data-post-filter>
+<div class="post-filter"
+     role="radiogroup"
+     aria-label="Filter by {{ filter_name }}"
+     data-post-filter>
   {% for option in options %}
     <input type="radio"
            id="filter-{{ filter_name }}-{{ option.value }}"
@@ -23,8 +26,6 @@
            class="post-filter__input"
            {% if option.value == default or not default and forloop.first %}checked{% endif %}>
     <label for="filter-{{ filter_name }}-{{ option.value }}"
-           class="post-filter__option">
-      {{ option.label }}
-    </label>
+           class="post-filter__option">{{ option.label }}</label>
   {% endfor %}
 </div>

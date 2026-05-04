@@ -2,13 +2,18 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{% trans "Getting Started" %}{% endblock %}
+{% block title %}
+  {% trans "Getting Started" %}
+{% endblock %}
 
 {% block subnav %}
   <div class="py-8 px-4 space-y-4 text-sm uppercase border-b md:py-2 md:px-0 md:space-x-10 border-slate">
     <a href="{% url 'support' %}" class="block md:inline">Support</a>
-    <a href="{% url 'getting-started' %}" class="block md:inline md:py-1 md:border-b text-orange md:border-orange">Getting Started</a>
-    <a href="https://cppalliance.org/slack/" target="_blank" class="block md:inline">Join Slack</a>
+    <a href="{% url 'getting-started' %}"
+       class="block md:inline md:py-1 md:border-b text-orange md:border-orange">Getting Started</a>
+    <a href="https://cppalliance.org/slack/"
+       target="_blank"
+       class="block md:inline">Join Slack</a>
   </div>
 {% endblock %}
 
@@ -17,15 +22,22 @@
 
     <div class="hidden w-1/6 md:block">
       <ul class="py-8 space-y-4">
-        <li><a href="#getting-started" class="text-orange">Getting Started</a></li>
-        <li><a href="#windows">Windows</a></li>
-        <li><a href="#unix">Unix</a></li>
+        <li>
+          <a href="#getting-started" class="text-orange">Getting Started</a>
+        </li>
+        <li>
+          <a href="#windows">Windows</a>
+        </li>
+        <li>
+          <a href="#unix">Unix</a>
+        </li>
       </ul>
     </div>
 
     <div class="w-full md:w-5/6">
 
-      <div class="py-8 border-b md:w-full border-slate md:space-x-18" id="getting-started">
+      <div class="py-8 border-b md:w-full border-slate md:space-x-18"
+           id="getting-started">
 
         <h2>Getting Started</h2>
 
@@ -54,7 +66,8 @@
 
       </div>
 
-      <div class="py-8 border-b md:w-full border-slate md:space-x-18" id="windows">
+      <div class="py-8 border-b md:w-full border-slate md:space-x-18"
+           id="windows">
 
         <h3>Getting Started On Microsoft Windows</h3>
 
@@ -66,7 +79,8 @@
         </p>
 
         <div class="my-3">
-          <a href="#" class="py-2 px-4 uppercase rounded-lg border text-orange border-slate">Start Now</a>
+          <a href="#"
+             class="py-2 px-4 uppercase rounded-lg border text-orange border-slate">Start Now</a>
         </div>
 
       </div>
@@ -83,9 +97,10 @@
         </p>
 
         <div class="my-3">
-          <a href="#" class="py-2 px-4 uppercase rounded-lg border text-orange border-slate">Start Now</a>
+          <a href="#"
+             class="py-2 px-4 uppercase rounded-lg border text-orange border-slate">Start Now</a>
         </div>
 
       </div>
     </div>
-{% endblock %}
+  {% endblock %}

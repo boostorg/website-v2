@@ -10,16 +10,15 @@
   {% trans 'Log In' %}
 {% endblock %}
 
-{% block body_id %}
-  id="authpages"
-{% endblock %}
+{% block body_id %}id="authpages"{% endblock %}
 
 {% block content %}
   <div class="py-0 px-3 mb-3 md:py-6 md:px-0">
     <div class="md:pt-11 md:mt-11 w-full bg-white dark:bg-charcoal mx-auto rounded py-6 px-3">
       <div class="md:w-full">
         {% if contributor_account_redirect_message %}
-          <div role="alert" class="py-2 px-3 mb-3 text-center rounded-sm bg-yellow-200/70">
+          <div role="alert"
+               class="py-2 px-3 mb-3 text-center rounded-sm bg-yellow-200/70">
             <p class="p-0 m-0">
               <i class="fas fa-exclamation-circle"></i>
               {{ contributor_account_redirect_message }}
@@ -53,39 +52,45 @@
           </div>
 
           <div class="w-full md:w-1/2">
-            <h2 class="text-xl text-center items-center">Or Log In with Email <span x-cloak class="text-xs bg-emerald-400 text-slate rounded px-1 ml-2" x-show="providerMatchesLastLogin('email')">Last Log In</span></h2>
+            <h2 class="text-xl text-center items-center">
+              Or Log In with Email <span x-cloak
+       class="text-xs bg-emerald-400 text-slate rounded px-1 ml-2"
+       x-show="providerMatchesLastLogin('email')">Last Log In</span>
+            </h2>
             <form class="login" method="POST" action="{% url 'account_login' %}">
               <div class="mx-auto space-y-4 w-2/3" id="signup_form">
                 {% csrf_token %}
 
                 <!-- Display non-field errors -->
                 {% if form.non_field_errors %}
-                  {% for error in form.non_field_errors %}
-                    <div class="py-1 px-3 text-white bg-red-600">{{ error }}</div>
-                  {% endfor %}
+                  {% for error in form.non_field_errors %}<div class="py-1 px-3 text-white bg-red-600">{{ error }}</div>{% endfor %}
                 {% endif %}
 
                 {% for field in form.visible_fields %}
                   <div>
-                    <label class="text-xs uppercase text-slate dark:text-white/70" for="{{ field.id_for_label }}">
-                      {{ field.label }}{% if field.widget_type == 'checkbox' %}
-                        &nbsp;&nbsp;
-                      {% endif %}
+                    <label class="text-xs uppercase text-slate dark:text-white/70"
+                           for="{{ field.id_for_label }}">
+                      {{ field.label }}
+                      {% if field.widget_type == 'checkbox' %}&nbsp;&nbsp;{% endif %}
                       {% render_field field placeholder='' %}
                     </label>
-                    {% if field.help_text %}
-                      <small>{{ field.help_text }}</small>
-                    {% endif %}
+                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
                   </div>
                 {% endfor %}
 
                 {% if redirect_field_value %}
-                  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                  <input type="hidden"
+                         name="{{ redirect_field_name }}"
+                         value="{{ redirect_field_value }}" />
                 {% endif %}
 
                 <div class="flex justify-between mb-4">
-                  <a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange" href="{% url 'account_reset_password' %}">{% trans 'Forgot Password?' %}</a>
-                  <button type="submit" class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">{% trans 'Log in' %}</button>
+                  <a class="text-sky-600 dark:text-sky-300 hover:text-orange dark:hover:text-orange"
+                     href="{% url 'account_reset_password' %}">{% trans 'Forgot Password?' %}</a>
+                  <button type="submit"
+                          class="py-3 px-8 text-sm text-base font-medium text-white uppercase rounded-md border md:py-1 md:px-4 md:text-lg bg-orange hover:bg-orange/80 border-orange dark:bg-slate dark:hover:bg-charcoal dark:text-white hover:drop-shadow-md">
+                    {% trans 'Log in' %}
+                  </button>
                 </div>
               </div>
             </form>

@@ -6,8 +6,8 @@ on:
     branches: develop
 
 env:
-  DOCKER_BUILDKIT: "1"
-  DOCKER_IMAGE: "registry.revsys.com/boost"
+  DOCKER_BUILDKIT: '1'
+  DOCKER_IMAGE: 'registry.revsys.com/boost'
 
 jobs:
   test:
@@ -20,7 +20,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
-        ports: ["5432:5432"]
+        ports: ['5432:5432']
         # options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
       redis:
@@ -39,32 +39,42 @@ jobs:
         with:
           python-version: 3.13
 
-      - uses: actions/cache@v4
+      - id: cache
+        uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/base.txt') }}
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
-            ${{ runner.os }}-
+            ${{ runner.os }}-uv-
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade uv
-          uv pip install -r requirements.txt --system
+          uv pip install -r requirements.txt -r requirements-dev.txt --system
           sudo apt-get install -y ruby ruby-dev build-essential
           sudo gem install asciidoctor
-        if: steps.cache.outputs.cache-hit != 'true'
 
       - name: Test with pytest
         env:
-          DATABASE_URL: "postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres"
-          HYPERKITTY_DATABASE_URL: "postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/lists_production_web"
-          SECRET_KEY: "for-testing-only"
-          REDIS_HOST: "localhost"
-          CI: "true"
+          DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres'
+          HYPERKITTY_DATABASE_URL: 'postgres://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/lists_production_web'
+          SECRET_KEY: 'for-testing-only'
+          REDIS_HOST: 'localhost'
+          CI: 'true'
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           python -m pytest
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Node dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Check formatting with Prettier
+        run: yarn prettier:check
 
       - name: Lints with pre-commit
         run: |

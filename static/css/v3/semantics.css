@@ -49,32 +49,34 @@
      STROKE SEMANTIC COLORS
      ============================================ */
   --color-stroke-brand-accent: var(--color-primary-orange-mustard);
-  --color-stroke-error: #D53F3F33;
+  --color-stroke-error: #d53f3f33;
   --color-stroke-link-accent: var(--color-secondary-dark-blue);
-  --color-stroke-mid: #0508162B;
+  --color-stroke-mid: #0508162b;
   --color-stroke-strong: #05081640;
-  --color-stroke-weak: #0508161A;
+  --color-stroke-weak: #0508161a;
 
   /* ============================================
      SURFACE SEMANTIC COLORS
      ============================================ */
   --color-surface-brand-accent-default: var(--color-primary-orange-mustard);
-  --color-surface-brand-accent-hovered: #FFA000BF;
+  --color-surface-brand-accent-hovered: #ffa000bf;
   --color-surface-error-strong: var(--color-error-strong);
   --color-surface-error-weak: var(--color-error-weak);
   --color-surface-mid: var(--color-primary-grey-100);
-  --color-surface-modal: #050816B3;
+  --color-surface-modal: #050816b3;
   --color-surface-page: var(--color-secondary-light-blue);
   --color-surface-strong: var(--color-primary-grey-200);
   --color-surface-weak: var(--color-primary-white);
 
   /* Accent Surfaces */
   --color-surface-strong-accent-green-default: var(--color-accent-strong-green);
-  --color-surface-strong-accent-green-hover: #CACA62BF;
+  --color-surface-strong-accent-green-hover: #caca62bf;
   --color-surface-strong-accent-teal-default: var(--color-accent-strong-teal);
-  --color-surface-strong-accent-teal-hover: #64DACEBF;
-  --color-surface-strong-accent-yellow-default: var(--color-accent-strong-yellow);
-  --color-surface-strong-accent-yellow-hover: #F5D039BF;
+  --color-surface-strong-accent-teal-hover: #64dacebf;
+  --color-surface-strong-accent-yellow-default: var(
+    --color-accent-strong-yellow
+  );
+  --color-surface-strong-accent-yellow-hover: #f5d039bf;
   --color-surface-weak-accent-green: var(--color-accent-weak-green);
   --color-surface-weak-accent-teal: var(--color-accent-weak-teal);
   --color-surface-weak-accent-yellow: var(--color-accent-weak-yellow);
@@ -95,7 +97,7 @@
      ============================================ */
   --color-tag-fill: var(--color-primary-grey-100);
   --color-tag-fill-hover: var(--color-primary-grey-200);
-  --color-tag-stroke: #0508161A;
+  --color-tag-stroke: #0508161a;
 
   /* ============================================
      TEXT SEMANTIC COLORS
@@ -106,8 +108,6 @@
   --color-text-reversed: var(--color-primary-white);
   --color-text-reversed-on-accent: var(--color-primary-white);
   --color-text-tertiary: var(--color-primary-grey-700);
-
-
 
   /* ============================================
      DEPRECATED

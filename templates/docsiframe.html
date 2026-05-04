@@ -1,30 +1,22 @@
 {% extends "base.html" %}
 
 {% block main_content_wrapper %}
-{% if full_width %}
-  <div>
-{% else %}
-  <div class="max-w-7xl md:px-3 mx-auto transition-all">
-{% endif %}
+  {% if full_width %}
+    <div>
+    {% else %}
+      <div class="max-w-7xl md:px-3 mx-auto transition-all">
+      {% endif %}
 
-{% endblock %}
+    {% endblock %}
 
-{% block content %}
-    {# alert for non-current Boost versions #}
-    <div class="bg-white dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
-      {% include "libraries/includes/version_alert.html" %}
-    </div>
-    <iframe
-        {% if iframe_url %}
-          src="{{ iframe_url }}"
-          style="display: block; width: 100%; min-height: 600px; border: none;"
-        {% else %}
-          srcdoc="{{ content }}"
-          onload="iframeCustomizations(this)"
-        {% endif %}
-        id="docsiframe"
-    ></iframe>
-    <script>
+    {% block content %}
+      {# alert for non-current Boost versions #}
+      <div class="bg-white dark:text-white text-slate dark:bg-charcoal dark:bg-neutral-700">
+        {% include "libraries/includes/version_alert.html" %}
+      </div>
+      <iframe {% if iframe_url %} src="{{ iframe_url }}" style="display: block; width: 100%; min-height: 600px; border: none;" {% else %} srcdoc="{{ content }}" onload="iframeCustomizations(this)" {% endif %}
+              id="docsiframe"></iframe>
+      <script>
       function updateVersionAlertHeight() {
         const alert = document.querySelector('.version_alert');
         if (alert && document.getElementById('docsiframe')) {
@@ -156,5 +148,5 @@
           head.appendChild(base);
         }
       }
-    </script>
-{% endblock %}
+      </script>
+    {% endblock %}

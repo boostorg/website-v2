@@ -18,16 +18,18 @@
   <div class="post-content-container">
     <h1>Posts</h1>
     <div class="post-content-layout">
-      <p class="subheading">Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, and user-created content.</p>
+      <p class="subheading">
+        Stay up to date with Boost and the C++ ecosystem with the latest news, videos, resources, and user-created content.
+      </p>
       <div class="post-content__filter_column">
         {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' only %}
         <p class="field__label filter__tags-label">Filter</p>
         <form>
-        <div class="filter__tags">
+          <div class="filter__tags">
             {% include "v3/includes/_post_filter.html" with options=filter_terms filter_name="post-filter" default=filter_value only %}
-        </div>
-        {% include 'v3/includes/_field_dropdown.html' with name='ex_type' label='Library' options=libraries placeholder='All' only %}
-        {% include "v3/includes/_button.html" with label="Filter" icon_position="right" icon_name="arrow-right" icon_size=16 type="submit" js_disabled=True extra_classes="filter-submit-button" only %}
+          </div>
+          {% include 'v3/includes/_field_dropdown.html' with name='ex_type' label='Library' options=libraries placeholder='All' only %}
+          {% include "v3/includes/_button.html" with label="Filter" icon_position="right" icon_name="arrow-right" icon_size=16 type="submit" js_disabled=True extra_classes="filter-submit-button" only %}
         </form>
       </div>
       <div class="post-content__content_column">
@@ -48,7 +50,7 @@
 {% endblock %}
 
 {% block footer_js %}
-<script>
+  <script>
    const inputs = document.querySelectorAll("input[name=post-filter]")
     inputs.forEach(
       function(el) {

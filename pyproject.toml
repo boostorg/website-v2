@@ -8,6 +8,15 @@ whitelist-regex = ["test_.*"]
 line-length = 88
 target-version = "py313"
 
+[tool.djlint]
+profile = "django"
+indent = 2
+preserve_blank_lines = true
+ignore = "D018,H005,H006,H008,H013,H014,H016,H020,H021,H022,H023,H025,H026,H029,H030,H031,H037,T002,T003,T027,T032"
+
+# Exclude test content, dependencies, and virtual environments from djlint.
+exclude = 'core/tests/content/|node_modules/|\.venv/'
+
 [tool.black]
 line-length = 88
 exclude = '''

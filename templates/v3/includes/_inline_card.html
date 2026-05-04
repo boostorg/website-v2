@@ -12,16 +12,16 @@
 {% endcomment %}
 
 <div class="basic-card card">
-    <div class="inline-card__row px-large">
-        <div class="inline-card__grid-layout">
-            <span class="card__title inline-card__title">{{ title }}</span>
-            <span class="inline-card__text">{{ text }}</span>
-            <div class="card__cta_section inline-card__button">
-                {% include "v3/includes/_button.html" with style="primary" url=button_url label=button_label only %}
-            </div>
-            <div class="square-card-image inline-card__image">
-                <img src="{{ image_url }}" alt="{{ image_alt }}" />
-            </div>
-        </div>
+  <div class="inline-card__row px-large">
+    <div class="inline-card__grid-layout">
+      <span class="card__title inline-card__title">{{ title }}</span>
+      <span class="inline-card__text">{{ text }}</span>
+      <div class="card__cta_section inline-card__button">
+        {% include "v3/includes/_button.html" with style="primary" url=button_url label=button_label only %}
+      </div>
+      <div class="square-card-image inline-card__image">
+        <img src="{{ image_url }}" alt="{{ image_alt }}" />
+      </div>
     </div>
+  </div>
 </div>
