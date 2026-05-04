@@ -17,6 +17,7 @@ body.v3,
 html.v3 *,
 body.v3 * {
   scrollbar-width: thin;
+  scrollbar-color: var(--color-primary-grey-500) transparent;
 }
 
 /* Reserve the scrollbar gutter so dialog scroll-lock doesn't reflow the page. */
