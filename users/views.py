@@ -40,6 +40,9 @@ from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializ
 from . import tasks
 
 
+from core.mock_data import SharedResources  # noqa: F401
+
+
 class UserViewSet(viewsets.ModelViewSet):
     """
     Main User API ViewSet
@@ -113,59 +116,57 @@ class CurrentUserProfileView(
             "user_name": user.display_name,
             "avatar_url": user.get_avatar_url(),
             "featured_badge": {
-                "badge_name": "Bug Catcher",
-                "badge_url": ctx["badge_icon_srcs"][0],
+                "name": "Bug Catcher",
+                "icon_url": ctx["badge_icon_srcs"][0],
             },
-            "join_year": user.date_joined.year,
+            "member_since": user.date_joined.year,
             "role": "Contributor",
         }
 
         # Data shared between both versions, Boost Github and Mailing List activity
-        ctx = {
-            "github_activity_card_data": {
-                "title": "Latest Boost Github activity",
-                "markdown_text": dedent(
-                    """
+        ctx["github_activity_card_data"] = {
+            "title": "Latest Boost Github activity",
+            "markdown_text": dedent(
+                """
                         * Created 24 Commits in [7 repositories](https://www.example.com)
                         * Created [1 repository](https://www.example.com)
                         * Created a pull request in cppalliance/buffers that received [6 comments](https://www.example.com)
                         * Opened 17 other pull requests in [6 repositories](https://www.example.com)
                         * Reviewed 3 pull requests in [3 repositories](https://www.example.com)
                     """
-                ),
-                "button_url": "https://www.github.com",
-                "button_label": "View on Github",
-            },
-            "mailing_list_activity_card_data": {
-                "title": "Mailing List Activity",
-                "mailing_list_items": [
-                    {
-                        "date": datetime.date(2025, 7, 11),
-                        "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
-                        "url": "#",
-                    },
-                    {
-                        "date": datetime.date(2025, 7, 11),
-                        "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
-                        "url": "#",
-                    },
-                    {
-                        "date": datetime.date(2025, 7, 11),
-                        "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
-                        "url": "#",
-                    },
-                    {
-                        "date": datetime.date(2025, 7, 11),
-                        "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
-                        "url": "#",
-                    },
-                    {
-                        "date": datetime.date(2025, 7, 11),
-                        "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
-                        "url": "#",
-                    },
-                ],
-            },
+            ),
+            "button_url": "https://www.github.com",
+            "button_label": "View on Github",
+        }
+        ctx["mailing_list_activity_card_data"] = {
+            "title": "Mailing List Activity",
+            "mailing_list_items": [
+                {
+                    "date": datetime.date(2025, 7, 11),
+                    "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
+                    "url": "#",
+                },
+                {
+                    "date": datetime.date(2025, 7, 11),
+                    "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
+                    "url": "#",
+                },
+                {
+                    "date": datetime.date(2025, 7, 11),
+                    "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
+                    "url": "#",
+                },
+                {
+                    "date": datetime.date(2025, 7, 11),
+                    "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
+                    "url": "#",
+                },
+                {
+                    "date": datetime.date(2025, 7, 11),
+                    "headline": "[release] Boost 1.90.0 Beta 1 Release Candidate 1 is available",
+                    "url": "#",
+                },
+            ],
         }
 
         if self.request.GET.get("filled"):
@@ -176,6 +177,85 @@ class CurrentUserProfileView(
             )
             ctx["profile_post_cta_label"] = "View All Posts"
             ctx["profile_post_cta_url"] = "#"
+            ctx["achievements_data"] = {
+                "achievements": [
+                    {
+                        "title": "Lorem Ipsum",
+                        "points": 22,
+                        "description": "A longer description giving a summary of the achievement.",
+                    }
+                    for _ in range(6)
+                ]
+            }
+            ctx["demo_badges"] = [
+                {
+                    "icon_src": f"{badge_img}/badge-first-place.png",
+                    "name": "Patch Wizard",
+                    "earned_date": "08/08/2025",
+                },
+                {
+                    "icon_src": f"{badge_img}/badge-gold-medal.png",
+                    "name": "Standard Bearer",
+                    "earned_date": "03/07/2025",
+                },
+                {
+                    "icon_src": f"{badge_img}/badge-military-star.png",
+                    "name": "Review Hawk",
+                    "earned_date": "03/06/2025",
+                },
+                {
+                    "icon_src": f"{badge_img}/badge-second-place.png",
+                    "name": "Library Alchemist",
+                    "earned_date": "03/04/2025",
+                },
+                {
+                    "icon_src": f"{badge_img}/badge-first-place.png",
+                    "name": "Bug Catcher",
+                    "earned_date": "02/04/2025",
+                },
+                {
+                    "icon_src": f"{badge_img}/badge-bronze.png",
+                    "name": "Code Whisperer",
+                    "earned_date": "01/01/2025",
+                },
+            ]
+            ctx["posts"] = [
+                {
+                    "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+                    "url": "#",
+                    "date": datetime.date(2025, 3, 3),
+                    "category": "Issues",
+                    "tag": "beast",
+                },
+                {
+                    "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
+                    "url": "#",
+                    "date": datetime.date(2025, 3, 3),
+                    "category": "Issues",
+                    "tag": "beast",
+                },
+                {
+                    "title": "Boost.Bind and modern C++: a quick overview",
+                    "url": "#",
+                    "date": datetime.date(2025, 2, 15),
+                    "category": "Releases",
+                    "tag": "bind",
+                },
+                {
+                    "title": "Boost.Bind and modern C++: a quick overview again",
+                    "url": "#",
+                    "date": datetime.date(2025, 2, 15),
+                    "category": "Releases",
+                    "tag": "bind",
+                },
+                {
+                    "title": "utility::string_view and core::detail::string_view",
+                    "url": "#",
+                    "date": datetime.date(2025, 2, 15),
+                    "category": "Releases",
+                    "tag": "bind",
+                },
+            ]
 
         else:
             ctx["posts"] = [

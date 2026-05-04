@@ -13,7 +13,6 @@
       <div class="mailing-list-activity-card__mailing-items">
             {% for it in mailing_list_items %}
                 <span class="mailing-list-activity-card__date">{{ it.date|date:"n/d/y" }}</span>
-                <span></span>
                 <a class="mailing-list-activity-card__headline" href="{{it.url}}">{{ it.headline }}</a>
             {% endfor %}
       </div>

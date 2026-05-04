@@ -1,6 +1,6 @@
 .mailing-list-activity-card__mailing-items {
     display: grid;
-    grid-template-columns: auto 1fr fit-content(568px);
+    grid-template-columns: auto 1fr;
     width: 100%;
     gap: var(--space-large);
 }
@@ -12,6 +12,7 @@
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-default);
     letter-spacing: var(--letter-spacing-tight);
+    width: 80px;
 }
 
 .mailing-list-activity-card__headline {

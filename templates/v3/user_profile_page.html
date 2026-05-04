@@ -12,47 +12,47 @@
 
 {% block content %}
   <div class="user-profile__container">
-    {% with user=request.user %}
-      <div class="user-profile__profile-card-row">
-        {% include 'v3/includes/_user_card.html' with username=user.display_name avatar_url=user.get_avatar_url badge_name='Bug Catcher' badge_icon_src= member_since='2008' role='Board Member' flag_emoji='🇺🇸' compact=True %}
-      </div>
-      <div class="user-profile__profile-content-area">
-        <div class="user-profile__profile-content-column--left">
-          <div class="user-profile__bio">
-            {% include 'v3/includes/_markdown_card.html' with title='Bio' markdown=bio only %}
-          </div>
-          <div class="user-profile__achievements">
-            {% include "v3/includes/_achievement_card.html" %}
-          </div>
-          <div class="user-profile__badges">
-            {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
-          </div>
-          <div class="user-profile__github">
-            {% with data=github_activity_card_data %}
-              {% include 'v3/includes/_markdown_card.html' with title=data.title markdown=data.markdown_text button_url=data.button_url button_label=data.button_label %}
-            {% endwith %}
-          </div>
-          <div class="user-profile__posts">
-            {% include "v3/includes/_post_card.html" with heading="Posts" items=posts variant="card" theme="teal" primary_cta_label=profile_post_cta_label primary_cta_url=profile_post_cta_url %}
-          </div>
-          <div class="user-profile__mailing-list">
-            {% with data=mailing_list_activity_card_data %}
-              {% include 'v3/includes/_mailing_list_activity_card.html' with title=data.title mailing_list_items=data.mailing_list_items %}
-            {% endwith %}
-          </div>
+    <div class="user-profile__profile-card-row">
+      {% with user_info as user %}
+      {% include 'v3/includes/_user_card.html' with username=user.user_name avatar_url=user.avatar_url badge_name=user.featured_badge.name badge_icon_src=user.featured_badge.icon_url member_since=user.member_since role=user.role flag_emoji='🇺🇸' compact=True %}
+      {% endwith %}
+    </div>
+    <div class="user-profile__profile-content-area">
+      <div class="user-profile__profile-content-column--left">
+        <div class="user-profile__bio">
+          {% include 'v3/includes/_markdown_card.html' with title='Bio' markdown=bio only %}
         </div>
-        <div class="user-profile__profile-content-column--right">
-          <div class="user-profile__achievements">
-            {% include "v3/includes/_achievement_card.html" %}
-          </div>
-          <div class="user-profile__badges">
-            {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
-          </div>
-          <div class="user-profile__posts">
-            {% include "v3/includes/_post_card.html" with heading="Posts" items=posts variant="card" theme="teal" primary_cta_label="Create a post" primary_cta_url="#" %}
-          </div>
+        <div class="user-profile__achievements">
+          {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements primary_button_url="https://www.example.com" %}
+        </div>
+        <div class="user-profile__badges">
+          {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs badges=demo_badges %}
+        </div>
+        <div class="user-profile__github">
+          {% with data=github_activity_card_data %}
+            {% include 'v3/includes/_markdown_card.html' with title=data.title markdown=data.markdown_text button_url=data.button_url button_label=data.button_label %}
+          {% endwith %}
+        </div>
+        <div class="user-profile__posts">
+          {% include "v3/includes/_post_card.html" with heading="Posts" items=posts variant="card" theme="teal" primary_cta_label=profile_post_cta_label primary_cta_url=profile_post_cta_url %}
+        </div>
+        <div class="user-profile__mailing-list">
+          {% with data=mailing_list_activity_card_data %}
+            {% include 'v3/includes/_mailing_list_activity_card.html' with title=data.title mailing_list_items=data.mailing_list_items %}
+          {% endwith %}
         </div>
       </div>
-    {% endwith %}
+      <div class="user-profile__profile-content-column--right">
+        <div class="user-profile__achievements">
+          {% include "v3/includes/_achievement_card.html" with achievements=achievements_data.achievements primary_button_url="https://www.example.com" %}
+        </div>
+        <div class="user-profile__badges">
+          {% include "v3/includes/_badges_card.html" with cta_url="#" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs badges=demo_badges %}
+        </div>
+        <div class="user-profile__posts">
+          {% include "v3/includes/_post_card.html" with heading="Posts" items=posts variant="card" theme="teal" primary_cta_label=profile_post_cta_label primary_cta_url=profile_post_cta_url %}
+        </div>
+      </div>
+    </div>
   </div>
 {% endblock %}
