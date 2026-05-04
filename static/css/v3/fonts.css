@@ -1,6 +1,6 @@
 /**
  * V3 typography fonts.
- * Reuses v2 fonts from /static/font/ where same (Monaspace); v3-only (Mona Sans, Space Mono) in /static/font/v3/
+ * Reuses v2 fonts from /static/font/ where same (Monaspace); v3-only (Mona Sans) in /static/font/v3/
  */
 
 /* Mona Sans – v3 only */
@@ -76,40 +76,4 @@
   font-stretch: 100%;
   font-display: swap;
   src: url('/static/font/MonaspaceXenon-Italic.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Space Mono';
-  font-style: normal;
-  font-weight: 400;
-  font-stretch: 100%;
-  font-display: swap;
-  src: url('/static/font/v3/space-mono/SpaceMono-Regular.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Space Mono';
-  font-style: italic;
-  font-weight: 400;
-  font-stretch: 100%;
-  font-display: swap;
-  src: url('/static/font/v3/space-mono/SpaceMono-Italic.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Space Mono';
-  font-style: normal;
-  font-weight: 700;
-  font-stretch: 100%;
-  font-display: swap;
-  src: url('/static/font/v3/space-mono/SpaceMono-Bold.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: 'Space Mono';
-  font-style: italic;
-  font-weight: 700;
-  font-stretch: 100%;
-  font-display: swap;
-  src: url('/static/font/v3/space-mono/SpaceMono-BoldItalic.ttf') format('truetype');
 }
