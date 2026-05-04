@@ -100,6 +100,25 @@ class CurrentUserProfileView(
 
     def get_v3_context_data(self, **kwargs):
         badge_img = f"{settings.STATIC_URL}img/v3/badges"
+        user = self.request.user
+        ctx = {}
+        ctx["badge_icon_srcs"] = [
+            f"{badge_img}/badge-first-place.png",
+            f"{badge_img}/badge-second-place.png",
+            f"{badge_img}/badge-bronze.png",
+            f"{badge_img}/badge-gold-medal.png",
+            f"{badge_img}/badge-military-star.png",
+        ]
+        ctx["user_info"] = {
+            "user_name": user.display_name,
+            "avatar_url": user.get_avatar_url(),
+            "featured_badge": {
+                "badge_name": "Bug Catcher",
+                "badge_url": ctx["badge_icon_srcs"][0],
+            },
+            "join_year": user.date_joined.year,
+            "role": "Contributor",
+        }
 
         # Data shared between filled versions, Boost Github and Mailing List activity
         ctx = {
@@ -150,7 +169,14 @@ class CurrentUserProfileView(
         }
 
         if self.request.GET.get("filled"):
-            pass
+            ctx["bio"] = dedent(
+                """
+
+            """
+            )
+            ctx["profile_post_cta_label"] = "View All Posts"
+            ctx["profile_post_cta_url"] = "#"
+
         else:
             ctx["posts"] = [
                 {
@@ -161,14 +187,8 @@ class CurrentUserProfileView(
             ctx["bio"] = (
                 "Add a short bio to tell the community who you are, what you work on, or what you’re passionate about."
             )
-
-            ctx["badge_icon_srcs"] = [
-                f"{badge_img}/badge-first-place.png",
-                f"{badge_img}/badge-second-place.png",
-                f"{badge_img}/badge-bronze.png",
-                f"{badge_img}/badge-gold-medal.png",
-                f"{badge_img}/badge-military-star.png",
-            ]
+            ctx["profile_post_cta_label"] = "Create a Post"
+            ctx["profile_post_cta_url"] = "#"
 
         return ctx
 

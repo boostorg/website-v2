@@ -14,7 +14,7 @@
   <div class="user-profile__container">
     {% with user=request.user %}
       <div class="user-profile__profile-card-row">
-        {% include 'v3/includes/_user_card.html' with username=user.display_name avatar_url=user.get_avatar_url badge_name='Bug Catcher' badge_icon_src='/img/badge.png' member_since='2008' role='Board Member' flag_emoji='🇺🇸' compact=True %}
+        {% include 'v3/includes/_user_card.html' with username=user.display_name avatar_url=user.get_avatar_url badge_name='Bug Catcher' badge_icon_src= member_since='2008' role='Board Member' flag_emoji='🇺🇸' compact=True %}
       </div>
       <div class="user-profile__profile-content-area">
         <div class="user-profile__profile-content-column--left">
@@ -33,7 +33,7 @@
             {% endwith %}
           </div>
           <div class="user-profile__posts">
-            {% include "v3/includes/_post_card.html" with heading="Posts" items=posts variant="card" theme="teal" primary_cta_label="Create a post" primary_cta_url="#" %}
+            {% include "v3/includes/_post_card.html" with heading="Posts" items=posts variant="card" theme="teal" primary_cta_label=profile_post_cta_label primary_cta_url=profile_post_cta_url %}
           </div>
           <div class="user-profile__mailing-list">
             {% with data=mailing_list_activity_card_data %}
