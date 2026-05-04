@@ -37,6 +37,18 @@
     width: auto;
 }
 
+.library-page-hero .hero-image-dark {
+    display: none;
+}
+
+html.dark .library-page-hero .hero-image-light {
+    display: none;
+}
+
+html.dark .library-page-hero .hero-image-dark {
+    display:block
+}
+
 .library-page-hero .hero-title {
     grid-area: a;
     margin: 0;
@@ -127,6 +139,11 @@
     border-top-left-radius: var(--border-radius-xl);
     border-top-right-radius: var(--border-radius-xl);
     border: 1px solid var(--color-stroke-weak);
+}
+
+.library-page__category-header .icon {
+    display: inline-block;
+    margin-left: var(--space-large);
 }
 
 .grouped .library-item--list:first-child {

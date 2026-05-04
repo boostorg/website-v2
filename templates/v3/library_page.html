@@ -24,7 +24,8 @@ Inputs:
             {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' %}
           </div>
           <div class="hero-image-container">
-            <img alt="Excited Cartoon Mascot" class="hero-image" src="{% static 'img/v3/solo-images/beaver-black-and-white.png' %}" loading="lazy" decoding="async" />
+            <img alt="Excited Cartoon Mascot" class="hero-image hero-image-light" src="{% static 'img/v3/solo-images/beaver-black-and-white.png' %}" loading="lazy" decoding="async" />
+            <img alt="Excited Cartoon Mascot" class="hero-image hero-image-dark" src="{% static 'img/v3/solo-images/beaver-black-and-white-dark.png' %}" loading="lazy" decoding="async" />
           </div>
       </section>
     <form action="" method="get">
@@ -55,7 +56,7 @@ Inputs:
     {% elif library_view_str == 'categorized' or library_view_str == 'grading' %}
       {% for result in library_versions_by_category %}
       <section>
-        <h2 class="library-page__category-header">{{ result.category }}</h2>
+        <h2 class="library-page__category-header">{{ result.category }} {% if result.icon %}{% include "includes/icon.html" with icon_name=result.icon only %}{% endif %}</h2>
         <ul class="library-item-list grouped">
           {% for item in result.library_version_list %}
             {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}

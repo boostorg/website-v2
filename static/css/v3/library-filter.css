@@ -35,6 +35,10 @@
   flex-shrink: 0;
 }
 
+.library-filter__field-category {
+  width: 120px;
+}
+
 .library-filter__field-narrow {
   width: 104px;
 }

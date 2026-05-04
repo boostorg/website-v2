@@ -108,12 +108,12 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "label": "View",
                 "options": [
                     ("list", "List"),
-                    ("grid", "Grid"),
+                    ("grid", "Card"),
                     ("categorized", "Category"),
                     ("grading", "Grading"),
                 ],
                 "selected": self.kwargs.get("library_view_str"),
-                "width": "narrow",
+                "width": "category",
             },
             {
                 "type": "dropdown",
@@ -349,14 +349,17 @@ class LibraryByTier(LibraryListBase):
         return [
             {
                 "category": "Flagship",
+                "icon": "flag",
                 "library_version_list": flagship,
             },
             {
                 "category": "Core",
+                "icon": None,
                 "library_version_list": core,
             },
             {
                 "category": "Other",
+                "icon": None,
                 "library_version_list": other,
             },
         ]
