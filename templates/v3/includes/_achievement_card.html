@@ -13,7 +13,7 @@
     <div class="achievement-card__container">
       {% for ach in achievements %}
         <div class="achievement-card__achievement">
-          {% include "v3/includes/_count_badge.html" with value=ach.points size="small" %}
+          {% include "v3/includes/_count_badge.html" with value=ach.points size="medium" %}
           <div class="achievement-card__description">
             <p class="achievement-card__ach-text text-primary">{{ ach.title }}</p>
             <p class="achievement-card__ach-text text-secondary">{{ ach.description }}</p>
@@ -21,14 +21,14 @@
         </div>
       {% empty %}
         <div class="achievement-card__achievement achievement-card__achivement-example">
-          {% include "v3/includes/_count_badge.html" with value=19 size="small" %}
+          {% include "v3/includes/_count_badge.html" with value=19 size="medium" %}
           <div class="achievement-card__description">
             <p class="achievement-card__ach-text text-primary">Patch Wizard</p>
             <p class="achievement-card__ach-text text-secondary">Submitted patch that was reviewed and merged</p>
           </div>
         </div>
         <div class="achievement-card__achievement achievement-card__achivement-example">
-          {% include "v3/includes/_count_badge.html" with value=7 size="small" %}
+          {% include "v3/includes/_count_badge.html" with value=7 size="medium" %}
           <div class="achievement-card__description">
             <p class="achievement-card__ach-text text-primary">Consensus Builder</p>
             <p class="achievement-card__ach-text text-secondary">Guided technical discussion toward agreement</p>

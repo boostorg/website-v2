@@ -1322,9 +1322,24 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         ]
         context["demo_badges"] = [
             {
+                "icon": BadgeToken.TIER_1,
+                "name": "Code Whisperer",
+                "earned_date": "01/01/2025",
+            },
+            {
+                "icon": BadgeToken.TIER_2,
+                "name": "Library Alchemist",
+                "earned_date": "03/04/2025",
+            },
+            {
                 "icon": BadgeToken.TIER_3,
                 "name": "Patch Wizard",
                 "earned_date": "08/08/2025",
+            },
+            {
+                "icon": BadgeToken.TIER_4,
+                "name": "Bug Catcher",
+                "earned_date": "02/04/2025",
             },
             {
                 "icon": BadgeToken.TIER_5,
@@ -1335,21 +1350,6 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "icon": BadgeToken.STAR_TIER_3,
                 "name": "Review Hawk",
                 "earned_date": "03/06/2025",
-            },
-            {
-                "icon": BadgeToken.TIER_2,
-                "name": "Library Alchemist",
-                "earned_date": "03/04/2025",
-            },
-            {
-                "icon": BadgeToken.TIER_4,
-                "name": "Bug Catcher",
-                "earned_date": "02/04/2025",
-            },
-            {
-                "icon": BadgeToken.TIER_1,
-                "name": "Code Whisperer",
-                "earned_date": "01/01/2025",
             },
             {
                 "icon": BadgeToken.BOOST_DAY,
@@ -1409,15 +1409,15 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                     "checked": True,
                 },
                 {
-                    "value": "platinum",
-                    "icon": BadgeToken.TIER_5,
-                    "icon_alt": "Platinum badge",
-                    "checked": False,
-                },
-                {
                     "value": "diamond",
                     "icon": BadgeToken.TIER_4,
                     "icon_alt": "Diamond badge",
+                    "checked": False,
+                },
+                {
+                    "value": "platinum",
+                    "icon": BadgeToken.TIER_5,
+                    "icon_alt": "Platinum badge",
                     "checked": False,
                 },
                 {
@@ -1439,15 +1439,15 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                     "checked": False,
                 },
                 {
-                    "value": "star-tier-5",
-                    "icon": BadgeToken.STAR_TIER_5,
-                    "icon_alt": "Platinum star",
-                    "checked": False,
-                },
-                {
                     "value": "star-tier-4",
                     "icon": BadgeToken.STAR_TIER_4,
                     "icon_alt": "Diamond star",
+                    "checked": False,
+                },
+                {
+                    "value": "star-tier-5",
+                    "icon": BadgeToken.STAR_TIER_5,
+                    "icon_alt": "Platinum star",
                     "checked": False,
                 },
                 {
