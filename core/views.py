@@ -2134,4 +2134,56 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         v3_paths.sort(key=lambda p: p["class_name"])
         context["v3_paths"] = v3_paths
 
+        def _demo_page(param, default, total):
+            try:
+                val = int(self.request.GET.get(param, default))
+                return max(1, min(val, total))
+            except (ValueError, TypeError):
+                return default
+
+        context["demo_pagination"] = [
+            {
+                "label": "24 pages — page 1",
+                "current": _demo_page("pg24a", 1, 24),
+                "total": 24,
+                "param": "pg24a",
+            },
+            {
+                "label": "24 pages — page 5 (both ellipses appear)",
+                "current": _demo_page("pg24b", 5, 24),
+                "total": 24,
+                "param": "pg24b",
+            },
+            {
+                "label": "24 pages — page 12 (middle)",
+                "current": _demo_page("pg24c", 12, 24),
+                "total": 24,
+                "param": "pg24c",
+            },
+            {
+                "label": "24 pages — last page",
+                "current": _demo_page("pg24d", 24, 24),
+                "total": 24,
+                "param": "pg24d",
+            },
+            {
+                "label": "5 pages — all visible (no ellipsis)",
+                "current": _demo_page("pg5a", 1, 5),
+                "total": 5,
+                "param": "pg5a",
+            },
+            {
+                "label": "3 pages — minimal",
+                "current": _demo_page("pg3a", 2, 3),
+                "total": 3,
+                "param": "pg3a",
+            },
+            {
+                "label": "1 page — hidden (nothing renders)",
+                "current": 1,
+                "total": 1,
+                "param": "pg1a",
+            },
+        ]
+
         return context

@@ -85,7 +85,7 @@ class EntryListView(V3Mixin, ListView):
     template_name = "news/list.html"
     v3_template_name = "v3/posts_list.html"
     ordering = ["-publish_at"]
-    paginate_by = None  #  XXX: use pagination in the template! Issue #377
+    paginate_by = 10
     context_object_name = "entry_list"  # Ensure children use the same name
     header_text = "Latest Posts"
     filter_value = "all"

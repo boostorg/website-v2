@@ -915,6 +915,23 @@
     </div>
   {% endwith %}
 
+  {% with section_title="Pagination" %}
+    <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
+      <h3>{{ section_title }}</h3>
+      <div class="v3-examples-section__example-box">
+        <p style="margin-bottom: var(--space-xlarge); color: var(--color-text-secondary); font-size: var(--font-size-small);">
+          Each example is independently clickable — navigate pages using the controls. The page state is stored in the URL query params.
+        </p>
+        {% for demo in demo_pagination %}
+          <div style="margin-bottom: var(--space-xl);">
+            <p style="margin-bottom: var(--space-default); color: var(--color-text-secondary); font-size: var(--font-size-small);">{{ demo.label }}</p>
+            {% include "v3/includes/_pagination.html" with pagination_current=demo.current pagination_total=demo.total pagination_page_param=demo.param %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endwith %}
+
   {% comment %}
   Position Fixed dark mode toggle for quick theme switching without scrolling to the header.
   {% endcomment %}

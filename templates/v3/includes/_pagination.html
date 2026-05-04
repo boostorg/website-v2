@@ -1,0 +1,72 @@
+{% load pagination_tags %}
+{% comment %}
+  Pagination component.
+
+  Standard usage (from ListView — page_obj and paginator are in context):
+    {% include "v3/includes/_pagination.html" %}
+
+  Isolated / demo usage:
+    {% include "v3/includes/_pagination.html" with pagination_current=5 pagination_total=24 pagination_page_param="page" %}
+
+  Parameters:
+    pagination_current   int  – current page number (required for isolated use)
+    pagination_total     int  – total number of pages (required for isolated use)
+    pagination_page_param  str  – URL query param name (default: "page")
+{% endcomment %}
+
+{% with current=pagination_current|default:page_obj.number total=pagination_total|default:paginator.num_pages param=pagination_page_param|default:"page" %}
+  {% if total > 1 %}
+    {% pagination_range current total as pages %}
+    {% page_url 1 param as first_page_url %}
+    {% page_url total param as last_page_url %}
+
+    {% if current > 1 %}
+      {% page_url current|add:"-1" param as prev_url %}
+    {% endif %}
+    {% if current < total %}
+      {% page_url current|add:"1" param as next_url %}
+    {% endif %}
+
+    <nav aria-label="Pagination">
+      <ol class="pagination">
+
+        <li class="pagination__item">
+          {% if current > 1 %}
+            <a href="{{ prev_url }}" class="pagination__chevron" aria-label="Previous page" rel="prev">
+              {% include "includes/icon.html" with icon_name="chevron-left" icon_size=20 %}
+            </a>
+          {% else %}
+            <span class="pagination__chevron pagination__chevron--disabled" aria-disabled="true" aria-label="Previous page">
+              {% include "includes/icon.html" with icon_name="chevron-left" icon_size=20 %}
+            </span>
+          {% endif %}
+        </li>
+
+        {% for item in pages %}
+          <li class="pagination__item">
+            {% if item == "..." %}
+              <span class="pagination__ellipsis" aria-hidden="true">…</span>
+            {% elif item == current %}
+              <a href="{% page_url item param %}" class="pagination__link pagination__link--active" aria-current="page" aria-label="Page {{ item }}">{{ item }}</a>
+            {% else %}
+              <a href="{% page_url item param %}" class="pagination__link" aria-label="Go to page {{ item }}">{{ item }}</a>
+            {% endif %}
+          </li>
+        {% endfor %}
+
+        <li class="pagination__item">
+          {% if current < total %}
+            <a href="{{ next_url }}" class="pagination__chevron" aria-label="Next page" rel="next">
+              {% include "includes/icon.html" with icon_name="chevron-right" icon_size=20 %}
+            </a>
+          {% else %}
+            <span class="pagination__chevron pagination__chevron--disabled" aria-disabled="true" aria-label="Next page">
+              {% include "includes/icon.html" with icon_name="chevron-right" icon_size=20 %}
+            </span>
+          {% endif %}
+        </li>
+
+      </ol>
+    </nav>
+  {% endif %}
+{% endwith %}
