@@ -3,6 +3,7 @@ import string
 import re
 from itertools import islice
 from types import SimpleNamespace
+from typing import TYPE_CHECKING
 
 import boto3
 import structlog
@@ -14,7 +15,7 @@ from dateutil.relativedelta import relativedelta
 
 from dateutil.parser import ParserError, parse
 from django.conf import settings
-from django.db.models import Count, F
+from django.db.models import Count, F, QuerySet
 from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils.text import slugify
@@ -34,6 +35,9 @@ logger = structlog.get_logger()
 
 STATS_COMMITS_BAR_HEIGHT_MAX_PX = 120
 STATS_COMMITS_BAR_HEIGHT_MIN_PX = 8
+
+if TYPE_CHECKING:
+    from libraries.models import Library, LibraryVersion
 
 
 def get_commit_data_by_release_for_library(library, limit=20):
@@ -568,3 +572,34 @@ def get_s3_client() -> BaseClient:
         aws_secret_access_key=settings.STATIC_CONTENT_AWS_SECRET_ACCESS_KEY,
         region_name=settings.STATIC_CONTENT_REGION,
     )
+
+
+def group_libraries_by_tier(
+    libraries: QuerySet["LibraryVersion"] | QuerySet["Library"],
+):
+    """Group libraries or library versions into flagship, core, and other lists based on tier.
+
+    Returns (flagship, core, other) tuple.
+    """
+
+    from libraries.models import Tier, Library, LibraryVersion
+
+    flagship = []
+    core = []
+    other = []
+    for lib in libraries:
+        if isinstance(lib, Library):
+            tier = lib.tier
+        elif isinstance(lib, LibraryVersion):
+            tier = lib.library.tier
+        else:
+            raise TypeError("Invalid Queryset passed")
+
+        if tier == Tier.FLAGSHIP:
+            flagship.append(lib)
+        elif tier == Tier.CORE:
+            core.append(lib)
+        else:
+            other.append(lib)
+
+    return flagship, core, other

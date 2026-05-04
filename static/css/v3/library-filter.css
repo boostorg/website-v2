@@ -24,10 +24,19 @@
   gap: var(--space-medium);
 }
 
+.library-filter__fields div:has(.btn) {
+  height: fit-content;
+  align-self: flex-end;
+}
+
 /* ── Field width modifiers ─────────────── */
 
 .library-filter__field {
   flex-shrink: 0;
+}
+
+.library-filter__field-category {
+  width: 120px;
 }
 
 .library-filter__field-narrow {
@@ -40,6 +49,12 @@
 
 .library-filter__field-wide {
   width: 200px;
+}
+
+/* -- Button for js less submit ----------- */
+.library-filter .btn-primary {
+  height: 40px;
+  align-self: end;
 }
 
 /* ── Mobile: fullscreen modal ──────────── */
