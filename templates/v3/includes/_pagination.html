@@ -12,17 +12,19 @@
     pagination_current     int  – current page number (required for isolated use)
     pagination_total       int  – total number of pages (required for isolated use)
     pagination_page_param  str  – URL query param name (default: "page")
+    pagination_anchor      str  – optional HTML id; appended as #fragment to every
+                                  page link so the browser scrolls back to the component
 {% endcomment %}
 
-{% resolve_pagination pagination_current pagination_total pagination_page_param as pag %}
+{% resolve_pagination pagination_current pagination_total pagination_page_param pagination_anchor as pag %}
 {% if pag.total > 1 %}
   {% pagination_range pag.current pag.total as pages %}
 
   {% if pag.current > 1 %}
-    {% page_url pag.current|add:"-1" pag.param as prev_url %}
+    {% page_url pag.current|add:"-1" pag.param pag.anchor as prev_url %}
   {% endif %}
   {% if pag.current < pag.total %}
-    {% page_url pag.current|add:"1" pag.param as next_url %}
+    {% page_url pag.current|add:"1" pag.param pag.anchor as next_url %}
   {% endif %}
 
   <nav aria-label="Pagination">
@@ -45,9 +47,9 @@
           {% if item == "..." %}
             <span class="pagination__ellipsis" aria-hidden="true">…</span>
           {% elif item == pag.current %}
-            <a href="{% page_url item pag.param %}" class="pagination__link pagination__link--active" aria-current="page" aria-label="Page {{ item }}">{{ item }}</a>
+            <a href="{% page_url item pag.param pag.anchor %}" class="pagination__link pagination__link--active" aria-current="page" aria-label="Page {{ item }}">{{ item }}</a>
           {% else %}
-            <a href="{% page_url item pag.param %}" class="pagination__link" aria-label="Go to page {{ item }}">{{ item }}</a>
+            <a href="{% page_url item pag.param pag.anchor %}" class="pagination__link" aria-label="Go to page {{ item }}">{{ item }}</a>
           {% endif %}
         </li>
       {% endfor %}

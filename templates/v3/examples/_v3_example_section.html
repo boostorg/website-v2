@@ -923,9 +923,9 @@
           Each example is independently clickable — navigate pages using the controls. The page state is stored in the URL query params.
         </p>
         {% for demo in demo_pagination %}
-          <div style="margin-bottom: var(--space-xl);">
+          <div id="{{ demo.anchor }}" style="margin-bottom: var(--space-xl); scroll-margin-top: var(--space-xl);">
             <p style="margin-bottom: var(--space-default); color: var(--color-text-secondary); font-size: var(--font-size-small);">{{ demo.label }}</p>
-            {% include "v3/includes/_pagination.html" with pagination_current=demo.current pagination_total=demo.total pagination_page_param=demo.param %}
+            {% include "v3/includes/_pagination.html" with pagination_current=demo.current pagination_total=demo.total pagination_page_param=demo.param pagination_anchor=demo.anchor %}
           </div>
         {% endfor %}
       </div>
