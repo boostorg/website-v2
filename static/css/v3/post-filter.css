@@ -63,3 +63,11 @@
   outline: 2px solid var(--color-text-link-accent);
   outline-offset: -2px;
 }
+
+
+/* -- Mobile Padding Change -------------- */
+@media (max-width: 768px) {
+  .post-filter__option {
+      padding: var(--space-card) var(--space-medium);
+  }
+}

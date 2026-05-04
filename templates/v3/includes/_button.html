@@ -21,13 +21,25 @@
     - alpine_disabled (optional): Alpine.js expression for dynamic disabled binding (e.g. "hasErrors")
     - extra_classes (optional) : Any extra classes that the button should have, as a string
     - aria_label (optional): An optional label for assistive technology. Defaults to the button label
+    - js_disabled (optional, boolean): If this value is true, the button is hidden unless Javascript is disabled on the page
   Icon must be wrapped in <span class="btn-icon" aria-hidden>...</span>.
   Usage: {% include "v3/includes/_button.html" with label="Get started" icon_html='<span class="btn-icon" aria-hidden><i class="fas fa-arrow-right"></i></span>' style="secondary" extra_classes="btn-flex" %}
 {% endcomment %}
 {% if url %}
   <a href="{{ url }}"
+    x-data="{
+        jsReady: false,
+        init() {
+          this.jsReady = true;
+        }
+      }"
      class="{% if style == 'icon-library' %}btn-icon-library {{ extra_classes }}{% else %}btn btn-{{ style|default:"primary" }} {{ extra_classes }}{% endif %}"
-     aria-label="{{aria_label|default:label}}">
+     aria-label="{{aria_label|default:label}}"
+     {% if js_disabled %}
+        x-show="!jsReady"
+        :disabled="jsReady"
+     {% endif %}
+     >
     {% if icon_position|default:'left' == 'left' %}
       {% if icon_html %}
         {{ icon_html|safe }}
@@ -52,11 +64,22 @@
   </a>
 {% else %}
   <button type="{{ type|default:'button' }}"
+          x-data="{
+            jsReady: false,
+            init() {
+              this.jsReady = true;
+            }
+          }"
           aria-label="{{ aria_label|default:label }}"
           class="{% if style == 'icon-library' %}btn-icon-library {{ extra_classes }}{% else %}btn btn-{{ style|default:"primary" }} {{ extra_classes }}{% endif %}"
           aria-label="{{aria_label|default:label}}"
           {% if disabled %}disabled{% endif %}
-          {% if alpine_disabled %}:disabled="{{ alpine_disabled }}"{% endif %}>
+          {% if alpine_disabled %}:disabled="{{ alpine_disabled }}"{% endif %}
+          {% if js_disabled %}
+            x-show="!jsReady"
+            :disabled="jsReady"
+          {% endif %}
+        >
     {% if icon_position|default:'left' == 'left' %}
       {% if icon_html %}
         {{ icon_html|safe }}
