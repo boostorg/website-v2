@@ -156,62 +156,11 @@
     }
   }
 
-  function setupRadioCarousel(root, track) {
-    const radios = root.querySelectorAll('input[type="radio"].testimonial-card__state');
-    if (radios.length === 0) return;
-    const items = track.querySelectorAll(CAROUSEL_ITEM_SELECTOR);
-
-    let scrolling = false;
-    let scrollTimeout = null;
-
-    function syncInert(activeIdx) {
-      items.forEach(function (item, i) {
-        if (i === activeIdx) item.removeAttribute('inert');
-        else item.setAttribute('inert', '');
-      });
-    }
-
-    const initialIdx = Array.prototype.findIndex.call(radios, function (r) { return r.checked; });
-    syncInert(initialIdx >= 0 ? initialIdx : 0);
-
-    radios.forEach(function (radio, idx) {
-      radio.addEventListener('change', function () {
-        if (!radio.checked) return;
-        syncInert(idx);
-        const target = items[idx];
-        if (!target) return;
-        scrolling = true;
-        target.scrollIntoView({ inline: 'start', block: 'nearest', behavior: 'smooth' });
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(function () { scrolling = false; }, 400);
-      });
-    });
-
-    track.addEventListener('scroll', function () {
-      if (scrolling) return;
-      const first = items[0];
-      if (!first) return;
-      const itemWidth = first.offsetWidth;
-      if (itemWidth === 0) return;
-      const idx = Math.round(track.scrollLeft / itemWidth);
-      const radio = radios[Math.max(0, Math.min(radios.length - 1, idx))];
-      if (radio && !radio.checked) {
-        radio.checked = true;
-        syncInert(idx);
-      }
-    }, { passive: true });
-  }
-
   function initCarousel(root) {
     if (!root || !root.id) return;
     const track = root.querySelector('[data-carousel-track]');
     const controls = document.getElementById(root.id + '-controls');
     if (!track || !controls) return;
-
-    if (root.hasAttribute('data-carousel-radios')) {
-      setupRadioCarousel(root, track);
-      return;
-    }
 
     if (root.hasAttribute('data-carousel-infinite')) {
       setupInfiniteCarousel(root, track);
