@@ -445,7 +445,7 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
 /* Inline code – visible on-brand highlight */
 .wysiwyg-editor__prose code {
   padding: 0.2em 0.45em;
-  font-family: var(--font-code, ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace);
+  font-family: var(--font-code);
   font-size: 0.85em;
   background: rgba(255, 160, 0, 0.15);
   border: 1px solid rgba(255, 160, 0, 0.3);
@@ -462,7 +462,7 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
   background: var(--code-block-bg, #f6f8fa);
   border: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
   border-radius: var(--border-radius-l, 8px);
-  font-family: var(--font-code, ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace);
+  font-family: var(--font-code);
   font-size: var(--font-size-small, 14px);
   line-height: var(--line-height-code, 1.5);
 }
@@ -589,7 +589,7 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
   border: none;
   border-right: 1px solid var(--color-stroke-weak, rgba(5, 8, 22, 0.1));
   padding: var(--space-medium, 12px) var(--space-large, 16px);
-  font-family: var(--font-code, ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace);
+  font-family: var(--font-code);
   font-size: var(--font-size-small, 14px);
   line-height: 1.5;
   color: var(--color-text-primary, #050816);

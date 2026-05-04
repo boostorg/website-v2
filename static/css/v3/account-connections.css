@@ -46,7 +46,7 @@
 }
 
 .account-connections__platform-name {
-  font-family: var(--font-sans, 'Mona Sans VF'), sans-serif;
+  font-family: var(--font-sans);
   font-size: var(--font-size-base, 16px);
   font-weight: var(--font-weight-medium, 500);
   line-height: var(--line-height-default, 1.2);
@@ -57,7 +57,7 @@
 
 .account-connections__status {
   flex: 1 1 0;
-  font-family: var(--font-sans, 'Mona Sans VF'), sans-serif;
+  font-family: var(--font-sans);
   font-size: var(--font-size-base, 16px);
   font-weight: var(--font-weight-regular, 400);
   line-height: var(--line-height-default, 1.2);

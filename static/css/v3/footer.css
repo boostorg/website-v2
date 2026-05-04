@@ -1,9 +1,9 @@
 .footer {
-  --footer-text: var(--Text-Primary, var(--color-text-primary, #050816));
+  --footer-text: var(--color-text-primary);
   padding: var(--space-large) var(--space-large);
   color: var(--footer-text);
-  font-family: var(--Typefaces-Sans, var(--font-sans, "Mona Sans VF"));
-  font-size: var(--Sizes-XS, 12px);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
   font-style: normal;
   font-weight: 400;
   line-height: 120%;
@@ -15,8 +15,8 @@
 .footer a,
 .footer p {
   color: var(--footer-text);
-  font-family: var(--Typefaces-Sans, var(--font-sans, "Mona Sans VF"));
-  font-size: var(--Sizes-XS, 12px);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
   font-style: normal;
   font-weight: 400;
   line-height: 120%;
