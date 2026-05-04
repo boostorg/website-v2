@@ -24,8 +24,14 @@
 
 .badge-button input,
 .badge-button img,
-.badge-button .icon,
+.badge-button .icon {
+    cursor: pointer;
+}
+
 .badge-button label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
 }
 
