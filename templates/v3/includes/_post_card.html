@@ -27,6 +27,7 @@
   {% if items %}
     <ul class="card-group__list">
       {% for item in items %}
+        {% if layout != "horizontal" or forloop.counter0 < 3 %}
         <li class="card-group__item">
           {% if item.title or item.url or item.date or item.category or item.tag %}
             <article class="post-card">
@@ -52,6 +53,7 @@
             </article>
           {% endif %}
         </li>
+        {% endif %}
       {% endfor %}
     </ul>
   {% endif %}
