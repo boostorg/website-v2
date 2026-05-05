@@ -81,12 +81,14 @@ def save_rendered_content(cache_key, content_type, content_html, last_updated_at
     )
 
     # we don't set the latest_docs_path if it's a direct match, for db size reduction
+    # For direct matches, latest_path is derived from cache_key (see RenderedContent.latest_path);
+    # store "" not NULL — latest_docs_path is a non-null CharField.
     defaults = {
         "content_type": content_type,
         "content_html": content_html,
         "latest_path_matched_indicator": indicator,
         "latest_docs_path": (
-            match_result.latest_path if not match_result.is_direct_equivalent else None
+            match_result.latest_path if not match_result.is_direct_equivalent else ""
         ),
         "latest_path_match_class": match_result.matcher,
         "modified": timezone.now(),
