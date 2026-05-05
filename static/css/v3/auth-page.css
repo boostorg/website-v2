@@ -177,10 +177,6 @@ body:has(.auth-page) .header {
 
 /* ── Responsive (Tablet) ────────────────────────────── */
 @media (max-width: 1279px) {
-  .auth-page {
-    min-height: auto;
-  }
-
   .auth-page__wrapper {
     grid-template-columns: 1fr;
     flex: none;
