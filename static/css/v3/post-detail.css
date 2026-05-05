@@ -139,6 +139,15 @@
   border: 1px solid var(--color-stroke-weak);
 }
 
+.post-detail-page .post-detail__next .post-card__title-block,
+.post-detail-page .post-detail__related .post-card__title-block {
+  gap: var(--space-s);
+}
+
+.post-detail-page .user-profile__header {
+  row-gap: var(--space-default);
+}
+
 /* Collapse adjacent borders so stacked cards share a single hairline. */
 .post-detail__next .card-group__item:not(:first-child) .post-card,
 .post-detail__related .card-group__item:not(:first-child) .post-card {
