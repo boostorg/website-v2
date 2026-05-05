@@ -17,6 +17,8 @@
     gap: var(--space-s);
     height: fit-content;
     align-self: flex-end;
+    max-width: 100%;
+    flex-wrap: wrap;
 }
 
 .user-profile__profile-content-area {
@@ -92,6 +94,11 @@
 }
 
 @media (max-width: 768px) {
+    .user-profile__profile-card-row {
+        flex-direction: column;
+        gap: var(--space-xl);
+    }
+
 
     .user-profile__profile-content-column--left .user-profile__achievements,
     .user-profile__profile-content-column--left .user-profile__badges,
