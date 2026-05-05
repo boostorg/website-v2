@@ -8,4 +8,4 @@
     {% include "v3/includes/_count_badge.html" with value=count size="small" %}
 {% endcomment %}
 {% load number_filters %}
-<span class="count-badge{% if size == 'small' %} count-badge--small{% elif size == 'large' %} count-badge--large{% endif %}">{{ value|compact_number }}</span>
+<span class="count-badge {% if size == 'small' %}count-badge--small{% elif size == 'large' %}count-badge--large{% endif %}">{{ value|compact_number }}</span>
