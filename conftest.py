@@ -14,7 +14,6 @@ pytest_plugins = [
     "news.tests.fixtures",
     "users.tests.fixtures",
     "versions.tests.fixtures",
-    "celery.contrib.pytest",
 ]
 
 

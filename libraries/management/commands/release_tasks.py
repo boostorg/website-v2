@@ -83,6 +83,12 @@ class ReleaseTasksManager(ActionsManager):
         self.handled_commits = update_commits(min_version=self.latest_version.name)
 
     def update_website_statistics(self):
+        if not self.latest_version.release_date:
+            self.latest_version = (
+                Version.objects.with_partials()
+                .filter(release_date__isnull=False)
+                .most_recent()
+            )
         report, _ = WebsiteStatReport.objects.get_or_create(version=self.latest_version)
         report.populate_from_api()
 

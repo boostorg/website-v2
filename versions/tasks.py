@@ -25,6 +25,32 @@ from versions.releases import (
 logger = structlog.get_logger()
 
 
+def _upsert_version_from_tag(
+    tag,
+    base_url,
+    beta=False,
+    full_release=True,
+):
+    name = tag["name"]
+
+    # Save the response we got from Github, if present
+    if tag:
+        data = obj2dict(tag)
+    else:
+        data = {}
+
+    version, created = Version.objects.with_partials().update_or_create(
+        name=name,
+        defaults={
+            "github_url": f"{base_url}{name}",
+            "beta": beta,
+            "full_release": full_release,
+            "data": data,
+        },
+    )
+    return version, created
+
+
 def _import_missing_versions(
     delete_versions=False, new_versions_only=False, token=None
 ):
@@ -64,21 +90,7 @@ def _import_missing_versions(
             continue
 
         logger.info(f"import_versions importing version {name=}")
-        # Save the response we got from Github, if present
-        if tag:
-            data = obj2dict(tag)
-        else:
-            data = {}
-
-        Version.objects.with_partials().update_or_create(
-            name=name,
-            defaults={
-                "github_url": f"{base_url}{name}",
-                "beta": False,
-                "full_release": True,
-                "data": data,
-            },
-        )
+        _upsert_version_from_tag(tag, base_url)
         r_tags.append(tag)
 
     return r_tags
@@ -115,7 +127,9 @@ def import_versions(
     import_version_task_group = []
     for tag in tags:
         name = tag["name"]
-        import_version_task_group.append(import_version.s(name, tag=tag, token=token))
+        import_version_task_group.append(
+            import_version.s(name, tag=tag, token=token, perform_upsert=False)
+        )
 
     if import_version_task_group:
         task_group = group(*import_version_task_group)
@@ -173,6 +187,7 @@ def import_version(
     full_release=True,
     base_url="https://github.com/boostorg/boost/releases/tag/",
     get_release_date=True,
+    perform_upsert=True,
 ):
     """Imports a single Boost version from Github and updates the local
     database. Also runs import_release_downloads and import_library_versions
@@ -180,22 +195,13 @@ def import_version(
 
     base_url: Most base_url values will be for tags, but we do save some
     Version objects that are branches and not tags (mainly master and develop).
+
+    perform_upsert: in most contexts, this should save the version, but in the import
+    versions workflow we don't want to double save the versions so set this flag to false
     """
     # Save the response we got from Github, if present
-    if tag:
-        data = obj2dict(tag)
-    else:
-        data = {}
-
-    version, created = Version.objects.with_partials().update_or_create(
-        name=name,
-        defaults={
-            "github_url": f"{base_url}{name}",
-            "beta": beta,
-            "full_release": full_release,
-            "data": data,
-        },
-    )
+    if perform_upsert:
+        version, created = _upsert_version_from_tag(tag, base_url, beta, full_release)
 
     logger.info(f"import_versions_version {created=} {name=} {version.pk} ")
 
