@@ -82,7 +82,8 @@ from .tasks import (
     save_rendered_content,
 )
 
-from libraries.models import Library, LibraryVersion
+from libraries.models import Library, LibraryVersion, Tier
+from news.models import Entry
 from libraries.utils import (
     get_commit_data_by_release_for_library,
     commit_data_to_stats_bars,
@@ -157,7 +158,7 @@ class CommunityView(V3Mixin, TemplateView):
                 "quote": "I found a bug",
                 "description": "Find the library you're looking for on GitHub, follow the reporting template and let the author know",
                 "cta_text": "Report it on GitHub",
-                "cta_url": "https://github.com/boostorg",
+                "cta_url": "https://github.com/boostorg/boost",
                 "author": {
                     "name": "Character Name",
                     "role": "Maintainer",
@@ -168,7 +169,7 @@ class CommunityView(V3Mixin, TemplateView):
                 "quote": "I have a general question",
                 "description": "Post on Reddit and engage in casual chat with fellow Boost enthusiasts",
                 "cta_text": "Visit Reddit",
-                "cta_url": "https://www.reddit.com/r/boost/",
+                "cta_url": "https://www.reddit.com/user/boostlibs/",
                 "author": {
                     "name": "Character Name",
                     "role": "Contributor",
@@ -176,49 +177,61 @@ class CommunityView(V3Mixin, TemplateView):
                 },
             },
         ]
+        flagship_libs = (
+            Library.objects.filter(tier=Tier.FLAGSHIP)
+            .prefetch_related("categories")
+            .order_by("name")[:4]
+        )
         ctx["libraries"] = [
             {
-                "name": "Beast",
-                "url": "/library/latest/beast/",
-                "description": "A collection of useful generic algorithms.",
-                "categories": ["Concurrent", "IO"],
-                "cpp_version": "C++ 11",
-            },
-            {
-                "name": "Cobalt",
-                "url": "/library/latest/cobalt/",
-                "description": "Coroutines. Basic Algorithms & Types",
-                "categories": [
-                    "Concurrent",
-                    "Coroutines",
-                    "Awaitables",
-                    "Asynchronous",
-                ],
-                "cpp_version": "C++ 20",
-            },
-            {
-                "name": "JSON",
-                "url": "/library/latest/json/",
-                "description": "JSON parsing, serialization, and DOM",
-                "categories": ["Containers", "Data", "IO"],
-                "cpp_version": "C++ 11",
-            },
-            {
-                "name": "Lib Name",
-                "url": "#",
-                "description": "Lib Description",
-                "categories": ["Containers", "Data", "IO"],
-                "cpp_version": "C++ 11",
-            },
-            {
-                "name": "Lib Name",
-                "url": "#",
-                "description": "Lib Description",
-                "categories": ["Containers", "Data", "IO"],
-                "cpp_version": "C++ 11",
-            },
+                "name": lib.display_name_short,
+                "url": self.request.build_absolute_uri(
+                    reverse(
+                        "library-detail",
+                        kwargs={
+                            "version_slug": LATEST_RELEASE_URL_PATH_STR,
+                            "library_slug": lib.slug,
+                        },
+                    )
+                ),
+                "description": lib.description or "",
+                "categories": [cat.name for cat in lib.categories.all()],
+                "cpp_version": lib.cpp_standard_minimum or "",
+            }
+            for lib in flagship_libs
         ]
-        ctx["posts"] = SharedResources.demo_posts[:4]
+        ctx["libraries_url"] = self.request.build_absolute_uri(
+            reverse(
+                "libraries-list",
+                kwargs={
+                    "version_slug": LATEST_RELEASE_URL_PATH_STR,
+                    "library_view_str": "list",
+                },
+            )
+        )
+        recent_entries = (
+            Entry.objects.published()
+            .select_related("author")
+            .order_by("-publish_at")[:4]
+        )
+        ctx["posts"] = [
+            {
+                "title": entry.title,
+                "url": self.request.build_absolute_uri(entry.get_absolute_url()),
+                "date": entry.publish_at,
+                "category": entry.tag.capitalize() if entry.tag else "",
+                "author": {
+                    "name": entry.author.display_name or entry.author.get_full_name(),
+                    "avatar_url": entry.author.get_avatar_url(),
+                    "role": "",
+                },
+            }
+            for entry in recent_entries
+        ]
+        ctx["news_url"] = self.request.build_absolute_uri(reverse("news"))
+        ctx["contribute_url"] = self.request.build_absolute_uri(
+            "/doc/contributor-guide/contributors-faq.html"
+        )
         ctx["slack_member_count"] = "30,000"
         ctx["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
         ctx["install_card_system_install"] = SharedResources.install_card_system_install
@@ -233,6 +246,14 @@ class CommunityView(V3Mixin, TemplateView):
         ctx["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/v3/community-page/"
             "community-create-account-preview.png"
+        )
+        now = timezone.now()
+        ctx["recent_threads_url"] = (
+            f"https://lists.boost.org/archives/list/boost@lists.boost.org/"
+            f"{now.year}/{now.month}/"
+        )
+        ctx["archive_url"] = (
+            "https://lists.boost.org/archives/list/boost@lists.boost.org/latest"
         )
         return ctx
 
