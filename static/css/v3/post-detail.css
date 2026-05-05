@@ -216,7 +216,7 @@ html.dark .post-detail__related .card-group {
   }
   .post-detail-page {
     gap: var(--space-large);
-    padding: var(--space-large);
+    padding: var(--space-medium);
     padding-bottom: 64px;
   }
   /* Total gap between article body and the first sibling section is
