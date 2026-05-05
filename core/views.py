@@ -1999,7 +1999,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 deps = lv.dependencies.order_by("name")
                 context["dependencies_card_data"] = [
                     {
-                        "name": dep.display_name_short,
+                        "name": dep.name,
                         "url": reverse(
                             "library-detail",
                             kwargs={
