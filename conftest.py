@@ -56,3 +56,8 @@ def ensure_github_token_env_variable():
     if not current_value:
         os.environ[VAR_NAME] = VAR_DEFAULT_VALUE
         print(f"Env variable '{VAR_NAME}' not set. Forced to {VAR_DEFAULT_VALUE=}.")
+
+
+@pytest.fixture(scope="session")
+def celery_config():
+    return {"broker_url": "amqp://", "result_backend": "redis://"}
