@@ -1773,8 +1773,9 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 {"label": "Visit the FAQ", "url": "https://www.example.com"},
             ],
             "url": "https://www.example.com",
-            "label": "Learn more about Boost",
-            "image_src": "/static/img/v3/examples/Learn Card Image.png",
+            "label": "Get started with Boost",
+            "image_src": f"{settings.STATIC_URL}img/v3/examples/Learn_Card_Image.png",
+            "mobile_image_src": f"{settings.STATIC_URL}img/v3/examples/Cheetah_Mobile.png",
         }
 
         context["testimonial_data"] = {

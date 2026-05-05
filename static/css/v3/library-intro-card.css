@@ -42,6 +42,10 @@
   color: var(--color-text-primary, #050816);
 }
 
+.library-intro-card__description {
+  color: var(--color-text-secondary);
+}
+
 .library-intro-card__title-pill {
   display: inline-flex;
   align-items: center;

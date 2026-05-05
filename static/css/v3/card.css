@@ -52,11 +52,14 @@
 }
 
 .card__column {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-large);
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-large);
+  width: 100%;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-medium);
+  letter-spacing: var(--letter-spacing-tight);
 }
 
 .card__header {

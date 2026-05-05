@@ -15,7 +15,7 @@
 }
 
 .learn-card__link-column {
-    gap: var(--space-s);
+    gap: var(--space-default);
 }
 
 @media (max-width: 1280px) {
@@ -44,7 +44,6 @@
 
 .learn-card__title {
     color: var(--color-text-primary);
-
     font-family: var(--font-display);
     font-size: var(--font-size-large);
     font-weight: var(--font-weight-medium);
@@ -53,11 +52,8 @@
 }
 
 .learn-card__text {
-    color: var(--color-text-secondary);
-
     font-family: var(--font-sans);
     font-size: var(--font-size-base);
-    font-weight: var(--font-weight-medium);
     letter-spacing: -0.16px;
 }
 
@@ -90,7 +86,12 @@
     text-decoration-skip-ink: auto;
     text-decoration-thickness: 7.5%;
     text-underline-offset: 15.2%;
-    text-underline-position: from-font;
+    text-underline-position: auto;
+    color: var(--color-text-primary);
+}
+
+.learn-card__link:hover {
+    color: var(--color-text-link-accent);
 }
 
 

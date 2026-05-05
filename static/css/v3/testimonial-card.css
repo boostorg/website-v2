@@ -24,7 +24,7 @@
     font-size: var(--font-size-xl, 32px);
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-tight);
-    letter-spacing: var(--letter-spacing-display-regular);
+    letter-spacing: var(--letter-spacing-tight);
 }
 
 .testimonial-card__text-tail {

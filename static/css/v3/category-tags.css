@@ -5,6 +5,7 @@
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
   line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
   font-weight: var(--font-weight-regular);
   border-radius: var(--border-radius-s);
   text-decoration: none;

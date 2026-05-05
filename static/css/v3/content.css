@@ -83,6 +83,7 @@ a:hover .content-detail-icon:not(.content-detail-icon--contained) {
   margin: 0;
   font-size: var(--font-size-small);
   line-height: var(--line-height-relaxed);
+  letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-secondary);
   padding: 0;
 }

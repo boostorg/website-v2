@@ -29,8 +29,9 @@
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-regular);
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
   line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
   transition:
     color 0.1s ease,
     border-color 0.1s ease;

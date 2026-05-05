@@ -19,7 +19,7 @@
     <p class="library-intro-card__description">{{ description }}</p>
   </div>
   {% for author in authors %}
-    <hr class="library-intro-card__divider">
+    <hr class="card__hr">
     <div class="library-intro-card__author">
       {% include "v3/includes/_user_profile.html" with author=author %}
     </div>

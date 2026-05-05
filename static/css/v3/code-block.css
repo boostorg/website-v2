@@ -39,7 +39,7 @@
   border-radius: var(--border-radius-l);
   overflow: auto;
   font-family: var(--font-code);
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-xs);
   line-height: var(--line-height-code);
   color: var(--code-block-text);
   box-sizing: border-box;
@@ -68,6 +68,8 @@
   font-weight: 500;
   color: var(--color-syntax-cpp-text) !important;
   white-space: break-spaces !important;
+  font-size: inherit;
+  line-height: var(--line-height-code);
 }
 
 /* CTA button in card */
@@ -136,11 +138,6 @@ html.dark .code-block-card--grey {
 .code-block-card__heading {
   margin: 0;
   padding: 0 var(--space-card) var(--space-card) var(--space-card);
-  font-size: var(--font-size-large);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-tight);
-  font-family: var(--font-display);
-  color: var(--color-text-primary);
 }
 
 .code-block-card__description {
@@ -148,7 +145,8 @@ html.dark .code-block-card--grey {
     var(--space-card);
   margin: 0 0 var(--space-medium);
   font-size: var(--font-size-medium);
-  line-height: var(--line-height-relaxed);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-secondary);
 }
 
@@ -163,12 +161,14 @@ html.dark .code-block-card--grey {
   white-space: pre;
   min-height: 1em;
   overflow: hidden;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .code-block__copy {
   position: absolute;
-  top: var(--space-default);
-  right: var(--space-default);
+  top: var(--space-card);
+  right: var(--space-card);
   width: var(--code-block-copy-icon-size);
   height: var(--code-block-copy-icon-size);
   padding: 0;
