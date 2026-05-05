@@ -168,13 +168,67 @@ class CurrentUserProfileView(
                 },
             ],
         }
+        ctx["account_connections_none_connected"] = [
+            {
+                "platform": "github",
+                "label": "GitHub",
+                "connected": False,
+                "status_text": "Not connected",
+                "action_label": "Connect",
+                "action_url": "#",
+            },
+            {
+                "platform": "google",
+                "label": "Google",
+                "connected": False,
+                "status_text": "Not connected",
+                "action_label": "Connect",
+                "action_url": "#",
+            },
+        ]
 
         if self.request.GET.get("filled"):
             ctx["bio"] = dedent(
                 """
+                **Professional Profile**
 
+                I am a software engineer and C++ expert with extensive experience in systems programming and open-source software development. My work focuses on advancing the C++ ecosystem through libraries, tools, and community leadership.
+
+                **Boost Library Author**
+
+                I have authored and maintain several widely-used Boost libraries that are relied upon by developers worldwide. These libraries provide robust, production-ready components for modern C++ applications.
+
+                **President of The C++ Alliance**
+
+                As President of The C++ Alliance, I lead initiatives to support and advance the C++ programming language and its community. The Alliance provides resources, funding, and infrastructure to support C++ development, education, and standardization efforts.
+
+                **Creator of Mr. Docs**
+
+                I created Mr. Docs, a documentation generation tool designed specifically for C++ projects. Mr. Docs helps developers create high-quality, maintainable documentation that keeps pace with modern C++ codebases.
+
+                **My primary technical interests include:**
+
+                * HTTP Protocol: Implementation and optimization of HTTP client and server libraries
+                * WebSocket Protocol: Real-time bidirectional communication protocols and their practical applications
+                * Network Programming: High-performance asynchronous networking solutions in C++
+
+                These interests have shaped my contributions to the C++ ecosystem, particularly in developing libraries that make network programming more accessible and efficient for developers.
             """
             )
+            ctx["contributor_data"] = {
+                "Author": ["Beast", "JSON"],
+                "Maintainer": ["Beast", "Accumulator"],
+                "Contributor": [
+                    "Beast",
+                    "JSON",
+                    "Accumulator",
+                    "Asio",
+                    "Blood",
+                    "Redis",
+                    "MQTT5",
+                ],
+                "Reviews": ["Asio", "Blood (Manager)", "Redis", "MQTT5"],
+            }
             ctx["profile_post_cta_label"] = "View All Posts"
             ctx["profile_post_cta_url"] = "#"
             ctx["achievements_data"] = {
