@@ -72,7 +72,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  padding: var(--space-s);
   background-color: var(--color-surface-strong);
   border-radius: var(--border-radius-l);
   color: var(--color-icon-primary);
