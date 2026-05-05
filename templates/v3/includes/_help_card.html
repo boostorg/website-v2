@@ -18,7 +18,7 @@
 {% endcomment %}
 <section class="help-card-section {% if extra_classes %}{{ extra_classes }}{% endif %}"
          aria-label="{{ aria_label|default:heading }}">
-  <h2 class="help-card-section__heading">{{ heading }}</h2>
+  <h2 class="card__title help-card-section__heading">{{ heading }}</h2>
   <hr class="card__hr" aria-hidden="true" />
   <div class="help-card-section__grid">
     {% for option in items %}

@@ -77,7 +77,7 @@
   font-style: normal;
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-display-regular);
+  letter-spacing: var(--letter-spacing-tight);
   margin: 0;
 }
 

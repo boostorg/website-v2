@@ -23,6 +23,8 @@
 .library-discovery-card__description {
   margin: 0;
   font-size: var(--font-size-small);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-relaxed);
   color: var(--color-text-secondary);
   padding: 0;
   margin-bottom: var(--space-large);

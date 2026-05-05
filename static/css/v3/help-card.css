@@ -18,15 +18,9 @@
 }
 
 .help-card-section__heading {
-  font-family: var(--font-display);
-  font-size: var(--font-size-large);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-  margin: 0;
   width: 100%;
   align-self: flex-start;
   padding: var(--space-large);
-  line-height: var(--line-height-tight);
 }
 
 .help-card-section__grid {
@@ -53,7 +47,7 @@
 .help-card__bubble {
   display: flex;
   height: fit-content;
-  background: var(--color-surface-mid);
+  background: var(--color-surface-strong);
   border-radius: var(--space-large);
   padding: var(--space-large);
 }
@@ -67,7 +61,7 @@
 }
 
 .help-card__tail {
-  fill: var(--color-surface-mid);
+  fill: var(--color-surface-strong);
 }
 
 .help-card__quote {
@@ -80,12 +74,11 @@
 }
 
 .help-card__description {
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-base);
   line-height: var(--line-height-default);
   color: var(--color-text-secondary);
   margin: var(--space-xl) 0 var(--space-large) 0;
   padding: 0;
-  flex: 1;
 }
 
 .help-card__cta {
