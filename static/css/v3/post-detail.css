@@ -72,7 +72,7 @@
 
 .post-detail__body pre,
 .post-detail__body code {
-  font-family: var(--font-mono);
+  font-family: var(--font-code);
   font-size: var(--font-size-small);
 }
 
