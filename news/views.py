@@ -443,7 +443,7 @@ class V3PostDetailView(V3Mixin, TemplateView):
             Entry.objects.published()
             .select_related("author")
             .prefetch_related(*self.AUTHOR_PREFETCH)
-            .filter(publish_at__gt=entry.publish_at)
+            .filter(publish_at__gt=entry.publish_at, deleted_at__isnull=True)
             .exclude(pk=entry.pk)
             .order_by("publish_at")
             .first()
@@ -452,6 +452,7 @@ class V3PostDetailView(V3Mixin, TemplateView):
             Entry.objects.published()
             .select_related("author")
             .prefetch_related(*self.AUTHOR_PREFETCH)
+            .filter(deleted_at__isnull=True)
             .exclude(pk=entry.pk)
         )
         if next_entry is not None:
