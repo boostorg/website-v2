@@ -131,11 +131,13 @@ class CommunityView(V3Mixin, TemplateView):
 
     def get_v3_context_data(self, **kwargs):
         ctx = super().get_v3_context_data(**kwargs)
+        slack_member_count = "24,000+"
+        ctx["slack_member_count"] = slack_member_count
         ctx["help_options"] = [
             {
                 "quote": "I'm stuck on an error",
                 "description": "Visit the CPPLang Slack for fast responses, quick debugging and real-time conversation",
-                "cta_text": "Join Slack 24,000+ members",
+                "cta_text": f"Join Slack {slack_member_count} members",
                 "cta_url": "https://cppalliance.org/slack/",
                 "author": {
                     "name": "Character Name",
@@ -232,7 +234,6 @@ class CommunityView(V3Mixin, TemplateView):
         ctx["contribute_url"] = self.request.build_absolute_uri(
             "/doc/contributor-guide/contributors-faq.html"
         )
-        ctx["slack_member_count"] = "30,000"
         ctx["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
         ctx["install_card_system_install"] = SharedResources.install_card_system_install
         ctx["create_account_card_body_html"] = (
