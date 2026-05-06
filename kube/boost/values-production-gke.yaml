@@ -146,6 +146,21 @@ Env:
         key: key
   - name: MAILGUN_SENDER_DOMAIN
     value: boost.cppalliance.org
+  - name: MAILMAN_REST_API_URL
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: api_url
+  - name: MAILMAN_REST_API_USER
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: api_user
+  - name: MAILMAN_REST_API_PASS
+    valueFrom:
+      secretKeyRef:
+        name: mailman
+        key: api_pass
   - name: MAILMAN_CORE_DATABASE
     valueFrom:
       secretKeyRef:
