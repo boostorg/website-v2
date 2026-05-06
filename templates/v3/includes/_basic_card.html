@@ -1,27 +1,35 @@
 {% comment %}
-  Basic implementation of a card. Can be used on its own, or extended to make other cards
-  Inputs:
-    Title: Required, text that appears bolded at the top of the card
-    Text: Required, text that appears in the middle of the card
-    Theme: Optional, "green", "yellow", or "teal" — applies an accent background colour
-    Primary Button Url, Label, and Style: Optional. Url is the destination of the button, label is the text of the button, style is from the style list
-    Secondary Button Url, Label, and Style: Optional, same use as primary
+  Basic Card — simple header + body + optional CTA buttons.
+
+  Variables:
+    title                  (string, required)
+    text                   (string, required)
+    theme                  (string, optional) — "green", "yellow", or "teal" — applies an accent background colour
+    primary_button_url     (string, optional)  — paired with primary_button_label
+    primary_button_label   (string, optional)
+    secondary_button_url   (string, optional)  — paired with secondary_button_label
+    secondary_button_label (string, optional)
+
+  Usage:
+    {% include "v3/includes/_basic_card.html" with title="..." text="..." primary_button_url="..." primary_button_label="..." %}
 {% endcomment %}
-<div class="basic-card card{% if theme %} basic-card--{{ theme }}{% endif %}">
+<div class="basic-card card {% if theme %}basic-card--{{ theme }}{% endif %} ">
   <div class="card__header">
     <span class="card__title">{{ title }}</span>
   </div>
-  <hr class="card__hr" />
+  <hr class="card__hr" aria-hidden="true" />
   <div class="card__column px-large">
     <span>{{ text }}</span>
   </div>
-  <hr class="card__hr" />
-  <div class="card__cta_section">
-    {% if primary_button_url and primary_button_label %}
-      {% include "v3/includes/_button.html" with style=primary_button_style|default:"primary" url=primary_button_url label=primary_button_label only %}
-    {% endif %}
-    {% if secondary_button_url and secondary_button_label %}
-      {% include "v3/includes/_button.html" with style="secondary" url=secondary_button_url label=secondary_button_label only %}
-    {% endif %}
-  </div>
+  {% if primary_button_url and primary_button_label or secondary_button_url and secondary_button_label %}
+    <hr class="card__hr" aria-hidden="true" />
+    <div class="card__cta_section">
+      {% if primary_button_url and primary_button_label %}
+        {% include "v3/includes/_button.html" with style=primary_button_style|default:"primary" url=primary_button_url label=primary_button_label only %}
+      {% endif %}
+      {% if secondary_button_url and secondary_button_label %}
+        {% include "v3/includes/_button.html" with style="secondary" url=secondary_button_url label=secondary_button_label only %}
+      {% endif %}
+    </div>
+  {% endif %}
 </div>

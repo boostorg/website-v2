@@ -1,0 +1,122 @@
+/**
+ * Community page layout.
+ * BEM naming, semantic tokens with fallbacks.
+ */
+
+/* ── Navbar overlays hero (matches homepage pattern) ──────────── */
+
+body:has(.community-v3) .header {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  right: 0;
+}
+
+/* ── Page container (below full-bleed hero) ───────────────────── */
+
+.community-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: var(--space-large) var(--space-large) var(--space-xxl);
+}
+
+/* ── Masonry layout ───────────────────────────────────────────── */
+
+.community-masonry {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-large);
+  align-items: start;
+}
+
+.community-masonry__help {
+  grid-column: 1 / -1;
+}
+
+.community-masonry__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+}
+
+/* ── Responsive: tablet (2-col) ────────────────────────────── */
+
+@media (max-width: 1279px) {
+  .community-masonry {
+    --community-col-width: 458px;
+
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas:
+      "A A"
+      "B C"
+      "D C"
+      "D E"
+      "D E"
+      "F G"
+      "F H";
+    max-width: fit-content;
+    margin-inline: auto;
+  }
+
+  .community-masonry__cell--libraries .card-group__item:nth-child(n + 4) {
+    display: none;
+  }
+
+  .card,
+  .card-group {
+    max-width: var(--community-col-width);
+    width: 100%;
+  }
+
+  /* Flatten cols so cells become direct grid children (reshuffled via areas) */
+  .community-masonry__col {
+    display: contents;
+  }
+
+  .community-masonry__help {
+    grid-area: A;
+    max-width: calc(var(--community-col-width) * 2 + var(--space-large));
+  }
+  .community-masonry__cell--install {
+    grid-area: B;
+  }
+  .community-masonry__cell--libraries {
+    grid-area: C;
+  }
+  .community-masonry__cell--posts {
+    grid-area: D;
+  }
+  .community-masonry__cell--slack {
+    grid-area: E;
+  }
+  .community-masonry__cell--contribute {
+    grid-area: F;
+  }
+  .community-masonry__cell--mailing {
+    grid-area: G;
+  }
+  .community-masonry__cell--threads {
+    grid-area: H;
+  }
+}
+
+/* ── Responsive: mobile (1-col) ────────────────────────────── */
+
+@media (max-width: 767px) {
+  .community-masonry {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "A"
+      "B"
+      "C"
+      "D"
+      "E"
+      "F"
+      "G"
+      "H";
+  }
+
+  .community-masonry__help {
+    max-width: var(--community-col-width);
+  }
+}

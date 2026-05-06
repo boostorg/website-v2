@@ -40,6 +40,10 @@
   letter-spacing: -0.01em;
 }
 
+.create-account-card__richtext li::marker {
+  font-size: var(--font-size-xs);
+}
+
 .create-account-card__richtext li + li {
   margin-top: var(--space-default, 8px);
 }

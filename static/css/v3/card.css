@@ -77,7 +77,7 @@
   font-style: normal;
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-display-regular);
+  letter-spacing: var(--letter-spacing-tight);
   margin: 0;
 }
 
@@ -99,6 +99,13 @@
 
 .card__cta_section .btn {
   flex: 1 0 0;
+}
+
+.card img {
+  display: block;
+  border-radius: var(--border-radius-l);
+  object-fit: cover;
+  width: 100%;
 }
 
 /* Horizontal card — text + image side by side */

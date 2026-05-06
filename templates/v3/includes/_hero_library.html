@@ -1,11 +1,12 @@
 {% comment %}
   V3 Hero Library: tags, title, description, and doc/source/slack/github links.
-  For use on Library Subpage; pass all required data to avoid placeholder content.
+  Primarily for library subpages, but safe to use elsewhere — the tags row and
+  links row collapse when no relevant data is passed.
 
   Variables:
     title              (optional) — Library name.
     description        (optional) — Short description.
-    category_tags      (optional) — List of dicts with "label" and "url".
+    category_tags      (optional) — List of dicts with "label" and "url". Omit to hide tag chips.
     version_tag        (optional) — e.g. "C++ 03". Omit to hide.
     added_text         (optional) — e.g. "Added in 1.66.0". Omit to hide.
     doc_url            (optional) — Documentation link URL. Omit to hide.
@@ -16,6 +17,10 @@
     hero_background_image_url (optional) — Background image URL for the hero container.
     is_flagship_lib    (optional) — Boolean value stating whether or not this is the hero for a flagship library. If it isn't, styles are a bit different.
 
+  If none of category_tags/version_tag/added_text are passed, the tags row is
+  hidden. If none of doc_url/source_url/slack_url/github_url are passed, the
+  links row is hidden.
+
   Usage:
     {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}
 {% endcomment %}
@@ -25,14 +30,10 @@
   <div class="hero-library__block">
     <div class="hero-library__content">
       <div class="hero-library__meta">
-      {% if category_tags %}
+        {% if category_tags or version_tag or added_text %}
         <div class="hero-library__tags">
           {% for tag in category_tags %}
           {% include "v3/includes/_category_tag.html" with tag_label=tag.label url=tag.url|default:"#" variant="neutral" size="default" %}
-          {% empty %}
-          {% include "v3/includes/_category_tag.html" with tag_label="Concurrent" url="#" variant="neutral" size="default" %}
-          {% include "v3/includes/_category_tag.html" with tag_label="IO" url="#" variant="neutral" size="default" %}
-          {% include "v3/includes/_category_tag.html" with tag_label="Flagship" url="#" variant="neutral" size="default" %}
           {% endfor %}
           {% if version_tag %}
           <span class="version-tag version-tag--default">{{ version_tag }}</span>
@@ -43,7 +44,7 @@
           </div>
           {% endif %}
         </div>
-      {% endif %}
+        {% endif %}
         <div class="hero-library__text-block">
           {% if title %}
           <h1 class="hero-library__title{% if is_flagship_lib %} hero-library__title--flagship
@@ -54,6 +55,7 @@
           {% endif %}
         </div>
       </div>
+      {% if doc_url or source_url or slack_url or github_url %}
       <div class="hero-library__links">
         {% if doc_url %}
         {% include "v3/includes/_button.html" with icon_position="right" label="Documentation" url=doc_url style="icon-library" icon_name="documentation" icon_size=16 icon_viewbox="0 0 16 16" %}
@@ -68,6 +70,7 @@
         {% include "v3/includes/_button.html" with icon_position="right" label="GitHub Issues" url=github_url style="icon-library" icon_name="github-issues" icon_size=16 icon_viewbox="0 0 16 16" %}
         {% endif %}
       </div>
+      {% endif %}
     </div>
     {% if hero_image_url or hero_image_url_light or hero_image_url_dark %}
     <div class="hero-library__image{% if hero_image_url_dark %} hero-library__image--theme-aware{% endif %}">
