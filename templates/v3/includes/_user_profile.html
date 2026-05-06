@@ -25,17 +25,22 @@
 
   <div class="user-profile__content">
     <div class="user-profile__header">
-      {% if author.name %}
-        {% if author.profile_url %}
-          <a href="{{ author.profile_url }}" class="user-profile__name">{{ author.name }}</a>
-        {% else %}
-          <span class="user-profile__name">{{ author.name }}</span>
+      <span class="user-profile__name-group">
+        {% if author.name %}
+          {% if author.profile_url %}
+            <a href="{{ author.profile_url }}" class="user-profile__name">{{ author.name }}</a>
+          {% else %}
+            <span class="user-profile__name">{{ author.name }}</span>
+          {% endif %}
         {% endif %}
-      {% endif %}
+        {% if author.badge|slice:":5" == "star-" %}
+          {% include "v3/includes/_badge_v3.html" with token=author.badge label=author.badge_label size="small" only %}
+        {% endif %}
+      </span>
       {% if author.role %}
         <span class="user-profile__role">{{ author.role }}</span>
       {% endif %}
-      {% if author.badge %}
+      {% if author.badge and author.badge|slice:":5" != "star-" %}
         {% include "v3/includes/_badge_v3.html" with token=author.badge label=author.badge_label size="small" only %}
       {% endif %}
       {% if author.achievement_count %}

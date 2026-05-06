@@ -1798,7 +1798,6 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "role": "Maintainer",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
                 "badge": BadgeToken.STAR_TIER_5,
-                "achievement_count": 22,
                 "bio": "",
             },
             {
@@ -1807,7 +1806,6 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "role": "Author",
                 "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
                 "badge": BadgeToken.BOOST_DAY,
-                "achievement_count": 7,
                 "bio": "Boost Day contributor.",
             },
         ]

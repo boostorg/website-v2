@@ -33,11 +33,14 @@
 
 /* ── Header: flex row with wrap ─────────────── */
 /*
-  Default (no bio): name takes full width,
+  Default (no bio): the name group takes full width,
   forcing role + badge to wrap onto a second line.
 
-  With bio: name shrinks to fit-content,
+  With bio: the name group shrinks to fit-content,
   so all items sit inline on one row.
+
+  The name group keeps the name and any star badge together,
+  so the star always stays next to the name.
 */
 
 .user-profile__header {
@@ -48,11 +51,15 @@
   row-gap: var(--space-s);
 }
 
-.user-profile__name {
+.user-profile__name-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-default);
+  min-width: 0;
   width: 100%;
 }
 
-.user-profile--has-bio .user-profile__name {
+.user-profile--has-bio .user-profile__name-group {
   width: auto;
 }
 
