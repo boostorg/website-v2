@@ -16,6 +16,10 @@
 
   Usage:
     {% include "v3/includes/_header_v3.html" %}
+
+  Note: This header is also rendered inside the iframe on the doc page and is
+  hidden there by core/htmlhelper.py. If you change the .header class name,
+  update the matching HIDE_TAGS_BASE entry in core/htmlhelper.py.
 {% endcomment %}
 <header class="header">
   <div class="header__inner">
