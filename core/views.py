@@ -198,7 +198,11 @@ class CommunityView(V3Mixin, TemplateView):
                 ),
                 "description": lib.description or "",
                 "categories": [cat.name for cat in lib.categories.all()],
-                "cpp_version": lib.cpp_standard_minimum or "",
+                "cpp_version": (
+                    f"C++ {lib.cpp_standard_minimum}"
+                    if lib.cpp_standard_minimum
+                    else ""
+                ),
             }
             for lib in flagship_libs
         ]
