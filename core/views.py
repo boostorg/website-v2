@@ -56,6 +56,7 @@ from .constants import (
     SourceDocType,
     BOOST_LIB_PATH_RE,
     BOOST_VERSION_REGEX,
+    SLACK_MEMBER_COUNT,
     STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES,
 )
 from .htmlhelper import (
@@ -131,13 +132,12 @@ class CommunityView(V3Mixin, TemplateView):
 
     def get_v3_context_data(self, **kwargs):
         ctx = super().get_v3_context_data(**kwargs)
-        slack_member_count = "24,000+"
-        ctx["slack_member_count"] = slack_member_count
+        ctx["slack_member_count"] = SLACK_MEMBER_COUNT
         ctx["help_options"] = [
             {
                 "quote": "I'm stuck on an error",
                 "description": "Visit the CPPLang Slack for fast responses, quick debugging and real-time conversation",
-                "cta_text": f"Join Slack {slack_member_count} members",
+                "cta_text": f"Join Slack {SLACK_MEMBER_COUNT} members",
                 "cta_url": "https://cppalliance.org/slack/",
                 "author": {
                     "name": "Character Name",

@@ -28,6 +28,7 @@ class BadgeToken(StrEnum):
 
 
 SLACK_URL = "https://cpplang.slack.com"
+SLACK_MEMBER_COUNT = "24,000+"
 STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES = ("releases/",)
 # possible library versions are: boost_1_53_0_beta1, 1_82_0, 1_55_0b1
 BOOST_LIB_PATH_RE = re.compile(r"^(boost_){0,1}([0-9_]*[0-9]+[^/]*)/(.*)")
