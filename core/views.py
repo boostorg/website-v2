@@ -56,7 +56,6 @@ from .constants import (
     SourceDocType,
     BOOST_LIB_PATH_RE,
     BOOST_VERSION_REGEX,
-    COMMUNITY_PAGE_PINNED_LIBRARY_SLUGS,
     SLACK_MEMBER_COUNT,
     STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES,
 )
@@ -181,10 +180,9 @@ class CommunityView(V3Mixin, TemplateView):
                 },
             },
         ]
+        site_settings = SiteSettings.load()
         pinned_libs = list(
-            Library.objects.filter(
-                tier=Tier.FLAGSHIP, slug__in=COMMUNITY_PAGE_PINNED_LIBRARY_SLUGS
-            ).prefetch_related("categories")
+            site_settings.pinned_community_libraries.prefetch_related("categories")
         )
         pinned_slugs = [lib.slug for lib in pinned_libs]
         remaining_slots = libraries_shown_in_community_page - len(pinned_libs)

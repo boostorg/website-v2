@@ -29,11 +29,6 @@ class BadgeToken(StrEnum):
 
 SLACK_URL = "https://cpplang.slack.com"
 SLACK_MEMBER_COUNT = "24,000+"
-
-# Slugs of flagship libraries that are always shown on the community page.
-# Remaining slots (up to 4 total) are filled randomly from flagship libraries.
-# TODO: replace with an admin-configurable ManyToMany field on a site settings model.
-COMMUNITY_PAGE_PINNED_LIBRARY_SLUGS: list[str] = []
 STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES = ("releases/",)
 # possible library versions are: boost_1_53_0_beta1, 1_82_0, 1_55_0b1
 BOOST_LIB_PATH_RE = re.compile(r"^(boost_){0,1}([0-9_]*[0-9]+[^/]*)/(.*)")
