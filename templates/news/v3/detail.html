@@ -13,6 +13,11 @@
 {% block content %}
   <div class="post-detail-page">
     <article class="post-detail">
+      {% if object.deleted_at %}
+        <div class="post-detail__deleted-notice" role="status">
+          Entry deleted on {{ object.deleted_at|date:"m/d/Y" }}{% if object.deleted_by %} by {{ object.deleted_by.display_name }}{% endif %}.
+        </div>
+      {% endif %}
       {% include "v3/includes/_post_header.html" with title=object.title publish_date=object.publish_at tag=post_tag author=post_author %}
 
       {% if object.image %}

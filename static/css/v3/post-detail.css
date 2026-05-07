@@ -21,6 +21,17 @@
   gap: var(--space-xl);
 }
 
+.post-detail__deleted-notice {
+  padding: var(--space-default) var(--space-large);
+  border: 1px solid var(--color-stroke-error);
+  border-radius: var(--border-radius-m);
+  background: var(--color-surface-error-weak);
+  color: var(--color-text-error);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-tight);
+}
+
 .post-detail__figure {
   margin: 0;
 }

@@ -445,7 +445,7 @@ class V3PostDetailView(V3Mixin, TemplateView):
             .prefetch_related(*self.AUTHOR_PREFETCH)
             .filter(publish_at__gt=entry.publish_at, deleted_at__isnull=True)
             .exclude(pk=entry.pk)
-            .order_by("publish_at")
+            .order_by("publish_at", "pk")
             .first()
         )
         related_qs = (
@@ -466,7 +466,8 @@ class V3PostDetailView(V3Mixin, TemplateView):
                 [self._post_card_item(next_entry)] if next_entry else []
             ),
             "related_posts": [
-                self._post_card_item(e) for e in related_qs.order_by("-publish_at")[:3]
+                self._post_card_item(e)
+                for e in related_qs.order_by("-publish_at", "-pk")[:3]
             ],
         }
 
