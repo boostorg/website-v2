@@ -1,14 +1,17 @@
+/* ──────── Top Level Container ──────── */
 .user-profile__container {
     margin-top: var(--space-xl);
-    padding: 0 var(--space-large)
+    padding: 0 var(--space-large);
 }
+
+/* ──────── Header row, including profile card and buttons ──────── */
 
 .user-profile__profile-card-row {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     margin-bottom: var(--space-large);
-    align-content: flex-end;
+    align-items: flex-end;
 }
 
 .user-profile__button-group {
@@ -21,112 +24,53 @@
     flex-wrap: wrap;
 }
 
+/* ──────── Two Row Card Display ──────── */
+
 .user-profile__profile-content-area {
     display: grid;
-    grid-template-columns: repeat(2, 50%);
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-large);
     margin-bottom: var(--space-xl);
-    gap: var(--space-medium);
 }
+
+
+.user-profile__col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-large);
+}
+
+/* ──────── Override card width to fill columns ────────*/
 
 .user-profile__profile-content-area .card,
 .user-profile__profile-content-area .card-group {
     max-width: 100%;
 }
 
-.user-profile__profile-content-column--left {
-    display: grid;
-    gap: var(--space-medium);
-    grid-template-areas:
-        "bio"
-        "github"
-        "mailing-list"
-    ;
-    height: fit-content;
-}
-
-.user-profile__profile-content-column--right {
-    display: grid;
-    grid-template-rows: auto auto auto;
-    gap: var(--space-medium);
-    grid-template-areas:
-        "achievements"
-        "badges"
-        "posts"
-        "connections"
-    ;
-    height: fit-content;
-}
-
-.user-profile__profile-content-column .user-profile__bio {
-    grid-area: bio;
-}
-
-.user-profile__profile-content-column .user-profile__achievements {
-    grid-area: achievements;
-}
-
-.user-profile__profile-content-column .user-profile__badges {
-    grid-area: badges;
-}
-
-.user-profile__profile-content-column .user-profile__github {
-    grid-area: github;
-}
-
-.user-profile__profile-content-column .user-profile__posts {
-    grid-area: posts;
-}
-
-.user-profile__profile-content-column .user-profile__mailing-list {
-    grid-area: mailing-list;
-}
-
-.user-profile__profile-content-column .user-profile__connections {
-    grid-area: connections;
-}
-
-
-.user-profile__profile-content-column--left .user-profile__achievements,
-.user-profile__profile-content-column--left .user-profile__badges,
-.user-profile__profile-content-column--left .user-profile__posts,
-.user-profile__profile-content-column--left .user-profile__connections {
-    display: none;
-}
-
-@media (max-width: 768px) {
+@media (max-width: 767px) {
+    /* ──────── Stack header row on mobile ──────── */
     .user-profile__profile-card-row {
         flex-direction: column;
         gap: var(--space-xl);
     }
 
-
-    .user-profile__profile-content-column--left .user-profile__achievements,
-    .user-profile__profile-content-column--left .user-profile__badges,
-    .user-profile__profile-content-column--left .user-profile__posts,
-    .user-profile__profile-content-column--left .user-profile__connections {
-        display: block;
-    }
-
+    /* ──────── Collapse to one column on mobile ──────── */
     .user-profile__profile-content-area {
-        grid-template-columns: 100%;
+        grid-template-columns: 1fr;
     }
 
-    .user-profile__profile-content-column--right {
-        display: none;
+    /* Lift the column wrappers out of the layout so the cards become
+       direct grid children and `order` can interleave them in the
+       single-column cascade. */
+    .user-profile__col {
+        display: contents;
     }
 
-    .user-profile__profile-content-column--left {
-        display: grid;
-        gap: var(--space-medium);
-        grid-template-areas:
-            "bio"
-            "achievements"
-            "badges"
-            "github"
-            "posts"
-            "mailing-list"
-            "connections"
-        ;
-        height: fit-content;
-    }
+    .user-profile__bio          { order: 1; }
+    .user-profile__achievements { order: 2; }
+    .user-profile__badges       { order: 3; }
+    .user-profile__github       { order: 4; }
+    .user-profile__posts        { order: 5; }
+    .user-profile__mailing-list { order: 6; }
+    .user-profile__connections  { order: 7; }
 }
