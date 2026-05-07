@@ -29,6 +29,7 @@ from django.views.generic.detail import SingleObjectMixin
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
 
 from core.mixins import V3Mixin
+from users.profile_cards import user_profile_card
 from .acl import can_approve
 from .constants import NEWS_APPROVAL_SALT, MAGIC_LINK_EXPIRATION
 from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
@@ -460,7 +461,7 @@ class V3PostDetailView(V3Mixin, TemplateView):
 
         return {
             "object": entry,
-            "post_author": self._author_card(entry.author),
+            "post_author": user_profile_card(entry.author),
             "post_tag": self.TAG_LABELS.get(entry.tag, entry.tag),
             "next_post_items": (
                 [self._post_card_item(next_entry)] if next_entry else []
@@ -472,34 +473,14 @@ class V3PostDetailView(V3Mixin, TemplateView):
         }
 
     @staticmethod
-    def _author_card(author):
-        # Truthiness checks (rather than .exists() / .first() with kwargs)
-        # so prefetch_related caches are reused — see queryset setup below.
-        is_maintainer = bool(author.maintainers.all())
-        badges = list(author.badges.all())
-        badge = badges[0] if badges else None
-        badge_url = (
-            f"{settings.STATIC_URL}img/v3/badges/badge-{badge.name}.png"
-            if badge and badge.name
-            else ""
-        )
-        return {
-            "name": author.display_name,
-            "profile_url": author.github_profile_url or "",
-            "role": "Maintainer" if is_maintainer else "Contributor",
-            "avatar_url": author.get_avatar_url(),
-            "badge_url": badge_url,
-        }
-
-    @classmethod
-    def _post_card_item(cls, entry):
+    def _post_card_item(entry):
         return {
             "title": entry.title,
             "description": entry.summary or "",
             "url": reverse("v3-news-detail", args=[entry.slug]),
             "date": entry.publish_at,
             "tag": entry.tag,
-            "author": cls._author_card(entry.author),
+            "author": user_profile_card(entry.author),
         }
 
 
