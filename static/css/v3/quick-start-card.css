@@ -47,7 +47,8 @@
   font-family: var(--font-sans);
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-default);
+  line-height: 124%;
+  letter-spacing: -0.14px;
   transition: color 0.15s ease;
 }
 
