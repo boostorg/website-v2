@@ -7,6 +7,10 @@
 
   Variables:
     filter_id  (required) — unique ID for the modal (e.g. "library-filter")
+    clear_url  (optional) — href used by the "Clear All" link as a JS-disabled fallback;
+                            with JS, click is intercepted and calls the surrounding Alpine
+                            component's `clearAll()` method (which is expected to reset
+                            parent state and dispatch `clear-all-filters` to fields).
     fields     (required) — list of field dicts, each with:
       type            — "dropdown" (default), "combo", or "combo_multi"
       name            — input name attribute
@@ -14,6 +18,7 @@
       options         — list of (value, label) 2-tuples
       selected        — pre-selected value (dropdown/combo)
       selected_values — list of pre-selected values (combo_multi)
+      default         — value to reset to when the clear button is clicked (dropdown only)
       width           — "narrow" | "wide" (omit for default)
       placeholder     — placeholder text for search bar (combo/combo_multi only)
 
@@ -48,16 +53,21 @@
         {% with width=field.width|default:"default" %}
           {% with field_class="library-filter__field library-filter__field-"|add:width %}
             {% if field.type == "combo_multi" %}
-              {% include "v3/includes/_field_combo_multi.html" with name=field.name label=field.label options=field.options selected_values=field.selected_values placeholder=field.placeholder extra_class=field_class %}
+              {% include "v3/includes/_field_combo_multi.html" with name=field.name label=field.label options=field.options selected_values=field.selected_values placeholder=field.placeholder extra_class=field_class show_clear_button="true" %}
             {% elif field.type == "combo" %}
               {% include "v3/includes/_field_combo.html" with name=field.name label=field.label options=field.options selected=field.selected placeholder=field.placeholder extra_class=field_class %}
             {% else %}
-              {% include "v3/includes/_field_dropdown.html" with name=field.name label=field.label options=field.options selected=field.selected extra_class=field_class %}
+              {% include "v3/includes/_field_dropdown.html" with name=field.name label=field.label options=field.options selected=field.selected default=field.default extra_class=field_class show_clear_button="true" %}
             {% endif %}
           {% endwith %}
         {% endwith %}
       {% endfor %}
-      {% include "v3/includes/_button.html" with label="Filter" icon_position="right" icon_name="arrow-right" icon_size=16 type="submit" js_disabled=True only %}
+      <noscript>
+        {% include "v3/includes/_button.html" with label="Filter" icon_position="right" icon_name="arrow-right" icon_size=16 type="submit" js_disabled=True only %}
+      </noscript>
+      <div class="library-filter__clear-all" @click.prevent="clearAll()">
+        {% include "v3/includes/_button.html" with label="Clear All" style="primary" url=clear_url %}
       </div>
+    </div>
   </div>
 </div>

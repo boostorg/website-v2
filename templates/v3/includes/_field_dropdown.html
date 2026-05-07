@@ -6,22 +6,26 @@
     placeholder (optional) — placeholder text when nothing selected
     options     (required) — list of (value, label) 2-tuples (e.g. from TextChoices.choices)
     selected    (optional) — value of the pre-selected option
+    default     (optional) — value to reset to when the clear button is clicked (defaults to '')
     help_text   (optional) — help text below the field
     error        (optional) — error message (activates error state)
     alpine_error (optional) — Alpine expression for dynamic error binding (e.g. "errors.post_type")
     required    (optional) — if truthy, adds required attribute
     extra_class (optional) — additional classes on the wrapper
+    show_clear_button (optional) — if truthy, shows a clear (X) button when a value is selected
   Usage:
     {% include "v3/includes/_field_dropdown.html" with name="country" label="Country" options=country_options placeholder="Select a country" %}
 {% endcomment %}
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
      {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
+     @clear-all-filters.window="clear()"
   {# djlint:off #}
      x-data="{
        jsReady: false,
        open: false,
        selected: '{{ selected|default:'' }}',
        selectedLabel: '',
+       defaultValue: '{{ default|default:'' }}',
        init() {
          this.jsReady = true;
          if (this.selected) {
@@ -37,6 +41,22 @@
          this.open = false;
          this.$refs.trigger.focus();
          this.$dispatch('field-change', { name: '{{ name }}', value, label });
+       },
+       clear() {
+         // No-op if already at default — avoids redundant field-change
+         // events (and, for view-style dropdowns whose change triggers
+         // navigation, an unnecessary page reload).
+         if (this.selected === this.defaultValue) return;
+         let label = '';
+         if (this.defaultValue) {
+           const opts = this.$refs.list.querySelectorAll('[data-value]');
+           opts.forEach(el => {
+             if (el.dataset.value === this.defaultValue) label = el.dataset.label;
+           });
+         }
+         this.selected = this.defaultValue;
+         this.selectedLabel = label;
+         this.$dispatch('field-change', { name: '{{ name }}', value: this.defaultValue, label });
        }
      }">
   {# djlint:on #}
@@ -54,17 +74,20 @@
       <option value="{{ value }}"{% if value == selected %} selected{% endif %}>{{ label }}</option>
     {% endfor %}
   </select>
-  <div class="dropdown" :class="{ 'dropdown--open': open }" x-cloak>
-    <button type="button"
-            class="dropdown__trigger"
-            x-ref="trigger"
-            @click="open = !open"
-            @keydown.escape.prevent="open = false"
-            @keydown.arrow-down.prevent="open = true; $nextTick(() => $refs.list.querySelector('[role=option]')?.focus())"
-            :aria-expanded="open"
-            aria-haspopup="listbox"
-            {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
-            {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}>
+  <div class="dropdown" :class="{ 'dropdown--open': open{% if show_clear_button %}, 'dropdown--has-value': selected && selected !== defaultValue{% endif %} }" x-cloak>
+    <div class="dropdown__trigger"
+         role="button"
+         tabindex="0"
+         x-ref="trigger"
+         @click="open = !open"
+         @keydown.enter.prevent="open = !open"
+         @keydown.space.prevent="open = !open"
+         @keydown.escape.prevent="open = false"
+         @keydown.arrow-down.prevent="open = true; $nextTick(() => $refs.list.querySelector('[role=option]')?.focus())"
+         :aria-expanded="open"
+         aria-haspopup="listbox"
+         {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
+         {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}>
       <span class="dropdown__trigger-text"
             x-show="selected"
             x-text="selectedLabel"
@@ -72,7 +95,18 @@
       <span class="dropdown__trigger-text dropdown__trigger-placeholder"
             x-show="!selected">{{ placeholder|default:"Select..." }}</span>
       {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
-    </button>
+      {% if show_clear_button %}
+      <button type="button"
+              class="dropdown__clear-btn"
+              @click.stop="clear()"
+              x-show="selected !== defaultValue"
+              x-cloak
+              aria-label="Clear selection"
+              tabindex="-1">
+        {% include "includes/icon.html" with icon_name="close" icon_class="dropdown__clear-icon" %}
+      </button>
+      {% endif %}
+    </div>
     <div class="dropdown__panel"
          x-show="open"
          @click.away="open = false"

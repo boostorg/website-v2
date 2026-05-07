@@ -164,6 +164,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                     ("grading", "Grading"),
                 ],
                 "selected": view_str,
+                "default": "list",
                 "width": "category",
             },
             {
@@ -172,6 +173,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "label": "Grading",
                 "options": grading_options,
                 "selected": request_get.get("grading", "all"),
+                "default": "all",
                 "width": "wide",
             },
             {
@@ -180,6 +182,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "label": "Min. C++ Version",
                 "options": cpp_options,
                 "selected": request_get.get("min_cpp", "all"),
+                "default": "all",
                 "width": "narrow",
             },
             {
@@ -188,6 +191,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "label": "Max. C++ Version",
                 "options": cpp_options,
                 "selected": request_get.get("max_cpp", "all"),
+                "default": "all",
                 "width": "narrow",
             },
             {
@@ -199,8 +203,33 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "width": "wide",
                 "placeholder": "Search",
             },
+            {
+                "type": "dropdown",
+                "name": "sort",
+                "label": "Sort by",
+                "options": [
+                    ("alphabetical", "Alphabetical"),
+                    ("popularity", "Most Popular"),
+                    ("recently_updated", "Recently updated"),
+                    ("release_date", "Release date"),
+                ],
+                "selected": request_get.get("sort", "alphabetical"),
+                "default": "alphabetical",
+            },
         ]
         context["library_view_str"] = view_str
+        context["library_filter_defaults"] = {
+            f["name"]: f["default"]
+            for f in context["library_filter_fields"]
+            if "default" in f
+        }
+        context["library_filter_clear_url"] = reverse(
+            "libraries-list",
+            kwargs={
+                "version_slug": self.kwargs.get("version_slug"),
+                "library_view_str": "list",
+            },
+        )
 
         # Compact JSON payload for client-side filtering on list/grid views.
         context["library_dataset"] = [

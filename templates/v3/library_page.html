@@ -18,6 +18,7 @@ Inputs:
 
 {% block content %}
   {{ library_dataset|json_script:"library-data" }}
+  {{ library_filter_defaults|json_script:"library-filter-defaults" }}
   <script>
     /* Defined inline so the factory is on window before Alpine evaluates x-data
        on this page — defer-script load ordering can otherwise race Alpine.start. */
@@ -28,9 +29,10 @@ Inputs:
       }
       return {
         dataset: [],
-        grading: 'all',
-        minCpp: 'all',
-        maxCpp: 'all',
+        defaults: {},
+        grading: '',
+        minCpp: '',
+        maxCpp: '',
         categories: [],
         query: '',
         visibleCount: 0,
@@ -39,10 +41,13 @@ Inputs:
           const payload = document.getElementById('library-data');
           this.dataset = payload ? JSON.parse(payload.textContent) : [];
 
+          const defaultsEl = document.getElementById('library-filter-defaults');
+          this.defaults = defaultsEl ? JSON.parse(defaultsEl.textContent) : {};
+
           const params = new URLSearchParams(window.location.search);
-          this.grading = params.get('grading') || 'all';
-          this.minCpp = params.get('min_cpp') || 'all';
-          this.maxCpp = params.get('max_cpp') || 'all';
+          this.grading = params.get('grading') || this.defaults.grading;
+          this.minCpp = params.get('min_cpp') || this.defaults.min_cpp;
+          this.maxCpp = params.get('max_cpp') || this.defaults.max_cpp;
           this.categories = params.getAll('category');
           this.query = params.get('q') || '';
 
@@ -101,11 +106,23 @@ Inputs:
           this.toggleEmptyState();
         },
 
+        clearAll() {
+          // Reset parent state first so subsequent field-change events from
+          // each field hit an already-clean parent — every syncUrl call then
+          // writes the same URL and there's no flicker.
+          this.grading = this.defaults.grading;
+          this.minCpp = this.defaults.min_cpp;
+          this.maxCpp = this.defaults.max_cpp;
+          this.categories = [];
+          this.apply();
+          this.$dispatch('clear-all-filters');
+        },
+
         syncUrl() {
           const params = new URLSearchParams();
-          if (this.grading !== 'all') params.set('grading', this.grading);
-          if (this.minCpp !== 'all') params.set('min_cpp', this.minCpp);
-          if (this.maxCpp !== 'all') params.set('max_cpp', this.maxCpp);
+          if (this.grading !== this.defaults.grading) params.set('grading', this.grading);
+          if (this.minCpp !== this.defaults.min_cpp) params.set('min_cpp', this.minCpp);
+          if (this.maxCpp !== this.defaults.max_cpp) params.set('max_cpp', this.maxCpp);
           this.categories.forEach((c) => params.append('category', c));
           if (this.query) params.set('q', this.query);
           const search = params.toString();
@@ -176,7 +193,7 @@ Inputs:
       </section>
     <form action="" method="get">
       <div id="library-page-filter-container" class="mb-xl">
-        {% include 'v3/includes/_library_filter.html' with filter_id='library-page-filter' fields=library_filter_fields %}
+        {% include 'v3/includes/_library_filter.html' with filter_id='library-page-filter' fields=library_filter_fields clear_url=library_filter_clear_url %}
       </div>
     </form>
     {% if library_view_str == 'list' %}
