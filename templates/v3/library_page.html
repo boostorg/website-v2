@@ -32,6 +32,7 @@ Inputs:
         minCpp: 'all',
         maxCpp: 'all',
         categories: [],
+        query: '',
         visibleCount: 0,
 
         init() {
@@ -43,12 +44,14 @@ Inputs:
           this.minCpp = params.get('min_cpp') || 'all';
           this.maxCpp = params.get('max_cpp') || 'all';
           this.categories = params.getAll('category');
+          this.query = params.get('q') || '';
 
           this.$el.addEventListener('field-change', (event) => {
             const { name, value } = event.detail;
             if (name === 'grading') this.grading = value || 'all';
             else if (name === 'min_cpp') this.minCpp = value || 'all';
             else if (name === 'max_cpp') this.maxCpp = value || 'all';
+            else if (name === 'q') this.query = value || '';
             else if (name === 'view') {
               this.handleViewChange(value);
               return;
@@ -104,6 +107,7 @@ Inputs:
           if (this.minCpp !== 'all') params.set('min_cpp', this.minCpp);
           if (this.maxCpp !== 'all') params.set('max_cpp', this.maxCpp);
           this.categories.forEach((c) => params.append('category', c));
+          if (this.query) params.set('q', this.query);
           const search = params.toString();
           window.history.replaceState(null, '', window.location.pathname + (search ? '?' + search : ''));
         },
@@ -124,6 +128,16 @@ Inputs:
         },
 
         matches(data) {
+          if (this.query.trim()) {
+            const haystack = [
+              data.name,
+              data.description,
+              ...(data.category_names || []),
+              ...(data.author_names || []),
+            ].join(' ').toLowerCase();
+            const tokens = this.query.toLowerCase().split(/\s+/).filter(Boolean);
+            if (!tokens.every((t) => haystack.includes(t))) return false;
+          }
           if (this.grading !== 'all' && data.tier !== this.grading) return false;
           if (this.minCpp !== 'all' && cppNum(data.cpp_min) < cppNum(this.minCpp)) return false;
           if (this.maxCpp !== 'all' && cppNum(data.cpp_min) > cppNum(this.maxCpp)) return false;
@@ -153,7 +167,7 @@ Inputs:
     <section class="library-page-hero" aria-label="Hero">
           <h1 class="hero-title">Find a battle-tested library for the problem you're solving right now.</h1>
           <div class="hero-search-bar">
-            {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' %}
+            {% include 'v3/includes/_field_text.html' with label='Search' name='q' value=library_search_query placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' submit_label='Search' dispatch_field_change=True %}
           </div>
           <div class="hero-image-container">
             <img alt="Excited Cartoon Mascot" class="hero-image hero-image-light" src="{% large_static 'img/v3/solo-images/beaver-black-and-white.png' %}" loading="lazy" decoding="async" />

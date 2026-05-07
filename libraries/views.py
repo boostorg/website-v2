@@ -206,7 +206,13 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         context["library_dataset"] = [
             {
                 "slug": lv.library.slug,
+                "name": lv.library.name,
+                "description": lv.description or lv.library.description or "",
                 "category_slugs": [c.slug for c in lv.library.categories.all()],
+                "category_names": [c.name for c in lv.library.categories.all()],
+                "author_names": [
+                    a.display_name for a in lv.authors.all() if a.display_name
+                ],
                 "cpp_min": lv.cpp_standard_minimum or "",
                 "tier": (
                     Tier(lv.library.tier).label.lower()
@@ -216,6 +222,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
             }
             for lv in (queryset or [])
         ]
+        context["library_search_query"] = self.request.GET.get("q", "")
         return context
 
     def render_v3_response(self):

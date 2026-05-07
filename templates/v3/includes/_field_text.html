@@ -4,7 +4,7 @@
     name             (required) — input name attribute
     label            (optional) — label text
     placeholder      (optional) — placeholder text
-    value            (optional) — pre-filled value
+    value            (optional) — pre-filled value; with submit_icon, also seeds the Alpine x-model state so it survives init
     type             (optional) — input type, default "text"
     help_text        (optional) — help text below the field
     error            (optional) — static server-side error message, rendered on page load
@@ -16,6 +16,9 @@
     icon_right       (optional) — icon name for a decorative right-slot icon (non-interactive); mutually exclusive with submit_icon
     submit_icon      (optional) — icon name for a submit button in the right slot (e.g. "arrow-right")
     submit_label     (optional) — aria-label for the submit button, default "Submit"
+    dispatch_field_change (optional) — when truthy (requires submit_icon), dispatches a debounced
+                       `field-change` event (`{ name, value }`) on each keystroke, matching the
+                       dropdown/combo pattern so parent filter components can react live.
     required         (optional) — if truthy, adds required attribute
     disabled         (optional) — if truthy, adds disabled attribute
     extra_class      (optional) — additional classes on the wrapper
@@ -57,7 +60,7 @@
   {# djlint:on #}
   {% if label %}<label class="field__label" for="field-{{ name }}">{{ label }}</label>{% endif %}
   <div class="field__control{% if disabled %} field__control--disabled{% endif %}"
-       {% if submit_icon %}x-data="{ q: '' }"{% endif %}>
+       {% if submit_icon %}x-data="{ q: '{{ value|default:''|escapejs }}' }"{% endif %}>
     {% if icon_left %}
       <span class="field__icon" aria-hidden="true">
         {% include "includes/icon.html" with icon_name=icon_left icon_class="field__icon" %}
@@ -79,7 +82,7 @@
            {% elif help_text %}
            aria-describedby="field-{{ name }}-help"
            {% endif %}
-           {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q"{% endif %}>
+           {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q"{% if dispatch_field_change %} @input.debounce.150ms="$dispatch('field-change', { name: '{{ name }}', value: q })"{% endif %}{% endif %}>
     {% if submit_icon %}
       <button type="submit"
               class="field__submit"
