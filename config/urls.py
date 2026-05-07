@@ -183,8 +183,14 @@ urlpatterns = (
         path("asciidoctor_sandbox/", include("asciidoctor_sandbox.urls")),
         path(
             "community/",
-            CommunityView.as_view(),
+            RedirectView.as_view(pattern_name="community-version", permanent=False),
+            kwargs={"version_slug": "latest"},
             name="community",
+        ),
+        path(
+            "community/<boostversionslug:version_slug>/",
+            CommunityView.as_view(),
+            name="community-version",
         ),
         # Boost community calendar
         path("calendar/", CalendarView.as_view(), name="calendar"),

@@ -181,7 +181,7 @@ class CommunityView(V3Mixin, TemplateView):
                 },
             },
         ]
-        version_slug = get_prioritized_version(self.request)
+        version_slug = self.kwargs.get("version_slug", LATEST_RELEASE_URL_PATH_STR)
         if version_slug == LATEST_RELEASE_URL_PATH_STR:
             selected_version = Version.objects.most_recent()
         else:
@@ -252,7 +252,7 @@ class CommunityView(V3Mixin, TemplateView):
                         reverse(
                             "library-detail",
                             kwargs={
-                                "version_slug": LATEST_RELEASE_URL_PATH_STR,
+                                "version_slug": version_slug,
                                 "library_slug": lib.slug,
                             },
                         )
@@ -267,7 +267,7 @@ class CommunityView(V3Mixin, TemplateView):
             reverse(
                 "libraries-list",
                 kwargs={
-                    "version_slug": LATEST_RELEASE_URL_PATH_STR,
+                    "version_slug": version_slug,
                     "library_view_str": "list",
                 },
             )
