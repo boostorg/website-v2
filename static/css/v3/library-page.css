@@ -1,5 +1,24 @@
+.v3-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.v3-container > .min-vh-110 {
+    flex: 1 0 auto;
+    min-height: 0;
+}
+
 .library-page__container {
     padding: 0 var(--space-large);
+}
+
+.library-page__empty-state {
+    padding: var(--space-xl) var(--space-large);
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-medium);
 }
 
 /*

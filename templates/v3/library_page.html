@@ -17,7 +17,139 @@ Inputs:
 {% endblock %}
 
 {% block content %}
-  <div class="library-page__container">
+  {{ library_dataset|json_script:"library-data" }}
+  <script>
+    /* Defined inline so the factory is on window before Alpine evaluates x-data
+       on this page — defer-script load ordering can otherwise race Alpine.start. */
+    window.libraryFilter = function () {
+      function cppNum(value) {
+        const n = parseInt(value, 10);
+        return Number.isFinite(n) ? n : 0;
+      }
+      return {
+        dataset: [],
+        grading: 'all',
+        minCpp: 'all',
+        maxCpp: 'all',
+        categories: [],
+        visibleCount: 0,
+
+        init() {
+          const payload = document.getElementById('library-data');
+          this.dataset = payload ? JSON.parse(payload.textContent) : [];
+
+          const params = new URLSearchParams(window.location.search);
+          this.grading = params.get('grading') || 'all';
+          this.minCpp = params.get('min_cpp') || 'all';
+          this.maxCpp = params.get('max_cpp') || 'all';
+          this.categories = params.getAll('category');
+
+          this.$el.addEventListener('field-change', (event) => {
+            const { name, value } = event.detail;
+            if (name === 'grading') this.grading = value || 'all';
+            else if (name === 'min_cpp') this.minCpp = value || 'all';
+            else if (name === 'max_cpp') this.maxCpp = value || 'all';
+            else if (name === 'view') {
+              this.handleViewChange(value);
+              return;
+            } else return;
+            this.apply();
+          });
+
+          this.observeCategorySelections();
+          this.apply();
+        },
+
+        handleViewChange(value) {
+          if (!value) return;
+          const url = new URL(window.location.href);
+          const segments = url.pathname.replace(/\/$/, '').split('/');
+          const i = segments.findIndex((s) =>
+            ['list', 'grid', 'categorized', 'grading'].includes(s)
+          );
+          if (i !== -1) {
+            segments[i] = value;
+            url.pathname = segments.join('/') + '/';
+            window.location.assign(url.toString());
+          }
+        },
+
+        observeCategorySelections() {
+          const form = this.$el.querySelector('form') || this.$el;
+          const read = () => {
+            const inputs = form.querySelectorAll('input[type="hidden"][name="category"]');
+            const next = Array.from(inputs).map((el) => el.value).filter(Boolean);
+            const changed =
+              next.length !== this.categories.length ||
+              next.some((v, i) => v !== this.categories[i]);
+            if (changed) {
+              this.categories = next;
+              this.apply();
+            }
+          };
+          this.$nextTick(read);
+          new MutationObserver(read).observe(form, { childList: true, subtree: true });
+        },
+
+        apply() {
+          this.syncUrl();
+          this.toggleItems();
+          this.toggleEmptySections();
+          this.toggleEmptyState();
+        },
+
+        syncUrl() {
+          const params = new URLSearchParams();
+          if (this.grading !== 'all') params.set('grading', this.grading);
+          if (this.minCpp !== 'all') params.set('min_cpp', this.minCpp);
+          if (this.maxCpp !== 'all') params.set('max_cpp', this.maxCpp);
+          this.categories.forEach((c) => params.append('category', c));
+          const search = params.toString();
+          window.history.replaceState(null, '', window.location.pathname + (search ? '?' + search : ''));
+        },
+
+        toggleItems() {
+          const bySlug = new Map(this.dataset.map((d) => [d.slug, d]));
+          const items = document.querySelectorAll('[data-slug]');
+          let visible = 0;
+          items.forEach((el) => {
+            const data = bySlug.get(el.dataset.slug);
+            const show = data ? this.matches(data) : true;
+            // Inline style beats the `[hidden]` attribute, which is overridden
+            // by .library-item--list / --card's `display: grid`.
+            el.style.display = show ? '' : 'none';
+            if (show) visible += 1;
+          });
+          this.visibleCount = visible;
+        },
+
+        matches(data) {
+          if (this.grading !== 'all' && data.tier !== this.grading) return false;
+          if (this.minCpp !== 'all' && cppNum(data.cpp_min) < cppNum(this.minCpp)) return false;
+          if (this.maxCpp !== 'all' && cppNum(data.cpp_min) > cppNum(this.maxCpp)) return false;
+          if (this.categories.length > 0) {
+            const hit = data.category_slugs.some((s) => this.categories.includes(s));
+            if (!hit) return false;
+          }
+          return true;
+        },
+
+        toggleEmptySections() {
+          document.querySelectorAll('.library-page__category-section').forEach((section) => {
+            const items = section.querySelectorAll('[data-slug]');
+            const anyVisible = Array.from(items).some((el) => el.style.display !== 'none');
+            section.style.display = items.length > 0 && !anyVisible ? 'none' : '';
+          });
+        },
+
+        toggleEmptyState() {
+          const el = document.getElementById('library-empty-state');
+          if (el) el.hidden = this.visibleCount !== 0;
+        },
+      };
+    };
+  </script>
+  <div class="library-page__container" x-data="libraryFilter()">
     <section class="library-page-hero" aria-label="Hero">
           <h1 class="hero-title">Find a battle-tested library for the problem you're solving right now.</h1>
           <div class="hero-search-bar">
@@ -44,55 +176,33 @@ Inputs:
           <div></div>
         </li>
         {% for item in object_list %}
-          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
         {% endfor %}
       </ul>
     {% elif library_view_str == 'grid' %}
       <div class="library-item-card-grid">
         {% for item in object_list %}
-          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
         {% endfor %}
       </div>
     {% elif library_view_str == 'categorized' or library_view_str == 'grading' %}
       {% for result in library_versions_by_category %}
-      <section>
+      <section class="library-page__category-section">
         <h2 class="library-page__category-header">{{ result.category }} {% if result.icon %}{% include "includes/icon.html" with icon_name=result.icon only %}{% endif %}</h2>
         <ul class="library-item-list grouped">
           {% for item in result.library_version_list %}
-            {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+            {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
           {% endfor %}
         </ul>
       </section>
       {% endfor %}
     {% endif %}
+    <p id="library-empty-state" class="library-page__empty-state" hidden>
+      No libraries match the selected filters. Try adjusting your filters.
+    </p>
   </div>
 {% endblock %}
 
 {% block footer_js %}
   {{ block.super }}
-  <script>
-    const filterSection = document.getElementById('library-page-filter-container')
-    filterSection.addEventListener('field-change', function (event) {
-      const value = event.detail.value
-      const name = event.detail.name
-      if (name == 'view') {
-        switch (value) {
-          case 'grid':
-            window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='grid'  %}")
-            break
-          case 'list':
-            window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='list'  %}")
-            break
-          case 'categorized':
-            window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='categorized'  %}")
-            break
-          case 'grading':
-            window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='grading'  %}")
-            break
-          default:
-            console.error(`Value ${value} is unknown, please reload the page.`)
-        }
-      }
-    })
-  </script>
 {% endblock %}
