@@ -1,0 +1,24 @@
+{% comment %}
+  Quick Start Card — card with a heading and a list of arrow-linked navigation items.
+  Used on the library subpage to surface documentation and resource links.
+
+  Variables:
+    heading  (optional) — card heading; defaults to "Quick Start"
+    links    (required) — list of dicts: { label (str), url (str) }
+
+  Usage:
+    {% include "v3/includes/_quick_start_card.html" with heading="Quick Start" links=quick_start_links %}
+{% endcomment %}
+<div class="quick-start-card card">
+  <h2 class="quick-start-card__heading">{{ heading|default:"Quick Start" }}</h2>
+  {% if links %}
+    <nav class="quick-start-card__links" aria-label="Quick start links">
+      {% for link in links %}
+        <a href="{{ link.url }}" class="quick-start-card__link">
+          <span class="quick-start-card__link-text">{{ link.label }}</span>
+          {% include "includes/icon.html" with icon_name=icon_name|default:"arrow-right" icon_size=16 %}
+        </a>
+      {% endfor %}
+    </nav>
+  {% endif %}
+</div>
