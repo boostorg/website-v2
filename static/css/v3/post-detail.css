@@ -32,6 +32,25 @@
   line-height: var(--line-height-tight);
 }
 
+.post-detail__admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-default);
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.post-detail__approve-form {
+  margin: 0;
+}
+
+.post-detail__pending-badge {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-error);
+}
+
 .post-detail__figure {
   margin: 0;
 }

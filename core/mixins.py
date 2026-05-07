@@ -59,7 +59,11 @@ def iter_v3_views():
                     if view_class is not None:
                         break
                     callback = getattr(callback, "__wrapped__", None)
-                if view_class and issubclass(view_class, V3Mixin):
+                if (
+                    view_class
+                    and issubclass(view_class, V3Mixin)
+                    and getattr(view_class, "v3_template_name", None)
+                ):
                     yield entry, view_class
 
     yield from walk(get_resolver().url_patterns)
