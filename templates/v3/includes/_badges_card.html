@@ -2,18 +2,21 @@
   Badges Card component.
 
   Variables:
-    badges          (list, optional)    - List of badge objects. Each badge has: icon_src, name, earned_date.
+    badges          (list, optional)    - List of badge objects. Each badge has: icon, name, earned_date.
+                                          `icon` is a Badge component token (e.g. "badge-tier-3", "star-tier-2", "boost-day").
                                           Empty or undefined triggers the empty state.
     cta_url         (string, optional)  - CTA target URL (empty state). Omit to hide the CTA button.
     cta_label       (string, optional)  - CTA button text (empty state)
-    empty_icon_srcs (list, optional)    - List of image URLs for the decorative icon row in empty state
+
+  The empty state shows a fixed decorative row of badges (matches Figma);
+  callers do not configure it.
 
   Usage:
     Empty state with CTA:
-      {% include "v3/includes/_badges_card.html" with cta_url="/badges" cta_label="Explore available badges and how to earn them" empty_icon_srcs=badge_icon_srcs %}
+      {% include "v3/includes/_badges_card.html" with cta_url="/badges" cta_label="Explore available badges and how to earn them" %}
 
     Empty state without CTA:
-      {% include "v3/includes/_badges_card.html" with empty_icon_srcs=badge_icon_srcs %}
+      {% include "v3/includes/_badges_card.html" %}
 
     Filled state:
       {% include "v3/includes/_badges_card.html" with badges=user_badges %}
@@ -29,8 +32,8 @@
     <ul class="badges-card__grid" role="list">
       {% for badge in badges %}
         <li class="badges-card__entry" aria-label="{{ badge.name }}, earned {{ badge.earned_date }}">
-          <span class="badges-card__icon" aria-hidden="true">
-            {% if badge.icon_src %}<img src="{{ badge.icon_src }}" alt="" width="32" height="32">{% endif %}
+          <span class="badges-card__icon">
+            {% if badge.icon %}{% include "v3/includes/_badge_v3.html" with token=badge.icon label=badge.name size="large" only %}{% endif %}
           </span>
           <div class="badges-card__text">
             <span class="badges-card__name">{{ badge.name }}</span>
@@ -40,12 +43,15 @@
       {% endfor %}
     </ul>
   {% else %}
-    {# Empty state #}
+    {# Empty state — fixed decorative row per Figma #}
     <div class="badges-card__empty">
-      <div class="badges-card__icon-row" aria-hidden="true">
-        {% for src in empty_icon_srcs %}
-          <img src="{{ src }}" alt="" width="32" height="32">
-        {% endfor %}
+      <div class="badges-card__icon-row">
+        {% include "v3/includes/_badge_v3.html" with token="badge-tier-3" size="large" only %}
+        {% include "v3/includes/_badge_v3.html" with token="badge-tier-2" size="large" only %}
+        {% include "v3/includes/_badge_v3.html" with token="badge-tier-1" size="large" only %}
+        {% include "v3/includes/_badge_v3.html" with token="badge-tier-5" size="large" only %}
+        {% include "v3/includes/_badge_v3.html" with token="badge-tier-4" size="large" only %}
+        {% include "v3/includes/_badge_v3.html" with token="boost-day" size="large" only %}
       </div>
       <p class="badges-card__description">Badges highlight specific skills, roles, or areas of contribution</p>
     </div>

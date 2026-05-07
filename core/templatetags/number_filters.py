@@ -28,3 +28,23 @@ def compact_number(value):
     m = n / 1_000_000
     formatted = f"{m:.1f}".rstrip("0").rstrip(".")
     return f"{formatted}M"
+
+
+@register.filter
+def k_count(value):
+    """
+    Achievement-counter format per Figma spec: 1..999 shown as-is, 1000+ uses
+    the "K" dimension — e.g. 1000 → "1K", 5500 → "5.5K", 10000 → "10K".
+    Non-numeric values are returned unchanged.
+    """
+    if value is None:
+        return ""
+    try:
+        n = int(value)
+    except (TypeError, ValueError):
+        return value
+    if n < 1000:
+        return str(n)
+    k = n / 1000
+    formatted = f"{k:.1f}".rstrip("0").rstrip(".")
+    return f"{formatted}K"

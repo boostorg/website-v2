@@ -4,16 +4,16 @@
     Inputs:
         name: str, required: group name for the radios. Should be the same for all components
         value: str, required: radio value for selection
-        icon_src: str, required: full src link for icon for badge
-        icon_alt: str, required: meaninful description of icon for screen readers
+        icon: str, required: Badge component token, e.g. "badge-tier-3", "star-tier-2", "boost-day"
+        icon_alt: str, required: meaningful description of icon, used as the badge hover label
         id: str, optional: id for linking the label to the radio button. Will be auto generated if not provided
         radio_checked: bool, optional: Set to true if the value should be preselected
 
     Usage:
         Checked:
-            {% include "v3/includes/_badge_button.html" with name="badge-select" value="gold" icon_src=icon_src radio_checked=True only %}
+            {% include "v3/includes/_badge_button.html" with name="badge-select" value="gold" icon="badge-tier-3" icon_alt="Gold badge" radio_checked=True only %}
         Unchecked
-            {% include "v3/includes/_badge_button.html" with name="badge-select" value="gold" icon_src=icon_src only %}
+            {% include "v3/includes/_badge_button.html" with name="badge-select" value="gold" icon="badge-tier-3" icon_alt="Gold badge" only %}
 {% endcomment %}
 {% load core_tags %}
 
@@ -27,5 +27,5 @@
         id="{{id|default:uuid}}"
         {% if radio_checked %} checked {% endif %}
     />
-    <label id="{{id|default:uuid}}_label" for="{{id|default:uuid}}"><img src="{{ icon_src }}" alt="{{ icon_alt }}" width="28" height="28"></label>
+    <label id="{{id|default:uuid}}_label" for="{{id|default:uuid}}">{% include "v3/includes/_badge_v3.html" with token=icon label=icon_alt size="medium" only %}</label>
 </div>

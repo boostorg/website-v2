@@ -6,7 +6,7 @@
     avatar_url      (string, optional)  - Avatar image URL. Falls back to initials from username.
     avatar_variant  (string, optional)  - Avatar color variant (yellow|green|teal). Default "yellow".
     badge_name      (string, optional)  - Badge label text, e.g. "Bug Catcher"
-    badge_icon_src  (string, optional)  - Badge icon image URL (medal/trophy)
+    badge           (string, optional)  - Badge component token, e.g. "badge-tier-3", "star-tier-1", "boost-day"
     member_since    (string, optional)  - Membership year, e.g. "2008"
     role            (string, optional)  - Role text, e.g. "C++ Alliance Board Member"
     flag_emoji      (string, optional)  - Country flag emoji, e.g. "🇺🇸". Omit to hide flag overlay.
@@ -20,7 +20,7 @@
 
   Usage:
     Normal (green background + CTA):
-      {% include "v3/includes/_user_card.html" with username="vinniefalco" avatar_url="/img/avatar.png" badge_name="Bug Catcher" badge_icon_src="/img/badge.png" member_since="2008" role="Board Member" flag_emoji="🇺🇸" cta_url="/create-post/" %}
+      {% include "v3/includes/_user_card.html" with username="vinniefalco" avatar_url="/img/avatar.png" badge_name="Bug Catcher" badge="badge-tier-3" member_since="2008" role="Board Member" flag_emoji="🇺🇸" cta_url="/create-post/" %}
 
     Compact (no background, no CTA):
       {% include "v3/includes/_user_card.html" with username="vinniefalco" avatar_url="/img/avatar.png" compact=True %}
@@ -58,8 +58,8 @@
     {% if badge_name %}
     <span class="user-card__badge">
       {{ badge_name }}
-      {% if badge_icon_src %}
-        <img src="{{ badge_icon_src }}" alt="" class="user-card__badge-icon" width="16" height="16" aria-hidden="true" loading="lazy" decoding="async">
+      {% if badge %}
+        {% include "v3/includes/_badge_v3.html" with token=badge label=badge_name size="small" extra_class="user-card__badge-icon" only %}
       {% endif %}
     </span>
     {% endif %}
