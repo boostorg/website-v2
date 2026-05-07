@@ -59,14 +59,6 @@
   outline-offset: -2px;
 }
 
-.user-profile__avatar-link {
-  border-radius: var(--border-radius-m);
-}
-
-.user-profile__avatar-link:focus-visible {
-  outline-offset: -2px;
-}
-
 .user-profile__name-group {
   display: inline-flex;
   align-items: center;
