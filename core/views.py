@@ -236,12 +236,19 @@ class CommunityView(V3Mixin, TemplateView):
             .select_related("author")
             .order_by("-publish_at")[:4]
         )
+        tag_display = {"blogpost": "Blog"}
         ctx["posts"] = [
             {
                 "title": entry.title,
                 "url": self.request.build_absolute_uri(entry.get_absolute_url()),
                 "date": entry.publish_at,
-                "category": entry.tag.capitalize() if entry.tag else "",
+                "category": (
+                    tag_display.get(str(entry.tag).lower(), entry.tag.capitalize())
+                    if entry.tag
+                    else ""
+                ),
+                # TODO: populate from DB once entry tags are persisted
+                "tag": "",
                 "author": {
                     "name": entry.author.display_name or entry.author.get_full_name(),
                     "avatar_url": entry.author.get_avatar_url(),
