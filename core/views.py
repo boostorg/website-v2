@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 import chardet
 from dateutil.parser import parse
 from django.conf import settings
+from django.db.models import Exists, OuterRef
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
 from django.http import (
@@ -180,15 +181,35 @@ class CommunityView(V3Mixin, TemplateView):
                 },
             },
         ]
+        version_slug = get_prioritized_version(self.request)
+        if version_slug == LATEST_RELEASE_URL_PATH_STR:
+            selected_version = Version.objects.most_recent()
+        else:
+            selected_version = (
+                Version.objects.filter(slug=version_slug, full_release=True).first()
+                or Version.objects.most_recent()
+            )
+
+        # Subquery: does this library have any LibraryVersion at or before the
+        # selected Boost version?
+        existed_at_selected = LibraryVersion.objects.filter(
+            library=OuterRef("pk"),
+            version__name__lte=selected_version.name,
+            version__full_release=True,
+        )
+
         site_settings = SiteSettings.load()
         pinned_libs = list(
-            site_settings.pinned_community_libraries.prefetch_related("categories")
+            site_settings.pinned_community_libraries.filter(
+                Exists(existed_at_selected)
+            ).prefetch_related("categories")
         )
         pinned_slugs = [lib.slug for lib in pinned_libs]
         remaining_slots = libraries_shown_in_community_page - len(pinned_libs)
         random_libs = (
             list(
                 Library.objects.filter(tier=Tier.FLAGSHIP)
+                .filter(Exists(existed_at_selected))
                 .exclude(slug__in=pinned_slugs)
                 .prefetch_related("categories")
                 .order_by("?")[:remaining_slots]
@@ -197,28 +218,51 @@ class CommunityView(V3Mixin, TemplateView):
             else []
         )
         flagship_libs = pinned_libs + random_libs
-        ctx["libraries"] = [
-            {
-                "name": lib.display_name_short,
-                "url": self.request.build_absolute_uri(
-                    reverse(
-                        "library-detail",
-                        kwargs={
-                            "version_slug": LATEST_RELEASE_URL_PATH_STR,
-                            "library_slug": lib.slug,
-                        },
+
+        libraries = []
+        for lib in flagship_libs:
+            lv = (
+                LibraryVersion.objects.filter(
+                    library=lib,
+                    version__name__lte=selected_version.name,
+                    version__full_release=True,
+                )
+                .order_by("-version__name")
+                .first()
+            )
+            if not lv:
+                # Fallback: show the highest C++ version the library supports.
+                lv = (
+                    LibraryVersion.objects.filter(
+                        library=lib,
+                        version__full_release=True,
                     )
-                ),
-                "description": lib.description or "",
-                "categories": [cat.name for cat in lib.categories.all()],
-                "cpp_version": (
-                    f"C++ {lib.cpp_standard_minimum}"
-                    if lib.cpp_standard_minimum
-                    else ""
-                ),
-            }
-            for lib in flagship_libs
-        ]
+                    .order_by("-version__name")
+                    .first()
+                )
+            cpp_version = (
+                f"C++ {lv.cpp_standard_minimum}"
+                if lv and lv.cpp_standard_minimum
+                else ""
+            )
+            libraries.append(
+                {
+                    "name": lib.display_name_short,
+                    "url": self.request.build_absolute_uri(
+                        reverse(
+                            "library-detail",
+                            kwargs={
+                                "version_slug": LATEST_RELEASE_URL_PATH_STR,
+                                "library_slug": lib.slug,
+                            },
+                        )
+                    ),
+                    "description": lib.description or "",
+                    "categories": [cat.name for cat in lib.categories.all()],
+                    "cpp_version": cpp_version,
+                }
+            )
+        ctx["libraries"] = libraries
         ctx["libraries_url"] = self.request.build_absolute_uri(
             reverse(
                 "libraries-list",
