@@ -56,6 +56,7 @@ from .constants import (
     SourceDocType,
     BOOST_LIB_PATH_RE,
     BOOST_VERSION_REGEX,
+    COMMUNITY_PAGE_PINNED_LIBRARY_SLUGS,
     SLACK_MEMBER_COUNT,
     STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES,
 )
@@ -131,6 +132,7 @@ class CommunityView(V3Mixin, TemplateView):
     v3_template_name = "v3/community.html"
 
     def get_v3_context_data(self, **kwargs):
+        libraries_shown_in_community_page = 4
         ctx = super().get_v3_context_data(**kwargs)
         ctx["slack_member_count"] = SLACK_MEMBER_COUNT
         ctx["help_options"] = [
@@ -179,11 +181,24 @@ class CommunityView(V3Mixin, TemplateView):
                 },
             },
         ]
-        flagship_libs = (
-            Library.objects.filter(tier=Tier.FLAGSHIP)
-            .prefetch_related("categories")
-            .order_by("name")[:4]
+        pinned_libs = list(
+            Library.objects.filter(
+                tier=Tier.FLAGSHIP, slug__in=COMMUNITY_PAGE_PINNED_LIBRARY_SLUGS
+            ).prefetch_related("categories")
         )
+        pinned_slugs = [lib.slug for lib in pinned_libs]
+        remaining_slots = libraries_shown_in_community_page - len(pinned_libs)
+        random_libs = (
+            list(
+                Library.objects.filter(tier=Tier.FLAGSHIP)
+                .exclude(slug__in=pinned_slugs)
+                .prefetch_related("categories")
+                .order_by("?")[:remaining_slots]
+            )
+            if remaining_slots > 0
+            else []
+        )
+        flagship_libs = pinned_libs + random_libs
         ctx["libraries"] = [
             {
                 "name": lib.display_name_short,
