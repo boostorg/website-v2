@@ -21,6 +21,7 @@
       default         — value to reset to when the clear button is clicked (dropdown only)
       width           — "narrow" | "wide" (omit for default)
       placeholder     — placeholder text for search bar (combo/combo_multi only)
+      deselectable    — if truthy, allows deselecting the current value by clicking it again (dropdown only)
 
   Usage:
     {% include "v3/includes/_library_filter.html" with filter_id="library-filter" fields=filter_fields %}
@@ -53,11 +54,11 @@
         {% with width=field.width|default:"default" %}
           {% with field_class="library-filter__field library-filter__field-"|add:width %}
             {% if field.type == "combo_multi" %}
-              {% include "v3/includes/_field_combo_multi.html" with name=field.name label=field.label options=field.options selected_values=field.selected_values placeholder=field.placeholder extra_class=field_class show_clear_button="true" %}
+              {% include "v3/includes/_field_combo_multi.html" with name=field.name label=field.label options=field.options selected_values=field.selected_values placeholder=field.placeholder extra_class=field_class deselectable=field.deselectable %}
             {% elif field.type == "combo" %}
-              {% include "v3/includes/_field_combo.html" with name=field.name label=field.label options=field.options selected=field.selected placeholder=field.placeholder extra_class=field_class %}
+              {% include "v3/includes/_field_combo.html" with name=field.name label=field.label options=field.options selected=field.selected placeholder=field.placeholder extra_class=field_class deselectable=field.deselectable %}
             {% else %}
-              {% include "v3/includes/_field_dropdown.html" with name=field.name label=field.label options=field.options selected=field.selected default=field.default extra_class=field_class show_clear_button="true" %}
+              {% include "v3/includes/_field_dropdown.html" with name=field.name label=field.label options=field.options selected=field.selected default=field.default extra_class=field_class deselectable=field.deselectable %}
             {% endif %}
           {% endwith %}
         {% endwith %}

@@ -40,11 +40,11 @@
 }
 
 .library-filter__field-narrow {
-  width: 120px;
+  width: min(120px, fit-content);
 }
 
 .library-filter__field-default {
-  width: 160px;
+  width: min(160px, fit-content);
 }
 
 .library-filter__field-wide {

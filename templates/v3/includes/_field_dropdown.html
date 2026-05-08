@@ -12,7 +12,7 @@
     alpine_error (optional) — Alpine expression for dynamic error binding (e.g. "errors.post_type")
     required    (optional) — if truthy, adds required attribute
     extra_class (optional) — additional classes on the wrapper
-    show_clear_button (optional) — if truthy, shows a clear (X) button when a value is selected
+    deselectable (optional) — if truthy, shows a clear (X) button when a value is selected
   Usage:
     {% include "v3/includes/_field_dropdown.html" with name="country" label="Country" options=country_options placeholder="Select a country" %}
 {% endcomment %}
@@ -74,7 +74,7 @@
       <option value="{{ value }}"{% if value == selected %} selected{% endif %}>{{ label }}</option>
     {% endfor %}
   </select>
-  <div class="dropdown" :class="{ 'dropdown--open': open{% if show_clear_button %}, 'dropdown--has-value': selected && selected !== defaultValue{% endif %} }" x-cloak>
+  <div class="dropdown" :class="{ 'dropdown--open': open{% if deselectable %}, 'dropdown--has-value': selected && selected !== defaultValue{% endif %} }" x-cloak>
     <div class="dropdown__trigger"
          role="button"
          tabindex="0"
@@ -95,7 +95,7 @@
       <span class="dropdown__trigger-text dropdown__trigger-placeholder"
             x-show="!selected">{{ placeholder|default:"Select..." }}</span>
       {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
-      {% if show_clear_button %}
+      {% if deselectable %}
       <button type="button"
               class="dropdown__clear-btn"
               @click.stop="clear()"

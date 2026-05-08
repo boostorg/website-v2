@@ -166,6 +166,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "selected": view_str,
                 "default": "list",
                 "width": "category",
+                "deselectable": False,
             },
             {
                 "type": "dropdown",
@@ -175,6 +176,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "selected": request_get.get("grading", "all"),
                 "default": "all",
                 "width": "wide",
+                "deselectable": True,
             },
             {
                 "type": "dropdown",
@@ -184,6 +186,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "selected": request_get.get("min_cpp", "all"),
                 "default": "all",
                 "width": "narrow",
+                "deselectable": True,
             },
             {
                 "type": "dropdown",
@@ -193,6 +196,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "selected": request_get.get("max_cpp", "all"),
                 "default": "all",
                 "width": "narrow",
+                "deselectable": True,
             },
             {
                 "type": "combo_multi",
@@ -202,6 +206,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "selected_values": selected_categories,
                 "width": "wide",
                 "placeholder": "Search",
+                "deselectable": True,
             },
             {
                 "type": "dropdown",
@@ -215,6 +220,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 ],
                 "selected": request_get.get("sort", "alphabetical"),
                 "default": "alphabetical",
+                "deselectable": True,
             },
         ]
         context["library_view_str"] = view_str

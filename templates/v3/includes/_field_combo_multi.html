@@ -10,7 +10,7 @@
     error           (optional) — error message (activates error state)
     required        (optional) — if truthy, adds required attribute
     extra_class     (optional) — additional classes on the wrapper
-    show_clear_button (optional) — if truthy, shows a clear (X) button when any values are selected
+    deselectable (optional) — if truthy, shows a clear (X) button when any values are selected
   Usage:
     {% include "v3/includes/_field_combo_multi.html" with name="tags" label="Tags" options=tags_options placeholder="Search tags..." %}
 {% endcomment %}
@@ -85,7 +85,7 @@
       <option value="{{ value }}"{% if value in selected_values %} selected{% endif %}>{{ label }}</option>
     {% endfor %}
   </select>
-  <div class="dropdown dropdown--combo" :class="{ 'dropdown--open': open{% if show_clear_button %}, 'dropdown--has-value': selectedValues.length > 0{% endif %} }" x-cloak>
+  <div class="dropdown dropdown--combo" :class="{ 'dropdown--open': open{% if deselectable %}, 'dropdown--has-value': selectedValues.length > 0{% endif %} }" x-cloak>
     <div class="dropdown__trigger"
          :class="{ 'dropdown__trigger--active': open }"
          @click="if (!open) toggleOpen()"
@@ -123,7 +123,7 @@
               aria-label="Toggle search">
         {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
       </button>
-      {% if show_clear_button %}
+      {% if deselectable %}
       <!-- Clear button: shown when any values are selected -->
       <button type="button"
               class="dropdown__clear-btn"
