@@ -12,17 +12,17 @@ def resolve_pagination(context, current=None, total=None, param=None, anchor=Non
     """
     page_obj = context.get("page_obj")
     paginator = context.get("paginator")
+    total_val = (
+        total if isinstance(total, int) else (paginator.num_pages if paginator else 0)
+    )
     return {
         "current": (
             current
             if isinstance(current, int)
             else (page_obj.number if page_obj else 1)
         ),
-        "total": (
-            total
-            if isinstance(total, int)
-            else (paginator.num_pages if paginator else 0)
-        ),
+        "total": total_val,
+        "has_other_pages": total_val > 1,
         "param": param or "page",
         "anchor": anchor or "",
     }
