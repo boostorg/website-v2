@@ -642,16 +642,8 @@ class LearnPageView(V3Mixin, TemplateView):
                 {
                     "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
                     "description": "Lorem Ispum Sum Delores",
-                    "url": "#",
-                    "date": "03/03/2025",
-                    "category": "Issues",
-                    "tag": "beast",
-                    "author": {
-                        "name": "Richard Thomson",
-                        "role": "Contributor",
-                        "show_badge": True,
-                        "avatar_url": "/static/img/v3/demo_page/Avatar.png",
-                    },
+                    "cta_url": "#",
+                    "cta_label": "Learn More",
                 }
             ],
         }
