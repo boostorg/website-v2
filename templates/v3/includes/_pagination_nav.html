@@ -1,0 +1,42 @@
+{% load pagination_tags %}
+<nav class="pagination-nav {{ css_class }}" aria-label="Pagination">
+  <ol class="pagination">
+
+    <li class="pagination__item">
+      {% if pag.has_previous %}
+        <a href="{{ prev_url }}" class="pagination__chevron" aria-label="Previous page" rel="prev">
+          {% include "includes/icon.html" with icon_name="chevron-left" icon_size=20 %}
+        </a>
+      {% else %}
+        <span class="pagination__chevron pagination__chevron--disabled" aria-disabled="true" aria-label="Previous page">
+          {% include "includes/icon.html" with icon_name="chevron-left" icon_size=20 %}
+        </span>
+      {% endif %}
+    </li>
+
+    {% for item in pages %}
+      <li class="pagination__item">
+        {% if item == "..." %}
+          <span class="pagination__ellipsis" aria-hidden="true">…</span>
+        {% elif item == pag.current %}
+          <a href="{% page_url item pag.param pag.anchor %}" class="pagination__link pagination__link--active" aria-current="page" aria-label="Page {{ item }}">{{ item }}</a>
+        {% else %}
+          <a href="{% page_url item pag.param pag.anchor %}" class="pagination__link" aria-label="Go to page {{ item }}">{{ item }}</a>
+        {% endif %}
+      </li>
+    {% endfor %}
+
+    <li class="pagination__item">
+      {% if pag.has_next %}
+        <a href="{{ next_url }}" class="pagination__chevron" aria-label="Next page" rel="next">
+          {% include "includes/icon.html" with icon_name="chevron-right" icon_size=20 %}
+        </a>
+      {% else %}
+        <span class="pagination__chevron pagination__chevron--disabled" aria-disabled="true" aria-label="Next page">
+          {% include "includes/icon.html" with icon_name="chevron-right" icon_size=20 %}
+        </span>
+      {% endif %}
+    </li>
+
+  </ol>
+</nav>
