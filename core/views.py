@@ -664,6 +664,8 @@ class LearnPageView(V3Mixin, TemplateView):
                         "show_badge": True,
                         "avatar_url": large_static("img/v3/demo-page/avatar.png"),
                     },
+                    "cta_url": "#",
+                    "cta_label": "Learn More",
                 }
             ],
         }

@@ -30,12 +30,12 @@
     <div class="card-masonry py-large">
       <div class="item-a">
         {% with data=post_cards_data %}
-          {% include 'v3/includes/_post_cards_v3.html' with heading=data.heading posts=data.posts view_all_url=data.view_all_url view_all_label=data.view_all_label theme='teal' variant="content-card" %}
+          {% include 'v3/includes/_post_card.html' with heading=data.heading items=data.posts primary_cta_url=data.view_all_url primary_cta_label=data.view_all_label theme='teal' variant="card" %}
         {% endwith %}
       </div>
       <div class="item-b">
         {% with data=boost_community_data %}
-          {% include 'v3/includes/_post_cards_v3.html' with heading=data.heading posts=data.posts view_all_url=data.view_all_url view_all_label=data.view_all_label %}
+          {% include 'v3/includes/_community_card.html' with heading=data.heading items=data.posts primary_cta_url=data.view_all_url primary_cta_label=data.view_all_label %}
         {% endwith %}
       </div>
       <div class="item-d">
