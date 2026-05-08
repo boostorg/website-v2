@@ -215,8 +215,6 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "options": [
                     ("alphabetical", "Alphabetical"),
                     ("popularity", "Most Popular"),
-                    ("recently_updated", "Recently updated"),
-                    ("release_date", "Release date"),
                 ],
                 "selected": request_get.get("sort", "alphabetical"),
                 "default": "alphabetical",
