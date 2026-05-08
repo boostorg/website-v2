@@ -29,20 +29,22 @@ def resolve_pagination(context, current=None, total=None, param=None, anchor=Non
 
 
 @register.simple_tag
-def pagination_range(current_page, num_pages):
+def pagination_range(current_page, num_pages, window=2):
     """Compute the list of page items to display in a paginator.
 
     Returns a list where each element is either:
     - An integer (page number, clickable)
     - The string '...' (ellipsis, decorative)
+
+    window controls how many pages are shown around the current page.
     """
     if num_pages < 1:
         return []
     if num_pages == 1:
         return [1]
 
-    window_start = max(2, current_page - 2)
-    window_end = min(num_pages - 1, current_page + 2)
+    window_start = max(2, current_page - window)
+    window_end = min(num_pages - 1, current_page + window)
 
     items = [1]
 

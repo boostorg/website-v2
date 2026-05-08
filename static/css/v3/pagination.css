@@ -2,6 +2,10 @@
  * Pagination component
  * Token hierarchy: semantics.css → themes.css (dark overrides)
  * Usage: _pagination.html
+ *
+ * Two navs are rendered: --wide (±2 window) and --narrow (±1 window).
+ * CSS toggles which one is visible based on viewport width.
+ * display:none removes both from the visual layer and the a11y tree.
  */
 
 .pagination {
@@ -83,4 +87,20 @@
   color: var(--color-text-tertiary);
   pointer-events: none;
   cursor: default;
+}
+
+/* ── Responsive visibility ── */
+
+.pagination-nav--narrow {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .pagination-nav--wide {
+    display: none;
+  }
+
+  .pagination-nav--narrow {
+    display: block;
+  }
 }
