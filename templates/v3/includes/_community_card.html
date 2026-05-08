@@ -6,12 +6,11 @@
     heading             (string, optional)  — section heading text
     heading_url         (string, optional)  — if set, heading becomes a link
     items               (list, optional)    — list of event objects with:
-      - title           (string, required)  — event title
-      - description     (string, optional)  — event description
-      - date            (string, required)  — human-readable date (e.g. "29/10/25")
-      - datetime        (string, optional)  — value for <time datetime="...">
-      - card_url        (string, optional)  — if set, the card is wrapped in a link
-      - card_aria_label (string, optional)  — aria-label for the link; defaults to title
+      - title           (string, required)  — community item title
+      - description     (string, optional)  — community item description
+      - cta_url         (string, required)  — link for the view more at the bottom of card
+      - cta_aria_label  (string, optional)  — aria-label for the link; defaults to label
+      - cta_label       (string, required)  — visible label for the link
     variant             (string, optional)  — "list" or "card", defaults to "list"
     theme               (string, optional)  — only for variant "card": "default", "grey", "yellow", "green", "teal"
     layout              (string, optional)  — "vertical" or "horizontal", defaults to "vertical"
@@ -36,7 +35,7 @@
               {% if item.cta_url and item.cta_label %}
               <a href="{{ item.cta_url }}"
                   class="community-card__link"
-                  aria-label="{{ item.card_aria_label|default:item.cta_label }}">
+                  aria-label="{{ item.cta_aria_label|default:item.cta_label }}">
                 {{item.cta_label}}
               </a>
               {% endif %}
