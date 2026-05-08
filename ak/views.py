@@ -9,6 +9,7 @@ from django.views.generic import TemplateView
 
 from core.calendar import extract_calendar_events, events_by_month, get_calendar
 from core.mixins import V3Mixin
+from core.templatetags.custom_static import large_static
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import ContributorMixin
 from news.models import Entry
@@ -128,7 +129,7 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
             "primary_button_label": "View the Release Calendar",
             "secondary_button_url": "www.example.com",
             "secondary_button_label": "Secondary Button",
-            "image": f"{settings.STATIC_URL}/img/v3/demo_page/Calendar.png",
+            "image": large_static("img/v3/demo_page/Calendar.png"),
         }
         ctx["info_card"] = {
             "title": "How we got here",

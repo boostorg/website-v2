@@ -4,6 +4,7 @@ from django.conf import settings
 from django.utils.text import slugify
 
 from core.constants import BadgeToken, SLACK_MEMBER_COUNT
+from core.templatetags.custom_static import large_static
 from libraries.utils import commit_data_to_stats_bars
 
 
@@ -233,7 +234,7 @@ int main()
             "author": {
                 "name": "Prof. Sven G. Bilén, Ph.D.",
                 "profile_url": "#",
-                "avatar_url": "/static/img/v3/demo_page/Avatar.png",
+                "avatar_url": large_static("img/v3/demo_page/Avatar.png"),
                 "role": "The Pennsylvania State University",
                 "badge": BadgeToken.TIER_3,
             },
@@ -360,8 +361,28 @@ the science.</p>
             "author": {
                 "name": "Ipsum Loremson",
                 "profile_url": "#",
-                "avatar_url": "/static/img/v3/demo_page/Avatar.png",
-                "role": "Lorem Ipsum Industries",
+                "avatar_url": large_static("img/v3/demo_page/Avatar.png"),
+                "role": "Maintainer",
+                "badge": BadgeToken.TIER_3,
+            },
+        },
+        {
+            "quote": "3 — Every serious C++ codebase I've worked on has leaned on Boost in some way. It's the proving ground where tomorrow's standard library takes shape.",
+            "author": {
+                "name": "Linus Torvalds",
+                "profile_url": "#",
+                "avatar_url": large_static("img/v3/demo_page/Avatar.png"),
+                "role": "Reviewer",
+                "badge": BadgeToken.TIER_3,
+            },
+        },
+        {
+            "quote": "4 — Contributing to Boost taught me more about writing portable, peer-reviewed C++ than any textbook ever could.",
+            "author": {
+                "name": "Margaret Hamilton",
+                "profile_url": "#",
+                "avatar_url": large_static("img/v3/demo_page/Avatar.png"),
+                "role": "Contributor",
                 "badge": BadgeToken.TIER_3,
             },
             "content": """
@@ -385,20 +406,20 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
             {
                 "name": "Vinnie Falco",
                 "role": "Author",
-                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "avatar_url": large_static("img/v3/demo_page/Avatar.png"),
                 "badge": BadgeToken.TIER_3,
                 "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
             },
             {
                 "name": "Alex Wells",
                 "role": "Contributor",
-                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "avatar_url": large_static("img/v3/demo_page/Avatar.png"),
                 "bio": "C++ enthusiast who has worked at Intel and Microsoft.",
             },
             {
                 "name": "Dave Abrahams",
                 "role": "Maintainer",
-                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "avatar_url": large_static("img/v3/demo_page/Avatar.png"),
                 "badge": BadgeToken.TIER_3,
                 "bio": "Contributor to Boost since 2009.",
             },
@@ -415,19 +436,13 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         "button_label": "See license details",
     }
 
-    hero_legacy_image_url_light = f"{settings.STATIC_URL}img/v3/home-page/heros.png"
+    hero_legacy_image_url_light = large_static("img/v3/home-page/heros.png")
 
-    hero_legacy_image_url_dark = (
-        f"{settings.STATIC_URL}img/v3/home-page/heros_light.png"
-    )
+    hero_legacy_image_url_dark = large_static("img/v3/home-page/heros_light.png")
 
-    hero_image_url = f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
-    hero_image_url_light = (
-        f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
-    )
-    hero_image_url_dark = (
-        f"{settings.STATIC_URL}img/v3/home-page/home-page-foreground.png"
-    )
+    hero_image_url = large_static("img/v3/home-page/home-page-foreground.png")
+    hero_image_url_light = large_static("img/v3/home-page/home-page-foreground.png")
+    hero_image_url_dark = large_static("img/v3/home-page/home-page-foreground.png")
 
     library_about_code = (
         "int main()\n"
@@ -459,6 +474,7 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         "cp ./libs/beast/tools/user-config.jam $HOME"
     )
 
+    badge_img = large_static("img/v3/badges")
     library_release_contributors = [
         {
             "name": "Eric Niebler",
