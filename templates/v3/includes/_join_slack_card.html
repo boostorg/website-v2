@@ -4,6 +4,8 @@
   Variables (read from context):
     slack_member_count (string, optional) — member count shown in the CTA. Defaults to "24,000+".
 {% endcomment %}
+{% load custom_static %}
 {% with member_count=slack_member_count|default:"24,000+" %}
-  {% include "v3/includes/_vertical_card.html" with title="Join the discussion on Slack" image_url="/static/img/v3/community-page/community-slack-preview.png" image_alt="Preview of the Boost Slack workspace" primary_button_url="https://cppalliance.org/slack/" primary_button_label="Chat with "|add:member_count|add:" members" only %}
+  {% custom_static 'img/v3/community-page/community-slack-preview.png' as image_url  %}
+  {% include "v3/includes/_vertical_card.html" with title="Join the discussion on Slack" image_url=image_url image_alt="Preview of the Boost Slack workspace" primary_button_url="https://cppalliance.org/slack/" primary_button_label="Chat with "|add:member_count|add:" members" only %}
 {% endwith %}

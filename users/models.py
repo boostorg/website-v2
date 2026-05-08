@@ -25,6 +25,7 @@ from core.validators import (
     max_file_size_validator,
     large_file_max_size_validator,
 )
+from core.templatetags.custom_static import large_static
 
 logger = logging.getLogger(__name__)
 
@@ -361,7 +362,7 @@ class User(BaseUser):
 
         TODO: Replace this value
         """
-        return f"{settings.STATIC_URL}img/v3/badges/badge-gold-medal.png"
+        return large_static("img/v3/badges/badge-gold-medal.png")
 
     @cached_property
     def role(self):

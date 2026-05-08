@@ -474,7 +474,6 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         "cp ./libs/beast/tools/user-config.jam $HOME"
     )
 
-    badge_img = large_static("img/v3/badges")
     library_release_contributors = [
         {
             "name": "Eric Niebler",
