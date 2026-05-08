@@ -1,66 +1,39 @@
 from django import template
+from django.core.paginator import Paginator
 
 register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def resolve_pagination(context, current=None, total=None, param=None, anchor=None):
-    """Return a dict with current, total, param, and anchor resolved from context or explicit overrides.
+def resolve_pagination(context, current=None, total=None):
+    """Return a Django Page object resolved from context or explicit overrides.
 
-    When used in an isolated/demo context, pass current/total/param/anchor explicitly.
-    When used inside a Django ListView, they are read from page_obj and paginator.
+    In a ListView context, returns page_obj directly.
+    In isolated/demo usage, creates a real Paginator from the given values.
     """
     page_obj = context.get("page_obj")
-    paginator = context.get("paginator")
-    current_val = (
-        current if isinstance(current, int) else (page_obj.number if page_obj else 1)
-    )
-    total_val = (
-        total if isinstance(total, int) else (paginator.num_pages if paginator else 0)
-    )
-    return {
-        "current": current_val,
-        "total": total_val,
-        "has_other_pages": total_val > 1,
-        "has_previous": current_val > 1,
-        "has_next": current_val < total_val,
-        "prev_page": current_val - 1,
-        "next_page": current_val + 1,
-        "param": param or "page",
-        "anchor": anchor or "",
-    }
+
+    if isinstance(current, int) and isinstance(total, int):
+        paginator = Paginator(range(1, total + 1), 1)
+        return paginator.page(max(1, min(current, paginator.num_pages)))
+
+    if page_obj is not None:
+        return page_obj
+
+    return Paginator([], 1).page(1)
 
 
 @register.simple_tag
-def pagination_range(current_page, num_pages, window=2):
-    """Compute the list of page items to display in a paginator.
+def pagination_range(page, window=2):
+    """Return an elided page range using Django's built-in get_elided_page_range.
 
-    Returns a list where each element is either:
-    - An integer (page number, clickable)
-    - The string '...' (ellipsis, decorative)
-
-    window controls how many pages are shown around the current page.
+    Each element is either an integer (page number) or Paginator.ELLIPSIS ('…').
     """
-    if num_pages < 1:
-        return []
-    if num_pages == 1:
-        return [1]
-
-    window_start = max(2, current_page - window)
-    window_end = min(num_pages - 1, current_page + window)
-
-    items = [1]
-
-    if window_start > 2:
-        items.append("...")
-
-    items.extend(range(window_start, window_end + 1))
-
-    if window_end < num_pages - 1:
-        items.append("...")
-
-    items.append(num_pages)
-    return items
+    return list(
+        page.paginator.get_elided_page_range(
+            page.number, on_each_side=window, on_ends=1
+        )
+    )
 
 
 @register.simple_tag(takes_context=True)
@@ -69,6 +42,7 @@ def page_url(context, page_number, page_param="page", anchor=""):
 
     If anchor is provided, appends #anchor so the browser scrolls to that element.
     """
+    page_param = page_param or "page"
     request = context.get("request")
     if not request:
         url = f"?{page_param}={page_number}"

@@ -16,12 +16,12 @@
                                   page link so the browser scrolls back to the component
 {% endcomment %}
 
-{% resolve_pagination pagination_current pagination_total pagination_page_param pagination_anchor as pag %}
+{% resolve_pagination pagination_current pagination_total as pag %}
 {% if pag.has_other_pages %}
-  {% pagination_range pag.current pag.total 2 as pages_wide %}
-  {% pagination_range pag.current pag.total 1 as pages_narrow %}
-  {% if pag.has_previous %}{% page_url pag.prev_page pag.param pag.anchor as prev_url %}{% endif %}
-  {% if pag.has_next %}{% page_url pag.next_page pag.param pag.anchor as next_url %}{% endif %}
+  {% pagination_range pag 2 as pages_wide %}
+  {% pagination_range pag 1 as pages_narrow %}
+  {% if pag.has_previous %}{% page_url pag.previous_page_number pagination_page_param pagination_anchor as prev_url %}{% endif %}
+  {% if pag.has_next %}{% page_url pag.next_page_number pagination_page_param pagination_anchor as next_url %}{% endif %}
 
   {% include "v3/includes/_pagination_nav.html" with pages=pages_wide css_class="pagination-nav--wide" %}
   {% include "v3/includes/_pagination_nav.html" with pages=pages_narrow css_class="pagination-nav--narrow" %}

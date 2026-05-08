@@ -16,12 +16,12 @@
 
     {% for item in pages %}
       <li class="pagination__item">
-        {% if item == "..." %}
+        {% if item == "…" %}
           <span class="pagination__ellipsis" aria-hidden="true">…</span>
-        {% elif item == pag.current %}
-          <a href="{% page_url item pag.param pag.anchor %}" class="pagination__link pagination__link--active" aria-current="page" aria-label="Page {{ item }}">{{ item }}</a>
+        {% elif item == pag.number %}
+          <a href="{% page_url item pagination_page_param pagination_anchor %}" class="pagination__link pagination__link--active" aria-current="page" aria-label="Page {{ item }}">{{ item }}</a>
         {% else %}
-          <a href="{% page_url item pag.param pag.anchor %}" class="pagination__link" aria-label="Go to page {{ item }}">{{ item }}</a>
+          <a href="{% page_url item pagination_page_param pagination_anchor %}" class="pagination__link" aria-label="Go to page {{ item }}">{{ item }}</a>
         {% endif %}
       </li>
     {% endfor %}
