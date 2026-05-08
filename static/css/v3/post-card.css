@@ -42,12 +42,10 @@
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-default);
   letter-spacing: -0.12px;
-  color: var(--color-text-secondary);
 }
 
 .post-card__meta > :not(:first-child)::before {
   content: "•";
-  color: var(--color-text-secondary);
   user-select: none;
   margin-right: 6px;
 }

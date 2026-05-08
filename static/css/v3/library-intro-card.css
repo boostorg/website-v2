@@ -1,7 +1,7 @@
 /* Library Intro Card Component */
 
 .library-intro-card {
-  font-family: var(--font-sans, "Mona Sans VF"), sans-serif;
+  font-family: var(--font-sans);
   display: flex;
   flex-direction: column;
   max-width: 458px;
@@ -40,6 +40,10 @@
   line-height: var(--line-height-tight, 1);
   letter-spacing: -0.24px;
   color: var(--color-text-primary, #050816);
+}
+
+.library-intro-card__description {
+  color: var(--color-text-secondary);
 }
 
 .library-intro-card__title-pill {

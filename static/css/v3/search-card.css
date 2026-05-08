@@ -1,7 +1,7 @@
 /* Search Card Component */
 
 .search-card {
-  font-family: var(--font-sans, 'Mona Sans VF'), sans-serif;
+  font-family: var(--font-sans);
   display: flex;
   flex-direction: column;
   gap: var(--space-large, 16px);
@@ -16,7 +16,7 @@
 
 .search-card__heading {
   margin: 0;
-  font-family: var(--font-display, 'Mona Sans Display SemiCondensed'), sans-serif;
+  font-family: var(--font-display);
   font-size: var(--font-size-large, 24px);
   font-weight: var(--font-weight-medium, 500);
   line-height: var(--line-height-tight, 1);
@@ -35,7 +35,7 @@
 .search-card__popular-label {
   margin: 0;
   padding: 0;
-  font-family: var(--font-sans, 'Mona Sans VF'), sans-serif;
+  font-family: var(--font-sans);
   font-size: var(--font-size-xs, 12px);
   font-weight: var(--font-weight-regular, 400);
   line-height: var(--line-height-default, 1.2);
@@ -59,7 +59,7 @@
   background: var(--color-surface-strong-accent-green-default, #caca62);
   border: none;
   border-radius: var(--border-radius-s, 4px);
-  font-family: var(--font-sans, 'Mona Sans VF'), sans-serif;
+  font-family: var(--font-sans);
   font-size: var(--font-size-xs, 12px);
   font-weight: var(--font-weight-regular, 400);
   line-height: var(--line-height-tight, 1);

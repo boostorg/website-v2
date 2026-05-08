@@ -20,11 +20,11 @@
 
 .testimonial-card__text {
     color: var(--color-text-primary, #050816);
-    font-family: var(--font-sans, "Mona Sans VF");
+    font-family: var(--font-sans);
     font-size: var(--font-size-xl, 32px);
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-tight);
-    letter-spacing: var(--letter-spacing-display-regular);
+    letter-spacing: var(--letter-spacing-tight);
 }
 
 .testimonial-card__text-tail {
@@ -55,7 +55,7 @@
 
 
     /* Sans/Desktop/Regular/XS/Default */
-    font-family: var(--font-sans, "Mona Sans VF");
+    font-family: var(--font-sans);
     font-size: var(--font-size-xs, 12px);
     font-style: normal;
     font-weight: 400;

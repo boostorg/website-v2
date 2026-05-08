@@ -52,11 +52,14 @@
 }
 
 .card__column {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-large);
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-large);
+  width: 100%;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-medium);
+  letter-spacing: var(--letter-spacing-tight);
 }
 
 .card__header {
@@ -126,7 +129,7 @@
     flex: 1 0 0;
     padding: 0;
     color: var(--color-text-secondary, #585a64);
-    font-family: var(--font-sans, 'Mona Sans VF'), sans-serif;
+    font-family: var(--font-sans);
     font-size: var(--font-size-base, 16px);
     font-weight: var(--font-weight-regular, 400);
     line-height: var(--line-height-default, 1.2);
