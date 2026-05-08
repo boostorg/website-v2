@@ -181,12 +181,7 @@ urlpatterns = (
         ),
         path("health/", include("health_check.urls")),
         path("asciidoctor_sandbox/", include("asciidoctor_sandbox.urls")),
-        path(
-            "community/",
-            RedirectView.as_view(pattern_name="community-version", permanent=False),
-            kwargs={"version_slug": "latest"},
-            name="community",
-        ),
+        path("community/", CommunityView.as_view(), name="community"),
         path(
             "community/<boostversionslug:version_slug>/",
             CommunityView.as_view(),

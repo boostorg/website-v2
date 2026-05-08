@@ -38,6 +38,7 @@ from libraries.utils import (
     generate_canonical_library_uri,
     get_prioritized_library_view,
     get_prioritized_version,
+    get_version_from_cookie,
     set_selected_boost_version,
     modernize_boost_slug,
 )
@@ -130,6 +131,21 @@ class BoostDevelopmentView(CalendarView):
 class CommunityView(V3Mixin, TemplateView):
     template_name = "community.html"
     v3_template_name = "v3/community.html"
+
+    def render_v3_response(self):
+        version_slug = self.kwargs.get("version_slug")
+        if not version_slug:
+            cookie_slug = get_version_from_cookie(self.request)
+            target = (
+                cookie_slug
+                if cookie_slug and cookie_slug != LATEST_RELEASE_URL_PATH_STR
+                else LATEST_RELEASE_URL_PATH_STR
+            )
+            return redirect("community-version", version_slug=target)
+        response = super().render_v3_response()
+        if version_slug != LATEST_RELEASE_URL_PATH_STR:
+            set_selected_boost_version(version_slug, response)
+        return response
 
     def get_v3_context_data(self, **kwargs):
         libraries_shown_in_community_page = 4
