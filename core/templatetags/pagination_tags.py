@@ -25,15 +25,29 @@ def resolve_pagination(context, current=None, total=None):
 
 @register.simple_tag
 def pagination_range(page, window=2):
-    """Return an elided page range using Django's built-in get_elided_page_range.
+    """Return an elided page range for the given Page object.
 
-    Each element is either an integer (page number) or Paginator.ELLIPSIS ('…').
+    Always uses an ellipsis for any gap (even a single page), unlike Django's
+    built-in get_elided_page_range which fills single-page gaps with the page
+    number. Each element is either an integer or '…'.
     """
-    return list(
-        page.paginator.get_elided_page_range(
-            page.number, on_each_side=window, on_ends=1
-        )
-    )
+    num_pages = page.paginator.num_pages
+    current = page.number
+
+    if num_pages <= 1:
+        return list(range(1, num_pages + 1))
+
+    window_start = max(2, current - window)
+    window_end = min(num_pages - 1, current + window)
+
+    items = [1]
+    if window_start > 2:
+        items.append("…")
+    items.extend(range(window_start, window_end + 1))
+    if window_end < num_pages - 1:
+        items.append("…")
+    items.append(num_pages)
+    return items
 
 
 @register.simple_tag(takes_context=True)
