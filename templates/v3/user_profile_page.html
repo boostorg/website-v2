@@ -14,7 +14,7 @@
   <div class="user-profile__container">
     <div class="user-profile__profile-card-row">
       {% with user_info as user %}
-      {% include 'v3/includes/_user_card.html' with username=user.user_name avatar_url=user.avatar_url badge_name=user.featured_badge.name badge_icon_src=user.featured_badge.icon_url member_since=user.member_since role=user.role flag_emoji='🇺🇸' compact=True %}
+      {% include 'v3/includes/_user_card.html' with username=user.user_name avatar_url=user.avatar_url badge_name=user.featured_badge.name badge=user.featured_badge.badge member_since=user.member_since role=user.role flag_emoji='🇺🇸' compact=True %}
       {% endwith %}
       <div class="user-profile__button-group">
         {% include "v3/includes/_button.html" with label="GitHub" url="#" icon_name="pixel-github" icon_position="right" style="secondary" icon_viewbox="0 0 16 16" only %}

@@ -24,6 +24,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from waffle import flag_is_active
 
+from core.constants import BadgeToken
 from core.mixins import V3Mixin
 from core.templatetags.custom_static import large_static
 from libraries.models import CommitAuthorEmail
@@ -102,22 +103,14 @@ class CurrentUserProfileView(
     v3_template_name = "v3/user_profile_page.html"
 
     def get_v3_context_data(self, **kwargs):
-        badge_img = f"{settings.STATIC_URL}img/v3/badges"
         user = self.request.user
         ctx = {}
-        ctx["badge_icon_srcs"] = [
-            f"{badge_img}/badge-first-place.png",
-            f"{badge_img}/badge-second-place.png",
-            f"{badge_img}/badge-bronze.png",
-            f"{badge_img}/badge-gold-medal.png",
-            f"{badge_img}/badge-military-star.png",
-        ]
         ctx["user_info"] = {
             "user_name": user.display_name,
             "avatar_url": user.get_avatar_url(),
             "featured_badge": {
                 "name": "Bug Catcher",
-                "icon_url": ctx["badge_icon_srcs"][0],
+                "badge": BadgeToken.TIER_5,
             },
             "member_since": user.date_joined.year,
             "role": "Contributor",
@@ -243,34 +236,34 @@ class CurrentUserProfileView(
             }
             ctx["demo_badges"] = [
                 {
-                    "icon_src": f"{badge_img}/badge-first-place.png",
-                    "name": "Patch Wizard",
-                    "earned_date": "08/08/2025",
+                    "icon": BadgeToken.TIER_1,
+                    "name": "Code Whisperer",
+                    "earned_date": "01/01/2025",
                 },
                 {
-                    "icon_src": f"{badge_img}/badge-gold-medal.png",
-                    "name": "Standard Bearer",
-                    "earned_date": "03/07/2025",
-                },
-                {
-                    "icon_src": f"{badge_img}/badge-military-star.png",
-                    "name": "Review Hawk",
-                    "earned_date": "03/06/2025",
-                },
-                {
-                    "icon_src": f"{badge_img}/badge-second-place.png",
+                    "icon": BadgeToken.TIER_2,
                     "name": "Library Alchemist",
                     "earned_date": "03/04/2025",
                 },
                 {
-                    "icon_src": f"{badge_img}/badge-first-place.png",
+                    "icon": BadgeToken.TIER_3,
+                    "name": "Patch Wizard",
+                    "earned_date": "08/08/2025",
+                },
+                {
+                    "icon": BadgeToken.TIER_4,
                     "name": "Bug Catcher",
                     "earned_date": "02/04/2025",
                 },
                 {
-                    "icon_src": f"{badge_img}/badge-bronze.png",
-                    "name": "Code Whisperer",
-                    "earned_date": "01/01/2025",
+                    "icon": BadgeToken.TIER_5,
+                    "name": "Standard Bearer",
+                    "earned_date": "03/07/2025",
+                },
+                {
+                    "icon": BadgeToken.STAR_TIER_3,
+                    "name": "Review Hawk",
+                    "earned_date": "03/06/2025",
                 },
             ]
             ctx["posts"] = [
