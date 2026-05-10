@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% load news_tags %}
+{% load wagtailmarkdown %}
 
 {% block title %}{{ object.title }}{% endblock %}
 
@@ -56,7 +56,7 @@
           </p>
         {% endif %}
         {% with body=object.content|default:object.visible_content %}
-          {% if body %}{{ body|text_paragraphs }}{% endif %}
+          {% if body %}{{ body|markdown|urlize }}{% endif %}
         {% endwith %}
       </div>
     </article>
