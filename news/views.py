@@ -279,14 +279,14 @@ class EntryDetailView(V3Mixin, DetailView):
             ],
         }
 
-    @staticmethod
-    def _post_card_item(entry):
+    @classmethod
+    def _post_card_item(cls, entry):
         return {
             "title": entry.title,
             "description": entry.summary or "",
             "url": reverse("news-detail", args=[entry.slug]),
             "date": entry.publish_at,
-            "tag": entry.tag,
+            "category": cls.TAG_LABELS.get(entry.tag, entry.tag).capitalize(),
             "author": user_profile_card(entry.author),
         }
 
