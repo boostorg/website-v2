@@ -14,7 +14,7 @@
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-display-regular);
+  letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-primary);
 }
 
