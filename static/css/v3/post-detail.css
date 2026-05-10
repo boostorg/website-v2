@@ -68,19 +68,18 @@
   gap: var(--space-large);
   font-size: var(--font-size-base);
   line-height: var(--line-height-loose);
+  letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-secondary);
   padding-top: var(--space-xl);
   border-top: 1px solid var(--color-stroke-weak);
 }
 
+/* Reset the site-wide `p { @apply py-5 }` from frontend/styles.css
+   so paragraph rhythm comes from the body's flex `gap`, not from
+   each <p> contributing its own 1.25rem of top/bottom padding. */
 .post-detail__body p {
   padding-top: 0;
   padding-bottom: 0;
-  font-family: var(--font-sans);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-loose);
-  letter-spacing: var(--letter-spacing-tight);
 }
 
 .post-detail__body a {
@@ -136,12 +135,6 @@
   list-style-type: lower-alpha;
 }
 
-.post-detail__body li {
-  font-family: var(--font-sans);
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-loose);
-}
-
 .post-detail__body h1,
 .post-detail__body h2,
 .post-detail__body h3,
@@ -152,7 +145,6 @@
   font-family: var(--font-display);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
-  margin: 0;
 }
 
 .post-detail__body h1 { font-size: var(--font-size-xl); }
