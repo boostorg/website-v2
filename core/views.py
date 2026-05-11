@@ -44,6 +44,7 @@ from libraries.utils import (
 )
 from versions.models import Version, docs_path_to_boost_name
 
+from . import context_processors
 from .mixins import V3Mixin, iter_v3_views
 from .asciidoc import convert_adoc_to_html
 from .boostrenderer import (
@@ -198,13 +199,10 @@ class CommunityView(V3Mixin, TemplateView):
             },
         ]
         version_slug = self.kwargs.get("version_slug", LATEST_RELEASE_URL_PATH_STR)
-        if version_slug == LATEST_RELEASE_URL_PATH_STR:
-            selected_version = Version.objects.most_recent()
-        else:
-            selected_version = (
-                Version.objects.filter(slug=version_slug, full_release=True).first()
-                or Version.objects.most_recent()
-            )
+        # Reuse the context processor's resolved version (single source of truth).
+        selected_version = context_processors.selected_version(self.request)[
+            "selected_version"
+        ]
 
         # Subquery: does this library have any LibraryVersion at or before the
         # selected Boost version?
