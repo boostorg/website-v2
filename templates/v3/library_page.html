@@ -14,6 +14,15 @@ Inputs:
 {% block extra_head %}
   {{ block.super }}
   <link href="{% static 'css/v3/library-page.css' %}" rel="stylesheet" />
+  <noscript>
+    <style>
+      .hero-search-bar,
+      .library-filter__clear-all,
+      .library-filter__field:not(:has(select[name="view"])) {
+        display: none !important;
+      }
+    </style>
+  </noscript>
 {% endblock %}
 
 {% block content %}
