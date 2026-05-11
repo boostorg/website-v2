@@ -1,10 +1,9 @@
-{% load pagination_tags %}
 <nav class="pagination-nav {{ css_class }}" aria-label="Pagination">
   <ol class="pagination">
 
     <li class="pagination__item">
       {% if pag.has_previous %}
-        <a href="{{ prev_url }}" class="pagination__chevron" aria-label="Previous page" rel="prev">
+        <a href="{{ prev_url }}{% if pagination_anchor %}#{{ pagination_anchor }}{% endif %}" class="pagination__chevron" aria-label="Previous page" rel="prev">
           {% include "includes/icon.html" with icon_name="chevron-left" icon_size=20 %}
         </a>
       {% else %}
@@ -19,16 +18,16 @@
         {% if item == "…" %}
           <span class="pagination__ellipsis" aria-hidden="true">…</span>
         {% elif item == pag.number %}
-          <a href="{% page_url item pagination_page_param pagination_anchor %}" class="pagination__link pagination__link--active" aria-current="page" aria-label="Page {{ item }}">{{ item }}</a>
+          <a href="{% querystring page=item %}{% if pagination_anchor %}#{{ pagination_anchor }}{% endif %}" class="pagination__link pagination__link--active" aria-current="page" aria-label="Page {{ item }}">{{ item }}</a>
         {% else %}
-          <a href="{% page_url item pagination_page_param pagination_anchor %}" class="pagination__link" aria-label="Go to page {{ item }}">{{ item }}</a>
+          <a href="{% querystring page=item %}{% if pagination_anchor %}#{{ pagination_anchor }}{% endif %}" class="pagination__link" aria-label="Go to page {{ item }}">{{ item }}</a>
         {% endif %}
       </li>
     {% endfor %}
 
     <li class="pagination__item">
       {% if pag.has_next %}
-        <a href="{{ next_url }}" class="pagination__chevron" aria-label="Next page" rel="next">
+        <a href="{{ next_url }}{% if pagination_anchor %}#{{ pagination_anchor }}{% endif %}" class="pagination__chevron" aria-label="Next page" rel="next">
           {% include "includes/icon.html" with icon_name="chevron-right" icon_size=20 %}
         </a>
       {% else %}

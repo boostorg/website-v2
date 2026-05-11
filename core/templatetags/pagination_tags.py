@@ -48,20 +48,3 @@ def pagination_range(page, window=2):
         items.append("…")
     items.append(num_pages)
     return items
-
-
-@register.simple_tag(takes_context=True)
-def page_url(context, page_number, page_param="page", anchor=""):
-    """Build a URL with the page param set, preserving all other query params.
-
-    If anchor is provided, appends #anchor so the browser scrolls to that element.
-    """
-    page_param = page_param or "page"
-    request = context.get("request")
-    if not request:
-        url = f"?{page_param}={page_number}"
-    else:
-        params = request.GET.copy()
-        params[page_param] = page_number
-        url = f"?{params.urlencode()}"
-    return f"{url}#{anchor}" if anchor else url

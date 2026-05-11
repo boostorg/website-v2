@@ -6,12 +6,11 @@
     {% include "v3/includes/_pagination.html" %}
 
   Isolated / demo usage:
-    {% include "v3/includes/_pagination.html" with pagination_current=5 pagination_total=24 pagination_page_param="page" %}
+    {% include "v3/includes/_pagination.html" with pagination_current=5 pagination_total=24 %}
 
   Parameters:
     pagination_current     int  – current page number (required for isolated use)
     pagination_total       int  – total number of pages (required for isolated use)
-    pagination_page_param  str  – URL query param name (default: "page")
     pagination_anchor      str  – optional HTML id; appended as #fragment to every
                                   page link so the browser scrolls back to the component
 {% endcomment %}
@@ -20,8 +19,8 @@
 {% if pag.has_other_pages %}
   {% pagination_range pag 2 as pages_wide %}
   {% pagination_range pag 1 as pages_narrow %}
-  {% if pag.has_previous %}{% page_url pag.previous_page_number pagination_page_param pagination_anchor as prev_url %}{% endif %}
-  {% if pag.has_next %}{% page_url pag.next_page_number pagination_page_param pagination_anchor as next_url %}{% endif %}
+  {% if pag.has_previous %}{% querystring page=pag.previous_page_number as prev_url %}{% endif %}
+  {% if pag.has_next %}{% querystring page=pag.next_page_number as next_url %}{% endif %}
 
   {% include "v3/includes/_pagination_nav.html" with pages=pages_wide css_class="pagination-nav--wide" %}
   {% include "v3/includes/_pagination_nav.html" with pages=pages_narrow css_class="pagination-nav--narrow" %}

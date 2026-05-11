@@ -2134,63 +2134,22 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         v3_paths.sort(key=lambda p: p["class_name"])
         context["v3_paths"] = v3_paths
 
-        def _demo_page(param, default, total):
-            try:
-                val = int(self.request.GET.get(param, default))
-                return max(1, min(val, total))
-            except (ValueError, TypeError):
-                return default
-
-        context["demo_pagination"] = [
-            {
-                "label": "24 pages — page 1",
-                "current": _demo_page("pg24a", 1, 24),
-                "total": 24,
-                "param": "pg24a",
-                "anchor": "pag-pg24a",
-            },
-            {
-                "label": "24 pages — page 5 (both ellipses appear)",
-                "current": _demo_page("pg24b", 5, 24),
-                "total": 24,
-                "param": "pg24b",
-                "anchor": "pag-pg24b",
-            },
-            {
-                "label": "24 pages — page 12 (middle)",
-                "current": _demo_page("pg24c", 12, 24),
-                "total": 24,
-                "param": "pg24c",
-                "anchor": "pag-pg24c",
-            },
-            {
-                "label": "24 pages — last page",
-                "current": _demo_page("pg24d", 24, 24),
-                "total": 24,
-                "param": "pg24d",
-                "anchor": "pag-pg24d",
-            },
-            {
-                "label": "5 pages — all visible (no ellipsis)",
-                "current": _demo_page("pg5a", 1, 5),
-                "total": 5,
-                "param": "pg5a",
-                "anchor": "pag-pg5a",
-            },
-            {
-                "label": "3 pages — minimal",
-                "current": _demo_page("pg3a", 2, 3),
-                "total": 3,
-                "param": "pg3a",
-                "anchor": "pag-pg3a",
-            },
-            {
-                "label": "1 page — single page, both chevrons disabled",
-                "current": 1,
-                "total": 1,
-                "param": "pg1a",
-                "anchor": "pag-pg1a",
-            },
-        ]
+        _demo_total_choices = [1, 3, 5, 24]
+        try:
+            demo_total = int(self.request.GET.get("total", 24))
+            if demo_total not in _demo_total_choices:
+                demo_total = 24
+        except (ValueError, TypeError):
+            demo_total = 24
+        try:
+            demo_page = int(self.request.GET.get("page", 1))
+            demo_page = max(1, min(demo_page, demo_total))
+        except (ValueError, TypeError):
+            demo_page = 1
+        context["demo_pagination"] = {
+            "current": demo_page,
+            "total": demo_total,
+            "total_choices": _demo_total_choices,
+        }
 
         return context

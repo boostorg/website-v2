@@ -919,15 +919,35 @@
     <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
-        <p style="margin-bottom: var(--space-xlarge); color: var(--color-text-secondary); font-size: var(--font-size-small);">
-          Each example is independently clickable — navigate pages using the controls. The page state is stored in the URL query params.
-        </p>
-        {% for demo in demo_pagination %}
-          <div id="{{ demo.anchor }}" style="margin-bottom: var(--space-xl); scroll-margin-top: var(--space-xl);">
-            <p style="margin-bottom: var(--space-default); color: var(--color-text-secondary); font-size: var(--font-size-small);">{{ demo.label }}</p>
-            {% include "v3/includes/_pagination.html" with pagination_current=demo.current pagination_total=demo.total pagination_page_param=demo.param pagination_anchor=demo.anchor %}
-          </div>
-        {% endfor %}
+        <form method="get"
+              action="{% url 'v3-demo-components' %}#pagination"
+              class="v3-examples-section__stats-lookup"
+              style="display: flex;
+                     gap: var(--space-default, 8px);
+                     align-items: center;
+                     flex-wrap: wrap;
+                     margin-bottom: var(--space-xlarge)">
+          <label for="pagination-total-select"
+                 style="color: var(--color-text-secondary); font-size: var(--font-size-small);">Total pages</label>
+          <select id="pagination-total-select"
+                  name="total"
+                  onchange="this.form.submit()"
+                  style="padding: var(--space-medium);
+                         border: 1px solid var(--color-stroke-mid);
+                         border-radius: var(--border-radius-s, 4px);
+                         background: var(--color-surface-page);
+                         color: var(--color-text-primary)">
+            {% for choice in demo_pagination.total_choices %}
+              <option value="{{ choice }}"{% if choice == demo_pagination.total %} selected{% endif %}>
+                {{ choice }} page{{ choice|pluralize }}
+              </option>
+            {% endfor %}
+          </select>
+          <input type="hidden" name="page" value="{{ demo_pagination.current }}">
+        </form>
+        <div id="pagination">
+          {% include "v3/includes/_pagination.html" with pagination_current=demo_pagination.current pagination_total=demo_pagination.total pagination_anchor="pagination" %}
+        </div>
       </div>
     </div>
   {% endwith %}
