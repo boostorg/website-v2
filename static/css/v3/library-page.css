@@ -1,3 +1,8 @@
+/* Styles for the V3 library page: page layout, empty state, hero,
+   list/grid/categorized results, and responsive overrides. */
+
+/* === Page Layout === */
+
 .v3-container {
     display: flex;
     flex-direction: column;
@@ -13,19 +18,7 @@
     padding: 0 var(--space-large);
 }
 
-.library-page__empty-state {
-    padding: var(--space-xl) var(--space-large);
-    text-align: center;
-    color: var(--color-text-secondary);
-    font-family: var(--font-sans);
-    font-size: var(--font-size-medium);
-}
-
-/*
-=============================================
-=            Hero Styling                   =
-=============================================
-*/
+/* === Hero === */
 
 .library-page-hero {
     margin-top: var(--space-xl);
@@ -80,11 +73,7 @@ html.dark .library-page-hero .hero-image-dark {
     letter-spacing: var(--letter-spacing-tight);
 }
 
-/*
-======================================
-=            List Styling            =
-======================================
-*/
+/* === List & Grid View === */
 
 .library-item-list {
     border: 1px solid var(--color-stroke-weak);
@@ -136,11 +125,7 @@ html.dark .library-page-hero .hero-image-dark {
     letter-spacing: var(--letter-spacing-tight);
 }
 
-/*
-=================================================
-=           Category Display Styling            =
-=================================================
-*/
+/* === Categorized & Grading View === */
 
 .library-page__category-header {
     grid-column: 1 / -1;
@@ -171,6 +156,68 @@ html.dark .library-page-hero .hero-image-dark {
 }
 
 
+/* === Empty State (no search/filter results) === */
+
+.library-page__empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-medium);
+    background-color: var(--color-surface-weak);
+    border-radius: var(--border-radius-xl);
+    border: 1px solid var(--color-stroke-weak);
+    padding: var(--space-large);
+    padding-bottom: calc(var(--space-large) + var(--space-medium));
+    margin-bottom: var(--space-xxl);
+}
+
+.library-page__empty-state[hidden] {
+    display: none;
+}
+
+.library-page__empty-state-image {
+    width: 488px;
+    height: auto;
+    aspect-ratio: 488 / 416;
+    max-width: 100%;
+}
+
+.library-page__empty-state-image--dark {
+    display: none;
+}
+
+html.dark .library-page__empty-state-image--light {
+    display: none;
+}
+
+html.dark .library-page__empty-state-image--dark {
+    display: block;
+}
+
+.library-page__empty-state-message {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-medium);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-default);
+    letter-spacing: var(--letter-spacing-tight);
+}
+
+.library-page__empty-state--in-list {
+    list-style: none;
+    width: 100%;
+    grid-column: 1 / -1;
+    padding: var(--space-xl) 0;
+    border: none;
+    margin-bottom: 0;
+}
+
+
+/* === Mobile Overrides (< 768px) === */
+
 @media (max-width: 767px) {
     .library-page__list-header {
         display: none;
@@ -193,5 +240,9 @@ html.dark .library-page-hero .hero-image-dark {
     .library-page__container {
         margin-left: var(--space-medium);
         margin-right: var(--space-medium);
+    }
+
+    .library-page__empty-state-image {
+        width: 100%;
     }
 }
