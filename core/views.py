@@ -261,14 +261,12 @@ class CommunityView(V3Mixin, TemplateView):
             libraries.append(
                 {
                     "name": lib.display_name_short,
-                    "url": self.request.build_absolute_uri(
-                        reverse(
-                            "library-detail",
-                            kwargs={
-                                "version_slug": version_slug,
-                                "library_slug": lib.slug,
-                            },
-                        )
+                    "url": reverse(
+                        "library-detail",
+                        kwargs={
+                            "version_slug": version_slug,
+                            "library_slug": lib.slug,
+                        },
                     ),
                     "description": lib.description or "",
                     "categories": [cat.name for cat in lib.categories.all()],
