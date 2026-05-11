@@ -26,22 +26,10 @@
 {% if items %}
   <ul class="card-group__list">
     {% for item in items %}
-      <li class="card-group__item">
-          <article class="community-card">
-              <h3 class="community-card__title">{{ item.title }}</h3>
-              {% if item.description %}
-                <p class="community-card__description">{{ item.description }}</p>
-              {% endif %}
-              {% if item.cta_url and item.cta_label %}
-              <a href="{{ item.cta_url }}"
-                  class="community-card__link"
-                  aria-label="{{ item.cta_aria_label|default:item.cta_label }}">
-                {{item.cta_label}}
-              </a>
-              {% endif %}
-          </article>
-          </li>
-        {% endfor %}
+      <li class="card-group__item community-card">
+        {% include 'v3/includes/_content_detail_card_item.html' with title=item.title description=item.description cta_href=item.cta_url cta_label=item.cta_label only %}
+      </li>
+      {% endfor %}
     </ul>
 {% endif %}
 {% endblock %}
