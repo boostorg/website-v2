@@ -3,48 +3,6 @@
   Individual community card item styles used within card-group containers.
 */
 
-.community-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-medium);
-    padding: var(--space-card);
-    font-family: var(--font-sans);
-    color: var(--color-text-primary);
-    transition:
-        background-color 0.2s ease,
-        border-color 0.2s ease;
-}
-
-.community-card__title {
-    margin: 0;
-    padding: 0;
-    font-family: var(--font-sans);
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-medium);
-    line-height: var(--line-height-default);
-    letter-spacing: var(--letter-spacing-tight);
-    color: var(--color-text-primary);
-}
-
-.community-card__description {
-    margin: 0;
-    padding: 0;
-    font-family: var(--font-sans);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-default);
-    letter-spacing: var(--letter-spacing-tight);
-    color: var(--color-text-secondary);
-}
-
-.community-card__link {
-    color: var(--color-text-primary);
-    font-family: var(--font-sans);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-medium);
-    line-height: var(--line-height-tight);
-    letter-spacing: var(--letter-spacing-tight);
-    text-decoration-line: underline;
-    text-decoration-skip-ink: none;
-    text-underline-position: from-font;
+.community-card .content-detail-icon {
+    border: none;
 }
