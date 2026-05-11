@@ -16,12 +16,10 @@
 {% endcomment %}
 
 {% resolve_pagination pagination_current pagination_total as pag %}
-{% if pag.has_other_pages %}
-  {% pagination_range pag 2 as pages_wide %}
-  {% pagination_range pag 1 as pages_narrow %}
-  {% if pag.has_previous %}{% querystring page=pag.previous_page_number as prev_url %}{% endif %}
-  {% if pag.has_next %}{% querystring page=pag.next_page_number as next_url %}{% endif %}
+{% pagination_range pag 2 as pages_wide %}
+{% pagination_range pag 1 as pages_narrow %}
+{% if pag.has_previous %}{% querystring page=pag.previous_page_number as prev_url %}{% endif %}
+{% if pag.has_next %}{% querystring page=pag.next_page_number as next_url %}{% endif %}
 
-  {% include "v3/includes/_pagination_nav.html" with pages=pages_wide css_class="pagination-nav--wide" %}
-  {% include "v3/includes/_pagination_nav.html" with pages=pages_narrow css_class="pagination-nav--narrow" %}
-{% endif %}
+{% include "v3/includes/_pagination_nav.html" with pages=pages_wide css_class="pagination-nav--wide" %}
+{% include "v3/includes/_pagination_nav.html" with pages=pages_narrow css_class="pagination-nav--narrow" %}

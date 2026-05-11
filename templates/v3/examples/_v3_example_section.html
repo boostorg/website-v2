@@ -943,7 +943,6 @@
               </option>
             {% endfor %}
           </select>
-          <input type="hidden" name="page" value="{{ demo_pagination.current }}">
         </form>
         <div id="pagination">
           {% include "v3/includes/_pagination.html" with pagination_current=demo_pagination.current pagination_total=demo_pagination.total pagination_anchor="pagination" %}
