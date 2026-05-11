@@ -1,0 +1,154 @@
+import djclick as click
+
+from core.models import RenderedContent
+from versions.tasks import (
+    WHATS_NEW_SYSTEM_PROMPT,
+    _release_note_text,
+    dispatch_whats_new,
+    generate_whats_new,
+)
+from versions.models import Version
+
+
+@click.command()
+@click.option(
+    "--all-missing",
+    is_flag=True,
+    default=False,
+    help="Queue generation for every active version that has no summary yet.",
+)
+@click.option(
+    "--version",
+    "version_slug",
+    default=None,
+    help="Slug of a single version to (re)generate.",
+)
+@click.option(
+    "--force",
+    is_flag=True,
+    default=False,
+    help="Regenerate even when a summary already exists.",
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    default=False,
+    help="List the versions that would be queued without queuing them.",
+)
+@click.option(
+    "--validate",
+    is_flag=True,
+    default=False,
+    help=(
+        "Run the prompt synchronously against --limit recent versions and print "
+        "the LLM output for human review. No DB writes."
+    ),
+)
+@click.option(
+    "--limit",
+    default=10,
+    type=int,
+    help="Number of versions to process when --validate is set.",
+)
+def command(
+    all_missing: bool,
+    version_slug: str | None,
+    force: bool,
+    dry_run: bool,
+    validate: bool,
+    limit: int,
+):
+    """Generate AI What's New summaries for Boost releases."""
+    if validate:
+        _validate(limit)
+        return
+
+    if not all_missing and not version_slug:
+        raise click.UsageError("Pass --all-missing, --version <slug>, or --validate.")
+
+    versions = _select_versions(all_missing, version_slug, force)
+    if not versions:
+        click.secho("No versions matched.", fg="yellow")
+        return
+
+    for version in versions:
+        if dry_run:
+            click.secho(
+                f"[dry-run] would queue whats_new generation for {version.name}",
+                fg="cyan",
+            )
+            continue
+        click.secho(f"queueing whats_new for {version.name}", fg="green")
+        if force:
+            Version.objects.filter(pk=version.pk).update(
+                whats_new="", whats_new_html=""
+            )
+        dispatch_whats_new(version.pk)
+
+
+def _select_versions(all_missing: bool, version_slug: str | None, force: bool):
+    qs = Version.objects.active().exclude(name__in=["master", "develop"])
+    if version_slug:
+        qs = qs.filter(slug=version_slug)
+    elif all_missing:
+        qs = qs.filter(whats_new="") if not force else qs
+
+    rendered_keys = set(
+        RenderedContent.objects.filter(
+            cache_key__startswith="release_notes_boost-"
+        ).values_list("cache_key", flat=True)
+    )
+    return [
+        v for v in qs.order_by("name") if v.release_notes_cache_key in rendered_keys
+    ]
+
+
+def _validate(limit: int):
+    """Run the prompt against the latest `limit` versions that have release
+    notes and print results.
+
+    Used to satisfy the acceptance criterion that the prompt is reviewed against
+    >=10 past Boost release notes before sign-off. Bypasses the save chain so
+    nothing is written to the database.
+    """
+    rendered_keys = set(
+        RenderedContent.objects.filter(
+            cache_key__startswith="release_notes_boost-"
+        ).values_list("cache_key", flat=True)
+    )
+    candidates = (
+        Version.objects.active()
+        .exclude(name__in=["master", "develop"])
+        .order_by("-name")
+    )
+    versions = []
+    for version in candidates:
+        if version.release_notes_cache_key in rendered_keys:
+            versions.append(version)
+            if len(versions) >= limit:
+                break
+
+    click.secho(
+        f"Validating What's New prompt against {len(versions)} version(s) "
+        f"(requested up to {limit}).\n",
+        fg="green",
+    )
+    click.secho(f"--- system prompt ---\n{WHATS_NEW_SYSTEM_PROMPT}\n", fg="white")
+
+    if not versions:
+        click.secho(
+            "No versions with stored release notes found. "
+            "Run `manage.py import_release_notes --new=False` first.",
+            fg="yellow",
+        )
+        return
+
+    for version in versions:
+        click.secho(f"\n=== {version.name} ===", fg="cyan")
+        rendered_content = RenderedContent.objects.get(
+            cache_key=version.release_notes_cache_key
+        )
+        input_chars = len(_release_note_text(rendered_content))
+        click.echo(f"input_chars={input_chars}")
+        result = generate_whats_new.run(version.pk)
+        click.echo(result or "<no output>")

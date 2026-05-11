@@ -8,6 +8,7 @@ from libraries.tasks import import_new_versions_tasks
 
 from . import models
 from .models import Version
+from .tasks import dispatch_whats_new
 
 
 class VersionFileInline(admin.StackedInline):
@@ -27,13 +28,51 @@ class VersionAdmin(admin.ModelAdmin):
         "beta",
         "fully_imported",
         "full_release",
+        "whats_new_approved",
     ]
-    list_filter = ["active", "full_release", "beta"]
+    list_filter = ["active", "full_release", "beta", "whats_new_approved"]
     ordering = ["-release_date", "-name"]
     search_fields = ["name", "description"]
     date_hierarchy = "release_date"
     inlines = [VersionFileInline]
     change_list_template = "admin/version_change_list.html"
+    readonly_fields = ["whats_new_html", "whats_new_generated_at"]
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "name",
+                    "slug",
+                    "release_date",
+                    "description",
+                    "active",
+                    "github_url",
+                    "beta",
+                    "full_release",
+                    "data",
+                    "fully_imported",
+                )
+            },
+        ),
+        (
+            "What's New",
+            {
+                "fields": (
+                    "whats_new",
+                    "whats_new_html",
+                    "whats_new_approved",
+                    "whats_new_generated_at",
+                ),
+                "description": (
+                    "AI-generated draft summary. Edit `whats_new` (markdown bullets) "
+                    "and re-save to refresh the rendered HTML, or use the "
+                    "'Regenerate What's New' action."
+                ),
+            },
+        ),
+    )
+    actions = ["approve_whats_new", "regenerate_whats_new"]
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
         # we want all versions here, including not fully_imported
@@ -55,6 +94,29 @@ class VersionAdmin(admin.ModelAdmin):
         msg = "New releases are being imported. You will receive an email when the task finishes."  # noqa: E501
         self.message_user(request, msg)
         return HttpResponseRedirect("../")
+
+    def save_model(self, request, obj, form, change):
+        if change and "whats_new" in form.changed_data:
+            from core.htmlhelper import render_whats_new_markdown
+
+            obj.whats_new_html = render_whats_new_markdown(obj.whats_new)
+        super().save_model(request, obj, form, change)
+
+    @admin.action(description="Approve What's New (publish)")
+    def approve_whats_new(self, request, queryset):
+        updated = queryset.exclude(whats_new="").update(whats_new_approved=True)
+        self.message_user(request, f"Approved What's New for {updated} version(s).")
+
+    @admin.action(description="Regenerate What's New (clear + queue task)")
+    def regenerate_whats_new(self, request, queryset):
+        queued = 0
+        for version in queryset:
+            Version.objects.filter(pk=version.pk).update(
+                whats_new="", whats_new_html="", whats_new_approved=False
+            )
+            dispatch_whats_new(version.pk)
+            queued += 1
+        self.message_user(request, f"Queued regeneration for {queued} version(s).")
 
 
 class ResultInline(admin.StackedInline):

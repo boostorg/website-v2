@@ -12,6 +12,8 @@
   - [`import_commits`](#import_commits)
   - [`update_issues`](#update_issues)
   - [`import_beta_release`](#import_beta_release)
+  - [`import_release_notes`](#import_release_notes)
+  - [`generate_whats_new`](#generate_whats_new)
   - [`sync_mailinglist_stats`](#sync_mailinglist_stats)
   - [`update_library_version_dependencies`](#update_library_version_dependencies)
   - [`release_tasks`](#release_tasks)
@@ -245,6 +247,51 @@ If both the `--release` and the `--library-name` are passed, the command will lo
 | `--token`  | string   | Pass a GitHub API token. If not passed, will use the value in `settings.GITHUB_TOKEN`. |
 | `--delete-versions`  | bool  | If passed, all existing beta Version records will be deleted before the new beta release is imported. |
 
+
+## `import_release_notes`
+
+**Purpose**: Fetch the rendered release notes for Boost versions and store them in the `RenderedContent` cache (keyed `release_notes_boost-X-XX-X`). Tries the AsciiDoc source on S3 first, falls back to the legacy HTML in the `boostorg/website` GitHub repo. Also fetches the in-progress release notes.
+
+When a release note is freshly stored and the `Version.whats_new` field is empty, this command also queues the AI "What's New" summary task — see [`generate_whats_new`](#generate_whats_new).
+
+**Example**
+
+```bash
+./manage.py import_release_notes
+```
+
+**Options**
+
+| Options | Format | Description                                                                                  |
+|---------|--------|----------------------------------------------------------------------------------------------|
+| `--new` | bool   | Default: `true`. If `true`, only imports notes for the most recent version. Set to `false` to import for all active versions. |
+
+## `generate_whats_new`
+
+**Purpose**: Generate the AI-powered "What's New" draft summary for one or more Boost releases. The summary is a short, fixed-rubric bullet list (new libraries, performance, dependencies, security & reliability, developer experience) saved on the `Version` model as `whats_new` / `whats_new_html`. Drafts are not shown on the public site until an admin sets `whats_new_approved=True` (also available as a Django admin action).
+
+This command is opt-in. Auto-generation only runs as a side-effect of `import_release_notes` when a version's `whats_new` is empty. Use this command to backfill historical versions or to regenerate after editing the prompt.
+
+The LLM call is a Celery task; the worker must be running and `OPENROUTER_API_KEY` must be set (see [Environment Variables](./env_vars.md)).
+
+**Example**
+
+```bash
+./manage.py generate_whats_new --all-missing
+./manage.py generate_whats_new --version boost-1-90-0 --force
+./manage.py generate_whats_new --validate --limit 10
+```
+
+**Options**
+
+| Options          | Format | Description                                                                                                |
+|------------------|--------|------------------------------------------------------------------------------------------------------------|
+| `--all-missing`  | bool   | Queue generation for every active version that has stored release notes but no `whats_new` summary yet.    |
+| `--version`      | string | Slug of a single version to (re)generate. Format: `boost-1-90-0`.                                          |
+| `--force`        | bool   | Regenerate even when a summary already exists (clears `whats_new` first; the chained save task replaces it). |
+| `--dry-run`      | bool   | List the versions that would be queued without queuing them.                                               |
+| `--validate`     | bool   | Run the prompt synchronously against the latest `--limit` versions (that have release notes) and print the LLM output. No DB writes. Use to review prompt changes before sign-off. |
+| `--limit`        | int    | Number of versions to process when `--validate` is set. Default: 10.                                       |
 
 ## `sync_mailinglist_stats`
 

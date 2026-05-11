@@ -82,3 +82,15 @@ This project uses environment variables to configure certain aspects of the appl
 
 ### `SLACK_BOT_TOKEN`
 - Used to authenticate with the Slack API for pulling data for release reports.
+
+## AI Summarization (OpenRouter)
+
+### `OPENROUTER_API_KEY`
+
+- API key for [OpenRouter](https://openrouter.ai), used by the `openai` SDK to reach the LLM that powers two features:
+  - News/blogpost/link entry summaries (`news/tasks.py`)
+  - The Boost release-notes "What's New" draft summary (`versions/tasks.py`)
+- Default model is `gpt-oss-120b`. To use a different model (e.g. a Claude model via OpenRouter), change `WHATS_NEW_MODEL` in `versions/tasks.py` and the per-handler model strings in `news/tasks.py`.
+- For **local development**, set this in your `.env` file. Note: docker compose only loads `env_file` at container creation, so after adding the variable run `docker compose up -d --force-recreate web celery-worker celery-beat` to pick it up.
+- In **deployed environments**, set as a kube secret in `kube/boost/values.yaml` (or the environment-specific yaml file).
+- Without this variable set, OpenRouter responds with `401 No cookie auth credentials found` and Celery retries the task up to 3 times before giving up.

@@ -1,15 +1,18 @@
+from unittest.mock import patch
+
 import responses
 import pytest
 
 from django.conf import settings
 
-from ..models import VersionFile
+from ..models import Version, VersionFile
 from ..releases import (
     get_artifactory_download_data,
     get_archives_download_data,
     get_artifactory_download_uris_for_release,
     get_archives_download_uris_for_release,
     store_release_downloads_for_version,
+    store_release_notes_for_version,
 )
 
 
@@ -135,3 +138,33 @@ def test_store_release_downloads_for_version(version):
     assert VersionFile.objects.filter(version=version).count() == count + 2
     assert VersionFile.objects.filter(version=version, checksum="123").exists()
     assert VersionFile.objects.filter(version=version, checksum="456").exists()
+
+
+@pytest.mark.django_db
+def test_store_release_notes_queues_whats_new_when_missing(version):
+    with (
+        patch(
+            "versions.releases.get_release_notes_for_version",
+            return_value=("<p>notes</p>", "<p>notes</p>", "text/html"),
+        ),
+        patch("versions.tasks.dispatch_whats_new") as mock_dispatch,
+    ):
+        store_release_notes_for_version(version.pk)
+
+    mock_dispatch.assert_called_once_with(version.pk)
+
+
+@pytest.mark.django_db
+def test_store_release_notes_skips_whats_new_when_populated(version):
+    Version.objects.filter(pk=version.pk).update(whats_new="- already there")
+
+    with (
+        patch(
+            "versions.releases.get_release_notes_for_version",
+            return_value=("<p>notes</p>", "<p>notes</p>", "text/html"),
+        ),
+        patch("versions.tasks.dispatch_whats_new") as mock_dispatch,
+    ):
+        store_release_notes_for_version(version.pk)
+
+    mock_dispatch.assert_not_called()

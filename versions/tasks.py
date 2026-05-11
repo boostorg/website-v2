@@ -1,3 +1,14 @@
+"""Celery tasks for the versions app.
+
+Covers Boost release ingestion (versions, library-versions, downloads, release
+notes) and the AI-generated "What's New" summary pipeline. The AI tasks
+(``generate_whats_new`` / ``save_whats_new`` / ``dispatch_whats_new``) live at
+the bottom of this module.
+"""
+
+import re
+from textwrap import dedent
+
 from django.db import transaction
 import requests
 import structlog
@@ -5,9 +16,13 @@ import structlog
 from celery import group, chain
 
 from config.celery import app
+from config.settings import OPENROUTER_API_KEY, OPENROUTER_URL
 from django.conf import settings
 from django.core.management import call_command
+from django.utils import timezone
+from django.utils.html import strip_tags
 from fastcore.xtras import obj2dict
+from openai import OpenAI, OpenAIError
 
 from core.githubhelper import GithubAPIClient, GithubDataParser
 from libraries.constants import SKIP_LIBRARY_VERSIONS
@@ -604,3 +619,133 @@ def skip_tag(name, new=False):
         return True
 
     return False
+
+
+# ---------------------------------------------------------------------------
+# AI tasks: "What's New" release-note summarization
+# ---------------------------------------------------------------------------
+
+
+WHATS_NEW_MODEL = "gpt-oss-120b"
+
+WHATS_NEW_SYSTEM_PROMPT = dedent(
+    """
+    You are a technical writer for the Boost C++ library ecosystem. Your job is
+    to read a Boost release note and generate a "What's New" summary for the
+    Boost website.
+
+    Rules:
+
+    Return a maximum of 5 bullets, each with an emoji, a bold category label,
+    and a single sentence of no more than 20 words
+    Do not name or highlight specific libraries — speak to the ecosystem as a whole
+    Only include a bullet if there is relevant content in the release note to
+    support it
+    Omit any category that has no relevant content — do not pad or fabricate
+    Follow this rubric and order where content exists:
+
+    New libraries — how many new libraries were added and what they broadly cover
+    Performance improvements — notable speed, memory, or compile time gains across the release
+    Dependencies — notable changes to library dependencies, removals, or newly introduced requirements
+    Security & reliability — bug fixes, security updates, and stability improvements
+    Developer experience — constexpr support, tooling improvements, or better error handling
+
+    Input: release note
+
+    Output: Return only the bullets. No preamble, no explanation,
+    no additional commentary.
+    """
+).strip()
+
+
+def _release_note_text(rendered_content) -> str:
+    """Extract the plain-text release note used as the LLM input.
+
+    AsciiDoc originals are passed through directly (LLMs handle the markup);
+    HTML originals are stripped of tags. Whitespace is collapsed either way.
+    """
+    if (
+        rendered_content.content_type == "text/asciidoc"
+        and rendered_content.content_original
+    ):
+        raw = rendered_content.content_original
+    else:
+        raw = strip_tags(rendered_content.content_html or "")
+    return re.sub(r"[ \t]+\n", "\n", re.sub(r"\n{3,}", "\n\n", raw)).strip()
+
+
+@app.task(bind=True, max_retries=3, autoretry_for=(OpenAIError,))
+def generate_whats_new(self, version_pk: int) -> str | None:
+    """Generate a draft What's New summary for the given Version's release notes."""
+    from core.models import RenderedContent
+
+    try:
+        version = Version.objects.with_partials().get(pk=version_pk)
+    except Version.DoesNotExist:
+        logger.error("generate_whats_new_version_not_found", version_pk=version_pk)
+        return None
+
+    rendered_content = RenderedContent.objects.filter(
+        cache_key=version.release_notes_cache_key
+    ).first()
+    if not rendered_content or not (
+        rendered_content.content_html or rendered_content.content_original
+    ):
+        logger.info(
+            "generate_whats_new_no_release_notes",
+            version_pk=version_pk,
+            cache_key=version.release_notes_cache_key,
+        )
+        return None
+
+    release_note_text = _release_note_text(rendered_content)
+    logger.info(
+        "generate_whats_new_dispatching",
+        version_pk=version_pk,
+        version_name=version.name,
+        input_chars=len(release_note_text),
+    )
+
+    messages = [
+        {"role": "system", "content": WHATS_NEW_SYSTEM_PROMPT},
+        {"role": "user", "content": release_note_text},
+    ]
+    client = OpenAI(base_url=OPENROUTER_URL, api_key=OPENROUTER_API_KEY)
+    response = client.chat.completions.create(model=WHATS_NEW_MODEL, messages=messages)
+    try:
+        content = response.choices[0].message.content
+    except (AttributeError, IndexError) as e:
+        logger.error("generate_whats_new_response_error", error=str(e))
+        return None
+
+    logger.info(
+        "generate_whats_new_received",
+        version_pk=version_pk,
+        output_chars=len(content) if content else 0,
+    )
+    return content
+
+
+@app.task
+def save_whats_new(markdown_text: str | None, version_pk: int):
+    """Persist a generated summary on the Version. Approval is left untouched."""
+    from core.htmlhelper import render_whats_new_markdown
+
+    if not markdown_text:
+        logger.info("save_whats_new_empty_skip", version_pk=version_pk)
+        return
+
+    Version.objects.filter(pk=version_pk).update(
+        whats_new=markdown_text,
+        whats_new_html=render_whats_new_markdown(markdown_text),
+        whats_new_generated_at=timezone.now(),
+    )
+    logger.info("save_whats_new_saved", version_pk=version_pk)
+
+
+def dispatch_whats_new(version_pk: int) -> None:
+    """Queue the generate→save chain for a single Version."""
+    generate_whats_new.apply_async(
+        args=[version_pk],
+        link=save_whats_new.s(version_pk),
+    )

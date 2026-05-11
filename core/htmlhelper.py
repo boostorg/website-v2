@@ -1,5 +1,6 @@
 import re
 
+import markdown
 from bs4 import BeautifulSoup, Comment, Tag
 from django.http import HttpHeaders
 from django.template.loader import render_to_string
@@ -750,6 +751,14 @@ def modernize_release_notes(html_content):
     # Replace all links to boost.org with a local link
     content = result.replace("https://www.boost.org/doc/libs/", "/docs/libs/")
     return get_body_from_html(content)
+
+
+def render_whats_new_markdown(text: str) -> str:
+    """Render the constrained bullet markdown produced by the What's New
+    LLM prompt to HTML. Returns an empty string for empty input."""
+    if not text or not text.strip():
+        return ""
+    return markdown.markdown(text.strip(), extensions=["extra", "sane_lists"])
 
 
 def is_in_no_process_libs(path: str) -> bool:
