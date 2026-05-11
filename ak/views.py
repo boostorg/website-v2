@@ -129,7 +129,7 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
             "primary_button_label": "View the Release Calendar",
             "secondary_button_url": "www.example.com",
             "secondary_button_label": "Secondary Button",
-            "image": large_static("img/v3/demo_page/Calendar.png"),
+            "image": large_static("img/v3/demo-page/calendar.png"),
         }
         ctx["info_card"] = {
             "title": "How we got here",

@@ -234,7 +234,7 @@ int main()
             "author": {
                 "name": "Prof. Sven G. Bilén, Ph.D.",
                 "profile_url": "#",
-                "avatar_url": large_static("img/v3/demo_page/Avatar.png"),
+                "avatar_url": large_static("img/v3/demo_page/avatar.png"),
                 "role": "The Pennsylvania State University",
                 "badge": BadgeToken.TIER_3,
             },
@@ -361,7 +361,7 @@ the science.</p>
             "author": {
                 "name": "Ipsum Loremson",
                 "profile_url": "#",
-                "avatar_url": large_static("img/v3/demo_page/Avatar.png"),
+                "avatar_url": large_static("img/v3/demo-page/avatar.png"),
                 "role": "Maintainer",
                 "badge": BadgeToken.TIER_3,
             },
@@ -371,7 +371,7 @@ the science.</p>
             "author": {
                 "name": "Linus Torvalds",
                 "profile_url": "#",
-                "avatar_url": large_static("img/v3/demo_page/Avatar.png"),
+                "avatar_url": large_static("img/v3/demo-page/avatar.png"),
                 "role": "Reviewer",
                 "badge": BadgeToken.TIER_3,
             },
@@ -381,7 +381,7 @@ the science.</p>
             "author": {
                 "name": "Margaret Hamilton",
                 "profile_url": "#",
-                "avatar_url": large_static("img/v3/demo_page/Avatar.png"),
+                "avatar_url": large_static("img/v3/demo-page/avatar.png"),
                 "role": "Contributor",
                 "badge": BadgeToken.TIER_3,
             },
@@ -406,20 +406,20 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
             {
                 "name": "Vinnie Falco",
                 "role": "Author",
-                "avatar_url": large_static("img/v3/demo_page/Avatar.png"),
+                "avatar_url": large_static("img/v3/demo-page/avatar.png"),
                 "badge": BadgeToken.TIER_3,
                 "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
             },
             {
                 "name": "Alex Wells",
                 "role": "Contributor",
-                "avatar_url": large_static("img/v3/demo_page/Avatar.png"),
+                "avatar_url": large_static("img/v3/demo-page/avatar.png"),
                 "bio": "C++ enthusiast who has worked at Intel and Microsoft.",
             },
             {
                 "name": "Dave Abrahams",
                 "role": "Maintainer",
-                "avatar_url": large_static("img/v3/demo_page/Avatar.png"),
+                "avatar_url": large_static("img/v3/demo-page/avatar.png"),
                 "badge": BadgeToken.TIER_3,
                 "bio": "Contributor to Boost since 2009.",
             },
