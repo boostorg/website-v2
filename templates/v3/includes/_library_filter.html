@@ -22,6 +22,7 @@
       width           — "narrow" | "wide" (omit for default)
       placeholder     — placeholder text for search bar (combo/combo_multi only)
       deselectable    — if truthy, allows deselecting the current value by clicking it again (dropdown only)
+      exclude_from_clear — if truthy, this field ignores the Clear All event (dropdown only)
 
   Usage:
     {% include "v3/includes/_library_filter.html" with filter_id="library-filter" fields=filter_fields %}
@@ -58,7 +59,7 @@
             {% elif field.type == "combo" %}
               {% include "v3/includes/_field_combo.html" with name=field.name label=field.label options=field.options selected=field.selected placeholder=field.placeholder extra_class=field_class deselectable=field.deselectable %}
             {% else %}
-              {% include "v3/includes/_field_dropdown.html" with name=field.name label=field.label options=field.options selected=field.selected default=field.default extra_class=field_class deselectable=field.deselectable %}
+              {% include "v3/includes/_field_dropdown.html" with name=field.name label=field.label options=field.options selected=field.selected default=field.default extra_class=field_class deselectable=field.deselectable exclude_from_clear=field.exclude_from_clear %}
             {% endif %}
           {% endwith %}
         {% endwith %}

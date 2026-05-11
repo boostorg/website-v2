@@ -167,6 +167,7 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "default": "list",
                 "width": "category",
                 "deselectable": False,
+                "exclude_from_clear": True,
             },
             {
                 "type": "dropdown",

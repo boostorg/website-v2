@@ -13,12 +13,13 @@
     required    (optional) — if truthy, adds required attribute
     extra_class (optional) — additional classes on the wrapper
     deselectable (optional) — if truthy, shows a clear (X) button when a value is selected
+    exclude_from_clear (optional) — if truthy, this field ignores the Clear All event
   Usage:
     {% include "v3/includes/_field_dropdown.html" with name="country" label="Country" options=country_options placeholder="Select a country" %}
 {% endcomment %}
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
      {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
-     @clear-all-filters.window="clear()"
+     {% if not exclude_from_clear %}@clear-all-filters.window="clear()"{% endif %}
   {# djlint:off #}
      x-data="{
        jsReady: false,
@@ -43,9 +44,7 @@
          this.$dispatch('field-change', { name: '{{ name }}', value, label });
        },
        clear() {
-         // No-op if already at default — avoids redundant field-change
-         // events (and, for view-style dropdowns whose change triggers
-         // navigation, an unnecessary page reload).
+         // No-op if already at default — avoids redundant field-change events
          if (this.selected === this.defaultValue) return;
          let label = '';
          if (this.defaultValue) {
