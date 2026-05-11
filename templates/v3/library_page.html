@@ -35,6 +35,7 @@ Inputs:
         maxCpp: '',
         categories: [],
         query: '',
+        sort: '',
         visibleCount: 0,
 
         init() {
@@ -50,6 +51,7 @@ Inputs:
           this.maxCpp = params.get('max_cpp') || this.defaults.max_cpp;
           this.categories = params.getAll('category');
           this.query = params.get('q') || '';
+          this.sort = params.get('sort') || this.defaults.sort;
 
           this.$el.addEventListener('field-change', (event) => {
             const { name, value } = event.detail;
@@ -57,6 +59,7 @@ Inputs:
             else if (name === 'min_cpp') this.minCpp = value || 'all';
             else if (name === 'max_cpp') this.maxCpp = value || 'all';
             else if (name === 'q') this.query = value || '';
+            else if (name === 'sort') this.sort = value || this.defaults.sort;
             else if (name === 'view') {
               this.handleViewChange(value);
               return;
@@ -65,6 +68,10 @@ Inputs:
           });
 
           this.observeCategorySelections();
+          document.querySelectorAll('[data-slug]').forEach((el) => {
+            const siblings = Array.from(el.parentElement.children).filter((c) => c.dataset.slug);
+            el.dataset.originalIndex = siblings.indexOf(el);
+          });
           this.apply();
         },
 
@@ -102,6 +109,7 @@ Inputs:
         apply() {
           this.syncUrl();
           this.toggleItems();
+          this.sortItems();
           this.toggleEmptySections();
           this.toggleEmptyState();
         },
@@ -114,6 +122,7 @@ Inputs:
           this.minCpp = this.defaults.min_cpp;
           this.maxCpp = this.defaults.max_cpp;
           this.categories = [];
+          this.sort = this.defaults.sort;
           this.apply();
           this.$dispatch('clear-all-filters');
         },
@@ -125,6 +134,7 @@ Inputs:
           if (this.maxCpp !== this.defaults.max_cpp) params.set('max_cpp', this.maxCpp);
           this.categories.forEach((c) => params.append('category', c));
           if (this.query) params.set('q', this.query);
+          if (this.sort !== this.defaults.sort) params.set('sort', this.sort);
           const search = params.toString();
           window.history.replaceState(null, '', window.location.pathname + (search ? '?' + search : ''));
         },
@@ -142,6 +152,29 @@ Inputs:
             if (show) visible += 1;
           });
           this.visibleCount = visible;
+        },
+
+        sortItems() {
+          const bySlug = new Map(this.dataset.map((d) => [d.slug, d]));
+          const TIER_RANK = { flagship: 0, core: 1, deprecated: 2, legacy: 3 };
+          const tierRank = (slug) => {
+            const tier = bySlug.get(slug)?.tier || '';
+            return tier in TIER_RANK ? TIER_RANK[tier] : 4;
+          };
+          const containers = new Set(
+            Array.from(document.querySelectorAll('[data-slug]')).map((el) => el.parentElement)
+          );
+          containers.forEach((container) => {
+            const items = Array.from(container.querySelectorAll(':scope > [data-slug]'));
+            items.sort((a, b) => {
+              if (this.sort === 'popularity') {
+                const diff = tierRank(a.dataset.slug) - tierRank(b.dataset.slug);
+                if (diff !== 0) return diff;
+              }
+              return Number(a.dataset.originalIndex) - Number(b.dataset.originalIndex);
+            });
+            items.forEach((el) => container.appendChild(el));
+          });
         },
 
         matches(data) {
