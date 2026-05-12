@@ -1,3 +1,7 @@
+.learn-page-container .card {
+    max-width: 100%;
+}
+
 .learn-page-header {
     width: 100%;
     max-width: calc(50% - .5 * var(--space-card));
@@ -54,8 +58,6 @@
         "a b c"
         "a b e"
         "a d e"
-        ". d e"
-        ". d ."
     ;
     row-gap: var(--space-card);
     column-gap: var(--space-card);

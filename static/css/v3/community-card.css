@@ -5,4 +5,9 @@
 
 .community-card .content-detail-icon {
     border: none;
+    gap: var(--space-medium);
+}
+
+.community-card .content-detail-icon__cta {
+  margin-top: var(--space-s);
 }
