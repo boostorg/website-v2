@@ -1,3 +1,36 @@
+MAILING_LIST_LABELS = {
+    "boost.lists.boost.org": {
+        "name": "Boost Developers",
+        "address": "boost@lists.boost.org",
+        "description": (
+            "The primary discussion list for Boost library developers. Topics cover "
+            "library submission, development, review, and project-wide decisions. "
+            "Posts from non-subscribers are automatically rejected, and first-time "
+            "posts are moderated. Please read the discussion policy before posting: "
+            "https://www.boost.org/doc/user-guide/discussion-policy.html"
+        ),
+    },
+    "boost-announce.lists.boost.org": {
+        "name": "Boost Announcements",
+        "address": "boost-announce@lists.boost.org",
+        "description": (
+            "A low-volume, announce-only list for upcoming Boost formal reviews and "
+            "new software releases. A good fit if you want to stay informed without "
+            "following the high-volume developer discussion."
+        ),
+    },
+    "boost-users.lists.boost.org": {
+        "name": "Boost Users",
+        "address": "boost-users@lists.boost.org",
+        "description": (
+            "Discussion list for developers using the Boost C++ libraries. The right "
+            "place to ask questions, share solutions, and get help integrating Boost "
+            "into your projects. Please read the discussion policy before posting: "
+            "https://www.boost.org/doc/user-guide/discussion-policy.html"
+        ),
+    },
+}
+
 # we only want boost devel for now, leaving the others in case that changes.
 ML_STATS_URLS = [
     "https://lists.boost.org/Archives/boost/{:04}/{:02}/author.php",

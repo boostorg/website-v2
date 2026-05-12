@@ -46,6 +46,10 @@ from versions.models import Version, docs_path_to_boost_name
 
 from . import context_processors
 from .mixins import V3Mixin, iter_v3_views
+from mailing_list.mixins import (
+    MailingListCardMixin,
+    get_subscription_state_count_and_email,
+)
 from .asciidoc import convert_adoc_to_html
 from .boostrenderer import (
     convert_img_paths,
@@ -129,7 +133,7 @@ class BoostDevelopmentView(CalendarView):
     template_name = "boost_development.html"
 
 
-class CommunityView(V3Mixin, TemplateView):
+class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
     template_name = "community.html"
     v3_template_name = "v3/community.html"
 
@@ -498,7 +502,7 @@ class PrivacyPolicyView(V3Mixin, MarkdownTemplateView):
         return {"last_updated": "2024-02-17"}
 
 
-class LearnPageView(V3Mixin, TemplateView):
+class LearnPageView(MailingListCardMixin, V3Mixin, TemplateView):
     v3_template_name = "v3/learn_page.html"
 
     def get_v3_context_data(self, **kwargs):
@@ -1463,6 +1467,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         from libraries.utils import (
             patch_commit_authors,
         )
+        from django.conf import settings as _settings
 
         CODE_DEMO_BEAST = """int main()
         {
@@ -2237,6 +2242,42 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
             )
         context["demo_library_items"] = demo_library_items
 
+        # Mailing list subscribe demo
+        from mailing_list.models import UserMailingListSubscription
+
+        _demo_card_list_id = "boost.lists.boost.org"
+        context["demo_mailman_lists"] = _settings.MAILMAN_LISTS
+        context["demo_subscribe_url"] = self.request.build_absolute_uri(
+            reverse("mailing-list-subscribe")
+        )
+        context["demo_quick_subscribe_url"] = self.request.build_absolute_uri(
+            reverse("mailing-list-quick-subscribe")
+        )
+
+        mailing_list_state = None
+
+        if self.request.user.is_authenticated:
+            mailing_list_state = get_subscription_state_count_and_email(
+                self.request.user, _settings.MAILMAN_LISTS
+            )
+            context["demo_subscribed_lists"] = set(
+                UserMailingListSubscription.objects.filter(
+                    user=self.request.user, list_id__in=_settings.MAILMAN_LISTS
+                ).values_list("list_id", flat=True)
+            )
+        else:
+            context["demo_subscribed_lists"] = set()
+
+        context["demo_mailing_list_card_list_id"] = _demo_card_list_id
+        context["demo_mailing_list_card_state"] = (
+            mailing_list_state[0] if mailing_list_state else None
+        )
+        context["demo_subscription_count"] = (
+            mailing_list_state[1] if mailing_list_state else 0
+        )
+        context["demo_subscribed_lists_email"] = (
+            mailing_list_state[2] if mailing_list_state else ""
+        )
         # V3 paths registry
         v3_paths = [
             {

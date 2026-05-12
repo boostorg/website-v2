@@ -119,6 +119,12 @@ def setup_periodic_tasks(sender, **kwargs):
         app.signature("asciidoctor_sandbox.tasks.cleanup_old_sandbox_documents"),
     )
 
+    # Purge expired pending mailing list subscriptions. Executes daily at 3:45 AM.
+    sender.add_periodic_task(
+        crontab(hour=3, minute=45),
+        app.signature("mailing_list.tasks.purge_expired_pending_subscriptions"),
+    )
+
     # Sync per-post page views from Plausible. Executes daily at 6:00 AM.
     sender.add_periodic_task(
         crontab(hour=6, minute=0),

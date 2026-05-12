@@ -16,6 +16,7 @@ from django.views.generic import DetailView, ListView, FormView, TemplateView
 from core.constants import SLACK_URL
 from core.githubhelper import GithubAPIClient
 from core.mixins import V3Mixin
+from mailing_list.mixins import MailingListCardMixin
 from core.mock_data import SharedResources
 from news.models import Entry
 from versions.exceptions import BoostImportedDataException
@@ -454,7 +455,12 @@ class LibraryByTier(LibraryListBase):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class LibraryDetail(
-    V3Mixin, VersionAlertMixin, BoostVersionMixin, ContributorMixin, DetailView
+    MailingListCardMixin,
+    V3Mixin,
+    VersionAlertMixin,
+    BoostVersionMixin,
+    ContributorMixin,
+    DetailView,
 ):
     """Display a single Library in insolation"""
 

@@ -1,0 +1,17 @@
+Hi,
+
+You requested to subscribe {{ email }} to the following Boost mailing list{{ lists|length|pluralize }}:
+{% for item in lists %}
+------------------------------------------------------------
+{{ item.name }} — {{ item.address }}
+{% if item.description %}
+{{ item.description }}
+{% endif %}{% endfor %}------------------------------------------------------------
+
+To confirm your subscription, click the link below:
+
+  {{ confirm_url }}
+
+This link expires in {{ expiry_label }}.
+
+If you did not request this, you can safely ignore this email.

@@ -49,7 +49,7 @@
         {% endwith %}
       </div>
       <div class="item-e">
-        {% include 'v3/includes/_mailing_list_card.html' %}
+        {% include 'v3/includes/_mailing_list_card.html' with subscribe_url=mailing_list_card_subscribe_url list_id=mailing_list_card_list_id state=mailing_list_card_state user_email=mailing_list_card_user_email manage_url=mailing_list_card_manage_url subscription_count=mailing_list_card_subscription_count error_message=mailing_list_card_error_message %}
       </div>
     </div>
   </div>
