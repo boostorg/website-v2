@@ -198,7 +198,6 @@ class CommunityView(V3Mixin, TemplateView):
             },
         ]
         version_slug = self.kwargs.get("version_slug", LATEST_RELEASE_URL_PATH_STR)
-        # Reuse the context processor's resolved version (single source of truth).
         selected_version = context_processors.selected_version(self.request)[
             "selected_version"
         ]
