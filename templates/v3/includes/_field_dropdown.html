@@ -17,7 +17,7 @@
   Usage:
     {% include "v3/includes/_field_dropdown.html" with name="country" label="Country" options=country_options placeholder="Select a country" %}
 {% endcomment %}
-<div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
+<div class="field {% if error %}field--error{% endif %} {% if extra_class %}{{ extra_class }}{% endif %}"
      {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
      {% if not exclude_from_clear %}@clear-all-filters.window="clear()"{% endif %}
      @field-disabled-values.window="if ($event.detail.name === '{{ name }}') disabledValues = $event.detail.values"
@@ -73,7 +73,7 @@
           @change="$dispatch('field-change', { name: '{{ name }}', value: $event.target.value, label: $event.target.options[$event.target.selectedIndex].text })">
     {% if placeholder %}<option value="">{{ placeholder }}</option>{% endif %}
     {% for value, label in options %}
-      <option value="{{ value }}"{% if value == selected %} selected{% endif %}>{{ label }}</option>
+      <option value="{{ value }}" {% if value == selected %}selected{% endif %}>{{ label }}</option>
     {% endfor %}
   </select>
   <div class="dropdown" :class="{ 'dropdown--open': open{% if deselectable %}, 'dropdown--has-value': selected && selected !== defaultValue{% endif %} }" x-cloak>
@@ -153,7 +153,7 @@
   <p class="field__error" role="alert" aria-live="polite" x-show="false">{{ error }}</p>
   {% endif %}
   {% if help_text %}
-  <p class="field__help" id="field-{{ name }}-help" x-show="!{{ alpine_error }}"{% if error %} style="display:none"{% endif %}>{{ help_text }}</p>
+  <p class="field__help" id="field-{{ name }}-help" x-show="!{{ alpine_error }}" {% if error %}style="display:none"{% endif %}>{{ help_text }}</p>
   {% endif %}
   {% else %}
   {% if error %}

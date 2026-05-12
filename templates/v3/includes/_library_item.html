@@ -20,7 +20,7 @@
   Usage (card):
     {% include "v3/includes/_library_item.html" with variant="card" library_name="Boost.Asio" description="Portable networking and low-level I/O." categories=cats cpp_version="C++ 11" author=author doc_url="/libs/asio/doc/" %}
 {% endcomment %}
-{% if variant == "list" %}<li class="library-item library-item--list"{% if library_slug %} data-slug="{{ library_slug }}"{% endif %} {{ extra_attrs|safe }}>{% else %}<div class="library-item library-item--card"{% if library_slug %} data-slug="{{ library_slug }}"{% endif %} {{ extra_attrs|safe }}>{% endif %}
+{% if variant == "list" %}<li class="library-item library-item--list" {% if library_slug %}data-slug="{{ library_slug }}"{% endif %} {{ extra_attrs|safe }}>{% else %}<div class="library-item library-item--card" {% if library_slug %}data-slug="{{ library_slug }}"{% endif %} {{ extra_attrs|safe }}>{% endif %}
 
   <div class="library-item__header">
     {% if library_url %}

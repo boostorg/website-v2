@@ -204,6 +204,9 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "placeholder": "Search",
                 "deselectable": True,
             },
+            # Sort is applied client-side via libraryFilter.sortItems(); no
+            # queryset.order_by() here. The default alphabetical order comes
+            # from the view's `ordering = "library__name"`.
             {
                 "type": "dropdown",
                 "name": "sort",

@@ -111,7 +111,7 @@ html.dark .library-page-hero .hero-image-dark {
     align-items: center;
 }
 
-.library-page_list-header-justify {
+.library-page__list-header-justify {
     justify-self: center;
     padding-left: calc(16px + var(--space-large));
 }

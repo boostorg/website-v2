@@ -37,9 +37,27 @@ Inputs:
   {{ library_dataset|json_script:"library-data" }}
   {{ library_filter_defaults|json_script:"library-filter-defaults" }}
   <script>
-    /* Defined inline so the factory is on window before Alpine evaluates x-data
+    /* libraryFilter() — page-scoped Alpine component that owns search/filter/sort.
+       All three pipelines are client-side; the server returns the full dataset
+       for the selected Boost version, embedded as the `library-data` script tag.
+
+       State:
+         dataset, defaults      — loaded once from script tags at init().
+         grading, minCpp,       — current filter selections, hydrated from URL
+         maxCpp, categories,      params and mirrored back via syncUrl().
+         query, sort
+         searchHits/Scores      — Fuse output keyed by slug (null when no query).
+         visibleCount           — drives empty-state visibility from toggleItems().
+
+       Wiring: child field components dispatch `field-change` events; the parent
+       listens, updates state, calls apply() which runs search → URL sync →
+       toggle → sort → empty-state in order.
+
+       Defined inline so the factory is on window before Alpine evaluates x-data
        on this page — defer-script load ordering can otherwise race Alpine.start. */
     window.libraryFilter = function () {
+      // Keep in sync with LibraryVersion.CPP_STANDARD_DISPLAY_NAMES — used for
+      // min/max C++ range ranking and the disabled-option constraints.
       const CPP_STANDARDS = [
         { key: '98', year: 1998, label: 'C++98' },
         { key: '03', year: 2003, label: 'C++03' },
@@ -112,6 +130,8 @@ Inputs:
           this.query = params.get('q') || '';
           this.sort = params.get('sort') || this.defaults.sort;
 
+          // Child fields dispatch `field-change` with {name, value}; route to
+          // the matching state slot, enforce min/max C++ ordering, then apply().
           this.$el.addEventListener('field-change', (event) => {
             const { name, value } = event.detail;
             if (name === 'grading') this.grading = value || 'all';
@@ -277,8 +297,9 @@ Inputs:
           items.forEach((el) => {
             const data = bySlug.get(el.dataset.slug);
             const show = data ? this.matches(data) : true;
-            // Inline style beats the `[hidden]` attribute, which is overridden
-            // by .library-item--list / --card's `display: grid`.
+            // Inline style beats `[hidden]`. The item containers use
+            // `display: grid` (with subgrid on .library-item--list), which
+            // overrides the default `[hidden] { display: none }` rule.
             el.style.display = show ? '' : 'none';
             if (show) visible += 1;
           });
@@ -359,6 +380,7 @@ Inputs:
       };
     };
   </script>
+
   <div class="library-page__container" x-data="libraryFilter()">
     <section class="library-page-hero" aria-label="Hero">
           <h1 class="hero-title">Find a battle-tested library for the problem you're solving right now.</h1>
@@ -382,7 +404,7 @@ Inputs:
           <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Description</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
           <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Category</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
           <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Author</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
-          <div class="library-page__list-header-flex library-page_list-header-justify"><span class="library-page__list-header-text">Version</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
+          <div class="library-page__list-header-flex library-page__list-header-justify"><span class="library-page__list-header-text">Version</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
           <div></div>
         </li>
         {% for item in object_list %}
@@ -419,8 +441,4 @@ Inputs:
       </div>
     {% endif %}
   </div>
-{% endblock %}
-
-{% block footer_js %}
-  {{ block.super }}
 {% endblock %}

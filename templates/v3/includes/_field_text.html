@@ -40,7 +40,7 @@
     Search field (no error handling):
     {% include "v3/includes/_field_text.html" with name="q" placeholder="Search..." submit_icon="arrow-right" submit_label="Search" %}
 {% endcomment %}
-<div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
+<div class="field {% if error %}field--error{% endif %} {% if extra_class %}{{ extra_class }}{% endif %}"
   {# djlint:off #}
     {% if validate_type == "email" %}
     data-validate
@@ -59,7 +59,7 @@
     {% elif alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}>
   {# djlint:on #}
   {% if label %}<label class="field__label" for="field-{{ name }}">{{ label }}</label>{% endif %}
-  <div class="field__control{% if disabled %} field__control--disabled{% endif %}"
+  <div class="field__control {% if disabled %}field__control--disabled{% endif %}"
        {% if submit_icon %}x-data="{ q: '{{ value|default:''|escapejs }}' }"{% endif %}>
     {% if icon_left %}
       <span class="field__icon" aria-hidden="true">
@@ -82,7 +82,7 @@
            {% elif help_text %}
            aria-describedby="field-{{ name }}-help"
            {% endif %}
-           {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q"{% if dispatch_field_change %} @input.debounce.150ms="$dispatch('field-change', { name: '{{ name }}', value: q })"{% endif %}{% endif %}>
+           {% if validate_type == "email" %}x-model="value" @blur="touched = true"{% elif submit_icon %}x-model="q" {% if dispatch_field_change %}@input.debounce.150ms="$dispatch('field-change', { name: '{{ name }}', value: q })"{% endif %}{% endif %}>
     {% if submit_icon %}
       <button type="submit"
               class="field__submit"

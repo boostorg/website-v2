@@ -314,7 +314,7 @@
   border-color: var(--color-stroke-weak);
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  border-bottom-color: var(--color-stroke-weak, #0508161A);
+  border-bottom-color: var(--color-stroke-weak);
 }
 
 .dropdown--has-value .dropdown__trigger,
