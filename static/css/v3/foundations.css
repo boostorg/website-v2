@@ -12,6 +12,25 @@ body.v3 {
   background: var(--color-surface-page);
 }
 
+html.v3,
+body.v3,
+html.v3 *,
+body.v3 * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary-grey-500) transparent;
+}
+
+/* Reserve the scrollbar gutter so dialog scroll-lock doesn't reflow the page. */
+html.v3 {
+  scrollbar-gutter: stable;
+}
+
+/* Neutralise third-party scroll-lock libs (e.g. Boost Gecko search) that
+   add inline body padding-right — our gutter above already reserves it. */
+body.v3 {
+  padding-right: 0 !important;
+}
+
 html.v3 code {
   font-family: var(--font-code);
 }

@@ -1,90 +1,115 @@
 {% comment %}
-  Testimonial Card — displays a carousel of testimonial quotes with author profiles.
+  Testimonial Card — CSS-only carousel of testimonial quotes with prev/next
+  navigation and pagination dots. Functions without JavaScript via hidden
+  radio inputs + sibling selectors (same pattern as _install_card.html).
 
   Variables:
     heading        (string, optional)  — title displayed at the top of the card
     testimonials   (list, optional)    — list of testimonial objects with:
       - quote      (string, optional)  — testimonial text to display
       - author     (object, optional)  — passed to _user_profile.html (see that template for fields)
+      - slug       (string, optional)  — when set, the quote bubble becomes a
+                                         link to "#{slug}", opening a matching
+                                         Content Modal via :target.
+      - content    (HTML, optional)    — when set on at least the first item,
+                                         the matching Content Modal group is
+                                         bundled below the card.
 
   Usage:
     {% include "v3/includes/_testimonial_card.html" with heading="Testimonials" testimonials=testimonials %}
 {% endcomment %}
 
-{% with carousel_id='_testimonials_cards_carousel' %}
+{% with carousel_id='_testimonials_cards_carousel' total=testimonials|length %}
 {% comment %}
-  Per-index visibility rules generated from the testimonials list (the count is
-  data-driven, so they can't live as static rules in the CSS). The first <style>
-  block runs in both JS and no-JS modes; only the nav-set for the checked radio
-  is shown. The <noscript> block additionally switches the track to a CSS
-  transform-based carousel: items are flex: 0 0 100% with gap: 0, so
-  translateX(-N00%) shifts by exactly one item per radio. visibility: hidden on
-  non-current items mirrors the JS-mode `inert` behavior so off-screen author
-  links can't receive tab focus. Touch-swipe is lost in no-JS mode (the parent
-  `.testimonial-card__post` clips with overflow: hidden) but arrow buttons work
-  without scrolling the page.
+  Per-state rules emitted from the testimonials loop so the rule count
+  scales with the data. Each radio's id is unique, so we target it directly
+  rather than using :nth-of-type.
 {% endcomment %}
-{% if testimonials %}
-  <style>
-    {% for testimonial in testimonials %}
-      .testimonial-card:has(.testimonial-card__state[data-state-index="{{ forloop.counter0 }}"]:checked) .testimonial-card__nav-set[data-nav-index="{{ forloop.counter0 }}"] { display: inline-flex; }
-    {% endfor %}
-  </style>
-  <noscript>
-    <style>
-      .testimonial-card__list { overflow: visible !important; gap: 0 !important; transition: transform 0.3s ease; }
-      .testimonial-card__list-item { visibility: hidden; }
+<style>
+  {% for testimonial in testimonials %}
+    /* Shift the track to bring this slide into view (-N00% per zero-indexed slide). */
+    #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .cards-carousel__track .testimonial-card__list {
+      transform: translateX(-{{ forloop.counter0 }}00%);
+    }
+    /* Reveal this slide's nav block (others are display:none in testimonial-card.css). */
+    #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .card__header .testimonial-card__nav--{{ forloop.counter }} {
+      display: inline-flex;
+    }
+    /* Highlight the active dot; inactive dots stay dimmed via the base rule. */
+    #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .testimonial-card__dots .testimonial-card__dot:nth-child({{ forloop.counter }}) {
+      opacity: 1;
+    }
+    /* Show this slide's CTA (others are display:none). */
+    #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .testimonial-card__cta--{{ forloop.counter }} {
+      display: flex;
+    }
+    /* Restore the active slide's visibility so its tab targets re-enter the tab order. */
+    #{{ carousel_id }}-{{ forloop.counter }}:checked ~ .cards-carousel__track .testimonial-card__list .testimonial-card__list-item:nth-child({{ forloop.counter }}) {
+      visibility: visible;
+      transition-delay: 0s;
+    }
+    /* Mirror the hidden radio's focus onto the visible nav wrapper. */
+    #{{ carousel_id }}-{{ forloop.counter }}:focus-visible ~ .card__header .testimonial-card__nav--{{ forloop.counter }} {
+      outline: 2px solid var(--color-stroke-link-accent);
+    }
+  {% endfor %}
+</style>
 
-      {% for testimonial in testimonials %}
-        .testimonial-card:has(.testimonial-card__state[data-state-index="{{ forloop.counter0 }}"]:checked) .testimonial-card__list { transform: translateX(-{{ forloop.counter0 }}00%); }
-        .testimonial-card:has(.testimonial-card__state[data-state-index="{{ forloop.counter0 }}"]:checked) .testimonial-card__list-item[data-item-index="{{ forloop.counter0 }}"] { visibility: visible; }
-      {% endfor %}
-    </style>
-  </noscript>
-{% endif %}
-<div class="card testimonial-card py-large" id="{{carousel_id}}" data-carousel data-carousel-radios role="region" aria-labelledby="{{ carousel_id }}-heading">
-  {% if testimonials %}
-    {% for testimonial in testimonials %}
-      <input type="radio" class="testimonial-card__state" name="{{ carousel_id }}-state" id="{{ carousel_id }}-state-{{ forloop.counter0 }}" data-state-index="{{ forloop.counter0 }}" {% if forloop.first %}checked{% endif %}>
-    {% endfor %}
-  {% endif %}
+<section class="card testimonial-card" id="{{ carousel_id }}" role="region" aria-labelledby="{{ carousel_id }}-heading">
+  {% comment %} Hidden radios drive all carousel state via the per-state rules above. {% endcomment %}
+  {% for testimonial in testimonials %}
+    <input type="radio"
+           name="{{ carousel_id }}-state"
+           id="{{ carousel_id }}-{{ forloop.counter }}"
+           class="testimonial-card__radio"
+           aria-label="Show testimonial {{ forloop.counter }}"
+           {% if forloop.first %}checked{% endif %}>
+  {% endfor %}
+
+
   <div class="card__header">
     <h2 id="{{ carousel_id }}-heading" class="card__title">{{ heading }}</h2>
-    {% if testimonials %}
-      <div class="testimonial-card__controls" id="{{ carousel_id }}-controls" role="group" aria-label="Carousel navigation">
-        {% for testimonial in testimonials %}
-          <div class="carousel-buttons testimonial-card__nav-set" data-nav-index="{{ forloop.counter0 }}">
-            {% if forloop.first %}
-              <span class="btn btn-carousel" aria-disabled="true" aria-label="Previous" data-carousel-prev>
-                <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=12 %}</span>
-              </span>
-            {% else %}
-              <label class="btn btn-carousel" for="{{ carousel_id }}-state-{{ forloop.counter0|add:"-1" }}" aria-label="Previous" data-carousel-prev>
-                <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=12 %}</span>
-              </label>
-            {% endif %}
-            {% if forloop.last %}
-              <span class="btn btn-carousel" aria-disabled="true" aria-label="Next" data-carousel-next>
-                <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=12 %}</span>
-              </span>
-            {% else %}
-              <label class="btn btn-carousel" for="{{ carousel_id }}-state-{{ forloop.counter }}" aria-label="Next" data-carousel-next>
-                <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=12 %}</span>
-              </label>
-            {% endif %}
-          </div>
-        {% endfor %}
+
+    {% comment %} One nav block per slide; prev/next wrap cyclically (first ↔ last). {% endcomment %}
+    {% for testimonial in testimonials %}
+      <div class="carousel-buttons testimonial-card__nav testimonial-card__nav--{{ forloop.counter }}" role="group" aria-label="Carousel navigation">
+        {% if forloop.first %}
+          <label for="{{ carousel_id }}-{{ total }}" class="btn btn-carousel" role="button" aria-label="Previous">
+        {% else %}
+          <label for="{{ carousel_id }}-{{ forloop.counter|add:'-1' }}" class="btn btn-carousel" role="button" aria-label="Previous">
+        {% endif %}
+          <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-left" icon_size=12 %}</span>
+        </label>
+        {% if forloop.last %}
+          <label for="{{ carousel_id }}-1" class="btn btn-carousel" role="button" aria-label="Next">
+        {% else %}
+          <label for="{{ carousel_id }}-{{ forloop.counter|add:1 }}" class="btn btn-carousel" role="button" aria-label="Next">
+        {% endif %}
+          <span class="btn-icon" aria-hidden>{% include "includes/icon.html" with icon_name="chevron-right" icon_size=12 %}</span>
+        </label>
       </div>
-    {% endif %}
+    {% endfor %}
   </div>
-  <hr class="card__hr" />
+
+  <hr class="card__hr" aria-hidden="true" />
+
+  {% if total > 1 %}
+    <div class="testimonial-card__dots" aria-label="Testimonial pagination">
+      {% for testimonial in testimonials %}
+        <label for="{{ carousel_id }}-{{ forloop.counter }}"
+               class="testimonial-card__dot"
+               aria-label="Show testimonial {{ forloop.counter }}"></label>
+      {% endfor %}
+    </div>
+  {% endif %}
+
   <div class="cards-carousel__track">
     <section class="testimonial-card__post">
-      <ul class="testimonial-card__list" data-carousel-track aria-label="Testimonials carousel">
+      <ul class="testimonial-card__list" aria-label="Testimonials carousel">
           {% if testimonials %}
             {% for testimonial in testimonials %}
-              <li class="testimonial-card__list-item" data-carousel-item data-item-index="{{ forloop.counter0 }}">
-                <div>
+              <li class="testimonial-card__list-item">
+                {% if testimonial.slug %}<a class="testimonial-card__quote-link" href="#{{ testimonial.slug }}">{% else %}<div>{% endif %}
                   <div class="testimonial-card__text-wrapper">
                     <div class="testimonial-card__text">{{ testimonial.quote }}</div>
                   </div>
@@ -93,7 +118,7 @@
                       <path class="testimonial-card__text-tail" d="M0 0H32L3.41421 28.5858C2.15428 29.8457 0 28.9534 0 27.1716V0Z" />
                     </svg>
                   </div>
-                </div>
+                {% if testimonial.slug %}</a>{% else %}</div>{% endif %}
                 {% include "v3/includes/_user_profile.html" with author=testimonial.author only %}
               </li>
             {% endfor %}
@@ -101,5 +126,23 @@
         </ul>
     </section>
   </div>
-</div>
+
+  <hr class="card__hr" aria-hidden="true" />
+
+  {% comment %} One CTA per slide; targets the same modal slug as the quote-bubble link. {% endcomment %}
+  {% for testimonial in testimonials %}
+    {% if testimonial.slug %}
+      <a href="#{{ testimonial.slug }}"
+         class="btn btn-primary testimonial-card__cta testimonial-card__cta--{{ forloop.counter }}"
+         aria-label="Read more about {{ testimonial.title }}">
+        Read more
+      </a>
+    {% endif %}
+  {% endfor %}
+</section>
+
+{% comment %} Modals rendered as siblings of the card so :target wires up the quote-bubble links. {% endcomment %}
+{% if testimonials.0.content %}
+  {% include "v3/includes/_content_modal_group.html" with items=testimonials only %}
+{% endif %}
 {% endwith %}

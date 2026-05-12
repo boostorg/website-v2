@@ -1,37 +1,67 @@
 .testimonial-card {
     max-width: 696px;
-}
-
-.testimonial-card__carousel {
-    display: flex;
-    padding: 0 var(--space-large, 16px);
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-large, 16px);
-    align-self: stretch;
+    position: relative;
+    padding: var(--space-large) 0 !important;
+    overflow: hidden;
 }
 
 .testimonial-card__text-wrapper {
     display: flex;
-    padding: var(--space-xl, 32px);
-    border-radius: var(--space-xl, 32px);
-    background: var(--color-surface-mid, #F7F7F8);
+    padding: var(--space-xl);
+    border-radius: var(--space-xl);
+    background: var(--color-surface-mid);
+}
+
+.testimonial-card__quote-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.testimonial-card__quote-link:hover .testimonial-card__text-wrapper,
+.testimonial-card__quote-link:focus-visible .testimonial-card__text-wrapper {
+    background: var(--color-surface-strong);
+}
+
+.testimonial-card__quote-link:hover .testimonial-card__text-tail,
+.testimonial-card__quote-link:focus-visible .testimonial-card__text-tail {
+    fill: var(--color-surface-strong);
+}
+
+/* Default link outline would bleed into the neighboring slide; render the
+   focus ring inside the bubble instead (see rule below). */
+.testimonial-card__quote-link:focus-visible {
+    outline: none;
+}
+
+.testimonial-card__quote-link:focus-visible .testimonial-card__text-wrapper {
+    outline: 2px solid var(--color-stroke-link-accent);
+    outline-offset: -2px;
 }
 
 .testimonial-card__text {
-    color: var(--color-text-primary, #050816);
+    color: var(--color-text-primary);
     font-family: var(--font-sans);
-    font-size: var(--font-size-xl, 32px);
+    font-size: var(--font-size-xl);
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-tight);
     letter-spacing: var(--letter-spacing-tight);
+
+    /* 3-line clamp with ellipsis. */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .testimonial-card__text-tail {
     width: 32px;
-    height: var(--space-xl, 32px);
+    height: var(--space-xl);
     aspect-ratio: 1/1;
-    fill: var(--color-surface-mid, #F7F7F8);
+    fill: var(--color-surface-mid);
 }
 
 .testimonial-card__tail-wrapper {
@@ -43,7 +73,7 @@
 .testimonial-card__author {
     display: flex;
     align-items: center;
-    gap: var(--space-medium, 12px);
+    gap: var(--space-medium);
 }
 
 .testimonial-card__author-info {
@@ -51,27 +81,24 @@
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    gap: var(--space-s, 4px);
+    gap: var(--space-s);
 
-
-    /* Sans/Desktop/Regular/XS/Default */
     font-family: var(--font-sans);
-    font-size: var(--font-size-xs, 12px);
+    font-size: var(--font-size-xs);
     font-style: normal;
     font-weight: 400;
     line-height: 120%;
-    /* 14.4px */
     letter-spacing: -0.12px;
 }
 
 
 .testimonial-card__author-name-text {
-    color: var(--color-text-primary, #050816);
+    color: var(--color-text-primary);
 }
 
 .testimonial-card__author-role {
     height: 16px;
-    gap: var(--space-default, 8px);
+    gap: var(--space-default);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -94,26 +121,103 @@
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    gap: var(--space-card);
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
     min-width: 0;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    transition: transform 0.3s ease;
+    will-change: transform;
 }
 
 .testimonial-card__list-item {
     list-style: none;
-    flex: 0 0 auto;
+    flex: 0 0 100%;
     min-width: 0;
     max-width: 100%;
     border: none;
     padding: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+
+    /* Hide off-screen slides from tab order. The 0.3s delay matches the
+       slide animation so the outgoing slide stays visible until it has
+       fully translated out. Active slide overrides this in the inline
+       <style> block emitted per-testimonial. */
+    visibility: hidden;
+    transition: visibility 0s linear 0.3s;
+}
+
+.testimonial-card__list-item > .user-profile {
+    margin-top: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .testimonial-card__list,
+    .testimonial-card__list-item {
+        transition: none;
+    }
+}
+
+/* ============================================
+   CSS-only carousel state — hidden radios at the top of .testimonial-card
+   drive everything via sibling :checked selectors.
+   ============================================ */
+
+/* Visually hidden but keyboard-accessible. */
+.testimonial-card__radio {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Per-state rules (track translation, active nav/dot/CTA, focus ring) are
+   emitted by the Django template's inline <style> in `_testimonial_card.html`
+   so they scale with the testimonial count. */
+.testimonial-card__nav {
+    display: none;
+}
+
+.testimonial-card__nav .btn-carousel {
+    cursor: pointer;
+}
+
+/* Pagination dots — sit on the same visual row as the user profile,
+   above the divider and Read-more CTA. */
+.testimonial-card__dots {
+    position: absolute;
+    /* Card padding + CTA height (~36px) + gap. Re-tune if button size changes. */
+    bottom: calc(3 * var(--space-large) + 36px);
+    right: var(--space-large);
+    display: flex;
+    align-items: center;
+    gap: var(--space-s);
+    z-index: 1;
+}
+
+.testimonial-card__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    background-color: var(--color-primary-grey-700);
+    opacity: 0.2;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+/* Read-more CTA — full-width primary button. */
+.testimonial-card__cta {
+    display: none;
+    width: calc(100% - 2 * var(--space-large));
+    margin: 0 var(--space-large);
+    box-sizing: border-box;
 }
 
 .testimonial-card__author-role-text {
-    color: var(--color-text-secondary, #585A64);
+    color: var(--color-text-secondary);
 }
 
 .testimonial-card__author-role-badge {
@@ -125,40 +229,6 @@
 .testimonial-card__cards {
     max-width: 100%;
 }
-
-/*
- * Carousel navigation uses hidden radios + <label> arrows so clicking an arrow
- * doesn't change the URL or trigger scrollIntoView (which would scroll the
- * page). The nav pair matching the currently-:checked radio is the only one
- * shown. The track keeps `overflow-x: auto` so touch/swipe still works; JS
- * syncs radio <-> scroll position. In no-JS mode the track is switched to
- * `overflow: hidden` + CSS transform (see the <noscript> block in
- * _testimonial_card.html), which trades touch scroll for a working arrow UI.
- */
-.testimonial-card__state {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    border: 0;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.testimonial-card__controls {
-    display: contents;
-}
-
-.testimonial-card .testimonial-card__nav-set {
-    display: none;
-}
-
-/* Per-index `display: inline-flex` overrides for the checked radio's nav-set
-   are generated in _testimonial_card.html (the testimonials count is
-   data-driven, so the rule set is rendered inline by the template). */
 
 .carousel-buttons label.btn-carousel {
     display: inline-flex;
@@ -173,32 +243,6 @@
     opacity: 0.5;
     cursor: not-allowed;
     pointer-events: none;
-}
-
-/* Focus mirroring: the radios are visually hidden but remain keyboard-focusable
-   (arrow keys move between them natively). When that happens we reflect focus
-   onto the currently-visible nav-set wrapper so keyboard users see where they
-   are. Outlining the wrapper (not each button) avoids two outlines colliding
-   on the adjacent prev/next pills. Only the nav-set matching the checked
-   radio is `display: inline-flex`; the others are `display: none`, so a
-   single rule suffices. */
-.testimonial-card:has(.testimonial-card__state:focus-visible) .testimonial-card__nav-set {
-    outline: 2px solid currentColor;
-    outline-offset: 2px;
-    border-radius: 8px;
-}
-
-/* Scroll-snap: align items when the user swipes. JS uses smooth scroll on
-   arrow-click so we don't need scroll-behavior here.
-   `flex: 0 0 100%` forces each item to exactly the flex container width so
-   both native scroll and the no-JS transform math land on item boundaries. */
-.testimonial-card__list {
-    scroll-snap-type: x mandatory;
-}
-
-.testimonial-card__list-item {
-    scroll-snap-align: start;
-    flex: 0 0 100%;
 }
 
 /**

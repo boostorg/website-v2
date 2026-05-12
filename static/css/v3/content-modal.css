@@ -1,0 +1,211 @@
+/**
+ * Content Modal — centered card for long-form reading.
+ *
+ * Reuses the .dialog-modal root class so static/js/dialog.js (focus trap,
+ * ESC, initial focus, focus return) applies for free. Open/close is CSS-only
+ * via the :target pseudo-class — no JavaScript required.
+ *
+ * Structure:
+ *   .dialog-modal.content-modal       — full-screen overlay (hidden by default)
+ *   .dialog-modal__backdrop           — close link covering the overlay
+ *   .content-modal__container         — centered card (role="dialog")
+ *   .content-modal__header            — top row: close + title + prev/next
+ *                                       (title wraps to its own row on mobile)
+ *   .content-modal__title             — heading text
+ *   .content-modal__close             — close (×) link, top-right of card
+ *   .content-modal__subtitle          — byline / secondary text row
+ *   .content-modal__divider           — horizontal rule between subtitle and body
+ *   .content-modal__body              — scrollable rich-content region
+ */
+
+/* ============================================
+   CONTAINER (centered card, max 916px wide)
+   ============================================ */
+.content-modal__container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+  width: 916px;
+  max-width: calc(100vw - 2 * 54px);
+  height: min(700px, calc(100vh - 2 * var(--space-xl)));
+  padding: var(--space-xlarge) 0;
+  background-color: var(--color-surface-weak);
+  border: 1px solid var(--color-stroke-weak);
+  border-radius: var(--border-radius-xl);
+  overflow: hidden;
+}
+
+/* ============================================
+   HEADER (close on the left, title in the middle, prev/next on the right)
+   ============================================ */
+.content-modal__header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-large);
+}
+
+.content-modal__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0 var(--space-large);
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-primary);
+}
+
+.content-modal__header .carousel-buttons {
+  flex-shrink: 0;
+}
+
+/* ============================================
+   CLOSE LINK (×) — top-right of the card header
+   ============================================ */
+.content-modal__close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-s);
+  background-color: var(--color-surface-strong);
+  border-radius: var(--border-radius-l);
+  color: var(--color-icon-primary);
+  text-decoration: none;
+}
+
+.content-modal__close:hover {
+  color: var(--color-icon-secondary);
+}
+
+.content-modal__close svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+/* ============================================
+   SUBTITLE (byline / secondary text)
+   The 56px left padding aligns subtitle text under the title text,
+   past the close icon on its left.
+   ============================================ */
+.content-modal__subtitle {
+  flex: 0 0 auto;
+  padding: 0 var(--space-large) 0 56px;
+  font-family: var(--font-display);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-display-regular);
+  color: var(--color-text-tertiary);
+}
+
+/* ============================================
+   DIVIDER between header/subtitle and the scrollable body
+   ============================================ */
+.content-modal__divider {
+  flex: 0 0 auto;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--color-stroke-weak);
+}
+
+/* ============================================
+   BODY (scrollable rich-content region)
+   ============================================ */
+.content-modal__body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--space-s) var(--space-large);
+  outline: none;
+}
+
+/* ============================================
+   PROSE — rich-content styling, isolated to the modal.
+   Self-contained so no shared `.markdown-content` rules apply.
+   ============================================ */
+.content-modal__prose {
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.content-modal__prose :is(h2, h3, h4, h5, h6) {
+  margin: var(--space-xlarge) 0 var(--space-large);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-display-regular);
+}
+
+.content-modal__prose h2 {
+  font-size: var(--font-size-large);
+}
+
+.content-modal__prose h3 {
+  font-size: var(--font-size-base);
+}
+
+.content-modal__prose :is(h4, h5, h6) {
+  font-size: var(--font-size-small);
+}
+
+/* Sit flush with the top — no leading margin on the first prose element. */
+.content-modal__prose > :first-child {
+  margin-top: 0;
+}
+
+.content-modal__prose p {
+  margin: var(--space-default) 0;
+  padding: 0;
+  line-height: var(--line-height-loose);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 767px) {
+  .content-modal__container {
+    width: auto;
+    max-width: calc(100vw - 2 * var(--space-medium));
+    max-height: calc(100vh - 2 * var(--space-large));
+    border-radius: var(--border-radius-l);
+    gap: var(--space-large);
+  }
+
+  /* Wrap the title onto its own row, leaving close + carousel on row 1.
+     `order: 1` pushes it after both siblings; `flex-basis: 100%` forces a wrap.
+     Negative horizontal margin lets the divider above the title span the
+     full container width past the header's left/right padding. */
+  .content-modal__header {
+    flex-wrap: wrap;
+    row-gap: var(--space-large);
+  }
+
+  .content-modal__header .carousel-buttons {
+    margin-left: auto;
+  }
+
+  .content-modal__title {
+    order: 1;
+    flex-basis: 100%;
+    margin: 0 calc(-1 * var(--space-large));
+    padding: var(--space-large) var(--space-large) 0;
+    border-top: 1px solid var(--color-stroke-weak);
+  }
+
+  .content-modal__subtitle {
+    padding-left: var(--space-large);
+    font-size: var(--font-size-small);
+  }
+}
