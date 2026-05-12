@@ -333,8 +333,7 @@ class CommunityView(V3Mixin, TemplateView):
             "</ul>"
         )
         ctx["create_account_card_preview_url"] = (
-            large_static("img/v3/community-page/"),
-            "community-create-account-preview.png",
+            large_static("img/v3/community-page/community-create-account-preview.png"),
         )
         now = timezone.now()
         ctx["recent_threads_url"] = (
