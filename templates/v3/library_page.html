@@ -318,8 +318,9 @@ Inputs:
         matches(data) {
           if (this.searchHits && !this.searchHits.has(data.slug)) return false;
           if (this.grading !== 'all' && data.tier !== this.grading) return false;
-          if (this.minCpp !== 'all' && data.cpp_min && cppRank(data.cpp_min) > cppRank(this.minCpp)) return false;
-          if (this.maxCpp !== 'all' && data.cpp_max && cppRank(data.cpp_max) < cppRank(this.maxCpp)) return false;
+          // Overlap filter: reject only when the library range falls entirely outside the filter range.
+          if (this.maxCpp !== 'all' && data.cpp_min && cppRank(data.cpp_min) > cppRank(this.maxCpp)) return false;
+          if (this.minCpp !== 'all' && data.cpp_max && cppRank(data.cpp_max) < cppRank(this.minCpp)) return false;
           if (this.categories.length > 0) {
             const hit = data.category_slugs.some((s) => this.categories.includes(s));
             if (!hit) return false;
