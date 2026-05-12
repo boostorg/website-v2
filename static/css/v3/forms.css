@@ -311,7 +311,7 @@
 .dropdown--combo.dropdown--open .dropdown__trigger,
 .dropdown__trigger--active {
   background-color: var(--color-surface-mid, #f7f7f8);
-  border-color: var(--color-stroke-strong, #05081640);
+  border-color: var(--color-stroke-weak);
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border-bottom-color: var(--color-stroke-weak, #0508161A);

@@ -16,7 +16,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: 160px 2fr 1fr 1fr 1fr auto;
+  grid-template-columns: 160px 2fr 1fr 1fr max-content auto;
   column-gap: var(--space-xl);
   max-width: 1408px;
   width: 100%;
@@ -139,7 +139,7 @@ a.library-item__name:hover {
 
 @media (max-width: 1024px) {
   .library-item-list {
-    grid-template-columns: auto 2fr 1fr 1fr min-content auto;
+    grid-template-columns: auto 2fr 1fr 1fr max-content auto;
     /* Figma specifies --space-large here, but long descriptions cause overflow
        at tablet widths. Using --space-default until content constraints are
        defined. */
