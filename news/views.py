@@ -229,7 +229,7 @@ class EntryDetailView(V3Mixin, DetailView):
     template_name = "news/detail.html"
     v3_template_name = "news/v3/detail.html"
 
-    TAG_LABELS = {"blogpost": "blog"}
+    CATEGORY_LABELS = {"blogpost": "blog"}
     AUTHOR_PREFETCH = ("author__badges", "author__maintainers")
 
     def get_queryset(self):
@@ -269,7 +269,7 @@ class EntryDetailView(V3Mixin, DetailView):
             related_qs = related_qs.exclude(pk=next_entry.pk)
         return {
             "post_author": user_profile_card(entry.author),
-            "post_tag": self.TAG_LABELS.get(entry.tag, entry.tag),
+            "post_tag": self.CATEGORY_LABELS.get(entry.tag, entry.tag),
             "next_post_items": (
                 [self._post_card_item(next_entry)] if next_entry else []
             ),
@@ -286,7 +286,7 @@ class EntryDetailView(V3Mixin, DetailView):
             "description": entry.summary or "",
             "url": reverse("news-detail", args=[entry.slug]),
             "date": entry.publish_at,
-            "category": cls.TAG_LABELS.get(entry.tag, entry.tag).capitalize(),
+            "category": cls.CATEGORY_LABELS.get(entry.tag, entry.tag).capitalize(),
             "author": user_profile_card(entry.author),
         }
 
