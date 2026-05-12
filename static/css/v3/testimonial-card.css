@@ -202,14 +202,10 @@
     width: 12px;
     height: 12px;
     border-radius: 2px;
-    background-color: var(--color-icon-secondary);
+    background-color: var(--color-primary-grey-700);
     opacity: 0.2;
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.testimonial-card__dot:hover {
-    background-color: var(--color-text-secondary);
 }
 
 /* Read-more CTA — full-width primary button. */
