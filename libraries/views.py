@@ -130,9 +130,10 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
 
         cpp_values = sorted(
             {
-                lv.cpp_standard_minimum
+                v
                 for lv in (queryset or [])
-                if lv.cpp_standard_minimum
+                for v in (lv.cpp_standard_minimum, lv.cpp_standard_maximum)
+                if v
             },
             key=lambda v: int(v) if v.isdigit() else 0,
         )
