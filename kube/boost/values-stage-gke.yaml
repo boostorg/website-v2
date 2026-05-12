@@ -258,15 +258,15 @@ hostAliases:
   - ip: "10.67.224.11"
     hostnames:
       - "redis"
-  - ip: "10.128.0.15"
+  - ip: "10.128.15.220"
     hostnames:
-      - "mailman.boost.cppalliance.org"
-  - ip: "10.128.15.240"
+      - "lists.boost.org"
+  - ip: "10.128.0.51"
     hostnames:
-      - "mailman-stage.boost.cppalliance.org"
-  - ip: "10.128.0.16"
+      - "lists.stage.boost.cppalliance.org"
+  - ip: "10.128.15.219"
     hostnames:
-      - "mailman-cppal-dev.boost.cppalliance.org"
+      - "lists.cppal-dev.boost.cppalliance.org"
 
 ingressType: "none"
 gatewayType: "gce"
