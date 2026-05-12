@@ -477,7 +477,7 @@ class Library(models.Model):
 
 
 class LibraryVersion(models.Model):
-    # Source: https://docs.cppalliance.org/user-guide/prev/library_metadata.html
+    # Source: https://docs.cppalliance.org/contributor-guide/requirements/library-metadata.html
     CPP_STANDARD_DISPLAY_NAMES = {
         "98": "C++98",
         "03": "C++03",
@@ -485,6 +485,7 @@ class LibraryVersion(models.Model):
         "14": "C++14",
         "17": "C++17",
         "20": "C++20",
+        "23": "C++23",
     }
 
     version = models.ForeignKey(
