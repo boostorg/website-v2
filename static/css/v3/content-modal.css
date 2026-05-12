@@ -56,7 +56,7 @@
   font-size: var(--font-size-large);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-display-regular);
+  letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-primary);
 }
 
@@ -102,7 +102,7 @@
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
   letter-spacing: var(--letter-spacing-display-regular);
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
 }
 
 /* ============================================
@@ -168,6 +168,7 @@
 .content-modal__prose p {
   margin: var(--space-default) 0;
   padding: 0;
+  line-height: var(--line-height-loose);
 }
 
 /* ============================================
