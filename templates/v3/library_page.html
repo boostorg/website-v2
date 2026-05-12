@@ -139,6 +139,16 @@ Inputs:
           this.$dispatch('clear-all-filters');
         },
 
+        hasActiveFilters() {
+          return (
+            this.grading !== this.defaults.grading ||
+            this.minCpp !== this.defaults.min_cpp ||
+            this.maxCpp !== this.defaults.max_cpp ||
+            this.categories.length > 0 ||
+            this.sort !== this.defaults.sort
+          );
+        },
+
         syncUrl() {
           const params = new URLSearchParams();
           if (this.grading !== this.defaults.grading) params.set('grading', this.grading);

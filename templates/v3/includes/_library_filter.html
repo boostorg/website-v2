@@ -11,6 +11,8 @@
                             with JS, click is intercepted and calls the surrounding Alpine
                             component's `clearAll()` method (which is expected to reset
                             parent state and dispatch `clear-all-filters` to fields).
+                            The button's visibility is bound to the parent's
+                            `hasActiveFilters()` method.
     fields     (required) — list of field dicts, each with:
       type            — "dropdown" (default), "combo", or "combo_multi"
       name            — input name attribute
@@ -67,7 +69,10 @@
       <noscript>
         {% include "v3/includes/_button.html" with label="Filter" icon_position="right" icon_name="arrow-right" icon_size=16 type="submit" js_disabled=True only %}
       </noscript>
-      <div class="library-filter__clear-all" @click.prevent="clearAll()">
+      <div class="library-filter__clear-all"
+           x-cloak
+           x-show="hasActiveFilters()"
+           @click.prevent="clearAll()">
         {% include "v3/includes/_button.html" with label="Clear All" style="primary" url=clear_url %}
       </div>
     </div>
