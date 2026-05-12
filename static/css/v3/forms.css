@@ -393,6 +393,16 @@
   text-decoration: underline;
 }
 
+.dropdown__item--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dropdown__item--disabled:hover,
+.dropdown__item--disabled:focus {
+  background-color: transparent;
+}
+
 .field--error .dropdown__trigger {
   background-color: var(--color-surface-error-weak, #fdf2f2);
   border-color: var(--color-stroke-error, #d53f3f33);

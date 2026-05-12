@@ -20,6 +20,8 @@
 <div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
      {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
      {% if not exclude_from_clear %}@clear-all-filters.window="clear()"{% endif %}
+     @field-disabled-values.window="if ($event.detail.name === '{{ name }}') disabledValues = $event.detail.values"
+     @field-set.window="if ($event.detail.name === '{{ name }}') { selected = $event.detail.value; selectedLabel = $event.detail.label }"
   {# djlint:off #}
      x-data="{
        jsReady: false,
@@ -27,6 +29,7 @@
        selected: '{{ selected|default:'' }}',
        selectedLabel: '',
        defaultValue: '{{ default|default:'' }}',
+       disabledValues: [],
        init() {
          this.jsReady = true;
          if (this.selected) {
@@ -122,9 +125,10 @@
       <div class="dropdown__list" x-ref="list">
         {% for value, label in options %}
           <div class="dropdown__item"
-               :class="{ 'dropdown__item--selected': selected === '{{ value }}' }"
+               :class="{ 'dropdown__item--selected': selected === '{{ value }}', 'dropdown__item--disabled': disabledValues.includes('{{ value }}') }"
                role="option"
                :aria-selected="selected === '{{ value }}'"
+               :aria-disabled="disabledValues.includes('{{ value }}')"
                data-value="{{ value }}"
                data-label="{{ label }}"
                @click="choose('{{ value }}', '{{ label }}')"

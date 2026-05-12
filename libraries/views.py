@@ -128,20 +128,14 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
         context = {}
         view_str = self.kwargs.get("library_view_str")
 
-        cpp_values = sorted(
-            {
-                v
-                for lv in (queryset or [])
-                for v in (lv.cpp_standard_minimum, lv.cpp_standard_maximum)
-                if v
-            },
-            key=lambda v: int(v) if v.isdigit() else 0,
+        cpp_options = [("all", "All")] + list(
+            LibraryVersion.CPP_STANDARD_DISPLAY_NAMES.items()
         )
-        cpp_options = [("all", "All")] + [(v, f"C++{v}") for v in cpp_values]
 
         tiers_present = sorted(
             {lv.library.tier for lv in (queryset or []) if lv.library.tier is not None}
         )
+
         grading_options = [("all", "All")] + [
             (Tier(t).label.lower(), Tier(t).label) for t in tiers_present
         ]

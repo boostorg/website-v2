@@ -36,9 +36,22 @@ Inputs:
     /* Defined inline so the factory is on window before Alpine evaluates x-data
        on this page — defer-script load ordering can otherwise race Alpine.start. */
     window.libraryFilter = function () {
-      function cppNum(value) {
-        const n = parseInt(value, 10);
-        return Number.isFinite(n) ? n : 0;
+      const CPP_STANDARDS = [
+        { key: '98', year: 1998, label: 'C++98' },
+        { key: '03', year: 2003, label: 'C++03' },
+        { key: '11', year: 2011, label: 'C++11' },
+        { key: '14', year: 2014, label: 'C++14' },
+        { key: '17', year: 2017, label: 'C++17' },
+        { key: '20', year: 2020, label: 'C++20' },
+        { key: '23', year: 2023, label: 'C++23' },
+      ];
+      const CPP_OPTION_VALUES = CPP_STANDARDS.map((s) => s.key);
+      const CPP_LABEL_MAP = Object.fromEntries(
+        [['all', 'All'], ...CPP_STANDARDS.map((s) => [s.key, s.label])]
+      );
+      function cppRank(value) {
+        const digits = String(value || '').match(/\d+/)?.[0];
+        return CPP_STANDARDS.find((s) => s.key === digits)?.year ?? 0;
       }
       return {
         dataset: [],
@@ -98,8 +111,22 @@ Inputs:
           this.$el.addEventListener('field-change', (event) => {
             const { name, value } = event.detail;
             if (name === 'grading') this.grading = value || 'all';
-            else if (name === 'min_cpp') this.minCpp = value || 'all';
-            else if (name === 'max_cpp') this.maxCpp = value || 'all';
+            else if (name === 'min_cpp') {
+              this.minCpp = value || 'all';
+              if (this.minCpp !== 'all' && this.maxCpp !== 'all'
+                  && cppRank(this.minCpp) > cppRank(this.maxCpp)) {
+                this.resetField('max_cpp', 'all');
+              }
+              this.updateCppConstraints();
+            }
+            else if (name === 'max_cpp') {
+              this.maxCpp = value || 'all';
+              if (this.maxCpp !== 'all' && this.minCpp !== 'all'
+                  && cppRank(this.maxCpp) < cppRank(this.minCpp)) {
+                this.resetField('min_cpp', 'all');
+              }
+              this.updateCppConstraints();
+            }
             else if (name === 'q') this.query = value || '';
             else if (name === 'sort') this.sort = value || this.defaults.sort;
             else if (name === 'view') {
@@ -109,12 +136,47 @@ Inputs:
             this.apply();
           });
 
+          // Auto-correct invalid combinations loaded from URL params, then push
+          // initial disabled-value constraints to both cpp dropdowns. Defer to
+          // $nextTick so the dropdown components have mounted their listeners.
+          if (this.minCpp !== 'all' && this.maxCpp !== 'all'
+              && cppRank(this.minCpp) > cppRank(this.maxCpp)) {
+            this.maxCpp = 'all';
+          }
+          this.$nextTick(() => {
+            if (this.maxCpp === 'all') {
+              window.dispatchEvent(new CustomEvent('field-set',
+                { detail: { name: 'max_cpp', value: 'all', label: 'All' } }));
+            }
+            this.updateCppConstraints();
+          });
+
           this.observeCategorySelections();
           document.querySelectorAll('[data-slug]').forEach((el) => {
             const siblings = Array.from(el.parentElement.children).filter((c) => c.dataset.slug);
             el.dataset.originalIndex = siblings.indexOf(el);
           });
           this.apply();
+        },
+
+        updateCppConstraints() {
+          const minDisabled = (this.maxCpp && this.maxCpp !== 'all')
+            ? CPP_OPTION_VALUES.filter((v) => cppRank(v) > cppRank(this.maxCpp))
+            : [];
+          const maxDisabled = (this.minCpp && this.minCpp !== 'all')
+            ? CPP_OPTION_VALUES.filter((v) => cppRank(v) < cppRank(this.minCpp))
+            : [];
+          window.dispatchEvent(new CustomEvent('field-disabled-values',
+            { detail: { name: 'min_cpp', values: minDisabled } }));
+          window.dispatchEvent(new CustomEvent('field-disabled-values',
+            { detail: { name: 'max_cpp', values: maxDisabled } }));
+        },
+
+        resetField(name, value) {
+          if (name === 'min_cpp') this.minCpp = value;
+          else if (name === 'max_cpp') this.maxCpp = value;
+          window.dispatchEvent(new CustomEvent('field-set',
+            { detail: { name, value, label: CPP_LABEL_MAP[value] || '' } }));
         },
 
         handleViewChange(value) {
@@ -252,8 +314,8 @@ Inputs:
         matches(data) {
           if (this.searchHits && !this.searchHits.has(data.slug)) return false;
           if (this.grading !== 'all' && data.tier !== this.grading) return false;
-          if (this.minCpp !== 'all' && data.cpp_min && cppNum(data.cpp_min) > cppNum(this.minCpp)) return false;
-          if (this.maxCpp !== 'all' && data.cpp_max && cppNum(data.cpp_max) < cppNum(this.maxCpp)) return false;
+          if (this.minCpp !== 'all' && data.cpp_min && cppRank(data.cpp_min) > cppRank(this.minCpp)) return false;
+          if (this.maxCpp !== 'all' && data.cpp_max && cppRank(data.cpp_max) < cppRank(this.maxCpp)) return false;
           if (this.categories.length > 0) {
             const hit = data.category_slugs.some((s) => this.categories.includes(s));
             if (!hit) return false;

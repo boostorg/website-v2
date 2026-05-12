@@ -1752,6 +1752,8 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "options": [
                     ("alphabetical", "Alphabetical"),
                     ("popular", "Most Popular"),
+                    ("updated", "Recently Updated"),
+                    ("release", "Release Date"),
                 ],
                 "selected": "alphabetical",
             },
