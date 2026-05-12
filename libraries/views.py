@@ -247,7 +247,8 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                 "author_names": [
                     a.display_name for a in lv.authors.all() if a.display_name
                 ],
-                "cpp_min": lv.cpp_standard_minimum or "",
+                "cpp_min": lv.get_cpp_standard_minimum_display() or "",
+                "cpp_max": lv.get_cpp_standard_maximum_display() or "",
                 "tier": (
                     Tier(lv.library.tier).label.lower()
                     if lv.library.tier is not None

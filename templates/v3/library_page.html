@@ -201,8 +201,8 @@ Inputs:
             if (!tokens.every((t) => haystack.includes(t))) return false;
           }
           if (this.grading !== 'all' && data.tier !== this.grading) return false;
-          if (this.minCpp !== 'all' && cppNum(data.cpp_min) < cppNum(this.minCpp)) return false;
-          if (this.maxCpp !== 'all' && cppNum(data.cpp_min) > cppNum(this.maxCpp)) return false;
+          if (this.minCpp !== 'all' && data.cpp_min && cppNum(data.cpp_min) > cppNum(this.minCpp)) return false;
+          if (this.maxCpp !== 'all' && data.cpp_max && cppNum(data.cpp_max) < cppNum(this.maxCpp)) return false;
           if (this.categories.length > 0) {
             const hit = data.category_slugs.some((s) => this.categories.includes(s));
             if (!hit) return false;
