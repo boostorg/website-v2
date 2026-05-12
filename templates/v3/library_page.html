@@ -22,8 +22,12 @@ Inputs:
       .library-filter__field:not(:has(select[name="view"])) {
         display: none !important;
       }
-      [x-cloak] {
-        display: revert !important;
+      .library-item-list[x-cloak],
+      .library-item-card-grid[x-cloak] {
+        display: grid !important;
+      }
+      .library-page__category-section[x-cloak] {
+        display: block !important;
       }
     </style>
   </noscript>
