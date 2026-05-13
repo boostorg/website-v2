@@ -728,7 +728,11 @@ def generate_whats_new(self, version_pk: int) -> str | None:
 
 @app.task
 def save_whats_new(markdown_text: str | None, version_pk: int):
-    """Persist a generated summary on the Version. Approval is left untouched."""
+    """Persist a generated summary on the Version.
+
+    Resets ``whats_new_approved`` to False so regenerated content goes back
+    through admin moderation before it becomes visible on the public site.
+    """
     from core.htmlhelper import render_whats_new_markdown
 
     if not markdown_text:
@@ -739,6 +743,7 @@ def save_whats_new(markdown_text: str | None, version_pk: int):
         whats_new=markdown_text,
         whats_new_html=render_whats_new_markdown(markdown_text),
         whats_new_generated_at=timezone.now(),
+        whats_new_approved=False,
     )
     logger.info("save_whats_new_saved", version_pk=version_pk)
 

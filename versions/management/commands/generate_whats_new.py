@@ -81,7 +81,7 @@ def command(
         click.secho(f"queueing whats_new for {version.name}", fg="green")
         if force:
             Version.objects.filter(pk=version.pk).update(
-                whats_new="", whats_new_html=""
+                whats_new="", whats_new_html="", whats_new_approved=False
             )
         dispatch_whats_new(version.pk)
 

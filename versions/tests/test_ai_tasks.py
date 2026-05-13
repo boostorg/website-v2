@@ -96,12 +96,12 @@ def test_save_whats_new_sanitizes_html(version):
 
 
 @pytest.mark.django_db
-def test_save_whats_new_does_not_change_approval(version):
+def test_save_whats_new_resets_approval(version):
     Version.objects.filter(pk=version.pk).update(whats_new_approved=True)
     save_whats_new.run(SAMPLE_OUTPUT, version.pk)
 
     version.refresh_from_db()
-    assert version.whats_new_approved is True
+    assert version.whats_new_approved is False
 
 
 @pytest.mark.django_db
