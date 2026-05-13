@@ -45,7 +45,7 @@
 
       {% if object.image %}
         <figure class="post-detail__figure">
-          <img src="{{ object.image.url }}" alt="" class="post-detail__image">
+          <img src="{{ object.image.url }}" alt="" class="post-detail__image" loading="lazy">
         </figure>
       {% endif %}
 
