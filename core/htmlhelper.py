@@ -1,5 +1,6 @@
 import re
 
+import bleach
 import markdown
 from bs4 import BeautifulSoup, Comment, Tag
 from django.http import HttpHeaders
@@ -758,7 +759,11 @@ def render_whats_new_markdown(text: str) -> str:
     LLM prompt to HTML. Returns an empty string for empty input."""
     if not text or not text.strip():
         return ""
-    return markdown.markdown(text.strip(), extensions=["extra", "sane_lists"])
+    return bleach.clean(
+        markdown.markdown(text.strip(), extensions=["extra", "sane_lists"]),
+        tags=["ul", "ol", "li", "p", "strong", "em", "code", "a"],
+        attributes={"a": ["href", "title"]},
+    )
 
 
 def is_in_no_process_libs(path: str) -> bool:

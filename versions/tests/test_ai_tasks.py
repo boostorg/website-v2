@@ -84,6 +84,18 @@ def test_save_whats_new_skips_empty(version):
 
 
 @pytest.mark.django_db
+def test_save_whats_new_sanitizes_html(version):
+    save_whats_new.run(
+        "- ok bullet\n- <script>alert(1)</script> sneaky\n",
+        version.pk,
+    )
+
+    version.refresh_from_db()
+    assert "<script>" not in version.whats_new_html
+    assert "alert(1)" in version.whats_new_html  # text survives, tag does not
+
+
+@pytest.mark.django_db
 def test_save_whats_new_does_not_change_approval(version):
     Version.objects.filter(pk=version.pk).update(whats_new_approved=True)
     save_whats_new.run(SAMPLE_OUTPUT, version.pk)
