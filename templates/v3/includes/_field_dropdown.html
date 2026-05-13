@@ -59,6 +59,28 @@
          this.selected = this.defaultValue;
          this.selectedLabel = label;
          this.$dispatch('field-change', { name: '{{ name }}', value: this.defaultValue, label });
+       },
+       focusNextEnabled(el) {
+         let n = el.nextElementSibling;
+         while (n && n.hasAttribute('data-value') && this.disabledValues.includes(n.dataset.value)) {
+           n = n.nextElementSibling;
+         }
+         if (n && n.hasAttribute('data-value')) n.focus();
+       },
+       focusPrevEnabled(el) {
+         let p = el.previousElementSibling;
+         while (p && p.hasAttribute('data-value') && this.disabledValues.includes(p.dataset.value)) {
+           p = p.previousElementSibling;
+         }
+         if (p && p.hasAttribute('data-value')) p.focus();
+         else this.$refs.trigger.focus();
+       },
+       firstEnabledOption() {
+         const opts = this.$refs.list.querySelectorAll('[data-value]');
+         for (const el of opts) {
+           if (!this.disabledValues.includes(el.dataset.value)) return el;
+         }
+         return null;
        }
      }">
   {# djlint:on #}
@@ -85,7 +107,7 @@
          @keydown.enter.prevent="open = !open"
          @keydown.space.prevent="open = !open"
          @keydown.escape.prevent="open = false"
-         @keydown.arrow-down.prevent="open = true; $nextTick(() => $refs.list.querySelector('[role=option]')?.focus())"
+         @keydown.arrow-down.prevent="open = true; $nextTick(() => firstEnabledOption()?.focus())"
          :aria-expanded="open"
          aria-haspopup="listbox"
          {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
@@ -131,12 +153,12 @@
                :aria-disabled="disabledValues.includes('{{ value }}')"
                data-value="{{ value }}"
                data-label="{{ label }}"
-               @click="choose('{{ value }}', '{{ label }}')"
-               @keydown.enter.prevent="choose('{{ value }}', '{{ label }}')"
-               @keydown.space.prevent="choose('{{ value }}', '{{ label }}')"
-               @keydown.arrow-down.prevent="$el.nextElementSibling?.focus()"
-               @keydown.arrow-up.prevent="$el.previousElementSibling?.hasAttribute('data-value') ? $el.previousElementSibling.focus() : $refs.trigger.focus()"
-               tabindex="0">{{ label }}</div>
+               @click="if (!disabledValues.includes('{{ value }}')) choose('{{ value }}', '{{ label }}')"
+               @keydown.enter.prevent="if (!disabledValues.includes('{{ value }}')) choose('{{ value }}', '{{ label }}')"
+               @keydown.space.prevent="if (!disabledValues.includes('{{ value }}')) choose('{{ value }}', '{{ label }}')"
+               @keydown.arrow-down.prevent="focusNextEnabled($el)"
+               @keydown.arrow-up.prevent="focusPrevEnabled($el)"
+               :tabindex="disabledValues.includes('{{ value }}') ? -1 : 0">{{ label }}</div>
         {% endfor %}
       </div>
     </div>

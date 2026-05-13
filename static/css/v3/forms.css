@@ -401,6 +401,7 @@
 .dropdown__item--disabled:hover,
 .dropdown__item--disabled:focus {
   background-color: transparent;
+  color: var(--color-text-secondary);
 }
 
 .field--error .dropdown__trigger {
