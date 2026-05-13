@@ -700,3 +700,9 @@ WAGTAILMARKDOWN = {
     "extensions_settings_mode": "extend",  # optional. Possible values: "extend" or "override". Defaults to "extend".
     "tab_length": 4,  # optional. Sets the length of tabs used by python-markdown to render the output. This is the number of spaces used to replace with a tab character. Defaults to 4.
 }
+
+
+# DOWNSCALING PREFERRED VALUES
+DOWNSCALED_HEIGHT = 720  # Preferred height to downscale to
+DOWNSCALED_WIDTH = 1440  # preferred width to downscale to
+DOWNSCALE_THRESHOLD = 1 * 1024 * 1024  # threshold overwhich to downscale
