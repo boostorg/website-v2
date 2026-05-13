@@ -176,7 +176,10 @@ def modernize_legacy_page(
     """Modernize a legacy Boost documentation page."""
     HIDE_TAGS_BASE = []
     if not show_navbar:
+        # Legacy navbar
         HIDE_TAGS_BASE.append(("div", {"class": "header-menu-bar topnavbar"})),
+        # V3 navbar
+        HIDE_TAGS_BASE.append(("header", {"class": "header"}))
 
     if soup.html is None:
         # Not an HTML file we care about
