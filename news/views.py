@@ -258,6 +258,10 @@ class EntryDetailView(V3Mixin, DetailView):
             .order_by("publish_at", "pk")
             .first()
         )
+        # TODO: once Entry has a relation to libraries, scope related
+        # posts to those linked to the libraries referenced by this
+        # entry. Falls back to "any other published post" until that
+        # relation exists.
         related_qs = (
             Entry.objects.published()
             .select_related("author")
