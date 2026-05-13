@@ -32,6 +32,7 @@
       </div>
       <div class="post-content__content_column">
         {% include 'v3/includes/_post_list_card.html' with heading=header_text items=entry_list only %}
+        {% include "v3/includes/_pagination.html" %}
       </div>
       <div class="post-content__user_card_column">
         {% if request.user.is_authenticated %}

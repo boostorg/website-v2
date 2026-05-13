@@ -1,0 +1,106 @@
+/*
+ * Pagination component
+ * Token hierarchy: semantics.css → themes.css (dark overrides)
+ * Usage: _pagination.html
+ *
+ * Two navs are rendered: --wide (±2 window) and --narrow (±1 window).
+ * CSS toggles which one is visible based on viewport width.
+ * display:none removes both from the visual layer and the a11y tree.
+ */
+
+.pagination {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-default);
+  padding: var(--space-large) 0;
+  list-style: none;
+  margin: 0;
+}
+
+/* ── Shared button styles ── */
+
+.pagination__item {
+  display: flex;
+}
+
+.pagination__link,
+.pagination__chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 var(--space-large);
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-xl);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+/* ── Page number links ── */
+
+.pagination__link:hover {
+  background-color: var(--color-surface-mid);
+  border-color: var(--color-stroke-weak);
+  color: var(--color-text-primary);
+}
+
+.pagination__link--active {
+  background-color: var(--color-surface-weak);
+  border-color: var(--color-stroke-weak);
+  color: var(--color-text-primary);
+  pointer-events: none;
+}
+
+/* ── Ellipsis ── */
+
+.pagination__ellipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 var(--space-default);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-tertiary);
+  user-select: none;
+}
+
+/* ── Chevron navigation ── */
+
+.pagination__chevron {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  color: var(--color-icon-primary);
+}
+
+.pagination__chevron--disabled {
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+  cursor: default;
+}
+
+/* ── Responsive visibility ── */
+
+.pagination-nav--narrow {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .pagination-nav--wide {
+    display: none;
+  }
+
+  .pagination-nav--narrow {
+    display: block;
+  }
+}

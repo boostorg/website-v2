@@ -1,0 +1,25 @@
+{% load pagination_tags %}
+{% comment %}
+  Pagination component.
+
+  Standard usage (from ListView — page_obj and paginator are in context):
+    {% include "v3/includes/_pagination.html" %}
+
+  Isolated / demo usage:
+    {% include "v3/includes/_pagination.html" with pagination_current=5 pagination_total=24 %}
+
+  Parameters:
+    pagination_current     int  – current page number (required for isolated use)
+    pagination_total       int  – total number of pages (required for isolated use)
+    pagination_anchor      str  – optional HTML id; appended as #fragment to every
+                                  page link so the browser scrolls back to the component
+{% endcomment %}
+
+{% resolve_pagination pagination_current pagination_total as pag %}
+{% pagination_range pag 2 as pages_wide %}
+{% pagination_range pag 1 as pages_narrow %}
+{% if pag.has_previous %}{% querystring page=pag.previous_page_number as prev_url %}{% endif %}
+{% if pag.has_next %}{% querystring page=pag.next_page_number as next_url %}{% endif %}
+
+{% include "v3/includes/_pagination_nav.html" with pages=pages_wide css_class="pagination-nav--wide" %}
+{% include "v3/includes/_pagination_nav.html" with pages=pages_narrow css_class="pagination-nav--narrow" %}
