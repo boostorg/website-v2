@@ -703,6 +703,6 @@ WAGTAILMARKDOWN = {
 
 
 # DOWNSCALING PREFERRED VALUES
-DOWNSCALED_HEIGHT = 720  # Preferred height to downscale to
-DOWNSCALED_WIDTH = 1440  # preferred width to downscale to
-DOWNSCALE_THRESHOLD = 1 * 1024 * 1024  # threshold overwhich to downscale
+DOWNSCALED_IMAGE_HEIGHT = 720  # Preferred height to downscale to
+DOWNSCALED_IMAGE_WIDTH = 1440  # preferred width to downscale to
+DOWNSCALE_IMAGE_THRESHOLD = 1 * 1024 * 1024  # threshold overwhich to downscale

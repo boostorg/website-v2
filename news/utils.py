@@ -1,4 +1,5 @@
 import math
+import os
 import requests
 import typing
 from io import BytesIO
@@ -48,34 +49,35 @@ def downsize_uploaded_image(image: UploadedFile) -> UploadedFile:
     Takes a given image file from an upload form, and returns a downscaled image
     to take better use of available storage space.
 
-    Does not handle the initial size comparison to determin if the image should be downsized.
+    Does not handle the initial size comparison to determine if the image should be downsized.
 
     Downsizes the images using three methods:
         1) Downscales the image to specified parameters in the settings, maintaining the aspect ratio
         2) Converts the image to webp
-        3) Uses Pillows built in compression algorithm to do available compression during saving
+        3) Uses Pillow's built in compression algorithm to do available compression during saving
 
     Example Usage:
 
         def clean_image(self):
-        image = self.cleaned_data.get("image", None)
-        if image and image.size > settings.DOWNSCALE_THRESHOLD:
-            return downsize_uploaded_image(image)
-        return image
+            image = self.cleaned_data.get("image", None)
+            if image and image.size > settings.DOWNSCALE_IMAGE_THRESHOLD:
+                return downsize_uploaded_image(image)
+            return image
     """
 
     with PImage.open(image) as im:
         file_name = image.name
-        if image_format := im.format:
-            file_name = file_name.strip(image_format.lower())
-            file_name += "webp"
+        root, ext = os.path.splitext(file_name)
+        if root:
+            file_name = root
+            file_name += ".webp"
 
         width, height = im.size
         p_width, p_height = None, None  # Preferred output image width and height
         s_width, s_height = (
-            settings.DOWNSCALED_WIDTH,
-            settings.DOWNSCALED_HEIGHT,
-        )  # Settings based prefferred width and height
+            settings.DOWNSCALED_IMAGE_WIDTH,
+            settings.DOWNSCALED_IMAGE_HEIGHT,
+        )  # Settings based preferred width and height
 
         # Scale the preferred width and height in a proportional manner, to not skew the image
 
@@ -90,6 +92,12 @@ def downsize_uploaded_image(image: UploadedFile) -> UploadedFile:
         r_image = im.resize((p_width, p_height))
 
         # Save to a BytesIO, actual file system saving will be handled by the form calling this function
-        imgstr = BytesIO()
-        r_image.save(imgstr, format="webp")
-        return UploadedFile(imgstr, name=file_name)
+        img = BytesIO()
+        r_image.save(img, format="webp")
+        img.seek(0)
+        return UploadedFile(
+            img,
+            name=file_name,
+            content_type=image.content_type,
+            size=img.getbuffer().nbytes,
+        )
