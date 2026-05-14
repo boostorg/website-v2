@@ -478,7 +478,7 @@ class MarkdownTemplateView(TemplateView):
 class TermsOfUseView(V3Mixin, MarkdownTemplateView):
     """Renders the v3 Terms of Use page when the v3 flag is active, else markdown template."""
 
-    v3_template_name = "v3/terms_of_use.html"
+    v3_template_name = "v3/legal_page.html"
 
     def get_v3_context_data(self, **kwargs):
         from pages.models import LegalPage
@@ -489,7 +489,7 @@ class TermsOfUseView(V3Mixin, MarkdownTemplateView):
 class PrivacyPolicyView(V3Mixin, MarkdownTemplateView):
     """Renders the v3 Privacy Policy page when the v3 flag is active, else markdown template."""
 
-    v3_template_name = "v3/privacy_policy.html"
+    v3_template_name = "v3/legal_page.html"
 
     def get_v3_context_data(self, **kwargs):
         from pages.models import LegalPage

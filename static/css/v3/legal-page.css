@@ -1,4 +1,20 @@
-.privacy-policy {
+/*
+ * Styles for v3/legal_page.html — the shared template behind /privacy/ and /terms-of-use/.
+ */
+
+body:has(.legal-page) .v3-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 0;
+}
+
+body:has(.legal-page) .v3-container > .min-vh-110 {
+  flex: 1;
+  min-height: 0;
+}
+
+.legal-page {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -7,13 +23,10 @@
   position: relative;
   gap: calc(2 * var(--space-xl));
   width: 100%;
-  padding-left: var(--space-large);
-  padding-right: var(--space-large);
-  padding-top: var(--space-xxl);
-  padding-bottom: var(--space-xxl);
+  padding: 80px var(--space-medium) 43px var(--space-medium);
 }
 
-.privacy-policy__inner {
+.legal-page__inner {
   display: flex;
   flex-direction: column;
   gap: var(--space-xl);
@@ -21,20 +34,20 @@
   justify-content: flex-start;
   width: 100%;
   min-width: 0;
-  max-width: 50rem;
+  max-width: 696px;
   margin-left: auto;
   margin-right: auto;
 }
 
-.privacy-policy__header {
+.legal-page__header {
   display: flex;
   flex-direction: column;
-  gap: var(--space-card);
+  gap: var(--space-large);
   align-items: flex-start;
   width: 100%;
 }
 
-.privacy-policy__title {
+.legal-page__title {
   margin: 0;
   color: var(--color-text-primary);
   font-family: var(--font-sans);
@@ -44,7 +57,7 @@
   letter-spacing: var(--letter-spacing-tight);
 }
 
-.privacy-policy__last-updated {
+.legal-page__last-updated {
   margin: 0;
   padding: 0;
   color: var(--color-text-secondary);
@@ -55,19 +68,18 @@
   letter-spacing: var(--letter-spacing-tight);
 }
 
-.privacy-policy__body {
+.legal-page__body {
+  width: 100%;
   color: var(--color-text-secondary);
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-loose);
   letter-spacing: var(--letter-spacing-tight);
-  width: 100%;
-  padding: 0;
 }
 
-.privacy-policy__body h2 {
-  margin: var(--space-xl) 0 var(--space-card);
+.legal-page__body h2 {
+  margin: var(--space-xl) 0 var(--space-large);
   color: var(--color-text-primary);
   font-family: var(--font-sans);
   font-size: var(--font-size-large);
@@ -76,29 +88,54 @@
   letter-spacing: var(--letter-spacing-tight);
 }
 
-.privacy-policy__body > :first-child {
+.legal-page__body > :first-child {
   margin-top: 0;
 }
 
-.privacy-policy__body p {
+.legal-page__body p {
+  color: var(--color-text-secondary);
   margin: 0 0 1em 0;
   padding: 0;
 }
 
-.privacy-policy__body p:last-child {
+.legal-page__body p:last-child {
   margin-bottom: 0;
 }
 
-.privacy-policy__body ul {
+.legal-page__body ul {
   list-style-type: disc;
   padding-left: 1em;
   margin: 0 0 1em 0;
 }
 
-.privacy-policy__body li {
+.legal-page__body li {
   margin-bottom: var(--space-s);
 }
 
-.privacy-policy__body a {
+.legal-page__body li::marker {
+  font-size: var(--font-size-xs);
+}
+
+.legal-page__body a {
   color: var(--color-text-link-accent);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .legal-page {
+    padding-top: 40px;
+    padding-bottom: 64px;
+  }
+
+  .legal-page__inner {
+    max-width: 656px;
+  }
+}
+
+@media (max-width: 767px) {
+  .legal-page {
+    padding-top: 32px;
+  }
 }

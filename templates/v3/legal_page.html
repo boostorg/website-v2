@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags %}
+
+{% block title %}{{ page.title }}{% endblock %}
+{% block description %}{{ page.search_description }}{% endblock %}
+
+{% block css %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/legal-page.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="legal-page">
+  <div class="legal-page__inner">
+    <header class="legal-page__header">
+      <h1 class="legal-page__title">{{ page.title }}</h1>
+      {% if page.last_published_at %}
+        <p class="legal-page__last-updated">Last Updated: {{ page.last_published_at|date:"F j, Y" }}</p>
+      {% endif %}
+    </header>
+    <div class="legal-page__body">
+      {{ page.body|richtext }}
+    </div>
+  </div>
+</div>
+{% endblock %}

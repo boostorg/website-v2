@@ -12,7 +12,7 @@
   --header-radius: var(--border-radius-xl);
   --header-bg: var(--color-surface-weak);
   position: relative;
-  padding: var(--space-medium);
+  padding: var(--space-default) var(--space-large);
   font-family: var(--font-sans);
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-regular);
@@ -514,6 +514,10 @@ html.dark .header__icon--theme-moon {
 @media (max-width: 990px) {
   .header__nav--desktop {
     padding: 0;
+  }
+
+  .header {
+    padding: var(--space-medium);
   }
 
   .header__logo {
