@@ -481,7 +481,9 @@ class TermsOfUseView(V3Mixin, MarkdownTemplateView):
     v3_template_name = "v3/terms_of_use.html"
 
     def get_v3_context_data(self, **kwargs):
-        return {"last_updated": "2024-02-22"}
+        from pages.models import LegalPage
+
+        return {"page": LegalPage.objects.live().filter(slug="terms-of-use").first()}
 
 
 class PrivacyPolicyView(V3Mixin, MarkdownTemplateView):
@@ -490,7 +492,9 @@ class PrivacyPolicyView(V3Mixin, MarkdownTemplateView):
     v3_template_name = "v3/privacy_policy.html"
 
     def get_v3_context_data(self, **kwargs):
-        return {"last_updated": "2024-02-17"}
+        from pages.models import LegalPage
+
+        return {"page": LegalPage.objects.live().filter(slug="privacy").first()}
 
 
 class LearnPageView(MailingListCardMixin, V3Mixin, TemplateView):

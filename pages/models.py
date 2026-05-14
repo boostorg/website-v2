@@ -1,7 +1,8 @@
 from typing import NamedTuple
 from structlog import get_logger
-from wagtail.fields import StreamField
+from wagtail.fields import RichTextField, StreamField
 
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.db import models
 from django.utils.functional import cached_property
@@ -335,3 +336,18 @@ class PostPage(BasePage):
         "summary",
         "video_thumbnail",
     ]
+
+
+class LegalPage(BasePage):
+    """Simple policy/legal page: title + rich text body.
+
+    "Last Updated" in the template uses the built-in `last_published_at`,
+    so republishing in Wagtail auto-updates the visible date.
+    """
+
+    parent_page_types = ["pages.RoutableHomePage"]
+    subpage_types = []
+
+    body = RichTextField(features=settings.RICH_TEXT_FEATURES, blank=True)
+
+    content_panels = BasePage.content_panels + ["body"]

@@ -55,7 +55,7 @@
   letter-spacing: var(--letter-spacing-tight);
 }
 
-.privacy-policy__intro {
+.privacy-policy__body {
   color: var(--color-text-secondary);
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
@@ -63,18 +63,11 @@
   line-height: var(--line-height-loose);
   letter-spacing: var(--letter-spacing-tight);
   width: 100%;
+  padding: 0;
 }
 
-.privacy-policy__section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-card);
-  align-items: flex-start;
-  width: 100%;
-}
-
-.privacy-policy__section-title {
-  margin: 0;
+.privacy-policy__body h2 {
+  margin: var(--space-xl) 0 var(--space-card);
   color: var(--color-text-primary);
   font-family: var(--font-sans);
   font-size: var(--font-size-large);
@@ -83,34 +76,29 @@
   letter-spacing: var(--letter-spacing-tight);
 }
 
-.privacy-policy__section-body {
-  color: var(--color-text-secondary);
-  font-family: var(--font-sans);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-regular);
-  line-height: var(--line-height-loose);
-  letter-spacing: var(--letter-spacing-tight);
-  width: 100%;
+.privacy-policy__body > :first-child {
+  margin-top: 0;
 }
 
-.privacy-policy__section-body ul {
+.privacy-policy__body p {
+  margin: 0 0 1em 0;
+  padding: 0;
+}
+
+.privacy-policy__body p:last-child {
+  margin-bottom: 0;
+}
+
+.privacy-policy__body ul {
   list-style-type: disc;
   padding-left: 1em;
   margin: 0 0 1em 0;
 }
 
-.privacy-policy__section-body li {
+.privacy-policy__body li {
   margin-bottom: var(--space-s);
 }
 
-.privacy-policy__section-body p {
-  margin: 0 0 1em 0;
-}
-
-.privacy-policy__section-body p:last-child {
-  margin-bottom: 0;
-}
-
-.privacy-policy__section-body a {
-  color: var(--color-text-link-accent, var(--color-text-primary));
+.privacy-policy__body a {
+  color: var(--color-text-link-accent);
 }
