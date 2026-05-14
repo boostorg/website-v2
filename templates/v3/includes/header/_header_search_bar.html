@@ -1,0 +1,43 @@
+{% comment %}
+  Header Search Bar — Gecko-powered search trigger with JS-disabled fallback.
+
+  The search modal is imported from static/js/boost-gecko/.
+
+  When JavaScript is enabled, the button opens the Gecko search overlay (wired
+  in static/js/search-shortcut.js; Ctrl/Cmd+K shortcut). When JavaScript is
+  disabled, the button and keyboard hint are hidden via an inline <style> in
+  <noscript>, and a non-interactive span explains that search is unavailable.
+
+  Variables:
+    current_version  (object, required) — current Boost release (from context processor)
+
+  Usage:
+    {% include "v3/includes/header/_header_search_bar.html" %}
+{% endcomment %}
+<search class="header__search-bar">
+  <button type="button"
+          id="gecko-search-button"
+          class="header__search-input-trigger"
+          data-current-boost-version="{{ current_version.stripped_boost_url_slug }}"
+          data-theme-mode="light"
+          data-font-family="var(--font-sans)">
+    <span class="header__search-icon" aria-hidden="true">
+      {% include "includes/icon.html" with icon_name="search" icon_class="header__icon" icon_size=16 %}
+    </span>
+    Search
+  </button>
+  <span class="header__search-kbd" aria-hidden="true">CTRL+K</span>
+  <noscript>
+    <style>
+      #gecko-search-button,
+      .header__search-kbd { display: none; }
+      .header__search-bar > noscript { display: contents; }
+    </style>
+    <span class="header__search-input-trigger" aria-disabled="true">
+      <span class="header__search-icon" aria-hidden="true">
+        {% include "includes/icon.html" with icon_name="search" icon_class="header__icon" icon_size=16 %}
+      </span>
+      Search is not available with JS disabled
+    </span>
+  </noscript>
+</search>
