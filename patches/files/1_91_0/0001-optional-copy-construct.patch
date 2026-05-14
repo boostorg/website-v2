@@ -10,7 +10,7 @@ diff -urN boost_1_91_0/boost/optional/detail/optional_select_implementation.hpp 
 +    !defined(BOOST_OPTIONAL_CONFIG_DISABLE_UNION_OPTIONAL)
  # define BOOST_OPTIONAL_USES_UNION_IMPLEMENTATION
  #endif
- 
+
 diff -urN boost_1_91_0/boost/optional/detail/union_optional.hpp boost_1_91_0/boost/optional/detail/union_optional.hpp
 --- boost_1_91_0/boost/optional/detail/union_optional.hpp	2026-04-15 10:38:58.000000000 -0400
 +++ boost_1_91_0/boost/optional/detail/union_optional.hpp	2026-05-13 22:49:40.940892042 -0400
@@ -29,15 +29,15 @@ diff -urN boost_1_91_0/libs/optional/doc/92_relnotes.qbk boost_1_91_0/libs/optio
 --- boost_1_91_0/libs/optional/doc/92_relnotes.qbk	2026-04-15 10:38:58.000000000 -0400
 +++ boost_1_91_0/libs/optional/doc/92_relnotes.qbk	2026-05-13 22:49:07.461219775 -0400
 @@ -11,6 +11,10 @@
- 
+
  [section:relnotes Release Notes]
- 
+
 +[heading Boost Release 1.xx]
 +
 +* Fixed regression in the copy-initialization of `optional<bool>`. This fixes [@https://github.com/boostorg/optional/issues/146 issue #146].
 +
  [heading Boost Release 1.91]
- 
+
  * For compilers with full C++11 support (including "unrestricted  unions" and ref-qualifiers)
 diff -urN boost_1_91_0/libs/optional/test/Jamfile.v2 boost_1_91_0/libs/optional/test/Jamfile.v2
 --- boost_1_91_0/libs/optional/test/Jamfile.v2	2026-04-15 10:38:58.000000000 -0400
