@@ -98,6 +98,6 @@ def downsize_uploaded_image(image: UploadedFile) -> UploadedFile:
         return UploadedFile(
             img,
             name=file_name,
-            content_type=image.content_type,
+            content_type="image/webp",
             size=img.getbuffer().nbytes,
         )
