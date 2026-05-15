@@ -85,6 +85,7 @@ class RenderedContentAdmin(admin.ModelAdmin):
 class SiteSettingsAdmin(admin.ModelAdmin):
     list_display = ("id", "wordcloud_ignore", "rendered_content_replacement_start")
     readonly_fields = ("rendered_content_replacement_start",)
+    filter_horizontal = ("pinned_community_libraries",)
 
     def has_add_permission(self, request):
         return super().has_add_permission(request) and SiteSettings.objects.count() == 0

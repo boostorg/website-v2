@@ -109,6 +109,15 @@ class SiteSettings(models.Model):
         editable=False,
         help_text="Set via RenderedContent admin action.",
     )
+    pinned_community_libraries = models.ManyToManyField(
+        "libraries.Library",
+        blank=True,
+        related_name="pinned_on_community_page",
+        help_text=(
+            "Pinned libraries always shown on the community page. "
+            "Remaining slots are filled randomly from other libraries."
+        ),
+    )
 
     class Meta:
         constraints = [

@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 import chardet
 from dateutil.parser import parse
 from django.conf import settings
+from django.db.models import Exists, OuterRef
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import caches
 from django.http import (
@@ -42,6 +43,7 @@ from libraries.utils import (
 )
 from versions.models import Version, docs_path_to_boost_name
 
+from . import context_processors
 from .mixins import V3Mixin, iter_v3_views
 from .asciidoc import convert_adoc_to_html
 from .boostrenderer import (
@@ -56,6 +58,7 @@ from .constants import (
     SourceDocType,
     BOOST_LIB_PATH_RE,
     BOOST_VERSION_REGEX,
+    SLACK_MEMBER_COUNT,
     STATIC_CONTENT_EARLY_EXIT_PATH_PREFIXES,
 )
 from .htmlhelper import (
@@ -82,7 +85,8 @@ from .tasks import (
     save_rendered_content,
 )
 
-from libraries.models import Library, LibraryVersion
+from libraries.models import Library, LibraryVersion, Tier
+from news.models import Entry
 from libraries.utils import (
     get_commit_data_by_release_for_library,
     commit_data_to_stats_bars,
@@ -128,13 +132,30 @@ class CommunityView(V3Mixin, TemplateView):
     template_name = "community.html"
     v3_template_name = "v3/community.html"
 
+    def render_v3_response(self):
+        version_slug = self.kwargs.get("version_slug")
+        if not version_slug:
+            version_data = context_processors.selected_version(self.request)
+            target = (
+                version_data["selected_version"].slug
+                if version_data["selected_version_is_non_latest"]
+                else LATEST_RELEASE_URL_PATH_STR
+            )
+            return redirect("community-version", version_slug=target)
+        response = super().render_v3_response()
+        if version_slug != LATEST_RELEASE_URL_PATH_STR:
+            set_selected_boost_version(version_slug, response)
+        return response
+
     def get_v3_context_data(self, **kwargs):
+        libraries_shown_in_community_page = 4
         ctx = super().get_v3_context_data(**kwargs)
+        ctx["slack_member_count"] = SLACK_MEMBER_COUNT
         ctx["help_options"] = [
             {
                 "quote": "I'm stuck on an error",
                 "description": "Visit the CPPLang Slack for fast responses, quick debugging and real-time conversation",
-                "cta_text": "Join Slack 24,000+ members",
+                "cta_text": f"Join Slack {SLACK_MEMBER_COUNT} members",
                 "cta_url": "https://cppalliance.org/slack/",
                 "author": {
                     "name": "Character Name",
@@ -157,7 +178,7 @@ class CommunityView(V3Mixin, TemplateView):
                 "quote": "I found a bug",
                 "description": "Find the library you're looking for on GitHub, follow the reporting template and let the author know",
                 "cta_text": "Report it on GitHub",
-                "cta_url": "https://github.com/boostorg",
+                "cta_url": "https://github.com/boostorg/boost",
                 "author": {
                     "name": "Character Name",
                     "role": "Maintainer",
@@ -168,7 +189,7 @@ class CommunityView(V3Mixin, TemplateView):
                 "quote": "I have a general question",
                 "description": "Post on Reddit and engage in casual chat with fellow Boost enthusiasts",
                 "cta_text": "Visit Reddit",
-                "cta_url": "https://www.reddit.com/r/boost/",
+                "cta_url": "https://www.reddit.com/user/boostlibs/",
                 "author": {
                     "name": "Character Name",
                     "role": "Contributor",
@@ -176,50 +197,122 @@ class CommunityView(V3Mixin, TemplateView):
                 },
             },
         ]
-        ctx["libraries"] = [
-            {
-                "name": "Beast",
-                "url": "/library/latest/beast/",
-                "description": "A collection of useful generic algorithms.",
-                "categories": ["Concurrent", "IO"],
-                "cpp_version": "C++ 11",
-            },
-            {
-                "name": "Cobalt",
-                "url": "/library/latest/cobalt/",
-                "description": "Coroutines. Basic Algorithms & Types",
-                "categories": [
-                    "Concurrent",
-                    "Coroutines",
-                    "Awaitables",
-                    "Asynchronous",
-                ],
-                "cpp_version": "C++ 20",
-            },
-            {
-                "name": "JSON",
-                "url": "/library/latest/json/",
-                "description": "JSON parsing, serialization, and DOM",
-                "categories": ["Containers", "Data", "IO"],
-                "cpp_version": "C++ 11",
-            },
-            {
-                "name": "Lib Name",
-                "url": "#",
-                "description": "Lib Description",
-                "categories": ["Containers", "Data", "IO"],
-                "cpp_version": "C++ 11",
-            },
-            {
-                "name": "Lib Name",
-                "url": "#",
-                "description": "Lib Description",
-                "categories": ["Containers", "Data", "IO"],
-                "cpp_version": "C++ 11",
-            },
+        version_slug = self.kwargs.get("version_slug", LATEST_RELEASE_URL_PATH_STR)
+        selected_version = context_processors.selected_version(self.request)[
+            "selected_version"
         ]
-        ctx["posts"] = SharedResources.demo_posts[:4]
-        ctx["slack_member_count"] = "30,000"
+
+        # Subquery: does this library have any LibraryVersion at or before the
+        # selected Boost version?
+        existed_at_selected = LibraryVersion.objects.filter(
+            library=OuterRef("pk"),
+            version__name__lte=selected_version.name,
+            version__full_release=True,
+        )
+
+        site_settings = SiteSettings.load()
+        pinned_libs = list(
+            site_settings.pinned_community_libraries.filter(
+                Exists(existed_at_selected)
+            ).prefetch_related("categories")
+        )
+        pinned_slugs = [lib.slug for lib in pinned_libs]
+        remaining_slots = libraries_shown_in_community_page - len(pinned_libs)
+        random_libs = (
+            list(
+                Library.objects.filter(tier=Tier.FLAGSHIP)
+                .filter(Exists(existed_at_selected))
+                .exclude(slug__in=pinned_slugs)
+                .prefetch_related("categories")
+                .order_by("?")[:remaining_slots]
+            )
+            if remaining_slots > 0
+            else []
+        )
+        flagship_libs = pinned_libs + random_libs
+
+        libraries = []
+        for lib in flagship_libs:
+            lv = (
+                LibraryVersion.objects.filter(
+                    library=lib,
+                    version__name__lte=selected_version.name,
+                    version__full_release=True,
+                )
+                .order_by("-version__name")
+                .first()
+            )
+            if not lv:
+                # Fallback: show the highest C++ version the library supports.
+                lv = (
+                    LibraryVersion.objects.filter(
+                        library=lib,
+                        version__full_release=True,
+                    )
+                    .order_by("-version__name")
+                    .first()
+                )
+            cpp_version = (
+                f"C++ {lv.cpp_standard_minimum}"
+                if lv and lv.cpp_standard_minimum
+                else ""
+            )
+            libraries.append(
+                {
+                    "name": lib.display_name_short,
+                    "url": reverse(
+                        "library-detail",
+                        kwargs={
+                            "version_slug": version_slug,
+                            "library_slug": lib.slug,
+                        },
+                    ),
+                    "description": lib.description or "",
+                    "categories": [cat.name for cat in lib.categories.all()],
+                    "cpp_version": cpp_version,
+                }
+            )
+        ctx["libraries"] = libraries
+        ctx["libraries_url"] = self.request.build_absolute_uri(
+            reverse(
+                "libraries-list",
+                kwargs={
+                    "version_slug": version_slug,
+                    "library_view_str": "list",
+                },
+            )
+        )
+        recent_entries = (
+            Entry.objects.published()
+            .filter(deleted_at__isnull=True)
+            .select_related("author")
+            .order_by("-publish_at")[:4]
+        )
+        tag_display = {"blogpost": "Blog"}
+        ctx["posts"] = [
+            {
+                "title": entry.title,
+                "url": self.request.build_absolute_uri(entry.get_absolute_url()),
+                "date": entry.publish_at,
+                "category": (
+                    tag_display.get(str(entry.tag).lower(), entry.tag.capitalize())
+                    if entry.tag
+                    else ""
+                ),
+                # TODO: populate from DB once entry tags are persisted
+                "tag": "",
+                "author": {
+                    "name": entry.author.display_name or entry.author.get_full_name(),
+                    "avatar_url": entry.author.get_avatar_url(),
+                    "role": "",
+                },
+            }
+            for entry in recent_entries
+        ]
+        ctx["news_url"] = self.request.build_absolute_uri(reverse("news"))
+        ctx["contribute_url"] = self.request.build_absolute_uri(
+            "/doc/contributor-guide/contributors-faq.html"
+        )
         ctx["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
         ctx["install_card_system_install"] = SharedResources.install_card_system_install
         ctx["create_account_card_body_html"] = (
@@ -233,6 +326,14 @@ class CommunityView(V3Mixin, TemplateView):
         ctx["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/v3/community-page/"
             "community-create-account-preview.png"
+        )
+        now = timezone.now()
+        ctx["recent_threads_url"] = (
+            f"https://lists.boost.org/archives/list/boost@lists.boost.org/"
+            f"{now.year}/{now.month}/"
+        )
+        ctx["archive_url"] = (
+            "https://lists.boost.org/archives/list/boost@lists.boost.org/latest"
         )
         return ctx
 

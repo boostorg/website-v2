@@ -76,7 +76,7 @@ def test_library_list_no_pagination(library_version, tp):
     lib_versions = [
         baker.make(
             "libraries.LibraryVersion",
-            library=baker.make("libraries.Library", name=f"lib-{i}"),
+            library=baker.make("libraries.Library", name=f"lib-{i}", slug=f"lib-{i}"),
             version=library_version.version,
         )
         for i in range(30)

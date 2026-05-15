@@ -3,7 +3,7 @@ from datetime import date
 from django.conf import settings
 from django.utils.text import slugify
 
-from core.constants import BadgeToken
+from core.constants import BadgeToken, SLACK_MEMBER_COUNT
 from libraries.utils import commit_data_to_stats_bars
 
 
@@ -181,7 +181,7 @@ int main()
         {
             "title": "Get help",
             "url": "#",
-            "description": "Tap into quick answers, networking, and chat with 24,000+ members.",
+            "description": f"Tap into quick answers, networking, and chat with {SLACK_MEMBER_COUNT} members.",
             "icon_name": "github",
         }
     ]

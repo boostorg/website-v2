@@ -181,10 +181,11 @@ urlpatterns = (
         ),
         path("health/", include("health_check.urls")),
         path("asciidoctor_sandbox/", include("asciidoctor_sandbox.urls")),
+        path("community/", CommunityView.as_view(), name="community"),
         path(
-            "community/",
+            "community/<boostversionslug:version_slug>/",
             CommunityView.as_view(),
-            name="community",
+            name="community-version",
         ),
         # Boost community calendar
         path("calendar/", CalendarView.as_view(), name="calendar"),
