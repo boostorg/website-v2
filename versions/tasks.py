@@ -636,8 +636,11 @@ WHATS_NEW_SYSTEM_PROMPT = dedent(
 
     Rules:
 
-    Return a maximum of 5 bullets, each with an emoji, a bold category label,
+    Return the output as a Markdown unordered list: every line must begin
+    with "- " and there must be no other lines
+    Return a maximum of 5 bullets, each with a bold category label,
     and a single sentence of no more than 20 words
+    Do not use emoji anywhere in the output
     Do not name or highlight specific libraries — speak to the ecosystem as a whole
     Only include a bullet if there is relevant content in the release note to
     support it
@@ -652,8 +655,8 @@ WHATS_NEW_SYSTEM_PROMPT = dedent(
 
     Input: release note
 
-    Output: Return only the bullets. No preamble, no explanation,
-    no additional commentary.
+    Output: Return only the Markdown unordered list. No preamble, no
+    explanation, no additional commentary.
     """
 ).strip()
 

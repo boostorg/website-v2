@@ -9,11 +9,11 @@ from versions.models import Version
 
 
 SAMPLE_OUTPUT = (
-    "- 🆕 **New libraries** — Three new libraries broaden coverage of "
+    "- **New libraries** — Three new libraries broaden coverage of "
     "scientific computing and modern C++ patterns.\n"
-    "- ⚡ **Performance improvements** — Compile-time and runtime gains "
+    "- **Performance improvements** — Compile-time and runtime gains "
     "are reported across multiple core components.\n"
-    "- 🔒 **Security & reliability** — Several stability and correctness "
+    "- **Security & reliability** — Several stability and correctness "
     "fixes land in this release.\n"
 )
 
@@ -111,11 +111,10 @@ def test_whats_new_items_parses_bullets(version):
 
     items = version.whats_new_items
     assert len(items) == 3
-    assert items[0]["title"].startswith("🆕")
-    assert "New libraries" in items[0]["title"]
+    assert items[0]["title"] == "New libraries"
     assert items[0]["description"].startswith("Three new libraries")
-    assert items[1]["title"].startswith("⚡")
-    assert items[2]["title"].startswith("🔒")
+    assert items[1]["title"] == "Performance improvements"
+    assert items[2]["title"] == "Security & reliability"
 
 
 @pytest.mark.django_db
@@ -129,29 +128,45 @@ def test_whats_new_items_ignores_non_bullet_lines(version):
     Version.objects.filter(pk=version.pk).update(
         whats_new=(
             "Some preamble that should be ignored.\n"
-            "- 🆕 **New libraries** — One library added.\n"
+            "- **New libraries** — One library added.\n"
             "Trailing line without bullet.\n"
         )
     )
     version.refresh_from_db()
     items = version.whats_new_items
     assert len(items) == 1
-    assert items[0]["title"] == "🆕 New libraries"
+    assert items[0]["title"] == "New libraries"
 
 
 @pytest.mark.django_db
-def test_whats_new_items_parses_dashless_colon_format(version):
-    """Real LLM output sometimes omits the bullet marker and puts the colon
-    inside the bold label — the parser must accept that."""
+def test_whats_new_items_parses_colon_in_label(version):
+    """A colon inside the bold label is stripped; the bullet marker is
+    still required."""
     Version.objects.filter(pk=version.pk).update(
         whats_new=(
-            "📦 **New libraries:** One new library introduces open-method support.\n"
-            "⚡ **Performance improvements:** Container redesigns deliver speed gains.\n"
+            "- **New libraries:** One new library introduces open-method support.\n"
+            "* **Performance improvements:** Container redesigns deliver speed gains.\n"
         )
     )
     version.refresh_from_db()
     items = version.whats_new_items
     assert len(items) == 2
-    assert items[0]["title"] == "📦 New libraries"
+    assert items[0]["title"] == "New libraries"
     assert items[0]["description"].startswith("One new library")
-    assert items[1]["title"] == "⚡ Performance improvements"
+    assert items[1]["title"] == "Performance improvements"
+
+
+@pytest.mark.django_db
+def test_whats_new_items_ignores_dashless_lines(version):
+    """Lines without a leading bullet marker are not list items and are
+    skipped."""
+    Version.objects.filter(pk=version.pk).update(
+        whats_new=(
+            "**New libraries:** This line has no bullet marker.\n"
+            "- **Performance improvements** — This one does.\n"
+        )
+    )
+    version.refresh_from_db()
+    items = version.whats_new_items
+    assert len(items) == 1
+    assert items[0]["title"] == "Performance improvements"

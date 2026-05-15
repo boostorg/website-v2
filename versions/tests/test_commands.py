@@ -30,7 +30,7 @@ def version_with_notes_and_summary(db):
         name="boost-1.85.0",
         active=True,
         fully_imported=True,
-        whats_new="- 🆕 **New libraries** — already populated.",
+        whats_new="- **New libraries** — already populated.",
     )
     baker.make(
         RenderedContent,

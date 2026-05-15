@@ -233,18 +233,17 @@ class Version(models.Model):
         """Parse `whats_new` markdown bullets into a list of {title, description}
         dicts for the v3 release-highlights card.
 
-        Tolerant of the variants the LLM emits in practice:
-          - `- 🆕 **New libraries** — sentence`
-          - `* 🆕 **New libraries:** sentence`
-          - `🆕 **New libraries:** sentence`  (no leading marker)
-        Trailing `:` inside the label is stripped; the emoji is required.
+        Accepts the Markdown unordered-list bullets the LLM is instructed
+        to emit; a leading ``-`` or ``*`` marker is required:
+          - `- **New libraries** — sentence`
+          - `* **New libraries:** sentence`
+        Trailing `:` inside the label is stripped.
         """
         if not self.whats_new:
             return []
         items = []
         bullet_re = re.compile(
-            r"^\s*(?:[-*]\s+)?"
-            r"(?P<emoji>\S+)\s+"
+            r"^\s*[-*]\s+"
             r"\*\*(?P<label>[^*]+?)\*\*"
             r"\s*[:—–\-]?\s*"
             r"(?P<text>.+)$"
@@ -253,14 +252,13 @@ class Version(models.Model):
             match = bullet_re.match(line)
             if not match:
                 continue
-            emoji = match.group("emoji").strip()
             label = match.group("label").strip().rstrip(":").strip()
             text = match.group("text").strip()
             if not text:
                 continue
             items.append(
                 {
-                    "title": f"{emoji} {label}".strip(),
+                    "title": label,
                     "description": text,
                 }
             )
