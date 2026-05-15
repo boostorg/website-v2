@@ -123,7 +123,7 @@ class CurrentUserProfileView(
                 """
                         * Created 24 Commits in [7 repositories](https://www.example.com)
                         * Created [1 repository](https://www.example.com)
-                        * Created a pull request in cppalliance/buffers that received [6 comments](https://www.example.com)
+                        * Created a pull request in [cppalliance/buffers](https://www.example.com) that received 6 comments
                         * Opened 17 other pull requests in [6 repositories](https://www.example.com)
                         * Reviewed 3 pull requests in [3 repositories](https://www.example.com)
                     """
@@ -303,6 +303,28 @@ class CurrentUserProfileView(
                     "tag": "bind",
                 },
             ]
+            ctx["social_media_links"] = [
+                {
+                    "url": "#",
+                    "label": "GitHub",
+                    "icon": "pixel-github",
+                },
+                {
+                    "url": "#",
+                    "label": "Website",
+                    "icon": "pixel-computer",
+                },
+                {
+                    "url": "#",
+                    "label": "Email",
+                    "icon": "pixel-email",
+                },
+                {
+                    "url": "#",
+                    "label": "Chat on Slack",
+                    "icon": "pixel-slack",
+                },
+            ]
 
         else:
             ctx["posts"] = [
@@ -316,6 +338,28 @@ class CurrentUserProfileView(
             )
             ctx["profile_post_cta_label"] = "Create a Post"
             ctx["profile_post_cta_url"] = "#"
+            ctx["social_media_links"] = [
+                {
+                    "icon": "pixel-github",
+                    "disabled": True,
+                    "extra_classes": "user-profile__btn-no-label",
+                },
+                {
+                    "icon": "pixel-computer",
+                    "disabled": True,
+                    "extra_classes": "user-profile__btn-no-label",
+                },
+                {
+                    "icon": "pixel-email",
+                    "disabled": True,
+                    "extra_classes": "user-profile__btn-no-label",
+                },
+                {
+                    "icon": "pixel-slack",
+                    "disabled": True,
+                    "extra_classes": "user-profile__btn-no-label",
+                },
+            ]
 
         return ctx
 

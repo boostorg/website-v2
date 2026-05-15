@@ -24,6 +24,11 @@
     flex-wrap: wrap;
 }
 
+.user-profile__btn-no-label {
+    min-width: fit-content;
+    padding: var(--space-default) var(--space-large)
+}
+
 /* ──────── Two Row Card Display ──────── */
 
 .user-profile__profile-content-area {

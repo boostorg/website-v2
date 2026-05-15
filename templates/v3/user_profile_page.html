@@ -17,11 +17,11 @@
       {% include 'v3/includes/_user_card.html' with username=user.user_name avatar_url=user.avatar_url badge_name=user.featured_badge.name badge=user.featured_badge.badge member_since=user.member_since role=user.role flag_emoji='🇺🇸' compact=True %}
       {% endwith %}
       <div class="user-profile__button-group">
-        {% include "v3/includes/_button.html" with label="GitHub" url="#" icon_name="pixel-github" icon_position="right" style="secondary" icon_viewbox="0 0 16 16" only %}
-        {% include "v3/includes/_button.html" with label="Website" url="#" icon_name="pixel-computer" icon_position="right" style="secondary" icon_viewbox="0 0 16 16" only %}
-        {% include "v3/includes/_button.html" with label="Email" url="#" icon_name="pixel-email" icon_position="right" style="secondary" icon_viewbox="0 0 16 16" only %}
-        {% include "v3/includes/_button.html" with label="Chat on Slack" url="#" icon_name="pixel-slack" icon_position="right" style="secondary" icon_viewbox="0 0 16 16" only %}
+        {% for link in social_media_links %}
+        {% include "v3/includes/_button.html" with label=link.label url=link.url icon_name=link.icon disabled=link.disabled extra_classes=link.extra_classes icon_position="right" style="secondary" icon_viewbox="0 0 16 16" only %}
+        {% endfor %}
         {% include "v3/includes/_button.html" with label="Edit Profile" url="#" icon_name="pixel-pencil" icon_position="right" style="secondary" icon_viewbox="0 0 16 16" only %}
+        {% include "v3/includes/_button.html" with label="Share" url="#" icon_name="pixel-share" icon_position="right" style="secondary" icon_viewbox="0 0 16 16" only %}
       </div>
     </div>
     <div class="user-profile__profile-content-area">
