@@ -3,6 +3,7 @@ import requests
 import typing
 from io import BytesIO
 from PIL import Image as PImage
+from PIL import ImageOps
 
 from django.conf import settings
 from django.core.files import File
@@ -76,9 +77,12 @@ def downsize_uploaded_image(image: UploadedFile) -> UploadedFile:
             settings.DOWNSCALED_IMAGE_HEIGHT,
         )  # Settings based preferred width and height
 
+        # Bake EXIF orientation into pixels so portrait phone photos don't end up sideways
+        im = ImageOps.exif_transpose(im)
+
         # Use the thumbnail functionality to reduce this image to our preferred width and height.
         # Maintains aspect ratio, and won't ever upscale.
-        im.thumbnail((s_width, s_height))
+        im.thumbnail((s_width, s_height), PImage.Resampling.LANCZOS)
 
         # Save to a BytesIO, actual file system saving will be handled by the form calling this function
         img = BytesIO()
