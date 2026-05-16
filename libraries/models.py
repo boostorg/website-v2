@@ -49,6 +49,11 @@ class Category(models.Model):
 
     name = models.CharField(max_length=100)
     slug = models.SlugField(blank=True, null=True)
+    short_description = models.TextField(
+        blank=True,
+        default="",
+        help_text="Short marketing copy shown on the Learn page category carousel.",
+    )
 
     class Meta:
         verbose_name_plural = "Categories"
