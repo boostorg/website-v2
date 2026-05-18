@@ -161,24 +161,6 @@ class CurrentUserProfileView(
                 },
             ],
         }
-        ctx["account_connections_none_connected"] = [
-            {
-                "platform": "github",
-                "label": "GitHub",
-                "connected": False,
-                "status_text": "Not connected",
-                "action_label": "Connect",
-                "action_url": "#",
-            },
-            {
-                "platform": "google",
-                "label": "Google",
-                "connected": False,
-                "status_text": "Not connected",
-                "action_label": "Connect",
-                "action_url": "#",
-            },
-        ]
 
         if self.request.GET.get("filled"):
             ctx["bio"] = dedent(
@@ -325,6 +307,24 @@ class CurrentUserProfileView(
                     "icon": "pixel-slack",
                 },
             ]
+            ctx["account_connections_none_connected"] = [
+                {
+                    "platform": "github",
+                    "label": "GitHub",
+                    "connected": False,
+                    "status_text": "Not connected",
+                    "action_label": "Connect",
+                    "action_url": "#",
+                },
+                {
+                    "platform": "google",
+                    "label": "Google",
+                    "connected": False,
+                    "status_text": "Not connected",
+                    "action_label": "Connect",
+                    "action_url": "#",
+                },
+            ]
 
         else:
             ctx["posts"] = [
@@ -343,23 +343,40 @@ class CurrentUserProfileView(
                     "icon": "pixel-github",
                     "disabled": True,
                     "extra_classes": "user-profile__btn-no-label",
+                    "tp_label": "Add GitHub Profile Link",
                 },
                 {
                     "icon": "pixel-computer",
                     "disabled": True,
                     "extra_classes": "user-profile__btn-no-label",
+                    "tp_label": "Add Website Link",
                 },
                 {
                     "icon": "pixel-email",
                     "disabled": True,
                     "extra_classes": "user-profile__btn-no-label",
+                    "tp_label": "Add Email Address",
                 },
                 {
                     "icon": "pixel-slack",
                     "disabled": True,
                     "extra_classes": "user-profile__btn-no-label",
+                    "tp_label": "Add CPP Slack Profile Link",
                 },
             ]
+
+        ctx["top_links"] = ctx["social_media_links"] + [
+            {
+                "url": "#",
+                "label": "Edit Profile",
+                "icon": "pixel-pencil",
+            },
+            {
+                "url": "#",
+                "label": "Share",
+                "icon": "pixel-share",
+            },
+        ]
 
         return ctx
 

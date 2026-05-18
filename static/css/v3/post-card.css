@@ -33,6 +33,7 @@
 }
 
 .post-card__meta {
+  color: var(--color-text-secondary);
   display: flex;
   flex-wrap: wrap;
   align-items: center;

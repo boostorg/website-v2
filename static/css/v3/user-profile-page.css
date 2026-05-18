@@ -1,7 +1,7 @@
 /* ──────── Top Level Container ──────── */
 .user-profile__container {
     margin-top: var(--space-xl);
-    padding: 0 var(--space-large);
+    padding: 0 var(--space-medium);
 }
 
 /* ──────── Header row, including profile card and buttons ──────── */
@@ -52,12 +52,16 @@
     max-width: 100%;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
     /* ──────── Stack header row on mobile ──────── */
     .user-profile__profile-card-row {
         flex-direction: column;
         gap: var(--space-xl);
         align-items: flex-start;
+    }
+
+    .user-profile__button-group {
+        flex-direction: row;
     }
 
     /* ──────── Collapse to one column on mobile ──────── */

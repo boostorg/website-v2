@@ -83,8 +83,8 @@
 }
 
 
-@media (max-width: 480px) {
+@media (max-width: 1279px) {
   .badges-card__grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
