@@ -97,11 +97,7 @@
         ;
     }
 
-    .card {
-        max-width: 100%;
-    }
-
-    .post-cards {
+    .card, .card-group {
         max-width: 100%;
     }
 }
