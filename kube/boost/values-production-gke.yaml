@@ -171,6 +171,11 @@ Env:
       secretKeyRef:
         name: general-web-secrets
         key: calendar_api_key
+  - name: PLAUSIBLE_STATS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: general-web-secrets
+        key: plausible_stats_key
   - name: OPENROUTER_API_KEY
     valueFrom:
       secretKeyRef:
