@@ -470,6 +470,7 @@ class LibraryDetail(
         base_context = base_context or {}
 
         version_str = base_context.get("version_str") or LATEST_RELEASE_URL_PATH_STR
+        context["is_latest_version"] = version_str == LATEST_RELEASE_URL_PATH_STR
 
         context["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
         context["install_card_system_install"] = (

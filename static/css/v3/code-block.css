@@ -154,6 +154,10 @@ html.dark .code-block-card--grey {
   border-top: 1px solid var(--color-border);
 }
 
+.code-block-card--teal .code-block-card__description {
+  border-top-color: var(--color-accent-strong-teal);
+}
+
 .code-block__inner {
   display: block;
   margin: 0;

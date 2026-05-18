@@ -32,7 +32,11 @@
           {% include "v3/includes/_quick_start_card.html" with heading="Quick Start" links=quick_start_links %}
         </div>
         <div class="item-c">
-          {% include "v3/includes/_code_block_card.html" with heading="Install" description="Get started with header-only libraries" code=library_install_code language="bash" card_variant="teal" %}
+          {% if is_latest_version %}
+            {% include "v3/includes/_code_block_card.html" with heading="Install" description="Get started with header-only libraries" code=library_install_code language="bash" card_variant="teal" %}
+          {% else %}
+            {% include "v3/includes/_code_block_card.html" with heading="Install" description="You are viewing an older version, see the documentation for installation steps." card_variant="teal" button_text="See Documentation" button_url="https://www.boost.org/doc/user-guide/getting-started.html" button_aria_label="See documentation for installation steps" button_style="teal" %}
+          {% endif %}
         </div>
         <div class="item-e">
           {% include "v3/includes/_dependencies_card.html" with dependencies=dependencies_list %}
