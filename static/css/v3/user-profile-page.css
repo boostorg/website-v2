@@ -84,3 +84,41 @@
     .user-profile__mailing-list { order: 6; }
     .user-profile__connections  { order: 7; }
 }
+
+@media (width >= 769px) {
+        .user-profile__button-group > :first-child {
+        margin-left: auto;
+    }
+}
+
+@media (width < 769px) {
+    .user-profile__button-group > * {
+        margin-left: 0px;
+    }
+}
+
+@media (1077px <= width < 1210px) {
+    .user-profile__button-group > :nth-last-child(1) {
+        margin-left: auto;
+    }
+}
+
+@media (945px <= width < 1077px) {
+    .user-profile__button-group > :nth-last-child(2) {
+        margin-left: auto;
+    }
+
+}
+
+@media (814px <= width < 945px) {
+    .user-profile__button-group > :nth-last-child(3) {
+        margin-left: auto;
+    }
+}
+
+@media (769px <= width < 814px) {
+    .user-profile__button-group > :nth-last-child(4),
+    .user-profile__button-group > :nth-last-child(2) {
+        margin-left: auto;
+    }
+}
