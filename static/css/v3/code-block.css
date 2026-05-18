@@ -158,6 +158,10 @@ html.dark .code-block-card--grey {
   border-top-color: var(--color-accent-strong-teal);
 }
 
+html.dark .code-block-card--teal .code-block-card__description {
+  border-top-color: var(--color-border);
+}
+
 .code-block__inner {
   display: block;
   margin: 0;
