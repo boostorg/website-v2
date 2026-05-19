@@ -6,9 +6,21 @@ WEB_ANALYTICS_API_URL = (
 )
 WEB_ANALYTICS_API_URL_V2 = "https://plausible.io/api/v2/query"
 WEB_ANALYSTICS_API_TOP_STATS_PAYLOAD = {
-    "site_id": "dummy.site",
-    "metrics": ["visitors", "pageviews", "bounce_rate"],
-    "date_range": "7d",
-    "filters": [["is_not", "visit:country_name", [""]]],
-    "dimensions": ["visit:country_name", "visit:city_name"],
+    "site_id": WEB_ANALYTICS_DOMAIN,
+    "metrics": [
+        "visitors",
+        "pageviews",
+        "bounce_rate",
+        "visit_duration",
+        "views_per_visit",
+        "visits",
+    ],
+}
+WEB_ANALYTICS_CODENAME_MAPPING = {
+    "visitors": "Unique Visitors",
+    "pageviews": "Total Page pageviews",
+    "bounce_rate": "Bounce Rate",
+    "visit_duration": "Visit Duration",
+    "views_per_visit": "Views per visit",
+    "visits": "Total visits",
 }

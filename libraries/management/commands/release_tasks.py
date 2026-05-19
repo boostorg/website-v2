@@ -41,24 +41,24 @@ class ReleaseTasksManager(ActionsManager):
     def set_tasks(self):
         self.tasks = [
             Action("Importing versions", self.import_versions),
-            # Action(
-            #     "Importing most recent beta version",
-            #     ["import_beta_release", "--delete-versions"],
-            # ),
-            # Action("Importing development versions", ["import_development_versions"]),
-            # Action("Importing libraries", ["update_libraries"]),
-            # Action(
-            #     "Saving library-version relationships", self.import_library_versions
-            # ),
-            # Action("Adding library maintainers", ["update_maintainers"]),
-            # Action("Adding library authors", ["update_authors"]),
-            # Action(
-            #     "Adding library version authors", ["update_library_version_authors"]
-            # ),
-            # Action("Importing git commits", self.import_commits),
-            # Action("Syncing mailinglist statistics", ["sync_mailinglist_stats"]),
-            # Action("Updating github issues", ["update_issues"]),
-            # Action("Updating slack activity buckets", ["fetch_slack_activity"]),
+            Action(
+                "Importing most recent beta version",
+                ["import_beta_release", "--delete-versions"],
+            ),
+            Action("Importing development versions", ["import_development_versions"]),
+            Action("Importing libraries", ["update_libraries"]),
+            Action(
+                "Saving library-version relationships", self.import_library_versions
+            ),
+            Action("Adding library maintainers", ["update_maintainers"]),
+            Action("Adding library authors", ["update_authors"]),
+            Action(
+                "Adding library version authors", ["update_library_version_authors"]
+            ),
+            Action("Importing git commits", self.import_commits),
+            Action("Syncing mailinglist statistics", ["sync_mailinglist_stats"]),
+            Action("Updating github issues", ["update_issues"]),
+            Action("Updating slack activity buckets", ["fetch_slack_activity"]),
             Action("Updating website statistics", self.update_website_statistics),
             Action("Importing mailing list counts", self.import_ml_counts),
             # Action("Generating report", self.generate_report),
