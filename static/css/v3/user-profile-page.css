@@ -93,7 +93,7 @@
     .user-profile__connections  { order: 7; }
 }
 
-@media (769px <= width < 1210px) {
+@media (769px <= width < 1280px) {
     .user-profile__button-group {
         align-self: end;
         width: 528px;
