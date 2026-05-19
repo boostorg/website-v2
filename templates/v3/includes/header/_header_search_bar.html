@@ -6,7 +6,7 @@
   When JavaScript is enabled, the button opens the Gecko search overlay (wired
   in static/js/search-shortcut.js; Ctrl/Cmd+K shortcut). When JavaScript is
   disabled, the button and keyboard hint are hidden via an inline <style> in
-  <noscript>, and a non-interactive span explains that search is unavailable.
+  <noscript> and a fallback message is shown instead.
 
   Variables:
     current_version  (object, required) — current Boost release (from context processor)
@@ -27,17 +27,34 @@
     Search
   </button>
   <span class="header__search-kbd" aria-hidden="true">CTRL+K</span>
+
+  {% comment %} No-JS fallback (hidden when JS is enabled via CSS) {% endcomment %}
   <noscript>
     <style>
       #gecko-search-button,
       .header__search-kbd { display: none; }
       .header__search-bar > noscript { display: contents; }
+      .header__search-bar,
+      .header__search-bar:hover {
+        color: var(--color-text-tertiary);
+        background: var(--color-surface-mid);
+        cursor: not-allowed;
+      }
+      .header__search-bar .header__search-icon,
+      .header__search-bar:hover .header__search-icon,
+      .header__search-bar:hover .header__search-input-trigger {
+        color: var(--color-icon-secondary);
+        cursor: not-allowed;
+      }
     </style>
     <span class="header__search-input-trigger" aria-disabled="true">
       <span class="header__search-icon" aria-hidden="true">
         {% include "includes/icon.html" with icon_name="search" icon_class="header__icon" icon_size=16 %}
       </span>
       Search is not available with JS disabled
+    </span>
+    <span class="header__search-icon" aria-hidden="true">
+      {% include "includes/icon.html" with icon_name="lock" icon_class="header__icon" icon_size=16 icon_viewbox="0 0 16 16" %}
     </span>
   </noscript>
 </search>
