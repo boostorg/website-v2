@@ -4,6 +4,12 @@
     padding: 0 var(--space-medium);
 }
 
+.user-profile__container .btn {
+    width: fit-content;
+    min-width: unset;
+    padding: var(--space-default) var(--space-large);
+}
+
 /* ──────── Header row, including profile card and buttons ──────── */
 
 .user-profile__profile-card-row {
@@ -22,6 +28,7 @@
     align-self: flex-end;
     max-width: 100%;
     flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .user-profile__btn-no-label {
@@ -61,7 +68,8 @@
     }
 
     .user-profile__button-group {
-        flex-direction: row;
+        justify-content: flex-start;
+        align-self: stretch;
     }
 
     /* ──────── Collapse to one column on mobile ──────── */
@@ -87,6 +95,7 @@
 
 @media (769px <= width < 1210px) {
     .user-profile__button-group {
-        flex-direction: row-reverse;
+        align-self: end;
+        width: 528px;
     }
 }
