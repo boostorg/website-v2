@@ -41,9 +41,6 @@ from .serializers import UserSerializer, FullUserSerializer, CurrentUserSerializ
 from . import tasks
 
 
-from core.mock_data import SharedResources  # noqa: F401
-
-
 class UserViewSet(viewsets.ModelViewSet):
     """
     Main User API ViewSet
