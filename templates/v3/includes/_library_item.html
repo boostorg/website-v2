@@ -7,7 +7,6 @@
     library_url          (string, optional)  - Link for the library name
     description          (string, required)  - Short library description
     categories           (list, required)    - List of {label, slug, variant} dicts for category tags
-    version_str          (string, required)  - Version, used for url construction
     cpp_version          (string, required)  - e.g. "C++ 14" — rendered as neutral tag
     author               (dict, required)    - Author object for _user_profile.html (name, role, avatar_url, badge)
     doc_url              (string, required)  - Documentation link URL
@@ -31,8 +30,11 @@
     <p class="library-item__description">{{ description }}</p>
     <div class="library-item__tags">
       {% for cat in categories %}
-        {% url 'libraries-list' category_slug=cat.slug library_view_str=variant version_slug=version_str as cat_url %}
-        {% include "v3/includes/_category_tag.html" with tag_label=cat.label url=cat_url variant=cat.variant only %}
+        {% if request.GET %}
+          {% include "v3/includes/_category_tag.html" with tag_label=cat.label url=request.get_full_path|add:"&category="|add:cat.slug variant=cat.variant only %}
+        {% else %}
+          {% include "v3/includes/_category_tag.html" with tag_label=cat.label url=request.path|add:"?category="|add:cat.slug variant=cat.variant only %}
+        {% endif %}
       {% endfor %}
       <span class="version-tag version-tag--default library-item__cpp-version">{% if cpp_version %}C++ {{ cpp_version|cut:"C++" }}{% else %}Unknown{% endif %}</span>
     </div>
