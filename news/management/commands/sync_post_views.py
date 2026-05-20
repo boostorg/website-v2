@@ -29,7 +29,7 @@ def command(dry_run):
         "metrics": ["pageviews"],
         "dimensions": ["event:page"],
         "filters": [["contains", "event:page", [NEWS_ENTRY_PREFIX]]],
-        "date_range": "all_time",
+        "date_range": "all",
     }
     headers = {
         "Content-Type": "application/json; charset=utf-8",
@@ -39,7 +39,10 @@ def command(dry_run):
     response = requests.post(
         url=WEB_ANALYTICS_API_URL_V2, json=payload, headers=headers
     )
-    response.raise_for_status()
+    if not response.ok:
+        raise click.ClickException(
+            f"Plausible API error {response.status_code}: {response.text}"
+        )
     data = response.json()
 
     if not data or "results" not in data:
