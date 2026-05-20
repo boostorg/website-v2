@@ -22,8 +22,8 @@ PRIVACY_POLICY_BODY = """
 <p>We collect and store log and usage data for diagnostic and performance purposes. This may include the same analytics information above along with additional information related to your usage of the site.</p>
 <h2>Privacy Statement Revisions</h2>
 <p>We may update this privacy notice from time to time. The updated version will be indicated by an updated "Revised" date and the updated version will be effective as soon as it is accessible. If we make material changes to this privacy notice, we may notify you either by prominently posting a notice of such changes or by directly sending you a notification. We encourage you to review this privacy notice frequently to be informed of how we are protecting your information.</p>
-<h2>Questions</h2>
-<p>Questions or concerns? Reading this privacy notice will help you understand your privacy rights and choices. If you do not agree with our policies and practices, please do not use our Services. If you still have any questions or concerns, please contact us at <a href="mailto:info@cppalliance.org">info@cppalliance.org</a>.</p>
+<h2>Questions?</h2>
+<p>Questions or concerns? Reading this privacy notice will help you understand your privacy rights and choices. If you do not agree with our policies and practices, please do not use our Services. If you still have any questions or concerns, please contact us at info@cppalliance.org.</p>
 """.strip()
 
 
@@ -36,7 +36,7 @@ TERMS_OF_USE_BODY = """
 <p>We will make our best effort to notify registered users who have provided us with a valid email address of any changes to our Terms of Use via email. While we aim to ensure timely and accurate notifications, we do not guarantee that all changes will be communicated.</p>
 <h2>Intellectual Property</h2>
 <p>Boost libraries, documentation, source code, and this website are provided under the terms of the Boost Software License.</p>
-<p>You grant The C Plus Plus Alliance, Inc. a royalty-free and non-exclusive license to display, use, copy, transmit, and broadcast the content you upload and publish. For issues regarding intellectual property claims, you should contact The C Plus Plus Alliance, Inc.</p>
+<p>You grant The C Plus Plus Alliance, Inc. a royalty-free and non-exclusive license to display, use, copy, transmit, and broadcast the content you upload and publish. For issues regarding intellectual property claims, you should contact the The C Plus Plus Alliance, Inc.</p>
 <h2>User Accounts</h2>
 <p>As a user of this website you have the option, but not the requirement, to register with us and provide additional information. You are responsible for ensuring the accuracy of this information, and you are responsible for maintaining the safety and security of your identifying information.</p>
 <p>You are also responsible for all activities that occur under your account or password.</p>
@@ -69,10 +69,10 @@ TERMS_OF_USE_BODY = """
 <p>These Legal Terms and your use of the Services are governed by and construed in accordance with the laws of the State of California applicable to agreements made and to be entirely performed within the State of California, without regard to its conflict of law principles.</p>
 <h2>Disclaimer</h2>
 <p>THE SERVICES ARE PROVIDED ON AN AS-IS AND AS-AVAILABLE BASIS. YOU AGREE THAT YOUR USE OF THE SERVICES WILL BE AT YOUR SOLE RISK. TO THE FULLEST EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, IN CONNECTION WITH THE SERVICES AND YOUR USE THEREOF, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. WE MAKE NO WARRANTIES OR REPRESENTATIONS ABOUT THE ACCURACY OR COMPLETENESS OF THE SERVICES' CONTENT OR THE CONTENT OF ANY WEBSITES OR MOBILE APPLICATIONS LINKED TO THE SERVICES AND WE WILL ASSUME NO LIABILITY OR RESPONSIBILITY FOR ANY (1) ERRORS, MISTAKES, OR INACCURACIES OF CONTENT AND MATERIALS, (2) PERSONAL INJURY OR PROPERTY DAMAGE, OF ANY NATURE WHATSOEVER, RESULTING FROM YOUR ACCESS TO AND USE OF THE SERVICES, (3) ANY UNAUTHORIZED ACCESS TO OR USE OF OUR SECURE SERVERS AND/OR ANY AND ALL PERSONAL INFORMATION AND/OR FINANCIAL INFORMATION STORED THEREIN, (4) ANY INTERRUPTION OR CESSATION OF TRANSMISSION TO OR FROM THE SERVICES, (5) ANY BUGS, VIRUSES, TROJAN HORSES, OR THE LIKE WHICH MAY BE TRANSMITTED TO OR THROUGH THE SERVICES BY ANY THIRD PARTY, AND/OR (6) ANY ERRORS OR OMISSIONS IN ANY CONTENT AND MATERIALS OR FOR ANY LOSS OR DAMAGE OF ANY KIND INCURRED AS A RESULT OF THE USE OF ANY CONTENT POSTED, TRANSMITTED, OR OTHERWISE MADE AVAILABLE VIA THE SERVICES. WE DO NOT WARRANT, ENDORSE, GUARANTEE, OR ASSUME RESPONSIBILITY FOR ANY PRODUCT OR SERVICE ADVERTISED OR OFFERED BY A THIRD PARTY THROUGH THE SERVICES, ANY HYPERLINKED WEBSITE, OR ANY WEBSITE OR MOBILE APPLICATION FEATURED IN ANY BANNER OR OTHER ADVERTISING, AND WE WILL NOT BE A PARTY TO OR IN ANY WAY BE RESPONSIBLE FOR MONITORING ANY TRANSACTION BETWEEN YOU AND ANY THIRD-PARTY PROVIDERS OF PRODUCTS OR SERVICES. AS WITH THE PURCHASE OF A PRODUCT OR SERVICE THROUGH ANY MEDIUM OR IN ANY ENVIRONMENT, YOU SHOULD USE YOUR BEST JUDGMENT AND EXERCISE CAUTION WHERE APPROPRIATE.</p>
-<h2>Contact us</h2>
+<h2>CONTACT US</h2>
 <p>In order to resolve a complaint regarding the Services or to receive further information regarding use of the Services, please contact us at:</p>
-<p>The C Plus Plus Alliance, Inc.<br/>5716 Corsa Ave suite 110<br/>Westlake Village, CA 91362<br/>United States</p>
-<p>Phone: (+1) 305 216 5538<br/><a href="mailto:info@cppalliance.org">info@cppalliance.org</a></p>
+<p>The C Plus Plus Alliance, Inc. 5716 Corsa Ave suite 110 Westlake Village, CA 91362 United States</p>
+<p>Phone: (+1)3052165538 info@cppalliance.org</p>
 """.strip()
 
 
