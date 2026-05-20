@@ -149,3 +149,65 @@ def set_thumbnail_for_video_entry(pk: int):
 
     video = Video.objects.get(pk=pk)
     set_video_thumbnail(video)
+
+
+@app.task
+def sync_post_views_from_plausible():
+    """Sync per-post page view counts from Plausible into Entry.page_views."""
+    from django.conf import settings
+
+    import requests as http
+    from news.models import Entry
+    from reports.constants import WEB_ANALYTICS_API_URL_V2, WEB_ANALYTICS_DOMAIN
+
+    if not settings.PLAUSIBLE_STATS_KEY or settings.PLAUSIBLE_STATS_KEY == "changeme":
+        logger.info(
+            "sync_post_views.skipped", reason="PLAUSIBLE_STATS_KEY not configured"
+        )
+        return
+
+    news_entry_prefix = "/news/entry/"
+    payload = {
+        "site_id": WEB_ANALYTICS_DOMAIN,
+        "metrics": ["pageviews"],
+        "dimensions": ["event:page"],
+        "filters": [["contains", "event:page", [news_entry_prefix]]],
+        "date_range": "all",
+    }
+    headers = {
+        "Content-Type": "application/json; charset=utf-8",
+        "Authorization": f"Bearer {settings.PLAUSIBLE_STATS_KEY}",
+    }
+
+    response = http.post(url=WEB_ANALYTICS_API_URL_V2, json=payload, headers=headers)
+    if not response.ok:
+        logger.error(
+            "sync_post_views.api_error",
+            status=response.status_code,
+            body=response.text,
+        )
+        return
+
+    data = response.json()
+    if not data or "results" not in data:
+        logger.error("sync_post_views.unexpected_response", data=data)
+        return
+
+    slug_views: dict[str, int] = {}
+    for result in data["results"]:
+        path = result["dimensions"][0]
+        if not path.startswith(news_entry_prefix):
+            continue
+        slug = path[len(news_entry_prefix) :].rstrip("/")
+        if slug:
+            slug_views[slug] = int(result["metrics"][0])
+
+    if not slug_views:
+        logger.info("sync_post_views.no_results")
+        return
+
+    entries = list(Entry.objects.filter(slug__in=slug_views.keys()))
+    for entry in entries:
+        entry.page_views = slug_views[entry.slug]
+    Entry.objects.bulk_update(entries, ["page_views"])
+    logger.info("sync_post_views.done", updated=len(entries))
