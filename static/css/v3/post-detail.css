@@ -83,7 +83,7 @@
 }
 
 .post-detail__body a {
-  color: var(--color-text-link-accent);
+  color: inherit;
   text-decoration: underline;
 }
 
