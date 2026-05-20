@@ -18,6 +18,7 @@ from django.db.models.functions import Upper
 
 from config import settings
 from core.custom_model_fields import NullableFileField
+from core.templatetags.custom_static import large_static
 from core.markdown import process_md
 from core.models import RenderedContent
 from core.asciidoc import convert_adoc_to_html
@@ -549,7 +550,7 @@ class LibraryVersion(models.Model):
             "name": author.display_name if author else "Unknown",
             "role": "Author",
             "avatar_url": author.get_avatar_url() if author else "",
-            "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-first-place.png",
+            "badge_url": large_static("img/v3/badges/badge-first-place.png"),
         }
 
     def get_cpp_standard_minimum_display(self):

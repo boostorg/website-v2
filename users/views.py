@@ -24,6 +24,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from waffle import flag_is_active
 
 from core.mixins import V3Mixin
+from core.templatetags.custom_static import large_static
 from libraries.models import CommitAuthorEmail
 from .forms import (
     PreferencesForm,
@@ -310,11 +311,11 @@ class V3AuthContextMixin(V3Mixin):
     def get_v3_context_data(self, **kwargs):
         context = super().get_v3_context_data(**kwargs)
         context["page_title"] = getattr(self, "page_title", "Account")
-        context["foreground_image_url"] = (
-            f"{settings.STATIC_URL}img/v3/auth-page/auth-page-foreground.png"
+        context["foreground_image_url"] = large_static(
+            "img/v3/auth-page/auth-page-foreground.png"
         )
-        context["background_image_url"] = (
-            f"{settings.STATIC_URL}img/v3/auth-page/auth-page-background.png"
+        context["background_image_url"] = large_static(
+            "img/v3/auth-page/auth-page-background.png"
         )
         context["login_url"] = reverse_lazy("v3-login")
         context["signup_url"] = reverse_lazy("v3-signup")
