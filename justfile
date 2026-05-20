@@ -182,6 +182,9 @@ alias shell := console
 @manage +args:
     docker compose run --rm web python manage.py {{ args }}
 
+@sync_post_views *args:  ## sync per-post page view counts from Plausible (pass --dry-run to preview)
+    docker compose run --rm web python manage.py sync_post_views {{ args }}
+
 # Static File Management
 @down_sync_images:
     scripts/sync-large-static-images.sh --down-sync;
