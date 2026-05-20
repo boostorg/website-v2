@@ -11,7 +11,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
 from django.template.defaultfilters import date as datefilter
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils.functional import cached_property
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.timezone import localtime, now
@@ -29,6 +29,7 @@ from django.views.generic.detail import SingleObjectMixin
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
 
 from core.mixins import V3Mixin
+from users.profile_cards import user_profile_card
 from .acl import can_approve
 from .constants import NEWS_APPROVAL_SALT, MAGIC_LINK_EXPIRATION
 from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
@@ -223,9 +224,19 @@ class EntryModerationListView(LoginRequiredMixin, UserPassesTestMixin, ListView)
         return can_approve(self.request.user)
 
 
-class EntryDetailView(DetailView):
+class EntryDetailView(V3Mixin, DetailView):
     model = Entry
     template_name = "news/detail.html"
+    v3_template_name = "news/v3/detail.html"
+
+    CATEGORY_LABELS = {"blogpost": "blog"}
+    AUTHOR_PREFETCH = ("author__maintainers",)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if getattr(self, "_v3_active", False):
+            qs = qs.select_related("author").prefetch_related(*self.AUTHOR_PREFETCH)
+        return qs
 
     def get_object(self, *args, **kwargs):
         # Published news are available to anyone,
@@ -235,11 +246,64 @@ class EntryDetailView(DetailView):
             raise Http404()
         return result
 
+    def get_v3_context_data(self, **kwargs):
+        self.object = self.get_object()
+        entry = self.object
+        next_entry = (
+            Entry.objects.published()
+            .select_related("author")
+            .prefetch_related(*self.AUTHOR_PREFETCH)
+            .filter(publish_at__gt=entry.publish_at, deleted_at__isnull=True)
+            .exclude(pk=entry.pk)
+            .order_by("publish_at", "pk")
+            .first()
+        )
+        # TODO: once Entry has a relation to libraries, scope related
+        # posts to those linked to the libraries referenced by this
+        # entry. Falls back to "any other published post" until that
+        # relation exists.
+        related_qs = (
+            Entry.objects.published()
+            .select_related("author")
+            .prefetch_related(*self.AUTHOR_PREFETCH)
+            .filter(deleted_at__isnull=True)
+            .exclude(pk=entry.pk)
+        )
+        if next_entry is not None:
+            related_qs = related_qs.exclude(pk=next_entry.pk)
+        return {
+            "post_author": user_profile_card(entry.author),
+            "post_tag": self.CATEGORY_LABELS.get(entry.tag, entry.tag),
+            "next_post_items": (
+                [self._post_card_item(next_entry)] if next_entry else []
+            ),
+            "related_posts": [
+                self._post_card_item(e)
+                for e in related_qs.order_by("-publish_at", "-pk")[:3]
+            ],
+        }
+
+    @classmethod
+    def _post_card_item(cls, entry):
+        return {
+            "title": entry.title,
+            "description": entry.summary or "",
+            "url": reverse("news-detail", args=[entry.slug]),
+            "date": entry.publish_at,
+            "category": cls.CATEGORY_LABELS.get(entry.tag, entry.tag).capitalize(),
+            "author": user_profile_card(entry.author),
+        }
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         next_url = self.request.GET.get("next")
         if url_has_allowed_host_and_scheme(next_url, allowed_hosts=None):
             context["next_url"] = next_url
+        context["user_can_approve"] = self.object.can_approve(self.request.user)
+        context["user_can_edit"] = self.object.can_edit(self.request.user)
+        context["user_can_delete"] = self.object.can_delete(self.request.user)
+        if getattr(self, "_v3_active", False):
+            return context
         context["next"] = get_published_or_none(self.object.get_next_by_publish_at)
         context["prev"] = get_published_or_none(self.object.get_previous_by_publish_at)
         if self.object.tag:
@@ -252,13 +316,11 @@ class EntryDetailView(DetailView):
         context["prev_in_category"] = get_published_or_none(
             partial(self.object.get_previous_by_publish_at, **category_kwarg)
         )
-        context["user_can_approve"] = self.object.can_approve(self.request.user)
-        context["user_can_edit"] = self.object.can_edit(self.request.user)
-        context["user_can_delete"] = self.object.can_delete(self.request.user)
         return context
 
 
-class EntryModerationDetailView(LoginRequiredMixin, EntryDetailView): ...
+class EntryModerationDetailView(LoginRequiredMixin, EntryDetailView):
+    v3_template_name = None
 
 
 class EntryModerationMagicApproveView(View):
