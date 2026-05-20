@@ -230,7 +230,7 @@ class EntryDetailView(V3Mixin, DetailView):
     v3_template_name = "news/v3/detail.html"
 
     CATEGORY_LABELS = {"blogpost": "blog"}
-    AUTHOR_PREFETCH = ("author__badges", "author__maintainers")
+    AUTHOR_PREFETCH = ("author__maintainers",)
 
     def get_queryset(self):
         qs = super().get_queryset()
