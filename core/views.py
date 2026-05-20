@@ -32,6 +32,7 @@ from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 
+from core.templatetags.custom_static import large_static
 from config.settings import ENABLE_DB_CACHE
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import VersionAlertMixin
@@ -164,7 +165,9 @@ class CommunityView(V3Mixin, TemplateView):
                 "author": {
                     "name": "Character Name",
                     "role": "Contributor",
-                    "avatar_url": "/static/img/v3/community-page/avatar-beaver-character.png",
+                    "avatar_url": large_static(
+                        "img/v3/community-page/avatar-beaver-character.png"
+                    ),
                 },
             },
             {
@@ -175,7 +178,9 @@ class CommunityView(V3Mixin, TemplateView):
                 "author": {
                     "name": "Character Name",
                     "role": "Author",
-                    "avatar_url": "/static/img/v3/community-page/avatar-mouse-character.png",
+                    "avatar_url": large_static(
+                        "img/v3/community-page/avatar-mouse-character.png"
+                    ),
                 },
             },
             {
@@ -186,7 +191,9 @@ class CommunityView(V3Mixin, TemplateView):
                 "author": {
                     "name": "Character Name",
                     "role": "Maintainer",
-                    "avatar_url": "/static/img/v3/community-page/avatar-cheetah-character.png",
+                    "avatar_url": large_static(
+                        "img/v3/community-page/avatar-cheetah-character.png"
+                    ),
                 },
             },
             {
@@ -197,7 +204,9 @@ class CommunityView(V3Mixin, TemplateView):
                 "author": {
                     "name": "Character Name",
                     "role": "Contributor",
-                    "avatar_url": "/static/img/v3/community-page/avatar-fish-character.png",
+                    "avatar_url": large_static(
+                        "img/v3/community-page/avatar-fish-character.png"
+                    ),
                 },
             },
         ]
@@ -327,9 +336,8 @@ class CommunityView(V3Mixin, TemplateView):
             "<li>Recent activity feed</li>"
             "</ul>"
         )
-        ctx["create_account_card_preview_url"] = (
-            f"{settings.STATIC_URL}img/v3/community-page/"
-            "community-create-account-preview.png"
+        ctx["create_account_card_preview_url"] = large_static(
+            "img/v3/community-page/community-create-account-preview.png"
         )
         now = timezone.now()
         ctx["recent_threads_url"] = (
@@ -522,8 +530,10 @@ class LearnPageView(V3Mixin, TemplateView):
                 ],
                 "url": "https://www.boost.org/doc/user-guide/getting-started.html",
                 "label": "Get started with Boost",
-                "image_src": f"{settings.STATIC_URL}img/v3/examples/Learn_Card_Image.png",
-                "mobile_image_src": f"{settings.STATIC_URL}img/v3/examples/Cheetah_Mobile.png",
+                "image_src": large_static("/img/v3/learn-page/learn-cheetah.png"),
+                "mobile_image_src": large_static(
+                    "/img/v3/learn-page/cheetah-mobile.png"
+                ),
             },
             {
                 "title": "I want to contribute:",
@@ -547,8 +557,10 @@ class LearnPageView(V3Mixin, TemplateView):
                 ],
                 "url": "https://www.boost.org/doc/contributor-guide/requirements/library-requirements.html",
                 "label": "Propose a new library",
-                "image_src": f"{settings.STATIC_URL}img/v3/examples/Learn_Octopus.png",
-                "mobile_image_src": f"{settings.STATIC_URL}img/v3/examples/Octopus_Mobile.png",
+                "image_src": large_static("/img/v3/learn-page/learn-octopus.png"),
+                "mobile_image_src": large_static(
+                    "/img/v3/learn-page/octopus-mobile.png"
+                ),
             },
         ]
 
@@ -591,7 +603,7 @@ class LearnPageView(V3Mixin, TemplateView):
             ),
             "primary_button_url": reverse("calendar"),
             "primary_button_label": "View release calendar",
-            "image": f"{settings.STATIC_URL}img/v3/demo_page/Calendar.png",
+            "image": large_static("/img/v3/demo-page/calendar.png"),
         }
         ctx["info_card"] = {
             "title": "How we got here",
@@ -1776,8 +1788,8 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         context["create_account_card_preview_url"] = (
             f"{settings.STATIC_URL}img/checker.png"
         )
-        context["hero_background_image_url"] = (
-            f"{settings.STATIC_URL}img/v3/home-page/home-page-background.png"
+        context["hero_background_image_url"] = large_static(
+            "img/v3/home-page/home-page-background.png"
         )
         context["hero_legacy_image_url_light"] = (
             SharedResources.hero_legacy_image_url_light
@@ -1795,7 +1807,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
             "primary_button_label": "Primary Button",
             "secondary_button_url": "www.example.com",
             "secondary_button_label": "Secondary Button",
-            "image": "/static/img/v3/demo_page/Calendar.png",
+            "image": large_static("img/v3/demo-page/calendar.png"),
         }
 
         context["horizontal_card_data"] = SharedResources.build_anything_with_boost
@@ -1883,8 +1895,8 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
             ],
             "url": "https://www.example.com",
             "label": "Get started with Boost",
-            "image_src": f"{settings.STATIC_URL}img/v3/examples/Learn_Card_Image.png",
-            "mobile_image_src": f"{settings.STATIC_URL}img/v3/examples/Cheetah_Mobile.png",
+            "image_src": large_static("img/v3/learn-page/learn-cheetah.png"),
+            "mobile_image_src": large_static("img/v3/learn-page/cheetah-mobile.png"),
         }
 
         context["testimonial_data"] = {
@@ -1987,7 +1999,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "name": "John Doe",
                 "profile_url": "#",
                 "role": "Author",
-                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "avatar_url": large_static("img/v3/demo-page/avatar.png"),
                 "badge": BadgeToken.TIER_3,
                 "bio": "",
             },
@@ -2019,7 +2031,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "name": "Peter Dimov",
                 "profile_url": "#",
                 "role": "Maintainer",
-                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "avatar_url": large_static("img/v3/demo-page/avatar.png"),
                 "badge": BadgeToken.STAR_TIER_5,
                 "bio": "",
             },
@@ -2027,7 +2039,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "name": "Vinnie Falco",
                 "profile_url": "#",
                 "role": "Author",
-                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "avatar_url": large_static("img/v3/demo-page/avatar.png"),
                 "badge": BadgeToken.BOOST_DAY,
                 "bio": "Boost Day contributor.",
             },
@@ -2038,7 +2050,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 "name": "John Doe",
                 "profile_url": "#",
                 "role": "Author",
-                "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                "avatar_url": large_static("img/v3/demo-page/avatar.png"),
                 "badge": BadgeToken.TIER_3,
                 "bio": "",
             }
@@ -2067,10 +2079,8 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 {
                     "name": "Vinnie Falco",
                     "role": "Author",
-                    "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                    "badge_url": (
-                        f"{settings.STATIC_URL}img/v3/badges/badge-first-place.png"
-                    ),
+                    "avatar_url": large_static("img/v3/demo-page/avatar.png"),
+                    "badge_url": large_static("img/v3/badges/badge-first-place.png"),
                     "badge": "",
                     "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
                     "profile_url": "",
@@ -2078,7 +2088,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 {
                     "name": "Alex Wells",
                     "role": "Contributor",
-                    "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
+                    "avatar_url": large_static("img/v3/demo-page/avatar.png"),
                     "badge_url": "",
                     "badge": "",
                     "bio": "C++ enthusiast who has worked at Intel and Microsoft.",
@@ -2087,8 +2097,8 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 {
                     "name": "Dave Abrahams",
                     "role": "Contributor",
-                    "avatar_url": f"{settings.STATIC_URL}img/v3/demo_page/Avatar.png",
-                    "badge_url": f"{settings.STATIC_URL}img/v3/badges/badge-bronze.png",
+                    "avatar_url": large_static("img/v3/demo-page/avatar.png"),
+                    "badge_url": large_static("img/v3/badges/badge-bronze.png"),
                     "badge": "",
                     "bio": "Contributor to Boost since 2009.",
                     "profile_url": "",

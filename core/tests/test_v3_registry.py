@@ -23,6 +23,14 @@ def _get_v3_view_classes() -> set[type]:
     return {view_class for _, view_class in iter_v3_views()}
 
 
+def _get_v3_view_classes_with_template() -> set[type]:
+    return {
+        view_class
+        for view_class in _get_v3_view_classes()
+        if getattr(view_class, "v3_template_name", None)
+    }
+
+
 @pytest.fixture(scope="session")
 def v3_view_classes():
     return sorted(_get_v3_view_classes(), key=lambda c: c.__name__)
@@ -35,13 +43,17 @@ def test_v3_views_discovered(v3_view_classes):
 
 @pytest.mark.parametrize(
     "view_class",
-    _get_v3_view_classes(),
+    _get_v3_view_classes_with_template(),
     ids=lambda c: c.__name__,
 )
 def test_v3_template_exists(view_class):
-    """Every V3 view must point to a `v3_template_name` that Django can load."""
-    template = getattr(view_class, "v3_template_name", None)
-    assert template, f"{view_class.__name__}: no v3_template_name set"
+    """Every V3 view that declares a template must point to a real one.
+
+    Views that opt out of v3 rendering (`v3_template_name = None`, e.g.
+    EntryModerationDetailView) are excluded from this check but still
+    surface in `iter_v3_views()` so the V3 Demo registry can list them.
+    """
+    template = view_class.v3_template_name
     try:
         get_template(template)
     except TemplateDoesNotExist:

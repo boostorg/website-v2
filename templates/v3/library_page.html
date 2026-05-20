@@ -5,7 +5,7 @@ Inputs:
   - object_list:      list, required - List of LibraryVersion Ojbects to be displayed. Determined using the selected version as determined by the URL. Defaults to Latest
   - library_view_str: str, required  - Determines which View of libraries to display. Determined by the URL, defaults to List, or the last selected view if the user has changed it.
 {% endcomment %}
-{% load static %}
+{% load custom_static static %}
 
 {% block title %}
   Library
@@ -24,8 +24,8 @@ Inputs:
             {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' %}
           </div>
           <div class="hero-image-container">
-            <img alt="Excited Cartoon Mascot" class="hero-image hero-image-light" src="{% static 'img/v3/solo-images/beaver-black-and-white.png' %}" loading="lazy" decoding="async" />
-            <img alt="Excited Cartoon Mascot" class="hero-image hero-image-dark" src="{% static 'img/v3/solo-images/beaver-black-and-white-dark.png' %}" loading="lazy" decoding="async" />
+            <img alt="Excited Cartoon Mascot" class="hero-image hero-image-light" src="{% large_static 'img/v3/solo-images/beaver-black-and-white.png' %}" loading="lazy" decoding="async" />
+            <img alt="Excited Cartoon Mascot" class="hero-image hero-image-dark" src="{% large_static 'img/v3/solo-images/beaver-black-and-white-dark.png' %}" loading="lazy" decoding="async" />
           </div>
       </section>
     <form action="" method="get">

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+{% load wagtailmarkdown %}
+
+{% block title %}{{ object.title }}{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/post-header.css' %}" rel="stylesheet"/>
+  <link href="{% static 'css/v3/post-detail.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+  <div class="post-detail-page">
+    <article class="post-detail">
+      {% if object.deleted_at %}
+        <div class="post-detail__deleted-notice" role="status">
+          Entry deleted on {{ object.deleted_at|date:"m/d/Y" }}{% if object.deleted_by %} by {{ object.deleted_by.display_name }}{% endif %}.
+        </div>
+      {% endif %}
+      {% if user_can_approve or user_can_edit or user_can_delete %}
+        <div class="post-detail__admin-actions">
+          {% if not object.is_approved and not object.deleted_at %}
+            {% if user_can_approve %}
+              <form method="POST" action="{% url 'news-approve' object.slug %}" class="post-detail__approve-form">
+                {% csrf_token %}
+                {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+                {% include "v3/includes/_button.html" with label="Approve" type="submit" style="green" %}
+              </form>
+            {% else %}
+              <span class="post-detail__pending-badge">Pending Moderation</span>
+            {% endif %}
+          {% endif %}
+          {% if user_can_edit and not object.deleted_at %}
+            {% url 'news-update' object.slug as edit_url %}
+            {% include "v3/includes/_button.html" with url=edit_url label="Edit" style="secondary" %}
+          {% endif %}
+          {% if user_can_delete and not object.deleted_at %}
+            {% url 'news-delete' object.slug as delete_url %}
+            {% include "v3/includes/_button.html" with url=delete_url label="Delete" style="error" %}
+          {% endif %}
+        </div>
+      {% endif %}
+      {% include "v3/includes/_post_header.html" with title=object.title publish_date=object.publish_at tag=post_tag author=post_author %}
+
+      {% if object.image %}
+        <figure class="post-detail__figure">
+          <img src="{{ object.image.url }}" alt="" class="post-detail__image" loading="lazy">
+        </figure>
+      {% endif %}
+
+      <div class="post-detail__body">
+        {% if object.external_url %}
+          <p class="post-detail__external-url">
+            <a href="{{ object.external_url }}" rel="noopener noreferrer" target="_blank" aria-label="Read full article: {{ object.title }} (opens in new tab)">{{ object.external_url }}</a>
+          </p>
+        {% endif %}
+        {% with body=object.content|default:object.visible_content %}
+          {% if body %}{{ body|markdown|urlize }}{% endif %}
+        {% endwith %}
+      </div>
+    </article>
+
+    {% if next_post_items %}
+      <section class="post-detail__next">
+        {% include "v3/includes/_post_card.html" with heading="Next Post" items=next_post_items variant="card" theme="default" %}
+      </section>
+    {% endif %}
+
+    {% if related_posts %}
+      <section class="post-detail__related">
+        {% include "v3/includes/_post_card.html" with heading="Related Posts" items=related_posts variant="card" theme="default" %}
+      </section>
+    {% endif %}
+  </div>
+{% endblock %}

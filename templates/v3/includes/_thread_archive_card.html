@@ -5,7 +5,8 @@
     recent_threads_url  — URL for current month's threads (built dynamically from the view).
     archive_url         — URL for the full archive.
 {% endcomment %}
-{% load static %}
+{% load custom_static %}
+{% large_static 'img/v3/community-page/community-mailing-list-preview.png' as image_url %}
 {% with r_url=recent_threads_url|default:"https://lists.boost.org/archives/list/boost@lists.boost.org/latest" a_url=archive_url|default:"https://lists.boost.org/archives/list/boost@lists.boost.org/latest" %}
-  {% include "v3/includes/_vertical_card.html" with title="Explore The Boost Developers Mailing List" image_url="/static/img/v3/community-page/community-mailing-list-preview.png" image_alt="Preview of recent threads on the Boost developers mailing list" primary_button_url=r_url primary_button_label="Recent Threads" secondary_button_url=a_url secondary_button_label="View Archive" only %}
+  {% include "v3/includes/_vertical_card.html" with title="Explore The Boost Developers Mailing List" image_url=image_url image_alt="Preview of recent threads on the Boost developers mailing list" primary_button_url=r_url primary_button_label="Recent Threads" secondary_button_url=a_url secondary_button_label="View Archive" only %}
 {% endwith %}
