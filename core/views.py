@@ -629,19 +629,19 @@ class LearnPageView(V3Mixin, TemplateView):
                 {
                     "title": "Stay up to date",
                     "description": "Watch the Boost GitHub org for the latest releases and activity.",
-                    "url": "https://github.com/boostorg/boost",
+                    "cta_url": "https://github.com/boostorg/boost",
                     "cta_label": "Watch now",
                 },
                 {
                     "title": "Get help",
                     "description": "Chat with thousands of C++ developers on the CPPLang Slack.",
-                    "url": "https://cppalliance.org/slack/",
+                    "cta_url": "https://cppalliance.org/slack/",
                     "cta_label": "Join now",
                 },
                 {
                     "title": "Fix an issue",
                     "description": "Browse open issues and contribute fixes on GitHub.",
-                    "url": "https://github.com/boostorg/boost/issues",
+                    "cta_url": "https://github.com/boostorg/boost/issues",
                     "cta_label": "Get involved",
                 },
             ],
