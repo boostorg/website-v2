@@ -161,6 +161,7 @@
 
 .header__search-icon {
   color: var(--color-icon-brand-accent);
+  flex-shrink: 0;
 }
 
 .header__search-input-trigger {

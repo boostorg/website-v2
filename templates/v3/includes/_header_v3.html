@@ -12,6 +12,7 @@
 
   Note: Subcomponents inherit the full parent context. Specifically:
     _header_nav_link.html    uses: url, label, nav_id, is_unread, active_nav_item
+    _header_search_bar.html  uses: current_version
     _header_utilities.html   uses: disable_theme_switcher, request, avatar_id, version_menu_id
 
   Usage:
@@ -69,20 +70,7 @@
     </div>
 
     {% comment %} Search — responsive: full bar on desktop, button on mobile {% endcomment %}
-    <search class="header__search-bar">
-    <button type="button"
-            id="gecko-search-button"
-            class="header__search-input-trigger"
-            data-current-boost-version="{{ current_version.stripped_boost_url_slug }}"
-            data-theme-mode="light"
-            data-font-family="var(--font-sans)">
-      <span class="header__search-icon" aria-hidden="true">
-        {% include "includes/icon.html" with icon_name="search" icon_class="header__icon" icon_size=16 %}
-      </span>
-      Search
-    </button>
-    <span class="header__search-kbd" aria-hidden="true">CTRL+K</span>
-    </search>
+    {% include "v3/includes/header/_header_search_bar.html" %}
     {% comment %} Desktop & tablet utilities (hidden on mobile) {% endcomment %}
     <div class="header__right">
       {% include "v3/includes/header/_header_utilities.html" with avatar_id="desktop-user-menu" version_menu_id="desktop-version-menu" %}
