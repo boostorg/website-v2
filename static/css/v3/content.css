@@ -35,8 +35,8 @@ a:hover .content-detail-icon:not(.content-detail-icon--contained) {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--space-card);
-  height: var(--space-card);
+  width: var(--space-xlarge);
+  height: var(--space-xlarge);
   transition: color 0.2s ease;
 }
 
@@ -46,8 +46,6 @@ a:hover .content-detail-icon:not(.content-detail-icon--contained) {
 }
 
 .content-detail-icon__icon svg {
-  width: 100%;
-  height: 100%;
   display: block;
 }
 
@@ -66,7 +64,7 @@ a:hover .content-detail-icon:not(.content-detail-icon--contained) {
 
 .content-detail-icon--has-icon .content-detail-icon__title,
 .content-detail-icon--has-badge .content-detail-icon__title {
-  padding-right: var(--space-icon-offset);
+  padding-right: var(--space-xlarge);
 }
 
 .content-detail-icon__title-link {

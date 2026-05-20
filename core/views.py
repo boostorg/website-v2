@@ -627,23 +627,7 @@ class LearnPageView(V3Mixin, TemplateView):
             "view_all_url": "#",
             "view_all_label": "View All Posts",
             "variant": "Content Card",
-            "posts": 4
-            * [
-                {
-                    "title": "A talk by Richard Thomson at the Utah C++ Programmers Group",
-                    "url": "#",
-                    "description": "Lorem Ispum Sum Delores",
-                    "date": "03/03/2025",
-                    "category": "Issues",
-                    "tag": "beast",
-                    "author": {
-                        "name": "Richard Thomson",
-                        "role": "Contributor",
-                        "show_badge": True,
-                        "avatar_url": large_static("img/v3/demo-page/avatar.png"),
-                    },
-                }
-            ],
+            "posts": SharedResources.demo_posts[0:4],
         }
         ctx["boost_community_data"] = {
             "heading": "The Boost community",
@@ -664,6 +648,8 @@ class LearnPageView(V3Mixin, TemplateView):
                         "show_badge": True,
                         "avatar_url": large_static("img/v3/demo-page/avatar.png"),
                     },
+                    "cta_url": "#",
+                    "cta_label": "Learn More",
                 }
             ],
         }
