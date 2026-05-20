@@ -627,6 +627,10 @@ def skip_tag(name, new=False):
 
 
 WHATS_NEW_MODEL = "gpt-oss-120b"
+# Guardrail to keep the LLM call comfortably under the model's context window
+# (gpt-oss-120b is ~131K tokens; ~100K chars leaves headroom for the system
+# prompt + output). Inputs above this are truncated.
+WHATS_NEW_MAX_INPUT_CHARS = 100_000
 
 WHATS_NEW_SYSTEM_PROMPT = dedent(
     """
@@ -702,6 +706,15 @@ def generate_whats_new(self, version_pk: int) -> str | None:
         return None
 
     release_note_text = _release_note_text(rendered_content)
+    if len(release_note_text) > WHATS_NEW_MAX_INPUT_CHARS:
+        logger.warning(
+            "generate_whats_new_truncating_input",
+            version_pk=version_pk,
+            original_chars=len(release_note_text),
+            max_chars=WHATS_NEW_MAX_INPUT_CHARS,
+        )
+        release_note_text = release_note_text[:WHATS_NEW_MAX_INPUT_CHARS]
+
     logger.info(
         "generate_whats_new_dispatching",
         version_pk=version_pk,
@@ -714,9 +727,15 @@ def generate_whats_new(self, version_pk: int) -> str | None:
         {"role": "user", "content": release_note_text},
     ]
     client = OpenAI(base_url=OPENROUTER_URL, api_key=OPENROUTER_API_KEY)
-    response = client.chat.completions.create(model=WHATS_NEW_MODEL, messages=messages)
     try:
+        response = client.chat.completions.create(
+            model=WHATS_NEW_MODEL, messages=messages
+        )
         content = response.choices[0].message.content
+    except OpenAIError:
+        # Let autoretry_for=(OpenAIError,) on the task handle retries.
+        logger.exception("generate_whats_new_openai_error", version_pk=version_pk)
+        raise
     except (AttributeError, IndexError) as e:
         logger.error("generate_whats_new_response_error", error=str(e))
         return None
@@ -736,15 +755,12 @@ def save_whats_new(markdown_text: str | None, version_pk: int):
     Resets ``whats_new_approved`` to False so regenerated content goes back
     through admin moderation before it becomes visible on the public site.
     """
-    from core.htmlhelper import render_whats_new_markdown
-
     if not markdown_text:
         logger.info("save_whats_new_empty_skip", version_pk=version_pk)
         return
 
     Version.objects.filter(pk=version_pk).update(
         whats_new=markdown_text,
-        whats_new_html=render_whats_new_markdown(markdown_text),
         whats_new_generated_at=timezone.now(),
         whats_new_approved=False,
     )

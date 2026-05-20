@@ -268,7 +268,7 @@ When a release note is freshly stored and the `Version.whats_new` field is empty
 
 ## `generate_whats_new`
 
-**Purpose**: Generate the AI-powered "What's New" draft summary for one or more Boost releases. The summary is a short, fixed-rubric bullet list (new libraries, performance, dependencies, security & reliability, developer experience) saved on the `Version` model as `whats_new` / `whats_new_html`. Drafts are not shown on the public site until an admin sets `whats_new_approved=True` (also available as a Django admin action).
+**Purpose**: Generate the AI-powered "What's New" draft summary for one or more Boost releases. The summary is a short, fixed-rubric bullet list (new libraries, performance, dependencies, security & reliability, developer experience) saved on the `Version` model as `whats_new` (markdown bullets). The public site parses the bullets into `whats_new_items` and renders them in the release-highlights card. Drafts are not shown on the public site until an admin sets `whats_new_approved=True` (also available as a Django admin action).
 
 This command is opt-in. Auto-generation only runs as a side-effect of `import_release_notes` when a version's `whats_new` is empty. Use this command to backfill historical versions or to regenerate after editing the prompt.
 

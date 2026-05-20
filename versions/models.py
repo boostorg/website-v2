@@ -51,7 +51,6 @@ class Version(models.Model):
             "Clear to regenerate on next release-notes import."
         ),
     )
-    whats_new_html = models.TextField(blank=True, default="")
     whats_new_approved = models.BooleanField(
         default=False,
         help_text="Public site only renders the summary when this is True.",
@@ -234,10 +233,12 @@ class Version(models.Model):
         dicts for the v3 release-highlights card.
 
         Accepts the Markdown unordered-list bullets the LLM is instructed
-        to emit; a leading ``-`` or ``*`` marker is required:
+        to emit; a leading ``-`` or ``*`` marker is required, followed by a
+        bold category label (``**Label**``):
           - `- **New libraries** — sentence`
           - `* **New libraries:** sentence`
-        Trailing `:` inside the label is stripped.
+        Trailing `:` inside the label is stripped. Bullets missing the bold
+        label are silently skipped and will not appear on the public site.
         """
         if not self.whats_new:
             return []

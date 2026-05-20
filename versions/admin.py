@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import path
+from django.utils.html import format_html, format_html_join
 
 from libraries.tasks import import_new_versions_tasks
 
@@ -36,7 +37,7 @@ class VersionAdmin(admin.ModelAdmin):
     date_hierarchy = "release_date"
     inlines = [VersionFileInline]
     change_list_template = "admin/version_change_list.html"
-    readonly_fields = ["whats_new_html", "whats_new_generated_at"]
+    readonly_fields = ["whats_new_items_display", "whats_new_generated_at"]
     fieldsets = (
         (
             None,
@@ -60,19 +61,34 @@ class VersionAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "whats_new",
-                    "whats_new_html",
+                    "whats_new_items_display",
                     "whats_new_approved",
                     "whats_new_generated_at",
                 ),
                 "description": (
                     "AI-generated draft summary. Edit `whats_new` (markdown bullets) "
-                    "and re-save to refresh the rendered HTML, or use the "
-                    "'Regenerate What's New' action."
+                    "and re-save to refresh the parsed items shown below, or use the "
+                    "'Regenerate What's New' action. Only bullets matching the "
+                    "`- **Label** — text` pattern are surfaced on the public site."
                 ),
             },
         ),
     )
     actions = ["approve_whats_new", "regenerate_whats_new"]
+
+    @admin.display(description="Parsed items (rendered on the site)")
+    def whats_new_items_display(self, obj: Version) -> str:
+        items = obj.whats_new_items
+        if not items:
+            return "(no parseable bullets — site will not render a What's New card)"
+        return format_html(
+            "<ul>{}</ul>",
+            format_html_join(
+                "",
+                "<li><strong>{}</strong> — {}</li>",
+                ((item["title"], item["description"]) for item in items),
+            ),
+        )
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
         # we want all versions here, including not fully_imported
@@ -95,25 +111,15 @@ class VersionAdmin(admin.ModelAdmin):
         self.message_user(request, msg)
         return HttpResponseRedirect("../")
 
-    def save_model(self, request, obj, form, change):
-        if change and "whats_new" in form.changed_data:
-            from core.htmlhelper import render_whats_new_markdown
-
-            obj.whats_new_html = render_whats_new_markdown(obj.whats_new)
-        super().save_model(request, obj, form, change)
-
     @admin.action(description="Approve What's New (publish)")
     def approve_whats_new(self, request, queryset):
         updated = queryset.exclude(whats_new="").update(whats_new_approved=True)
         self.message_user(request, f"Approved What's New for {updated} version(s).")
 
-    @admin.action(description="Regenerate What's New (clear + queue task)")
+    @admin.action(description="Regenerate What's New (queue task)")
     def regenerate_whats_new(self, request, queryset):
         queued = 0
         for version in queryset:
-            Version.objects.filter(pk=version.pk).update(
-                whats_new="", whats_new_html="", whats_new_approved=False
-            )
             dispatch_whats_new(version.pk)
             queued += 1
         self.message_user(request, f"Queued regeneration for {queued} version(s).")

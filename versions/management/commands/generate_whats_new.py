@@ -15,7 +15,11 @@ from versions.models import Version
     "--all-missing",
     is_flag=True,
     default=False,
-    help="Queue generation for every active version that has no summary yet.",
+    help=(
+        "Queue generation for every active version that has stored release "
+        "notes in the Rendered Content page, but no summary yet. Versions "
+        "without release notes are skipped."
+    ),
 )
 @click.option(
     "--version",
@@ -66,7 +70,7 @@ def command(
     if not all_missing and not version_slug:
         raise click.UsageError("Pass --all-missing, --version <slug>, or --validate.")
 
-    versions = _select_versions(all_missing, version_slug, force)
+    versions = _select_versions(version_slug, force)
     if not versions:
         click.secho("No versions matched.", fg="yellow")
         return
@@ -79,19 +83,15 @@ def command(
             )
             continue
         click.secho(f"queueing whats_new for {version.name}", fg="green")
-        if force:
-            Version.objects.filter(pk=version.pk).update(
-                whats_new="", whats_new_html="", whats_new_approved=False
-            )
         dispatch_whats_new(version.pk)
 
 
-def _select_versions(all_missing: bool, version_slug: str | None, force: bool):
+def _select_versions(version_slug: str | None, force: bool):
     qs = Version.objects.active().exclude(name__in=["master", "develop"])
     if version_slug:
         qs = qs.filter(slug=version_slug)
-    elif all_missing:
-        qs = qs.filter(whats_new="") if not force else qs
+    if not force:
+        qs = qs.filter(whats_new="")
 
     rendered_keys = set(
         RenderedContent.objects.filter(

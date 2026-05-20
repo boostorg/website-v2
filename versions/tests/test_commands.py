@@ -74,9 +74,41 @@ def test_generate_whats_new_force_includes_populated(
     queued_pks = {call.args[0] for call in mock_dispatch.call_args_list}
     assert queued_pks == {version_with_notes.pk, version_with_notes_and_summary.pk}
 
-    # --force clears the existing summary so the chained save task replaces it.
+    # --force only controls which versions are queued; the existing summary
+    # is left intact until the chained save task lands its replacement.
     version_with_notes_and_summary.refresh_from_db()
-    assert version_with_notes_and_summary.whats_new == ""
+    assert version_with_notes_and_summary.whats_new != ""
+
+
+@pytest.mark.django_db
+def test_generate_whats_new_version_skips_populated_without_force(
+    version_with_notes_and_summary,
+):
+    with patch(
+        "versions.management.commands.generate_whats_new.dispatch_whats_new"
+    ) as mock_dispatch:
+        call_command(
+            "generate_whats_new", "--version", version_with_notes_and_summary.slug
+        )
+
+    mock_dispatch.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_generate_whats_new_version_with_force_overrides_populated(
+    version_with_notes_and_summary,
+):
+    with patch(
+        "versions.management.commands.generate_whats_new.dispatch_whats_new"
+    ) as mock_dispatch:
+        call_command(
+            "generate_whats_new",
+            "--version",
+            version_with_notes_and_summary.slug,
+            "--force",
+        )
+
+    mock_dispatch.assert_called_once_with(version_with_notes_and_summary.pk)
 
 
 @pytest.mark.django_db

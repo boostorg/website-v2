@@ -32,9 +32,4 @@ class Migration(migrations.Migration):
             name="whats_new_generated_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
-        migrations.AddField(
-            model_name="version",
-            name="whats_new_html",
-            field=models.TextField(blank=True, default=""),
-        ),
     ]
