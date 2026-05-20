@@ -365,26 +365,6 @@ the science.</p>
                 "role": "Maintainer",
                 "badge": BadgeToken.TIER_3,
             },
-        },
-        {
-            "quote": "3 — Every serious C++ codebase I've worked on has leaned on Boost in some way. It's the proving ground where tomorrow's standard library takes shape.",
-            "author": {
-                "name": "Linus Torvalds",
-                "profile_url": "#",
-                "avatar_url": large_static("img/v3/demo-page/avatar.png"),
-                "role": "Reviewer",
-                "badge": BadgeToken.TIER_3,
-            },
-        },
-        {
-            "quote": "4 — Contributing to Boost taught me more about writing portable, peer-reviewed C++ than any textbook ever could.",
-            "author": {
-                "name": "Margaret Hamilton",
-                "profile_url": "#",
-                "avatar_url": large_static("img/v3/demo-page/avatar.png"),
-                "role": "Contributor",
-                "badge": BadgeToken.TIER_3,
-            },
             "content": """
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
 tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
