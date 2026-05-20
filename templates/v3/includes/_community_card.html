@@ -27,7 +27,7 @@
   <ul class="card-group__list">
     {% for item in items %}
       <li class="card-group__item community-card">
-        {% include 'v3/includes/_content_detail_card_item.html' with title=item.title description=item.description cta_href=item.cta_url cta_label=item.cta_label only %}
+        {% include 'v3/includes/_content_detail_card_item.html' with title=item.title description=item.description cta_href=item.cta_url cta_label=item.cta_label icon_name="bullseye-pixel" icon_size=16 only %}
       </li>
       {% endfor %}
     </ul>
