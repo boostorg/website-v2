@@ -4,6 +4,7 @@ from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
+from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView
 
@@ -137,13 +138,38 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
             "primary_button_url": "www.example.com",
             "primary_button_label": "Explore Our History",
         }
+        tag_display = {"blogpost": "Blog"}
+        popular_entries = (
+            Entry.objects.ranked()
+            .filter(deleted_at__isnull=True)
+            .select_related("author")[:5]
+        )
         ctx["posts_from_the_boost_community"] = {
             "heading": "Posts from the Boost Community",
             "primary_cta_label": "View all posts",
-            "primary_cta_url": "#",
+            "primary_cta_url": self.request.build_absolute_uri(reverse("news")),
             "variant": "card",
             "theme": "teal",
-            "items": SharedResources.demo_posts[:5],
+            "items": [
+                {
+                    "title": entry.title,
+                    "url": self.request.build_absolute_uri(entry.get_absolute_url()),
+                    "date": entry.publish_at,
+                    "category": (
+                        tag_display.get(str(entry.tag).lower(), entry.tag.capitalize())
+                        if entry.tag
+                        else ""
+                    ),
+                    "tag": "",
+                    "author": {
+                        "name": entry.author.display_name
+                        or entry.author.get_full_name(),
+                        "avatar_url": entry.author.get_avatar_url(),
+                        "role": "",
+                    },
+                }
+                for entry in popular_entries
+            ],
         }
         ctx["join_developers_building_the_future_of_cpp"] = {
             "items": SharedResources.demo_join_community_links[:5]
