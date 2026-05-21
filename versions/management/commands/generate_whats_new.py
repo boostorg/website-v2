@@ -70,9 +70,9 @@ def command(
     if not all_missing and not version_slug:
         raise click.UsageError("Pass --all-missing, --version <slug>, or --validate.")
 
-    versions = _select_versions(version_slug, force)
+    versions, reason = _select_versions(version_slug, force)
     if not versions:
-        click.secho("No versions matched.", fg="yellow")
+        _warn_no_versions(reason, version_slug)
         return
 
     for version in versions:
@@ -87,20 +87,63 @@ def command(
 
 
 def _select_versions(version_slug: str | None, force: bool):
+    """Return ``(versions, reason)`` where ``reason`` explains an empty list.
+
+    ``reason`` is ``None`` when ``versions`` is non-empty. Otherwise it is one of
+    ``"slug_not_found"``, ``"already_populated"``, ``"none_missing"``, or
+    ``"no_release_notes"`` — see ``_warn_no_versions`` for the user-facing text.
+    """
     qs = Version.objects.active().exclude(name__in=["master", "develop"])
     if version_slug:
         qs = qs.filter(slug=version_slug)
+        if not qs.exists():
+            return [], "slug_not_found"
     if not force:
-        qs = qs.filter(whats_new="")
+        filtered = qs.filter(whats_new="")
+        if not filtered.exists():
+            return [], "already_populated" if version_slug else "none_missing"
+        qs = filtered
 
     rendered_keys = set(
         RenderedContent.objects.filter(
             cache_key__startswith="release_notes_boost-"
         ).values_list("cache_key", flat=True)
     )
-    return [
+    versions = [
         v for v in qs.order_by("name") if v.release_notes_cache_key in rendered_keys
     ]
+    if versions:
+        return versions, None
+    return [], "no_release_notes"
+
+
+def _warn_no_versions(reason: str | None, version_slug: str | None) -> None:
+    if reason == "slug_not_found":
+        message = (
+            f"No active version with slug '{version_slug}'. "
+            "Check the slug format (e.g. boost-1-90-0)."
+        )
+    elif reason == "already_populated":
+        message = (
+            f"Version '{version_slug}' already has a whats_new summary. "
+            "Pass --force to regenerate."
+        )
+    elif reason == "none_missing":
+        message = (
+            "All active versions already have whats_new summaries. "
+            "Use --version <slug> --force to regenerate one."
+        )
+    elif version_slug:
+        message = (
+            f"Version '{version_slug}' has no stored release notes. "
+            "Run `manage.py import_release_notes` first."
+        )
+    else:
+        message = (
+            "No versions with stored release notes to process. "
+            "Run `manage.py import_release_notes` first."
+        )
+    click.secho(message, fg="yellow")
 
 
 def _validate(limit: int):

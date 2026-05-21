@@ -288,7 +288,7 @@ The LLM call is a Celery task; the worker must be running and `OPENROUTER_API_KE
 |------------------|--------|------------------------------------------------------------------------------------------------------------|
 | `--all-missing`  | bool   | Queue generation for every active version that has stored release notes but no `whats_new` summary yet.    |
 | `--version`      | string | Slug of a single version to (re)generate. Format: `boost-1-90-0`.                                          |
-| `--force`        | bool   | Regenerate even when a summary already exists (clears `whats_new` first; the chained save task replaces it). |
+| `--force`        | bool   | Regenerate even when a summary already exists. The chained save task overwrites `whats_new` and resets `whats_new_approved` to `False`, so regenerated content goes back through admin moderation. |
 | `--dry-run`      | bool   | List the versions that would be queued without queuing them.                                               |
 | `--validate`     | bool   | Run the prompt synchronously against the latest `--limit` versions (that have release notes) and print the LLM output. No DB writes. Use to review prompt changes before sign-off. |
 | `--limit`        | int    | Number of versions to process when `--validate` is set. Default: 10.                                       |
