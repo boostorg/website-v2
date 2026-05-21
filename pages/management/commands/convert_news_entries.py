@@ -86,7 +86,7 @@ def command():
         ]
         page.save()
     videos = Video.objects.all()
-    print(f"Creating or updating {news_posts.count()} Videos")
+    print(f"Creating or updating {videos.count()} Videos")
     for video in videos:
         page = basic_conversion(video, post_index_page)
         page.content = [

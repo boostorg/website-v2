@@ -41,6 +41,11 @@ class V3Mixin:
         else:
             context = super().get_context_data(**kwargs)
         return context
+    
+    def serve(self, request, *args, **kwargs):
+        if not flag_is_active(request, "v3"):
+            raise Http404
+        return super().serve(request, *args, **kwargs)
 
     def get_v3_context_data(self, **kwargs):
         """Override in subclasses to provide v3-specific context."""

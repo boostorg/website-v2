@@ -1,12 +1,12 @@
 from django.db import models
-from django.http import HttpResponseForbidden
 from modelcluster.contrib.taggit import ClusterTaggableManager
 from modelcluster.fields import ParentalKey
 from taggit.models import ItemBase
 from taggit.models import TagBase
 from wagtail.models import Page
 from wagtail.snippets.models import register_snippet
-import waffle
+
+from core.mixins import V3Mixin
 
 
 @register_snippet
@@ -44,17 +44,7 @@ class TaggableMixin(Page):
         abstract = True
 
 
-class FlaggedMixin(Page):
-    def serve(self, request, *args, **kwargs):
-        if not waffle.flag_is_active(request, "v3"):
-            return HttpResponseForbidden("You do not have access to this page.")
-        return super().serve(request, *args, **kwargs)
-
-    class Meta:
-        abstract = True
-
-
-class BasePage(FlaggedMixin, TaggableMixin, Page):
+class BasePage(V3Mixin, TaggableMixin, Page):
     """
     Abstract Base Page for all our new Pages to inherit from
     """
