@@ -31,6 +31,10 @@
     .learn-card__link-column {
         margin-bottom: var(--space-xxl);
     }
+
+    .learn-card .card__cta_section .btn-hero {
+        min-height: 0;
+    }
 }
 
 .learn-card__column {
