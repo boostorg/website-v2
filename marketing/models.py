@@ -161,13 +161,14 @@ class OutreachHomePage(Page):
         /outreach/program_page/<slug>/ => delegate to ProgramPageIndex -> ProgramPage
         /outreach/<topic>/<detail>/ => delegate to TopicPage -> DetailPage
         """
+        print(path_components)
         if not path_components:
             return RouteResult(self)
 
-        _, second, *rest = path_components
+        first, *rest = path_components
 
         # Fixed segment for program pages
-        if second == "program_page":
+        if first == "program_page":
             try:
                 program_page_index = ProgramPageIndex.objects.child_of(self).get()
             except ProgramPageIndex.DoesNotExist:
@@ -177,7 +178,7 @@ class OutreachHomePage(Page):
 
         # Otherwise, first segment should be a TopicPage slug
         try:
-            topic = TopicPage.objects.child_of(self).get(slug=second)
+            topic = TopicPage.objects.child_of(self).get(slug=first)
         except TopicPage.DoesNotExist:
             raise Http404("Topic not found")
 

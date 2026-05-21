@@ -34,13 +34,14 @@ class RoutableHomePage(BasePage):
     max_count = 1
 
     def route(self, request, path_components):
-        from marketing.models import OutreachHomePage
 
-        path = request.path
-        base = path.split("/")[1]
-        if base == "outreach":
-            outreach_home_page = self.get_children().type(OutreachHomePage).first()
-            return outreach_home_page.route(request, path_components)
+        path = request.path.rstrip("/").lstrip("/")
+        split_path = path.split("/")
+        base, *rest = split_path
+
+        if match_child := self.get_children().filter(slug=base).first():
+            matched_route = match_child.specific.route(request, rest)
+            return matched_route
         return super().route(request, path_components)
 
 
