@@ -37,6 +37,24 @@
 {% endcomment %}
 {% with resolved_title=title|slugify|default:"install" %}
 {% with card_id=card_id|default:resolved_title %}
+{% if selected_version_is_non_latest %}
+<section class="install-card install-card--older card"
+         aria-labelledby="{{ card_id }}-heading">
+  <div class="card__header">
+    <h2 id="{{ card_id }}-heading" class="card__title install-card__title">
+      {{ title|default:"Install Boost and get started in your terminal." }}
+    </h2>
+  </div>
+  <div class="install-card__body px-large">
+    <p class="install-card__older-message">
+      You are viewing an older version. See the documentation for installation steps.
+    </p>
+    <div class="install-card__older-cta">
+      {% include "v3/includes/_button.html" with label="See Documentation" url="https://www.boost.org/doc/user-guide/getting-started.html" style="teal" aria_label="See documentation for installation steps" only %}
+    </div>
+  </div>
+</section>
+{% else %}
 {# Per-option visibility rules (generated from data, complements static rules in install-card.css) #}
 <style>
   {% for opt in install_card_pkg_managers %}
@@ -131,5 +149,6 @@
     </div>
   </div>
 </section>
+{% endif %}
 {% endwith %}
 {% endwith %}
