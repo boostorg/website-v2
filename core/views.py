@@ -2085,6 +2085,90 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
             "cta_url": "#",
         }
 
+        # Demo variants for the Library Intro Card scrollable behaviour:
+        # "few" stays under the 3-row cap (no scroll); "many" exceeds it.
+        _intro_avatar = large_static("img/v3/demo-page/avatar.png")
+        _intro_bio = "Big C++ fan. Not quite kidney-donation level, but close."
+        context["library_intro_few"] = {
+            "library_name": "Boost.Core.",
+            "description": (
+                "Lightweight utilities that power dozens of other Boost libraries"
+            ),
+            "authors": [
+                {
+                    "name": "Vinnie Falco",
+                    "role": "Author",
+                    "avatar_url": _intro_avatar,
+                    "badge": "",
+                    "bio": _intro_bio,
+                    "profile_url": "",
+                },
+                {
+                    "name": "Alex Wells",
+                    "role": "Contributor",
+                    "avatar_url": _intro_avatar,
+                    "badge": "",
+                    "bio": _intro_bio,
+                    "profile_url": "",
+                },
+            ],
+            "cta_url": "#",
+        }
+        context["library_intro_three"] = {
+            "library_name": "Boost.Asio.",
+            "description": (
+                "Lightweight utilities that power dozens of other Boost libraries"
+            ),
+            "authors": [
+                {
+                    "name": name,
+                    "role": role,
+                    "avatar_url": _intro_avatar,
+                    "badge": "",
+                    "bio": _intro_bio,
+                    "profile_url": "",
+                }
+                for name, role in [
+                    ("Vinnie Falco", "Author"),
+                    ("Alex Wells", "Maintainer"),
+                    ("Dave Abrahams", "Contributor"),
+                ]
+            ],
+            "cta_url": "#",
+        }
+        context["library_intro_many"] = {
+            "library_name": "Boost.Beast.",
+            "description": (
+                "Lightweight utilities that power dozens of other Boost libraries"
+            ),
+            "authors": [
+                {
+                    "name": name,
+                    "role": role,
+                    "avatar_url": _intro_avatar,
+                    "badge": "",
+                    "bio": _intro_bio,
+                    "profile_url": "",
+                }
+                for name, role in [
+                    ("Vinnie Falco", "Author"),
+                    ("Alex Wells", "Maintainer"),
+                    ("Dave Abrahams", "Contributor"),
+                    ("Beman Dawes", "Contributor"),
+                    ("Hartmut Kaiser", "Contributor"),
+                    ("Andrey Semashev", "Contributor"),
+                ]
+            ],
+            "cta_url": "#",
+        }
+        context["library_intro_code"] = (
+            '{% include "v3/includes/_library_intro_card.html" with '
+            'library_name="Boost.Core." '
+            'description="Lightweight utilities…" '
+            "authors=library_authors "
+            'cta_url="/libs/core/" %}'
+        )
+
         latest = Version.objects.most_recent()
         if latest:
             lv = (

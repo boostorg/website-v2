@@ -312,9 +312,20 @@
       <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
         <h3>{{ section_title }}</h3>
         <div class="v3-examples-section__example-box">
-          {% with intro=library_intro %}
+          <h4 class="py-large">Few contributors — no scroll</h4>
+          {% with intro=library_intro_few %}
             {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
           {% endwith %}
+          <h4 class="py-large">Three contributors — at the visible cap, no scroll</h4>
+          {% with intro=library_intro_three %}
+            {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
+          {% endwith %}
+          <h4 class="py-large">Many contributors — scroll visible</h4>
+          {% with intro=library_intro_many %}
+            {% include "v3/includes/_library_intro_card.html" with library_name=intro.library_name description=intro.description authors=intro.authors cta_url=intro.cta_url %}
+          {% endwith %}
+          <h4 class="py-large">Usage</h4>
+          {% include "v3/includes/_code_block.html" with code=library_intro_code variant="grey-bg" language="django" %}
         </div>
       </div>
     {% endwith %}

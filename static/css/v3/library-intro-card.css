@@ -56,6 +56,27 @@
   border-radius: var(--border-radius-m, 6px);
 }
 
+/* Authors list — scrollable only when entries exceed the visible card cap.
+   With ≤ 3 authors the card grows naturally; with 4+ it caps at 3 rows. */
+
+.library-intro-card__authors {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-stroke-weak);
+}
+
+.library-intro-card__authors:has(> .library-intro-card__author:nth-of-type(4)) {
+  overflow-y: auto;
+  /* ≈ 3 rows × 80px (48px avatar + 2 × 16px padding) + 2 × 1px hr separators */
+  max-height: 242px;
+  scrollbar-color: var(--color-icon-primary) var(--color-surface-strong);
+}
+
+.library-intro-card__authors:focus-visible {
+  outline: 2px solid var(--color-text-primary);
+  outline-offset: -2px;
+}
+
 /* Author row */
 
 .library-intro-card__author {

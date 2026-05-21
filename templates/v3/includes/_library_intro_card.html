@@ -18,12 +18,19 @@
     </div>
     <p class="library-intro-card__description">{{ description }}</p>
   </div>
-  {% for author in authors %}
-    <hr class="card__hr">
-    <div class="library-intro-card__author">
-      {% include "v3/includes/_user_profile.html" with author=author %}
+  {% if authors %}
+    <div class="library-intro-card__authors"
+         tabindex="0"
+         role="region"
+         aria-label="Contributors for {{ library_name }}">
+      {% for author in authors %}
+        {% if not forloop.first %}<hr class="card__hr">{% endif %}
+        <div class="library-intro-card__author">
+          {% include "v3/includes/_user_profile.html" with author=author %}
+        </div>
+      {% endfor %}
     </div>
-  {% endfor %}
+  {% endif %}
   {% if cta_url %}
     <hr class="card__hr">
     <div class="card__cta_section library-intro-card__cta">
