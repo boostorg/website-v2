@@ -32,5 +32,8 @@
       </li>
     {% endfor %}
   </ul>
+{% else %}
+  {% comment %} TODO: Update empty state once design is finalized — currently just a placeholder message. {% endcomment %}
+  <p class="release-highlight__placeholder">The summary is being generated, please check back later.</p>
 {% endif %}
 {% endblock %}

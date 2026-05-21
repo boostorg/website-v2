@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% comment %}
+V3 release detail page for a single Boost version (/releases/<version>/).
+Renders the hero, "what's new" highlights, downloads, release notes, contributors,
+and community/resource cards. Context is supplied by versions.views.VersionDetail.
+{% endcomment %}
 {% load static custom_static %}
 
 {% block title %}Boost {{ version.display_name }}{% endblock %}
@@ -14,10 +19,9 @@
 {% block content %}
   {% if selected_version %}
 
-  {% include "v3/includes/_hero_library.html" with title=hero_title doc_url=documentation_url slack_url="#" source_url=version.github_url github_url="https://github.com/boostorg/boost/issues" only %}
+  {% include "v3/includes/_hero_library.html" with title=hero_title doc_url=documentation_url slack_url="https://cppalliance.org/slack/" source_url=version.github_url github_url="https://github.com/boostorg/boost/issues" only %}
 
   <div class="release-detail">
-
     <div class="release-detail__cards-row">
       {% include "v3/includes/_release_highlights_card.html" with heading=whats_new_heading items=whats_new_items only %}
       {% include "v3/includes/_downloads_table_card.html" with downloads=downloads %}
@@ -36,9 +40,10 @@
     <section class="release-detail__bottom-cards" aria-label="Community and resources">
       {% include "v3/includes/_mailing_list_card.html" %}
 
-      {% include "v3/includes/_basic_card.html" with title="Want to fix bugs, review code, maintain libraries, and propose new features?" text="Read our contributors guide and join the Boost community." primary_button_url="/contribute" primary_button_label="Start here" primary_button_style="green" theme="green" only %}
+      {% include "v3/includes/_basic_card.html" with title="Want to fix bugs, review code, maintain libraries, and propose new features?" text="Read our contributors guide and join the Boost community." primary_button_url=contributors_guide_url primary_button_label="Start here" primary_button_style="green" theme="green" only %}
+      
       {% large_static 'img/v3/home-page/heros.png' as image_url %}
-      {% include "v3/includes/_media_text_card.html" with text="Boost is publicly released three times a year in April, August, and December. Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process." image_url=image_url button_url="/releases" button_label="Read release process" %}
+      {% include "v3/includes/_media_text_card.html" with text="Boost is publicly released three times a year in April, August, and December. Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process." image_url=image_url button_url=release_process_url button_label="Read release process" %}
     </section>
 
   </div>
