@@ -187,11 +187,6 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
         return super().save(*args, **kwargs)
 
 
-class Badge(models.Model):
-    name = models.CharField(_("name"), max_length=100, blank=True)
-    display_name = models.CharField(_("display name"), max_length=100, blank=True)
-
-
 class User(BaseUser):
     """
     Our custom user model.
@@ -199,7 +194,6 @@ class User(BaseUser):
     NOTE: See ./signals.py for signals that relate to this model.
     """
 
-    badges = models.ManyToManyField(Badge)
     # todo: consider making this unique=True after checking user data for duplicates
     github_username = models.CharField(_("github username"), max_length=100, blank=True)
     is_commit_author_name_overridden = models.BooleanField(
