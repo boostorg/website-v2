@@ -249,18 +249,18 @@ class ReleaseReportView(TemplateView):
         """
         Takes a dict of {"task_signature_name": TaskStruct} and returns a rendered widget.
         """
-        return render_to_string(
-            self.polling_widget_template, context={"tasks": task_dict}
-        )
+        request = self.request
+        params = request.GET.copy()
+        if "render_widget" not in params:
+            params["render_widget"] = True
+        ctx = {}
+        ctx["widget_endpoint"] = f"{request.path}?{params.urlencode()}"
+        ctx["tasks"] = task_dict
+        return render_to_string(self.polling_widget_template, context=ctx)
 
     def update_context_with_workflow_state(self, context={}, cache_key=""):
         task_dict, _ = self.check_task_status(cache_key=cache_key)
         context["task_widget"] = self.render_task_widget(task_dict=task_dict)
-        request = self.request
-        params = self.request.GET.copy()
-        if "render_widget" not in params:
-            params["render_widget"] = True
-        context["widget_endpoint"] = f"{request.path}?{params.urlencode()}"
         return context
 
     def generate_report(self):
@@ -365,7 +365,26 @@ class ReleaseReportView(TemplateView):
                 form.cache_clear()
                 del params["no_cache"]
                 return redirect(request.path + f"?{params.urlencode()}")
+
             content = form.cache_get()
+            # If this flag is set, the page is being request via htmx and should only
+            # return the task widget
+            if self.request.GET.get("render_widget", None):
+
+                # If the content has finished rendering, we force a hard refresh without the widget
+                # param to avoid weird rendering issues
+                if content.content_html:
+                    params = request.GET.copy()
+                    del params["render_widget"]
+                    path = request.path + f"?{params.urlencode()}"
+                    response = HttpResponse()
+                    response.headers["HX-Redirect"] = path
+                    return response
+
+                task_dict, _ = self.check_task_status(form.cache_key)
+                response = HttpResponse(self.render_task_widget(task_dict))
+                return response
+
             if not content:
                 # Ensure a RenderedContent exists so the task is not re-queued
                 form.cache_set("")
@@ -374,18 +393,11 @@ class ReleaseReportView(TemplateView):
                 response = HttpResponse(content.content_html)
                 response.status_code = 286
                 return response
-            # If this flag is set, the page is being request via htmx and should only
-            # return the task widget
-            if self.request.GET.get("render_widget", None):
-                task_dict, all_tasks_ready = self.check_task_status(form.cache_key)
-                status_code = 200
-                if all_tasks_ready:
-                    # magic number for htmx to stop polling
-                    status_code = 286
-                response = HttpResponse(self.render_task_widget(task_dict))
-                response.status_code = status_code
-                return response
+
+            # If we reach this point, we are on the page waiting for the report to generate
+            # make the base widget and load it into the context
             context = self.update_context_with_workflow_state(context, form.cache_key)
+
         return TemplateResponse(
             request,
             self.get_template_names(),

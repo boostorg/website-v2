@@ -528,7 +528,7 @@ class CreateReportForm(CreateReportFullForm):
             "mailinglist_contributor_new_count": mailinglist_contributor_new_count,
             "mailinglist_post_stats": mailinglist_post_stats,
             "mailinglist_new_subscribers_stats": mailinglist_new_subscribers_stats,
-            "mailinglist_charts_start_year": prior_version.release_date.year,
+            "mailinglist_charts_current_year": version.release_date.strftime("%y"),
             "search_wordcloud_base64": search_wordcloud_base64,
             "search_wordcloud_frequencies": search_wordcloud_top_words,
             "search_stats": search_stats,
@@ -559,6 +559,7 @@ class CreateReportForm(CreateReportFullForm):
         context = self.generate_context(
             self.cleaned_data["report_configuration"], stats_results, base_uri
         )
+        logger.info(context)
         if base_uri:
             context["base_uri"] = base_uri
         html = render_to_string(self.html_template_name, context)

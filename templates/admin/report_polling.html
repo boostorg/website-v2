@@ -6,7 +6,5 @@
 {% endblock %}
 
 {% block content %}
-  <div hx-get="{{widget_endpoint|escape}}" hx-trigger="every 2s">
     {{task_widget|safe}}
-  </div>
 {% endblock %}
