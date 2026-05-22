@@ -517,18 +517,18 @@ class LearnPageView(V3Mixin, TemplateView):
                 "links": [
                     {
                         "label": "Explore common use cases",
-                        "url": "https://www.boost.org/doc/user-guide/common-introduction.html",
+                        "url": "/doc/user-guide/common-introduction.html",
                     },
                     {
                         "label": "Build with CMake",
-                        "url": "https://www.boost.org/doc/user-guide/building-with-cmake.html",
+                        "url": "/doc/user-guide/building-with-cmake.html",
                     },
                     {
                         "label": "Visit the FAQ",
-                        "url": "https://www.boost.org/doc/user-guide/faq.html",
+                        "url": "/doc/user-guide/faq.html",
                     },
                 ],
-                "url": "https://www.boost.org/doc/user-guide/getting-started.html",
+                "url": "/doc/user-guide/getting-started.html",
                 "label": "Get started with Boost",
                 "image_src": large_static("/img/v3/learn-page/learn-cheetah.png"),
                 "mobile_image_src": large_static(
@@ -544,18 +544,18 @@ class LearnPageView(V3Mixin, TemplateView):
                 "links": [
                     {
                         "label": "Contribute to an existing library",
-                        "url": "https://www.boost.org/doc/contributor-guide/contributors-faq.html",
+                        "url": "/doc/contributor-guide/contributors-faq.html",
                     },
                     {
                         "label": "Learn about formal reviews",
-                        "url": "https://www.boost.org/doc/formal-reviews/submissions.html",
+                        "url": "/doc/formal-reviews/submissions.html",
                     },
                     {
                         "label": "Visit the Contributors FAQ",
-                        "url": "https://www.boost.org/doc/contributor-guide/contributors-faq.html",
+                        "url": "/doc/contributor-guide/contributors-faq.html",
                     },
                 ],
-                "url": "https://www.boost.org/doc/contributor-guide/requirements/library-requirements.html",
+                "url": "/doc/contributor-guide/requirements/library-requirements.html",
                 "label": "Propose a new library",
                 "image_src": large_static("/img/v3/learn-page/learn-octopus.png"),
                 "mobile_image_src": large_static(
@@ -612,7 +612,7 @@ class LearnPageView(V3Mixin, TemplateView):
                 "started with three developers has grown into the foundation of "
                 "modern C++ development."
             ),
-            "primary_button_url": "https://www.boost.org/doc/user-guide/boost-history.html",
+            "primary_button_url": "/doc/user-guide/boost-history.html",
             "primary_button_label": "Explore our history",
         }
         ctx["post_cards_data"] = {
