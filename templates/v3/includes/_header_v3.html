@@ -148,6 +148,10 @@
    * Progressive enhancement for the cookie-mode version dropdown: send the
    * POST via fetch and update the UI in place, avoiding a full page reload.
    * Falls back to a normal form submit on any error.
+   *
+   * After a successful fetch, dispatch a `boost:version-changed` CustomEvent
+   * on document so other components (e.g. the install card) can react without
+   * a page reload. Detail: { slug, label, isLatest, docUrl }.
    */
   document.addEventListener('submit', function (e) {
     var form = e.target;
@@ -161,6 +165,8 @@
 
     var selectedValue = submitter.value;
     var newLabel = submitter.textContent.trim();
+    var isLatest = submitter.dataset.isLatest === 'true';
+    var docUrl = submitter.dataset.docUrl || '';
     var formData = new FormData(form);
     formData.set('version', selectedValue);
 
@@ -189,6 +195,10 @@
         var toggle = menu.querySelector('.header__version-toggle');
         if (toggle) toggle.checked = false;
       });
+
+      document.dispatchEvent(new CustomEvent('boost:version-changed', {
+        detail: { slug: selectedValue, label: newLabel, isLatest: isLatest, docUrl: docUrl }
+      }));
     }).catch(function () {
       form.submit();
     });
