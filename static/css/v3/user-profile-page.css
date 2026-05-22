@@ -59,6 +59,12 @@
     max-width: 100%;
 }
 
+/* ──────── Override Markdown Styling ──────── */
+
+.user-profile__container .markdown-content {
+    line-height: var(--line-height-relaxed);
+}
+
 @media (max-width: 768px) {
     /* ──────── Stack header row on mobile ──────── */
     .user-profile__profile-card-row {

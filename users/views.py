@@ -118,11 +118,11 @@ class CurrentUserProfileView(
             "title": "Latest Boost Github activity",
             "markdown_text": dedent(
                 """
-                        * Created 24 Commits in [7 repositories](https://www.example.com)
-                        * Created [1 repository](https://www.example.com)
-                        * Created a pull request in [cppalliance/buffers](https://www.example.com) that received 6 comments
-                        * Opened 17 other pull requests in [6 repositories](https://www.example.com)
-                        * Reviewed 3 pull requests in [3 repositories](https://www.example.com)
+                        * Created 24 Commits in [**7 repositories**](https://www.example.com)
+                        * Created [**1 repository**](https://www.example.com)
+                        * Created a pull request in [**cppalliance/buffers**](https://www.example.com) that received 6 comments
+                        * Opened 17 other pull requests in [**6 repositories**](https://www.example.com)
+                        * Reviewed 3 pull requests in [**3 repositories**](https://www.example.com)
                     """
             ),
             "button_url": "https://www.github.com",
