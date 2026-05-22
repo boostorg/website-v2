@@ -17,7 +17,6 @@ def _entry_to_post_card(entry: Entry) -> dict:
                 author.get_avatar_url() if hasattr(author, "get_avatar_url") else ""
             ),
             "badge_url": None,
-            "show_badge": False,
         },
     }
 
