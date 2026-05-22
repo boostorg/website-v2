@@ -12,6 +12,13 @@
        are visible. Dynamic :checked ~ rules are generated in the inline <style>
        block below because the number of options is data-driven.
 
+    Both the latest-version and older-version variants are always rendered inside
+    a wrapper with data-active-variant="latest|older". CSS hides the inactive
+    one. install-card-version-sync.js (cookie-mode pages only) flips the
+    attribute on version-dropdown change so the swap happens without a page
+    refresh; with JS disabled, the server-rendered variant stays and the
+    dropdown's POST + redirect path handles the swap on the next request.
+
   Variables:
     title (optional) — card heading text; defaults to "Install Boost and get started in your terminal."
     card_id (IMPORTANT) — unique identifier to scope IDs/names when multiple cards appear on the same page; defaults to slugified title, then "install"
@@ -26,6 +33,7 @@
   Dependencies:
     CSS: card.css, tab.css, install-card.css, code-block.css, forms.css (.dropdown)
     JS:  install-card.js (keyboard nav + ARIA updates; optional — core works without it)
+         install-card-version-sync.js (in-place version swap; optional — server roundtrip works without it)
 
   Accessibility:
     - role="tablist" on tab container, role="tab" on labels, role="tabpanel" on panels
@@ -37,11 +45,13 @@
 {% endcomment %}
 {% with resolved_title=title|slugify|default:"install" %}
 {% with card_id=card_id|default:resolved_title %}
-{% if selected_version_is_non_latest %}
+<div class="install-card-wrapper"
+     data-install-card-wrapper
+     data-active-variant="{% if selected_version_is_non_latest %}older{% else %}latest{% endif %}">
 <section class="install-card install-card--older card"
-         aria-labelledby="{{ card_id }}-heading">
+         aria-labelledby="{{ card_id }}-older-heading">
   <div class="card__header">
-    <h2 id="{{ card_id }}-heading" class="card__title install-card__title">
+    <h2 id="{{ card_id }}-older-heading" class="card__title install-card__title">
       {{ title|default:"Install Boost and get started in your terminal." }}
     </h2>
   </div>
@@ -49,12 +59,11 @@
     <p class="install-card__older-message">
       You are viewing an older version. See the documentation for installation steps.
     </p>
-    <div class="install-card__older-cta">
+    <div class="install-card__older-cta" data-install-card-doc-link-wrapper>
       {% include "v3/includes/_button.html" with label="See Documentation" url=selected_version.documentation_url style="teal" aria_label="See documentation for installation steps" only %}
     </div>
   </div>
 </section>
-{% else %}
 {# Per-option visibility rules (generated from data, complements static rules in install-card.css) #}
 <style>
   {% for opt in install_card_pkg_managers %}
@@ -149,6 +158,6 @@
     </div>
   </div>
 </section>
-{% endif %}
+</div>
 {% endwith %}
 {% endwith %}
