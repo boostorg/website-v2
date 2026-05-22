@@ -654,6 +654,8 @@ class LearnPageView(V3Mixin, TemplateView):
         categories = list(
             Category.objects.annotate(library_count=Count("libraries", distinct=True))
             .filter(library_count__gt=0)
+            .exclude(name__isnull=True)
+            .exclude(name="")
             .only("name", "slug", "short_description")
         )
         random.shuffle(categories)
