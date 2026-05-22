@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import migrations
 
 
@@ -76,38 +78,55 @@ TERMS_OF_USE_BODY = """
 """.strip()
 
 
+# Original publication dates on prod — keep revision history aligned.
 LEGAL_PAGES = [
-    {"title": "Privacy Policy", "slug": "privacy", "body": PRIVACY_POLICY_BODY},
-    {"title": "Terms of Use", "slug": "terms-of-use", "body": TERMS_OF_USE_BODY},
+    {
+        "title": "Privacy Policy",
+        "slug": "privacy",
+        "body": PRIVACY_POLICY_BODY,
+        "last_updated": datetime.datetime(2024, 2, 17, tzinfo=datetime.timezone.utc),
+    },
+    {
+        "title": "Terms of Use",
+        "slug": "terms-of-use",
+        "body": TERMS_OF_USE_BODY,
+        "last_updated": datetime.datetime(2024, 2, 22, tzinfo=datetime.timezone.utc),
+    },
 ]
 
 
 def create_legal_pages(apps, schema_editor):
     # Use real models so treebeard's add_child() and Wagtail's
     # save_revision()/publish() work; historical models drop these methods.
-    from django.utils import timezone
-
     from pages.models import LegalPage, RoutableHomePage
 
     home = RoutableHomePage.objects.first()
     if home is None:
         return
 
-    now = timezone.now()
     for page_data in LEGAL_PAGES:
         if LegalPage.objects.filter(slug=page_data["slug"]).exists():
             continue
+        last_updated = page_data["last_updated"]
         page = home.add_child(
             instance=LegalPage(
                 title=page_data["title"],
                 slug=page_data["slug"],
                 body=page_data["body"],
                 live=True,
-                first_published_at=now,
-                last_published_at=now,
             )
         )
-        page.save_revision().publish()
+        revision = page.save_revision()
+        revision.created_at = last_updated
+        revision.save(update_fields=["created_at"])
+        revision.publish()
+        
+        # publish() resets the page timestamps to now() — overwrite them.
+        LegalPage.objects.filter(pk=page.pk).update(
+            first_published_at=last_updated,
+            last_published_at=last_updated,
+            latest_revision_created_at=last_updated,
+        )
 
 
 def delete_legal_pages(apps, schema_editor):
