@@ -17,18 +17,33 @@
  *   - The header JS to dispatch `boost:version-changed` with detail
  *     { slug, label, isLatest, docUrl }.
  */
+
+function _getOrCreateLiveRegion() {
+  var el = document.getElementById("install-card-live");
+  if (el) return el;
+  el = document.createElement("span");
+  el.id = "install-card-live";
+  el.setAttribute("aria-live", "polite");
+  el.style.cssText =
+    "position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;";
+  document.body.appendChild(el);
+  return el;
+}
+
 document.addEventListener("boost:version-changed", function (e) {
   var detail = e.detail || {};
   var isLatest = detail.isLatest === true;
   var docUrl = detail.docUrl || "";
+  var label = detail.label || "";
 
   document
     .querySelectorAll("[data-install-card-wrapper]")
     .forEach(function (wrapper) {
-      wrapper.setAttribute(
-        "data-active-variant",
-        isLatest ? "latest" : "older"
-      );
+      var prev = wrapper.getAttribute("data-active-variant");
+      var next = isLatest ? "latest" : "older";
+
+      wrapper.setAttribute("data-active-variant", next);
+
       if (!isLatest && docUrl) {
         var linkWrapper = wrapper.querySelector(
           "[data-install-card-doc-link-wrapper]"
@@ -36,5 +51,28 @@ document.addEventListener("boost:version-changed", function (e) {
         var link = linkWrapper && linkWrapper.querySelector("a");
         if (link) link.setAttribute("href", docUrl);
       }
+
+      if (prev !== next) {
+        var visible = isLatest
+          ? wrapper.querySelector(".install-card:not(.install-card--older)")
+          : wrapper.querySelector(".install-card--older");
+        if (visible) {
+          visible.classList.remove("install-card--entering");
+          void visible.offsetWidth;
+          visible.classList.add("install-card--entering");
+          visible.addEventListener(
+            "animationend",
+            function () {
+              visible.classList.remove("install-card--entering");
+            },
+            { once: true }
+          );
+        }
+      }
     });
+
+  var liveRegion = _getOrCreateLiveRegion();
+  liveRegion.textContent = isLatest
+    ? "Showing install steps for the latest version."
+    : "Showing documentation link for Boost " + label + ".";
 });
