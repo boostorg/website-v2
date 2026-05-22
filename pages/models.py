@@ -26,7 +26,6 @@ class RoutableHomePage(BasePage):
 
     # Defines this as a home page
     parent_page_types = ["wagtailcore.Page"]
-    #
     subpage_types = [
         "pages.PostIndexPage",
         "marketing.OutreachHomePage",
