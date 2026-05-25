@@ -1,5 +1,5 @@
 {% extends "v3/includes/_card_group.html" %}
-{% load whats_new_extras %}
+{% load custom_static whats_new_extras %}
 {% comment %}
   Release Highlights Card — extends _card_group.html to render release highlight items.
   Follows the same pattern as _event_card.html and _post_card.html but for release
@@ -34,7 +34,13 @@
     {% endfor %}
   </ul>
 {% else %}
-  {% comment %} TODO: Update empty state once design is finalized — currently just a placeholder message. {% endcomment %}
   <p class="release-highlight__placeholder">The summary is being generated, please check back later.</p>
+  <img
+    class="release-highlight__illustration"
+    src="{% large_static 'img/v3/solo-images/capy-hot-tub.png' %}"
+    alt=""
+    loading="lazy"
+    decoding="async"
+  />
 {% endif %}
 {% endblock %}

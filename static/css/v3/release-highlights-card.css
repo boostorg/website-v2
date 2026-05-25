@@ -36,6 +36,15 @@
   padding: 0 var(--space-card);
 }
 
+.release-highlight__illustration {
+  display: block;
+  width: 100%;
+  max-width: 439px;
+  height: auto;
+  margin-inline: auto;
+  aspect-ratio: 77 / 67;
+}
+
 .card-group__item:last-child .release-highlight {
   padding-bottom: 0;
 }
