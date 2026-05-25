@@ -130,15 +130,7 @@ class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
             return {}
 
     def get_library_version_dependencies(self, version: Version):
-        diffs = version.get_dependency_diffs()
-        added = [len(x["added"]) for x in diffs.values() if x["added"]]
-        removed = [len(x["removed"]) for x in diffs.values() if x["removed"]]
-        return {
-            "added": sum(added),
-            "removed": sum(removed),
-            "increased_dep_lib_count": len(added),
-            "decreased_dep_lib_count": len(removed),
-        }
+        return version.get_dependency_stats()
 
     def get_top_contributors_release(self, version: Version):
         version_commits = Commit.objects.filter(library_version__version=version)

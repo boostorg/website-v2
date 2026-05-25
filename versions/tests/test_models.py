@@ -1,7 +1,11 @@
 import datetime
+from unittest.mock import patch
+
 import pytest
 
 from model_bakery import baker
+
+from versions.exceptions import BoostImportedDataException
 
 
 def test_version_creation(version):
@@ -165,3 +169,34 @@ def test_report_configuration_slug_matches_version_slug_format(version_name):
         f"Version.get_slug() = '{version_slug}', "
         f"ReportConfiguration.get_slug() = '{report_config_slug}'"
     )
+
+
+@pytest.mark.django_db
+def test_get_dependency_stats_aggregates_diffs(version):
+    diffs = {
+        "alpha": {"added": ["x", "y"], "removed": []},
+        "beta": {"added": ["z"], "removed": ["q", "r"]},
+        "gamma": {"added": [], "removed": []},
+    }
+    with patch.object(
+        type(version), "get_dependency_diffs", return_value=diffs
+    ):
+        stats = version.get_dependency_stats()
+
+    assert stats == {
+        "added": 3,
+        "removed": 2,
+        "increased_dep_lib_count": 2,
+        "decreased_dep_lib_count": 1,
+    }
+
+
+@pytest.mark.django_db
+def test_get_dependency_stats_propagates_imported_data_exception(version):
+    with patch.object(
+        type(version),
+        "get_dependency_diffs",
+        side_effect=BoostImportedDataException("no data"),
+    ):
+        with pytest.raises(BoostImportedDataException):
+            version.get_dependency_stats()
