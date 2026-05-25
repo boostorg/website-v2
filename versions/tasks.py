@@ -646,6 +646,11 @@ WHATS_NEW_SYSTEM_PROMPT = dedent(
     Return a maximum of 5 bullets, each with a bold category label,
     and a single sentence of no more than 20 words
     Do not use emoji anywhere in the output
+    Wrap every code identifier (variable, function, type, macro, or template
+    name) you mention from the release note in Markdown inline code with
+    single backticks — apply it to each identifier on each occurrence, in
+    any bullet, with no per-section or per-bullet cap; do not backtick
+    library names or general phrases
     Do not name or highlight specific libraries — speak to the ecosystem as a
     whole. The Dependencies bullet may name up to two libraries when one or
     two libraries clearly drive the story; otherwise stay ecosystem-level.

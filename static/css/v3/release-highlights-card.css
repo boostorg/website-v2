@@ -28,6 +28,10 @@
   color: var(--color-text-secondary);
 }
 
+.release-highlight__description strong {
+  font-weight: var(--font-weight-medium);
+}
+
 .release-highlight__placeholder {
   padding: 0 var(--space-card);
 }

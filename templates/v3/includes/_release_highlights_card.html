@@ -1,4 +1,5 @@
 {% extends "v3/includes/_card_group.html" %}
+{% load whats_new_extras %}
 {% comment %}
   Release Highlights Card — extends _card_group.html to render release highlight items.
   Follows the same pattern as _event_card.html and _post_card.html but for release
@@ -26,7 +27,7 @@
         <article class="release-highlight">
           <h3 class="release-highlight__title">{{ item.title }}</h3>
           {% if item.description %}
-            <p class="release-highlight__description">{{ item.description }}</p>
+            <p class="release-highlight__description">{{ item.description|inline_markdown }}</p>
           {% endif %}
         </article>
       </li>
