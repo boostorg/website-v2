@@ -30,6 +30,7 @@ def get_latest_post_cards(limit: int = 3) -> list[dict]:
     """
     queryset = (
         Entry.objects.published()
+        .filter(deleted_at__isnull=True)
         .select_related("author")
         .order_by("-publish_at")[:limit]
     )
