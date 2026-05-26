@@ -84,7 +84,10 @@ def test_get_v3_context_data_hides_whats_new_until_approved(version):
 
 
 def _hero_html(**extra):
-    context = {"title": "Boost 1.70.0", "selected_version": Version(slug="boost-1-70-0")}
+    context = {
+        "title": "Boost 1.70.0",
+        "selected_version": Version(slug="boost-1-70-0"),
+    }
     context.update(extra)
     return render_to_string("v3/includes/_hero_library.html", context)
 

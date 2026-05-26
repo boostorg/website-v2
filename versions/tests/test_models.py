@@ -178,9 +178,7 @@ def test_get_dependency_stats_aggregates_diffs(version):
         "beta": {"added": ["z"], "removed": ["q", "r"]},
         "gamma": {"added": [], "removed": []},
     }
-    with patch.object(
-        type(version), "get_dependency_diffs", return_value=diffs
-    ):
+    with patch.object(type(version), "get_dependency_diffs", return_value=diffs):
         stats = version.get_dependency_stats()
 
     assert stats == {

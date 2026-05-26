@@ -6,10 +6,7 @@ def test_inline_markdown_wraps_backticks():
 
 
 def test_inline_markdown_handles_multiple_backtick_spans():
-    assert (
-        inline_markdown("`a` then `b`")
-        == "<code>a</code> then <code>b</code>"
-    )
+    assert inline_markdown("`a` then `b`") == "<code>a</code> then <code>b</code>"
 
 
 def test_inline_markdown_wraps_bold():
@@ -45,9 +42,7 @@ def test_inline_markdown_escapes_html_inside_backticks():
 
 
 def test_inline_markdown_escapes_html_inside_bold():
-    assert (
-        inline_markdown("**<i>x</i>**") == "<strong>&lt;i&gt;x&lt;/i&gt;</strong>"
-    )
+    assert inline_markdown("**<i>x</i>**") == "<strong>&lt;i&gt;x&lt;/i&gt;</strong>"
 
 
 def test_inline_markdown_empty_returns_empty_string():

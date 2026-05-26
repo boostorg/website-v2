@@ -170,9 +170,7 @@ def test_generate_whats_new_omits_dep_stats_when_zero(version):
         "increased_dep_lib_count": 0,
         "decreased_dep_lib_count": 0,
     }
-    with patch(
-        "versions.tasks.Version.get_dependency_stats", return_value=zero_stats
-    ):
+    with patch("versions.tasks.Version.get_dependency_stats", return_value=zero_stats):
         with patch("versions.tasks.OpenAI") as mock_openai:
             client = mock_openai.return_value
             client.chat.completions.create.return_value = _mock_openai_response(

@@ -676,6 +676,7 @@ WHATS_NEW_SYSTEM_PROMPT = dedent(
     """
 ).strip()
 
+
 def _dependency_stats_block(version: Version) -> str | None:
     """Return a short text block describing dep-add/remove counts, or None.
 
@@ -751,10 +752,7 @@ def generate_whats_new(self, version_pk: int) -> str | None:
 
     dep_stats_block = _dependency_stats_block(version)
     if dep_stats_block:
-        user_content = (
-            f"release note:\n\n{release_note_text}"
-            f"\n\n{dep_stats_block}"
-        )
+        user_content = f"release note:\n\n{release_note_text}" f"\n\n{dep_stats_block}"
     else:
         user_content = release_note_text
 

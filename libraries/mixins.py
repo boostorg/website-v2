@@ -125,12 +125,12 @@ class VersionAlertMixin:
             url=url,
             name=current.display_name,
         )
-        
+
         if selected.beta:
             return format_html(
                 "This is a beta version of Boost.{link}", link=current_link
             )
-        
+
         if selected.full_release:
             year = selected.release_date.year if selected.release_date else ""
             return format_html(
@@ -139,7 +139,7 @@ class VersionAlertMixin:
                 year=year,
                 link=current_link,
             )
-        
+
         return format_html(
             "This version of Boost is under active development. You are "
             "currently in the {name} branch.{link}",
