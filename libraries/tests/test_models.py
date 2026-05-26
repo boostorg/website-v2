@@ -16,6 +16,16 @@ def test_get_cpp_standard_minimum_display(library_version):
     assert library_version.get_cpp_standard_minimum_display() == "42"
 
 
+def test_get_cpp_standard_maximum_display(library_version):
+    library_version.cpp_standard_maximum = "17"
+    library_version.save()
+    assert library_version.get_cpp_standard_maximum_display() == "C++17"
+
+    library_version.cpp_standard_maximum = "42"
+    library_version.save()
+    assert library_version.get_cpp_standard_maximum_display() == "42"
+
+
 def test_github_properties(library):
     properties = library.github_properties()
     assert properties["owner"] == "boostorg"

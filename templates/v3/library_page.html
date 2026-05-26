@@ -14,14 +14,378 @@ Inputs:
 {% block extra_head %}
   {{ block.super }}
   <link href="{% static 'css/v3/library-page.css' %}" rel="stylesheet" />
+  <script src="{% static 'js/v3/fuse.min.js' %}" defer></script>
+  <noscript>
+    <style>
+      .hero-search-bar,
+      .library-filter__clear-all,
+      .library-filter__field:not(:has(select[name="view"])) {
+        display: none !important;
+      }
+      .library-item-list[x-cloak],
+      .library-item-card-grid[x-cloak] {
+        display: grid !important;
+      }
+      .library-page__category-section[x-cloak] {
+        display: block !important;
+      }
+    </style>
+  </noscript>
 {% endblock %}
 
 {% block content %}
-  <div class="library-page__container">
+  {{ library_dataset|json_script:"library-data" }}
+  {{ library_filter_defaults|json_script:"library-filter-defaults" }}
+  <script>
+    /* libraryFilter() — page-scoped Alpine component that owns search/filter/sort.
+       All three pipelines are client-side; the server returns the full dataset
+       for the selected Boost version, embedded as the `library-data` script tag.
+
+       State:
+         dataset, defaults      — loaded once from script tags at init().
+         grading, minCpp,       — current filter selections, hydrated from URL
+         maxCpp, categories,      params and mirrored back via syncUrl().
+         query, sort
+         searchHits/Scores      — Fuse output keyed by slug (null when no query).
+         visibleCount           — drives empty-state visibility from toggleItems().
+
+       Wiring: child field components dispatch `field-change` events; the parent
+       listens, updates state, calls apply() which runs search → URL sync →
+       toggle → sort → empty-state in order.
+
+       Defined inline so the factory is on window before Alpine evaluates x-data
+       on this page — defer-script load ordering can otherwise race Alpine.start. */
+    window.libraryFilter = function () {
+      // Keep in sync with LibraryVersion.CPP_STANDARD_DISPLAY_NAMES — used for
+      // min/max C++ range ranking and the disabled-option constraints.
+      const CPP_STANDARDS = [
+        { key: '98', year: 1998, label: 'C++98' },
+        { key: '03', year: 2003, label: 'C++03' },
+        { key: '11', year: 2011, label: 'C++11' },
+        { key: '14', year: 2014, label: 'C++14' },
+        { key: '17', year: 2017, label: 'C++17' },
+        { key: '20', year: 2020, label: 'C++20' },
+        { key: '23', year: 2023, label: 'C++23' },
+      ];
+      const CPP_OPTION_VALUES = CPP_STANDARDS.map((s) => s.key);
+      const CPP_LABEL_MAP = Object.fromEntries(
+        [['all', 'All'], ...CPP_STANDARDS.map((s) => [s.key, s.label])]
+      );
+      function cppRank(value) {
+        const digits = String(value || '').match(/\d+/)?.[0];
+        return CPP_STANDARDS.find((s) => s.key === digits)?.year ?? 0;
+      }
+      return {
+        dataset: [],
+        defaults: {},
+        grading: '',
+        minCpp: '',
+        maxCpp: '',
+        categories: [],
+        query: '',
+        sort: '',
+        visibleCount: 0,
+        fuse: null,
+        searchHits: null,
+        searchScores: null,
+
+        init() {
+          const payload = document.getElementById('library-data');
+          this.dataset = payload ? JSON.parse(payload.textContent) : [];
+
+          const buildFuse = () => {
+            if (this.fuse || typeof Fuse === 'undefined') return;
+            this.fuse = new Fuse(this.dataset, {
+              useTokenSearch: true,
+              ignoreLocation: true,
+              threshold: 0.3,
+              minMatchCharLength: 2,
+              includeScore: true,
+              keys: [
+                { name: 'name',           weight: 3 },
+                { name: 'category_names', weight: 1.5 },
+                { name: 'author_names',   weight: 1 },
+                { name: 'description',    weight: 1 },
+              ],
+            });
+            // Re-apply in case a ?q= was in the URL and we built Fuse late.
+            if (this.query) this.apply();
+          };
+          // Alpine starts via microtask before later defer scripts run, so
+          // Fuse may not be loaded yet at init() time. Retry on DCL.
+          if (typeof Fuse !== 'undefined') {
+            buildFuse();
+          } else {
+            document.addEventListener('DOMContentLoaded', buildFuse, { once: true });
+          }
+
+          const defaultsEl = document.getElementById('library-filter-defaults');
+          this.defaults = defaultsEl ? JSON.parse(defaultsEl.textContent) : {};
+
+          const params = new URLSearchParams(window.location.search);
+          this.grading = params.get('grading') || this.defaults.grading;
+          this.minCpp = params.get('min_cpp') || this.defaults.min_cpp;
+          this.maxCpp = params.get('max_cpp') || this.defaults.max_cpp;
+          this.categories = params.getAll('category');
+          this.query = params.get('q') || '';
+          this.sort = params.get('sort') || this.defaults.sort;
+
+          // Child fields dispatch `field-change` with {name, value}; route to
+          // the matching state slot, enforce min/max C++ ordering, then apply().
+          this.$el.addEventListener('field-change', (event) => {
+            const { name, value } = event.detail;
+            if (name === 'grading') this.grading = value || 'all';
+            else if (name === 'min_cpp') {
+              this.minCpp = value || 'all';
+              if (this.minCpp !== 'all' && this.maxCpp !== 'all'
+                  && cppRank(this.minCpp) > cppRank(this.maxCpp)) {
+                this.resetField('max_cpp', 'all');
+              }
+              this.updateCppConstraints();
+            }
+            else if (name === 'max_cpp') {
+              this.maxCpp = value || 'all';
+              if (this.maxCpp !== 'all' && this.minCpp !== 'all'
+                  && cppRank(this.maxCpp) < cppRank(this.minCpp)) {
+                this.resetField('min_cpp', 'all');
+              }
+              this.updateCppConstraints();
+            }
+            else if (name === 'q') this.query = value || '';
+            else if (name === 'sort') this.sort = value || this.defaults.sort;
+            else if (name === 'view') {
+              this.handleViewChange(value);
+              return;
+            } else return;
+            this.apply();
+          });
+
+          // Auto-correct invalid combinations loaded from URL params, then push
+          // initial disabled-value constraints to both cpp dropdowns. Defer to
+          // $nextTick so the dropdown components have mounted their listeners.
+          if (this.minCpp !== 'all' && this.maxCpp !== 'all'
+              && cppRank(this.minCpp) > cppRank(this.maxCpp)) {
+            this.maxCpp = 'all';
+          }
+          this.$nextTick(() => {
+            if (this.maxCpp === 'all') {
+              window.dispatchEvent(new CustomEvent('field-set',
+                { detail: { name: 'max_cpp', value: 'all', label: 'All' } }));
+            }
+            this.updateCppConstraints();
+          });
+
+          this.observeCategorySelections();
+          document.querySelectorAll('[data-slug]').forEach((el) => {
+            const siblings = Array.from(el.parentElement.children).filter((c) => c.dataset.slug);
+            el.dataset.originalIndex = siblings.indexOf(el);
+          });
+          this.apply();
+        },
+
+        updateCppConstraints() {
+          const minDisabled = (this.maxCpp && this.maxCpp !== 'all')
+            ? CPP_OPTION_VALUES.filter((v) => cppRank(v) > cppRank(this.maxCpp))
+            : [];
+          const maxDisabled = (this.minCpp && this.minCpp !== 'all')
+            ? CPP_OPTION_VALUES.filter((v) => cppRank(v) < cppRank(this.minCpp))
+            : [];
+          window.dispatchEvent(new CustomEvent('field-disabled-values',
+            { detail: { name: 'min_cpp', values: minDisabled } }));
+          window.dispatchEvent(new CustomEvent('field-disabled-values',
+            { detail: { name: 'max_cpp', values: maxDisabled } }));
+        },
+
+        resetField(name, value) {
+          if (name === 'min_cpp') this.minCpp = value;
+          else if (name === 'max_cpp') this.maxCpp = value;
+          window.dispatchEvent(new CustomEvent('field-set',
+            { detail: { name, value, label: CPP_LABEL_MAP[value] || '' } }));
+        },
+
+        handleViewChange(value) {
+          if (!value) return;
+          const url = new URL(window.location.href);
+          const segments = url.pathname.replace(/\/$/, '').split('/');
+          const i = segments.findIndex((s) =>
+            ['list', 'grid', 'categorized', 'grading'].includes(s)
+          );
+          if (i !== -1) {
+            segments[i] = value;
+            url.pathname = segments.join('/') + '/';
+            window.location.assign(url.toString());
+          }
+        },
+
+        observeCategorySelections() {
+          const form = this.$el.querySelector('form') || this.$el;
+          const read = () => {
+            const inputs = form.querySelectorAll('input[type="hidden"][name="category"]');
+            const next = Array.from(inputs).map((el) => el.value).filter(Boolean);
+            const changed =
+              next.length !== this.categories.length ||
+              next.some((v, i) => v !== this.categories[i]);
+            if (changed) {
+              this.categories = next;
+              this.apply();
+            }
+          };
+          this.$nextTick(read);
+          new MutationObserver(read).observe(form, { childList: true, subtree: true });
+        },
+
+        apply() {
+          this.runSearch();
+          this.syncUrl();
+          this.toggleItems();
+          this.sortItems();
+          this.toggleEmptySections();
+          this.toggleEmptyState();
+        },
+
+        runSearch() {
+          const q = this.query.trim();
+          if (!q || !this.fuse) {
+            this.searchHits = null;
+            this.searchScores = null;
+            return;
+          }
+          const results = this.fuse.search(q);
+          this.searchHits = new Set(results.map((r) => r.item.slug));
+          this.searchScores = new Map(results.map((r) => [r.item.slug, r.score]));
+        },
+
+        clearAll() {
+          // Reset parent state first so subsequent field-change events from
+          // each field hit an already-clean parent — every syncUrl call then
+          // writes the same URL and there's no flicker.
+          this.grading = this.defaults.grading;
+          this.minCpp = this.defaults.min_cpp;
+          this.maxCpp = this.defaults.max_cpp;
+          this.categories = [];
+          this.sort = this.defaults.sort;
+          this.apply();
+          this.$dispatch('clear-all-filters');
+        },
+
+        hasActiveFilters() {
+          return (
+            this.grading !== this.defaults.grading ||
+            this.minCpp !== this.defaults.min_cpp ||
+            this.maxCpp !== this.defaults.max_cpp ||
+            this.categories.length > 0 ||
+            this.sort !== this.defaults.sort
+          );
+        },
+
+        syncUrl() {
+          const params = new URLSearchParams();
+          if (this.grading !== this.defaults.grading) params.set('grading', this.grading);
+          if (this.minCpp !== this.defaults.min_cpp) params.set('min_cpp', this.minCpp);
+          if (this.maxCpp !== this.defaults.max_cpp) params.set('max_cpp', this.maxCpp);
+          this.categories.forEach((c) => params.append('category', c));
+          if (this.query) params.set('q', this.query);
+          if (this.sort !== this.defaults.sort) params.set('sort', this.sort);
+          const search = params.toString();
+          window.history.replaceState(null, '', window.location.pathname + (search ? '?' + search : ''));
+        },
+
+        toggleItems() {
+          const bySlug = new Map(this.dataset.map((d) => [d.slug, d]));
+          const items = document.querySelectorAll('[data-slug]');
+          let visible = 0;
+          items.forEach((el) => {
+            const data = bySlug.get(el.dataset.slug);
+            const show = data ? this.matches(data) : true;
+            // Inline style beats `[hidden]`. The item containers use
+            // `display: grid` (with subgrid on .library-item--list), which
+            // overrides the default `[hidden] { display: none }` rule.
+            el.style.display = show ? '' : 'none';
+            if (show) visible += 1;
+          });
+          this.visibleCount = visible;
+        },
+
+        sortItems() {
+          const bySlug = new Map(this.dataset.map((d) => [d.slug, d]));
+          const TIER_RANK = { flagship: 0, core: 1, deprecated: 2, legacy: 3 };
+          const tierRank = (slug) => {
+            const tier = bySlug.get(slug)?.tier || '';
+            return tier in TIER_RANK ? TIER_RANK[tier] : 4;
+          };
+          const queryActive = !!this.searchHits;
+          const sortIsDefault = this.sort === this.defaults.sort;
+          const scoreOf = (slug) =>
+            this.searchScores?.get(slug) ?? Number.POSITIVE_INFINITY;
+          const containers = new Set(
+            Array.from(document.querySelectorAll('[data-slug]')).map((el) => el.parentElement)
+          );
+          containers.forEach((container) => {
+            const items = Array.from(container.querySelectorAll(':scope > [data-slug]'));
+            items.sort((a, b) => {
+              if (queryActive && sortIsDefault) {
+                const diff = scoreOf(a.dataset.slug) - scoreOf(b.dataset.slug);
+                if (diff !== 0) return diff;
+              } else if (this.sort === 'popularity') {
+                const diff = tierRank(a.dataset.slug) - tierRank(b.dataset.slug);
+                if (diff !== 0) return diff;
+              }
+              return Number(a.dataset.originalIndex) - Number(b.dataset.originalIndex);
+            });
+            items.forEach((el) => container.appendChild(el));
+          });
+        },
+
+        matches(data) {
+          if (this.searchHits && !this.searchHits.has(data.slug)) return false;
+          if (this.grading !== 'all' && data.tier !== this.grading) return false;
+          // Overlap filter: reject only when the library range falls entirely outside the filter range.
+          if (this.maxCpp !== 'all' && data.cpp_min && cppRank(data.cpp_min) > cppRank(this.maxCpp)) return false;
+          if (this.minCpp !== 'all' && data.cpp_max && cppRank(data.cpp_max) < cppRank(this.minCpp)) return false;
+          if (this.categories.length > 0) {
+            const hit = data.category_slugs.some((s) => this.categories.includes(s));
+            if (!hit) return false;
+          }
+          return true;
+        },
+
+        toggleEmptySections() {
+          document.querySelectorAll('.library-page__category-section').forEach((section) => {
+            const items = section.querySelectorAll('[data-slug]');
+            const anyVisible = Array.from(items).some((el) => el.style.display !== 'none');
+            section.style.display = items.length > 0 && !anyVisible ? 'none' : '';
+          });
+        },
+
+        toggleEmptyState() {
+          const el = document.getElementById('library-empty-state');
+          if (el) el.hidden = this.visibleCount !== 0;
+        },
+
+        emptyStateMessage() {
+          const hasSearch = this.query.trim().length > 0;
+          const hasFilters =
+            this.grading !== this.defaults.grading ||
+            this.minCpp !== this.defaults.min_cpp ||
+            this.maxCpp !== this.defaults.max_cpp ||
+            this.categories.length > 0;
+          if (hasSearch && hasFilters) {
+            return 'No libraries match your search and filters. Try adjusting your criteria.';
+          }
+          if (hasSearch) {
+            return 'No libraries match your search. Try a different keyword.';
+          }
+          return 'No libraries match the selected filters. Try adjusting your filters.';
+        },
+      };
+    };
+  </script>
+
+  <div class="library-page__container" x-data="libraryFilter()">
     <section class="library-page-hero" aria-label="Hero">
           <h1 class="hero-title">Find a battle-tested library for the problem you're solving right now.</h1>
           <div class="hero-search-bar">
-            {% include 'v3/includes/_field_text.html' with label='Search' name='ex_search' placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' %}
+            {% include 'v3/includes/_field_text.html' with label='Search' name='q' value=library_search_query placeholder='Keyword, name, etc.' icon_left='search' submit_icon='arrow-right' submit_label='Search' dispatch_field_change=True %}
           </div>
           <div class="hero-image-container">
             <img alt="Excited Cartoon Mascot" class="hero-image hero-image-light" src="{% large_static 'img/v3/solo-images/beaver-black-and-white.png' %}" loading="lazy" decoding="async" />
@@ -30,69 +394,51 @@ Inputs:
       </section>
     <form action="" method="get">
       <div id="library-page-filter-container" class="mb-xl">
-        {% include 'v3/includes/_library_filter.html' with filter_id='library-page-filter' fields=library_filter_fields %}
+        {% include 'v3/includes/_library_filter.html' with filter_id='library-page-filter' fields=library_filter_fields clear_url=library_filter_clear_url %}
       </div>
     </form>
     {% if library_view_str == 'list' %}
-      <ul class="library-item-list">
+      <ul class="library-item-list" x-cloak>
         <li class="library-page__list-header library-item--list">
           <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Library name</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
           <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Description</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
           <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Category</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
           <div class="library-page__list-header-flex"><span class="library-page__list-header-text">Author</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
-          <div class="library-page__list-header-flex library-page_list-header-justify"><span class="library-page__list-header-text">Version</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
+          <div class="library-page__list-header-flex library-page__list-header-justify"><span class="library-page__list-header-text">Version</span>{% include "includes/icon.html" with icon_name="chevron-down" icon_size=16 %}</div>
           <div></div>
         </li>
         {% for item in object_list %}
-          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
         {% endfor %}
+        <li id="library-empty-state"
+            class="library-page__empty-state library-page__empty-state--in-list"
+            hidden>
+          {% include 'v3/includes/_library_empty_state.html' %}
+        </li>
       </ul>
     {% elif library_view_str == 'grid' %}
-      <div class="library-item-card-grid">
+      <div id="library-empty-state" class="library-page__empty-state" hidden>
+        {% include 'v3/includes/_library_empty_state.html' %}
+      </div>
+      <div class="library-item-card-grid" x-cloak>
         {% for item in object_list %}
-          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+          {% include 'v3/includes/_library_item.html' with variant=library_view_str library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
         {% endfor %}
       </div>
     {% elif library_view_str == 'categorized' or library_view_str == 'grading' %}
       {% for result in library_versions_by_category %}
-      <section>
+      <section class="library-page__category-section" x-cloak>
         <h2 class="library-page__category-header">{{ result.category }} {% if result.icon %}{% include "includes/icon.html" with icon_name=result.icon only %}{% endif %}</h2>
         <ul class="library-item-list grouped">
           {% for item in result.library_version_list %}
-            {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
+            {% include 'v3/includes/_library_item.html' with variant='list' library_name=item.library.name library_slug=item.library.slug library_url=item.library_detail_url_for_version description=item.description categories=item.library.category_tags cpp_version=item.cpp_standard_minimum author=item.author_details doc_url=item.documentation_url version_str=version_str only %}
           {% endfor %}
         </ul>
       </section>
       {% endfor %}
+      <div id="library-empty-state" class="library-page__empty-state" hidden>
+        {% include 'v3/includes/_library_empty_state.html' %}
+      </div>
     {% endif %}
   </div>
-{% endblock %}
-
-{% block footer_js %}
-  {{ block.super }}
-  <script>
-    const filterSection = document.getElementById('library-page-filter-container')
-    filterSection.addEventListener('field-change', function (event) {
-      const value = event.detail.value
-      const name = event.detail.name
-      if (name == 'view') {
-        switch (value) {
-          case 'grid':
-            window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='grid'  %}")
-            break
-          case 'list':
-            window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='list'  %}")
-            break
-          case 'categorized':
-            window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='categorized'  %}")
-            break
-          case 'grading':
-            window.location.assign("{% url 'libraries-list' version_slug=version_str library_view_str='grading'  %}")
-            break
-          default:
-            console.error(`Value ${value} is unknown, please reload the page.`)
-        }
-      }
-    })
-  </script>
 {% endblock %}

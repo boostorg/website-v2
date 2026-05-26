@@ -623,6 +623,7 @@ class GithubDataParser:
             "category": libraries_json.get("category", []),
             "maintainers": libraries_json.get("maintainers", []),
             "cxxstd": libraries_json.get("cxxstd"),
+            "cxxstd_max": libraries_json.get("cxxstd_max"),
             "cpp20_module_support": libraries_json.get("modules", False),
         }
 

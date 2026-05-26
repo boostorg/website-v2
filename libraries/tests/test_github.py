@@ -68,6 +68,7 @@ def test_get_library_list(library_updater):
             "github_url": "example.com",
             "description": "Test description",
             "cxxstd": "11",
+            "cxxstd_max": None,
             "category": ["Test"],
             "authors": ["John Doe"],
             "maintainers": ["Jane Doe"],

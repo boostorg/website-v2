@@ -477,6 +477,17 @@ class Library(models.Model):
 
 
 class LibraryVersion(models.Model):
+    # Source: https://docs.cppalliance.org/contributor-guide/requirements/library-metadata.html
+    CPP_STANDARD_DISPLAY_NAMES = {
+        "98": "C++98",
+        "03": "C++03",
+        "11": "C++11",
+        "14": "C++14",
+        "17": "C++17",
+        "20": "C++20",
+        "23": "C++23",
+    }
+
     version = models.ForeignKey(
         "versions.Version",
         related_name="library_version",
@@ -512,6 +523,7 @@ class LibraryVersion(models.Model):
     deletions = models.IntegerField(default=0)
     files_changed = models.IntegerField(default=0)
     cpp_standard_minimum = models.CharField(max_length=50, blank=True, null=True)
+    cpp_standard_maximum = models.CharField(max_length=50, blank=True, null=True)
     cpp20_module_support = models.BooleanField(default=False)
     dependencies = models.ManyToManyField(
         "libraries.Library",
@@ -554,19 +566,16 @@ class LibraryVersion(models.Model):
         }
 
     def get_cpp_standard_minimum_display(self):
-        """Returns the display name for the C++ standard, or the value if not found.
+        """Returns the display name for the minimum C++ standard, or the value if not found."""
+        return self.CPP_STANDARD_DISPLAY_NAMES.get(
+            self.cpp_standard_minimum, self.cpp_standard_minimum
+        )
 
-        Source of values is
-        https://docs.cppalliance.org/user-guide/prev/library_metadata.html"""
-        display_names = {
-            "98": "C++98",
-            "03": "C++03",
-            "11": "C++11",
-            "14": "C++14",
-            "17": "C++17",
-            "20": "C++20",
-        }
-        return display_names.get(self.cpp_standard_minimum, self.cpp_standard_minimum)
+    def get_cpp_standard_maximum_display(self):
+        """Returns the display name for the maximum C++ standard, or the value if not found."""
+        return self.CPP_STANDARD_DISPLAY_NAMES.get(
+            self.cpp_standard_maximum, self.cpp_standard_maximum
+        )
 
 
 class Issue(models.Model):
