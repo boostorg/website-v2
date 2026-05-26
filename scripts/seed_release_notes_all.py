@@ -1,39 +1,18 @@
 """Seed release-notes RenderedContent for every Version in the local DB.
 
-Fetches each version's history page from the boostorg/website repo on GitHub
-(the same source the prod pipeline falls back to when S3 is empty), runs it
-through `process_release_notes` for parity with prod content, and upserts a
-`RenderedContent` row keyed by `version.release_notes_cache_key`.
+Uses the same source-of-truth strategy as prod (`get_release_notes_for_version`):
+S3 first (asciidoc, for 1.90.0 onwards), falling back to the boostorg/website
+GitHub history page (html) for older versions. Upserts a `RenderedContent` row
+keyed by `version.release_notes_cache_key`.
 
 Run from the project root:
 
-    docker compose exec web ./manage.py shell < scripts/seed_release_notes_all.py
+    docker compose run web ./manage.py shell < scripts/seed_release_notes_all.py
 """
-
-import requests
 
 from core.models import RenderedContent
 from versions.models import Version
-from versions.releases import process_release_notes
-
-BASE_URL = "https://raw.githubusercontent.com/boostorg/website/master/users/history/"
-TIMEOUT = 30
-
-
-def _filename_for(version):
-    # boost-1.89.0 -> version_1_89_0, mirrors get_release_notes_for_version_github.
-    return version.non_beta_slug.replace("boost", "version").replace("-", "_")
-
-
-def _fetch(filename):
-    url = f"{BASE_URL}{filename}.html"
-    response = requests.get(url, timeout=TIMEOUT)
-    if response.status_code == 404:
-        # Some beta release notes end in _x.html instead of _0.html.
-        fallback = filename.rsplit("_", 1)[0] + "_x"
-        response = requests.get(f"{BASE_URL}{fallback}.html", timeout=TIMEOUT)
-    return response
-
+from versions.releases import get_release_notes_for_version
 
 seeded, skipped, failed = [], [], []
 
@@ -42,21 +21,24 @@ for version in Version.objects.all().order_by("name"):
         skipped.append((version.name, "no version number"))
         continue
 
-    filename = _filename_for(version)
     try:
-        response = _fetch(filename)
-        response.raise_for_status()
-    except requests.RequestException as exc:
+        content, processed_content, content_type = get_release_notes_for_version(
+            version.pk
+        )
+    except Exception as exc:
         failed.append((version.name, str(exc)))
         continue
 
-    processed = process_release_notes(response.content)
+    if not content:
+        skipped.append((version.name, "no release notes found"))
+        continue
+
     RenderedContent.objects.update_or_create(
         cache_key=version.release_notes_cache_key,
         defaults={
-            "content_type": "text/html",
-            "content_original": response.text,
-            "content_html": processed,
+            "content_type": content_type,
+            "content_original": content,
+            "content_html": processed_content,
         },
     )
     seeded.append(version.name)
