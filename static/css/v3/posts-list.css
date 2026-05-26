@@ -101,6 +101,10 @@
     letter-spacing: var(--letter-spacing-tight);
 }
 
+.post-card__summary p {
+    padding: 0;
+}
+
 .post-card__row {
     display: flex;
     flex-direction: row;

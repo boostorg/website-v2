@@ -2,6 +2,7 @@ from typing import NamedTuple
 from structlog import get_logger
 from wagtail.fields import StreamField
 
+from django.core.paginator import Paginator
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.text import slugify
@@ -10,7 +11,6 @@ from django.utils.text import slugify
 from pages.blocks import POST_BLOCKS
 from pages.mixins import BasePage
 
-from news.constants import CONTENT_SUMMARIZATION_THRESHOLD
 from news.tasks import summary_dispatcher
 
 
@@ -103,6 +103,7 @@ class PostIndexPage(BasePage):
 
     parent_page_types = ["pages.RoutableHomePage"]
     subpage_types = ["pages.PostPage"]
+    template = "v3/posts_list.html"
     max_count = 1
 
     def get_children_by_content_type(
@@ -121,17 +122,59 @@ class PostIndexPage(BasePage):
 
         content_type = request.GET.get("type", "").lower()
         if content_value := CONTENT_TYPES_BY_FILTER.get(content_type, None):
-            posts = self.get_children_by_content_type(content_value.block_name)
+            entry_list = self.get_children_by_content_type(
+                content_value.block_name
+            ).specific()
         else:
-            posts = (
+            entry_list = (
                 self.get_children()
                 .type(PostPage)
                 .live()
                 .order_by("-first_published_at")
+                .specific()
             )
 
-        ctx["posts"] = posts
+        pag = Paginator(entry_list, 10)
+        ctx["paginator"] = pag
+        ctx["is_paginated"] = True
+        ctx["entry_list"] = pag.get_page(request.GET.get("page", 1))
+        ctx["page_obj"] = ctx["entry_list"]
         ctx["filters"] = POST_CONTENT_TYPES
+        ctx["header_text"] = "Latest Posts"
+        ctx["filter_terms"] = [
+            {
+                "label": "All",
+                "value": "all",
+            },
+            {
+                "label": "News",
+                "value": "news",
+            },
+            {
+                "label": "Blogs",
+                "value": "blogpost",
+            },
+            {
+                "label": "Links",
+                "value": "link",
+            },
+            {
+                "label": "Videos",
+                "value": "video",
+            },
+            {
+                "label": "Discussions",
+                "value": "discussions",
+            },
+            {
+                "label": "Achievements",
+                "value": "achievements",
+            },
+            {
+                "label": "Issues",
+                "value": "issues",
+            },
+        ]
         return ctx
 
 
@@ -142,8 +185,17 @@ class PostPage(BasePage):
 
     parent_page_types = ["pages.PostIndexPage"]
     subpage_types = []
+    template = "news/v3/detail.html"
+
     content = StreamField(POST_BLOCKS, min_num=1, max_num=1)
     image = models.ForeignKey(
+        "wagtailimages.Image",
+        null=True,
+        blank=True,
+        related_name="+",
+        on_delete=models.SET_NULL,
+    )
+    video_thumbnail = models.ForeignKey(
         "wagtailimages.Image",
         null=True,
         blank=True,
@@ -167,6 +219,8 @@ class PostPage(BasePage):
         ctx["next_in_category"] = next_objects.filter(
             content__0__type=self.stream_content_type
         ).last()
+        ctx["object"] = self.specific
+        ctx["post_author"] = self.author
         return ctx
 
     def get_listing_url(self, request=None, current_site=None):
@@ -187,10 +241,7 @@ class PostPage(BasePage):
 
     @cached_property
     def use_summary(self):
-        return bool(len(self.summary)) and (
-            not self.content
-            or len(str(self.content[0])) > CONTENT_SUMMARIZATION_THRESHOLD
-        )
+        return bool(len(self.summary))
 
     @cached_property
     def visible_content(self):
@@ -223,8 +274,39 @@ class PostPage(BasePage):
             self.stream_content_type, _PostContentType()
         ).filter_name
 
+    @cached_property
+    def author(self):
+        return self.owner
+
+    @property
+    def get_absolute_url(self):
+        return self.url
+
+    @property
+    def image_url(self):
+        if not self.image:
+            return ""
+        return self.image.get_rendition("original").url
+
+    @property
+    def created_at(self):
+        return self.first_published_at
+
+    @property
+    def publish_at(self):
+        return self.last_published_at
+
+    @property
+    def determined_news_type(self):
+        return self.post_content_type
+
+    @property
+    def tag(self):
+        return getattr(self, "tags.first()", self.post_content_type)
+
     content_panels = BasePage.content_panels + [
         "content",
         "image",
         "summary",
+        "video_thumbnail",
     ]
