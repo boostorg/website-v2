@@ -595,29 +595,6 @@ class LearnPageView(V3Mixin, TemplateView):
             },
         ]
 
-        ctx["calendar_card"] = {
-            "title": "Boost is released three times a year",
-            "text": (
-                "Each release has updates to existing libraries, and any new "
-                "libraries that have passed the rigorous acceptance process."
-            ),
-            "primary_button_url": reverse("calendar"),
-            "primary_button_label": "View release calendar",
-            "image": large_static("/img/v3/demo-page/calendar.png"),
-        }
-        ctx["info_card"] = {
-            "title": "How we got here",
-            "text": (
-                "Since 1998, Boost has been where C++ innovation happens. What "
-                "started with three developers has grown into the foundation of "
-                "modern C++ development."
-            ),
-            "primary_button_url": reverse(
-                "docs-user-guide",
-                kwargs={"content_path": "user-guide/boost-history.html"},
-            ),
-            "primary_button_label": "Explore our history",
-        }
         ctx["post_cards_data"] = {
             "heading": "Posts from the Boost community",
             "view_all_url": reverse("news"),
