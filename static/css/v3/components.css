@@ -1,6 +1,6 @@
 @import "./fonts.css";
 @import "./foundations.css";
-@import "./button-tooltip.css";
+@import "./tooltip.css";
 @import "./buttons.css";
 @import "./avatar.css";
 @import "./carousel-buttons.css";
@@ -57,3 +57,5 @@
 @import "./quick-start-card.css";
 @import "./pagination.css";
 @import "./community-card.css";
+@import "./mailing-list-activity-card.css";
+@import "./user-profile-bio-card.css";
