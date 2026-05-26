@@ -1,4 +1,3 @@
-
 import { Editor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
@@ -20,16 +19,23 @@ import { gfm } from "turndown-plugin-gfm";
 
 marked.use({
   gfm: true,
-  extensions: [{
-    name: "fences",
-    level: "block",
-    tokenizer(src) {
-      const match = src.match(/^`{3,}\s*\{(\w+)\}\s*\n([\s\S]*?)^`{3,}\s*$/m);
-      if (match) {
-        return { type: "code", raw: match[0], text: match[2], lang: match[1] };
-      }
+  extensions: [
+    {
+      name: "fences",
+      level: "block",
+      tokenizer(src) {
+        const match = src.match(/^`{3,}\s*\{(\w+)\}\s*\n([\s\S]*?)^`{3,}\s*$/m);
+        if (match) {
+          return {
+            type: "code",
+            raw: match[0],
+            text: match[2],
+            lang: match[1],
+          };
+        }
+      },
     },
-  }],
+  ],
 });
 
 function parseMarkdownSafe(md) {
@@ -37,7 +43,10 @@ function parseMarkdownSafe(md) {
 }
 
 function sanitizeSvg(svgString) {
-  return DOMPurify.sanitize(svgString, { USE_PROFILES: { svg: true, svgFilters: true }, ADD_TAGS: ["use"] });
+  return DOMPurify.sanitize(svgString, {
+    USE_PROFILES: { svg: true, svgFilters: true },
+    ADD_TAGS: ["use"],
+  });
 }
 
 const lowlight = createLowlight(common);
@@ -48,7 +57,6 @@ const CODE_LANGUAGES = [
   { value: "mermaid", label: "Mermaid" },
 ];
 const DEFAULT_CODE_LANGUAGE = "cpp";
-
 
 const turndown = new TurndownService({
   headingStyle: "atx",
@@ -83,7 +91,6 @@ turndown.addRule("taskList", {
   replacement: (content) => "\n" + content + "\n",
 });
 
-
 const isSafeUrl = (url) => {
   try {
     const parsed = new URL(url, window.location.href);
@@ -97,47 +104,91 @@ const openModal = (title, fields) =>
   new Promise((resolve) => {
     const overlay = document.createElement("div");
     overlay.className = "wysiwyg-modal__overlay";
+    overlay.style.cssText = `
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--color-surface-modal, rgba(5, 8, 22, 0.7));
+      backdrop-filter: blur(2px);
+    `;
 
-    const modal = document.createElement("div");
-    modal.className = "wysiwyg-modal";
+    const container = document.createElement("div");
+    container.className = "dialog-modal__container";
+    container.setAttribute("role", "dialog");
+    container.setAttribute("aria-modal", "true");
+    container.setAttribute("aria-labelledby", "modal-title");
 
-    const heading = document.createElement("h3");
-    heading.className = "wysiwyg-modal__title";
+    const header = document.createElement("div");
+    header.className = "dialog-modal__header";
+
+    const heading = document.createElement("h2");
+    heading.id = "modal-title";
+    heading.className = "dialog-modal__title";
     heading.textContent = title;
-    modal.appendChild(heading);
+
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "dialog-modal__close";
+    closeBtn.setAttribute("aria-label", "Close");
+    closeBtn.innerHTML =
+      '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+
+    header.appendChild(closeBtn);
+    header.appendChild(heading);
+    container.appendChild(header);
+
+    const body = document.createElement("div");
+    body.style.cssText =
+      "padding: 0 var(--space-large, 16px); display: flex; flex-direction: column; gap: var(--space-large, 16px);";
 
     const inputs = {};
     fields.forEach(({ name, label, type, placeholder }) => {
+      const field = document.createElement("div");
+      field.className = "field";
+
       const lbl = document.createElement("label");
-      lbl.className = "wysiwyg-modal__label";
+      lbl.className = "field__label";
       lbl.textContent = label;
-      modal.appendChild(lbl);
+      lbl.setAttribute("for", `modal-input-${name}`);
+      field.appendChild(lbl);
+
+      const control = document.createElement("div");
+      control.className = "field__control";
 
       const input = document.createElement("input");
+      input.id = `modal-input-${name}`;
       input.type = type || "text";
-      input.className = "wysiwyg-modal__input";
+      input.className = "field__input";
       if (placeholder) input.placeholder = placeholder;
-      modal.appendChild(input);
+      control.appendChild(input);
+      field.appendChild(control);
+      body.appendChild(field);
       inputs[name] = input;
     });
 
-    const actions = document.createElement("div");
-    actions.className = "wysiwyg-modal__actions";
+    container.appendChild(body);
+
+    const footer = document.createElement("div");
+    footer.className = "dialog-modal__buttons";
 
     const cancelBtn = document.createElement("button");
     cancelBtn.type = "button";
-    cancelBtn.className = "wysiwyg-modal__btn wysiwyg-modal__btn--cancel";
+    cancelBtn.className = "btn btn-secondary";
     cancelBtn.textContent = "Cancel";
 
     const insertBtn = document.createElement("button");
     insertBtn.type = "button";
-    insertBtn.className = "wysiwyg-modal__btn wysiwyg-modal__btn--insert";
+    insertBtn.className = "btn btn-primary";
     insertBtn.textContent = "Insert";
 
-    actions.appendChild(cancelBtn);
-    actions.appendChild(insertBtn);
-    modal.appendChild(actions);
-    overlay.appendChild(modal);
+    footer.appendChild(cancelBtn);
+    footer.appendChild(insertBtn);
+    container.appendChild(footer);
+
+    overlay.appendChild(container);
     document.body.appendChild(overlay);
 
     const firstInput = Object.values(inputs)[0];
@@ -148,6 +199,7 @@ const openModal = (title, fields) =>
       resolve(result);
     };
 
+    closeBtn.addEventListener("click", () => close(null));
     cancelBtn.addEventListener("click", () => close(null));
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) close(null);
@@ -157,9 +209,15 @@ const openModal = (title, fields) =>
       for (const [k, v] of Object.entries(inputs)) result[k] = v.value;
       close(result);
     });
-    modal.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") insertBtn.click();
-      if (e.key === "Escape") close(null);
+    container.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        insertBtn.click();
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close(null);
+      }
     });
   });
 
@@ -173,7 +231,8 @@ const getMermaid = async () => {
   } else {
     await new Promise((resolve, reject) => {
       const script = document.createElement("script");
-      script.src = "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js";
+      script.src =
+        "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js";
       script.integrity = "sha256-pDvBr9RG+cTMZqxd1F0C6NZeJvxTROwO94f4jW3bb54=";
       script.crossOrigin = "anonymous";
       script.onload = resolve;
@@ -207,13 +266,16 @@ const createToolbarButton = (editor, opts) => {
     onClick();
   });
   const updateActive = () => {
-    btn.classList.toggle("wysiwyg-toolbar__btn--active", isActive ? isActive() : false);
+    btn.classList.toggle(
+      "wysiwyg-toolbar__btn--active",
+      isActive ? isActive() : false,
+    );
   };
   editor.on("selectionUpdate", updateActive);
   editor.on("transaction", updateActive);
   updateActive();
   return btn;
-}
+};
 
 const createSeparator = () => {
   const sep = document.createElement("span");
@@ -245,7 +307,11 @@ const createHeadingDropdown = (editor) => {
     if (val === "p") {
       editor.chain().focus().setParagraph().run();
     } else {
-      editor.chain().focus().toggleHeading({ level: parseInt(val) }).run();
+      editor
+        .chain()
+        .focus()
+        .toggleHeading({ level: parseInt(val) })
+        .run();
     }
   });
 
@@ -268,16 +334,16 @@ const ICONS = {
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>',
   checkbox:
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
-  link:
-    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+  link: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
   image:
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
   markdown:
     '<svg width="18" height="18" viewBox="0 0 26 18" fill="currentColor" aria-hidden="true"><path d="M2 2h3l3 4 3-4h3v10h-3V6l-3 4-3-4v6H2V2zm17 0h3l3 5h-2v5h-3V7h-2l4-5z" fill-rule="evenodd"/></svg>',
   preview:
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+  undo: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"/></svg>',
+  redo: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 019-9 9 9 0 016 2.3l3 2.7"/></svg>',
 };
-
 
 const buildTableGridPicker = (onSelect) => {
   const MAX = 6;
@@ -310,7 +376,10 @@ const buildTableGridPicker = (onSelect) => {
     cells.forEach((cell) => {
       const r = parseInt(cell.dataset.row);
       const c = parseInt(cell.dataset.col);
-      cell.classList.toggle("wysiwyg-table-grid__cell--active", r <= hoverR && c <= hoverC);
+      cell.classList.toggle(
+        "wysiwyg-table-grid__cell--active",
+        r <= hoverR && c <= hoverC,
+      );
     });
     label.textContent = `${hoverR} \u00d7 ${hoverC} table`;
   };
@@ -321,7 +390,9 @@ const buildTableGridPicker = (onSelect) => {
   });
 
   grid.addEventListener("mouseleave", () => {
-    cells.forEach((c) => c.classList.remove("wysiwyg-table-grid__cell--active"));
+    cells.forEach((c) =>
+      c.classList.remove("wysiwyg-table-grid__cell--active"),
+    );
     label.textContent = "Insert table";
   });
 
@@ -340,18 +411,57 @@ const setupTableContextBar = (editor, toolbarEl) => {
   toolbarEl.after(bar);
 
   const actions = [
-    { label: "Add row above", icon: "↑ Row", cmd: () => editor.chain().focus().addRowBefore().run() },
-    { label: "Add row below", icon: "↓ Row", cmd: () => editor.chain().focus().addRowAfter().run() },
-    { label: "Delete row", icon: "✕ Row", cmd: () => editor.chain().focus().deleteRow().run(), danger: true },
+    {
+      label: "Add row above",
+      icon: "↑ Row",
+      cmd: () => editor.chain().focus().addRowBefore().run(),
+    },
+    {
+      label: "Add row below",
+      icon: "↓ Row",
+      cmd: () => editor.chain().focus().addRowAfter().run(),
+    },
+    {
+      label: "Delete row",
+      icon: "✕ Row",
+      cmd: () => editor.chain().focus().deleteRow().run(),
+      danger: true,
+    },
     "sep",
-    { label: "Add column before", icon: "← Col", cmd: () => editor.chain().focus().addColumnBefore().run() },
-    { label: "Add column after", icon: "→ Col", cmd: () => editor.chain().focus().addColumnAfter().run() },
-    { label: "Delete column", icon: "✕ Col", cmd: () => editor.chain().focus().deleteColumn().run(), danger: true },
+    {
+      label: "Add column before",
+      icon: "← Col",
+      cmd: () => editor.chain().focus().addColumnBefore().run(),
+    },
+    {
+      label: "Add column after",
+      icon: "→ Col",
+      cmd: () => editor.chain().focus().addColumnAfter().run(),
+    },
+    {
+      label: "Delete column",
+      icon: "✕ Col",
+      cmd: () => editor.chain().focus().deleteColumn().run(),
+      danger: true,
+    },
     "sep",
-    { label: "Merge cells", icon: "Merge", cmd: () => editor.chain().focus().mergeCells().run() },
-    { label: "Split cell", icon: "Split", cmd: () => editor.chain().focus().splitCell().run() },
+    {
+      label: "Merge cells",
+      icon: "Merge",
+      cmd: () => editor.chain().focus().mergeCells().run(),
+    },
+    {
+      label: "Split cell",
+      icon: "Split",
+      cmd: () => editor.chain().focus().splitCell().run(),
+    },
     "sep",
-    { label: "Delete table", icon: "Delete table", cmd: () => editor.chain().focus().deleteTable().run(), danger: true },
+    {
+      label: "Delete table",
+      icon: "Delete table",
+      cmd: () => editor.chain().focus().deleteTable().run(),
+      danger: true,
+    },
   ];
 
   actions.forEach((a) => {
@@ -361,7 +471,9 @@ const setupTableContextBar = (editor, toolbarEl) => {
     }
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "wysiwyg-table-context__btn" + (a.danger ? " wysiwyg-table-context__btn--danger" : "");
+    btn.className =
+      "wysiwyg-table-context__btn" +
+      (a.danger ? " wysiwyg-table-context__btn--danger" : "");
     btn.setAttribute("aria-label", a.label);
     btn.setAttribute("title", a.label);
     btn.textContent = a.icon;
@@ -392,65 +504,86 @@ const buildToolbar = (editor, toolbarEl) => {
 
   left.appendChild(
     createToolbarButton(editor, {
-      label: "Bold", title: "Bold", html: "<strong>B</strong>",
+      label: "Bold",
+      title: "Bold",
+      html: "<strong>B</strong>",
       onClick: () => editor.chain().focus().toggleBold().run(),
       isActive: () => editor.isActive("bold"),
-    })
+    }),
   );
   left.appendChild(
     createToolbarButton(editor, {
-      label: "Italic", title: "Italic", html: "<em>I</em>",
+      label: "Italic",
+      title: "Italic",
+      html: "<em>I</em>",
       onClick: () => editor.chain().focus().toggleItalic().run(),
       isActive: () => editor.isActive("italic"),
-    })
+    }),
   );
   left.appendChild(
     createToolbarButton(editor, {
-      label: "Underline", title: "Underline", html: "<u>U</u>",
+      label: "Underline",
+      title: "Underline",
+      html: "<u>U</u>",
       onClick: () => editor.chain().focus().toggleUnderline().run(),
       isActive: () => editor.isActive("underline"),
-    })
+    }),
   );
   left.appendChild(
     createToolbarButton(editor, {
-      label: "Strikethrough", title: "Strikethrough", html: "<s>S</s>",
+      label: "Strikethrough",
+      title: "Strikethrough",
+      html: "<s>S</s>",
       onClick: () => editor.chain().focus().toggleStrike().run(),
       isActive: () => editor.isActive("strike"),
-    })
+    }),
   );
 
   left.appendChild(createSeparator());
 
   left.appendChild(
     createToolbarButton(editor, {
-      label: "Bullet list", title: "Bullet list", html: ICONS.bulletList,
+      label: "Bullet list",
+      title: "Bullet list",
+      html: ICONS.bulletList,
       onClick: () => editor.chain().focus().toggleBulletList().run(),
       isActive: () => editor.isActive("bulletList"),
-    })
+    }),
   );
   left.appendChild(
     createToolbarButton(editor, {
-      label: "Ordered list", title: "Ordered list", html: ICONS.orderedList,
+      label: "Ordered list",
+      title: "Ordered list",
+      html: ICONS.orderedList,
       onClick: () => editor.chain().focus().toggleOrderedList().run(),
       isActive: () => editor.isActive("orderedList"),
-    })
+    }),
   );
   left.appendChild(
     createToolbarButton(editor, {
-      label: "Checkbox", title: "Checkbox list", html: ICONS.checkbox,
+      label: "Checkbox",
+      title: "Checkbox list",
+      html: ICONS.checkbox,
       onClick: () => editor.chain().focus().toggleTaskList().run(),
       isActive: () => editor.isActive("taskList"),
-    })
+    }),
   );
 
   left.appendChild(createSeparator());
 
   left.appendChild(
     createToolbarButton(editor, {
-      label: "Link", title: "Insert link", html: ICONS.link,
+      label: "Link",
+      title: "Insert link",
+      html: ICONS.link,
       onClick: async () => {
         const result = await openModal("Insert Link", [
-          { name: "url", label: "URL", type: "url", placeholder: "https://example.com" },
+          {
+            name: "url",
+            label: "URL",
+            type: "url",
+            placeholder: "https://example.com",
+          },
         ]);
         if (!result || !result.url) return;
         if (!isSafeUrl(result.url)) {
@@ -460,55 +593,83 @@ const buildToolbar = (editor, toolbarEl) => {
         editor.chain().focus().setLink({ href: result.url }).run();
       },
       isActive: () => editor.isActive("link"),
-    })
+    }),
   );
 
   left.appendChild(
     createToolbarButton(editor, {
-      label: "Image", title: "Insert image", html: ICONS.image,
+      label: "Image",
+      title: "Insert image",
+      html: ICONS.image,
       onClick: async () => {
+        // TODO: Add file upload support (requires backend media endpoint)
         const result = await openModal("Insert Image", [
-          { name: "url", label: "Image URL", type: "url", placeholder: "https://example.com/image.png" },
-          { name: "alt", label: "Alt text", type: "text", placeholder: "Image description" },
+          {
+            name: "url",
+            label: "Image URL",
+            type: "url",
+            placeholder: "https://example.com/image.png — paste a public URL",
+          },
+          {
+            name: "alt",
+            label: "Alt text",
+            type: "text",
+            placeholder: "Image description",
+          },
         ]);
         if (!result || !result.url) return;
         if (!isSafeUrl(result.url)) {
           window.alert("Only http, https, and mailto URLs are allowed.");
           return;
         }
-        editor.chain().focus().setImage({ src: result.url, alt: result.alt || "" }).run();
+        editor
+          .chain()
+          .focus()
+          .setImage({ src: result.url, alt: result.alt || "" })
+          .run();
       },
       isActive: () => false,
-    })
+    }),
   );
 
   left.appendChild(
     createToolbarButton(editor, {
-      label: "Blockquote", title: "Blockquote", html: "&#8220;",
+      label: "Blockquote",
+      title: "Blockquote",
+      html: "&#8220;",
       onClick: () => editor.chain().focus().toggleBlockquote().run(),
       isActive: () => editor.isActive("blockquote"),
-    })
+    }),
   );
 
   left.appendChild(
     createToolbarButton(editor, {
-      label: "Horizontal rule", title: "Horizontal rule", html: "&#8213;",
+      label: "Horizontal rule",
+      title: "Horizontal rule",
+      html: "&#8213;",
       onClick: () => editor.chain().focus().setHorizontalRule().run(),
       isActive: () => false,
-    })
+    }),
   );
 
   const tableWrapper = document.createElement("span");
   tableWrapper.className = "wysiwyg-toolbar__table-wrap";
   const tableBtn = createToolbarButton(editor, {
-    label: "Table", title: "Insert table", html: "&#9638;",
+    label: "Table",
+    title: "Insert table",
+    html: "&#9638;",
     onClick: () => {
-      gridPopup.style.display = gridPopup.style.display === "none" ? "" : "none";
+      gridPopup.style.display =
+        gridPopup.style.display === "none" ? "" : "none";
     },
     isActive: () => editor.isActive("table"),
   });
   const gridPopup = buildTableGridPicker((rows, cols) => {
-    editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+    editor
+      .chain()
+      .focus()
+      .insertTable({ rows, cols, withHeaderRow: true })
+      .run();
     gridPopup.style.display = "none";
   });
   tableWrapper.appendChild(tableBtn);
@@ -524,17 +685,26 @@ const buildToolbar = (editor, toolbarEl) => {
 
   left.appendChild(
     createToolbarButton(editor, {
-      label: "Inline code", title: "Inline code", html: "&lt;/&gt;",
+      label: "Inline code",
+      title: "Inline code",
+      html: "&lt;/&gt;",
       onClick: () => editor.chain().focus().toggleCode().run(),
       isActive: () => editor.isActive("code"),
-    })
+    }),
   );
   left.appendChild(
     createToolbarButton(editor, {
-      label: "Code block", title: "Code block", html: "&#123;&#123;&#123;",
-      onClick: () => editor.chain().focus().toggleCodeBlock({ language: DEFAULT_CODE_LANGUAGE }).run(),
+      label: "Code block",
+      title: "Code block",
+      html: "&#123;&#123;&#123;",
+      onClick: () =>
+        editor
+          .chain()
+          .focus()
+          .toggleCodeBlock({ language: DEFAULT_CODE_LANGUAGE })
+          .run(),
       isActive: () => editor.isActive("codeBlock"),
-    })
+    }),
   );
 
   const langSelect = document.createElement("select");
@@ -553,11 +723,17 @@ const buildToolbar = (editor, toolbarEl) => {
     if (inCodeBlock) {
       const attrs = editor.getAttributes("codeBlock");
       const lang = attrs.language || DEFAULT_CODE_LANGUAGE;
-      langSelect.value = CODE_LANGUAGES.some((l) => l.value === lang) ? lang : DEFAULT_CODE_LANGUAGE;
+      langSelect.value = CODE_LANGUAGES.some((l) => l.value === lang)
+        ? lang
+        : DEFAULT_CODE_LANGUAGE;
     }
   };
   langSelect.addEventListener("change", () => {
-    editor.chain().focus().updateAttributes("codeBlock", { language: langSelect.value }).run();
+    editor
+      .chain()
+      .focus()
+      .updateAttributes("codeBlock", { language: langSelect.value })
+      .run();
   });
   editor.on("selectionUpdate", updateLangSelect);
   editor.on("transaction", updateLangSelect);
@@ -576,7 +752,8 @@ const buildToolbar = (editor, toolbarEl) => {
 
   const previewBtn = document.createElement("button");
   previewBtn.type = "button";
-  previewBtn.className = "wysiwyg-toolbar__btn wysiwyg-toolbar__btn--preview-toggle";
+  previewBtn.className =
+    "wysiwyg-toolbar__btn wysiwyg-toolbar__btn--preview-toggle";
   previewBtn.setAttribute("aria-label", "Preview");
   previewBtn.setAttribute("title", "Toggle preview");
   previewBtn.innerHTML = ICONS.preview;
@@ -585,17 +762,21 @@ const buildToolbar = (editor, toolbarEl) => {
   right.appendChild(previewBtn);
   right.appendChild(
     createToolbarButton(editor, {
-      label: "Undo", title: "Undo", html: "&#8630;",
+      label: "Undo",
+      title: "Undo",
+      html: ICONS.undo,
       onClick: () => editor.chain().focus().undo().run(),
       isActive: () => false,
-    })
+    }),
   );
   right.appendChild(
     createToolbarButton(editor, {
-      label: "Redo", title: "Redo", html: "&#8631;",
+      label: "Redo",
+      title: "Redo",
+      html: ICONS.redo,
       onClick: () => editor.chain().focus().redo().run(),
       isActive: () => false,
-    })
+    }),
   );
 
   toolbarEl.appendChild(left);
@@ -640,6 +821,13 @@ const setupMermaidEditMode = (editor, editorEl) => {
         preview.innerHTML = "";
         preview.appendChild(errSpan);
         preview.classList.add("mermaid-error");
+      } finally {
+        // Clean up orphaned mermaid DOM elements appended to body
+        document
+          .querySelectorAll('[id^="dmermaid-"], [id^="mermaid-"]')
+          .forEach((el) => {
+            if (el.parentElement === document.body) el.remove();
+          });
       }
     }
 
@@ -653,17 +841,19 @@ const setupMermaidEditMode = (editor, editorEl) => {
 };
 
 const highlightPreviewCodeBlocks = (container) => {
-  container.querySelectorAll("pre code[class*='language-']").forEach((codeEl) => {
-    const match = codeEl.className.match(/language-\{?(\w+)\}?/);
-    if (!match) return;
-    const lang = match[1];
-    if (lang === "mermaid") return;
-    const text = codeEl.textContent;
-    try {
-      const tree = lowlight.highlight(lang, text);
-      codeEl.innerHTML = toHtml(tree);
-    } catch (_) {}
-  });
+  container
+    .querySelectorAll("pre code[class*='language-']")
+    .forEach((codeEl) => {
+      const match = codeEl.className.match(/language-\{?(\w+)\}?/);
+      if (!match) return;
+      const lang = match[1];
+      if (lang === "mermaid") return;
+      const text = codeEl.textContent;
+      try {
+        const tree = lowlight.highlight(lang, text);
+        codeEl.innerHTML = toHtml(tree);
+      } catch (_) {}
+    });
 };
 
 const renderMermaidPreview = async (container) => {
@@ -689,6 +879,13 @@ const renderMermaidPreview = async (container) => {
       errSpan.textContent = err.message || "Invalid diagram";
       div.appendChild(errSpan);
       div.classList.add("mermaid-error");
+    } finally {
+      // Clean up orphaned mermaid DOM elements appended to body
+      document
+        .querySelectorAll('[id^="dmermaid-"], [id^="mermaid-"]')
+        .forEach((el) => {
+          if (el.parentElement === document.body) el.remove();
+        });
     }
     pre.replaceWith(div);
   }
@@ -715,7 +912,9 @@ export const initWysiwyg = (textareaId) => {
 
   /* Ensure toolbar is empty and remove any previous table-context bar after re-init (e.g. Fill demo content) to avoid duplicate bars */
   toolbarEl.innerHTML = "";
-  wrapper.querySelectorAll(".wysiwyg-table-context").forEach((el) => el.remove());
+  wrapper
+    .querySelectorAll(".wysiwyg-table-context")
+    .forEach((el) => el.remove());
 
   const rawContent = textarea.value ? textarea.value.trim() : "";
   const isHtml = rawContent.startsWith("<") && rawContent.includes(">");
@@ -738,7 +937,10 @@ export const initWysiwyg = (textareaId) => {
         defaultLanguage: DEFAULT_CODE_LANGUAGE,
       }),
       Underline,
-      Link.configure({ openOnClick: false, HTMLAttributes: { target: "_blank", rel: "noopener" } }),
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: { target: "_blank", rel: "noopener" },
+      }),
       Table.configure({ resizable: false }),
       TableRow,
       TableCell,
@@ -768,9 +970,13 @@ export const initWysiwyg = (textareaId) => {
         if (!pastedText.trim() || !editorRef.current) return false;
         const trimmed = pastedText.trim();
         const looksLikeMarkdown =
-          (!trimmed.startsWith("<") &&
-            (/^#|^\*\*|^\- |^\d+\. |^`|^\[|^>|^\||^\- \[ \]|^\- \[x\]/i.test(trimmed) ||
-              /\n```|\n#{1,6}\s|\n\*\*|\n\- |\n\d+\. |\n\|---|\n\- \[ \]/.test(pastedText)));
+          !trimmed.startsWith("<") &&
+          (/^#|^\*\*|^\- |^\d+\. |^`|^\[|^>|^\||^\- \[ \]|^\- \[x\]/i.test(
+            trimmed,
+          ) ||
+            /\n```|\n#{1,6}\s|\n\*\*|\n\- |\n\d+\. |\n\|---|\n\- \[ \]/.test(
+              pastedText,
+            ));
         if (looksLikeMarkdown) {
           try {
             event.preventDefault();
@@ -859,7 +1065,10 @@ export const initWysiwyg = (textareaId) => {
   previewBtn.addEventListener("click", (e) => {
     e.preventDefault();
     state.previewOn = !state.previewOn;
-    previewBtn.classList.toggle("wysiwyg-toolbar__btn--active", state.previewOn);
+    previewBtn.classList.toggle(
+      "wysiwyg-toolbar__btn--active",
+      state.previewOn,
+    );
     if (state.previewOn) {
       markdownPane.style.display = "none";
       previewEl.style.display = "";
