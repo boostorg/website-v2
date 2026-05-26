@@ -20,9 +20,11 @@
   </div>
   {% if authors %}
     <div class="library-intro-card__authors"
+         {% if authors|length > 3 %}
          tabindex="0"
          role="region"
-         aria-label="Contributors for {{ library_name }}">
+         aria-label="Contributors for {{ library_name }}"
+         {% endif %}>
       {% for author in authors %}
         {% if not forloop.first %}<hr class="card__hr">{% endif %}
         <div class="library-intro-card__author">
