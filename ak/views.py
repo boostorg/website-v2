@@ -161,7 +161,7 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
                         else ""
                     ),
                     "tag": "",
-                    "author": entry.author.to_v3_profile_dict(""),
+                    "author": entry.author.to_v3_profile_dict(),
                 }
                 for entry in popular_entries
             ],

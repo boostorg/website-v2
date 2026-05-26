@@ -326,11 +326,11 @@ class User(BaseUser):
             return ca.avatar_url
         return ""
 
-    def to_v3_profile_dict(self, role):
+    def to_v3_profile_dict(self, role=None):
         return {
             "name": self.display_name or str(self),
             "profile_url": None,
-            "role": role,
+            "role": role if role is not None else self.role,
             "avatar_url": self.get_avatar_url(),
             "badge_url": None,
         }
