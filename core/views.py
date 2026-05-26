@@ -2161,13 +2161,6 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
             ],
             "cta_url": "#",
         }
-        context["library_intro_code"] = (
-            '{% include "v3/includes/_library_intro_card.html" with '
-            'library_name="Boost.Core." '
-            'description="Lightweight utilities…" '
-            "authors=library_authors "
-            'cta_url="/libs/core/" %}'
-        )
 
         latest = Version.objects.most_recent()
         if latest:
