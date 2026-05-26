@@ -44,7 +44,8 @@
                   <button class="downloads-table-card__copy-btn"
                           aria-label="Copy checksum"
                           data-copy-text="{{ download.checksum }}">
-                    {% include "includes/icon.html" with icon_name="copy" icon_size=16 icon_viewbox="0 0 16 16" %}
+                    <span class="downloads-table-card__copy-icon downloads-table-card__copy-icon--copy" aria-hidden="true">{% include "includes/icon.html" with icon_name="copy" icon_size=16 icon_viewbox="0 0 16 16" %}</span>
+                    <span class="downloads-table-card__copy-icon downloads-table-card__copy-icon--check" aria-hidden="true">{% include "includes/icon.html" with icon_name="check" icon_size=16 %}</span>
                   </button>
                 </div>
               </td>
