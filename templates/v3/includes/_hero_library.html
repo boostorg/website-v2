@@ -23,6 +23,10 @@
   hidden. If none of doc_url/source_url/slack_url/github_url/report_url/rss_url
   are passed, the links row is hidden.
 
+  When `version_alert` is in context (along with selected_version,
+  current_version, version_alert_url), a v3/includes/_version_alert.html
+  banner is rendered as the last child of the hero section.
+
   Usage:
     {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}
 {% endcomment %}
@@ -30,6 +34,7 @@
          {% if hero_background_image_url %}style="--hero-bg-image: url('{{ hero_background_image_url }}');"{% endif %}
          aria-label="Library hero">
   <div class="hero-library__block">
+    <div class="hero-library__main">
     <div class="hero-library__content">
       <div class="hero-library__meta">
         {% if category_tags or version_tag or added_text %}
@@ -80,6 +85,7 @@
       </div>
       {% endif %}
     </div>
+
     {% if hero_image_url or hero_image_url_light or hero_image_url_dark %}
     <div class="hero-library__image{% if hero_image_url_dark %} hero-library__image--theme-aware{% endif %}">
       {% with hero_light=hero_image_url_light|default:hero_image_url hero_dark=hero_image_url_dark %}
@@ -90,5 +96,7 @@
       {% endwith %}
     </div>
     {% endif %}
+    </div>
+    {% include "v3/includes/_version_alert.html" %}
   </div>
 </section>
