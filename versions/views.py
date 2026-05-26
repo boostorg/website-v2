@@ -184,7 +184,7 @@ class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
             "hero_title": f"{heading} ({obj.display_name})",
             "whats_new_heading": f"What's new in {obj.display_name}",
             "whats_new_approved": obj.whats_new_approved,
-            "whats_new_items": obj.whats_new_items,
+            "whats_new_items": obj.whats_new_items if obj.whats_new_approved else [],
             "contributors_guide_url": reverse(
                 "docs-user-guide",
                 kwargs={"content_path": "contributor-guide/contributors-faq.html"},

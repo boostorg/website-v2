@@ -65,6 +65,24 @@ def test_get_v3_context_data_uses_extra_context_current_version(version):
     assert ctx["hero_title"] == f"Prior Release ({version.display_name})"
 
 
+@pytest.mark.django_db
+def test_get_v3_context_data_hides_whats_new_until_approved(version):
+    """Parsed items are only exposed once whats_new_approved is True, so
+    unreviewed AI drafts never reach the public release page."""
+    version.whats_new = "- **New libraries** — Adds three new libraries."
+    view = VersionDetail()
+    view.object = version
+    view.extra_context = {"current_version": version}
+
+    version.whats_new_approved = False
+    assert view.get_v3_context_data()["whats_new_items"] == []
+
+    version.whats_new_approved = True
+    assert view.get_v3_context_data()["whats_new_items"] == [
+        {"title": "New libraries", "description": "Adds three new libraries."}
+    ]
+
+
 def _hero_html(**extra):
     context = {"title": "Boost 1.70.0", "selected_version": Version(slug="boost-1-70-0")}
     context.update(extra)
