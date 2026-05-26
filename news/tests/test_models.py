@@ -390,3 +390,26 @@ def test_poll():
 def test_poll_choice():
     choice = baker.make("PollChoice")
     assert isinstance(choice.poll, Poll)
+
+
+def test_ranked_annotates_ranking_score(make_entry):
+    make_entry(page_views=50)
+    entry = Entry.objects.ranked().first()
+    assert hasattr(entry, "ranking_score")
+    assert entry.ranking_score >= 0
+
+
+def test_ranked_orders_by_views_when_age_equal(make_entry):
+    same_time = now() - datetime.timedelta(hours=10)
+    low = make_entry(page_views=10, publish_at=same_time)
+    high = make_entry(page_views=100, publish_at=same_time)
+    results = list(Entry.objects.ranked())
+    assert results[0].id == high.id
+    assert results[1].id == low.id
+
+
+def test_ranked_recent_entry_outranks_old_with_more_views(make_entry):
+    make_entry(page_views=1000, publish_at=now() - datetime.timedelta(hours=1000))
+    new = make_entry(page_views=20, publish_at=now() - datetime.timedelta(hours=2))
+    results = list(Entry.objects.ranked())
+    assert results[0].id == new.id
