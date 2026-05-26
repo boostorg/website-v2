@@ -14,13 +14,16 @@ from news.models import Entry
 def command(dry_run):
     """Sync per-post page view counts from Plausible into Entry.page_views."""
 
-    slug_views = fetch_post_views()
+    try:
+        slug_views = fetch_post_views()
+    except (requests.HTTPError, ValueError) as e:
+        raise click.ClickException(str(e)) from e
 
     if not slug_views:
         click.echo("No matching post URLs returned by Plausible.")
         return
 
-    entries = Entry.objects.filter(slug__in=slug_views.keys())
+    entries = list(Entry.objects.filter(slug__in=slug_views.keys()))
     matched = {e.slug: e for e in entries}
 
     if dry_run:
@@ -29,9 +32,5 @@ def command(dry_run):
             click.echo(f"  {slug}: {entry.page_views} -> {slug_views[slug]}")
         return
 
-    try:
-        updated = update_page_views(slug_views)
-    except requests.HTTPError as e:
-        raise click.ClickException(str(e)) from e
-
+    updated = update_page_views(slug_views, entries=entries)
     click.echo(f"Updated page_views for {updated} entries.")

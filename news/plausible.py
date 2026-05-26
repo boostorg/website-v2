@@ -60,7 +60,7 @@ def fetch_post_views() -> dict[str, int]:
     return slug_views
 
 
-def update_page_views(slug_views: dict[str, int]) -> int:
+def update_page_views(slug_views: dict[str, int], entries: list | None = None) -> int:
     """Bulk-update Entry.page_views from a slug-to-count mapping.
 
     Returns the number of entries updated.
@@ -68,7 +68,8 @@ def update_page_views(slug_views: dict[str, int]) -> int:
     if not slug_views:
         return 0
 
-    entries = list(Entry.objects.filter(slug__in=slug_views.keys()))
+    if entries is None:
+        entries = list(Entry.objects.filter(slug__in=slug_views.keys()))
     unmatched = set(slug_views) - {e.slug for e in entries}
     if unmatched:
         logger.warning("update_page_views.unmatched_slugs", slugs=sorted(unmatched))
