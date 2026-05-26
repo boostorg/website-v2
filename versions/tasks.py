@@ -686,10 +686,10 @@ def _dependency_stats_block(version: Version) -> str | None:
         stats = version.get_dependency_stats()
     except BoostImportedDataException:
         return None
-    
+
     if stats["added"] == 0 and stats["removed"] == 0:
         return None
-    
+
     return dedent(
         f"""
         Dependency stats (precomputed from imported data):
@@ -752,8 +752,8 @@ def generate_whats_new(self, version_pk: int) -> str | None:
     dep_stats_block = _dependency_stats_block(version)
     if dep_stats_block:
         user_content = (
-            f"Input: release note\n\n{release_note_text}"
-            f"\n\nInput: dependency stats\n\n{dep_stats_block}"
+            f"release note:\n\n{release_note_text}"
+            f"\n\n{dep_stats_block}"
         )
     else:
         user_content = release_note_text

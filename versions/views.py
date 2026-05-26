@@ -163,25 +163,37 @@ class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
         else:
             return "Development Branch"
 
+    def get_v3_contributors(self, version):
+        """Shape the release's top contributors for the v3 contributors card."""
+        return [
+            {
+                "name": author.display_name,
+                "avatar_url": author.avatar_url or "",
+                "profile_url": author.github_profile_url or "",
+                "role": "Contributor",
+            }
+            for author in self.get_top_contributors_release(version)
+        ]
+
     def get_v3_context_data(self, **kwargs):
         obj = self.object
-        ctx = {}
-        is_current_release = Version.objects.most_recent() == obj
+        is_current_release = self.extra_context["current_version"] == obj
         heading = self.get_version_heading(obj, is_current_release, v3=True)
-        ctx["hero_title"] = f"{heading} ({obj.display_name})"
         
-        ctx["whats_new_heading"] = f"What's new in {obj.display_name}"
-        ctx["whats_new_approved"] = obj.whats_new_approved
-        ctx["whats_new_items"] = obj.whats_new_items
-
-        ctx["contributors_guide_url"] = reverse(
-            "docs-user-guide",
-            kwargs={"content_path": "contributor-guide/contributors-faq.html"},
-        )
-        ctx["release_process_url"] = reverse(
-            "docs-user-guide",
-            kwargs={"content_path": "user-guide/release-process.html"},
-        )
+        ctx = {
+            "hero_title": f"{heading} ({obj.display_name})",
+            "whats_new_heading": f"What's new in {obj.display_name}",
+            "whats_new_approved": obj.whats_new_approved,
+            "whats_new_items": obj.whats_new_items,
+            "contributors_guide_url": reverse(
+                "docs-user-guide",
+                kwargs={"content_path": "contributor-guide/contributors-faq.html"},
+            ),
+            "release_process_url": reverse(
+                "docs-user-guide",
+                kwargs={"content_path": "user-guide/release-process.html"},
+            ),
+        }
 
         release_notes_html = self.get_release_notes(obj)
         if release_notes_html:
@@ -190,17 +202,9 @@ class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
                 "html": release_notes_html,
             }
 
-        top_contributors = self.get_top_contributors_release(obj)
-        if top_contributors:
-            ctx["v3_contributors"] = [
-                {
-                    "name": author.display_name,
-                    "avatar_url": author.avatar_url or "",
-                    "profile_url": author.github_profile_url or "",
-                    "role": "Contributor",
-                }
-                for author in top_contributors
-            ]
+        contributors = self.get_v3_contributors(obj)
+        if contributors:
+            ctx["v3_contributors"] = contributors
         return ctx
 
     def dispatch(self, request, *args, **kwargs):
