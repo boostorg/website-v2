@@ -612,7 +612,10 @@ class LearnPageView(V3Mixin, TemplateView):
                 "started with three developers has grown into the foundation of "
                 "modern C++ development."
             ),
-            "primary_button_url": "/doc/user-guide/boost-history.html",
+            "primary_button_url": reverse(
+                "docs-user-guide",
+                kwargs={"content_path": "user-guide/boost-history.html"},
+            ),
             "primary_button_label": "Explore our history",
         }
         ctx["post_cards_data"] = {
