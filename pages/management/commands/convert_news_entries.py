@@ -22,7 +22,9 @@ def get_or_create_page(entry: Entry, index_page: PostIndexPage) -> PostPage:
         page = PostPage(
             title=entry.title,
             first_published_at=entry.publish_at,
+            last_published_at=entry.publish_at,
             owner=entry.author,
+            live=entry.is_published,
         )
         index_page.add_child(instance=page)
     return page
@@ -85,6 +87,7 @@ def command():
             }
         ]
         page.save()
+
     videos = Video.objects.all()
     print(f"Creating or updating {videos.count()} Videos")
     for video in videos:
@@ -95,6 +98,7 @@ def command():
                 "value": {"video": video.external_url},
             }
         ]
+        page.video_thumbnail = video.thumbnail
         page.save()
 
     links = Link.objects.all()

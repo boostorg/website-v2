@@ -157,6 +157,13 @@ class Entry(models.Model):
             result = None
         return result
 
+    @property
+    def image_url(self):
+        if not self.image:
+            return ""
+        else:
+            return self.image.url
+
     @cached_property
     def tag(self):
         return getattr(self, "_tag", self.news_type)
