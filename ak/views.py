@@ -141,19 +141,19 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
         tag_display = {"blogpost": "Blog"}
         popular_entries = (
             Entry.objects.ranked()
-            .filter(deleted_at__isnull=True)
+            .filter(deleted_at__isnull=True, published=True)
             .select_related("author")[:5]
         )
         ctx["posts_from_the_boost_community"] = {
             "heading": "Posts from the Boost Community",
             "primary_cta_label": "View all posts",
-            "primary_cta_url": self.request.build_absolute_uri(reverse("news")),
+            "primary_cta_url": reverse("news"),
             "variant": "card",
             "theme": "teal",
             "items": [
                 {
                     "title": entry.title,
-                    "url": self.request.build_absolute_uri(entry.get_absolute_url()),
+                    "url": entry.get_absolute_url(),
                     "date": entry.publish_at,
                     "category": (
                         tag_display.get(str(entry.tag).lower(), entry.tag.capitalize())
@@ -161,12 +161,7 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
                         else ""
                     ),
                     "tag": "",
-                    "author": {
-                        "name": entry.author.display_name
-                        or entry.author.get_full_name(),
-                        "avatar_url": entry.author.get_avatar_url(),
-                        "role": "",
-                    },
+                    "author": entry.author.to_v3_profile_dict(""),
                 }
                 for entry in popular_entries
             ],
