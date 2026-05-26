@@ -2,6 +2,17 @@
    Release Detail Page — v3
    ============================================ */
 
+/* Fill the viewport so the footer stays at the bottom on short pages */
+.releases-v3 {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.releases-v3 .min-vh-110 {
+  flex: 1 0 auto;
+}
+
 body:has(.releases-v3) .header {
   position: absolute;
   z-index: 10;
@@ -33,6 +44,10 @@ body:has(.releases-v3) .hero-library--no-image {
   grid-template-columns: 1fr 1fr;
   gap: var(--space-large);
   align-items: start;
+}
+
+.release-detail__cards-row:has(> :only-child) {
+  grid-template-columns: 1fr;
 }
 
 .release-detail__cards-row .card-group {

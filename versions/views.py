@@ -179,9 +179,11 @@ class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
         obj = self.object
         is_current_release = self.extra_context["current_version"] == obj
         heading = self.get_version_heading(obj, is_current_release, v3=True)
-        
+        is_development_branch = heading == "Development Branch"
+
         ctx = {
             "hero_title": f"{heading} ({obj.display_name})",
+            "is_development_branch": is_development_branch,
             "whats_new_heading": f"What's new in {obj.display_name}",
             "whats_new_approved": obj.whats_new_approved,
             "whats_new_items": obj.whats_new_items if obj.whats_new_approved else [],

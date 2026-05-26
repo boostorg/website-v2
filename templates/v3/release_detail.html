@@ -24,7 +24,9 @@ and community/resource cards. Context is supplied by versions.views.VersionDetai
 
   <div class="release-detail">
     <div class="release-detail__cards-row">
-      {% include "v3/includes/_release_highlights_card.html" with heading=whats_new_heading items=whats_new_items only %}
+      {% if not is_development_branch %}
+        {% include "v3/includes/_release_highlights_card.html" with heading=whats_new_heading items=whats_new_items only %}
+      {% endif %}
       {% include "v3/includes/_downloads_table_card.html" with downloads=downloads %}
     </div>
 
