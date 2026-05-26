@@ -5,6 +5,7 @@ import structlog
 from django.db.models import Count, Exists, OuterRef
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.html import format_html
 
 from core.models import RenderedContent
 from libraries.constants import (
@@ -91,7 +92,60 @@ class VersionAlertMixin:
             )
 
         context["version_alert"] = alert_visible
+        # V3-only: legacy templates build their own alert markup and never read
+        # version_alert_message, so don't compute it off the v3 render path.
+        if alert_visible and getattr(self, "_v3_active", False):
+            context["version_alert_message"] = self.get_version_alert_message(context)
         return context
+
+    def get_version_alert_message(self, context):
+        """Build the v3 version-alert banner message (rendered by
+        v3/includes/_version_alert.html).
+
+        Returns None when the inputs needed to phrase the alert are missing —
+        e.g. doc pages that set version_alert but never render the v3 banner.
+        """
+        selected = context.get("selected_version")
+        current = context.get("current_version")
+        url = context.get("version_alert_url")
+        if not (selected and current and url):
+            return None
+
+        if selected == current:
+            return format_html(
+                "You've currently chosen the {name} version. If a newer "
+                "release comes out, you will continue to view the {name} "
+                'version, not the new <a href="{url}">latest release</a>.',
+                name=current.display_name,
+                url=url,
+            )
+
+        current_link = format_html(
+            ' The <a href="{url}">current version</a> is {name}.',
+            url=url,
+            name=current.display_name,
+        )
+        
+        if selected.beta:
+            return format_html(
+                "This is a beta version of Boost.{link}", link=current_link
+            )
+        
+        if selected.full_release:
+            year = selected.release_date.year if selected.release_date else ""
+            return format_html(
+                "This is an older version of Boost and was released in "
+                "{year}.{link}",
+                year=year,
+                link=current_link,
+            )
+        
+        return format_html(
+            "This version of Boost is under active development. You are "
+            "currently in the {name} branch.{link}",
+            name=selected.display_name,
+            link=current_link,
+        )
 
 
 class BoostVersionMixin:

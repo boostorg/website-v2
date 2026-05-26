@@ -20,7 +20,7 @@ and community/resource cards. Context is supplied by versions.views.VersionDetai
   {% if selected_version %}
 
   {% url 'downloads_feed_rss' as downloads_feed_rss_url %}
-  {% include "v3/includes/_hero_library.html" with title=hero_title doc_url=documentation_url slack_url="https://cppalliance.org/slack/" source_url=version.github_url github_url="https://github.com/boostorg/boost/issues" report_url=release_report_url rss_url=downloads_feed_rss_url version_alert=version_alert selected_version=selected_version current_version=current_version version_alert_url=version_alert_url only %}
+  {% include "v3/includes/_hero_library.html" with title=hero_title doc_url=documentation_url slack_url="https://cppalliance.org/slack/" source_url=version.github_url github_url="https://github.com/boostorg/boost/issues" report_url=release_report_url rss_url=downloads_feed_rss_url version_alert=version_alert version_alert_message=version_alert_message selected_version=selected_version only %}
 
   <div class="release-detail">
     <div class="release-detail__cards-row">

@@ -23,9 +23,10 @@
   hidden. If none of doc_url/source_url/slack_url/github_url/report_url/rss_url
   are passed, the links row is hidden.
 
-  When `version_alert` is in context (along with selected_version,
-  current_version, version_alert_url), a v3/includes/_version_alert.html
-  banner is rendered as the last child of the hero section.
+  When `version_alert` is in context (along with version_alert_message and
+  selected_version), a v3/includes/_version_alert.html banner is rendered as
+  the last child of the hero section. Note: callers using `only` must forward
+  these three vars explicitly.
 
   Usage:
     {% include "v3/includes/_hero_library.html" with title="Boost.Asio" description="..." doc_url="/doc/libs/..." %}
