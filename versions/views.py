@@ -166,12 +166,7 @@ class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
     def get_v3_contributors(self, version):
         """Shape the release's top contributors for the v3 contributors card."""
         return [
-            {
-                "name": author.display_name,
-                "avatar_url": author.avatar_url or "",
-                "profile_url": author.github_profile_url or "",
-                "role": "Contributor",
-            }
+            author.to_v3_profile_dict("Contributor")
             for author in self.get_top_contributors_release(version)
         ]
 
