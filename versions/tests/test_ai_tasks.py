@@ -124,7 +124,7 @@ def test_generate_whats_new_includes_dependency_stats(version):
 
     sent_messages = client.chat.completions.create.call_args.kwargs["messages"]
     user_content = next(m["content"] for m in sent_messages if m["role"] == "user")
-    assert "Input: dependency stats" in user_content
+    assert "Dependency stats (precomputed from imported data):" in user_content
     assert "4 dependency additions across 3 libraries" in user_content
     assert "15 dependency removals across 7 libraries" in user_content
 

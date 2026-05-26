@@ -62,3 +62,8 @@ def test_inline_markdown_no_markup_still_escapes():
 def test_inline_markdown_single_asterisks_left_alone():
     """Italic-style single asterisks are not in scope — pass through literally."""
     assert inline_markdown("*italic*") == "*italic*"
+
+
+def test_inline_markdown_does_not_bold_inside_code_span():
+    """`**` inside a code span stays literal — a code span wins over bold."""
+    assert inline_markdown("`a**b**c`") == "<code>a**b**c</code>"

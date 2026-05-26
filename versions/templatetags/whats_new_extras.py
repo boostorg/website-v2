@@ -7,8 +7,15 @@ from django.utils.safestring import mark_safe
 register = template.Library()
 
 
-_BACKTICK_RE = re.compile(r"`([^`]+)`")
-_BOLD_RE = re.compile(r"\*\*([^*]+?)\*\*")
+# Single pass with backtick listed first so a code span wins over bold at the
+# same position — e.g. `a**b**c` stays a code span, the inner ** is not bolded.
+_INLINE_RE = re.compile(r"`([^`]+)`|\*\*([^*]+?)\*\*")
+
+
+def _replace_span(match):
+    if match.group(1) is not None:
+        return f"<code>{match.group(1)}</code>"
+    return f"<strong>{match.group(2)}</strong>"
 
 
 @register.filter
@@ -21,7 +28,4 @@ def inline_markdown(value):
     """
     if not value:
         return ""
-    rendered = escape(value)
-    rendered = _BOLD_RE.sub(r"<strong>\1</strong>", rendered)
-    rendered = _BACKTICK_RE.sub(r"<code>\1</code>", rendered)
-    return mark_safe(rendered)
+    return mark_safe(_INLINE_RE.sub(_replace_span, escape(value)))
