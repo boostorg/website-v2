@@ -100,6 +100,12 @@
   flex-wrap: wrap;
 }
 
+/* Content has no Auto-Generate button, so its save indicator sits alone on the right. */
+.create-post-page__content-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .create-post-page__generate-btn {
   flex: 0 0 auto;
 }
