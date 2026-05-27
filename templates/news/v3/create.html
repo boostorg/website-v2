@@ -111,10 +111,16 @@
             <div class="create-post-page__description-actions">
               {% comment %} Calls the generate-description endpoint; disabled while in flight. Full idle/generating/generated states are a follow-up. {% endcomment %}
               <button type="button" class="btn btn-secondary create-post-page__generate-btn" @click="generateDescription()" :disabled="generating">Auto-Generate Description</button>
-              {% comment %} TODO: toggle between "Saving" and "Saved" in a follow-up commit. {% endcomment %}
+              {% comment %} Hidden when nothing is written; "Saving" while the Description changes, "Saved" once it settles (saveStatus is driven by the $watch in init()). {% endcomment %}
               <span class="create-post-page__save-indicator" role="status" aria-live="polite">
-                <span class="create-post-page__save-text">Saving</span>
-                {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
+                <span class="create-post-page__save-state" x-show="saveStatus === 'saving'" x-cloak>
+                  <span class="create-post-page__save-text">Saving</span>
+                  {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
+                </span>
+                <span class="create-post-page__save-state" x-show="saveStatus === 'saved'" x-cloak>
+                  <span class="create-post-page__save-text">Saved</span>
+                  {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
+                </span>
               </span>
             </div>
           </div>
@@ -146,6 +152,8 @@
         content: '{{ form.content.value|default_if_none:""|escapejs }}',
         description: '{{ form.description.value|default_if_none:""|escapejs }}',
         generating: false,
+        saveStatus: '',   // '' = nothing written (hidden), 'saving', 'saved'
+        _saveTimer: null,
         errors: {
           post_type:    '',
           title:        '{{ form.title.errors.0|default:""|escapejs }}',
@@ -156,6 +164,21 @@
 
         get isWriteUp() { return this.postType === 'blog' || this.postType === 'news'; },
         get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
+
+        init() {
+          // Description indicator: show "Saving" while it changes (typing or
+          // auto-generate), settle to "Saved" shortly after, hide when empty.
+          // Display only for now — localStorage persistence comes next.
+          this.$watch('description', (value) => {
+            clearTimeout(this._saveTimer);
+            if (!value) {
+              this.saveStatus = '';
+              return;
+            }
+            this.saveStatus = 'saving';
+            this._saveTimer = setTimeout(() => { this.saveStatus = 'saved'; }, 800);
+          });
+        },
 
         handleFieldChange(e) {
           const { name, value } = e.detail;
