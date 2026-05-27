@@ -19,6 +19,7 @@ from ak.homepage import (
     posts_for_homepage,
     upcoming_events,
 )
+from testimonials.utils import get_testimonial_cards
 from core.mock_data import SharedResources
 from libraries.utils import (
     build_library_intro_context,
@@ -164,7 +165,7 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
         ctx["popular_terms"] = SharedResources.popular_terms
         ctx["upcoming_events"] = upcoming_events(self.get_events(), 4)
         ctx["code_demo_hello"] = SharedResources.code_demo_hello
-        ctx["testimonial_data"] = {"testimonials": SharedResources.testimonials}
+        ctx["testimonial_data"] = {"testimonials": get_testimonial_cards(limit=5)}
 
         featured_library = get_v3_featured_library()
         if featured_library:
