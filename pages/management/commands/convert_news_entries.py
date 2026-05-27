@@ -18,11 +18,18 @@ from django.template.defaultfilters import linebreaks_filter
 def get_or_create_page(entry: Entry, index_page: PostIndexPage) -> PostPage:
     try:
         page = index_page.get_children().get(title=entry.title).specific
+        page.first_published_at = entry.publish_at
+        page.last_published_at = entry.publish_at
+        page.latest_revision_created_at = entry.publish_at
+        page.owner = entry.author
+        page.live = entry.is_published
+
     except Page.DoesNotExist:
         page = PostPage(
             title=entry.title,
             first_published_at=entry.publish_at,
             last_published_at=entry.publish_at,
+            latest_revision_created_at=entry.publish_at,
             owner=entry.author,
             live=entry.is_published,
         )
