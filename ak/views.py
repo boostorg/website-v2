@@ -10,7 +10,6 @@ from django.views.generic import TemplateView
 
 from core.calendar import extract_calendar_events, events_by_month, get_calendar
 from core.mixins import V3Mixin
-from core.templatetags.custom_static import large_static
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import ContributorMixin
 from news.models import Entry
@@ -120,23 +119,7 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
             },
         ]
 
-        ctx["library_cards"] = demo_cards
         ctx["why_boost_cards"] = demo_cards[:8]
-        ctx["calendar_card"] = {
-            "title": "Boost is released three times a year",
-            "text": "Each release has updates to existing libraries, and any new libraries that have passed the rigorous acceptance process.",
-            "primary_button_url": "www.example.com",
-            "primary_button_label": "View the Release Calendar",
-            "secondary_button_url": "www.example.com",
-            "secondary_button_label": "Secondary Button",
-            "image": large_static("img/v3/demo-page/calendar.png"),
-        }
-        ctx["info_card"] = {
-            "title": "How we got here",
-            "text": "Since 1998, Boost has been where C++ innovation happens. What started with three developers has grown into the foundation of modern C++ development.",
-            "primary_button_url": "www.example.com",
-            "primary_button_label": "Explore Our History",
-        }
         tag_display = {"blogpost": "Blog"}
         popular_entries = (
             Entry.objects.ranked()
@@ -167,12 +150,6 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
         }
         ctx["join_developers_building_the_future_of_cpp"] = {
             "items": SharedResources.demo_join_community_links[:5]
-        }
-        ctx["boost_community_data"] = {
-            "heading": "The Boost community",
-            "view_all_url": "#",
-            "view_all_label": "Explore the community",
-            "posts": SharedResources.demo_posts,
         }
         ctx["popular_terms"] = SharedResources.popular_terms
         ctx["demo_events_with_links"] = SharedResources.demo_events_with_links[:4]
