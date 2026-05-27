@@ -83,15 +83,29 @@
                 maxlength="20000"
                 placeholder="What would you like to write?"
                 x-model="content"
+                @input="onContentEdited($event)"
                 :disabled="isLinkType"
                 :aria-invalid="!!errors.content"
                 :aria-describedby="errors.content ? 'field-content-error' : null"
               ></textarea>
             </div>
             <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
+            {% comment %} Content auto-save indicator (no Auto-Generate button — that's Description-only). Hidden when nothing is written; driven by contentSaveStatus. {% endcomment %}
+            <div class="create-post-page__content-actions" x-show="contentSaveStatus" x-cloak>
+              <span class="create-post-page__save-indicator" role="status" aria-live="polite">
+                <span class="create-post-page__save-state" x-show="contentSaveStatus === 'saving'" x-cloak>
+                  <span class="create-post-page__save-text">Saving</span>
+                  {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
+                </span>
+                <span class="create-post-page__save-state" x-show="contentSaveStatus === 'saved'" x-cloak>
+                  <span class="create-post-page__save-text">Saved</span>
+                  {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
+                </span>
+              </span>
+            </div>
           </div>
 
-          {% comment %} Description (Blog, News): plain-text field with char counter, Auto-Generate button, and auto-save indicator. Generation + save/saved toggle are wired in follow-up commits. {% endcomment %}
+          {% comment %} Description (Blog, News): plain-text field with char counter, Auto-Generate button, and auto-save indicator. {% endcomment %}
           <div class="field field--textarea create-post-page__description-section" :style="isWriteUp ? 'display: flex' : 'display: none'">
             <div class="create-post-page__field-header">
               <label class="field__label" for="field-post_description">Description</label>
@@ -106,18 +120,19 @@
                 maxlength="1000"
                 placeholder="What would you like to write?"
                 x-model="description"
+                @input="onDescriptionEdited($event)"
               ></textarea>
             </div>
             <div class="create-post-page__description-actions">
               {% comment %} Calls the generate-description endpoint; disabled while in flight. Full idle/generating/generated states are a follow-up. {% endcomment %}
               <button type="button" class="btn btn-secondary create-post-page__generate-btn" @click="generateDescription()" :disabled="generating">Auto-Generate Description</button>
-              {% comment %} Hidden when nothing is written; "Saving" while the Description changes, "Saved" once it settles (saveStatus is driven by the $watch in init()). {% endcomment %}
+              {% comment %} Hidden when nothing is written; "Saving" while editing, "Saved" once the draft is written to localStorage (descriptionSaveStatus driven by onDescriptionEdited / restoreDescriptionDraft). {% endcomment %}
               <span class="create-post-page__save-indicator" role="status" aria-live="polite">
-                <span class="create-post-page__save-state" x-show="saveStatus === 'saving'" x-cloak>
+                <span class="create-post-page__save-state" x-show="descriptionSaveStatus === 'saving'" x-cloak>
                   <span class="create-post-page__save-text">Saving</span>
                   {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
                 </span>
-                <span class="create-post-page__save-state" x-show="saveStatus === 'saved'" x-cloak>
+                <span class="create-post-page__save-state" x-show="descriptionSaveStatus === 'saved'" x-cloak>
                   <span class="create-post-page__save-text">Saved</span>
                   {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
                 </span>
@@ -152,8 +167,10 @@
         content: '{{ form.content.value|default_if_none:""|escapejs }}',
         description: '{{ form.description.value|default_if_none:""|escapejs }}',
         generating: false,
-        saveStatus: '',   // '' = nothing written (hidden), 'saving', 'saved'
-        _saveTimer: null,
+        descriptionSaveStatus: '',   // '' (hidden) / 'saving' / 'saved'
+        contentSaveStatus: '',       // same states, for the Content field
+        _descriptionSaveTimer: null,
+        _contentSaveTimer: null,
         errors: {
           post_type:    '',
           title:        '{{ form.title.errors.0|default:""|escapejs }}',
@@ -166,29 +183,118 @@
         get isLinkType() { return this.postType === 'video' || this.postType === 'link'; },
 
         init() {
-          // Description indicator: show "Saving" while it changes (typing or
-          // auto-generate), settle to "Saved" shortly after, hide when empty.
-          // Display only for now — localStorage persistence comes next.
-          this.$watch('description', (value) => {
-            clearTimeout(this._saveTimer);
-            if (!value) {
-              this.saveStatus = '';
-              return;
-            }
-            this.saveStatus = 'saving';
-            this._saveTimer = setTimeout(() => { this.saveStatus = 'saved'; }, 800);
-          });
+          // Restore saved Content and Description drafts for the current post
+          // type. On a fresh load with no draft this leaves the field untouched.
+          this.restoreContentDraft();
+          this.restoreDescriptionDraft();
         },
 
         handleFieldChange(e) {
           const { name, value } = e.detail;
           if (name !== 'post_type') return;
+          // Persist the current type's draft before switching, then load the
+          // draft belonging to the newly selected type.
+          clearTimeout(this._descriptionSaveTimer);
+          clearTimeout(this._contentSaveTimer);
+          this.saveContentDraft();
+          this.saveDescriptionDraft();
           this.postType = value;
           this.errors.post_type = '';
+          this.restoreContentDraft({ allowEmpty: true });
+          this.restoreDescriptionDraft({ allowEmpty: true });
         },
 
-        // Send the Content to the backend, which runs the summarization model
-        // and returns a description (capped server-side at ~970 chars).
+        // ── Description draft: localStorage, keyed per post type ─────────────
+        descriptionDraftKey() {
+          return 'boost:createPost:descriptionDraft:' + (this.postType || '');
+        },
+
+        // Runs on each keystroke (and after auto-generate): show "Saving", then
+        // write the draft and show "Saved" once edits settle. Empty clears it.
+        onDescriptionEdited(e) {
+          const value = e ? e.target.value : this.description;
+          clearTimeout(this._descriptionSaveTimer);
+          if (!value) {
+            this.descriptionSaveStatus = '';
+            this.clearDescriptionDraft();
+            return;
+          }
+          this.descriptionSaveStatus = 'saving';
+          this._descriptionSaveTimer = setTimeout(() => {
+            this.saveDescriptionDraft();
+            this.descriptionSaveStatus = 'saved';
+          }, 800);
+        },
+
+        saveDescriptionDraft() {
+          if (!this.isWriteUp) return;
+          try {
+            if (this.description) localStorage.setItem(this.descriptionDraftKey(), this.description);
+            else localStorage.removeItem(this.descriptionDraftKey());
+          } catch (_) {}
+        },
+
+        restoreDescriptionDraft({ allowEmpty = false } = {}) {
+          if (!this.isWriteUp) {
+            if (allowEmpty) this.descriptionSaveStatus = '';
+            return;
+          }
+          let saved = null;
+          try { saved = localStorage.getItem(this.descriptionDraftKey()); } catch (_) {}
+          if (saved !== null) this.description = saved;
+          else if (allowEmpty) this.description = '';
+          this.descriptionSaveStatus = this.description ? 'saved' : '';
+        },
+
+        clearDescriptionDraft() {
+          try { localStorage.removeItem(this.descriptionDraftKey()); } catch (_) {}
+        },
+
+        // ── Content draft: localStorage, keyed per post type (mirrors Description) ──
+        contentDraftKey() {
+          return 'boost:createPost:contentDraft:' + (this.postType || '');
+        },
+
+        onContentEdited(e) {
+          const value = e ? e.target.value : this.content;
+          clearTimeout(this._contentSaveTimer);
+          if (!value) {
+            this.contentSaveStatus = '';
+            this.clearContentDraft();
+            return;
+          }
+          this.contentSaveStatus = 'saving';
+          this._contentSaveTimer = setTimeout(() => {
+            this.saveContentDraft();
+            this.contentSaveStatus = 'saved';
+          }, 800);
+        },
+
+        saveContentDraft() {
+          if (!this.isWriteUp) return;
+          try {
+            if (this.content) localStorage.setItem(this.contentDraftKey(), this.content);
+            else localStorage.removeItem(this.contentDraftKey());
+          } catch (_) {}
+        },
+
+        restoreContentDraft({ allowEmpty = false } = {}) {
+          if (!this.isWriteUp) {
+            if (allowEmpty) this.contentSaveStatus = '';
+            return;
+          }
+          let saved = null;
+          try { saved = localStorage.getItem(this.contentDraftKey()); } catch (_) {}
+          if (saved !== null) this.content = saved;
+          else if (allowEmpty) this.content = '';
+          this.contentSaveStatus = this.content ? 'saved' : '';
+        },
+
+        clearContentDraft() {
+          try { localStorage.removeItem(this.contentDraftKey()); } catch (_) {}
+        },
+
+        // Send the Content to the backend, which runs the summarization model.
         async generateDescription() {
           const content = (this.content || '').trim();
           if (!content || this.generating) return;
@@ -206,6 +312,7 @@
             const data = await res.json();
             if (res.ok && data.description) {
               this.description = data.description;
+              this.onDescriptionEdited();   // persist generated text + show Saving/Saved
             } else {
               console.error('Description generation failed:', data.error || res.status);
             }
