@@ -54,7 +54,7 @@
       </div>
       <div class="item-b">
         {% with data=library_intro %}
-          {% include "v3/includes/_library_intro_card.html" with library_name=data.library_name description=data.description authors=data.authors cta_url=data.cta_url %}
+          {% include "v3/includes/_library_intro_card.html" with library_name=data.library_name description=data.description authors=data.authors cta_url=data.cta_url cta_label="View Library" %}
         {% endwith %}
       </div>
       <div class="item-c">

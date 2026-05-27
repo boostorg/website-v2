@@ -5,7 +5,7 @@
     library_name   (string, required)  — Library display name, e.g. "Boost.Core."
     description    (string, required)  — Short library description
     authors        (list, optional)    — List of author objects passed to _user_profile.html (see that template for fields)
-    cta_label      (string, optional)  — Button text, default "Use {{ library_name }}"
+    cta_label      (string, optional)  — Button text, default: "View Library"
     cta_url        (string, optional)  — Button link URL
 
   Usage:
@@ -36,7 +36,7 @@
   {% if cta_url %}
     <hr class="card__hr">
     <div class="card__cta_section library-intro-card__cta">
-      {% include "v3/includes/_button.html" with url=cta_url label=cta_label|default:"Use "|add:library_name only %}
+      {% include "v3/includes/_button.html" with url=cta_url label=cta_label|default:"View Library" only %}
     </div>
   {% endif %}
 </div>

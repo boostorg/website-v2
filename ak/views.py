@@ -14,8 +14,9 @@ from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import ContributorMixin
 from news.models import Entry
 from testimonials.models import Testimonial
-from ak.homepage import posts_for_homepage
+from ak.homepage import get_v3_featured_library, posts_for_homepage
 from core.mock_data import SharedResources
+from libraries.utils import build_library_intro_context
 
 logger = structlog.get_logger()
 
@@ -160,7 +161,11 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
         }
         ctx["testimonial_data"] = {"testimonials": SharedResources.testimonials}
 
-        ctx["library_intro"] = SharedResources.library_intro
+        featured_library = get_v3_featured_library()
+        if featured_library:
+            ctx["library_intro"] = build_library_intro_context(
+                featured_library, include_contributors=False
+            )
 
         ctx["build_anything_with_boost"] = SharedResources.build_anything_with_boost
 
