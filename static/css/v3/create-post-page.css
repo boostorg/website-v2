@@ -107,18 +107,37 @@
 .create-post-page__save-indicator {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-default);
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  letter-spacing: -0.01em;
+  letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-tertiary);
+}
+
+.create-post-page__save-state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-default);
 }
 
 .create-post-page__save-icon {
   width: 16px;
   height: 16px;
   color: var(--color-text-tertiary);
+}
+
+.create-post-page__save-icon--spin {
+  animation: create-post-spin 0.8s linear infinite;
+}
+
+@keyframes create-post-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .create-post-page__save-icon--spin {
+    animation: none;
+  }
 }
 
 .create-post-page__actions {
