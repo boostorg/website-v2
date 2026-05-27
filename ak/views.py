@@ -14,6 +14,7 @@ from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import ContributorMixin
 from news.models import Entry
 from testimonials.models import Testimonial
+from ak.homepage import posts_for_homepage
 from core.mock_data import SharedResources
 
 logger = structlog.get_logger()
