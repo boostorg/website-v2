@@ -46,3 +46,9 @@
   letter-spacing: -0.12px;
   color: var(--color-text-secondary);
 }
+
+.event-card__empty {
+  padding: var(--space-card);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}

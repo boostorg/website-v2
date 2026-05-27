@@ -14,7 +14,11 @@ from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import ContributorMixin
 from news.models import Entry
 from testimonials.models import Testimonial
-from ak.homepage import get_v3_featured_library, posts_for_homepage
+from ak.homepage import (
+    get_v3_featured_library,
+    posts_for_homepage,
+    upcoming_events,
+)
 from core.mock_data import SharedResources
 from libraries.utils import build_library_intro_context
 
@@ -154,7 +158,7 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
             "items": SharedResources.demo_join_community_links[:5]
         }
         ctx["popular_terms"] = SharedResources.popular_terms
-        ctx["demo_events_with_links"] = SharedResources.demo_events_with_links[:4]
+        ctx["upcoming_events"] = upcoming_events(self.get_events(), 4)
         ctx["code_demo_hello"] = SharedResources.code_demo_hello
         ctx["stats_in_numbers"] = {
             "example_library_commits_bars": SharedResources.example_library_commits_bars

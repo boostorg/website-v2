@@ -64,3 +64,29 @@ def posts_for_homepage(limit=5):
         .order_by("-publish_at")[:limit]
     )
     return [entry_to_post_dict(entry) for entry in entries]
+
+
+def event_to_card_dict(event):
+    """Shape a calendar event (start, end, name, description) for the event card.
+
+    Passes the start as a date object; the template formats it.
+    """
+    return {
+        "title": event.get("name"),
+        "description": event.get("description"),
+        "date": event["start"],
+    }
+
+
+def upcoming_events(events_by_month, limit=4):
+    """Flatten the month-keyed dict from HomepageView.get_events() into the
+    next `limit` events, soonest first.
+    """
+    events = [
+        event
+        for month_events in (events_by_month or {}).values()
+        for event in month_events
+        if event.get("start")
+    ]
+    events.sort(key=lambda event: event["start"])
+    return [event_to_card_dict(event) for event in events[:limit]]
