@@ -232,6 +232,9 @@ class Entry(models.Model):
         if commit:
             self.save(update_fields=["moderator", "approved_at", "modified_at"])
 
+    def get_content(self):
+        return self.content
+
     @cached_property
     def use_summary(self):
         return self.summary and (

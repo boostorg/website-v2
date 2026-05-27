@@ -206,19 +206,20 @@ class PostPage(BasePage):
         blank=True, default="", help_text="AI generated summary. Delete to regenerate."
     )
 
+    def get_content(self):
+        if self.content_type in ["News", "Blog"]:
+            return self.content
+        else:
+            return None
+
     def get_context(self, request, *args, **kwargs):
         ctx = super().get_context(request, *args, **kwargs)
         pages = self.__class__.objects.live().order_by("-first_published_at")
-        prev_objects = pages.filter(first_published_at__lt=self.first_published_at)
         next_objects = pages.filter(first_published_at__gt=self.first_published_at)
-        ctx["prev"] = prev_objects.first()
-        ctx["prev_in_category"] = prev_objects.filter(
-            content__0__type=self.stream_content_type
-        ).first()
-        ctx["next"] = next_objects.last()
-        ctx["next_in_category"] = next_objects.filter(
-            content__0__type=self.stream_content_type
-        ).last()
+        ctx["next_post_items"] = [next_objects.first()]
+        ctx["related_posts"] = pages.filter(content__0__type=self.stream_content_type)[
+            :3
+        ]
         ctx["object"] = self.specific
         ctx["post_author"] = self.author
         return ctx
@@ -278,31 +279,42 @@ class PostPage(BasePage):
     def author(self):
         return self.owner
 
-    @property
+    @cached_property
     def get_absolute_url(self):
         return self.url
 
-    @property
+    @cached_property
     def image_url(self):
         if not self.image:
             return ""
         return self.image.get_rendition("original").url
 
-    @property
+    @cached_property
     def created_at(self):
         return self.first_published_at
 
-    @property
+    @cached_property
     def publish_at(self):
         return self.last_published_at
 
-    @property
+    @cached_property
+    def date(self):
+        return self.first_published_at
+
+    @cached_property
     def determined_news_type(self):
         return self.post_content_type
 
-    @property
+    @cached_property
     def tag(self):
         return getattr(self, "tags.first()", self.post_content_type)
+
+    @cached_property
+    def external_url(self):
+        if not self.post_content_type == "Link":
+            return None
+        else:
+            return self.content[0]
 
     content_panels = BasePage.content_panels + [
         "content",
