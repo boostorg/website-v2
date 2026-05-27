@@ -34,7 +34,6 @@
     html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__link-fields,
     html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__link-fields { display: none; }
   </style>
-  <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -69,12 +68,27 @@
             {% include "v3/includes/_field_text.html" with name="external_url" label="Link *" type="url" placeholder="https://..." value=form.external_url.value|default_if_none:"" alpine_error="errors.external_url" error=form.external_url.errors.0 help_text="Required for Video and Link post types." %}
           </div>
 
-          {% comment %} Content (Blog, News): WYSIWYG editor. Description (Link, Video): plain textarea. Both use name="content". {% endcomment %}
-          <div class="field create-post-page__content-field" :style="isWriteUp ? 'display: flex' : 'display: none'" :class="{ 'field--error': errors.content }">
-            <label class="field__label" for="field-content">Content *</label>
-            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=form.content.value disabled_expr="isLinkType" %}
+          {% comment %} Content (Blog, News): plain-text body field with char counter. Description (Link, Video): plain textarea below. Both use name="content" and are mutually exclusive via :disabled. {% endcomment %}
+          <div class="field field--textarea create-post-page__content-field" :style="isWriteUp ? 'display: flex' : 'display: none'" :class="{ 'field--error': errors.content }">
+            <div class="create-post-page__field-header">
+              <label class="field__label" for="field-content">Content *</label>
+              <span class="create-post-page__char-counter" aria-hidden="true" x-text="(20000 - (content ? content.length : 0)).toLocaleString() + ' left'">20,000 left</span>
+            </div>
+            <div class="field__control field__control--textarea">
+              <textarea
+                class="field__input field__input--textarea"
+                id="field-content"
+                name="content"
+                rows="6"
+                maxlength="20000"
+                placeholder="What would you like to write?"
+                x-model="content"
+                :disabled="isLinkType"
+                :aria-invalid="!!errors.content"
+                :aria-describedby="errors.content ? 'field-content-error' : null"
+              ></textarea>
+            </div>
             <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
-            <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
           </div>
 
           {% comment %} Description (Blog, News): plain-text field with char counter, Auto-Generate button, and auto-save indicator. Generation + save/saved toggle are wired in follow-up commits. {% endcomment %}
@@ -129,6 +143,7 @@
     window.createPostForm = function () {
       return {
         postType: '{{ post_type_selected|default:""|escapejs }}',
+        content: '{{ form.content.value|default_if_none:""|escapejs }}',
         description: '{{ form.description.value|default_if_none:""|escapejs }}',
         errors: {
           post_type:    '',
