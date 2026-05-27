@@ -14,14 +14,19 @@
   <style>
     html.js .create-post-page__link-fields,
     html.js .create-post-page__content-field,
+    html.js .create-post-page__description-section,
     html.js .create-post-page__description-field { display: none; }
 
     html:not(.js) .create-post-page__content-field,
+    html:not(.js) .create-post-page__description-section,
     html:not(.js) .create-post-page__description-field { display: none; }
     html:not(.js) .field--file .field__control { cursor: pointer; }
 
     html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__content-field,
     html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__content-field { display: block; }
+
+    html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__description-section,
+    html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__description-section { display: flex; }
 
     html:not(.js) form:has(select[name="post_type"] option[value="link"]:checked) .create-post-page__description-field,
     html:not(.js) form:has(select[name="post_type"] option[value="video"]:checked) .create-post-page__description-field { display: block; }
@@ -72,6 +77,34 @@
             <p class="field__help" id="field-content-help" x-show="!errors.content">This editor supports Markdown: headings, lists, code blocks, links, and more.</p>
           </div>
 
+          {% comment %} Description (Blog, News): plain-text field with char counter, Auto-Generate button, and auto-save indicator. Generation + save/saved toggle are wired in follow-up commits. {% endcomment %}
+          <div class="field field--textarea create-post-page__description-section" :style="isWriteUp ? 'display: flex' : 'display: none'">
+            <div class="create-post-page__field-header">
+              <label class="field__label" for="field-post_description">Description</label>
+              <span class="create-post-page__char-counter" aria-hidden="true" x-text="(1000 - (description ? description.length : 0)).toLocaleString() + ' left'">1,000 left</span>
+            </div>
+            <div class="field__control field__control--textarea">
+              <textarea
+                class="field__input field__input--textarea"
+                id="field-post_description"
+                name="description"
+                rows="4"
+                maxlength="1000"
+                placeholder="What would you like to write?"
+                x-model="description"
+              ></textarea>
+            </div>
+            <div class="create-post-page__description-actions">
+              {% comment %} TODO: wire up AI generation in a follow-up commit. {% endcomment %}
+              <button type="button" class="btn btn-secondary create-post-page__generate-btn">Auto-Generate Description</button>
+              {% comment %} TODO: toggle between "Saving" and "Saved" in a follow-up commit. {% endcomment %}
+              <span class="create-post-page__save-indicator" role="status" aria-live="polite">
+                <span class="create-post-page__save-text">Saving</span>
+                {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
+              </span>
+            </div>
+          </div>
+
           <div class="field create-post-page__description-field" :style="isLinkType ? 'display:flex' : 'display: none'">
             {% include "v3/includes/_field_textarea.html" with name="content" field_id="description" label="Description" value=form.content.value|default_if_none:"" alpine_error="errors.content" error=form.content.errors.0 alpine_disabled_expr="isWriteUp" %}
           </div>
@@ -96,6 +129,7 @@
     window.createPostForm = function () {
       return {
         postType: '{{ post_type_selected|default:""|escapejs }}',
+        description: '{{ form.description.value|default_if_none:""|escapejs }}',
         errors: {
           post_type:    '',
           title:        '{{ form.title.errors.0|default:""|escapejs }}',
