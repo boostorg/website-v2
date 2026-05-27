@@ -85,8 +85,9 @@
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
-  letter-spacing: -0.01em;
-  color: var(--color-text-tertiary);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-primary);
   white-space: nowrap;
 }
 
