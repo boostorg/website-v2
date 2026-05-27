@@ -109,8 +109,8 @@
               ></textarea>
             </div>
             <div class="create-post-page__description-actions">
-              {% comment %} TODO: wire up AI generation in a follow-up commit. {% endcomment %}
-              <button type="button" class="btn btn-secondary create-post-page__generate-btn">Auto-Generate Description</button>
+              {% comment %} Calls the generate-description endpoint; disabled while in flight. Full idle/generating/generated states are a follow-up. {% endcomment %}
+              <button type="button" class="btn btn-secondary create-post-page__generate-btn" @click="generateDescription()" :disabled="generating">Auto-Generate Description</button>
               {% comment %} TODO: toggle between "Saving" and "Saved" in a follow-up commit. {% endcomment %}
               <span class="create-post-page__save-indicator" role="status" aria-live="polite">
                 <span class="create-post-page__save-text">Saving</span>
@@ -145,6 +145,7 @@
         postType: '{{ post_type_selected|default:""|escapejs }}',
         content: '{{ form.content.value|default_if_none:""|escapejs }}',
         description: '{{ form.description.value|default_if_none:""|escapejs }}',
+        generating: false,
         errors: {
           post_type:    '',
           title:        '{{ form.title.errors.0|default:""|escapejs }}',
@@ -161,6 +162,35 @@
           if (name !== 'post_type') return;
           this.postType = value;
           this.errors.post_type = '';
+        },
+
+        // Send the Content to the backend, which runs the summarization model
+        // and returns a description (capped server-side at ~970 chars).
+        async generateDescription() {
+          const content = (this.content || '').trim();
+          if (!content || this.generating) return;
+          this.generating = true;
+          try {
+            const title = document.querySelector('input[name="title"]')?.value || '';
+            const res = await fetch('{% url "v3-news-generate-description" %}', {
+              method: 'POST',
+              headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: new URLSearchParams({ content, title }),
+            });
+            const data = await res.json();
+            if (res.ok && data.description) {
+              this.description = data.description;
+            } else {
+              console.error('Description generation failed:', data.error || res.status);
+            }
+          } catch (err) {
+            console.error('Description generation request failed:', err);
+          } finally {
+            this.generating = false;
+          }
         },
 
         prepareSubmit(e) {
