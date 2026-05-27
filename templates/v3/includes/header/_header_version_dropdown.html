@@ -42,12 +42,17 @@
         {% if latest_href %}
           <a href="{{ latest_href }}"
              class="header__version-option"
+             data-version-option
+             data-is-latest="true"
              {% if not selected_version_is_non_latest %}aria-current="true"{% endif %}>Latest</a>
         {% endif %}
         {% for v in version_dropdown_options %}
           {% if v.href %}
             <a href="{{ v.href }}"
                class="header__version-option"
+               data-version-option
+               data-is-latest="false"
+               data-doc-url="{{ v.documentation_url }}"
                {% if selected_version_is_non_latest and selected_version and v.slug == selected_version.slug %}aria-current="true"{% endif %}>
               {{ v.display_name }}
             </a>
@@ -62,12 +67,17 @@
                   name="version"
                   value="latest"
                   class="header__version-option"
+                  data-version-option
+                  data-is-latest="true"
                   {% if not selected_version_is_non_latest %}aria-current="true"{% endif %}>Latest</button>
           {% for v in version_dropdown_options %}
             <button type="submit"
                     name="version"
                     value="{{ v.slug }}"
                     class="header__version-option"
+                    data-version-option
+                    data-is-latest="false"
+                    data-doc-url="{{ v.documentation_url }}"
                     {% if selected_version_is_non_latest and selected_version and v.slug == selected_version.slug %}aria-current="true"{% endif %}>
               {{ v.display_name }}
             </button>
