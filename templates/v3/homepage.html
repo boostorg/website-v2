@@ -10,18 +10,25 @@
 {% endblock %}
 
 {% block content %}
+  {% url 'docs-user-guide' content_path='user-guide/getting-started.html' as hero_primary_url %}
+  {% url 'libraries-list' version_slug='latest' library_view_str='list' as hero_secondary_url %}
+  {% url 'news' as posts_url %}
+  {% url 'release-detail' version_slug='latest' as release_url %}
+  {% url 'calendar' as calendar_url %}
+  {% url 'community' as community_url %}
+  {% url 'license' as license_url %}
   <div class="homepage-container">
-      {% include "v3/includes/_hero_home.html" with hero_background_image_url="" install_card_id="hero-home-1" hero_image_url_light=hero_legacy_image_url_light hero_image_url_dark=hero_legacy_image_url_dark %}
+      {% include "v3/includes/_hero_home.html" with hero_background_image_url="" install_card_id="hero-home-1" hero_image_url_light=hero_legacy_image_url_light hero_image_url_dark=hero_legacy_image_url_dark primary_url=hero_primary_url secondary_url=hero_secondary_url %}
     <div class="card-masonry-top">
       <div class="item-a">
         {% include "v3/includes/_search_card.html" with heading="What are you trying to find?" action_url="#" popular_terms=popular_terms %}
       </div>
       <div class="item-b responsive-limit-3-items">
-        {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=demo_events_with_links variant="list" primary_cta_label="Download latest release" primary_cta_url="#" secondary_cta_label="View events calendar" secondary_cta_url="#" %}
+        {% include "v3/includes/_event_card.html" with heading="Upcoming Events" items=demo_events_with_links variant="list" primary_cta_label="Download latest release" primary_cta_url=release_url secondary_cta_label="View events calendar" secondary_cta_url=calendar_url %}
       </div>
       <div class="item-c responsive-limit-2-items">
         {% with data=posts_from_the_boost_community %}
-          {% include "v3/includes/_post_card.html" with heading=data.heading items=data.items variant=data.variant theme=data.theme primary_cta_label=data.primary_cta_label primary_cta_url=data.primary_cta_url %}
+          {% include "v3/includes/_post_card.html" with heading=data.heading items=data.items variant=data.variant theme=data.theme primary_cta_label=data.primary_cta_label primary_cta_url=posts_url %}
         {% endwith %}
       </div>
       <div class="item-d">
@@ -29,7 +36,7 @@
       </div>
       <div class="item-e homepage-join-card">
         {% with data=join_developers_building_the_future_of_cpp %}
-          {% include "v3/includes/_join_card.html" with heading="Join developers building the future of C++" items=data.items variant="card" theme="yellow" primary_cta_label="Explore the community" primary_cta_url="#" %}
+          {% include "v3/includes/_join_card.html" with heading="Join developers building the future of C++" items=data.items variant="card" theme="yellow" primary_cta_label="Explore the community" primary_cta_url=community_url %}
         {% endwith %}
       </div>
       <div class="item-f">
@@ -42,7 +49,7 @@
     <div class="card-masonry-bottom py-large">
       <div class="item-a responsive-limit-5-items">
         {% with data=stats_in_numbers %}
-          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=data.example_library_commits_bars theme="default" primary_cta_label="View library" primary_cta_url="#" %}
+          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=data.example_library_commits_bars theme="default" primary_cta_label="Boost Org on GitHub" primary_cta_url="https://github.com/boostorg/boost" %}
         {% endwith %}
       </div>
       <div class="item-b">
@@ -57,7 +64,7 @@
       </div>
       <div class="item-d license-card">
         {% with data=build_anything_with_boost %}
-          {% include "v3/includes/_horizontal_card.html" with title=data.title text=data.text image_url=data.image_url button_url=data.button_url button_label=data.button_label image_alt=data.image_alt %}
+          {% include "v3/includes/_horizontal_card.html" with title=data.title text=data.text image_url=data.image_url button_url=license_url button_label=data.button_label image_alt=data.image_alt %}
         {% endwith %}
       </div>
     </div>
