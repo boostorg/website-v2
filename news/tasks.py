@@ -11,15 +11,13 @@ from news.utils import set_video_thumbnail
 
 logger = structlog.get_logger(__name__)
 
-
 @app.task(bind=True, max_retries=3, autoretry_for=(OpenAIError,))
-def summarize_content(self, content: str, title: str, model: str) -> str:
+def summarize_content(self, content: str, title: str, model: str, max_length: int = 256) -> str:
     """Summarize content using an LLM model."""
     if not content:
         logger.warning("No content provided to summarize, skipping.")
         raise ValueError("No content provided to summarize.")
     logger.info(f"Summarizing {content[:100]=}... with {model=}")
-    max_length = 256
     system_prompt = dedent(
         f"""
         You are an experienced technical writer tasked with summarizing content. Provide
