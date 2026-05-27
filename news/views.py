@@ -1,6 +1,8 @@
 from datetime import timedelta
 from functools import partial
-
+ 
+import structlog
+ 
 from django.conf import settings
 from django.db import IntegrityError
 from django.contrib import messages
@@ -8,7 +10,12 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.humanize.templatetags import humanize
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
+from django.http import (
+    Http404,
+    HttpResponseRedirect,
+    HttpResponseForbidden,
+    JsonResponse,
+)
 from django.shortcuts import redirect, get_object_or_404
 from django.template.defaultfilters import date as datefilter
 from django.urls import reverse, reverse_lazy
@@ -26,14 +33,20 @@ from django.views.generic import (
     View,
 )
 from django.views.generic.detail import SingleObjectMixin
+from django.views.decorators.http import require_POST
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadData
 
 from core.mixins import V3Mixin
 from users.profile_cards import user_profile_card
 from .acl import can_approve
-from .constants import NEWS_APPROVAL_SALT, MAGIC_LINK_EXPIRATION
+from .constants import (
+    NEWS_APPROVAL_SALT,
+    MAGIC_LINK_EXPIRATION,
+    DESCRIPTION_SUMMARY_MAX_LENGTH,
+)
 from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
 from .models import BlogPost, Entry, Link, News, Poll, Video
+from .tasks import summarize_content
 from .notifications import (
     send_email_news_approved,
     send_email_news_needs_moderation,
@@ -43,7 +56,7 @@ from .notifications import (
 from libraries.models import Library
 
 User = get_user_model()
-
+logger = structlog.get_logger(__name__)
 
 def get_published_or_none(sibling_getter):
     """Helper method to get next/prev published sibling of a given entry."""
@@ -556,6 +569,43 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
 
         context = self.get_context_data(form=form, post_type_selected=post_type)
         return self.render_to_response(context)
+
+
+@require_POST
+def generate_description(request):
+    """Generate an AI description from submitted content (synchronous).
+
+    Backs the "Auto-Generate Description" button on the v3 create-post page.
+    Runs the summarization model inline and returns the result as JSON so the
+    browser can drop it into the Description field.
+
+    NOTE: intentionally not login-gated yet (local testing). This endpoint calls
+    a paid LLM, so add @login_required (and rate limiting) before it ships.
+    """
+    content = (request.POST.get("content") or "").strip()
+    title = (request.POST.get("title") or "").strip()
+
+    if not content:
+        return JsonResponse({"error": "Add some content first."}, status=400)
+
+    try:
+        summary = summarize_content(
+            content, title, "gpt-oss-120b", DESCRIPTION_SUMMARY_MAX_LENGTH
+        )
+    except Exception:
+        logger.exception("generate_description: summarization failed")
+        return JsonResponse(
+            {"error": "Could not generate a description. Please try again."},
+            status=502,
+        )
+
+    if not summary:
+        return JsonResponse(
+            {"error": "Could not generate a description. Please try again."},
+            status=502,
+        )
+
+    return JsonResponse({"description": summary.strip()})
 
 
 class EntryApproveView(

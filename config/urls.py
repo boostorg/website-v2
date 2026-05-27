@@ -53,7 +53,7 @@ from libraries.views import (
     CommitEmailResendView,
 )
 from news.feeds import AtomNewsFeed, RSSNewsFeed
-from news.views import V3AllTypesCreateView
+from news.views import V3AllTypesCreateView, generate_description
 from users.views import (
     CurrentUserAPIView,
     CurrentUserProfileView,
@@ -271,6 +271,11 @@ urlpatterns = (
         ),
         path("news/", include("news.urls")),
         path("v3/news/add/", V3AllTypesCreateView.as_view(), name="v3-news-create"),
+        path(
+            "v3/news/generate-description/",
+            generate_description,
+            name="v3-news-generate-description",
+        ),
         path(
             "people/detail/",
             TemplateView.as_view(template_name="boost/people_detail.html"),
