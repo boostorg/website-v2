@@ -2048,43 +2048,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         # Hardcoded for the demo page. The production library intro context is
         # built by `libraries.utils.build_library_intro_context`; reuse it when
         # integrating this component into the real library pages.
-        context["library_intro"] = {
-            "library_name": "Boost.Beast.",
-            "description": (
-                "Lightweight utilities that power dozens of other Boost libraries"
-            ),
-            "authors": [
-                {
-                    "name": "Vinnie Falco",
-                    "role": "Author",
-                    "avatar_url": large_static("img/v3/demo-page/avatar.png"),
-                    "badge_url": large_static("img/v3/badges/badge-first-place.png"),
-                    "badge": "",
-                    "bio": "Big C++ fan. Not quite kidney-donation level, but close.",
-                    "profile_url": "",
-                },
-                {
-                    "name": "Alex Wells",
-                    "role": "Contributor",
-                    "avatar_url": large_static("img/v3/demo-page/avatar.png"),
-                    "badge_url": "",
-                    "badge": "",
-                    "bio": "C++ enthusiast who has worked at Intel and Microsoft.",
-                    "profile_url": "",
-                },
-                {
-                    "name": "Dave Abrahams",
-                    "role": "Contributor",
-                    "avatar_url": large_static("img/v3/demo-page/avatar.png"),
-                    "badge_url": large_static("img/v3/badges/badge-bronze.png"),
-                    "badge": "",
-                    "bio": "Contributor to Boost since 2009.",
-                    "profile_url": "",
-                },
-            ],
-            "cta_url": "#",
-        }
-
+        #
         # Demo variants for the Library Intro Card scrollable behaviour:
         # "few" stays under the 3-row cap (no scroll); "many" exceeds it.
         _intro_avatar = large_static("img/v3/demo-page/avatar.png")

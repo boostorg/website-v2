@@ -307,7 +307,7 @@
     </div>
   {% endwith %}
 
-  {% if library_intro %}
+  {% if library_intro_few or library_intro_three or library_intro_many %}
     {% with section_title="Library Intro Card" %}
       <div class="v3-examples-section__block" id="{{ section_title|slugify }}">
         <h3>{{ section_title }}</h3>
