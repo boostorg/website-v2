@@ -62,6 +62,23 @@ def get_commit_data_by_release_for_library(library, limit=20):
     ]
 
 
+def get_commit_data_by_release(limit=10):
+    """Return list of { release, commit_count } across all Boost libraries per
+    minor release, ordered by release (oldest first).
+
+    Used by the homepage "Boost in numbers" chart.
+    """
+    qs = (
+        Version.objects.minor_versions()
+        .annotate(count=Count("library_version__commit"))
+        .order_by("-name")
+    )[:limit]
+    return [
+        {"release": v.name.strip("boost-"), "commit_count": v.count}
+        for v in reversed(list(qs))
+    ]
+
+
 def commit_data_to_stats_bars(commit_data):
     """Convert commit_data_by_release (list of { release, commit_count }) to stats bar format.
 

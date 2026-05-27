@@ -49,7 +49,7 @@
     <div class="card-masonry-bottom py-large">
       <div class="item-a responsive-limit-5-items">
         {% with data=stats_in_numbers %}
-          {% include "v3/includes/_stats_in_numbers.html" with heading="Commits per release" description="Commit count by Boost release for this library." bars=data.example_library_commits_bars theme="default" primary_cta_label="Boost Org on GitHub" primary_cta_url="https://github.com/boostorg/boost" %}
+          {% include "v3/includes/_stats_in_numbers.html" with heading="Boost in numbers" description="Every bar tells a story; the collective effort of a community building Boost" bars=data.bars theme="default" primary_cta_label="Boost Org on GitHub" primary_cta_url="https://github.com/boostorg/boost" %}
         {% endwith %}
       </div>
       <div class="item-b">

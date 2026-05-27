@@ -101,7 +101,7 @@ body:has(.homepage-v3) .header {
 }
 
 @media (max-width: 1279px) {
-  .responsive-limit-5-items .stats__bar-wrap:nth-child(n+6) {
+  .responsive-limit-5-items .stats__bar-wrap:nth-last-child(n+6) {
     display: none;
   }
 }

@@ -20,7 +20,11 @@ from ak.homepage import (
     upcoming_events,
 )
 from core.mock_data import SharedResources
-from libraries.utils import build_library_intro_context
+from libraries.utils import (
+    build_library_intro_context,
+    commit_data_to_stats_bars,
+    get_commit_data_by_release,
+)
 
 logger = structlog.get_logger()
 
@@ -160,9 +164,6 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
         ctx["popular_terms"] = SharedResources.popular_terms
         ctx["upcoming_events"] = upcoming_events(self.get_events(), 4)
         ctx["code_demo_hello"] = SharedResources.code_demo_hello
-        ctx["stats_in_numbers"] = {
-            "example_library_commits_bars": SharedResources.example_library_commits_bars
-        }
         ctx["testimonial_data"] = {"testimonials": SharedResources.testimonials}
 
         featured_library = get_v3_featured_library()
@@ -170,6 +171,11 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
             ctx["library_intro"] = build_library_intro_context(
                 featured_library, include_contributors=False
             )
+
+        # "Boost in numbers" is project-wide, not tied to the featured library.
+        ctx["stats_in_numbers"] = {
+            "bars": commit_data_to_stats_bars(get_commit_data_by_release(limit=10))
+        }
 
         ctx["build_anything_with_boost"] = SharedResources.build_anything_with_boost
 
