@@ -891,11 +891,49 @@ export const initWysiwyg = (textareaId) => {
     form.addEventListener("submit", syncTextarea, true);
   }
 
+  // ── Bridge to the host page (e.g. the create-post Alpine form) ──────────
+  // Emit content + plain-text char count on every change so the page can drive
+  // a char counter, a Saving/Saved indicator, and localStorage persistence.
+  // `programmatic: true` flags updates the user didn't make (initial load /
+  // restore) so the page can skip the "Saving" animation and not re-persist.
+  const currentValue = () =>
+    state.mode === "markdown"
+      ? state.markdownText
+      : turndown.turndown(editor.getHTML());
+  const dispatchState = (programmatic) => {
+    editorEl.dispatchEvent(
+      new CustomEvent("wysiwyg-update", {
+        detail: {
+          id: textareaId,
+          characters: editor.state.doc.textContent.length,
+          value: currentValue(),
+          programmatic: !!programmatic,
+        },
+        bubbles: true,
+      }),
+    );
+  };
+  editor.on("update", () => dispatchState(false));
+
+  // Let the host push a saved draft back into the editor (restore).
+  const onSetContent = (e) => {
+    if (!e.detail || e.detail.id !== textareaId) return;
+    const md = e.detail.value || "";
+    editor.commands.setContent(md ? parseMarkdownSafe(md) : "");
+    dispatchState(true);
+  };
+  window.addEventListener("wysiwyg-set-content", onSetContent);
+
+  // Initial state (deferred a frame so the host's listener is attached).
+  dispatchState(true);
+  requestAnimationFrame(() => dispatchState(true));
+
   editorInstances.set(textareaId, {
     editor,
     cleanup: () => {
       document.removeEventListener("click", handleDocClick);
       if (form) form.removeEventListener("submit", syncTextarea, true);
+      window.removeEventListener("wysiwyg-set-content", onSetContent);
     },
   });
   return editor;
