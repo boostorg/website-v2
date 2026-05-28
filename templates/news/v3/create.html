@@ -98,7 +98,7 @@
               <label class="field__label" for="field-post_description">Description</label>
               <span class="create-post-page__char-counter" aria-hidden="true" x-text="(1000 - (description ? description.length : 0)).toLocaleString() + ' left'">1,000 left</span>
             </div>
-            <div class="field__control field__control--textarea">
+            <div class="field__control field__control--textarea" x-show="!generating">
               <textarea
                 class="field__input field__input--textarea"
                 id="field-post_description"
@@ -109,6 +109,13 @@
                 x-model="description"
                 @input="onDescriptionEdited($event)"
               ></textarea>
+            </div>
+            {% comment %} Shown while Auto-Generate is in flight (visually replaces the textarea). {% endcomment %}
+            <div class="field__control field__control--textarea create-post-page__generating-placeholder" x-show="generating" x-cloak>
+              <span class="create-post-page__generating-message">
+                {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__generating-icon" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
+                <span>Hold on! We are generating a description for your content, it may take a few seconds</span>
+              </span>
             </div>
             <div class="create-post-page__description-actions">
               {% comment %} Calls the generate-description endpoint; disabled while in flight. Full idle/generating/generated states are a follow-up. {% endcomment %}
