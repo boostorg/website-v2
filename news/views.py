@@ -1,8 +1,8 @@
 from datetime import timedelta
 from functools import partial
- 
+
 import structlog
- 
+
 from django.conf import settings
 from django.db import IntegrityError
 from django.contrib import messages
@@ -57,6 +57,7 @@ from libraries.models import Library
 
 User = get_user_model()
 logger = structlog.get_logger(__name__)
+
 
 def get_published_or_none(sibling_getter):
     """Helper method to get next/prev published sibling of a given entry."""
