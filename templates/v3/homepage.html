@@ -31,9 +31,10 @@
           {% include "v3/includes/_post_card.html" with heading=data.heading items=data.items variant=data.variant theme=data.theme primary_cta_label=data.primary_cta_label primary_cta_url=posts_url %}
         {% endwith %}
       </div>
-      <div class="item-d">
-        {% include "v3/includes/_code_block_card.html" with heading="Get started with our libraries" code=code_demo_hello block_variant="grey-bg" button_text="Explore examples" language="cpp" button_aria_label="Explore examples" %}
-      </div>
+        <div class="item-d">
+          {% url 'library-detail' version_slug='latest' library_slug=get_started_code.library_slug as get_started_url %}
+          {% include "v3/includes/_code_block_card.html" with heading=get_started_code.heading code=get_started_code.code language=get_started_code.language block_variant="grey-bg" button_text="View library" button_url=get_started_url button_aria_label="Explore examples" %}
+        </div>
       <div class="item-e homepage-join-card">
         {% with data=join_developers_building_the_future_of_cpp %}
           {% include "v3/includes/_join_card.html" with heading="Join developers building the future of C++" items=data.items variant="card" theme="yellow" primary_cta_label="Explore the community" primary_cta_url=community_url %}

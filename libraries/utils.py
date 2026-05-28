@@ -41,6 +41,16 @@ if TYPE_CHECKING:
     from libraries.models import Library, LibraryVersion
 
 
+def get_library_code_snippet(library):
+    """Return the LibraryCodeSnippet for a library, or None if it has none.
+
+    Drives the homepage Get Started card, tied to the featured library.
+    """
+    from .models import LibraryCodeSnippet
+
+    return LibraryCodeSnippet.objects.filter(library=library).first()
+
+
 def get_commit_data_by_release_for_library(library, limit=20):
     """Return list of { release, commit_count } for a library, ordered by release (oldest first).
 

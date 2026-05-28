@@ -25,6 +25,7 @@ from libraries.utils import (
     build_library_intro_context,
     commit_data_to_stats_bars,
     get_commit_data_by_release,
+    get_library_code_snippet,
 )
 
 logger = structlog.get_logger()
@@ -164,14 +165,33 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
         }
         ctx["popular_terms"] = SharedResources.popular_terms
         ctx["upcoming_events"] = upcoming_events(self.get_events(), 4)
-        ctx["code_demo_hello"] = SharedResources.code_demo_hello
         ctx["testimonial_data"] = {"testimonials": get_testimonial_cards(limit=5)}
+
+        # TODO: design a proper empty state for the Get Started card. For now it
+        # falls back to a static hello-world sample when the featured library
+        # has no code snippet.
+        ctx["get_started_code"] = {
+            "heading": "Get started with our libraries",
+            "code": SharedResources.code_demo_hello,
+            "language": "cpp",
+            "library_slug": "",
+        }
 
         featured_library = get_v3_featured_library()
         if featured_library:
+            library = featured_library.library
             ctx["library_intro"] = build_library_intro_context(
                 featured_library, include_contributors=False
             )
+            # Get Started code sample, tied to the featured library.
+            snippet = get_library_code_snippet(library)
+            if snippet:
+                ctx["get_started_code"] = {
+                    "heading": f"Get started with {library.display_name}",
+                    "code": snippet.code,
+                    "language": "cpp",
+                    "library_slug": library.slug,
+                }
 
         # "Boost in numbers" is project-wide, not tied to the featured library.
         ctx["stats_in_numbers"] = {
