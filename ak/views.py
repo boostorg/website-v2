@@ -89,50 +89,56 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
         ctx["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
         ctx["install_card_system_install"] = SharedResources.install_card_system_install
 
-        demo_cards = [
+        ctx["why_boost_cards"] = [
             {
                 "title": "Performant",
                 "description": "Optimized for production at any scale, Boost outperforms many standard benchmarks.",
-                "icon_name": "bullseye-arrow",
+                "icon_name": "speed-fast",
+                "icon_viewbox": "0 0 16 16",
             },
             {
                 "title": "Peer-reviewed",
                 "description": "Well tested by members of the C++ standards committee.",
-                "icon_name": "get-help",
+                "icon_name": "eye",
             },
             {
                 "title": "Portable",
                 "description": "Works across all platforms, compilers, and C++ standards.",
-                "icon_name": "link",
-            },
-            {
-                "title": "Innovative",
-                "description": "Over 40 Boost libraries have become part of the C++ standard over the past 25 years.",
-                "icon_name": "bullseye-arrow",
-            },
-            {
-                "title": "Community-powered",
-                "description": "Contributing to Boost builds credibility, sharpens skills, and advances careers.",
-                "icon_name": "human",
-            },
-            {
-                "title": "Known worldwide",
-                "description": "Used in countless projects, you've probably encountered Boost without realizing it.",
-                "icon_name": "link",
+                "icon_name": "arrows-horizontal",
+                "icon_viewbox": "0 0 16 16",
             },
             {
                 "title": "Free",
                 "description": "Open source now and always, thanks to the Boost Software License.",
-                "icon_name": "check",
+                "icon_name": "lock",
+                "icon_viewbox": "0 0 16 16",
+            },
+            {
+                "title": "Innovative",
+                "description": "Over 40 Boost libraries have become part of the C++ standard over the past 25 years.",
+                "icon_name": "bookmarks",
+                "icon_viewbox": "0 0 16 16",
+            },
+            {
+                "title": "Community-powered",
+                "description": "Contributing to Boost builds credibility, sharpens skills, and advances careers.",
+                "icon_name": "users",
+                "icon_viewbox": "0 0 16 16",
+            },
+            {
+                "title": "Known worldwide",
+                "description": "Used in countless projects, you've probably encountered Boost without realizing it",
+                "icon_name": "building-community",
+                "icon_viewbox": "0 0 16 16",
             },
             {
                 "title": "Production-ready",
                 "description": "Battle-tested in critical systems across industries around the globe.",
-                "icon_name": "bullseye-arrow",
+                "icon_name": "zap",
+                "icon_viewbox": "0 0 16 16",
             },
         ]
 
-        ctx["why_boost_cards"] = demo_cards[:8]
         tag_display = {"blogpost": "Blog"}
         popular_entries = (
             Entry.objects.ranked()
