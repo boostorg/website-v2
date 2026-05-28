@@ -144,15 +144,18 @@ class SiteSettings(models.Model):
 
 
 class HomepageSettingsForm(WagtailAdminModelForm):
-    """Scopes the featured-library chooser to flagship libraries, A→Z."""
+    """Scopes the featured-library chooser to flagship libraries present in
+    the latest stable release, A→Z."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from libraries.models import Library, Tier
 
-        self.fields["featured_library"].queryset = Library.objects.filter(
-            tier=Tier.FLAGSHIP
-        ).order_by(Lower("name"))
+        qs = Library.objects.filter(tier=Tier.FLAGSHIP)
+        latest = Version.objects.most_recent()
+        if latest:
+            qs = qs.filter(library_version__version=latest)
+        self.fields["featured_library"].queryset = qs.order_by(Lower("name"))
 
 
 @register_setting
@@ -167,7 +170,12 @@ class HomepageSettings(BaseGenericSetting):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="Flagship library featured in the V3 homepage. If not set, a random flagship library will be featured.",
+        help_text=(
+            "Flagship library featured in the V3 homepage. Only flagship "
+            "libraries present in the latest stable release are listed "
+            "(beta-only libraries are excluded). If not set, a random "
+            "flagship library will be featured."
+        ),
     )
 
     panels = [FieldPanel("featured_library")]
