@@ -33,6 +33,7 @@ from .forms import (
     UserProfileForm,
     UserProfilePhotoForm,
     DeleteAccountForm,
+    UserBioForm,
 )
 from .models import User
 from .password_rules import build_password_rules
@@ -98,10 +99,25 @@ class CurrentUserProfileView(
     success_message = "Your profile was successfully updated."
     success_url = reverse_lazy("profile-account")
     v3_template_name = "v3/user_profile_page.html"
+    v3_edit_template_name = "v3/user_profile_edit.html"
 
     def get_v3_context_data(self, **kwargs):
         user = self.request.user
         ctx = {}
+
+        if self.request.GET.get("edit", False):
+            ctx["profile_bio_form"] = UserBioForm()
+            ctx["profile_form"] = UserProfileForm(instance=self.request.user)
+            ctx["profile_photo_form"] = UserProfilePhotoForm(instance=self.request.user)
+            ctx["profile_preferences_form"] = PreferencesForm(
+                instance=self.request.user.preferences
+            )
+            ctx["social_accounts"] = self.get_social_accounts()
+            ctx["commit_email_addresses"] = CommitAuthorEmail.objects.filter(
+                author__user=self.request.user
+            )
+            return ctx
+
         ctx["user_info"] = {
             "user_name": user.display_name,
             "avatar_url": user.get_avatar_url(),
@@ -376,6 +392,11 @@ class CurrentUserProfileView(
         ]
 
         return ctx
+
+    def get_template_names(self):
+        if getattr(self, "_v3_active", False) and self.request.GET.get("edit", None):
+            return [self.v3_edit_template_name]
+        return super().get_template_names()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

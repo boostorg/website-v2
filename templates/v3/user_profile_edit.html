@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  User Profile - Edit
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <link href="{% static 'css/v3/user-profile-page.css' %}" rel="stylesheet" />
+  <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+  <div class="user-profile__container">
+    <div class="user-profile__profile-content-area">
+      <div class="user-profile__col">
+        <div class="basic-card card">
+          <div class="card__header">
+            <span class="card__title">Profile</span>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            {% include 'v3/includes/_wysiwyg_editor.html' with textarea_id='id_content' textarea_name='content' label='Biography' only %}
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            <p>Profile Links</p>
+            <div class="user-profile__two-column-inputs">
+              {% include 'v3/includes/_field_text.html' with name=Github type='text' label='Label' value='Github' disabled=True only %}
+              {% include 'v3/includes/_field_text.html' with name=Github type='text' label='Link' value='' only %}
+              {% include 'v3/includes/_field_text.html' with name=Github type='text' value='Website' disabled=True only %}
+              {% include 'v3/includes/_field_text.html' with name=Github type='text' value='' only %}
+              {% include 'v3/includes/_field_text.html' with name=Github type='text' value='Email' disabled=True only %}
+              {% include 'v3/includes/_field_text.html' with name=Github type='text' value='' only %}
+              {% include 'v3/includes/_field_text.html' with name=Github type='text' value='Slack' disabled=True only %}
+              {% include 'v3/includes/_field_text.html' with name=Github type='text' value='' only %}
+            </div>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            <div>{{ profile_photo_form }}</div>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            {% include 'v3/includes/_field_checkbox.html' with name='hide_github' label='Hide your GitHub activity from your Profile' %}
+            {% include 'v3/includes/_field_checkbox.html' with name='hide_github' label='Hide your mailing list activity from your Profile' %}
+            {% include 'v3/includes/_field_checkbox.html' with name='hide_github' label='Hide your achievements & badgets from your Profile' %}
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__cta_section">
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save Changes' only %}
+          </div>
+        </div>
+        <div class="basic-card card">
+          <div class="card__header">
+            <span class="card__title">Delete account</span>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            <span><b>Delete Account</b></span>
+            <span>This will remove your information and account from Boost completely and is not reversible.</span>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__cta_section">
+            {% include 'v3/includes/_button.html' with style='error' type='submit' label='Delete Account' only %}
+          </div>
+        </div>
+      </div>
+      <div class="user-profile__col">
+        <div class="basic-card card">
+          <div class="card__header">
+            <span class="card__title">Update Details</span>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            {% include 'v3/includes/_form_include.html' with form=profile_form only %}
+          </div>
+        </div>
+        <div class="user-profile__col">
+          <div class="basic-card card">
+            <div class="card__header">
+              <span class="card__title">Update Details</span>
+            </div>
+            <hr class="card__hr" aria-hidden="true" />
+            <div class="card__column px-large">
+              {% include 'v3/includes/_form_include.html' with form=profile_preferences_form only %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

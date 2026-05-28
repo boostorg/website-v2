@@ -177,3 +177,13 @@ class DeleteAccountForm(forms.Form):
         if self.cleaned_data["verify"] != "delete my account":
             raise forms.ValidationError('Please enter "delete my account"')
         return verify
+
+
+class UserBioForm(forms.Form):
+    bio = forms.CharField(max_length=4096, required=False)
+    one_line_bio = forms.CharField(max_length=80, required=False)
+    github_profile = forms.CharField(max_length=80, required=False)
+    website = forms.CharField(max_length=80, required=False)
+    email = forms.CharField(max_length=80, required=False)
+    slack = forms.CharField(max_length=80, required=False)
+    role = forms.ChoiceField()

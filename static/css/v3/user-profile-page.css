@@ -65,6 +65,16 @@
     line-height: var(--line-height-relaxed);
 }
 
+/* ──────── Edit Page Styling ──────── */
+
+.user-profile__two-column-inputs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    gap: var(--space-default);
+    row-gap: var(--space-large);
+}
+
 @media (max-width: 768px) {
     /* ──────── Stack header row on mobile ──────── */
     .user-profile__profile-card-row {
