@@ -35,8 +35,8 @@ a:hover .content-detail-icon:not(.content-detail-icon--contained) {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--space-xlarge);
-  height: var(--space-xlarge);
+  width: 16px;
+  height: 16px;
   transition: color 0.2s ease;
 }
 

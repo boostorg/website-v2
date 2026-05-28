@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView
 
+from core.constants import SLACK_MEMBER_COUNT
 from core.calendar import extract_calendar_events, events_by_month, get_calendar
 from core.mixins import V3Mixin
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
@@ -160,8 +161,30 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
                 for entry in popular_entries
             ],
         }
+        community_url = reverse("community")
         ctx["join_developers_building_the_future_of_cpp"] = {
-            "items": SharedResources.demo_join_community_links[:5]
+            "items": [
+                {
+                    "title": "Get help",
+                    "description": f"Tap into quick answers, networking, and chat with {SLACK_MEMBER_COUNT} members.",
+                    "icon_name": "message",
+                    "icon_viewbox": "0 0 16 16",
+                    "url": community_url,
+                },
+                {
+                    "title": "Contribute",
+                    "description": "Learn how to test or evaluate library submissions, or submit your own.",
+                    "icon_name": "documentation",
+                    "icon_viewbox": "0 0 16 16",
+                    "url": community_url,
+                },
+                {
+                    "title": "Stay updated",
+                    "description": "Get updates on the latest releases, fixes and announcements.",
+                    "icon_name": "bullseye-pixel",
+                    "url": community_url,
+                },
+            ]
         }
         ctx["popular_terms"] = SharedResources.popular_terms
         ctx["upcoming_events"] = upcoming_events(self.get_events(), 4)
