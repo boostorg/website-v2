@@ -111,7 +111,7 @@
               ></textarea>
             </div>
             {% comment %} Shown while Auto-Generate is in flight (visually replaces the textarea). {% endcomment %}
-            <div class="field__control field__control--textarea create-post-page__generating-placeholder" x-show="generating" x-cloak>
+            <div class="field__control field__control--textarea create-post-page__generating-placeholder" role="status" aria-live="polite" x-show="generating" x-cloak>
               <span class="create-post-page__generating-message">
                 {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__generating-icon" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
                 <span>Hold on! We are generating a description for your content, it may take a few seconds</span>

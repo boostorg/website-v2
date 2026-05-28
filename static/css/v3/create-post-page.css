@@ -186,6 +186,23 @@
   text-decoration: none;
 }
 
+/* Align the WYSIWYG's resize grip with the Description textarea's grip.
+   Base CSS puts `resize: vertical` on `.wysiwyg-editor__body` (the visible box),
+   so the grip sits at the body's outer corner. Moving resize onto the inner
+   `.wysiwyg-editor__prose` instead places the grip inside the body's padding,
+   matching `.field__control--textarea`, whose inner <textarea> is similarly
+   inset by its wrapper's padding. Scoped to .create-post-page so other pages
+   that use the WYSIWYG keep their existing resize behavior. */
+.create-post-page .wysiwyg-editor__body {
+  resize: none;
+  max-height: none;
+}
+
+.create-post-page .wysiwyg-editor__prose {
+  resize: vertical;
+  overflow-y: auto;
+}
+
 @media (max-width: 767px) {
   .create-post-section {
     margin-top: 32px;
