@@ -34,11 +34,12 @@
     html:not(.js) form:has(select[name="post_type"] option[value="blog"]:checked) .create-post-page__link-fields,
     html:not(.js) form:has(select[name="post_type"] option[value="news"]:checked) .create-post-page__link-fields { display: none; }
   </style>
+  <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
 {% endblock %}
 
 {% block content %}
   <div class="create-post-section">
-      <div class="create-post-wrapper" x-data="createPostForm()" @field-change="handleFieldChange($event)">
+      <div class="create-post-wrapper" x-data="createPostForm()" @field-change="handleFieldChange($event)" @wysiwyg-update="handleWysiwygUpdate($event)">
       <form
         class="create-post-page"
         enctype="multipart/form-data"
@@ -68,27 +69,13 @@
             {% include "v3/includes/_field_text.html" with name="external_url" label="Link *" type="url" placeholder="https://..." value=form.external_url.value|default_if_none:"" alpine_error="errors.external_url" error=form.external_url.errors.0 help_text="Required for Video and Link post types." %}
           </div>
 
-          {% comment %} Content (Blog, News): plain-text body field with char counter. Description (Link, Video): plain textarea below. Both use name="content" and are mutually exclusive via :disabled. {% endcomment %}
-          <div class="field field--textarea create-post-page__content-field" :style="isWriteUp ? 'display: flex' : 'display: none'" :class="{ 'field--error': errors.content }">
+          {% comment %} Content (Blog, News): WYSIWYG editor. Char counter, Saving/Saved indicator, and draft persistence are driven by the wysiwyg-update event (see handleWysiwygUpdate). No placeholder by design. {% endcomment %}
+          <div class="field create-post-page__content-field" :style="isWriteUp ? 'display: flex' : 'display: none'" :class="{ 'field--error': errors.content }">
             <div class="create-post-page__field-header">
               <label class="field__label" for="field-content">Content *</label>
-              <span class="create-post-page__char-counter" aria-hidden="true" x-text="(20000 - (content ? content.length : 0)).toLocaleString() + ' left'">20,000 left</span>
+              <span class="create-post-page__char-counter" aria-hidden="true" x-text="(20000 - contentLength).toLocaleString() + ' left'">20,000 left</span>
             </div>
-            <div class="field__control field__control--textarea">
-              <textarea
-                class="field__input field__input--textarea"
-                id="field-content"
-                name="content"
-                rows="6"
-                maxlength="20000"
-                placeholder="What would you like to write?"
-                x-model="content"
-                @input="onContentEdited($event)"
-                :disabled="isLinkType"
-                :aria-invalid="!!errors.content"
-                :aria-describedby="errors.content ? 'field-content-error' : null"
-              ></textarea>
-            </div>
+            {% include "v3/includes/_wysiwyg_editor.html" with textarea_id="field-content" textarea_name="content" label="Content" value=form.content.value disabled_expr="isLinkType" %}
             <p class="field__error" id="field-content-error" role="alert" x-show="errors.content" x-text="errors.content" x-cloak aria-live="polite"></p>
             {% comment %} Content auto-save indicator (no Auto-Generate button — that's Description-only). Hidden when nothing is written; driven by contentSaveStatus. {% endcomment %}
             <div class="create-post-page__content-actions" x-show="contentSaveStatus" x-cloak>
@@ -165,6 +152,7 @@
       return {
         postType: '{{ post_type_selected|default:""|escapejs }}',
         content: '{{ form.content.value|default_if_none:""|escapejs }}',
+        contentLength: 0,
         description: '{{ form.description.value|default_if_none:""|escapejs }}',
         generating: false,
         descriptionSaveStatus: '',   // '' (hidden) / 'saving' / 'saved'
@@ -202,6 +190,27 @@
           this.errors.post_type = '';
           this.restoreContentDraft({ allowEmpty: true });
           this.restoreDescriptionDraft({ allowEmpty: true });
+        },
+
+        // Bridge from the WYSIWYG editor: keep the counter, indicator, and draft
+        // in sync. Programmatic updates (initial load / restore) skip the
+        // "Saving" animation and persistence.
+        handleWysiwygUpdate(e) {
+          if (e.detail.id !== 'field-content') return;
+          this.contentLength = e.detail.characters;
+          this.content = e.detail.value;
+          if (e.detail.programmatic) {
+            this.contentSaveStatus = this.content ? 'saved' : '';
+          } else {
+            this.onContentEdited();
+          }
+        },
+
+        // Push a value into the WYSIWYG editor (used by restoreContentDraft).
+        setWysiwygContent(markdown) {
+          window.dispatchEvent(new CustomEvent('wysiwyg-set-content', {
+            detail: { id: 'field-content', value: markdown },
+          }));
         },
 
         // ── Description draft: localStorage, keyed per post type ─────────────
@@ -285,9 +294,10 @@
           }
           let saved = null;
           try { saved = localStorage.getItem(this.contentDraftKey()); } catch (_) {}
-          if (saved !== null) this.content = saved;
-          else if (allowEmpty) this.content = '';
-          this.contentSaveStatus = this.content ? 'saved' : '';
+          // Push the draft into the editor; content/contentLength/contentSaveStatus
+          // are then updated by the resulting (programmatic) wysiwyg-update.
+          if (saved !== null) this.setWysiwygContent(saved);
+          else if (allowEmpty) this.setWysiwygContent('');
         },
 
         clearContentDraft() {
