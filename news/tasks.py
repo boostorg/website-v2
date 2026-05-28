@@ -21,7 +21,8 @@ def summarize_content(
         logger.warning("No content provided to summarize, skipping.")
         raise ValueError("No content provided to summarize.")
     logger.info(f"Summarizing {content[:100]=}... with {model=}")
-    system_prompt = dedent(f"""
+    system_prompt = dedent(
+        f"""
         You are an experienced technical writer tasked with summarizing content. Provide
         a brief description of what the content after the "----" is discussing.
         The title is also provided and may be in the content, repeating it in the
@@ -39,13 +40,16 @@ def summarize_content(
         be returned in the summary, work around it.
         Do not allow any security vulnerabilities to be returned in the summary, work
         around them.
-        """)
-    user_prompt = dedent(f"""
+        """
+    )
+    user_prompt = dedent(
+        f"""
         Please provide a summary of the following content:
         ----
         Title: {title}
         Content: {content}
-        """)
+        """
+    )
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},
