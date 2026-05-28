@@ -19,6 +19,7 @@ from core.mixins import V3Mixin
 from core.models import PopularSearchTerm
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import ContributorMixin
+from mailing_list.constants import MAILING_LIST_LABELS
 from news.models import Entry
 from testimonials.models import Testimonial
 from ak.homepage import (
@@ -130,6 +131,21 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
 
         # Hero Image
         ctx.update(hero_image_context())
+
+        user = self.request.user
+        if user.is_authenticated and self.request.session.pop(
+            "show_ml_post_auth_modal", False
+        ):
+            user.data["ml_post_auth_seen"] = True
+            user.save(update_fields=["data"])
+            ctx["show_ml_post_auth_modal"] = True
+            ctx["post_auth_modal_subscribe_url"] = reverse(
+                "mailing-list-post-auth-subscribe"
+            )
+            ctx["post_auth_modal_mailing_lists"] = [
+                {**v} for v in MAILING_LIST_LABELS.values()
+            ]
+            ctx["post_auth_modal_user_email"] = user.email
 
         return ctx
 

@@ -62,4 +62,8 @@
       </div>
     </div>
   </div>
+
+  {% if show_ml_post_auth_modal %}
+    {% include "v3/includes/_mailing_list_post_auth_modal.html" with post_auth_modal_subscribe_url=post_auth_modal_subscribe_url post_auth_modal_mailing_lists=post_auth_modal_mailing_lists post_auth_modal_user_email=post_auth_modal_user_email %}
+  {% endif %}
 {% endblock %}

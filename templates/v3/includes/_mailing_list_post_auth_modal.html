@@ -1,0 +1,116 @@
+{% comment %}
+Post-login mailing list subscription modal.
+
+Shows automatically on the homepage the first time a user visits after logging
+in. The "seen" flag is set server-side when the homepage renders, so
+cancel/close need no backend call.
+
+Variables:
+  post_auth_modal_subscribe_url  - POST endpoint (mailing-list-post-auth-subscribe)
+  post_auth_modal_mailing_lists  - list of dicts: {id, name, address, description}
+  post_auth_modal_user_email     - logged-in user's email (pre-fills the input)
+
+Auto-open: x-init sets the URL hash, which triggers the CSS :target selector.
+Close: backdrop link (href="#_"), Cancel button, or ESC via dialog.js.
+{% endcomment %}
+<div class="dialog-modal"
+     id="ml-post-auth-modal"
+     x-data="{
+       mlEmail: '{{ post_auth_modal_user_email|default:''|escapejs }}',
+       totalLists: {{ post_auth_modal_mailing_lists|length }},
+       checkedCount: {{ post_auth_modal_mailing_lists|length }},
+       updateCount() {
+         this.checkedCount = this.$refs.checkboxContainer.querySelectorAll('[name=list_id]:checked').length;
+       },
+       unselectAll() {
+         this.$refs.checkboxContainer.querySelectorAll('[name=list_id]').forEach(cb => { cb.checked = false; });
+         this.checkedCount = 0;
+       },
+       selectAll() {
+         this.$refs.checkboxContainer.querySelectorAll('[name=list_id]').forEach(cb => { cb.checked = true; });
+         this.checkedCount = this.totalLists;
+       }
+     }"
+     x-init="window.location.hash = 'ml-post-auth-modal'">
+  <a class="dialog-modal__backdrop" href="#_" tabindex="-1"></a>
+  <div class="dialog-modal__container ml-post-auth-modal__container"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="ml-post-auth-modal-title"
+       aria-describedby="ml-post-auth-modal-desc">
+
+    <div class="ml-post-auth-modal__header">
+      <h2 class="dialog-modal__title" id="ml-post-auth-modal-title">Never Miss an Update from Boost Community</h2>
+    </div>
+
+    <hr class="card__hr">
+
+    <div class="ml-post-auth-modal__email-row">
+      <input class="ml-post-auth-modal__email-field"
+             type="email"
+             autocomplete="email"
+             x-model="mlEmail"
+             placeholder="Email address"
+             aria-label="Email address">
+    </div>
+
+    <hr class="card__hr">
+
+    <form id="ml-post-auth-form"
+          hx-post="{{ post_auth_modal_subscribe_url }}"
+          hx-target="#ml-post-auth-modal"
+          hx-swap="outerHTML"
+          hx-on::before-swap="history.replaceState(null, '', window.location.pathname + window.location.search)">
+      {% csrf_token %}
+      <input type="hidden" name="email" :value="mlEmail">
+
+      <div class="ml-post-auth-modal__body" id="ml-post-auth-modal-desc">
+        <p class="ml-post-auth-modal__description">Subscribe to any of our mailing lists. You can change these any time.</p>
+        <div class="ml-post-auth-modal__list-section">
+          <div class="mailing-list-modal__list-card ml-post-auth-modal__list-card">
+            <ul class="mailing-list-modal__list" role="list" x-ref="checkboxContainer">
+              {% for ml in post_auth_modal_mailing_lists %}
+                <li class="mailing-list-modal__item">
+                  <label class="mailing-list-modal__label">
+                    <input class="mailing-list-modal__checkbox"
+                           type="checkbox"
+                           name="list_id"
+                           value="{{ ml.id }}"
+                           checked
+                           @change="updateCount()">
+                    <span class="mailing-list-modal__checkbox-box" aria-hidden="true">
+                      {% include "includes/icon.html" with icon_name="check" icon_class="mailing-list-modal__checkbox-check" icon_size=16 %}
+                    </span>
+                    <div class="mailing-list-modal__item-content">
+                      <span class="mailing-list-modal__item-name">{{ ml.name }}</span>
+                      <span class="mailing-list-modal__item-description">{{ ml.description }}</span>
+                    </div>
+                  </label>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="ml-post-auth-modal__footer-row">
+            <button type="button"
+                    class="mailing-list-modal__select-all"
+                    @click="checkedCount === totalLists ? unselectAll() : selectAll()"
+                    x-text="checkedCount === totalLists ? 'Unselect All' : 'Select All'"></button>
+            <span class="ml-post-auth-modal__count"
+                  x-text="checkedCount + ' of ' + totalLists + ' selected'"></span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="card__hr">
+
+      <div class="dialog-modal__buttons">
+        <a href="#_"
+           class="btn btn-secondary btn-flex"
+           role="button"
+           @click="history.replaceState(null, '', window.location.pathname + window.location.search)">Cancel</a>
+        {% include "v3/includes/_button.html" with type="submit" label="Subscribe" style="primary" extra_classes="btn-flex" only %}
+      </div>
+    </form>
+
+  </div>
+</div>

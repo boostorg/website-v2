@@ -203,3 +203,114 @@ input.mailing-list-modal__checkbox:focus-visible + .mailing-list-modal__checkbox
   line-height: var(--line-height-default);
   color: var(--color-text-secondary);
 }
+
+/* ============================================
+   POST-AUTH MODAL — first-login subscription prompt
+   ============================================ */
+
+/* Header contains only the title (no close X per design) */
+.ml-post-auth-modal__header {
+  padding: var(--space-large) var(--space-large) 0 var(--space-large);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ml-post-auth-modal__header .dialog-modal__title {
+  margin: 0;
+}
+
+/* Email input row */
+.ml-post-auth-modal__email-row {
+  padding: 0 var(--space-large);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ml-post-auth-modal__email-field {
+  display: block;
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--space-large);
+  box-sizing: border-box;
+  background-color: var(--color-surface-weak) !important;
+  border: 1px solid var(--color-stroke-weak) !important;
+  border-radius: var(--border-radius-xl) !important;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-secondary);
+  outline: none;
+  box-shadow: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.ml-post-auth-modal__email-field::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.ml-post-auth-modal__email-field:focus-visible {
+  background-color: var(--color-surface-mid);
+  border-color: var(--color-stroke-strong);
+}
+
+.ml-post-auth-modal__container .dialog-modal__buttons {
+  padding-top: var(--space-large);
+}
+
+/* Description + list card section */
+.ml-post-auth-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-default);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ml-post-auth-modal__description {
+  padding: 0 var(--space-large);
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-default);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-secondary);
+}
+
+.ml-post-auth-modal__list-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-large);
+  padding: 0 var(--space-large) var(--space-large);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Override the bottom margin that .mailing-list-modal__list-card applies
+   since margin is handled by the parent flex gap here */
+.ml-post-auth-modal__list-card {
+  margin: 0;
+}
+
+/* Unselect All link + "X of Y selected" counter */
+.ml-post-auth-modal__footer-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-relaxed);
+  letter-spacing: var(--letter-spacing-tight);
+  white-space: nowrap;
+}
+
+.ml-post-auth-modal__count {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-secondary);
+}
