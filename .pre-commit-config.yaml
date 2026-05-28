@@ -1,7 +1,10 @@
 default_language_version:
   python: python3.13
 
-exclude: .*migrations\/.*|static\/img\/.*|static\/animations\/.*|static\/js\/boost-gecko\/.*|kube\/boost\/templates\/.*\.yaml
+# Generated esbuild outputs (see `build:wysiwyg` / `build:fuse` in package.json)
+# are excluded because trailing-whitespace / EOL hooks would corrupt minified
+# string and regex content inside them.
+exclude: .*migrations\/.*|static\/img\/.*|static\/animations\/.*|static\/js\/boost-gecko\/.*|kube\/boost\/templates\/.*\.yaml|static\/js\/v3\/wysiwyg-editor\.js|static\/js\/v3\/fuse\.min\.js
 
 repos:
   - repo: https://github.com/adamchainz/django-upgrade
