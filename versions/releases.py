@@ -345,6 +345,12 @@ def store_release_notes_for_version(version_pk):
     logger.info(
         f"store_release_notes_for_version_success {rendered_content.id=} {version.name=}"
     )
+
+    if not version.whats_new:
+        from versions.tasks import dispatch_whats_new
+
+        dispatch_whats_new(version.pk)
+
     return rendered_content
 
 

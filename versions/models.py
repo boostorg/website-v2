@@ -43,6 +43,19 @@ class Version(models.Model):
         default=False,
         help_text="Whether this version has been fully imported and is ready for use.",
     )
+    whats_new = models.TextField(
+        blank=True,
+        default="",
+        help_text=(
+            "AI-generated What's New summary (markdown bullets). "
+            "Clear to regenerate on next release-notes import."
+        ),
+    )
+    whats_new_approved = models.BooleanField(
+        default=False,
+        help_text="Public site only renders the summary when this is True.",
+    )
+    whats_new_generated_at = models.DateTimeField(null=True, blank=True)
     objects = VersionManager()
 
     class Meta:
@@ -213,6 +226,44 @@ class Version(models.Model):
         RenderedContent model."""
         version = "-".join(self.cleaned_version_parts)
         return f"release_notes_boost-{version}"
+
+    @cached_property
+    def whats_new_items(self):
+        """Parse `whats_new` markdown bullets into a list of {title, description}
+        dicts for the v3 release-highlights card.
+
+        Accepts the Markdown unordered-list bullets the LLM is instructed
+        to emit; a leading ``-`` or ``*`` marker is required, followed by a
+        bold category label (``**Label**``):
+          - `- **New libraries** — sentence`
+          - `* **New libraries:** sentence`
+        Trailing `:` inside the label is stripped. Bullets missing the bold
+        label are silently skipped and will not appear on the public site.
+        """
+        if not self.whats_new:
+            return []
+        items = []
+        bullet_re = re.compile(
+            r"^\s*[-*]\s+"
+            r"\*\*(?P<label>[^*]+?)\*\*"
+            r"\s*[:—–\-]?\s*"
+            r"(?P<text>.+)$"
+        )
+        for line in self.whats_new.splitlines():
+            match = bullet_re.match(line)
+            if not match:
+                continue
+            label = match.group("label").strip().rstrip(":").strip()
+            text = match.group("text").strip()
+            if not text:
+                continue
+            items.append(
+                {
+                    "title": label,
+                    "description": text,
+                }
+            )
+        return items
 
 
 class OperatingSystems(models.TextChoices):

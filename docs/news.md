@@ -37,3 +37,9 @@ Users can moderate if:
 - The user posses the `change_entry` permission to the News Entry model
 - The user is in a group which posses the `change_entry` permission to the News Entry model
 - The user is a Superuser
+
+## AI-generated entry summaries
+
+When an `Entry` is saved without a `summary`, `news/tasks.py` dispatches a Celery task that asks an LLM (via [OpenRouter](https://openrouter.ai), default model `gpt-oss-120b`) to produce a short plain-text summary, then writes it back to the entry. Clearing the `summary` field and saving triggers regeneration.
+
+This is the same OpenRouter integration used by the Boost release-notes "What's New" summary in `versions/tasks.py`. Both share `OPENROUTER_API_KEY` — see [Environment Variables](./env_vars.md).
