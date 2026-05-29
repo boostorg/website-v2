@@ -1,22 +1,22 @@
 {% for field in form %}
-    {% with field.widget_type as type %}
-        {% if type == "email" %}
-            {% include "v3/includes/_field_text.html" with name=field.name value=field.value type="email" label=field.label required=field.required disabled=field.disabled only %}
-        {% elif type == "text" %}
-            {% include "v3/includes/_field_text.html" with name=field.name value=field.value type="text" label=field.label required=field.required disabled=field.disabled only %}
-        {% elif type == "checkbox" %}
-            {% include "v3/includes/_field_checkbox.html" with name=field.name value=field.value label=field.label required=field.required disabled=field.disabled only %}
-        {% elif type == "checkboxselectmultiple" %}
-            <label>{{field.label}}</label>
-            {% for option in field.field.choices %}
-                {% if option.0 in field.value %}
-                    {% include "v3/includes/_field_checkbox.html" with name=field.name value=option.0 label=option.1 required=field.required disabled=field.disabled checked=True only %}
-                {% else %}
-                    {% include "v3/includes/_field_checkbox.html" with name=field.name value=option.0 label=option.1 required=field.required disabled=field.disabled only %}
-                {% endif %}
-            {% endfor %}
+  {% with type=field.widget_type %}
+    {% if type == 'email' %}
+      {% include 'v3/includes/_field_text.html' with name=field.name value=field.value type='email' label=field.label required=field.required disabled=field.disabled only %}
+    {% elif type == 'text' %}
+      {% include 'v3/includes/_field_text.html' with name=field.name value=field.value type='text' label=field.label required=field.required disabled=field.disabled only %}
+    {% elif type == 'checkbox' %}
+      {% include 'v3/includes/_field_checkbox.html' with name=field.name value=field.value label=field.label required=field.required disabled=field.disabled only %}
+    {% elif type == 'checkboxselectmultiple' %}
+      <label>{{ field.label }}</label>
+      {% for option in field.field.choices %}
+        {% if option.0 in field.value %}
+          {% include 'v3/includes/_field_checkbox.html' with name=field.name value=option.0 label=option.1 required=field.required disabled=field.disabled checked=True only %}
         {% else %}
-            {{ type }}
+          {% include 'v3/includes/_field_checkbox.html' with name=field.name value=option.0 label=option.1 required=field.required disabled=field.disabled only %}
         {% endif %}
-    {% endwith %}
+      {% endfor %}
+    {% else %}
+      {{ type }}
+    {% endif %}
+  {% endwith %}
 {% endfor %}

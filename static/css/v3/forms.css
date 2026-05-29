@@ -139,6 +139,10 @@
   color: var(--color-text-tertiary, #6b6d78);
 }
 
+.field__checkbox__help {
+  margin-top: var(--space-default);
+}
+
 .field__error {
   margin: 0;
   padding: 0;
