@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("libraries", "0039_flag_known_bot_commit_authors"),
+        ("libraries", "0040_libraryversion_cpp_standard_maximum"),
     ]
 
     operations = [

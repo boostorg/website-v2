@@ -651,7 +651,7 @@ class LearnPageView(V3Mixin, TemplateView):
                         "libraries-list",
                         kwargs={
                             "version_slug": LATEST_RELEASE_URL_PATH_STR,
-                            "library_view_str": "categorized",
+                            "library_view_str": "grid",
                             "category_slug": category.slug,
                         },
                     ),
