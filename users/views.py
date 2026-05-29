@@ -116,6 +116,25 @@ class CurrentUserProfileView(
             ctx["commit_email_addresses"] = CommitAuthorEmail.objects.filter(
                 author__user=self.request.user
             )
+            ctx["account_connections_mixed"] = [
+                {
+                    "platform": "github",
+                    "label": "GitHub",
+                    "connected": True,
+                    "status_text": "Connected",
+                    "action_label": "Manage",
+                    "action_url": "#",
+                },
+                {
+                    "platform": "google",
+                    "label": "Google",
+                    "connected": False,
+                    "status_text": "Not connected",
+                    "action_label": "Connect",
+                    "action_url": "#",
+                },
+            ]
+            ctx["role_options"] = [(0, "C++ Alliance Board Member")]
             return ctx
 
         ctx["user_info"] = {

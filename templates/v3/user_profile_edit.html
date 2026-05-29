@@ -21,31 +21,44 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            {% include 'v3/includes/_wysiwyg_editor.html' with textarea_id='id_content' textarea_name='content' label='Biography' only %}
+            {% include 'v3/includes/_field_text.html' with name="tagline" type="text" label="Tagline" placeholder="Placeholder" help_text="This tagline is displayed next to your avatar on your profile & across the site." only %}
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            {% include 'v3/includes/_wysiwyg_editor.html' with textarea_id='id_content' textarea_name='content' label='Biography' help_text="This text field supports Markdown and this content is what will appear on your public profile" only %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
             <p>Profile Links</p>
             <div class="user-profile__two-column-inputs">
-              {% include 'v3/includes/_field_text.html' with name=Github type='text' label='Label' value='Github' disabled=True only %}
-              {% include 'v3/includes/_field_text.html' with name=Github type='text' label='Link' value='' only %}
-              {% include 'v3/includes/_field_text.html' with name=Github type='text' value='Website' disabled=True only %}
-              {% include 'v3/includes/_field_text.html' with name=Github type='text' value='' only %}
-              {% include 'v3/includes/_field_text.html' with name=Github type='text' value='Email' disabled=True only %}
-              {% include 'v3/includes/_field_text.html' with name=Github type='text' value='' only %}
-              {% include 'v3/includes/_field_text.html' with name=Github type='text' value='Slack' disabled=True only %}
-              {% include 'v3/includes/_field_text.html' with name=Github type='text' value='' only %}
+              {% include 'v3/includes/_field_text.html' with name="Github" type='text' label='Label' value='Github' disabled=True only %}
+              {% include 'v3/includes/_field_text.html' with name="Github" type='text' label='Link' value='' only %}
+              {% include 'v3/includes/_field_text.html' with name="Github" type='text' value='Website' disabled=True only %}
+              {% include 'v3/includes/_field_text.html' with name="Github" type='text' value='' only %}
+              {% include 'v3/includes/_field_text.html' with name="Github" type='text' value='Email' disabled=True only %}
+              {% include 'v3/includes/_field_text.html' with name="Github" type='text' value='' only %}
+              {% include 'v3/includes/_field_text.html' with name="Github" type='text' value='Slack' disabled=True only %}
+              {% include 'v3/includes/_field_text.html' with name="Github" type='text' value='' only %}
             </div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            <div>{{ profile_photo_form }}</div>
+              {% include "v3/includes/_field_dropdown.html" with name="user_role" label="Dropdown" options=role_options placeholder="Please Select Your Role" %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            {% include 'v3/includes/_field_checkbox.html' with name='hide_github' label='Hide your GitHub activity from your Profile' %}
-            {% include 'v3/includes/_field_checkbox.html' with name='hide_github' label='Hide your mailing list activity from your Profile' %}
-            {% include 'v3/includes/_field_checkbox.html' with name='hide_github' label='Hide your achievements & badgets from your Profile' %}
+            <div class="user-profile__avatar-component">
+                <span>Avatar</span>
+                {% with request.user as user %}
+                {% include "v3/includes/_avatar_v3.html" with src=user.avatar_url name=user.name size="xl" only %}
+                {% endwith %}
+            </div>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            {% include 'v3/includes/_field_checkbox.html' with name='hide_github' label='Hide your GitHub activity from your Profile' help_text="Links your login to an existing commit-author email after verification" %}
+            {% include 'v3/includes/_field_checkbox.html' with name='hide_github' label='Hide your mailing list activity from your Profile' help_text="Links your login to an existing commit-author email after verification" %}
+            {% include 'v3/includes/_field_checkbox.html' with name='hide_github' label='Hide your achievements & badgets from your Profile' help_text="Links your login to an existing commit-author email after verification" %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
@@ -87,6 +100,7 @@
               {% include 'v3/includes/_form_include.html' with form=profile_preferences_form only %}
             </div>
           </div>
+          {% include 'v3/includes/_account_connections_card.html' with connections=account_connections_mixed %}
         </div>
       </div>
     </div>
