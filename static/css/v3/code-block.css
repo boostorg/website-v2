@@ -27,9 +27,17 @@
   background: var(--code-block-bg-grey);
 }
 
+.code-block--grey-bg .code-block__copy {
+  background: var(--code-block-bg-grey);
+}
+
 .code-block--white-bg {
   background: var(--color-bg-secondary);
   border: 1px solid var(--code-block-border);
+}
+
+.code-block--white-bg .code-block__copy {
+  background: var(--color-bg-secondary);
 }
 
 .code-block {
@@ -185,7 +193,6 @@ html.dark .code-block-card--grey {
   padding: 0;
   border: none;
   border-radius: var(--border-radius-s);
-  background: transparent;
   color: var(--code-block-copy-icon-color);
   cursor: pointer;
   display: inline-flex;
@@ -283,10 +290,6 @@ html.dark .code-block-card--grey {
   flex-direction: column;
   gap: var(--space-large);
   min-width: 0;
-}
-
-.code-block-story-overflow-example {
-  height: 300px;
 }
 
 .code-block-story-section-title {
