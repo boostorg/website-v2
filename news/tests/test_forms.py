@@ -124,7 +124,13 @@ def test_form_save_approved_news(make_entry, settings):
 def test_blogpost_form():
     form = BlogPostForm()
     assert isinstance(form, EntryForm)
-    assert sorted(form.fields.keys()) == ["content", "image", "publish_at", "title"]
+    assert sorted(form.fields.keys()) == [
+        "content",
+        "image",
+        "publish_at",
+        "summary",
+        "title",
+    ]
 
 
 def test_link_form():
@@ -145,6 +151,7 @@ def test_news_form():
         "content",
         "image",
         "publish_at",
+        "summary",
         "title",
     ]
 
