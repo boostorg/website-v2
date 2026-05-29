@@ -627,6 +627,7 @@ RELEASE_NOTES_IN_PROGRESS_CACHE_KEY = "release-notes-in-progress"
 BOOST_CALENDAR = "5rorfm42nvmpt77ac0vult9iig@group.calendar.google.com"
 CALENDAR_API_KEY = env("CALENDAR_API_KEY", default="changeme")
 PLAUSIBLE_STATS_KEY = env("PLAUSIBLE_STATS_KEY", default="changeme")
+POSTS_RANKING_GRAVITY = env.float("POSTS_RANKING_GRAVITY", default=2.0)
 EVENTS_CACHE_KEY = "homepage_events"
 EVENTS_CACHE_TIMEOUT = 300  # 5 min
 

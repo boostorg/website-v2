@@ -94,3 +94,16 @@ This project uses environment variables to configure certain aspects of the appl
 - For **local development**, set this in your `.env` file. Note: docker compose only loads `env_file` at container creation, so after adding the variable run `docker compose up -d --force-recreate web celery-worker celery-beat` to pick it up.
 - In **deployed environments**, set as a kube secret in `kube/boost/values.yaml` (or the environment-specific yaml file).
 - Without this variable set, OpenRouter responds with `401 No cookie auth credentials found` and Celery retries the task up to 3 times before giving up.
+
+### `PLAUSIBLE_STATS_KEY`
+
+- API key for the Plausible Analytics API, used to sync per-post page view counts into `Entry.page_views`.
+- For **local development**, obtain a valid value from the Boost team.
+- In **deployed environments**, the valid value is set in the environment-specific secrets.
+- If not set (or set to `changeme`), the sync task is silently skipped.
+
+### `POSTS_RANKING_GRAVITY`
+
+- Controls the decay rate of the posts ranking algorithm (`score = views / (age_hours + 2) ^ gravity`).
+- Higher values cause recent posts to decay faster and drop in ranking sooner.
+- Defaults to `2.0` if not set.

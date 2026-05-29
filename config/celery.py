@@ -118,3 +118,9 @@ def setup_periodic_tasks(sender, **kwargs):
         crontab(day_of_week="sun", hour=2, minute=0),
         app.signature("asciidoctor_sandbox.tasks.cleanup_old_sandbox_documents"),
     )
+
+    # Sync per-post page views from Plausible. Executes daily at 6:00 AM.
+    sender.add_periodic_task(
+        crontab(hour=6, minute=0),
+        app.signature("news.tasks.sync_post_views_from_plausible"),
+    )

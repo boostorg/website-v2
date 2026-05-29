@@ -157,12 +157,19 @@ class EntryListView(V3Mixin, ListView):
         }
 
     def get_queryset(self):
-        result = (
-            super()
-            .get_queryset()
-            .select_related("author")
-            .filter(published=True, deleted_at__isnull=True)
-        )
+        if self.request.GET.get("sort") == "popular":
+            result = (
+                self.model.objects.ranked()
+                .select_related("author")
+                .filter(published=True, deleted_at__isnull=True)
+            )
+        else:
+            result = (
+                super()
+                .get_queryset()
+                .select_related("author")
+                .filter(published=True, deleted_at__isnull=True)
+            )
         right_now = now()
         for entry in result:
             entry.display_publish_at = display_publish_at(entry.publish_at, right_now)

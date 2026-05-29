@@ -149,3 +149,22 @@ def set_thumbnail_for_video_entry(pk: int):
 
     video = Video.objects.get(pk=pk)
     set_video_thumbnail(video)
+
+
+@app.task
+def sync_post_views_from_plausible():
+    """Sync per-post page view counts from Plausible into Entry.page_views."""
+    from news.plausible import fetch_post_views, update_page_views
+
+    try:
+        slug_views = fetch_post_views()
+    except Exception as exc:
+        logger.error("sync_post_views.fetch_failed", error=str(exc))
+        return
+
+    if not slug_views:
+        logger.info("sync_post_views.no_results")
+        return
+
+    updated = update_page_views(slug_views)
+    logger.info("sync_post_views.done", updated=updated)

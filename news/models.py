@@ -1,9 +1,11 @@
 from pathlib import Path
 
 from structlog import get_logger
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Case, Value, When
+from django.db.models import Case, ExpressionWrapper, FloatField, F, Func, Value, When
+from django.db.models.functions import Greatest, Now, Power
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
@@ -24,6 +26,12 @@ from .tasks import set_thumbnail_for_video_entry
 
 User = get_user_model()
 logger = get_logger(__name__)
+
+
+class ExtractEpoch(Func):
+    function = "EXTRACT"
+    template = "%(function)s(EPOCH FROM %(expressions)s)"
+    output_field = FloatField()
 
 
 class EntryManager(models.Manager):
@@ -54,6 +62,20 @@ class EntryManager(models.Manager):
 
     def published(self):
         return self.get_queryset().filter(published=True)
+
+    def ranked(self):
+        gravity = float(getattr(settings, "POSTS_RANKING_GRAVITY", 2.0))
+        age_in_hours = ExpressionWrapper(
+            Greatest(ExtractEpoch(Now() - F("publish_at")), Value(0.0)) / Value(3600.0),
+            output_field=FloatField(),
+        )
+        score = ExpressionWrapper(
+            F("page_views") / Power(age_in_hours + Value(2.0), Value(gravity)),
+            output_field=FloatField(),
+        )
+        return (
+            self.get_queryset().annotate(ranking_score=score).order_by("-ranking_score")
+        )
 
 
 class Entry(models.Model):
@@ -102,6 +124,7 @@ class Entry(models.Model):
         blank=True,
         related_name="deleted_entries",
     )
+    page_views = models.PositiveIntegerField(default=0)
 
     objects = EntryManager()
 
