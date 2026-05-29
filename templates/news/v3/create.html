@@ -160,7 +160,7 @@
         postType: '{{ post_type_selected|default:""|escapejs }}',
         content: '{{ form.content.value|default_if_none:""|escapejs }}',
         contentLength: 0,
-        description: '{{ form.description.value|default_if_none:""|escapejs }}',
+        description: '{{ form.summary.value|default_if_none:""|escapejs }}',
         generating: false,
         descriptionSaveStatus: '',   // '' (hidden) / 'saving' / 'saved'
         contentSaveStatus: '',       // same states, for the Content field
@@ -382,6 +382,12 @@
               const el = this.$el.querySelector(`#${id}`) || form.querySelector(`[name="${firstKey}"]`);
               el?.focus();
             }
+          } else {
+            // Validation passed; the form will POST — drop the saved drafts.
+            // (On a server-side reject, the description re-initializes from
+            //  `form.summary.value` so the user's text stays visible.)
+            this.clearContentDraft();
+            this.clearDescriptionDraft();
           }
         },
       };
