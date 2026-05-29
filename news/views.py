@@ -541,7 +541,15 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
             return self.render_to_response(context)
 
         model_class, form_class = type_config
-        form = form_class(request.POST, request.FILES)
+
+        # The v3 create page posts the Description textarea as `description`
+        # (kept named so for the existing frontend wiring). Bind it to the
+        # model's `summary` field on submit for the forms that include it.
+        post_data = request.POST.copy()
+        if post_data.get("description") and not post_data.get("summary"):
+            post_data["summary"] = post_data["description"]
+
+        form = form_class(post_data, request.FILES)
 
         if form.is_valid():
             form.instance.author = request.user

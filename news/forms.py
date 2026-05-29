@@ -22,7 +22,7 @@ class EntryForm(forms.ModelForm):
 class BlogPostForm(EntryForm):
     class Meta:
         model = BlogPost
-        fields = ["title", "publish_at", "content", "image"]
+        fields = ["title", "publish_at", "content", "summary", "image"]
 
 
 class LinkForm(EntryForm):
@@ -43,7 +43,7 @@ class LinkForm(EntryForm):
 class NewsForm(EntryForm):
     class Meta:
         model = News
-        fields = ["title", "publish_at", "content", "image"]
+        fields = ["title", "publish_at", "content", "summary", "image"]
 
 
 class PollForm(EntryForm):
