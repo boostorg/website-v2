@@ -22,6 +22,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-medium);
+  align-items: flex-end;
 }
 
 .library-filter__fields div:has(.btn) {
@@ -40,11 +41,11 @@
 }
 
 .library-filter__field-narrow {
-  width: 104px;
+  width: min(120px, fit-content);
 }
 
 .library-filter__field-default {
-  width: 160px;
+  width: min(160px, fit-content);
 }
 
 .library-filter__field-wide {

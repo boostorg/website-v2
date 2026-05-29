@@ -1,41 +1,7 @@
 /**
- * Tooltip button – icon or icon+text trigger with hover tooltip.
- * Use with v3/includes/_button_tooltip_v3.html
- */
-
-.btn-tooltip {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border-radius: var(--border-radius-l, 8px);
-  background-color: var(--color-button-primary, #efeff1);
-  border: 1px solid var(--color-border, #d5d6d8);
-  color: var(--color-icon-primary, #050816);
-}
-.btn-tooltip:hover {
-  background-color: var(--color-primary-grey-300, #d5d6d8);
-}
-
-html.dark .btn-tooltip {
-  background-color: var(--color-button-primary);
-  border-color: var(--color-border);
-  color: var(--color-icon-primary);
-}
-html.dark .btn-tooltip:hover {
-  background-color: var(--color-primary-grey-700);
-}
-
-.btn-tooltip .btn-icon {
-  width: 16px;
-  height: 16px;
-}
-.btn-tooltip--with-text {
-  width: auto;
-  min-width: 32px;
-  height: 32px;
-  padding: 0 var(--space-default, 8px);
-  gap: var(--space-s, 4px);
-}
+  * Tooltip styling for wrapping components
+  * Used with anything that extends _tooltip_v3.html
+*/
 
 .tooltip-wrapper {
   position: relative;

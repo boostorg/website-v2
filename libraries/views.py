@@ -124,17 +124,29 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
     template_name = "libraries/grid_list.html"
     v3_template_name = "v3/library_page.html"
 
-    def get_v3_context_data(self, **kwargs):
+    def get_v3_context_data(self, queryset=None, **kwargs):
         context = {}
-        cpp_options = [
-            ("all", "All"),
-            ("cpp03", "C++03"),
-            ("cpp11", "C++11"),
-            ("cpp14", "C++14"),
-            ("cpp17", "C++17"),
-            ("cpp20", "C++20"),
-            ("cpp23", "C++23"),
+        view_str = self.kwargs.get("library_view_str")
+
+        cpp_options = [("all", "All")] + list(
+            LibraryVersion.CPP_STANDARD_DISPLAY_NAMES.items()
+        )
+
+        tiers_present = sorted(
+            {lv.library.tier for lv in (queryset or []) if lv.library.tier is not None}
+        )
+
+        grading_options = [("all", "All")] + [
+            (Tier(t).label.lower(), Tier(t).label) for t in tiers_present
         ]
+
+        category_options = [
+            (c.slug, c.name) for c in self.get_categories(self._selected_version)
+        ]
+
+        request_get = self.request.GET
+        selected_categories = request_get.getlist("category")
+
         context["library_filter_fields"] = [
             {
                 "type": "dropdown",
@@ -146,82 +158,123 @@ class LibraryListBase(BoostVersionMixin, V3Mixin, VersionAlertMixin, ListView):
                     ("categorized", "Category"),
                     ("grading", "Grading"),
                 ],
-                "selected": self.kwargs.get("library_view_str"),
+                "selected": view_str,
+                "default": "list",
                 "width": "category",
+                "deselectable": False,
+                "exclude_from_clear": True,
             },
             {
                 "type": "dropdown",
                 "name": "grading",
                 "label": "Grading",
-                "options": [
-                    ("all", "All"),
-                    ("flagship", "Flagship"),
-                    ("core", "Core"),
-                    ("deprecated", "Deprecated"),
-                    ("legacy", "Legacy"),
-                ],
-                "selected": "all",
+                "options": grading_options,
+                "selected": request_get.get("grading", "all"),
+                "default": "all",
                 "width": "wide",
+                "deselectable": True,
             },
             {
                 "type": "dropdown",
                 "name": "min_cpp",
                 "label": "Min. C++ Version",
                 "options": cpp_options,
-                "selected": "all",
+                "selected": request_get.get("min_cpp", "all"),
+                "default": "all",
                 "width": "narrow",
+                "deselectable": True,
             },
             {
                 "type": "dropdown",
                 "name": "max_cpp",
                 "label": "Max. C++ Version",
                 "options": cpp_options,
-                "selected": "all",
+                "selected": request_get.get("max_cpp", "all"),
+                "default": "all",
                 "width": "narrow",
+                "deselectable": True,
             },
             {
                 "type": "combo_multi",
                 "name": "category",
                 "label": "Category",
-                "options": [
-                    ("algorithms", "Algorithms"),
-                    ("asynchronous", "Asynchronous"),
-                    ("awaitables", "Awaitables"),
-                    ("containers", "Containers"),
-                    ("coroutines", "Coroutines"),
-                    ("correctness", "Correctness"),
-                    # More dummy data to show scrollbar
-                    ("data_processing", "Data processing"),
-                    ("debugging", "Debugging"),
-                    ("file_systems", "File systems"),
-                    ("formatting", "Formatting"),
-                    ("graphics", "Graphics"),
-                ],
+                "options": category_options,
+                "selected_values": selected_categories,
                 "width": "wide",
                 "placeholder": "Search",
+                "deselectable": True,
             },
+            # Sort is applied client-side via libraryFilter.sortItems(); no
+            # queryset.order_by() here. The default alphabetical order comes
+            # from the view's `ordering = "library__name"`.
             {
                 "type": "dropdown",
                 "name": "sort",
                 "label": "Sort by",
                 "options": [
                     ("alphabetical", "Alphabetical"),
-                    ("popular", "Most Popular"),
-                    ("updated", "Recently Updated"),
-                    ("release", "Release Date"),
+                    ("popularity", "Most Popular"),
                 ],
-                "selected": "alphabetical",
+                "selected": request_get.get("sort", "alphabetical"),
+                "default": "alphabetical",
+                "deselectable": True,
             },
         ]
-        context["library_view_str"] = self.kwargs.get("library_view_str")
+        context["library_view_str"] = view_str
+        context["library_filter_defaults"] = {
+            f["name"]: f["default"]
+            for f in context["library_filter_fields"]
+            if "default" in f
+        }
+        context["library_filter_clear_url"] = reverse(
+            "libraries-list",
+            kwargs={
+                "version_slug": self.kwargs.get("version_slug"),
+                "library_view_str": "list",
+            },
+        )
+
+        # Compact JSON payload for client-side filtering on list/grid views.
+        context["library_dataset"] = [
+            {
+                "slug": lv.library.slug,
+                "name": lv.library.name,
+                "description": lv.description or lv.library.description or "",
+                "category_slugs": [c.slug for c in lv.library.categories.all()],
+                "category_names": [c.name for c in lv.library.categories.all()],
+                "author_names": [
+                    a.display_name for a in lv.authors.all() if a.display_name
+                ],
+                "cpp_min": lv.get_cpp_standard_minimum_display() or "",
+                "cpp_max": lv.get_cpp_standard_maximum_display() or "",
+                "tier": (
+                    Tier(lv.library.tier).label.lower()
+                    if lv.library.tier is not None
+                    else ""
+                ),
+            }
+            for lv in (queryset or [])
+        ]
+        context["library_search_query"] = self.request.GET.get("q", "")
         return context
 
     def render_v3_response(self):
         """Render the v3 template through Django's standard TemplateView pipeline."""
+        queryset = self.get_queryset()
+        # Resolve selected_version once so get_v3_context_data can reuse it.
+        self._selected_version = self._resolve_selected_version()
         context = self.get_context_data(
-            **self.get_v3_context_data(), object_list=self.get_queryset()
+            **self.get_v3_context_data(queryset=queryset), object_list=queryset
         )
         return self.render_to_response(context)
+
+    def _resolve_selected_version(self):
+        version_slug = determine_selected_boost_version(
+            self.kwargs.get("version_slug"), self.request
+        )
+        if version_slug == LATEST_RELEASE_URL_PATH_STR:
+            return Version.objects.most_recent()
+        return Version.objects.filter(slug=version_slug).first()
 
     def get_queryset(self):
         queryset = super().get_queryset()

@@ -6,22 +6,30 @@
     placeholder (optional) — placeholder text when nothing selected
     options     (required) — list of (value, label) 2-tuples (e.g. from TextChoices.choices)
     selected    (optional) — value of the pre-selected option
+    default     (optional) — value to reset to when the clear button is clicked (defaults to '')
     help_text   (optional) — help text below the field
     error        (optional) — error message (activates error state)
     alpine_error (optional) — Alpine expression for dynamic error binding (e.g. "errors.post_type")
     required    (optional) — if truthy, adds required attribute
     extra_class (optional) — additional classes on the wrapper
+    deselectable (optional) — if truthy, shows a clear (X) button when a value is selected
+    exclude_from_clear (optional) — if truthy, this field ignores the Clear All event
   Usage:
     {% include "v3/includes/_field_dropdown.html" with name="country" label="Country" options=country_options placeholder="Select a country" %}
 {% endcomment %}
-<div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
+<div class="field {% if error %}field--error{% endif %} {% if extra_class %}{{ extra_class }}{% endif %}"
      {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}
+     {% if not exclude_from_clear %}@clear-all-filters.window="clear()"{% endif %}
+     @field-disabled-values.window="if ($event.detail.name === '{{ name }}') disabledValues = $event.detail.values"
+     @field-set.window="if ($event.detail.name === '{{ name }}') { selected = $event.detail.value; selectedLabel = $event.detail.label }"
   {# djlint:off #}
      x-data="{
        jsReady: false,
        open: false,
        selected: '{{ selected|default:'' }}',
        selectedLabel: '',
+       defaultValue: '{{ default|default:'' }}',
+       disabledValues: [],
        init() {
          this.jsReady = true;
          if (this.selected) {
@@ -37,6 +45,42 @@
          this.open = false;
          this.$refs.trigger.focus();
          this.$dispatch('field-change', { name: '{{ name }}', value, label });
+       },
+       clear() {
+         // No-op if already at default — avoids redundant field-change events
+         if (this.selected === this.defaultValue) return;
+         let label = '';
+         if (this.defaultValue) {
+           const opts = this.$refs.list.querySelectorAll('[data-value]');
+           opts.forEach(el => {
+             if (el.dataset.value === this.defaultValue) label = el.dataset.label;
+           });
+         }
+         this.selected = this.defaultValue;
+         this.selectedLabel = label;
+         this.$dispatch('field-change', { name: '{{ name }}', value: this.defaultValue, label });
+       },
+       focusNextEnabled(el) {
+         let n = el.nextElementSibling;
+         while (n && n.hasAttribute('data-value') && this.disabledValues.includes(n.dataset.value)) {
+           n = n.nextElementSibling;
+         }
+         if (n && n.hasAttribute('data-value')) n.focus();
+       },
+       focusPrevEnabled(el) {
+         let p = el.previousElementSibling;
+         while (p && p.hasAttribute('data-value') && this.disabledValues.includes(p.dataset.value)) {
+           p = p.previousElementSibling;
+         }
+         if (p && p.hasAttribute('data-value')) p.focus();
+         else this.$refs.trigger.focus();
+       },
+       firstEnabledOption() {
+         const opts = this.$refs.list.querySelectorAll('[data-value]');
+         for (const el of opts) {
+           if (!this.disabledValues.includes(el.dataset.value)) return el;
+         }
+         return null;
        }
      }">
   {# djlint:on #}
@@ -51,20 +95,23 @@
           @change="$dispatch('field-change', { name: '{{ name }}', value: $event.target.value, label: $event.target.options[$event.target.selectedIndex].text })">
     {% if placeholder %}<option value="">{{ placeholder }}</option>{% endif %}
     {% for value, label in options %}
-      <option value="{{ value }}"{% if value == selected %} selected{% endif %}>{{ label }}</option>
+      <option value="{{ value }}" {% if value == selected %}selected{% endif %}>{{ label }}</option>
     {% endfor %}
   </select>
-  <div class="dropdown" :class="{ 'dropdown--open': open }" x-cloak>
-    <button type="button"
-            class="dropdown__trigger"
-            x-ref="trigger"
-            @click="open = !open"
-            @keydown.escape.prevent="open = false"
-            @keydown.arrow-down.prevent="open = true; $nextTick(() => $refs.list.querySelector('[role=option]')?.focus())"
-            :aria-expanded="open"
-            aria-haspopup="listbox"
-            {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
-            {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}>
+  <div class="dropdown" :class="{ 'dropdown--open': open{% if deselectable %}, 'dropdown--has-value': selected && selected !== defaultValue{% endif %} }" x-cloak>
+    <div class="dropdown__trigger"
+         role="button"
+         tabindex="0"
+         x-ref="trigger"
+         @click="open = !open"
+         @keydown.enter.prevent="open = !open"
+         @keydown.space.prevent="open = !open"
+         @keydown.escape.prevent="open = false"
+         @keydown.arrow-down.prevent="open = true; $nextTick(() => firstEnabledOption()?.focus())"
+         :aria-expanded="open"
+         aria-haspopup="listbox"
+         {% if label %}aria-labelledby="field-{{ name }}-label"{% endif %}
+         {% if error %}aria-invalid="true" aria-describedby="field-{{ name }}-error"{% elif help_text %}aria-describedby="field-{{ name }}-help"{% endif %}>
       <span class="dropdown__trigger-text"
             x-show="selected"
             x-text="selectedLabel"
@@ -72,7 +119,18 @@
       <span class="dropdown__trigger-text dropdown__trigger-placeholder"
             x-show="!selected">{{ placeholder|default:"Select..." }}</span>
       {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
-    </button>
+      {% if deselectable %}
+      <button type="button"
+              class="dropdown__clear-btn"
+              @click.stop="clear()"
+              x-show="selected !== defaultValue"
+              x-cloak
+              aria-label="Clear selection"
+              tabindex="-1">
+        {% include "includes/icon.html" with icon_name="close" icon_class="dropdown__clear-icon" %}
+      </button>
+      {% endif %}
+    </div>
     <div class="dropdown__panel"
          x-show="open"
          @click.away="open = false"
@@ -89,17 +147,18 @@
       <div class="dropdown__list" x-ref="list">
         {% for value, label in options %}
           <div class="dropdown__item"
-               :class="{ 'dropdown__item--selected': selected === '{{ value }}' }"
+               :class="{ 'dropdown__item--selected': selected === '{{ value }}', 'dropdown__item--disabled': disabledValues.includes('{{ value }}') }"
                role="option"
                :aria-selected="selected === '{{ value }}'"
+               :aria-disabled="disabledValues.includes('{{ value }}')"
                data-value="{{ value }}"
                data-label="{{ label }}"
-               @click="choose('{{ value }}', '{{ label }}')"
-               @keydown.enter.prevent="choose('{{ value }}', '{{ label }}')"
-               @keydown.space.prevent="choose('{{ value }}', '{{ label }}')"
-               @keydown.arrow-down.prevent="$el.nextElementSibling?.focus()"
-               @keydown.arrow-up.prevent="$el.previousElementSibling?.hasAttribute('data-value') ? $el.previousElementSibling.focus() : $refs.trigger.focus()"
-               tabindex="0">{{ label }}</div>
+               @click="if (!disabledValues.includes('{{ value }}')) choose('{{ value }}', '{{ label }}')"
+               @keydown.enter.prevent="if (!disabledValues.includes('{{ value }}')) choose('{{ value }}', '{{ label }}')"
+               @keydown.space.prevent="if (!disabledValues.includes('{{ value }}')) choose('{{ value }}', '{{ label }}')"
+               @keydown.arrow-down.prevent="focusNextEnabled($el)"
+               @keydown.arrow-up.prevent="focusPrevEnabled($el)"
+               :tabindex="disabledValues.includes('{{ value }}') ? -1 : 0">{{ label }}</div>
         {% endfor %}
       </div>
     </div>
@@ -116,7 +175,7 @@
   <p class="field__error" role="alert" aria-live="polite" x-show="false">{{ error }}</p>
   {% endif %}
   {% if help_text %}
-  <p class="field__help" id="field-{{ name }}-help" x-show="!{{ alpine_error }}"{% if error %} style="display:none"{% endif %}>{{ help_text }}</p>
+  <p class="field__help" id="field-{{ name }}-help" x-show="!{{ alpine_error }}" {% if error %}style="display:none"{% endif %}>{{ help_text }}</p>
   {% endif %}
   {% else %}
   {% if error %}

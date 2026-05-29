@@ -70,6 +70,7 @@
 
 .btn-secondary {
   border-color: var(--color-stroke-strong);
+  background-color: var(--color-surface-weak);
   color: var(--color-text-primary);
 }
 

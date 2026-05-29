@@ -10,6 +10,7 @@
     error           (optional) — error message (activates error state)
     required        (optional) — if truthy, adds required attribute
     extra_class     (optional) — additional classes on the wrapper
+    deselectable (optional) — if truthy, shows a clear (X) button when any values are selected
   Usage:
     {% include "v3/includes/_field_combo_multi.html" with name="tags" label="Tags" options=tags_options placeholder="Search tags..." %}
 {% endcomment %}
@@ -18,7 +19,8 @@
 {% if selected_values %}
   <script type="application/json" id="field-{{ name }}-selected">{{ selected_values|to_json }}</script>
 {% endif %}
-<div class="field{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
+<div class="field {% if error %}field--error{% endif %} {% if extra_class %}{{ extra_class }}{% endif %}"
+     @clear-all-filters.window="clearAll()"
   {# djlint:off #}
      x-data="{
        jsReady: false,
@@ -63,6 +65,10 @@
            this.query = '';
            this.$nextTick(() => this.$refs.searchInput.focus());
          }
+       },
+       clearAll() {
+         this.selectedValues = [];
+         this.query = '';
        }
      }">
   {# djlint:on #}
@@ -76,10 +82,10 @@
           x-show="!jsReady"
           :disabled="jsReady">
     {% for value, label in options %}
-      <option value="{{ value }}"{% if value in selected_values %} selected{% endif %}>{{ label }}</option>
+      <option value="{{ value }}" {% if value in selected_values %}selected{% endif %}>{{ label }}</option>
     {% endfor %}
   </select>
-  <div class="dropdown dropdown--combo" :class="{ 'dropdown--open': open }" x-cloak>
+  <div class="dropdown dropdown--combo" :class="{ 'dropdown--open': open{% if deselectable %}, 'dropdown--has-value': selectedValues.length > 0{% endif %} }" x-cloak>
     <div class="dropdown__trigger"
          :class="{ 'dropdown__trigger--active': open }"
          @click="if (!open) toggleOpen()"
@@ -117,6 +123,17 @@
               aria-label="Toggle search">
         {% include "includes/icon.html" with icon_name="chevron-down" icon_class="dropdown__chevron" %}
       </button>
+      {% if deselectable %}
+      <!-- Clear button: shown when any values are selected -->
+      <button type="button"
+              class="dropdown__clear-btn"
+              @click.stop="clearAll()"
+              x-show="selectedValues.length > 0"
+              aria-label="Clear all selections"
+              tabindex="-1">
+        {% include "includes/icon.html" with icon_name="close" icon_class="dropdown__clear-icon" %}
+      </button>
+      {% endif %}
     </div>
     <div class="dropdown__panel"
          x-show="open"

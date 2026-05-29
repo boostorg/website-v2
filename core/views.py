@@ -2183,7 +2183,7 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
                 else None
             )
             cats = [
-                {"label": cat.name, "url": "#", "variant": "neutral"}
+                {"label": cat.name, "slug": cat.slug, "url": "#", "variant": "neutral"}
                 for cat in lib.categories.all()[:3]
             ]
             author = demo_authors.get(lib.pk)

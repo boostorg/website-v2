@@ -1,0 +1,20 @@
+{% comment %}
+  This component is not intended to be used on its own. Instead, this is extended by other components to optionally offer hovering tooltips.
+  See _button.html as an example implementation.
+  Variables:
+    tp_label (optional; tooltip content, if not included tooltip doesn't populate),
+    tp_position (optional; top|right|bottom|left),
+    tp_id (optional; for multiple tooltips with same label, pass a unique id).
+{% endcomment %}
+
+{% if tp_label %}
+  {% with tid=tp_id|default:tp_label|slugify %}
+  <div class="tooltip-wrapper">
+    <span id="tooltip-{{ tid }}" class="tooltip-label {{ tp_position|default:'bottom' }}" role="tooltip">{{ tp_label }}</span>
+  {% endwith %}
+{% endif %}
+{% block tooltip_slot %}
+{% endblock tooltip_slot %}
+{% if tp_label %}
+  </div>
+{% endif %}

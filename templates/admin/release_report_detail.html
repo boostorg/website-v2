@@ -214,8 +214,8 @@ ul.slack-channels li div a:hover,
           {% endif %}
         </div>
 
-        <div class="flex gap-x-8 justify-around w-full">
-          <div class="px-4">
+        <div class="flex gap-x-8 justify-center w-full">
+          <div class="px-8">
             <div class="mx-auto mb-6">Top Contributors</div>
             <div class="m-auto grid grid-cols-1 gap-2">
             {% for author in top_contributors_release_overall %}
@@ -232,9 +232,16 @@ ul.slack-channels li div a:hover,
             </div>
           </div>
 
-          <div class="flex flex-col justify-center flex-1">
-            <h3 class="mx-auto">Most Committed Libraries</h3>
-            <div id="top-committed-libraries-chart" class="w-full text-center"></div>
+          <div class="px-8 flex flex-col justify-center">
+            <h3>Most Committed Libraries</h3>
+            <table class="border-separate border-spacing-0" style="width: fit-content;">
+              {% for library in top_libraries_for_version|slice:20 %}
+                <tr>
+                  <td style="padding-right: 1rem;">{{library.name}}</td>
+                  <td>{{library.commit_count}} commits</td>
+                </tr>
+              {% endfor %}
+              </table>
           </div>
         </div>
 
@@ -688,7 +695,7 @@ ul.slack-channels li div a:hover,
         xaxis: {
           type: "category",
           title: {
-            text: "Calendar Week {{ mailinglist_charts_start_year }}"
+            text: "Calendar Week 20{{ mailinglist_charts_current_year }}"
           },
           labels: {
             rotate: 0,
@@ -697,8 +704,8 @@ ul.slack-channels li div a:hover,
               const match = value.match(/^(\d+)\s+\((\d{2})\)$/);
               if (match) {
                 const week = parseInt(match[1]);
-                const year = match[2];
-                return week === 1 ? `1 ('${year})` : `${week}`;
+                const year = parseInt(match[2]);
+                return `${week}`;
               }
               return value; // fallback if pattern doesn't match
             }
@@ -726,7 +733,7 @@ ul.slack-channels li div a:hover,
         xaxis: {
           type: "numeric",
           title: {
-            text: "Calendar Week {{ mailinglist_charts_start_year }}"
+            text: "Calendar Week 20{{ mailinglist_charts_current_year }}"
           },
           labels: {
             rotate: 0,
@@ -735,8 +742,8 @@ ul.slack-channels li div a:hover,
               const match = value.match(/^(\d+)\s+\((\d{2})\)$/);
               if (match) {
                 const week = parseInt(match[1]);
-                const year = match[2];
-                return week === 1 ? `1 (20${year})` : `${week}`;
+                const year = parseInt(match[2]);
+                return year != parseInt({{ mailinglist_charts_current_year }}) ? `${week} ('${year})` : `${week}`;
               }
               return value; // fallback if pattern doesn't match
             }

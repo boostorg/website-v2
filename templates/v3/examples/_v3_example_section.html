@@ -109,16 +109,16 @@
       <h3>{{ section_title }}</h3>
       <div class="v3-examples-section__example-box">
         <div class="v3-examples-section__tools">
-          {% include "v3/includes/_button_tooltip_v3.html" with label="Top" position="top" button_text="Help" %}
-          {% include "v3/includes/_button_tooltip_v3.html" with label="Right" position="right" button_text="Help" %}
-          {% include "v3/includes/_button_tooltip_v3.html" with label="Bottom" position="bottom" button_text="Help" %}
-          {% include "v3/includes/_button_tooltip_v3.html" with label="Left" position="left" button_text="Help" %}
-          {% include "v3/includes/_button_tooltip_v3.html" with label="More information here" position="bottom" button_text="Info" %}
-          {% include "v3/includes/_button_tooltip_v3.html" with label="Top" position="top" %}
-          {% include "v3/includes/_button_tooltip_v3.html" with label="Right" position="right" %}
-          {% include "v3/includes/_button_tooltip_v3.html" with label="Bottom" position="bottom" %}
-          {% include "v3/includes/_button_tooltip_v3.html" with label="Left" position="left" %}
-          {% include "v3/includes/_button_tooltip_v3.html" with label="Icon only tooltip" position="bottom" %}
+          {% include "v3/includes/_button.html" with tp_label="Top"                   tp_position="top"     label="Help"  icon_name="info-box" icon_size=16 only %}
+          {% include "v3/includes/_button.html" with tp_label="Right"                 tp_position="right"   label="Help"  icon_name="info-box" icon_size=16 only %}
+          {% include "v3/includes/_button.html" with tp_label="Bottom"                tp_position="bottom"  label="Help"  icon_name="info-box" icon_size=16 only %}
+          {% include "v3/includes/_button.html" with tp_label="Left"                  tp_position="left"    label="Help"  icon_name="info-box" icon_size=16 only %}
+          {% include "v3/includes/_button.html" with tp_label="More information here" tp_position="bottom"  label="Info"  icon_name="info-box" icon_size=16 only %}
+          {% include "v3/includes/_button.html" with tp_label="Top"                   tp_position="top"     label=''      icon_name="info-box" icon_size=16 only %}
+          {% include "v3/includes/_button.html" with tp_label="Right"                 tp_position="right"   label=''      icon_name="info-box" icon_size=16 only %}
+          {% include "v3/includes/_button.html" with tp_label="Bottom"                tp_position="bottom"  label=''      icon_name="info-box" icon_size=16 only %}
+          {% include "v3/includes/_button.html" with tp_label="Left"                  tp_position="left"    label=''      icon_name="info-box" icon_size=16 only %}
+          {% include "v3/includes/_button.html" with tp_label="Icon only tooltip"     tp_position="bottom"  label=''      icon_name="info-box" icon_size=16 only %}
         </div>
       </div>
     </div>
