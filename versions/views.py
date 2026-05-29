@@ -1,6 +1,7 @@
 import structlog
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models.query import QuerySet
+from enum import Enum
 from itertools import groupby
 from operator import attrgetter
 
@@ -152,16 +153,28 @@ class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
         except RenderedContent.DoesNotExist:
             return
 
+    class VersionHeadingEnum(Enum):
+        NEWEST_RELEASE = "Newest Release"
+        LATEST_RELEASE = "Latest Release"
+        BETA_RELEASE = "Beta Release"
+        PRIOR_RELEASE = "Prior Release"
+        DEVELOPMENT_BRANCH = "Development Branch"
+
     def get_version_heading(self, obj, is_current_release, v3=False):
         """Returns the heading of the versions template"""
         if is_current_release:
-            return "Latest Release" if v3 else "Newest Release"
+            heading = (
+                self.VersionHeadingEnum.LATEST_RELEASE
+                if v3
+                else self.VersionHeadingEnum.NEWEST_RELEASE
+            )
         elif all([not is_current_release, obj.beta]):
-            return "Beta Release"
+            heading = self.VersionHeadingEnum.BETA_RELEASE
         elif all([obj.full_release, not is_current_release]):
-            return "Prior Release"
+            heading = self.VersionHeadingEnum.PRIOR_RELEASE
         else:
-            return "Development Branch"
+            heading = self.VersionHeadingEnum.DEVELOPMENT_BRANCH
+        return heading.value
 
     def get_v3_contributors(self, version):
         """Shape the release's top contributors for the v3 contributors card."""
@@ -174,7 +187,9 @@ class VersionDetail(V3Mixin, BoostVersionMixin, VersionAlertMixin, DetailView):
         obj = self.object
         is_current_release = self.extra_context["current_version"] == obj
         heading = self.get_version_heading(obj, is_current_release, v3=True)
-        is_development_branch = heading == "Development Branch"
+        is_development_branch = (
+            heading == self.VersionHeadingEnum.DEVELOPMENT_BRANCH.value
+        )
 
         ctx = {
             "hero_title": f"{heading} ({obj.display_name})",
