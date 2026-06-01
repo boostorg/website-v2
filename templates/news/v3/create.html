@@ -82,11 +82,11 @@
               <span class="create-post-page__save-indicator" role="status" aria-live="polite">
                 <span class="create-post-page__save-state" x-show="contentSaveStatus === 'saving'" x-cloak>
                   <span class="create-post-page__save-text">Saving</span>
-                  {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
+                  {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 %}
                 </span>
                 <span class="create-post-page__save-state" x-show="contentSaveStatus === 'saved'" x-cloak>
                   <span class="create-post-page__save-text">Saved</span>
-                  {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
+                  {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
                 </span>
               </span>
             </div>
@@ -113,7 +113,7 @@
             {% comment %} Shown while Auto-Generate is in flight (visually replaces the textarea). {% endcomment %}
             <div class="field__control field__control--textarea create-post-page__generating-placeholder" role="status" aria-live="polite" x-show="generating" x-cloak>
               <span class="create-post-page__generating-message">
-                {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__generating-icon" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
+                {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__generating-icon" icon_size=16 %}
                 <span>Hold on! We are generating a description for your content, it may take a few seconds</span>
               </span>
             </div>
@@ -124,11 +124,11 @@
               <span class="create-post-page__save-indicator" role="status" aria-live="polite">
                 <span class="create-post-page__save-state" x-show="descriptionSaveStatus === 'saving'" x-cloak>
                   <span class="create-post-page__save-text">Saving</span>
-                  {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
+                  {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 %}
                 </span>
                 <span class="create-post-page__save-state" x-show="descriptionSaveStatus === 'saved'" x-cloak>
                   <span class="create-post-page__save-text">Saved</span>
-                  {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 icon_viewbox="0 0 13.3333 13.3333" %}
+                  {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
                 </span>
               </span>
             </div>
