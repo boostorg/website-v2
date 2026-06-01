@@ -591,8 +591,8 @@ def generate_description(request):
     NOTE: intentionally not login-gated yet (local testing). This endpoint calls
     a paid LLM, so add @login_required (and rate limiting) before it ships.
     """
-    content = (request.POST.get("content") or "").strip()
-    title = (request.POST.get("title") or "").strip()
+    title = request.POST.get("title", "").strip()
+    content = request.POST.get("content", "").strip()
 
     if not content:
         return JsonResponse({"error": "Add some content first."}, status=400)
