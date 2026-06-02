@@ -650,6 +650,12 @@
   cursor: not-allowed;
 }
 
+.checkbox__multi-checkbox-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
 /* ========== Textarea variant ========== */
 .field--textarea .field__control--textarea {
   min-height: 120px;

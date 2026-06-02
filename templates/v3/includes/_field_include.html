@@ -1,0 +1,23 @@
+{% with type=field.widget_type %}
+  {% if type == 'email' %}
+    {% include 'v3/includes/_field_text.html' with name=field.name value=field.initial type='email' label=field.label required=field.required disabled=field.disabled help_text=field.field.help_text placeholder=field.field.widget.attrs.placeholder only %}
+  {% elif type == 'text' %}
+    {% include 'v3/includes/_field_text.html' with name=field.name value=field.initial type='text' label=field.label required=field.required disabled=field.disabled help_text=field.field.help_text placeholder=field.field.widget.attrs.placeholder only %}
+  {% elif type == 'checkbox' %}
+    {% include 'v3/includes/_field_checkbox.html' with name=field.name value=field.initial label=field.label required=field.required disabled=field.disabled help_text=field.field.help_text only %}
+  {% elif type == 'checkboxselectmultiple' %}
+    <div class="checkbox__multi-checkbox-column">
+    {% for option in field.field.choices %}
+      {% if option.0 in field.value %}
+        {% include 'v3/includes/_field_checkbox.html' with name=field.name value=option.0 label=option.1 required=field.required disabled=field.disabled checked=True only %}
+      {% else %}
+        {% include 'v3/includes/_field_checkbox.html' with name=field.name value=option.0 label=option.1 required=field.required disabled=field.disabled only %}
+      {% endif %}
+    {% endfor %}
+    </div>
+  {% elif type == "select" %}
+    {% include 'v3/includes/_field_dropdown.html' with name=field.name label=field.label selected=field.value options=field.field.choices disabled=field.disabled %}
+  {% else %}
+    {{ type }}
+  {% endif %}
+{% endwith %}

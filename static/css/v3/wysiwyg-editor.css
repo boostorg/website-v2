@@ -715,3 +715,7 @@ background-color: var(--color-surface-brand-accent-default, #f7f7f8) !important;
 .wysiwyg-modal__btn--insert:hover {
   background: var(--color-surface-brand-accent-hovered, #FFA000BF);
 }
+
+.wysiwyg-v3 > .field__help {
+  margin-top: var(--space-default);
+}

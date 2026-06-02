@@ -4,11 +4,6 @@
     padding: 0 var(--space-medium);
 }
 
-.user-profile__container .btn {
-    width: fit-content;
-    min-width: unset;
-    padding: var(--space-default) var(--space-large);
-}
 
 /* ──────── Header row, including profile card and buttons ──────── */
 
@@ -29,6 +24,12 @@
     max-width: 100%;
     flex-wrap: wrap;
     justify-content: flex-end;
+}
+
+.user-profile__button-group .btn {
+    width: fit-content;
+    min-width: unset;
+    padding: var(--space-default) var(--space-large);
 }
 
 .user-profile__btn-no-label {
@@ -75,7 +76,37 @@
     row-gap: var(--space-large);
 }
 
+.user-profile__small-section-heading {
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-relaxed);
+    letter-spacing: var(--letter-spacing-tight);
+}
+
+.user-profile__default-space-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-default);
+}
+
+.user-profile__xl-space-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+}
+
+.user-profile__default-space-col .btn {
+    width: fit-content;
+}
+
+.user-profile__profile-edit-card .card__hr:not(:first-of-type):not(:last-of-type) {
+    margin: var(--space-default) 0
+}
+
 @media (max-width: 768px) {
+
     /* ──────── Stack header row on mobile ──────── */
     .user-profile__profile-card-row {
         flex-direction: column;
@@ -100,16 +131,36 @@
         display: contents;
     }
 
-    .user-profile__bio          { order: 1; }
-    .user-profile__achievements { order: 2; }
-    .user-profile__badges       { order: 3; }
-    .user-profile__github       { order: 4; }
-    .user-profile__posts        { order: 5; }
-    .user-profile__mailing-list { order: 6; }
-    .user-profile__connections  { order: 7; }
+    .user-profile__bio {
+        order: 1;
+    }
+
+    .user-profile__achievements {
+        order: 2;
+    }
+
+    .user-profile__badges {
+        order: 3;
+    }
+
+    .user-profile__github {
+        order: 4;
+    }
+
+    .user-profile__posts {
+        order: 5;
+    }
+
+    .user-profile__mailing-list {
+        order: 6;
+    }
+
+    .user-profile__connections {
+        order: 7;
+    }
 }
 
-@media (769px <= width < 1280px) {
+@media (769px <=width < 1280px) {
     .user-profile__button-group {
         align-self: end;
         width: 528px;
