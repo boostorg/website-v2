@@ -2057,17 +2057,17 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
             "Lightweight utilities that power dozens of other Boost libraries"
         )
 
-        def _intro_authors(*names_and_roles):
+        def _intro_authors(*authors):
             return [
                 {
                     "name": name,
                     "role": role,
                     "avatar_url": _intro_avatar,
-                    "badge": "",
+                    "badge": badge,
                     "bio": _intro_bio,
                     "profile_url": "",
                 }
-                for name, role in names_and_roles
+                for name, role, badge in authors
             ]
 
         def _intro_card(library_name, authors):
@@ -2081,27 +2081,27 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         context["library_intro_few"] = _intro_card(
             "Boost.Core.",
             _intro_authors(
-                ("Vinnie Falco", "Author"),
-                ("Alex Wells", "Contributor"),
+                ("Vinnie Falco", "Author", BadgeToken.TIER_3),
+                ("Alex Wells", "Contributor", BadgeToken.TIER_2),
             ),
         )
         context["library_intro_three"] = _intro_card(
             "Boost.Asio.",
             _intro_authors(
-                ("Vinnie Falco", "Author"),
-                ("Alex Wells", "Maintainer"),
-                ("Dave Abrahams", "Contributor"),
+                ("Vinnie Falco", "Author", BadgeToken.TIER_3),
+                ("Alex Wells", "Maintainer", BadgeToken.TIER_2),
+                ("Dave Abrahams", "Contributor", BadgeToken.TIER_1),
             ),
         )
         context["library_intro_many"] = _intro_card(
             "Boost.Beast.",
             _intro_authors(
-                ("Vinnie Falco", "Author"),
-                ("Alex Wells", "Maintainer"),
-                ("Dave Abrahams", "Contributor"),
-                ("Beman Dawes", "Contributor"),
-                ("Hartmut Kaiser", "Contributor"),
-                ("Andrey Semashev", "Contributor"),
+                ("Vinnie Falco", "Author", BadgeToken.TIER_3),
+                ("Alex Wells", "Maintainer", BadgeToken.TIER_2),
+                ("Dave Abrahams", "Contributor", BadgeToken.TIER_1),
+                ("Beman Dawes", "Contributor", BadgeToken.TIER_3),
+                ("Hartmut Kaiser", "Contributor", BadgeToken.TIER_2),
+                ("Andrey Semashev", "Contributor", BadgeToken.TIER_1),
             ),
         )
 
