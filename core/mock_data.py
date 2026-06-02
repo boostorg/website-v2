@@ -98,31 +98,6 @@ class SharedResources:
         },
     ]
 
-    install_card_pkg_managers = [
-        {"label": "Conan", "value": "conan", "command": "conan install boost"},
-        {"label": "Vcpkg", "value": "vcpkg", "command": "vcpkg install boost"},
-    ]
-
-    install_card_system_install = [
-        {
-            "label": "Ubuntu",
-            "value": "ubuntu",
-            "command": "sudo apt install libboost-all-dev",
-        },
-        {
-            "label": "Fedora",
-            "value": "fedora",
-            "command": "sudo dnf install boost-devel",
-        },
-        {
-            "label": "CentOS",
-            "value": "centos",
-            "command": "sudo yum install boost-devel",
-        },
-        {"label": "Arch", "value": "arch", "command": "sudo pacman -S boost"},
-        {"label": "Homebrew", "value": "homebrew", "command": "brew install boost"},
-    ]
-
     popular_terms = [
         {"label": "Networking"},
         {"label": "Math"},

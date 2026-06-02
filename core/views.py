@@ -102,6 +102,7 @@ from libraries.utils import (
     commit_data_to_stats_bars,
 )
 
+from .install_commands import INSTALL_PKG_MANAGERS, INSTALL_SYSTEM_INSTALL
 from .mock_data import SharedResources  # noqa: F401
 
 logger = structlog.get_logger()
@@ -326,8 +327,8 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
         ctx["contribute_url"] = self.request.build_absolute_uri(
             "/doc/contributor-guide/contributors-faq.html"
         )
-        ctx["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
-        ctx["install_card_system_install"] = SharedResources.install_card_system_install
+        ctx["install_card_pkg_managers"] = INSTALL_PKG_MANAGERS
+        ctx["install_card_system_install"] = INSTALL_SYSTEM_INSTALL
         ctx["create_account_card_body_html"] = (
             "<p>Your contribution badges appear on your Boost profile with:</p>"
             "<ul>"
@@ -1498,10 +1499,8 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
         context["install_card_title"] = (
             "Install Boost and get started in your terminal."
         )
-        context["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
-        context["install_card_system_install"] = (
-            SharedResources.install_card_system_install
-        )
+        context["install_card_pkg_managers"] = INSTALL_PKG_MANAGERS
+        context["install_card_system_install"] = INSTALL_SYSTEM_INSTALL
         context["popular_terms"] = SharedResources.popular_terms
         context["demo_libs"] = [
             ("asio", "Asio"),

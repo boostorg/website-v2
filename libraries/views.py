@@ -15,6 +15,7 @@ from django.views.generic import DetailView, ListView, FormView, TemplateView
 
 from core.constants import SLACK_URL
 from core.githubhelper import GithubAPIClient
+from core.install_commands import INSTALL_PKG_MANAGERS, INSTALL_SYSTEM_INSTALL
 from core.mixins import V3Mixin
 from mailing_list.mixins import MailingListCardMixin
 from core.mock_data import SharedResources
@@ -530,10 +531,8 @@ class LibraryDetail(
 
         version_str = base_context.get("version_str") or LATEST_RELEASE_URL_PATH_STR
 
-        context["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
-        context["install_card_system_install"] = (
-            SharedResources.install_card_system_install
-        )
+        context["install_card_pkg_managers"] = INSTALL_PKG_MANAGERS
+        context["install_card_system_install"] = INSTALL_SYSTEM_INSTALL
         context["library_about_code"] = SharedResources.library_about_code
         context["library_install_code"] = SharedResources.library_install_code
         context["slack_url"] = SLACK_URL

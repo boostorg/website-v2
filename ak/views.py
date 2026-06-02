@@ -10,6 +10,7 @@ from django.views.generic import TemplateView
 
 from core.constants import SLACK_MEMBER_COUNT
 from core.calendar import extract_calendar_events, events_by_month, get_calendar
+from core.install_commands import INSTALL_PKG_MANAGERS, INSTALL_SYSTEM_INSTALL
 from core.mixins import V3Mixin
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import ContributorMixin
@@ -86,8 +87,8 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
 
     def get_v3_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["install_card_pkg_managers"] = SharedResources.install_card_pkg_managers
-        ctx["install_card_system_install"] = SharedResources.install_card_system_install
+        ctx["install_card_pkg_managers"] = INSTALL_PKG_MANAGERS
+        ctx["install_card_system_install"] = INSTALL_SYSTEM_INSTALL
 
         ctx["why_boost_cards"] = [
             {
