@@ -16,7 +16,7 @@
     {% endfor %}
     </div>
   {% elif type == "select" %}
-    {% include 'v3/includes/_field_dropdown.html' with name=field.name label=field.label selected=field.value options=field.field.choices disabled=field.disabled %}
+    {% include 'v3/includes/_field_dropdown.html' with name=field.name label=field.label selected=field.value options=field.field.choices disabled=field.disabled placeholder=field.field.widget.attrs.placeholder %}
   {% else %}
     {{ type }}
   {% endif %}

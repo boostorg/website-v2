@@ -110,7 +110,15 @@ class V3ProfileLinkForm(forms.Form):
 V3ProfileLinkFormset = forms.formset_factory(V3ProfileLinkForm, extra=0)
 
 
+class V3CommitEmailForm(forms.Form):
+    email = forms.EmailField(max_length=80)
+
+
+V3CommitEmailFormSet = forms.formset_factory(V3CommitEmailForm, extra=0)
+
+
 class V3UserProfileForm(forms.Form):
+    # Left Column Fields
     tagline = forms.CharField(
         max_length=70,
         help_text="This tagline is displayed next to your avatar on your profile & across the site",
@@ -127,6 +135,11 @@ class V3UserProfileForm(forms.Form):
     role = forms.ChoiceField(
         choices=[(0, "C++ Alliance Board Member")], label="Your Role"
     )
+    select_title = forms.ChoiceField(
+        choices=[],
+        disabled=True,
+        widget=forms.Select(attrs={"placeholder": "Unlock a badge to pick a title"}),
+    )
     hide_github = forms.BooleanField(
         label="Hide GitHub activity from your profile",
         help_text="Links your login to an existing commit-author email after verification",
@@ -139,6 +152,8 @@ class V3UserProfileForm(forms.Form):
         label="Hide achievements & badges from your profile",
         help_text="Links your login to an existing commit-author email after verification",
     )
+
+    # Top Right Column
     username = forms.CharField(
         max_length=80, widget=forms.TextInput(attrs={"placeholder": "Placeholder"})
     )
@@ -155,6 +170,17 @@ class V3UserProfileForm(forms.Form):
     ovverride_commit_author_email = forms.BooleanField(
         help_text="Links your login to an existing commit-author email after verification"
     )
+
+    # Commit Emails
+    commit_email_formset = V3CommitEmailFormSet(
+        initial=[
+            {
+                "email": "abc@example.com",
+            },
+        ],
+    )
+
+    # Email Alerts
     allow_notification_own_news_approved = forms.MultipleChoiceField(
         choices=NEWS_ENTRY_CHOICES,
         widget=forms.widgets.CheckboxSelectMultiple,
@@ -187,6 +213,13 @@ class CurrentUserProfileView(
 
         if self.request.GET.get("edit", False):
             ctx["user_profile_form"] = V3UserProfileForm()
+            ctx["badge_tiers"] = [
+                {"tier": "1", "name": "Bronze"},
+                {"tier": "2", "name": "Silver"},
+                {"tier": "3", "name": "Gold"},
+                {"tier": "4", "name": "Platinum"},
+                {"tier": "5", "name": "Diamond"},
+            ]
             ctx["account_connections_mixed"] = [
                 {
                     "platform": "github",

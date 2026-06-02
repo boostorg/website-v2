@@ -41,13 +41,31 @@
             {% include 'v3/includes/_field_include.html' with field=user_profile_form.role %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
-          <div class="card__column px-large">
-            <div class="user-profile__avatar-component">
+          <div class="user-profile__xl-space-col px-large">
+            <div class="user-profile__default-space-col">
               <span class="field__label">Avatar</span>
               {% with user=request.user %}
-                {% include 'v3/includes/_avatar_v3.html' with src=user.avatar_url name=user.name size='xl' only %}
+                {% if user.avatar_url %}
+                  {% include 'v3/includes/_avatar_v3.html' with src=user.avatar_url name=user.name size='xl' only %}
+                {% else %}
+                  {% include 'v3/includes/_button.html' with style='secondary' type='button' label='Choose File' only %}
+                {% endif %}
               {% endwith %}
+              <span class="field__help">This should be a PNG or JPEG format and no longer than 5MB</span>
             </div>
+            <div class="user-profile__default-space-col">
+              <div class="field__label">Pick Badge</div>
+              <div>
+              {% for tier in badge_tiers %}
+                <div class="user-profile__badge-select">
+                  {% include "v3/includes/_badge_v3.html" with token="badge-tier-"|add:tier.tier label=tier.name|add:" Badge" size="large" %}
+                  <span>{{ tier.name }} Badge</span>
+                  {% include "includes/icon.html" with icon_name="lock" icon_size=16 icon_viewbox="0 0 16 16" %}
+                </div>
+              {% endfor %}
+              </div>
+            </div>
+            {% include 'v3/includes/_field_include.html' with field=user_profile_form.select_title only %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
@@ -69,8 +87,10 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            <span><b>Delete Account</b></span>
-            <span>This will remove your information and account from Boost completely and is not reversible.</span>
+            <div>
+              <div class="user-profile__small-section-heading">Delete Account</div>
+              <div class="user-profile__small-section-subheading">This will remove your information and account from Boost completely and is not reversible.</div>
+            </div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
@@ -108,7 +128,9 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            {% include 'v3/includes/_field_text.html' with name='' type='text' value='' label='Email' only %}
+            {% for form in user_profile_form.commit_email_formset %}
+              {% include 'v3/includes/_form_include.html' with form=form %}
+            {% endfor %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
@@ -121,11 +143,15 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            <span class="user-profile__small-section-heading">Notify me via email when:</span>
+            <div>
+              <span class="user-profile__small-section-heading">Notify me via email when:</span><br />
+              <span class="user-profile__small-section-subheading">My news is approved after moderation:</span>
+            </div>
             {% include 'v3/includes/_field_include.html' with field=user_profile_form.allow_notification_own_news_approved only %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
+            <span class="user-profile__small-section-subheading">Other users publish their news:</span>
             {% include 'v3/includes/_field_include.html' with field=user_profile_form.allow_notification_others_news_posted only %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
