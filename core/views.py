@@ -566,32 +566,30 @@ class LearnPageView(V3Mixin, TemplateView):
 
         ctx["library_cards"] = self._build_category_cards()
 
-        # Copy mirrors the Figma frame at node 1849:49695. The design currently
-        # has two cards titled "Modern approach to C++" — flagged to design.
         ctx["why_boost_cards"] = [
             {
+                "title": "Write code faster",
+                "description": "Production-ready solutions that save months of development.",
+            },
+            {
+                "title": "World-class engineering",
+                "description": "Built and maintained by C++ standards committee members and industry experts.",
+            },
+            {
+                "title": "Proven reliability",
+                "description": "Trusted in millions of applications, from startups to Fortune 500 infrastructure.",
+            },
+            {
+                "title": "Security you can trust",
+                "description": "Rigorous peer review catches what solo development misses.",
+            },
+            {
                 "title": "Modern approach to C++",
-                "description": "Skip months of development with production-ready solutions.",
+                "description": "Balancing current standards with what delivers the best performance.",
             },
             {
-                "title": "Write safer code",
-                "description": "Peer-reviewed by C++ standards committee members.",
-            },
-            {
-                "title": "Make real impact",
-                "description": "Your code could power millions of apps & shape the future of C++.",
-            },
-            {
-                "title": "Modern approach to C++",
-                "description": "We embrace contemporary C++ practices, leveraging the latest language features.",
-            },
-            {
-                "title": "Template-heavy by design",
-                "description": "Maximum flexibility with compile-time guarantees.",
-            },
-            {
-                "title": "Independent but consistent",
-                "description": "Each library is built by a small, dedicated team with shared standards.",
+                "title": "Shaping the future",
+                "description": "Over two dozen Boost libraries have been adopted into the ISO C++ standard.",
             },
         ]
 
