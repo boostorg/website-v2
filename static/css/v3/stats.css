@@ -122,6 +122,15 @@
   background: var(--color-surface-strong);
   border-radius: 0;
   flex-shrink: 0;
+  position: relative;
+}
+
+/* Reveal the per-bar tooltip when hovering anywhere in the bar's column. */
+.stats--in-numbers .stats__bar-wrap:hover .tooltip-label,
+.stats--in-numbers .stats__bar-wrap:focus-within .tooltip-label {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0.1s;
 }
 
 .stats__bar-label {

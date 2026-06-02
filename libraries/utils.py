@@ -92,7 +92,8 @@ def get_commit_data_by_release(limit=10):
 def commit_data_to_stats_bars(commit_data):
     """Convert commit_data_by_release (list of { release, commit_count }) to stats bar format.
 
-    Returns list of { label, height_px } with heights scaled to STATS_COMMITS_BAR_HEIGHT_*.
+    Returns list of { label, height_px, commit_count } with heights scaled to
+    STATS_COMMITS_BAR_HEIGHT_*. commit_count is preserved for tooltip rendering.
     """
     if not commit_data:
         return []
@@ -107,6 +108,7 @@ def commit_data_to_stats_bars(commit_data):
                     (d["commit_count"] / max_count) * STATS_COMMITS_BAR_HEIGHT_MAX_PX
                 ),
             ),
+            "commit_count": d["commit_count"],
         }
         for d in commit_data
     ]
