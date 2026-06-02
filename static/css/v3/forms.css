@@ -234,17 +234,17 @@
 .dropdown__trigger {
   display: flex;
   align-items: center;
-  gap: var(--space-default, 8px);
+  gap: var(--space-default);
   width: 100%;
   height: 40px;
-  padding: 0 var(--space-large, 16px);
-  background-color: var(--color-surface-weak, #fff);
-  border: 1px solid var(--color-stroke-weak, #0508161a);
-  border-radius: var(--border-radius-xl, 12px);
+  padding: 0 var(--space-large);
+  background-color: var(--color-surface-weak);
+  border: 1px solid var(--color-stroke-weak);
+  border-radius: var(--border-radius-xl);
   font-family: var(--font-sans);
-  font-size: var(--font-size-small, 14px);
-  font-weight: var(--font-weight-regular, 400);
-  color: var(--color-text-primary, #050816);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
   cursor: pointer;
   transition:
     background-color 0.15s ease,
@@ -253,15 +253,15 @@
 }
 
 .dropdown__trigger:hover {
-  border-color: var(--color-stroke-mid, #0508162b);
+  border-color: var(--color-stroke-mid);
 }
 
 .dropdown__trigger:hover .dropdown__trigger-placeholder {
-  color: var(--color-text-link-accent, #00778b);
+  color: var(--color-text-link-accent);
 }
 
 .dropdown__trigger:focus {
-  background-color: var(--color-surface-mid, #f7f7f8);
+  background-color: var(--color-surface-mid);
   border-color: var(--color-stroke-weak);
 }
 
@@ -283,7 +283,7 @@
 }
 
 .dropdown__trigger-placeholder {
-  color: var(--color-text-secondary, #6b6d78);
+  color: var(--color-text-secondary);
 }
 
 .dropdown__chevron {
@@ -305,10 +305,16 @@
 }
 
 .dropdown--open .dropdown__trigger {
-  background-color: var(--color-surface-mid, #f7f7f8);
+  background-color: var(--color-surface-mid);
   border-color: var(--color-stroke-weak);
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+}
+
+.dropdown--disabled .dropdown__trigger{
+  color: var(--color-text-tertiary);
+  background: var(--color-surface-mid);
+  cursor: not-allowed;
 }
 
 /* Combo: trigger when open shows search row; same active look */

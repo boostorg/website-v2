@@ -130,6 +130,27 @@
     letter-spacing: var(--letter-spacing-tight);
 }
 
+.user-profile__commit-email-form {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: var(--space-default);
+}
+
+.user-profile__commit-email-form .btn {
+    height: 40px;
+    min-width: unset;
+    padding-left: var(--space-large);
+    padding-right: var(--space-large);
+}
+
+.user-profile__avatar-row {
+    display: flex;
+    gap: var(--space-default);
+}
+
+
 @media (max-width: 768px) {
 
     /* ──────── Stack header row on mobile ──────── */
