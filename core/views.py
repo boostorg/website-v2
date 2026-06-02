@@ -2270,13 +2270,13 @@ class V3ComponentDemoView(V3Mixin, TemplateView):
 
         context["demo_mailing_list_card_list_id"] = _demo_card_list_id
         context["demo_mailing_list_card_state"] = (
-            mailing_list_state[0] if mailing_list_state else None
+            mailing_list_state.state if mailing_list_state else None
         )
         context["demo_subscription_count"] = (
-            mailing_list_state[1] if mailing_list_state else 0
+            mailing_list_state.count if mailing_list_state else 0
         )
         context["demo_subscribed_lists_email"] = (
-            mailing_list_state[2] if mailing_list_state else ""
+            mailing_list_state.email if mailing_list_state else ""
         )
         # V3 paths registry
         v3_paths = [

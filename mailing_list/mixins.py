@@ -1,4 +1,4 @@
-from typing import Union, Tuple
+from typing import NamedTuple, Optional
 
 from django.conf import settings
 from django.urls import reverse
@@ -9,39 +9,38 @@ from mailing_list.models import UserMailingListSubscription
 _DEFAULT_LIST_ID = "boost.lists.boost.org"
 
 
-def get_subscription_state_count_and_email(
-    user, list_ids
-) -> Tuple[Union[str, None], int, Union[str, None]]:
-    """Return the subscription state for a single user/list pair.
+class SubscriptionState(NamedTuple):
+    state: Optional[str]
+    count: int
+    email: Optional[str]
 
-    Returns:
-        "pending"  — a subscription record exists with PENDING status
-        "active"   — a subscription record exists with ACTIVE status
-        None       — user is not authenticated or has no subscription for list_id
-    """
+
+def get_subscription_state_count_and_email(user, list_ids) -> SubscriptionState:
     if not user.is_authenticated:
-        return None, 0, None
+        return SubscriptionState(None, 0, None)
 
-    subscriptions = list(
-        UserMailingListSubscription.objects.filter(user=user, list_id__in=list_ids)
+    subscriptions = UserMailingListSubscription.objects.filter(
+        user=user, list_id__in=list_ids
     )
-
-    pending_subs = [
-        sub for sub in subscriptions if sub.status == SubscriptionStatus.PENDING
-    ]
-    pending_count = len(pending_subs)
-
-    active_subs = [
-        sub for sub in subscriptions if sub.status == SubscriptionStatus.ACTIVE
-    ]
-    active_count = len(active_subs)
+    pending_count = subscriptions.filter(status=SubscriptionStatus.PENDING).count()
+    active_count = subscriptions.filter(status=SubscriptionStatus.ACTIVE).count()
 
     if pending_count > 0:
-        return SubscriptionStatus.PENDING, pending_count, subscriptions[0].email
+        email = (
+            subscriptions.filter(status=SubscriptionStatus.PENDING)
+            .values_list("email", flat=True)
+            .first()
+        )
+        return SubscriptionState(SubscriptionStatus.PENDING, pending_count, email)
     elif active_count > 0:
-        return SubscriptionStatus.ACTIVE, active_count, subscriptions[0].email
+        email = (
+            subscriptions.filter(status=SubscriptionStatus.ACTIVE)
+            .values_list("email", flat=True)
+            .first()
+        )
+        return SubscriptionState(SubscriptionStatus.ACTIVE, active_count, email)
     else:
-        return None, 0, None
+        return SubscriptionState(None, 0, None)
 
 
 class MailingListCardMixin:
@@ -70,9 +69,9 @@ class MailingListCardMixin:
             managed_lists = set(settings.MAILMAN_LISTS)
             state = get_subscription_state_count_and_email(request.user, managed_lists)
 
-            context["mailing_list_card_state"] = state[0]
-            context["mailing_list_card_subscription_count"] = state[1]
-            context["mailing_list_card_user_email"] = state[2]
+            context["mailing_list_card_state"] = state.state
+            context["mailing_list_card_subscription_count"] = state.count
+            context["mailing_list_card_user_email"] = state.email
             context["mailing_list_card_manage_url"] = reverse("profile-account")
 
         # URL-param overrides for the no-JS PRG flow.
