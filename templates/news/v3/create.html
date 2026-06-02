@@ -135,10 +135,20 @@
           </div>
 
           <div class="field create-post-page__description-field" :style="isLinkType ? 'display:flex' : 'display: none'">
-            {% include "v3/includes/_field_textarea.html" with name="content" field_id="description" label="Description" value=form.content.value|default_if_none:"" alpine_error="errors.content" error=form.content.errors.0 alpine_disabled_expr="isWriteUp" %}
-            {% comment %} Auto-Generate is Link-only (Video is out of scope). Disabled until the link field holds a valid URL. Click handler / Saving indicator / actual fetch are wired in follow-up commits. {% endcomment %}
+            {% include "v3/includes/_field_textarea.html" with name="content" field_id="description" label="Description" value=form.content.value|default_if_none:"" alpine_error="errors.content" error=form.content.errors.0 alpine_disabled_expr="isWriteUp" alpine_x_model="linkDescription" alpine_at_input="onLinkDescriptionEdited($event)" %}
+            {% comment %} Auto-Generate is Link-only (Video is out of scope). Disabled until the link field holds a valid URL. Click handler / actual fetch are wired in follow-up commits. {% endcomment %}
             <div class="create-post-page__description-actions" x-show="isLink" x-cloak>
               <button type="button" class="btn btn-secondary create-post-page__generate-btn" :disabled="!linkUrlValid">Auto-Generate Description</button>
+              <span class="create-post-page__save-indicator" role="status" aria-live="polite">
+                <span class="create-post-page__save-state" x-show="linkDescriptionSaveStatus === 'saving'" x-cloak>
+                  <span class="create-post-page__save-text">Saving</span>
+                  {% include "includes/icon.html" with icon_name="saving" icon_class="create-post-page__save-icon create-post-page__save-icon--spin" icon_size=16 %}
+                </span>
+                <span class="create-post-page__save-state" x-show="linkDescriptionSaveStatus === 'saved'" x-cloak>
+                  <span class="create-post-page__save-text">Saved</span>
+                  {% include "includes/icon.html" with icon_name="saved" icon_class="create-post-page__save-icon" icon_size=16 %}
+                </span>
+              </span>
             </div>
           </div>
 
@@ -166,11 +176,14 @@
         contentLength: 0,
         description: '{{ form.summary.value|default_if_none:""|escapejs }}',
         externalUrl: '{{ form.external_url.value|default_if_none:""|escapejs }}',
+        linkDescription: '{{ form.content.value|default_if_none:""|escapejs }}',
         generating: false,
-        descriptionSaveStatus: '',   // '' (hidden) / 'saving' / 'saved'
-        contentSaveStatus: '',       // same states, for the Content field
+        descriptionSaveStatus: '',          // '' (hidden) / 'saving' / 'saved'
+        contentSaveStatus: '',              // same states, for the Content field
+        linkDescriptionSaveStatus: '',      // same states, for the Link Description field
         _descriptionSaveTimer: null,
         _contentSaveTimer: null,
+        _linkDescriptionSaveTimer: null,
         errors: {
           post_type:    '',
           title:        '{{ form.title.errors.0|default:""|escapejs }}',
@@ -189,10 +202,12 @@
         },
 
         init() {
-          // Restore saved Content and Description drafts for the current post
-          // type. On a fresh load with no draft this leaves the field untouched.
+          // Restore saved Content / Description / Link-Description drafts for the
+          // current post type. On a fresh load with no draft this leaves the
+          // field untouched.
           this.restoreContentDraft();
           this.restoreDescriptionDraft();
+          this.restoreLinkDescriptionDraft();
         },
 
         handleFieldChange(e) {
@@ -202,12 +217,15 @@
           // draft belonging to the newly selected type.
           clearTimeout(this._descriptionSaveTimer);
           clearTimeout(this._contentSaveTimer);
+          clearTimeout(this._linkDescriptionSaveTimer);
           this.saveContentDraft();
           this.saveDescriptionDraft();
+          this.saveLinkDescriptionDraft();
           this.postType = value;
           this.errors.post_type = '';
           this.restoreContentDraft({ allowEmpty: true });
           this.restoreDescriptionDraft({ allowEmpty: true });
+          this.restoreLinkDescriptionDraft({ allowEmpty: true });
         },
 
         // Bridge from the WYSIWYG editor: keep the counter, indicator, and draft
@@ -322,6 +340,50 @@
           try { localStorage.removeItem(this.contentDraftKey()); } catch (_) {}
         },
 
+        // ── Link description draft: localStorage, keyed per post type ─────────
+        linkDescriptionDraftKey() {
+          return 'boost:createPost:linkDescriptionDraft:' + (this.postType || '');
+        },
+
+        onLinkDescriptionEdited(e) {
+          const value = e ? e.target.value : this.linkDescription;
+          clearTimeout(this._linkDescriptionSaveTimer);
+          if (!value) {
+            this.linkDescriptionSaveStatus = '';
+            this.clearLinkDescriptionDraft();
+            return;
+          }
+          this.linkDescriptionSaveStatus = 'saving';
+          this._linkDescriptionSaveTimer = setTimeout(() => {
+            this.saveLinkDescriptionDraft();
+            this.linkDescriptionSaveStatus = 'saved';
+          }, 800);
+        },
+
+        saveLinkDescriptionDraft() {
+          if (!this.isLink) return;
+          try {
+            if (this.linkDescription) localStorage.setItem(this.linkDescriptionDraftKey(), this.linkDescription);
+            else localStorage.removeItem(this.linkDescriptionDraftKey());
+          } catch (_) {}
+        },
+
+        restoreLinkDescriptionDraft({ allowEmpty = false } = {}) {
+          if (!this.isLink) {
+            if (allowEmpty) this.linkDescriptionSaveStatus = '';
+            return;
+          }
+          let saved = null;
+          try { saved = localStorage.getItem(this.linkDescriptionDraftKey()); } catch (_) {}
+          if (saved !== null) this.linkDescription = saved;
+          else if (allowEmpty) this.linkDescription = '';
+          this.linkDescriptionSaveStatus = this.linkDescription ? 'saved' : '';
+        },
+
+        clearLinkDescriptionDraft() {
+          try { localStorage.removeItem(this.linkDescriptionDraftKey()); } catch (_) {}
+        },
+
         // Send the Content to the backend, which runs the summarization model.
         async generateDescription() {
           const content = (this.content || '').trim();
@@ -399,6 +461,7 @@
             //  `form.summary.value` so the user's text stays visible.)
             this.clearContentDraft();
             this.clearDescriptionDraft();
+            this.clearLinkDescriptionDraft();
           }
         },
       };

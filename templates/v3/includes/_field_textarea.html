@@ -11,6 +11,8 @@
     error                (optional) — error message (activates error state)
     alpine_error         (optional) — Alpine expression for dynamic error binding (e.g. "errors.content")
     alpine_disabled_expr (optional) — Alpine expression to conditionally disable the textarea
+    alpine_x_model       (optional) — Alpine state property to two-way bind via x-model (e.g. "linkDescription")
+    alpine_at_input      (optional) — Alpine expression for the @input handler (e.g. "onLinkDescriptionEdited($event)")
     required             (optional) — if truthy, adds required attribute
     disabled             (optional) — if truthy, adds disabled attribute
     extra_class          (optional) — additional classes on the wrapper
@@ -33,6 +35,8 @@
       {% if required %}required{% endif %}
       {% if disabled %}disabled{% endif %}
       {% if alpine_disabled_expr %}:disabled="{{ alpine_disabled_expr }}"{% endif %}
+      {% if alpine_x_model %}x-model="{{ alpine_x_model }}"{% endif %}
+      {% if alpine_at_input %}@input="{{ alpine_at_input }}"{% endif %}
       {% if alpine_error %}:aria-invalid="!!{{ alpine_error }}" :aria-describedby="{{ alpine_error }} ? 'field-{{ fid }}-error' : {% if help_text %}'field-{{ fid }}-help'{% else %}null{% endif %}"{% elif error %}aria-invalid="true" aria-describedby="field-{{ fid }}-error"{% elif help_text %}aria-describedby="field-{{ fid }}-help"{% endif %}
     >{% if value %}{{ value }}{% endif %}</textarea>
   </div>
