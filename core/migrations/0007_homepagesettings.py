@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                     "featured_library",
                     models.ForeignKey(
                         blank=True,
-                        help_text="Flagship library featured in the V3 homepage. Only flagship libraries present in the latest stable release are listed (beta-only libraries are excluded). If not set, a random flagship library will be featured.",
+                        help_text="Library featured in the V3 homepage. Only flagship and core libraries present in the latest stable release are listed (beta-only libraries are excluded). If not set, a random flagship or core library will be featured.",
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
                         related_name="+",

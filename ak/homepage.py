@@ -10,7 +10,8 @@ def get_v3_featured_library():
     """LibraryVersion to feature on the V3 homepage.
 
     Prefers the library an editor chose in HomepageSettings, otherwise a
-    random flagship-tier library. Resolves to that library's latest-release LibraryVersion, or None if it has none.
+    random flagship- or core-tier library. Resolves to that library's
+    latest-release LibraryVersion, or None if it has none.
     """
     library = HomepageSettings.load().featured_library
     latest_version = Version.objects.most_recent()
@@ -18,7 +19,8 @@ def get_v3_featured_library():
     if not library:
         library = (
             Library.objects.filter(
-                tier=Tier.FLAGSHIP, library_version__version=latest_version
+                tier__in=[Tier.FLAGSHIP, Tier.CORE],
+                library_version__version=latest_version,
             )
             .order_by("?")
             .first()
