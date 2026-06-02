@@ -15,54 +15,52 @@
   <div class="user-profile__container">
     <div class="user-profile__profile-content-area">
       <div class="user-profile__col">
-        <div class="basic-card card">
+        <div class="basic-card card user-profile__profile-edit-card">
           <div class="card__header">
             <span class="card__title">Profile</span>
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            {% include 'v3/includes/_field_text.html' with name="tagline" type="text" label="Tagline" placeholder="Placeholder" help_text="This tagline is displayed next to your avatar on your profile & across the site." only %}
+            {% include 'v3/includes/_field_include.html' with field=user_profile_form.tagline %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            {% include 'v3/includes/_wysiwyg_editor.html' with textarea_id='id_content' textarea_name='content' label='Biography' help_text="This text field supports Markdown and this content is what will appear on your public profile" only %}
+            {% include 'v3/includes/_wysiwyg_editor.html' with textarea_id='id_content' textarea_name='content' label='Biography' help_text='This text field supports Markdown and this content is what will appear on your public profile' only %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            <p>Profile Links</p>
+            <span class="user-profile__link-section-heading">Profile Links</span>
             <div class="user-profile__two-column-inputs">
-              {% include 'v3/includes/_field_text.html' with name="Github" type='text' label='Label' value='Github' disabled=True only %}
-              {% include 'v3/includes/_field_text.html' with name="Github" type='text' label='Link' value='' only %}
-              {% include 'v3/includes/_field_text.html' with name="Github" type='text' value='Website' disabled=True only %}
-              {% include 'v3/includes/_field_text.html' with name="Github" type='text' value='' only %}
-              {% include 'v3/includes/_field_text.html' with name="Github" type='text' value='Email' disabled=True only %}
-              {% include 'v3/includes/_field_text.html' with name="Github" type='text' value='' only %}
-              {% include 'v3/includes/_field_text.html' with name="Github" type='text' value='Slack' disabled=True only %}
-              {% include 'v3/includes/_field_text.html' with name="Github" type='text' value='' only %}
+              {% for form in user_profile_form.link_formset %}
+                {% include 'v3/includes/_form_include.html' with form=form only %}
+              {% endfor %}
             </div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-              {% include "v3/includes/_field_dropdown.html" with name="user_role" label="Dropdown" options=role_options placeholder="Please Select Your Role" %}
+            {% include 'v3/includes/_field_include.html' with field=user_profile_form.role %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
             <div class="user-profile__avatar-component">
-                <span>Avatar</span>
-                {% with request.user as user %}
-                {% include "v3/includes/_avatar_v3.html" with src=user.avatar_url name=user.name size="xl" only %}
-                {% endwith %}
+              <span class="field__label">Avatar</span>
+              {% with user=request.user %}
+                {% include 'v3/includes/_avatar_v3.html' with src=user.avatar_url name=user.name size='xl' only %}
+              {% endwith %}
             </div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            {% include 'v3/includes/_field_checkbox.html' with name='hide_github' label='Hide your GitHub activity from your Profile' help_text="Links your login to an existing commit-author email after verification" %}
-            {% include 'v3/includes/_field_checkbox.html' with name='hide_github' label='Hide your mailing list activity from your Profile' help_text="Links your login to an existing commit-author email after verification" %}
-            {% include 'v3/includes/_field_checkbox.html' with name='hide_github' label='Hide your achievements & badgets from your Profile' help_text="Links your login to an existing commit-author email after verification" %}
+            <div class="checkbox__multi-checkbox-column">
+              {% include 'v3/includes/_field_include.html' with field=user_profile_form.hide_github %}
+              {% include 'v3/includes/_field_include.html' with field=user_profile_form.hide_ml %}
+              {% include 'v3/includes/_field_include.html' with field=user_profile_form.hide_ach %}
+            </div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
             {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save Changes' only %}
+            {% include 'v3/includes/_button.html' with style='secondary' type='submit' label='Cancel' only %}
           </div>
         </div>
         <div class="basic-card card">
@@ -86,22 +84,60 @@
             <span class="card__title">Update Details</span>
           </div>
           <hr class="card__hr" aria-hidden="true" />
+          <div class="user-profile__xl-space-col px-large">
+            {% include 'v3/includes/_field_include.html' with field=user_profile_form.username %}
+            {% include 'v3/includes/_field_include.html' with field=user_profile_form.email %}
+            {% include 'v3/includes/_field_include.html' with field=user_profile_form.country %}
+            {% include 'v3/includes/_field_include.html' with field=user_profile_form.indicate_last_login_method %}
+            {% include 'v3/includes/_field_include.html' with field=user_profile_form.override_commit_author_name %}
+            {% include 'v3/includes/_field_include.html' with field=user_profile_form.ovverride_commit_author_email %}
+            <div class="user-profile__default-space-col">
+              <span class="field__label">Delete Account</span>
+              {% include 'v3/includes/_button.html' with style='secondary' type='submit' label='Delete' only %}
+              <span class="field__help">This will remove your information and account from Boost completely and is not reversible.</span>
+            </div>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__cta_section">
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save details' only %}
+          </div>
+        </div>
+        <div class="basic-card card">
+          <div class="card__header">
+            <span class="card__title">Commit email address</span>
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            {% include 'v3/includes/_form_include.html' with form=profile_form only %}
+            {% include 'v3/includes/_field_text.html' with name='' type='text' value='' label='Email' only %}
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__cta_section">
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save changes' only %}
           </div>
         </div>
-        <div class="user-profile__col">
-          <div class="basic-card card">
-            <div class="card__header">
-              <span class="card__title">Update Details</span>
-            </div>
-            <hr class="card__hr" aria-hidden="true" />
-            <div class="card__column px-large">
-              {% include 'v3/includes/_form_include.html' with form=profile_preferences_form only %}
-            </div>
+        <div class="basic-card card">
+          <div class="card__header">
+            <span class="card__title">Email Preferences</span>
           </div>
-          {% include 'v3/includes/_account_connections_card.html' with connections=account_connections_mixed %}
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            <span class="user-profile__small-section-heading">Notify me via email when:</span>
+            {% include 'v3/includes/_field_include.html' with field=user_profile_form.allow_notification_own_news_approved only %}
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            {% include 'v3/includes/_field_include.html' with field=user_profile_form.allow_notification_others_news_posted only %}
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__column px-large">
+            {% include 'v3/includes/_field_include.html' with field=user_profile_form.allow_notification_terms_updated only %}
+          </div>
+          <hr class="card__hr" aria-hidden="true" />
+          <div class="card__cta_section">
+            {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Update' only %}
+          </div>
         </div>
+        {% include 'v3/includes/_account_connections_card.html' with connections=account_connections_mixed %}
       </div>
     </div>
   </div>
