@@ -11,7 +11,11 @@ class MailmanAPIError(Exception):
 
 
 def _base_url() -> str:
-    return settings.MAILMAN_REST_API_URL.rstrip("/") + settings.MAILMAN_REST_API_PATH
+    return (
+        settings.MAILMAN_REST_API_URL.rstrip("/")
+        + "/"
+        + settings.MAILMAN_REST_API_VERSION
+    )
 
 
 def _auth() -> tuple[str, str]:

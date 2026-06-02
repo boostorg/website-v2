@@ -381,7 +381,7 @@ MAILMAN_CORE_DATABASE = env("MAILMAN_CORE_DATABASE", default="unknown")
 
 # Mailman API credentials
 MAILMAN_REST_API_URL = env("MAILMAN_REST_API_URL", default="http://localhost:8001")
-MAILMAN_REST_API_PATH = env("MAILMAN_REST_API_PATH", default="/3.1")
+MAILMAN_REST_API_VERSION = env("MAILMAN_REST_API_VERSION", default="3.1")
 MAILMAN_REST_API_USER = env("MAILMAN_REST_API_USER", default="restadmin")
 MAILMAN_REST_API_PASS = env("MAILMAN_REST_API_PASS", default="restpass")
 MAILMAN_LISTS = env.list(
