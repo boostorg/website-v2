@@ -51,8 +51,9 @@ def _make_token(email, list_ids, user_id=None):
 def test_anon_quick_subscribe_sends_email_and_returns_pending(client):
     url = reverse("mailing-list-quick-subscribe")
     with patch("mailing_list.views._send_confirmation_email") as mock_send, patch(
-        "mailing_list.views.mailman_is_confirmed", return_value=False
-    ):
+        "mailing_list.views.MailmanClient"
+    ) as MockClient:
+        MockClient.return_value.is_confirmed.return_value = False
         response = client.post(
             url,
             {"email": EMAIL, "list_id": LIST_ID},
@@ -66,7 +67,8 @@ def test_anon_quick_subscribe_sends_email_and_returns_pending(client):
 @pytest.mark.django_db
 def test_anon_quick_subscribe_already_subscribed_returns_error(client):
     url = reverse("mailing-list-quick-subscribe")
-    with patch("mailing_list.views.mailman_is_confirmed", return_value=True):
+    with patch("mailing_list.views.MailmanClient") as MockClient:
+        MockClient.return_value.is_confirmed.return_value = True
         response = client.post(
             url,
             {"email": EMAIL, "list_id": LIST_ID},
@@ -80,8 +82,9 @@ def test_anon_quick_subscribe_already_subscribed_returns_error(client):
 def test_anon_quick_subscribe_rate_limited(client):
     url = reverse("mailing-list-quick-subscribe")
     with patch("mailing_list.views._send_confirmation_email"), patch(
-        "mailing_list.views.mailman_is_confirmed", return_value=False
-    ):
+        "mailing_list.views.MailmanClient"
+    ) as MockClient:
+        MockClient.return_value.is_confirmed.return_value = False
         for _ in range(5):
             client.post(
                 url, {"email": EMAIL, "list_id": LIST_ID}, HTTP_HX_REQUEST="true"
@@ -100,8 +103,9 @@ def test_auth_quick_subscribe_rate_limited(client, user):
     client.force_login(user)
     url = reverse("mailing-list-quick-subscribe")
     with patch("mailing_list.views._send_confirmation_email"), patch(
-        "mailing_list.views.mailman_is_confirmed", return_value=False
-    ):
+        "mailing_list.views.MailmanClient"
+    ) as MockClient:
+        MockClient.return_value.is_confirmed.return_value = False
         for _ in range(5):
             client.post(
                 url, {"email": EMAIL, "list_id": LIST_ID}, HTTP_HX_REQUEST="true"
@@ -121,8 +125,9 @@ def test_staff_quick_subscribe_bypasses_rate_limit(client, db):
     client.force_login(staff)
     url = reverse("mailing-list-quick-subscribe")
     with patch("mailing_list.views._send_confirmation_email"), patch(
-        "mailing_list.views.mailman_is_confirmed", return_value=False
-    ):
+        "mailing_list.views.MailmanClient"
+    ) as MockClient:
+        MockClient.return_value.is_confirmed.return_value = False
         for _ in range(10):
             response = client.post(
                 url, {"email": EMAIL, "list_id": LIST_ID}, HTTP_HX_REQUEST="true"
@@ -232,7 +237,7 @@ def test_confirm_valid_token_subscribes_and_shows_success(client, user):
     )
     token = _make_token(EMAIL, [LIST_ID], user_id=user.pk)
     url = reverse("mailing-list-confirm", args=[token])
-    with patch("mailing_list.views.mailman_subscribe"):
+    with patch("mailing_list.views.MailmanClient"):
         response = client.get(url)
     assert response.status_code == 200
     assert (
@@ -267,7 +272,7 @@ def test_confirm_unknown_user_shows_invalid_page_with_expiry_label(client):
 def test_confirm_anonymous_token_subscribes_without_db_record(client):
     token = _make_token(EMAIL, [LIST_ID])
     url = reverse("mailing-list-confirm", args=[token])
-    with patch("mailing_list.views.mailman_subscribe") as mock_sub:
+    with patch("mailing_list.views.MailmanClient") as MockClient:
         response = client.get(url)
     assert response.status_code == 200
-    mock_sub.assert_called_once_with(EMAIL, LIST_ID)
+    MockClient.return_value.subscribe.assert_called_once_with(EMAIL, LIST_ID)
