@@ -111,6 +111,21 @@ def save_rendered_content(cache_key, content_type, content_html, last_updated_at
 
 
 @shared_task
+def refresh_popular_search_terms():
+    """Refresh PopularSearchTerm rows from Algolia (last 30 days)."""
+    from core.services.popular_search_terms import (
+        refresh_popular_search_terms as _refresh,
+    )
+
+    try:
+        written = _refresh()
+    except Exception as exc:
+        logger.error("popular_search_terms.refresh_failed", error=str(exc))
+        return
+    logger.info("popular_search_terms.refresh_done", written=written)
+
+
+@shared_task
 def delete_all_rendered_content():
     """
     Deletes all RenderedContent objects, in batches to avoid locking the entire table.

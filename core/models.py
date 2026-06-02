@@ -10,7 +10,7 @@ from wagtail.contrib.settings.models import BaseGenericSetting, register_setting
 
 from libraries.path_matcher.utils import determine_latest_url
 from versions.models import Version
-from .managers import RenderedContentManager
+from .managers import PopularSearchTermManager, RenderedContentManager
 
 
 class LatestPathMatchIndicator(models.IntegerChoices):
@@ -182,3 +182,35 @@ class HomepageSettings(BaseGenericSetting):
 
     class Meta:
         verbose_name = "Homepage Settings"
+
+
+class PopularSearchTerm(models.Model):
+    """Top popular Algolia search terms, refreshed weekly by Celery.
+
+    Each weekly refresh runs an LLM quality check to drop typos/garbage
+    before any row is written. Set `rank=0` on an admin-created row to pin
+    it above Algolia-fetched terms.
+    """
+
+    label = models.CharField(max_length=128, unique=True)
+    rank = models.PositiveSmallIntegerField()
+    search_count = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    objects = PopularSearchTermManager()
+
+    class Meta:
+        ordering = ["rank", "label"]
+
+    def __str__(self):
+        return f"{self.rank}. {self.label} ({self.search_count})"
+
+
+class PopularSearchTermExclusion(models.Model):
+    """Search terms that should never appear on the homepage (case-insensitive)."""
+
+    term = models.CharField(max_length=128, unique=True)
+    note = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return self.term

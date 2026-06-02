@@ -12,6 +12,7 @@
 - [Mailman](./mailman/README.md)
 - [Management Commands](./commands.md)
 - [News and Moderation](./news.md)
+- [Popular Search Terms on the V3 Homepage](./popular_search_terms.md)
 - [Retrieving Static Content from the Boost Amazon S3 Bucket](./static_content.md)
 - [RSS Feeds](./rss_feeds.md)
 - [Syncing Data about Boost Versions and Libraries with GitHub](./syncing_data_with_github.md)

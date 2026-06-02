@@ -15,6 +15,7 @@ from core.calendar import (
 )
 from core.install_commands import INSTALL_PKG_MANAGERS, INSTALL_SYSTEM_INSTALL
 from core.mixins import V3Mixin
+from core.models import PopularSearchTerm
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
 from libraries.mixins import ContributorMixin
 from news.models import Entry
@@ -29,6 +30,9 @@ from ak.homepage import (
 )
 from testimonials.utils import get_testimonial_cards
 from libraries.utils import commit_data_to_stats_bars, get_commit_data_by_release
+
+HOMEPAGE_POPULAR_TERMS_DISPLAY = 10
+
 
 logger = structlog.get_logger()
 
@@ -103,6 +107,14 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
 
         # Join Card
         ctx["join_developers_links"] = build_join_developers_links()
+
+        # Popular Search Terms
+        # .visible() also drops admin-added exclusions, so curating the
+        # PopularSearchTermExclusion table takes effect on the next request
+        # rather than waiting on the next monthly Algolia refresh.
+        ctx["popular_terms"] = list(
+            PopularSearchTerm.objects.visible()[:HOMEPAGE_POPULAR_TERMS_DISPLAY]
+        )
 
         # Upcoming Events
         ctx["upcoming_events"] = upcoming_events(self.get_events(), 4)
