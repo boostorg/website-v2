@@ -3,6 +3,8 @@
 import html
 
 from django.utils.html import strip_tags
+from django.utils.safestring import mark_safe
+from wagtail.rich_text import expand_db_html
 
 from testimonials.models import Testimonial
 
@@ -20,6 +22,12 @@ def _avatar_url(testimonial):
     )
 
 
+def _author_role_html(testimonial):
+    """Render the role RichTextField, expanding Wagtail link formats; safe for direct template output."""
+    role = testimonial.author_role or ""
+    return mark_safe(expand_db_html(role)) if role else ""
+
+
 def _to_card(testimonial, *, prev_slug, next_slug):
     return {
         "quote": _pull_quote_text(testimonial),
@@ -32,7 +40,7 @@ def _to_card(testimonial, *, prev_slug, next_slug):
         "author": {
             "name": testimonial.author,
             "profile_url": testimonial.author_url,
-            "role": testimonial.author_role,
+            "role": _author_role_html(testimonial),
             "avatar_url": _avatar_url(testimonial),
         },
     }

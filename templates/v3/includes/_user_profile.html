@@ -3,7 +3,9 @@
     Variables: "author" object with:
     - name       (string) — display name
     - profile_url (string) — URL to user profile
-    - role       (string) — e.g. "Contributor", "Maintainer"
+    - role       (string|SafeString) — e.g. "Contributor", "Maintainer". Auto-escaped unless
+                                       passed as a mark_safe'd HTML string (testimonial cards
+                                       use this to embed a hyperlink in the role).
     - avatar_url (string) — URL to avatar image
     - badge              (string, optional) — Badge component token, e.g. "badge-tier-3", "star-tier-1", "boost-day"
     - badge_label        (string, optional) — Hover label for badge; defaults to tier + type

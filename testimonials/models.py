@@ -3,7 +3,7 @@ from django.db import models
 from django.urls import reverse
 from wagtail.admin.panels import FieldPanel
 from wagtail.blocks import RichTextBlock
-from wagtail.fields import StreamField
+from wagtail.fields import RichTextField, StreamField
 from wagtail.models import Page
 from wagtailmarkdown.blocks import MarkdownBlock
 
@@ -36,11 +36,11 @@ class Testimonial(Page):
     author_url = models.URLField(
         help_text="Optional URL to link the author's name to", blank=True, default=""
     )
-    author_role = models.CharField(
-        max_length=255,
+    author_role = RichTextField(
+        features=["link"],
         blank=True,
         default="",
-        help_text="Optional role/affiliation shown under the author's name",
+        help_text="Optional role/affiliation shown under the author's name. Supports hyperlinks.",
     )
     author_avatar = models.ForeignKey(
         "wagtailimages.Image",
