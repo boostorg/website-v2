@@ -85,16 +85,27 @@
     letter-spacing: var(--letter-spacing-tight);
 }
 
+.user-profile__small-section-subheading {
+    color: var(--color-text-secondary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-relaxed);
+    letter-spacing: var(--letter-spacing-tight);
+}
+
 .user-profile__default-space-col {
     display: flex;
     flex-direction: column;
     gap: var(--space-default);
+    width: 100%;
 }
 
 .user-profile__xl-space-col {
     display: flex;
     flex-direction: column;
     gap: var(--space-xl);
+    width: 100%;
 }
 
 .user-profile__default-space-col .btn {
@@ -103,6 +114,20 @@
 
 .user-profile__profile-edit-card .card__hr:not(:first-of-type):not(:last-of-type) {
     margin: var(--space-default) 0
+}
+
+.user-profile__badge-select {
+    padding: 6px;
+    display: flex;
+    gap: var(--space-s);
+    align-items: center;
+    height: fit-content;
+    color: var(--color-text-tertiary);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--line-height-tight);
+    letter-spacing: var(--letter-spacing-tight);
 }
 
 @media (max-width: 768px) {
