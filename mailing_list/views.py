@@ -24,7 +24,6 @@ from mailing_list.models import SubscriptionStatus
 from mailing_list.models import UserMailingListSubscription
 
 logger = logging.getLogger(__name__)
-_mailman = MailmanClient()
 
 _CONFIRM_SALT = "mailing-list-confirm-a40b24dc-a26d-49ca-81d1-5b2fccb5fd7b"
 _CONFIRM_MAX_AGE = 7 * 24 * 60 * 60  # 7 days in seconds
@@ -182,7 +181,7 @@ class SubscribeView(LoginRequiredMixin, View):
                 unsubscribed.append(list_id)
                 continue
             try:
-                _mailman.unsubscribe(email, list_id)
+                MailmanClient().unsubscribe(email, list_id)
                 UserMailingListSubscription.objects.filter(
                     user=request.user, list_id=list_id
                 ).delete()
@@ -372,7 +371,7 @@ class QuickSubscribeView(View):
 
     def _handle_anonymous(self, request, email, list_id):
         try:
-            if _mailman.is_confirmed(email, list_id):
+            if MailmanClient().is_confirmed(email, list_id):
                 if _is_htmx(request):
                     return self._card(
                         request,
@@ -456,7 +455,7 @@ class ConfirmSubscriptionView(View):
 
         for list_id in list_ids:
             try:
-                _mailman.subscribe(email, list_id)
+                MailmanClient().subscribe(email, list_id)
                 if user is not None:
                     UserMailingListSubscription.objects.filter(
                         user=user, list_id=list_id
