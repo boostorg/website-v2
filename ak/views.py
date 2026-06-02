@@ -227,8 +227,6 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
             "bars": commit_data_to_stats_bars(get_commit_data_by_release(limit=10))
         }
 
-        ctx["build_anything_with_boost"] = SharedResources.build_anything_with_boost
-
         ctx["hero_legacy_image_url_light"] = SharedResources.hero_legacy_image_url_light
         ctx["hero_legacy_image_url_dark"] = SharedResources.hero_legacy_image_url_dark
         ctx["hero_image_url"] = SharedResources.hero_image_url

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load custom_static %}
 {% load waffle_tags %}
 
 {% block main_content_wrapper %}<div class="homepage-v3">{% endblock %}
@@ -64,9 +65,8 @@
         {% endwith %}
       </div>
       <div class="item-d license-card">
-        {% with data=build_anything_with_boost %}
-          {% include "v3/includes/_horizontal_card.html" with title=data.title text=data.text image_url=data.image_url button_url=license_url button_label=data.button_label image_alt=data.image_alt %}
-        {% endwith %}
+        {% large_static 'img/v3/solo-images/capy-hot-tub.png' as license_card_image %}
+        {% include "v3/includes/_horizontal_card.html" with title="Build anything with the Boost Software License" text="<p>A simple, one-paragraph license created specifically for C++. It gives permission to use, modify, and distribute for any purpose.</p><p>No license file is required in binaries, just attribution in the source code. And it's compatible with virtually all other licenses.</p><p>Companies like Microsoft, Adobe and Citigroup have used it for the past 20 years.</p>" image_url=license_card_image image_alt="" button_url=license_url button_label="See the license" %}
       </div>
     </div>
   </div>

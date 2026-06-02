@@ -89,6 +89,10 @@ body:has(.homepage-v3) .header {
   max-width: 100%;
 }
 
+.license-card .horizontal-card .horizontal-card__image img {
+  object-fit: scale-down;
+}
+
 @media (min-width: 768px) {
   .license-card .horizontal-card {
     min-height: 358px;
