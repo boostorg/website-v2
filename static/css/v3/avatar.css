@@ -3,6 +3,7 @@
   --avatar-size-md: 40px;
   --avatar-size-lg: 44px;
   --avatar-size-xl: 48px;
+  --avatar-size-xxxl: 112px;
 }
 
 /* Mobile avatar size overrides */
@@ -46,6 +47,11 @@
 .avatar.avatar--xl {
   width: var(--avatar-size-xl);
   height: var(--avatar-size-xl);
+}
+
+.avatar.avatar--xxxl {
+  width: var(--avatar-size-xxxl);
+  height: var(--avatar-size-xxxl);
 }
 
 /* Image inside avatar container: fill and cover so it's contained and cropped */

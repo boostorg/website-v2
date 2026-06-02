@@ -133,6 +133,10 @@
   color: var(--color-text-error);
 }
 
+.btn-underline {
+  text-decoration: underline;
+}
+
 .btn-hero {
   min-height: 48px;
   padding: var(--space-medium) var(--space-xl) var(--space-medium)

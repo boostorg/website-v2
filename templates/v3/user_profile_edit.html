@@ -35,6 +35,8 @@
                 {% include 'v3/includes/_form_include.html' with form=form only %}
               {% endfor %}
             </div>
+            <button class="user-profile__small-section-heading btn-underline">+ Add Another</button>
+            <div class="field__help">All links will be displayed publicly on your profile for other users to see</div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
@@ -46,7 +48,13 @@
               <span class="field__label">Avatar</span>
               {% with user=request.user %}
                 {% if user.avatar_url %}
-                  {% include 'v3/includes/_avatar_v3.html' with src=user.avatar_url name=user.name size='xl' only %}
+                  <div class="user-profile__avatar-row">
+                    {% include 'v3/includes/_avatar_v3.html' with src=user.avatar_url name=user.name size='xxxl' only %}
+                    <div class="user-profile__default-space-col">
+                      {% include 'v3/includes/_button.html' with label="Replace Avatar" icon_name="pixel-pencil" icon_position="right" style="secondary" icon_size=16 icon_viewbox='0 0 16 16' only %}
+                      {% include 'v3/includes/_button.html' with label="Delete Avatar" icon_name="pixel-trash" icon_position="right" style="error" icon_size=16 icon_viewbox='0 0 16 16' only %}
+                    </div>
+                  </div>
                 {% else %}
                   {% include 'v3/includes/_button.html' with style='secondary' type='button' label='Choose File' only %}
                 {% endif %}
@@ -56,13 +64,13 @@
             <div class="user-profile__default-space-col">
               <div class="field__label">Pick Badge</div>
               <div>
-              {% for tier in badge_tiers %}
-                <div class="user-profile__badge-select">
-                  {% include "v3/includes/_badge_v3.html" with token="badge-tier-"|add:tier.tier label=tier.name|add:" Badge" size="large" %}
-                  <span>{{ tier.name }} Badge</span>
-                  {% include "includes/icon.html" with icon_name="lock" icon_size=16 icon_viewbox="0 0 16 16" %}
-                </div>
-              {% endfor %}
+                {% for tier in badge_tiers %}
+                  <div class="user-profile__badge-select">
+                    {% include 'v3/includes/_badge_v3.html' with token='badge-tier-'|add:tier.tier label=tier.name|add:' Badge' size='large' %}
+                    <span>{{ tier.name }} Badge</span>
+                    {% include 'includes/icon.html' with icon_name='lock' icon_size=16 icon_viewbox='0 0 16 16' %}
+                  </div>
+                {% endfor %}
               </div>
             </div>
             {% include 'v3/includes/_field_include.html' with field=user_profile_form.select_title only %}
@@ -129,8 +137,13 @@
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
             {% for form in user_profile_form.commit_email_formset %}
-              {% include 'v3/includes/_form_include.html' with form=form %}
+              <div class="user-profile__commit-email-form">
+                {% include 'v3/includes/_form_include.html' with form=form %}
+                {% include 'v3/includes/_button.html' with style='secondary' label='Submit' %}
+              </div>
             {% endfor %}
+            <button class="user-profile__small-section-heading btn-underline">+ Add Another</button>
+            <div class="field__help">Primary email will be displayed as the contact email on the public profile.</div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
