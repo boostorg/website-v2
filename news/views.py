@@ -641,9 +641,7 @@ def _is_cppalliance_blog_url(url: str) -> bool:
     )
 
 
-_LINK_FETCH_ERROR = (
-    "We couldn't read that link. Please check the URL and try again."
-)
+_LINK_FETCH_ERROR = "We couldn't read that link. Please check the URL and try again."
 
 
 @require_POST
