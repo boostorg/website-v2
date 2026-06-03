@@ -138,7 +138,7 @@
             {% include "v3/includes/_field_textarea.html" with name="content" field_id="description" label="Description" value=form.content.value|default_if_none:"" alpine_error="errors.content" error=form.content.errors.0 alpine_disabled_expr="isWriteUp" alpine_x_model="linkDescription" alpine_at_input="onLinkDescriptionEdited($event)" %}
             {% comment %} Auto-Generate is Link-only (Video is out of scope). Disabled until the link field holds a valid URL. Click handler / actual fetch are wired in follow-up commits. {% endcomment %}
             <div class="create-post-page__description-actions" x-show="isLink" x-cloak>
-              <button type="button" class="btn btn-secondary create-post-page__generate-btn" :disabled="!linkUrlValid">Auto-Generate Description</button>
+              <button type="button" class="btn btn-secondary create-post-page__generate-btn" @click="generateLinkDescription()" :disabled="!linkUrlValid || linkGenerating">Auto-Generate Description</button>
               <span class="create-post-page__save-indicator" role="status" aria-live="polite">
                 <span class="create-post-page__save-state" x-show="linkDescriptionSaveStatus === 'saving'" x-cloak>
                   <span class="create-post-page__save-text">Saving</span>
@@ -151,7 +151,9 @@
               </span>
             </div>
             {% comment %} Inline help that explains the cppalliance.org restriction so the disabled button doesn't look mysterious. {% endcomment %}
-            <p class="field__help" x-show="isLink" x-cloak>Auto-Generate only works for <code>.html</code> links from <code>cppalliance.org</code>.</p>
+            <p class="field__help" x-show="isLink && !linkError" x-cloak>Auto-Generate only works for <code>.html</code> links from <code>cppalliance.org</code>.</p>
+            {% comment %} Error shown when Auto-Generate fails (bad URL, fetch failed, page didn't match the cppalliance template). Cleared on next click. {% endcomment %}
+            <p class="field__error" id="field-link-description-error" role="alert" x-show="isLink && linkError" x-text="linkError" x-cloak aria-live="polite"></p>
           </div>
 
           {% include "v3/includes/_field_file.html" with name="image" label="Image" accept="image/png,image/jpeg" preview=True alpine_error="errors.image" error=form.errors.image.0 help_text="This should be a PNG or JPEG format and no longer than 1MB" extra_class="field--file-narrow create-post-page__field-image" %}
@@ -179,6 +181,8 @@
         description: '{{ form.summary.value|default_if_none:""|escapejs }}',
         externalUrl: '{{ form.external_url.value|default_if_none:""|escapejs }}',
         linkDescription: '{{ form.content.value|default_if_none:""|escapejs }}',
+        linkGenerating: false,
+        linkError: '',
         generating: false,
         descriptionSaveStatus: '',          // '' (hidden) / 'saving' / 'saved'
         contentSaveStatus: '',              // same states, for the Content field
@@ -422,6 +426,38 @@
             console.error('Description generation request failed:', err);
           } finally {
             this.generating = false;
+          }
+        },
+
+        // Link Auto-Generate: POST the URL to the backend, which fetches and
+        // extracts title+body from a cppalliance.org blog post. For this step
+        // the extracted text is dropped into the Description verbatim — the
+        // next iteration will feed it through the summarization model.
+        async generateLinkDescription() {
+          if (!this.linkUrlValid || this.linkGenerating) return;
+          this.linkGenerating = true;
+          this.linkError = '';
+          try {
+            const res = await fetch('{% url "v3-news-generate-link-description" %}', {
+              method: 'POST',
+              headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: new URLSearchParams({ url: this.externalUrl }),
+            });
+            const data = await res.json();
+            if (res.ok && data.description) {
+              this.linkDescription = data.description;
+              this.onLinkDescriptionEdited();   // persist + show Saving/Saved
+            } else {
+              this.linkError = data.error || "We couldn't read that link. Please check the URL and try again.";
+            }
+          } catch (err) {
+            console.error('Link description generation request failed:', err);
+            this.linkError = "We couldn't read that link. Please check the URL and try again.";
+          } finally {
+            this.linkGenerating = false;
           }
         },
 

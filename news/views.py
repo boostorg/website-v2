@@ -1,5 +1,8 @@
 from datetime import timedelta
 from functools import partial
+from urllib.parse import urlparse
+
+import requests
 
 import structlog
 
@@ -46,6 +49,7 @@ from .constants import (
 )
 from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
 from .models import BlogPost, Entry, Link, News, Poll, Video
+from .helpers import extract_cppalliance_post
 from .tasks import generate_summary
 from .notifications import (
     send_email_news_approved,
@@ -620,6 +624,61 @@ def generate_description(request):
         )
 
     return JsonResponse({"description": summary.strip()})
+
+
+def _is_cppalliance_blog_url(url: str) -> bool:
+    """Same constraints as the frontend's `linkUrlValid`: HTTPS + cppalliance.org
+    host + `.html` path. Re-checked server-side so the endpoint can't be hit
+    with arbitrary URLs even if someone bypasses the client-side guard."""
+    try:
+        p = urlparse(url)
+    except Exception:
+        return False
+    return (
+        p.scheme == "https"
+        and p.hostname == "cppalliance.org"
+        and p.path.endswith(".html")
+    )
+
+
+_LINK_FETCH_ERROR = (
+    "We couldn't read that link. Please check the URL and try again."
+)
+
+
+@require_POST
+def generate_link_description(request):
+    """Fetch a cppalliance.org blog post and return its raw extracted text.
+
+    This step is fetch-and-extract only — the next iteration will feed the
+    extracted text through the summarization model. For now it returns the
+    title and body verbatim so the user can see what was pulled.
+
+    NOTE: intentionally not login-gated yet (matches `generate_description`).
+    Add @login_required + rate-limiting before this ships.
+    """
+    url = request.POST.get("url", "").strip()
+    if not _is_cppalliance_blog_url(url):
+        return JsonResponse(
+            {"error": "Auto-Generate only works for .html links from cppalliance.org."},
+            status=400,
+        )
+
+    try:
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+    except requests.RequestException:
+        logger.exception("generate_link_description: fetch failed", url=url)
+        return JsonResponse({"error": _LINK_FETCH_ERROR}, status=502)
+
+    title, body = extract_cppalliance_post(resp.text)
+    if not body:
+        # Page fetched OK but didn't match the cppalliance blog template.
+        logger.warning("generate_link_description: extraction empty", url=url)
+        return JsonResponse({"error": _LINK_FETCH_ERROR}, status=502)
+
+    description = f"{title}\n\n{body}" if title else body
+    return JsonResponse({"description": description})
 
 
 class EntryApproveView(
