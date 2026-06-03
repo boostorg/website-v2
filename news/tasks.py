@@ -22,8 +22,8 @@ def generate_summary(
     """Build the summarization prompt and call OpenRouter synchronously.
 
     Plain function (no Celery decoration) so callers can use it inline with an
-    explicit ``timeout``. 
-    Background callers go through ``summarize_content`` below, which wraps this 
+    explicit ``timeout``.
+    Background callers go through ``summarize_content`` below, which wraps this
     in a Celery task so ``autoretry_for=(OpenAIError,)`` and ``max_retries`` fire.
 
     Raises ValueError on empty content, OpenAIError on API failures.
@@ -76,9 +76,7 @@ def generate_summary(
     except (AttributeError, IndexError) as e:
         logger.error(f"Error getting summarized content: {e=}")
         return None
-    logger.info(
-        f"Received summarized content for {summary[:100]=}: {len(summary)=}..."
-    )
+    logger.info(f"Received summarized content for {summary[:100]=}: {len(summary)=}...")
     return summary
 
 
