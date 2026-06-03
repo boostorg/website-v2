@@ -598,7 +598,7 @@ def generate_description(request):
         return JsonResponse({"error": "Add some content first."}, status=400)
 
     try:
-        # Call the plain helper 
+        # Call the plain helper
         summary = generate_summary(
             content,
             title,
