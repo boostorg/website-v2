@@ -139,23 +139,48 @@ class PostIndexPage(BasePage):
         ctx["entry_list"] = pag.get_page(request.GET.get("page", 1))
         ctx["page_obj"] = ctx["entry_list"]
         ctx["header_text"] = "Latest Posts"
+        # TODO: Once all content types are settled, this should be generated using our CONTENT_TYPES
         ctx["filter_terms"] = [
-            {"label": "All", "value": "all", "url": self.get_url()},
-            {"label": "News", "value": "news", "url": self.get_url() + "?type=news"},
+            {
+                "label": "All",
+                "value": "all",
+                "url": self.get_url(),
+            },
+            {
+                "label": "News",
+                "value": "news",
+                "url": self.get_url() + "?type=news",
+            },
             {
                 "label": "Blogs",
                 "value": "blogpost",
                 "url": self.get_url() + "?type=blogpost",
             },
-            {"label": "Links", "value": "link", "url": self.get_url() + "?type=link"},
+            {
+                "label": "Links",
+                "value": "link",
+                "url": self.get_url() + "?type=link",
+            },
             {
                 "label": "Videos",
                 "value": "video",
                 "url": self.get_url() + "?type=video",
             },
-            {"label": "Discussions", "value": "discussions", "url": self.get_url()},
-            {"label": "Achievements", "value": "achievements", "url": self.get_url()},
-            {"label": "Issues", "value": "issues", "url": self.get_url()},
+            {
+                "label": "Discussions",
+                "value": "discussions",
+                "url": self.get_url(),
+            },
+            {
+                "label": "Achievements",
+                "value": "achievements",
+                "url": self.get_url(),
+            },
+            {
+                "label": "Issues",
+                "value": "issues",
+                "url": self.get_url(),
+            },
         ]
         ctx["filter_value"] = content_type
         return ctx
