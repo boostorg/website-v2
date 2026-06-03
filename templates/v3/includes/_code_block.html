@@ -21,7 +21,7 @@
     <span class="code-block__copy-icon code-block__copy-icon--copy" aria-hidden="true">{% include "includes/icon.html" with icon_name="copy" icon_class="code-block__copy-svg" icon_size=16 icon_viewbox="0 0 16 16" %}</span>
     <span class="code-block__copy-icon code-block__copy-icon--check" aria-hidden="true">{% include "includes/icon.html" with icon_name="check" icon_class="code-block__copy-svg" icon_size=16 %}</span>
   </button>
-  <div class="code-block__scroll-container">
+  <div class="code-block__scroll-container" aria-label="Scrollable Code Block">
     <pre class="code-block__inner"><code class="{% if code_html %}nohighlight{% if cpp_highlight %} cpp-highlight{% endif %}{% else %}language-{{ language|default:'cpp' }}{% endif %}">{% if code_html %}{{ code_html|safe }}{% else %}{{ code }}{% endif %}</code></pre>
   </div>
 </div>
