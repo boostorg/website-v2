@@ -648,11 +648,13 @@ _LINK_FETCH_ERROR = (
 
 @require_POST
 def generate_link_description(request):
-    """Fetch a cppalliance.org blog post and return its raw extracted text.
+    """Fetch a cppalliance.org blog post, extract its text, and summarize it.
 
-    This step is fetch-and-extract only — the next iteration will feed the
-    extracted text through the summarization model. For now it returns the
-    title and body verbatim so the user can see what was pulled.
+    Three failure modes return separate JSON errors:
+      - URL didn't pass the cppalliance.org / HTTPS / .html check (400).
+      - Fetch failed or the page didn't match the blog template (502, "couldn't
+        read that link").
+      - Summarization failed or returned empty (502, "couldn't generate").
 
     NOTE: intentionally not login-gated yet (matches `generate_description`).
     Add @login_required + rate-limiting before this ships.
@@ -677,8 +679,32 @@ def generate_link_description(request):
         logger.warning("generate_link_description: extraction empty", url=url)
         return JsonResponse({"error": _LINK_FETCH_ERROR}, status=502)
 
-    description = f"{title}\n\n{body}" if title else body
-    return JsonResponse({"description": description})
+    # Feed the extracted body through the same summarizer used by the Blog/News
+    # path — synchronously, with a real timeout so a hung upstream doesn't tie
+    # up a web worker (autoretry_for on the Celery task is a no-op when called
+    # inline; see news/tasks.py).
+    try:
+        summary = generate_summary(
+            body,
+            title,
+            settings.SUMMARIZATION_MODEL,
+            DESCRIPTION_SUMMARY_MAX_LENGTH,
+            timeout=30,
+        )
+    except Exception:
+        logger.exception("generate_link_description: summarization failed", url=url)
+        return JsonResponse(
+            {"error": "Could not generate a description. Please try again."},
+            status=502,
+        )
+
+    if not summary:
+        return JsonResponse(
+            {"error": "Could not generate a description. Please try again."},
+            status=502,
+        )
+
+    return JsonResponse({"description": summary.strip()})
 
 
 class EntryApproveView(
