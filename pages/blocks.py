@@ -22,7 +22,8 @@ class PollBlock(StreamBlock):
 
 POST_BLOCKS = [
     ("rich_text", RichTextBlock()),
-    ("markdown", MarkdownBlock()),
+    ("blog", MarkdownBlock()),
+    ("news", MarkdownBlock()),
     ("url", URLBlock()),
     ("video", CustomVideoBlock(label="Video")),
     ("poll", PollBlock()),
