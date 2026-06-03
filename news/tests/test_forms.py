@@ -140,6 +140,7 @@ def test_link_form():
         "external_url",
         "image",
         "publish_at",
+        "summary",
         "title",
     ]
 

@@ -547,8 +547,10 @@ class V3AllTypesCreateView(V3Mixin, AllTypesCreateView):
         model_class, form_class = type_config
 
         # The v3 create page posts the Description textarea as `description`
-        # (kept named so for the existing frontend wiring). Bind it to the
-        # model's `summary` field on submit for the forms that include it.
+        # for Blog/News and Link alike. Persist it to the model's `summary`
+        # field on submit (BlogPost/News/Link forms all include `summary`
+        # in their Meta.fields), so the description is available immediately
+        # without waiting for `summary_dispatcher` to backfill it.
         post_data = request.POST.copy()
         if post_data.get("description") and not post_data.get("summary"):
             post_data["summary"] = post_data["description"]

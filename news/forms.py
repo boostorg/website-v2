@@ -28,7 +28,7 @@ class BlogPostForm(EntryForm):
 class LinkForm(EntryForm):
     class Meta:
         model = Link
-        fields = ["title", "publish_at", "external_url", "image"]
+        fields = ["title", "publish_at", "external_url", "summary", "image"]
 
     # Holding on this as it's a new feature Issue #437
     # def save(self, *args, commit=True, **kwargs):
