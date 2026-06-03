@@ -13,6 +13,7 @@
     alpine_disabled_expr (optional) — Alpine expression to conditionally disable the textarea
     alpine_x_model       (optional) — Alpine state property to two-way bind via x-model (e.g. "linkDescription")
     alpine_at_input      (optional) — Alpine expression for the @input handler (e.g. "onLinkDescriptionEdited($event)")
+    char_counter_max     (optional) — when set together with alpine_x_model, renders a live "N left" counter next to the label and sets maxlength on the textarea
     required             (optional) — if truthy, adds required attribute
     disabled             (optional) — if truthy, adds disabled attribute
     extra_class          (optional) — additional classes on the wrapper
@@ -23,7 +24,14 @@
 <div class="field field--textarea{% if error %} field--error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"
      {% if alpine_error %}:class="{ 'field--error': {{ alpine_error }} }"{% endif %}>
   {% if label %}
+  {% if char_counter_max and alpine_x_model %}
+  <div class="create-post-page__field-header">
+    <label class="field__label" for="field-{{ fid }}">{{ label }}</label>
+    <span class="create-post-page__char-counter" aria-hidden="true" x-text="({{ char_counter_max }} - ({{ alpine_x_model }} ? {{ alpine_x_model }}.length : 0)).toLocaleString() + ' left'">{{ char_counter_max }} left</span>
+  </div>
+  {% else %}
   <label class="field__label" for="field-{{ fid }}">{{ label }}</label>
+  {% endif %}
   {% endif %}
   <div class="field__control field__control--textarea{% if disabled %} field__control--disabled{% endif %}">
     <textarea
@@ -31,6 +39,7 @@
       id="field-{{ fid }}"
       name="{{ name }}"
       rows="{{ rows|default:4 }}"
+      {% if char_counter_max %}maxlength="{{ char_counter_max }}"{% endif %}
       {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
       {% if required %}required{% endif %}
       {% if disabled %}disabled{% endif %}

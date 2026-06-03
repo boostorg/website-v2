@@ -135,7 +135,7 @@
           </div>
 
           <div class="field create-post-page__description-field" :style="isLinkType ? 'display:flex' : 'display: none'">
-            {% include "v3/includes/_field_textarea.html" with name="description" field_id="description" label="Description" value=form.summary.value|default_if_none:"" alpine_disabled_expr="isWriteUp" alpine_x_model="linkDescription" alpine_at_input="onLinkDescriptionEdited($event)" %}
+            {% include "v3/includes/_field_textarea.html" with name="description" field_id="description" label="Description" value=form.summary.value|default_if_none:"" alpine_disabled_expr="isWriteUp" alpine_x_model="linkDescription" alpine_at_input="onLinkDescriptionEdited($event)" char_counter_max=1000 %}
             {% comment %} Auto-Generate is Link-only (Video is out of scope). Disabled until the link field holds a valid URL. Click handler / actual fetch are wired in follow-up commits. {% endcomment %}
             <div class="create-post-page__description-actions" x-show="isLink" x-cloak>
               <button type="button" class="btn btn-secondary create-post-page__generate-btn" @click="generateLinkDescription()" :disabled="!linkUrlValid || linkGenerating">Auto-Generate Description</button>
