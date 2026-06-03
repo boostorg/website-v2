@@ -16,7 +16,7 @@ import structlog
 from celery import group, chain
 
 from config.celery import app
-from config.settings import OPENROUTER_API_KEY, OPENROUTER_URL
+from config.settings import OPENROUTER_API_KEY, OPENROUTER_URL, WHATS_NEW_MODEL
 from django.conf import settings
 from django.core.management import call_command
 from django.utils import timezone
@@ -627,10 +627,10 @@ def skip_tag(name, new=False):
 # ---------------------------------------------------------------------------
 
 
-WHATS_NEW_MODEL = "gpt-oss-120b"
 # Guardrail to keep the LLM call comfortably under the model's context window
 # (gpt-oss-120b is ~131K tokens; ~100K chars leaves headroom for the system
-# prompt + output). Inputs above this are truncated.
+# prompt + output). Inputs above this are truncated. The model name itself
+# is configured via the WHATS_NEW_MODEL setting (env-driven; see settings.py).
 WHATS_NEW_MAX_INPUT_CHARS = 100_000
 
 WHATS_NEW_SYSTEM_PROMPT = dedent(
