@@ -12,11 +12,23 @@ from news.utils import set_video_thumbnail
 logger = structlog.get_logger(__name__)
 
 
-@app.task(bind=True, max_retries=3, autoretry_for=(OpenAIError,))
-def summarize_content(
-    self, content: str, title: str, model: str, max_length: int = 256
-) -> str:
-    """Summarize content using an LLM model."""
+def generate_summary(
+    content: str,
+    title: str,
+    model: str,
+    max_length: int = 256,
+    timeout: float = 30,
+) -> str | None:
+    """Build the summarization prompt and call OpenRouter synchronously.
+
+    Plain function (no Celery decoration) so callers can use it inline with an
+    explicit ``timeout``. 
+    Background callers go through ``summarize_content`` below, which wraps this 
+    in a Celery task so ``autoretry_for=(OpenAIError,)`` and ``max_retries`` fire.
+
+    Raises ValueError on empty content, OpenAIError on API failures.
+    Returns the summary string, or None if the response is malformed.
+    """
     if not content:
         logger.warning("No content provided to summarize, skipping.")
         raise ValueError("No content provided to summarize.")
@@ -55,17 +67,33 @@ def summarize_content(
         {"role": "user", "content": user_prompt},
     ]
     logger.debug(f"{messages=}")
-    content = None
+    client = OpenAI(
+        base_url=OPENROUTER_URL, api_key=OPENROUTER_API_KEY, timeout=timeout
+    )
+    response = client.chat.completions.create(model=model, messages=messages)
     try:
-        client = OpenAI(base_url=OPENROUTER_URL, api_key=OPENROUTER_API_KEY)
-        response = client.chat.completions.create(model=model, messages=messages)
-        content = response.choices[0].message.content
-        logger.info(
-            f"Received summarized content for {content[:100]=}: {len(content)=}..."
-        )
+        summary = response.choices[0].message.content
     except (AttributeError, IndexError) as e:
         logger.error(f"Error getting summarized content: {e=}")
-    return content
+        return None
+    logger.info(
+        f"Received summarized content for {summary[:100]=}: {len(summary)=}..."
+    )
+    return summary
+
+
+@app.task(bind=True, max_retries=3, autoretry_for=(OpenAIError,))
+def summarize_content(
+    self, content: str, title: str, model: str, max_length: int = 256
+) -> str | None:
+    """Celery wrapper around ``generate_summary``.
+
+    Runs in a worker so ``autoretry_for=(OpenAIError,)`` and ``max_retries``
+    apply to transient OpenRouter blips. For synchronous, inline callers, use
+    ``generate_summary`` directly (so retries don't silently no-op and you can
+    set a tight timeout).
+    """
+    return generate_summary(content, title, model, max_length)
 
 
 @app.task
