@@ -599,7 +599,7 @@ def generate_description(request):
 
     try:
         summary = summarize_content(
-            content, title, "gpt-oss-120b", DESCRIPTION_SUMMARY_MAX_LENGTH
+            content, title, settings.SUMMARIZATION_MODEL, DESCRIPTION_SUMMARY_MAX_LENGTH
         )
     except Exception:
         logger.exception("generate_description: summarization failed")

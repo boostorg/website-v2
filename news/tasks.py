@@ -4,7 +4,7 @@ import requests
 import structlog
 
 from config.celery import app
-from config.settings import OPENROUTER_API_KEY, OPENROUTER_URL
+from config.settings import OPENROUTER_API_KEY, OPENROUTER_URL, SUMMARIZATION_MODEL
 from news.constants import CONTENT_SUMMARIZATION_THRESHOLD
 from news.helpers import extract_content
 from news.utils import set_video_thumbnail
@@ -105,7 +105,7 @@ def set_summary_for_event_entry(pk: int):
         return
     logger.info(f"handing off {pk=} to summarize_content task")
     summarize_content.apply_async(
-        (entry.content, entry.title, "gpt-oss-120b"),
+        (entry.content, entry.title, SUMMARIZATION_MODEL),
         link=save_entry_summary_value.s(pk),
     )
 
@@ -130,7 +130,7 @@ def set_summary_for_link_entry(pk: int):
 
     logger.info(f"dispatching summarize task for {pk=} with {content[:40]=}...")
     summarize_content.apply_async(
-        (content, entry.title, "gpt-oss-120b"), link=save_entry_summary_value.s(pk)
+        (content, entry.title, SUMMARIZATION_MODEL), link=save_entry_summary_value.s(pk)
     )
 
 
