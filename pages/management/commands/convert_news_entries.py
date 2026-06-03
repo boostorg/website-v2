@@ -55,12 +55,12 @@ def convert_image(entry: Entry, post_page: PostPage):
 
 
 def basic_conversion(entry: Entry, index_page: PostIndexPage):
-    print(f"Creating or updating PostPage {entry.title}")
+    click.echo(f"Creating or updating PostPage {entry.title}")
     page = get_or_create_page(entry, index_page)
-    if entry.image:
-        convert_image(entry, page)
     if entry.summary:
         page.summary = entry.summary
+    if entry.image:
+        convert_image(entry, page)
     return page
 
 
@@ -73,30 +73,30 @@ def command():
         )
 
     blogs_posts = BlogPost.objects.all()
-    print(f"Creating or updating {blogs_posts.count()} Blog Posts")
+    click.echo(f"Creating or updating {blogs_posts.count()} Blog Posts")
     for bp in blogs_posts:
         page = basic_conversion(bp, post_index_page)
         page.content = [
             {
-                "type": "markdown",
+                "type": "blog",
                 "value": convert_text_content(bp.content),
             }
         ]
         page.save()
     news_posts = News.objects.all()
-    print(f"Creating or updating {news_posts.count()} News Posts")
+    click.echo(f"Creating or updating {news_posts.count()} News Posts")
     for np in news_posts:
         page = basic_conversion(np, post_index_page)
         page.content = [
             {
-                "type": "markdown",
+                "type": "news",
                 "value": convert_text_content(np.content),
             }
         ]
         page.save()
 
     videos = Video.objects.all()
-    print(f"Creating or updating {videos.count()} Videos")
+    click.echo(f"Creating or updating {videos.count()} Videos")
     for video in videos:
         page = basic_conversion(video, post_index_page)
         page.content = [
@@ -109,7 +109,7 @@ def command():
         page.save()
 
     links = Link.objects.all()
-    print(f"Creating or updating {links.count()} Links")
+    click.echo(f"Creating or updating {links.count()} Links")
     for link in links:
         page = basic_conversion(link, post_index_page)
         page.content = [

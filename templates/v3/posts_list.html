@@ -58,21 +58,11 @@
           const name = event.target.name
           if (name == 'post-filter') {
             switch (value) {
-              case 'all':
-                window.location.assign("{% url 'news' %}")
-                break
-              case 'blogpost':
-                window.location.assign("{% url 'news-blogpost-list' %}")
-                break
-              case 'video':
-                window.location.assign("{% url 'news-video-list' %}")
-                break
-              case 'news':
-                window.location.assign("{% url 'news-news-list' %}")
-                break
-              case 'link':
-                window.location.assign("{% url 'news-link-list' %}")
-                break
+              {% for term in filter_terms %}
+              case '{{term.value}}':
+                window.location.assign("{{term.url}}");
+                break;
+              {% endfor %}
               default:
                 console.error(`Value ${value} is unknown, please reload the page.`)
             }

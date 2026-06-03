@@ -13,7 +13,6 @@ from pages.mixins import BasePage
 
 from news.tasks import summary_dispatcher
 
-
 logger = get_logger(__name__)
 
 
@@ -63,13 +62,13 @@ POST_CONTENT_TYPES = (
         filter_name="",
     ),
     _PostContentType(
-        block_name=["rich_text", "markdown"],
+        block_name=["rich_text", "blog"],
         icon_name="comment",
-        content_type="Blog",
-        filter_name="blog",
+        content_type="Blogpost",
+        filter_name="blogpost",
     ),
     _PostContentType(
-        block_name=[],
+        block_name=["news"],
         icon_name="newspaper",
         content_type="News",
         filter_name="news",
@@ -139,42 +138,26 @@ class PostIndexPage(BasePage):
         ctx["is_paginated"] = True
         ctx["entry_list"] = pag.get_page(request.GET.get("page", 1))
         ctx["page_obj"] = ctx["entry_list"]
-        ctx["filters"] = POST_CONTENT_TYPES
         ctx["header_text"] = "Latest Posts"
         ctx["filter_terms"] = [
-            {
-                "label": "All",
-                "value": "all",
-            },
-            {
-                "label": "News",
-                "value": "news",
-            },
+            {"label": "All", "value": "all", "url": self.get_url()},
+            {"label": "News", "value": "news", "url": self.get_url() + "?type=news"},
             {
                 "label": "Blogs",
                 "value": "blogpost",
+                "url": self.get_url() + "?type=blogpost",
             },
-            {
-                "label": "Links",
-                "value": "link",
-            },
+            {"label": "Links", "value": "link", "url": self.get_url() + "?type=link"},
             {
                 "label": "Videos",
                 "value": "video",
+                "url": self.get_url() + "?type=video",
             },
-            {
-                "label": "Discussions",
-                "value": "discussions",
-            },
-            {
-                "label": "Achievements",
-                "value": "achievements",
-            },
-            {
-                "label": "Issues",
-                "value": "issues",
-            },
+            {"label": "Discussions", "value": "discussions", "url": self.get_url()},
+            {"label": "Achievements", "value": "achievements", "url": self.get_url()},
+            {"label": "Issues", "value": "issues", "url": self.get_url()},
         ]
+        ctx["filter_value"] = content_type
         return ctx
 
 
@@ -207,7 +190,7 @@ class PostPage(BasePage):
     )
 
     def get_content(self):
-        if self.content_type in ["News", "Blog"]:
+        if self.post_content_type in ["News", "Blogpost"]:
             return self.content
         else:
             return None
@@ -244,8 +227,10 @@ class PostPage(BasePage):
     def use_summary(self):
         return bool(len(self.summary))
 
-    @cached_property
+    @property
     def visible_content(self):
+        if self.post_content_type == "Video":
+            return None
         if self.use_summary:
             return self.summary
         return self.content
@@ -307,7 +292,9 @@ class PostPage(BasePage):
 
     @cached_property
     def tag(self):
-        return getattr(self, "tags.first()", self.post_content_type)
+        if self.tags.exists():
+            return self.tags.first()
+        return self.post_content_type
 
     @cached_property
     def external_url(self):
