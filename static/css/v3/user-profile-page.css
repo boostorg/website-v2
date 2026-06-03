@@ -150,6 +150,13 @@
     gap: var(--space-default);
 }
 
+.user-profile__avatar-row .user-profile__default-space-col {
+    width: fit-content;
+}
+
+.user-profile__avatar-row .user-profile__default-space-col .btn {
+    width: 100%;
+}
 
 @media (max-width: 768px) {
 
@@ -203,6 +210,30 @@
 
     .user-profile__connections {
         order: 7;
+    }
+
+    .user-profile__profile-edit-card {
+        order: 1;
+    }
+
+    .user-profile-edit__connections-card {
+        order: 2;
+    }
+
+    .user-profile__update-details {
+        order:3;
+    }
+
+    .user-profile__commit-email-card {
+        order: 4;
+    }
+
+    .user-profile__email-preferences-card {
+        order: 5;
+    }
+
+    .user-profile__delete-account {
+        order: 6;
     }
 }
 

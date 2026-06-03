@@ -1,5 +1,11 @@
+{% comment %}
+  Wrapper for the field include that automatically unpacks a django form into its bound_fields
+  Variables
+    form:   (required)  -   Django form to be unpacked
+  Usage:
+    {% include 'v3/includes/_form_include.html' with form=form %}
+{% endcomment %}
+
 {% for field in form %}
-  {% with type=field.widget_type %}
-    {% include "v3/includes/_field_include.html" with type=type field=field only %}
-  {% endwith %}
+  {% include 'v3/includes/_field_include.html' with bound_field=field only %}
 {% endfor %}
