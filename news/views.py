@@ -47,7 +47,7 @@ from .constants import (
 from .forms import BlogPostForm, EntryForm, LinkForm, NewsForm, PollForm, VideoForm
 from .models import BlogPost, Entry, Link, News, Poll, Video
 from .services import news_type_label
-from .tasks import summarize_content
+from .tasks import generate_summary
 from .notifications import (
     send_email_news_approved,
     send_email_news_needs_moderation,
@@ -598,8 +598,13 @@ def generate_description(request):
         return JsonResponse({"error": "Add some content first."}, status=400)
 
     try:
-        summary = summarize_content(
-            content, title, settings.SUMMARIZATION_MODEL, DESCRIPTION_SUMMARY_MAX_LENGTH
+        # Call the plain helper
+        summary = generate_summary(
+            content,
+            title,
+            settings.SUMMARIZATION_MODEL,
+            DESCRIPTION_SUMMARY_MAX_LENGTH,
+            timeout=30,
         )
     except Exception:
         logger.exception("generate_description: summarization failed")
