@@ -12,7 +12,6 @@ from django.views.generic import DetailView, FormView
 from django.views.generic.base import TemplateView
 from django.utils import timezone
 from django.conf import settings
-from django.db import models
 from django import forms
 
 from allauth.account.forms import ChangePasswordForm, ResetPasswordForm
@@ -34,7 +33,7 @@ from .forms import (
     UserProfileForm,
     UserProfilePhotoForm,
     DeleteAccountForm,
-    NEWS_ENTRY_CHOICES,
+    V3UserProfileForm,
 )
 from .models import User
 from .password_rules import build_password_rules
@@ -91,111 +90,6 @@ class ProfileView(DetailView):
         context["authored"] = user.authors.all()
         context["maintained"] = user.maintainers.all().distinct()
         return context
-
-
-class V3ProfileLinkChoices(models.TextChoices):
-    GITHUB = "github"
-    WEBSITE = "website"
-    EMAIL = "email"
-    SLACK = "slack"
-
-
-class V3ProfileLinkForm(forms.Form):
-    type = forms.ChoiceField(
-        choices=V3ProfileLinkChoices.choices, disabled=True, label=""
-    )
-    value = forms.CharField(max_length=80, label="")
-
-
-V3ProfileLinkFormset = forms.formset_factory(V3ProfileLinkForm, extra=0)
-
-
-class V3CommitEmailForm(forms.Form):
-    email = forms.EmailField(max_length=80)
-
-
-V3CommitEmailFormSet = forms.formset_factory(V3CommitEmailForm, extra=0)
-
-
-class V3UserProfileForm(forms.Form):
-    # Left Column Fields
-    tagline = forms.CharField(
-        max_length=70,
-        help_text="This tagline is displayed next to your avatar on your profile & across the site",
-        widget=forms.TextInput(attrs={"placeholder": "Placeholder"}),
-    )
-    bio = forms.CharField(
-        max_length=4000,
-        help_text="This text field supports Markdown and this content is what will appear on your public profile",
-        widget=forms.Textarea(),
-    )
-    link_formset = V3ProfileLinkFormset(
-        initial=[{"type": x, "value": ""} for x in V3ProfileLinkChoices.values],
-    )
-    role = forms.ChoiceField(
-        choices=[(0, "C++ Alliance Board Member")], label="Your Role"
-    )
-    select_title = forms.ChoiceField(
-        choices=[],
-        disabled=True,
-        widget=forms.Select(attrs={"placeholder": "Unlock a badge to pick a title"}),
-    )
-    hide_github = forms.BooleanField(
-        label="Hide GitHub activity from your profile",
-        help_text="Links your login to an existing commit-author email after verification",
-    )
-    hide_ml = forms.BooleanField(
-        label="Hide mailing list activity from your profile",
-        help_text="Links your login to an existing commit-author email after verification",
-    )
-    hide_ach = forms.BooleanField(
-        label="Hide achievements & badges from your profile",
-        help_text="Links your login to an existing commit-author email after verification",
-    )
-
-    # Top Right Column
-    username = forms.CharField(
-        max_length=80, widget=forms.TextInput(attrs={"placeholder": "Placeholder"})
-    )
-    email = forms.EmailField(
-        max_length=80, widget=forms.TextInput(attrs={"placeholder": "Placeholder"})
-    )
-    country = forms.ChoiceField(choices=[])
-    indicate_last_login_method = forms.BooleanField(
-        help_text="The login page will indicate the last method you used to login"
-    )
-    override_commit_author_name = forms.BooleanField(
-        help_text="Globally replaces your git commit author name with username value set above"
-    )
-    ovverride_commit_author_email = forms.BooleanField(
-        help_text="Links your login to an existing commit-author email after verification"
-    )
-
-    # Commit Emails
-    commit_email_formset = V3CommitEmailFormSet(
-        initial=[
-            {
-                "email": "abc@example.com",
-            },
-        ],
-    )
-
-    # Email Alerts
-    allow_notification_own_news_approved = forms.MultipleChoiceField(
-        choices=NEWS_ENTRY_CHOICES,
-        widget=forms.widgets.CheckboxSelectMultiple,
-        label="Your own news is approved after moderation",
-        required=False,
-    )
-    allow_notification_others_news_posted = forms.MultipleChoiceField(
-        choices=NEWS_ENTRY_CHOICES,
-        widget=forms.widgets.CheckboxSelectMultiple,
-        label="Other users publish their news",
-        required=False,
-    )
-    allow_notification_terms_updated = forms.BooleanField(
-        label="The sites terms of use or privacy policy are changed"
-    )
 
 
 class CurrentUserProfileView(
