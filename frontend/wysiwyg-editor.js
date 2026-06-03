@@ -186,7 +186,7 @@ const getMermaid = async () => {
   return mermaidModule;
 };
 
-const debounce = (fn, ms) => {
+export const debounce = (fn, ms) => {
   let timer;
   return (...args) => {
     clearTimeout(timer);
@@ -194,7 +194,7 @@ const debounce = (fn, ms) => {
   };
 };
 
-const createToolbarButton = (editor, opts) => {
+export const createToolbarButton = (editor, opts) => {
   const { label, onClick, isActive, title } = opts;
   const btn = document.createElement("button");
   btn.type = "button";
@@ -261,7 +261,7 @@ const createHeadingDropdown = (editor) => {
   return select;
 };
 
-const ICONS = {
+export const ICONS = {
   bulletList:
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
   orderedList:
@@ -604,7 +604,7 @@ const buildToolbar = (editor, toolbarEl) => {
   return { mdBtn, previewBtn, handleDocClick };
 };
 
-const setupMermaidEditMode = (editor, editorEl) => {
+export const setupMermaidEditMode = (editor, editorEl) => {
   const renderMermaid = debounce(async () => {
     const pres = editorEl.querySelectorAll("pre");
     const activePreviews = new Set();

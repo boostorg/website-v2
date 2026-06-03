@@ -8,7 +8,7 @@
 {% block extra_head %}
   {{ block.super }}
   <link href="{% static 'css/v3/user-profile-page.css' %}" rel="stylesheet" />
-  <script type="module" src="{% static 'js/v3/wysiwyg-editor.js' %}"></script>
+  <script type="module" src="{% static 'js/v3/user-profile-wysiwyg-editor.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -21,7 +21,7 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            {% include 'v3/includes/_field_include.html' with field=user_profile_form.tagline %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.tagline %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
@@ -40,7 +40,7 @@
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            {% include 'v3/includes/_field_include.html' with field=user_profile_form.role %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.role %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="user-profile__xl-space-col px-large">
@@ -73,14 +73,14 @@
                 {% endfor %}
               </div>
             </div>
-            {% include 'v3/includes/_field_include.html' with field=user_profile_form.select_title only %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.select_title only %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
             <div class="checkbox__multi-checkbox-column">
-              {% include 'v3/includes/_field_include.html' with field=user_profile_form.hide_github %}
-              {% include 'v3/includes/_field_include.html' with field=user_profile_form.hide_ml %}
-              {% include 'v3/includes/_field_include.html' with field=user_profile_form.hide_ach %}
+              {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.hide_github %}
+              {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.hide_ml %}
+              {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.hide_ach %}
             </div>
           </div>
           <hr class="card__hr" aria-hidden="true" />
@@ -89,7 +89,7 @@
             {% include 'v3/includes/_button.html' with style='secondary' type='submit' label='Cancel' only %}
           </div>
         </div>
-        <div class="basic-card card">
+        <div class="basic-card card user-profile__delete-account">
           <div class="card__header">
             <span class="card__title">Delete account</span>
           </div>
@@ -107,18 +107,18 @@
         </div>
       </div>
       <div class="user-profile__col">
-        <div class="basic-card card">
+        <div class="basic-card card user-profile__update-details">
           <div class="card__header">
             <span class="card__title">Update Details</span>
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="user-profile__xl-space-col px-large">
-            {% include 'v3/includes/_field_include.html' with field=user_profile_form.username %}
-            {% include 'v3/includes/_field_include.html' with field=user_profile_form.email %}
-            {% include 'v3/includes/_field_include.html' with field=user_profile_form.country %}
-            {% include 'v3/includes/_field_include.html' with field=user_profile_form.indicate_last_login_method %}
-            {% include 'v3/includes/_field_include.html' with field=user_profile_form.override_commit_author_name %}
-            {% include 'v3/includes/_field_include.html' with field=user_profile_form.ovverride_commit_author_email %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.username %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.email %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.country %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.indicate_last_login_method %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.override_commit_author_name %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.ovverride_commit_author_email %}
             <div class="user-profile__default-space-col">
               <span class="field__label">Delete Account</span>
               {% include 'v3/includes/_button.html' with style='secondary' type='submit' label='Delete' only %}
@@ -130,7 +130,7 @@
             {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save details' only %}
           </div>
         </div>
-        <div class="basic-card card">
+        <div class="basic-card card user-profile__commit-email-card">
           <div class="card__header">
             <span class="card__title">Commit email address</span>
           </div>
@@ -150,7 +150,7 @@
             {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Save changes' only %}
           </div>
         </div>
-        <div class="basic-card card">
+        <div class="basic-card card user-profile__email-preferences-card">
           <div class="card__header">
             <span class="card__title">Email Preferences</span>
           </div>
@@ -160,23 +160,25 @@
               <span class="user-profile__small-section-heading">Notify me via email when:</span><br />
               <span class="user-profile__small-section-subheading">My news is approved after moderation:</span>
             </div>
-            {% include 'v3/includes/_field_include.html' with field=user_profile_form.allow_notification_own_news_approved only %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.allow_notification_own_news_approved only %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
             <span class="user-profile__small-section-subheading">Other users publish their news:</span>
-            {% include 'v3/includes/_field_include.html' with field=user_profile_form.allow_notification_others_news_posted only %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.allow_notification_others_news_posted only %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__column px-large">
-            {% include 'v3/includes/_field_include.html' with field=user_profile_form.allow_notification_terms_updated only %}
+            {% include 'v3/includes/_field_include.html' with bound_field=user_profile_form.allow_notification_terms_updated only %}
           </div>
           <hr class="card__hr" aria-hidden="true" />
           <div class="card__cta_section">
             {% include 'v3/includes/_button.html' with style='primary' type='submit' label='Update' only %}
           </div>
         </div>
+        <div class="user-profile-edit__connections-card">
         {% include 'v3/includes/_account_connections_card.html' with connections=account_connections_mixed %}
+        </div>
       </div>
     </div>
   </div>

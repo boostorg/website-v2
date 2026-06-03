@@ -26,10 +26,9 @@
   >{{ value|default_if_none:"" }}</textarea>
   <div class="wysiwyg-editor__toolbar" x-show="jsReady" x-cloak></div>
   <div class="wysiwyg-editor__body" x-show="jsReady" x-cloak></div>
-  {% if help_text %}
-      <p class="field__help mt-l"
-         id="field-{{ textarea_name }}-help"
-         x-show="!{{ alpine_error }}"
-         {% if error %}style="display:none"{% endif %}>{{ help_text }}</p>
-    {% endif %}
 </div>
+{% if help_text %}
+    <p class="field__help mt-l"
+       id="field-{{ textarea_name }}-help"
+       >{{ help_text }}</p>
+  {% endif %}
