@@ -1,0 +1,19 @@
+Welcome to Boost
+
+Hi {{ first_name|default:"there" }},
+
+Thanks for signing up for Boost. To activate your account, please confirm
+your email address by visiting the link below.
+
+This link expires in 24 hours.
+
+Confirm my email:
+{{ action_url }}
+
+If you didn't create a Boost account, you can safely ignore this email.
+
+--
+Boost.org is supported by grants from The C++ Alliance.
+
+Want to change how you receive these emails?
+You can update your preferences or unsubscribe from this list.

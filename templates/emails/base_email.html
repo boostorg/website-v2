@@ -1,0 +1,140 @@
+{% load custom_static %}{% comment %}
+  Shared base for Boost transactional emails (Story #2431).
+
+  Frontend / markup only — sending logic lives in the sign-up and
+  password-reset integration tickets. Render this with a context that
+  provides absolute-URL helpers so images and links resolve in an inbox:
+
+    scheme            "https" (request.scheme)
+    host              "www.boost.org" (request.get_host)
+    action_url        the CTA + fallback URL (confirmation or reset link)
+    preferences_url   manage-email-preferences URL (optional, defaults to #)
+    unsubscribe_url   unsubscribe URL (optional, defaults to #)
+
+  Child templates override the blocks: preheader, hero, card_title,
+  card_body, cta_label and after_card.
+{% endcomment %}<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="x-apple-disable-message-reformatting">
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
+    <title>{% block title %}Boost{% endblock %}</title>
+    <!--[if mso]>
+    <style type="text/css">table,td{border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt}</style>
+    <![endif]-->
+    <style type="text/css">
+      body{margin:0;padding:0;width:100%!important;background-color:#f7fdfe;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
+      img{border:0;line-height:100%;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;}
+      a{color:#050816;}
+      table{border-collapse:collapse;}
+      .email-card{border-collapse:separate!important;}
+      @media only screen and (max-width:600px){
+        .email-container{width:100%!important;}
+        .email-px{padding-left:16px!important;padding-right:16px!important;}
+      }
+    </style>
+  </head>
+  <body style="margin:0;padding:0;background-color:#f7fdfe;">
+    <!-- Preheader (hidden preview text) -->
+    <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#f7fdfe;opacity:0;">
+      {% block preheader %}{% endblock %}
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f7fdfe;">
+      <tr>
+        <td align="center" style="padding:0;">
+          <!--[if mso]><table role="presentation" align="center" width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+          <table role="presentation" class="email-container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background-color:#f7fdfe;">
+
+            <!-- Header: Boost logo -->
+            <tr>
+              <td style="padding:18px 16px;" align="left">
+                <a href="{{ scheme }}://{{ host }}/" style="text-decoration:none;">
+                  <img src="{% large_static 'img/emails/email-logo.png' %}" width="184" height="43" alt="Boost" style="display:block;width:184px;height:43px;">
+                </a>
+              </td>
+            </tr>
+
+            <!-- Content -->
+            <tr>
+              <td class="email-px" style="padding:8px 16px 32px 16px;">
+
+                {% block hero %}{% endblock %}
+
+                <!-- Verify card -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="email-card" style="background-color:#ffffff;border:1px solid #e2e2e4;border-radius:12px;">
+                  <tr>
+                    <td style="padding:24px 20px;">
+                      <!-- Title -->
+                      <div style="font-family:Arial,Helvetica,sans-serif;font-size:24px;line-height:1.2;letter-spacing:-0.24px;color:#050816;text-align:center;">
+                        {% block card_title %}{% endblock %}
+                      </div>
+                      <!-- Divider -->
+                      <div style="height:1px;line-height:1px;font-size:0;margin:20px 0;background-color:#e2e2e4;">&nbsp;</div>
+                      <!-- Body -->
+                      <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#050816;">
+                        {% block card_body %}{% endblock %}
+                      </div>
+                      <!-- CTA button -->
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0 0 0;">
+                        <tr>
+                          <td bgcolor="#ffa000" align="center" style="border-radius:4px;">
+                            <a href="{{ action_url|default:'#' }}" style="display:block;padding:12px 24px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:bold;line-height:1.5;letter-spacing:-0.24px;color:#050816;text-decoration:none;border-radius:4px;">{% block cta_label %}{% endblock %}</a>
+                          </td>
+                        </tr>
+                      </table>
+                      <!-- Fallback URL -->
+                      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.45;color:#71737b;margin:16px 0 0 0;">
+                        Or copy and paste this URL into your browser:<br>
+                        <a href="{{ action_url|default:'#' }}" style="color:#71737b;text-decoration:underline;word-break:break-all;">{{ action_url|default:'#' }}</a>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+
+                {% block after_card %}{% endblock %}
+
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:0 16px;">
+                <div style="height:1px;line-height:1px;font-size:0;background-color:#e2e2e4;">&nbsp;</div>
+              </td>
+            </tr>
+            <tr>
+              <td class="email-px" style="padding:24px 16px 40px 16px;">
+                <!-- Social icons -->
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 12px 0;">
+                  <tr>
+                    {% include "emails/_social_icon.html" with url="https://x.com/boost_libraries" name="X" icon="email-social-x.png" %}
+                    {% include "emails/_social_icon.html" with url="https://bsky.app/profile/boost.org" name="Bluesky" icon="email-social-bluesky.png" %}
+                    {% include "emails/_social_icon.html" with url="https://mastodon.social/@boostlibs" name="Mastodon" icon="email-social-mastodon.png" %}
+                    {% include "emails/_social_icon.html" with url="https://www.reddit.com/user/boostlibs/" name="Reddit" icon="email-social-reddit.png" %}
+                    {% include "emails/_social_icon.html" with url="https://github.com/boostorg" name="GitHub" icon="email-social-github.png" %}
+                    {% include "emails/_social_icon.html" with url="https://www.linkedin.com/company/cppalliance/" name="LinkedIn" icon="email-social-linkedin.png" %}
+                  </tr>
+                </table>
+                <!-- Footer text -->
+                <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;letter-spacing:0.14px;color:#050816;">
+                  <a href="https://www.boost.org/" style="color:#050816;text-decoration:underline;">Boost.org</a> is supported by grants from <a href="https://cppalliance.org/" style="color:#050816;text-decoration:underline;">The C++ Alliance.</a>
+                  <br><br>
+                  Want to change how you receive these emails?<br>
+                  You can <a href="{{ preferences_url|default:'#' }}" style="color:#050816;text-decoration:underline;">update your preferences</a> or <a href="{{ unsubscribe_url|default:'#' }}" style="color:#050816;text-decoration:underline;">unsubscribe from this list</a>.
+                </div>
+              </td>
+            </tr>
+
+          </table>
+          <!--[if mso]></td></tr></table><![endif]-->
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
