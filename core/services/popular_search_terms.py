@@ -102,9 +102,7 @@ def _fetch_top_searches(client: AnalyticsClientSync, index: str) -> list[dict]:
     return json.loads(raw).get("searches") or []
 
 
-def _filter_searches(
-    searches: list[dict], excluded: set[str]
-) -> list[tuple[str, int]]:
+def _filter_searches(searches: list[dict], excluded: set[str]) -> list[tuple[str, int]]:
     cleaned: list[tuple[str, int]] = []
     for row in searches:
         label = (row.get("search") or "").strip()
@@ -226,7 +224,9 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
                 updated += 1
             else:
                 PopularSearchTerm.objects.create(
-                    label=display_label, search_count=count, rank=i,
+                    label=display_label,
+                    search_count=count,
+                    rank=i,
                 )
                 new += 1
     return {"updated": updated, "new": new, "ai_kept": len(ai_kept), "skipped": False}

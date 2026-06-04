@@ -137,8 +137,9 @@ class PopularSearchTermAdmin(admin.ModelAdmin):
         from ak.views import HOMEPAGE_POPULAR_TERMS_DISPLAY
 
         visible_ids = list(
-            PopularSearchTerm.objects.visible()
-            .values_list("id", flat=True)[:HOMEPAGE_POPULAR_TERMS_DISPLAY]
+            PopularSearchTerm.objects.visible().values_list("id", flat=True)[
+                :HOMEPAGE_POPULAR_TERMS_DISPLAY
+            ]
         )
         return (
             super()

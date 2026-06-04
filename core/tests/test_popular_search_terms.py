@@ -39,9 +39,7 @@ def live_version(db):
 @pytest.fixture
 def mock_algolia():
     """Patch AnalyticsClientSync where the service imports it."""
-    with patch(
-        "core.services.popular_search_terms.AnalyticsClientSync"
-    ) as client_cls:
+    with patch("core.services.popular_search_terms.AnalyticsClientSync") as client_cls:
         client = MagicMock()
         client_cls.return_value = client
         yield client
@@ -146,9 +144,7 @@ def test_refresh_drops_short_queries_and_low_counts_before_ai(
     assert labels == ["networking", "math"]
 
 
-def test_refresh_drops_excluded_terms_before_ai(
-    live_version, mock_algolia, mock_ai
-):
+def test_refresh_drops_excluded_terms_before_ai(live_version, mock_algolia, mock_ai):
     PopularSearchTermExclusion.objects.create(term="Networking")
     _set_searches(mock_algolia, [("networking", 50), ("math", 30)])
     _set_ai_kept(mock_ai, [("math", "math")])
@@ -197,9 +193,7 @@ def test_refresh_lowercases_ai_display_label(live_version, mock_algolia, mock_ai
     assert PopularSearchTerm.objects.get().label == "data processing"
 
 
-def test_refresh_skips_db_write_on_ai_failure(
-    live_version, mock_algolia, mock_ai
-):
+def test_refresh_skips_db_write_on_ai_failure(live_version, mock_algolia, mock_ai):
     """LLM outage must NOT result in unfiltered Algolia data leaking into the DB."""
     PopularSearchTerm.objects.create(label="previous", rank=1, search_count=10)
     _set_searches(mock_algolia, [("networking", 50), ("math", 30)])
@@ -214,9 +208,7 @@ def test_refresh_skips_db_write_on_ai_failure(
     ]
 
 
-def test_refresh_ignores_hallucinated_originals(
-    live_version, mock_algolia, mock_ai
-):
+def test_refresh_ignores_hallucinated_originals(live_version, mock_algolia, mock_ai):
     """If the AI returns an `original` we never sent, drop that row defensively."""
     _set_searches(mock_algolia, [("asio", 50)])
     _set_ai_kept(
@@ -374,9 +366,7 @@ def test_curator_row_with_low_rank_orders_first_in_visible(
     live_version, mock_algolia, mock_ai
 ):
     """rank=0 on a curator row pins it above Algolia rows in visible()."""
-    PopularSearchTerm.objects.create(
-        label="Sponsored Term", rank=0, search_count=0
-    )
+    PopularSearchTerm.objects.create(label="Sponsored Term", rank=0, search_count=0)
     payload = [("networking", 50), ("math", 30)]
     _set_searches(mock_algolia, payload)
     _ai_keeps_all(mock_ai, payload)
@@ -434,7 +424,9 @@ def test_move_to_exclusions_action_creates_exclusion_and_deletes_row(
 def test_move_to_exclusions_is_idempotent_when_term_already_excluded(
     db, popular_search_term_admin
 ):
-    PopularSearchTermExclusion.objects.create(term="jooo", note="manually added earlier")
+    PopularSearchTermExclusion.objects.create(
+        term="jooo", note="manually added earlier"
+    )
     junk = PopularSearchTerm.objects.create(label="jooo", rank=1, search_count=3)
 
     popular_search_term_admin.move_to_exclusions(
@@ -457,7 +449,9 @@ def test_refresh_from_algolia_view_queues_task_on_post(
     _ai_keeps_all(mock_ai, payload)
 
     response = popular_search_term_admin.refresh_from_algolia_view(
-        _admin_request(method="post", path="/admin/core/popularsearchterm/refresh-from-algolia/")
+        _admin_request(
+            method="post", path="/admin/core/popularsearchterm/refresh-from-algolia/"
+        )
     )
 
     assert response.status_code == 302
@@ -483,7 +477,9 @@ def test_on_homepage_column_marks_top_n_visible_rows(db, popular_search_term_adm
     extras = 3
     for i in range(HOMEPAGE_POPULAR_TERMS_DISPLAY + extras):
         PopularSearchTerm.objects.create(
-            label=f"term-{i:02}", rank=i + 1, search_count=100 - i,
+            label=f"term-{i:02}",
+            rank=i + 1,
+            search_count=100 - i,
         )
 
     qs = popular_search_term_admin.get_queryset(_admin_request()).order_by("rank")
@@ -506,7 +502,9 @@ def test_on_homepage_column_respects_exclusions(db, popular_search_term_admin):
 
     for i in range(HOMEPAGE_POPULAR_TERMS_DISPLAY + 1):
         PopularSearchTerm.objects.create(
-            label=f"term-{i:02}", rank=i + 1, search_count=100 - i,
+            label=f"term-{i:02}",
+            rank=i + 1,
+            search_count=100 - i,
         )
     PopularSearchTermExclusion.objects.create(term="term-00")
 
