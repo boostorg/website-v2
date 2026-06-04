@@ -44,7 +44,9 @@ def command(queue: bool, dry_run: bool):
         return
 
     if dry_run:
-        click.secho("[dry-run] running refresh; DB writes will be rolled back", fg="cyan")
+        click.secho(
+            "[dry-run] running refresh; DB writes will be rolled back", fg="cyan"
+        )
         with transaction.atomic():
             result = _refresh_service()
             transaction.set_rollback(True)

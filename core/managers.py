@@ -55,13 +55,10 @@ class RenderedContentManager(models.Manager):
 
 class PopularSearchTermManager(models.Manager):
     def visible(self):
-        """Rows safe to display, pinned first then by rank.
+        """Rows safe to display on the homepage, pinned first then by rank.
 
-        Filters out labels (case-insensitively) present in
-        `PopularSearchTermExclusion`, so admin-added exclusions take effect
-        immediately without re-running the Algolia refresh task. Every row in
-        the table has already been LLM-vetted at refresh time, so there is no
-        approval gate to apply here.
+        Filters out `PopularSearchTermExclusion` labels (case-insensitive) so
+        admin exclusions take effect without re-running the refresh task.
         """
         from django.db.models.functions import Lower
         from core.models import PopularSearchTermExclusion

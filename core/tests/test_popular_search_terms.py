@@ -104,7 +104,11 @@ def test_refresh_writes_ai_kept_terms_in_rank_order(
     result = refresh_popular_search_terms()
 
     assert result == {
-        "updated": 0, "new": 3, "ai_kept": 3, "demoted": 0, "skipped": False
+        "updated": 0,
+        "new": 3,
+        "ai_kept": 3,
+        "demoted": 0,
+        "skipped": False,
     }
     rows = list(PopularSearchTerm.objects.order_by("rank"))
     assert [(r.label, r.rank, r.search_count) for r in rows] == [
@@ -142,7 +146,10 @@ def test_refresh_drops_short_queries_and_low_counts_before_ai(
         [
             ("networking", 50),  # keep
             ("a", 100),  # drop: too short
-            ("rare", settings.POPULAR_SEARCH_TERMS_MIN_SEARCH_COUNT - 1),  # drop: count below threshold
+            (
+                "rare",
+                settings.POPULAR_SEARCH_TERMS_MIN_SEARCH_COUNT - 1,
+            ),  # drop: count below threshold
             ("math", 5),  # keep
         ],
     )
@@ -281,9 +288,7 @@ def test_refresh_drops_overlong_algolia_labels_before_ai(
     assert list(PopularSearchTerm.objects.values_list("label", flat=True)) == ["asio"]
 
 
-def test_refresh_drops_overlong_ai_display_labels(
-    live_version, mock_algolia, mock_ai
-):
+def test_refresh_drops_overlong_ai_display_labels(live_version, mock_algolia, mock_ai):
     """An AI that echoes an oversized display label is dropped, not crashed on."""
     _set_searches(mock_algolia, [("asio", 50), ("regex", 30)])
     # AI keeps both, but rewrites "regex" to a label longer than the cap.
@@ -299,6 +304,7 @@ def test_refresh_drops_overlong_ai_display_labels(
 
 
 # ---------- prompt-injection hardening ----------
+
 
 def test_user_payload_is_wrapped_in_queries_envelope(
     live_version, mock_algolia, mock_ai
@@ -353,9 +359,7 @@ def test_ai_filter_rejects_query_that_reads_like_an_instruction_when_model_compl
 def test_ai_client_is_built_with_explicit_timeout(live_version, mock_algolia):
     """A hung OpenRouter connection must not lock up a Celery worker for the
     SDK's ~10-minute default — the client must be constructed with an
-    explicit timeout. Uses a locally-scoped patch so we can inspect the
-    class-level call args (the shared `mock_ai` fixture yields the instance).
-    """
+    explicit timeout."""
     _set_searches(mock_algolia, [("asio", 10)])
 
     with patch("core.services.popular_search_terms.OpenAI") as oai_class:
@@ -407,7 +411,11 @@ def test_second_refresh_upserts_counts_without_duplicating(
     # but its rank is demoted past STORED_TOP_N so it sorts below the fresh
     # rows in visible().
     assert result == {
-        "updated": 1, "new": 1, "ai_kept": 2, "demoted": 1, "skipped": False
+        "updated": 1,
+        "new": 1,
+        "ai_kept": 2,
+        "demoted": 1,
+        "skipped": False,
     }
     assert PopularSearchTerm.objects.get(label="asio").search_count == 80
     assert PopularSearchTerm.objects.filter(label="regex").exists()
@@ -492,7 +500,11 @@ def test_refresh_returns_zero_counts_when_no_recent_version(db, mock_algolia, mo
     result = refresh_popular_search_terms()
 
     assert result == {
-        "updated": 0, "new": 0, "ai_kept": 0, "demoted": 0, "skipped": False
+        "updated": 0,
+        "new": 0,
+        "ai_kept": 0,
+        "demoted": 0,
+        "skipped": False,
     }
     mock_algolia.get_top_searches.assert_not_called()
     mock_ai.chat.completions.create.assert_not_called()
@@ -591,9 +603,7 @@ def test_visible_returns_all_when_no_exclusions(db):
     assert PopularSearchTerm.objects.visible().count() == 2
 
 
-def test_pinned_row_orders_first_in_visible(
-    live_version, mock_algolia, mock_ai
-):
+def test_pinned_row_orders_first_in_visible(live_version, mock_algolia, mock_ai):
     """is_pinned=True puts a row above all Algolia-derived rows in visible()."""
     PopularSearchTerm.objects.create(
         label="Sponsored Term", rank=99, search_count=0, is_pinned=True

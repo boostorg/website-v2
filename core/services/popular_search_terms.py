@@ -15,7 +15,7 @@ from django.conf import settings
 from django.db import transaction
 from django.db.models import F
 from django.db.models.functions import Lower
-from openai import OpenAI, OpenAIError
+from openai import OpenAI
 
 from core.models import PopularSearchTerm, PopularSearchTermExclusion
 from versions.models import Version
@@ -26,21 +26,15 @@ logger = logging.getLogger(__name__)
 ALGOLIA_FETCH_LIMIT = 100
 STORED_TOP_N = 20
 MIN_QUERY_LEN = 3
-# Mirrors PopularSearchTerm.label max_length. Enforced both sides of the LLM
-# (raw Algolia rows AND model-returned display labels) so an oversized string
-# can never reach .create() and roll back the whole refresh transaction.
+# Mirrors PopularSearchTerm.label max_length so an oversized string can't
+# reach .create() and roll back the whole refresh transaction.
 MAX_LABEL_LEN = 128
-# Minimum search_count threshold lives in Django settings
-# (POPULAR_SEARCH_TERMS_MIN_SEARCH_COUNT) so prod can raise it without a deploy.
-# 14-day window matches the weekly task cadence with one week of overlap, so a
-# popular term doesn't immediately drop off the moment its peak rolls past.
+# 14-day window overlaps the weekly cadence by one week, so a term doesn't
+# drop off the moment its peak rolls past.
 LOOKBACK_DAYS = 14
 
-# OpenRouter model used to vet candidate terms. Matches the model the news
-# summarizer uses (news/tasks.py) so we have one OpenRouter model surface to
-# evaluate, monitor cost on, and tune across the codebase.
+# Same OpenRouter model as the news summarizer — one surface to monitor.
 POPULAR_TERMS_AI_MODEL = "gpt-oss-120b"
-# Explicit client timeout in seconds.
 POPULAR_TERMS_AI_TIMEOUT_S = 180
 
 _AI_SYSTEM_PROMPT_TEMPLATE = dedent(
@@ -87,12 +81,8 @@ _AI_SYSTEM_PROMPT_TEMPLATE = dedent(
 
 
 def get_known_library_names() -> list[str]:
-    """Flagship + core Boost library names, sorted alphabetically.
-
-    These names are sent to the AI as authoritative "always keep" entries and
-    are also used as a tie-breaker when ranking equal-count terms (library
-    matches sort above non-library terms at the same search count).
-    """
+    """Flagship + core library names sent to the AI as authoritative keeps,
+    and used as a Python-side tiebreaker at equal search counts."""
     from libraries.models import Library, Tier
 
     return list(
@@ -145,10 +135,8 @@ def ai_filter_terms(
     """LLM-classify Algolia candidates; return [(original, display_label, count), ...].
 
     `known_libraries` is rendered into the system prompt so the model never
-    rejects a real library it doesn't recognize (e.g., "Asio", "Lockfree").
-
-    Raises `OpenAIError` / `JSONDecodeError` on LLM failure — the task layer
-    retries via `autoretry_for`.
+    rejects a real library it doesn't recognize. Raises `OpenAIError` /
+    `JSONDecodeError` on LLM failure for the task layer to retry.
     """
     if not candidates:
         return []
@@ -206,9 +194,7 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
     version = Version.objects.most_recent()
     if not version:
         logger.warning("popular_search_terms.no_recent_version")
-        return {
-            "updated": 0, "new": 0, "ai_kept": 0, "demoted": 0, "skipped": False
-        }
+        return {"updated": 0, "new": 0, "ai_kept": 0, "demoted": 0, "skipped": False}
 
     searches = _fetch_top_searches(_build_client(), version.stripped_boost_url_slug)
     excluded = {
@@ -246,10 +232,8 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
                 .first()
             )
             if existing:
-                # Refresh the label too — lets historical title-cased rows
-                # converge to the current lowercase convention on next match.
-                # `is_pinned` is curator-owned and intentionally never touched
-                # by the service.
+                # Refresh the label so historical title-cased rows converge to lowercase.
+                # `is_pinned` is admin-owned and never touched here.
                 existing.label = display_label
                 existing.search_count = count
                 existing.rank = i
@@ -264,13 +248,9 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
                 )
                 touched_pks.append(row.pk)
                 new += 1
-        # Demote stale rows so this run's fresh top-N sort above them in
-        # visible(). Without this, a row last surfaced 8 weeks ago at rank=3
-        # would silently outrank a fresh rank=5 from today. Pinned rows are
-        # curator-owned and exempt — their rank ordering is intentional.
-        # Adding STORED_TOP_N (rather than a flat clamp) preserves relative
-        # order between stale rows, so "recently stale" still beats
-        # "long-stale" within the leftover pool.
+        # Demote rows not surfaced this run so fresh data outranks them in visible().
+        # Additive (`rank += STORED_TOP_N`) preserves recency among stale rows.
+        # Pinned rows are admin-owned and exempt.
         demoted = (
             PopularSearchTerm.objects.exclude(pk__in=touched_pks)
             .filter(is_pinned=False)

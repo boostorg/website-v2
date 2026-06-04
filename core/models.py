@@ -194,24 +194,12 @@ class PopularSearchTerm(models.Model):
     """
 
     label = models.CharField(max_length=128, unique=True)
-    # `rank` is a compound, denormalized sort key — it carries three jobs:
-    #
-    #   1. Fresh-row order: after each AI run the upsert writes rank = 1..N
-    #      reflecting the sort `(-search_count, library-first, label)`. The
-    #      library tiebreak (a library name outranks a generic term at equal
-    #      count) is the only thing not derivable from other fields.
-    #   2. Stale-row recency: rows not surfaced in a run get
-    #      `rank += STORED_TOP_N` so they sort below fresh rows. After several
-    #      missed runs the value drifts upward — preserving relative recency
-    #      among stale rows.
-    #   3. Pinned-row order: with `is_pinned=True`, the curator can set
-    #      rank=1, 2, 3 to order multiple pins explicitly.
-    #
-    # Reading any single rank value out of context is misleading: a fresh
-    # rank=3 row, a stale rank=83 row, and a pinned rank=1 row are governed
-    # by different rules. Always interpret `rank` together with `is_pinned`
-    # and `updated_at`. The Meta.ordering `("-is_pinned", "rank", "label")`
-    # is what stitches the three jobs into a single homepage ordering.
+    # `rank` is a compound sort key whose meaning depends on row state:
+    #   - fresh rows (this week's refresh): rank 1..N in popularity order
+    #   - stale rows: `rank += STORED_TOP_N` each missed run, so they sort below fresh
+    #   - pinned rows: curator-set rank for explicit ordering above all others
+    # Always interpret `rank` together with `is_pinned`. Full rationale in
+    # docs/popular_search_terms.md.
     rank = models.PositiveSmallIntegerField()
     search_count = models.PositiveIntegerField(default=0)
     is_pinned = models.BooleanField(
