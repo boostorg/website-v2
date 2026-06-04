@@ -379,3 +379,8 @@ html.dark .v3-examples-section__theme-toggle-sun {
 html.dark .v3-examples-section__theme-toggle-moon {
   display: none;
 }
+
+/* Getting started care scroll logic */
+.code-block-story-overflow-example {
+  height: 300px;
+}
