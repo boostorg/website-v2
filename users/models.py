@@ -333,12 +333,19 @@ class User(BaseUser):
         return ""
 
     def to_v3_profile_dict(self, role=None):
+        """Dict shape consumed by `v3/includes/_user_profile.html`.
+
+        `name` falls back to `email` rather than `__str__` so the rendered
+        card never shows the `"<name> <email>"` form. `badge` is the V3
+        badge token (e.g. "badge-tier-3"); `profile_url` is a placeholder
+        until per-user profile pages exist.
+        """
         return {
             "name": self.display_name or str(self),
             "profile_url": None,
             "role": role if role is not None else self.role,
             "avatar_url": self.get_avatar_url(),
-            "badge_url": None,
+            "badge": None,
             "bio": self.tagline,
         }
 

@@ -525,35 +525,11 @@ def build_library_intro_context(
             .order_by("-count")[:remaining]
         )
 
-    def get_avatar(user):
-        url = user.get_thumbnail_url()
-        if url:
-            return url
-        return getattr(user.commitauthor, "avatar_url", "") or ""
-
-    author_dicts = []
-    for user in combined:
-        author_dicts.append(
-            {
-                "name": user.display_name or user.get_full_name(),
-                "role": roles[user.id],
-                "avatar_url": get_avatar(user),
-                "badge": None, # TODO: TBD for Badge logic
-                "bio": user.tagline,
-                "profile_url": "", # TODO: TBD for profile URL within the site
-            }
-        )
-    for ca in top_contributors:
-        author_dicts.append(
-            {
-                "name": ca.display_name,
-                "role": "Contributor",
-                "avatar_url": ca.avatar_url or "",
-                "badge": None, # TODO: TBD for Badge logic
-                "bio": ca.tagline,
-                "profile_url": "", # TODO: TBD for profile URL within the site
-            }
-        )
+    author_dicts = [user.to_v3_profile_dict(role=roles[user.id]) for user in combined]
+    author_dicts.extend(
+        contributor.to_v3_profile_dict("Contributor")
+        for contributor in top_contributors
+    )
 
     return {
         "library_name": library.display_name,

@@ -307,22 +307,8 @@ class CommunityView(MailingListCardMixin, V3Mixin, TemplateView):
             .select_related("author")
             .order_by("-publish_at")[:4]
         )
-        ctx["posts"] = [
-            {
-                "title": entry.title,
-                "url": self.request.build_absolute_uri(entry.get_absolute_url()),
-                "date": entry.publish_at,
-                "category": news_type_label(entry.tag) if entry.tag else "",
-                # TODO: populate from DB once entry tags are persisted
-                "tag": "",
-                "author": {
-                    "name": entry.author.display_name or entry.author.get_full_name(),
-                    "avatar_url": entry.author.get_avatar_url(),
-                    "role": "",
-                },
-            }
-            for entry in recent_entries
-        ]
+
+        ctx["posts"] = [entry.to_v3_post_card_dict() for entry in recent_entries]
         ctx["news_url"] = self.request.build_absolute_uri(reverse("news"))
         ctx["contribute_url"] = self.request.build_absolute_uri(
             "/doc/contributor-guide/contributors-faq.html"
