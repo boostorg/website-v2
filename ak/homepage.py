@@ -123,29 +123,31 @@ def build_community_posts(limit=5):
 def build_join_developers_links():
     """Three-link list for the 'Join developers building the future of C++'
     card. Surrounding card chrome (heading, CTA, variant, theme) lives in
-    the template. 
+    the template.
     """
-    community_url = reverse("community")
     return [
         {
             "title": "Get help",
             "description": f"Tap into quick answers, networking, and chat with {SLACK_MEMBER_COUNT} members.",
             "icon_name": "message",
             "icon_viewbox": "0 0 16 16",
-            "url": community_url,
+            "url": "https://cppalliance.org/slack/",
         },
         {
             "title": "Contribute",
             "description": "Learn how to test or evaluate library submissions, or submit your own.",
             "icon_name": "documentation",
             "icon_viewbox": "0 0 16 16",
-            "url": community_url,
+            "url": reverse(
+                "docs-user-guide",
+                kwargs={"content_path": "contributor-guide/contributors-faq.html"},
+            ),
         },
         {
             "title": "Stay updated",
             "description": "Get updates on the latest releases, fixes and announcements.",
             "icon_name": "bullseye-pixel",
-            "url": community_url,
+            "url": "https://lists.boost.org/mailman3/lists/boost-announce.lists.boost.org/",
         },
     ]
 
