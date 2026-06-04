@@ -17,6 +17,7 @@ from core.models import PopularSearchTerm, PopularSearchTermExclusion
 from core.services.popular_search_terms import (
     ALGOLIA_FETCH_LIMIT,
     LOOKBACK_DAYS,
+    MAX_LABEL_LEN,
     STORED_TOP_N,
     get_known_library_names,
     refresh_popular_search_terms,
@@ -220,6 +221,50 @@ def test_refresh_ignores_hallucinated_originals(live_version, mock_algolia, mock
 
     labels = list(PopularSearchTerm.objects.values_list("label", flat=True))
     assert labels == ["asio"]
+
+
+def test_refresh_drops_overlong_algolia_labels_before_ai(
+    live_version, mock_algolia, mock_ai
+):
+    """A label longer than the model's max_length must never reach the AI.
+
+    Without the cap, the row would survive the pre-filter, get LLM-vetted,
+    then crash `.create()` mid-loop with DataError and roll back the whole
+    refresh transaction.
+    """
+    overlong = "a" * (MAX_LABEL_LEN + 1)
+    _set_searches(mock_algolia, [("asio", 50), (overlong, 40)])
+    _set_ai_kept(mock_ai, [("asio", "asio")])
+
+    refresh_popular_search_terms()
+
+    # AI never sees the overlong label.
+    sent_labels = [
+        row["label"]
+        for row in json.loads(
+            mock_ai.chat.completions.create.call_args.kwargs["messages"][1]["content"]
+        )
+    ]
+    assert overlong not in sent_labels
+    # Only the survivor lands in the DB; the refresh transaction did not roll back.
+    assert list(PopularSearchTerm.objects.values_list("label", flat=True)) == ["asio"]
+
+
+def test_refresh_drops_overlong_ai_display_labels(
+    live_version, mock_algolia, mock_ai
+):
+    """An AI that echoes an oversized display label is dropped, not crashed on."""
+    _set_searches(mock_algolia, [("asio", 50), ("regex", 30)])
+    # AI keeps both, but rewrites "regex" to a label longer than the cap.
+    _set_ai_kept(
+        mock_ai,
+        [("asio", "asio"), ("regex", "r" * (MAX_LABEL_LEN + 1))],
+    )
+
+    refresh_popular_search_terms()
+
+    # The oversized AI label is dropped before reaching .create().
+    assert list(PopularSearchTerm.objects.values_list("label", flat=True)) == ["asio"]
 
 
 def test_refresh_updates_existing_row_case_insensitively_and_rewrites_label(

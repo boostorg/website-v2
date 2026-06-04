@@ -25,6 +25,10 @@ logger = logging.getLogger(__name__)
 ALGOLIA_FETCH_LIMIT = 100
 STORED_TOP_N = 20
 MIN_QUERY_LEN = 3
+# Mirrors PopularSearchTerm.label max_length. Enforced both sides of the LLM
+# (raw Algolia rows AND model-returned display labels) so an oversized string
+# can never reach .create() and roll back the whole refresh transaction.
+MAX_LABEL_LEN = 128
 # Minimum search_count threshold lives in Django settings
 # (POPULAR_SEARCH_TERMS_MIN_SEARCH_COUNT) so prod can raise it without a deploy.
 # 14-day window matches the weekly task cadence with one week of overlap, so a
@@ -109,7 +113,9 @@ def _filter_searches(searches: list[dict], excluded: set[str]) -> list[tuple[str
     for row in searches:
         label = (row.get("search") or "").strip()
         count = row.get("count") or 0
-        if len(label) < MIN_QUERY_LEN or count < min_count:
+        if not (MIN_QUERY_LEN <= len(label) <= MAX_LABEL_LEN):
+            continue
+        if count < min_count:
             continue
         if label.lower() in excluded:
             continue
@@ -161,6 +167,10 @@ def ai_filter_terms(
         # labels onto the homepage.
         display = (row.get("label") or original).strip().lower()
         if not original or not display or original not in counts_by_original:
+            continue
+        # Mirror the pre-filter cap on the AI's output: an oversized display
+        # label would still crash .create() at the model layer.
+        if len(display) > MAX_LABEL_LEN:
             continue
         out.append((original, display, counts_by_original[original]))
     return out
