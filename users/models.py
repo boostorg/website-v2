@@ -249,12 +249,6 @@ class User(BaseUser):
         ),
     )
     display_name = models.CharField(max_length=255, blank=True, null=True)
-    tagline = models.CharField(
-        max_length=160,
-        blank=True,
-        default="",
-        help_text=_("Short one-line bio shown on profile and contributor cards."),
-    )
     can_update_image = models.BooleanField(
         _("can_update_image"),
         default=True,
@@ -340,7 +334,7 @@ class User(BaseUser):
             "role": role if role is not None else self.role,
             "avatar_url": self.get_avatar_url(),
             "badge": None,
-            "bio": self.tagline,
+            "bio": None,
         }
 
     def get_hq_image_url(self):

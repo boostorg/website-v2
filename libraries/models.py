@@ -111,8 +111,7 @@ class CommitAuthor(models.Model):
         """Dict shape consumed by `v3/includes/_user_profile.html`.
 
         Mirrors `User.to_v3_profile_dict` so the same template can render
-        either a registered user or a git-only contributor. `bio` is
-        always None — CommitAuthor has no tagline field.
+        either a registered user or a git-only contributor.
         """
         return {
             "name": self.display_name,
