@@ -39,6 +39,8 @@ LOOKBACK_DAYS = 14
 # summarizer uses (news/tasks.py) so we have one OpenRouter model surface to
 # evaluate, monitor cost on, and tune across the codebase.
 POPULAR_TERMS_AI_MODEL = "gpt-oss-120b"
+# Explicit client timeout in seconds.
+POPULAR_TERMS_AI_TIMEOUT_S = 180
 
 _AI_SYSTEM_PROMPT_TEMPLATE = dedent(
     """\
@@ -143,7 +145,9 @@ def ai_filter_terms(
     system_prompt = _AI_SYSTEM_PROMPT_TEMPLATE.format(known_libraries=known_libs_block)
 
     client = OpenAI(
-        base_url=settings.OPENROUTER_URL, api_key=settings.OPENROUTER_API_KEY
+        base_url=settings.OPENROUTER_URL,
+        api_key=settings.OPENROUTER_API_KEY,
+        timeout=POPULAR_TERMS_AI_TIMEOUT_S,
     )
     payload = [{"label": lbl, "count": c} for lbl, c in candidates]
     response = client.chat.completions.create(

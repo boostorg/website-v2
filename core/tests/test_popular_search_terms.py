@@ -267,6 +267,27 @@ def test_refresh_drops_overlong_ai_display_labels(
     assert list(PopularSearchTerm.objects.values_list("label", flat=True)) == ["asio"]
 
 
+def test_ai_client_is_built_with_explicit_timeout(live_version, mock_algolia):
+    """A hung OpenRouter connection must not lock up a Celery worker for the
+    SDK's ~10-minute default — the client must be constructed with an
+    explicit timeout. Uses a locally-scoped patch so we can inspect the
+    class-level call args (the shared `mock_ai` fixture yields the instance).
+    """
+    _set_searches(mock_algolia, [("asio", 10)])
+
+    with patch("core.services.popular_search_terms.OpenAI") as oai_class:
+        client = MagicMock()
+        oai_class.return_value = client
+        _set_ai_kept(client, [("asio", "asio")])
+
+        refresh_popular_search_terms()
+
+    timeout = oai_class.call_args.kwargs.get("timeout")
+    assert (
+        timeout is not None and timeout > 0
+    ), "OpenAI client must be built with an explicit positive timeout"
+
+
 def test_refresh_updates_existing_row_case_insensitively_and_rewrites_label(
     live_version, mock_algolia, mock_ai
 ):
