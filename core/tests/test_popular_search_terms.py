@@ -103,7 +103,9 @@ def test_refresh_writes_ai_kept_terms_in_rank_order(
 
     result = refresh_popular_search_terms()
 
-    assert result == {"updated": 0, "new": 3, "ai_kept": 3, "skipped": False}
+    assert result == {
+        "updated": 0, "new": 3, "ai_kept": 3, "demoted": 0, "skipped": False
+    }
     rows = list(PopularSearchTerm.objects.order_by("rank"))
     assert [(r.label, r.rank, r.search_count) for r in rows] == [
         ("networking", 1, 50),
@@ -213,7 +215,9 @@ def test_refresh_skips_db_write_on_ai_failure(live_version, mock_algolia, mock_a
 
     result = refresh_popular_search_terms()
 
-    assert result == {"updated": 0, "new": 0, "ai_kept": 0, "skipped": True}
+    assert result == {
+        "updated": 0, "new": 0, "ai_kept": 0, "demoted": 0, "skipped": True
+    }
     # Pre-existing row is untouched; no Algolia payload landed.
     assert list(PopularSearchTerm.objects.values_list("label", flat=True)) == [
         "previous"
@@ -378,17 +382,97 @@ def test_second_refresh_upserts_counts_without_duplicating(
     _ai_keeps_all(mock_ai, payload_2)
     result = refresh_popular_search_terms()
 
-    # asio updated; filesystem new; regex left in place (stale-retention).
-    assert result == {"updated": 1, "new": 1, "ai_kept": 2, "skipped": False}
+    # asio updated; filesystem new; regex left in place (stale-retention),
+    # but its rank is demoted past STORED_TOP_N so it sorts below the fresh
+    # rows in visible().
+    assert result == {
+        "updated": 1, "new": 1, "ai_kept": 2, "demoted": 1, "skipped": False
+    }
     assert PopularSearchTerm.objects.get(label="asio").search_count == 80
     assert PopularSearchTerm.objects.filter(label="regex").exists()
     assert PopularSearchTerm.objects.filter(label="filesystem").exists()
 
 
+def test_refresh_demotes_untouched_rows_past_stored_top_n(
+    live_version, mock_algolia, mock_ai
+):
+    """Untouched rows must end up at rank > STORED_TOP_N so they sort below
+    fresh rows in visible(). Regression test for the "stale rows outrank
+    fresh data" bug.
+    """
+    # Existing rows from a previous run; none of them will be surfaced this
+    # time, so all must be demoted.
+    PopularSearchTerm.objects.create(label="oldterm-a", rank=3, search_count=100)
+    PopularSearchTerm.objects.create(label="oldterm-b", rank=7, search_count=80)
+    # A fresh, non-overlapping run.
+    _set_searches(mock_algolia, [("networking", 50), ("math", 30)])
+    _ai_keeps_all(mock_ai, [("networking", 50), ("math", 30)])
+
+    refresh_popular_search_terms()
+
+    # Fresh rows at top.
+    assert PopularSearchTerm.objects.get(label="networking").rank == 1
+    assert PopularSearchTerm.objects.get(label="math").rank == 2
+    # Stale rows pushed past STORED_TOP_N, with their relative order preserved.
+    a = PopularSearchTerm.objects.get(label="oldterm-a")
+    b = PopularSearchTerm.objects.get(label="oldterm-b")
+    assert a.rank > STORED_TOP_N
+    assert b.rank > STORED_TOP_N
+    assert a.rank < b.rank  # original 3 < 7, after demote 23 < 27
+    # And in visible() the fresh ones come first.
+    visible_labels = list(
+        PopularSearchTerm.objects.visible().values_list("label", flat=True)
+    )
+    assert visible_labels[:2] == ["networking", "math"]
+
+
+def test_refresh_does_not_demote_pinned_rows(live_version, mock_algolia, mock_ai):
+    """Pinned rows are curator-owned: their rank ordering is intentional and
+    must survive a refresh that doesn't surface them. Regression guard for
+    the demote query's `filter(is_pinned=False)`.
+    """
+    pinned = PopularSearchTerm.objects.create(
+        label="curator-pick", rank=2, search_count=0, is_pinned=True
+    )
+    _set_searches(mock_algolia, [("networking", 50)])
+    _ai_keeps_all(mock_ai, [("networking", 50)])
+
+    refresh_popular_search_terms()
+
+    pinned.refresh_from_db()
+    assert pinned.rank == 2  # untouched by the demotion sweep
+    assert pinned.is_pinned is True
+
+
+def test_refresh_demotion_is_additive_across_consecutive_runs(
+    live_version, mock_algolia, mock_ai
+):
+    """Two consecutive runs that both miss the same row should each add
+    STORED_TOP_N to its rank — so "long-stale" rows sort below "recently
+    stale" rows, not collapse to the same bucket.
+    """
+    PopularSearchTerm.objects.create(label="ghost", rank=5, search_count=10)
+
+    _set_searches(mock_algolia, [("networking", 50)])
+    _ai_keeps_all(mock_ai, [("networking", 50)])
+    refresh_popular_search_terms()
+    rank_after_run_1 = PopularSearchTerm.objects.get(label="ghost").rank
+
+    _set_searches(mock_algolia, [("math", 40)])
+    _ai_keeps_all(mock_ai, [("math", 40)])
+    refresh_popular_search_terms()
+    rank_after_run_2 = PopularSearchTerm.objects.get(label="ghost").rank
+
+    assert rank_after_run_1 == 5 + STORED_TOP_N
+    assert rank_after_run_2 == rank_after_run_1 + STORED_TOP_N
+
+
 def test_refresh_returns_zero_counts_when_no_recent_version(db, mock_algolia, mock_ai):
     result = refresh_popular_search_terms()
 
-    assert result == {"updated": 0, "new": 0, "ai_kept": 0, "skipped": False}
+    assert result == {
+        "updated": 0, "new": 0, "ai_kept": 0, "demoted": 0, "skipped": False
+    }
     mock_algolia.get_top_searches.assert_not_called()
     mock_ai.chat.completions.create.assert_not_called()
 

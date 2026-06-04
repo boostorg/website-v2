@@ -13,6 +13,7 @@ from textwrap import dedent
 from algoliasearch.analytics.client import AnalyticsClientSync
 from django.conf import settings
 from django.db import transaction
+from django.db.models import F
 from django.db.models.functions import Lower
 from openai import OpenAI, OpenAIError
 
@@ -205,7 +206,9 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
     version = Version.objects.most_recent()
     if not version:
         logger.warning("popular_search_terms.no_recent_version")
-        return {"updated": 0, "new": 0, "ai_kept": 0, "skipped": False}
+        return {
+            "updated": 0, "new": 0, "ai_kept": 0, "demoted": 0, "skipped": False
+        }
 
     searches = _fetch_top_searches(_build_client(), version.stripped_boost_url_slug)
     excluded = {
@@ -219,7 +222,9 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
         ai_kept = ai_filter_terms(cleaned, known_libraries=known_libraries)
     except (OpenAIError, ValueError, json.JSONDecodeError) as exc:
         logger.error("popular_search_terms.ai_filter_failed", error=str(exc))
-        return {"updated": 0, "new": 0, "ai_kept": 0, "skipped": True}
+        return {
+            "updated": 0, "new": 0, "ai_kept": 0, "demoted": 0, "skipped": True
+        }
 
     # Tie-break: at equal search_count, library-name matches outrank random
     # words. Alphabetical as a final stable tiebreaker.
@@ -236,6 +241,7 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
     ai_kept.sort(key=_sort_key)
 
     updated = new = 0
+    touched_pks: list[int] = []
     with transaction.atomic():
         for i, (_original, display_label, count) in enumerate(ai_kept, start=1):
             # AI may re-case the same input differently across months; match
@@ -255,12 +261,32 @@ def refresh_popular_search_terms() -> dict[str, int | bool]:
                 existing.search_count = count
                 existing.rank = i
                 existing.save()
+                touched_pks.append(existing.pk)
                 updated += 1
             else:
-                PopularSearchTerm.objects.create(
+                row = PopularSearchTerm.objects.create(
                     label=display_label,
                     search_count=count,
                     rank=i,
                 )
+                touched_pks.append(row.pk)
                 new += 1
-    return {"updated": updated, "new": new, "ai_kept": len(ai_kept), "skipped": False}
+        # Demote stale rows so this run's fresh top-N sort above them in
+        # visible(). Without this, a row last surfaced 8 weeks ago at rank=3
+        # would silently outrank a fresh rank=5 from today. Pinned rows are
+        # curator-owned and exempt — their rank ordering is intentional.
+        # Adding STORED_TOP_N (rather than a flat clamp) preserves relative
+        # order between stale rows, so "recently stale" still beats
+        # "long-stale" within the leftover pool.
+        demoted = (
+            PopularSearchTerm.objects.exclude(pk__in=touched_pks)
+            .filter(is_pinned=False)
+            .update(rank=F("rank") + STORED_TOP_N)
+        )
+    return {
+        "updated": updated,
+        "new": new,
+        "ai_kept": len(ai_kept),
+        "demoted": demoted,
+        "skipped": False,
+    }
