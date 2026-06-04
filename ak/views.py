@@ -4,12 +4,15 @@ from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
-from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView
 
-from core.constants import SLACK_MEMBER_COUNT
-from core.calendar import extract_calendar_events, events_by_month, get_calendar
+from core.calendar import (
+    extract_calendar_events,
+    events_by_month,
+    get_calendar,
+    upcoming_events,
+)
 from core.install_commands import INSTALL_PKG_MANAGERS, INSTALL_SYSTEM_INSTALL
 from core.mixins import V3Mixin
 from libraries.constants import LATEST_RELEASE_URL_PATH_STR
@@ -17,18 +20,15 @@ from libraries.mixins import ContributorMixin
 from news.models import Entry
 from testimonials.models import Testimonial
 from ak.homepage import (
-    get_v3_featured_library,
-    posts_for_homepage,
-    upcoming_events,
+    WHY_BOOST_CARDS,
+    build_community_posts,
+    build_get_started_code,
+    build_join_developers_links,
+    build_library_intro,
+    hero_image_context,
 )
 from testimonials.utils import get_testimonial_cards
-from core.mock_data import SharedResources
-from libraries.utils import (
-    build_library_intro_context,
-    commit_data_to_stats_bars,
-    get_commit_data_by_release,
-    get_library_code_snippet,
-)
+from libraries.utils import commit_data_to_stats_bars, get_commit_data_by_release
 
 logger = structlog.get_logger()
 
@@ -86,153 +86,44 @@ class HomepageView(V3Mixin, ContributorMixin, TemplateView):
         return dict(sorted_events)
 
     def get_v3_context_data(self, **kwargs):
+        # super() here is TemplateView.get_context_data, not this view's
+        # legacy get_context_data — V3Mixin merges the legacy context in
+        # via render_v3_response.
         ctx = super().get_context_data(**kwargs)
+
+        # Install Card
         ctx["install_card_pkg_managers"] = INSTALL_PKG_MANAGERS
         ctx["install_card_system_install"] = INSTALL_SYSTEM_INSTALL
 
-        ctx["why_boost_cards"] = [
-            {
-                "title": "Performant",
-                "description": "Optimized for production at any scale, Boost outperforms many standard benchmarks.",
-                "icon_name": "speed-fast",
-                "icon_viewbox": "0 0 16 16",
-            },
-            {
-                "title": "Peer-reviewed",
-                "description": "Well tested by members of the C++ standards committee.",
-                "icon_name": "eye",
-            },
-            {
-                "title": "Portable",
-                "description": "Works across all platforms, compilers, and C++ standards.",
-                "icon_name": "arrows-horizontal",
-                "icon_viewbox": "0 0 16 16",
-            },
-            {
-                "title": "Free",
-                "description": "Open source now and always, thanks to the Boost Software License.",
-                "icon_name": "lock",
-                "icon_viewbox": "0 0 16 16",
-            },
-            {
-                "title": "Innovative",
-                "description": "Over 40 Boost libraries have become part of the C++ standard over the past 25 years.",
-                "icon_name": "bookmarks",
-                "icon_viewbox": "0 0 16 16",
-            },
-            {
-                "title": "Community-powered",
-                "description": "Contributing to Boost builds credibility, sharpens skills, and advances careers.",
-                "icon_name": "users",
-                "icon_viewbox": "0 0 16 16",
-            },
-            {
-                "title": "Known worldwide",
-                "description": "Used in countless projects, you've probably encountered Boost without realizing it",
-                "icon_name": "building-community",
-                "icon_viewbox": "0 0 16 16",
-            },
-            {
-                "title": "Production-ready",
-                "description": "Battle-tested in critical systems across industries around the globe.",
-                "icon_name": "zap",
-                "icon_viewbox": "0 0 16 16",
-            },
-        ]
+        # Why Boost Card 
+        ctx["why_boost_cards"] = WHY_BOOST_CARDS
 
-        tag_display = {"blogpost": "Blog"}
-        popular_entries = (
-            Entry.objects.ranked()
-            .filter(deleted_at__isnull=True, published=True)
-            .select_related("author")[:5]
-        )
-        ctx["posts_from_the_boost_community"] = {
-            "heading": "Posts from the Boost Community",
-            "primary_cta_label": "View all posts",
-            "primary_cta_url": reverse("news"),
-            "variant": "card",
-            "theme": "teal",
-            "items": [
-                {
-                    "title": entry.title,
-                    "url": entry.get_absolute_url(),
-                    "date": entry.publish_at,
-                    "category": (
-                        tag_display.get(str(entry.tag).lower(), entry.tag.capitalize())
-                        if entry.tag
-                        else ""
-                    ),
-                    "tag": "",
-                    "author": entry.author.to_v3_profile_dict(),
-                }
-                for entry in popular_entries
-            ],
-        }
-        community_url = reverse("community")
-        ctx["join_developers_building_the_future_of_cpp"] = {
-            "items": [
-                {
-                    "title": "Get help",
-                    "description": f"Tap into quick answers, networking, and chat with {SLACK_MEMBER_COUNT} members.",
-                    "icon_name": "message",
-                    "icon_viewbox": "0 0 16 16",
-                    "url": community_url,
-                },
-                {
-                    "title": "Contribute",
-                    "description": "Learn how to test or evaluate library submissions, or submit your own.",
-                    "icon_name": "documentation",
-                    "icon_viewbox": "0 0 16 16",
-                    "url": community_url,
-                },
-                {
-                    "title": "Stay updated",
-                    "description": "Get updates on the latest releases, fixes and announcements.",
-                    "icon_name": "bullseye-pixel",
-                    "url": community_url,
-                },
-            ]
-        }
-        ctx["popular_terms"] = SharedResources.popular_terms
+        # Posts Card
+        ctx["community_posts"] = build_community_posts()
+
+        # Join Card
+        ctx["join_developers_links"] = build_join_developers_links()
+
+        # Upcoming Events
         ctx["upcoming_events"] = upcoming_events(self.get_events(), 4)
-        ctx["testimonial_data"] = {"testimonials": get_testimonial_cards(limit=5)}
+        
+        # Testimonial Card
+        ctx["testimonial_cards"] = get_testimonial_cards(limit=5)
+        
+        # Get Started Card
+        ctx["get_started_code"] = build_get_started_code()
 
-        # TODO: design a proper empty state for the Get Started card. For now it
-        # falls back to a static hello-world sample when the featured library
-        # has no code snippet.
-        ctx["get_started_code"] = {
-            "heading": "Get started with our libraries",
-            "code": SharedResources.code_demo_hello,
-            "language": "cpp",
-            "library_slug": "",
-        }
-
-        featured_library = get_v3_featured_library()
-        if featured_library:
-            library = featured_library.library
-            ctx["library_intro"] = build_library_intro_context(
-                featured_library, include_contributors=False
-            )
-            # Get Started code sample, tied to the featured library.
-            snippet = get_library_code_snippet(library)
-            if snippet:
-                ctx["get_started_code"] = {
-                    "heading": f"Get started with {library.display_name}",
-                    "code": snippet.code,
-                    "language": "cpp",
-                    "library_slug": library.slug,
-                }
-
+        # Library Intro Card
+        ctx["library_intro"] = build_library_intro()
+        
         # "Boost in numbers" is project-wide, not tied to the featured library.
-        ctx["stats_in_numbers"] = {
-            "bars": commit_data_to_stats_bars(get_commit_data_by_release(limit=10))
-        }
-
-        ctx["hero_legacy_image_url_light"] = SharedResources.hero_legacy_image_url_light
-        ctx["hero_legacy_image_url_dark"] = SharedResources.hero_legacy_image_url_dark
-        ctx["hero_image_url"] = SharedResources.hero_image_url
-        ctx["hero_image_url_light"] = SharedResources.hero_image_url_light
-        ctx["hero_image_url_dark"] = SharedResources.hero_image_url_dark
+        ctx["commits_data"] = commit_data_to_stats_bars(
+            get_commit_data_by_release(limit=10)
+        )
+        
+        # Hero Image
+        ctx.update(hero_image_context())
+        
         return ctx
 
 
